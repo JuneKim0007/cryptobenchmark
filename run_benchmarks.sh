@@ -1,7 +1,7 @@
 # !/bin/bash
 
 INPUT_SIZES=(256 512 1024) # 256 160 1024 118724  4086 81920
-N_TIMES=50  #times each algo is repeated (size of input list)
+N_TIMES=100  #times each algo is repeated (size of input list)
 N_TEST_TIMES=2 # times each test case is repeated (N) in  _N_ * (size of input list)
 SLEEP_TIME=1
 
@@ -30,18 +30,18 @@ SIGN_PROVIDERS=(AndroidOpenSSL AndroidKeyStoreBCWorkaround BC)
 
 function testDigest(){
     INPUT_SIZES=(512 1024 2048)
-    # Digest
+    # Digest (no need to specify algorithm)
     for is in ${INPUT_SIZES[@]}; do
-        python3 benchmark.py -b -i -u -c MeasureDigestTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is -kl "" -pv "" -a ""
+        python3 benchmark.py -u -c MeasureDigestTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is  $is -a ""
     done
 }
 
 function testMAC(){
-    # mac
+    # HMAC (no need to specify algorithm)
     for is in ${INPUT_SIZES[@]}; do
         #for pv in ${PROVIDERS[@]}; do
             for keylen in  ${MAC_KEY_LEN[@]}; do
-                python3 benchmark.py -b -i -u -c MeasureHMACTest -nt $N_TIMES --n_test_times $N_TEST_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -kl "" -pv "" -a ""
+                python3 benchmark.py -u -c MeasureHMACTest -nt $N_TIMES --n_test_times $N_TEST_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME  s $is -kl "" -pv "" -a ""
             done
         #done
     done
@@ -52,7 +52,7 @@ function testSign(){
         for pv in ${SIGN_PROVIDERS[@]}; do
             for is in ${INPUT_SIZES[@]}; do
                 for keylen in  ${SIGN_KEY_LEN[@]}; do
-                    python3 benchmark.py -b -i -u -c MeasureSignTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -kl $keylen  -a $algo -pv $pv -pd "" -m ""
+                    python3 benchmark.py    -u -c MeasureSignTest -nt $N_TIMES --n_test_times $N_TEST_TIMES   -s $SLEEP_TIME  -is $is -kl $keylen  -a $algo -pv $pv -pd "" -m ""
                 done
             done
         done
@@ -65,7 +65,7 @@ function testSignAndVerify(){
         for pv in ${PROVIDERS[@]}; do
             for is in ${INPUT_SIZES[@]}; do
                 for keylen in  ${SIGN_KEY_LEN[@]}; do
-                    python3 benchmark.py -b -i -u -c MeasureSignVerifyTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -kl $keylen -a $algo -pv $pv  -pd "" -m ""
+                    python3 benchmark.py    -u -c MeasureSignVerifyTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME  -is $is -kl $keylen -a $algo -pv $pv  -pd "" -m ""
                 done
             done
         done
@@ -81,11 +81,11 @@ function testSymEncrypt(){
                     if [ $algo == "AES" ] || [ $algo == "3DES" ]; then
                         for mode in  ${SYM_MODES[@]}; do
                             for pad in  ${SYM_PADD[@]}; do
-                                python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -kl $keylen -a $algo -pd $pad -m $mode  
+                                python3 benchmark.py    -u -c MeasureSymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME  -is $is -kl $keylen -a $algo -pd $pad -m $mode  
                             done
                         done
                     else
-                        python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -pd "" -m "" -kl $keylen -a $algo  
+                        python3 benchmark.py    -u -c MeasureSymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME  -is $is -pd "" -m "" -kl $keylen -a $algo  
                     fi
                 done
             done
@@ -101,11 +101,11 @@ function testSymDecrypt(){
                     if [ $algo == "AES" ] || [ $algo == "3DES" ]; then
                         for mode in  ${SYM_MODES[@]}; do
                             for pad in  ${SYM_PADD[@]}; do
-                                python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -kl $keylen -a $algo -pd $pad -m $mode  
+                                python3 benchmark.py    -u -c MeasureSymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME  -is $is -kl $keylen -a $algo -pd $pad -m $mode  
                             done
                         done
                     else
-                        python3 benchmark.py -b -i -u -c MeasureSymmetricDecryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -pd "" -m "" -kl $keylen -a $algo  
+                        python3 benchmark.py    -u -c MeasureSymmetricDecryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is -pd "" -m "" -kl $keylen -a $algo  
                     fi
                 done
             done
@@ -120,7 +120,7 @@ function testSymKeyGen(){
                 for keylen in  ${SYM_KEY_LEN[@]}; do
                     #for mode in  ${SYM_MODES[@]}; do
                         #for pad in  ${SYM_PADD[@]}; do
-                            python3 benchmark.py -b -i -u -c MeasureSymmetricKeygenTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is  -kl $keylen   
+                            python3 benchmark.py   -u -c MeasureSymmetricKeygenTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is  -kl $keylen   
                         #done
                     #done
                 done
@@ -137,7 +137,7 @@ function testSymm(){
                 for keylen in  ${SYM_KEY_LEN[@]}; do
                     #for mode in  ${SYM_MODES[@]}; do
                         #for pad in  ${SYM_PADD[@]}; do
-                            python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is  -kl $keylen   
+                            python3 benchmark.py -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is  -kl $keylen   
                         #done
                     #done
                 done
@@ -154,7 +154,7 @@ function testAssymmKeygen(){
         for keylen in  ${ASSYM_KEY_LEN[@]}; do
             #for pad in  ${ASSYM_PADDS[@]}; do  
                 for kpad in  ${ASSYM_KEYSPEC[@]}; do
-                    python3 benchmark.py -b -i -u -c MeasureAssymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is  
+                    python3 benchmark.py -u -c MeasureAssymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is  
                 done
             #done
         done
@@ -167,7 +167,7 @@ function testAssymmEncrypt(){
             for keylen in  ${ASSYM_KEY_LEN[@]}; do
                 #for pad in  ${ASSYM_PADDS[@]}; do  
                 #    for kpad in  ${ASSYM_KEYSPEC[@]}; do
-                        python3 benchmark.py -i -u -c MeasureAssymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -ks $kpad -kl $keylen  
+                        python3 benchmark.py -u -c MeasureAssymmetricEncryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is -ks $kpad -kl $keylen  
                 #    done
                 #done
             done
@@ -181,7 +181,7 @@ function testAssymmDecrypt(){
             #for pad in  ${ASSYM_PADDS[@]}; do
                 for keylen in  ${ASSYM_KEY_LEN[@]}; do
                     for kpad in  ${ASSYM_KEYSPEC[@]}; do
-                        python3 benchmark.py -b -i -u -c MeasureAssymmetricDecryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -ks $kpad -kl $keylen 
+                        python3 benchmark.py  -u -c MeasureAssymmetricDecryptTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is -ks $kpad -kl $keylen 
                     done
                 done
             #done
@@ -196,7 +196,7 @@ function testAssymm(){
             #for pad in  ${ASSYM_PADDS[@]}; do
                 for keylen in  ${ASSYM_KEY_LEN[@]}; do
                     for kpad in  ${ASSYM_KEYSPEC[@]}; do
-                        python3 benchmark.py -b -i -u -c MeasureAssymmetricAllTest -nt $N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is -ks $kpad -kl $keylen 
+                        python3 benchmark.py -u -c MeasureAssymmetricAllTest -nt $N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is -ks $kpad -kl $keylen 
                     done
                 done
             #done
@@ -206,7 +206,7 @@ function testAssymm(){
 
 
 # digest
-#testDigest
+testDigest
 
 # hmac test
 #testMAC
@@ -218,7 +218,7 @@ function testAssymm(){
 
 #testAssymmEncrypt
 
-testSignAndVerify
+#testSignAndVerify
 
 x='''
 testSymEncrypt

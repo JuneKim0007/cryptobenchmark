@@ -9,26 +9,14 @@ import threading
 from com.dtmilano.android.viewclient import ViewClient
 from termcolor import colored
 
-
+LOCAL_CFG_FILENAME = "CryptoBenchmark.config"
+DEVICE_CFG_FILENAME = LOCAL_CFG_FILENAME #"CryptoBenchmark.config"
 
 #CMD="adb shell am instrument -w -m  -e debug false -e class 'com.example.cryptobenchmark.MeasureDigestTest' com.example.cryptobenchmark.test/android.support.test.runner.AndroidJUnitRunner"
 CMD="adb shell am instrument -w -m -e debug false -e class 'com.example.cryptobenchmark.{test_class}' {test_package}/{test_runner}"
 
 LOW_BATTERY_LEVEL=31
 
-
-def is_screen_dreaming():
-    """Checks if screen is dreaming.
-    Returns:
-        bool: True if dreaming, False otherwise.
-    """
-    #res = execute_shell_command("adb shell dumpsys window", args=[])
-    #is_dreaming = "true" in re.search(" dreaming=(true|false|null)", res[1].decode("utf-8", errors='replace')).groups()[0].lower() \
-    #                or "true" in re.search(" mDreamingLockscreen=(true|false|null)", res[1].decode("utf-8", errors='replace')).groups()[0].lower()
-    res = execute_shell_command("adb shell dumpsys power", args=[])
-    output = res[1].decode("utf-8", errors='replace')
-    is_dreaming = 'true'in re.search("mHoldingDisplaySuspendBlocker=(true|false|null)", output).groups()[0].lower()
-    return is_dreaming
 
 
 def is_screen_unlocked():
@@ -160,8 +148,10 @@ def parse_json(filepath):
 def extract_values_from_files(files):
     rm_val = " " #"MeasureSymmetricTest_test_"
     function_dict = {}
-    jsons = [parse_json(x) for x in files if '.json' in x]
+    jsons = [parse_json(x) for x in files if '.json' in x and 'resume' in x]
     for j_file in jsons:
+        if not 'invoked_methods' in j_file:
+            continue
         #print(json.dumps(j_file['invoked_methods'], indent=1))
         for method, invs in j_file['invoked_methods'].items():
             mname = method.replace(rm_val, "")
@@ -269,6 +259,8 @@ def save_res_in_id_folder(run_id, file_list):
         os.mkdir(run_id)
     for f in file_list:
         shutil.copy(f, os.path.join(run_id, os.path.basename(f)))
+    pull_config_file(run_id)
+
 
 def check_installation():
     _, o, _ = execute_shell_command("adb shell pm list packages | grep benchmark")
@@ -278,13 +270,25 @@ def check_installation():
 
 def get_battery_level():
     x = execute_shell_command("pyanadroid --device get_battery_level")
-    return int(x[1].strip())
+    return int(x[1].strip()) if x[0] == 0 else 0
 
+
+def push_config_file():
+    execute_shell_command(f"adb push {LOCAL_CFG_FILENAME} /sdcard/{DEVICE_CFG_FILENAME}")
+
+
+def pull_config_file(target_dir=""):
+    execute_shell_command(f"adb pull /sdcard/{DEVICE_CFG_FILENAME} {os.path.join(target_dir, LOCAL_CFG_FILENAME)}")
+
+       
 
 def main(args_obj):
     if get_battery_level() <= LOW_BATTERY_LEVEL:
-        print(colored(f"low battery: {get_battery_level()}% . Aborting", 'red'))
+        bat_level = get_battery_level()
+        print(colored(f"low battery: {bat_level}% {'' if bat_level != 0 else '(Disconnected)'}. Aborting", 'red'))
         exit(0)
+    save_config_file(args_obj)
+    push_config_file()
     if args_obj.build: 
         build_apks(args_obj)
     if args_obj.install:
@@ -302,10 +306,10 @@ def main(args_obj):
     run_id = gen_run_id(args_obj)
     save_res_in_id_folder(run_id, files)
     print(json.dumps(fc, indent=1))
-    if args_obj.plot:
-        plot_res(fc)
     if args_obj.uninstall:
         uninstall_apks(args_obj)
+    if args_obj.plot:
+        plot_res(fc)
 
 
 def build_exec_cmd(args_obj):
@@ -322,6 +326,15 @@ def build_build_cmd(args_obj):
     print(f"build command: {cmd}")
     return cmd
 
+
+def save_config_file(args_obj):
+    with open(DEVICE_CFG_FILENAME, 'w') as f:
+        f.write('\n'.join([f"{k.upper()}={v}" for k,v in args_obj.__dict__.items()]))
+
+
+def get_configs():
+    with open(DEVICE_CFG_FILENAME, 'r') as f:
+        return {x.split('=')[0].lower(): x.split('=')[1] for x in f.readlines() if '=' in x}
 
 def fetch_from_gradle_prop_file(key, default_val):
     with open('gradle.properties') as f:
@@ -352,7 +365,7 @@ def get_keys_of_prop_file():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-b", "--build", help="build", action='store_true', default=True)
+    parser.add_argument("-b", "--build", help="build", action='store_true', default=False)
     parser.add_argument("-bt", "--build_type", help="build type", type=str, choices=['Debug', 'Release'], default="Release")
     parser.add_argument("-i", "--install", help="install apks", action='store_true', default=False)
     parser.add_argument("-u", "--uninstall", help="uninstall apks", action='store_true', default=False)

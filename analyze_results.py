@@ -40,7 +40,7 @@ def process_config_folder(fldr):
         #invoked_m_info = extract_values_from_files([file])
         json_content = parse_json(file)
         for method_inv in list(json_content['invoked_methods'].keys()):
-            # assume that errors occur on all execs!!!
+            # assume that errors occur on all tests
             if has_error_on_method(method_inv, matching_logcat_file):
                 print(f"exec invalida: {method_inv}")
                 json_content['invoked_methods'].pop(method_inv)

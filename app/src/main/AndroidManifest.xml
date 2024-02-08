@@ -12,5 +12,5 @@
         android:supportsRtl="true"
         android:debuggable="true"
         tools:ignore="HardcodedDebugMode" />
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>
