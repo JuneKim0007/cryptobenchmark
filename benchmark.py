@@ -18,14 +18,13 @@ CMD="adb shell am instrument -w -m -e debug false -e class 'com.example.cryptobe
 LOW_BATTERY_LEVEL=31
 
 
-
 def is_screen_unlocked():
     """Checks if screen is unlocked.
     Returns:
         bool: True if unlocked, False otherwise.
     """
     res = execute_shell_command("arch -x86_64 pyanadroid -dev is_screen_unlocked", args=[])
-    is_locked = "true" in res[1].decode("utf-8", errors='replace').lower()
+    is_locked = "true" in res[1].lower()
     return is_locked
 
 def unlock_screen(pwd=None):
@@ -71,7 +70,7 @@ def background_installer():
 
 def get_device_serial():
     res, o, e = execute_shell_command("adb devices | awk 'NR==2 {print $1}'")
-    return o.decode("utf-8", errors='replace').strip()
+    return o.strip()
 
 
 def execute_shell_command(cmd, args=[], timeout=None):
@@ -88,7 +87,7 @@ def execute_shell_command(cmd, args=[], timeout=None):
         err = e.stderr if e.stderr is not None else err
         proc.kill()
         proc.returncode = 1
-    return proc.returncode, out, err
+    return proc.returncode, out.decode("utf-8", errors='replace'), err.decode("utf-8", errors='replace')
 
 '''def measure(args_obj):
     em = HunterEManafa()
@@ -235,6 +234,7 @@ def install_apks(build_type="debug", accept_install=False, retry=True, install_m
     res, o , e = execute_shell_command(f"adb install -g -r app/build/outputs/apk/androidTest/{build_type.lower()}/app-{build_type.lower()}*")
     print(res)
     if res != 0 and retry:
+        unlock_screen()
         install_apks(build_type, accept_install=True, retry=False, install_main=False)
     #print(o)
     #print(o)
@@ -249,7 +249,7 @@ def uninstall_apks(args_obj):
 
 def gen_run_id(args_obj):
     _ , device_name, _ = execute_shell_command("adb shell getprop ro.product.model")
-    device_name = device_name.decode('utf-8').strip().replace(" ", "")
+    device_name = device_name.strip().replace(" ", "")
     return f'{device_name}_{args_obj.test_class}_{args_obj.provider}_{args_obj.algorithm}_{args_obj.key_len}_{args_obj.input_size}_{args_obj.algorithm_mode + args_obj.padding}_{args_obj.keyspec}'
 
 
@@ -280,18 +280,23 @@ def push_config_file():
 def pull_config_file(target_dir=""):
     execute_shell_command(f"adb pull /sdcard/{DEVICE_CFG_FILENAME} {os.path.join(target_dir, LOCAL_CFG_FILENAME)}")
 
-       
 
-def main(args_obj):
+def validate_apks_installed():
+    res, o, _ = execute_shell_command("adb shell pm list packages | grep benchmark")
+    return res == 0 and o.count('package:') > 1
+
+
+def setup(args_obj):
     if get_battery_level() <= LOW_BATTERY_LEVEL:
         bat_level = get_battery_level()
         print(colored(f"low battery: {bat_level}% {'' if bat_level != 0 else '(Disconnected)'}. Aborting", 'red'))
         exit(0)
     save_config_file(args_obj)
     push_config_file()
-    if args_obj.build: 
+    are_apks_installed = validate_apks_installed()
+    if args_obj.build or not are_apks_installed:
         build_apks(args_obj)
-    if args_obj.install:
+    if args_obj.install or not are_apks_installed:
         try:
             execute_shell_command("pyanadroid --device unlock_screen")
             install_apks(args_obj.build_type)
@@ -299,6 +304,25 @@ def main(args_obj):
         except Exception:
             install_apks(args_obj.build_type)
             check_installation()
+
+
+def validate_start():
+    # validate bluetooth is off
+    res = execute_shell_command("pyanadroid  --device \"device_state bluetooth\"")
+    assert int(res[1].strip()) == 0, "Error: " + res[2]
+    # validate conn is wifi
+    res = execute_shell_command("pyanadroid  --device conn_type")
+    assert 'wifi' in res[1].strip().lower(), "Error: " + res[2]
+    # validate installation
+    res = execute_shell_command("adb shell pm list packages | grep cryptobenchmark")
+    pkgs_count = res[1].count('package:')
+    extra_info = 'androidtest apk' if  not 'test' in res[1] else 'main apk'
+    assert pkgs_count > 1, f"APKS not installed. Missing {2- pkgs_count} apk. Missing " + extra_info
+
+
+def main(args_obj):
+    setup(args_obj)
+    validate_start()
     measure(args_obj)
     files = fetch_res_files(results_dir="anadroid_results/custom_test_results")
     print(files)

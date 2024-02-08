@@ -82,9 +82,9 @@ The parameters can be manipulated directly through command line arguments of the
 
 1. Define the configs via cmdline and run the script (see python3 benchmark.py --help)
 
-```
-$ python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
-```
+    ```
+    $ python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
+    ```
 
 ## Workflow
 
@@ -109,15 +109,15 @@ With each execution of benchmark.py, the gradle.properties config file is change
 
     Then, manually disconnect the device from the workstation and verify is the device is now connected. It should appear in the list of connected devices. Example:
 
-        ```
-        $ adb devices -l
-        List of devices attached
-        15bb8bd3	device
-        192.168.1.196:5555	device
-        ```
+    ```
+    $ adb devices -l
+    List of devices attached
+    15bb8bd3	device
+    192.168.1.196:5555	device
+    ```
 4. Run the validation script that validates if everything is ready to run:
     ```
-    $ validate_start.sh
+    $ validate_start.py
     ```
 5. Configure the run_benchmrks.sh script;
 
@@ -127,9 +127,7 @@ With each execution of benchmark.py, the gradle.properties config file is change
     $ ./run_benchmarks.py
     ```
 
-
-
-
+´
 
 ## FAQ
 
