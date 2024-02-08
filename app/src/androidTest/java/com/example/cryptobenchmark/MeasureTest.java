@@ -28,22 +28,24 @@ import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_k
 import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
 import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_DES;
 import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ARC4;
+import static com.example.cryptobenchmark.misc.Utils.getConfigs;
 
 public class MeasureTest {
 
-   
-    public static int inputSize = Integer.parseInt(BuildConfig.INPUT_SIZE);
-    public static int keyLen = Integer.parseInt(BuildConfig.KEY_LEN);
-    public static int nTimes = Integer.parseInt(BuildConfig.N_TIMES);
-    public static int warmup_time = Integer.parseInt(BuildConfig.WARM_UP_TIME);
-    public static int cool_down_time = Integer.parseInt(BuildConfig.COOL_DOWN_TIME);
-    public static String PROVIDER =BuildConfig.PROVIDER;
+    public static Map <String, String> configs = getConfigs();
+    public static int inputSize = Integer.parseInt(configs.containsKey("INPUT_SIZE") ? configs.get("INPUT_SIZE") : BuildConfig.INPUT_SIZE);
+    public static int keyLen = Integer.parseInt(configs.containsKey("KEY_LEN") ? configs.get("KEY_LEN") : BuildConfig.KEY_LEN); // Integer.parseInt(BuildConfig.KEY_LEN);
+    public static int nTimes = Integer.parseInt(configs.containsKey("N_TIMES") ? configs.get("N_TIMES") : BuildConfig.N_TIMES); //Integer.parseInt(BuildConfig.N_TIMES);
+    public static int warmup_time = Integer.parseInt(configs.containsKey("WARM_UP_TIME") ? configs.get("WARM_UP_TIME") : BuildConfig.WARM_UP_TIME); //Integer.parseInt(BuildConfig.WARM_UP_TIME);
+    public static int cool_down_time = Integer.parseInt(configs.containsKey("COOL_DOWN_TIME") ? configs.get("COOL_DOWN_TIME") : BuildConfig.COOL_DOWN_TIME); //Integer.parseInt(BuildConfig.COOL_DOWN_TIME);
+    public static String PROVIDER = configs.containsKey("PROVIDER") ? configs.get("PROVIDER") : BuildConfig.PROVIDER; // //BuildConfig.PROVIDER;
     public static String[] INPUT_MESSAGES =  gen_random_workload(inputSize, nTimes);
-    public static String ALGORITHM = BuildConfig.ALGORITHM;
-    public static String MODE = BuildConfig.MODE;
-    public static String PADDING = BuildConfig.PADDING;
-    public static boolean WITH_KEY_SPEC = Integer.parseInt(BuildConfig.WITH_KEY_SPEC) == 1;
+    public static String ALGORITHM = configs.containsKey("ALGORITHM") ? configs.get("ALGORITHM") : BuildConfig.ALGORITHM; // BuildConfig.ALGORITHM;
+    public static String MODE = configs.containsKey("MODE") ? configs.get("MODE") : BuildConfig.MODE; // BuildConfig.MODE;
+    public static String PADDING = configs.containsKey("PADDING") ? configs.get("PADDING") : BuildConfig.PADDING; //BuildConfig.PADDING;
+    public static boolean WITH_KEY_SPEC = Integer.parseInt(configs.containsKey("WITH_KEY_SPEC") ? configs.get("WITH_KEY_SPEC") : BuildConfig.WITH_KEY_SPEC) == 1; // Integer.parseInt(BuildConfig.WITH_KEY_SPEC) == 1;
 
+    
     public static int STACK_SIZE_LIM = 14 * 1024 * 1024; // 16KB - safe threshold (16-2);
 
 

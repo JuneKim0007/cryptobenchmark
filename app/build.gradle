@@ -24,8 +24,8 @@ android {
         buildConfigField "String", "WITH_KEY_SPEC", "\"$WITH_KEY_SPEC\""
 
     }
-    testBuildType System.getProperty('testBuildType', 'debug')
-    //testBuildType "release" // WARNING: this seems to break instrumentation test execution via Android Studio
+    //testBuildType System.getProperty('testBuildType', 'debug')
+    testBuildType "release" // WARNING: this seems to break instrumentation test execution via Android Studio
     signingConfigs {
 
         release {
