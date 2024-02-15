@@ -98,7 +98,7 @@ With each execution of benchmark.py, the gradle.properties config file is change
 
 ## Benchmarking Guide
 
-1. Use a factory-reset Android device / image and connect it to the workstation via USB.
+1. Use a factory-reset Android device / image and connect it to the workstation via USB. The device must be unlockable without any authentication
 
 2. Manually Disable all sensors of the device (GPS, Bluetooth), except the WI-FI
 
@@ -115,13 +115,10 @@ With each execution of benchmark.py, the gradle.properties config file is change
     15bb8bd3	device
     192.168.1.196:5555	device
     ```
-4. Run the validation script that validates if everything is ready to run:
-    ```
-    $ validate_start.py
-    ```
-5. Configure the run_benchmrks.sh script;
 
-6. Execute:
+4. Configure the run_benchmrks.sh script;
+
+5. Start the benchmark procedure:
 
     ```
     $ ./run_benchmarks.py
