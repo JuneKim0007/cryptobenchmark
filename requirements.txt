@@ -1,5 +1,5 @@
 addicted3==3.0.1
-anadroid>=0.5.53
+anadroid>=0.5.54
 androguard==3.4.0a1
 androidviewclient==22.5.1
 appnope==0.1.3
