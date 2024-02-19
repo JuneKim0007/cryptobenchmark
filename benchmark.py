@@ -23,7 +23,7 @@ def is_screen_unlocked():
     Returns:
         bool: True if unlocked, False otherwise.
     """
-    res = execute_shell_command("arch -x86_64 pyanadroid -dev is_screen_unlocked", args=[])
+    res = execute_shell_command("pyanadroid -dev is_screen_unlocked", args=[])
     is_locked = "true" in res[1].lower()
     return is_locked
 
@@ -35,7 +35,7 @@ def unlock_screen(pwd=None):
     Args:
         pwd: password to provide if devices requires password to be unlocked.
     """
-    cmd = f'arch -x86_64 pyanadroid -dev unlock_screen'
+    cmd = f'pyanadroid -dev unlock_screen'
     #print(args_obj.n_times)
     #for i in range(0, args_obj.n_times):
     res, o , e = execute_shell_command(cmd)
@@ -112,7 +112,7 @@ def execute_shell_command(cmd, args=[], timeout=None):
 
 def measure(args_obj):
     #arch -x86_64 python anadroid/main.py -t Custom -cmd "ls -al; sleep 30"'
-    cmd_prefix = f'arch -x86_64 pyanadroid -run -t Custom --n_times {args_obj.n_test_times}  -cmd'
+    cmd_prefix = f'pyanadroid -run -t Custom --n_times {args_obj.n_test_times}  -cmd'
     #print(args_obj.n_times)
     #for i in range(0, args_obj.n_times):
     cmd = f'{cmd_prefix} \"{build_exec_cmd(args_obj)}\"'
