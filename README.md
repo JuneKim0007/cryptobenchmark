@@ -25,14 +25,14 @@ $ python -m pip install --user virtualenv
 #### Download the exact same version of python used for dev (assuming 3.8.2):
 
 ```
-$ pyenv install 3.8.2
+$ pyenv install 3.10.12
 ```
 
 #### Replicate locally the dev virtualenv:
 
 ```
 $ cd generic_crypto_bot
-$ virtualenv -p ~/.pyenv/versions/3.8.2/bin/python3.8 env/
+$ virtualenv -p ~/.pyenv/versions/3.8.2/bin/python3.8 venv/
 ```
 
 #### Activate the virtual environment:
@@ -121,7 +121,7 @@ With each execution of benchmark.py, the gradle.properties config file is change
 5. Start the benchmark procedure:
 
     ```
-    $ ./run_benchmarks.py
+    $ ./run_benchmarks.sh
     ```
 
 ´
