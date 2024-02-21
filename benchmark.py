@@ -326,7 +326,7 @@ def setup(args_obj):
 
 def validate_start():
     # validate bluetooth is off
-    '''res = execute_shell_command("pyanadroid  --device \"device_state bluetooth\"")
+    res = execute_shell_command("pyanadroid  --device \"device_state bluetooth\"")
     assert int(res[1].strip()) == 0, "Error: " + res[2]
     # validate conn is wifi
     res = execute_shell_command("pyanadroid  --device conn_type")
@@ -341,12 +341,10 @@ def validate_start():
     time.sleep(1)
     res, o, _ = execute_shell_command("pyanadroid --device is_screen_unlocked")
     assert "true" in o.lower(), colored("Error: Unable to unlock screen. Please verify if the device can be unlocked without any passcode, pattern or biometric data", 'red')
-    '''
-    assert check_update(), colored("Error: Repository was updated! Please verify if you need to keep your code up to date ", 'red')
+    #assert check_update(), colored("Error: Repository was updated! Please verify if you need to keep your code up to date ", 'red')
 
 def main(args_obj):
     setup(args_obj)
-    exit(0)
     validate_start()
     measure(args_obj)
     files = fetch_res_files(results_dir="anadroid_results/custom_test_results")
