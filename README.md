@@ -135,3 +135,10 @@ With each execution of benchmark.py, the gradle.properties config file is change
 2. If all algorithms of each primitive are capable of being invoked by the same functional interface, why is it necessary to define and invoke u, unit test to invoke each algorithm with each provider (each unit test being named accordingly)?
 
     **Answer**: For error prevention and instrumentation tool limitation. There are some specific cases in which execution and parameterization via the functional interface are not exactly uniform. Also for error prevention, since the instrumentation only records the name of the method in the system logs, if the name of the method did not identify what was executed, it would sometimes be difficult to correctly identify the config executed.
+
+3. The phone doesn't unlock and/or does not install the required APKs
+    **Answer** On the most recent (non-rooted) versions of Android, it is not possible to install APKs without accepting the installation via a GUI prompt. Furthermore, Pyanadroid needs access to the unlocked device to click on the installation dialog and install an APK. If no authentication method is required to unlock the device, Pyanadroid can perform this process automatically. Consequently, if you are having problems with the APK installation process, ensure the following requirements:
+        - The debbuging security settings are enabled (in Developer settings)
+        - Enable view inspection (in Developer settings)
+        - Installation via USB is enabled (in Developer settings)
+        - The phone can be unlocked without any authentication method (by clicking the lock/menu button and performing a swipe up)

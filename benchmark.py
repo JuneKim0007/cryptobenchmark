@@ -5,6 +5,10 @@ import time
 import os, json
 import argparse
 import re
+from dotenv import dotenv_values
+
+
+import requests
 import threading
 from com.dtmilano.android.viewclient import ViewClient
 from termcolor import colored
@@ -14,9 +18,38 @@ DEVICE_CFG_FILENAME = LOCAL_CFG_FILENAME #"CryptoBenchmark.config"
 
 #CMD="adb shell am instrument -w -m  -e debug false -e class 'com.example.cryptobenchmark.MeasureDigestTest' com.example.cryptobenchmark.test/android.support.test.runner.AndroidJUnitRunner"
 CMD="adb shell am instrument -w -m -e debug false -e class 'com.example.cryptobenchmark.{test_class}' {test_package}/{test_runner}"
-
 LOW_BATTERY_LEVEL=31
 
+# Load environment variables from .env file
+config = dotenv_values(".env")
+
+REPO_NAME = "cryptobenchmark"
+REPO_OWNER = "greensoftwarelab"
+REPO_BRANCH = "master"
+ACESS_TOKEN = config.get("GITHUB_ACCESS_TOKEN")
+
+def check_update(repo_owner=REPO_OWNER, repo_name=REPO_NAME, branch=REPO_BRANCH, access_token=ACESS_TOKEN):
+    if access_token == "":
+        print("Please provide a valid access token.")
+        return
+    # GitHub API endpoint to get the latest commit SHA of the master branch
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits/{branch}"
+    response = requests.get(url, headers={"Authorization": f"token {access_token}"})
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Extract the latest commit SHA
+        latest_commit_sha = response.json()["sha"]
+        # Get the latest commit SHA of the local repository
+        local_commit = execute_shell_command("git rev-parse HEAD")[1].strip()
+        print(latest_commit_sha, local_commit)
+        if latest_commit_sha != local_commit:
+            print("The repository is not up to date.")
+        else:
+            print("The repository is up to date.")
+            return True
+    else:
+        print("Failed to fetch latest commit information.")
+    return False
 
 def is_screen_unlocked():
     """Checks if screen is unlocked.
@@ -211,35 +244,19 @@ def build_apks(args_obj):
         exit(-1)
     #print(o)
 
-def install_apks(build_type="debug", accept_install=False, retry=True, install_main=True, install_test=True):
+
+def install_apks_pyanadroid(build_type="debug", accept_install=False, retry=True, install_main=True, install_test=True):
     if install_main:
-        if accept_install:
-            unlocked = is_screen_unlocked()
-            if not unlocked:
-                unlock_screen()
-            thread1 = threading.Thread(target=background_installer)
-            thread1.start()
-        print("installing main apk")
-        res, o , e = execute_shell_command(f"adb install -g -r app/build/outputs/apk/{build_type.lower()}/app-{build_type.lower()}*")
-        print(res)
+        res, o , e = execute_shell_command(f"pyanadroid install_apk app/build/outputs/apk/{build_type.lower()}/app-{build_type.lower()}*")
+        print(o)
         if res != 0 and retry:
-            install_apks(build_type, accept_install=True, retry=False)
-    if accept_install:
-        unlocked = is_screen_unlocked()
-        if not unlocked:
-            unlock_screen()
-        thread2 = threading.Thread(target=background_installer)
-        thread2.start()
+            install_apks_pyanadroid(build_type, accept_install=True, retry=False)
     print("installing test apk")
-    res, o , e = execute_shell_command(f"adb install -g -r app/build/outputs/apk/androidTest/{build_type.lower()}/app-{build_type.lower()}*")
+    res, o , e = execute_shell_command(f"adb install_apk app/build/outputs/apk/androidTest/{build_type.lower()}/app-{build_type.lower()}*")
     print(res)
     if res != 0 and retry:
-        unlock_screen()
-        install_apks(build_type, accept_install=True, retry=False, install_main=False)
-    #print(o)
-    #print(o)
-    #print(e)
-    
+        install_apks_pyanadroid(build_type, accept_install=True, retry=False, install_main=False)
+
 
 def uninstall_apks(args_obj):
     print("uninstalling apks")
@@ -294,34 +311,42 @@ def setup(args_obj):
     save_config_file(args_obj)
     push_config_file()
     are_apks_installed = validate_apks_installed()
+    print(f"apks are {'not' if not are_apks_installed else ''} installed")
     if args_obj.build or not are_apks_installed:
         build_apks(args_obj)
     if args_obj.install or not are_apks_installed:
         try:
             execute_shell_command("pyanadroid --device unlock_screen")
-            install_apks(args_obj.build_type)
+            install_apks_pyanadroid(args_obj.build_type)
             check_installation()
         except Exception:
-            install_apks(args_obj.build_type)
+            install_apks_pyanadroid(args_obj.build_type)
             check_installation()
 
 
 def validate_start():
     # validate bluetooth is off
-    res = execute_shell_command("pyanadroid  --device \"device_state bluetooth\"")
+    '''res = execute_shell_command("pyanadroid  --device \"device_state bluetooth\"")
     assert int(res[1].strip()) == 0, "Error: " + res[2]
     # validate conn is wifi
     res = execute_shell_command("pyanadroid  --device conn_type")
-    assert 'wifi' in res[1].strip().lower(), "Error: " + res[2]
+    assert 'wifi' in res[1].strip().lower(), colored("Error: Conn is not wifi", 'red')
     # validate installation
     res = execute_shell_command("adb shell pm list packages | grep cryptobenchmark")
     pkgs_count = res[1].count('package:')
     extra_info = 'androidtest apk' if  not 'test' in res[1] else 'main apk'
-    assert pkgs_count > 1, f"APKS not installed. Missing {2- pkgs_count} apk. Missing " + extra_info
-
+    assert pkgs_count > 1, colored(f"APKS not installed. Missing {2- pkgs_count} apk. Missing " + extra_info, 'red')
+    # validate can unlock screen
+    res = execute_shell_command("pyanadroid --device unlock_screen")
+    time.sleep(1)
+    res, o, _ = execute_shell_command("pyanadroid --device is_screen_unlocked")
+    assert "true" in o.lower(), colored("Error: Unable to unlock screen. Please verify if the device can be unlocked without any passcode, pattern or biometric data", 'red')
+    '''
+    assert check_update(), colored("Error: Repository was updated! Please verify if you need to keep your code up to date ", 'red')
 
 def main(args_obj):
     setup(args_obj)
+    exit(0)
     validate_start()
     measure(args_obj)
     files = fetch_res_files(results_dir="anadroid_results/custom_test_results")

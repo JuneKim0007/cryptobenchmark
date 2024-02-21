@@ -5,7 +5,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
     defaultConfig {
-        minSdkVersion 27
+        minSdkVersion 26
         targetSdkVersion 27 // DO NOT CHANGE: https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html
         versionCode 1
         versionName "1.0"
