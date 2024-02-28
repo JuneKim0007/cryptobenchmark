@@ -28,6 +28,7 @@ public class MeasureSignVerifyTest extends MeasureTest{
             String msg = INPUT_MESSAGES[ i % INPUT_MESSAGES.length];
             String signedMessage = sop.sign(msg, algo, kp.getPrivate(), provider);
             if (!vop.verify(msg, signedMessage, algo, kp.getPublic(), provider)){
+                System.out.println(msg);
                 throw new Exception("Invalid Signature");
             }
         }

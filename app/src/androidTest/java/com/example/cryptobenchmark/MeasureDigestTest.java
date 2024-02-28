@@ -28,6 +28,7 @@ public class MeasureDigestTest extends MeasureTest{
     }
 
     public void digest(DigestOperation digest){
+        //System.out.println("Digesting " + INPUT_MESSAGES.length + " messages " + nTimes + " times");
         for (int i = 0; i < nTimes; i++) {
             String param = INPUT_MESSAGES[ i % INPUT_MESSAGES.length];
             digest.digest(param, PROVIDER);
@@ -35,7 +36,7 @@ public class MeasureDigestTest extends MeasureTest{
     }
     
     @Test
-@HunterDebug
+    @HunterDebug
     public void test_md5_BC(){
         String provider = "BC";
         DigestOperation dop = Digest::digest_MD5;
@@ -44,7 +45,7 @@ public class MeasureDigestTest extends MeasureTest{
 
     
     @Test
-@HunterDebug
+    @HunterDebug
     public void test_sha1_BC(){
         String provider = "BC";
         DigestOperation dop = Digest::digest_SHA1;

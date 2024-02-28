@@ -43,9 +43,9 @@ public class MeasureSignTest extends MeasureTest{
         System.out.println(dcp);
     }*/
 
-    @Test
-@HunterDebug
-    public void test_get_impl() {
+    //@Test
+    //@HunterDebug
+    public void get_impl() {
         String[] algoList = {
                "DSA"
         };
@@ -58,8 +58,7 @@ public class MeasureSignTest extends MeasureTest{
                     Signature md = prov.equals("") ? Signature.getInstance(algo) : Signature.getInstance(algo, prov);
                     md.getProvider().getServices().stream().filter(x -> x.getAlgorithm().contains("DSA")).forEach(x -> System.out.println(x.getAlgorithm()));
                     //AlgorithmParameters apm  = md.getParameters();
-                    System.out.println();
-                    System.out.println("lulas: " + md.getAlgorithm());
+                    System.out.println(md.getAlgorithm());
                 }catch (Exception e){
                     e.printStackTrace();
                 }

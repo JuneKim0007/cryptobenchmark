@@ -24,6 +24,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
+import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
+
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
@@ -108,8 +110,8 @@ public class SymmetricDecrypt {
             else{
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
-            byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
+            return byteArrayToString(plainText); //new String(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
@@ -121,8 +123,8 @@ public class SymmetricDecrypt {
         try {
             cipher = Cipher.getInstance("BLOWFISH", provider);
             cipher.init(Cipher.DECRYPT_MODE, key, iv);
-            byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
+            return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
@@ -134,8 +136,8 @@ public class SymmetricDecrypt {
             cipher = Cipher.getInstance("ARC4", provider);
             cipher.init(Cipher.DECRYPT_MODE, key);
             //cipher.init(Cipher.DECRYPT_MODE, key, iv);
-            byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
+            return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
@@ -153,8 +155,8 @@ public class SymmetricDecrypt {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
             //
-            byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
+            return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
@@ -167,8 +169,8 @@ public class SymmetricDecrypt {
             cipher = Cipher.getInstance(String.format("DES/%s/%s", mode, padding), provider);
             cipher.init(Cipher.DECRYPT_MODE, key);
             //cipher.init(Cipher.DECRYPT_MODE, key, iv);
-            byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
+            return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
@@ -178,7 +180,7 @@ public class SymmetricDecrypt {
     public static String decrypt_ChaCha20(String msg, String mode, String padding, Key key, String provider, IvParameterSpec iv){
         int NONCE_LEN = 12;
         byte[] nonce = new byte[NONCE_LEN];
-        byte[] input = StringToByteArray(msg);
+        byte[] input = StringToByteArrayBase64(msg);
         System.arraycopy(input, 0, nonce, 0, NONCE_LEN);
         byte[] messageCipher = new byte[input.length - NONCE_LEN];
         System.arraycopy(input, NONCE_LEN, messageCipher, 0, input.length - NONCE_LEN);
@@ -187,7 +189,7 @@ public class SymmetricDecrypt {
         try {
             Cipher cipher = Cipher.getInstance("ChaCha20");
             cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
-            return new String(cipher.doFinal(messageCipher));
+            return byteArrayToString(cipher.doFinal(messageCipher));
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();
         }
@@ -197,7 +199,7 @@ public class SymmetricDecrypt {
     public static String decrypt_ChaCha20Poly(String msg,  String mode, String padding, Key key, String provider, IvParameterSpec iv){
         int NONCE_LEN = 12;
         byte[] nonce = new byte[NONCE_LEN];
-        byte[] input = StringToByteArray(msg);
+        byte[] input = StringToByteArrayBase64(msg);
         System.arraycopy(input, 0, nonce, 0, NONCE_LEN);
         byte[] messageCipher = new byte[input.length - NONCE_LEN];
         System.arraycopy(input, NONCE_LEN, messageCipher, 0, input.length - NONCE_LEN);

@@ -4,7 +4,7 @@ import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
-
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.Method;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -33,6 +33,7 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 
@@ -102,7 +103,7 @@ public class AssymmetricEncrypt {
         try {
             cipher = Cipher.getInstance("RSA/ECB/NOPADDING", provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            ciphertext = cipher.doFinal(message.getBytes());
+            ciphertext = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
             return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
 
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -117,13 +118,13 @@ public class AssymmetricEncrypt {
         try {
             cipher = Cipher.getInstance(String.format("RSA/%s/%s", mode, padding), provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            ciphertext = cipher.doFinal(message.getBytes());
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[8]));
+            ciphertext = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[8]));
 
-        } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException  | BadPaddingException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public static Map.Entry<String, IvParameterSpec> encrypt_RSA_maloco(String message, String mode, String padding, Key key, String provider) {
@@ -132,7 +133,7 @@ public class AssymmetricEncrypt {
         try {
             cipher = Cipher.getInstance(String.format("RSA/%s/%s", mode, padding), provider);
             cipher.init(Cipher.ENCRYPT_MODE, key, new OAEPParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT));
-            ciphertext = cipher.doFinal(message.getBytes());
+            ciphertext = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
             return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[8]));
 
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
@@ -147,8 +148,8 @@ public class AssymmetricEncrypt {
         try {
             cipher = Cipher.getInstance("RSA", provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            ciphertext = cipher.doFinal(message.getBytes());
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
+            ciphertext = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[]{}));
 
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
@@ -162,7 +163,7 @@ public class AssymmetricEncrypt {
         try {
             cipher = Cipher.getInstance("EC", provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            ciphertext = cipher.doFinal(message.getBytes());
+            ciphertext = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
             return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
 
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {

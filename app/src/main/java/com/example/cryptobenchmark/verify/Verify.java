@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
+import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
 
 
 public class Verify extends PrimitiveStore {
@@ -57,7 +58,7 @@ public class Verify extends PrimitiveStore {
             s = Signature.getInstance(algo);
             s.initVerify(key);
             s.update(message.getBytes());
-            return s.verify(StringToByteArray(signature));
+            return s.verify(StringToByteArrayBase64(signature));
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
             e.printStackTrace();
         }
@@ -70,8 +71,21 @@ public class Verify extends PrimitiveStore {
             s = Signature.getInstance(algo, provider);
             s.initVerify(key);
             s.update(message.getBytes());
-            return s.verify(StringToByteArray(signature));
+            return s.verify(StringToByteArrayBase64(signature));
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean verify_b(byte[] message, byte[] signature, String algo, PublicKey key){
+        Signature s = null;
+        try {
+            s = Signature.getInstance(algo);
+            s.initVerify(key);
+            s.update(message);
+            return s.verify(signature);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
             e.printStackTrace();
         }
         return false;
@@ -82,7 +96,8 @@ public class Verify extends PrimitiveStore {
         int i = 0;
         for(String primitive : providers.keySet()){
             for (String provider : providers.get(primitive)){
-                res = verify(message, signatures.get(i), primitive, key, provider);;
+                res = verify(message, signatures.get(i), primitive, key, provider);
+                System.out.println(res);
                 if (!res) {
                     return false;
                 }

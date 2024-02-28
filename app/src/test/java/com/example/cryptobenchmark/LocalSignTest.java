@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 public class LocalSignTest {
 
-    public static final int DATA_LEN = 255;
+    public static final int DATA_LEN = 128;
     public static final int KEY_LEN = 512;
 
     public void test_get_sign_impls() {
@@ -35,20 +35,21 @@ public class LocalSignTest {
         System.out.println(s);
     }
 
-
+    @Test
     public void test_sign_local() throws NoSuchAlgorithmException{
         String algo = "SHA256withRSA";
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key(KEY_LEN, "RSA");
-        String msg = (String) StringType.genRandomWithSize(DATA_LEN).getValue();
+        KeyPair kp = AssymmetricEncryptKeyGen.gen_key(1024, "RSA");
+        String msg = (String) StringType.genRandomWithSize(255).getValue();
         String signature = Sign.sign(msg, algo, kp.getPrivate());
+        //byte[] signature = Sign.sign_b(msg, algo, kp.getPrivate());
         assertNotNull(signature);
         assertTrue(Verify.verify(msg, signature, algo, kp.getPublic()));
     }
 
-    
+    @Test    
     public void test_sign_local_all() throws NoSuchAlgorithmException{
         List<String> algorithms = new ArrayList<>(Arrays.asList("DSA"));
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key(KEY_LEN, "DSA");
+        KeyPair kp = AssymmetricEncryptKeyGen.gen_key(1024, "DSA");
         String msg = (String) StringType.genRandomWithSize(DATA_LEN).getValue();
         DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         Sign s = new Sign(dcp, algorithms);

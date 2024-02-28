@@ -30,11 +30,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES;
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 
 public class SymmetricEncrypt {
 
+    public static int IV_SIZE = 16;
 
     Map<String, Set<String>> encrypt_providers = new HashMap<>();
     private static Set<String> symmetric_primitives = new HashSet<>(
@@ -165,7 +167,7 @@ public class SymmetricEncrypt {
         for (String cyphermode : this.get_supported_algorithm_modes(algorithm)) {
             for (String pd : this.get_supported_algorithm_padds(algorithm, cyphermode)) {
                 for (String provd : this.get_providers_supporting_combo(algorithm, cyphermode, pd)) {
-                    System.out.println(" a gerar key de  " + keylen + " com provider " + provd + " com modo " + cyphermode + " e padd " + pd);
+                    //System.out.println(" a gerar key de  " + keylen + " com provider " + provd + " com modo " + cyphermode + " e padd " + pd);
                     SecretKey sk = getKey(algorithm, keylen, cyphermode, pd, provd);
                     Method method = getMethod(this.getClass().getName(),
                             String.format("encrypt_%s", algorithm),
@@ -231,7 +233,7 @@ public class SymmetricEncrypt {
             //String name = cipher.getProvider().getName();
             //AlgorithmParameters pm = cipher.getParameters();
             if (!mode.equals("ECB")){
-                cipher.init(Cipher.ENCRYPT_MODE, key,  new IvParameterSpec(new byte[8]));
+                cipher.init(Cipher.ENCRYPT_MODE, key,  new IvParameterSpec(new byte[IV_SIZE]));
             }
             else {
                 cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -241,7 +243,7 @@ public class SymmetricEncrypt {
             e.printStackTrace();
             return null;
         }
-        return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), cipher.getIV() != null ? new IvParameterSpec(cipher.getIV()) :  new IvParameterSpec(new byte[]{}));
+        return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), cipher.getIV() != null ? new IvParameterSpec(cipher.getIV()) :  new IvParameterSpec(new byte[]{}));
     }
 
     /*
@@ -258,16 +260,16 @@ public class SymmetricEncrypt {
             String transformation = mode.equals("") || padding.equals("") ? "DES" : String.format("DES/%s/%s", mode, padding);
             cipher = Cipher.getInstance(transformation, provider);
             if (!mode.equals("ECB")) {
-                byte[] iv = new byte[8];
+                byte[] iv = new byte[IV_SIZE];
                 IvParameterSpec ips = new IvParameterSpec(iv);
                 //desCipher.init(Cipher.ENCRYPT_MODE, key, ips);
                 cipher.init(Cipher.ENCRYPT_MODE, key, ips);
                 ciphertext = cipher.doFinal(message.getBytes());
-                return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(cipher.getIV()));
+                return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(cipher.getIV()));
             } else {
                 cipher.init(Cipher.ENCRYPT_MODE, key);
                 ciphertext = cipher.doFinal(message.getBytes());
-                return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
+                return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[]{}));
             }
 
         } catch (NoSuchProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -289,14 +291,14 @@ public class SymmetricEncrypt {
         try {
             cipher = Cipher.getInstance(String.format("DESEDE/%s/%s", mode, padding), provider);
             if (!mode.equals("ECB")) {
-                IvParameterSpec ips = new IvParameterSpec(new byte[8]);
+                IvParameterSpec ips = new IvParameterSpec(new byte[IV_SIZE]);
                 cipher.init(Cipher.ENCRYPT_MODE, key, ips);
                 ciphertext = cipher.doFinal(message.getBytes());
-                return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(cipher.getIV()));
+                return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(cipher.getIV()));
             } else {
                 cipher.init(Cipher.ENCRYPT_MODE, key);
                 ciphertext = cipher.doFinal(message.getBytes());
-                return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
+                return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[]{}));
             }
 
         } catch (NoSuchProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -319,7 +321,7 @@ public class SymmetricEncrypt {
             cipher = Cipher.getInstance("BLOWFISH", provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             ciphertext = cipher.doFinal(message.getBytes());
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[]{}));
 
 
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -338,7 +340,7 @@ public class SymmetricEncrypt {
             cipher = Cipher.getInstance("ARC4", provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             ciphertext = cipher.doFinal(message.getBytes());
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[]{}));
 
 
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -354,7 +356,7 @@ public class SymmetricEncrypt {
             cipher = Cipher.getInstance(algo, provider);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             ciphertext = cipher.doFinal(plaintext.getBytes());
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(ciphertext), new IvParameterSpec(new byte[]{}));
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(new byte[]{}));
         } catch (NoSuchProviderException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | UnsupportedOperationException | BadPaddingException e) {
             e.printStackTrace();
             return null;
@@ -397,7 +399,7 @@ public class SymmetricEncrypt {
             System.arraycopy(nonce, 0, cipherText, 0, NONCE_LEN);
             System.arraycopy(messageCipher, 0, cipherText, NONCE_LEN,
                     messageCipher.length);
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(cipherText), ivParameterSpec);
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(cipherText), ivParameterSpec);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -429,7 +431,7 @@ public class SymmetricEncrypt {
             System.arraycopy(nonce, 0, cipherText, 0, NONCE_LEN);
             System.arraycopy(messageCipher, 0, cipherText, NONCE_LEN,
                     messageCipher.length);
-            return new AbstractMap.SimpleEntry<>(byteArrayToString(cipherText), ivParameterSpec);
+            return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(cipherText), ivParameterSpec);
         }catch (Exception e){
             e.printStackTrace();
         }

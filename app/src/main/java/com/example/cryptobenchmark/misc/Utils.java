@@ -27,6 +27,8 @@ import java.util.Set;
 import android.util.Log;
 import android.os.Environment;
 import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
+import com.example.cryptobenchmark.misc.datatypes.StringType;
 
 
 public class Utils {
@@ -74,12 +76,35 @@ public class Utils {
 
     public static String byteArrayToString(byte[] cyphertext){
         // return Base64.getUrlEncoder().withoutPadding().encodeToString(cyphertext);
-        return Base64.getEncoder().encodeToString(cyphertext);
+        try{
+            return new String(cyphertext, StringType.standardCharSet);
+        }
+        catch (UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+        return new String(cyphertext);
     }
 
     public static byte[] StringToByteArray(String cyphertext){
+        try{
+            return cyphertext.getBytes(StringType.standardCharSet);
+        }
+        catch (UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+        return cyphertext.getBytes(); //Base64.getDecoder().decode(cyphertext);
+    }
+
+    public static String byteArrayToStringBase64(byte[] cyphertext){
+        // return Base64.getUrlEncoder().withoutPadding().encodeToString(cyphertext);
+        return Base64.getEncoder().encodeToString(cyphertext);
+    }
+
+    public static byte[] StringToByteArrayBase64(String cyphertext){
         return Base64.getDecoder().decode(cyphertext);
     }
+
+
 
 
     public static Method getMethod(String cname, String mname, Class[] parameterTypes){

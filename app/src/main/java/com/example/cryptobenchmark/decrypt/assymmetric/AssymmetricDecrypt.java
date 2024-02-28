@@ -30,7 +30,10 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
 import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
+import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
+
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
 
 public class AssymmetricDecrypt {
 
@@ -85,7 +88,7 @@ public class AssymmetricDecrypt {
         try {
             cipher = Cipher.getInstance("RSA/ECB/NOPADDING", provider);
             cipher.init(Cipher.DECRYPT_MODE, key);
-            byte[] plainText = cipher.doFinal(message.getBytes());
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
             return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
@@ -98,8 +101,8 @@ public class AssymmetricDecrypt {
         try {
             cipher = Cipher.getInstance(String.format("RSA/%s/%s", mode, padding), provider);
             cipher.init(Cipher.DECRYPT_MODE, key);
-            byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
+            return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
@@ -112,7 +115,7 @@ public class AssymmetricDecrypt {
             cipher = Cipher.getInstance(String.format("RSA/%s/%s", mode, padding), provider);
             cipher.init(Cipher.DECRYPT_MODE, key, new OAEPParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT));
             byte[] plainText = cipher.doFinal(StringToByteArray(message));
-            return new String(plainText);
+            return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
@@ -124,7 +127,7 @@ public class AssymmetricDecrypt {
         try {
             cipher = Cipher.getInstance("RSA", provider);
             cipher.init(Cipher.DECRYPT_MODE, key);
-            byte[] plainText = cipher.doFinal(message.getBytes());
+            byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
             return byteArrayToString(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();

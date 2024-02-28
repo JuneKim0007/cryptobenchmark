@@ -61,7 +61,7 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
                     Cipher md = prov.equals("") ? Cipher.getInstance(algo) : Cipher.getInstance(algo, prov);
                     String pevides =  md.getProvider().getName();
                     AlgorithmParameters apm  = md.getParameters();
-                    System.out.println("lulas: " + md.getAlgorithm());
+                    System.out.println("algo: " + md.getAlgorithm());
                 }catch (Exception e){
                     e.printStackTrace();
                 }

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
+
 
 
 public class Sign extends PrimitiveStore {
@@ -53,7 +55,7 @@ public class Sign extends PrimitiveStore {
             Signature s = Signature.getInstance(fullAlgorithmDefinition);
             s.initSign(key);
             s.update(message.getBytes());
-            return byteArrayToString(s.sign());
+            return byteArrayToStringBase64(s.sign());
         } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -65,8 +67,20 @@ public class Sign extends PrimitiveStore {
             Signature s = Signature.getInstance(algo, provider);
             s.initSign(key);
             s.update(message.getBytes());
-            return byteArrayToString(s.sign());
+            return byteArrayToStringBase64(s.sign());
         } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static byte[] sign_b(String message,String algo, PrivateKey key){
+        try {
+            Signature s = Signature.getInstance(algo);
+            s.initSign(key);
+            s.update(message.getBytes());
+            return s.sign();
+        } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         return null;
@@ -77,7 +91,7 @@ public class Sign extends PrimitiveStore {
         List<String> l = new ArrayList<>();
         for(String primitive : providers.keySet()){
             for (String provider : providers.get(primitive)){
-                System.out.println(provider);
+                //System.out.println(provider);
                 l.add(sign(message, primitive, key, provider));
             }
         }
