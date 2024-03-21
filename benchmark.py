@@ -89,32 +89,10 @@ def execute_shell_command(cmd, args=[], timeout=None):
         proc.returncode = 1
     return proc.returncode, out.decode("utf-8", errors='replace'), err.decode("utf-8", errors='replace')
 
-'''def measure(args_obj):
-    em = HunterEManafa()
-    for i in range(0, args_obj.n_times):
-        em.init()
-        em.start()
-        res, o , e = execute_shell_command(build_exec_cmd(args_obj))
-        print(res)
-        print(o)
-        print(e)
-        if res != 0:
-            raise Exception(f"Error while running cmd {CMD}")
-        em.stop()
-        begin = em.perf_events.events[0].time if len(em.perf_events.events) > 1 else em.bat_events.events[0].time  # first sample from perfetto
-        end = em.perf_events.events[-1].time if len(em.perf_events.events) > 1 else em.bat_events.events[-1].time  # first s
-        p, c, z = em.get_consumption_in_between(begin, end)
-        out_file = em.save_final_report(begin)
-        print(f"out file {out_file}")
-        print(f"Energy consumed: {p} Joules")
-        time.sleep(args_obj.sleep_time)'''
-
 
 def measure(args_obj):
     #arch -x86_64 python anadroid/main.py -t Custom -cmd "ls -al; sleep 30"'
     cmd_prefix = f'pyanadroid -run -t Custom --n_times {args_obj.n_test_times}  -cmd'
-    #print(args_obj.n_times)
-    #for i in range(0, args_obj.n_times):
     cmd = f'{cmd_prefix} \"{build_exec_cmd(args_obj)}\"'
     print(f"performing command: {cmd}")
     start=time.time()
@@ -160,45 +138,6 @@ def extract_values_from_files(files):
                     function_dict[mname] = {'times': [invok['elapsed_time']], 'energies': [invok['cpu']]} if mname not in function_dict else {'times': function_dict[mname]['times'] + [invok['elapsed_time']] , 'energies': function_dict[mname]['energies'] + [invok['cpu']]}
     return function_dict
 
-def gen_box_plot(key_list, list_of_lists, title="ai"):
-    # eg gen_box_plot(['group1', 'group2'], [[1, 2],[3, 4]]):
-    fig1, en_box = plt.subplots()
-    the_list = list_of_lists
-    bp_dict = en_box.boxplot(x=the_list,
-                             notch=False,  # notch shape
-                             vert=True,  # vertical box aligmnent
-                             sym='ko',  # red circle for outliers
-                             patch_artist=True,  # fill with color
-                             )
-    i = 0
-    for line in bp_dict['medians']:
-        x, y = line.get_xydata()[1]  # top of median line
-        xx, yy = line.get_xydata()[0]
-        text(x, y, '%.4f' % y, fontsize=5)  # draw above, centered
-        # text(xx, en_box.get_ylim()[1] * 0.98, '%.2f' % np.average(list_all_samples[i]), color='darkkhaki')
-        i = i + 1
-
-        # set colors
-    colors = ['lightblue', 'darkkhaki']
-    i = 0
-    for bplot in bp_dict['boxes']:
-        i = i + 1
-        bplot.set_facecolor(colors[i % len(colors)])
-    xtickNames = plt.setp(en_box, xticklabels=key_list)
-    plt.setp(xtickNames, rotation=90, fontsize=5)
-    plt.suptitle(title)
-    plt.show()
-
-
-def plot_res(res):
-    print(res)
-    filtro = ""
-    keys = [ x for x in list(res.keys()) if filtro in x]
-    times = [ b['times'] for a,b in res.items() if filtro in a]
-    consumptions = [ b['energies'] for a,b in res.items() if filtro in a]
-    gen_box_plot(keys, times, "elapsed time " + filtro)
-    gen_box_plot(keys, consumptions, "energy")
-    #gen_box_plot(['aaa', 'bbb'], [[1,2],[3,5]])
 
 def build_apks(args_obj):
     print("building")
@@ -251,6 +190,11 @@ def gen_run_id(args_obj):
     _ , device_name, _ = execute_shell_command("adb shell getprop ro.product.model")
     device_name = device_name.strip().replace(" ", "")
     return f'{device_name}_{args_obj.test_class}_{args_obj.provider}_{args_obj.algorithm}_{args_obj.key_len}_{args_obj.input_size}_{args_obj.algorithm_mode + args_obj.padding}_{args_obj.keyspec}'
+
+
+
+def already_measured_run(run_id):
+    return os.path.exists(run_id) and os.path.isdir(run_id)
 
 
 def save_res_in_id_folder(run_id, file_list):
@@ -320,20 +264,30 @@ def validate_start():
     assert pkgs_count > 1, f"APKS not installed. Missing {2- pkgs_count} apk. Missing " + extra_info
 
 
+def has_enough_tests(run_id, n_times):
+    return len([x for x in os.listdir(run_id) if 'logresume.json' in x]) >= n_times
+
 def main(args_obj):
     setup(args_obj)
-    validate_start()
-    measure(args_obj)
-    files = fetch_res_files(results_dir="anadroid_results/custom_test_results")
-    print(files)
-    fc = extract_values_from_files(files)
+    if not args_obj.skip_validation:
+        validate_start()
     run_id = gen_run_id(args_obj)
-    save_res_in_id_folder(run_id, files)
-    print(json.dumps(fc, indent=1))
+    if (already_measured_run(run_id) and not args_obj.repeat_measurements 
+            and has_enough_tests(run_id, args_obj.n_test_times)):
+        print(colored(f"run {run_id} already measured. Aborting", 'yellow'))
+        exit(0)
+    measure(args_obj)
+    analyze_results(run_id)
     if args_obj.uninstall:
         uninstall_apks(args_obj)
-    if args_obj.plot:
-        plot_res(fc)
+
+
+def analyze_results(run_id):
+    files = fetch_res_files(results_dir="anadroid_results/custom_test_results")
+    fc = extract_values_from_files(files)
+    save_res_in_id_folder(run_id, files)
+    print(json.dumps(fc, indent=1))
+
 
 
 def build_exec_cmd(args_obj):
@@ -393,7 +347,6 @@ if __name__ == '__main__':
     parser.add_argument("-bt", "--build_type", help="build type", type=str, choices=['Debug', 'Release'], default="Release")
     parser.add_argument("-i", "--install", help="install apks", action='store_true', default=False)
     parser.add_argument("-u", "--uninstall", help="uninstall apks", action='store_true', default=False)
-    parser.add_argument("-p", "--plot", help="plot results", action='store_true', default=False)
     parser.add_argument("-c", "--test_class", help="test class", default="DigestTest", type=str)
     parser.add_argument("-r", "--test_runner", help="unit test runner", default="androidx.test.runner.AndroidJUnitRunner", choices=["android.support.test.runner.AndroidJUnitRunner", "androidx.test.runner.AndroidJUnitRunner", "androidx.test.ext.junit.runners.AndroidJUnit4"])
     parser.add_argument("-tp", "--test_package", help="test package",  default="com.example.cryptobenchmark.test")
@@ -407,6 +360,8 @@ if __name__ == '__main__':
     parser.add_argument("-m", "--algorithm_mode", help="algorithm mode",  default=fetch_from_gradle_prop_file("MODE", ""), type=str)
     parser.add_argument("-pd", "--padding", help="algorithm padding",  default=fetch_from_gradle_prop_file("PADDING", ""), type=str)
     parser.add_argument("-ks", "--keyspec", help="keyspec",  default=fetch_from_gradle_prop_file("WITH_KEY_SPEC", 0), type=int)
+    parser.add_argument("-rp", "--repeat_measurements", help="repeat measurements",  action='store_true', default=False)
+    parser.add_argument("-skv", "--skip_validation", help="skip start validation",  action='store_true', default=False)
     args = parser.parse_args()
     print(args.__dict__)
     main(args_obj=args)

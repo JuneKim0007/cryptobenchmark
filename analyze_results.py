@@ -52,6 +52,7 @@ def process_config_folder(fldr):
 
         with open(file + '.validated', 'w') as jfile:
             json.dump(json_content, jfile, indent=1)
+    print(f"valids: {valids}")
     return len(json_content['invoked_methods']) > 0 if valids > 0 else True
 
 def parse_json(filepath):
@@ -81,7 +82,7 @@ def extract_values_from_files(files):
     for (j_file, jfilename) in jsons:
         basedir = os.path.dirname(jfilename)
         rm_val = "" if len(basedir.split("_")) == 1 else basedir.split("_")[1] + "_" + ("" if 'test' not in basedir else "test") 
-        rm_vals = ["_0_2048", "_ECBPKCS1PADDING_0"]
+        rm_vals = [] #["_0_2048", "_ECBPKCS1PADDING_0"]
         #print(json.dumps(j_file['invoked_methods'x], indent=1))
         for method, invs in j_file['invoked_methods'].items():
             #print(f"metodo {method}")

@@ -1,15 +1,14 @@
 # !/bin/bash
 
 INPUT_SIZES=(256 512 1024 2048) # 256 160 1024 118724  4086 81920
-N_TIMES=5000  #times each algo is repeated (size of input list)
+N_TIMES=10000  #times each algo is repeated (size of input list)
 N_TEST_TIMES=30 # times each test case is repeated (N) in  _N_ * (size of input list)
 SLEEP_TIME=2 # time to sleep between each test case
 
 PROVIDERS=(AndroidOpenSSL BC AndroidKeyStoreBCWorkaround AndroidKeyStore )
 
-MAC_N_TIMES=100
-MAC_KEY_LEN=( 8 16 32 64)
-
+MAC_N_TIMES=10
+MAC_KEY_LEN=(8 16 32 64)
 SYM_INPUT_SIZES=(32 128 256)
 SYM_ALGOS=( AES DES CHACHA20 BLOWFISH ARC4 DES 3DES )
 #SYM_MODES=( ECB CBC CTR GCM OFB GCM-SIV CFB)
@@ -22,7 +21,7 @@ ASSYM_PROVIDERS=(AndroidOpenSSL AndroidKeyStoreBCWorkaround BC)
 ASSYM_INPUT_SIZES=(116 244 372)
 ASSYM_ALGOS=( RSA )
 ASSYM_MODES=( ECB )
-ASSYM_PADDS=( NOPADDING OAEPPADDING OAEPWITHSHA-1ANDMGF1PADDING OAEPWITHSHA-224ANDMGF1PADDING OAEPWITHSHA-256ANDMGF1PADDING OAEPWITHSHA-384ANDMGF1PADDING OAEPWITHSHA-512ANDMGF1PADDING)
+ASSYM_PADDS=(NOPADDING OAEPPADDING OAEPWITHSHA-1ANDMGF1PADDING OAEPWITHSHA-224ANDMGF1PADDING OAEPWITHSHA-256ANDMGF1PADDING OAEPWITHSHA-384ANDMGF1PADDING OAEPWITHSHA-512ANDMGF1PADDING)
 ASSYM_KEYSPEC=( 0 1 )
 ASSYM_KEY_LEN=(1024 2048 4096)
 ASSYM_N_TIMES=25
@@ -92,7 +91,7 @@ function testSymEncrypt(){
                     #        done
                     #    done
                     #else
-                    python3 benchmark.py -c MeasureSymmetricEncryptTest -nt $SYM_N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME  -is $is -pd "" -m "" -kl $keylen -a $algo  
+                    python3 benchmark.py -c MeasureSymmetricEncryptTest -nt $SYM_N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME  -is $is -pd "" -m "" -kl $keylen -a $algo
                     #fi
                 done
             done
@@ -205,23 +204,23 @@ function testAssymm(){
 
 
 # digest
-#testDigest
+testDigest
 
 # hmac test
-#testMAC
+testMAC
 
 # test sign
-#testSign
+testSign
 
-#testSignAndVerify
+testSignAndVerify
 
 testSymEncrypt
 
-#testSymm
+testSymm
 
 testAssymmEncrypt
 
-#testSignAndVerify
+testSignAndVerify
 
 x='''
 testSymEncrypt

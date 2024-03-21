@@ -206,7 +206,6 @@ public class MeasureSymmetricKeygenTest extends MeasureTest {
 
     @Test
     @HunterDebug
-
     public void test_key_gen_AES_ANY() throws Exception {
         gen_aes(keyLen, MODE, PADDING, PROVIDER);
     }
