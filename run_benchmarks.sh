@@ -1,5 +1,7 @@
 # !/bin/bash
 
+##################### CONFIG #######################
+
 INPUT_SIZES=(256 512 1024 2048) # 256 160 1024 118724  4086 81920
 N_TIMES=10000  #times each algo is repeated (size of input list)
 N_TEST_TIMES=30 # times each test case is repeated (N) in  _N_ * (size of input list)
@@ -33,6 +35,8 @@ SIGN_ALGOS=(RSA DSA) # necessary for keygen
 SIGN_PROVIDERS=(AndroidOpenSSL AndroidKeyStoreBCWorkaround) # BC)
 SIGN_N_TIMES=100
 
+
+####################### TESTS #######################
 
 function testDigest(){
     # Digest (no need to specify algorithm)
@@ -135,7 +139,7 @@ function testSymm(){
                 for keylen in  ${SYM_KEY_LEN[@]}; do
                     #for mode in  ${SYM_MODES[@]}; do
                     #    for pad in  ${SYM_PADD[@]}; do
-                    python3 benchmark.py-c MeasureSymmetricEncryptDecryptTest -nt $SYM_N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is  -kl $keylen   
+                    python3 benchmark.py -c MeasureSymmetricEncryptDecryptTest -nt $SYM_N_TIMES --n_test_times $N_TEST_TIMES -s $SLEEP_TIME -is $is  -kl $keylen   
                     #    done
                     #done
                 done
@@ -152,7 +156,7 @@ function testAssymmKeygen(){
         for keylen in  ${ASSYM_KEY_LEN[@]}; do
             #for pad in  ${ASSYM_PADDS[@]}; do  
                 for kpad in  ${ASSYM_KEYSPEC[@]}; do
-                    python3 benchmark.py-c MeasureAssymmetricEncryptTest -nt $ASSYM_N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is  
+                    python3 benchmark.py -c MeasureAssymmetricEncryptTest -nt $ASSYM_N_TIMES --n_test_times $N_TEST_TIMES  -s $SLEEP_TIME -is $is  
                 done
             #done
         done
