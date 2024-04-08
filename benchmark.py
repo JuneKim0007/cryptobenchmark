@@ -276,11 +276,31 @@ def main(args_obj):
             and has_enough_tests(run_id, args_obj.n_test_times)):
         print(colored(f"run {run_id} already measured. Aborting", 'yellow'))
         exit(0)
+    clean_up()
     measure(args_obj)
     analyze_results(run_id)
     if args_obj.uninstall:
         uninstall_apks(args_obj)
 
+
+def clean_up():
+    remove_all_content("anadroid_results")
+
+def remove_all_content(directory):
+    """
+    Remove all files and subdirectories within a directory.
+    
+    Parameters:
+        directory (str): The path to the directory.
+    """
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isfile(item_path):
+            os.remove(item_path)
+        elif os.path.isdir(item_path):
+            remove_all_content(item_path)
+            os.rmdir(item_path)
+    
 
 def analyze_results(run_id):
     files = fetch_res_files(results_dir="anadroid_results/custom_test_results")
