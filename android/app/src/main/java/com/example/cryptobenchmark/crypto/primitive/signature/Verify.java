@@ -3,7 +3,7 @@ package com.example.cryptobenchmark.crypto.primitive.signature;
 import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
 import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
 import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.environment.discovery.PrimitiveStore;
+import com.example.cryptobenchmark.benchmark.preparation.registry.PrimitiveStore;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

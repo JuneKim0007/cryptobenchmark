@@ -28,7 +28,7 @@ import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.Symm
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_DES;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4;
-import static com.example.cryptobenchmark.benchmark.preparation.config.Config.getConfigs;
+import static com.example.cryptobenchmark.environment.setup.config.Config.getConfigs;
 
 public class MeasureTest {
 

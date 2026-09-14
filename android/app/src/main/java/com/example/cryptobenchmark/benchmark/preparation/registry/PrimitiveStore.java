@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.environment.discovery;
+package com.example.cryptobenchmark.benchmark.preparation.registry;
 
 import java.util.Arrays;
 import java.util.Collections;
