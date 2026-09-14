@@ -1,8 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.digest;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.hunter.library.debug.HunterDebug;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,48 +30,6 @@ public class Digest {
             "MD-5", "SHA-1", "SHA-224", "SHA-226", "SHA-256", "SHA-384", "SHA-512"
     ));
     private static Set<String> excludedProviders = new HashSet<>(Arrays.asList("BC"));
-
-
-    public Digest(DeviceCryptoPrimitives dcp){
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : digestAlgorithms){
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getPrimitiveName().equals(algoId)).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-    }
-
-    public void addPrimitive(String primitiveName, String primitiveProvider){
-        if (excludedProviders.contains(primitiveProvider)){
-            return;
-        }
-        if(this.digestsProviders.containsKey(primitiveName)){
-            this.digestsProviders.get(primitiveName).add(primitiveProvider);
-        }
-        else{
-            this.digestsProviders.put(primitiveName, new HashSet<>(Collections.singletonList(primitiveProvider)));
-        }
-    }
-
-    /*
-    public Digest(){
-        List<String> basicTriple = new ArrayList<>(
-                Arrays.asList(
-                        "BC",
-                        "AndroidOpenSSL",
-                        "Empty"
-                ));
-
-        this.digests_providers.put( "MD5", basicTriple);
-        this.digests_providers.put( "SHA1", basicTriple);
-        this.digests_providers.put( "SHA224", basicTriple);
-        this.digests_providers.put( "SHA226", basicTriple);
-        this.digests_providers.put( "SHA256", basicTriple);
-        this.digests_providers.put( "SHA384", basicTriple);
-        this.digests_providers.put( "SHA512", basicTriple);
-    }*/
 
     public static String digest(String message, String algo, String provider){
         try {

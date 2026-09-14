@@ -85,9 +85,8 @@ public class SymmetricEncryptTest {
         String msg = (String) StringType.genRandomWithSize(64).getValue();
         String mode = "CBC";
         String padd = "PKCS7Padding";
-        SymmetricEncrypt se = new SymmetricEncrypt(new DeviceCryptoPrimitives());
         SecretKey pk = gen_key_AES_AndroidKeyStore(256, mode, padd);
-        Map.Entry<String,IvParameterSpec> e = se.encrypt_AES(msg, mode, padd, pk, "AndroidKeyStoreBCWorkaround");
+        Map.Entry<String,IvParameterSpec> e = SymmetricEncrypt.encrypt_AES(msg, mode, padd, pk, "AndroidKeyStoreBCWorkaround");
         assertNotNull(e);
         //String dec = SymmetricDecrypt.decrypt_AES(e.getKey(), mode, padd, pk, "AndroidKeyStoreBCWorkaround", e.getValue());
         //assertEquals(dec, msg);
@@ -97,9 +96,8 @@ public class SymmetricEncryptTest {
         String msg = (String) StringType.genRandomWithSize(64).getValue();
         String mode = "CBC";
         String padd = "PKCS5PADDING";
-        SymmetricEncrypt se = new SymmetricEncrypt(new DeviceCryptoPrimitives());
         SecretKey pk = gen_key_AES_AndroidOpenSSL(256, "", "");
-        Map.Entry<String,IvParameterSpec> e = se.encrypt_AES(msg, mode, padd, pk, "AndroidOpenSSL");
+        Map.Entry<String,IvParameterSpec> e = SymmetricEncrypt.encrypt_AES(msg, mode, padd, pk, "AndroidOpenSSL");
         assertNotNull(e);
         String dec = SymmetricDecrypt.decrypt_AES(e.getKey(), mode, padd, pk, "AndroidOpenSSL", e.getValue());
         assertEquals(dec, msg);
@@ -123,8 +121,7 @@ public class SymmetricEncryptTest {
     /*@Test
     public void test_all_AES_encrypt() {
         String msg = (String) StringType.genRandomWithSize(256).getValue();
-        SymmetricEncrypt se = new SymmetricEncrypt(new DeviceCryptoPrimitives());
-        Map<String, IvParameterSpec> enc_res  = se.encrypt_all(msg, "AES", 256);
+        Map<String, IvParameterSpec> enc_res  = SymmetricEncrypt.encrypt_all(msg, "AES", 256);
         assertNotNull(enc_res);
     }
 
@@ -132,7 +129,7 @@ public class SymmetricEncryptTest {
     public void test_blowfish() {
         String msg = (String) StringType.genRandomWithSize(123).getValue();
        // SymmetricEncrypt se = new SymmetricEncrypt();
-       // Map<String, IvParameterSpec> enc_res  = se.encrypt_all(msg, "AES", 128);
+       // Map<String, IvParameterSpec> enc_res  = SymmetricEncrypt.encrypt_all(msg, "AES", 128);
         SecretKey sk = gen_key_BLOWFISH_BC(256, "", "padd");
         Map.Entry<String,IvParameterSpec> e = SymmetricEncrypt.encrypt_BLOWFISH(msg, "", "",  sk, "BC");
         assertNotNull(e);

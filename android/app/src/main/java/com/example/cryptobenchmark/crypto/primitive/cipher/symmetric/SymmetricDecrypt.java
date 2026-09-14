@@ -35,30 +35,6 @@ public class SymmetricDecrypt {
     Map<String, Set<String>> decrypt_providers = new HashMap<>();
     Map<String, Set<String>> alg_param = new HashMap<>();
 
-    public SymmetricDecrypt() {
-        Set<String> basicTuple = new HashSet<>(
-                Arrays.asList(
-                        "BC",
-                        "AndroidOpenSSL",
-                        "AndroidKeyStoreBCWorkaround",
-                        "AndroidKeyStore",
-                        "Empty"
-                ));
-        // AES no padding
-        //this.decrypt_providers.put( "AES/CBC/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        this.decrypt_providers.put( "AES/CTR/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        //this.decrypt_providers.put( "AES/ECB/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        this.decrypt_providers.put( "AES/GCM/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        /*
-        // AES PKCS5Padding
-         */
-        this.decrypt_providers.put( "AES/CBC/PKCS5Padding", new HashSet<>(Arrays.asList("AndroidOpenSSL")));
-        this.decrypt_providers.put( "AES/ECB/PKCS5Padding", new HashSet<>(Arrays.asList("AndroidOpenSSL")));
-        // AES PKCS7Padding
-        this.decrypt_providers.put( "AES/CBC/PKCS7Padding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround")));
-        //this.decrypt_providers.put( "AES/ECB/PKCS7Padding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround")));
-    }
-
     public List<String> get_supported_algorithm_modes(String algo){
         return this.decrypt_providers.keySet().stream()
                 .filter(x -> x.startsWith(algo))

@@ -41,8 +41,7 @@ public class DeviceCryptoPrimitivesTest {
     public void testSymmetricWithFileGen(){
         DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(64).getValue();
-        SymmetricEncrypt se = new SymmetricEncrypt(de);
         SecretKey pk = gen_key_AES_AndroidOpenSSL(128, "", "");
-        Map<String, IvParameterSpec> m = se.encrypt_all(msg, "AES", pk,"AndroidOpenSSL");
+        Map<String, IvParameterSpec> m = SymmetricEncrypt.encrypt_all(msg, "AES", pk,"AndroidOpenSSL");
     }*/
 }

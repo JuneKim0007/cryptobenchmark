@@ -31,8 +31,7 @@ public class LocalSignTest {
         String algo = "ECDSA";
         DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
         Map<String, Set<CryptoProvider>> cps = de.getProvidersImplementingAlgorithm(algo);
-        Sign s = new Sign(de);
-        System.out.println(s);
+        System.out.println(cps);
     }
 
     @Test

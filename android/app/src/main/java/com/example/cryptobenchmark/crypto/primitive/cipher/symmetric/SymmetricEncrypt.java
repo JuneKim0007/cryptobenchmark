@@ -1,9 +1,6 @@
 package com.example.cryptobenchmark.crypto.primitive.cipher.symmetric;
 
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
-import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AlgorithmParameters;
@@ -47,74 +44,7 @@ public class SymmetricEncrypt {
             Arrays.asList("AESWRAP_128")
     );
 
-
-
-    public SymmetricEncrypt(DeviceCryptoPrimitives dcp){
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : symmetric_primitives){
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().matches(""+algoId+".*")).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-    }
-
-    public void addPrimitive(String primitiveName, String primitiveProvider){
-        if(excluded_symmetric_primitives.contains(primitiveName)){
-            return;
-        }
-        if(this.encrypt_providers.containsKey(primitiveName)){
-            this.encrypt_providers.get(primitiveName).add(primitiveProvider);
-        }
-        else{
-            this.encrypt_providers.put(primitiveName, new HashSet<>(Collections.singletonList(primitiveProvider)));
-        }
-    }
-
     /*
-    public SymmetricEncrypt() {
-        // AES
-
-        // AES no padding
-        //this.encrypt_providers.put( "AES/CBC/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        this.encrypt_providers.put("AES/CTR/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        //this.encrypt_providers.put( "AES/ECB/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        this.encrypt_providers.put("AES/GCM/NoPadding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround", "AndroidOpenSSL")));
-        // AES PKCS5Padding
-        this.encrypt_providers.put("AES/CBC/PKCS5Padding", new HashSet<>(Arrays.asList("AndroidOpenSSL")));
-        this.encrypt_providers.put("AES/ECB/PKCS5Padding", new HashSet<>(Arrays.asList("AndroidOpenSSL")));
-        // AES PKCS7Padding
-        this.encrypt_providers.put("AES/CBC/PKCS7Padding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround")));
-        //this.encrypt_providers.put( "AES/ECB/PKCS7Padding", new HashSet<>(Arrays.asList("AndroidKeyStoreBCWorkaround")));
-        // DES
-        // DES no padding
-        this.encrypt_providers.put("DES/CBC/NoPadding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/CTR/NoPadding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/ECB/NoPadding", new HashSet<>(Arrays.asList("BC")));
-        //this.encrypt_providers.put( "DES/GCM/NoPadding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/OFB/NoPadding", new HashSet<>(Arrays.asList("BC")));
-
-        // DES PKCS5Padding
-        this.encrypt_providers.put("DES/CBC/PKCS5Padding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/CTR/PKCS5Padding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/ECB/PKCS5Padding", new HashSet<>(Arrays.asList("BC")));
-        //this.encrypt_providers.put( "DES/GCM/PKCS5Padding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/OFB/PKCS5Padding", new HashSet<>(Arrays.asList("BC")));
-
-        // DES PKCS7Padding
-        this.encrypt_providers.put("DES/CBC/PKCS7Padding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/CTR/PKCS7Padding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/ECB/PKCS7Padding", new HashSet<>(Arrays.asList("BC")));
-        //this.encrypt_providers.put( "DES/GCM/PKCS7Padding", new HashSet<>(Arrays.asList("BC")));
-        this.encrypt_providers.put("DES/OFB/PKCS7Padding", new HashSet<>(Arrays.asList("BC")));
-
-
-        // BLOWFISH
-        this.encrypt_providers.put("BLOWFISH", new HashSet<>(Arrays.asList("BC")));
-        // ARC4
-        this.encrypt_providers.put("ARC4", new HashSet<>(Arrays.asList("ARC4")));
-    }
 */
     public List<String> get_supported_algorithm_modes(String algo) {
         return this.encrypt_providers.keySet().stream()

@@ -29,7 +29,6 @@ public class DigestTest {
     public static String provider =BuildConfig.PROVIDER;
     public static String[] inputs =  gen_random_workload(inputSize, nTimes);
     public static DeviceCryptoPrimitives deviceCryptoPrimitives = new DeviceCryptoPrimitives();
-    public static Digest digest = new Digest(deviceCryptoPrimitives);
 
     @Before
     public void before_tests(){
@@ -63,7 +62,7 @@ public class DigestTest {
    public void execute_digest_algorithm(String algorithm, String[] params, String provider){
         for (int i = 0; i < params.length ; i++) {
             //String target = i > params.length-1 ? params[i % (params.length)] : params[i];
-            digest.digest( params[i], algorithm, provider);
+            Digest.digest( params[i], algorithm, provider);
         }
     }
 
