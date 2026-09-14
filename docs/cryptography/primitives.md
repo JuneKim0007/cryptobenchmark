@@ -1,7 +1,8 @@
 # <cryptographic_primitives>
 
 Cryptographic primitives, the providers that supply them, and what each is for.
-Scope — which are benchmarked — is in the [README](../../README.md).
+Provider support and scope: [providers.md](providers.md). Benchmark scope:
+[README](../../README.md).
 
 Devices: Pixel 9 (Tensor G4), Pixel 10 (Tensor G5), Android 17 (API 37), baseline
 Android 16 (API 36). Titan M2 backs StrongBox keys.
