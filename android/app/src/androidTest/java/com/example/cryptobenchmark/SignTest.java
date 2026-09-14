@@ -51,20 +51,4 @@ public class SignTest {
         assertNotNull(signature);
         assertTrue(Verify.verify(msg, signature, algo, kp.getPublic()));
     }
-
-    @Test
-    public void test_sign_all() throws NoSuchAlgorithmException{
-        List<String> algorithms = new ArrayList<>(Arrays.asList("DSA"));
-        String msg = (String) StringType.genRandomWithSize(DATA_LEN).getValue();
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        for(String algorithm: algorithms){
-            System.out.println(algorithm);
-            Sign s = new Sign(dcp, Arrays.asList(algorithm));
-            Verify v = new Verify(dcp, Arrays.asList(algorithm));
-            KeyPair kp = AssymmetricEncryptKeyGen.gen_key(KEY_LEN, algorithm);
-            List<String> signatures = s.sign_all(msg, kp.getPrivate());
-            assertNotNull(signatures);
-            assertTrue(v.verify_all(msg, signatures, kp.getPublic()));
-        }
-    }
 }

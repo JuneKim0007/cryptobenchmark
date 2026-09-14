@@ -80,14 +80,6 @@ public class SymmetricEncryptTest {
         }
     }
 /*
-    public void test_decrypt_algorithm(String algorithm, int times, String[] params){
-        SymmetricEncrypt se = new SymmetricEncrypt(new DeviceCryptoPrimitives());
-        for (int i = 0; i < times ; i++) {
-            String target = i > params.length-1 ? params[i % params.length] : params[i];
-            SecretKey pk = gen_key_AES_AndroidOpenSSL(128, "", "");
-            Map<String, IvParameterSpec> m = se.encrypt_all(target, algorithm, pk,"AndroidOpenSSL");
-        }
-    }
     @Test
     public void test_AES_AndroidKeyStore() {
         String msg = (String) StringType.genRandomWithSize(64).getValue();
@@ -126,14 +118,6 @@ public class SymmetricEncryptTest {
         assertEquals(k.getAlgorithm(), algo);
         k = SymmetricKeyGen.gen_key_AES_AndroidOpenSSL(keysize,"", "");
         assertEquals(k.getAlgorithm(), algo);
-    }
-
-    @Test
-    public void test_DES_encrypt() {
-        String msg = (String) StringType.genRandomWithSize(16).getValue();
-        SymmetricEncrypt se = new SymmetricEncrypt(new DeviceCryptoPrimitives());
-        Map<String, IvParameterSpec> res  = se.encrypt_all(msg, "DES", 64);
-        assertNotNull(res);
     }
 
     /*@Test

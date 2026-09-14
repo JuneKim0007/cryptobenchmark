@@ -64,12 +64,4 @@ public class LocalDeviceCryptoPrimitiveTest {
         assertNotNull("has implementation of algorithm " + algorithm, cpp);
     }
 
-
-    
-    public void testEncryptAll() {
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        SymmetricEncrypt se = new SymmetricEncrypt(de);
-        se.encryptWithAll("aaaaaa");
-    }
-
 }

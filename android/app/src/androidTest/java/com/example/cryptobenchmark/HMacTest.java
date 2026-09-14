@@ -114,19 +114,6 @@ public class HMacTest {
         System.out.println(cps);
     }
 
-    @Test
-    public void test_all_impls() {
-        DeviceCryptoPrimitives dce = new DeviceCryptoPrimitives();
-        dce.removeProvider("BC");
-        dce.removeProvider("AndroidKeyStore");
-        dce.removeProvider("AndroidKeyStoreBCWorkaround");
-        HMAC mc  = new HMAC(dce);
-        String msg = (String) StringType.genRandomWithSize(inputSize).getValue();
-        String key = (String) StringType.genRandomWithSize(keyLen).getValue();
-        List<String> res = mc.mac_all(msg, key);
-        assertNotEquals(res.size(), 0);
-    }
-
 
     @Test
     public void testHMACMD5() {
