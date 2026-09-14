@@ -25,29 +25,18 @@ A hash has no key; asymmetric means a key pair. Not the same family.
 | `keygen-symmetric` | — | produces a secret key |
 | `keygen-asymmetric` | — | produces a key pair |
 
-### Curve names
-
-| JCA name | Field prime | Curve | Scheme |
-|---|---|---|---|
-| `Ed25519` | 2^255 − 19 | edwards25519 (Edwards form) | EdDSA, SHA-512 fixed |
-| `X25519` / `XDH` | 2^255 − 19 | Curve25519 (Montgomery form) | Diffie–Hellman |
-| `SHA256withECDSA` | 2^256 − 2^224 + … − 1 | NIST P-256 / secp256r1 | ECDSA |
-
-The `25519` is the prime. Ed25519 and X25519 are one curve in two forms, one signing
-and one key-agreeing. EdDSA fixes its hash and derives the nonce deterministically;
-ECDSA names its digest and needs a fresh random nonce per signature.
 
 ---
 
 ## Providers
 
-| Provider | What it is | Reached by |
-|---|---|---|
-| `AndroidOpenSSL` | Conscrypt / BoringSSL; highest priority, updates via Play | every unqualified `getInstance` |
-| `AndroidKeyStore` + `AndroidKeyStoreBCWorkaround` | one pair: Keystore holds hardware-backed keys, BCWorkaround runs operations on them | the `AndroidKeyStore` keystore, or a Keystore key |
+| Provider | Description |
+|---|---|
+| `AndroidOpenSSL` | Android SDK native provider for general-purpose cryptography |
+| `AndroidKeyStore` + `AndroidKeyStoreBCWorkaround` | Android SDK native provider for hardware-backed keys |
 
-Optional additions to the APK, for comparing implementations: bundled Conscrypt
-(`org.conscrypt:conscrypt-android`), wolfJCE.
+Non-native, bundled in the APK: Conscrypt (`org.conscrypt:conscrypt-android`),
+Bouncy Castle (`org.bouncycastle:bcprov-jdk18on`).
 
 ---
 
@@ -115,14 +104,3 @@ No provider here supplies: single DES, Blowfish, DSA, DESEDE/ECB, AES OFB/CFB, R
 | RSA | 2048, 4096 — StrongBox: 2048 only |
 | ECDSA / ECDH | P-256 — StrongBox: P-256 only |
 
----
-
-## Device probe — not built yet
-
-Rows above are read from provider source, not from a phone. Conscrypt ships as a Play
-system update and OEMs vary, so the device is the authority.
-
-Planned: an instrumented test that walks `Security.getProviders()` and writes every
-provider, service, algorithm and alias to JSON per device and Android version. It
-replaces `app/src/main/res/raw/device_primitives.json` and `restrictions.json`, and
-lets a missing algorithm be recorded as **unsupported** rather than failed.

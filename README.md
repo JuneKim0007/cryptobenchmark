@@ -40,7 +40,6 @@ Key sizes: AES 128/192/256, RSA 2048/4096, ECDSA P-256.
 | `AndroidKeyStoreBCWorkaround` | Cipher, Signature, Mac on AndroidKeyStore keys |
 | `Conscrypt` (bundled) | same as `AndroidOpenSSL`, newer build |
 | Bouncy Castle (bundled) | Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator |
-| wolfJCE (bundled) | Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator |
 
 See [docs/cryptography/providers.md](docs/cryptography/providers.md).
 
