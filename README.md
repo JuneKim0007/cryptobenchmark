@@ -36,12 +36,10 @@ Providers: `AndroidOpenSSL` (Conscrypt), and `AndroidKeyStore` /
 `PKCS5Padding` on Conscrypt, so only one is measured.
 
 Out of scope — not in general real-world use: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519,
-ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out: the `Crypto` provider (removed)
-and the platform `BC` provider (deprecated).
+ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out, with no supported provider:
+single DES, Blowfish, DSA.
 
-MD5, 3DES and RC4 are measured as baselines only. Single DES, DESede and Blowfish
-still come from the platform `BC` provider; DSA does not — see the replacement table
-in the primitives document.
+MD5, 3DES and RC4 are measured as baselines only.
 
 ## Requirements:
 - python3
