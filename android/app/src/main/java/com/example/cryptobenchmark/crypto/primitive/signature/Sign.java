@@ -86,16 +86,4 @@ public class Sign extends PrimitiveStore {
         return null;
     }
 
-
-    public List<String> sign_all(String message, PrivateKey key) {
-        List<String> l = new ArrayList<>();
-        for(String primitive : providers.keySet()){
-            for (String provider : providers.get(primitive)){
-                //System.out.println(provider);
-                l.add(sign(message, primitive, key, provider));
-            }
-        }
-        return l;
-    }
-
 }

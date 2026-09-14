@@ -76,35 +76,6 @@ public class Digest {
         this.digests_providers.put( "SHA512", basicTriple);
     }*/
 
-    public List<String> digest_all(String msg){
-        List<String> x = new ArrayList<>();
-        for(String algorithm : this.digestsProviders.keySet()){
-            for(String provider : this.digestsProviders.get(algorithm)){
-                x.add(digest(msg, algorithm, provider));
-            }
-        }
-        return x;
-    }
-
-
-    public List<String> digest_all(String msg, String algorithm){
-        if( ! this.digestsProviders.containsKey(algorithm) ){
-            return null;
-        }
-        Set<String> algo_providers = this.digestsProviders.get(algorithm);
-        List<String> x = new ArrayList<>();
-        for(String provider : algo_providers){
-            x.add(digest(msg, algorithm, provider));
-            /*Method method = getMethod(this.getClass().getName(), String.format("digest_%s", algorithm),  new Class[]{ String.class, String.class});
-            try {
-                x.add((String) method.invoke(this, new Object[]{msg, provider}));
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }*/
-        }
-        return x;
-    }
-
     public static String digest(String message, String algo, String provider){
         try {
             MessageDigest digest = java.security.MessageDigest

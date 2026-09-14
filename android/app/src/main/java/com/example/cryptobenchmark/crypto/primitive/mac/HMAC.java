@@ -46,20 +46,6 @@ public class HMAC {
         }
     }
 
-    public List<String> mac_all(String message, String secret){
-        List<String> macs = new ArrayList<>();
-        for (String algo : this.mac_providers.keySet()){
-            for (String provider : this.mac_providers.get(algo)){
-                try {
-                    macs.add(mac(message, secret, algo, provider));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return macs;
-    }
-
     public static String mac(String message, String secret, String algo, String provider) throws Exception{
         Mac sha256_HMAC = Mac.getInstance(algo, provider);
         SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), algo);

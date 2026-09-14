@@ -134,58 +134,6 @@ public class SymmetricEncrypt {
         return this.encrypt_providers.get(String.format("%s/%s/%s", algo, mode, paddingmode));
     }
 
-    public Map<String, IvParameterSpec> encrypt_all(String msg, String algorithm, SecretKey privateKey) {
-        if (this.get_supported_algorithm_modes(algorithm).isEmpty()) {
-            return null;
-        }
-        Map<String, IvParameterSpec> x = new HashMap<>();
-        for (String cyphermode : this.get_supported_algorithm_modes(algorithm)) {
-            for (String pd : this.get_supported_algorithm_padds(algorithm, cyphermode)) {
-                for (String provd : this.get_providers_supporting_combo(algorithm, cyphermode, pd)) {
-                    Method method = getMethod(this.getClass().getName(),
-                            String.format("encrypt_%s", algorithm),
-                            new Class[]{String.class, String.class, String.class, SecretKey.class, String.class});
-                    try {
-                        // x.add(encrypt_AES(msg, cyphermode, pd, privateKey, provd));
-                        Map.Entry<String, IvParameterSpec> res = (Map.Entry<String, IvParameterSpec>) method.invoke(this, new Object[]{msg, cyphermode, pd, privateKey, provd});
-                        x.put(res.getKey(), res.getValue());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        }
-        return x;
-    }
-
-    public Map<String, IvParameterSpec> encrypt_all(String msg, String algorithm, int keylen) {
-        if (this.get_supported_algorithm_modes(algorithm).isEmpty()) {
-            return null;
-        }
-        Map<String, IvParameterSpec> x = new LinkedHashMap<>();
-        for (String cyphermode : this.get_supported_algorithm_modes(algorithm)) {
-            for (String pd : this.get_supported_algorithm_padds(algorithm, cyphermode)) {
-                for (String provd : this.get_providers_supporting_combo(algorithm, cyphermode, pd)) {
-                    //System.out.println(" a gerar key de  " + keylen + " com provider " + provd + " com modo " + cyphermode + " e padd " + pd);
-                    SecretKey sk = getKey(algorithm, keylen, cyphermode, pd, provd);
-                    Method method = getMethod(this.getClass().getName(),
-                            String.format("encrypt_%s", algorithm),
-                            new Class[]{String.class, String.class, String.class, SecretKey.class, String.class});
-                    try {
-                        // x.add(encrypt_AES(msg, cyphermode, pd, privateKey, provd));
-                        Map.Entry<String, IvParameterSpec> res = (Map.Entry<String, IvParameterSpec>) method.invoke(this, new Object[]{msg, cyphermode, pd, sk, provd});
-                        x.put(res.getKey(), res.getValue());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        }
-        return x;
-    }
-
     public static SecretKey getKey(String algo, int keylen, String mode, String padding, String provider) {
         try {
             Method method = getMethod(SymmetricKeyGen.class.getName(),
@@ -197,30 +145,6 @@ public class SymmetricEncrypt {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public Map<String, IvParameterSpec> encrypt_all(String msg, String algorithm, SecretKey privateKey, String provider) {
-        if (this.get_supported_algorithm_modes(algorithm).isEmpty()) {
-            return null;
-        }
-        Map<String, IvParameterSpec> x = new HashMap<>();
-        for (String cyphermode : this.get_supported_algorithm_modes(algorithm)) {
-            for (String pd : this.get_supported_algorithm_padds(algorithm, cyphermode)) {
-                if (this.get_providers_supporting_combo(algorithm, cyphermode, pd).contains(provider)) {
-                    Method method = getMethod(this.getClass().getName(),
-                            String.format("encrypt_%s", algorithm),
-                            new Class[]{String.class, String.class, String.class, SecretKey.class, String.class});
-                    try {
-                        // x.add(encrypt_AES(msg, cyphermode, pd, privateKey, provd));
-                        Map.Entry<String, IvParameterSpec> res = (Map.Entry<String, IvParameterSpec>) method.invoke(this, new Object[]{msg, cyphermode, pd, privateKey, provider});
-                        x.put(res.getKey(), res.getValue());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return x;
     }
 
     public static Map.Entry<String, IvParameterSpec> encrypt_AES(String message, String mode, String padding, Key key, String provider) {
@@ -361,24 +285,6 @@ public class SymmetricEncrypt {
             e.printStackTrace();
             return null;
         }
-    }
-    public Map<String, IvParameterSpec>  encryptWithAll(String plaintext){
-        Map<String, IvParameterSpec> x = new LinkedHashMap<>();
-        for(String algorithm : this.encrypt_providers.keySet()) {
-            for(String provider : this.encrypt_providers.get(algorithm)){
-                System.out.println(algorithm);
-                try{
-                    SecretKey sk = gen_key_AES(128, "", "", provider);
-                    Map.Entry<String, IvParameterSpec> res = encrypt(plaintext, sk, algorithm, provider);
-                    x.put(res.getKey(), res.getValue());
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-
-            }
-        }
-        return x;
     }
 
     // ChaCha20-Poly1305 is almost 3 times faster than AES when the CPU does not provide dedicated AES instructions. Intel processors provide AES-NI instruction set [1]

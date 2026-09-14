@@ -90,20 +90,4 @@ public class Verify extends PrimitiveStore {
         }
         return false;
     }
-
-    public boolean verify_all(String message, List<String> signatures, PublicKey key) {
-        boolean res = false;
-        int i = 0;
-        for(String primitive : providers.keySet()){
-            for (String provider : providers.get(primitive)){
-                res = verify(message, signatures.get(i), primitive, key, provider);
-                System.out.println(res);
-                if (!res) {
-                    return false;
-                }
-                i++;
-            }
-        }
-        return res;
-    }
 }

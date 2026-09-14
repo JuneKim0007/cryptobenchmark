@@ -77,29 +77,6 @@ public class SymmetricDecrypt {
         return this.decrypt_providers.get(String.format("%s/%s/%s", algo, mode, paddingmode));
     }
 
-    public List<String> decrypt_all(String msg, String algorithm, SecretKey privateKey, IvParameterSpec iv){
-        if( this.get_supported_algorithm_modes(algorithm).isEmpty()){
-            return null;
-        }
-        List<String> x = new ArrayList<>();
-        for(String cyphermode : this.get_supported_algorithm_modes(algorithm)){
-            for(String pd : this.get_supported_algorithm_padds(algorithm, cyphermode)){
-                for(String provd : this.get_providers_supporting_combo(algorithm, cyphermode, pd)){
-                    Method method = getMethod(this.getClass().getName(),
-                            String.format("decrypt_%s", algorithm),
-                            new Class[]{ String.class, String.class, String.class, SecretKey.class, String.class, IvParameterSpec.class});
-                    try {
-                        // x.add(encrypt_AES(msg, cyphermode, pd, privateKey, provd));
-                        x.add((String) method.invoke(this, new Object[]{msg, cyphermode, pd, privateKey, provd, iv}));
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return x;
-    }
-
     public static String decrypt_AES(String message, String mode, String padding, Key key, String provider, IvParameterSpec iv){
         Cipher cipher = null;
         try {
