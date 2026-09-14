@@ -13,7 +13,6 @@ Which provider supplies what, and which are in scope. Primitive definitions are 
 | `AndroidKeyStore` + `AndroidKeyStoreBCWorkaround` | device | benchmarked |
 | `Conscrypt` (`org.conscrypt:conscrypt-android`) | bundle in APK | candidate |
 | Bouncy Castle (`org.bouncycastle:bcprov-jdk18on`) | bundle in APK | candidate |
-| wolfJCE | bundle in APK | candidate |
 | `BC` (platform) | device | excluded |
 | `Crypto` | — | not present on Android |
 
@@ -22,8 +21,6 @@ An unqualified `getInstance` resolves to `AndroidOpenSSL`.
 ---
 
 ## AndroidOpenSSL
-
-Conscrypt over BoringSSL. Mainline module, updates through Play system updates.
 
 ### Supports
 
@@ -45,9 +42,6 @@ code (aliased to PKCS5Padding), keys of 512 bits.
 ---
 
 ## AndroidKeyStore + AndroidKeyStoreBCWorkaround
-
-One pair. `AndroidKeyStore` generates and holds non-exportable keys;
-`AndroidKeyStoreBCWorkaround` runs the operations on them.
 
 ### Supports
 
@@ -78,4 +72,3 @@ Key export, raw key material access, ChaCha20, arbitrary EC curves under StrongB
 |---|---|---|
 | `Conscrypt` bundled | a newer BoringSSL than the device's | same API as `AndroidOpenSSL`; register under its own name |
 | Bouncy Castle bundled | full algorithm set: DES, Blowfish, DSA, SHA-3, Argon2, extended modes and paddings | provider name `BC` clashes with the platform copy; register under another name |
-| wolfJCE | third implementation of the common algorithms | FIPS-validated builds available |
