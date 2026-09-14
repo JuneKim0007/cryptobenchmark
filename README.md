@@ -8,8 +8,10 @@ This project started with a failed attempt to make an elegant library that would
 Benchmarking covers the generally used primitives. Full provider catalogue:
 [docs/cryptography/primitives.md](docs/cryptography/primitives.md).
 
-Target devices: Pixel 9 (Tensor G4) and Pixel 10 (Tensor G5) on Android 17;
-Android 16 as the comparison baseline.
+Benchmarks assume **Android 17** (API 37) on Pixel 9 (Tensor G4) and Pixel 10
+(Tensor G5) — the current release on both devices as of 14 Sep 2026. **Android 16**
+(API 36) is the comparison baseline: it is the most-used Android version worldwide
+at ~22–25%, ahead of Android 15 (~17%) and Android 14 (~13–17%).
 
 The list includes:
 
@@ -37,9 +39,9 @@ Out of scope — not in general real-world use: ML-DSA, ML-KEM, SLH-DSA, HPKE, X
 ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out: the `Crypto` provider (removed)
 and the platform `BC` provider (deprecated).
 
-MD5, 3DES and RC4 are measured as baselines only. Single DES, Blowfish and DSA have
-no provider on the target devices — see the replacement table in the primitives
-document.
+MD5, 3DES and RC4 are measured as baselines only. Single DES, DESede and Blowfish
+still come from the platform `BC` provider; DSA does not — see the replacement table
+in the primitives document.
 
 ## Requirements:
 - python3
