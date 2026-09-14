@@ -1,6 +1,6 @@
-package com.example.cryptobenchmark.encrypt.symmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher.symmetric;
 
-import com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
@@ -28,7 +28,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
 import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;

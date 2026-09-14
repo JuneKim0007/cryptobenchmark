@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.keygen.assymmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;

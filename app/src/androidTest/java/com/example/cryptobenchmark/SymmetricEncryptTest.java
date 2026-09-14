@@ -2,9 +2,9 @@ package com.example.cryptobenchmark;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt;
-import com.example.cryptobenchmark.encrypt.symmetric.SymmetricEncrypt;
-import com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.StringType;
 
@@ -21,13 +21,13 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt.decrypt_ARC4;
-import static com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt.decrypt_BLOWFISH;
-import static com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt.decrypt_ChaCha20;
-import static com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt.decrypt_ChaCha20Poly;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ARC4_AndroidOpenSSL;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_ARC4;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_BLOWFISH;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_ChaCha20;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_ChaCha20Poly;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4_AndroidOpenSSL;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

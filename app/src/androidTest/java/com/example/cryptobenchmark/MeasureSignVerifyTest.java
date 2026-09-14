@@ -1,10 +1,10 @@
 package com.example.cryptobenchmark;
 
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.sign.Sign;
-import com.example.cryptobenchmark.sign.SignOperation;
-import com.example.cryptobenchmark.verify.Verify;
-import com.example.cryptobenchmark.verify.VerifyOperation;
+import com.example.cryptobenchmark.crypto.primitive.signature.Sign;
+import com.example.cryptobenchmark.crypto.primitive.signature.SignOperation;
+import com.example.cryptobenchmark.crypto.primitive.signature.Verify;
+import com.example.cryptobenchmark.crypto.primitive.signature.VerifyOperation;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 import java.security.KeyPair;

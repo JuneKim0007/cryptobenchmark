@@ -1,6 +1,6 @@
-package com.example.cryptobenchmark.encrypt.assymmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric;
 
-import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;

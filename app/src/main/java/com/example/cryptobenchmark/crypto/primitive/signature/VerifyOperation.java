@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.verify;
+package com.example.cryptobenchmark.crypto.primitive.signature;
 
 import java.security.PublicKey;
 

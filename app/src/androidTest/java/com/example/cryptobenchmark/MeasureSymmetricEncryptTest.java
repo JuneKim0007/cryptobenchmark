@@ -1,14 +1,14 @@
 package com.example.cryptobenchmark;
 
 import androidx.test.runner.AndroidJUnit4;
-import com.example.cryptobenchmark.encrypt.symmetric.SymmetricEncrypt;
-import com.example.cryptobenchmark.encrypt.symmetric.EncryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import javax.crypto.SecretKey;
 
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
 
 
 @RunWith(AndroidJUnit4.class)

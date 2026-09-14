@@ -1,9 +1,9 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt;
-import com.example.cryptobenchmark.decrypt.symmetric.DecryptOperation;
-import com.example.cryptobenchmark.encrypt.symmetric.SymmetricEncrypt;
-import com.example.cryptobenchmark.encrypt.symmetric.EncryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 import javax.crypto.SecretKey;

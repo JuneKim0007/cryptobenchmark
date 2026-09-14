@@ -2,9 +2,9 @@ package com.example.cryptobenchmark;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.example.cryptobenchmark.decrypt.assymmetric.AssymmetricDecrypt;
-import com.example.cryptobenchmark.encrypt.assymmetric.AssymmetricEncrypt;
-import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricDecrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;

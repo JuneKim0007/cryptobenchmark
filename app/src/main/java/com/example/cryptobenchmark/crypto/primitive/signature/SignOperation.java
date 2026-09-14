@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.sign;
+package com.example.cryptobenchmark.crypto.primitive.signature;
 
 import java.security.PrivateKey;
 

@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.keygen.symmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher.symmetric;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
