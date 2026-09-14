@@ -1,7 +1,7 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.mac.HMAC;
-import com.example.cryptobenchmark.mac.HMACOperation;
+import com.example.cryptobenchmark.crypto.primitive.mac.HMAC;
+import com.example.cryptobenchmark.crypto.primitive.mac.HMACOperation;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.StringType;

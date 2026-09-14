@@ -1,7 +1,7 @@
 package com.example.cryptobenchmark;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.sign.Sign;
-import com.example.cryptobenchmark.sign.SignOperation;
+import com.example.cryptobenchmark.crypto.primitive.signature.Sign;
+import com.example.cryptobenchmark.crypto.primitive.signature.SignOperation;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 

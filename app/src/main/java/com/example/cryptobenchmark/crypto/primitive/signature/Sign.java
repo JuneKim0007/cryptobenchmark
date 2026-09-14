@@ -1,30 +1,30 @@
-package com.example.cryptobenchmark.verify;
+package com.example.cryptobenchmark.crypto.primitive.signature;
 
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.PrimitiveStore;
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PublicKey;
+import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
 
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
 
 
-public class Verify extends PrimitiveStore {
+public class Sign extends PrimitiveStore {
 
-    public Verify() {
+    public Sign() {
         super();
     }
 
-    public Verify(DeviceCryptoPrimitives dcp){
+    public Sign(DeviceCryptoPrimitives dcp){
         this();
         for (CryptoProvider cp : dcp.getDeviceProviders().values()){
             for (String algoId : primitives){
@@ -36,9 +36,7 @@ public class Verify extends PrimitiveStore {
         }
     }
 
-
-
-    public Verify(DeviceCryptoPrimitives dcp, List<String> primitives){
+    public Sign(DeviceCryptoPrimitives dcp, List<String> primitives){
         this();
         for (CryptoProvider cp : dcp.getDeviceProviders().values()){
             for (String algoId : primitives){
@@ -52,58 +50,52 @@ public class Verify extends PrimitiveStore {
         addPrimitives(primitives);
     }
 
-    public static boolean verify(String message, String signature, String algo, PublicKey key){
-        Signature s = null;
+    public static String sign(String message, String fullAlgorithmDefinition, PrivateKey key){
         try {
-            s = Signature.getInstance(algo);
-            s.initVerify(key);
+            Signature s = Signature.getInstance(fullAlgorithmDefinition);
+            s.initSign(key);
             s.update(message.getBytes());
-            return s.verify(StringToByteArrayBase64(signature));
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            return byteArrayToStringBase64(s.sign());
+        } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
-    public static boolean verify(String message, String signature, String algo, PublicKey key, String provider){
-        Signature s = null;
+    public static String sign(String message,String algo, PrivateKey key, String provider){
         try {
-            s = Signature.getInstance(algo, provider);
-            s.initVerify(key);
+            Signature s = Signature.getInstance(algo, provider);
+            s.initSign(key);
             s.update(message.getBytes());
-            return s.verify(StringToByteArrayBase64(signature));
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
+            return byteArrayToStringBase64(s.sign());
+        } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException | NoSuchProviderException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
-    public static boolean verify_b(byte[] message, byte[] signature, String algo, PublicKey key){
-        Signature s = null;
+    public static byte[] sign_b(String message,String algo, PrivateKey key){
         try {
-            s = Signature.getInstance(algo);
-            s.initVerify(key);
-            s.update(message);
-            return s.verify(signature);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            Signature s = Signature.getInstance(algo);
+            s.initSign(key);
+            s.update(message.getBytes());
+            return s.sign();
+        } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
-    public boolean verify_all(String message, List<String> signatures, PublicKey key) {
-        boolean res = false;
-        int i = 0;
+
+    public List<String> sign_all(String message, PrivateKey key) {
+        List<String> l = new ArrayList<>();
         for(String primitive : providers.keySet()){
             for (String provider : providers.get(primitive)){
-                res = verify(message, signatures.get(i), primitive, key, provider);
-                System.out.println(res);
-                if (!res) {
-                    return false;
-                }
-                i++;
+                //System.out.println(provider);
+                l.add(sign(message, primitive, key, provider));
             }
         }
-        return res;
+        return l;
     }
+
 }

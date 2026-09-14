@@ -1,7 +1,7 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.digest.Digest;
-import com.example.cryptobenchmark.digest.DigestOperation;
+import com.example.cryptobenchmark.crypto.primitive.digest.Digest;
+import com.example.cryptobenchmark.crypto.primitive.digest.DigestOperation;
 
 
 import org.junit.Before;

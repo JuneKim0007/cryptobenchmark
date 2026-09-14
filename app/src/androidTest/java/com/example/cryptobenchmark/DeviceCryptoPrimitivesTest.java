@@ -4,7 +4,7 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import android.util.Log;
 
-import com.example.cryptobenchmark.encrypt.symmetric.SymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.StringType;
 

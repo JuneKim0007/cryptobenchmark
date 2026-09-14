@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.digest;
+package com.example.cryptobenchmark.crypto.primitive.digest;
 
 @FunctionalInterface
 public interface DigestOperation {

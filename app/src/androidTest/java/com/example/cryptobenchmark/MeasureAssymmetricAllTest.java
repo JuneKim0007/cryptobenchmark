@@ -1,10 +1,10 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.decrypt.assymmetric.AssymmetricDecrypt;
-import com.example.cryptobenchmark.decrypt.symmetric.DecryptOperation;
-import com.example.cryptobenchmark.encrypt.assymmetric.AssymmetricEncrypt;
-import com.example.cryptobenchmark.encrypt.symmetric.EncryptOperation;
-import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricDecrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.hunter.library.debug.HunterDebug;
 

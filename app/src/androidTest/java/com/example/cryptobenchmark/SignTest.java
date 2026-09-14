@@ -1,10 +1,10 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.StringType;
-import com.example.cryptobenchmark.sign.Sign;
-import com.example.cryptobenchmark.verify.Verify;
+import com.example.cryptobenchmark.crypto.primitive.signature.Sign;
+import com.example.cryptobenchmark.crypto.primitive.signature.Verify;
 import org.junit.Test;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;

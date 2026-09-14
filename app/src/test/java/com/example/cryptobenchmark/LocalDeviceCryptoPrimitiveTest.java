@@ -1,6 +1,6 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.encrypt.symmetric.SymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import static com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt.decrypt_AES;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_AES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;

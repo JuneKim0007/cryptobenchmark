@@ -2,7 +2,7 @@ package com.example.cryptobenchmark;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.example.cryptobenchmark.digest.Digest;
+import com.example.cryptobenchmark.crypto.primitive.digest.Digest;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.DataType;
 import com.example.cryptobenchmark.misc.datatypes.StringType;

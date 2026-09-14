@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.decrypt.assymmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric;
 
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;

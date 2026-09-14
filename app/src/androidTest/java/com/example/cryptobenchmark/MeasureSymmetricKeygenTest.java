@@ -1,20 +1,20 @@
 package com.example.cryptobenchmark;
 
 import androidx.test.runner.AndroidJUnit4;
-import com.example.cryptobenchmark.encrypt.symmetric.SymmetricEncrypt;
-import com.example.cryptobenchmark.encrypt.symmetric.EncryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ARC4;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_DES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_DES;
 
 @RunWith(AndroidJUnit4.class)
 public class MeasureSymmetricKeygenTest extends MeasureTest {

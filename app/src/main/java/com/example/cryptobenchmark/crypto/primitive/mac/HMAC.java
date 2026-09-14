@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.mac;
+package com.example.cryptobenchmark.crypto.primitive.mac;
 
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;

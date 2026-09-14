@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.digest;
+package com.example.cryptobenchmark.crypto.primitive.digest;
 
 import com.example.cryptobenchmark.misc.CryptoPrimitive;
 import com.example.cryptobenchmark.misc.CryptoProvider;

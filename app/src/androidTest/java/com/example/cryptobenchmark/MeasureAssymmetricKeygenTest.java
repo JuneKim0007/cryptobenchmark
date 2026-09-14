@@ -2,7 +2,7 @@ package com.example.cryptobenchmark;
 
 import org.junit.Test;
 import java.security.KeyPair;
-import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 import com.hunter.library.debug.HunterDebug;
 
 public class MeasureAssymmetricKeygenTest extends MeasureTest {

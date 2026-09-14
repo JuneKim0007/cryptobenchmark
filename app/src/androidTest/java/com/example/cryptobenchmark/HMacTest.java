@@ -1,7 +1,7 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.mac.HMAC;
-import com.example.cryptobenchmark.mac.HMACOperation;
+import com.example.cryptobenchmark.crypto.primitive.mac.HMAC;
+import com.example.cryptobenchmark.crypto.primitive.mac.HMACOperation;
 import com.example.cryptobenchmark.misc.CryptoProvider;
 import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.DataType;
@@ -18,12 +18,12 @@ import java.util.Set;
 import javax.crypto.Mac;
 
 import static com.example.cryptobenchmark.DigestTest.gen_random_workload;
-import static com.example.cryptobenchmark.mac.HMAC.mac_MD5;
-import static com.example.cryptobenchmark.mac.HMAC.mac_SHA1;
-import static com.example.cryptobenchmark.mac.HMAC.mac_SHA224;
-import static com.example.cryptobenchmark.mac.HMAC.mac_SHA256;
-import static com.example.cryptobenchmark.mac.HMAC.mac_SHA384;
-import static com.example.cryptobenchmark.mac.HMAC.mac_SHA512;
+import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_MD5;
+import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_SHA1;
+import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_SHA224;
+import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_SHA256;
+import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_SHA384;
+import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_SHA512;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 

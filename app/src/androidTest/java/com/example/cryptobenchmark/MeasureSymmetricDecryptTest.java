@@ -2,8 +2,8 @@ package com.example.cryptobenchmark;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.example.cryptobenchmark.decrypt.symmetric.SymmetricDecrypt;
-import com.example.cryptobenchmark.decrypt.symmetric.DecryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
+import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.decrypt.symmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher.symmetric;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

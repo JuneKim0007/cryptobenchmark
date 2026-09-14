@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.decrypt.symmetric;
+package com.example.cryptobenchmark.crypto.primitive.cipher;
 
 
 import java.security.Key;

@@ -1,8 +1,8 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.decrypt.symmetric.DecryptOperation;
-import com.example.cryptobenchmark.encrypt.symmetric.EncryptOperation;
-import com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen;
+import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
+import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 import com.example.cryptobenchmark.misc.datatypes.DataType;
 import com.example.cryptobenchmark.misc.datatypes.StringType;
 
@@ -20,14 +20,14 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen.gen_dsa_key;
-import static com.example.cryptobenchmark.keygen.assymmetric.AssymmetricEncryptKeyGen.gen_key_ECDSA;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_DES;
-import static com.example.cryptobenchmark.keygen.symmetric.SymmetricKeyGen.gen_key_ARC4;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_dsa_key;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_key_ECDSA;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_DES;
+import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4;
 import static com.example.cryptobenchmark.misc.Utils.getConfigs;
 
 public class MeasureTest {
