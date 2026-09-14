@@ -1,6 +1,6 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.crypto.primitive.signature.Sign;
 import com.example.cryptobenchmark.crypto.primitive.signature.SignOperation;
 import com.example.cryptobenchmark.crypto.primitive.signature.Verify;

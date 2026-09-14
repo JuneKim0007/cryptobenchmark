@@ -5,7 +5,7 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.hunter.library.debug.HunterDebug;
 
 import org.junit.Test;

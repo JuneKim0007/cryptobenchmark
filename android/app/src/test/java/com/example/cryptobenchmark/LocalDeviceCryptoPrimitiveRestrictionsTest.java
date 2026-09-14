@@ -1,8 +1,8 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.setup.CryptoProvider;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.setup.DevicePrimitiveRestrictions;
+import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.environment.discovery.DevicePrimitiveRestrictions;
 
 import org.json.JSONException;
 import org.junit.Test;

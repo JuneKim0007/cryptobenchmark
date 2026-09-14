@@ -1,8 +1,8 @@
 package com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric;
 
-import com.example.cryptobenchmark.setup.CryptoPrimitive;
-import com.example.cryptobenchmark.setup.CryptoProvider;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
+import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

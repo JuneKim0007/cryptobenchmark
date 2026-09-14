@@ -1,9 +1,9 @@
 package com.example.cryptobenchmark.crypto.primitive.cipher.symmetric;
 
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
-import com.example.cryptobenchmark.setup.CryptoPrimitive;
-import com.example.cryptobenchmark.setup.CryptoProvider;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
+import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AlgorithmParameters;

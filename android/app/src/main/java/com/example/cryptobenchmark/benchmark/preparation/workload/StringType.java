@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.bench.fixture.workload;
+package com.example.cryptobenchmark.benchmark.preparation.workload;
 
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;

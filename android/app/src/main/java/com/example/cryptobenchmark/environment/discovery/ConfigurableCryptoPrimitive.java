@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.setup;
+package com.example.cryptobenchmark.environment.discovery;
 
 import org.json.JSONArray;
 import org.json.JSONException;

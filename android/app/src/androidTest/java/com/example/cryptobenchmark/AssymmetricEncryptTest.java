@@ -6,9 +6,9 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.Assymmetri
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 
-import com.example.cryptobenchmark.setup.CryptoProvider;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.bench.fixture.workload.StringType;
+import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
