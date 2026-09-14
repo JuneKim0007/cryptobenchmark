@@ -99,7 +99,7 @@ $ pip install -r requirements.txt
 
 ## Setup
 
-The settings for each benchmark are declared in the gradle.properties file. There, several variables are declared that are then translated into class variables of the test classes to parameterize the executions:
+The settings for each benchmark are declared in the android/gradle.properties file. There, several variables are declared that are then translated into class variables of the test classes to parameterize the executions:
 - KEY_LEN - key size
 - INPUT_SIZE - input size in bytes
 - N_TIMES - times each cipher is executed in each unit test
