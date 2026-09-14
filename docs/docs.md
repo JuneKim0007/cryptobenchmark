@@ -18,12 +18,12 @@
         - `DeviceCryptoPrimitives` : walks `Security.getProviders()`
         - `DevicePrimitiveRestrictions` : applies `res/raw/restrictions.json`
         - `CryptoProvider`, `CryptoPrimitive`, `ConfigurableCryptoPrimitive`, `CryptoParam`, `MultiCryptoParam` : provider/algorithm model
-      - `setup/` : put the device into the required state — CPU affinity, governor, background processes, permissions, profiling tools, directories *(planned; mostly host-side today)*
-    - `benchmark/` : what is measured
-      - `preparation/` : benchmark state built before measuring
+      - `setup/` : what the user asked for — run config and user-supplied inputs
         - `config/` : `Config` — run parameters read from the pushed config
+    - `benchmark/` : what is measured
+      - `preparation/` : turns what the user asked for into runnable state
         - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
-        - `registry/` : which cases exist = scope ∩ discovery *(planned)*
+        - `registry/` : `PrimitiveStore` — which provider serves which algorithm
         - `key/` : key per case *(planned)*
         - `workload/` : `DataType`, `StringType` — input generation
     - `misc/` : `Utils` — `getMethod` plus debug helpers; removed with the reflection dispatch
@@ -47,7 +47,7 @@
 ### phases
 
 1. `environment/discovery/` : determine device, runtime, hardware capability, benchmark compatibility
-2. `environment/setup/` : configure the device into the required state
+2. `environment/setup/` : user config and user-supplied inputs (device state is Jetpack's, via runner args)
 3. `benchmark/preparation/` : algorithm, inputs, keys, parameters for one case
 
 ### dependency rules
