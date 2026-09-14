@@ -5,8 +5,8 @@ This project started with a failed attempt to make an elegant library that would
 
 ## Scope
 
-Benchmarking covers the generally used primitives. Full provider catalogue:
-[docs/cryptography/primitives.md](docs/cryptography/primitives.md).
+Benchmarking covers the generally used primitives. Catalogue:
+[primitives](docs/cryptography/primitives.md), [providers](docs/cryptography/providers.md).
 
 Benchmarks assume **Android 17** (API 37) on Pixel 9 (Tensor G4) and Pixel 10
 (Tensor G5) — the current release on both devices as of 14 Sep 2026. **Android 16**
