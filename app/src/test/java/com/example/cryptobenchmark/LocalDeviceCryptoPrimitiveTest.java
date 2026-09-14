@@ -1,9 +1,9 @@
 package com.example.cryptobenchmark;
 
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
-import com.example.cryptobenchmark.misc.CryptoPrimitive;
-import com.example.cryptobenchmark.misc.CryptoProvider;
-import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.setup.CryptoPrimitive;
+import com.example.cryptobenchmark.setup.CryptoProvider;
+import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.misc.datatypes.StringType;
 import org.junit.Test;
 

@@ -1,8 +1,8 @@
 package com.example.cryptobenchmark.crypto.primitive.mac;
 
-import com.example.cryptobenchmark.misc.CryptoPrimitive;
-import com.example.cryptobenchmark.misc.CryptoProvider;
-import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.setup.CryptoPrimitive;
+import com.example.cryptobenchmark.setup.CryptoProvider;
+import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
 
 import java.util.ArrayList;
 import java.util.Arrays;
