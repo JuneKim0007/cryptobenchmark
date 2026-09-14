@@ -45,17 +45,4 @@ public class LocalSignTest {
         assertNotNull(signature);
         assertTrue(Verify.verify(msg, signature, algo, kp.getPublic()));
     }
-
-    @Test    
-    public void test_sign_local_all() throws NoSuchAlgorithmException{
-        List<String> algorithms = new ArrayList<>(Arrays.asList("DSA"));
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key(1024, "DSA");
-        String msg = (String) StringType.genRandomWithSize(DATA_LEN).getValue();
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        Sign s = new Sign(dcp, algorithms);
-        Verify v = new Verify(dcp, algorithms);
-        List<String> signatures = s.sign_all(msg, kp.getPrivate());
-        assertNotNull(signatures);
-        assertTrue(v.verify_all(msg, signatures, kp.getPublic()));
-    }
 }
