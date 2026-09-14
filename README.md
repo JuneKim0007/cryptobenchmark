@@ -31,9 +31,18 @@ The list includes:
 
 Key sizes: AES 128/192/256, RSA 2048/4096, ECDSA P-256.
 
-Providers: `AndroidOpenSSL` (Conscrypt), and `AndroidKeyStore` /
-`AndroidKeyStoreBCWorkaround` for hardware-backed keys. `PKCS7Padding` is an alias of
-`PKCS5Padding` on Conscrypt, so only one is measured.
+## Provider
+
+| Provider | Provides |
+|---|---|
+| `AndroidOpenSSL` | Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator, KeyAgreement |
+| `AndroidKeyStore` | KeyStore, KeyGenerator, KeyPairGenerator, KeyFactory, SecretKeyFactory |
+| `AndroidKeyStoreBCWorkaround` | Cipher, Signature, Mac on AndroidKeyStore keys |
+| `Conscrypt` (bundled) | same as `AndroidOpenSSL`, newer build |
+| Bouncy Castle (bundled) | Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator |
+| wolfJCE (bundled) | Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator |
+
+See [docs/cryptography/providers.md](docs/cryptography/providers.md).
 
 Out of scope — not in general real-world use: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519,
 ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out, with no supported provider:
