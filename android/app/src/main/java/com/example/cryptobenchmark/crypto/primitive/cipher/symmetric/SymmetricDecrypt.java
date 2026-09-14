@@ -23,10 +23,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBase64;
 
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 

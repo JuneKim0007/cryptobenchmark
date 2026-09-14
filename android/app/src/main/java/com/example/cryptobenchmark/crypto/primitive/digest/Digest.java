@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 public class Digest {

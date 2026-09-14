@@ -29,11 +29,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBase64;
 
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
 
 public class AssymmetricDecrypt {
 

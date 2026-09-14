@@ -32,8 +32,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 

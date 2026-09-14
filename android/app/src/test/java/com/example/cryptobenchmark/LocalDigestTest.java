@@ -2,7 +2,7 @@ package com.example.cryptobenchmark;
 
 import com.example.cryptobenchmark.setup.CryptoProvider;
 import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.misc.datatypes.StringType;
+import com.example.cryptobenchmark.bench.fixture.workload.StringType;
 
 import org.junit.Test;
 

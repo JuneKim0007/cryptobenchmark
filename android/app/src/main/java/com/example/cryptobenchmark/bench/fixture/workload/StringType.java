@@ -1,17 +1,15 @@
-package com.example.cryptobenchmark.misc.datatypes;
+package com.example.cryptobenchmark.bench.fixture.workload;
 
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Random;
-import java.nio.charset.StandardCharsets;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
-import static com.example.cryptobenchmark.misc.Utils.intToByteArray;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.intToByteArray;
 
 public class StringType implements DataType{
 
-    public static String standardCharSet = StandardCharsets.UTF_8.toString();
 
     private String value;
 

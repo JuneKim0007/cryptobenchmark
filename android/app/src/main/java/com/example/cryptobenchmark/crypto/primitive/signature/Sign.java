@@ -13,8 +13,8 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
 
 
 

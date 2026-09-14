@@ -14,8 +14,8 @@ import java.security.SignatureException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArrayBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBase64;
 
 
 public class Verify extends PrimitiveStore {

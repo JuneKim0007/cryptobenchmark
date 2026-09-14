@@ -1,12 +1,12 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.misc.datatypes.StringType;
+import com.example.cryptobenchmark.bench.fixture.workload.StringType;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static com.example.cryptobenchmark.misc.Utils.StringToByteArray;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 
 public class LocalDataTypesTest {
 

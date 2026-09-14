@@ -4,7 +4,7 @@ import com.example.cryptobenchmark.crypto.primitive.mac.HMAC;
 import com.example.cryptobenchmark.crypto.primitive.mac.HMACOperation;
 import com.example.cryptobenchmark.setup.CryptoProvider;
 import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.misc.datatypes.StringType;
+import com.example.cryptobenchmark.bench.fixture.workload.StringType;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 
