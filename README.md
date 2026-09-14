@@ -8,15 +8,18 @@ This project started with a failed attempt to make an elegant library that would
 Benchmarking covers the generally used primitives. Full provider catalogue:
 [docs/cryptography/primitives.md](docs/cryptography/primitives.md).
 
+Target devices: Pixel 9 (Tensor G4) and Pixel 10 (Tensor G5) on Android 17;
+Android 16 as the comparison baseline.
+
 The list includes:
 
 | Primitive | Type |
 |---|---|
-| AES/GCM/NoPadding | symmetric-cipher |
-| AES/CBC/{PKCS5Padding,PKCS7Padding} | symmetric-cipher |
+| AES/GCM/NoPadding (12-byte IV) | symmetric-cipher |
+| AES/CBC/PKCS5Padding | symmetric-cipher |
 | AES/CTR/NoPadding | symmetric-cipher |
-| ChaCha20 | symmetric-cipher |
-| RSA/ECB/OAEPPadding, OAEPwithSHA-*andMGF1Padding | asymmetric-cipher |
+| ChaCha20, ChaCha20/Poly1305/NoPadding | symmetric-cipher |
+| RSA/ECB/OAEPPadding, OAEPWithSHA-*AndMGF1Padding | asymmetric-cipher |
 | RSA/ECB/PKCS1Padding | asymmetric-cipher |
 | SHA-256, SHA-1, SHA-512 | hash |
 | HmacSHA256, HmacSHA1 | mac |
@@ -24,14 +27,19 @@ The list includes:
 | SHA256withECDSA (not yet measured) | signature |
 | key generation for the above | keygen-symmetric, keygen-asymmetric |
 
+Key sizes: AES 128/192/256, RSA 2048/4096, ECDSA P-256.
+
 Providers: `AndroidOpenSSL` (Conscrypt), and `AndroidKeyStore` /
-`AndroidKeyStoreBCWorkaround` for hardware-backed keys.
+`AndroidKeyStoreBCWorkaround` for hardware-backed keys. `PKCS7Padding` is an alias of
+`PKCS5Padding` on Conscrypt, so only one is measured.
 
 Out of scope — not in general real-world use: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519,
 ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out: the `Crypto` provider (removed)
 and the platform `BC` provider (deprecated).
 
-MD5, DES, 3DES, RC4 and Blowfish are measured as baselines only.
+MD5, 3DES and RC4 are measured as baselines only. Single DES, Blowfish and DSA have
+no provider on the target devices — see the replacement table in the primitives
+document.
 
 ## Requirements:
 - python3

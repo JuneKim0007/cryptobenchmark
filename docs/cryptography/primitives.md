@@ -1,8 +1,11 @@
 # <cryptographic_primitives>
 
-Catalogue of cryptographic primitives and the providers that supply them on current
-Android. Scope — which of these are actually benchmarked — is in the
-[README](../../README.md).
+Catalogue of cryptographic primitives and the providers that supply them. Scope —
+which of these are benchmarked — is in the [README](../../README.md).
+
+**Target:** Pixel 9 (Tensor G4) and Pixel 10 (Tensor G5), Android 17 (API 37,
+released June 2026). Baseline for comparison is Android 16 (API 36), the most-used
+version worldwide at ~22–25%. Both carry the Titan M2 chip for StrongBox keys.
 
 ---
 
@@ -45,89 +48,104 @@ signature.
 | `AndroidOpenSSL` | Conscrypt / BoringSSL, the platform default; mainline module since Android 10 | current |
 | `AndroidKeyStore` | key generation, storage, key factories for hardware-backed keys | current |
 | `AndroidKeyStoreBCWorkaround` | cipher/signature/MAC operations on AndroidKeyStore keys; internal | current |
-| `BC` (platform) | Android's stripped Bouncy Castle | legacy — deprecated Android 9, most algorithms since deleted |
+| `BC` (platform) | Android's stripped Bouncy Castle | **removed in Android 12** — deprecated in Android 9, implementations deleted in 12 "including all AES algorithms" |
 | `BC` bundled (`org.bouncycastle:bcprov-jdk18on`) | full Bouncy Castle inside the APK; provider name `BC` clashes, register explicitly | candidate |
 | `Conscrypt` bundled (`org.conscrypt:conscrypt-android`) | newer BoringSSL than the device's | candidate |
 
 `Crypto` provider: removed in Android 9. Tink and Jetpack `security-crypto` are
 libraries, not providers; `security-crypto` was deprecated in 2025.
 
----
+### Conscrypt constraints (since Android 12)
 
-## List
-
-`bench` = measured by the current suite. `verified` = read in provider source;
-`inferred` = from docs or the same removal list; `unverified` = needs the device probe.
-
-| Cryptography | Provider | Type | Status | Evidence | bench |
-|---|---|---|---|---|---|
-| AES/ECB/{NoPadding,PKCS5Padding,PKCS7Padding} | AndroidOpenSSL | symmetric-cipher | current | verified | yes |
-| AES/CBC/{NoPadding,PKCS5Padding,PKCS7Padding} | AndroidOpenSSL | symmetric-cipher | current | verified | yes |
-| AES/CTR/NoPadding | AndroidOpenSSL | symmetric-cipher | current | verified | yes |
-| AES/GCM/NoPadding | AndroidOpenSSL | symmetric-cipher | current | verified | yes |
-| AES/GCM-SIV/NoPadding | AndroidOpenSSL | symmetric-cipher | current, out-of-scope | verified | yes |
-| ChaCha20 | AndroidOpenSSL | symmetric-cipher | current | verified | yes |
-| DESede (3DES) /CBC/{NoPadding,PKCS5Padding,PKCS7Padding} | AndroidOpenSSL | symmetric-cipher | legacy-algorithm | verified | yes |
-| ARC4 (RC4) | AndroidOpenSSL | symmetric-cipher | legacy-algorithm | verified | yes |
-| AES/{ECB,CTR,GCM}/NoPadding | AndroidKeyStoreBCWorkaround | symmetric-cipher | current | inferred | yes |
-| DESede/ECB/{NoPadding,PKCS7Padding} | AndroidKeyStoreBCWorkaround | symmetric-cipher | legacy-algorithm | inferred | yes |
-| AES (ECB only) | BC platform | symmetric-cipher | legacy | verified | no |
-| DES (ECB only) | BC platform | symmetric-cipher | legacy | verified | partly |
-| RSA/ECB/PKCS1Padding | AndroidOpenSSL | asymmetric-cipher | legacy-algorithm | verified | yes |
-| RSA/ECB/OAEPPadding | AndroidOpenSSL | asymmetric-cipher | current | verified | yes |
-| RSA/ECB/OAEPwithSHA-{1,224,256,384,512}andMGF1Padding | AndroidOpenSSL | asymmetric-cipher | current | verified | yes |
-| RSA/ECB/{PKCS1,OAEPwithSHA-1/224/256}Padding | AndroidKeyStoreBCWorkaround | asymmetric-cipher | current | inferred | yes |
-| SHA-{1,224,256,384,512} | AndroidOpenSSL | hash | current | verified | yes |
-| MD5 | AndroidOpenSSL | hash | legacy-algorithm | verified | yes |
-| HmacSHA-{1,224,256,384,512} | AndroidOpenSSL | mac | current | inferred | yes |
-| HmacMD5 | AndroidOpenSSL | mac | legacy-algorithm | verified | yes |
-| AES-CMAC | AndroidOpenSSL | mac | current, out-of-scope | inferred (Android 14) | no |
-| SHA{1,224,256,384,512}withRSA | AndroidOpenSSL | signature | current | verified | yes |
-| SHA{1,224,256,384,512}withECDSA | AndroidOpenSSL | signature | current | inferred | **no** |
-| Ed25519 | AndroidOpenSSL | signature | current, out-of-scope | verified | no |
-| ML-DSA-{44,65,87} | AndroidOpenSSL | signature | current, out-of-scope | verified (upstream Conscrypt) | no |
-| SLH-DSA-SHA2-128S | AndroidOpenSSL | signature | current, out-of-scope | verified (upstream Conscrypt) | no |
-| ML-DSA-{65,87} | AndroidKeyStore | signature | current (Android 17), out-of-scope | documented | no |
-| SHA1withDSA | BC platform | signature | legacy | verified | yes |
-| ML-KEM-{768,1024} | AndroidOpenSSL | kem | current, out-of-scope | keygen verified; encapsulation unverified | no |
-| X25519 | AndroidOpenSSL | key-agreement | current, out-of-scope | verified | no |
-| ECDH, XDH | AndroidKeyStore | key-agreement | current, out-of-scope | verified | no |
-| HPKE | AndroidOpenSSL | kem + cipher | current, out-of-scope | verified | no |
-| AES / HmacSHA* / DESede keygen | AndroidKeyStore | keygen-symmetric | current | verified | yes (AES) |
-| AES, DES, DESede, Blowfish, ARC4, ChaCha20 keygen | AndroidOpenSSL | keygen-symmetric | current | inferred | yes |
-| ARC4 keygen (cipher removed) | BC platform | keygen-symmetric | legacy | verified | no |
-| RSA / EC / XDH / ED25519 keypair gen | AndroidKeyStore | keygen-asymmetric | current | verified | yes (RSA) |
-| RSA keypair gen | AndroidOpenSSL | keygen-asymmetric | current | verified | yes |
-| DSA keypair gen | BC platform | keygen-asymmetric | legacy | verified | yes |
+| Constraint | Effect |
+|---|---|
+| 512-bit keys unsupported | any 512-bit case fails |
+| `KeyGenerator` validates key size | AES accepts only 128/192/256; BC used to allow invalid sizes and fail later |
+| GCM requires a 12-byte IV | a 16-byte IV fails; NIST-recommended length is enforced |
+| `PKCS7Padding` is an **alias** of `PKCS5Padding` | both names reach identical code — benchmarking both measures the same thing twice |
 
 ---
 
-## Legacy — pending sweep
+## List — AndroidOpenSSL (Conscrypt)
 
-Benchmarked today, gone or going from the platform. Delete the matching tests rather
-than leave them failing.
+Verified against upstream `OpenSSLProvider.java`. Everything registered, in scope or
+not; `bench` = measured by the current suite.
 
-| Cryptography | Provider | Type | What happened |
+| Cryptography | Type | Status | bench |
 |---|---|---|---|
-| SHA-{1,224,256,384,512}, MD5 | BC platform | hash | removed from source (`Android-removed`); verified for SHA-256 |
-| HmacSHA*, HmacMD5 | BC platform | mac | removed; only a private HMAC-SHA256 for PBKDF2 remains |
-| SHA{1,224,256,384,512}withRSA | BC platform | signature | on the Android 9 deprecation list; fails on Android 12+ |
-| SHA{224,256,384,512}withDSA | BC platform | signature | removed from source |
-| ARC4 cipher | BC platform | symmetric-cipher | cipher removed, keygen kept |
-| DES/{CBC,CTR,OFB}/* | BC platform | symmetric-cipher | only `Cipher.DES` (ECB) remains |
-| Blowfish | BC platform | symmetric-cipher | unverified — confirm with the device probe |
-| SHA{1,224,256,384,512}withDSA | AndroidOpenSSL | signature | Conscrypt registers no DSA at all; probably never valid |
-| `Crypto` provider | — | — | removed in Android 9 |
+| AES/ECB/{NoPadding,PKCS5Padding} | symmetric-cipher | current | yes |
+| AES/CBC/{NoPadding,PKCS5Padding} | symmetric-cipher | current | yes |
+| AES/CTR/NoPadding | symmetric-cipher | current | yes |
+| AES/GCM/NoPadding | symmetric-cipher | current | yes |
+| AES/GCM-SIV/NoPadding | symmetric-cipher | current, out-of-scope | yes |
+| AES_{128,256}/{ECB,CBC,GCM,GCM-SIV}/… | symmetric-cipher | current, key-size-pinned variants | no |
+| ChaCha20 | symmetric-cipher | current | yes |
+| ChaCha20/Poly1305/NoPadding | symmetric-cipher (AEAD) | current | no |
+| DESEDE/CBC/{NoPadding,PKCS5Padding} | symmetric-cipher | legacy-algorithm | yes |
+| ARC4 | symmetric-cipher | legacy-algorithm | yes |
+| RSA/ECB/{NoPadding,PKCS1Padding} | asymmetric-cipher | legacy-algorithm | yes |
+| RSA/ECB/OAEPPadding, OAEPWithSHA-{1,224,256,384,512}AndMGF1Padding | asymmetric-cipher | current | yes |
+| SHA-{1,224,256,384,512}, MD5 | hash | current (MD5, SHA-1 legacy) | yes |
+| HmacSHA{1,224,256,384,512}, HmacMD5 | mac | current (MD5 legacy) | yes |
+| AESCMAC | mac | current, out-of-scope | no |
+| SHA{1,224,256,384,512}withRSA, MD5withRSA | signature | current (MD5, SHA-1 legacy) | yes |
+| SHA{1,224,256,384,512}withRSA/PSS | signature | current | no |
+| SHA{1,224,256,384,512}withECDSA, NONEwithECDSA | signature | current | **no** |
+| EdDSA (Ed25519) | signature | current, out-of-scope | no |
+| ML-DSA-{44,65,87}, SLH-DSA-SHA2-128S, MLDSA*-hybrids | signature | current, out-of-scope | no |
+| ML-KEM-{768,1024}, XWING | kem | current, out-of-scope | no |
+| XDH (X25519) | key-agreement | current, out-of-scope | no |
+| KeyGenerator: AES, ARC4, ChaCha20, DESEDE, Hmac{MD5,SHA1,SHA224,SHA256,SHA384,SHA512} | keygen-symmetric | current | yes |
+| KeyPairGenerator: RSA, EC, EdDSA, XDH, ML-*, XWING | keygen-asymmetric | current | yes (RSA) |
 
-`targetSdkVersion 27` does not protect against this. It only stopped Android 9 from
-rejecting deprecated BC calls; the implementations have since been deleted.
+**Not in Conscrypt at all:** DES (single), Blowfish, DSA, DESEDE/ECB, AES OFB/CFB
+modes, RC2.
+
+## List — AndroidKeyStore / AndroidKeyStoreBCWorkaround
+
+| Cryptography | Type | Status | bench |
+|---|---|---|---|
+| AES/{ECB,CBC,CTR,GCM} | symmetric-cipher | current | yes |
+| DESede | symmetric-cipher | legacy-algorithm | yes |
+| RSA (PKCS1, OAEP) | asymmetric-cipher | current | yes |
+| RSA, ECDSA signatures | signature | current | yes (RSA) |
+| HmacSHA{1,224,256,384,512} | mac | current | no |
+| ML-DSA-{65,87} | signature | current (Android 17), out-of-scope | no |
+| ECDH, XDH | key-agreement | current, out-of-scope | no |
+| KeyPairGenerator: RSA, EC, XDH, ED25519 | keygen-asymmetric | current | yes (RSA) |
+| KeyGenerator: AES, HmacSHA*, DESede | keygen-symmetric | current | yes (AES) |
+
+**StrongBox (Titan M2) subset:** RSA 2048 only, AES 128/256, ECDSA P-256, ECDH
+P-256, HMAC-SHA256 (8–64 byte keys), Triple DES.
+
+---
+
+## Removed — replace with
+
+Benchmarked today, no provider on the target devices. Replace, do not keep failing.
+
+| Current | Why gone | Replacement |
+|---|---|---|
+| BC: SHA-*, MD5 digests | BC removed in Android 12 | same digests on AndroidOpenSSL |
+| BC: HmacSHA*, HmacMD5 | BC removed in Android 12 | same on AndroidOpenSSL |
+| BC: SHA*withRSA | BC removed in Android 12 | same on AndroidOpenSSL |
+| BC: SHA*withDSA / DSA keygen | BC removed; Conscrypt has no DSA | **SHA256withECDSA** (P-256) |
+| BC: DES/{ECB,CBC,CTR,OFB}/* | no DES in Conscrypt | DESEDE/CBC for a legacy baseline, else drop |
+| BC: Blowfish | no Blowfish in Conscrypt | drop, or bundled BC |
+| BC: ARC4 | cipher removed from BC | ARC4 on AndroidOpenSSL |
+| AndroidOpenSSL: SHA*withDSA | Conscrypt never registered DSA | SHA*withECDSA |
+| 3DES/CBC/PKCS7Padding, AES/*/PKCS7Padding | alias of PKCS5Padding | keep PKCS5Padding only |
+| DESEDE/ECB (keystore tests) | Conscrypt registers CBC only | DESEDE/CBC |
+| AES keys 40/56/168 bits | Conscrypt rejects invalid AES sizes | AES 128/192/256; keep 56 for DES-family only |
+| AES/GCM with 16-byte IV | Conscrypt requires 12 bytes | 12-byte IV via `GCMParameterSpec` |
+| RSA/DSA 1024-bit | below current guidance; StrongBox needs 2048 | RSA 2048/4096 |
 
 ---
 
 ## Device probe
 
-Rows above come from provider source and docs. Ground truth is the device: an
-instrumented test that walks `Security.getProviders()` and records every service,
-algorithm and alias as JSON per device and Android version. It replaces the
-hand-written `app/src/main/res/raw/device_primitives.json` and `restrictions.json`,
-and lets an absent algorithm be recorded as **unsupported** rather than failed.
+Rows come from provider source and docs. Ground truth is the device: an instrumented
+test that walks `Security.getProviders()` and records every service, algorithm and
+alias as JSON per device and Android version. It replaces the hand-written
+`app/src/main/res/raw/device_primitives.json` and `restrictions.json`, and lets an
+absent algorithm be recorded as **unsupported** rather than failed.
