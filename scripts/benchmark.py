@@ -162,7 +162,7 @@ def install_apks(build_type="debug", accept_install=False, retry=True, install_m
             thread1 = threading.Thread(target=background_installer)
             thread1.start()
         print("installing main apk")
-        res, o , e = execute_shell_command(f"adb install -g -r app/build/outputs/apk/{build_type.lower()}/app-{build_type.lower()}*")
+        res, o , e = execute_shell_command(f"adb install -g -r android/app/build/outputs/apk/{build_type.lower()}/app-{build_type.lower()}*")
         print(res)
         if res != 0 and retry:
             install_apks(build_type, accept_install=True, retry=False)
@@ -173,7 +173,7 @@ def install_apks(build_type="debug", accept_install=False, retry=True, install_m
         thread2 = threading.Thread(target=background_installer)
         thread2.start()
     print("installing test apk")
-    res, o , e = execute_shell_command(f"adb install -g -r app/build/outputs/apk/androidTest/{build_type.lower()}/app-{build_type.lower()}*")
+    res, o , e = execute_shell_command(f"adb install -g -r android/app/build/outputs/apk/androidTest/{build_type.lower()}/app-{build_type.lower()}*")
     print(res)
     if res != 0 and retry:
         unlock_screen()
@@ -323,7 +323,7 @@ def build_build_cmd(args_obj):
     prop_keys = get_keys_of_prop_file()
     prop_fmt_keys = list(filter(lambda x: x.upper() in prop_keys, args_obj.__dict__.keys()))
     res = " ".join([f"-P{k.upper()}={args_obj.__dict__[k]}" for k in prop_fmt_keys])
-    cmd = f"./gradlew assemble{args_obj.build_type} assembleAndroidTest {res} -DtestBuildType={args_obj.build_type.lower()}"
+    cmd = f"android/gradlew -p android assemble{args_obj.build_type} assembleAndroidTest {res} -DtestBuildType={args_obj.build_type.lower()}"
     print(f"build command: {cmd}")
     return cmd
 
@@ -338,7 +338,7 @@ def get_configs():
         return {x.split('=')[0].lower(): x.split('=')[1] for x in f.readlines() if '=' in x}
 
 def fetch_from_gradle_prop_file(key, default_val):
-    with open('gradle.properties') as f:
+    with open('android/gradle.properties') as f:
         for line in f:
                 # Split the line into a key-value pair
                 try:
@@ -353,7 +353,7 @@ def fetch_from_gradle_prop_file(key, default_val):
 
 def get_keys_of_prop_file():
     x = []
-    with open('gradle.properties') as f:
+    with open('android/gradle.properties') as f:
         for line in f:
                 # Split the line into a key-value pair
                 try:
