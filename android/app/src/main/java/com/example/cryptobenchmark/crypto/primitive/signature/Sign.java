@@ -1,8 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.signature;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.registry.PrimitiveStore;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -19,36 +16,6 @@ import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBa
 
 
 public class Sign extends PrimitiveStore {
-
-    public Sign() {
-        super();
-    }
-
-    public Sign(DeviceCryptoPrimitives dcp){
-        this();
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : primitives){
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().matches(""+algoId+".*")).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addProviderForPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-    }
-
-    public Sign(DeviceCryptoPrimitives dcp, List<String> primitives){
-        this();
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : primitives){
-                //List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().matches(""+algoId+".*")).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getPrimitiveName().toLowerCase().equals(algoId.toLowerCase())).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addProviderForPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-        addPrimitives(primitives);
-    }
 
     public static String sign(String message, String fullAlgorithmDefinition, PrivateKey key){
         try {

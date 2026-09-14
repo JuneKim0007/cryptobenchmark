@@ -62,10 +62,9 @@ public class MeasureHMACTest extends MeasureTest{
         dce.removeProvider("BC");
         dce.removeProvider("AndroidKeyStore");
         dce.removeProvider("AndroidKeyStoreBCWorkaround");
-        HMAC mc  = new HMAC(dce);
         String msg = (String) StringType.genRandomWithSize(inputSize).getValue();
         String key = (String) StringType.genRandomWithSize(keyLen).getValue();
-        List<String> res = mc.mac_all(msg, key);
+        List<String> res = HMAC.mac_all(msg, key);
         assertNotEquals(res.size(), 0);
     }*/
     

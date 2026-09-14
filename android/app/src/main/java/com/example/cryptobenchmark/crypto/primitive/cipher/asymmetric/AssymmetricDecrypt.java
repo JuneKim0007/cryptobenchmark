@@ -1,8 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -44,26 +41,6 @@ public class AssymmetricDecrypt {
     private static Set<String> assymmetric_primitives = new HashSet<>(
             Arrays.asList("RSA")
     );
-
-    public AssymmetricDecrypt(DeviceCryptoPrimitives dcp){
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : assymmetric_primitives){
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().matches(algoId+".*")).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-    }
-
-    public void addPrimitive(String primitiveName, String primitiveProvider){
-        if(this.encrypt_providers.containsKey(primitiveName)){
-            this.encrypt_providers.get(primitiveName).add(primitiveProvider);
-        }
-        else{
-            this.encrypt_providers.put(primitiveName, new HashSet<>(Collections.singletonList(primitiveProvider)));
-        }
-    }
 
     public List<String> get_supported_algorithm_modes(String algo){
         return this.decrypt_providers.keySet().stream()

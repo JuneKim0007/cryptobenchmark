@@ -33,14 +33,12 @@ public class LocalSymmetricTest {
     
     public void testEncryptAll() {
         DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        SymmetricEncrypt se = new SymmetricEncrypt(de);
     }
 
     @Test
     public void testEncrypt() {
         String provider = "SunJCE";
         DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        SymmetricEncrypt se = new SymmetricEncrypt(de);
         String msg = (String) StringType.genRandomWithSize(128).getValue();
         System.out.println("Message: " + msg + " - " + msg.length());
         SecretKey secret = SymmetricKeyGen.gen_key_AES(128,"ECB","NOPADDING");

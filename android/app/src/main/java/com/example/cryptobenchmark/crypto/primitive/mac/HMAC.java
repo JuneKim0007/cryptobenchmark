@@ -1,8 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.mac;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,26 +22,6 @@ public class HMAC {
     private static Set<String> assymmetric_primitives = new HashSet<>(
             Arrays.asList("HMAC")
     );
-
-    public HMAC(DeviceCryptoPrimitives dcp){
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : assymmetric_primitives){
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().toLowerCase().matches((algoId+".*").toLowerCase())).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-    }
-
-    public void addPrimitive(String primitiveName, String primitiveProvider){
-        if(this.mac_providers.containsKey(primitiveName)){
-            this.mac_providers.get(primitiveName).add(primitiveProvider);
-        }
-        else{
-            this.mac_providers.put(primitiveName, new HashSet<>(Collections.singletonList(primitiveProvider)));
-        }
-    }
 
     public static String mac(String message, String secret, String algo, String provider) throws Exception{
         Mac sha256_HMAC = Mac.getInstance(algo, provider);

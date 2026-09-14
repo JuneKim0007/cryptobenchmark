@@ -1,8 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.signature;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.registry.PrimitiveStore;
 
 import java.security.InvalidKeyException;
@@ -19,38 +16,6 @@ import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBa
 
 
 public class Verify extends PrimitiveStore {
-
-    public Verify() {
-        super();
-    }
-
-    public Verify(DeviceCryptoPrimitives dcp){
-        this();
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : primitives){
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().matches(""+algoId+".*")).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addProviderForPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-    }
-
-
-
-    public Verify(DeviceCryptoPrimitives dcp, List<String> primitives){
-        this();
-        for (CryptoProvider cp : dcp.getDeviceProviders().values()){
-            for (String algoId : primitives){
-                //List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getSimpleName().matches(""+algoId+".*")).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                List<String> matchingPrimitives =  cp.getProviderPrimitives().values().stream().filter(x -> x.getPrimitiveName().toLowerCase().equals(algoId.toLowerCase())).map(CryptoPrimitive::getPrimitiveName).collect(Collectors.toList());
-                for (String s : matchingPrimitives){
-                    addProviderForPrimitive(s, cp.getProviderName());
-                }
-            }
-        }
-        addPrimitives(primitives);
-    }
 
     public static boolean verify(String message, String signature, String algo, PublicKey key){
         Signature s = null;
