@@ -3,6 +3,36 @@
 This project started with a failed attempt to make an elegant library that would automatically infer the providers, primitives and respective algorithms (with respective modes, params, etc.) of the device where it was being used and be able to execute them automatically. Given the difficulty encountered in being able to generalize the high configurability of each of the algorithms that can be used and the many inconsistencies found at the level of the algorithms that the devices declared to have and actually implemented, it was decided to abandon this idea and do something practical and easier to implement (that resulted in a boilerplate code hard to mantain and understand). Therefore, the Android application code contains many  that tried to do this but are not being used.
 
 
+## Scope
+
+Benchmarking covers the generally used primitives. Full provider catalogue:
+[docs/cryptography/primitives.md](docs/cryptography/primitives.md).
+
+The list includes:
+
+| Primitive | Type |
+|---|---|
+| AES/GCM/NoPadding | symmetric-cipher |
+| AES/CBC/{PKCS5Padding,PKCS7Padding} | symmetric-cipher |
+| AES/CTR/NoPadding | symmetric-cipher |
+| ChaCha20 | symmetric-cipher |
+| RSA/ECB/OAEPPadding, OAEPwithSHA-*andMGF1Padding | asymmetric-cipher |
+| RSA/ECB/PKCS1Padding | asymmetric-cipher |
+| SHA-256, SHA-1, SHA-512 | hash |
+| HmacSHA256, HmacSHA1 | mac |
+| SHA256withRSA | signature |
+| SHA256withECDSA (not yet measured) | signature |
+| key generation for the above | keygen-symmetric, keygen-asymmetric |
+
+Providers: `AndroidOpenSSL` (Conscrypt), and `AndroidKeyStore` /
+`AndroidKeyStoreBCWorkaround` for hardware-backed keys.
+
+Out of scope — not in general real-world use: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519,
+ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out: the `Crypto` provider (removed)
+and the platform `BC` provider (deprecated).
+
+MD5, DES, 3DES, RC4 and Blowfish are measured as baselines only.
+
 ## Requirements:
 - python3
 - Android SDK
