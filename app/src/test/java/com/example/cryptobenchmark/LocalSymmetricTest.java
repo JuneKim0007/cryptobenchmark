@@ -7,9 +7,9 @@ import javax.crypto.spec.IvParameterSpec;
 
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
-import com.example.cryptobenchmark.misc.CryptoPrimitive;
-import com.example.cryptobenchmark.misc.CryptoProvider;
-import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.setup.CryptoPrimitive;
+import com.example.cryptobenchmark.setup.CryptoProvider;
+import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_dsa_key;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_key_ECDSA;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;

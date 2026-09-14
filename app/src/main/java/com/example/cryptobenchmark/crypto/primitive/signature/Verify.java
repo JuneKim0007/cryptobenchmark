@@ -1,9 +1,9 @@
 package com.example.cryptobenchmark.crypto.primitive.signature;
 
-import com.example.cryptobenchmark.misc.CryptoPrimitive;
-import com.example.cryptobenchmark.misc.CryptoProvider;
-import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.misc.PrimitiveStore;
+import com.example.cryptobenchmark.setup.CryptoPrimitive;
+import com.example.cryptobenchmark.setup.CryptoProvider;
+import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.setup.PrimitiveStore;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

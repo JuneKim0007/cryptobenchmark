@@ -1,8 +1,8 @@
 package com.example.cryptobenchmark.crypto.primitive.digest;
 
-import com.example.cryptobenchmark.misc.CryptoPrimitive;
-import com.example.cryptobenchmark.misc.CryptoProvider;
-import com.example.cryptobenchmark.misc.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.setup.CryptoPrimitive;
+import com.example.cryptobenchmark.setup.CryptoProvider;
+import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
 import com.hunter.library.debug.HunterDebug;
 
 import java.lang.reflect.InvocationTargetException;

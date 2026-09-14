@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.misc;
+package com.example.cryptobenchmark.setup;
 
 
 import org.json.JSONArray;
