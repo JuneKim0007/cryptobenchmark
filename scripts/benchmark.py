@@ -9,6 +9,9 @@ import threading
 from com.dtmilano.android.viewclient import ViewClient
 from termcolor import colored
 
+# scripts/ lives one level below the repo root; all paths below are root-relative.
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 LOCAL_CFG_FILENAME = "CryptoBenchmark.config"
 DEVICE_CFG_FILENAME = LOCAL_CFG_FILENAME #"CryptoBenchmark.config"
 

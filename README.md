@@ -115,21 +115,21 @@ The parameters can be manipulated directly through command line arguments of the
 
 ## Execution
 
-### Via run_benchmarks.py
+### Via run_benchmarks.sh
 
 1. Define the primitives and params to benchmark (e.g. testDigest) and place it in the end of the file
 
 2. run 
     ```
-    $ ./run_benchmarks.py
+    $ ./scripts/run_benchmarks.sh
     ```
 
 ### Via benchmark.py
 
-1. Define the configs via cmdline and run the script (see python3 benchmark.py --help)
+1. Define the configs via cmdline and run the script (see python3 scripts/benchmark.py --help)
 
     ```
-    $ python3 benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
+    $ python3 scripts/benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
     ```
 
 ## Workflow
@@ -162,12 +162,12 @@ With each execution of benchmark.py, the gradle.properties config file is change
     192.168.1.196:5555	device
     ```
 
-4. Configure the run_benchmrks.sh script;
+4. Configure the scripts/run_benchmarks.sh script;
 
 5. Start the benchmark procedure:
 
     ```
-    $ ./run_benchmarks.sh
+    $ ./scripts/run_benchmarks.sh
     ```
 
 ´
