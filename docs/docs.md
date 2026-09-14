@@ -13,12 +13,13 @@
         - `mac/` : HMAC
         - `signature/` : sign, verify, signature keygen
       - `codec/` : byte↔String, base64, charset
-    - `environment/` : everything around a measurement, never inside one
+    - `environment/` : the device and its state, never inside a measurement
       - `discovery/` : what this device offers and whether it fits the benchmark
         - `DeviceCryptoPrimitives` : walks `Security.getProviders()`
         - `DevicePrimitiveRestrictions` : applies `res/raw/restrictions.json`
         - `CryptoProvider`, `CryptoPrimitive`, `ConfigurableCryptoPrimitive`, `CryptoParam`, `MultiCryptoParam` : provider/algorithm model
       - `setup/` : put the device into the required state — CPU affinity, governor, background processes, permissions, profiling tools, directories *(planned; mostly host-side today)*
+    - `benchmark/` : what is measured
       - `preparation/` : benchmark state built before measuring
         - `config/` : run parameters read from the pushed config
         - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
@@ -47,18 +48,18 @@
 
 1. `environment/discovery/` : determine device, runtime, hardware capability, benchmark compatibility
 2. `environment/setup/` : configure the device into the required state
-3. `environment/preparation/` : algorithm, inputs, keys, parameters for one case
+3. `benchmark/preparation/` : algorithm, inputs, keys, parameters for one case
 
 ### dependency rules
 
-- `crypto/` : imports nothing from `environment`
-- `environment/discovery` : imports nothing from `crypto` or the rest of `environment`
-- `environment/setup` : imports `discovery`
-- `environment/preparation` : imports `discovery`, `crypto`
-- `androidTest` : imports `environment`, `crypto`
+- `crypto/` : imports nothing from `environment` or `benchmark`
+- `environment/discovery` : imports nothing from `crypto` or `benchmark`
+- `environment/setup` : imports `environment/discovery`
+- `benchmark/preparation` : imports `environment/discovery`, `crypto`
+- `androidTest` : imports `benchmark`, `crypto`
 
 ### rename pending
 
 - `setup/` → `environment/discovery/`
-- `setup/config/` → `environment/preparation/config/`
-- `bench/fixture/workload/` → `environment/preparation/workload/`
+- `setup/config/` → `benchmark/preparation/config/`
+- `bench/fixture/workload/` → `benchmark/preparation/workload/`
