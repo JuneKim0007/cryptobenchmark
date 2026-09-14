@@ -6,7 +6,7 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDe
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
 import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.misc.datatypes.StringType;
+import com.example.cryptobenchmark.bench.fixture.workload.StringType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -29,8 +29,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToString;
-import static com.example.cryptobenchmark.misc.Utils.byteArrayToStringBase64;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
+import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
 import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 

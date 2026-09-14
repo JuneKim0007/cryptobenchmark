@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.misc.datatypes;
+package com.example.cryptobenchmark.bench.fixture.workload;
 
 public interface DataType {
 

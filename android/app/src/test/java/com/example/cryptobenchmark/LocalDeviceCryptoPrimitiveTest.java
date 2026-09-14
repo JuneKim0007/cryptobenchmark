@@ -4,7 +4,7 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEn
 import com.example.cryptobenchmark.setup.CryptoPrimitive;
 import com.example.cryptobenchmark.setup.CryptoProvider;
 import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.misc.datatypes.StringType;
+import com.example.cryptobenchmark.bench.fixture.workload.StringType;
 import org.junit.Test;
 
 import java.util.List;

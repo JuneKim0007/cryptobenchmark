@@ -5,7 +5,7 @@ import androidx.test.runner.AndroidJUnit4;
 import com.example.cryptobenchmark.crypto.primitive.digest.Digest;
 import com.example.cryptobenchmark.crypto.primitive.digest.DigestOperation;
 import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.misc.datatypes.StringType;
+import com.example.cryptobenchmark.bench.fixture.workload.StringType;
 import com.hunter.library.debug.HunterDebug;
 
 import org.junit.Before;
