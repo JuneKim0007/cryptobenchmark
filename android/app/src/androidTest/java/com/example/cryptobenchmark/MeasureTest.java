@@ -3,8 +3,8 @@ package com.example.cryptobenchmark;
 import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
 import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
-import com.example.cryptobenchmark.bench.fixture.workload.DataType;
-import com.example.cryptobenchmark.bench.fixture.workload.StringType;
+import com.example.cryptobenchmark.benchmark.preparation.workload.DataType;
+import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +28,7 @@ import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.Symm
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_DES;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4;
-import static com.example.cryptobenchmark.setup.config.Config.getConfigs;
+import static com.example.cryptobenchmark.benchmark.preparation.config.Config.getConfigs;
 
 public class MeasureTest {
 

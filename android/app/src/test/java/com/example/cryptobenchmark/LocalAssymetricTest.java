@@ -3,8 +3,8 @@ package com.example.cryptobenchmark;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricDecrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
-import com.example.cryptobenchmark.bench.fixture.workload.StringType;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;
 

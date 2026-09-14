@@ -3,7 +3,7 @@ package com.example.cryptobenchmark;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.example.cryptobenchmark.crypto.primitive.digest.Digest;
-import com.example.cryptobenchmark.bench.fixture.workload.StringType;
+import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

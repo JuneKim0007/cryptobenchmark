@@ -1,4 +1,4 @@
-package com.example.cryptobenchmark.setup.config;
+package com.example.cryptobenchmark.benchmark.preparation.config;
 
 import android.os.Environment;
 import android.util.Log;

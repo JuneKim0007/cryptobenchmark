@@ -7,9 +7,9 @@ import javax.crypto.spec.IvParameterSpec;
 
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
-import com.example.cryptobenchmark.setup.CryptoPrimitive;
-import com.example.cryptobenchmark.setup.CryptoProvider;
-import com.example.cryptobenchmark.setup.DeviceCryptoPrimitives;
+import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
+import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
+import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_dsa_key;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_key_ECDSA;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
@@ -21,8 +21,8 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKe
 import com.example.cryptobenchmark.crypto.primitive.cipher.DecryptOperation;
 import com.example.cryptobenchmark.crypto.primitive.cipher.EncryptOperation;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
-import com.example.cryptobenchmark.bench.fixture.workload.DataType;
-import com.example.cryptobenchmark.bench.fixture.workload.StringType;
+import com.example.cryptobenchmark.benchmark.preparation.workload.DataType;
+import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

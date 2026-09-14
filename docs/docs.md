@@ -21,7 +21,7 @@
       - `setup/` : put the device into the required state — CPU affinity, governor, background processes, permissions, profiling tools, directories *(planned; mostly host-side today)*
     - `benchmark/` : what is measured
       - `preparation/` : benchmark state built before measuring
-        - `config/` : run parameters read from the pushed config
+        - `config/` : `Config` — run parameters read from the pushed config
         - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
         - `registry/` : which cases exist = scope ∩ discovery *(planned)*
         - `key/` : key per case *(planned)*
@@ -57,9 +57,3 @@
 - `environment/setup` : imports `environment/discovery`
 - `benchmark/preparation` : imports `environment/discovery`, `crypto`
 - `androidTest` : imports `benchmark`, `crypto`
-
-### rename pending
-
-- `setup/` → `environment/discovery/`
-- `setup/config/` → `benchmark/preparation/config/`
-- `bench/fixture/workload/` → `benchmark/preparation/workload/`
