@@ -1,22 +1,26 @@
 # probe
 
-Captures which cryptographic providers and services are registered in the running process, and
-writes the result as JSON.
+Captures which cryptographic providers and services are registered in the running process, writes
+the result as JSON, and reduces it to the discovery setting the benchmark uses.
 
 Package: `com.example.cryptobenchmark.environment.discovery`
+Field-level contract: [security_contract.md](security_contract.md)
 
 ---
 
 ## What it does
 
 ```
-Security.getProviders()  ->  ProviderProbe.capture(...)  ->  CapturedEnvironment  ->  EnvironmentJsonWriter
-   (caller)                     reads the JCA                  the model                 JSON
+Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentJsonWriter      -> JSON
+   (caller)                reads the JCA     full capture          \
+                                                                    DiscoverySettingConverter -> DiscoverySetting
+                                                                    reduces                      what the benchmark needs
 ```
 
 - The caller passes the provider array. `ProviderProbe` never calls `Security` itself, so it can be
   tested with hand-built providers.
-- Pure `java.*`. No Android, no JSON, no benchmark dependency.
+- Pure `java.*`. No Android, no JSON, no benchmark dependency — except `EnvironmentJsonWriter`,
+  which uses `org.json`.
 
 ---
 
@@ -81,43 +85,18 @@ Verifying by trial is tracked in #15.
 
 | Class | Role |
 |---|---|
-| `ProviderProbe` | reads the JCA into the model |
+| `ProviderProbe` | reads the JCA into the capture model |
 | `PropertyKey` | classifies raw property keys |
-| `ServiceKey` | `(type, algorithm)` key, folded with `Locale.ROOT` |
+| `ServiceKey` | `(type, algorithm)` key; owns `Locale.ROOT` folding for the whole package |
 | `AttributeKind` | attribute name → type (`LIST`, `INT`, `BOOL`, `STRING`) |
 | `ServiceAttributes` | typed attribute accessors |
 | `ServiceEntry` | one service: type, algorithm, class, aliases, attributes |
 | `ProviderEntry` | one provider: name, version, precedence, usable, services, unresolved aliases |
 | `CapturedEnvironment` | one capture: schema version, timestamp, runtime, providers |
 | `RuntimeInfo` | device provenance; reads `android.os.Build` reflectively |
-| `EnvironmentJsonWriter` | model → JSON (`org.json`) |
-
----
-
-## Output
-
-```json
-{
-  "schemaVersion": 1,
-  "capturedAtMillis": 0,
-  "runtime": { "model": "", "manufacturer": "", "hardware": "", "sdkInt": 0, "release": "", "javaVersion": "" },
-  "providers": [
-    {
-      "name": "AndroidOpenSSL", "version": "1.0", "precedence": 1, "info": "", "usable": true,
-      "services": [
-        { "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "className": "…",
-          "aliases": ["…"], "attributes": { "SupportedModes": ["…"] } }
-      ],
-      "unresolvedAliases": { "Cipher RC4": "ARC4" }
-    }
-  ]
-}
-```
-
-- Services sorted by type, then algorithm; aliases sorted — two captures diff cleanly.
-- `precedence` is the 1-based position in the array passed to `capture`.
-- `usable` is false for a registered provider with no services.
-- `aliases`, `attributes`, `unresolvedAliases` are omitted when empty.
+| `EnvironmentJsonWriter` | capture → JSON (`org.json`) |
+| `DiscoverySettingConverter` | capture → setting: keeps in-scope types and the attributes that narrow the matrix |
+| `DiscoverySetting` | the reduced setting, with lookup by name or alias (`providersFor`, `algorithms`) |
 
 ---
 

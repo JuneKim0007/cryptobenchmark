@@ -42,29 +42,7 @@ public class MeasureHMACTest extends MeasureTest{
         String provider = "BC";
         exec_hmac(HMAC::mac_SHA1, provider);
     }
-
-
-    @Test
-@HunterDebug
-    public void test_get_dig_impls() {
-        String algo = "SHA";
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> cps =  de.getProvidersImplementingAlgorithm(algo);
-        System.out.println(cps);
-    }
-
-    @Test
-@HunterDebug
-    public void test_all_impls() {
-        DeviceCryptoPrimitives dce = new DeviceCryptoPrimitives();
-        dce.removeProvider("BC");
-        dce.removeProvider("AndroidKeyStore");
-        dce.removeProvider("AndroidKeyStoreBCWorkaround");
-        String msg = (String) StringType.genRandomWithSize(inputSize).getValue();
-        String key = (String) StringType.genRandomWithSize(keyLen).getValue();
-        List<String> res = HMAC.mac_all(msg, key);
-        assertNotEquals(res.size(), 0);
-    }*/
+    */
     
     @Test
 @HunterDebug

@@ -11,7 +11,6 @@ import java.security.Signature;
 
 import javax.crypto.Cipher;
 
-
 public class MeasureSignTest extends MeasureTest{
 
     // aks - Ec
@@ -24,7 +23,6 @@ public class MeasureSignTest extends MeasureTest{
 
     KeyPair KEY_PAIR = gen_key_pair(KEY_LEN, ALGORITHM, CRYPTO_PROVIDER, MODE, PADDING, WITH_KEY_SPEC);
 
-
     public void sign(SignOperation sop, String algo, PrivateKey key, String provider) throws Exception {
         for (int i = 0; i < nTimes; i++) {
             String msg = INPUT_MESSAGES[ i % INPUT_MESSAGES.length];
@@ -34,13 +32,6 @@ public class MeasureSignTest extends MeasureTest{
             }
         }
     }
-/*
-    @Test
-@HunterDebug
-    public void test_dummy(){
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        System.out.println(dcp);
-    }*/
 
     //@Test
     //@HunterDebug
@@ -170,7 +161,6 @@ public class MeasureSignTest extends MeasureTest{
         sign(sop, algo, KEY_PAIR.getPrivate(), PROVIDER);
     }
 
-
     
     @Test
     public void test_sign_SHA256WithRSA() throws Exception {
@@ -196,7 +186,6 @@ public class MeasureSignTest extends MeasureTest{
         SignOperation sop = Sign::sign;
         sign(sop, algo, KEY_PAIR.getPrivate(), PROVIDER);
     }
-
 
     /*
     
@@ -300,7 +289,6 @@ public class MeasureSignTest extends MeasureTest{
         sign(sop, algo, KEY_PAIR.getPrivate(), provider);
     }
 
-
     
     @Test
     @HunterDebug
@@ -317,7 +305,6 @@ public class MeasureSignTest extends MeasureTest{
         SignOperation sop = Sign::sign;
         sign(sop, algo, KEY_PAIR.getPrivate(), PROVIDER);
     }
-
 
     
     @Test
@@ -345,6 +332,5 @@ public class MeasureSignTest extends MeasureTest{
         SignOperation sop = Sign::sign;
         sign(sop, algo, KEY_PAIR.getPrivate(), PROVIDER);
     }
-
 
 }

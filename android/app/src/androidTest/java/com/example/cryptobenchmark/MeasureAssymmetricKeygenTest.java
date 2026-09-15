@@ -7,7 +7,6 @@ import com.hunter.library.debug.HunterDebug;
 
 public class MeasureAssymmetricKeygenTest extends MeasureTest {
 
-
     public static void gen_key_pair_rsa(int keyLen, String provider,
                                        String mode, String padding, boolean withKeySpec){
         try {
@@ -34,7 +33,6 @@ public class MeasureAssymmetricKeygenTest extends MeasureTest {
         }
     }
 
-
     @Test
     @HunterDebug
     public void test_RSA_ECB_PKCS1PADDING_AndroidOpenSSL() throws Exception {
@@ -58,7 +56,6 @@ public class MeasureAssymmetricKeygenTest extends MeasureTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-1ANDMGF1PADDING";
         gen_key_pair_rsa(keyLen, "AndroidOpenSSL", mode, padding, false );
     }
-
 
     @Test
     @HunterDebug
@@ -85,7 +82,6 @@ public class MeasureAssymmetricKeygenTest extends MeasureTest {
         gen_key_pair_rsa(keyLen, "AndroidOpenSSL", mode, padding, false );
     }
 
-
     @Test
     @HunterDebug
 
@@ -95,18 +91,6 @@ public class MeasureAssymmetricKeygenTest extends MeasureTest {
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         gen_key_pair_rsa(keyLen, "AndroidOpenSSL", mode, padding, false );
     }
-
-    /*@Test
-@HunterDebug
-    public void test_rsa_xx() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String algo = "RSA", mode = "ECB", padding = "OAEPPADDING";
-        //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN);
-        assertNotNull(kp);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> m = dcp.getProvidersImplementingAlgorithm("EC");
-        System.out.println(m);
-    }*/
 
     @Test
     @HunterDebug
@@ -156,7 +140,6 @@ public class MeasureAssymmetricKeygenTest extends MeasureTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-384ANDMGF1PADDING";
         gen_key_pair_rsa(keyLen, PROVIDER, mode, padding, WITH_KEY_SPEC );
     }
-
 
     @Test
     @HunterDebug

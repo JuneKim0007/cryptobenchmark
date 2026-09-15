@@ -22,7 +22,6 @@ import javax.crypto.spec.IvParameterSpec;
 
 import static org.junit.Assert.assertNotNull;
 
-
 public class MeasureAssymmetricDecryptTest extends MeasureTest{
 
     public static int KEY_LEN = keyLen; // keyLen;
@@ -40,7 +39,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         }
         return res;
     }
-
 
     @Test
 @HunterDebug
@@ -106,7 +104,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         decrypt(deo, keyPair.getPrivate(),cyphered_inputs , provider, padding, mode);
     }
 
-
     @Test
 @HunterDebug
     
@@ -135,7 +132,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         decrypt(deo, keyPair.getPrivate(),cyphered_inputs , provider, padding, mode);
     }
 
-
     @Test
 @HunterDebug
     
@@ -146,18 +142,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         decrypt(deo, keyPair.getPrivate(),cyphered_inputs , provider, padding, mode);
 
     }
-
-    /*@Test
-@HunterDebug
-    public void test_rsa_xx() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String algo = "RSA", mode = "ECB", padding = "OAEPPADDING";
-        //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN);
-        assertNotNull(kp);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> m = dcp.getProvidersImplementingAlgorithm("EC");
-        System.out.println(m);
-    }*/
 
     @Test
 @HunterDebug
@@ -212,7 +196,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         // Only RSAKeyGenParameterSpec supported
     }
 
-
     @Test
 @HunterDebug
     
@@ -222,7 +205,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         DecryptOperation deo = AssymmetricDecrypt::decrypt_RSA;
         decrypt(deo, keyPair.getPrivate(),cyphered_inputs , CRYPTO_PROVIDER, padding, mode);
     }
-
 
     @Test
 @HunterDebug
@@ -234,7 +216,6 @@ public class MeasureAssymmetricDecryptTest extends MeasureTest{
         DecryptOperation deo = AssymmetricDecrypt::decrypt_RSA;
         decrypt(deo, keyPair.getPrivate(),cyphered_inputs , CRYPTO_PROVIDER, padding, mode);
     }
-
 
 }
 
