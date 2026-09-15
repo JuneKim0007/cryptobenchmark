@@ -1,6 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.signature;
 
-import com.example.cryptobenchmark.benchmark.preparation.registry.PrimitiveStore;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -15,7 +14,7 @@ import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBa
 
 
 
-public class Sign extends PrimitiveStore {
+public class Sign {
 
     public static String sign(String message, String fullAlgorithmDefinition, PrivateKey key){
         try {
