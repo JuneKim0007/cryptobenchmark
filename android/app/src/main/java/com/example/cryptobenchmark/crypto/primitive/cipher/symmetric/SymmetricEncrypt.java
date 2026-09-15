@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.AbstractMap;
 import java.util.Map;
 import javax.crypto.BadPaddingException;
@@ -15,8 +16,6 @@ import javax.crypto.spec.IvParameterSpec;
 import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
 
 public class SymmetricEncrypt {
-
-    public static int IV_SIZE = 16;
 
     /*
 */
@@ -30,10 +29,10 @@ public class SymmetricEncrypt {
             //String algo = cipher.getAlgorithm();
             //String name = cipher.getProvider().getName();
             //AlgorithmParameters pm = cipher.getParameters();
-            if (!mode.equals("ECB")){
-                cipher.init(Cipher.ENCRYPT_MODE, key,  new IvParameterSpec(new byte[IV_SIZE]));
-            }
-            else {
+            AlgorithmParameterSpec spec = IvSpec.forEncrypt("AES", mode);
+            if (spec != null) {
+                cipher.init(Cipher.ENCRYPT_MODE, key, spec);
+            } else {
                 cipher.init(Cipher.ENCRYPT_MODE, key);
             }
             ciphertext = cipher.doFinal(message.getBytes());
@@ -57,11 +56,9 @@ public class SymmetricEncrypt {
         try {
             String transformation = mode.equals("") || padding.equals("") ? "DES" : String.format("DES/%s/%s", mode, padding);
             cipher = Cipher.getInstance(transformation, provider);
-            if (!mode.equals("ECB")) {
-                byte[] iv = new byte[IV_SIZE];
-                IvParameterSpec ips = new IvParameterSpec(iv);
-                //desCipher.init(Cipher.ENCRYPT_MODE, key, ips);
-                cipher.init(Cipher.ENCRYPT_MODE, key, ips);
+            AlgorithmParameterSpec spec = IvSpec.forEncrypt("DES", mode);
+            if (spec != null) {
+                cipher.init(Cipher.ENCRYPT_MODE, key, spec);
                 ciphertext = cipher.doFinal(message.getBytes());
                 return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(cipher.getIV()));
             } else {
@@ -88,9 +85,9 @@ public class SymmetricEncrypt {
         byte[] ciphertext = null;
         try {
             cipher = Cipher.getInstance(String.format("DESEDE/%s/%s", mode, padding), provider);
-            if (!mode.equals("ECB")) {
-                IvParameterSpec ips = new IvParameterSpec(new byte[IV_SIZE]);
-                cipher.init(Cipher.ENCRYPT_MODE, key, ips);
+            AlgorithmParameterSpec spec = IvSpec.forEncrypt("DESEDE", mode);
+            if (spec != null) {
+                cipher.init(Cipher.ENCRYPT_MODE, key, spec);
                 ciphertext = cipher.doFinal(message.getBytes());
                 return new AbstractMap.SimpleEntry<>(byteArrayToStringBase64(ciphertext), new IvParameterSpec(cipher.getIV()));
             } else {

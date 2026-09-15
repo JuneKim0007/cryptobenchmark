@@ -93,7 +93,7 @@ public class HMacTest {
 
     public void exec_hmac(HMACOperation ho, String key, String[] params){
         for (int i = 0; i < params.length ; i++) {
-            ho.do_hmac(key, params[i], "");
+            ho.do_hmac(params[i], key, "");
         }
     }
 
