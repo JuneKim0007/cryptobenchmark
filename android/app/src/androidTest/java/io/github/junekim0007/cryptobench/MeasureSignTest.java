@@ -4,12 +4,9 @@ import io.github.junekim0007.cryptobench.crypto.primitive.signature.SignOperatio
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;
 
-import java.security.AlgorithmParameters;
 import java.security.KeyPair;
 import java.security.PrivateKey;
-import java.security.Signature;
 
-import javax.crypto.Cipher;
 
 public class MeasureSignTest extends MeasureTest{
 
@@ -33,30 +30,6 @@ public class MeasureSignTest extends MeasureTest{
         }
     }
 
-    //@Test
-    //@HunterDebug
-    public void get_impl() {
-        String[] algoList = {
-               "DSA"
-        };
-        String[] providerList = {"AndroidOpenSSL", "AndroidKeyStoreBCWorkaround", "BC",
-                "AndroidKeyStore", "" };
-
-        for(String algo: algoList){
-            for(String prov: providerList) {
-                try{
-                    Signature md = prov.equals("") ? Signature.getInstance(algo) : Signature.getInstance(algo, prov);
-                    md.getProvider().getServices().stream().filter(x -> x.getAlgorithm().contains("DSA")).forEach(x -> System.out.println(x.getAlgorithm()));
-                    //AlgorithmParameters apm  = md.getParameters();
-                    System.out.println(md.getAlgorithm());
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    
     @Test
     @HunterDebug
     public void test_sign_SHA1WithRSA_AndroidOpenSSL() throws Exception {
