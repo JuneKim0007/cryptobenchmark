@@ -20,7 +20,6 @@ import javax.crypto.spec.IvParameterSpec;
 
 import static org.junit.Assert.assertNotNull;
 
-
 public class MeasureAssymmetricEncryptTest extends MeasureTest{
 
     public static int KEY_LEN = keyLen; // keyLen;
@@ -99,7 +98,6 @@ public class MeasureAssymmetricEncryptTest extends MeasureTest{
         encrypt(so, kp.getPublic(), params, "AndroidOpenSSL", padding, mode);
     }
 
-
     @Test
 @HunterDebug
     
@@ -136,7 +134,6 @@ public class MeasureAssymmetricEncryptTest extends MeasureTest{
         encrypt(so, kp.getPublic(), params, "AndroidOpenSSL", padding, mode);
     }
 
-
     @Test
 @HunterDebug
     
@@ -150,18 +147,6 @@ public class MeasureAssymmetricEncryptTest extends MeasureTest{
         //DecryptOperation deo = AssymmetricDecrypt::decrypt_RSA;
         encrypt(so, kp.getPublic(), params, "AndroidOpenSSL", padding, mode);
     }
-
-    /*@Test
-@HunterDebug
-    public void test_rsa_xx() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String algo = "RSA", mode = "ECB", padding = "OAEPPADDING";
-        //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN);
-        assertNotNull(kp);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> m = dcp.getProvidersImplementingAlgorithm("EC");
-        System.out.println(m);
-    }*/
 
     @Test
 @HunterDebug
@@ -218,7 +203,6 @@ public class MeasureAssymmetricEncryptTest extends MeasureTest{
         // Only RSAKeyGenParameterSpec supported
     }
 
-
     @Test
 @HunterDebug
     
@@ -229,7 +213,6 @@ public class MeasureAssymmetricEncryptTest extends MeasureTest{
         DecryptOperation deo = AssymmetricDecrypt::decrypt_RSA;
         encrypt(so, keyPair.getPublic(), params, CRYPTO_PROVIDER, padding, mode);
     }
-
 
     @Test
 @HunterDebug
@@ -243,7 +226,6 @@ public class MeasureAssymmetricEncryptTest extends MeasureTest{
         DecryptOperation deo = AssymmetricDecrypt::decrypt_RSA;
         encrypt(so, keyPair.getPublic(), params, CRYPTO_PROVIDER, padding, mode);
     }
-
 
 }
 

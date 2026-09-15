@@ -3,20 +3,8 @@ package com.example.cryptobenchmark;
 import com.example.cryptobenchmark.crypto.primitive.digest.Digest;
 import com.example.cryptobenchmark.crypto.primitive.digest.DigestOperation;
 
-
 import org.junit.Before;
 import org.junit.Test;
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.Security;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import android.util.Log;
 
 public class SampleTest {
 
@@ -73,16 +61,6 @@ public class SampleTest {
         }
         else{
             System.out.println("Sha-2 fam");
-        }
-    }
-
-    @Test
-    public void testShowProviders(){
-        for (Provider provider : Security.getProviders()) {
-            Log.d("ProviderInfo", "Name: " + provider.getName());
-            Log.d("ProviderInfo", "Version: " + provider.getVersion());
-            Log.d("ProviderInfo", "Info: " + provider.getInfo());
-            Log.d("ProviderInfo", "--------------------------------");
         }
     }
 }

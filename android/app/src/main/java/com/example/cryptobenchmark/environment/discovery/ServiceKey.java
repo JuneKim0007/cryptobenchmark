@@ -21,7 +21,7 @@ public final class ServiceKey {
      * Locale.ROOT or a Turkish-locale device folds "Cipher" to "CIPHER" with a dotted I and stops
      * matching. On Android the default locale is the user's, so this is not hypothetical.
      */
-    private static String fold(String value) {
+    static String fold(String value) {
         return value == null ? null : value.toUpperCase(Locale.ROOT);
     }
 

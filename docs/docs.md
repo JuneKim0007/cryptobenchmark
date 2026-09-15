@@ -14,22 +14,24 @@
         - `signature/` : sign, verify, signature keygen
       - `codec/` : byte↔String, base64, charset
     - `environment/` : the device and its state, never inside a measurement
-      - `discovery/` : what this device offers and whether it fits the benchmark
-        - `DeviceCryptoPrimitives` : walks `Security.getProviders()`
-        - `DevicePrimitiveRestrictions` : applies `res/raw/restrictions.json`
-        - `CryptoProvider`, `CryptoPrimitive`, `ConfigurableCryptoPrimitive`, `CryptoParam`, `MultiCryptoParam` : provider/algorithm model
+      - `discovery/` : what this device offers — see `probe.md`, `security_contract.md`
+        - `ProviderProbe` : reads the JCA into a capture
+        - `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo` : the capture model
+        - `PropertyKey`, `ServiceKey`, `AttributeKind` : property-map classification and keys
+        - `EnvironmentJsonWriter` : capture → JSON
+        - `DiscoverySettingConverter` → `DiscoverySetting` : capture reduced to what the benchmark needs
       - `setup/` : what the user asked for — run config and user-supplied inputs
         - `config/` : `Config` — run parameters read from the pushed config
     - `benchmark/` : what is measured
       - `preparation/` : turns what the user asked for into runnable state
         - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
-        - `registry/` : `PrimitiveStore` — which provider serves which algorithm
+        - `registry/` : `PrimitiveStore` — unreferenced; seed for the case registry (#6)
         - `key/` : key per case *(planned)*
         - `workload/` : `DataType`, `StringType` — input generation
-    - `misc/` : `Utils` — `getMethod` plus debug helpers; removed with the reflection dispatch
+    - `misc/` : `Utils` — `getMethod` only; removed with the reflection dispatch
   - `app/src/androidTest/` : on-device benchmarks and functional tests
   - `app/src/test/` : JVM tests
-  - `app/src/main/res/raw/` : `device_primitives.json`, `restrictions.json`
+  - `app/src/main/res/raw/` : `device_primitives.json` (old capture), `restrictions.json` (policy) — kept as data
   - `gradle.properties` : gradle env + signing + benchmark defaults
 - `scripts/` : host side
   - `run_benchmarks.sh` : the sweep; entry point
@@ -39,7 +41,7 @@
   - `docs.md` : this file
   - `cryptography/primitives.md` : primitives, providers, use
   - `cryptography/providers.md` : per-provider support and scope
-  - `infra/setup.md` : setup classes
+  - `infra/setup.md` : setup
 - `CryptoBenchmark.config` : generated per run, pushed to the device
 - `requirements.txt` : host python deps
 - `notas.md` : research notes
