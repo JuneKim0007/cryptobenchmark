@@ -1,5 +1,7 @@
 # Benchmark for Android crypto primitives
 
+[![jca contract](https://github.com/JuneKim0007/cryptobenchmark/actions/workflows/jca-contract.yml/badge.svg)](https://github.com/JuneKim0007/cryptobenchmark/actions/workflows/jca-contract.yml)
+
 Measures JCA cryptographic primitives on Android devices.
 
 ## Pipeline

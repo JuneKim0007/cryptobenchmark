@@ -11,4 +11,6 @@ compileKotlin {
 dependencies {
     // Android ships org.json; plain JVM consumers add it themselves.
     compileOnly 'org.json:json:20210307'
+    testImplementation 'org.json:json:20210307'
+    testImplementation 'junit:junit:4.12'
 }
