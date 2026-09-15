@@ -40,22 +40,22 @@ Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentJs
 
 ## Classes
 
-Kotlin, flat in `src/main/kotlin/`. `internal` means module-only, not part of the API.
+Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the API.
 
-| Class | Role |
-|---|---|
-| `ProviderProbe` | JCA → capture; normalises null and ordering |
-| `PropertyKey` | classifies property keys — sealed, `internal` |
-| `ServiceKey` | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
-| `AttributeKind` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
-| `ServiceAttributes` | typed attribute accessors |
-| `ServiceEntry` | one service |
-| `ProviderEntry` | one provider |
-| `CapturedEnvironment` | one capture |
-| `RuntimeInfo` | device and runtime provenance |
-| `EnvironmentJsonWriter` | capture → JSON |
-| `DiscoverySettingConverter` | capture → setting |
-| `DiscoverySetting` | reduced setting; `providersFor`, `algorithms` |
+| Class | Package | Role |
+|---|---|---|
+| `ProviderProbe` | `probe` | JCA → capture; normalises null and ordering |
+| `PropertyKey` | `probe` | classifies property keys — sealed, `internal` |
+| `AttributeKind` | `probe` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
+| `CapturedEnvironment` | `capture` | one capture |
+| `ProviderEntry` | `capture` | one provider |
+| `ServiceEntry` | `capture` | one service |
+| `ServiceAttributes` | `capture` | typed attribute accessors |
+| `RuntimeInfo` | `capture` | device and runtime provenance |
+| `DiscoverySettingConverter` | `setting` | capture → setting |
+| `DiscoverySetting` | `setting` | reduced setting; `providersFor`, `algorithms` |
+| `ServiceKey` | root | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
+| `EnvironmentJsonWriter` | root | capture → JSON |
 
 ## Not yet
 

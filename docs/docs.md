@@ -27,12 +27,12 @@
     - `src/test/` : JVM tests
   - `discovery/` : module `:discovery` (kotlin, java library) — what this device offers, never inside a measurement
     - `probe.md`, `security_contract.md` : module docs
-    - `src/main/kotlin/` : flat, no package folders
-      - `ProviderProbe` : reads the JCA into a capture
-      - `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo` : the capture model
-      - `PropertyKey`, `ServiceKey`, `AttributeKind` : property-map classification and keys — `internal`
+    - `src/main/kotlin/` : sub-package folders only, no package root folders
+      - `ServiceKey` : `(type, algorithm)` key, case folding — `internal`
       - `EnvironmentJsonWriter` : capture → JSON
-      - `DiscoverySettingConverter` → `DiscoverySetting` : capture reduced to what the benchmark needs
+      - `probe/` : `ProviderProbe` reads the JCA; `PropertyKey`, `AttributeKind` classify the property map — both `internal`
+      - `capture/` : `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo`
+      - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to what the benchmark needs
   - `benchmark/` : module `:benchmark` (java library; becomes the `androidx.benchmark` module at #11) — what is measured
     - `benchmark/preparation/` : turns what the user asked for into runnable state
       - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
@@ -72,8 +72,9 @@ Rules:
 - Kotlin only where nothing is measured.
 - Measured code moves to Kotlin only after a control measurement — same primitive, both
   languages, smallest input.
-- Kotlin sources are flat under `src/main/kotlin/`; Java sources mirror the package as
-  folders under `src/main/java/`.
+- Kotlin sources omit the package root folders under `src/main/kotlin/`; Java sources mirror
+  the full package as folders under `src/main/java/`.
+- A directory holding more than four files of the same kind gets sub-directories.
 
 ### phases
 

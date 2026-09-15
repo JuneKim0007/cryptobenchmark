@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.capture
 
 /** What the JCA looked like on one device at one moment. Serialises as-is; holds no logic. */
 data class CapturedEnvironment(

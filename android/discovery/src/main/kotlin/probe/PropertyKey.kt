@@ -1,4 +1,6 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.probe
+
+import io.github.junekim0007.cryptobench.discovery.ServiceKey
 
 /**
  * One classified key of a provider property map. A subclass carries only the parts its kind

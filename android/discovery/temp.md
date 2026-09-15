@@ -1,6 +1,7 @@
 # temp — field ↔ contract map (reading aid, not part of the module docs)
 
-Sources are flat in `src/main/kotlin/`. Line numbers below are `File.kt:line`.
+Sources live under `src/main/kotlin/`: `probe/`, `capture/`, `setting/`, plus `ServiceKey.kt`
+and `EnvironmentJsonWriter.kt` at the root. Line numbers below are `File.kt:line`.
 
 ## Legend
 

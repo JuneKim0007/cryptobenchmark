@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.capture
 
 /**
  * Provenance for one capture. Plain strings, so this module stays free of android.* and runs on a
