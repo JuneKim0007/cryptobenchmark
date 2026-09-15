@@ -49,7 +49,6 @@ public class AssymmetricEncryptTest {
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(2048, mode, padding);
         assertNotNull(kp);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -63,7 +62,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "PKCS1PADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -77,7 +75,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPPADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -94,7 +91,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-1ANDMGF1PADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -109,7 +105,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-224ANDMGF1PADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -121,7 +116,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-256ANDMGF1PADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -134,7 +128,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-384ANDMGF1PADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidKeyStoreBCWorkaround");
         assertNotNull(res);
@@ -147,7 +140,6 @@ public class AssymmetricEncryptTest {
         String algo = "RSA", mode = "ECB", padding = "OAEPWITHSHA-512ANDMGF1PADDING";
         //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN, mode, padding);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encrypt_RSA(msg, mode, padding, kp.getPublic(), "AndroidOpenSSL");
         assertNotNull(res);
@@ -171,7 +163,6 @@ public class AssymmetricEncryptTest {
         // does not work without SC
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
         KeyPair kp = AssymmetricEncryptKeyGen.gen_key_EC(224);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encryptEC(msg, kp.getPublic(), "BC");
         System.out.println(res);
     }

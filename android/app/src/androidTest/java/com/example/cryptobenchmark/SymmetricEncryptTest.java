@@ -5,7 +5,6 @@ import androidx.test.runner.AndroidJUnit4;
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;

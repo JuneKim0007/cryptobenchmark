@@ -1,6 +1,5 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.crypto.primitive.signature.Sign;
 import com.example.cryptobenchmark.crypto.primitive.signature.SignOperation;
 import com.example.cryptobenchmark.crypto.primitive.signature.Verify;
@@ -32,12 +31,6 @@ public class MeasureSignVerifyTest extends MeasureTest{
                 throw new Exception("Invalid Signature");
             }
         }
-    }
-
-    @Test
-    public void test_dummy(){
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        System.out.println(dcp);
     }
 
     

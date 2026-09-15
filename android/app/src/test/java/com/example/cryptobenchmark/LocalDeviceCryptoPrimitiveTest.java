@@ -29,7 +29,6 @@ public class LocalDeviceCryptoPrimitiveTest {
 
     
     public void testSpecificSymmetric(){
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(64).getValue();
         SecretKey pk = gen_key_AES(128 ,"", "", "SunJCE");
         Map.Entry<String, IvParameterSpec> m = SymmetricEncrypt.encrypt_AES(msg, "CBC", "NoPadding", pk, "SunJCE");
