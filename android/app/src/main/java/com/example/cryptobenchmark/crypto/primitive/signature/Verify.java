@@ -1,18 +1,13 @@
 package com.example.cryptobenchmark.crypto.primitive.signature;
 
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
 import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBase64;
-
 
 public class Verify {
 
@@ -42,16 +37,4 @@ public class Verify {
         return false;
     }
 
-    public static boolean verify_b(byte[] message, byte[] signature, String algo, PublicKey key){
-        Signature s = null;
-        try {
-            s = Signature.getInstance(algo);
-            s.initVerify(key);
-            s.update(message);
-            return s.verify(signature);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 }

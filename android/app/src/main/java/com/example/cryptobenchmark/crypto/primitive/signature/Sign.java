@@ -6,13 +6,7 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
-
-
 
 public class Sign {
 
@@ -35,18 +29,6 @@ public class Sign {
             s.update(message.getBytes());
             return byteArrayToStringBase64(s.sign());
         } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException | NoSuchProviderException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static byte[] sign_b(String message,String algo, PrivateKey key){
-        try {
-            Signature s = Signature.getInstance(algo);
-            s.initSign(key);
-            s.update(message.getBytes());
-            return s.sign();
-        } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         return null;

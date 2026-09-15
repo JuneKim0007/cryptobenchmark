@@ -1,15 +1,9 @@
 package com.example.cryptobenchmark.benchmark.preparation.workload;
 
-import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.Random;
-import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 
-import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToStringBase64;
-import static com.example.cryptobenchmark.crypto.codec.Codec.intToByteArray;
 
 public class StringType implements DataType{
-
 
     private String value;
 
@@ -20,24 +14,6 @@ public class StringType implements DataType{
     public StringType(String value) {
         this.value = value;
     }
-
-    public static DataType genRandomWithSizeBase64(int size_bytes){
-        SecureRandom rnd = new SecureRandom();
-        byte[] token = new byte[size_bytes];
-        rnd.nextBytes(token);
-        return new StringType(byteArrayToStringBase64(token).substring(0, size_bytes));
-        //System.out.println(token.length);
-        //return new StringType(byteArrayToString(token));
-    }
-
-    public static DataType genPseudoRandomWithSizeBase64(int size_bytes, int seed){
-        Random rnd =  new Random();
-        rnd.setSeed(seed);
-        byte[] token = new byte[size_bytes];
-        rnd.nextBytes(token);
-        return new StringType(byteArrayToStringBase64(token).substring(0, size_bytes));
-    }
-
 
     public static DataType genRandomWithSize(int string_size){
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -92,7 +68,6 @@ public class StringType implements DataType{
     public Object getValue() {
         return value;
     }
-
 
     /*public static String[] genRandomStringsWithSize(int size, int count){
         String[] x = new String[count];

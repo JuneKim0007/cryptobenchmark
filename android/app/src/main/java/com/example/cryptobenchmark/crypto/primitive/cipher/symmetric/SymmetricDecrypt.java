@@ -1,57 +1,22 @@
 package com.example.cryptobenchmark.crypto.primitive.cipher.symmetric;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
 import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBase64;
 
 import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
-import static com.example.cryptobenchmark.misc.Utils.getMethod;
-
 
 public class SymmetricDecrypt {
-
-    Map<String, Set<String>> decrypt_providers = new HashMap<>();
-    Map<String, Set<String>> alg_param = new HashMap<>();
-
-    public List<String> get_supported_algorithm_modes(String algo){
-        return this.decrypt_providers.keySet().stream()
-                .filter(x -> x.startsWith(algo))
-                .map(z-> z.split("/")[1])
-                .collect(Collectors.toList());
-    }
-
-    public List<String> get_supported_algorithm_padds(String algo, String mode){
-        return this.decrypt_providers.keySet().stream()
-                .filter(x -> x.startsWith(String.format("%s/%s", algo, mode)))
-                .map(z-> z.split("/")[2])
-                .collect(Collectors.toList());
-    }
-
-    public Set<String> get_providers_supporting_combo(String algo, String mode, String paddingmode){
-        return this.decrypt_providers.get(String.format("%s/%s/%s", algo, mode, paddingmode));
-    }
 
     public static String decrypt_AES(String message, String mode, String padding, Key key, String provider, IvParameterSpec iv){
         Cipher cipher = null;

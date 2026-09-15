@@ -1,35 +1,14 @@
 package com.example.cryptobenchmark.crypto.primitive.digest;
 
-import com.hunter.library.debug.HunterDebug;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
 import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
-import static com.example.cryptobenchmark.misc.Utils.getMethod;
 
 public class Digest {
-
-    Map<String, Set<String>> digestsProviders = new HashMap<>();
-    private static Set<String> digestAlgorithms = new HashSet<>(Arrays.asList(
-            "MD5", "SHA1", "SHA224", "SHA226", "SHA256", "SHA384", "SHA512",
-            "MD-5", "SHA-1", "SHA-224", "SHA-226", "SHA-256", "SHA-384", "SHA-512"
-    ));
-    private static Set<String> excludedProviders = new HashSet<>(Arrays.asList("BC"));
 
     public static String digest(String message, String algo, String provider){
         try {
@@ -43,7 +22,6 @@ public class Digest {
         }
         return "";
     }
-
 
     public static String digest_MD5(String message, String provider){
         try {
@@ -68,10 +46,6 @@ public class Digest {
             e.printStackTrace();
         }
         return "";
-    }
-
-    public static String digest_MD5_Empty(String message){
-        return message;
     }
 
     /*
