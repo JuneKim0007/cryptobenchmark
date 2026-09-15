@@ -6,7 +6,7 @@ plugins {
 
 repositories { mavenCentral() }
 
-kotlin { jvmToolchain(17) }
+// No toolchain on purpose: the point is to compile and run on whatever JDK the matrix picked.
 
 sourceSets {
     main { kotlin.setSrcDirs(listOf("../../android/discovery/src/main/kotlin")) }
