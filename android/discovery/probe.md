@@ -57,6 +57,12 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `ServiceKey` | root | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
 | `EnvironmentJsonWriter` | root | capture → JSON |
 
+## Drift alarm
+
+`src/test/kotlin/JcaContractTest.kt` asserts the limits above against the running JVM. The
+`jca contract` workflow runs it weekly on Java 17, 21 and 25 and attaches each capture. A
+failure means the JCA moved. Android providers are not covered (#14).
+
 ## Not yet
 
 | Missing | Issue |

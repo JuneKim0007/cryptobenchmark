@@ -1,0 +1,33 @@
+name: jca contract
+
+# Fails when the JCA surface :discovery reads changes under a new Java version.
+on:
+  push:
+    paths: ['android/discovery/**', 'tools/jca-contract/**', '.github/workflows/jca-contract.yml']
+  pull_request:
+    paths: ['android/discovery/**', 'tools/jca-contract/**']
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21', '25']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: gradle test --no-daemon
+        working-directory: tools/jca-contract
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capture-java-${{ matrix.java }}
+          path: tools/jca-contract/build/capture/environment.json
