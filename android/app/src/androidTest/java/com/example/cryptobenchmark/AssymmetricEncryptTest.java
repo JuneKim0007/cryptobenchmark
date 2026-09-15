@@ -7,6 +7,7 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.Assymmetri
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
+import com.example.cryptobenchmark.crypto.primitive.signature.SignatureKeyGen;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -149,7 +150,7 @@ public class AssymmetricEncryptTest {
     public void test_ec(){
         // does not work without SC
         String msg = (String) StringType.genRandomWithSize(PLAINTEXT_LEN).getValue();
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key_EC(224);
+        KeyPair kp = SignatureKeyGen.gen_key_EC(224);
         Map.Entry<String, IvParameterSpec> res = AssymmetricEncrypt.encryptEC(msg, kp.getPublic(), "BC");
         System.out.println(res);
     }

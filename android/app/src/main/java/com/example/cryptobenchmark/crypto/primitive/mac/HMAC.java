@@ -1,27 +1,12 @@
 package com.example.cryptobenchmark.crypto.primitive.mac;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import static com.example.cryptobenchmark.crypto.codec.Codec.byteArrayToString;
 
 public class HMAC {
-
-    Map<String, Set<String>> mac_providers = new HashMap<>();
-    private static Set<String> assymmetric_primitives = new HashSet<>(
-            Arrays.asList("HMAC")
-    );
 
     public static String mac(String message, String secret, String algo, String provider) throws Exception{
         Mac sha256_HMAC = Mac.getInstance(algo, provider);

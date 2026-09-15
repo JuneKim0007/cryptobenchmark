@@ -42,13 +42,4 @@ public final class CapturedEnvironment {
     public List<ProviderEntry> getProviders() {
         return providers;
     }
-
-    /** Total services across every provider, the one number worth having at a glance. */
-    public int serviceCount() {
-        int total = 0;
-        for (ProviderEntry provider : providers) {
-            total += provider.getServices().size();
-        }
-        return total;
-    }
 }

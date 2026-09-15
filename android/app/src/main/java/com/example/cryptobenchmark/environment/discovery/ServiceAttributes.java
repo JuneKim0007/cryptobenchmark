@@ -39,10 +39,6 @@ public final class ServiceAttributes {
         return values.keySet();
     }
 
-    public boolean has(String name) {
-        return values.containsKey(name);
-    }
-
     /** Declared largest key size, when the provider bothers to declare it. */
     public Integer keySize() {
         return integer("KeySize");

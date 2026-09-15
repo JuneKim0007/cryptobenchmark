@@ -31,10 +31,6 @@ public enum AttributeKind {
         return kind == null ? STRING : kind;
     }
 
-    public static boolean isKnown(String attribute) {
-        return KINDS.containsKey(attribute);
-    }
-
     /** @throws NumberFormatException when an INT attribute does not hold a number. */
     public static Object parse(String attribute, String raw) {
         switch (of(attribute)) {

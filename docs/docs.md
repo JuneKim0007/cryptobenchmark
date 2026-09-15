@@ -25,10 +25,9 @@
     - `benchmark/` : what is measured
       - `preparation/` : turns what the user asked for into runnable state
         - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
-        - `registry/` : `PrimitiveStore` — unreferenced; seed for the case registry (#6)
+        - `registry/` : case registry *(planned — provider lookup is `DiscoverySetting.providersFor` for now)*
         - `key/` : key per case *(planned)*
         - `workload/` : `DataType`, `StringType` — input generation
-    - `misc/` : `Utils` — `getMethod` only; removed with the reflection dispatch
   - `app/src/androidTest/` : on-device benchmarks and functional tests
   - `app/src/test/` : JVM tests
   - `app/src/main/res/raw/` : `device_primitives.json` (old capture), `restrictions.json` (policy) — kept as data

@@ -20,8 +20,8 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_dsa_key;
-import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_key_ECDSA;
+import static com.example.cryptobenchmark.crypto.primitive.signature.SignatureKeyGen.gen_dsa_key;
+import static com.example.cryptobenchmark.crypto.primitive.signature.SignatureKeyGen.gen_key_ECDSA;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
