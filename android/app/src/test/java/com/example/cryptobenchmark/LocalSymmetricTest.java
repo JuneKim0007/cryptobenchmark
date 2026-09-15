@@ -9,7 +9,6 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricEn
 import com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
 import com.example.cryptobenchmark.environment.discovery.CryptoPrimitive;
 import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_dsa_key;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen.gen_key_ECDSA;
 import static com.example.cryptobenchmark.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
@@ -32,13 +31,11 @@ public class LocalSymmetricTest {
 
     
     public void testEncryptAll() {
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
     }
 
     @Test
     public void testEncrypt() {
         String provider = "SunJCE";
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
         String msg = (String) StringType.genRandomWithSize(128).getValue();
         System.out.println("Message: " + msg + " - " + msg.length());
         SecretKey secret = SymmetricKeyGen.gen_key_AES(128,"ECB","NOPADDING");
