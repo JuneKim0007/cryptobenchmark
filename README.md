@@ -1,19 +1,39 @@
 # Benchmark for Android crypto primitives
 
-This project started with a failed attempt to make an elegant library that would automatically infer the providers, primitives and respective algorithms (with respective modes, params, etc.) of the device where it was being used and be able to execute them automatically. Given the difficulty encountered in being able to generalize the high configurability of each of the algorithms that can be used and the many inconsistencies found at the level of the algorithms that the devices declared to have and actually implemented, it was decided to abandon this idea and do something practical and easier to implement (that resulted in a boilerplate code hard to mantain and understand). Therefore, the Android application code contains many  that tried to do this but are not being used.
+Measures JCA cryptographic primitives on Android devices.
 
+## Pipeline
+
+```mermaid
+flowchart LR
+    E[Environment] --> P[Preparation] --> B[Benchmarking] --> A[Analysis]
+```
+
+| Stage | Responsible for |
+|---|---|
+| Environment | discover providers and algorithms, check compatibility, check user customization, check the environment actually works |
+| Preparation | read config for customized values, prepare input sets and keys |
+| Benchmarking | run the benchmarks and write result files (Jetpack) |
+| Analysis | compute metrics from the result files |
+
+## Layout
+
+| Module | Language | Holds |
+|---|---|---|
+| `:crypto` | Java | primitives, codec |
+| `:discovery` | Kotlin | provider probe, capture, discovery setting |
+| `:benchmark` | Java | input and key preparation |
+| `:app` | Java | run config, instrumented benchmark classes |
+
+File structure, language rule and dependency rules: [docs/docs.md](docs/docs.md).
 
 ## Scope
 
 Benchmarking covers the generally used primitives. Catalogue:
 [primitives](docs/cryptography/primitives.md), [providers](docs/cryptography/providers.md).
 
-Benchmarks assume **Android 17** (API 37) on Pixel 9 (Tensor G4) and Pixel 10
-(Tensor G5) — the current release on both devices as of 14 Sep 2026. **Android 16**
-(API 36) is the comparison baseline: it is the most-used Android version worldwide
-at ~22–25%, ahead of Android 15 (~17%) and Android 14 (~13–17%).
-
-The list includes:
+Target: Android 17 (API 37) on Pixel 9 (Tensor G4) and Pixel 10 (Tensor G5).
+Comparison baseline: Android 16 (API 36).
 
 | Primitive | Type |
 |---|---|
@@ -31,6 +51,11 @@ The list includes:
 
 Key sizes: AES 128/192/256, RSA 2048/4096, ECDSA P-256.
 
+Out of scope: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519, ECDH, XDH, AES-CMAC, AES/GCM-SIV,
+Ed25519, single DES, Blowfish, DSA.
+
+MD5, 3DES and RC4 are measured as baselines only.
+
 ## Provider
 
 | Provider | Provides |
@@ -43,127 +68,111 @@ Key sizes: AES 128/192/256, RSA 2048/4096, ECDSA P-256.
 
 See [docs/cryptography/providers.md](docs/cryptography/providers.md).
 
-Out of scope — not in general real-world use: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519,
-ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519. Also out, with no supported provider:
-single DES, Blowfish, DSA.
-
-MD5, 3DES and RC4 are measured as baselines only.
-
 ## Roadmap
 
-| # | Step | What it settles |
-|---|---|---|
-| 1 | Evaluate **Jetpack Benchmark** (`androidx.benchmark`) as the harness | replaces the bytecode-injected timing; Jetpack owns warm-up, AOT, repetition and result output |
-| 2 | Move to **microbenchmarks** — one case per measurement, R8 release build, `BlackHole` | per-case latency, energy and allocation numbers instead of one aggregate |
-| 3 | **Catalogue the providers** available on Android (JCA), verify on device | which algorithm × provider combinations can be measured at all |
-| 4 | Build the **vertical pipeline**: case → build → install → run → collect → validate | one reproducible path per run, with device and provider provenance |
-| 5 | **Refactor for generic use** — primitives hold no registry or discovery; the case registry drives the sweep | adding an algorithm or provider is data, not new test code |
+| # | Step |
+|---|---|
+| 1 | Evaluate Jetpack Benchmark (`androidx.benchmark`) as the harness |
+| 2 | Move to microbenchmarks — one case per measurement, R8 release build, `BlackHole` |
+| 3 | Catalogue the providers available on Android (JCA), verify on device |
+| 4 | Build the vertical pipeline: case → build → install → run → collect → validate |
+| 5 | Refactor for generic use — primitives hold no registry or discovery; the case registry drives the sweep |
 
-## Requirements:
+## Requirements
+
 - python3
 - Android SDK
-- **Java 8**
+- Java 8
+
+Kotlin is not installed separately; the Gradle plugin fetches the compiler.
+
+> :warning: Do not open the Android project with Android Studio. Recent versions do not
+> support the Gradle version of this project and suggest changes that break the build.
 
 ## Installation
 
+Install pyenv:
 
-#### Install pyenv:
 ```
 $ curl https://pyenv.run | bash
 $ exec $SHELL
 ```
-#### Install virtual virtualenv environment  (via python-pip):
+
+Install virtualenv:
 
 ```
 $ python -m pip install --user virtualenv
 ```
 
-#### Download the exact same version of python used for dev (assuming 3.8.2):
+Install the python version used for development:
 
 ```
 $ pyenv install 3.10.12
 ```
 
-#### Replicate locally the dev virtualenv:
+Create and activate the virtualenv, then install the python packages:
 
 ```
-$ cd generic_crypto_bot
-$ virtualenv -p ~/.pyenv/versions/3.8.2/bin/python3.8 venv/
-```
-
-#### Activate the virtual environment:
-```
+$ virtualenv -p ~/.pyenv/versions/3.10.12/bin/python3.10 venv/
 $ source venv/bin/activate
-```
-
-####    Install python packages:
-```
 $ pip install -r requirements.txt
-``````
+```
 
-### Android SDK
+## Configuration
 
-- Install Android Studio or Android SDK.
+Benchmark settings live in `android/gradle.properties`. Each build turns them into
+`BuildConfig` fields and writes `CryptoBenchmark.config`, which is pushed to the device and
+read at run time.
 
- :warning: **NOTE: Do not open the Android project with Android Studio**: Recent versions of Android Studio do not support the gradle version of the project and breaks eventually suggest changes that break the build.
+| Key | Meaning |
+|---|---|
+| `KEY_LEN` | key size |
+| `INPUT_SIZE` | input size in bytes |
+| `N_TIMES` | times each cipher runs in each unit test |
+| `PROVIDER` | crypto provider |
+| `ALGORITHM` | algorithm under test |
+| `MODE` | cipher mode |
+| `PADDING` | cipher padding |
+| `WARM_UP_TIME` | warm-up before each unit test |
+| `COOL_DOWN_TIME` | cool-down after each unit test |
+| `WITH_KEY_SPEC` | generate the key through `KeySpec` (required for some ciphers) |
 
-## Setup
-
-The settings for each benchmark are declared in the android/gradle.properties file. There, several variables are declared that are then translated into class variables of the test classes to parameterize the executions:
-- KEY_LEN - key size
-- INPUT_SIZE - input size in bytes
-- N_TIMES - times each cipher is executed in each unit test
-- PROVIDER - Crypto provider
-- WARM_UP_TIME - warm-up time before each unit test
-- COOL_DOWN_TIME - cool-down time after each unit test
-- MODE - cipher mode
-- PADDING - cipher padding
-- ALGORITHM - algorithm to be tested
-- WITH_KEY_SPEC - whether cipher key is generated using the KeySpec class (required for some ciphers)
-
-The parameters can be manipulated directly through command line arguments of the benchmark.py script, which in turn can be executed with the benchmark.py script that contains all possible parameterizations for the algorithms present on the tested devices. These parameters are mapped to a config file which is then pushed to the device and loaded on each benchmark execution.
+`scripts/benchmark.py` sets these from command-line arguments.
 
 ## Execution
 
-### Via run_benchmarks.sh
+Via `run_benchmarks.sh` — define the primitives and params to benchmark at the end of the
+file, then:
 
-1. Define the primitives and params to benchmark (e.g. testDigest) and place it in the end of the file
+```
+$ ./scripts/run_benchmarks.sh
+```
 
-2. run 
-    ```
-    $ ./scripts/run_benchmarks.sh
-    ```
+Via `benchmark.py` — pass the config on the command line (`python3 scripts/benchmark.py --help`):
 
-### Via benchmark.py
+```
+$ python3 scripts/benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
+```
 
-1. Define the configs via cmdline and run the script (see python3 scripts/benchmark.py --help)
+Each run rewrites `gradle.properties`, rebuilds, signs, installs, and runs the instrumented
+tests `n_times`.
 
-    ```
-    $ python3 scripts/benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
-    ```
+One instrumented test file per primitive holds one unit test per (algorithm, provider) pair.
+Each unit test is annotated `@HunterDebug`, which records method start and end in the device
+logs.
 
-## Workflow
+## Device setup
 
-With each execution of benchmark.py, the gradle.properties config file is changed according to the parameterization via cmdline provided. In order for the configs to be absorbed by the code, it is necessary to do a new build for the config variables to be transformed into variables of the BuildConfig class. Then the new apks are signed and installed on the device, and pyanadroid is then used to run the benchmarks a total of <n_times>. At the end of the process the apk is installed.
+1. Use a factory-reset device or image. It must unlock without authentication.
+2. Disable all sensors except Wi-Fi.
+3. In Developer settings, enable USB debugging, view inspection, and install via USB.
+4. Connect over Wi-Fi to the same network as the workstation:
 
-## Source Code
-
-- Each primitive is benchmarked through an instrumented test file, which contains a unit test for each pair (algorithm, provider).
-- each unit test is annotated with HunterDebug so that its execution is traced (the start and end of the method are temporally delimited through its registration in the device logs).
-- Rach primitive has a functional interface <Primitive>Operator.java that allows us to always use the same code to execute each algorithm (see static methods of the MeasureTest.java class) and that makes comparisons fairer.
-
-## Benchmarking Guide
-
-1. Use a factory-reset Android device / image and connect it to the workstation via USB. The device must be unlockable without any authentication
-
-2. Manually Disable all sensors of the device (GPS, Bluetooth), except the WI-FI
-
-3. Set an ADB Wi-Fi connection (The device should be connected via wi-fi to the same network as the workstation)
     ```
     $ pyanadroid -sc WIFI
     ```
 
-    Then, manually disconnect the device from the workstation and verify is the device is now connected. It should appear in the list of connected devices. Example:
+    Disconnect the USB cable and confirm the device is listed:
 
     ```
     $ adb devices -l
@@ -172,29 +181,11 @@ With each execution of benchmark.py, the gradle.properties config file is change
     192.168.1.196:5555	device
     ```
 
-4. Configure the scripts/run_benchmarks.sh script;
+5. Configure `scripts/run_benchmarks.sh` and start the run.
 
-5. Start the benchmark procedure:
+## Notes
 
-    ```
-    $ ./scripts/run_benchmarks.sh
-    ```
-
-´
-
-## FAQ
-
-1. Why is it an Android app and not an Android library, since it has no UI?
-
-    **Answer**: Because instrumentation plugins are not working for Android libraries. Furthermore, the project is an regular Android application without Activities. 
-
-2. If all algorithms of each primitive are capable of being invoked by the same functional interface, why is it necessary to define and invoke u, unit test to invoke each algorithm with each provider (each unit test being named accordingly)?
-
-    **Answer**: For error prevention and instrumentation tool limitation. There are some specific cases in which execution and parameterization via the functional interface are not exactly uniform. Also for error prevention, since the instrumentation only records the name of the method in the system logs, if the name of the method did not identify what was executed, it would sometimes be difficult to correctly identify the config executed.
-
-3. The phone doesn't unlock and/or does not install the required APKs
-    **Answer** On the most recent (non-rooted) versions of Android, it is not possible to install APKs without accepting the installation via a GUI prompt. Furthermore, Pyanadroid needs access to the unlocked device to click on the installation dialog and install an APK. If no authentication method is required to unlock the device, Pyanadroid can perform this process automatically. Consequently, if you are having problems with the APK installation process, ensure the following requirements:
-        - The debbuging security settings are enabled (in Developer settings)
-        - Enable view inspection (in Developer settings)
-        - Installation via USB is enabled (in Developer settings)
-        - The phone can be unlocked without any authentication method (by clicking the lock/menu button and performing a swipe up)
+- The project is an Android application, not a library: instrumentation plugins do not work
+  for Android libraries. It has no Activities.
+- Every (algorithm, provider) pair gets its own named unit test, because instrumentation
+  records only the method name.
