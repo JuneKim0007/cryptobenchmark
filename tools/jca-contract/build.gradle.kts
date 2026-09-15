@@ -1,12 +1,24 @@
 // Runs :discovery's JCA contract test on any modern JDK. The main build is pinned to Gradle 6.5
 // and Java 8 (see #11), so it cannot host a Java version matrix; this reuses the same sources.
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.2.21"
 }
 
 repositories { mavenCentral() }
 
-// No toolchain on purpose: the point is to compile and run on whatever JDK the matrix picked.
+// Compile at a fixed target, run on whatever JDK the matrix picked. Tying the target to the
+// runner's JDK would make every new Java release fail here on the compiler rather than on the JCA,
+// which is the opposite of what this check is for.
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+}
 
 sourceSets {
     main { kotlin.setSrcDirs(listOf("../../android/discovery/src/main/kotlin")) }
