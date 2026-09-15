@@ -53,7 +53,7 @@ Fields of a capture written by `ProviderProbe` → `EnvironmentJsonWriter`.
 | `SupportedKeyClasses` | list | accepted key classes |
 | `SupportedKeyFormats` | list | accepted encoded key formats |
 | `SupportedCurves` | list | supported elliptic curves |
-| `KeySize` | int | largest supported key size |
+| `KeySize` | int | largest supported key size; kept as the raw string when it does not parse |
 | `ThreadSafe` | bool | implementation is thread safe |
 | `ImplementedIn` | string | `Software` or `Hardware` |
 | `MechanismType` | string | mechanism type |
@@ -61,7 +61,8 @@ Fields of a capture written by `ProviderProbe` → `EnvironmentJsonWriter`.
 
 ## discovery setting
 
-Output of `DiscoverySettingConverter.convert(capture)` → `DiscoverySetting`.
+Output of `DiscoverySettingConverter.convert(capture)` → `DiscoverySetting`. Kotlin objects; not
+serialized (#21).
 
 | Field | Type | Description |
 |---|---|---|
@@ -75,7 +76,7 @@ Output of `DiscoverySettingConverter.convert(capture)` → `DiscoverySetting`.
 | `providers[].name` | string | provider name |
 | `providers[].version` | string | provider version |
 | `providers[].precedence` | int | 1-based position in the search order |
-| `providers[].usable` | bool | at least one in-scope service remains — recomputed after cropping |
+| `providers[].usable` | bool | computed, not stored: at least one in-scope service remains |
 | `providers[].services[].type` | string | service type |
 | `providers[].services[].algorithm` | string | algorithm name |
 | `providers[].services[].aliases` | list | alternate names |

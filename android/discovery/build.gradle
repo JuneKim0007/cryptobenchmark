@@ -1,7 +1,12 @@
 apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.kotlin.jvm'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
 
 dependencies {
     // Android ships org.json; plain JVM consumers add it themselves.
