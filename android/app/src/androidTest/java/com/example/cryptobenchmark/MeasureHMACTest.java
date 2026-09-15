@@ -2,7 +2,6 @@ package com.example.cryptobenchmark;
 
 import com.example.cryptobenchmark.crypto.primitive.mac.HMAC;
 import com.example.cryptobenchmark.crypto.primitive.mac.HMACOperation;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 import com.hunter.library.debug.HunterDebug;
 import org.junit.Test;

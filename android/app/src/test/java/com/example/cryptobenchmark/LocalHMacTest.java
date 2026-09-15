@@ -1,7 +1,5 @@
 package com.example.cryptobenchmark;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;
@@ -18,14 +16,6 @@ import static com.example.cryptobenchmark.crypto.primitive.mac.HMAC.mac_SHA512;
 import static org.junit.Assert.assertNotNull;
 
 public class LocalHMacTest {
-
-    
-    public void test_get_Macimpls() {
-        String algo = "HMAC";
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> cps =  de.getProvidersImplementingAlgorithm(algo);
-        System.out.println(cps);
-    }
 
     
     public void testHMACMD5() {
