@@ -15,8 +15,8 @@ os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOCAL_CFG_FILENAME = "CryptoBenchmark.config"
 DEVICE_CFG_FILENAME = LOCAL_CFG_FILENAME #"CryptoBenchmark.config"
 
-#CMD="adb shell am instrument -w -m  -e debug false -e class 'com.example.cryptobenchmark.MeasureDigestTest' com.example.cryptobenchmark.test/android.support.test.runner.AndroidJUnitRunner"
-CMD="adb shell am instrument -w -m -e debug false -e class 'com.example.cryptobenchmark.{test_class}' {test_package}/{test_runner}"
+#CMD="adb shell am instrument -w -m  -e debug false -e class 'io.github.junekim0007.cryptobench.MeasureDigestTest' io.github.junekim0007.cryptobench.test/android.support.test.runner.AndroidJUnitRunner"
+CMD="adb shell am instrument -w -m -e debug false -e class 'io.github.junekim0007.cryptobench.{test_class}' {test_package}/{test_runner}"
 
 LOW_BATTERY_LEVEL=31
 
@@ -185,7 +185,7 @@ def install_apks(build_type="debug", accept_install=False, retry=True, install_m
 
 def uninstall_apks(args_obj):
     print("uninstalling apks")
-    execute_shell_command("adb shell pm uninstall com.example.cryptobenchmark")
+    execute_shell_command("adb shell pm uninstall io.github.junekim0007.cryptobench")
     execute_shell_command(f"adb shell pm uninstall {args_obj.test_package}")
 
 
@@ -372,7 +372,7 @@ if __name__ == '__main__':
     parser.add_argument("-u", "--uninstall", help="uninstall apks", action='store_true', default=False)
     parser.add_argument("-c", "--test_class", help="test class", default="DigestTest", type=str)
     parser.add_argument("-r", "--test_runner", help="unit test runner", default="androidx.test.runner.AndroidJUnitRunner", choices=["android.support.test.runner.AndroidJUnitRunner", "androidx.test.runner.AndroidJUnitRunner", "androidx.test.ext.junit.runners.AndroidJUnit4"])
-    parser.add_argument("-tp", "--test_package", help="test package",  default="com.example.cryptobenchmark.test")
+    parser.add_argument("-tp", "--test_package", help="test package",  default="io.github.junekim0007.cryptobench.test")
     parser.add_argument("-ntt", "--n_test_times", help="times to repeat each test execution",  default=1, type=int)
     parser.add_argument("-nt", "--n_times", help="times to repeat each algorithm execution",  default=1, type=int)
     parser.add_argument("-s", "--sleep_time", help="time to sleep betweeen each execution",  default=3, type=int)
