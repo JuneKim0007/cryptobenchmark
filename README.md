@@ -49,6 +49,16 @@ single DES, Blowfish, DSA.
 
 MD5, 3DES and RC4 are measured as baselines only.
 
+## Roadmap
+
+| # | Step | What it settles |
+|---|---|---|
+| 1 | Evaluate **Jetpack Benchmark** (`androidx.benchmark`) as the harness | replaces the bytecode-injected timing; Jetpack owns warm-up, AOT, repetition and result output |
+| 2 | Move to **microbenchmarks** — one case per measurement, R8 release build, `BlackHole` | per-case latency, energy and allocation numbers instead of one aggregate |
+| 3 | **Catalogue the providers** available on Android (JCA), verify on device | which algorithm × provider combinations can be measured at all |
+| 4 | Build the **vertical pipeline**: case → build → install → run → collect → validate | one reproducible path per run, with device and provider provenance |
+| 5 | **Refactor for generic use** — primitives hold no registry or discovery; the case registry drives the sweep | adding an algorithm or provider is data, not new test code |
+
 ## Requirements:
 - python3
 - Android SDK
