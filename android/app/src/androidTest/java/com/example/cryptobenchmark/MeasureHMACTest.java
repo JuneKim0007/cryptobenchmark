@@ -19,7 +19,7 @@ public class MeasureHMACTest extends MeasureTest{
 
     public void exec_hmac(HMACOperation ho, String provider) throws Exception{
         for (String param : INPUT_MESSAGES) {
-            String res = ho.do_hmac(KEY, param, provider);
+            String res = ho.do_hmac(param, KEY, provider);
             if(res==null){
                 throw new Exception("Unable to appy hmac with " + provider);
             }

@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -22,10 +23,10 @@ public class SymmetricDecrypt {
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance(String.format("AES/%s/%s", mode, padding), provider);
-            if(!mode.equals("ECB")){
-                cipher.init(Cipher.DECRYPT_MODE, key, iv);
-            }
-            else{
+            AlgorithmParameterSpec spec = IvSpec.forDecrypt(mode, iv == null ? null : iv.getIV());
+            if (spec != null) {
+                cipher.init(Cipher.DECRYPT_MODE, key, spec);
+            } else {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
             byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
@@ -66,10 +67,10 @@ public class SymmetricDecrypt {
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance(String.format("DESEDE/%s/%s", mode, padding), provider);
-            if(mode.equals("CBC")){
-                cipher.init(Cipher.DECRYPT_MODE, key, iv);
-            }
-            else{
+            AlgorithmParameterSpec spec = IvSpec.forDecrypt(mode, iv == null ? null : iv.getIV());
+            if (spec != null) {
+                cipher.init(Cipher.DECRYPT_MODE, key, spec);
+            } else {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
             //
@@ -85,11 +86,15 @@ public class SymmetricDecrypt {
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance(String.format("DES/%s/%s", mode, padding), provider);
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            //cipher.init(Cipher.DECRYPT_MODE, key, iv);
+            AlgorithmParameterSpec spec = IvSpec.forDecrypt(mode, iv == null ? null : iv.getIV());
+            if (spec != null) {
+                cipher.init(Cipher.DECRYPT_MODE, key, spec);
+            } else {
+                cipher.init(Cipher.DECRYPT_MODE, key);
+            }
             byte[] plainText = cipher.doFinal(StringToByteArrayBase64(message));
             return byteArrayToString(plainText);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         return null;
