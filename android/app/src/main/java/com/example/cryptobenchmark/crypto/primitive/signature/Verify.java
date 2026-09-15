@@ -1,6 +1,5 @@
 package com.example.cryptobenchmark.crypto.primitive.signature;
 
-import com.example.cryptobenchmark.benchmark.preparation.registry.PrimitiveStore;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -15,7 +14,7 @@ import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArray;
 import static com.example.cryptobenchmark.crypto.codec.Codec.StringToByteArrayBase64;
 
 
-public class Verify extends PrimitiveStore {
+public class Verify {
 
     public static boolean verify(String message, String signature, String algo, PublicKey key){
         Signature s = null;
