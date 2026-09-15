@@ -1,8 +1,20 @@
 # <docs>
 
+## documents
+
+| Document | Holds |
+|---|---|
+| [README](../README.md) | scope, pipeline, requirements, how to run |
+| `docs.md` | modules, file structure, language rule, dependency rules |
+| [cryptography/primitives.md](cryptography/primitives.md) | primitive → provider → type catalogue, key sizes, usage rules |
+| [cryptography/providers.md](cryptography/providers.md) | per-provider supported and unsupported algorithms |
+| [infra/setup.md](infra/setup.md) | `:app` setup package |
+| `android/discovery/probe.md` | what `:discovery` does, JCA APIs, limits, classes |
+| `android/discovery/security_contract.md` | capture and setting field tables |
+
 ## file structure
 
-- `android/` : gradle project; package root in every module is `src/main/java/io/github/junekim0007/cryptobench/`
+- `android/` : gradle project; package root in every module is `io.github.junekim0007.cryptobench`
   - `crypto/` : module `:crypto` (android library) — cryptography, nothing else
     - `crypto/primitive/` : one algorithm call per function, no iteration, no lookup
       - `cipher/` : `EncryptOperation`, `DecryptOperation` — the two call shapes
@@ -13,11 +25,12 @@
       - `signature/` : sign, verify, signature keygen
     - `crypto/codec/` : byte↔String, base64, charset
     - `src/test/` : JVM tests
-  - `discovery/` : module `:discovery` (java library) — what this device offers, never inside a measurement
-    - `discovery/` : see `probe.md`, `security_contract.md`
+  - `discovery/` : module `:discovery` (kotlin, java library) — what this device offers, never inside a measurement
+    - `probe.md`, `security_contract.md` : module docs
+    - `src/main/kotlin/` : flat, no package folders
       - `ProviderProbe` : reads the JCA into a capture
       - `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo` : the capture model
-      - `PropertyKey`, `ServiceKey`, `AttributeKind` : property-map classification and keys
+      - `PropertyKey`, `ServiceKey`, `AttributeKind` : property-map classification and keys — `internal`
       - `EnvironmentJsonWriter` : capture → JSON
       - `DiscoverySettingConverter` → `DiscoverySetting` : capture reduced to what the benchmark needs
   - `benchmark/` : module `:benchmark` (java library; becomes the `androidx.benchmark` module at #11) — what is measured
@@ -44,6 +57,23 @@
 - `CryptoBenchmark.config` : generated per run, pushed to the device
 - `requirements.txt` : host python deps
 - `notas.md` : research notes
+
+### language
+
+| Module | Language | Inside a measurement |
+|---|---|---|
+| `:crypto` | Java | yes — it is the subject |
+| `:benchmark` | Java | prepares before the timed block, calls `:crypto` |
+| `:app` | Java | hosts the measurement classes in `androidTest` |
+| `:discovery` | Kotlin | no — runs before any measurement |
+
+Rules:
+
+- Kotlin only where nothing is measured.
+- Measured code moves to Kotlin only after a control measurement — same primitive, both
+  languages, smallest input.
+- Kotlin sources are flat under `src/main/kotlin/`; Java sources mirror the package as
+  folders under `src/main/java/`.
 
 ### phases
 

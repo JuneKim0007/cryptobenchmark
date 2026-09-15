@@ -11,8 +11,6 @@ Android 16 (API 36). Titan M2 backs StrongBox keys.
 
 ## Types
 
-A hash has no key; asymmetric means a key pair. Not the same family.
-
 | Type | Key material | Direction |
 |---|---|---|
 | `symmetric-cipher` | one shared secret key | reversible with the same key |
