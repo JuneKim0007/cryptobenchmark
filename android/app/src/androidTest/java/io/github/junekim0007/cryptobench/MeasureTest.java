@@ -9,11 +9,8 @@ import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringTy
 import org.junit.After;
 import org.junit.Before;
 
-import java.security.InvalidAlgorithmParameterException;
 import java.security.Key;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -107,16 +104,6 @@ public class MeasureTest {
             if(res.getKey() == null){
                 throw new Exception("cyphered text is null");
             }
-        }
-    }
-
-    public static void assertExecution(String algo, String mode, String padding, String provider) throws Exception {
-        boolean should_not_run = !algo.equalsIgnoreCase(ALGORITHM)
-                && (!PROVIDER.equalsIgnoreCase("ALL") ||  !provider.equalsIgnoreCase(PROVIDER))
-                    && (!mode.equals("") || !mode.equalsIgnoreCase(MODE))
-                        && (!padding.equals("") || !padding.equalsIgnoreCase(PADDING));
-        if (should_not_run){
-            throw new Exception("Skipping execution");
         }
     }
 
@@ -219,10 +206,6 @@ public class MeasureTest {
             //System.out.println("res[i] size in bytes: " + res[i].getBytes().length);
         }
         return res;
-    }
-
-    public static boolean istheSelectedProvider(String providerId){
-        return PROVIDER.toLowerCase().equals(providerId.toLowerCase());
     }
 
 }

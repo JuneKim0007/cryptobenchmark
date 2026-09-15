@@ -5,25 +5,12 @@ class ServiceAttributes private constructor(private val values: Map<String, Any>
 
     val isEmpty: Boolean get() = values.isEmpty()
 
-    val names: Set<String> get() = values.keys
-
     /** Declared largest key size, when the provider bothers to declare it. */
     val keySize: Int? get() = integer("KeySize")
 
     val supportedModes: List<String> get() = strings("SupportedModes")
 
     val supportedPaddings: List<String> get() = strings("SupportedPaddings")
-
-    val supportedKeyClasses: List<String> get() = strings("SupportedKeyClasses")
-
-    val supportedKeyFormats: List<String> get() = strings("SupportedKeyFormats")
-
-    val supportedCurves: List<String> get() = strings("SupportedCurves")
-
-    val threadSafe: Boolean get() = values["ThreadSafe"] == true
-
-    /** Escape hatch for vendor attributes this build does not model. */
-    fun text(name: String): String? = values[name] as? String
 
     fun integer(name: String): Int? = values[name] as? Int
 
