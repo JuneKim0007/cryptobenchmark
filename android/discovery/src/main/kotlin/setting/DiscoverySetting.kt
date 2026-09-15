@@ -1,4 +1,6 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.setting
+
+import io.github.junekim0007.cryptobench.discovery.ServiceKey
 
 import java.util.SortedSet
 

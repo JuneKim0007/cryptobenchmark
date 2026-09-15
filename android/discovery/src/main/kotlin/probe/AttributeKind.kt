@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.probe
 
 /** Single source of truth for attribute typing. */
 internal enum class AttributeKind {
