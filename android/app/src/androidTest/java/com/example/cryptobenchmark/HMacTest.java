@@ -2,8 +2,6 @@ package com.example.cryptobenchmark;
 
 import com.example.cryptobenchmark.crypto.primitive.mac.HMAC;
 import com.example.cryptobenchmark.crypto.primitive.mac.HMACOperation;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.workload.DataType;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
@@ -97,21 +95,6 @@ public class HMacTest {
         for (int i = 0; i < params.length ; i++) {
             ho.do_hmac(key, params[i], "");
         }
-    }
-
-    public void exec_hmac() {
-        String algo = "HMAC";
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> cps =  de.getProvidersImplementingAlgorithm(algo);
-        System.out.println(cps);
-    }
-
-    @Test
-    public void test_get_dig_impls() {
-        String algo = "SHA";
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> cps =  de.getProvidersImplementingAlgorithm(algo);
-        System.out.println(cps);
     }
 
 

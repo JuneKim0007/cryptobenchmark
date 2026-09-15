@@ -3,7 +3,6 @@ package com.example.cryptobenchmark;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.example.cryptobenchmark.crypto.primitive.digest.Digest;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.workload.DataType;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 import com.hunter.library.debug.HunterDebug;
@@ -28,7 +27,6 @@ public class DigestTest {
     public static int cool_down_time = Integer.parseInt(BuildConfig.COOL_DOWN_TIME);
     public static String provider =BuildConfig.PROVIDER;
     public static String[] inputs =  gen_random_workload(inputSize, nTimes);
-    public static DeviceCryptoPrimitives deviceCryptoPrimitives = new DeviceCryptoPrimitives();
 
     @Before
     public void before_tests(){

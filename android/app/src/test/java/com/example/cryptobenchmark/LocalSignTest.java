@@ -1,8 +1,6 @@
 package com.example.cryptobenchmark;
 
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 import com.example.cryptobenchmark.crypto.primitive.signature.Sign;
 import com.example.cryptobenchmark.crypto.primitive.signature.Verify;
@@ -26,13 +24,6 @@ public class LocalSignTest {
 
     public static final int DATA_LEN = 128;
     public static final int KEY_LEN = 512;
-
-    public void test_get_sign_impls() {
-        String algo = "ECDSA";
-        DeviceCryptoPrimitives de = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> cps = de.getProvidersImplementingAlgorithm(algo);
-        System.out.println(cps);
-    }
 
     @Test
     public void test_sign_local() throws NoSuchAlgorithmException{

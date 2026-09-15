@@ -6,8 +6,6 @@ import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.Assymmetri
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
 import com.example.cryptobenchmark.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
 
-import com.example.cryptobenchmark.environment.discovery.CryptoProvider;
-import com.example.cryptobenchmark.environment.discovery.DeviceCryptoPrimitives;
 import com.example.cryptobenchmark.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;
@@ -145,17 +143,6 @@ public class AssymmetricEncryptTest {
         assertNotNull(res);
         String decrypted_plaintext = AssymmetricDecrypt.decrypt_RSA(res.getKey(), mode, padding, kp.getPrivate(), "AndroidOpenSSL", res.getValue());
         assertEquals(msg, decrypted_plaintext);
-    }
-
-    @Test
-    public void test_rsa_xx() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String algo = "RSA", mode = "ECB", padding = "OAEPPADDING";
-        //KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA_AndroidKeyStore(512);
-        KeyPair kp = AssymmetricEncryptKeyGen.gen_key_RSA(KEY_LEN);
-        assertNotNull(kp);
-        DeviceCryptoPrimitives dcp = new DeviceCryptoPrimitives();
-        Map<String, Set<CryptoProvider>> m = dcp.getProvidersImplementingAlgorithm("EC");
-        System.out.println(m);
     }
 
     @Test
