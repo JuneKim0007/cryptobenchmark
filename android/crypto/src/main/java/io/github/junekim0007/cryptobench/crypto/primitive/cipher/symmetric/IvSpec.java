@@ -26,17 +26,17 @@ final class IvSpec {
     }
 
     static boolean isGcm(String mode) {
-        String m = mode == null ? "" : mode.toUpperCase(Locale.ROOT);
-        return m.equals("GCM") || m.equals("GCM-SIV");
+        String normalised = mode == null ? "" : mode.toUpperCase(Locale.ROOT);
+        return normalised.equals("GCM") || normalised.equals("GCM-SIV");
     }
 
     /** IV length in bytes: 12 for GCM, the cipher block size otherwise. */
-    static int ivBytes(String algorithm, String mode) {
+    static int initializationVectorBytes(String algorithm, String mode) {
         if (isGcm(mode)) {
             return GCM_IV_BYTES;
         }
-        String a = algorithm == null ? "" : algorithm.toUpperCase(Locale.ROOT);
-        return a.startsWith("DES") || a.equals("3DES") ? DES_IV_BYTES : AES_IV_BYTES;
+        String normalised = algorithm == null ? "" : algorithm.toUpperCase(Locale.ROOT);
+        return normalised.startsWith("DES") || normalised.equals("3DES") ? DES_IV_BYTES : AES_IV_BYTES;
     }
 
     /** Spec to initialise an encrypting cipher with, or null when the mode takes no IV. */
@@ -44,15 +44,19 @@ final class IvSpec {
         if (!usesIv(mode)) {
             return null;
         }
-        byte[] iv = new byte[ivBytes(algorithm, mode)];
-        return isGcm(mode) ? new GCMParameterSpec(GCM_TAG_BITS, iv) : new IvParameterSpec(iv);
+        byte[] initializationVector = new byte[initializationVectorBytes(algorithm, mode)];
+        return isGcm(mode)
+                ? new GCMParameterSpec(GCM_TAG_BITS, initializationVector)
+                : new IvParameterSpec(initializationVector);
     }
 
     /** Spec rebuilt from the IV the encrypting cipher reported, or null when the mode takes no IV. */
-    static AlgorithmParameterSpec forDecrypt(String mode, byte[] iv) {
-        if (!usesIv(mode) || iv == null) {
+    static AlgorithmParameterSpec forDecrypt(String mode, byte[] initializationVector) {
+        if (!usesIv(mode) || initializationVector == null) {
             return null;
         }
-        return isGcm(mode) ? new GCMParameterSpec(GCM_TAG_BITS, iv) : new IvParameterSpec(iv);
+        return isGcm(mode)
+                ? new GCMParameterSpec(GCM_TAG_BITS, initializationVector)
+                : new IvParameterSpec(initializationVector);
     }
 }

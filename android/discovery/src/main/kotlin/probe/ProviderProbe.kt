@@ -38,13 +38,13 @@ class ProviderProbe {
         val aliasesByTarget = aliases.groupBy({ it.targetKey }, { it.name })
 
         val services = provider.services.orEmpty().map { service ->
-            val key = ServiceKey.of(service.type, service.algorithm)
+            val serviceKey = ServiceKey.of(service.type, service.algorithm)
             ServiceEntry(
                 type = service.type,
                 algorithm = service.algorithm,
                 className = service.className ?: "",
-                aliases = aliasesByTarget[key]?.sorted().orEmpty(),
-                attributes = ServiceAttributes.of(attributes[key]),
+                aliases = aliasesByTarget[serviceKey]?.sorted().orEmpty(),
+                attributes = ServiceAttributes.of(attributes[serviceKey]),
             )
         }.sortedWith(compareBy({ it.type }, { it.algorithm }))
 
@@ -70,12 +70,12 @@ class ProviderProbe {
     ) {
         for (raw in provider.stringPropertyNames()) {
             val value = provider.getProperty(raw) ?: continue
-            when (val key = PropertyKey.classify(raw)) {
+            when (val propertyKey = PropertyKey.classify(raw)) {
                 is PropertyKey.Alias ->
-                    aliases += Alias(key.type, key.name, value)
+                    aliases += Alias(propertyKey.type, propertyKey.name, value)
                 is PropertyKey.Attribute ->
-                    attributes.getOrPut(key.serviceKey) { mutableMapOf() }[key.name] =
-                        parseOrRaw(key.name, value)
+                    attributes.getOrPut(propertyKey.serviceKey) { mutableMapOf() }[propertyKey.name] =
+                        parseOrRaw(propertyKey.name, value)
                 is PropertyKey.ServiceImpl,
                 PropertyKey.ProviderMeta,
                 PropertyKey.Malformed -> Unit

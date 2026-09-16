@@ -38,22 +38,22 @@ internal sealed class PropertyKey {
                 return ProviderMeta
             }
             if (key.startsWith(ALIAS_PREFIX)) {
-                val rest = key.substring(ALIAS_PREFIX.length)
-                val dot = rest.indexOf('.')
-                return if (dot <= 0 || dot == rest.length - 1) {
+                val remainder = key.substring(ALIAS_PREFIX.length)
+                val separator = remainder.indexOf('.')
+                return if (separator <= 0 || separator == remainder.length - 1) {
                     Malformed
                 } else {
-                    Alias(rest.substring(0, dot), rest.substring(dot + 1))
+                    Alias(remainder.substring(0, separator), remainder.substring(separator + 1))
                 }
             }
             val space = key.indexOf(' ')
-            val head = if (space < 0) key else key.substring(0, space)
-            val dot = head.indexOf('.')
-            if (dot <= 0 || dot == head.length - 1) {
+            val serviceSection = if (space < 0) key else key.substring(0, space)
+            val separator = serviceSection.indexOf('.')
+            if (separator <= 0 || separator == serviceSection.length - 1) {
                 return Malformed
             }
-            val type = head.substring(0, dot)
-            val algorithm = head.substring(dot + 1)
+            val type = serviceSection.substring(0, separator)
+            val algorithm = serviceSection.substring(separator + 1)
             if (space < 0) {
                 return ServiceImpl(type, algorithm)
             }
