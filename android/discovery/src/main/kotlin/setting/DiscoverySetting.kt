@@ -48,9 +48,9 @@ data class DiscoverySetting(
         private val byNameOrAlias: Map<ServiceKey, ServiceSetting> =
             HashMap<ServiceKey, ServiceSetting>().apply {
                 for (service in services) {
-                    put(ServiceKey.of(service.type, service.algorithm), service)
+                    put(ServiceKey(service.type, service.algorithm), service)
                     for (alias in service.aliases) {
-                        put(ServiceKey.of(service.type, alias), service)
+                        put(ServiceKey(service.type, alias), service)
                     }
                 }
             }
@@ -60,7 +60,7 @@ data class DiscoverySetting(
 
         /** The service answering this type and algorithm or alias, or null. Case-insensitive. */
         fun find(type: String, algorithmOrAlias: String): ServiceSetting? =
-            byNameOrAlias[ServiceKey.of(type, algorithmOrAlias)]
+            byNameOrAlias[ServiceKey(type, algorithmOrAlias)]
     }
 
     /** One in-scope service with the attributes that narrow the benchmark matrix. */

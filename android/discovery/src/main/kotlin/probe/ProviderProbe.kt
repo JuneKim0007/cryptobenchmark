@@ -17,7 +17,7 @@ import java.security.Provider
 class ProviderProbe {
 
     private data class Alias(val type: String, val name: String, val target: String) {
-        val targetKey: ServiceKey get() = ServiceKey.of(type, target)
+        val targetKey: ServiceKey get() = ServiceKey(type, target)
     }
 
     fun capture(
@@ -38,7 +38,7 @@ class ProviderProbe {
         val aliasesByTarget = aliases.groupBy({ it.targetKey }, { it.name })
 
         val services = provider.services.orEmpty().map { service ->
-            val serviceKey = ServiceKey.of(service.type, service.algorithm)
+            val serviceKey = ServiceKey(service.type, service.algorithm)
             ServiceEntry(
                 type = service.type,
                 algorithm = service.algorithm,
@@ -48,7 +48,7 @@ class ProviderProbe {
             )
         }.sortedWith(compareBy({ it.type }, { it.algorithm }))
 
-        val present = services.mapTo(HashSet()) { ServiceKey.of(it.type, it.algorithm) }
+        val present = services.mapTo(HashSet()) { ServiceKey(it.type, it.algorithm) }
 
         return ProviderEntry(
             name = provider.name,

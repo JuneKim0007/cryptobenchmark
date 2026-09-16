@@ -19,7 +19,7 @@ internal sealed class PropertyKey {
 
     /** `Cipher.AES SupportedModes` = `ECB|CBC` — [name] is the attribute. */
     data class Attribute(val type: String, val algorithm: String, val name: String) : PropertyKey() {
-        val serviceKey: ServiceKey get() = ServiceKey.of(type, algorithm)
+        val serviceKey: ServiceKey get() = ServiceKey(type, algorithm)
     }
 
     /** `Cipher.AES` — services are read from getServices(), so this is recorded and ignored. */
