@@ -48,7 +48,7 @@ class ProviderProbe {
             )
         }.sortedWith(compareBy({ it.type }, { it.algorithm }))
 
-        val present = services.mapTo(HashSet()) { it.key }
+        val present = services.mapTo(HashSet()) { ServiceKey.of(it.type, it.algorithm) }
 
         return ProviderEntry(
             name = provider.name,
