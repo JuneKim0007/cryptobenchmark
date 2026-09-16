@@ -18,11 +18,12 @@
   - `crypto/` : module `:crypto` (android library) — cryptography, nothing else
     - `crypto/primitive/` : one algorithm call per function, no iteration, no lookup
       - `cipher/` : `EncryptOperation`, `DecryptOperation` — the two call shapes
-        - `symmetric/` : AES, DESEDE, ChaCha20, ARC4 — encrypt, decrypt, keygen, `IvSpec`
-        - `asymmetric/` : RSA — encrypt, decrypt, keygen
+        - `symmetric/` : AES, DESEDE, ChaCha20, ARC4 — encrypt, decrypt, `IvSpec`
+        - `asymmetric/` : RSA — encrypt, decrypt
       - `digest/` : SHA family, MD5
       - `mac/` : HMAC
-      - `signature/` : sign, verify, signature keygen
+      - `signature/` : sign, verify
+      - `keygen/` : secret keys, key pairs, signature keys
     - `crypto/codec/` : byte↔String, base64, charset
     - `src/test/` : JVM tests
   - `discovery/` : module `:discovery` (kotlin, java library) — what this device offers, never inside a measurement

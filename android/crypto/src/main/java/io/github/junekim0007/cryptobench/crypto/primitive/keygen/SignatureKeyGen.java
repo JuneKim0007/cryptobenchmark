@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.crypto.primitive.signature;
+package io.github.junekim0007.cryptobench.crypto.primitive.keygen;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
