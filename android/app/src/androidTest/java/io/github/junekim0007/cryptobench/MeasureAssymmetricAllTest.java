@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.Assy
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.DecryptOperation;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.EncryptOperation;
-import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
+import io.github.junekim0007.cryptobench.crypto.primitive.keygen.AssymmetricEncryptKeyGen;
 import com.hunter.library.debug.HunterDebug;
 
 import org.junit.Test;

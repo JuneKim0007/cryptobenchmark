@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric;
+package io.github.junekim0007.cryptobench.crypto.primitive.keygen;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;

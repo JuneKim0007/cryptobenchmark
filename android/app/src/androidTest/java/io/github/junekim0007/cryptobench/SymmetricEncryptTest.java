@@ -4,7 +4,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
-import io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen;
+import io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen;
 import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;
@@ -24,9 +24,9 @@ import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetri
 import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_BLOWFISH;
 import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_ChaCha20;
 import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricDecrypt.decrypt_ChaCha20Poly;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4_AndroidOpenSSL;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_ARC4_AndroidOpenSSL;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_ChaCha20;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

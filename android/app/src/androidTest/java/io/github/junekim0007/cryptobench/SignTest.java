@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench;
 
-import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
+import io.github.junekim0007.cryptobench.crypto.primitive.keygen.AssymmetricEncryptKeyGen;
 import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
 import io.github.junekim0007.cryptobench.crypto.primitive.signature.Sign;
 import io.github.junekim0007.cryptobench.crypto.primitive.signature.Verify;
-import io.github.junekim0007.cryptobench.crypto.primitive.signature.SignatureKeyGen;
+import io.github.junekim0007.cryptobench.crypto.primitive.keygen.SignatureKeyGen;
 import org.junit.Test;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;

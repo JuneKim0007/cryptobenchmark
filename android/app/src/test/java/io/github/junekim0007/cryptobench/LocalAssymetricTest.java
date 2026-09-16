@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench;
 
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricDecrypt;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricEncrypt;
-import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
+import io.github.junekim0007.cryptobench.crypto.primitive.keygen.AssymmetricEncryptKeyGen;
 import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
 
 import org.junit.Test;

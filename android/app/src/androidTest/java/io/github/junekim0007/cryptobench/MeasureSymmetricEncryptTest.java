@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import javax.crypto.SecretKey;
 
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_AES;
 
 
 @RunWith(AndroidJUnit4.class)

@@ -9,12 +9,12 @@ import org.junit.runner.RunWith;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_DES;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_ARC4;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_AES;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_BLOWFISH;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_ChaCha20;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_DES;
 
 @RunWith(AndroidJUnit4.class)
 public class MeasureSymmetricKeygenTest extends MeasureTest {

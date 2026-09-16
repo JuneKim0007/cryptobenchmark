@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench;
 
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.DecryptOperation;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.EncryptOperation;
-import io.github.junekim0007.cryptobench.crypto.primitive.cipher.asymmetric.AssymmetricEncryptKeyGen;
+import io.github.junekim0007.cryptobench.crypto.primitive.keygen.AssymmetricEncryptKeyGen;
 import io.github.junekim0007.cryptobench.benchmark.preparation.workload.DataType;
 import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
 
@@ -17,14 +17,14 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import static io.github.junekim0007.cryptobench.crypto.primitive.signature.SignatureKeyGen.gen_dsa_key;
-import static io.github.junekim0007.cryptobench.crypto.primitive.signature.SignatureKeyGen.gen_key_ECDSA;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_BLOWFISH;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ChaCha20;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_DES;
-import static io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricKeyGen.gen_key_ARC4;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SignatureKeyGen.gen_dsa_key;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SignatureKeyGen.gen_key_ECDSA;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_AES;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_AES_AndroidKeyStore;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_BLOWFISH;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_ChaCha20;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_DES;
+import static io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen.gen_key_ARC4;
 import static io.github.junekim0007.cryptobench.setup.config.Config.getConfigs;
 
 public class MeasureTest {
