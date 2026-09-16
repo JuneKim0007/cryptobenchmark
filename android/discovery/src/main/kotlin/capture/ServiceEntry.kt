@@ -11,7 +11,5 @@ data class ServiceEntry(
     val attributes: ServiceAttributes = ServiceAttributes.empty(),
 ) {
 
-    internal val key: ServiceKey get() = ServiceKey.of(type, algorithm)
-
     override fun toString(): String = "$type.$algorithm"
 }
