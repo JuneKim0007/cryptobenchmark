@@ -69,7 +69,7 @@ class ProviderProbe {
         attributes: MutableMap<ServiceKey, MutableMap<String, Any>>,
     ) {
         for (raw in provider.stringPropertyNames()) {
-            val value = provider.getProperty(raw) ?: continue
+            val value = provider.getProperty(raw)?.takeIf { it.isNotBlank() } ?: continue
             when (val propertyKey = PropertyKey.classify(raw)) {
                 is PropertyKey.Alias ->
                     aliases += Alias(propertyKey.type, propertyKey.name, value)
