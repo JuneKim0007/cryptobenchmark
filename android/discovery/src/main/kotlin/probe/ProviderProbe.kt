@@ -70,11 +70,11 @@ class ProviderProbe {
     ) {
         for (raw in provider.stringPropertyNames()) {
             val value = provider.getProperty(raw)?.takeIf { it.isNotBlank() } ?: continue
-            when (val propertyKey = PropertyKey.classify(raw)) {
+            when (val propertyKey = PropertyKeyParser.classify(raw)) {
                 is PropertyKey.Alias ->
                     aliases += Alias(propertyKey.type, propertyKey.name, value)
                 is PropertyKey.Attribute ->
-                    attributes.getOrPut(propertyKey.serviceKey) { mutableMapOf() }[propertyKey.name] =
+                    attributes.getOrPut(ServiceKey(propertyKey.type, propertyKey.algorithm)) { mutableMapOf() }[propertyKey.name] =
                         parseOrRaw(propertyKey.name, value)
                 is PropertyKey.ServiceImpl,
                 PropertyKey.ProviderMeta,
