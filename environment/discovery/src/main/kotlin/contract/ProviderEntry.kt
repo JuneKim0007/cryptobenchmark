@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.capture
+package io.github.junekim0007.cryptobench.discovery.contract
 
 /** One installed provider, at its position in the preference order. */
 data class ProviderEntry(

@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.probe
+package io.github.junekim0007.cryptobench.discovery.adapter
 
 /**
  * Restricted to 'discovery.probe' Package

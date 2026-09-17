@@ -1,6 +1,6 @@
-import io.github.junekim0007.cryptobench.discovery.EnvironmentJsonWriter
-import io.github.junekim0007.cryptobench.discovery.capture.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.probe.ProviderProbe
+import io.github.junekim0007.cryptobench.discovery.serialize.EnvironmentJsonWriter
+import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
+import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
 import java.io.File
 import java.security.Provider

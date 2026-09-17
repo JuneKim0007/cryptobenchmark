@@ -8,13 +8,13 @@
 | `docs.md` | modules, file structure, language rule, dependency rules |
 | [cryptography/primitives.md](cryptography/primitives.md) | primitive → provider → type catalogue, key sizes, usage rules |
 | [cryptography/providers.md](cryptography/providers.md) | per-provider supported and unsupported algorithms |
-| [infra/setup.md](infra/setup.md) | `:app` setup package |
-| `android/discovery/probe.md` | what `:discovery` does, JCA APIs, limits, classes |
-| `android/discovery/security_contract.md` | capture and setting field tables |
+| [infra/setup.md](infra/setup.md) | `:android` setup package |
+| `environment/discovery/docs/probe.md` | what `:environment:discovery` does, JCA APIs, limits, classes |
+| `environment/discovery/docs/security_contract.md` | capture and setting field tables |
 
 ## file structure
 
-- `android/` : gradle project; package root in every module is `io.github.junekim0007.cryptobench`
+- gradle root is the repository root; package root in every module is `io.github.junekim0007.cryptobench`
   - `crypto/` : module `:crypto` (android library) — cryptography, nothing else
     - `crypto/primitive/` : one algorithm call per function, no iteration, no lookup
       - `cipher/` : `EncryptOperation`, `DecryptOperation` — the two call shapes
@@ -26,21 +26,20 @@
       - `keygen/` : secret keys, key pairs, signature keys
     - `crypto/codec/` : byte↔String, base64, charset
     - `src/test/` : JVM tests
-  - `discovery/` : module `:discovery` (kotlin, java library) — what this device offers, never inside a measurement
-    - `probe.md`, `security_contract.md` : module docs
+  - `environment/discovery/` : module `:environment:discovery` (kotlin, java library) — what this device offers, never inside a measurement
+    - `README.md`, `docs/probe.md`, `docs/security_contract.md` : module docs
     - `src/main/kotlin/` : sub-package folders only, no package root folders
-      - `ServiceKey` : `(type, algorithm)` key, case folding — `internal`
-      - `EnvironmentJsonWriter` : capture → JSON
-      - `probe/` : `ProviderProbe` reads the JCA; `PropertyKey`, `AttributeKind` classify the property map — both `internal`
-      - `capture/` : `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo`
+      - `adapter/` : reads the JCA and parses it into the contract — `ProviderProbe`, `PropertyKeyParser`, `PropertyKey`, `AttributeKind`
+      - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`
       - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to what the benchmark needs
-  - `benchmark/` : module `:benchmark` (java library; becomes the `androidx.benchmark` module at #11) — what is measured
+      - `serialize/` : `EnvironmentJsonWriter` — capture → JSON
+  - `benchmark/` : module `:benchmark` (java library) — what is measured; standalone, not android-specific
     - `benchmark/preparation/` : turns what the user asked for into runnable state
       - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
       - `registry/` : case registry *(planned — provider lookup is `DiscoverySetting.providersFor` for now)*
       - `key/` : key per case *(planned)*
       - `workload/` : `DataType`, `StringType` — input generation
-  - `app/` : module `:app` (application) — depends on all modules
+  - `android/` : module `:android` (application) — depends on all modules
     - `setup/config/` : `Config` — run parameters read from the pushed config
     - `src/androidTest/` : on-device benchmarks and functional tests
     - `src/test/` : JVM tests
@@ -65,8 +64,8 @@
 |---|---|---|
 | `:crypto` | Java | yes — it is the subject |
 | `:benchmark` | Java | prepares before the timed block, calls `:crypto` |
-| `:app` | Java | hosts the measurement classes in `androidTest` |
-| `:discovery` | Kotlin | no — runs before any measurement |
+| `:android` | Java | hosts the measurement classes in `androidTest` |
+| `:environment:discovery` | Kotlin | no — runs before any measurement |
 
 Rules:
 
@@ -90,11 +89,11 @@ Enforced by gradle module dependencies:
 | module | may depend on |
 |---|---|
 | `:crypto` | — |
-| `:discovery` | — |
-| `:benchmark` | `:crypto`, `:discovery` (none declared yet) |
-| `:app` | all |
+| `:environment:discovery` | — |
+| `:benchmark` | `:crypto`, `:environment:discovery` (none declared yet) |
+| `:android` | all |
 
-Inside `:app`:
+Inside `:android`:
 
 - `setup` : imports `discovery`
 - `androidTest` : imports `benchmark`, `crypto`

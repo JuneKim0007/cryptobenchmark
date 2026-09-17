@@ -1,6 +1,5 @@
-package io.github.junekim0007.cryptobench.discovery.capture
+package io.github.junekim0007.cryptobench.discovery.contract
 
-import io.github.junekim0007.cryptobench.discovery.ServiceKey
 
 /** One service as the provider declares it: what it is, plus every alias and attribute it carries. */
 data class ServiceEntry(

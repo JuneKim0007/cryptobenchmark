@@ -1,9 +1,9 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.serialize
 
-import io.github.junekim0007.cryptobench.discovery.capture.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.capture.ProviderEntry
-import io.github.junekim0007.cryptobench.discovery.capture.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.capture.ServiceEntry
+import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
+import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
 
 import org.json.JSONArray
 import org.json.JSONObject

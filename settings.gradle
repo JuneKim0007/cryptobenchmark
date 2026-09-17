@@ -1,0 +1,2 @@
+include ':android', ':crypto', ':benchmark', ':environment:discovery'
+rootProject.name = "cryptobenchmark"

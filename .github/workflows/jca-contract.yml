@@ -3,9 +3,9 @@ name: jca contract
 # Fails when the JCA surface :discovery reads changes under a new Java version.
 on:
   push:
-    paths: ['android/discovery/**', 'tools/jca-contract/**', '.github/workflows/jca-contract.yml']
+    paths: ['environment/discovery/**', 'tools/jca-contract/**', '.github/workflows/jca-contract.yml']
   pull_request:
-    paths: ['android/discovery/**', 'tools/jca-contract/**']
+    paths: ['environment/discovery/**', 'tools/jca-contract/**']
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
