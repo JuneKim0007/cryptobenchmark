@@ -1,2 +1,0 @@
-include ':app', ':crypto', ':discovery', ':benchmark'
-rootProject.name = "cryptobenchmark"

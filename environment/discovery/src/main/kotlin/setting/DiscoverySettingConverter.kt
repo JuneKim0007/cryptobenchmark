@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.setting
 
-import io.github.junekim0007.cryptobench.discovery.ServiceKey
-import io.github.junekim0007.cryptobench.discovery.capture.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.capture.ServiceEntry
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
 
 /**
  * Reduces a full capture to the discovery setting. Typed to typed: it never reads a file or a field

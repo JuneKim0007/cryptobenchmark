@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.capture
+package io.github.junekim0007.cryptobench.discovery.contract
 
 /** Typed so the attribute rules stay here and no consumer has to cast its way through a map. */
 class ServiceAttributes private constructor(private val values: Map<String, Any>) {

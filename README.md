@@ -23,9 +23,9 @@ flowchart LR
 | Module | Language | Holds |
 |---|---|---|
 | `:crypto` | Java | primitives, codec |
-| `:discovery` | Kotlin | provider probe, capture, discovery setting |
+| `:environment:discovery` | Kotlin | provider adapter, contract, discovery setting |
 | `:benchmark` | Java | input and key preparation |
-| `:app` | Java | run config, instrumented benchmark classes |
+| `:android` | Java | run config, instrumented benchmark classes |
 
 File structure, language rule and dependency rules: [docs/docs.md](docs/docs.md).
 
@@ -122,7 +122,7 @@ $ pip install -r requirements.txt
 
 ## Configuration
 
-Benchmark settings live in `android/gradle.properties`. Each build turns them into
+Benchmark settings live in `gradle.properties`. Each build turns them into
 `BuildConfig` fields and writes `CryptoBenchmark.config`, which is pushed to the device and
 read at run time.
 

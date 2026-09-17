@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery
+package io.github.junekim0007.cryptobench.discovery.contract
 
 import java.util.Locale
 

@@ -22,8 +22,8 @@ kotlin {
 }
 
 sourceSets {
-    main { kotlin.setSrcDirs(listOf("../../android/discovery/src/main/kotlin", "src/main/kotlin")) }
-    test { kotlin.setSrcDirs(listOf("../../android/discovery/src/test/kotlin")) }
+    main { kotlin.setSrcDirs(listOf("../../environment/discovery/src/main/kotlin", "src/main/kotlin")) }
+    test { kotlin.setSrcDirs(listOf("../../environment/discovery/src/test/kotlin")) }
 }
 
 dependencies {
