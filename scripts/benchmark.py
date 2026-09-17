@@ -162,7 +162,7 @@ def install_apks(build_type="debug", accept_install=False, retry=True, install_m
             thread1 = threading.Thread(target=background_installer)
             thread1.start()
         print("installing main apk")
-        res, o , e = execute_shell_command(f"adb install -g -r android/build/outputs/apk/{build_type.lower()}/android-{build_type.lower()}*")
+        res, o , e = execute_shell_command(f"adb install -g -r modules/android/build/outputs/apk/{build_type.lower()}/android-{build_type.lower()}*")
         print(res)
         if res != 0 and retry:
             install_apks(build_type, accept_install=True, retry=False)
@@ -173,7 +173,7 @@ def install_apks(build_type="debug", accept_install=False, retry=True, install_m
         thread2 = threading.Thread(target=background_installer)
         thread2.start()
     print("installing test apk")
-    res, o , e = execute_shell_command(f"adb install -g -r android/build/outputs/apk/androidTest/{build_type.lower()}/android-{build_type.lower()}*")
+    res, o , e = execute_shell_command(f"adb install -g -r modules/android/build/outputs/apk/androidTest/{build_type.lower()}/android-{build_type.lower()}*")
     print(res)
     if res != 0 and retry:
         unlock_screen()
