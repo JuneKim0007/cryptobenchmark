@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("jvm") version "2.2.21"
+    application
 }
 
 repositories { mavenCentral() }
@@ -21,7 +22,7 @@ kotlin {
 }
 
 sourceSets {
-    main { kotlin.setSrcDirs(listOf("../../android/discovery/src/main/kotlin")) }
+    main { kotlin.setSrcDirs(listOf("../../android/discovery/src/main/kotlin", "src/main/kotlin")) }
     test { kotlin.setSrcDirs(listOf("../../android/discovery/src/test/kotlin")) }
 }
 
@@ -33,4 +34,8 @@ dependencies {
 tasks.test {
     systemProperty("capture.out", layout.buildDirectory.file("capture/environment.json").get().asFile.path)
     testLogging { showStandardStreams = true }
+}
+
+application {
+    mainClass.set("PlaygroundKt")
 }
