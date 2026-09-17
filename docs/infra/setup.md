@@ -4,7 +4,7 @@ Placeholder.
 
 User config and user-supplied inputs for a run. Never contributes to a measurement.
 
-Source: `android/src/main/java/io/github/junekim0007/cryptobench/setup/`
+Source: `modules/android/src/main/java/io/github/junekim0007/cryptobench/setup/`
 
 | Class | Does |
 |---|---|

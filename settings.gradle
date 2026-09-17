@@ -1,2 +1,9 @@
 include ':android', ':crypto', ':benchmark', ':environment:discovery'
+
+project(':android').projectDir = file('modules/android')
+project(':crypto').projectDir = file('modules/crypto')
+project(':benchmark').projectDir = file('modules/benchmark')
+project(':environment').projectDir = file('modules/environment')
+project(':environment:discovery').projectDir = file('modules/environment/discovery')
+
 rootProject.name = "cryptobenchmark"

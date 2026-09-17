@@ -117,7 +117,7 @@ Create and activate the virtualenv, then install the python packages:
 ```
 $ virtualenv -p ~/.pyenv/versions/3.10.12/bin/python3.10 venv/
 $ source venv/bin/activate
-$ pip install -r requirements.txt
+$ pip install -r scripts/requirements.txt
 ```
 
 ## Configuration
