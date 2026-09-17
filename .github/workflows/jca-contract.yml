@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
       - uses: gradle/actions/setup-gradle@v4
-      - run: gradle test --no-daemon
+      - run: ./gradlew test --no-daemon
         working-directory: tools/jca-contract
       - uses: actions/upload-artifact@v4
         if: always()
