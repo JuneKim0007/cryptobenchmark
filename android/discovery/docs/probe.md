@@ -45,7 +45,8 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | Class | Package | Role |
 |---|---|---|
 | `ProviderProbe` | `probe` | JCA → capture; normalises null and ordering |
-| `PropertyKey` | `probe` | classifies property keys — sealed, `internal` |
+| `PropertyKeyParser` | `probe` | decodes the property-map grammar — `internal` |
+| `PropertyKey` | `probe` | one decoded key, discarded after use — sealed, `internal` |
 | `AttributeKind` | `probe` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
 | `CapturedEnvironment` | `capture` | one capture |
 | `ProviderEntry` | `capture` | one provider |
