@@ -9,7 +9,7 @@ data class ProviderEntry(
     val info: String = "",
     val services: List<ServiceEntry> = emptyList(),
     /** Aliases whose target service is not registered: recorded rather than silently dropped. */
-    val unresolvedAliases: Map<String, String> = emptyMap(),
+    val unresolvedAliases: List<AliasEntry> = emptyList(),
 ) {
 
     init {

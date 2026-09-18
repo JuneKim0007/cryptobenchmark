@@ -49,8 +49,14 @@ class EnvironmentJsonWriter {
             provider.services.forEach { put(service(it)) }
         })
         if (provider.unresolvedAliases.isNotEmpty()) {
-            put("unresolvedAliases", JSONObject().apply {
-                provider.unresolvedAliases.forEach { (alias, target) -> put(alias, target) }
+            put("unresolvedAliases", JSONArray().apply {
+                provider.unresolvedAliases.forEach { alias ->
+                    put(JSONObject().apply {
+                        put("type", alias.type)
+                        put("alias", alias.name)
+                        put("target", alias.target)
+                    })
+                }
             })
         }
     }

@@ -32,7 +32,7 @@ Fields of a capture written by `ProviderProbe` → `EnvironmentJsonWriter`.
 | `info` | string | provider description |
 | `usable` | bool | false when the provider registers no services |
 | `services` | list | services the provider registers |
-| `unresolvedAliases` | map | aliases whose target service is not registered; omitted when empty |
+| `unresolvedAliases` | list | aliases whose target service is not registered, each `{type, alias, target}`; omitted when empty |
 
 ## services[]
 

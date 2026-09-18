@@ -9,10 +9,36 @@
   1. For more information, refer to <probe.md>.
 
 ## File Structure
+> File structure + their responsibilities. For potential ambiguity, I've prepared documents for each components. 
 
-- `Discovery/`: Main root repository of the `Discovery` module
-  - `src/main/kotlin/`: Discovery modules written in Kotlin
-    - `probe/`: Directory responsible for probing available cryptography providers registered in Java.
+
+- `discovery/`
+  - `build.gradle`
+  - `README.md`
+  - `docs/`
+    - `probe.md`
+    - `security_contract.md`
+  - `src/main/kotlin/`
+    - `adapter/`
+      - `ProviderProbe.kt`
+      - `PropertyKeyParser.kt`
+      - `PropertyKey.kt`
+      - `AttributeKind.kt`
+    - `contract/`
+      - `CapturedEnvironment.kt`
+      - `ProviderEntry.kt`
+      - `ServiceEntry.kt`
+      - `ServiceAttributes.kt`
+      - `RuntimeInfo.kt`
+      - `ServiceKey.kt`
+    - `setting/`
+      - `DiscoverySetting.kt`
+      - `DiscoverySettingConverter.kt`
+    - `serialize/`
+      - `EnvironmentJsonWriter.kt`
+  - `src/test/kotlin/`
+    - `JcaContractTest.kt`
+    - `ServiceKeyTest.kt`
 
 ## Limitations
 

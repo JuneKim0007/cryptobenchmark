@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.discovery.contract.AliasEntry
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
@@ -58,8 +59,8 @@ class ProviderProbe {
             services = services,
             unresolvedAliases = aliases
                 .filterNot { it.targetKey in present }
-                .associate { "${it.type} ${it.name}" to it.target }
-                .toSortedMap(),
+                .map { AliasEntry(it.type, it.name, it.target) }
+                .sortedWith(compareBy({ it.type }, { it.name })),
         )
     }
 
