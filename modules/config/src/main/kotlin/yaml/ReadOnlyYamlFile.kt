@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.yaml
 
+import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 
 class ReadOnlyYamlFile<T> internal constructor(
@@ -14,7 +15,7 @@ class ReadOnlyYamlFile<T> internal constructor(
         }
         val document = try {
             codec.load(file.readText())
-        } catch (failure: RuntimeException) {
+        } catch (failure: YAMLException) {
             throw IllegalArgumentException("unreadable_yaml: ${file.name}: ${failure.message}", failure)
         }
         val version = document[SCHEMA_VERSION] as? Number ?: throw IllegalArgumentException("missing_field: ${file.name}: $SCHEMA_VERSION")

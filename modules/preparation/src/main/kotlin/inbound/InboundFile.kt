@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.preparation.inbound
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.section
 import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 
 object InboundFile {
@@ -17,7 +18,7 @@ object InboundFile {
     fun read(fileName: String, text: String): InboundDocument {
         val document = try {
             YamlCodec().load(text)
-        } catch (failure: RuntimeException) {
+        } catch (failure: YAMLException) {
             throw IllegalArgumentException("unreadable_yaml: $fileName: ${failure.message}", failure)
         }
         val schemaVersion = number(document, "schemaVersion").toInt()
