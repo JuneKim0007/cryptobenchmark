@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.config.yaml
 
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
 
-/** provider → engine type → name → entry: the nesting inventory.yaml and effective.yaml share. */
 object ProviderTree {
 
     fun <T> of(tree: Map<String, Map<String, Map<String, T>>>, entry: (T) -> Map<String, Any>): Map<String, Any> =

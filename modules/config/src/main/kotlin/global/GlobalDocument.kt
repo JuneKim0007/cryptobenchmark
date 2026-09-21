@@ -12,10 +12,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 
-/**
- * global.yaml. Each section has one owner and one parser, listed in SECTIONS; a section nobody owns is an error,
- * so a misspelt `rn:` fails instead of silently running with defaults.
- */
 object GlobalDocument : DocumentHandler<GlobalConfig> {
 
     override val schemaVersion: Int = 1

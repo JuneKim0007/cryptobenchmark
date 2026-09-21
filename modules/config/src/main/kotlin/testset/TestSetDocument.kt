@@ -10,7 +10,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStri
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 
-/** testsets/<name>.yaml. */
 object TestSetDocument : DocumentHandler<TestSet> {
 
     override val schemaVersion: Int = 1

@@ -5,7 +5,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
 
-/** `{provider?, type?, name?}`, used by test sets and by global.yaml's exclude. */
 object RuleDocument {
 
     private const val PROVIDER = "provider"

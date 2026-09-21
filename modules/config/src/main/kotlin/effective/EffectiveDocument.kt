@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
+import io.github.junekim0007.cryptobench.config.inventory.dto.InventorySource
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
@@ -16,7 +17,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
 
-/** effective.yaml: the one file preparation reads. */
 object EffectiveDocument : DocumentHandler<EffectiveConfig> {
 
     override val schemaVersion: Int = 1
@@ -47,7 +47,8 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
 
     override fun of(value: EffectiveConfig): Map<String, Any> = linkedMapOf(
         GENERATED_FROM to value.generatedFrom.let {
-            linkedMapOf(GLOBAL to it.global, TEST_SET to it.testSet, INVENTORY to it.inventory, CAPTURE to it.capture, TRIAL to it.trial, DEVICE to LinkedHashMap(it.device))
+            linkedMapOf(GLOBAL to it.global, TEST_SET to it.testSet, INVENTORY to it.inventory,
+                CAPTURE to it.environment.capture, TRIAL to it.environment.trial, DEVICE to LinkedHashMap(it.environment.device))
         },
         RUN to RunDocument.of(value.run),
         POLICY to PolicyDocument.of(value.policy),
@@ -70,9 +71,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
                 global = string(source, GLOBAL),
                 testSet = string(source, TEST_SET),
                 inventory = string(source, INVENTORY),
-                capture = string(source, CAPTURE),
-                trial = string(source, TRIAL),
-                device = LinkedHashMap(section(source, DEVICE)),
+                environment = InventorySource(string(source, CAPTURE), string(source, TRIAL), LinkedHashMap(section(source, DEVICE))),
             ),
             run = RunDocument.parse(section(document, RUN), RUN),
             policy = PolicyDocument.parse(section(document, POLICY), POLICY),

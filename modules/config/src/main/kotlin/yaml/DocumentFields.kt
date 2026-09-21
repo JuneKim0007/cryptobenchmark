@@ -1,36 +1,21 @@
 package io.github.junekim0007.cryptobench.config.yaml
 
-internal object DocumentFields {
+object DocumentFields {
 
     fun string(document: Map<String, Any>, key: String): String =
         field(document, key) as? String ?: wrongType(key)
 
-    fun optionalString(document: Map<String, Any>, key: String): String =
-        document[key]?.let { it as? String ?: wrongType(key) } ?: ""
-
     fun number(document: Map<String, Any>, key: String): Number =
         field(document, key) as? Number ?: wrongType(key)
-
-    fun optionalNumber(document: Map<String, Any>, key: String): Number? =
-        document[key]?.let { it as? Number ?: wrongType(key) }
 
     fun boolean(document: Map<String, Any>, key: String): Boolean =
         field(document, key) as? Boolean ?: wrongType(key)
 
-    fun optionalBoolean(document: Map<String, Any>, key: String): Boolean =
-        document[key]?.let { it as? Boolean ?: wrongType(key) } ?: false
-
     fun section(document: Map<String, Any>, key: String): Map<String, Any> =
         asSection(field(document, key), key)
 
-    fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any>? =
-        document[key]?.let { asSection(it, key) }
-
     fun sections(document: Map<String, Any>, key: String): List<Map<String, Any>> =
         asList(field(document, key), key).map { asSection(it, key) }
-
-    fun optionalSections(document: Map<String, Any>, key: String): List<Map<String, Any>> =
-        if (document.containsKey(key)) sections(document, key) else emptyList()
 
     fun strings(document: Map<String, Any>, key: String): List<String> =
         asList(field(document, key), key).map { it as? String ?: wrongType(key) }
@@ -38,19 +23,27 @@ internal object DocumentFields {
     fun numbers(document: Map<String, Any>, key: String): List<Int> =
         asList(field(document, key), key).map { (it as? Number ?: wrongType(key)).toInt() }
 
-    fun optionalNumbers(document: Map<String, Any>, key: String): List<Int> =
-        if (document.containsKey(key)) numbers(document, key) else emptyList()
+    inline fun <T> optional(document: Map<String, Any>, key: String, default: T, read: (Map<String, Any>, String) -> T): T =
+        if (document[key] == null) default else read(document, key)
 
-    fun optionalStrings(document: Map<String, Any>, key: String): List<String> =
-        if (document.containsKey(key)) strings(document, key) else emptyList()
+    fun optionalString(document: Map<String, Any>, key: String): String = optional(document, key, "", ::string)
 
-    fun optionalNumbersOrNull(document: Map<String, Any>, key: String): List<Int>? =
-        if (document.containsKey(key)) numbers(document, key) else null
+    fun optionalStringOrNull(document: Map<String, Any>, key: String): String? = optional(document, key, null, ::string)
 
-    fun optionalStringOrNull(document: Map<String, Any>, key: String): String? =
-        document[key]?.let { it as? String ?: wrongType(key) }
+    fun optionalNumber(document: Map<String, Any>, key: String): Number? = optional(document, key, null, ::number)
 
-    /** Hand-edited files: an unknown key is a typo until proven otherwise. */
+    fun optionalBoolean(document: Map<String, Any>, key: String): Boolean = optional(document, key, false, ::boolean)
+
+    fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any>? = optional(document, key, null, ::section)
+
+    fun optionalSections(document: Map<String, Any>, key: String): List<Map<String, Any>> = optional(document, key, emptyList(), ::sections)
+
+    fun optionalStrings(document: Map<String, Any>, key: String): List<String> = optional(document, key, emptyList(), ::strings)
+
+    fun optionalNumbers(document: Map<String, Any>, key: String): List<Int> = optional(document, key, emptyList(), ::numbers)
+
+    fun optionalNumbersOrNull(document: Map<String, Any>, key: String): List<Int>? = optional(document, key, null, ::numbers)
+
     fun expectKeys(document: Map<String, Any>, allowed: Collection<String>, path: String) {
         val unknown = document.keys.filter { it !in allowed }
         if (unknown.isNotEmpty()) throw IllegalArgumentException("unknown_keys: $path $unknown, known $allowed")

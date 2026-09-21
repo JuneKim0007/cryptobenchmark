@@ -6,7 +6,6 @@ import io.github.junekim0007.cryptobench.config.inventory.dto.InventorySource
 import io.github.junekim0007.cryptobench.config.source.CaptureView
 import io.github.junekim0007.cryptobench.config.source.TrialView
 
-/** Capture × trial → inventory: every name environment called with a default key, in provider precedence order. */
 class InventoryBuilder {
 
     fun build(capture: CaptureView, trial: TrialView, files: Files): Inventory {
@@ -27,7 +26,6 @@ class InventoryBuilder {
         return Inventory(InventorySource(files.capture, files.trial, capture.device), providers)
     }
 
-    /** Names of the environment files, recorded in the inventory. */
     data class Files(val capture: String, val trial: String)
 
     private fun inventoryEntry(run: TrialView.DefaultRun): InventoryEntry = InventoryEntry(
@@ -42,7 +40,6 @@ class InventoryBuilder {
     )
 
     private companion object {
-        /** The first size environment's default run tries; any other size it records was needed, not chosen. */
         const val USUAL_INPUT_SIZE = 1024
     }
 }

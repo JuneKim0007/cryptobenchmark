@@ -71,14 +71,17 @@ class DocumentsTest {
     }
 
     @Test
-    fun aMissingRunSectionKeepsDefaults() {
+    fun aMissingRunSectionOrKeyKeepsDefaults() {
         val minimal = GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
         assertEquals(listOf(1024), minimal.run.inputSizes)
+        val partial = GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {processRepetitions: 3}\n"))
+        assertEquals(3, partial.run.processRepetitions)
+        assertEquals(listOf(1024), partial.run.inputSizes)
     }
 
     @Test
-    fun environmentFilesAreReadOnly() {
-        val capture = File(directory, "probe_x.yaml").apply { writeText(Fixtures.CAPTURE) }
-        assertThrows(UnsupportedOperationException::class.java) { files.readOnly(capture, CaptureSource).write(files.readOnly(capture, CaptureSource).read()) }
+    fun aKeyWrittenTwiceIsRejected() {
+        val message = assertThrows(RuntimeException::class.java) { files.load("schemaVersion: 1\nschemaVersion: 1\n") }.message!!
+        assertTrue(message, message.contains("duplicate key"))
     }
 }

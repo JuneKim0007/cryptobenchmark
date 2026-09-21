@@ -55,7 +55,7 @@
       - `yaml/` : `YamlCodec` (duplicated)
       - `source/` : `ConfigSource` — `effective.yaml` read by key → `BenchmarkRequest`, one `Selection` per entry pinned to its provider; `ConfigFields` (no `:config` dependency); reads `policy.onFailure` into the request
       - `request/` : `BenchmarkRequest`, `Selection` (per-entry `inputSizes` override) — what the user wants measured, shape-validated
-      - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
+      - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM: instance built before the timer, Jetpack measures the loop; COLD: first call in a fresh process, timed once per process), `Metric` set (`CPU_EVENTS` needs a rooted device), seed; `CaseName` gives the `id` that links it to its result
       - `port/` : `DeviceCapability`, `Availability` — what preparation needs to know about the device
       - `adapter/` : `DiscoveryCapability` — the port answered from a capture and its trial; the only file importing `:environment:discovery`
       - `parameter/bind/` : `ParameterBinder` — `{class, arguments}` trees from `effective.yaml` → `AlgorithmParameterSpec` by reflection; `field`, nesting, `fresh(n)`, value conversion (`ValueCoercion`), `BindPolicy` (parameter-spec types only), `BoundParameters` (`next()`, `varies`), `BindException` (names the path)

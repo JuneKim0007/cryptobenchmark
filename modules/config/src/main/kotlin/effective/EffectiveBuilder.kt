@@ -6,14 +6,9 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
-import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 
-/**
- * global × test set × inventory → what will run:
- * include (empty = everything) → drop excludes, test set's then global's → resolve overrides → apply policy.
- */
 class EffectiveBuilder {
 
     fun build(global: GlobalConfig, testSet: TestSet, inventory: Inventory, files: Files): EffectiveConfig {
@@ -38,14 +33,7 @@ class EffectiveBuilder {
                 .getOrPut(located.type) { LinkedHashMap() }[located.name] = resolver.resolve(located)
         }
         return EffectiveConfig(
-            generatedFrom = EffectiveSource(
-                global = files.global,
-                testSet = files.testSet,
-                inventory = files.inventory,
-                capture = inventory.generatedFrom.capture,
-                trial = inventory.generatedFrom.trial,
-                device = inventory.generatedFrom.device,
-            ),
+            generatedFrom = EffectiveSource(files.global, files.testSet, files.inventory, inventory.generatedFrom),
             run = global.run,
             policy = global.policy,
             providers = providers,
@@ -53,9 +41,5 @@ class EffectiveBuilder {
         )
     }
 
-    /** Names of the authored and generated files, recorded in the result. */
     data class Files(val global: String, val testSet: String, val inventory: String)
-
-    private fun Rule.matches(located: Inventory.Located): Boolean =
-        matches(located.provider, located.type, located.name)
 }

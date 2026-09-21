@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.config.effective.dto
 
-/** Something asked for that will not run, the stage that found out, and why; a rule that matched nothing has no provider. */
 data class Skip(
     val stage: String,
     val provider: String? = null,
