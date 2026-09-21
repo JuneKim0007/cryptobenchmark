@@ -57,6 +57,7 @@
       - `ServiceShape.kt`
       - `TransformationFailure.kt`
       - `ServiceIndex.kt`
+      - `ServiceTree.kt`
     - `trial/`
       - `TrialRunner.kt`
       - `Attempt.kt`
