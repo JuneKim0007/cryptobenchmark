@@ -47,6 +47,7 @@
       - `ServiceLookup.kt`
     - `write/`
       - `CaptureDocument.kt`
+      - `DocumentFields.kt`
       - `EnvironmentYamlWriter.kt`
       - `ProviderClassNameWriter.kt`
       - `YamlDocument.kt`

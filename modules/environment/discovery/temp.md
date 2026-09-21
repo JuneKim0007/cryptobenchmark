@@ -20,10 +20,11 @@ Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`.
 | `setting` | `BenchmarkScope` | the 7 engine types we measure |
 | `setting` | `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` | the reduced data |
 | `setting` | `ServiceLookup` | find a service by name or alias |
-| `write` | `CaptureDocument` | the YAML key names, and capture → document |
+| `write` | `CaptureDocument` | the YAML key names; capture → document (`of`) and document → capture (`parse`) |
+| `write` | `DocumentFields` | typed reads of one document key: `missing_field`, `wrong_type` |
 | `write` | `EnvironmentYamlWriter` | document → `probe_<utc>.yaml` |
 | `write` | `ProviderClassNameWriter` | capture → class list document |
-| `write` | `YamlDocument` | document → YAML text |
+| `write` | `YamlDocument` | document ⇄ YAML text |
 | `write` | `ProbeFile` | timestamped name, directory, write |
 
 ## Legend
@@ -181,4 +182,4 @@ Lookups that can find nothing:
 
 | `internal` (module-only) | `public` (the module's API) |
 |---|---|
-| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `YamlDocument`, `ProbeFile`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
+| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `YamlDocument`, `ProbeFile`, `DocumentFields`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
