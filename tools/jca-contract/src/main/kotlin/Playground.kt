@@ -1,4 +1,5 @@
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
+import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
@@ -87,7 +88,7 @@ fun main(arguments: Array<String>) {
     //     println("  %-18s %s".format(serviceType, setting.algorithms(serviceType).take(6)))
     // }
 
-    // val target = EnvironmentYamlWriter().write(capture, File("results/discovery"))
+    // val target = EnvironmentYamlWriter(ProbeDirectory(File("results/discovery"))).write(capture)
     // section("wrote ${target.absolutePath} (${target.length()} bytes)")
 }
 

@@ -68,8 +68,9 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DocumentFields` | `write` | typed reads of one document key — `internal` |
 | `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
 | `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
-| `YamlDocument` | `write` | document ⇄ YAML text — `internal` |
-| `ProbeFile` | `write` | timestamped name, directory, write — `internal` |
+| `YamlCodec` | `write` | document ⇄ YAML text, a `Yaml` per call |
+| `ProbeDirectory` | `write` | output directory, injected into the writers; `create` fails on an existing name |
+| `ProbeFileName` | `write` | `<prefix>_<utc>.yaml` — `internal` |
 
 ## Drift alarm
 
