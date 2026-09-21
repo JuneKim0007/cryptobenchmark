@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
 /**
- * Restricted to 'discovery.probe' Package
  * Decodes the grammar the JCA reserves inside a Provider property map, which is a plain
  * String-to-String table:
  *

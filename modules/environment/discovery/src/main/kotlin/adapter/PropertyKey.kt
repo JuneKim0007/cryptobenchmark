@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
 /**
- * Restricted to 'discovery.probe' Package
  * One decoded key of a provider property map. Parsed by PropertyKeyParser, read by ProviderProbe,
  * then discarded: no PropertyKey ever reaches a capture.
  */
