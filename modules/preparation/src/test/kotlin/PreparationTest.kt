@@ -22,10 +22,13 @@ class PreparationTest {
 
     /** SunJCE really generates AES; "Serpent" is claimed by this device but no provider on the JVM can make its key. */
     private val device = object : DeviceCapability {
-        private val serves = setOf("Cipher/AES/GCM/NoPadding", "KeyGenerator/AES", "Cipher/Serpent/CBC/NoPadding", "KeyGenerator/Serpent", "MessageDigest/SHA-256")
-        override fun providers(): List<String> = listOf("SunJCE")
+        private val serves = mapOf(
+            "SunJCE" to setOf("Cipher/AES/GCM/NoPadding", "KeyGenerator/AES", "Cipher/Serpent/CBC/NoPadding", "KeyGenerator/Serpent", "Cipher/AES_128/GCM/NoPadding"),
+            "SUN" to setOf("MessageDigest/SHA-256"),
+        )
+        override fun providers(): List<String> = listOf("SunJCE", "SUN")
         override fun check(provider: String, type: String, algorithm: String): Availability =
-            if (provider == "SunJCE" && "$type/$algorithm" in serves) Availability.Available else Availability.Unavailable("not_registered")
+            if ("$type/$algorithm" in serves[provider].orEmpty()) Availability.Available else Availability.Unavailable("not_registered")
     }
 
     private fun effective(onFailure: String) = File(directory, "effective.yaml").apply {
@@ -42,6 +45,7 @@ providers:
         parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}
       Serpent/CBC/NoPadding: {keySizes: [128]}
       ChaCha20: {}
+  SUN:
     MessageDigest:
       SHA-256: {}
 skipped: []
@@ -54,6 +58,7 @@ skipped: []
     fun skipPreparesWhatItCanAndRecordsTheRest() {
         val run = preparation.prepare(effective("skip"))
         assertEquals(listOf("AES/GCM/NoPadding", "AES/GCM/NoPadding", "AES/GCM/NoPadding", "AES/GCM/NoPadding", "SHA-256", "SHA-256"), run.cases.map { it.case.algorithm })
+        assertEquals(listOf("SUN", "SUN"), run.cases.filter { it.case.algorithm == "SHA-256" }.map { it.case.provider })
         assertEquals(3, run.processRepetitions)
         val reasons = run.skipped.map { it.toString() }
         assertTrue(reasons.toString(), reasons.contains("[preparation] SunJCE Cipher ChaCha20: not_registered"))
@@ -102,5 +107,18 @@ skipped: []
         val error = assertThrows(StoppedOnFailureException::class.java) { preparation.prepare(effective("stop")) }
         assertEquals(5, error.skipped.size)
         assertTrue(File(directory, "preparation/skipped.yaml").exists())
+    }
+
+    /** Encrypt is called once with the case's own key: a 256-bit key on AES_128 fails here, not inside the timed region. */
+    @Test
+    fun aKeyThatDoesNotFitTheAlgorithmIsCaughtBeforeTheRun() {
+        val file = File(directory, "mismatch.yaml").apply {
+            writeText(effective("skip").readText().replace("      ChaCha20: {}", "      AES_128/GCM/NoPadding: {keySizes: [256]}"))
+        }
+        val run = preparation.prepare(file)
+        val mismatch = run.skipped.filter { it.name == "AES_128/GCM/NoPadding" }
+        assertEquals(4, mismatch.size)
+        assertTrue(mismatch.first().reason, mismatch.first().reason.contains("dry_run_failed: InvalidKeyException"))
+        assertTrue(run.cases.none { it.case.algorithm == "AES_128/GCM/NoPadding" })
     }
 }

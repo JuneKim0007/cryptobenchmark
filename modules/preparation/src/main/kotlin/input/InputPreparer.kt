@@ -4,7 +4,6 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
-import java.security.Key
 import java.security.Signature
 import javax.crypto.Cipher
 
@@ -23,13 +22,13 @@ class InputPreparer {
         val plaintext = message(case)
         val spec = parameters?.next()
         val encrypting = Cipher.getInstance(case.algorithm, case.provider)
-        if (spec == null) encrypting.init(Cipher.ENCRYPT_MODE, encryptionKey(key)) else encrypting.init(Cipher.ENCRYPT_MODE, encryptionKey(key), spec)
+        if (spec == null) encrypting.init(Cipher.ENCRYPT_MODE, CipherKeys.encrypting(key)) else encrypting.init(Cipher.ENCRYPT_MODE, CipherKeys.encrypting(key), spec)
         val input = OperationInput.Ciphertext(encrypting.doFinal(plaintext), plaintext.size, spec, if (spec == null) encrypting.parameters else null)
         val decrypting = Cipher.getInstance(case.algorithm, case.provider)
         when {
-            input.spec != null -> decrypting.init(Cipher.DECRYPT_MODE, decryptionKey(key), input.spec)
-            input.providerParameters != null -> decrypting.init(Cipher.DECRYPT_MODE, decryptionKey(key), input.providerParameters)
-            else -> decrypting.init(Cipher.DECRYPT_MODE, decryptionKey(key))
+            input.spec != null -> decrypting.init(Cipher.DECRYPT_MODE, CipherKeys.decrypting(key), input.spec)
+            input.providerParameters != null -> decrypting.init(Cipher.DECRYPT_MODE, CipherKeys.decrypting(key), input.providerParameters)
+            else -> decrypting.init(Cipher.DECRYPT_MODE, CipherKeys.decrypting(key))
         }
         check(decrypting.doFinal(input.bytes).contentEquals(plaintext)) { "round_trip_failed: decrypt does not return the plaintext" }
         return input
@@ -50,17 +49,5 @@ class InputPreparer {
         verifying.update(message)
         check(verifying.verify(signature)) { "round_trip_failed: the signature does not verify" }
         return OperationInput.SignedMessage(message, signature)
-    }
-
-    private fun encryptionKey(key: KeyMaterial): Key = when (key) {
-        is KeyMaterial.Secret -> key.key
-        is KeyMaterial.Pairs -> key.pairs.first().public
-        KeyMaterial.None -> throw IllegalArgumentException("cipher_needs_a_key")
-    }
-
-    private fun decryptionKey(key: KeyMaterial): Key = when (key) {
-        is KeyMaterial.Secret -> key.key
-        is KeyMaterial.Pairs -> key.pairs.first().private
-        KeyMaterial.None -> throw IllegalArgumentException("cipher_needs_a_key")
     }
 }

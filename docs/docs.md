@@ -49,8 +49,9 @@
       - `yaml/` : shared plumbing — `DocumentHandler` per file kind, `YamlFile` (schema stamp and check), `YamlFiles` factory
   - `modules/preparation/` : module `:preparation` (kotlin + legacy java, java library) — `effective.yaml` → cases with keys and bound parameters; never inside a measurement, runs on any JVM
     - `src/main/kotlin/`
-      - `Preparation.kt` : entry point — `prepare(effective.yaml)` → `PreparedRun`; applies `policy.onFailure` to rejections, unplannable or ungeneratable keys, and inputs that fail their round trip; writes `results/preparation/skipped.yaml`
+      - `Preparation.kt` : entry point — `prepare(effective.yaml)` → `PreparedRun`; applies `policy.onFailure` to rejections, unplannable or ungeneratable keys, inputs that fail their round trip, and cases that fail their dry run; writes `results/preparation/skipped.yaml`
       - `input/` : `InputPreparer` — per operation: a seeded message (`InputBytes`, `java.util.Random`, same bytes on every runtime; a smaller size is a prefix of a larger), a ciphertext plus the spec or provider parameters it was made under (decrypt), a message plus signature (verify), nothing (key operations); decrypt and verify are round-tripped once before the timer
+      - `check/` : `CaseCheck` — one real call per case with its own key, parameters and input, before the timer; a failure is `dry_run_failed` and the case is skipped
       - `prepare/` : `PreparedCase` (case, key recipe, key material — one per recipe, bound parameters, `OperationInput`), `PreparedRun`, `StoppedOnFailureException`
       - `report/` : `Skip` (the record every stage writes), `SkipFile`
       - reading `effective.yaml`, in this order — each stage takes the previous stage's result, so the order is checked by the compiler:
@@ -64,7 +65,7 @@
       - `adapter/` : `DiscoveryCapability` — the port answered from a capture and its trial; the only file importing `:environment:discovery`
       - `parameter/bind/` : `ParameterBinder` — `{class, arguments}` trees from `effective.yaml` → `AlgorithmParameterSpec` by reflection; `field`, nesting, `fresh(n)`, value conversion (`ValueCoercion`), `BindPolicy` (parameter-spec types only), `BoundParameters` (`next()`, `varies`), `BindException` (names the path)
       - `resolve/` : `CaseResolver(capability, rules, binder)` — → `Resolution(cases, rejections)`; `AxisRules` (engine type → `AxisRule`: key size?, input size?, operations; fallback for unregistered types), `SelectionCheck` (operations the type has, key spec vs sizes, trees bind), `SelectionExpander`, `Rejection`
-      - `key/plan/` : `KeyPlanner(capability, shapes)` — case → `KeyRecipe` (None, Secret, Pair, Unavailable), pure; `KeyShapes` (engine type → `KeyShape`, Cipher and unknown types decided by the device's generators), `KeyAlgorithmName`
+      - `key/plan/` : `KeyPlanner(capability, shapes)` — case → `KeyRecipe` (None, Secret, Pair, Unavailable), pure; `KeyShapes` (engine type → `KeyShape`, Cipher and unknown types decided by the device's generators), `KeyAlgorithmName` / `KeyCandidate` (a size written into a cipher name is the key's size)
       - `key/generate/` : `KeyMaterialGenerator(random, initializers, binder)` — recipe → `KeyMaterial`, the only key code calling the JCA; a bound `key:` spec wins over the size; `KeyInitializer` per provider, `DefaultKeyInitializer`
     - `src/main/java/.../preparation/workload/` : `DataType`, `StringType` — legacy input generation, used by the old tests
   - `modules/benchmark/` : module `:benchmark` *(planned, #33)* — the Jetpack harness: runs cases, times them, writes `benchmarkData.json`
