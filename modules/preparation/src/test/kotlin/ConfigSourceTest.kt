@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
+import io.github.junekim0007.cryptobench.preparation.request.OnFailure
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import io.github.junekim0007.cryptobench.preparation.source.ConfigSource
@@ -33,6 +34,7 @@ class ConfigSourceTest {
         assertEquals(listOf(1024), request.inputSizes)
         assertEquals(setOf(Phase.WARM, Phase.COLD), request.phases)
         assertEquals(3, request.processRepetitions)
+        assertEquals(OnFailure.SKIP, request.onFailure)
     }
 
     /** The per-entry input size survives into the cases: RSA runs at 32 bytes while the rest run at 1024. */
@@ -49,6 +51,7 @@ class ConfigSourceTest {
 
     @Test
     fun namesWhatIsWrong() {
+        assertEquals("unknown_onFailure: retry, one of [STOP, SKIP]", rejection(DEFAULT_YAML.replace("onFailure: skip", "onFailure: retry")))
         assertEquals("unknown_phase: HOT, one of [WARM, COLD]", rejection(DEFAULT_YAML.replace("phases: [WARM, COLD]", "phases: [HOT]")))
         assertEquals("nothing_selected", rejection(DEFAULT_YAML.replace(Regex("(?s)providers:.*?\nskipped:"), "providers: {}\nskipped:")))
         assertEquals("unsupported_config_schema: 2, this build reads 1", rejection(DEFAULT_YAML.replace("schemaVersion: 1", "schemaVersion: 2")))
@@ -76,6 +79,7 @@ run:
   metrics: [TIME]
   processRepetitions: 3
   seed: 0
+policy: {onFailure: skip}
 providers:
   SUN:
     MessageDigest:

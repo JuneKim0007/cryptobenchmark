@@ -12,6 +12,7 @@ data class BenchmarkRequest(
     /** Independent samples for comparison are whole process runs, not iterations inside one. */
     val processRepetitions: Int = 1,
     val seed: Long = 0L,
+    val onFailure: OnFailure = OnFailure.SKIP,
 ) {
 
     init {

@@ -10,7 +10,10 @@ import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.numbers
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.optionalNumbers
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.optionalSection
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.section
+import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.string
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.strings
+import io.github.junekim0007.cryptobench.preparation.request.OnFailure
+import io.github.junekim0007.cryptobench.preparation.yaml.YamlCodec
 import java.io.File
 
 /**
@@ -40,6 +43,7 @@ class ConfigSource {
             metrics = strings(run, "metrics").mapTo(LinkedHashSet()) { enumOf<Metric>("metric", it) },
             processRepetitions = number(run, "processRepetitions").toInt(),
             seed = number(run, "seed").toLong(),
+            onFailure = enumOf<OnFailure>("onFailure", string(section(document, "policy"), "onFailure")),
         )
     }
 

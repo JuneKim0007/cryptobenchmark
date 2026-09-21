@@ -48,8 +48,12 @@
       - `effective/` + `dto/` : `EffectiveBuilder` (include → exclude → overrides → policy), `OverrideResolver`
       - `yaml/` : shared plumbing — `DocumentHandler` per file kind, `YamlFile` (schema stamp and check), `YamlFiles` factory
   - `modules/preparation/` : module `:preparation` (kotlin + legacy java, java library) — `effective.yaml` → cases with keys and bound parameters; never inside a measurement, runs on any JVM
-    - `src/main/kotlin/` : sub-package folders only
-      - `source/` : `ConfigSource` — `effective.yaml` read by key → `BenchmarkRequest`, one `Selection` per entry pinned to its provider; `ConfigFields`, `YamlCodec` (duplicated, no `:config` dependency)
+    - `src/main/kotlin/`
+      - `Preparation.kt` : entry point — `prepare(effective.yaml)` → `PreparedRun`; applies `policy.onFailure` to rejections, unplannable and ungeneratable keys; writes `results/preparation/skipped.yaml`
+      - `prepare/` : `PreparedCase` (case, key recipe, key material — one per recipe, bound parameters), `PreparedRun`, `StoppedOnFailureException`
+      - `report/` : `Skip` (the record every stage writes), `SkipFile`
+      - `yaml/` : `YamlCodec` (duplicated)
+      - `source/` : `ConfigSource` — `effective.yaml` read by key → `BenchmarkRequest`, one `Selection` per entry pinned to its provider; `ConfigFields` (no `:config` dependency); reads `policy.onFailure` into the request
       - `request/` : `BenchmarkRequest`, `Selection` (per-entry `inputSizes` override) — what the user wants measured, shape-validated
       - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
       - `port/` : `DeviceCapability`, `Availability` — what preparation needs to know about the device
@@ -79,7 +83,8 @@
 - `results/` : run output, ignored; one subdirectory per pipeline stage
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml` — same stamp, same capture
   - `configuration/` : `inventory.yaml` (generated), `effective.yaml` (what runs)
-  - `preparation/`, `benchmark/`, `analysis/` : *(planned)*
+  - `preparation/` : `skipped.yaml`
+  - `benchmark/`, `analysis/` : *(planned)*
 - `CryptoBenchmark.config` : generated per run, pushed to the device
 - `scripts/requirements.txt` : host python deps
 - `docs/notas.md` : research notes

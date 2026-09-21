@@ -2,6 +2,9 @@ package io.github.junekim0007.cryptobench.preparation.source
 
 internal object ConfigFields {
 
+    fun string(document: Map<String, Any>, key: String): String =
+        field(document, key) as? String ?: wrongType(key)
+
     fun number(document: Map<String, Any>, key: String): Number =
         field(document, key) as? Number ?: wrongType(key)
 
