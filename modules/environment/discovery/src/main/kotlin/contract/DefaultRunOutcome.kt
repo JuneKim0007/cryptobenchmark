@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery.contract
 
-/** One real call with a default key: what ran, with which key, and what the provider chose on its own. */
 data class DefaultRunOutcome(
     val works: Boolean,
     val keyAlgorithm: String = "",

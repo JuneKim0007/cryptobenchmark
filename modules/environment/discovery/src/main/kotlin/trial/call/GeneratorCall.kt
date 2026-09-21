@@ -5,7 +5,6 @@ import java.security.KeyPairGenerator
 import java.security.Provider
 import javax.crypto.KeyGenerator
 
-/** Generation is the measured call itself: the key size recorded is the provider's own default. */
 internal class GeneratorCall(private val pair: Boolean) : DefaultCall {
 
     override val takesInput: Boolean = false

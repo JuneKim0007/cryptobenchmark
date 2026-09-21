@@ -6,7 +6,6 @@ data class ServiceTrialEntry(
     val algorithm: String,
     val outcome: TrialOutcome,
     val transformations: List<TransformationTrialEntry> = emptyList(),
-    /** Null when no default run exists for the type, or the service did not instantiate. */
     val defaultRun: DefaultRunOutcome? = null,
 ) {
 

@@ -10,7 +10,6 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.interfaces.DHKey
 
-/** Default keys for one trial run, generated once per (preferred provider, algorithm, size) and reused. */
 internal class DefaultKeys(private val providers: List<Provider>) {
 
     class Secret(val algorithm: String, val provider: String, val key: SecretKey)
@@ -21,7 +20,6 @@ internal class DefaultKeys(private val providers: List<Provider>) {
 
     private val pairs = HashMap<String, Pair>()
 
-    /** The preferred provider's generator when it has one, else the first in precedence order that does. */
     fun secret(preferred: Provider, algorithm: String, keySize: Int? = null): Secret =
         secrets.getOrPut(cacheKey(preferred, algorithm, keySize)) {
             val (provider, generator) = firstGenerator(preferred, algorithm) { KeyGenerator.getInstance(algorithm, it) }
@@ -35,7 +33,6 @@ internal class DefaultKeys(private val providers: List<Provider>) {
             Pair(algorithm, provider.name, generator.generateKeyPair())
         }
 
-    /** A second pair on the same domain parameters, as a key agreement's peer needs. */
     fun peer(own: Pair): KeyPair {
         val generator = KeyPairGenerator.getInstance(own.algorithm, own.provider)
         when (val public = own.keys.public) {

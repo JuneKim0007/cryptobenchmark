@@ -7,7 +7,6 @@ import java.security.spec.MGF1ParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.spec.OAEPParameterSpec
 
-/** Encrypts once with no parameters given, so whatever the provider fills in is recorded, not assumed. */
 internal object CipherCall : DefaultCall {
 
     override val takesInput: Boolean = true
@@ -29,7 +28,6 @@ internal object CipherCall : DefaultCall {
 
     private class EncryptionKey(val algorithm: String, val provider: String, val key: Key)
 
-    /** A secret key when any provider generates one under the name, else the public half of a pair. */
     private fun encryptionKey(provider: Provider, algorithm: String, keys: DefaultKeys): EncryptionKey {
         for ((name, size) in KeyNames.cipherCandidates(algorithm)) {
             val secret = runCatching { keys.secret(provider, name, size) }.getOrNull() ?: continue
