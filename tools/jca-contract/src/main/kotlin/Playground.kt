@@ -87,7 +87,7 @@ fun main(arguments: Array<String>) {
     //     println("  %-18s %s".format(serviceType, setting.algorithms(serviceType).take(6)))
     // }
 
-    // val target = EnvironmentYamlWriter().write(capture, File("build/playground"))
+    // val target = EnvironmentYamlWriter().write(capture, File("results/discovery"))
     // section("wrote ${target.absolutePath} (${target.length()} bytes)")
 }
 
