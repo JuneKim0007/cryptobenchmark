@@ -46,6 +46,7 @@
       - `Device.kt`
       - `ServiceLookup.kt`
     - `write/`
+      - `CaptureDocument.kt`
       - `EnvironmentYamlWriter.kt`
       - `ProviderClassNameWriter.kt`
       - `YamlDocument.kt`

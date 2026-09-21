@@ -20,7 +20,8 @@ Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`.
 | `setting` | `BenchmarkScope` | the 7 engine types we measure |
 | `setting` | `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` | the reduced data |
 | `setting` | `ServiceLookup` | find a service by name or alias |
-| `write` | `EnvironmentYamlWriter` | capture → document |
+| `write` | `CaptureDocument` | the YAML key names, and capture → document |
+| `write` | `EnvironmentYamlWriter` | document → `probe_<utc>.yaml` |
 | `write` | `ProviderClassNameWriter` | capture → class list document |
 | `write` | `YamlDocument` | document → YAML text |
 | `write` | `ProbeFile` | timestamped name, directory, write |

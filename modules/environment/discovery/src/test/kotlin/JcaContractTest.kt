@@ -35,6 +35,7 @@ class JcaContractTest {
             "KeyPairGenerator" to "RSA",
         ).forEach { (type, algorithm) ->
             assertTrue("$type/$algorithm resolves to no provider", setting.providersFor(type, algorithm).isNotEmpty())
+            assertTrue("$type lists no algorithms", setting.algorithms(type).isNotEmpty())
         }
     }
 

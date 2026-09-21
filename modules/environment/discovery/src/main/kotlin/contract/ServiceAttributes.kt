@@ -12,10 +12,10 @@ class ServiceAttributes private constructor(private val values: Map<String, Any>
 
     val supportedPaddings: List<String> get() = strings("SupportedPaddings")
 
-    fun integer(name: String): Int? = values[name] as? Int
+    private fun integer(name: String): Int? = values[name] as? Int
 
     @Suppress("UNCHECKED_CAST")
-    fun strings(name: String): List<String> = values[name] as? List<String> ?: emptyList()
+    private fun strings(name: String): List<String> = values[name] as? List<String> ?: emptyList()
 
     /** The document view, for the codecs in this module only. */
     internal fun document(): Map<String, Any> = values
