@@ -38,11 +38,12 @@
   - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
     - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state
       - `request/` : `BenchmarkRequest`, `Selection` — what the user wants measured, shape-validated
-      - `measurement/` : `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
+      - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
       - `port/` : `DeviceCapability`, `Availability` — what preparation needs to know about the device
       - `adapter/` : `DiscoveryCapability` — the port answered from a capture and its trial; the only file importing `:environment:discovery`
       - `resolve/` : `CaseResolver(capability, rules)` → `Resolution(cases, rejections)`; `AxisRules` (engine type → `AxisRule`, fallback for unregistered types), `SelectionExpander`, `Rejection`
-      - `key/` : key per case *(planned)*
+      - `key/plan/` : `KeyPlanner(capability, shapes)` — case → `KeyRecipe` (None, Secret, Pair, Unavailable), pure; `KeyShapes` (engine type → `KeyShape`, Cipher and unknown types decided by the device's generators), `KeyAlgorithmName`
+      - `key/generate/` : `KeyMaterialGenerator(random, initializers)` — recipe → `KeyMaterial`, the only key code calling the JCA; `KeyInitializer` per provider, `DefaultKeyInitializer`
       - `src/main/java/.../workload/` : `DataType`, `StringType` — legacy input generation, used by the old tests
   - `modules/android/` : module `:android` (application) — depends on all modules
     - `setup/config/` : `Config` — run parameters read from the pushed config

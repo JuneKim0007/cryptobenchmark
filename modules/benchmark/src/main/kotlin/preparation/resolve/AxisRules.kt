@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.preparation.resolve
 
-import java.util.Locale
+import io.github.junekim0007.cryptobench.benchmark.preparation.measurement.EngineTypeName
 
 /** Engine type → axis rule. Types not registered still resolve, under the fallback rule. */
 class AxisRules private constructor(
@@ -31,6 +31,6 @@ class AxisRules private constructor(
             fallback = KEYED_INPUT,
         )
 
-        private fun fold(type: String): String = type.uppercase(Locale.ROOT)
+        private fun fold(type: String): String = EngineTypeName.fold(type)
     }
 }
