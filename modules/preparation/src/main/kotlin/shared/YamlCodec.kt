@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.preparation.yaml
+package io.github.junekim0007.cryptobench.preparation.shared
 
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.LoaderOptions

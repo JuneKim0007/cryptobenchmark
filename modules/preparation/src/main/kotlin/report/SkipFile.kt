@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.report
 
-import io.github.junekim0007.cryptobench.preparation.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
 import java.io.File
 import java.io.IOException
 

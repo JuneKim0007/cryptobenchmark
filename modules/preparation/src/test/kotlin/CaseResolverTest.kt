@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
@@ -36,8 +37,7 @@ class CaseResolverTest {
     fun expandsEveryAxisTheTypeIsMeasuredAlong() {
         val request = BenchmarkRequest(
             listOf(Selection("Cipher", "AES/GCM/NoPadding", keySizes = listOf(128, 256))),
-            inputSizes = listOf(64, 1024),
-            phases = setOf(Phase.WARM, Phase.COLD),
+            GlobalSettings(inputSizes = listOf(64, 1024), phases = setOf(Phase.WARM, Phase.COLD)),
         )
         val resolution = resolver.resolve(request)
         assertEquals(16, resolution.cases.size)

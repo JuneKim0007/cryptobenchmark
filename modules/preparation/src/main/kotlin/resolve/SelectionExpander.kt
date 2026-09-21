@@ -9,13 +9,13 @@ internal object SelectionExpander {
     fun expand(request: BenchmarkRequest, selection: Selection, providers: List<String>, rule: AxisRule): List<BenchmarkCase> {
         val operations = selection.operations.ifEmpty { rule.operations }.toList()
         val keySizes: List<Int?> = if (rule.usesKeySize && selection.keySizes.isNotEmpty()) selection.keySizes else listOf(null)
-        val inputSizes: List<Int?> = if (rule.usesInputSize) selection.inputSizes.ifEmpty { request.inputSizes } else listOf(null)
+        val inputSizes: List<Int?> = if (rule.usesInputSize) request.global.inputSizesFor(selection.inputSizes) else listOf(null)
         val cases = mutableListOf<BenchmarkCase>()
         for (provider in providers) {
             for (operation in operations) {
                 for (keySize in keySizes) {
                     for (inputSize in inputSizes) {
-                        for (phase in request.phases) {
+                        for (phase in request.global.phases) {
                             cases += BenchmarkCase(
                                 type = selection.type,
                                 algorithm = selection.algorithm,
@@ -24,8 +24,8 @@ internal object SelectionExpander {
                                 keySize = keySize,
                                 inputSize = inputSize,
                                 phase = phase,
-                                metrics = request.metrics,
-                                seed = request.seed,
+                                metrics = request.global.metrics,
+                                seed = request.global.seed,
                                 keyParameters = selection.keyParameters,
                                 parameters = selection.parameters,
                             )

@@ -52,9 +52,12 @@
       - `Preparation.kt` : entry point — `prepare(effective.yaml)` → `PreparedRun`; applies `policy.onFailure` to rejections, unplannable and ungeneratable keys; writes `results/preparation/skipped.yaml`
       - `prepare/` : `PreparedCase` (case, key recipe, key material — one per recipe, bound parameters), `PreparedRun`, `StoppedOnFailureException`
       - `report/` : `Skip` (the record every stage writes), `SkipFile`
-      - `yaml/` : `YamlCodec` (duplicated)
-      - `source/` : `ConfigSource` — `effective.yaml` read by key → `BenchmarkRequest`, one `Selection` per entry pinned to its provider; `ConfigFields` (no `:config` dependency); reads `policy.onFailure` into the request
-      - `request/` : `BenchmarkRequest`, `Selection` (per-entry `inputSizes` override) — what the user wants measured, shape-validated
+      - reading `effective.yaml`, in this order — each stage takes the previous stage's result, so the order is checked by the compiler:
+        - `inbound/` : `InboundFile` → `InboundDocument` — the file, `schemaVersion`, the `run` / `policy` / `providers` sections present
+        - `global/` : `GlobalReader` → `GlobalSettings` (run + `OnFailure`); `inputSizesFor(entry)` is the one place an entry's sizes override global's
+        - `primitive/` : `PrimitiveReader.read(inbound, global)` → one `Selection` per entry, pinned to its provider, global fallbacks applied
+      - `shared/` : `DocumentFields`, `YamlCodec` — used by every stage
+      - `request/` : `BenchmarkRequest(selections, global)`, `Selection` — what will be resolved against the device
       - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, `Operation` (Cipher: ENCRYPT, DECRYPT; Signature: SIGN, VERIFY; Mac: COMPUTE_MAC; MessageDigest: DIGEST; KeyGenerator: GENERATE_KEY; KeyPairGenerator: GENERATE_KEY_PAIR; KeyAgreement: AGREE_KEY; any other type: TYPE_DEFAULT), key size, input size, `Phase` (WARM: instance built before the timer, Jetpack measures the loop; COLD: first call in a fresh process, timed once per process), `Metric` set (`CPU_EVENTS` needs a rooted device), seed; `CaseName` gives the `id` that links it to its result
       - `port/` : `DeviceCapability`, `Availability` — what preparation needs to know about the device
       - `adapter/` : `DiscoveryCapability` — the port answered from a capture and its trial; the only file importing `:environment:discovery`
