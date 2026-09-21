@@ -22,10 +22,11 @@ Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`.
 | `setting` | `ServiceLookup` | find a service by name or alias |
 | `write` | `CaptureDocument` | the YAML key names; capture → document (`of`) and document → capture (`parse`) |
 | `write` | `DocumentFields` | typed reads of one document key: `missing_field`, `wrong_type` |
-| `write` | `EnvironmentYamlWriter` | document → `probe_<utc>.yaml` |
+| `write` | `EnvironmentYamlWriter` | document → `probe_<utc>.yaml`; takes its `ProbeDirectory` and `YamlCodec` in the constructor |
 | `write` | `ProviderClassNameWriter` | capture → class list document |
-| `write` | `YamlDocument` | document ⇄ YAML text |
-| `write` | `ProbeFile` | timestamped name, directory, write |
+| `write` | `YamlCodec` | document ⇄ YAML text; one `Yaml` per call, so one codec serves many threads |
+| `write` | `ProbeDirectory` | the output directory; `create` never overwrites |
+| `write` | `ProbeFileName` | `<prefix>_<utc>.yaml` |
 
 ## Legend
 
@@ -182,4 +183,4 @@ Lookups that can find nothing:
 
 | `internal` (module-only) | `public` (the module's API) |
 |---|---|
-| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `YamlDocument`, `ProbeFile`, `DocumentFields`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
+| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |

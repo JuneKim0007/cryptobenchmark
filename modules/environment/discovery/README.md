@@ -50,8 +50,9 @@
       - `DocumentFields.kt`
       - `EnvironmentYamlWriter.kt`
       - `ProviderClassNameWriter.kt`
-      - `YamlDocument.kt`
-      - `ProbeFile.kt`
+      - `YamlCodec.kt`
+      - `ProbeDirectory.kt`
+      - `ProbeFileName.kt`
   - `src/test/kotlin/`
     - `JcaContractTest.kt`
     - `ServiceKeyTest.kt`

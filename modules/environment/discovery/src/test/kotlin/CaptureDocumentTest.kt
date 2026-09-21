@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
-import io.github.junekim0007.cryptobench.discovery.write.YamlDocument
+import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -26,8 +26,9 @@ class CaptureDocumentTest {
 
     @Test
     fun roundTripsThroughYaml() {
-        val text = YamlDocument.dump(CaptureDocument.of(capture))
-        assertEquals(capture, CaptureDocument.parse(YamlDocument.load(text)))
+        val codec = YamlCodec()
+        val text = codec.dump(CaptureDocument.of(capture))
+        assertEquals(capture, CaptureDocument.parse(codec.load(text)))
     }
 
     @Test

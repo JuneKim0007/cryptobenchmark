@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
+import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
@@ -18,6 +19,7 @@ class JcaContractTest {
 
     private val capture = ProviderProbe().capture(Security.getProviders())
     private val setting = DiscoverySettingConverter().convert(capture)
+    private val directory = ProbeDirectory(File(System.getProperty("capture.dir") ?: "build/capture"))
 
     @Test
     fun providersAreVisible() {
@@ -41,7 +43,7 @@ class JcaContractTest {
 
     @Test
     fun theCaptureKeepsItsShape() {
-        val document = EnvironmentYamlWriter().toDocument(capture)
+        val document = EnvironmentYamlWriter(directory).toDocument(capture)
         listOf("schemaVersion", "capturedAtMillis", "runtime", "providers").forEach {
             assertTrue("capture is missing $it", document.containsKey(it))
         }
@@ -50,22 +52,20 @@ class JcaContractTest {
     /** Written out so a workflow can attach it and drift can be diffed instead of guessed. */
     @Test
     fun writeCapture() {
-        val directory = File(System.getProperty("capture.dir") ?: "build/capture")
-        val target = EnvironmentYamlWriter().write(capture, directory)
+        val target = EnvironmentYamlWriter(directory).write(capture)
         assertTrue("capture not written", target.length() > 0)
         assertTrue("unexpected name ${target.name}", target.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
     }
 
     @Test
     fun writeClassNames() {
-        val directory = File(System.getProperty("capture.dir") ?: "build/capture")
-        val classes = ProviderClassNameWriter().toDocument(capture)
+        val classes = ProviderClassNameWriter(directory).toDocument(capture)
         assertTrue("no provider listed", classes.isNotEmpty())
         classes.forEach { (provider, names) ->
             assertTrue("$provider lists a class twice", names.size == names.distinct().size)
             assertTrue("$provider is not sorted", names == names.sorted())
         }
-        val target = ProviderClassNameWriter().write(capture, directory)
+        val target = ProviderClassNameWriter(directory).write(capture)
         assertTrue("class list not written", target.length() > 0)
     }
 }
