@@ -36,6 +36,7 @@
       - `DiscoverySettingConverter.kt`
     - `write/`
       - `EnvironmentYamlWriter.kt`
+      - `ProviderClassNameWriter.kt`
   - `src/test/kotlin/`
     - `JcaContractTest.kt`
     - `ServiceKeyTest.kt`
