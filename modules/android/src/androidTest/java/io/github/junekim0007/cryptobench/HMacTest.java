@@ -2,8 +2,8 @@ package io.github.junekim0007.cryptobench;
 
 import io.github.junekim0007.cryptobench.crypto.primitive.mac.HMAC;
 import io.github.junekim0007.cryptobench.crypto.primitive.mac.HMACOperation;
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.DataType;
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
+import io.github.junekim0007.cryptobench.preparation.workload.DataType;
+import io.github.junekim0007.cryptobench.preparation.workload.StringType;
 
 import org.junit.After;
 import org.junit.Before;

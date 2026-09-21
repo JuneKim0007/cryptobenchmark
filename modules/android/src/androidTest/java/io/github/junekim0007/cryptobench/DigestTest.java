@@ -3,8 +3,8 @@ package io.github.junekim0007.cryptobench;
 import androidx.test.runner.AndroidJUnit4;
 
 import io.github.junekim0007.cryptobench.crypto.primitive.digest.Digest;
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.DataType;
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
+import io.github.junekim0007.cryptobench.preparation.workload.DataType;
+import io.github.junekim0007.cryptobench.preparation.workload.StringType;
 import com.hunter.library.debug.HunterDebug;
 
 import org.junit.After;

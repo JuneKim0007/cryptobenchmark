@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench;
 
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
+import io.github.junekim0007.cryptobench.preparation.workload.StringType;
 
 import org.junit.Test;
 
