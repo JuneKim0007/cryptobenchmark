@@ -40,7 +40,7 @@ class ProviderProbe {
         return ProviderEntry(
             name = provider.name,
             precedence = precedence,
-            version = provider.versionStr,
+            version = index.version,
             info = provider.info ?: "",
             services = services,
             unresolvedAliases = index.aliases

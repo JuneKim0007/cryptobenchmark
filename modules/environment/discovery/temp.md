@@ -61,7 +61,7 @@ Provider[]                                   (caller: Security.getProviders())
 
 | Raw key (value) | Subclass :line | Carries | Probe does |
 |---|---|---|---|
-| `Provider.id name` | `ProviderMeta` :10 | nothing | ignore |
+| `Provider.id name` | `ProviderMeta(field)` :10 | `PropertyMapIndex.meta` | `version` is read from `id version` |
 | `Alg.Alias.Cipher.RC4` (`ARC4`) | `Alias` :13 | `type`, `name` = the **alias** | `Alias(type, name, value)` — value is the target |
 | `Cipher.AES SupportedModes` (`ECB\|CBC`) | `Attribute` :15 | `type`, `algorithm`, `name` = the **attribute** | `attributes[ServiceKey][name] = parse(value)` |
 | `Cipher.AES` | `ServiceImpl` :17 | `type`, `algorithm` | ignore (services come from `getServices()`) |
@@ -101,7 +101,7 @@ Null and ordering are normalised in `ProviderProbe`, at the JCA boundary. The mo
 |---|---|---|---|---|
 | `name` | `String` required | `name` | always | `provider.name` |
 | `precedence` | `Int` required, `require(>= 1)` | `precedence` | always | loop index + 1 |
-| `version` | `String` = `""` | `version` | always | `provider.versionStr` |
+| `version` | `String` = `""` | `version` | always | property `Provider.id version` |
 | `info` | `String` = `""` | `info` | always | `provider.info ?: ""` |
 | `services` | `List<ServiceEntry>` = empty | `services` | always (may be `[]`) | sorted by type, then algorithm, in the probe |
 | `unresolvedAliases` | `List<AliasEntry>` = empty | `unresolvedAliases` | **omitted when empty** | aliases whose target is not registered |
