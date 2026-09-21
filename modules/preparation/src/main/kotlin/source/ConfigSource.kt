@@ -16,11 +16,6 @@ import io.github.junekim0007.cryptobench.preparation.request.OnFailure
 import io.github.junekim0007.cryptobench.preparation.yaml.YamlCodec
 import java.io.File
 
-/**
- * effective.yaml → request, read by key: preparation does not depend on the config module's classes.
- * Every entry is selected already (the config stage did include, exclude and overrides); each becomes one selection
- * pinned to its provider.
- */
 class ConfigSource {
 
     private val codec = YamlCodec()

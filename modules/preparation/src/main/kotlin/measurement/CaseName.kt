@@ -6,7 +6,6 @@ internal object CaseName {
 
     private val UNSAFE = Regex("[^A-Za-z0-9]")
 
-    /** Parameters change what is measured, so they change the name: a short checksum of their canonical form. */
     fun of(case: BenchmarkCase): String = listOfNotNull(
         case.type,
         case.algorithm,

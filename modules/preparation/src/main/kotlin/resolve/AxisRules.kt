@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.preparation.resolve
 
 import io.github.junekim0007.cryptobench.preparation.measurement.EngineTypeName
 
-/** Engine type → axis rule. Types not registered still resolve, under the fallback rule. */
 class AxisRules private constructor(
     private val rules: Map<String, AxisRule>,
     private val fallback: AxisRule,

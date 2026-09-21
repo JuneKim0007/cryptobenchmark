@@ -9,6 +9,5 @@ sealed class KeyMaterial {
 
     data class Secret(val key: SecretKey) : KeyMaterial()
 
-    /** One pair, or own pair first and peer pair second for a key agreement. */
     data class Pairs(val pairs: List<KeyPair>) : KeyMaterial()
 }

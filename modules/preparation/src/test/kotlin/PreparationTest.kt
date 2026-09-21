@@ -76,6 +76,16 @@ skipped: []
         assertEquals(null, preparation.prepare(effective("skip")).cases.first { it.case.algorithm == "SHA-256" }.parameters)
     }
 
+    @Test
+    fun anEmptyReportIsStillWritten() {
+        val clean = File(directory, "clean.yaml").apply {
+            writeText(effective("stop").readText().replace(Regex("(?m)^      (Serpent/CBC/NoPadding|ChaCha20):.*\n"), ""))
+        }
+        val run = preparation.prepare(clean)
+        assertEquals(emptyList<Any>(), run.skipped)
+        assertTrue(File(directory, "preparation/skipped.yaml").readText().contains("skipped: []"))
+    }
+
     /** STOP still writes the report first, so the reason for stopping is on disk. */
     @Test
     fun stopListsEveryFailureAndStillWritesTheReport() {

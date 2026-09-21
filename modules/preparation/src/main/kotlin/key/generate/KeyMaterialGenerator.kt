@@ -7,7 +7,6 @@ import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.KeyGenerator
 
-/** Recipe → key material. The only key code that calls the JCA; always outside the timed region. */
 class KeyMaterialGenerator(
     private val random: SecureRandom = SecureRandom(),
     private val initializers: Map<String, KeyInitializer> = emptyMap(),

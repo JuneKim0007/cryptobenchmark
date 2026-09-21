@@ -4,7 +4,6 @@ import io.github.junekim0007.cryptobench.preparation.yaml.YamlCodec
 import java.io.File
 import java.io.IOException
 
-/** skipped.yaml: written on every preparation, empty list included, so "nothing was skipped" is a fact on disk. */
 class SkipFile(private val directory: File) {
 
     val file: File get() = File(directory, NAME)

@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.security.SecureRandom
 
-/** One compiled node of a `{class, arguments}` tree. Evaluating builds the value; `varies` means a new one each time. */
 internal sealed class ValueNode {
 
     abstract val varies: Boolean
@@ -16,7 +15,6 @@ internal sealed class ValueNode {
         override fun evaluate(): Any = value
     }
 
-    /** `fresh(n)`: n new random bytes on every evaluation, e.g. a GCM IV that must never repeat. */
     class Fresh(private val size: Int, private val random: SecureRandom) : ValueNode() {
         override val varies: Boolean = true
         override fun evaluate(): Any = ByteArray(size).also { random.nextBytes(it) }
@@ -35,7 +33,6 @@ internal sealed class ValueNode {
 
         override val varies: Boolean = arguments.any { it.varies }
 
-        /** Tries every constructor of matching arity; reports all of them when none takes the arguments. */
         override fun evaluate(): Any {
             val values = arguments.map { it.evaluate() }
             val attempts = mutableListOf<String>()

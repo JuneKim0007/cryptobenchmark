@@ -8,7 +8,6 @@ import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
 import io.github.junekim0007.cryptobench.discovery.query.CaptureQuery
 import io.github.junekim0007.cryptobench.discovery.query.TrialQuery
 
-/** Answers the port from a capture and the trial of that capture: only what the trial saw instantiate is available. */
 class DiscoveryCapability(capture: CapturedEnvironment, trial: TrialReport) : DeviceCapability {
 
     init {

@@ -17,10 +17,6 @@ import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import io.github.junekim0007.cryptobench.preparation.source.ConfigSource
 import java.io.File
 
-/**
- * The module's entry point: effective.yaml → prepared cases. Every failure this stage can see — a rejected selection,
- * a key that cannot be planned or generated — is either recorded and skipped or stops the run, as the policy says.
- */
 class Preparation(
     capability: DeviceCapability,
     private val report: SkipFile,
