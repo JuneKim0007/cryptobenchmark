@@ -19,6 +19,8 @@
     - `probe.md`
     - `security_contract.md`
   - `src/main/kotlin/`
+    - `Discovery.kt`
+    - `DiscoveryRun.kt`
     - `adapter/`
       - `ProviderProbe.kt`
       - `PropertyMapIndex.kt`

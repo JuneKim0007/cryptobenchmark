@@ -88,6 +88,9 @@ See [docs/cryptography/providers.md](docs/cryptography/providers.md).
 
 Kotlin is not installed separately; the Gradle plugin fetches the compiler.
 
+Discovery on the host JVM, without a device: `cd tools/jca-contract && ./gradlew run --args=../../results/discovery`
+writes `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`.
+
 > :warning: Do not open the Android project with Android Studio. Recent versions do not
 > support the Gradle version of this project and suggest changes that break the build.
 
