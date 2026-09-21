@@ -16,7 +16,7 @@ Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYa
 | API | Gives |
 |---|---|
 | `Security.getProviders()` (caller) | providers, in preference order |
-| `Provider.getName()`, `getVersion()`, `getInfo()` | provider identity |
+| `Provider.getName()`, `getInfo()`, property `Provider.id version` | provider identity — Android has no `getVersionStr()` |
 | `Provider.getServices()` | type, algorithm, class name |
 | `Provider.stringPropertyNames()`, `getProperty()` | aliases, attributes |
 
@@ -24,7 +24,7 @@ Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYa
 
 | Raw property | `PropertyKey` | Captured as |
 |---|---|---|
-| `Provider.id name` | `ProviderMeta` | skipped |
+| `Provider.id name` | `ProviderMeta(field)` | kept in `PropertyMapIndex.meta`; `id version` becomes the entry's version |
 | `Alg.Alias.Cipher.RC4` = `ARC4` | `Alias` | alias on target service |
 | `Cipher.AES SupportedModes` = `ECB\|CBC` | `Attribute` | typed attribute |
 | `Cipher.AES` | `ServiceImpl` | skipped; services come from `getServices()` |

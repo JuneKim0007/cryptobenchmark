@@ -6,8 +6,9 @@ package io.github.junekim0007.cryptobench.discovery.adapter
  */
 internal sealed class PropertyKey {
 
-    object ProviderMeta : PropertyKey()
     object Malformed : PropertyKey()
+
+    data class ProviderMeta(val field: String) : PropertyKey()
 
     data class Alias(val type: String, val name: String) : PropertyKey()
 

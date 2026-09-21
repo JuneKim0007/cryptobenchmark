@@ -20,7 +20,8 @@ internal object PropertyKeyParser {
         }
 
         if (key.startsWith(META_PREFIX)) {
-            return PropertyKey.ProviderMeta
+            val field = key.substring(META_PREFIX.length)
+            return if (field.isEmpty()) PropertyKey.Malformed else PropertyKey.ProviderMeta(field)
         }
 
         if (key.startsWith(ALIAS_PREFIX)) {
