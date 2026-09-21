@@ -11,6 +11,7 @@ import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -19,13 +20,14 @@ import org.junit.Test
 class EffectiveBuilderTest {
 
     private val files = YamlFiles()
+    private val codec = YamlCodec()
     private val inventory = InventoryBuilder().build(
-        CaptureSource.parse(files.load(Fixtures.CAPTURE)),
-        TrialSource.parse(files.load(Fixtures.TRIAL)),
+        CaptureSource.parse(codec.load(Fixtures.CAPTURE)),
+        TrialSource.parse(codec.load(Fixtures.TRIAL)),
         InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"),
     )
-    private val global = GlobalDocument.parse(files.load(Fixtures.GLOBAL))
-    private val testSet = TestSetDocument.parse(files.load(Fixtures.TEST_SET))
+    private val global = GlobalDocument.parse(codec.load(Fixtures.GLOBAL))
+    private val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
     private val names = EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml")
 
     private val effective = EffectiveBuilder().build(global, testSet, inventory, names)

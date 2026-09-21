@@ -1,8 +1,13 @@
 # Config
 
-> Environment's findings (`inventory.yaml`) × the user's authored `config/` (global + test set) → `effective.yaml`, what one run will measure.
+> An independent module that decides what a run will measure: what the device has, crossed with what the user asked for.
 
-Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; depends on no other module.
+## Responsibilities
+
+- Turn environment's capture and trial into `inventory.yaml`: what this device runs, observations only.
+- Cross the inventory with the authored `config/` (global settings and a test set) into `effective.yaml`.
+
+  1. For more information, refer to <config.md>.
 
 ## File Structure
 
@@ -45,31 +50,25 @@ Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; dep
       - `EffectiveBuilder.kt`
       - `OverrideResolver.kt`
       - `EffectiveDocument.kt`
-      - `StoppedOnFailureException.kt`
       - `LocatedMatch.kt`
+      - `StoppedOnFailureException.kt`
       - `dto/`
         - `EffectiveConfig.kt`
         - `EffectiveEntry.kt`
         - `EffectiveSource.kt`
         - `Skip.kt`
     - `yaml/`
-      - `DocumentReader.kt`
-      - `DocumentHandler.kt`
-      - `ReadOnlyYamlFile.kt`
-      - `YamlFile.kt`
       - `YamlFiles.kt`
+      - `YamlFile.kt`
+      - `ReadOnlyYamlFile.kt`
+      - `DocumentHandler.kt`
+      - `DocumentReader.kt`
       - `ProviderTree.kt`
       - `DocumentFields.kt`
       - `YamlCodec.kt`
-  - `src/test/kotlin/`
-    - `Fixtures.kt`
-    - `InventoryBuilderTest.kt`
-    - `RuleTest.kt`
-    - `OverrideResolverTest.kt`
-    - `EffectiveBuilderTest.kt`
-    - `DocumentsTest.kt`
-    - `ConfigurationTest.kt`
 
-## Run
+## Limitations
 
-`cd tools/jca-contract && ./gradlew run --args=../../results/discovery` writes the environment files, `results/configuration/inventory.yaml` and `effective.yaml` (from `config/global.yaml`).
+- The inventory is generated and always overwritten; the authored files under `config/` are never written by this module.
+- An inventory describes one device at one moment: a test set names primitives, never providers of a given machine.
+- A rule that matches nothing is a warning, not a failure: it may be legitimate on another device.

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'hunter-debug'
 
 android {
     compileSdkVersion 27
@@ -12,16 +11,6 @@ android {
         multiDexEnabled true
         //testInstrumentationRunner 'androidx.test.ext.junit.runners.AndroidJUnit4'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "KEY_LEN", "\"$KEY_LEN\""
-        buildConfigField "String", "INPUT_SIZE", "\"$INPUT_SIZE\""
-        buildConfigField "String", "N_TIMES", "\"$N_TIMES\""
-        buildConfigField "String", "PROVIDER", "\"$PROVIDER\""
-        buildConfigField "String", "ALGORITHM", "\"$ALGORITHM\""
-        buildConfigField "String", "PADDING", "\"$PADDING\""
-        buildConfigField "String", "MODE", "\"$MODE\""
-        buildConfigField "String", "COOL_DOWN_TIME", "\"$COOL_DOWN_TIME\""
-        buildConfigField "String", "WARM_UP_TIME", "\"$WARM_UP_TIME\""
-        buildConfigField "String", "WITH_KEY_SPEC", "\"$WITH_KEY_SPEC\""
 
     }
     //testBuildType System.getProperty('testBuildType', 'debug')
@@ -67,19 +56,14 @@ tasks.withType(Test) {
     }
 }
 
-
 dependencies {
     implementation project(':crypto')
     implementation project(':environment:discovery')
     implementation project(':preparation')
-    //implementation 'io.github.raphael28:hunter-debug-library:1.0.1'
-    implementation 'io.github.greensoftwarelab:hunter-emanafa-library:1.0.1'
     //testImplementation 'junit:junit:4.12'
     testImplementation("org.json:json:20210307")
     testImplementation 'junit:junit:4.12'
     //testImplementation 'org.robolectric:robolectric:4.6.1'
-    //androidTestImplementation 'io.github.raphael28:hunter-debug-library:1.0.1'
-    androidTestImplementation 'io.github.greensoftwarelab:hunter-emanafa-library:1.0.1'
     //androidTestImplementation 'com.android.support.test:runner:1.0.2'
     //androidTestImplementation 'junit:junit:4.12'
     //androidTestImplementation 'androidx.test.ext:junit:1.1.3'

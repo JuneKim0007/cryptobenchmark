@@ -7,6 +7,4 @@ class YamlFiles(private val codec: YamlCodec = YamlCodec()) {
     fun <T> at(file: File, handler: DocumentHandler<T>): YamlFile<T> = YamlFile(file, handler, codec)
 
     fun <T> readOnly(file: File, reader: DocumentReader<T>): ReadOnlyYamlFile<T> = ReadOnlyYamlFile(file, reader, codec)
-
-    fun load(text: String): Map<String, Any> = codec.load(text)
 }
