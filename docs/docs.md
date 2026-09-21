@@ -74,6 +74,7 @@
     - `src/test/` : JVM tests
     - `src/main/res/raw/` : `device_primitives.json` (old capture), `restrictions.json` (policy) — kept as data
   - `gradle.properties` : gradle env + signing + benchmark defaults
+- `tools/android-api-check/` : compiles discovery and preparation against `android.jar` with `-no-jdk`; a JDK-only API fails the build (CI job `android-api`, #30)
 - `config/` : authored, committed — `global.yaml`, `testsets/{scope,all,smoke}.yaml`
 - `scripts/` : host side
   - `run_benchmarks.sh` : the sweep; entry point
