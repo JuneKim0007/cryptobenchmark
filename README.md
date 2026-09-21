@@ -24,7 +24,7 @@ flowchart LR
 |---|---|---|
 | `:crypto` | Java | primitives, codec |
 | `:environment:discovery` | Kotlin | provider adapter, contract, discovery setting |
-| `:benchmark` | Java | input and key preparation |
+| `:benchmark` | Kotlin | request, case, input and key preparation |
 | `:android` | Java | run config, instrumented benchmark classes |
 
 File structure, language rule and dependency rules: [docs/docs.md](docs/docs.md).

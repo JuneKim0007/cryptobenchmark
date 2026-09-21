@@ -35,12 +35,13 @@
       - `query/` : questions asked of a capture or a trial, pure and data-returning — `CaptureQuery` (`whoServes`, `namesOf`, `onlyOn`, `tree`), `TrialQuery` (`failingServices`, `failingTransformations`, `instantiationByProvider`), `ServiceShape`, `TransformationFailure`, `ServiceIndex`, `ServiceTree`
       - `trial/` : `TrialRunner` — instantiates every captured service (and every declared cipher transformation) against the live providers → `TrialReport`; `Attempt`, `TransformationSet`
       - `write/` : `CaptureDocument` (schema, `of` ⇄ `parse`) → `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`; `TrialDocument` (`of` ⇄ `parse`) → `TrialYamlWriter` → `trial_<utc>.yaml`; `DocumentFields`, `YamlCodec`, `ProbeDirectory`, `ProbeFileName`
-  - `modules/benchmark/` : module `:benchmark` (java library) — what is measured; standalone, not android-specific
-    - `benchmark/preparation/` : turns what the user asked for into runnable state
-      - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
+  - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
+    - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state
+      - `request/` : `BenchmarkRequest`, `Selection` — what the user wants measured, shape-validated
+      - `case/` : `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `id` links it to its result
       - `registry/` : case registry *(planned — provider lookup is `DiscoverySetting.providersFor` for now)*
       - `key/` : key per case *(planned)*
-      - `workload/` : `DataType`, `StringType` — input generation
+      - `src/main/java/.../workload/` : `DataType`, `StringType` — legacy input generation, used by the old tests
   - `modules/android/` : module `:android` (application) — depends on all modules
     - `setup/config/` : `Config` — run parameters read from the pushed config
     - `src/androidTest/` : on-device benchmarks and functional tests
@@ -68,7 +69,7 @@
 | Module | Language | Inside a measurement |
 |---|---|---|
 | `:crypto` | Java | yes — it is the subject |
-| `:benchmark` | Java | prepares before the timed block, calls `:crypto` |
+| `:benchmark` | Kotlin (`preparation/`), Java (legacy `workload/`) | no — prepares before the timed block |
 | `:android` | Java | hosts the measurement classes in `androidTest` |
 | `:environment:discovery` | Kotlin | no — runs before any measurement |
 
