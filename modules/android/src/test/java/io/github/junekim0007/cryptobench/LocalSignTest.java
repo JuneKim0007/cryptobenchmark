@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench;
 
 import io.github.junekim0007.cryptobench.crypto.primitive.keygen.AssymmetricEncryptKeyGen;
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
+import io.github.junekim0007.cryptobench.preparation.workload.StringType;
 import io.github.junekim0007.cryptobench.crypto.primitive.signature.Sign;
 import io.github.junekim0007.cryptobench.crypto.primitive.signature.Verify;
 

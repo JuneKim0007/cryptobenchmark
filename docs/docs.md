@@ -47,8 +47,8 @@
       - `testset/` + `dto/` : include / exclude / overrides rules
       - `effective/` + `dto/` : `EffectiveBuilder` (include → exclude → overrides → policy), `OverrideResolver`
       - `yaml/` : shared plumbing — `DocumentHandler` per file kind, `YamlFile` (schema stamp and check), `YamlFiles` factory
-  - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
-    - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state
+  - `modules/preparation/` : module `:preparation` (kotlin + legacy java, java library) — `effective.yaml` → cases with keys and bound parameters; never inside a measurement, runs on any JVM
+    - `src/main/kotlin/` : sub-package folders only
       - `source/` : `ConfigSource` — `effective.yaml` read by key → `BenchmarkRequest`, one `Selection` per entry pinned to its provider; `ConfigFields`, `YamlCodec` (duplicated, no `:config` dependency)
       - `request/` : `BenchmarkRequest`, `Selection` (per-entry `inputSizes` override) — what the user wants measured, shape-validated
       - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
@@ -58,7 +58,8 @@
       - `resolve/` : `CaseResolver(capability, rules, binder)` — `ParameterCheck` rejects a selection whose trees don't bind; → `Resolution(cases, rejections)`; `AxisRules` (engine type → `AxisRule`, fallback for unregistered types), `SelectionExpander`, `Rejection`
       - `key/plan/` : `KeyPlanner(capability, shapes)` — case → `KeyRecipe` (None, Secret, Pair, Unavailable), pure; `KeyShapes` (engine type → `KeyShape`, Cipher and unknown types decided by the device's generators), `KeyAlgorithmName`
       - `key/generate/` : `KeyMaterialGenerator(random, initializers, binder)` — recipe → `KeyMaterial`, the only key code calling the JCA; a bound `key:` spec wins over the size; `KeyInitializer` per provider, `DefaultKeyInitializer`
-      - `src/main/java/.../workload/` : `DataType`, `StringType` — legacy input generation, used by the old tests
+    - `src/main/java/.../preparation/workload/` : `DataType`, `StringType` — legacy input generation, used by the old tests
+  - `modules/benchmark/` : module `:benchmark` *(planned, #33)* — the Jetpack harness: runs cases, times them, writes `benchmarkData.json`
   - `modules/android/` : module `:android` (application) — depends on all modules
     - `setup/config/` : `Config` — run parameters read from the pushed config
     - `src/androidTest/` : on-device benchmarks and functional tests
@@ -88,7 +89,8 @@
 | Module | Language | Inside a measurement |
 |---|---|---|
 | `:crypto` | Java | yes — it is the subject |
-| `:benchmark` | Kotlin (`preparation/`), Java (legacy `workload/`) | no — prepares before the timed block |
+| `:preparation` | Kotlin, Java (legacy `workload/`) | no — prepares before the timed block |
+| `:benchmark` *(planned)* | as `:crypto` | yes — it is the timed run |
 | `:android` | Java | hosts the measurement classes in `androidTest` |
 | `:environment:discovery` | Kotlin | no — runs before any measurement |
 | `:config` | Kotlin | no — files only |
@@ -106,7 +108,8 @@ Rules:
 
 1. `discovery/` : determine device, runtime, hardware capability, benchmark compatibility
 2. `setup/` : user config and user-supplied inputs (device state is Jetpack's, via runner args)
-3. `benchmark/preparation/` : algorithm, inputs, keys, parameters for one case
+3. `preparation/` : algorithm, inputs, keys, parameters for one case
+4. `benchmark/` : the timed run *(planned)*
 
 ### dependency rules
 
@@ -117,10 +120,11 @@ Enforced by gradle module dependencies:
 | `:crypto` | — |
 | `:environment:discovery` | — |
 | `:config` | — (reads environment's files, not its classes) |
-| `:benchmark` | `:environment:discovery` (declared, `api`; imported only by `preparation/adapter/`), `:crypto` (not yet); reads `effective.yaml`, not `:config` classes |
+| `:preparation` | `:environment:discovery` (declared, `api`; imported only by `adapter/`); reads `effective.yaml`, not `:config` classes |
+| `:benchmark` *(planned)* | `:preparation`, `:crypto` |
 | `:android` | all |
 
 Inside `:android`:
 
 - `setup` : imports `discovery`
-- `androidTest` : imports `benchmark`, `crypto`
+- `androidTest` : imports `preparation`, `crypto` (moves to `:benchmark` with #33)

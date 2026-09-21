@@ -5,7 +5,7 @@ import androidx.test.runner.AndroidJUnit4;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricDecrypt;
 import io.github.junekim0007.cryptobench.crypto.primitive.cipher.symmetric.SymmetricEncrypt;
 import io.github.junekim0007.cryptobench.crypto.primitive.keygen.SymmetricKeyGen;
-import io.github.junekim0007.cryptobench.benchmark.preparation.workload.StringType;
+import io.github.junekim0007.cryptobench.preparation.workload.StringType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -25,7 +25,8 @@ flowchart LR
 | `:crypto` | Java | primitives, codec |
 | `:environment:discovery` | Kotlin | provider adapter, contract, discovery setting, trial |
 | `:config` | Kotlin | `effective.yaml` from environment's inventory and the authored `config/` |
-| `:benchmark` | Kotlin | request, case, input and key preparation |
+| `:preparation` | Kotlin | `effective.yaml` → cases, keys, bound parameters |
+| `:benchmark` | — | Jetpack harness *(planned, #33)* |
 | `:android` | Java | run config, instrumented benchmark classes |
 
 File structure, language rule and dependency rules: [docs/docs.md](docs/docs.md).

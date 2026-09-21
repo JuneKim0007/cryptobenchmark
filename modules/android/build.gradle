@@ -71,7 +71,7 @@ tasks.withType(Test) {
 dependencies {
     implementation project(':crypto')
     implementation project(':environment:discovery')
-    implementation project(':benchmark')
+    implementation project(':preparation')
     //implementation 'io.github.raphael28:hunter-debug-library:1.0.1'
     implementation 'io.github.greensoftwarelab:hunter-emanafa-library:1.0.1'
     //testImplementation 'junit:junit:4.12'
