@@ -26,4 +26,11 @@ class InboundFileTest {
     fun aKeyWrittenTwiceIsRefused() {
         assertTrue(rejection(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  seed: 1\n"))!!.contains("duplicate key"))
     }
+
+    @Test
+    fun aMissingOrUnreadableFileIsNamed() {
+        val missing = java.io.File("/no/such/effective.yaml")
+        assertEquals("missing_file: /no/such/effective.yaml", assertThrows(IllegalArgumentException::class.java) { InboundFile.read(missing) }.message)
+        assertTrue(rejection("\tbroken: [\n")!!.startsWith("unreadable_yaml: effective.yaml:"))
+    }
 }

@@ -9,10 +9,17 @@ object InboundFile {
 
     const val SUPPORTED_SCHEMA_VERSION = 1
 
-    fun read(file: File): InboundDocument = read(file.name, file.readText())
+    fun read(file: File): InboundDocument {
+        require(file.isFile) { "missing_file: ${file.path}" }
+        return read(file.name, file.readText())
+    }
 
     fun read(fileName: String, text: String): InboundDocument {
-        val document = YamlCodec().load(text)
+        val document = try {
+            YamlCodec().load(text)
+        } catch (failure: RuntimeException) {
+            throw IllegalArgumentException("unreadable_yaml: $fileName: ${failure.message}", failure)
+        }
         val schemaVersion = number(document, "schemaVersion").toInt()
         require(schemaVersion == SUPPORTED_SCHEMA_VERSION) {
             "unsupported_config_schema: $fileName: $schemaVersion, this build reads $SUPPORTED_SCHEMA_VERSION"
