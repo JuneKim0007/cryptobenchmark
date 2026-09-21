@@ -3,6 +3,8 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
+import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
+import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
@@ -67,5 +69,16 @@ class JcaContractTest {
         }
         val target = ProviderClassNameWriter(directory).write(capture)
         assertTrue("class list not written", target.length() > 0)
+    }
+
+    @Test
+    fun theStaplesInstantiateAndSomeDeclaredTransformationsDoNot() {
+        val report = TrialRunner().run(capture, Security.getProviders())
+        val aes = report.services.single { it.provider == "SunJCE" && it.type == "Cipher" && it.algorithm == "AES" }
+        assertTrue("SunJCE AES does not instantiate: ${aes.outcome.error}", aes.outcome.instantiates)
+        assertTrue("AES/CBC/PKCS5Padding is not tried", aes.transformations.any { it.name.equals("AES/CBC/PKCS5Padding", ignoreCase = true) && it.outcome.instantiates })
+        assertTrue("no declared transformation failed; the trial has nothing to add over the capture", report.services.flatMap { it.transformations }.any { !it.outcome.instantiates })
+        val target = TrialYamlWriter(directory).write(report)
+        assertTrue("unexpected name ${target.name}", target.name.matches(Regex("trial_\\d{8}T\\d{6}Z\\.yaml")))
     }
 }

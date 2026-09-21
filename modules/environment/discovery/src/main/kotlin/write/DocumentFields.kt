@@ -5,8 +5,14 @@ internal object DocumentFields {
     fun string(document: Map<String, Any>, key: String): String =
         field(document, key) as? String ?: wrongType(key)
 
+    fun optionalString(document: Map<String, Any>, key: String): String =
+        document[key]?.let { it as? String ?: wrongType(key) } ?: ""
+
     fun number(document: Map<String, Any>, key: String): Number =
         field(document, key) as? Number ?: wrongType(key)
+
+    fun boolean(document: Map<String, Any>, key: String): Boolean =
+        field(document, key) as? Boolean ?: wrongType(key)
 
     fun section(document: Map<String, Any>, key: String): Map<String, Any> =
         asSection(field(document, key), key)

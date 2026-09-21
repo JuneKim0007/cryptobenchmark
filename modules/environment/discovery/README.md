@@ -37,6 +37,10 @@
       - `RuntimeInfo.kt`
       - `ServiceKey.kt`
       - `ServiceKeyException.kt`
+      - `TrialReport.kt`
+      - `ServiceTrialEntry.kt`
+      - `TransformationTrialEntry.kt`
+      - `TrialOutcome.kt`
     - `setting/`
       - `DiscoverySettingConverter.kt`
       - `BenchmarkScope.kt`
@@ -45,16 +49,28 @@
       - `ServiceSetting.kt`
       - `Device.kt`
       - `ServiceLookup.kt`
+    - `trial/`
+      - `TrialRunner.kt`
+      - `Attempt.kt`
+      - `TransformationSet.kt`
     - `write/`
       - `CaptureDocument.kt`
       - `DocumentFields.kt`
       - `EnvironmentYamlWriter.kt`
       - `ProviderClassNameWriter.kt`
+      - `TrialDocument.kt`
+      - `TrialYamlWriter.kt`
       - `YamlCodec.kt`
       - `ProbeDirectory.kt`
       - `ProbeFileName.kt`
   - `src/test/kotlin/`
     - `JcaContractTest.kt`
+    - `CaptureDocumentTest.kt`
+    - `ProviderProbeTest.kt`
+    - `ProbeDirectoryTest.kt`
+    - `YamlCodecTest.kt`
+    - `TrialRunnerTest.kt`
+    - `TrialDocumentTest.kt`
     - `ServiceKeyTest.kt`
 
 ## Limitations

@@ -9,6 +9,7 @@ Field contract: [security_contract.md](security_contract.md)
 ```
 Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter     -> probe_<utc>.yaml
                                                                -> DiscoverySettingConverter -> DiscoverySetting
+                                                               -> TrialRunner -> TrialReport -> TrialYamlWriter -> trial_<utc>.yaml
 ```
 
 ## JCA APIs used
@@ -35,7 +36,7 @@ Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYa
 - attributes are optional: `SupportedModes`, `SupportedPaddings`, `KeySize` often absent
 - transformations resolved by fallback are not listed (`Cipher.AES` serves `AES/CBC/PKCS5Padding`)
 - an alias is a name, not a separate implementation
-- a registered service can still fail at `init` or `doFinal`
+- the trial instantiates (`Provider.Service.newInstance`, `Cipher.getInstance` per declared mode × padding); a service that instantiates can still fail at `init` or `doFinal`
 - not visible: native crypto via JNI, providers not registered in this process, hardware (StrongBox, AES acceleration)
 
 ## Classes
@@ -68,6 +69,12 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DocumentFields` | `write` | typed reads of one document key — `internal` |
 | `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
 | `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
+| `TrialRunner` | `trial` | capture × live providers → `TrialReport`: one outcome per service, one per declared cipher transformation |
+| `Attempt` | `trial` | runs one instantiation, turns `Exception`/`LinkageError` into a `TrialOutcome` — `internal` |
+| `TransformationSet` | `trial` | algorithm + algorithm/mode/padding for every declared pair — `internal` |
+| `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome` | `contract` | the trial model |
+| `TrialDocument` | `write` | the trial YAML schema, `of` ⇄ `parse` |
+| `TrialYamlWriter` | `write` | report → `trial_<utc>.yaml` |
 | `YamlCodec` | `write` | document ⇄ YAML text, a `Yaml` per call |
 | `ProbeDirectory` | `write` | output directory, injected into the writers; `create` fails on an existing name |
 | `ProbeFileName` | `write` | `<prefix>_<utc>.yaml` — `internal` |
@@ -83,5 +90,5 @@ failure means the JCA moved. Android providers are not covered (#14).
 | Missing | Issue |
 |---|---|
 | read a capture back | #21 |
-| verify services by trial | #15 |
+| verify key sizes by trial | #18 |
 | run as an independent process | #16 |

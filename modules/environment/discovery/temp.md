@@ -24,6 +24,12 @@ Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`.
 | `write` | `DocumentFields` | typed reads of one document key: `missing_field`, `wrong_type` |
 | `write` | `EnvironmentYamlWriter` | document → `probe_<utc>.yaml`; takes its `ProbeDirectory` and `YamlCodec` in the constructor |
 | `write` | `ProviderClassNameWriter` | capture → class list document |
+| `write` | `TrialDocument` | the trial YAML key names, report ⇄ document |
+| `write` | `TrialYamlWriter` | report → `trial_<utc>.yaml` |
+| `trial` | `TrialRunner` | capture × live providers → `TrialReport`; every service via `Service.newInstance`, every declared cipher transformation via `Cipher.getInstance` |
+| `trial` | `Attempt` | one call → `TrialOutcome`; catches `Exception` and `LinkageError`, nothing else |
+| `trial` | `TransformationSet` | which transformations to try for one cipher service |
+| `contract` | `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome` | the trial model; an outcome carries an error exactly when it fails |
 | `write` | `YamlCodec` | document ⇄ YAML text; one `Yaml` per call, so one codec serves many threads |
 | `write` | `ProbeDirectory` | the output directory; `create` never overwrites |
 | `write` | `ProbeFileName` | `<prefix>_<utc>.yaml` |
@@ -53,7 +59,8 @@ Provider[]                                   (caller: Security.getProviders())
        └─ toEntry                  :24   getServices() + index → ProviderEntry
   → CapturedEnvironment ──► EnvironmentYamlWriter.write :35    ──► probe_<utc>.yaml
                         ──► ProviderClassNameWriter.write :29  ──► probe_classes_<utc>.yaml
-                        └─► DiscoverySettingConverter.convert :17 ──► DiscoverySetting (Kotlin only, never written)
+                        ├─► DiscoverySettingConverter.convert :17 ──► DiscoverySetting (Kotlin only, never written)
+                        └─► TrialRunner.run + Provider[]        ──► TrialReport ──► TrialYamlWriter.write ──► trial_<utc>.yaml
 ```
 
 ## 1. Raw property key → `PropertyKey`
@@ -183,4 +190,4 @@ Lookups that can find nothing:
 
 | `internal` (module-only) | `public` (the module's API) |
 |---|---|
-| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
+| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `Attempt`, `TransformationSet`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `TrialRunner`, `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`, `TrialDocument`, `TrialYamlWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
