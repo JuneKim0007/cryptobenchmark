@@ -84,4 +84,22 @@ class CaseResolverTest {
         val digestAsKeyOnly = CaseResolver(device, AxisRules.standard().with("messagedigest", AxisRule(usesKeySize = true, usesInputSize = false)))
         assertEquals(listOf(null, null), digestAsKeyOnly.resolve(request).cases.map { it.inputSize })
     }
+
+    /** A parameter that cannot be built rejects its selection; nothing reaches a run. */
+    @Test
+    fun aBrokenParameterTreeRejectsTheSelection() {
+        val broken = Selection("Cipher", "AES/GCM/NoPadding", parameters = mapOf("class" to "javax.crypto.spec.GCMParameterSpec", "arguments" to listOf(128)))
+        val bothKeys = Selection("Cipher", "AES/GCM/NoPadding", keySizes = listOf(128),
+            keyParameters = mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("secp256r1")))
+        val fine = Selection("Cipher", "AES/GCM/NoPadding", parameters = mapOf("class" to "javax.crypto.spec.GCMParameterSpec", "arguments" to listOf(128, "fresh(12)")))
+        val resolution = resolver.resolve(BenchmarkRequest(listOf(broken, bothKeys, fine)))
+        assertEquals(listOf(fine.parameters), resolution.cases.map { it.parameters })
+        assertEquals(
+            listOf(
+                "bind_failed: parameters: no constructor of javax.crypto.spec.GCMParameterSpec takes [Integer 128] (none with 1 arguments)",
+                "key_parameters_and_key_sizes: set one; a key spec already fixes the size",
+            ),
+            resolution.rejections.map { it.reason },
+        )
+    }
 }
