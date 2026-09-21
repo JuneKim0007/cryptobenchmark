@@ -54,4 +54,27 @@ class CaptureDocumentTest {
         val error = assertThrows(IllegalArgumentException::class.java) { CaptureDocument.parse(document) }
         assertEquals("wrong_type: runtime", error.message)
     }
+
+    /** jdk.security.defaultKeySize changes default key sizes per machine with no code change, so the capture records it. */
+    @Test
+    fun theDefaultKeySizePropertyIsRecorded() {
+        val before = System.getProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY)
+        try {
+            System.setProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY, "RSA:2048,EC:256")
+            val runtime = RuntimeInfo()
+            assertEquals("RSA:2048,EC:256", runtime.defaultKeySizeProperty)
+            val document = CaptureDocument.of(capture.copy(runtime = runtime))
+            assertEquals("RSA:2048,EC:256", (document[CaptureDocument.RUNTIME] as Map<*, *>)[CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY])
+        } finally {
+            if (before == null) System.clearProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY) else System.setProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY, before)
+        }
+    }
+
+    /** Captures written before the field existed still read; the property is simply unknown. */
+    @Test
+    fun anOlderCaptureWithoutThePropertyStillReads() {
+        val document = LinkedHashMap(CaptureDocument.of(capture))
+        document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY) }
+        assertEquals("", CaptureDocument.parse(document).runtime.defaultKeySizeProperty)
+    }
 }

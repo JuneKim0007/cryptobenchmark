@@ -12,6 +12,7 @@ import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optional
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.section
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.sections
+import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.string
 
 object CaptureDocument {
@@ -27,6 +28,7 @@ object CaptureDocument {
     const val SDK_INT = "sdkInt"
     const val RELEASE = "release"
     const val JAVA_VERSION = "javaVersion"
+    const val DEFAULT_KEY_SIZE_PROPERTY = "defaultKeySizeProperty"
 
     const val NAME = "name"
     const val VERSION = "version"
@@ -71,6 +73,7 @@ object CaptureDocument {
         SDK_INT to runtime.sdkInt,
         RELEASE to runtime.release,
         JAVA_VERSION to runtime.javaVersion,
+        DEFAULT_KEY_SIZE_PROPERTY to runtime.defaultKeySizeProperty,
     )
 
     private fun runtimeEntry(document: Map<String, Any>): RuntimeInfo = RuntimeInfo(
@@ -80,6 +83,7 @@ object CaptureDocument {
         sdkInt = number(document, SDK_INT).toInt(),
         release = string(document, RELEASE),
         javaVersion = string(document, JAVA_VERSION),
+        defaultKeySizeProperty = optionalString(document, DEFAULT_KEY_SIZE_PROPERTY),
     )
 
     private fun providerDocument(provider: ProviderEntry): Map<String, Any> {

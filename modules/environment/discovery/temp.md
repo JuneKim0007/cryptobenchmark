@@ -110,6 +110,7 @@ Null and ordering are normalised in `ProviderProbe`, at the JCA boundary. The mo
 | `sdkInt` | `Int` = `0` | always | `Build.VERSION.SDK_INT` |
 | `release` | `String` = `""` | always | `Build.VERSION.RELEASE` |
 | `javaVersion` | `String` = system property | always | `java.version` |
+| `defaultKeySizeProperty` | `String` = system property | always | `jdk.security.defaultKeySize`, `''` when unset |
 
 `DeviceRuntimeReader` reads `Build` reflectively; any failure → `""` / `0`. `RuntimeInfo.unknown()` is every default.
 
