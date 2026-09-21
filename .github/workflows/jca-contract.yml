@@ -30,4 +30,4 @@ jobs:
         if: always()
         with:
           name: capture-java-${{ matrix.java }}
-          path: tools/jca-contract/build/capture/probe_*.yaml
+          path: tools/jca-contract/build/capture/*.yaml

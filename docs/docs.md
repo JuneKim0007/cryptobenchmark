@@ -30,9 +30,10 @@
     - `README.md`, `docs/probe.md`, `docs/security_contract.md` : module docs
     - `src/main/kotlin/` : sub-package folders only, no package root folders
       - `adapter/` : reads the JCA and parses it into the contract — `ProviderProbe`, `PropertyMapIndex`, `PropertyKeyParser`, `PropertyKey`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `DeviceRuntimeReader`
-      - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`
+      - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`; the trial model — `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`
       - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to `BenchmarkScope`; `ProviderSetting`, `ServiceSetting`, `Device`, `ServiceLookup`
-      - `write/` : `CaptureDocument` (schema, `of` ⇄ `parse`) → `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`; `DocumentFields`, `YamlCodec`, `ProbeDirectory`, `ProbeFileName`
+      - `trial/` : `TrialRunner` — instantiates every captured service (and every declared cipher transformation) against the live providers → `TrialReport`; `Attempt`, `TransformationSet`
+      - `write/` : `CaptureDocument` (schema, `of` ⇄ `parse`) → `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`; `TrialDocument` (`of` ⇄ `parse`) → `TrialYamlWriter` → `trial_<utc>.yaml`; `DocumentFields`, `YamlCodec`, `ProbeDirectory`, `ProbeFileName`
   - `modules/benchmark/` : module `:benchmark` (java library) — what is measured; standalone, not android-specific
     - `benchmark/preparation/` : turns what the user asked for into runnable state
       - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*
@@ -55,7 +56,7 @@
   - `cryptography/providers.md` : per-provider support and scope
   - `infra/setup.md` : setup
 - `results/` : run output, ignored; one subdirectory per pipeline stage
-  - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`
+  - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml` — same stamp, same capture
   - `preparation/`, `benchmark/`, `analysis/` : *(planned)*
 - `CryptoBenchmark.config` : generated per run, pushed to the device
 - `scripts/requirements.txt` : host python deps
