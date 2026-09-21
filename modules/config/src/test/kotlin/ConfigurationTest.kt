@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.config
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -46,5 +48,39 @@ class ConfigurationTest {
             files.at(file, io.github.junekim0007.cryptobench.config.testset.TestSetDocument).read()
         }
         assertEquals("testsets/scope.yaml", committed.selection.testSet)
+    }
+
+    /** The setting that pointed at a missing file is named, not just the path. */
+    @Test
+    fun aMissingTestSetNamesTheSettingThatPointedThere() {
+        configuration.inventory(capture, trial)
+        global.writeText(Fixtures.GLOBAL.replace("testsets/scope.yaml", "testsets/scop.yaml"))
+        val message = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
+        assertTrue(message, message.startsWith("missing_file: ") && message.endsWith("(global.yaml selection.testSet: testsets/scop.yaml)"))
+    }
+
+    @Test
+    fun aMissingGlobalFileIsNamed() {
+        val missing = File(directory, "nowhere/global.yaml")
+        assertEquals("missing_file: ${missing.path}", assertThrows(IllegalArgumentException::class.java) { configuration.effective(missing) }.message)
+    }
+
+    @Test
+    fun anErrorInsideAFileNamesTheFile() {
+        configuration.inventory(capture, trial)
+        testSet.writeText(Fixtures.TEST_SET.replace("- {type: Cipher, name: RSA}", "- {type: Cipher, nme: RSA}"))
+        val message = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
+        assertTrue(message, message.startsWith("scope.yaml: unknown_keys: include[1] [nme]"))
+    }
+
+    /** A failed run must not leave the previous run's effective.yaml for preparation to pick up. */
+    @Test
+    fun aFailedRunLeavesNoStaleEffectiveFile() {
+        configuration.inventory(capture, trial)
+        configuration.effective(global)
+        assertTrue(configuration.effectiveFile.exists())
+        global.writeText(Fixtures.GLOBAL.replace("policy: {onFailure: skip}", "policy: {onFailure: stop}"))
+        assertThrows(IllegalStateException::class.java) { configuration.effective(global) }
+        assertFalse(configuration.effectiveFile.exists())
     }
 }

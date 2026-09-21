@@ -20,7 +20,11 @@ object RuleDocument {
     fun parse(value: Any, path: String): Rule {
         val document = asSection(value, path)
         expectKeys(document, listOf(PROVIDER, TYPE, NAME), path)
-        return Rule(optionalStringOrNull(document, PROVIDER), optionalStringOrNull(document, TYPE), optionalStringOrNull(document, NAME))
+        return try {
+            Rule(optionalStringOrNull(document, PROVIDER), optionalStringOrNull(document, TYPE), optionalStringOrNull(document, NAME))
+        } catch (failure: IllegalArgumentException) {
+            throw IllegalArgumentException("${failure.message} at $path", failure)
+        }
     }
 
     fun parseList(values: List<Map<String, Any>>, path: String): List<Rule> =

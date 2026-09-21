@@ -11,6 +11,7 @@ import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import java.io.File
+import java.nio.file.Files
 
 class Configuration(
     private val output: File,
@@ -24,6 +25,7 @@ class Configuration(
     val effectiveFile: File get() = File(output, EFFECTIVE)
 
     fun inventory(captureFile: File, trialFile: File): File {
+        Files.deleteIfExists(inventoryFile.toPath())
         val capture = files.readOnly(captureFile, CaptureSource).read()
         val trial = files.readOnly(trialFile, TrialSource).read()
         val inventory = inventoryBuilder.build(capture, trial, InventoryBuilder.Files(captureFile.name, trialFile.name))
@@ -31,8 +33,10 @@ class Configuration(
     }
 
     fun effective(globalFile: File, inventoryFile: File = this.inventoryFile): File {
+        Files.deleteIfExists(effectiveFile.toPath())
         val global = files.at(globalFile, GlobalDocument).read()
         val testSetFile = File(globalFile.absoluteFile.parentFile, global.selection.testSet)
+        require(testSetFile.isFile) { "missing_file: ${testSetFile.path} (${globalFile.name} selection.testSet: ${global.selection.testSet})" }
         val testSet = files.at(testSetFile, TestSetDocument).read()
         val inventory = files.at(inventoryFile, InventoryDocument).read()
         val effective = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name))

@@ -26,6 +26,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     const val POLICY = "policy"
     const val PROVIDERS = "providers"
     const val SKIPPED = "skipped"
+    const val WARNINGS = "warnings"
 
     const val KEY_SIZES = "keySizes"
     const val INPUT_SIZES = "inputSizes"
@@ -54,6 +55,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         RUN to RunDocument.of(value.run),
         POLICY to PolicyDocument.of(value.policy),
         PROVIDERS to ProviderTree.of(value.providers) { entry -> entry(entry) },
+        WARNINGS to value.warnings,
         SKIPPED to value.skipped.map { skip ->
             LinkedHashMap<String, Any>().apply {
                 put(STAGE, skip.stage)
@@ -77,6 +79,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             run = RunDocument.parse(section(document, RUN), RUN),
             policy = PolicyDocument.parse(section(document, POLICY), POLICY),
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS) { entry, _ -> entryOf(entry) },
+            warnings = optionalStrings(document, WARNINGS),
             skipped = optionalSections(document, SKIPPED).map { skip ->
                 Skip(string(skip, STAGE), optionalStringOrNull(skip, PROVIDER), optionalStringOrNull(skip, TYPE), optionalStringOrNull(skip, NAME), string(skip, REASON))
             },

@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
+import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import org.junit.Assert.assertEquals
@@ -83,5 +84,19 @@ class EffectiveBuilderTest {
         assertEquals("testsets/scope.yaml", effective.generatedFrom.testSet)
         assertEquals("probe_x.yaml", effective.generatedFrom.environment.capture)
         assertEquals(2, effective.run.processRepetitions)
+    }
+
+    /** A misspelt override silently changes what is measured, so every rule that touched nothing is reported. */
+    @Test
+    fun rulesThatMatchNothingAreWarnedAbout() {
+        assertEquals(emptyList<String>(), effective.warnings)
+        val typos = testSet.copy(
+            exclude = testSet.exclude + Rule(name = "SHA-265"),
+            overrides = testSet.overrides + Override(Rule(type = "Cipher", name = "AES/GCM/NoPaddng"), keySizes = listOf(256)),
+        )
+        assertEquals(
+            listOf("exclude_matches_nothing: {name=SHA-265}", "override_matches_nothing: {type=Cipher name=AES/GCM/NoPaddng}"),
+            EffectiveBuilder().build(global, typos, inventory, names).warnings,
+        )
     }
 }

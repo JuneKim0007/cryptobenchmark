@@ -84,4 +84,16 @@ class DocumentsTest {
         val message = assertThrows(RuntimeException::class.java) { files.load("schemaVersion: 1\nschemaVersion: 1\n") }.message!!
         assertTrue(message, message.contains("duplicate key"))
     }
+
+    @Test
+    fun aRuleErrorSaysWhichRule() {
+        assertEquals("empty_rule: give provider, type or name at selection.exclude[1]",
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) }.message)
+    }
+
+    @Test
+    fun warningsRoundTrip() {
+        val warned = effective.copy(warnings = listOf("override_matches_nothing: {name=X}"))
+        assertEquals(warned, files.at(File(directory, "warned.yaml"), EffectiveDocument).let { it.write(warned); it.read() })
+    }
 }

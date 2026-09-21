@@ -9,6 +9,7 @@ data class EffectiveConfig(
     val policy: Policy,
     val providers: Map<String, Map<String, Map<String, EffectiveEntry>>>,
     val skipped: List<Skip> = emptyList(),
+    val warnings: List<String> = emptyList(),
 ) {
 
     init {

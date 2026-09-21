@@ -26,9 +26,13 @@ class EffectiveBuilder {
             throw StoppedOnFailureException(skipped)
         }
 
+        val running = selected.filter { it.entry.runs }
+        val warnings = excludes.filter { rule -> included.none { rule.matches(it) } }.map { "exclude_matches_nothing: $it" } +
+            testSet.overrides.filter { override -> running.none { override.match.matches(it) } }.map { "override_matches_nothing: ${it.match}" }
+
         val resolver = OverrideResolver(testSet.overrides)
         val providers = LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, EffectiveEntry>>>()
-        for (located in selected.filter { it.entry.runs }) {
+        for (located in running) {
             providers.getOrPut(located.provider) { LinkedHashMap() }
                 .getOrPut(located.type) { LinkedHashMap() }[located.name] = resolver.resolve(located)
         }
@@ -38,6 +42,7 @@ class EffectiveBuilder {
             policy = global.policy,
             providers = providers,
             skipped = skipped,
+            warnings = warnings,
         )
     }
 

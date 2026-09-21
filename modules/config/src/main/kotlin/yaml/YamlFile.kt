@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.config.yaml
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 
 class YamlFile<T> internal constructor(
@@ -22,8 +23,10 @@ class YamlFile<T> internal constructor(
         }
         val document = linkedMapOf<String, Any>(ReadOnlyYamlFile.SCHEMA_VERSION to handler.schemaVersion)
         document.putAll(handler.of(value))
-        Files.write(file.toPath(), codec.dump(document).toByteArray(Charsets.UTF_8),
+        val partial = File(directory, file.name + ".partial")
+        Files.write(partial.toPath(), codec.dump(document).toByteArray(Charsets.UTF_8),
             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
+        Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         return file
     }
 }
