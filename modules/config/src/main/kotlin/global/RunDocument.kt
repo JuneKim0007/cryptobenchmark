@@ -4,9 +4,9 @@ import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.numbers
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
 
-/** The `run` section, shared by global.yaml (as written) and effective.yaml (as frozen). */
 object RunDocument {
 
     private const val INPUT_SIZES = "inputSizes"
@@ -23,16 +23,15 @@ object RunDocument {
         SEED to run.seed,
     )
 
-    /** Every key is optional in a hand-written section; a missing one keeps its default. */
     fun parse(document: Map<String, Any>, path: String): RunSettings {
         expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, SEED), path)
         val defaults = RunSettings()
         return RunSettings(
-            inputSizes = if (document.containsKey(INPUT_SIZES)) numbers(document, INPUT_SIZES) else defaults.inputSizes,
-            phases = if (document.containsKey(PHASES)) strings(document, PHASES) else defaults.phases,
-            metrics = if (document.containsKey(METRICS)) strings(document, METRICS) else defaults.metrics,
-            processRepetitions = if (document.containsKey(PROCESS_REPETITIONS)) number(document, PROCESS_REPETITIONS).toInt() else defaults.processRepetitions,
-            seed = if (document.containsKey(SEED)) number(document, SEED).toLong() else defaults.seed,
+            inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
+            phases = optional(document, PHASES, defaults.phases, ::strings),
+            metrics = optional(document, METRICS, defaults.metrics, ::strings),
+            processRepetitions = optional(document, PROCESS_REPETITIONS, defaults.processRepetitions) { section, key -> number(section, key).toInt() },
+            seed = optional(document, SEED, defaults.seed) { section, key -> number(section, key).toLong() },
         )
     }
 }

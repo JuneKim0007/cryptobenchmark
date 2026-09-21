@@ -6,7 +6,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.sections
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
 
-/** Reads environment's probe document by its keys; the configuration does not depend on the environment module's classes. */
 object CaptureSource : DocumentReader<CaptureView> {
 
     override val schemaVersion: Int = 1

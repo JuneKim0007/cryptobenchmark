@@ -28,7 +28,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `exclude` | `[]` | rules dropped after the test set |
 | `run` | `inputSizes` | `[1024]` | bytes per call |
 | | `phases` | `[WARM]` | `WARM`, `COLD` |
-| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` |
+| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` (rooted device) |
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
 | `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
@@ -83,7 +83,7 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 | `global/`, `global/dto/` | `GlobalDocument` (section list), `RunDocument`, `PolicyDocument`; `GlobalConfig`, `Selection`, `RunSettings`, `Policy` |
 | `testset/`, `testset/dto/` | `TestSetDocument`, `RuleDocument`; `TestSet`, `Rule`, `Override` |
 | `effective/`, `effective/dto/` | `EffectiveBuilder`, `OverrideResolver`, `EffectiveDocument`, `StoppedOnFailureException`; `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` |
-| `yaml/` | shared plumbing: `DocumentReader` / `DocumentHandler` (per kind: value ⇄ map), `YamlFile` (load, dump, `schemaVersion` stamp and check, overwrite), `YamlFiles` (factory), `ProviderTree`, `DocumentFields`, `YamlCodec` |
+| `yaml/` | shared plumbing: `DocumentReader` / `DocumentHandler` (per kind: value ⇄ map), `ReadOnlyYamlFile` (load, `schemaVersion` check) and `YamlFile` (+ stamp, overwrite), `YamlFiles` (factory: `at` for read-write, `readOnly` for environment's files), `ProviderTree`, `DocumentFields`, `YamlCodec` |
 
 ## Provider-specific, observed on JDK 25
 

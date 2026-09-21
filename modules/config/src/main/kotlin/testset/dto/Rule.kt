@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.config.testset.dto
 
-/** Matches provider, engine type and name; a missing part matches anything. Case-insensitive; `*` in a name is a wildcard. */
 data class Rule(
     val provider: String? = null,
     val type: String? = null,
@@ -21,7 +20,6 @@ data class Rule(
             (this.type == null || this.type.equals(type, ignoreCase = true)) &&
             (namePattern == null || namePattern.matches(name))
 
-    /** Higher is narrower: provider outweighs everything, an exact name outweighs a pattern, a pattern outweighs a type. */
     val specificity: Int
         get() = (if (provider != null) 8 else 0) +
             (if (type != null) 1 else 0) +

@@ -12,7 +12,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
 
-/** inventory.yaml. */
 object InventoryDocument : DocumentHandler<Inventory> {
 
     override val schemaVersion: Int = 1

@@ -80,7 +80,7 @@ class EffectiveBuilderTest {
     @Test
     fun theInputsAreRecorded() {
         assertEquals("testsets/scope.yaml", effective.generatedFrom.testSet)
-        assertEquals("probe_x.yaml", effective.generatedFrom.capture)
+        assertEquals("probe_x.yaml", effective.generatedFrom.environment.capture)
         assertEquals(2, effective.run.processRepetitions)
     }
 }

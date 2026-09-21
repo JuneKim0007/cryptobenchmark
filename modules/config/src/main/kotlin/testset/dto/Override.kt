@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.config.testset.dto
 
-/** Values to set on every selected primitive the rule matches. A null field is not set here. */
 data class Override(
     val match: Rule,
     val keySizes: List<Int>? = null,

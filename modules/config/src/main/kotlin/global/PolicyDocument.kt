@@ -5,7 +5,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
 import java.util.Locale
 
-/** The `policy` section, shared by global.yaml (as written) and effective.yaml (as frozen for later stages). */
 object PolicyDocument {
 
     private const val ON_FAILURE = "onFailure"

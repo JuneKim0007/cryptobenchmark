@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.config.inventory.dto
 
-/** The environment files an inventory was built from. */
 data class InventorySource(
     val capture: String,
     val trial: String,

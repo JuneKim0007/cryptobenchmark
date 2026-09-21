@@ -11,7 +11,6 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.sections
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
 
-/** Reads a trial document by its keys. Only names that were called with a default key become entries. */
 object TrialSource : DocumentReader<TrialView> {
 
     override val schemaVersion: Int = 2

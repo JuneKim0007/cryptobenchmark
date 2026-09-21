@@ -46,6 +46,7 @@ Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; dep
       - `OverrideResolver.kt`
       - `EffectiveDocument.kt`
       - `StoppedOnFailureException.kt`
+      - `LocatedMatch.kt`
       - `dto/`
         - `EffectiveConfig.kt`
         - `EffectiveEntry.kt`
@@ -54,6 +55,7 @@ Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; dep
     - `yaml/`
       - `DocumentReader.kt`
       - `DocumentHandler.kt`
+      - `ReadOnlyYamlFile.kt`
       - `YamlFile.kt`
       - `YamlFiles.kt`
       - `ProviderTree.kt`
