@@ -28,6 +28,7 @@ Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; dep
     - `global/`
       - `GlobalDocument.kt`
       - `RunDocument.kt`
+      - `PolicyDocument.kt`
       - `dto/`
         - `GlobalConfig.kt`
         - `Selection.kt`
@@ -44,7 +45,7 @@ Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; dep
       - `EffectiveBuilder.kt`
       - `OverrideResolver.kt`
       - `EffectiveDocument.kt`
-      - `UnavailableSelectionException.kt`
+      - `StoppedOnFailureException.kt`
       - `dto/`
         - `EffectiveConfig.kt`
         - `EffectiveEntry.kt`

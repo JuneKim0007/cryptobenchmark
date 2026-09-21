@@ -52,7 +52,7 @@ selection:
   exclude:
   - {type: KeyGenerator}
 run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], processRepetitions: 2, seed: 7}
-policy: {onUnavailable: skip}
+policy: {onFailure: skip}
 """
 
     const val TEST_SET = """

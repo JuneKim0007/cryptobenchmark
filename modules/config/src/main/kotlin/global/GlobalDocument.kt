@@ -8,11 +8,9 @@ import io.github.junekim0007.cryptobench.config.testset.RuleDocument
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
-import java.util.Locale
 
 /**
  * global.yaml. Each section has one owner and one parser, listed in SECTIONS; a section nobody owns is an error,
@@ -28,14 +26,13 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
 
     private const val TEST_SET = "testSet"
     private const val EXCLUDE = "exclude"
-    private const val ON_UNAVAILABLE = "onUnavailable"
 
     val SECTIONS: List<String> = listOf(SELECTION, RUN, POLICY)
 
     override fun of(value: GlobalConfig): Map<String, Any> = linkedMapOf(
         SELECTION to linkedMapOf(TEST_SET to value.selection.testSet, EXCLUDE to value.selection.exclude.map { RuleDocument.of(it) }),
         RUN to RunDocument.of(value.run),
-        POLICY to linkedMapOf(ON_UNAVAILABLE to value.policy.onUnavailable.name.lowercase(Locale.ROOT)),
+        POLICY to PolicyDocument.of(value.policy),
     )
 
     override fun parse(document: Map<String, Any>): GlobalConfig {
@@ -44,20 +41,12 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
         return GlobalConfig(
             selection = selection(section(document, SELECTION)),
             run = optionalSection(document, RUN)?.let { RunDocument.parse(it, RUN) } ?: RunSettings(),
-            policy = optionalSection(document, POLICY)?.let { policy(it) } ?: Policy(),
+            policy = optionalSection(document, POLICY)?.let { PolicyDocument.parse(it, POLICY) } ?: Policy(),
         )
     }
 
     private fun selection(document: Map<String, Any>): Selection {
         expectKeys(document, listOf(TEST_SET, EXCLUDE), SELECTION)
         return Selection(string(document, TEST_SET), RuleDocument.parseList(optionalSections(document, EXCLUDE), "$SELECTION.$EXCLUDE"))
-    }
-
-    private fun policy(document: Map<String, Any>): Policy {
-        expectKeys(document, listOf(ON_UNAVAILABLE), POLICY)
-        val value = optionalString(document, ON_UNAVAILABLE).ifEmpty { return Policy() }
-        val choice = Policy.OnUnavailable.values().firstOrNull { it.name.equals(value, ignoreCase = true) }
-            ?: throw IllegalArgumentException("invalid: $POLICY.$ON_UNAVAILABLE $value, one of ${Policy.OnUnavailable.values().map { it.name.lowercase(Locale.ROOT) }}")
-        return Policy(choice)
     }
 }
