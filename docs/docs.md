@@ -32,7 +32,7 @@
       - `adapter/` : reads the JCA and parses it into the contract — `ProviderProbe`, `PropertyKeyParser`, `PropertyKey`, `AttributeKind`
       - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`
       - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to what the benchmark needs
-      - `serialize/` : `EnvironmentJsonWriter` — capture → JSON
+      - `write/` : `EnvironmentYamlWriter` — capture → `probe_<utc timestamp>.yaml`
   - `modules/benchmark/` : module `:benchmark` (java library) — what is measured; standalone, not android-specific
     - `benchmark/preparation/` : turns what the user asked for into runnable state
       - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*

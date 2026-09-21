@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.discovery.serialize.EnvironmentJsonWriter
+import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
@@ -39,17 +39,18 @@ class JcaContractTest {
 
     @Test
     fun theCaptureKeepsItsShape() {
-        val json = EnvironmentJsonWriter().toJson(capture)
+        val document = EnvironmentYamlWriter().toDocument(capture)
         listOf("schemaVersion", "capturedAtMillis", "runtime", "providers").forEach {
-            assertTrue("capture is missing $it", json.has(it))
+            assertTrue("capture is missing $it", document.containsKey(it))
         }
     }
 
     /** Written out so a workflow can attach it and drift can be diffed instead of guessed. */
     @Test
     fun writeCapture() {
-        val target = File(System.getProperty("capture.out") ?: "build/capture/environment.json")
-        EnvironmentJsonWriter().write(capture, target)
+        val directory = File(System.getProperty("capture.dir") ?: "build/capture")
+        val target = EnvironmentYamlWriter().write(capture, directory)
         assertTrue("capture not written", target.length() > 0)
+        assertTrue("unexpected name ${target.name}", target.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
     }
 }

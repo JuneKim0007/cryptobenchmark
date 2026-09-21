@@ -1,6 +1,6 @@
 # security_contract
 
-Fields of a capture written by `ProviderProbe` → `EnvironmentJsonWriter`.
+Fields of a capture written by `ProviderProbe` → `EnvironmentYamlWriter`, one `probe_<utc timestamp>.yaml` per capture.
 
 ## capture
 

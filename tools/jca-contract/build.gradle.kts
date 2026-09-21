@@ -27,12 +27,12 @@ sourceSets {
 }
 
 dependencies {
-    implementation("org.json:json:20231013")
+    implementation("org.yaml:snakeyaml:2.3")
     testImplementation("junit:junit:4.13.2")
 }
 
 tasks.test {
-    systemProperty("capture.out", layout.buildDirectory.file("capture/environment.json").get().asFile.path)
+    systemProperty("capture.dir", layout.buildDirectory.dir("capture").get().asFile.path)
     testLogging { showStandardStreams = true }
 }
 
