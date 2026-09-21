@@ -23,10 +23,10 @@ class KeyPlanner(
     }
 
     private fun secret(case: BenchmarkCase, algorithm: String): KeyRecipe.Secret? =
-        generatingProvider(case, SECRET_GENERATOR, algorithm)?.let { KeyRecipe.Secret(algorithm, case.keySize, it) }
+        generatingProvider(case, SECRET_GENERATOR, algorithm)?.let { KeyRecipe.Secret(algorithm, case.keySize, it, case.keyParameters) }
 
     private fun pair(case: BenchmarkCase, algorithm: String, count: Int): KeyRecipe.Pair? =
-        generatingProvider(case, PAIR_GENERATOR, algorithm)?.let { KeyRecipe.Pair(algorithm, case.keySize, it, count) }
+        generatingProvider(case, PAIR_GENERATOR, algorithm)?.let { KeyRecipe.Pair(algorithm, case.keySize, it, count, case.keyParameters) }
 
     /** The case's own provider when it can generate the key, else the first in precedence order that can. */
     private fun generatingProvider(case: BenchmarkCase, generatorType: String, algorithm: String): String? =
