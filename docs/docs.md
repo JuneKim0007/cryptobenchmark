@@ -28,7 +28,7 @@
     - `src/test/` : JVM tests
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin, java library) — what this device offers, never inside a measurement
     - `README.md`, `docs/probe.md`, `docs/security_contract.md` : module docs
-    - `src/main/kotlin/` : sub-package folders only, no package root folders
+    - `src/main/kotlin/` : `Discovery` + `DiscoveryRun` at the package root — the entry point, the one file that sees every sub-package; everything else in sub-package folders
       - `adapter/` : reads the JCA and parses it into the contract — `ProviderProbe`, `PropertyMapIndex`, `PropertyKeyParser`, `PropertyKey`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `DeviceRuntimeReader`
       - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`; the trial model — `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`
       - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to `BenchmarkScope`; `ProviderSetting`, `ServiceSetting`, `Device`, `ServiceLookup`

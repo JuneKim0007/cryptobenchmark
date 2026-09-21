@@ -37,5 +37,5 @@ tasks.test {
 }
 
 application {
-    mainClass.set("PlaygroundKt")
+    mainClass.set("ProbeKt")
 }

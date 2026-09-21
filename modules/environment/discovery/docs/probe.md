@@ -7,6 +7,9 @@ Field contract: [security_contract.md](security_contract.md)
 ## Flow
 
 ```
+Discovery(directory).probe(providers)         -> DiscoveryRun: capture, probe_<utc>.yaml, probe_classes_<utc>.yaml
+Discovery(directory).trial(capture, providers) -> trial_<utc>.yaml
+
 Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter     -> probe_<utc>.yaml
                                                                -> DiscoverySettingConverter -> DiscoverySetting
                                                                -> TrialRunner -> TrialReport -> TrialYamlWriter -> trial_<utc>.yaml
@@ -45,6 +48,8 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 
 | Class | Package | Role |
 |---|---|---|
+| `Discovery` | root | entry point; wires probe, trial and writers over one `ProbeDirectory`. `tools/jca-contract`: `./gradlew run --args=<dir>` |
+| `DiscoveryRun` | root | what `probe` returns: the capture and the two files |
 | `ProviderProbe` | `adapter` | JCA → capture; joins services with aliases and attributes |
 | `PropertyMapIndex` | `adapter` | one provider's property map → aliases, attributes — `internal` |
 | `PropertyKeyParser` | `adapter` | decodes the property-map grammar — `internal` |

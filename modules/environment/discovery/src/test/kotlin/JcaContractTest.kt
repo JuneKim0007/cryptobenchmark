@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
-import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
@@ -22,6 +21,7 @@ class JcaContractTest {
     private val capture = ProviderProbe().capture(Security.getProviders())
     private val setting = DiscoverySettingConverter().convert(capture)
     private val directory = ProbeDirectory(File(System.getProperty("capture.dir") ?: "build/capture"))
+    private val discovery = Discovery(directory)
 
     @Test
     fun providersAreVisible() {
@@ -53,22 +53,23 @@ class JcaContractTest {
 
     /** Written out so a workflow can attach it and drift can be diffed instead of guessed. */
     @Test
-    fun writeCapture() {
-        val target = EnvironmentYamlWriter(directory).write(capture)
-        assertTrue("capture not written", target.length() > 0)
-        assertTrue("unexpected name ${target.name}", target.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
+    fun theFacadeWritesTheCaptureAndTheClassList() {
+        val run = discovery.probe(Security.getProviders())
+        assertTrue("capture not written", run.captureFile.length() > 0)
+        assertTrue("unexpected name ${run.captureFile.name}", run.captureFile.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
+        assertTrue("class list not written", run.classesFile.length() > 0)
+        assertTrue("unexpected name ${run.classesFile.name}", run.classesFile.name.matches(Regex("probe_classes_\\d{8}T\\d{6}Z\\.yaml")))
+        assertTrue("the capture written differs from the capture returned", run.capture == capture.copy(capturedAtMillis = run.capture.capturedAtMillis))
     }
 
     @Test
-    fun writeClassNames() {
+    fun theClassListIsDistinctAndSorted() {
         val classes = ProviderClassNameWriter(directory).toDocument(capture)
         assertTrue("no provider listed", classes.isNotEmpty())
         classes.forEach { (provider, names) ->
             assertTrue("$provider lists a class twice", names.size == names.distinct().size)
             assertTrue("$provider is not sorted", names == names.sorted())
         }
-        val target = ProviderClassNameWriter(directory).write(capture)
-        assertTrue("class list not written", target.length() > 0)
     }
 
     @Test
@@ -78,7 +79,7 @@ class JcaContractTest {
         assertTrue("SunJCE AES does not instantiate: ${aes.outcome.error}", aes.outcome.instantiates)
         assertTrue("AES/CBC/PKCS5Padding is not tried", aes.transformations.any { it.name.equals("AES/CBC/PKCS5Padding", ignoreCase = true) && it.outcome.instantiates })
         assertTrue("no declared transformation failed; the trial has nothing to add over the capture", report.services.flatMap { it.transformations }.any { !it.outcome.instantiates })
-        val target = TrialYamlWriter(directory).write(report)
+        val target = discovery.trial(capture, Security.getProviders())
         assertTrue("unexpected name ${target.name}", target.name.matches(Regex("trial_\\d{8}T\\d{6}Z\\.yaml")))
     }
 }

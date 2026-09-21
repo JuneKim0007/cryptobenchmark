@@ -6,6 +6,8 @@ Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`.
 
 | Package | File | Owns |
 |---|---|---|
+| root | `Discovery` | entry point: probe + trial + writers over one directory; constructor takes the directory, the probe, the runner and the codec |
+| root | `DiscoveryRun` | capture + the two files `probe` wrote |
 | `adapter` | `ProviderProbe` | providers in, capture out; joins services with their aliases and attributes |
 | `adapter` | `PropertyMapIndex` | walks one provider's property map into aliases and attributes |
 | `adapter` | `PropertyKeyParser` | which of the four shapes a raw key is |
@@ -53,6 +55,9 @@ Kotlin states optionality in the type, so there is no separate column:
 ## Flow
 
 ```
+Discovery.probe(providers)        → DiscoveryRun(capture, captureFile, classesFile)
+Discovery.trial(capture, providers) → trial file
+
 Provider[]                                   (caller: Security.getProviders())
   └─ ProviderProbe.capture            :14
        ├─ PropertyMapIndex.of      :16   property map → aliases, attributes
@@ -190,4 +195,4 @@ Lookups that can find nothing:
 
 | `internal` (module-only) | `public` (the module's API) |
 |---|---|
-| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `Attempt`, `TransformationSet`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `TrialRunner`, `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`, `TrialDocument`, `TrialYamlWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
+| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `Attempt`, `TransformationSet`, `ServiceAttributes.document()` | `Discovery`, `DiscoveryRun`, `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `TrialRunner`, `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`, `TrialDocument`, `TrialYamlWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
