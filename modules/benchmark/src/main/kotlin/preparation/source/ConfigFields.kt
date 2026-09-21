@@ -5,9 +5,6 @@ internal object ConfigFields {
     fun number(document: Map<String, Any>, key: String): Number =
         field(document, key) as? Number ?: wrongType(key)
 
-    fun boolean(document: Map<String, Any>, key: String): Boolean =
-        field(document, key) as? Boolean ?: wrongType(key)
-
     fun section(document: Map<String, Any>, key: String): Map<String, Any> =
         asSection(field(document, key), key)
 

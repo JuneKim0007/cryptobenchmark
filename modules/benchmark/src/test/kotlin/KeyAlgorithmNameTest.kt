@@ -22,4 +22,12 @@ class KeyAlgorithmNameTest {
             assertEquals("$type/$algorithm", key, KeyAlgorithmName.of(type, algorithm))
         }
     }
+
+    /** Tried in order until the device has a generator: what environment's default run also falls back to. */
+    @Test
+    fun cipherCandidatesFallBackToTheFamily() {
+        assertEquals(listOf("ChaCha20-Poly1305", "ChaCha20"), KeyAlgorithmName.candidates("Cipher", "ChaCha20-Poly1305"))
+        assertEquals(listOf("AES_128", "AES"), KeyAlgorithmName.candidates("Cipher", "AES_128/GCM/NoPadding"))
+        assertEquals(listOf("EC"), KeyAlgorithmName.candidates("Signature", "SHA256withECDSA"))
+    }
 }

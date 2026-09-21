@@ -14,7 +14,7 @@ class KeyPlannerTest {
 
     private val device = object : DeviceCapability {
         private val serves = mapOf(
-            "AndroidOpenSSL" to setOf("KeyGenerator/AES", "KeyGenerator/HmacSHA256", "KeyPairGenerator/RSA", "KeyPairGenerator/EC"),
+            "AndroidOpenSSL" to setOf("KeyGenerator/AES", "KeyGenerator/HmacSHA256", "KeyGenerator/ChaCha20", "KeyPairGenerator/RSA", "KeyPairGenerator/EC"),
             "BC" to setOf("KeyPairGenerator/RSA"),
             "Vault" to emptySet(),
         )
@@ -52,9 +52,15 @@ class KeyPlannerTest {
         assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES/CBC/PKCS5Padding", provider = "Vault", keySize = 128))
     }
 
+    /** ChaCha20-Poly1305 has no generator of its own; its key comes from ChaCha20's. */
+    @Test
+    fun aCipherFamilyGeneratorIsUsedWhenTheNameHasNone() {
+        assertEquals(KeyRecipe.Secret("ChaCha20", 256, "AndroidOpenSSL"), plan("Cipher", "ChaCha20-Poly1305", keySize = 256))
+    }
+
     @Test
     fun noGeneratorIsAnUnavailableRecipe() {
-        assertEquals(KeyRecipe.Unavailable("no_key_generator: ChaCha20"), plan("Cipher", "ChaCha20/None/NoPadding"))
+        assertEquals(KeyRecipe.Unavailable("no_key_generator: Serpent"), plan("Cipher", "Serpent/CBC/NoPadding"))
         assertEquals(KeyRecipe.Unavailable("no_key_generator: KeyGenerator.HmacSHA512"), plan("Mac", "HmacSHA512"))
     }
 

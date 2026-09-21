@@ -11,7 +11,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The fixture is default.yaml in the shape the config module writes it; a key renamed there must fail here. */
+/** The fixture is effective.yaml in the shape the config module writes it; a key renamed there must fail here. */
 class ConfigSourceTest {
 
     private val source = ConfigSource()
@@ -20,7 +20,7 @@ class ConfigSourceTest {
         assertThrows(RuntimeException::class.java) { source.read(text) }.message
 
     @Test
-    fun enabledEntriesBecomeSelectionsPinnedToTheirProvider() {
+    fun everyEntryBecomesASelectionPinnedToItsProvider() {
         val request = source.read(DEFAULT_YAML)
         assertEquals(
             listOf(
@@ -50,9 +50,9 @@ class ConfigSourceTest {
     @Test
     fun namesWhatIsWrong() {
         assertEquals("unknown_phase: HOT, one of [WARM, COLD]", rejection(DEFAULT_YAML.replace("phases: [WARM, COLD]", "phases: [HOT]")))
-        assertEquals("nothing_enabled", rejection(DEFAULT_YAML.replace("enabled: true", "enabled: false")))
+        assertEquals("nothing_selected", rejection(DEFAULT_YAML.replace(Regex("(?s)providers:.*?\nskipped:"), "providers: {}\nskipped:")))
         assertEquals("unsupported_config_schema: 2, this build reads 1", rejection(DEFAULT_YAML.replace("schemaVersion: 1", "schemaVersion: 2")))
-        assertEquals("missing_field: enabled", rejection(DEFAULT_YAML.replace("      SHA-256: {enabled: true}", "      SHA-256: {}")))
+        assertEquals("wrong_type: SUN.MessageDigest.SHA-256", rejection(DEFAULT_YAML.replace("      SHA-256: {}", "      SHA-256: yes")))
         assertTrue(rejection(DEFAULT_YAML.replace("  seed: 0\n", "  seed: 0\n  seed: 1\n"))!!.contains("duplicate key"))
     }
 
@@ -64,6 +64,9 @@ class ConfigSourceTest {
 
         const val DEFAULT_YAML = """schemaVersion: 1
 generatedFrom:
+  global: global.yaml
+  testSet: testsets/scope.yaml
+  inventory: inventory.yaml
   capture: probe_20260921T204537Z.yaml
   trial: trial_20260921T204537Z.yaml
   device: {model: Pixel 9, manufacturer: Google, hardware: zuma, sdkInt: 37, release: '17', javaVersion: '0'}
@@ -76,26 +79,19 @@ run:
 providers:
   SUN:
     MessageDigest:
-      SHA-256: {enabled: true}
-      MD2: {enabled: false}
+      SHA-256: {}
   SunJCE:
     Cipher:
       AES/CBC/PKCS5PADDING:
-        enabled: true
         keySizes: [128, 256]
-        keyAlgorithm: AES
-        keyProvider: SunJCE
-        providerChose: AES iv=16B
+        providerDefaults: [parameters]
       RSA:
-        enabled: true
         keySizes: [3072]
         inputSizes: [32]
         parameters: {class: javax.crypto.spec.OAEPParameterSpec, arguments: [SHA-256, MGF1, {field: java.security.spec.MGF1ParameterSpec.SHA256}, {field: javax.crypto.spec.PSource${'$'}PSpecified.DEFAULT}]}
-        keyAlgorithm: RSA
-        keyProvider: SunRsaSign
-        bareName: true
-    KeyGenerator:
-      SunTlsPrf: {enabled: false, reason: 'IllegalStateException: TlsPrfGenerator must be initialized'}
+        providerDefaults: [keySize, modeAndPadding]
+skipped:
+- {type: Mac, name: HmacSHA256, reason: 'no_match: nothing on this device matches the include'}
 """
     }
 }
