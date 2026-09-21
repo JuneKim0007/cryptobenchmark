@@ -1,0 +1,48 @@
+schemaVersion: 1
+description: README scope — primitives measured, plus MD5, 3DES and RC4 as baselines
+
+include:
+  - {type: Cipher, name: AES/GCM/NoPadding}
+  - {type: Cipher, name: AES/CBC/PKCS5Padding}
+  - {type: Cipher, name: AES/CTR/NoPadding}
+  - {type: Cipher, name: "ChaCha20*"}
+  - {type: Cipher, name: "RSA/ECB/OAEP*"}
+  - {type: Cipher, name: RSA/ECB/PKCS1Padding}
+  - {type: Cipher, name: DESede/CBC/PKCS5Padding}
+  - {type: Cipher, name: ARCFOUR}
+  - {type: MessageDigest, name: SHA-256}
+  - {type: MessageDigest, name: SHA-1}
+  - {type: MessageDigest, name: SHA-512}
+  - {type: MessageDigest, name: MD5}
+  - {type: Mac, name: HmacSHA256}
+  - {type: Mac, name: HmacSHA1}
+  - {type: Signature, name: SHA256withRSA}
+  - {type: Signature, name: SHA256withECDSA}
+  - {type: KeyGenerator, name: AES}
+  - {type: KeyPairGenerator, name: RSA}
+  - {type: KeyPairGenerator, name: EC}
+
+exclude: []
+
+overrides:
+  - match: {type: Cipher, name: "AES/*"}
+    set: {keySizes: [128, 192, 256]}
+  - match: {type: Cipher, name: AES/GCM/NoPadding}
+    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+  - match: {type: Cipher, name: "RSA/*"}
+    set: {keySizes: [2048, 4096], inputSizes: [32]}
+  - match: {type: Cipher, name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding}
+    set:
+      parameters:
+        class: javax.crypto.spec.OAEPParameterSpec
+        arguments: [SHA-256, MGF1, {field: java.security.spec.MGF1ParameterSpec.SHA256}, {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}]
+  - match: {type: Signature, name: SHA256withRSA}
+    set: {keySizes: [2048, 4096]}
+  - match: {type: Signature, name: SHA256withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {type: KeyGenerator, name: AES}
+    set: {keySizes: [128, 192, 256]}
+  - match: {type: KeyPairGenerator, name: RSA}
+    set: {keySizes: [2048, 4096]}
+  - match: {type: KeyPairGenerator, name: EC}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}

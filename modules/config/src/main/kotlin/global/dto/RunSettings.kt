@@ -1,12 +1,12 @@
-package io.github.junekim0007.cryptobench.config.contract
+package io.github.junekim0007.cryptobench.config.global.dto
 
-/** Settings every entry inherits. Phases and metrics stay names here; the benchmark decides what they mean. */
+/** The `run` section. Phases and metrics stay names; preparation decides what they mean. */
 data class RunSettings(
-    val inputSizes: List<Int>,
-    val phases: List<String>,
-    val metrics: List<String>,
-    val processRepetitions: Int,
-    val seed: Long,
+    val inputSizes: List<Int> = listOf(1024),
+    val phases: List<String> = listOf("WARM"),
+    val metrics: List<String> = listOf("TIME"),
+    val processRepetitions: Int = 1,
+    val seed: Long = 0L,
 ) {
 
     init {
