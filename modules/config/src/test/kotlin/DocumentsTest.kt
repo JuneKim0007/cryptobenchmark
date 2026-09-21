@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -20,11 +21,12 @@ import java.nio.file.Files
 class DocumentsTest {
 
     private val files = YamlFiles()
+    private val codec = YamlCodec()
     private val directory: File = Files.createTempDirectory("documents").toFile()
     private val inventory = InventoryBuilder().build(
-        CaptureSource.parse(files.load(Fixtures.CAPTURE)), TrialSource.parse(files.load(Fixtures.TRIAL)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
-    private val global = GlobalDocument.parse(files.load(Fixtures.GLOBAL))
-    private val testSet = TestSetDocument.parse(files.load(Fixtures.TEST_SET))
+        CaptureSource.parse(codec.load(Fixtures.CAPTURE)), TrialSource.parse(codec.load(Fixtures.TRIAL)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+    private val global = GlobalDocument.parse(codec.load(Fixtures.GLOBAL))
+    private val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
     private val effective = EffectiveBuilder().build(global, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
 
     @Test
@@ -55,33 +57,33 @@ class DocumentsTest {
     @Test
     fun unknownSectionsAndKeysAreRefused() {
         assertEquals("unknown_section: [rn], known [selection, run, policy]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrn: {}\n")) }.message)
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrn: {}\n")) }.message)
         assertEquals("unknown_keys: run [inputSize], known [inputSizes, phases, metrics, processRepetitions, seed]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrun: {inputSize: [1]}\n")) }.message)
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrun: {inputSize: [1]}\n")) }.message)
         assertEquals("unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations]",
-            assertThrows(IllegalArgumentException::class.java) { TestSetDocument.parse(files.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) }.message)
+            assertThrows(IllegalArgumentException::class.java) { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) }.message)
     }
 
     @Test
     fun aPolicyValueOutsideTheChoicesIsRefused() {
         assertEquals("invalid: policy.onFailure retry, one of [stop, skip]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onFailure: retry}\n")) }.message)
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onFailure: retry}\n")) }.message)
         assertEquals("unknown_keys: policy [onUnavailable], known [onFailure]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onUnavailable: skip}\n")) }.message)
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onUnavailable: skip}\n")) }.message)
     }
 
     @Test
     fun aMissingRunSectionOrKeyKeepsDefaults() {
-        val minimal = GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
+        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
         assertEquals(listOf(1024), minimal.run.inputSizes)
-        val partial = GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {processRepetitions: 3}\n"))
+        val partial = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {processRepetitions: 3}\n"))
         assertEquals(3, partial.run.processRepetitions)
         assertEquals(listOf(1024), partial.run.inputSizes)
     }
 
     @Test
     fun aKeyWrittenTwiceIsRejected() {
-        val message = assertThrows(RuntimeException::class.java) { files.load("schemaVersion: 1\nschemaVersion: 1\n") }.message!!
+        val message = assertThrows(RuntimeException::class.java) { codec.load("schemaVersion: 1\nschemaVersion: 1\n") }.message!!
         assertTrue(message, message.contains("duplicate key"))
     }
 
@@ -89,13 +91,13 @@ class DocumentsTest {
     @Test
     fun aDocumentThatIsNotAMappingIsNamed() {
         assertEquals("not_a_mapping: the document is not a set of key: value entries",
-            assertThrows(IllegalArgumentException::class.java) { files.load("- one\n- two\n") }.message)
+            assertThrows(IllegalArgumentException::class.java) { codec.load("- one\n- two\n") }.message)
     }
 
     @Test
     fun aRuleErrorSaysWhichRule() {
         assertEquals("empty_rule: give provider, type or name at selection.exclude[1]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) }.message)
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) }.message)
     }
 
     @Test

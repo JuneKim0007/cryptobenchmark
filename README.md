@@ -84,117 +84,22 @@ See [docs/cryptography/providers.md](docs/cryptography/providers.md).
 
 ## Requirements
 
-- python3
-- Android SDK
-- Java 8
+- Java 17 (host tools), Android SDK (API check)
+- Java 8 + Gradle 6.5 for the legacy app module, until #33
 
 Kotlin is not installed separately; the Gradle plugin fetches the compiler.
 
-Discovery on the host JVM, without a device: `cd tools/jca-contract && ./gradlew run --args=../../results/discovery`
-writes `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`, then `results/configuration/inventory.yaml` and `effective.yaml` from `config/global.yaml`.
-What to measure: edit `config/global.yaml` and `config/testsets/`.
-Examples over the same JVM: `./gradlew run -PmainClass=examples.TreeKt` (see `tools/jca-contract/src/main/kotlin/examples/`).
-
-> :warning: Do not open the Android project with Android Studio. Recent versions do not
-> support the Gradle version of this project and suggest changes that break the build.
-
-## Installation
-
-Install pyenv:
+## Run, on the host
 
 ```
-$ curl https://pyenv.run | bash
-$ exec $SHELL
+cd tools/jca-contract && ./gradlew run --args="../../results/discovery ../../results/configuration ../../config/global.yaml"
 ```
 
-Install virtualenv:
+Writes `results/discovery/{probe,probe_classes,trial}_<utc>.yaml`, then `results/configuration/{inventory,effective}.yaml`.
+What to measure is `config/global.yaml` and `config/testsets/`.
 
-```
-$ python -m pip install --user virtualenv
-```
+A quick end-to-end run, including measurement and charts, is `tools/quick-bench/README.md`.
 
-Install the python version used for development:
+## Device
 
-```
-$ pyenv install 3.10.12
-```
-
-Create and activate the virtualenv, then install the python packages:
-
-```
-$ virtualenv -p ~/.pyenv/versions/3.10.12/bin/python3.10 venv/
-$ source venv/bin/activate
-$ pip install -r scripts/requirements.txt
-```
-
-## Configuration
-
-Benchmark settings live in `gradle.properties`. Each build turns them into
-`BuildConfig` fields and writes `CryptoBenchmark.config`, which is pushed to the device and
-read at run time.
-
-| Key | Meaning |
-|---|---|
-| `KEY_LEN` | key size |
-| `INPUT_SIZE` | input size in bytes |
-| `N_TIMES` | times each cipher runs in each unit test |
-| `PROVIDER` | crypto provider |
-| `ALGORITHM` | algorithm under test |
-| `MODE` | cipher mode |
-| `PADDING` | cipher padding |
-| `WARM_UP_TIME` | warm-up before each unit test |
-| `COOL_DOWN_TIME` | cool-down after each unit test |
-| `WITH_KEY_SPEC` | generate the key through `KeySpec` (required for some ciphers) |
-
-`scripts/benchmark.py` sets these from command-line arguments.
-
-## Execution
-
-Via `run_benchmarks.sh` — define the primitives and params to benchmark at the end of the
-file, then:
-
-```
-$ ./scripts/run_benchmarks.sh
-```
-
-Via `benchmark.py` — pass the config on the command line (`python3 scripts/benchmark.py --help`):
-
-```
-$ python3 scripts/benchmark.py -b -i -u -c MeasureSymmetricEncryptDecryptTest -nt $N_TIMES --n_test_times 30 -s 1 -is 1024
-```
-
-Each run rewrites `gradle.properties`, rebuilds, signs, installs, and runs the instrumented
-tests `n_times`.
-
-One instrumented test file per primitive holds one unit test per (algorithm, provider) pair.
-Each unit test is annotated `@HunterDebug`, which records method start and end in the device
-logs.
-
-## Device setup
-
-1. Use a factory-reset device or image. It must unlock without authentication.
-2. Disable all sensors except Wi-Fi.
-3. In Developer settings, enable USB debugging, view inspection, and install via USB.
-4. Connect over Wi-Fi to the same network as the workstation:
-
-    ```
-    $ pyanadroid -sc WIFI
-    ```
-
-    Disconnect the USB cable and confirm the device is listed:
-
-    ```
-    $ adb devices -l
-    List of devices attached
-    15bb8bd3	device
-    192.168.1.196:5555	device
-    ```
-
-5. Configure `scripts/run_benchmarks.sh` and start the run.
-
-## Notes
-
-- The project is an Android application, not a library: instrumentation plugins do not work
-  for Android libraries. It has no Activities.
-- Every (algorithm, provider) pair gets its own named unit test, because instrumentation
-  records only the method name.
+Blocked on #33: the harness moves to Jetpack Microbenchmark with AGP 8 / Gradle 8 / Java 17.
