@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.discovery.adapter
 
 internal object AttributeValueParser {
 
-    fun parse(attribute: String, raw: String): Any = when (AttributeKind.of(attribute)) {
+    private fun parse(attribute: String, raw: String): Any = when (AttributeKind.of(attribute)) {
         AttributeKind.LIST -> splitPipe(raw)
         AttributeKind.INT -> raw.trim().toInt()
         AttributeKind.BOOL -> raw.trim().toBoolean()
@@ -15,6 +15,6 @@ internal object AttributeValueParser {
         raw
     }
 
-    fun splitPipe(raw: String): List<String> =
+    private fun splitPipe(raw: String): List<String> =
         raw.split('|').map { it.trim() }.filter { it.isNotEmpty() }
 }

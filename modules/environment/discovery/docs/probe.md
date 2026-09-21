@@ -64,7 +64,8 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DiscoverySetting` | `setting` | reduced setting; `providersFor`, `algorithms` |
 | `ProviderSetting`, `ServiceSetting`, `Device` | `setting` | the reduced data |
 | `ServiceLookup` | `setting` | find by name or alias — `internal` |
-| `EnvironmentYamlWriter` | `write` | capture → `probe_<utc>.yaml` |
+| `CaptureDocument` | `write` | the YAML schema: key names and capture → document |
+| `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
 | `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
 | `YamlDocument` | `write` | document → YAML text — `internal` |
 | `ProbeFile` | `write` | timestamped name, directory, write — `internal` |
