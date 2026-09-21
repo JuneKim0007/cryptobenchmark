@@ -1,9 +1,10 @@
-include ':android', ':crypto', ':benchmark', ':environment:discovery'
+include ':android', ':crypto', ':benchmark', ':environment:discovery', ':config'
 
 project(':android').projectDir = file('modules/android')
 project(':crypto').projectDir = file('modules/crypto')
 project(':benchmark').projectDir = file('modules/benchmark')
 project(':environment').projectDir = file('modules/environment')
 project(':environment:discovery').projectDir = file('modules/environment/discovery')
+project(':config').projectDir = file('modules/config')
 
 rootProject.name = "cryptobenchmark"

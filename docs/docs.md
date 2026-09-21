@@ -9,6 +9,7 @@
 | [cryptography/primitives.md](cryptography/primitives.md) | primitive → provider → type catalogue, key sizes, usage rules |
 | [cryptography/providers.md](cryptography/providers.md) | per-provider supported and unsupported algorithms |
 | [infra/setup.md](infra/setup.md) | `:android` setup package |
+| `modules/config/docs/config.md` | `default.yaml` fields and rules |
 | `modules/environment/discovery/docs/probe.md` | what `:environment:discovery` does, JCA APIs, limits, classes |
 | `modules/environment/discovery/docs/security_contract.md` | capture and setting field tables |
 
@@ -36,6 +37,14 @@
       - `trial/` : `TrialRunner` — level 1, instantiates every captured service and declared cipher transformation → `TrialReport`; `DefaultRunTrial` — level 2, calls every instantiated one once with a default key (1024 bytes, then 32) → `defaultRun`; `Attempt`, `TransformationSet`
         - `call/` : one `DefaultCall` per engine type (`CipherCall`, `SignatureCall`, `MacCall`, `DigestCall`, `GeneratorCall`, `AgreementCall`), registry `DefaultCalls`, `DefaultKeys`, `KeyNames`, `KeyBits`
       - `write/` : `CaptureDocument` (schema, `of` ⇄ `parse`) → `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`; `TrialDocument` (`of` ⇄ `parse`) → `TrialYamlWriter` → `trial_<utc>.yaml`; `DocumentFields`, `YamlCodec`, `ProbeDirectory`, `ProbeFileName`
+  - `modules/config/` : module `:config` (kotlin, java library) — environment's files → `default.yaml` the user edits; no module dependency
+    - `README.md`, `docs/config.md` : module docs, field table
+    - `src/main/kotlin/`
+      - `Configuration.kt` : entry point — `generate(captureFile, trialFile)`, `read()`
+      - `source/` : `CaptureSource`, `TrialSource` — environment's YAML read by key into `CaptureView`, `TrialView`
+      - `contract/` : `BenchmarkConfig`, `GeneratedFrom`, `RunSettings`, `ConfigEntry`
+      - `generate/` : `DefaultConfigBuilder` (capture × trial → config), `RunDefaults`
+      - `write/` : `ConfigDocument` (`of` ⇄ `parse`), `ConfigFile` (always overwrites, #34), `DocumentFields`, `YamlCodec`
   - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
     - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state
       - `request/` : `BenchmarkRequest`, `Selection` — what the user wants measured, shape-validated
@@ -63,6 +72,7 @@
   - `infra/setup.md` : setup
 - `results/` : run output, ignored; one subdirectory per pipeline stage
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml` — same stamp, same capture
+  - `configuration/` : `default.yaml`
   - `preparation/`, `benchmark/`, `analysis/` : *(planned)*
 - `CryptoBenchmark.config` : generated per run, pushed to the device
 - `scripts/requirements.txt` : host python deps
@@ -76,6 +86,7 @@
 | `:benchmark` | Kotlin (`preparation/`), Java (legacy `workload/`) | no — prepares before the timed block |
 | `:android` | Java | hosts the measurement classes in `androidTest` |
 | `:environment:discovery` | Kotlin | no — runs before any measurement |
+| `:config` | Kotlin | no — files only |
 
 Rules:
 
@@ -100,6 +111,7 @@ Enforced by gradle module dependencies:
 |---|---|
 | `:crypto` | — |
 | `:environment:discovery` | — |
+| `:config` | — (reads environment's files, not its classes) |
 | `:benchmark` | `:environment:discovery` (declared, `api`; imported only by `preparation/adapter/`), `:crypto` (not yet) |
 | `:android` | all |
 
