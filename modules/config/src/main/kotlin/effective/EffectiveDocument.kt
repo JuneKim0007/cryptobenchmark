@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
+import io.github.junekim0007.cryptobench.config.global.PolicyDocument
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
@@ -22,6 +23,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
 
     const val GENERATED_FROM = "generatedFrom"
     const val RUN = "run"
+    const val POLICY = "policy"
     const val PROVIDERS = "providers"
     const val SKIPPED = "skipped"
 
@@ -37,6 +39,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val CAPTURE = "capture"
     private const val TRIAL = "trial"
     private const val DEVICE = "device"
+    private const val STAGE = "stage"
     private const val PROVIDER = "provider"
     private const val TYPE = "type"
     private const val NAME = "name"
@@ -47,9 +50,11 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             linkedMapOf(GLOBAL to it.global, TEST_SET to it.testSet, INVENTORY to it.inventory, CAPTURE to it.capture, TRIAL to it.trial, DEVICE to LinkedHashMap(it.device))
         },
         RUN to RunDocument.of(value.run),
+        POLICY to PolicyDocument.of(value.policy),
         PROVIDERS to ProviderTree.of(value.providers) { entry -> entry(entry) },
         SKIPPED to value.skipped.map { skip ->
             LinkedHashMap<String, Any>().apply {
+                put(STAGE, skip.stage)
                 skip.provider?.let { put(PROVIDER, it) }
                 skip.type?.let { put(TYPE, it) }
                 skip.name?.let { put(NAME, it) }
@@ -70,9 +75,10 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
                 device = LinkedHashMap(section(source, DEVICE)),
             ),
             run = RunDocument.parse(section(document, RUN), RUN),
+            policy = PolicyDocument.parse(section(document, POLICY), POLICY),
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS) { entry, _ -> entryOf(entry) },
             skipped = optionalSections(document, SKIPPED).map { skip ->
-                Skip(optionalStringOrNull(skip, PROVIDER), optionalStringOrNull(skip, TYPE), optionalStringOrNull(skip, NAME), string(skip, REASON))
+                Skip(string(skip, STAGE), optionalStringOrNull(skip, PROVIDER), optionalStringOrNull(skip, TYPE), optionalStringOrNull(skip, NAME), string(skip, REASON))
             },
         )
     }

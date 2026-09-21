@@ -31,7 +31,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` |
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
-| `policy` | `onUnavailable` | `skip` | a selected primitive the device cannot run: `skip` (recorded in `effective.yaml`) or `fail` |
+| `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
 
 ## testsets/*.yaml
 
@@ -51,9 +51,10 @@ Override precedence, lowest first: type → name pattern → exact name → prov
 |---|---|
 | `generatedFrom` | global, test set, inventory, capture, trial file names; device |
 | `run` | the global `run` section, frozen |
+| `policy` | the global `policy` section, frozen: preparation and the benchmark apply the same rule |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `providerDefaults` |
 | `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
-| `skipped` | `{provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>` |
+| `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |
 
 A size no override sets stays empty (provider default): an observed size is not a valid init argument
 (DESede's default key encodes to 192 bits; `init` accepts 112 or 168). The observed size is in `inventory.yaml`.
@@ -79,9 +80,9 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 | root | `Configuration` — `inventory(capture, trial)`, `effective(global)` |
 | `source/` | environment's probe and trial files read as `DocumentReader`s |
 | `inventory/`, `inventory/dto/` | `InventoryBuilder`, `InventoryDocument`; `Inventory`, `InventoryEntry`, `InventorySource` |
-| `global/`, `global/dto/` | `GlobalDocument` (section list), `RunDocument`; `GlobalConfig`, `Selection`, `RunSettings`, `Policy` |
+| `global/`, `global/dto/` | `GlobalDocument` (section list), `RunDocument`, `PolicyDocument`; `GlobalConfig`, `Selection`, `RunSettings`, `Policy` |
 | `testset/`, `testset/dto/` | `TestSetDocument`, `RuleDocument`; `TestSet`, `Rule`, `Override` |
-| `effective/`, `effective/dto/` | `EffectiveBuilder`, `OverrideResolver`, `EffectiveDocument`, `UnavailableSelectionException`; `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` |
+| `effective/`, `effective/dto/` | `EffectiveBuilder`, `OverrideResolver`, `EffectiveDocument`, `StoppedOnFailureException`; `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` |
 | `yaml/` | shared plumbing: `DocumentReader` / `DocumentHandler` (per kind: value ⇄ map), `YamlFile` (load, dump, `schemaVersion` stamp and check, overwrite), `YamlFiles` (factory), `ProviderTree`, `DocumentFields`, `YamlCodec` |
 
 ## Provider-specific, observed on JDK 25

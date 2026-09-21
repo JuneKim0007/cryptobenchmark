@@ -24,11 +24,11 @@ class EffectiveBuilder {
 
         val skipped = testSet.include
             .filter { rule -> all.none { rule.matches(it) } }
-            .map { rule -> Skip(rule.provider, rule.type, rule.name, "no_match: nothing on this device matches the include") } +
-            selected.filter { !it.entry.runs }.map { Skip(it.provider, it.type, it.name, "not_runnable: ${it.entry.reason}") }
+            .map { rule -> Skip(Skip.CONFIG, rule.provider, rule.type, rule.name, "no_match: nothing on this device matches the include") } +
+            selected.filter { !it.entry.runs }.map { Skip(Skip.CONFIG, it.provider, it.type, it.name, "not_runnable: ${it.entry.reason}") }
 
-        if (skipped.isNotEmpty() && global.policy.onUnavailable == Policy.OnUnavailable.FAIL) {
-            throw UnavailableSelectionException(skipped)
+        if (skipped.isNotEmpty() && global.policy.onFailure == Policy.OnFailure.STOP) {
+            throw StoppedOnFailureException(skipped)
         }
 
         val resolver = OverrideResolver(testSet.overrides)
@@ -47,6 +47,7 @@ class EffectiveBuilder {
                 device = inventory.generatedFrom.device,
             ),
             run = global.run,
+            policy = global.policy,
             providers = providers,
             skipped = skipped,
         )

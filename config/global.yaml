@@ -12,4 +12,4 @@ run:
   seed: 0
 
 policy:
-  onUnavailable: skip            # skip | fail — a selected primitive this device cannot run
+  onFailure: skip                # stop | skip — every stage; a broken config file always stops

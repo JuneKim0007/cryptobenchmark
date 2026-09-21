@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
-import io.github.junekim0007.cryptobench.config.effective.UnavailableSelectionException
+import io.github.junekim0007.cryptobench.config.effective.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
@@ -48,21 +48,27 @@ class EffectiveBuilderTest {
     /** An include that matches nothing on this device is reported, not silently dropped. */
     @Test
     fun whatCannotRunIsSkippedWithAReason() {
-        assertEquals(listOf("* Mac HmacSHA256: no_match: nothing on this device matches the include"), effective.skipped.map { it.toString() })
+        assertEquals(listOf("[config] * Mac HmacSHA256: no_match: nothing on this device matches the include"), effective.skipped.map { it.toString() })
     }
 
     @Test
     fun aNotRunnableSelectionIsReported() {
         val withoutGlobalExclude = global.copy(selection = global.selection.copy(exclude = emptyList()))
         val skipped = EffectiveBuilder().build(withoutGlobalExclude, testSet, inventory, names).skipped.map { it.toString() }
-        assertTrue(skipped.toString(), skipped.contains("SunJCE KeyGenerator SunTlsPrf: not_runnable: IllegalStateException: TlsPrfGenerator must be initialized"))
+        assertTrue(skipped.toString(), skipped.contains("[config] SunJCE KeyGenerator SunTlsPrf: not_runnable: IllegalStateException: TlsPrfGenerator must be initialized"))
     }
 
     @Test
-    fun failPolicyStopsAndListsEverySkip() {
-        val strict = global.copy(policy = Policy(Policy.OnUnavailable.FAIL))
-        val error = assertThrows(UnavailableSelectionException::class.java) { EffectiveBuilder().build(strict, testSet, inventory, names) }
+    fun stopPolicyStopsAndListsEveryFailure() {
+        val strict = global.copy(policy = Policy(Policy.OnFailure.STOP))
+        val error = assertThrows(StoppedOnFailureException::class.java) { EffectiveBuilder().build(strict, testSet, inventory, names) }
         assertEquals(1, error.skipped.size)
+    }
+
+    /** Later stages apply the same rule, so it travels in the file they read. */
+    @Test
+    fun thePolicyIsFrozenIntoTheResult() {
+        assertEquals(Policy.OnFailure.SKIP, effective.policy.onFailure)
     }
 
     @Test

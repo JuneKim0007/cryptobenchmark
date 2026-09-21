@@ -63,6 +63,14 @@ class DocumentsTest {
     }
 
     @Test
+    fun aPolicyValueOutsideTheChoicesIsRefused() {
+        assertEquals("invalid: policy.onFailure retry, one of [stop, skip]",
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onFailure: retry}\n")) }.message)
+        assertEquals("unknown_keys: policy [onUnavailable], known [onFailure]",
+            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onUnavailable: skip}\n")) }.message)
+    }
+
+    @Test
     fun aMissingRunSectionKeepsDefaults() {
         val minimal = GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
         assertEquals(listOf(1024), minimal.run.inputSizes)
