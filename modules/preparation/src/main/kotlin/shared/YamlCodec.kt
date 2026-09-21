@@ -9,7 +9,8 @@ import org.yaml.snakeyaml.representer.Representer
 internal class YamlCodec {
 
     @Suppress("UNCHECKED_CAST")
-    fun load(text: String): Map<String, Any> = yaml().load(text) as Map<String, Any>
+    fun load(text: String): Map<String, Any> =
+        yaml().load<Any?>(text) as? Map<String, Any> ?: throw IllegalArgumentException("not_a_mapping: the document is not a set of key: value entries")
 
     fun dump(document: Any): String = yaml().dump(document)
 

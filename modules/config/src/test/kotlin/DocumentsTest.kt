@@ -85,6 +85,13 @@ class DocumentsTest {
         assertTrue(message, message.contains("duplicate key"))
     }
 
+    /** Only snakeyaml's own failure is translated: a list where a mapping belongs is named, and a bug would keep its type. */
+    @Test
+    fun aDocumentThatIsNotAMappingIsNamed() {
+        assertEquals("not_a_mapping: the document is not a set of key: value entries",
+            assertThrows(IllegalArgumentException::class.java) { files.load("- one\n- two\n") }.message)
+    }
+
     @Test
     fun aRuleErrorSaysWhichRule() {
         assertEquals("empty_rule: give provider, type or name at selection.exclude[1]",

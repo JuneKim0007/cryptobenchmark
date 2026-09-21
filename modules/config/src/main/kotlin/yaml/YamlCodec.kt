@@ -11,7 +11,8 @@ class YamlCodec {
     fun dump(document: Any): String = yaml().dump(document)
 
     @Suppress("UNCHECKED_CAST")
-    fun load(text: String): Map<String, Any> = yaml().load(text) as Map<String, Any>
+    fun load(text: String): Map<String, Any> =
+        yaml().load<Any?>(text) as? Map<String, Any> ?: throw IllegalArgumentException("not_a_mapping: the document is not a set of key: value entries")
 
     private fun yaml(): Yaml {
         val dumperOptions = DumperOptions().apply {

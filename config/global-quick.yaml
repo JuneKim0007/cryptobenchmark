@@ -1,0 +1,11 @@
+schemaVersion: 1
+selection:
+  testSet: testsets/quick.yaml
+run:
+  inputSizes: [64, 1024, 16384]
+  phases: [WARM]
+  metrics: [TIME]
+  processRepetitions: 1
+  seed: 42
+policy:
+  onFailure: skip

@@ -1,0 +1,33 @@
+schemaVersion: 1
+description: quick vertical run — one representative per primitive in the README scope, explicit parameters
+
+include:
+  - {type: MessageDigest, name: SHA-256}
+  - {type: MessageDigest, name: SHA-512}
+  - {type: Mac, name: HmacSHA256}
+  - {type: Cipher, name: AES/GCM/NoPadding}
+  - {type: Cipher, name: AES/CBC/PKCS5Padding}
+  - {type: Cipher, name: ChaCha20}
+  - {type: Cipher, name: "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"}
+  - {type: Signature, name: SHA256withECDSA}
+  - {type: Signature, name: SHA256withRSA}
+  - {type: KeyGenerator, name: AES}
+  - {type: KeyPairGenerator, name: EC}
+
+overrides:
+  - match: {type: Cipher, name: "AES/*"}
+    set: {keySizes: [128, 256]}
+  - match: {type: Cipher, name: AES/GCM/NoPadding}
+    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+  - match: {type: Cipher, name: ChaCha20}
+    set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}
+  - match: {type: Cipher, name: "RSA/*"}
+    set: {keySizes: [2048], inputSizes: [32]}
+  - match: {type: Signature, name: SHA256withRSA}
+    set: {keySizes: [2048]}
+  - match: {type: Signature, name: SHA256withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {type: KeyGenerator, name: AES}
+    set: {keySizes: [128, 256]}
+  - match: {type: KeyPairGenerator, name: EC}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
