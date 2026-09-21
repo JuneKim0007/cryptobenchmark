@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.preparation.parameter.bind
 
 import java.math.BigInteger
 
-/** YAML gives Integer, Long, BigInteger, String, byte[] and lists; constructors want exact Java types. */
 internal object ValueCoercion {
 
     object NoMatch

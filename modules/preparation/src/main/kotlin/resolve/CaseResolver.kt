@@ -7,7 +7,6 @@ import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
-/** Request × device → cases. Rejects by name, before anything runs; never calls the JCA itself. */
 class CaseResolver(
     private val capability: DeviceCapability,
     private val rules: AxisRules = AxisRules.standard(),

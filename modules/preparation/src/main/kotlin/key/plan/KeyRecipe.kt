@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.preparation.key.plan
 
-/** How to make the key one case needs; `provider` is who generates it, which may differ from who uses it. */
 sealed class KeyRecipe {
 
     object None : KeyRecipe()

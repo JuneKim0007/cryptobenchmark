@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.preparation.report
 
-/** The same record every stage writes: the stage that found out, what, and why. */
 data class Skip(
     val stage: String,
     val provider: String? = null,

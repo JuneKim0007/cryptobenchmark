@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.preparation.key.plan
 
 import io.github.junekim0007.cryptobench.preparation.measurement.EngineTypeName
 
-/** The algorithm a key is generated under, derived from the name the case passes to getInstance. */
 internal object KeyAlgorithmName {
 
     private val CIPHER = EngineTypeName.fold("Cipher")
@@ -13,7 +12,6 @@ internal object KeyAlgorithmName {
 
     fun of(type: String, algorithm: String): String = candidates(type, algorithm).first()
 
-    /** Names to try in order: `ChaCha20-Poly1305` is keyed by `ChaCha20`, `AES_128/GCM/NoPadding` by `AES`. */
     fun candidates(type: String, algorithm: String): List<String> {
         val primary = primary(type, algorithm)
         if (EngineTypeName.fold(type) != CIPHER) {

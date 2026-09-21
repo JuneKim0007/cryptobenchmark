@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.preparation.key.plan
 
 import io.github.junekim0007.cryptobench.preparation.measurement.EngineTypeName
 
-/** Engine type → the key it is measured with. Types not registered let the device decide. */
 class KeyShapes private constructor(private val shapes: Map<String, KeyShape>) {
 
     fun of(type: String): KeyShape = shapes[EngineTypeName.fold(type)] ?: KeyShape.DEVICE_DECIDES

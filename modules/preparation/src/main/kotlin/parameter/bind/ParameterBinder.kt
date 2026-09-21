@@ -4,11 +4,6 @@ import java.lang.reflect.Modifier
 import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 
-/**
- * `{class, arguments}` → AlgorithmParameterSpec, by reflection over the fully qualified name. An argument is a literal,
- * `fresh(n)`, `{field: package.Class.NAME}`, or another `{class, arguments}`. Binding builds the spec once, so every
- * mistake surfaces here, in preparation, never inside a measurement.
- */
 class ParameterBinder(
     private val random: SecureRandom = SecureRandom(),
     private val policy: BindPolicy = BindPolicy.standard(),
@@ -40,7 +35,6 @@ class ParameterBinder(
         else -> ValueNode.Literal(value)
     }
 
-    /** Loaded without running static initialisers, and refused unless the policy allows the type. */
     private fun permitted(name: String, path: String): Class<*> {
         val type = try {
             Class.forName(name, false, javaClass.classLoader)

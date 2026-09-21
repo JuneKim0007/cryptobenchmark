@@ -6,7 +6,6 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.representer.Representer
 
-/** A key written twice is an error, not "last one wins"; shared values are written in full, never as anchors. */
 internal class YamlCodec {
 
     @Suppress("UNCHECKED_CAST")

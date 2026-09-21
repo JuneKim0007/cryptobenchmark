@@ -4,7 +4,6 @@ import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindExceptio
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
-/** Binds a selection's trees once, so a broken parameter rejects the selection instead of failing a run. */
 internal class ParameterCheck(private val binder: ParameterBinder) {
 
     fun problem(selection: Selection): String? {

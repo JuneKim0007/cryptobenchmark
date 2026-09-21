@@ -5,9 +5,7 @@ enum class KeyShape {
     SECRET,
     PAIR,
 
-    /** Own key pair plus a peer's, as a key agreement needs. */
     PEER_PAIRS,
 
-    /** Secret when the device has a KeyGenerator for the key algorithm, pair when it has a KeyPairGenerator. */
     DEVICE_DECIDES,
 }
