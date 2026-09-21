@@ -1,7 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery.contract
 
-
-/** One service as the provider declares it: what it is, plus every alias and attribute it carries. */
 data class ServiceEntry(
     val type: String,
     val algorithm: String,

@@ -6,7 +6,6 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 
 internal object ServiceTree {
 
-    /** Engine type → registered algorithm → shape; keys sorted, spelled as first registered. */
     fun of(providersByPrecedence: List<ProviderEntry>): Map<String, Map<String, ServiceShape>> {
         val shapes = LinkedHashMap<ServiceKey, MutableShape>()
         for (provider in providersByPrecedence) {

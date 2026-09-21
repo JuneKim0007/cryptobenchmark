@@ -1,14 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
-/**
- * Decodes the grammar the JCA reserves inside a Provider property map, which is a plain
- * String-to-String table:
- *
- *     Provider.<field>                    provider metadata
- *     Alg.Alias.<engine>.<alias>          alias -> standard name
- *     <engine>.<algorithm> <attribute>    one attribute of one service
- *     <engine>.<algorithm>                the implementing class
- */
 internal object PropertyKeyParser {
 
     private const val META_PREFIX = "Provider."

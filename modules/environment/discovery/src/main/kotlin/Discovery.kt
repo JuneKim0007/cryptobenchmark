@@ -13,7 +13,6 @@ import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import java.io.File
 import java.security.Provider
 
-/** The module's entry point: wires the probe, the trial and the writers over one output directory. */
 class Discovery(
     directory: ProbeDirectory,
     private val providerProbe: ProviderProbe = ProviderProbe(),
@@ -41,7 +40,6 @@ class Discovery(
         )
     }
 
-    /** Instantiates every service, then calls every one that instantiated once with a default key. */
     fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): File =
         trialWriter.write(defaultRunTrial.run(trialRunner.run(capture, providers), providers))
 }

@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 
-/** Engine type → default call. A type with no call gets no default run; nothing is guessed for it. */
 internal object DefaultCalls {
 
     private val CALLS: Map<String, DefaultCall> = mapOf(

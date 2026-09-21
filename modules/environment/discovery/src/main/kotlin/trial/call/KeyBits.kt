@@ -9,7 +9,6 @@ import javax.crypto.interfaces.DHKey
 
 internal object KeyBits {
 
-    /** Key size in bits where the key type states one; null for keys whose size is fixed by name. */
     fun of(key: Key): Int? = when (key) {
         is RSAKey -> key.modulus.bitLength()
         is ECKey -> key.params.curve.field.fieldSize

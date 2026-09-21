@@ -8,10 +8,6 @@ import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultCalls
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
 import java.security.Provider
 
-/**
- * Second trial level: every instantiated service and transformation is called once with a default key.
- * Input sizes are tried in order and the first that works is recorded, so size limits show up as data.
- */
 class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
 
     init {
