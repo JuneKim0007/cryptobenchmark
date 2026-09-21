@@ -11,13 +11,14 @@ class KeyPlanner(
 ) {
 
     fun plan(case: BenchmarkCase): KeyRecipe {
-        val algorithm = KeyAlgorithmName.of(case.type, case.algorithm)
+        val names = KeyAlgorithmName.candidates(case.type, case.algorithm)
+        val algorithm = names.first()
         return when (shapes.of(case.type)) {
             KeyShape.NONE -> KeyRecipe.None
-            KeyShape.SECRET -> secret(case, algorithm) ?: unavailable(SECRET_GENERATOR, algorithm)
-            KeyShape.PAIR -> pair(case, algorithm, count = 1) ?: unavailable(PAIR_GENERATOR, algorithm)
-            KeyShape.PEER_PAIRS -> pair(case, algorithm, count = 2) ?: unavailable(PAIR_GENERATOR, algorithm)
-            KeyShape.DEVICE_DECIDES -> secret(case, algorithm) ?: pair(case, algorithm, count = 1)
+            KeyShape.SECRET -> names.firstNotNullOfOrNull { secret(case, it) } ?: unavailable(SECRET_GENERATOR, algorithm)
+            KeyShape.PAIR -> names.firstNotNullOfOrNull { pair(case, it, count = 1) } ?: unavailable(PAIR_GENERATOR, algorithm)
+            KeyShape.PEER_PAIRS -> names.firstNotNullOfOrNull { pair(case, it, count = 2) } ?: unavailable(PAIR_GENERATOR, algorithm)
+            KeyShape.DEVICE_DECIDES -> names.firstNotNullOfOrNull { secret(case, it) } ?: names.firstNotNullOfOrNull { pair(case, it, count = 1) }
                 ?: KeyRecipe.Unavailable("no_key_generator: $algorithm")
         }
     }

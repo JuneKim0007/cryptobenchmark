@@ -5,7 +5,6 @@ import io.github.junekim0007.cryptobench.benchmark.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.benchmark.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.benchmark.preparation.request.Selection
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.asSection
-import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.boolean
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.number
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.numbers
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.optionalNumbers
@@ -15,8 +14,9 @@ import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFiel
 import java.io.File
 
 /**
- * default.yaml → request, read by key: preparation does not depend on the config module's classes.
- * Each enabled entry becomes one selection pinned to its provider; disabled entries are skipped.
+ * effective.yaml → request, read by key: preparation does not depend on the config module's classes.
+ * Every entry is selected already (the config stage did include, exclude and overrides); each becomes one selection
+ * pinned to its provider.
  */
 class ConfigSource {
 
@@ -32,7 +32,7 @@ class ConfigSource {
         }
         val run = section(document, "run")
         val selections = selections(section(document, "providers"))
-        require(selections.isNotEmpty()) { "nothing_enabled" }
+        require(selections.isNotEmpty()) { "nothing_selected" }
         return BenchmarkRequest(
             selections = selections,
             inputSizes = numbers(run, "inputSizes"),
@@ -46,21 +46,17 @@ class ConfigSource {
     private fun selections(providers: Map<String, Any>): List<Selection> =
         providers.flatMap { (provider, types) ->
             asSection(types, provider).flatMap { (type, entries) ->
-                asSection(entries, "$provider.$type").mapNotNull { (name, value) ->
+                asSection(entries, "$provider.$type").map { (name, value) ->
                     val entry = asSection(value, "$provider.$type.$name")
-                    if (!boolean(entry, "enabled")) {
-                        null
-                    } else {
-                        Selection(
-                            type = type,
-                            algorithm = name,
-                            providers = listOf(provider),
-                            keySizes = optionalNumbers(entry, "keySizes"),
-                            inputSizes = optionalNumbers(entry, "inputSizes"),
-                            keyParameters = optionalSection(entry, "key"),
-                            parameters = optionalSection(entry, "parameters"),
-                        )
-                    }
+                    Selection(
+                        type = type,
+                        algorithm = name,
+                        providers = listOf(provider),
+                        keySizes = optionalNumbers(entry, "keySizes"),
+                        inputSizes = optionalNumbers(entry, "inputSizes"),
+                        keyParameters = optionalSection(entry, "key"),
+                        parameters = optionalSection(entry, "parameters"),
+                    )
                 }
             }
         }
