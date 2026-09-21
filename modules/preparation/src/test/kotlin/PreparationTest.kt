@@ -51,11 +51,11 @@ skipped: []
     @Test
     fun skipPreparesWhatItCanAndRecordsTheRest() {
         val run = preparation.prepare(effective("skip"))
-        assertEquals(listOf("AES/GCM/NoPadding", "AES/GCM/NoPadding", "SHA-256", "SHA-256"), run.cases.map { it.case.algorithm })
+        assertEquals(listOf("AES/GCM/NoPadding", "AES/GCM/NoPadding", "AES/GCM/NoPadding", "AES/GCM/NoPadding", "SHA-256", "SHA-256"), run.cases.map { it.case.algorithm })
         assertEquals(3, run.processRepetitions)
         val reasons = run.skipped.map { it.toString() }
         assertTrue(reasons.toString(), reasons.contains("[preparation] SunJCE Cipher ChaCha20: not_registered"))
-        assertTrue(reasons.toString(), reasons.any { it.startsWith("[preparation] SunJCE Cipher Serpent/CBC/NoPadding: Cipher_Serpent-CBC-NoPadding_SunJCE_k128_i64_WARM: key_generation_failed:") })
+        assertTrue(reasons.toString(), reasons.any { it.startsWith("[preparation] SunJCE Cipher Serpent/CBC/NoPadding: Cipher_Serpent-CBC-NoPadding_ENCRYPT_SunJCE_k128_i64_WARM: key_generation_failed:") })
         assertTrue(File(directory, "preparation/skipped.yaml").readText().contains("stage: preparation"))
     }
 
@@ -90,7 +90,7 @@ skipped: []
     @Test
     fun stopListsEveryFailureAndStillWritesTheReport() {
         val error = assertThrows(StoppedOnFailureException::class.java) { preparation.prepare(effective("stop")) }
-        assertEquals(3, error.skipped.size)
+        assertEquals(5, error.skipped.size)
         assertTrue(File(directory, "preparation/skipped.yaml").exists())
     }
 }

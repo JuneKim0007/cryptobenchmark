@@ -68,7 +68,7 @@ exclude:
 - {name: AES}
 overrides:
 - match: {type: Cipher}
-  set: {keySizes: [128]}
+  set: {keySizes: [128], operations: [ENCRYPT]}
 - match: {type: Cipher, name: "AES/*"}
   set: {keySizes: [128, 256]}
 - match: {provider: SunJCE, type: Cipher, name: AES/CBC/PKCS5Padding}

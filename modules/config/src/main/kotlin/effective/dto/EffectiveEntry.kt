@@ -5,5 +5,6 @@ data class EffectiveEntry(
     val inputSizes: List<Int> = emptyList(),
     val key: Map<String, Any> = emptyMap(),
     val parameters: Map<String, Any> = emptyMap(),
+    val operations: List<String> = emptyList(),
     val providerDefaults: List<String> = emptyList(),
 )

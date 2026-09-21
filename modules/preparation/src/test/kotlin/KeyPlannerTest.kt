@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyShape
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyShapes
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import org.junit.Assert.assertEquals
@@ -28,7 +29,7 @@ class KeyPlannerTest {
     private val planner = KeyPlanner(device)
 
     private fun plan(type: String, algorithm: String, provider: String = "AndroidOpenSSL", keySize: Int? = null) =
-        planner.plan(BenchmarkCase(type, algorithm, provider, keySize = keySize, inputSize = 1024))
+        planner.plan(BenchmarkCase(type, algorithm, provider, Operation.TYPE_DEFAULT, keySize = keySize, inputSize = 1024))
 
     /** Cipher does not say whether its key is secret or a pair; the device's generators do. */
     @Test
@@ -67,6 +68,6 @@ class KeyPlannerTest {
     @Test
     fun shapesCanBeRegistered() {
         val planner = KeyPlanner(device, KeyShapes.standard().with("SecretKeyFactory", KeyShape.NONE))
-        assertEquals(KeyRecipe.None, planner.plan(BenchmarkCase("SecretKeyFactory", "PBKDF2WithHmacSHA256", "AndroidOpenSSL")))
+        assertEquals(KeyRecipe.None, planner.plan(BenchmarkCase("SecretKeyFactory", "PBKDF2WithHmacSHA256", "AndroidOpenSSL", Operation.TYPE_DEFAULT)))
     }
 }

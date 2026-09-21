@@ -13,19 +13,20 @@ class CaseResolver(
     binder: ParameterBinder = ParameterBinder(),
 ) {
 
-    private val parameterCheck = ParameterCheck(binder)
+    private val selectionCheck = SelectionCheck(binder)
 
     fun resolve(request: BenchmarkRequest): Resolution {
         val cases = mutableListOf<BenchmarkCase>()
         val rejections = mutableListOf<Rejection>()
         for (selection in request.selections) {
-            val problem = parameterCheck.problem(selection)
+            val rule = rules.of(selection.type)
+            val problem = selectionCheck.problem(selection, rule)
             if (problem != null) {
                 rejections += Rejection(selection, null, problem)
                 continue
             }
             val providers = providersFor(selection, rejections)
-            cases += SelectionExpander.expand(request, selection, providers, rules.of(selection.type))
+            cases += SelectionExpander.expand(request, selection, providers, rule)
         }
         return Resolution(cases, rejections)
     }

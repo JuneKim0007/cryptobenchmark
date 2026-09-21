@@ -4,6 +4,7 @@ data class BenchmarkCase(
     val type: String,
     val algorithm: String,
     val provider: String,
+    val operation: Operation,
     val keySize: Int? = null,
     val inputSize: Int? = null,
     val phase: Phase = Phase.WARM,

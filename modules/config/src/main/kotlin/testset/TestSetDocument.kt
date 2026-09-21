@@ -3,11 +3,13 @@ package io.github.junekim0007.cryptobench.config.testset
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbersOrNull
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 
 object TestSetDocument : DocumentHandler<TestSet> {
@@ -24,6 +26,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
     private const val INPUT_SIZES = "inputSizes"
     private const val KEY = "key"
     private const val PARAMETERS = "parameters"
+    private const val OPERATIONS = "operations"
 
     override fun of(value: TestSet): Map<String, Any> = linkedMapOf(
         DESCRIPTION to value.description,
@@ -35,6 +38,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
                 override.inputSizes?.let { put(INPUT_SIZES, it) }
                 override.key?.let { put(KEY, LinkedHashMap(it)) }
                 override.parameters?.let { put(PARAMETERS, LinkedHashMap(it)) }
+                override.operations?.let { put(OPERATIONS, it) }
             })
         },
     )
@@ -52,13 +56,14 @@ object TestSetDocument : DocumentHandler<TestSet> {
     private fun override(document: Map<String, Any>, path: String): Override {
         expectKeys(document, listOf(MATCH, SET), path)
         val set = section(document, SET)
-        expectKeys(set, listOf(KEY_SIZES, INPUT_SIZES, KEY, PARAMETERS), "$path.$SET")
+        expectKeys(set, listOf(KEY_SIZES, INPUT_SIZES, KEY, PARAMETERS, OPERATIONS), "$path.$SET")
         return Override(
             match = RuleDocument.parse(section(document, MATCH), "$path.$MATCH"),
             keySizes = optionalNumbersOrNull(set, KEY_SIZES),
             inputSizes = optionalNumbersOrNull(set, INPUT_SIZES),
             key = optionalSection(set, KEY),
             parameters = optionalSection(set, PARAMETERS),
+            operations = optional(set, OPERATIONS, null, ::strings),
         )
     }
 }

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
@@ -26,7 +27,7 @@ class ConfigSourceTest {
         assertEquals(
             listOf(
                 Selection("MessageDigest", "SHA-256", providers = listOf("SUN")),
-                Selection("Cipher", "AES/CBC/PKCS5PADDING", providers = listOf("SunJCE"), keySizes = listOf(128, 256)),
+                Selection("Cipher", "AES/CBC/PKCS5PADDING", providers = listOf("SunJCE"), keySizes = listOf(128, 256), operations = setOf(Operation.DECRYPT)),
                 Selection("Cipher", "RSA", providers = listOf("SunJCE"), keySizes = listOf(3072), inputSizes = listOf(32), parameters = OAEP),
             ),
             request.selections,
@@ -52,6 +53,7 @@ class ConfigSourceTest {
     @Test
     fun namesWhatIsWrong() {
         assertEquals("unknown_onFailure: retry, one of [STOP, SKIP]", rejection(DEFAULT_YAML.replace("onFailure: skip", "onFailure: retry")))
+        assertEquals("unknown_operation: WRAP, one of [ENCRYPT, DECRYPT, SIGN, VERIFY, DIGEST, COMPUTE_MAC, GENERATE_KEY, GENERATE_KEY_PAIR, AGREE_KEY, TYPE_DEFAULT]", rejection(DEFAULT_YAML.replace("operations: [DECRYPT]", "operations: [WRAP]")))
         assertEquals("unknown_phase: HOT, one of [WARM, COLD]", rejection(DEFAULT_YAML.replace("phases: [WARM, COLD]", "phases: [HOT]")))
         assertEquals("nothing_selected", rejection(DEFAULT_YAML.replace(Regex("(?s)providers:.*?\nskipped:"), "providers: {}\nskipped:")))
         assertEquals("unsupported_config_schema: 2, this build reads 1", rejection(DEFAULT_YAML.replace("schemaVersion: 1", "schemaVersion: 2")))
@@ -88,6 +90,7 @@ providers:
     Cipher:
       AES/CBC/PKCS5PADDING:
         keySizes: [128, 256]
+        operations: [DECRYPT]
         providerDefaults: [parameters]
       RSA:
         keySizes: [3072]

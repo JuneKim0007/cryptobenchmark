@@ -9,6 +9,7 @@ internal object CaseName {
     fun of(case: BenchmarkCase): String = listOfNotNull(
         case.type,
         case.algorithm,
+        case.operation.name,
         case.provider,
         case.keySize?.let { "k$it" },
         case.inputSize?.let { "i$it" },

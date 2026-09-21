@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
 import io.github.junekim0007.cryptobench.preparation.measurement.EngineTypeName
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 
 class AxisRules private constructor(
     private val rules: Map<String, AxisRule>,
@@ -13,21 +14,17 @@ class AxisRules private constructor(
 
     companion object {
 
-        private val KEYED_INPUT = AxisRule(usesKeySize = true, usesInputSize = true)
-        private val UNKEYED_INPUT = AxisRule(usesKeySize = false, usesInputSize = true)
-        private val KEY_ONLY = AxisRule(usesKeySize = true, usesInputSize = false)
-
         fun standard(): AxisRules = AxisRules(
             rules = mapOf(
-                "Cipher" to KEYED_INPUT,
-                "Mac" to KEYED_INPUT,
-                "Signature" to KEYED_INPUT,
-                "MessageDigest" to UNKEYED_INPUT,
-                "KeyGenerator" to KEY_ONLY,
-                "KeyPairGenerator" to KEY_ONLY,
-                "KeyAgreement" to KEY_ONLY,
+                "Cipher" to AxisRule(usesKeySize = true, usesInputSize = true, operations = listOf(Operation.ENCRYPT, Operation.DECRYPT)),
+                "Signature" to AxisRule(usesKeySize = true, usesInputSize = true, operations = listOf(Operation.SIGN, Operation.VERIFY)),
+                "Mac" to AxisRule(usesKeySize = true, usesInputSize = true, operations = listOf(Operation.COMPUTE_MAC)),
+                "MessageDigest" to AxisRule(usesKeySize = false, usesInputSize = true, operations = listOf(Operation.DIGEST)),
+                "KeyGenerator" to AxisRule(usesKeySize = true, usesInputSize = false, operations = listOf(Operation.GENERATE_KEY)),
+                "KeyPairGenerator" to AxisRule(usesKeySize = true, usesInputSize = false, operations = listOf(Operation.GENERATE_KEY_PAIR)),
+                "KeyAgreement" to AxisRule(usesKeySize = true, usesInputSize = false, operations = listOf(Operation.AGREE_KEY)),
             ).mapKeys { (type, _) -> fold(type) },
-            fallback = KEYED_INPUT,
+            fallback = AxisRule(usesKeySize = true, usesInputSize = true, operations = listOf(Operation.TYPE_DEFAULT)),
         )
 
         private fun fold(type: String): String = EngineTypeName.fold(type)

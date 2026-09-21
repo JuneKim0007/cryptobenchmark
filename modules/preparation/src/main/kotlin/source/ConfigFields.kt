@@ -20,6 +20,9 @@ internal object ConfigFields {
     fun optionalNumbers(document: Map<String, Any>, key: String): List<Int> =
         if (document.containsKey(key)) numbers(document, key) else emptyList()
 
+    fun optionalStrings(document: Map<String, Any>, key: String): List<String> =
+        if (document[key] == null) emptyList() else strings(document, key)
+
     fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any> =
         document[key]?.let { asSection(it, key) } ?: emptyMap()
 

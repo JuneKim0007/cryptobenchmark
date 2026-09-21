@@ -43,6 +43,7 @@ class EffectiveBuilderTest {
         assertEquals("javax.crypto.spec.IvParameterSpec", cipher.getValue("AES/CBC/PKCS5PADDING").parameters["class"])
         assertEquals(listOf(128), cipher.getValue("RSA").keySizes)
         assertEquals(listOf(32), cipher.getValue("RSA").inputSizes)
+        assertEquals(listOf("ENCRYPT"), cipher.getValue("RSA").operations)
     }
 
     /** An include that matches nothing on this device is reported, not silently dropped. */
