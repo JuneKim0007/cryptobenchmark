@@ -11,7 +11,7 @@ class KeyPlanner(
 
     fun plan(case: BenchmarkCase): KeyRecipe {
         val names = KeyAlgorithmName.candidates(case.type, case.algorithm)
-        val algorithm = names.first()
+        val algorithm = names.first().algorithm
         return when (shapes.of(case.type)) {
             KeyShape.NONE -> KeyRecipe.None
             KeyShape.SECRET -> names.firstNotNullOfOrNull { secret(case, it) } ?: unavailable(SECRET_GENERATOR, algorithm)
@@ -22,11 +22,13 @@ class KeyPlanner(
         }
     }
 
-    private fun secret(case: BenchmarkCase, algorithm: String): KeyRecipe.Secret? =
-        generatingProvider(case, SECRET_GENERATOR, algorithm)?.let { KeyRecipe.Secret(algorithm, case.keySize, it, case.keyParameters) }
+    private fun secret(case: BenchmarkCase, candidate: KeyCandidate): KeyRecipe.Secret? =
+        generatingProvider(case, SECRET_GENERATOR, candidate.algorithm)
+            ?.let { KeyRecipe.Secret(candidate.algorithm, case.keySize ?: candidate.keySize, it, case.keyParameters) }
 
-    private fun pair(case: BenchmarkCase, algorithm: String, count: Int): KeyRecipe.Pair? =
-        generatingProvider(case, PAIR_GENERATOR, algorithm)?.let { KeyRecipe.Pair(algorithm, case.keySize, it, count, case.keyParameters) }
+    private fun pair(case: BenchmarkCase, candidate: KeyCandidate, count: Int): KeyRecipe.Pair? =
+        generatingProvider(case, PAIR_GENERATOR, candidate.algorithm)
+            ?.let { KeyRecipe.Pair(candidate.algorithm, case.keySize ?: candidate.keySize, it, count, case.keyParameters) }
 
     private fun generatingProvider(case: BenchmarkCase, generatorType: String, algorithm: String): String? =
         (listOf(case.provider) + capability.providers()).distinct()

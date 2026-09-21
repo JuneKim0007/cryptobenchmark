@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.check.CaseCheck
 import io.github.junekim0007.cryptobench.preparation.input.InputPreparer
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
@@ -29,6 +30,7 @@ class Preparation(
     private val generator: KeyMaterialGenerator = KeyMaterialGenerator(),
     private val binder: ParameterBinder = ParameterBinder(),
     private val inputs: InputPreparer = InputPreparer(),
+    private val caseCheck: CaseCheck = CaseCheck(),
 ) {
 
     fun prepare(effectiveFile: File): PreparedRun {
@@ -57,7 +59,13 @@ class Preparation(
                 skipped += skip(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
                 continue
             }
-            prepared += PreparedCase(case, recipe, material, parameters, input)
+            val candidate = PreparedCase(case, recipe, material, parameters, input)
+            val failure = runCatching { caseCheck.check(candidate) }.exceptionOrNull()
+            if (failure != null) {
+                skipped += skip(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}")
+                continue
+            }
+            prepared += candidate
         }
         report.write(skipped)
         if (skipped.isNotEmpty() && global.onFailure == OnFailure.STOP) {

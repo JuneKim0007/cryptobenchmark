@@ -9,15 +9,17 @@ internal object KeyAlgorithmName {
     private val KEY_AGREEMENT = EngineTypeName.fold("KeyAgreement")
 
     private val WITH = Regex("with", RegexOption.IGNORE_CASE)
+    private val SIZE_SUFFIX = Regex("^(.+)_(\\d+)$")
 
-    fun of(type: String, algorithm: String): String = candidates(type, algorithm).first()
+    fun of(type: String, algorithm: String): String = candidates(type, algorithm).first().algorithm
 
-    fun candidates(type: String, algorithm: String): List<String> {
+    fun candidates(type: String, algorithm: String): List<KeyCandidate> {
         val primary = primary(type, algorithm)
         if (EngineTypeName.fold(type) != CIPHER) {
-            return listOf(primary)
+            return listOf(KeyCandidate(primary))
         }
-        return listOf(primary, primary.substringBefore('_'), primary.substringBefore('-')).distinct()
+        val sized = SIZE_SUFFIX.find(primary)?.let { match -> KeyCandidate(match.groupValues[1], match.groupValues[2].toInt()) }
+        return listOfNotNull(KeyCandidate(primary), sized, KeyCandidate(primary.substringBefore('-'))).distinct()
     }
 
     private fun primary(type: String, algorithm: String): String = when (EngineTypeName.fold(type)) {

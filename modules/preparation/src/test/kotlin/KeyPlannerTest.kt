@@ -70,4 +70,11 @@ class KeyPlannerTest {
         val planner = KeyPlanner(device, KeyShapes.standard().with("SecretKeyFactory", KeyShape.NONE))
         assertEquals(KeyRecipe.None, planner.plan(BenchmarkCase("SecretKeyFactory", "PBKDF2WithHmacSHA256", "AndroidOpenSSL", Operation.TYPE_DEFAULT)))
     }
+
+    /** A size written into the name is the key's size: AES_128 takes a 128-bit AES key, not the provider default. */
+    @Test
+    fun aSizeInTheNameBecomesTheKeySize() {
+        assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES_128/GCM/NoPadding"))
+        assertEquals(KeyRecipe.Secret("AES", 256, "AndroidOpenSSL"), plan("Cipher", "AES_128/GCM/NoPadding", keySize = 256))
+    }
 }
