@@ -29,6 +29,8 @@ overrides:
     set: {keySizes: [128, 192, 256]}
   - match: {type: Cipher, name: AES/GCM/NoPadding}
     set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+  - match: {type: Cipher, name: ChaCha20}
+    set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}
   - match: {type: Cipher, name: "RSA/*"}
     set: {keySizes: [2048, 4096], inputSizes: [32]}
   - match: {type: Cipher, name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding}
