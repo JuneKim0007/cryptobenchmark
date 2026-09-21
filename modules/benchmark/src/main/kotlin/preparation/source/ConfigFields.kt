@@ -20,6 +20,9 @@ internal object ConfigFields {
     fun optionalNumbers(document: Map<String, Any>, key: String): List<Int> =
         if (document.containsKey(key)) numbers(document, key) else emptyList()
 
+    fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any> =
+        document[key]?.let { asSection(it, key) } ?: emptyMap()
+
     fun asSection(value: Any, key: String): Map<String, Any> {
         @Suppress("UNCHECKED_CAST")
         return value as? Map<String, Any> ?: wrongType(key)

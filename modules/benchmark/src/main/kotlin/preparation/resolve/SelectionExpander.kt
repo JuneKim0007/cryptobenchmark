@@ -23,6 +23,8 @@ internal object SelectionExpander {
                             phase = phase,
                             metrics = request.metrics,
                             seed = request.seed,
+                            keyParameters = selection.keyParameters,
+                            parameters = selection.parameters,
                         )
                     }
                 }

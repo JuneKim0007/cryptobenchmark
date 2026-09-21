@@ -28,6 +28,22 @@ trial_<utc>.yaml ─► TrialSource   ─► TrialView  ──┴─► DefaultC
 | `.providerChose` | string | a cipher filled in parameters | IV length, OAEP digests; recorded, not configurable |
 | `.bareName` | bool | a cipher name without mode | the provider's default mode and padding |
 | `.reason` | string | the default run failed | the exception |
+| `.key` | tree | the user sets it | key generator spec, e.g. `{class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}`; replaces `keySizes` |
+| `.parameters` | tree | the user sets it | operation spec, e.g. `{class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}`; absent = provider default |
+
+## Parameter trees
+
+`key` and `parameters` are passed through untouched here and bound by preparation.
+
+| Form | Means |
+|---|---|
+| `{class: <fully qualified name>, arguments: [...]}` | public constructor, tried in turn for the argument count |
+| `{field: <fully qualified class>.<NAME>}` | public static field, e.g. `java.security.spec.MGF1ParameterSpec.SHA256` |
+| `fresh(n)` | n new random bytes on every call (a GCM IV must never repeat) |
+| `!!binary <base64>` or `[0, 1, 255]` | `byte[]` |
+| a number | `int`, `long` or `BigInteger`, whichever the constructor takes |
+
+Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be named. A failure names its path: `bind_failed: parameters.arguments[2]: no public field ...`.
 
 ## Rules
 
