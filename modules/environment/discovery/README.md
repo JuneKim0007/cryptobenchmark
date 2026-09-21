@@ -34,8 +34,8 @@
     - `setting/`
       - `DiscoverySetting.kt`
       - `DiscoverySettingConverter.kt`
-    - `serialize/`
-      - `EnvironmentJsonWriter.kt`
+    - `write/`
+      - `EnvironmentYamlWriter.kt`
   - `src/test/kotlin/`
     - `JcaContractTest.kt`
     - `ServiceKeyTest.kt`
