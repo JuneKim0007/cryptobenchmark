@@ -1,6 +1,6 @@
-package io.github.junekim0007.cryptobench.preparation.source
+package io.github.junekim0007.cryptobench.preparation.shared
 
-internal object ConfigFields {
+internal object DocumentFields {
 
     fun string(document: Map<String, Any>, key: String): String =
         field(document, key) as? String ?: wrongType(key)
@@ -18,18 +18,22 @@ internal object ConfigFields {
         asList(field(document, key), key).map { (it as? Number ?: wrongType(key)).toInt() }
 
     fun optionalNumbers(document: Map<String, Any>, key: String): List<Int> =
-        if (document.containsKey(key)) numbers(document, key) else emptyList()
+        if (document[key] == null) emptyList() else numbers(document, key)
 
     fun optionalStrings(document: Map<String, Any>, key: String): List<String> =
         if (document[key] == null) emptyList() else strings(document, key)
 
     fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any> =
-        document[key]?.let { asSection(it, key) } ?: emptyMap()
+        if (document[key] == null) emptyMap() else section(document, key)
 
     fun asSection(value: Any, key: String): Map<String, Any> {
         @Suppress("UNCHECKED_CAST")
         return value as? Map<String, Any> ?: wrongType(key)
     }
+
+    inline fun <reified E : Enum<E>> choice(field: String, name: String): E =
+        enumValues<E>().firstOrNull { it.name.equals(name, ignoreCase = true) }
+            ?: throw IllegalArgumentException("unknown_$field: $name, one of ${enumValues<E>().map { it.name }}")
 
     private fun field(document: Map<String, Any>, key: String): Any =
         document[key] ?: throw IllegalArgumentException("missing_field: $key")

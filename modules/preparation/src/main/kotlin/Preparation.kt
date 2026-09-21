@@ -11,16 +11,18 @@ import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import io.github.junekim0007.cryptobench.preparation.prepare.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.preparation.report.Skip
-import io.github.junekim0007.cryptobench.preparation.request.OnFailure
+import io.github.junekim0007.cryptobench.preparation.global.OnFailure
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
-import io.github.junekim0007.cryptobench.preparation.source.ConfigSource
+import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
+import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
+import io.github.junekim0007.cryptobench.preparation.primitive.PrimitiveReader
+import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import java.io.File
 
 class Preparation(
     capability: DeviceCapability,
     private val report: SkipFile,
-    private val source: ConfigSource = ConfigSource(),
     private val resolver: CaseResolver = CaseResolver(capability),
     private val planner: KeyPlanner = KeyPlanner(capability),
     private val generator: KeyMaterialGenerator = KeyMaterialGenerator(),
@@ -28,7 +30,9 @@ class Preparation(
 ) {
 
     fun prepare(effectiveFile: File): PreparedRun {
-        val request = source.read(effectiveFile)
+        val inbound = InboundFile.read(effectiveFile)
+        val global = GlobalReader.read(inbound)
+        val request = BenchmarkRequest(PrimitiveReader.read(inbound, global), global)
         val resolution = resolver.resolve(request)
         val skipped = resolution.rejections.mapTo(mutableListOf()) { rejection ->
             Skip(Skip.PREPARATION, rejection.provider, rejection.selection.type, rejection.selection.algorithm, rejection.reason)
@@ -48,11 +52,11 @@ class Preparation(
             )
         }
         report.write(skipped)
-        if (skipped.isNotEmpty() && request.onFailure == OnFailure.STOP) {
+        if (skipped.isNotEmpty() && global.onFailure == OnFailure.STOP) {
             throw StoppedOnFailureException(skipped)
         }
         require(prepared.isNotEmpty()) { "nothing_prepared: every case was skipped, see ${report.file}" }
-        return PreparedRun(prepared, skipped, request.processRepetitions)
+        return PreparedRun(prepared, skipped, global.processRepetitions)
     }
 
     private fun bound(case: BenchmarkCase) =
