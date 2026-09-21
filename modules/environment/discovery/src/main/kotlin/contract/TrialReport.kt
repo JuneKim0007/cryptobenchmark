@@ -8,6 +8,6 @@ data class TrialReport(
 ) {
 
     companion object {
-        const val SCHEMA_VERSION = 1
+        const val SCHEMA_VERSION = 2
     }
 }

@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
+import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
@@ -17,6 +18,7 @@ class Discovery(
     directory: ProbeDirectory,
     private val providerProbe: ProviderProbe = ProviderProbe(),
     private val trialRunner: TrialRunner = TrialRunner(),
+    private val defaultRunTrial: DefaultRunTrial = DefaultRunTrial(),
     codec: YamlCodec = YamlCodec(),
 ) {
 
@@ -39,6 +41,7 @@ class Discovery(
         )
     }
 
+    /** Instantiates every service, then calls every one that instantiated once with a default key. */
     fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): File =
-        trialWriter.write(trialRunner.run(capture, providers))
+        trialWriter.write(defaultRunTrial.run(trialRunner.run(capture, providers), providers))
 }

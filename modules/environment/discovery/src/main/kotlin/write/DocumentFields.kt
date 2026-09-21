@@ -14,6 +14,12 @@ internal object DocumentFields {
     fun boolean(document: Map<String, Any>, key: String): Boolean =
         field(document, key) as? Boolean ?: wrongType(key)
 
+    fun optionalNumber(document: Map<String, Any>, key: String): Number? =
+        document[key]?.let { it as? Number ?: wrongType(key) }
+
+    fun optionalBoolean(document: Map<String, Any>, key: String): Boolean =
+        document[key]?.let { it as? Boolean ?: wrongType(key) } ?: false
+
     fun section(document: Map<String, Any>, key: String): Map<String, Any> =
         asSection(field(document, key), key)
 

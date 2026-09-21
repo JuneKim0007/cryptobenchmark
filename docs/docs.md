@@ -33,7 +33,8 @@
       - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`; the trial model — `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`
       - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to `BenchmarkScope`; `ProviderSetting`, `ServiceSetting`, `Device`, `ServiceLookup`
       - `query/` : questions asked of a capture or a trial, pure and data-returning — `CaptureQuery` (`whoServes`, `namesOf`, `onlyOn`, `tree`), `TrialQuery` (`failingServices`, `failingTransformations`, `instantiationByProvider`), `ServiceShape`, `TransformationFailure`, `ServiceIndex`, `ServiceTree`
-      - `trial/` : `TrialRunner` — instantiates every captured service (and every declared cipher transformation) against the live providers → `TrialReport`; `Attempt`, `TransformationSet`
+      - `trial/` : `TrialRunner` — level 1, instantiates every captured service and declared cipher transformation → `TrialReport`; `DefaultRunTrial` — level 2, calls every instantiated one once with a default key (1024 bytes, then 32) → `defaultRun`; `Attempt`, `TransformationSet`
+        - `call/` : one `DefaultCall` per engine type (`CipherCall`, `SignatureCall`, `MacCall`, `DigestCall`, `GeneratorCall`, `AgreementCall`), registry `DefaultCalls`, `DefaultKeys`, `KeyNames`, `KeyBits`
       - `write/` : `CaptureDocument` (schema, `of` ⇄ `parse`) → `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`; `TrialDocument` (`of` ⇄ `parse`) → `TrialYamlWriter` → `trial_<utc>.yaml`; `DocumentFields`, `YamlCodec`, `ProbeDirectory`, `ProbeFileName`
   - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
     - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state

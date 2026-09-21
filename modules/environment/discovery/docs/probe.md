@@ -39,7 +39,7 @@ Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYa
 - attributes are optional: `SupportedModes`, `SupportedPaddings`, `KeySize` often absent
 - transformations resolved by fallback are not listed (`Cipher.AES` serves `AES/CBC/PKCS5Padding`)
 - an alias is a name, not a separate implementation
-- the trial instantiates (`Provider.Service.newInstance`, `Cipher.getInstance` per declared mode × padding); a service that instantiates can still fail at `init` or `doFinal`
+- the trial instantiates (level 1), then calls once with a default key (level 2); a default run says nothing about other key sizes or parameters (#18)
 - not visible: native crypto via JNI, providers not registered in this process, hardware (StrongBox, AES acceleration)
 
 ## Classes
@@ -81,6 +81,10 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `ServiceTree` | `query` | builds `tree()`: merges spellings, unions modes and paddings — `internal` |
 | `TrialRunner` | `trial` | capture × live providers → `TrialReport`: one outcome per service, one per declared cipher transformation |
 | `Attempt` | `trial` | runs one instantiation, turns `Exception`/`LinkageError` into a `TrialOutcome` — `internal` |
+| `DefaultRunTrial` | `trial` | level 2: one real call per instantiated service/transformation with a default key; records key algorithm, key provider, key size, input size used, what the provider chose, bare name |
+| `DefaultCall`, `DefaultCalls` + one call per engine type | `trial/call` | registry of per-type calls; a type with no call gets no default run — `internal` |
+| `DefaultKeys`, `KeyNames`, `KeyBits` | `trial/call` | default keys, cached per run; key algorithm from the name; key size in bits — `internal` |
+| `DefaultRunOutcome` | `contract` | one default run; carries an error exactly when it fails |
 | `TransformationSet` | `trial` | algorithm + algorithm/mode/padding for every declared pair — `internal` |
 | `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome` | `contract` | the trial model |
 | `TrialDocument` | `write` | the trial YAML schema, `of` ⇄ `parse` |
