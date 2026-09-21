@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
+import io.github.junekim0007.cryptobench.discovery.query.CaptureQuery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
@@ -81,5 +82,17 @@ class JcaContractTest {
         assertTrue("no declared transformation failed; the trial has nothing to add over the capture", report.services.flatMap { it.transformations }.any { !it.outcome.instantiates })
         val target = discovery.trial(capture, Security.getProviders())
         assertTrue("unexpected name ${target.name}", target.name.matches(Regex("trial_\\d{8}T\\d{6}Z\\.yaml")))
+    }
+
+    @Test
+    fun theQueriesAgreeWithTheSetting() {
+        val query = CaptureQuery(capture)
+        listOf("Cipher" to "AES", "MessageDigest" to "SHA-256", "Signature" to "SHA256withRSA").forEach { (type, algorithm) ->
+            assertTrue("$type/$algorithm: query and setting disagree",
+                query.whoServes(type, algorithm).map { it.name } == setting.providersFor(type, algorithm).map { it.name })
+        }
+        val head = query.whoServes("Cipher", "AES").first()
+        assertTrue("head is not the lowest precedence", query.whoServes("Cipher", "AES").all { it.precedence >= head.precedence })
+        assertTrue("tree has no Cipher/AES", query.tree().getValue("Cipher").containsKey("AES"))
     }
 }

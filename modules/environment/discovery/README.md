@@ -51,6 +51,12 @@
       - `ServiceSetting.kt`
       - `Device.kt`
       - `ServiceLookup.kt`
+    - `query/`
+      - `CaptureQuery.kt`
+      - `TrialQuery.kt`
+      - `ServiceShape.kt`
+      - `TransformationFailure.kt`
+      - `ServiceIndex.kt`
     - `trial/`
       - `TrialRunner.kt`
       - `Attempt.kt`
@@ -73,6 +79,8 @@
     - `YamlCodecTest.kt`
     - `TrialRunnerTest.kt`
     - `TrialDocumentTest.kt`
+    - `CaptureQueryTest.kt`
+    - `TrialQueryTest.kt`
     - `ServiceKeyTest.kt`
 
 ## Limitations
