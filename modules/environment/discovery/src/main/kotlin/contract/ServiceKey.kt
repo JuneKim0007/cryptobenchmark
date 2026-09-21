@@ -2,8 +2,6 @@ package io.github.junekim0007.cryptobench.discovery.contract
 
 import java.util.Locale
 
-internal class ServiceKeyException(message: String) : IllegalArgumentException(message)
-
 internal class ServiceKey(type: String, algorithm: String) {
 
     val type: String = validated("type", type)

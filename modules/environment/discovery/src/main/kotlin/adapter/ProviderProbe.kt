@@ -1,25 +1,15 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import io.github.junekim0007.cryptobench.discovery.contract.AliasEntry
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceAttributes
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
-
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import java.security.Provider
 
-/**
- * Reads the JCA into a capture. The caller passes the providers, so this never calls Security and
- * can be driven with hand-built providers. Null and ordering are normalised here, which lets the
- * capture model stay plain data.
- */
 class ProviderProbe {
-
-    private data class Alias(val type: String, val name: String, val target: String) {
-        val targetKey: ServiceKey get() = ServiceKey(type, target)
-    }
 
     fun capture(
         providers: Array<Provider>?,
@@ -32,11 +22,7 @@ class ProviderProbe {
     )
 
     private fun toEntry(provider: Provider, precedence: Int): ProviderEntry {
-        val aliases = mutableListOf<Alias>()
-        val attributes = mutableMapOf<ServiceKey, MutableMap<String, Any>>()
-        index(provider, aliases, attributes)
-
-        val aliasesByTarget = aliases.groupBy({ it.targetKey }, { it.name })
+        val index = PropertyMapIndex.of(provider)
 
         val services = provider.services.orEmpty().map { service ->
             val serviceKey = ServiceKey(service.type, service.algorithm)
@@ -44,8 +30,8 @@ class ProviderProbe {
                 type = service.type,
                 algorithm = service.algorithm,
                 className = service.className ?: "",
-                aliases = aliasesByTarget[serviceKey]?.sorted().orEmpty(),
-                attributes = ServiceAttributes.of(attributes[serviceKey]),
+                aliases = index.aliasesByTarget[serviceKey]?.sorted().orEmpty(),
+                attributes = ServiceAttributes.of(index.attributesByService[serviceKey]),
             )
         }.sortedWith(compareBy({ it.type }, { it.algorithm }))
 
@@ -57,37 +43,10 @@ class ProviderProbe {
             version = provider.versionStr,
             info = provider.info ?: "",
             services = services,
-            unresolvedAliases = aliases
+            unresolvedAliases = index.aliases
                 .filterNot { it.targetKey in present }
                 .map { AliasEntry(it.type, it.name, it.target) }
                 .sortedWith(compareBy({ it.type }, { it.name })),
         )
-    }
-
-    private fun index(
-        provider: Provider,
-        aliases: MutableList<Alias>,
-        attributes: MutableMap<ServiceKey, MutableMap<String, Any>>,
-    ) {
-        for (raw in provider.stringPropertyNames()) {
-            val value = provider.getProperty(raw)?.takeIf { it.isNotBlank() } ?: continue
-            when (val propertyKey = PropertyKeyParser.classify(raw)) {
-                is PropertyKey.Alias ->
-                    aliases += Alias(propertyKey.type, propertyKey.name, value)
-                is PropertyKey.Attribute ->
-                    attributes.getOrPut(ServiceKey(propertyKey.type, propertyKey.algorithm)) { mutableMapOf() }[propertyKey.name] =
-                        parseOrRaw(propertyKey.name, value)
-                is PropertyKey.ServiceImpl,
-                PropertyKey.ProviderMeta,
-                PropertyKey.Malformed -> Unit
-            }
-        }
-    }
-
-    /** Capture records what is there; only an unparseable number is kept raw, for a reader to judge. */
-    private fun parseOrRaw(attribute: String, value: String): Any = try {
-        AttributeKind.parse(attribute, value)
-    } catch (e: NumberFormatException) {
-        value
     }
 }

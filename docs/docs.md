@@ -29,10 +29,10 @@
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin, java library) — what this device offers, never inside a measurement
     - `README.md`, `docs/probe.md`, `docs/security_contract.md` : module docs
     - `src/main/kotlin/` : sub-package folders only, no package root folders
-      - `adapter/` : reads the JCA and parses it into the contract — `ProviderProbe`, `PropertyKeyParser`, `PropertyKey`, `AttributeKind`
-      - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`
-      - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to what the benchmark needs
-      - `write/` : `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`
+      - `adapter/` : reads the JCA and parses it into the contract — `ProviderProbe`, `PropertyMapIndex`, `PropertyKeyParser`, `PropertyKey`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `DeviceRuntimeReader`
+      - `contract/` : the captured model — `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `ServiceKey`
+      - `setting/` : `DiscoverySettingConverter` → `DiscoverySetting`, the capture reduced to `BenchmarkScope`; `ProviderSetting`, `ServiceSetting`, `Device`, `ServiceLookup`
+      - `write/` : `EnvironmentYamlWriter` → `probe_<utc>.yaml`; `ProviderClassNameWriter` → `probe_classes_<utc>.yaml`; `YamlDocument`, `ProbeFile`
   - `modules/benchmark/` : module `:benchmark` (java library) — what is measured; standalone, not android-specific
     - `benchmark/preparation/` : turns what the user asked for into runnable state
       - `case/` : one measurement described — op, algorithm, mode, padding, provider, key size, input size *(planned)*

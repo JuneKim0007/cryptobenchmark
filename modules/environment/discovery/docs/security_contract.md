@@ -85,7 +85,7 @@ serialized (#21).
 | `providers[].services[].keySize` | int | largest declared key size; null when undeclared |
 
 In-scope service types: `Cipher`, `MessageDigest`, `Mac`, `Signature`, `KeyGenerator`,
-`KeyPairGenerator`, `KeyAgreement` (`DiscoverySettingConverter.BENCHMARKED_TYPES`).
+`KeyPairGenerator`, `KeyAgreement` (`BenchmarkScope.TYPES`).
 
 ## cropped
 
