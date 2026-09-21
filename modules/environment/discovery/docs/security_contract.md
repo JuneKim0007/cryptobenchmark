@@ -1,6 +1,6 @@
 # security_contract
 
-Fields of a capture written by `ProviderProbe` → `EnvironmentYamlWriter`, one `probe_<utc timestamp>.yaml` per capture. Key names are the constants on `CaptureDocument`.
+Fields of a capture written by `ProviderProbe` → `EnvironmentYamlWriter`, one `probe_<utc timestamp>.yaml` per capture. Key names are the constants on `CaptureDocument`; `CaptureDocument.parse` reads a document back and rejects any other `schemaVersion`.
 
 ## capture
 

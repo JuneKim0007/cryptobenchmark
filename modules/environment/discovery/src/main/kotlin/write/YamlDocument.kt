@@ -11,4 +11,7 @@ internal object YamlDocument {
     })
 
     fun dump(document: Any): String = yaml.dump(document)
+
+    @Suppress("UNCHECKED_CAST")
+    fun load(text: String): Map<String, Any> = yaml.load(text) as Map<String, Any>
 }
