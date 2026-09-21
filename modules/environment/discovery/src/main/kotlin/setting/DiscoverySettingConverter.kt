@@ -1,21 +1,15 @@
 package io.github.junekim0007.cryptobench.discovery.setting
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 
-/**
- * Reduces a full capture to the discovery setting. Typed to typed: it never reads a file or a field
- * name, so serialization changes cannot break it. Every field it drops is listed in
- * security_contract.md under "cropped".
- */
-class DiscoverySettingConverter(types: Collection<String> = BENCHMARKED_TYPES) {
+class DiscoverySettingConverter(types: Collection<String> = BenchmarkScope.TYPES) {
 
-    /** Scope is a parameter so it can come from configuration rather than the constant. */
     private val types: Set<String> = types.mapTo(HashSet()) { ServiceKey.fold(it) }
 
     fun convert(capture: CapturedEnvironment): DiscoverySetting = DiscoverySetting(
-        device = DiscoverySetting.Device(
+        device = Device(
             model = capture.runtime.model,
             manufacturer = capture.runtime.manufacturer,
             hardware = capture.runtime.hardware,
@@ -24,7 +18,7 @@ class DiscoverySettingConverter(types: Collection<String> = BENCHMARKED_TYPES) {
         ),
         providers = capture.providers
             .map { provider ->
-                DiscoverySetting.ProviderSetting(
+                ProviderSetting(
                     name = provider.name,
                     precedence = provider.precedence,
                     version = provider.version,
@@ -35,11 +29,11 @@ class DiscoverySettingConverter(types: Collection<String> = BENCHMARKED_TYPES) {
         capturedAtMillis = capture.capturedAtMillis,
     )
 
-    private fun inScope(services: List<ServiceEntry>): List<DiscoverySetting.ServiceSetting> =
+    private fun inScope(services: List<ServiceEntry>): List<ServiceSetting> =
         services
             .filter { ServiceKey.fold(it.type) in types }
             .map { service ->
-                DiscoverySetting.ServiceSetting(
+                ServiceSetting(
                     type = service.type,
                     algorithm = service.algorithm,
                     aliases = service.aliases,
@@ -48,13 +42,4 @@ class DiscoverySettingConverter(types: Collection<String> = BENCHMARKED_TYPES) {
                     keySize = service.attributes.keySize,
                 )
             }
-
-    companion object {
-
-        /** Service types the benchmark measures. Everything else in a capture is cropped. */
-        val BENCHMARKED_TYPES: Set<String> = linkedSetOf(
-            "Cipher", "MessageDigest", "Mac", "Signature",
-            "KeyGenerator", "KeyPairGenerator", "KeyAgreement",
-        )
-    }
 }

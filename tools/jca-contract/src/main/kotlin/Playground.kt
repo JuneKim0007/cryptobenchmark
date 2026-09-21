@@ -64,7 +64,7 @@ fun main(arguments: Array<String>) {
     // printShape(chosenProvider, propertyKeys, "<engine>.<algorithm> <attribute>") { isService(it) && it.contains(' ') }
     // printShape(chosenProvider, propertyKeys, "<engine>.<algorithm>") { isService(it) && !it.contains(' ') }
 
-    // val capture = ProviderProbe().capture(providers, RuntimeInfo.ofDevice())
+    // val capture = ProviderProbe().capture(providers, DeviceRuntimeReader.read())
     // val captured = capture.providers.first { it.name == chosenProviderName }
 
     // section("what the probe made of $chosenProviderName")
@@ -83,7 +83,7 @@ fun main(arguments: Array<String>) {
     // section("the reduced discovery setting")
     // println("  providers kept      = ${setting.providers.size}")
     // println("  in-scope services   = ${setting.providers.sumOf { it.services.size }}")
-    // DiscoverySettingConverter.BENCHMARKED_TYPES.forEach { serviceType ->
+    // BenchmarkScope.TYPES.forEach { serviceType ->
     //     println("  %-18s %s".format(serviceType, setting.algorithms(serviceType).take(6)))
     // }
 

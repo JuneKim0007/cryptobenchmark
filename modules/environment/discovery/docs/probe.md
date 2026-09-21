@@ -44,20 +44,30 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 
 | Class | Package | Role |
 |---|---|---|
-| `ProviderProbe` | `probe` | JCA → capture; normalises null and ordering |
-| `PropertyKeyParser` | `probe` | decodes the property-map grammar — `internal` |
-| `PropertyKey` | `probe` | one decoded key, discarded after use — sealed, `internal` |
-| `AttributeKind` | `probe` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
-| `CapturedEnvironment` | `capture` | one capture |
-| `ProviderEntry` | `capture` | one provider |
-| `ServiceEntry` | `capture` | one service |
-| `ServiceAttributes` | `capture` | typed attribute accessors |
-| `RuntimeInfo` | `capture` | device and runtime provenance |
+| `ProviderProbe` | `adapter` | JCA → capture; joins services with aliases and attributes |
+| `PropertyMapIndex` | `adapter` | one provider's property map → aliases, attributes — `internal` |
+| `PropertyKeyParser` | `adapter` | decodes the property-map grammar — `internal` |
+| `PropertyKey` | `adapter` | one decoded key, discarded after use — sealed, `internal` |
+| `DeclaredAlias` | `adapter` | one alias as declared — `internal` |
+| `AttributeKind` | `adapter` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
+| `AttributeValueParser` | `adapter` | attribute value → that type — `internal` |
+| `DeviceRuntimeReader` | `adapter` | `android.os.Build` → `RuntimeInfo`, reflectively |
+| `CapturedEnvironment` | `contract` | one capture |
+| `ProviderEntry` | `contract` | one provider |
+| `ServiceEntry` | `contract` | one service |
+| `AliasEntry` | `contract` | one alias that resolved to nothing |
+| `ServiceAttributes` | `contract` | typed attribute accessors |
+| `RuntimeInfo` | `contract` | device and runtime provenance |
+| `ServiceKey` | `contract` | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
 | `DiscoverySettingConverter` | `setting` | capture → setting |
+| `BenchmarkScope` | `setting` | the 7 engine types measured |
 | `DiscoverySetting` | `setting` | reduced setting; `providersFor`, `algorithms` |
-| `ServiceKey` | root | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
+| `ProviderSetting`, `ServiceSetting`, `Device` | `setting` | the reduced data |
+| `ServiceLookup` | `setting` | find by name or alias — `internal` |
 | `EnvironmentYamlWriter` | `write` | capture → `probe_<utc>.yaml` |
 | `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
+| `YamlDocument` | `write` | document → YAML text — `internal` |
+| `ProbeFile` | `write` | timestamped name, directory, write — `internal` |
 
 ## Drift alarm
 

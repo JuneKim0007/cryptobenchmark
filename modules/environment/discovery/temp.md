@@ -2,6 +2,29 @@
 
 Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`. Line numbers are `File.kt:line`.
 
+## Responsibilities, one per file
+
+| Package | File | Owns |
+|---|---|---|
+| `adapter` | `ProviderProbe` | providers in, capture out; joins services with their aliases and attributes |
+| `adapter` | `PropertyMapIndex` | walks one provider's property map into aliases and attributes |
+| `adapter` | `PropertyKeyParser` | which of the four shapes a raw key is |
+| `adapter` | `PropertyKey` | the parse result |
+| `adapter` | `DeclaredAlias` | one alias as declared, before resolution |
+| `adapter` | `AttributeKind` | which type an attribute name has |
+| `adapter` | `AttributeValueParser` | turning an attribute value into that type |
+| `adapter` | `DeviceRuntimeReader` | reads `android.os.Build` reflectively |
+| `contract` | `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `RuntimeInfo`, `ServiceAttributes` | data, validated at construction |
+| `contract` | `ServiceKey`, `ServiceKeyException` | when two service names are the same |
+| `setting` | `DiscoverySettingConverter` | crop a capture to the benchmark scope |
+| `setting` | `BenchmarkScope` | the 7 engine types we measure |
+| `setting` | `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` | the reduced data |
+| `setting` | `ServiceLookup` | find a service by name or alias |
+| `write` | `EnvironmentYamlWriter` | capture → document |
+| `write` | `ProviderClassNameWriter` | capture → class list document |
+| `write` | `YamlDocument` | document → YAML text |
+| `write` | `ProbeFile` | timestamped name, directory, write |
+
 ## Legend
 
 Kotlin states optionality in the type, so there is no separate column:
@@ -22,9 +45,9 @@ Kotlin states optionality in the type, so there is no separate column:
 
 ```
 Provider[]                                   (caller: Security.getProviders())
-  └─ ProviderProbe.capture       :24
-       ├─ index       :67   property map → aliases, attributes
-       └─ toEntry     :34   getServices() + aliases + attributes → ProviderEntry
+  └─ ProviderProbe.capture            :14
+       ├─ PropertyMapIndex.of      :16   property map → aliases, attributes
+       └─ toEntry                  :24   getServices() + index → ProviderEntry
   → CapturedEnvironment ──► EnvironmentYamlWriter.write :35    ──► probe_<utc>.yaml
                         ──► ProviderClassNameWriter.write :29  ──► probe_classes_<utc>.yaml
                         └─► DiscoverySettingConverter.convert :17 ──► DiscoverySetting (Kotlin only, never written)
@@ -59,7 +82,7 @@ Null and ordering are normalised in `ProviderProbe`, at the JCA boundary. The mo
 
 ### `RuntimeInfo` → `runtime`
 
-| Field | Declaration | YAML | `ofDevice()` source |
+| Field | Declaration | YAML | `DeviceRuntimeReader.read()` source |
 |---|---|---|---|
 | `model` | `String` = `""` | always | `Build.MODEL` |
 | `manufacturer` | `String` = `""` | always | `Build.MANUFACTURER` |
@@ -68,7 +91,7 @@ Null and ordering are normalised in `ProviderProbe`, at the JCA boundary. The mo
 | `release` | `String` = `""` | always | `Build.VERSION.RELEASE` |
 | `javaVersion` | `String` = system property | always | `java.version` |
 
-`Build` is read reflectively; any failure → `""` / `0`. `unknown()` is `RuntimeInfo()` — every default.
+`DeviceRuntimeReader` reads `Build` reflectively; any failure → `""` / `0`. `RuntimeInfo.unknown()` is every default.
 
 ### `ProviderEntry` → `providers[]`
 
@@ -104,7 +127,7 @@ Resolved aliases are not here — they sit on the service they resolve to.
 
 ### `ServiceAttributes` → `attributes`
 
-Every attribute is optional. Values are parsed on the way in (`parseOrRaw` :88) and held in a sorted map.
+Every attribute is optional. Values are parsed on the way in (`AttributeValueParser.parseOrRaw`) and held in a sorted map.
 
 | Attribute | `AttributeKind` | Stored as | Accessor :line | When absent |
 |---|---|---|---|---|
@@ -128,9 +151,9 @@ Every attribute is optional. Values are parsed on the way in (`parseOrRaw` :88) 
 | `capturedAtMillis` | `Long` = `0L` | same | copied |
 | `schemaVersion` | `Int` = `SCHEMA_VERSION` (1) | — | the setting's own version |
 | `ProviderSetting.name` / `precedence` / `version` | as `ProviderEntry` | copied | `info`, `unresolvedAliases` dropped |
-| `ProviderSetting.services` | `List<ServiceSetting>` = empty | `ProviderEntry.services` | only types in `BENCHMARKED_TYPES` :55 |
+| `ProviderSetting.services` | `List<ServiceSetting>` = empty | `ProviderEntry.services` | only types in `BenchmarkScope.TYPES` |
 | `ProviderSetting.usable` | **computed** | — | in-scope services non-empty |
-| `ProviderSetting.byNameOrAlias` | private, built in the initialiser :48 | — | `ServiceKey(type, algorithm)` and `ServiceKey(type, alias)` → service |
+| `ProviderSetting.find` | delegates to `ServiceLookup` | — | `ServiceKey(type, algorithm)` and `ServiceKey(type, alias)` → service |
 | `ServiceSetting.type` / `algorithm` / `aliases` | as `ServiceEntry` | copied | `className` dropped |
 | `ServiceSetting.supportedModes` / `supportedPaddings` | `List<String>` = empty | attributes | empty = undeclared |
 | `ServiceSetting.keySize` | **`Int?`** | `attributes.keySize` | null = undeclared or unparseable |
@@ -157,4 +180,4 @@ Lookups that can find nothing:
 
 | `internal` (module-only) | `public` (the module's API) |
 |---|---|
-| `PropertyKey`, `PropertyKeyParser`, `AttributeKind`, `ServiceKey`, `ServiceKeyException`, `ServiceAttributes.document()` | `ProviderProbe`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `DiscoverySettingConverter`, `DiscoverySetting` |
+| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `YamlDocument`, `ProbeFile`, `ServiceAttributes.document()` | `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
