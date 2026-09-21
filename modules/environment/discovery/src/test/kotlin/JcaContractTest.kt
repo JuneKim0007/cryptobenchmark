@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
+import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
@@ -52,5 +53,18 @@ class JcaContractTest {
         val target = EnvironmentYamlWriter().write(capture, directory)
         assertTrue("capture not written", target.length() > 0)
         assertTrue("unexpected name ${target.name}", target.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
+    }
+
+    @Test
+    fun writeClassNames() {
+        val directory = File(System.getProperty("capture.dir") ?: "build/capture")
+        val classes = ProviderClassNameWriter().toDocument(capture)
+        assertTrue("no provider listed", classes.isNotEmpty())
+        classes.forEach { (provider, names) ->
+            assertTrue("$provider lists a class twice", names.size == names.distinct().size)
+            assertTrue("$provider is not sorted", names == names.sorted())
+        }
+        val target = ProviderClassNameWriter().write(capture, directory)
+        assertTrue("class list not written", target.length() > 0)
     }
 }

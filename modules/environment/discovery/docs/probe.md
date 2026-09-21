@@ -56,7 +56,8 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DiscoverySettingConverter` | `setting` | capture → setting |
 | `DiscoverySetting` | `setting` | reduced setting; `providersFor`, `algorithms` |
 | `ServiceKey` | root | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
-| `EnvironmentYamlWriter` | `write` | capture → YAML file |
+| `EnvironmentYamlWriter` | `write` | capture → `probe_<utc>.yaml` |
+| `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
 
 ## Drift alarm
 

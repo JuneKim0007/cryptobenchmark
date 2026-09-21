@@ -54,7 +54,7 @@ class ProviderProbe {
         return ProviderEntry(
             name = provider.name,
             precedence = precedence,
-            version = provider.version.toString(),
+            version = provider.versionStr,
             info = provider.info ?: "",
             services = services,
             unresolvedAliases = aliases
