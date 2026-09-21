@@ -21,6 +21,7 @@ Fields of a capture written by `ProviderProbe` → `EnvironmentYamlWriter`, one 
 | `sdkInt` | int | Android API level |
 | `release` | string | Android version |
 | `javaVersion` | string | Java runtime version |
+| `defaultKeySizeProperty` | string | system property `jdk.security.defaultKeySize`; overrides provider default key sizes; `''` when unset or absent (older captures) |
 
 ## providers[]
 
