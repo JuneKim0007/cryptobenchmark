@@ -9,6 +9,9 @@ class ReadOnlyYamlFile<T> internal constructor(
 ) {
 
     fun read(): T {
+        if (!file.isFile) {
+            throw IllegalArgumentException("missing_file: ${file.path}")
+        }
         val document = try {
             codec.load(file.readText())
         } catch (failure: RuntimeException) {
@@ -18,7 +21,11 @@ class ReadOnlyYamlFile<T> internal constructor(
         require(version.toInt() == reader.schemaVersion) {
             "unsupported_schema_version: ${file.name}: $version, this build reads ${reader.schemaVersion}"
         }
-        return reader.parse(document)
+        return try {
+            reader.parse(document)
+        } catch (failure: IllegalArgumentException) {
+            throw IllegalArgumentException("${file.name}: ${failure.message}", failure)
+        }
     }
 
     internal companion object {

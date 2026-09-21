@@ -54,10 +54,21 @@ Override precedence, lowest first: type → name pattern → exact name → prov
 | `policy` | the global `policy` section, frozen: preparation and the benchmark apply the same rule |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations` (empty = every operation of the type), `providerDefaults` |
 | `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
+| `warnings` | rules that touched nothing: `exclude_matches_nothing`, `override_matches_nothing` — usually a typo; not a failure, printed by the host command |
 | `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |
 
 A size no override sets stays empty (provider default): an observed size is not a valid init argument
 (DESede's default key encodes to 192 bits; `init` accepts 112 or 168). The observed size is in `inventory.yaml`.
+
+## Errors and output files
+
+| Situation | Result |
+|---|---|
+| a file is missing | `missing_file: <path>`; a test set also names the setting that pointed there |
+| a file does not parse or has a wrong key | `<file>: <code>: <location>`, e.g. `scope.yaml: unknown_keys: include[0] [nme]` |
+| a run fails | the previous `inventory.yaml` / `effective.yaml` is removed first, so no stale file survives |
+| a file is written | written to `<name>.partial`, then moved into place |
+| host command | expected errors print one `error:` line and exit 1; warnings and skips go to stderr |
 
 ## Parameter trees (`key`, `parameters`)
 
