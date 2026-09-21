@@ -58,7 +58,7 @@ class DocumentsTest {
             assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrn: {}\n")) }.message)
         assertEquals("unknown_keys: run [inputSize], known [inputSizes, phases, metrics, processRepetitions, seed]",
             assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(files.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrun: {inputSize: [1]}\n")) }.message)
-        assertEquals("unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters]",
+        assertEquals("unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations]",
             assertThrows(IllegalArgumentException::class.java) { TestSetDocument.parse(files.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) }.message)
     }
 

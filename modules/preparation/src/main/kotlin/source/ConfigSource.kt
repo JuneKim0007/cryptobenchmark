@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.source
 
 import io.github.junekim0007.cryptobench.preparation.measurement.Metric
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
@@ -9,6 +10,7 @@ import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.number
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.numbers
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.optionalNumbers
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.optionalSection
+import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.optionalStrings
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.section
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.string
 import io.github.junekim0007.cryptobench.preparation.source.ConfigFields.strings
@@ -55,6 +57,7 @@ class ConfigSource {
                         inputSizes = optionalNumbers(entry, "inputSizes"),
                         keyParameters = optionalSection(entry, "key"),
                         parameters = optionalSection(entry, "parameters"),
+                        operations = optionalStrings(entry, "operations").mapTo(LinkedHashSet()) { enumOf<Operation>("operation", it) },
                     )
                 }
             }

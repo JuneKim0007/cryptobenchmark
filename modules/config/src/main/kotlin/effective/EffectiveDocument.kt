@@ -32,6 +32,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     const val KEY = "key"
     const val PARAMETERS = "parameters"
     const val PROVIDER_DEFAULTS = "providerDefaults"
+    const val OPERATIONS = "operations"
 
     private const val GLOBAL = "global"
     private const val TEST_SET = "testSet"
@@ -87,6 +88,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         if (entry.inputSizes.isNotEmpty()) put(INPUT_SIZES, entry.inputSizes)
         if (entry.key.isNotEmpty()) put(KEY, LinkedHashMap(entry.key))
         if (entry.parameters.isNotEmpty()) put(PARAMETERS, LinkedHashMap(entry.parameters))
+        if (entry.operations.isNotEmpty()) put(OPERATIONS, entry.operations)
         if (entry.providerDefaults.isNotEmpty()) put(PROVIDER_DEFAULTS, entry.providerDefaults)
     }
 
@@ -96,5 +98,6 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         key = optionalSection(document, KEY) ?: emptyMap(),
         parameters = optionalSection(document, PARAMETERS) ?: emptyMap(),
         providerDefaults = optionalStrings(document, PROVIDER_DEFAULTS),
+        operations = optionalStrings(document, OPERATIONS),
     )
 }

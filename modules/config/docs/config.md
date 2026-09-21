@@ -40,7 +40,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 | `description` | free text |
 | `include` | rules; empty = every primitive the inventory can run |
 | `exclude` | rules |
-| `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?}}` |
+| `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?, operations?}}` |
 
 Rule: `{provider?, type?, name?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
 Override precedence, lowest first: type → name pattern → exact name → provider. Ties: file order. Lists replace.
@@ -52,7 +52,7 @@ Override precedence, lowest first: type → name pattern → exact name → prov
 | `generatedFrom` | global, test set, inventory, capture, trial file names; device |
 | `run` | the global `run` section, frozen |
 | `policy` | the global `policy` section, frozen: preparation and the benchmark apply the same rule |
-| `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `providerDefaults` |
+| `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations` (empty = every operation of the type), `providerDefaults` |
 | `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
 | `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |
 

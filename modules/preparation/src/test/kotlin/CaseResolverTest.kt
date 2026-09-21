@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
@@ -39,7 +40,8 @@ class CaseResolverTest {
             phases = setOf(Phase.WARM, Phase.COLD),
         )
         val resolution = resolver.resolve(request)
-        assertEquals(8, resolution.cases.size)
+        assertEquals(16, resolution.cases.size)
+        assertEquals(setOf(Operation.ENCRYPT, Operation.DECRYPT), resolution.cases.map { it.operation }.toSet())
         assertEquals(emptyList<Any>(), resolution.rejections)
     }
 
@@ -51,10 +53,10 @@ class CaseResolverTest {
         )))
         assertEquals(
             listOf(
-                "MessageDigest_SHA-256_AndroidOpenSSL_i1024_WARM",
-                "MessageDigest_SHA-256_BC_i1024_WARM",
-                "KeyGenerator_AES_AndroidOpenSSL_k128_WARM",
-                "KeyGenerator_AES_AndroidOpenSSL_k256_WARM",
+                "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM",
+                "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM",
+                "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k128_WARM",
+                "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k256_WARM",
             ),
             resolution.cases.map { it.id },
         )
@@ -67,7 +69,7 @@ class CaseResolverTest {
             Selection("Cipher", "AES/GCM/NoPadding", providers = listOf("AndroidOpenSSL", "BC", "SunJCE")),
             Selection("Cipher", "ChaCha20"),
         )))
-        assertEquals(listOf("AndroidOpenSSL"), resolution.cases.map { it.provider })
+        assertEquals(listOf("AndroidOpenSSL", "AndroidOpenSSL"), resolution.cases.map { it.provider })
         assertEquals(
             listOf(
                 "Cipher/AES/GCM/NoPadding@BC: not_registered",
@@ -81,7 +83,7 @@ class CaseResolverTest {
     @Test
     fun anUnregisteredTypeResolvesUnderTheFallbackAndCanBeRegistered() {
         val request = BenchmarkRequest(listOf(Selection("MessageDigest", "SHA-256")))
-        val digestAsKeyOnly = CaseResolver(device, AxisRules.standard().with("messagedigest", AxisRule(usesKeySize = true, usesInputSize = false)))
+        val digestAsKeyOnly = CaseResolver(device, AxisRules.standard().with("messagedigest", AxisRule(usesKeySize = true, usesInputSize = false, operations = listOf(Operation.DIGEST))))
         assertEquals(listOf(null, null), digestAsKeyOnly.resolve(request).cases.map { it.inputSize })
     }
 
@@ -93,7 +95,7 @@ class CaseResolverTest {
             keyParameters = mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("secp256r1")))
         val fine = Selection("Cipher", "AES/GCM/NoPadding", parameters = mapOf("class" to "javax.crypto.spec.GCMParameterSpec", "arguments" to listOf(128, "fresh(12)")))
         val resolution = resolver.resolve(BenchmarkRequest(listOf(broken, bothKeys, fine)))
-        assertEquals(listOf(fine.parameters), resolution.cases.map { it.parameters })
+        assertEquals(listOf(fine.parameters, fine.parameters), resolution.cases.map { it.parameters })
         assertEquals(
             listOf(
                 "bind_failed: parameters: no constructor of javax.crypto.spec.GCMParameterSpec takes [Integer 128] (none with 1 arguments)",
@@ -101,5 +103,19 @@ class CaseResolverTest {
             ),
             resolution.rejections.map { it.reason },
         )
+    }
+
+    @Test
+    fun aSelectionCanNarrowTheOperations() {
+        val verifyOnly = Selection("Cipher", "AES/GCM/NoPadding", operations = setOf(Operation.DECRYPT))
+        assertEquals(setOf(Operation.DECRYPT), resolver.resolve(BenchmarkRequest(listOf(verifyOnly))).cases.map { it.operation }.toSet())
+    }
+
+    /** Asking a digest to sign is a config mistake: rejected by name, with the operations that type does have. */
+    @Test
+    fun anOperationTheTypeDoesNotHaveIsRejected() {
+        val wrong = Selection("MessageDigest", "SHA-256", operations = setOf(Operation.SIGN))
+        assertEquals(listOf("unsupported_operation: [SIGN] for MessageDigest, one of [DIGEST]"),
+            resolver.resolve(BenchmarkRequest(listOf(wrong))).rejections.map { it.reason })
     }
 }

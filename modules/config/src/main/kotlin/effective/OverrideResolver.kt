@@ -16,12 +16,14 @@ internal class OverrideResolver(private val overrides: List<Override>) {
         val inputSizes = applicable.lastOrNull { it.inputSizes != null }?.inputSizes
         val key = applicable.lastOrNull { it.key != null }?.key.orEmpty()
         val parameters = applicable.lastOrNull { it.parameters != null }?.parameters.orEmpty()
+        val operations = applicable.lastOrNull { it.operations != null }?.operations.orEmpty()
         val observed = located.entry
         return EffectiveEntry(
             keySizes = keySizes.orEmpty(),
             inputSizes = inputSizes ?: observed.inputSizes,
             key = key,
             parameters = parameters,
+            operations = operations,
             providerDefaults = listOfNotNull(
                 "keySize".takeIf { keySizes == null && key.isEmpty() && observed.keySizes.isNotEmpty() },
                 "parameters".takeIf { parameters.isEmpty() && observed.providerChose.isNotEmpty() },

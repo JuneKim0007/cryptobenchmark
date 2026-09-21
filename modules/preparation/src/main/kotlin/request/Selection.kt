@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.request
 
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+
 data class Selection(
     val type: String,
     val algorithm: String,
@@ -8,6 +10,7 @@ data class Selection(
     val inputSizes: List<Int> = emptyList(),
     val keyParameters: Map<String, Any> = emptyMap(),
     val parameters: Map<String, Any> = emptyMap(),
+    val operations: Set<Operation> = emptySet(),
 ) {
 
     init {
