@@ -32,6 +32,7 @@ Sources under `src/main/kotlin/`: `adapter/`, `contract/`, `setting/`, `write/`.
 | `query` | `TrialQuery` | questions asked of a trial report |
 | `query` | `ServiceShape`, `TransformationFailure` | answers, as data |
 | `query` | `ServiceIndex` | one provider's services by registered name or alias |
+| `query` | `ServiceTree` | builds the type → algorithm → shape tree |
 | `trial` | `TrialRunner` | capture × live providers → `TrialReport`; every service via `Service.newInstance`, every declared cipher transformation via `Cipher.getInstance` |
 | `trial` | `Attempt` | one call → `TrialOutcome`; catches `Exception` and `LinkageError`, nothing else |
 | `trial` | `TransformationSet` | which transformations to try for one cipher service |
@@ -199,4 +200,4 @@ Lookups that can find nothing:
 
 | `internal` (module-only) | `public` (the module's API) |
 |---|---|
-| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `Attempt`, `TransformationSet`, `ServiceIndex`, `ServiceAttributes.document()` | `Discovery`, `DiscoveryRun`, `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `TrialRunner`, `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`, `TrialDocument`, `TrialYamlWriter`, `CaptureQuery`, `TrialQuery`, `ServiceShape`, `TransformationFailure`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
+| `PropertyKey`, `PropertyKeyParser`, `PropertyMapIndex`, `DeclaredAlias`, `AttributeKind`, `AttributeValueParser`, `ServiceKey`, `ServiceKeyException`, `ServiceLookup`, `ProbeFileName`, `DocumentFields`, `Attempt`, `TransformationSet`, `ServiceIndex`, `ServiceTree`, `ServiceAttributes.document()` | `Discovery`, `DiscoveryRun`, `ProviderProbe`, `DeviceRuntimeReader`, `CapturedEnvironment`, `ProviderEntry`, `ServiceEntry`, `AliasEntry`, `ServiceAttributes`, `RuntimeInfo`, `EnvironmentYamlWriter`, `ProviderClassNameWriter`, `ProbeDirectory`, `YamlCodec`, `TrialRunner`, `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome`, `TrialDocument`, `TrialYamlWriter`, `CaptureQuery`, `TrialQuery`, `ServiceShape`, `TransformationFailure`, `DiscoverySettingConverter`, `BenchmarkScope`, `DiscoverySetting`, `ProviderSetting`, `ServiceSetting`, `Device` |
