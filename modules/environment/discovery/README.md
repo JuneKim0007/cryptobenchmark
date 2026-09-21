@@ -43,6 +43,7 @@
       - `ServiceTrialEntry.kt`
       - `TransformationTrialEntry.kt`
       - `TrialOutcome.kt`
+      - `DefaultRunOutcome.kt`
     - `setting/`
       - `DiscoverySettingConverter.kt`
       - `BenchmarkScope.kt`
@@ -62,6 +63,19 @@
       - `TrialRunner.kt`
       - `Attempt.kt`
       - `TransformationSet.kt`
+      - `DefaultRunTrial.kt`
+      - `call/`
+        - `DefaultCall.kt`
+        - `DefaultCalls.kt`
+        - `CipherCall.kt`
+        - `SignatureCall.kt`
+        - `MacCall.kt`
+        - `DigestCall.kt`
+        - `GeneratorCall.kt`
+        - `AgreementCall.kt`
+        - `DefaultKeys.kt`
+        - `KeyNames.kt`
+        - `KeyBits.kt`
     - `write/`
       - `CaptureDocument.kt`
       - `DocumentFields.kt`
