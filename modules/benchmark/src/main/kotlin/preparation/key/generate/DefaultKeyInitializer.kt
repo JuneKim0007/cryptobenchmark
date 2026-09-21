@@ -2,16 +2,24 @@ package io.github.junekim0007.cryptobench.benchmark.preparation.key.generate
 
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
+import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.KeyGenerator
 
-/** Key size when the case names one, the provider's default otherwise; randomness always injected. */
+/** A bound key spec when the case has one, else the key size, else the provider's default; randomness always injected. */
 object DefaultKeyInitializer : KeyInitializer {
 
-    override fun initialize(generator: KeyGenerator, keySize: Int?, random: SecureRandom) {
-        if (keySize == null) generator.init(random) else generator.init(keySize, random)
+    override fun initialize(generator: KeyGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom) {
+        when {
+            spec != null -> generator.init(spec, random)
+            keySize != null -> generator.init(keySize, random)
+            else -> generator.init(random)
+        }
     }
 
-    override fun initialize(generator: KeyPairGenerator, keySize: Int?, random: SecureRandom) {
-        if (keySize != null) generator.initialize(keySize, random)
+    override fun initialize(generator: KeyPairGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom) {
+        when {
+            spec != null -> generator.initialize(spec, random)
+            keySize != null -> generator.initialize(keySize, random)
+        }
     }
 }

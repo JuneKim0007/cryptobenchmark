@@ -10,6 +10,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
+import java.security.spec.AlgorithmParameterSpec
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
 import javax.crypto.KeyGenerator
@@ -38,14 +39,14 @@ class KeyMaterialGeneratorTest {
     fun aRegisteredInitializerIsUsedForItsProviderOnly() {
         val used = mutableListOf<String>()
         val recording = object : KeyInitializer {
-            override fun initialize(generator: KeyGenerator, keySize: Int?, random: SecureRandom) {
+            override fun initialize(generator: KeyGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom) {
                 used += generator.provider.name
-                DefaultKeyInitializer.initialize(generator, keySize, random)
+                DefaultKeyInitializer.initialize(generator, keySize, spec, random)
             }
 
-            override fun initialize(generator: KeyPairGenerator, keySize: Int?, random: SecureRandom) {
+            override fun initialize(generator: KeyPairGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom) {
                 used += generator.provider.name
-                DefaultKeyInitializer.initialize(generator, keySize, random)
+                DefaultKeyInitializer.initialize(generator, keySize, spec, random)
             }
         }
         val generator = KeyMaterialGenerator(initializers = mapOf("SunJCE" to recording))
@@ -65,5 +66,16 @@ class KeyMaterialGeneratorTest {
     @Test
     fun digestsNeedNothing() {
         assertEquals(KeyMaterial.None, generator.generate(KeyRecipe.None))
+    }
+
+    /** A key spec from the config replaces the size: a named curve, an RSA exponent. */
+    @Test
+    fun aBoundKeySpecDrivesGeneration() {
+        val curve = mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("secp256r1"))
+        val ec = generator.generate(KeyRecipe.Pair("EC", null, "SunEC", parameters = curve)) as KeyMaterial.Pairs
+        assertEquals(256, (ec.pairs.single().public as ECPublicKey).params.curve.field.fieldSize)
+        val exponent = mapOf("class" to "java.security.spec.RSAKeyGenParameterSpec", "arguments" to listOf(2048, 3))
+        val rsa = generator.generate(KeyRecipe.Pair("RSA", null, "SunRsaSign", parameters = exponent)) as KeyMaterial.Pairs
+        assertEquals(java.math.BigInteger.valueOf(3), (rsa.pairs.single().public as RSAPublicKey).publicExponent)
     }
 }
