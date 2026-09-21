@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark
 
-import io.github.junekim0007.cryptobench.benchmark.preparation.case.BenchmarkCase
-import io.github.junekim0007.cryptobench.benchmark.preparation.case.Phase
+import io.github.junekim0007.cryptobench.benchmark.preparation.measurement.BenchmarkCase
+import io.github.junekim0007.cryptobench.benchmark.preparation.measurement.Phase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test

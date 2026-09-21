@@ -16,6 +16,10 @@ class CaptureQuery(private val capture: CapturedEnvironment) {
     fun whoServes(type: String, algorithmOrAlias: String): List<ProviderEntry> =
         providersByPrecedence.filter { indexByProvider.getValue(it.name).find(type, algorithmOrAlias) != null }
 
+    /** The service one provider registers under that name or alias, in its registered spelling. */
+    fun serviceOf(providerName: String, type: String, algorithmOrAlias: String): ServiceEntry? =
+        indexByProvider[providerName]?.find(type, algorithmOrAlias)
+
     /** Every name that reaches the service, across providers: the registered name and all aliases. */
     fun namesOf(type: String, algorithmOrAlias: String): Set<String> =
         whoServes(type, algorithmOrAlias)

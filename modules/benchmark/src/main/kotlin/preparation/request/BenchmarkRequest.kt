@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.preparation.request
 
-import io.github.junekim0007.cryptobench.benchmark.preparation.case.Metric
-import io.github.junekim0007.cryptobench.benchmark.preparation.case.Phase
+import io.github.junekim0007.cryptobench.benchmark.preparation.measurement.Metric
+import io.github.junekim0007.cryptobench.benchmark.preparation.measurement.Phase
 
 /** What the user wants measured. Shape only: whether the device can do it is the resolver's question. */
 data class BenchmarkRequest(

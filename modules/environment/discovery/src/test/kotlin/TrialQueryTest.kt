@@ -23,6 +23,15 @@ class TrialQueryTest {
         ),
     ))
 
+    /** Lookups fold case the way the JCA does; transformations match in any spelling. */
+    @Test
+    fun findsOneTrialByName() {
+        assertEquals("AES", query.serviceTrial("SunJCE", "cipher", "aes")?.algorithm)
+        assertEquals(null, query.serviceTrial("SunJCE", "Cipher", "DES"))
+        assertEquals(false, query.transformationTrial("SunJCE", "AES", "AES/CTR/PKCS5Padding")?.outcome?.instantiates)
+        assertEquals(null, query.transformationTrial("SunJCE", "AES", "AES/GCM/NoPadding"))
+    }
+
     @Test
     fun failingServices() {
         assertEquals(listOf("PKCS11"), query.failingServices().map { it.algorithm })

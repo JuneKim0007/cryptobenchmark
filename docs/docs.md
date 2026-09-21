@@ -38,8 +38,10 @@
   - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
     - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state
       - `request/` : `BenchmarkRequest`, `Selection` — what the user wants measured, shape-validated
-      - `case/` : `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `id` links it to its result
-      - `registry/` : case registry *(planned — provider lookup is `DiscoverySetting.providersFor` for now)*
+      - `measurement/` : `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
+      - `port/` : `DeviceCapability`, `Availability` — what preparation needs to know about the device
+      - `adapter/` : `DiscoveryCapability` — the port answered from a capture and its trial; the only file importing `:environment:discovery`
+      - `resolve/` : `CaseResolver(capability, rules)` → `Resolution(cases, rejections)`; `AxisRules` (engine type → `AxisRule`, fallback for unregistered types), `SelectionExpander`, `Rejection`
       - `key/` : key per case *(planned)*
       - `src/main/java/.../workload/` : `DataType`, `StringType` — legacy input generation, used by the old tests
   - `modules/android/` : module `:android` (application) — depends on all modules
@@ -96,7 +98,7 @@ Enforced by gradle module dependencies:
 |---|---|
 | `:crypto` | — |
 | `:environment:discovery` | — |
-| `:benchmark` | `:crypto`, `:environment:discovery` (none declared yet) |
+| `:benchmark` | `:environment:discovery` (declared, `api`; imported only by `preparation/adapter/`), `:crypto` (not yet) |
 | `:android` | all |
 
 Inside `:android`:

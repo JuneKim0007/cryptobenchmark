@@ -9,5 +9,6 @@ compileKotlin {
 }
 
 dependencies {
+    api project(':environment:discovery')
     testImplementation 'junit:junit:4.13.2'
 }

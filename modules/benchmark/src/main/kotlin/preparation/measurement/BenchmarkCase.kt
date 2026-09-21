@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.benchmark.preparation.case
+package io.github.junekim0007.cryptobench.benchmark.preparation.measurement
 
 /** One measurement, fully named: nothing left to decide or look up once the harness has it. */
 data class BenchmarkCase(
@@ -24,19 +24,7 @@ data class BenchmarkCase(
     }
 
     /** Stable name linking this case to its result: letters, digits and underscores only. */
-    val id: String
-        get() = listOfNotNull(
-            type,
-            algorithm,
-            provider,
-            keySize?.let { "k$it" },
-            inputSize?.let { "i$it" },
-            phase.name,
-        ).joinToString("_") { part -> part.replace(UNSAFE, "-") }
+    val id: String get() = CaseName.of(this)
 
     override fun toString(): String = id
-
-    private companion object {
-        val UNSAFE = Regex("[^A-Za-z0-9]")
-    }
 }
