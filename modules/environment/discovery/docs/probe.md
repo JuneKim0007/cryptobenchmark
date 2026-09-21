@@ -74,8 +74,8 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DocumentFields` | `write` | typed reads of one document key — `internal` |
 | `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
 | `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
-| `CaptureQuery` | `query` | `whoServes(type, name)` in precedence order, `namesOf`, `onlyOn(provider)`, `tree()` — pure, no JCA call |
-| `TrialQuery` | `query` | `failingServices()`, `failingTransformations()`, `instantiationByProvider()` |
+| `CaptureQuery` | `query` | `whoServes(type, name)` in precedence order, `serviceOf(provider, type, name)`, `namesOf`, `onlyOn(provider)`, `tree()` — pure, no JCA call |
+| `TrialQuery` | `query` | `serviceTrial`, `transformationTrial`, `failingServices()`, `failingTransformations()`, `instantiationByProvider()` |
 | `ServiceShape`, `TransformationFailure` | `query` | what `tree()` and `failingTransformations()` return |
 | `ServiceIndex` | `query` | one provider's services by name or alias — `internal` |
 | `ServiceTree` | `query` | builds `tree()`: merges spellings, unions modes and paddings — `internal` |

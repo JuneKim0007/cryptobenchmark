@@ -42,6 +42,13 @@ class CaptureQueryTest {
     }
 
     @Test
+    fun serviceOfReturnsTheRegisteredSpelling() {
+        assertEquals("aes", query.serviceOf("Second", "Cipher", "2.16.840.1.101.3.4.1")?.algorithm)
+        assertEquals(null, query.serviceOf("Second", "Cipher", "Rijndael"))
+        assertEquals(null, query.serviceOf("Nobody", "Cipher", "AES"))
+    }
+
+    @Test
     fun namesOfUnionsTheRegisteredNamesAndAliasesAcrossProviders() {
         assertEquals(setOf("AES", "Rijndael", "aes", "2.16.840.1.101.3.4.1"), query.namesOf("Cipher", "aes"))
     }

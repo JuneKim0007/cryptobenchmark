@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.benchmark.preparation.case
+package io.github.junekim0007.cryptobench.benchmark.preparation.measurement
 
 enum class Metric {
     TIME,
