@@ -47,7 +47,8 @@
       - `write/` : `ConfigDocument` (`of` ⇄ `parse`), `ConfigFile` (always overwrites, #34), `DocumentFields`, `YamlCodec`
   - `modules/benchmark/` : module `:benchmark` (kotlin + legacy java, java library) — what is measured; standalone, not android-specific
     - `src/main/kotlin/preparation/` : turns what the user asked for into runnable state
-      - `request/` : `BenchmarkRequest`, `Selection` — what the user wants measured, shape-validated
+      - `source/` : `ConfigSource` — `default.yaml` read by key → `BenchmarkRequest`, one `Selection` per enabled entry pinned to its provider; `ConfigFields`, `YamlCodec` (duplicated, no `:config` dependency)
+      - `request/` : `BenchmarkRequest`, `Selection` (per-entry `inputSizes` override) — what the user wants measured, shape-validated
       - `measurement/` : `EngineTypeName` (case fold shared by the registries); `BenchmarkCase` — one measurement: type, algorithm as passed to `getInstance`, provider, key size, input size, `Phase` (WARM, COLD), `Metric` set, seed; `CaseName` gives the `id` that links it to its result
       - `port/` : `DeviceCapability`, `Availability` — what preparation needs to know about the device
       - `adapter/` : `DiscoveryCapability` — the port answered from a capture and its trial; the only file importing `:environment:discovery`
@@ -112,7 +113,7 @@ Enforced by gradle module dependencies:
 | `:crypto` | — |
 | `:environment:discovery` | — |
 | `:config` | — (reads environment's files, not its classes) |
-| `:benchmark` | `:environment:discovery` (declared, `api`; imported only by `preparation/adapter/`), `:crypto` (not yet) |
+| `:benchmark` | `:environment:discovery` (declared, `api`; imported only by `preparation/adapter/`), `:crypto` (not yet); reads `default.yaml`, not `:config` classes |
 | `:android` | all |
 
 Inside `:android`:
