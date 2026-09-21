@@ -20,3 +20,6 @@ env/
 /decision.md
 /.idea/
 /CryptoBenchmark.config
+/docs/REFACTOR-BACKLOG.md
+/docs/benchmark-methodology.md
+/test_pair.md
