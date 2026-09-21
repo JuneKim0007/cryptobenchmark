@@ -1,0 +1,15 @@
+schemaVersion: 1
+
+selection:
+  testSet: testsets/scope.yaml   # relative to this file
+  exclude: []                    # applied after the test set; exclude always wins, e.g. {provider: BC}
+
+run:
+  inputSizes: [64, 1024, 16384]
+  phases: [WARM]
+  metrics: [TIME]
+  processRepetitions: 1
+  seed: 0
+
+policy:
+  onUnavailable: skip            # skip | fail — a selected primitive this device cannot run

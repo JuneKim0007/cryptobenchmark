@@ -44,4 +44,34 @@ services:
   instantiates: true
   defaultRun: {works: true, inputSize: 1024}
 """
+
+    const val GLOBAL = """
+schemaVersion: 1
+selection:
+  testSet: testsets/scope.yaml
+  exclude:
+  - {type: KeyGenerator}
+run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], processRepetitions: 2, seed: 7}
+policy: {onUnavailable: skip}
+"""
+
+    const val TEST_SET = """
+schemaVersion: 1
+description: fixture scope
+include:
+- {type: Cipher, name: "AES*"}
+- {type: Cipher, name: RSA}
+- {type: KeyGenerator, name: SunTlsPrf}
+- {type: MessageDigest, name: SHA-256}
+- {type: Mac, name: HmacSHA256}
+exclude:
+- {name: AES}
+overrides:
+- match: {type: Cipher}
+  set: {keySizes: [128]}
+- match: {type: Cipher, name: "AES/*"}
+  set: {keySizes: [128, 256]}
+- match: {provider: SunJCE, type: Cipher, name: AES/CBC/PKCS5Padding}
+  set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
+"""
 }

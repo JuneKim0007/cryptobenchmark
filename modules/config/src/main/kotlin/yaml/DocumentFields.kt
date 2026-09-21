@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.config.write
+package io.github.junekim0007.cryptobench.config.yaml
 
 internal object DocumentFields {
 
@@ -40,6 +40,21 @@ internal object DocumentFields {
 
     fun optionalNumbers(document: Map<String, Any>, key: String): List<Int> =
         if (document.containsKey(key)) numbers(document, key) else emptyList()
+
+    fun optionalStrings(document: Map<String, Any>, key: String): List<String> =
+        if (document.containsKey(key)) strings(document, key) else emptyList()
+
+    fun optionalNumbersOrNull(document: Map<String, Any>, key: String): List<Int>? =
+        if (document.containsKey(key)) numbers(document, key) else null
+
+    fun optionalStringOrNull(document: Map<String, Any>, key: String): String? =
+        document[key]?.let { it as? String ?: wrongType(key) }
+
+    /** Hand-edited files: an unknown key is a typo until proven otherwise. */
+    fun expectKeys(document: Map<String, Any>, allowed: Collection<String>, path: String) {
+        val unknown = document.keys.filter { it !in allowed }
+        if (unknown.isNotEmpty()) throw IllegalArgumentException("unknown_keys: $path $unknown, known $allowed")
+    }
 
     fun asSection(value: Any, key: String): Map<String, Any> {
         @Suppress("UNCHECKED_CAST")

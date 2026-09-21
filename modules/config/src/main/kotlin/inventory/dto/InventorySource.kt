@@ -1,7 +1,7 @@
-package io.github.junekim0007.cryptobench.config.contract
+package io.github.junekim0007.cryptobench.config.inventory.dto
 
-/** The environment files a configuration was generated from, so a file made on one device is recognisable on another. */
-data class GeneratedFrom(
+/** The environment files an inventory was built from. */
+data class InventorySource(
     val capture: String,
     val trial: String,
     val device: Map<String, Any>,

@@ -3,7 +3,7 @@ name: jca contract
 # Fails when the JCA surface :discovery reads changes under a new Java version.
 on:
   push:
-    paths: ['modules/environment/discovery/**', 'modules/config/**', 'tools/jca-contract/**', '.github/workflows/jca-contract.yml']
+    paths: ['modules/environment/discovery/**', 'modules/config/**', 'config/**', 'tools/jca-contract/**', '.github/workflows/jca-contract.yml']
   pull_request:
     paths: ['modules/environment/discovery/**', 'modules/config/**', 'tools/jca-contract/**']
   schedule:

@@ -1,22 +1,18 @@
 package io.github.junekim0007.cryptobench.config.source
 
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.number
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.section
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.sections
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.string
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.sections
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
+import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
 
-/** Reads a probe document by its keys; the configuration does not depend on the environment module's classes. */
-object CaptureSource {
+/** Reads environment's probe document by its keys; the configuration does not depend on the environment module's classes. */
+object CaptureSource : DocumentReader<CaptureView> {
 
-    const val SUPPORTED_SCHEMA_VERSION = 1
+    override val schemaVersion: Int = 1
 
-    fun read(fileName: String, document: Map<String, Any>): CaptureView {
-        val schemaVersion = number(document, "schemaVersion").toInt()
-        require(schemaVersion == SUPPORTED_SCHEMA_VERSION) {
-            "unsupported_capture_schema: $schemaVersion, this build reads $SUPPORTED_SCHEMA_VERSION"
-        }
+    override fun parse(document: Map<String, Any>): CaptureView {
         return CaptureView(
-            fileName = fileName,
             capturedAtMillis = number(document, "capturedAtMillis").toLong(),
             device = LinkedHashMap(section(document, "runtime")),
             providers = sections(document, "providers")

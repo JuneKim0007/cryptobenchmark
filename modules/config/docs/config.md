@@ -1,65 +1,96 @@
 # <config>
 
-`default.yaml`: provider → engine type → name → entry. Generated from one capture and its trial; always overwritten (#34).
+Two kinds of file, never mixed:
+
+| | Files | Owner | Written by |
+|---|---|---|---|
+| authored | `config/global.yaml`, `config/testsets/*.yaml` | the user, committed | the user only |
+| generated | `results/configuration/inventory.yaml`, `effective.yaml` | this module | every probe / every run |
 
 ## Flow
 
 ```
-probe_<utc>.yaml ─► CaptureSource ─► CaptureView ─┐
-trial_<utc>.yaml ─► TrialSource   ─► TrialView  ──┴─► DefaultConfigBuilder ─► BenchmarkConfig ─► ConfigDocument ─► default.yaml
+probe_<utc>.yaml + trial_<utc>.yaml ─► InventoryBuilder ─► inventory.yaml        what the device has (observations only)
+global.yaml ─► selection.testSet ─► testsets/<name>.yaml ─┐
+inventory.yaml ───────────────────────────────────────────┴─► EffectiveBuilder ─► effective.yaml   what will run (preparation reads only this)
 ```
 
-## Fields
+EffectiveBuilder: include (empty = everything that runs) → test-set exclude → global exclude (exclude always wins)
+→ overrides, broadest rule first → `policy.onUnavailable`.
 
-| Key | Type | Written when | Meaning |
+## global.yaml
+
+One section per feature, one owner each; an unknown section or key is an error.
+
+| Section | Key | Default | Meaning |
 |---|---|---|---|
-| `schemaVersion` | int | always | 1 |
-| `generatedFrom.capture`, `.trial` | string | always | environment file names |
-| `generatedFrom.device` | map | always | capture `runtime` block |
-| `run.inputSizes` | [int] | always | bytes per call, every entry |
-| `run.phases` | [string] | always | `WARM`, `COLD` |
-| `run.metrics` | [string] | always | `TIME`, `ALLOCATION`, `CPU_EVENTS` |
-| `run.processRepetitions` | int | always | independent process runs |
-| `run.seed` | int | always | input seed |
-| `<provider>.<type>.<name>.enabled` | bool | always | user switch; generated `true` exactly when the default run worked |
-| `.keySizes` | [int] | a key size was observed | generated: the provider's default |
-| `.inputSizes` | [int] | the default run needed another size | overrides `run.inputSizes` (RSA: 32) |
-| `.keyAlgorithm`, `.keyProvider` | string | a key was generated | what the default run used |
-| `.providerChose` | string | a cipher filled in parameters | IV length, OAEP digests; recorded, not configurable |
-| `.bareName` | bool | a cipher name without mode | the provider's default mode and padding |
-| `.reason` | string | the default run failed | the exception |
-| `.key` | tree | the user sets it | key generator spec, e.g. `{class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}`; replaces `keySizes` |
-| `.parameters` | tree | the user sets it | operation spec, e.g. `{class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}`; absent = provider default |
+| `selection` | `testSet` | required | path, relative to global.yaml |
+| | `exclude` | `[]` | rules dropped after the test set |
+| `run` | `inputSizes` | `[1024]` | bytes per call |
+| | `phases` | `[WARM]` | `WARM`, `COLD` |
+| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` |
+| | `processRepetitions` | `1` | independent process runs |
+| | `seed` | `0` | input seed |
+| `policy` | `onUnavailable` | `skip` | a selected primitive the device cannot run: `skip` (recorded in `effective.yaml`) or `fail` |
 
-## Parameter trees
+## testsets/*.yaml
 
-`key` and `parameters` are passed through untouched here and bound by preparation.
+| Key | Meaning |
+|---|---|
+| `description` | free text |
+| `include` | rules; empty = every primitive the inventory can run |
+| `exclude` | rules |
+| `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?}}` |
+
+Rule: `{provider?, type?, name?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
+Override precedence, lowest first: type → name pattern → exact name → provider. Ties: file order. Lists replace.
+
+## effective.yaml
+
+| Key | Meaning |
+|---|---|
+| `generatedFrom` | global, test set, inventory, capture, trial file names; device |
+| `run` | the global `run` section, frozen |
+| `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `providerDefaults` |
+| `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
+| `skipped` | `{provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>` |
+
+A size no override sets stays empty (provider default): an observed size is not a valid init argument
+(DESede's default key encodes to 192 bits; `init` accepts 112 or 168). The observed size is in `inventory.yaml`.
+
+## Parameter trees (`key`, `parameters`)
+
+Passed through untouched; bound by preparation.
 
 | Form | Means |
 |---|---|
 | `{class: <fully qualified name>, arguments: [...]}` | public constructor, tried in turn for the argument count |
-| `{field: <fully qualified class>.<NAME>}` | public static field, e.g. `java.security.spec.MGF1ParameterSpec.SHA256` |
-| `fresh(n)` | n new random bytes on every call (a GCM IV must never repeat) |
+| `{field: <fully qualified class>.<NAME>}` | public static field |
+| `fresh(n)` | n new random bytes on every call |
 | `!!binary <base64>` or `[0, 1, 255]` | `byte[]` |
 | a number | `int`, `long` or `BigInteger`, whichever the constructor takes |
 
-Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be named. A failure names its path: `bind_failed: parameters.arguments[2]: no public field ...`.
+Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be named.
 
-## Rules
+## Code
 
-- entries: every name environment called with a default key; instantiation alone is not an entry
-- names are compared ignoring case; two spellings of one name under one provider and type are rejected
-- a key written twice is rejected, not overwritten
-- a trial of another capture is rejected
+| Package | Holds |
+|---|---|
+| root | `Configuration` — `inventory(capture, trial)`, `effective(global)` |
+| `source/` | environment's probe and trial files read as `DocumentReader`s |
+| `inventory/`, `inventory/dto/` | `InventoryBuilder`, `InventoryDocument`; `Inventory`, `InventoryEntry`, `InventorySource` |
+| `global/`, `global/dto/` | `GlobalDocument` (section list), `RunDocument`; `GlobalConfig`, `Selection`, `RunSettings`, `Policy` |
+| `testset/`, `testset/dto/` | `TestSetDocument`, `RuleDocument`; `TestSet`, `Rule`, `Override` |
+| `effective/`, `effective/dto/` | `EffectiveBuilder`, `OverrideResolver`, `EffectiveDocument`, `UnavailableSelectionException`; `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` |
+| `yaml/` | shared plumbing: `DocumentReader` / `DocumentHandler` (per kind: value ⇄ map), `YamlFile` (load, dump, `schemaVersion` stamp and check, overwrite), `YamlFiles` (factory), `ProviderTree`, `DocumentFields`, `YamlCodec` |
 
 ## Provider-specific, observed on JDK 25
 
 | Observation | Handling |
 |---|---|
-| spelling chosen by provider (`AES/CBC/PKCS5PADDING`) | names compared ignoring case |
-| size inside the name (`AES_128/GCM/NoPadding`) | `keySizes` observed from the name |
-| default key sizes differ (RSA 3072, EC 384, DH 3072) | written as numbers, never left implicit |
-| no size at all (Ed25519, X25519, ML-DSA-*) | `keySizes` absent |
-| input limits (RSA, `NONEwithDSA` 20 bytes) | `inputSizes` per entry |
-| needs parameters not modelled (PBE, RSASSA-PSS, `SunTls*`) | disabled with `reason` |
-| no two providers serve the same name on the JVM | cross-provider behaviour unverified until a device run (#14) |
+| spelling chosen by provider (`AES/CBC/PKCS5PADDING`) | rules and names compared ignoring case |
+| size inside the name (`AES_128/GCM/NoPadding`) | fixed by the name |
+| default key sizes differ between providers (RSA 3072 JDK / 2048 Conscrypt) | recorded in the inventory; set explicitly in the test set to compare |
+| input limits (RSA, `NONEwithDSA` 20 bytes) | `inputSizes` observed in the inventory, carried unless overridden |
+| needs parameters not given by default (PBE, RSASSA-PSS, `SunTls*`) | `runs: false` with the reason; include them with `parameters` |
+| no two JVM providers serve the same name | cross-provider behaviour unverified until a device run (#14) |

@@ -24,7 +24,7 @@ flowchart LR
 |---|---|---|
 | `:crypto` | Java | primitives, codec |
 | `:environment:discovery` | Kotlin | provider adapter, contract, discovery setting, trial |
-| `:config` | Kotlin | `default.yaml` from environment's files |
+| `:config` | Kotlin | `effective.yaml` from environment's inventory and the authored `config/` |
 | `:benchmark` | Kotlin | request, case, input and key preparation |
 | `:android` | Java | run config, instrumented benchmark classes |
 
@@ -90,7 +90,8 @@ See [docs/cryptography/providers.md](docs/cryptography/providers.md).
 Kotlin is not installed separately; the Gradle plugin fetches the compiler.
 
 Discovery on the host JVM, without a device: `cd tools/jca-contract && ./gradlew run --args=../../results/discovery`
-writes `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml` and `results/configuration/default.yaml`.
+writes `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`, then `results/configuration/inventory.yaml` and `effective.yaml` from `config/global.yaml`.
+What to measure: edit `config/global.yaml` and `config/testsets/`.
 Examples over the same JVM: `./gradlew run -PmainClass=examples.TreeKt` (see `tools/jca-contract/src/main/kotlin/examples/`).
 
 > :warning: Do not open the Android project with Android Studio. Recent versions do not

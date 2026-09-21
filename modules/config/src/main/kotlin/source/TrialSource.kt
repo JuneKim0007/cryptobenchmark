@@ -1,25 +1,22 @@
 package io.github.junekim0007.cryptobench.config.source
 
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.boolean
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.number
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalBoolean
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalNumber
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.sections
-import io.github.junekim0007.cryptobench.config.write.DocumentFields.string
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.boolean
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalBoolean
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.sections
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
+import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
 
 /** Reads a trial document by its keys. Only names that were called with a default key become entries. */
-object TrialSource {
+object TrialSource : DocumentReader<TrialView> {
 
-    const val SUPPORTED_SCHEMA_VERSION = 2
+    override val schemaVersion: Int = 2
 
-    fun read(fileName: String, document: Map<String, Any>): TrialView {
-        val schemaVersion = number(document, "schemaVersion").toInt()
-        require(schemaVersion == SUPPORTED_SCHEMA_VERSION) {
-            "unsupported_trial_schema: $schemaVersion, this build reads $SUPPORTED_SCHEMA_VERSION"
-        }
+    override fun parse(document: Map<String, Any>): TrialView {
         val entries = sections(document, "services").flatMap { service ->
             val provider = string(service, "provider")
             val type = string(service, "type")
@@ -29,7 +26,7 @@ object TrialSource {
             }
             listOfNotNull(own) + transformations
         }
-        return TrialView(fileName, number(document, "capturedAtMillis").toLong(), entries)
+        return TrialView(number(document, "capturedAtMillis").toLong(), entries)
     }
 
     private fun defaultRun(document: Map<String, Any>): TrialView.DefaultRun = TrialView.DefaultRun(

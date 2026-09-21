@@ -1,0 +1,11 @@
+schemaVersion: 1
+description: a few staples, for CI and dry runs
+
+include:
+  - {type: MessageDigest, name: SHA-256}
+  - {type: Cipher, name: AES/GCM/NoPadding}
+  - {type: Mac, name: HmacSHA256}
+
+overrides:
+  - match: {type: Cipher, name: AES/GCM/NoPadding}
+    set: {keySizes: [256], parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}

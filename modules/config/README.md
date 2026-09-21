@@ -1,6 +1,6 @@
 # Config
 
-> Turns what environment found into a file the user edits: `results/configuration/default.yaml`.
+> Environment's findings (`inventory.yaml`) × the user's authored `config/` (global + test set) → `effective.yaml`, what one run will measure.
 
 Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; depends on no other module.
 
@@ -18,25 +18,55 @@ Reads environment's `probe_<utc>.yaml` and `trial_<utc>.yaml` as plain YAML; dep
       - `CaptureView.kt`
       - `TrialSource.kt`
       - `TrialView.kt`
-    - `contract/`
-      - `BenchmarkConfig.kt`
-      - `GeneratedFrom.kt`
-      - `RunSettings.kt`
-      - `ConfigEntry.kt`
-    - `generate/`
-      - `DefaultConfigBuilder.kt`
-      - `RunDefaults.kt`
-    - `write/`
-      - `ConfigDocument.kt`
-      - `ConfigFile.kt`
+    - `inventory/`
+      - `InventoryBuilder.kt`
+      - `InventoryDocument.kt`
+      - `dto/`
+        - `Inventory.kt`
+        - `InventoryEntry.kt`
+        - `InventorySource.kt`
+    - `global/`
+      - `GlobalDocument.kt`
+      - `RunDocument.kt`
+      - `dto/`
+        - `GlobalConfig.kt`
+        - `Selection.kt`
+        - `RunSettings.kt`
+        - `Policy.kt`
+    - `testset/`
+      - `TestSetDocument.kt`
+      - `RuleDocument.kt`
+      - `dto/`
+        - `TestSet.kt`
+        - `Rule.kt`
+        - `Override.kt`
+    - `effective/`
+      - `EffectiveBuilder.kt`
+      - `OverrideResolver.kt`
+      - `EffectiveDocument.kt`
+      - `UnavailableSelectionException.kt`
+      - `dto/`
+        - `EffectiveConfig.kt`
+        - `EffectiveEntry.kt`
+        - `EffectiveSource.kt`
+        - `Skip.kt`
+    - `yaml/`
+      - `DocumentReader.kt`
+      - `DocumentHandler.kt`
+      - `YamlFile.kt`
+      - `YamlFiles.kt`
+      - `ProviderTree.kt`
       - `DocumentFields.kt`
       - `YamlCodec.kt`
   - `src/test/kotlin/`
     - `Fixtures.kt`
-    - `DefaultConfigBuilderTest.kt`
-    - `ConfigDocumentTest.kt`
+    - `InventoryBuilderTest.kt`
+    - `RuleTest.kt`
+    - `OverrideResolverTest.kt`
+    - `EffectiveBuilderTest.kt`
+    - `DocumentsTest.kt`
     - `ConfigurationTest.kt`
 
 ## Run
 
-`cd tools/jca-contract && ./gradlew run --args=../../results/discovery` writes the environment files and `results/configuration/default.yaml`.
+`cd tools/jca-contract && ./gradlew run --args=../../results/discovery` writes the environment files, `results/configuration/inventory.yaml` and `effective.yaml` (from `config/global.yaml`).

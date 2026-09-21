@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.config.source
 
 /** The part of environment's trial_<utc>.yaml the configuration needs: one entry per name with a default run. */
 data class TrialView(
-    val fileName: String,
     val capturedAtMillis: Long,
     val entries: List<Entry>,
 ) {
