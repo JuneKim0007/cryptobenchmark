@@ -37,5 +37,5 @@ tasks.test {
 }
 
 application {
-    mainClass.set("ProbeKt")
+    mainClass.set(providers.gradleProperty("mainClass").orElse("ProbeKt"))
 }

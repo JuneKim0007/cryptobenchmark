@@ -74,6 +74,10 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DocumentFields` | `write` | typed reads of one document key — `internal` |
 | `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
 | `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
+| `CaptureQuery` | `query` | `whoServes(type, name)` in precedence order, `namesOf`, `onlyOn(provider)`, `tree()` — pure, no JCA call |
+| `TrialQuery` | `query` | `failingServices()`, `failingTransformations()`, `instantiationByProvider()` |
+| `ServiceShape`, `TransformationFailure` | `query` | what `tree()` and `failingTransformations()` return |
+| `ServiceIndex` | `query` | one provider's services by name or alias — `internal` |
 | `TrialRunner` | `trial` | capture × live providers → `TrialReport`: one outcome per service, one per declared cipher transformation |
 | `Attempt` | `trial` | runs one instantiation, turns `Exception`/`LinkageError` into a `TrialOutcome` — `internal` |
 | `TransformationSet` | `trial` | algorithm + algorithm/mode/padding for every declared pair — `internal` |
