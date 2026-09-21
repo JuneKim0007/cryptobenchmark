@@ -95,3 +95,4 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 | input limits (RSA, `NONEwithDSA` 20 bytes) | `inputSizes` observed in the inventory, carried unless overridden |
 | needs parameters not given by default (PBE, RSASSA-PSS, `SunTls*`) | `runs: false` with the reason; include them with `parameters` |
 | no two JVM providers serve the same name | cross-provider behaviour unverified until a device run (#14) |
+| SunJCE `ChaCha20` encrypts with a random nonce it does not expose in `getParameters()` | decrypt needs an explicit `ChaCha20ParameterSpec` with `fresh(12)`; set in `scope.yaml` |

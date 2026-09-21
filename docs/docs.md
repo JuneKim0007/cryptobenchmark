@@ -49,8 +49,9 @@
       - `yaml/` : shared plumbing — `DocumentHandler` per file kind, `YamlFile` (schema stamp and check), `YamlFiles` factory
   - `modules/preparation/` : module `:preparation` (kotlin + legacy java, java library) — `effective.yaml` → cases with keys and bound parameters; never inside a measurement, runs on any JVM
     - `src/main/kotlin/`
-      - `Preparation.kt` : entry point — `prepare(effective.yaml)` → `PreparedRun`; applies `policy.onFailure` to rejections, unplannable and ungeneratable keys; writes `results/preparation/skipped.yaml`
-      - `prepare/` : `PreparedCase` (case, key recipe, key material — one per recipe, bound parameters), `PreparedRun`, `StoppedOnFailureException`
+      - `Preparation.kt` : entry point — `prepare(effective.yaml)` → `PreparedRun`; applies `policy.onFailure` to rejections, unplannable or ungeneratable keys, and inputs that fail their round trip; writes `results/preparation/skipped.yaml`
+      - `input/` : `InputPreparer` — per operation: a seeded message (`InputBytes`, `java.util.Random`, same bytes on every runtime; a smaller size is a prefix of a larger), a ciphertext plus the spec or provider parameters it was made under (decrypt), a message plus signature (verify), nothing (key operations); decrypt and verify are round-tripped once before the timer
+      - `prepare/` : `PreparedCase` (case, key recipe, key material — one per recipe, bound parameters, `OperationInput`), `PreparedRun`, `StoppedOnFailureException`
       - `report/` : `Skip` (the record every stage writes), `SkipFile`
       - reading `effective.yaml`, in this order — each stage takes the previous stage's result, so the order is checked by the compiler:
         - `inbound/` : `InboundFile` → `InboundDocument` — the file, `schemaVersion`, the `run` / `policy` / `providers` sections present

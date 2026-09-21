@@ -5,6 +5,8 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
+import io.github.junekim0007.cryptobench.preparation.input.OperationInput
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
@@ -65,6 +67,14 @@ skipped: []
         val aes = preparation.prepare(effective("skip")).cases.filter { it.case.algorithm == "AES/GCM/NoPadding" }
         assertSame(aes[0].key, aes[1].key)
         assertTrue(aes[0].key is KeyMaterial.Secret)
+    }
+
+    /** Every prepared case carries what its operation needs: decrypt its ciphertext, digest its message. */
+    @Test
+    fun eachCaseCarriesTheInputItsOperationNeeds() {
+        val cases = preparation.prepare(effective("skip")).cases
+        assertTrue(cases.filter { it.case.operation == Operation.DECRYPT }.all { it.input is OperationInput.Ciphertext })
+        assertTrue(cases.filter { it.case.algorithm == "SHA-256" }.all { it.input is OperationInput.Message })
     }
 
     /** fresh(12) must be drawn per call, so the harness is told the spec varies. */

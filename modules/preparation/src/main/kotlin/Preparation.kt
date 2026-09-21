@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.input.InputPreparer
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
@@ -27,6 +28,7 @@ class Preparation(
     private val planner: KeyPlanner = KeyPlanner(capability),
     private val generator: KeyMaterialGenerator = KeyMaterialGenerator(),
     private val binder: ParameterBinder = ParameterBinder(),
+    private val inputs: InputPreparer = InputPreparer(),
 ) {
 
     fun prepare(effectiveFile: File): PreparedRun {
@@ -46,10 +48,16 @@ class Preparation(
                 continue
             }
             val key = keys.getOrPut(recipe) { runCatching { generator.generate(recipe) } }
-            key.fold(
-                onSuccess = { material -> prepared += PreparedCase(case, recipe, material, bound(case)) },
-                onFailure = { failure -> skipped += skip(case, "key_generation_failed: ${failure.message}") },
-            )
+            val material = key.getOrElse { failure ->
+                skipped += skip(case, "key_generation_failed: ${failure.message}")
+                continue
+            }
+            val parameters = bound(case)
+            val input = runCatching { inputs.prepare(case, material, parameters) }.getOrElse { failure ->
+                skipped += skip(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
+                continue
+            }
+            prepared += PreparedCase(case, recipe, material, parameters, input)
         }
         report.write(skipped)
         if (skipped.isNotEmpty() && global.onFailure == OnFailure.STOP) {
