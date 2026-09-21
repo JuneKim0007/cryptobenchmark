@@ -54,6 +54,9 @@
   - `cryptography/primitives.md` : primitives, providers, use
   - `cryptography/providers.md` : per-provider support and scope
   - `infra/setup.md` : setup
+- `results/` : run output, ignored; one subdirectory per pipeline stage
+  - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`
+  - `preparation/`, `benchmark/`, `analysis/` : *(planned)*
 - `CryptoBenchmark.config` : generated per run, pushed to the device
 - `scripts/requirements.txt` : host python deps
 - `docs/notas.md` : research notes
