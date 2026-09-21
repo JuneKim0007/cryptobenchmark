@@ -90,7 +90,7 @@
   - `configuration/` : `inventory.yaml` (generated), `effective.yaml` (what runs)
   - `preparation/` : `skipped.yaml`
   - `benchmark/`, `analysis/` : *(planned)*
-- `CryptoBenchmark.config` : generated per run, pushed to the device
+- `CryptoBenchmark.config` : written by `benchmark.py` per run, pushed to the device; ignored (legacy path, retired with #27/#33)
 - `scripts/requirements.txt` : host python deps
 - `docs/notas.md` : research notes
 
