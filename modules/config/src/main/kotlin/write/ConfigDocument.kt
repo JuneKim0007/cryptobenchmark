@@ -10,6 +10,7 @@ import io.github.junekim0007.cryptobench.config.write.DocumentFields.number
 import io.github.junekim0007.cryptobench.config.write.DocumentFields.numbers
 import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalBoolean
 import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalNumbers
+import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.write.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.config.write.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.write.DocumentFields.string
@@ -40,6 +41,8 @@ object ConfigDocument {
     const val PROVIDER_CHOSE = "providerChose"
     const val BARE_NAME = "bareName"
     const val REASON = "reason"
+    const val KEY = "key"
+    const val PARAMETERS = "parameters"
 
     fun of(config: BenchmarkConfig): Map<String, Any> = linkedMapOf(
         SCHEMA_VERSION to config.schemaVersion,
@@ -100,6 +103,8 @@ object ConfigDocument {
         val document = linkedMapOf<String, Any>(ENABLED to entry.enabled)
         if (entry.keySizes.isNotEmpty()) document[KEY_SIZES] = entry.keySizes
         if (entry.inputSizes.isNotEmpty()) document[INPUT_SIZES] = entry.inputSizes
+        if (entry.key.isNotEmpty()) document[KEY] = LinkedHashMap(entry.key)
+        if (entry.parameters.isNotEmpty()) document[PARAMETERS] = LinkedHashMap(entry.parameters)
         if (entry.keyAlgorithm.isNotEmpty()) document[KEY_ALGORITHM] = entry.keyAlgorithm
         if (entry.keyProvider.isNotEmpty()) document[KEY_PROVIDER] = entry.keyProvider
         if (entry.providerChose.isNotEmpty()) document[PROVIDER_CHOSE] = entry.providerChose
@@ -112,6 +117,8 @@ object ConfigDocument {
         enabled = boolean(document, ENABLED),
         keySizes = optionalNumbers(document, KEY_SIZES),
         inputSizes = optionalNumbers(document, INPUT_SIZES),
+        key = optionalSection(document, KEY) ?: emptyMap(),
+        parameters = optionalSection(document, PARAMETERS) ?: emptyMap(),
         keyAlgorithm = optionalString(document, KEY_ALGORITHM),
         keyProvider = optionalString(document, KEY_PROVIDER),
         providerChose = optionalString(document, PROVIDER_CHOSE),

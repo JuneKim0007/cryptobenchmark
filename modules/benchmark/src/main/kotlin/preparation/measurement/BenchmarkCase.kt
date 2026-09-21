@@ -12,6 +12,8 @@ data class BenchmarkCase(
     val phase: Phase = Phase.WARM,
     val metrics: Set<Metric> = setOf(Metric.TIME),
     val seed: Long = 0L,
+    val keyParameters: Map<String, Any> = emptyMap(),
+    val parameters: Map<String, Any> = emptyMap(),
 ) {
 
     init {

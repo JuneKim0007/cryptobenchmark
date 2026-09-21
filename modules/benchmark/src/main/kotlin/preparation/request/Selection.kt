@@ -9,6 +9,10 @@ data class Selection(
     val keySizes: List<Int> = emptyList(),
     /** Overrides the request's input sizes for this primitive alone; RSA cannot take 1024 bytes. */
     val inputSizes: List<Int> = emptyList(),
+    /** `{class, arguments}` tree for the key generator; empty means the provider's default. */
+    val keyParameters: Map<String, Any> = emptyMap(),
+    /** `{class, arguments}` tree for the operation (IV, OAEP, PSS…); empty means the provider fills it in. */
+    val parameters: Map<String, Any> = emptyMap(),
 ) {
 
     init {

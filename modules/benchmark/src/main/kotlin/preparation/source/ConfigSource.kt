@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFiel
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.number
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.numbers
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.optionalNumbers
+import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.optionalSection
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.section
 import io.github.junekim0007.cryptobench.benchmark.preparation.source.ConfigFields.strings
 import java.io.File
@@ -56,6 +57,8 @@ class ConfigSource {
                             providers = listOf(provider),
                             keySizes = optionalNumbers(entry, "keySizes"),
                             inputSizes = optionalNumbers(entry, "inputSizes"),
+                            keyParameters = optionalSection(entry, "key"),
+                            parameters = optionalSection(entry, "parameters"),
                         )
                     }
                 }

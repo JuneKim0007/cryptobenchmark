@@ -26,7 +26,7 @@ class ConfigSourceTest {
             listOf(
                 Selection("MessageDigest", "SHA-256", providers = listOf("SUN")),
                 Selection("Cipher", "AES/CBC/PKCS5PADDING", providers = listOf("SunJCE"), keySizes = listOf(128, 256)),
-                Selection("Cipher", "RSA", providers = listOf("SunJCE"), keySizes = listOf(3072), inputSizes = listOf(32)),
+                Selection("Cipher", "RSA", providers = listOf("SunJCE"), keySizes = listOf(3072), inputSizes = listOf(32), parameters = OAEP),
             ),
             request.selections,
         )
@@ -57,6 +57,11 @@ class ConfigSourceTest {
     }
 
     private companion object {
+        val OAEP: Map<String, Any> = mapOf(
+            "class" to "javax.crypto.spec.OAEPParameterSpec",
+            "arguments" to listOf("SHA-256", "MGF1", mapOf("field" to "java.security.spec.MGF1ParameterSpec.SHA256"), mapOf("field" to "javax.crypto.spec.PSource\$PSpecified.DEFAULT")),
+        )
+
         const val DEFAULT_YAML = """schemaVersion: 1
 generatedFrom:
   capture: probe_20260921T204537Z.yaml
@@ -85,6 +90,7 @@ providers:
         enabled: true
         keySizes: [3072]
         inputSizes: [32]
+        parameters: {class: javax.crypto.spec.OAEPParameterSpec, arguments: [SHA-256, MGF1, {field: java.security.spec.MGF1ParameterSpec.SHA256}, {field: javax.crypto.spec.PSource${'$'}PSpecified.DEFAULT}]}
         keyAlgorithm: RSA
         keyProvider: SunRsaSign
         bareName: true

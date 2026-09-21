@@ -36,6 +36,19 @@ class ConfigDocumentTest {
         assertEquals(listOf(128, 256), entry.keySizes)
     }
 
+    /** Key and parameter trees pass through untouched; config does not interpret them. */
+    @Test
+    fun keyAndParameterTreesPassThrough() {
+        val text = codec.dump(ConfigDocument.of(config)).replace(
+            "AES/CBC/PKCS5PADDING:\n        enabled: true\n",
+            "AES/CBC/PKCS5PADDING:\n        enabled: true\n        parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}\n",
+        )
+        val parsed = ConfigDocument.parse(codec.load(text))
+        val entry = parsed.providers.getValue("SunJCE").getValue("Cipher").getValue("AES/CBC/PKCS5PADDING")
+        assertEquals(mapOf("class" to "javax.crypto.spec.IvParameterSpec", "arguments" to listOf("fresh(16)")), entry.parameters)
+        assertEquals(parsed, ConfigDocument.parse(codec.load(codec.dump(ConfigDocument.of(parsed)))))
+    }
+
     @Test
     fun aNameWrittenTwiceInDifferentCaseIsRejected() {
         val text = codec.dump(ConfigDocument.of(config)).replace("      RSA:\n", "      aes/cbc/pkcs5padding:\n")
