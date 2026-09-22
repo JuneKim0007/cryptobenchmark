@@ -26,7 +26,7 @@
   - `modules/android/` : module `:android` (application) — app shell; the harness lands here with #33
   - `gradle.properties` : gradle env + signing
 - `scripts/`
-  - `pipeline.py` : the host driver — runs the stages in order, one readable failure, `--config`, `--results`, `--discovery overwrite|keep`, `--bench`
+  - `pipeline.py` : the host driver — runs the stages in order, one readable failure, `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`
   - `requirements.txt` : host python deps
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests

@@ -48,7 +48,7 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 
 | Class | Package | Role |
 |---|---|---|
-| `Discovery` | root | entry point; wires probe, trial and writers over one `ProbeDirectory`. `tools/jca-contract`: `./gradlew run --args=<dir>` |
+| `Discovery` | root | entry point; wires probe, trial and writers over one `ProbeDirectory`; `reusable(runtime)` returns the newest complete capture of that device, or null. `tools/jca-contract`: `./gradlew run --args=<dir>` |
 | `DiscoveryRun` | root | what `probe` returns: the capture and the two files |
 | `ProviderProbe` | `adapter` | JCA → capture; joins services with aliases and attributes |
 | `PropertyMapIndex` | `adapter` | one provider's property map → aliases, attributes — `internal` |

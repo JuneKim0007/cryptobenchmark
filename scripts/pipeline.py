@@ -51,7 +51,7 @@ def gradle(project, arguments, stacktrace):
         fallback = [line for line in output if line.strip() and not line.startswith(noise)]
         fail("\n".join(reported or fallback[-5:])[:2000])
     for line in output:
-        if line.startswith(("warning:", "skipped:")):
+        if line.startswith(("warning:", "skipped:", "reused:")):
             print(line)
     return result.stdout.strip().splitlines()
 
@@ -71,8 +71,8 @@ def main():
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
     parser.add_argument("--results", default=str(ROOT / "results"), help="output root (default: results/)")
-    parser.add_argument("--discovery", choices=["overwrite", "keep"], default="overwrite",
-                        help="overwrite: clear the discovery directory first; keep: add a new timestamped capture")
+    parser.add_argument("--discovery", choices=["overwrite", "keep", "reuse"], default="overwrite",
+                        help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device")
     parser.add_argument("--bench", action="store_true", help="also prepare, measure and analyse (quick-bench, JVM)")
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
     options = parser.parse_args()
@@ -85,7 +85,8 @@ def main():
     discovery.mkdir(parents=True, exist_ok=True)
 
     print(f"config:    {configuration}")
-    written = gradle("jca-contract", f"{discovery} {configured} {configuration}", options.stacktrace)
+    reuse = " --reuse" if options.discovery == "reuse" else ""
+    written = gradle("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace)
     for path in written:
         print(f"wrote:     {path}")
     effective = configured / "effective.yaml"
