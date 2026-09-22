@@ -7,7 +7,6 @@ import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.query.CaptureQuery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.setting.DiscoverySettingConverter
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -20,7 +19,7 @@ import java.security.Security
 class JcaContractTest {
 
     private val capture = ProviderProbe().capture(Security.getProviders())
-    private val setting = DiscoverySettingConverter().convert(capture)
+    private val query = CaptureQuery(capture)
     private val directory = ProbeDirectory(File(System.getProperty("capture.dir") ?: "build/capture"))
     private val discovery = Discovery(directory)
 
@@ -39,8 +38,8 @@ class JcaContractTest {
             "Signature" to "SHA256withRSA",
             "KeyPairGenerator" to "RSA",
         ).forEach { (type, algorithm) ->
-            assertTrue("$type/$algorithm resolves to no provider", setting.providersFor(type, algorithm).isNotEmpty())
-            assertTrue("$type lists no algorithms", setting.algorithms(type).isNotEmpty())
+            assertTrue("$type/$algorithm resolves to no provider", query.whoServes(type, algorithm).isNotEmpty())
+            assertTrue("$type lists no algorithms", query.tree()[type].orEmpty().isNotEmpty())
         }
     }
 
@@ -85,12 +84,7 @@ class JcaContractTest {
     }
 
     @Test
-    fun theQueriesAgreeWithTheSetting() {
-        val query = CaptureQuery(capture)
-        listOf("Cipher" to "AES", "MessageDigest" to "SHA-256", "Signature" to "SHA256withRSA").forEach { (type, algorithm) ->
-            assertTrue("$type/$algorithm: query and setting disagree",
-                query.whoServes(type, algorithm).map { it.name } == setting.providersFor(type, algorithm).map { it.name })
-        }
+    fun theQueriesAnswerInPrecedenceOrder() {
         val head = query.whoServes("Cipher", "AES").first()
         assertTrue("head is not the lowest precedence", query.whoServes("Cipher", "AES").all { it.precedence >= head.precedence })
         assertTrue("tree has no Cipher/AES", query.tree().getValue("Cipher").containsKey("AES"))
