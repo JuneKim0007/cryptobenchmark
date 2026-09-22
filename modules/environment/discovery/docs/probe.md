@@ -56,7 +56,7 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DeclaredAlias` | `adapter` | one alias as declared — `internal` |
 | `AttributeKind` | `adapter` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
 | `AttributeValueParser` | `adapter` | attribute value → that type — `internal` |
-| `DeviceRuntimeReader` | `adapter` | `android.os.Build` → `RuntimeInfo`, reflectively |
+| `DeviceRuntimeReader` | `adapter` | `android.os.Build` → `RuntimeInfo`, reflectively; unused on the host, where every caller takes `RuntimeInfo.unknown()` — the app shell passes it with #14 |
 | `CapturedEnvironment` | `contract` | one capture |
 | `ProviderEntry` | `contract` | one provider |
 | `ServiceEntry` | `contract` | one service |

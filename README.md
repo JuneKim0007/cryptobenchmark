@@ -22,12 +22,14 @@ flowchart LR
 
 | Module | Language | Holds |
 |---|---|---|
-| `:crypto` | Java | primitives, codec |
-| `:environment:discovery` | Kotlin | provider adapter, contract, discovery setting, trial |
-| `:config` | Kotlin | `effective.yaml` from environment's inventory and the authored `config/` |
-| `:preparation` | Kotlin | `effective.yaml` → cases, keys, bound parameters |
+| `:environment:discovery` | Kotlin | provider adapter, contract, trial, query |
+| `:config` | Kotlin | `effective.yaml` from the capture, the trial and the authored `config/` |
+| `:preparation` | Kotlin | `effective.yaml` + capture + trial → cases, keys, bound parameters |
 | `:benchmark` | — | Jetpack harness *(planned, #33)* |
-| `:android` | Java | run config, instrumented benchmark classes |
+| `:android` | Java | app shell; the harness lands here with #33 |
+
+Every module reads YAML and writes YAML; none imports another module's classes.
+`tools/module-isolation` compiles each one alone and runs it against its own `example/` files.
 
 File structure, language rule and dependency rules: [docs/docs.md](docs/docs.md).
 

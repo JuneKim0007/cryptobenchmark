@@ -17,10 +17,8 @@
 
 - gradle root is the repository root; modules live under `modules/`; package root in every module is `io.github.junekim0007.cryptobench`
   - `config/` : authored, committed — `global.yaml` (selection, run, policy), `testsets/{scope,quick,all,smoke}.yaml`
-  - `modules/crypto/` : module `:crypto` (android library) — the primitives being measured
-    - `crypto/primitive/` : one algorithm call per function — `cipher/`, `digest/`, `mac/`, `signature/`, `keygen/`
-    - `crypto/codec/` : byte↔String, base64, charset
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin) — what this device offers
+  - `modules/*/example/` : one small device in the files that module reads and writes, named `<module>_<responsibility>_example.yaml`
   - `modules/config/` : module `:config` (kotlin) — inventory × authored config → `effective.yaml`
   - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` → prepared cases
   - `modules/android/` : module `:android` (application) — app shell; the harness lands here with #33
@@ -47,9 +45,8 @@ Each module's own README lists its files and responsibilities.
 
 | Module | Language | Inside a measurement |
 |---|---|---|
-| `:crypto` | Java | yes — it is the subject |
 | `:preparation` | Kotlin | no — prepares before the timed block |
-| `:benchmark` *(planned)* | as `:crypto` | yes — it is the timed run |
+| `:benchmark` *(planned)* | Java or Kotlin, after a control measurement | yes — it is the timed run |
 | `:android` | Java | app shell; hosts the harness with #33 |
 | `:environment:discovery` | Kotlin | no — runs before any measurement |
 | `:config` | Kotlin | no — files only |
@@ -77,11 +74,14 @@ Enforced by gradle module dependencies:
 
 | module | may depend on |
 |---|---|
-| `:crypto` | — |
 | `:environment:discovery` | — |
-| `:config` | — (reads environment's files, not its classes) |
-| `:preparation` | `:environment:discovery` (declared, `api`; imported only by `adapter/`); reads `effective.yaml`, not `:config` classes |
-| `:benchmark` *(planned)* | `:preparation`, `:crypto` |
+| `:config` | — reads the capture and trial files, not `:environment:discovery` classes |
+| `:preparation` | — reads the capture, the trial and `effective.yaml`, not another module's classes |
+| `:benchmark` *(planned)* | `:preparation` |
 | `:android` | all |
+
+No module declares a project dependency. `tools/module-isolation` compiles each one with only
+snakeyaml and JUnit on the classpath, so a reach across modules fails the build, and CI runs the
+three as a matrix.
 
 `tools/` builds are separate Gradle projects; they read module sources directly and ship nothing.
