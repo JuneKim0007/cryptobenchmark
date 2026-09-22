@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
@@ -39,15 +40,15 @@ class CaptureDocumentTest {
     /** jdk.security.defaultKeySize changes default key sizes per machine with no code change, so the capture records it; older captures without it still read. */
     @Test
     fun theDefaultKeySizePropertyIsRecordedAndOptional() {
-        val before = System.getProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY)
+        val before = System.getProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY)
         try {
-            System.setProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY, "RSA:2048,EC:256")
-            val runtime = RuntimeInfo()
+            System.setProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY, "RSA:2048,EC:256")
+            val runtime = DeviceRuntimeReader.read()
             assertEquals("RSA:2048,EC:256", runtime.defaultKeySizeProperty)
             val document = CaptureDocument.of(capture.copy(runtime = runtime))
             assertEquals("RSA:2048,EC:256", (document[CaptureDocument.RUNTIME] as Map<*, *>)[CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY])
         } finally {
-            if (before == null) System.clearProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY) else System.setProperty(RuntimeInfo.DEFAULT_KEY_SIZE_PROPERTY, before)
+            if (before == null) System.clearProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY) else System.setProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY, before)
         }
         val document = LinkedHashMap(CaptureDocument.of(capture))
         document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY) }

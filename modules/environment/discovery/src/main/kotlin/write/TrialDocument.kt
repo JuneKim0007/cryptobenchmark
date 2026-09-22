@@ -17,27 +17,27 @@ import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.string
 
 object TrialDocument {
 
-    const val SCHEMA_VERSION = "schemaVersion"
-    const val CAPTURED_AT_MILLIS = "capturedAtMillis"
-    const val SERVICES = "services"
-    const val DEFAULT_RUN_INPUT_SIZE = "defaultRunInputSize"
+    internal const val SCHEMA_VERSION = "schemaVersion"
+    private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
+    private const val SERVICES = "services"
+    private const val DEFAULT_RUN_INPUT_SIZE = "defaultRunInputSize"
 
-    const val PROVIDER = "provider"
-    const val TYPE = "type"
-    const val ALGORITHM = "algorithm"
-    const val INSTANTIATES = "instantiates"
-    const val ERROR = "error"
-    const val TRANSFORMATIONS = "transformations"
-    const val NAME = "name"
+    private const val PROVIDER = "provider"
+    private const val TYPE = "type"
+    private const val ALGORITHM = "algorithm"
+    private const val INSTANTIATES = "instantiates"
+    private const val ERROR = "error"
+    private const val TRANSFORMATIONS = "transformations"
+    private const val NAME = "name"
 
-    const val DEFAULT_RUN = "defaultRun"
-    const val WORKS = "works"
-    const val KEY_ALGORITHM = "keyAlgorithm"
-    const val KEY_PROVIDER = "keyProvider"
-    const val KEY_SIZE = "keySize"
-    const val INPUT_SIZE = "inputSize"
-    const val PROVIDER_CHOSE = "providerChose"
-    const val BARE_NAME = "bareName"
+    private const val DEFAULT_RUN = "defaultRun"
+    private const val WORKS = "works"
+    private const val KEY_ALGORITHM = "keyAlgorithm"
+    private const val KEY_PROVIDER = "keyProvider"
+    private const val KEY_SIZE = "keySize"
+    private const val INPUT_SIZE = "inputSize"
+    private const val PROVIDER_CHOSE = "providerChose"
+    private const val BARE_NAME = "bareName"
 
     fun of(report: TrialReport): Map<String, Any> = linkedMapOf<String, Any>(
         SCHEMA_VERSION to report.schemaVersion,

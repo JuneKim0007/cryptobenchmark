@@ -65,13 +65,13 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `DeclaredAlias` | `adapter` | one alias as declared — `internal` |
 | `AttributeKind` | `adapter` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
 | `AttributeValueParser` | `adapter` | attribute value → that type — `internal` |
-| `DeviceRuntimeReader` | `adapter` | `android.os.Build` → `RuntimeInfo`, reflectively; unused on the host, where every caller takes `RuntimeInfo.unknown()` — the app shell passes it with #14 |
+| `DeviceRuntimeReader` | `adapter` | the one place that reads the runtime: `android.os.Build` reflectively (empty on a JVM), `java.version`, `jdk.security.defaultKeySize`; the default for `probe` and `reusable` |
 | `CapturedEnvironment` | `contract` | one capture |
 | `ProviderEntry` | `contract` | one provider |
 | `ServiceEntry` | `contract` | one service |
 | `AliasEntry` | `contract` | one alias that resolved to nothing |
 | `ServiceAttributes` | `contract` | typed attribute accessors |
-| `RuntimeInfo` | `contract` | device and runtime provenance |
+| `RuntimeInfo` | `contract` | device and runtime provenance, plain data |
 | `ServiceKey` | `contract` | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
 | `CaptureDocument` | `write` | the YAML schema: key names, capture → document (`of`), document → capture (`parse`) |
 | `DocumentFields` | `write` | typed reads of one document key — `internal` |

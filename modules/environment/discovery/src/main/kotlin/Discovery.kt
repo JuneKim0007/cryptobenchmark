@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
@@ -31,7 +32,7 @@ class Discovery(
 
     fun probe(
         providers: Array<Provider>?,
-        runtime: RuntimeInfo = RuntimeInfo.unknown(),
+        runtime: RuntimeInfo = DeviceRuntimeReader.read(),
         capturedAtMillis: Long = System.currentTimeMillis(),
     ): DiscoveryRun {
         val capture = providerProbe.capture(providers, runtime, capturedAtMillis)
@@ -42,7 +43,7 @@ class Discovery(
         )
     }
 
-    fun reusable(runtime: RuntimeInfo = RuntimeInfo.unknown()): ReusedRun? {
+    fun reusable(runtime: RuntimeInfo = DeviceRuntimeReader.read()): ReusedRun? {
         val captureFile = directory.newest("probe") ?: return null
         val capture = runCatching { CaptureDocument.parse(codec.load(captureFile.readText())) }.getOrNull() ?: return null
         if (capture.runtime != runtime) {
