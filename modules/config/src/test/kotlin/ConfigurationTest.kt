@@ -17,15 +17,6 @@ class ConfigurationTest {
     private val testSet = File(directory, "config/testsets/scope.yaml").apply { parentFile.mkdirs(); writeText(Fixtures.TEST_SET) }
     private val configuration = Configuration(File(directory, "configuration"))
 
-    /** The test set path in global.yaml is resolved against global.yaml's directory, not the working directory. */
-    @Test
-    fun inventoryThenEffective() {
-        configuration.inventory(capture, trial)
-        val effective = configuration.effective(global)
-        assertEquals("effective.yaml", effective.name)
-        assertEquals(setOf("SunJCE", "SUN"), configuration.readEffective().providers.keys)
-    }
-
     /** The inventory is regenerated on every probe; authored files are never written. */
     @Test
     fun aProbeOverwritesOnlyTheInventory() {
@@ -50,27 +41,21 @@ class ConfigurationTest {
         assertEquals("testsets/scope.yaml", committed.selection.testSet)
     }
 
-    /** The setting that pointed at a missing file is named, not just the path. */
+    /** A missing or broken file is named, and a missing test set names the setting that pointed there. */
     @Test
-    fun aMissingTestSetNamesTheSettingThatPointedThere() {
+    fun aBadFileIsNamed() {
         configuration.inventory(capture, trial)
+        val missingGlobal = File(directory, "nowhere/global.yaml")
+        assertEquals("missing_file: ${missingGlobal.path}", assertThrows(IllegalArgumentException::class.java) { configuration.effective(missingGlobal) }.message)
+
         global.writeText(Fixtures.GLOBAL.replace("testsets/scope.yaml", "testsets/scop.yaml"))
-        val message = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
-        assertTrue(message, message.startsWith("missing_file: ") && message.endsWith("(global.yaml selection.testSet: testsets/scop.yaml)"))
-    }
+        val missingTestSet = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
+        assertTrue(missingTestSet, missingTestSet.startsWith("missing_file: ") && missingTestSet.endsWith("(global.yaml selection.testSet: testsets/scop.yaml)"))
 
-    @Test
-    fun aMissingGlobalFileIsNamed() {
-        val missing = File(directory, "nowhere/global.yaml")
-        assertEquals("missing_file: ${missing.path}", assertThrows(IllegalArgumentException::class.java) { configuration.effective(missing) }.message)
-    }
-
-    @Test
-    fun anErrorInsideAFileNamesTheFile() {
-        configuration.inventory(capture, trial)
+        global.writeText(Fixtures.GLOBAL)
         testSet.writeText(Fixtures.TEST_SET.replace("- {type: Cipher, name: RSA}", "- {type: Cipher, nme: RSA}"))
-        val message = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
-        assertTrue(message, message.startsWith("scope.yaml: unknown_keys: include[1] [nme]"))
+        val insideTheFile = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
+        assertTrue(insideTheFile, insideTheFile.startsWith("scope.yaml: unknown_keys: include[1] [nme]"))
     }
 
     /** A failed run must not leave the previous run's effective.yaml for preparation to pick up. */

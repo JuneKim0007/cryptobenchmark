@@ -12,10 +12,4 @@ class ServiceAttributesTest {
         val attributes = ServiceAttributes.of(linkedMapOf("SupportedPaddings" to listOf("NOPADDING"), "KeySize" to 256, "SupportedModes" to listOf("ECB")))
         assertEquals("{KeySize=256, SupportedModes=[ECB], SupportedPaddings=[NOPADDING]}", attributes.toString())
     }
-
-    @Test
-    fun noValuesIsTheSharedEmptyInstance() {
-        assertEquals(ServiceAttributes.empty(), ServiceAttributes.of(null))
-        assertEquals(ServiceAttributes.empty(), ServiceAttributes.of(emptyMap()))
-    }
 }

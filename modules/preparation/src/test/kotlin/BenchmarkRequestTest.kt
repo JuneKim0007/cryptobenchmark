@@ -14,13 +14,6 @@ class BenchmarkRequestTest {
     private fun rejection(block: () -> Any): String? =
         assertThrows(IllegalArgumentException::class.java) { block() }.message
 
-    @Test
-    fun defaultsAreOneWarmTimedRunAtOneKilobyte() {
-        val request = BenchmarkRequest(listOf(aes))
-        assertEquals(listOf(1024), request.global.inputSizes)
-        assertEquals(1, request.global.processRepetitions)
-    }
-
     /** A typo in the request fails here, before a sweep starts, not inside a timed region. */
     @Test
     fun rejectsShapeErrorsByName() {

@@ -35,16 +35,13 @@ class TrialDocumentTest {
         assertEquals(report, TrialDocument.parse(codec.load(codec.dump(TrialDocument.of(report)))))
     }
 
+    /** Another schema is refused, and an outcome carries an error exactly when it fails. */
     @Test
-    fun rejectsAnotherSchemaVersion() {
+    fun refusesWhatCannotBeTrue() {
         val document = LinkedHashMap(TrialDocument.of(report))
         document[TrialDocument.SCHEMA_VERSION] = TrialReport.SCHEMA_VERSION + 1
         val error = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(document) }
         assertEquals("unsupported_schema_version: 3, this build reads 2", error.message)
-    }
-
-    @Test
-    fun anOutcomeCarriesAnErrorExactlyWhenItFails() {
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = true, error = "x") }
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = false) }
     }

@@ -11,16 +11,12 @@ class AxisRulesTest {
 
     private val rules = AxisRules.standard()
 
+    /** A type nobody registered is still measurable; a provider adding engine types must not need a code change. */
     @Test
-    fun theSevenScopedTypesHaveRules() {
+    fun theScopedTypesHaveRulesAndAnUnknownTypeFallsBack() {
         assertEquals(AxisRule(usesKeySize = false, usesInputSize = true, operations = listOf(Operation.DIGEST)), rules.of("MessageDigest"))
         assertEquals(AxisRule(usesKeySize = true, usesInputSize = false, operations = listOf(Operation.GENERATE_KEY_PAIR)), rules.of("keypairgenerator"))
         assertEquals(AxisRule(usesKeySize = true, usesInputSize = true, operations = listOf(Operation.ENCRYPT, Operation.DECRYPT)), rules.of("Cipher"))
-    }
-
-    /** A type nobody registered is still measurable; a provider adding engine types must not need a code change. */
-    @Test
-    fun anUnknownTypeFallsBackToKeyedInput() {
         assertEquals(AxisRule(usesKeySize = true, usesInputSize = true, operations = listOf(Operation.TYPE_DEFAULT)), rules.of("SecretKeyFactory"))
     }
 

@@ -17,16 +17,10 @@ class YamlCodecTest {
     )
 
     @Test
-    fun dumpsBlockStyleAndQuotesNumberLikeStrings() {
-        assertEquals(
-            "name: SunJCE\nversion: '25'\nservices:\n- type: Cipher\n  aliases:\n  - a\n  - b\n",
-            codec.dump(document),
-        )
-    }
-
-    @Test
-    fun loadsWhatItDumped() {
-        assertEquals(document, codec.load(codec.dump(document)))
+    fun dumpsBlockStyleQuotesNumberLikeStringsAndLoadsItBack() {
+        val text = codec.dump(document)
+        assertEquals("name: SunJCE\nversion: '25'\nservices:\n- type: Cipher\n  aliases:\n  - a\n  - b\n", text)
+        assertEquals(document, codec.load(text))
     }
 
     /** snakeyaml's Yaml is not thread-safe; the codec builds one per call so a shared codec is. */
