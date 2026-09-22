@@ -48,7 +48,7 @@ class CaseResolverTest {
     @Test
     fun digestsTakeNoKeyAndKeyGenerationTakesNoInput() {
         val resolution = resolver.resolve(request(
-            Selection("MessageDigest", "SHA-256", keySizes = listOf(256)),
+            Selection("MessageDigest", "SHA-256"),
             Selection("KeyGenerator", "AES", keySizes = listOf(128, 256)),
         ))
         assertEquals(
@@ -59,6 +59,15 @@ class CaseResolverTest {
                 "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k256_WARM",
             ),
             resolution.cases.map { it.id },
+        )
+    }
+
+    /** A setting that reaches no Java call is a mistake in the config, not something to drop quietly. */
+    @Test
+    fun aSettingNoOperationCanUseIsRejected() {
+        assertEquals(
+            listOf("unused_setting: [keySizes] reaches no call of [DIGEST]"),
+            resolver.resolve(request(Selection("MessageDigest", "SHA-256", keySizes = listOf(256)))).rejections.map { it.reason },
         )
     }
 

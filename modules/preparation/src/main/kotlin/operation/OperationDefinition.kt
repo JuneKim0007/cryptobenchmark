@@ -16,6 +16,10 @@ internal interface OperationDefinition {
 
     val consumesInput: Boolean
 
+    val consumesKeySpec: Boolean
+
+    val consumesParameters: Boolean
+
     fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput
 
     fun check(prepared: PreparedCase)

@@ -27,6 +27,22 @@ Every inbound is a YAML file; no other module is on the classpath. Run settings 
 | phase | `run.phases` | — |
 | parameters | entry `key` and `parameters` trees | the provider fills them in |
 
+## What each operation takes
+
+Every setting in an entry reaches a Java call, or the entry is rejected with `unused_setting`.
+
+| Operation | `keySizes` | `key` | `parameters` | input |
+|---|---|---|---|---|
+| ENCRYPT, DECRYPT | the key's generator | the key's generator | `Cipher.init` | yes |
+| SIGN, VERIFY | the key's generator | the key's generator | `Signature.setParameter` | yes |
+| COMPUTE_MAC | the key's generator | the key's generator | `Mac.init(key, spec)` | yes |
+| DIGEST | — | — | — | yes |
+| GENERATE_KEY, GENERATE_KEY_PAIR | the measured `init` | the measured `init` | — | — |
+| AGREE_KEY | the keys' generator | the keys' generator | `KeyAgreement.init(key, spec)` | — |
+
+A generator that is itself the measurement is initialised exactly as the config says and with no
+`SecureRandom` of ours, so the provider's own source is what gets measured.
+
 ## Parameter trees
 
 `{class, arguments}` by fully qualified name; an argument is a literal, `fresh(n)`, `{field: Class.NAME}`, or another tree.
@@ -37,7 +53,7 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 | Reason | Stage |
 |---|---|
 | `provider_not_installed`, `not_registered`, `transformation_fails`, `not_tried` | resolve |
-| `bind_failed: <path>`, `key_parameters_and_key_sizes`, `unsupported_operation` | resolve |
+| `bind_failed: <path>`, `key_parameters_and_key_sizes`, `unsupported_operation`, `unused_setting` | resolve |
 | `no_key_generator`, `key_generation_failed` | key |
 | `input_preparation_failed`, `dry_run_failed` | input, check |
 

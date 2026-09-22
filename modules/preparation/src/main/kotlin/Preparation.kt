@@ -53,13 +53,14 @@ class Preparation(
                 skipped += skip(case, "key_generation_failed: ${failure.message}")
                 continue
             }
-            val parameters = bound(case)
             val definition = OperationDefinitions.of(case.operation)
+            val parameters = bound(case.parameters, "parameters")
+            val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
             val input = runCatching { definition.input(case, material, parameters) }.getOrElse { failure ->
                 skipped += skip(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
                 continue
             }
-            val candidate = PreparedCase(case, recipe, material, parameters, input)
+            val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
             val failure = runCatching { definition.check(candidate) }.exceptionOrNull()
             if (failure != null) {
                 skipped += skip(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}")
@@ -75,8 +76,8 @@ class Preparation(
         return PreparedRun(prepared, skipped, global.processRepetitions)
     }
 
-    private fun bound(case: BenchmarkCase) =
-        if (case.parameters.isEmpty()) null else binder.bind(case.parameters, "parameters")
+    private fun bound(tree: Map<String, Any>, path: String) =
+        if (tree.isEmpty()) null else binder.bind(tree, path)
 
     private fun skip(case: BenchmarkCase, reason: String) =
         Skip(Skip.PREPARATION, case.provider, case.type, case.algorithm, "${case.id}: $reason")
