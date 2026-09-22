@@ -29,6 +29,7 @@ class TrialRunnerTest {
         assertTrue(ghost.outcome.error, ghost.outcome.error.startsWith("NoSuchAlgorithmException"))
         assertEquals(listOf("GHOST", "GHOST/ECB/NOPADDING", "GHOST/CBC/NOPADDING"), ghost.transformations.map { it.name })
         assertTrue(ghost.transformations.none { it.outcome.instantiates })
+        assertEquals("the report belongs to the capture it was run on", capture.capturedAtMillis, report.capturedAtMillis)
     }
 
     @Test
@@ -36,11 +37,5 @@ class TrialRunnerTest {
         val capture = ProviderProbe().capture(arrayOf(fake))
         val report = TrialRunner().run(capture, emptyArray())
         assertEquals("provider_not_installed", report.services.single().outcome.error)
-    }
-
-    @Test
-    fun theReportSharesTheCaptureInstant() {
-        val capture = ProviderProbe().capture(arrayOf(fake), capturedAtMillis = 1_700_000_000_000L)
-        assertEquals(1_700_000_000_000L, TrialRunner().run(capture, arrayOf(fake)).capturedAtMillis)
     }
 }

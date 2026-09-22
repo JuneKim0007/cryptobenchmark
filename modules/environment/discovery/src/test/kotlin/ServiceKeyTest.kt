@@ -12,19 +12,11 @@ import java.util.Locale
 class ServiceKeyTest {
 
     @Test
-    fun foldsWhicheverWayItIsBuilt() {
+    fun foldsWhicheverWayItIsBuiltKeepsTypesApartAndRefusesBlanks() {
         assertEquals(ServiceKey("Cipher", "AES"), ServiceKey("cipher", "aes"))
         assertEquals(ServiceKey("Cipher", "AES").hashCode(), ServiceKey("CIPHER", "aes").hashCode())
         assertEquals("CIPHER.AES", ServiceKey("Cipher", "AES").toString())
-    }
-
-    @Test
-    fun keepsTypeAndAlgorithmApart() {
         assertNotEquals(ServiceKey("Cipher", "AES"), ServiceKey("KeyGenerator", "AES"))
-    }
-
-    @Test
-    fun rejectsMissingFields() {
         listOf("" to "AES", "Cipher" to "", " " to "AES", "Cipher" to " ").forEach { (type, algorithm) ->
             val thrown = assertThrows(ServiceKeyException::class.java) { ServiceKey(type, algorithm) }
             assertEquals(true, thrown.message!!.startsWith("missing_field: "))

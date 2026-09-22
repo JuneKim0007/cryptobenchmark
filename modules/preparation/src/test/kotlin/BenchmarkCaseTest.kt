@@ -10,17 +10,14 @@ import org.junit.Test
 
 class BenchmarkCaseTest {
 
-    /** Instrumentation records only method names, so the id must survive being one. */
+    /** Instrumentation records only method names, so the id must survive being one, and name every axis the case has. */
     @Test
     fun theIdIsSafeAsAMethodNameAndNamesEveryAxis() {
         val case = BenchmarkCase("Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", Operation.ENCRYPT, keySize = 256, inputSize = 1024)
         assertEquals("Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM", case.id)
-    }
-
-    @Test
-    fun keyGenerationHasNoInputSize() {
-        val case = BenchmarkCase("KeyPairGenerator", "RSA", "AndroidOpenSSL", Operation.GENERATE_KEY_PAIR, keySize = 2048, phase = Phase.COLD)
-        assertEquals("KeyPairGenerator_RSA_GENERATE-KEY-PAIR_AndroidOpenSSL_k2048_COLD", case.id)
+        assertEquals("Cipher_AES-GCM-NoPadding_DECRYPT_AndroidOpenSSL_k256_i1024_WARM", case.copy(operation = Operation.DECRYPT).id)
+        val keyGeneration = BenchmarkCase("KeyPairGenerator", "RSA", "AndroidOpenSSL", Operation.GENERATE_KEY_PAIR, keySize = 2048, phase = Phase.COLD)
+        assertEquals("KeyPairGenerator_RSA_GENERATE-KEY-PAIR_AndroidOpenSSL_k2048_COLD", keyGeneration.id)
     }
 
     @Test
@@ -43,12 +40,5 @@ class BenchmarkCaseTest {
         assertEquals("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM", plain.id)
         assertTrue(tuned.id, tuned.id.matches(Regex("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM_p[0-9a-f]{8}")))
         assertEquals(tuned.id, reordered.id)
-    }
-
-    /** Encrypting and decrypting the same thing are two measurements, so they are two names. */
-    @Test
-    fun theOperationIsPartOfTheName() {
-        val encrypt = BenchmarkCase("Cipher", "AES/GCM/NoPadding", "SunJCE", Operation.ENCRYPT, keySize = 128, inputSize = 64)
-        assertEquals("Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i64_WARM", encrypt.copy(operation = Operation.DECRYPT).id)
     }
 }

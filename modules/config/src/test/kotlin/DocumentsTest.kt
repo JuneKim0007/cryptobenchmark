@@ -29,18 +29,15 @@ class DocumentsTest {
     private val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
     private val effective = EffectiveBuilder().build(global, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
 
+    /** One override feeds many entries the same list; the file must still read back as plain values. */
     @Test
-    fun everyKindRoundTrips() {
+    fun everyKindRoundTripsInFull() {
+        val warned = effective.copy(warnings = listOf("override_matches_nothing: {name=X}"))
         assertEquals(inventory, files.at(File(directory, "inventory.yaml"), InventoryDocument).let { it.write(inventory); it.read() })
-        assertEquals(effective, files.at(File(directory, "effective.yaml"), EffectiveDocument).let { it.write(effective); it.read() })
+        assertEquals(warned, files.at(File(directory, "effective.yaml"), EffectiveDocument).let { it.write(warned); it.read() })
         assertEquals(global, files.at(File(directory, "global.yaml"), GlobalDocument).let { it.write(global); it.read() })
         assertEquals(testSet, files.at(File(directory, "scope.yaml"), TestSetDocument).let { it.write(testSet); it.read() })
-    }
-
-    /** One override feeds many entries the same list; the file must still read as plain values. */
-    @Test
-    fun sharedValuesAreWrittenInFull() {
-        val text = files.at(File(directory, "effective.yaml"), EffectiveDocument).write(effective).readText()
+        val text = File(directory, "effective.yaml").readText()
         assertTrue(text, !text.contains("&id") && !text.contains("*id"))
     }
 
@@ -53,23 +50,23 @@ class DocumentsTest {
             assertThrows(IllegalArgumentException::class.java) { files.at(written, InventoryDocument).read() }.message)
     }
 
-    /** A misspelt section or key fails instead of quietly falling back to defaults. */
+    /** A misspelt section, key or choice fails by name instead of quietly falling back to defaults. */
     @Test
-    fun unknownSectionsAndKeysAreRefused() {
-        assertEquals("unknown_section: [rn], known [selection, run, policy]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrn: {}\n")) }.message)
-        assertEquals("unknown_keys: run [inputSize], known [inputSizes, phases, metrics, processRepetitions, seed]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nrun: {inputSize: [1]}\n")) }.message)
-        assertEquals("unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations]",
-            assertThrows(IllegalArgumentException::class.java) { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) }.message)
-    }
-
-    @Test
-    fun aPolicyValueOutsideTheChoicesIsRefused() {
-        assertEquals("invalid: policy.onFailure retry, one of [stop, skip]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onFailure: retry}\n")) }.message)
-        assertEquals("unknown_keys: policy [onUnavailable], known [onFailure]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\npolicy: {onUnavailable: skip}\n")) }.message)
+    fun malformedDocumentsAreRefusedByName() {
+        val global = "schemaVersion: 1\nselection: {testSet: a.yaml}\n"
+        listOf<Pair<() -> Any, String>>(
+            { GlobalDocument.parse(codec.load(global + "rn: {}\n")) } to "unknown_section: [rn], known [selection, run, policy]",
+            { GlobalDocument.parse(codec.load(global + "run: {inputSize: [1]}\n")) } to "unknown_keys: run [inputSize], known [inputSizes, phases, metrics, processRepetitions, seed]",
+            { GlobalDocument.parse(codec.load(global + "policy: {onFailure: retry}\n")) } to "invalid: policy.onFailure retry, one of [stop, skip]",
+            { GlobalDocument.parse(codec.load(global + "policy: {onUnavailable: skip}\n")) } to "unknown_keys: policy [onUnavailable], known [onFailure]",
+            { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) } to "empty_rule: give provider, type or name at selection.exclude[1]",
+            { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) } to "unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations]",
+            { codec.load("- one\n- two\n") } to "not_a_mapping: the document is not a set of key: value entries",
+        ).forEach { (parse, expected) ->
+            assertEquals(expected, assertThrows(IllegalArgumentException::class.java) { parse() }.message)
+        }
+        val duplicate = assertThrows(RuntimeException::class.java) { codec.load("schemaVersion: 1\nschemaVersion: 1\n") }.message!!
+        assertTrue(duplicate, duplicate.contains("duplicate key"))
     }
 
     @Test
@@ -79,30 +76,5 @@ class DocumentsTest {
         val partial = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {processRepetitions: 3}\n"))
         assertEquals(3, partial.run.processRepetitions)
         assertEquals(listOf(1024), partial.run.inputSizes)
-    }
-
-    @Test
-    fun aKeyWrittenTwiceIsRejected() {
-        val message = assertThrows(RuntimeException::class.java) { codec.load("schemaVersion: 1\nschemaVersion: 1\n") }.message!!
-        assertTrue(message, message.contains("duplicate key"))
-    }
-
-    /** Only snakeyaml's own failure is translated: a list where a mapping belongs is named, and a bug would keep its type. */
-    @Test
-    fun aDocumentThatIsNotAMappingIsNamed() {
-        assertEquals("not_a_mapping: the document is not a set of key: value entries",
-            assertThrows(IllegalArgumentException::class.java) { codec.load("- one\n- two\n") }.message)
-    }
-
-    @Test
-    fun aRuleErrorSaysWhichRule() {
-        assertEquals("empty_rule: give provider, type or name at selection.exclude[1]",
-            assertThrows(IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) }.message)
-    }
-
-    @Test
-    fun warningsRoundTrip() {
-        val warned = effective.copy(warnings = listOf("override_matches_nothing: {name=X}"))
-        assertEquals(warned, files.at(File(directory, "warned.yaml"), EffectiveDocument).let { it.write(warned); it.read() })
     }
 }
