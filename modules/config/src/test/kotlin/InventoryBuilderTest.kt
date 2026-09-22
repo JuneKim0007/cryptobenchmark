@@ -38,6 +38,15 @@ class InventoryBuilderTest {
         assertEquals("IllegalStateException: TlsPrfGenerator must be initialized", inventory.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("SunTlsPrf").reason)
     }
 
+    /** Which size is "the usual one" comes from the trial itself; an older trial that does not say keeps every size it observed. */
+    @Test
+    fun theUsualInputSizeIsTheOneTheTrialStartedFrom() {
+        val cipherOf = { view: io.github.junekim0007.cryptobench.config.source.TrialView -> InventoryBuilder().build(capture, view, names).providers.getValue("SunJCE").getValue("Cipher") }
+        assertEquals(emptyList<Int>(), cipherOf(trial).getValue("AES").inputSizes)
+        assertEquals(listOf(1024), cipherOf(trial.copy(defaultRunInputSize = null)).getValue("AES").inputSizes)
+        assertEquals(listOf(1024), cipherOf(trial.copy(defaultRunInputSize = 2048)).getValue("AES").inputSizes)
+    }
+
     @Test
     fun aTrialOfAnotherCaptureIsRefused() {
         assertEquals("mismatched_trial: capture 1, trial 1700000000000",

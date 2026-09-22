@@ -17,7 +17,10 @@ class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
     fun run(report: TrialReport, providers: Array<Provider>?): TrialReport {
         val installed = providers.orEmpty().associateBy { it.name }
         val keys = DefaultKeys(providers.orEmpty().toList())
-        return report.copy(services = report.services.map { service -> withDefaultRun(service, installed[service.provider], keys) })
+        return report.copy(
+            defaultRunInputSize = inputSizes.first(),
+            services = report.services.map { service -> withDefaultRun(service, installed[service.provider], keys) },
+        )
     }
 
     private fun withDefaultRun(service: ServiceTrialEntry, provider: Provider?, keys: DefaultKeys): ServiceTrialEntry {

@@ -8,17 +8,10 @@ import java.nio.file.StandardOpenOption
 
 class ProbeDirectory(val root: File) {
 
-    private companion object {
-        val STAMP = Regex("""\d{8}T\d{6}Z\.yaml""")
-    }
-
-
     fun newest(prefix: String): File? =
-        root.listFiles { file -> file.name.startsWith(prefix + "_") && file.name.endsWith(".yaml") }
-            ?.filter { it.name.removePrefix(prefix + "_").matches(STAMP) }
-            ?.maxByOrNull { it.name }
+        root.listFiles { file -> ProbeFileName.isStamped(prefix, file.name) }?.maxByOrNull { it.name }
 
-    fun named(prefix: String, stampedLike: File): File = File(root, prefix + "_" + stampedLike.name.substringAfterLast('_'))
+    fun named(prefix: String, stampedLike: File): File = File(root, ProbeFileName.sibling(prefix, stampedLike.name))
 
     fun create(name: String, text: String): File {
         if (!root.exists() && !root.mkdirs()) {

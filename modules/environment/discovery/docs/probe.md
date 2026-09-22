@@ -41,6 +41,14 @@ Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYa
 - the trial instantiates (level 1), then calls once with a default key (level 2); a default run says nothing about other key sizes or parameters (#18)
 - not visible: native crypto via JNI, providers not registered in this process, hardware (StrongBox, AES acceleration)
 
+## Tunables
+
+Contract keys stay with their codec and JCA facts with their parser; only these are choices.
+
+| Value | Where | Default |
+|---|---|---|
+| input sizes a default run tries, in order | `DefaultRunTrial(inputSizes)` | `[1024, 32]`; the first is written as `defaultRunInputSize` |
+
 ## Classes
 
 Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the API.

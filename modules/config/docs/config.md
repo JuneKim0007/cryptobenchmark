@@ -15,6 +15,8 @@ global.yaml ─► selection.testSet ─► testsets/<name>.yaml ─┐
 inventory.yaml ───────────────────────────────────────────┴─► EffectiveBuilder ─► effective.yaml   what will run (preparation reads only this)
 ```
 
+InventoryBuilder records an observed input size only when it differs from the trial's `defaultRunInputSize`.
+
 EffectiveBuilder: include (empty = everything that runs) → test-set exclude → global exclude (exclude always wins)
 → overrides, broadest rule first → `policy.onFailure`.
 

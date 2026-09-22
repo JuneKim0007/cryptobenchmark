@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.config.source
 data class TrialView(
     val capturedAtMillis: Long,
     val entries: List<Entry>,
+    val defaultRunInputSize: Int? = null,
 ) {
 
     data class Entry(

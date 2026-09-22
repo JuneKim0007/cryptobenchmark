@@ -24,6 +24,7 @@ class DefaultRunTrialTest {
 
     @Test
     fun recordsTheKeyAndWhatTheProviderChose() {
+        assertEquals("the report says which input size a default run starts from", 1024, REPORT.defaultRunInputSize)
         val gcm = service("SunJCE", "Cipher", "AES/GCM/NoPadding")!!
         assertTrue(gcm.works)
         assertEquals("AES", gcm.keyAlgorithm)

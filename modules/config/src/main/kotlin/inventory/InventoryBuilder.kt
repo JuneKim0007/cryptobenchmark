@@ -19,7 +19,7 @@ class InventoryBuilder {
             val entries = byProvider[provider] ?: continue
             val types = LinkedHashMap<String, LinkedHashMap<String, InventoryEntry>>()
             for (entry in entries) {
-                types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run)
+                types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run, trial.defaultRunInputSize)
             }
             providers[provider] = types
         }
@@ -28,18 +28,14 @@ class InventoryBuilder {
 
     data class Files(val capture: String, val trial: String)
 
-    private fun inventoryEntry(run: TrialView.DefaultRun): InventoryEntry = InventoryEntry(
+    private fun inventoryEntry(run: TrialView.DefaultRun, defaultRunInputSize: Int?): InventoryEntry = InventoryEntry(
         runs = run.works,
         keySizes = listOfNotNull(run.keySize),
-        inputSizes = listOfNotNull(run.inputSize?.takeIf { it != USUAL_INPUT_SIZE }),
+        inputSizes = listOfNotNull(run.inputSize?.takeIf { it != defaultRunInputSize }),
         keyAlgorithm = run.keyAlgorithm,
         keyProvider = run.keyProvider,
         providerChose = run.providerChose,
         bareName = run.bareName,
         reason = if (run.works) "" else run.error.ifEmpty { "failed" },
     )
-
-    private companion object {
-        const val USUAL_INPUT_SIZE = 1024
-    }
 }
