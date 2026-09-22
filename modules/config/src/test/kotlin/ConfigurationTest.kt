@@ -83,4 +83,11 @@ class ConfigurationTest {
         assertThrows(IllegalStateException::class.java) { configuration.effective(global) }
         assertFalse(configuration.effectiveFile.exists())
     }
+
+    @Test
+    fun anAbsoluteTestSetPathIsUsedAsGiven() {
+        configuration.inventory(capture, trial)
+        global.writeText(Fixtures.GLOBAL.replace("testsets/scope.yaml", testSet.absolutePath))
+        assertEquals("effective.yaml", configuration.effective(global).name)
+    }
 }

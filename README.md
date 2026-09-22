@@ -92,13 +92,13 @@ Kotlin is not installed separately; the Gradle plugin fetches the compiler.
 ## Run, on the host
 
 ```
-cd tools/jca-contract && ./gradlew run --args="../../results/discovery ../../results/configuration ../../config/global.yaml"
+python3 scripts/pipeline.py                      # probe -> trial -> inventory -> effective
+python3 scripts/pipeline.py --bench              # and prepare -> measure -> analyse (JVM, until #33)
 ```
 
-Writes `results/discovery/{probe,probe_classes,trial}_<utc>.yaml`, then `results/configuration/{inventory,effective}.yaml`.
-What to measure is `config/global.yaml` and `config/testsets/`.
-
-A quick end-to-end run, including measurement and charts, is `tools/quick-bench/README.md`.
+Writes `results/discovery/{probe,probe_classes,trial}_<utc>.yaml`, `results/configuration/{inventory,effective}.yaml`,
+and with `--bench` also `results/benchmark/benchmark.json` and `results/analysis/`.
+What to measure is `config/global.yaml` and `config/testsets/`; `--config` takes another one.
 
 ## Device
 

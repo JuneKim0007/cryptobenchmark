@@ -35,7 +35,8 @@ class Configuration(
     fun effective(globalFile: File, inventoryFile: File = this.inventoryFile): File {
         Files.deleteIfExists(effectiveFile.toPath())
         val global = files.at(globalFile, GlobalDocument).read()
-        val testSetFile = File(globalFile.absoluteFile.parentFile, global.selection.testSet)
+        val named = File(global.selection.testSet)
+        val testSetFile = if (named.isAbsolute) named else File(globalFile.absoluteFile.parentFile, global.selection.testSet)
         require(testSetFile.isFile) { "missing_file: ${testSetFile.path} (${globalFile.name} selection.testSet: ${global.selection.testSet})" }
         val testSet = files.at(testSetFile, TestSetDocument).read()
         val inventory = files.at(inventoryFile, InventoryDocument).read()
