@@ -30,7 +30,7 @@ class CaptureQueryTest {
         ),
     )
 
-    private val query = CaptureQuery(CapturedEnvironment(RuntimeInfo.unknown(), listOf(second, first)))
+    private val query = CaptureQuery(CapturedEnvironment(RuntimeInfo(), listOf(second, first)))
 
     /** Precedence decides who answers an unqualified getInstance, whatever order the entries came in. */
     @Test

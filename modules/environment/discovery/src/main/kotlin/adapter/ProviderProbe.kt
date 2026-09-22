@@ -13,7 +13,7 @@ class ProviderProbe {
 
     fun capture(
         providers: Array<Provider>?,
-        runtime: RuntimeInfo = RuntimeInfo.unknown(),
+        runtime: RuntimeInfo = DeviceRuntimeReader.read(),
         capturedAtMillis: Long = System.currentTimeMillis(),
     ): CapturedEnvironment = CapturedEnvironment(
         runtime = runtime,

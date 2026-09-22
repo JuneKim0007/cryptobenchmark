@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import java.security.Provider
 
 internal class PropertyMapIndex private constructor(
-    val meta: Map<String, String>,
+    private val meta: Map<String, String>,
     val aliases: List<DeclaredAlias>,
     val attributesByService: Map<ServiceKey, Map<String, Any>>,
 ) {
@@ -16,7 +16,7 @@ internal class PropertyMapIndex private constructor(
 
     companion object {
 
-        const val VERSION_FIELD = "id version"
+        private const val VERSION_FIELD = "id version"
 
         fun of(provider: Provider): PropertyMapIndex {
             val meta = mutableMapOf<String, String>()

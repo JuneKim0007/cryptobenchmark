@@ -6,13 +6,6 @@ data class RuntimeInfo(
     val hardware: String = "",
     val sdkInt: Int = 0,
     val release: String = "",
-    val javaVersion: String = System.getProperty("java.version") ?: "",
-    val defaultKeySizeProperty: String = System.getProperty(DEFAULT_KEY_SIZE_PROPERTY) ?: "",
-) {
-
-    companion object {
-        const val DEFAULT_KEY_SIZE_PROPERTY = "jdk.security.defaultKeySize"
-
-        fun unknown(): RuntimeInfo = RuntimeInfo()
-    }
-}
+    val javaVersion: String = "",
+    val defaultKeySizeProperty: String = "",
+)
