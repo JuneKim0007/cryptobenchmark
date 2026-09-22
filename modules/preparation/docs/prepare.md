@@ -45,3 +45,5 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 - one call per case proves it runs; it says nothing about timing
 - keys are reused across cases with the same recipe
 - `fresh(n)` specs must be drawn before the timer; `BoundParameters.varies` says when
+- `KeyInitializer` has one implementation on the host; the per-provider slot is for AndroidKeyStore
+  and StrongBox, which generate keys through their own spec types (#33)

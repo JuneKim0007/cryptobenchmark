@@ -19,7 +19,7 @@ class KeyAlgorithmNameTest {
             Triple("KeyAgreement", "X25519", "X25519"),
             Triple("Mac", "HmacSHA256", "HmacSHA256"),
         ).forEach { (type, algorithm, key) ->
-            assertEquals("$type/$algorithm", key, KeyAlgorithmName.of(type, algorithm))
+            assertEquals("$type/$algorithm", key, KeyAlgorithmName.candidates(type, algorithm).first().algorithm)
         }
     }
 

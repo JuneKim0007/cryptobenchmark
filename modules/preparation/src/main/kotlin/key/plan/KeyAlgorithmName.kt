@@ -11,8 +11,6 @@ internal object KeyAlgorithmName {
     private val WITH = Regex("with", RegexOption.IGNORE_CASE)
     private val SIZE_SUFFIX = Regex("^(.+)_(\\d+)$")
 
-    fun of(type: String, algorithm: String): String = candidates(type, algorithm).first().algorithm
-
     fun candidates(type: String, algorithm: String): List<KeyCandidate> {
         val primary = primary(type, algorithm)
         if (EngineTypeName.fold(type) != CIPHER) {
