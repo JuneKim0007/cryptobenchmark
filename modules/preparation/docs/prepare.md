@@ -20,7 +20,7 @@ Every inbound is a YAML file; no other module is on the classpath. Run settings 
 
 | Axis | From | Absent means |
 |---|---|---|
-| operation | `AxisRules` per engine type; `operations` in the entry narrows it | every operation of the type |
+| operation | `EngineTypes` per engine type; `operations` in the entry narrows it | every operation of the type |
 | key size | entry `keySizes`; a size written into the name (`AES_128`) | the provider's default |
 | input size | entry `inputSizes`, else `run.inputSizes` | the type takes no input |
 | phase | `run.phases` | — |
