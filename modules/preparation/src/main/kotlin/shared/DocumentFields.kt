@@ -26,6 +26,18 @@ internal object DocumentFields {
     fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any> =
         if (document[key] == null) emptyMap() else section(document, key)
 
+    fun boolean(document: Map<String, Any>, key: String): Boolean =
+        field(document, key) as? Boolean ?: wrongType(key)
+
+    fun optionalString(document: Map<String, Any>, key: String): String =
+        if (document[key] == null) "" else string(document, key)
+
+    fun sections(document: Map<String, Any>, key: String): List<Map<String, Any>> =
+        asList(field(document, key), key).map { asSection(it, key) }
+
+    fun optionalSections(document: Map<String, Any>, key: String): List<Map<String, Any>> =
+        if (document[key] == null) emptyList() else sections(document, key)
+
     fun asSection(value: Any, key: String): Map<String, Any> {
         @Suppress("UNCHECKED_CAST")
         return value as? Map<String, Any> ?: wrongType(key)

@@ -31,7 +31,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
+// The example tests read each module's example/ directory relative to the module, so they belong to
+// tools/module-isolation, which runs each module from its own directory.
 tasks.test {
+    filter { excludeTestsMatching("*ExampleFilesTest") }
     systemProperty("capture.dir", layout.buildDirectory.dir("capture").get().asFile.path)
     testLogging { showStandardStreams = true }
 }

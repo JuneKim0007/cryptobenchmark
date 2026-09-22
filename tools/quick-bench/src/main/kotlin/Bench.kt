@@ -1,5 +1,4 @@
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
-import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
@@ -28,9 +27,8 @@ private const val RUNS = 5
 fun main(arguments: Array<String>) {
     val codec = YamlCodec()
     val capture = CaptureDocument.parse(codec.load(File(arguments[0]).readText()))
-    val trial = TrialDocument.parse(codec.load(File(arguments[1]).readText()))
     val outputDirectory = File(arguments[3]).apply { mkdirs() }
-    val run = Preparation(DiscoveryCapability(capture, trial), SkipFile(outputDirectory)).prepare(File(arguments[2]))
+    val run = Preparation(DiscoveryCapability(File(arguments[0]), File(arguments[1])), SkipFile(outputDirectory)).prepare(File(arguments[2]))
     System.err.println("prepared=${run.cases.size} skipped=${run.skipped.size}")
 
     val results = StringBuilder("{\n  \"runtime\": {\"javaVersion\": \"${capture.runtime.javaVersion}\", \"defaultKeySizeProperty\": \"${capture.runtime.defaultKeySizeProperty}\"},\n  \"cases\": [\n")

@@ -95,3 +95,13 @@
 
 - The `Probe` module primarily uses the Java Security library, particularly `java.security.Provider`, making it highly dependent on the Java Security API.
 - `Probe` only searches for cryptography providers registered in Java. Unregistered cryptography algorithms and pr
+
+## Example
+
+`example/` holds one small device, in the files this module reads and writes:
+
+- `discovery_capture_example.yaml`
+- `discovery_trial_example.yaml`
+
+`tools/module-isolation` compiles this module alone — no other module on the classpath — and runs its
+tests from this directory against those files. Regenerate the generated ones with `-Dexamples.update`.

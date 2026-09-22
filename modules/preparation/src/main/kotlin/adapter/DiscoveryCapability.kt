@@ -1,14 +1,19 @@
 package io.github.junekim0007.cryptobench.preparation.adapter
 
+import io.github.junekim0007.cryptobench.preparation.device.CaptureFile
+import io.github.junekim0007.cryptobench.preparation.device.ServiceName
+import io.github.junekim0007.cryptobench.preparation.device.TrialFile
+import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedDevice
+import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedService
+import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledDevice
+import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledService
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
-import io.github.junekim0007.cryptobench.discovery.query.CaptureQuery
-import io.github.junekim0007.cryptobench.discovery.query.TrialQuery
+import java.io.File
 
-class DiscoveryCapability(capture: CapturedEnvironment, trial: TrialReport) : DeviceCapability {
+class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : DeviceCapability {
+
+    constructor(captureFile: File, trialFile: File) : this(CaptureFile.read(captureFile), TrialFile.read(trialFile))
 
     init {
         require(capture.capturedAtMillis == trial.capturedAtMillis) {
@@ -16,11 +21,24 @@ class DiscoveryCapability(capture: CapturedEnvironment, trial: TrialReport) : De
         }
     }
 
-    private val captureQuery = CaptureQuery(capture)
-
-    private val trialQuery = TrialQuery(trial)
-
     private val installed: List<String> = capture.providers.sortedBy { it.precedence }.map { it.name }
+
+    private val servicesByProvider: Map<String, Map<ServiceName, CapturedService>> =
+        capture.providers.associate { provider ->
+            provider.name to HashMap<ServiceName, CapturedService>().apply {
+                for (service in provider.services) {
+                    put(ServiceName.of(service.type, service.algorithm), service)
+                    for (alias in service.aliases) {
+                        put(ServiceName.of(service.type, alias), service)
+                    }
+                }
+            }
+        }
+
+    private val trialsByProvider: Map<String, Map<ServiceName, TrialledService>> =
+        trial.services.groupBy { it.provider }.mapValues { (_, services) ->
+            services.associateBy { ServiceName.of(it.type, it.algorithm) }
+        }
 
     override fun providers(): List<String> = installed
 
@@ -28,22 +46,33 @@ class DiscoveryCapability(capture: CapturedEnvironment, trial: TrialReport) : De
         if (provider !in installed) {
             return Availability.Unavailable("provider_not_installed")
         }
-        val registered = captureQuery.serviceOf(provider, type, algorithm)
+        val registered = serviceOf(provider, type, algorithm)
         if (registered != null) {
-            return availability(trialQuery.serviceTrial(provider, type, registered.algorithm)?.outcome, "instantiation_fails")
+            val trialled = trialsByProvider[provider]?.get(ServiceName.of(type, registered.algorithm))
+            return availability(trialled?.instantiates, trialled?.error, "instantiation_fails")
         }
         val base = algorithm.substringBefore('/', missingDelimiterValue = "")
         if (base.isEmpty()) {
             return Availability.Unavailable("not_registered")
         }
-        val baseService = captureQuery.serviceOf(provider, type, base)
-            ?: return Availability.Unavailable("not_registered")
-        return availability(trialQuery.transformationTrial(provider, baseService.algorithm, algorithm)?.outcome, "transformation_fails")
+        val baseService = serviceOf(provider, type, base) ?: return Availability.Unavailable("not_registered")
+        val transformation = trialsByProvider[provider]
+            ?.get(ServiceName.of(CIPHER, baseService.algorithm))
+            ?.transformations
+            ?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
+        return availability(transformation?.instantiates, transformation?.error, "transformation_fails")
     }
 
-    private fun availability(outcome: TrialOutcome?, failure: String): Availability = when {
-        outcome == null -> Availability.Unavailable("not_tried")
-        outcome.instantiates -> Availability.Available
-        else -> Availability.Unavailable(failure + ": " + outcome.error)
+    private fun serviceOf(provider: String, type: String, algorithmOrAlias: String): CapturedService? =
+        servicesByProvider[provider]?.get(ServiceName.of(type, algorithmOrAlias))
+
+    private fun availability(instantiates: Boolean?, error: String?, failure: String): Availability = when {
+        instantiates == null -> Availability.Unavailable("not_tried")
+        instantiates -> Availability.Available
+        else -> Availability.Unavailable(failure + ": " + error.orEmpty())
+    }
+
+    private companion object {
+        const val CIPHER = "Cipher"
     }
 }

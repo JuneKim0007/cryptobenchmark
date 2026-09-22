@@ -1,0 +1,31 @@
+name: modules
+
+# Each module is built alone — only snakeyaml and JUnit on the classpath — and run against its
+# own example/ files. A module that reaches into another module stops compiling here.
+on:
+  push:
+    branches: ['master', 'module/**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  isolated:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [discovery, config, preparation]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ../jca-contract/gradlew -p . :${{ matrix.module }}:test --no-daemon
+        working-directory: tools/module-isolation
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ${{ matrix.module }}-test-results
+          path: tools/module-isolation/${{ matrix.module }}/build/reports/tests/test

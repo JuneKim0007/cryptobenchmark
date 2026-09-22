@@ -1,0 +1,32 @@
+schemaVersion: 1
+generatedFrom:
+  capture: config_capture_example.yaml
+  trial: config_trial_example.yaml
+  device: {model: '', manufacturer: '', hardware: '', sdkInt: 0, release: '', javaVersion: 17.0.11,
+    defaultKeySizeProperty: ''}
+providers:
+  SUN:
+    MessageDigest:
+      SHA-256: {runs: true}
+      SHA-512: {runs: true}
+  SunJCE:
+    Cipher:
+      AES/GCM/NoPadding:
+        runs: true
+        keySizes: [256]
+        keyAlgorithm: AES
+        keyProvider: SunJCE
+      AES/CBC/PKCS5Padding:
+        runs: true
+        keySizes: [256]
+        keyAlgorithm: AES
+        keyProvider: SunJCE
+    Mac:
+      HmacSHA256: {runs: true, keyAlgorithm: HmacSHA256, keyProvider: SunJCE}
+    KeyGenerator:
+      AES:
+        runs: true
+        keySizes: [256]
+        keyAlgorithm: AES
+        keyProvider: SunJCE
+      HmacSHA256: {runs: true, keyAlgorithm: HmacSHA256, keyProvider: SunJCE}

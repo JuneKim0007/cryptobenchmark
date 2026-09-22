@@ -1,0 +1,31 @@
+schemaVersion: 1
+generatedFrom:
+  global: config_global_example.yaml
+  testSet: config_testset_example.yaml
+  inventory: inventory.yaml
+  capture: config_capture_example.yaml
+  trial: config_trial_example.yaml
+  device: {model: '', manufacturer: '', hardware: '', sdkInt: 0, release: '', javaVersion: 17.0.11,
+    defaultKeySizeProperty: ''}
+run:
+  inputSizes: [1024]
+  phases: [WARM]
+  metrics: [TIME]
+  processRepetitions: 1
+  seed: 42
+policy: {onFailure: skip}
+providers:
+  SUN:
+    MessageDigest:
+      SHA-256: {}
+  SunJCE:
+    Cipher:
+      AES/GCM/NoPadding:
+        keySizes: [128, 256]
+        parameters:
+          class: javax.crypto.spec.GCMParameterSpec
+          arguments: [128, fresh(12)]
+    Mac:
+      HmacSHA256: {}
+warnings: []
+skipped: []
