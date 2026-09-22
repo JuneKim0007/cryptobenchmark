@@ -6,10 +6,10 @@ import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 
 internal class OverrideResolver(private val overrides: List<Override>) {
 
-    fun resolve(located: Inventory.Located): EffectiveEntry {
+    fun resolve(located: Inventory.Located, group: String?): EffectiveEntry {
         val applicable = overrides
             .withIndex()
-            .filter { (_, override) -> override.match.matches(located) }
+            .filter { (_, override) -> override.match.matches(located) && override.match.appliesTo(group) }
             .sortedWith(compareBy({ it.value.match.specificity }, { it.index }))
             .map { it.value }
         val keySizes = applicable.lastOrNull { it.keySizes != null }?.keySizes

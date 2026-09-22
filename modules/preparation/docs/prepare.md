@@ -21,6 +21,7 @@ Every inbound is a YAML file; no other module is on the classpath. Run settings 
 | Axis | From | Absent means |
 |---|---|---|
 | operation | `EngineTypes` per engine type; `operations` in the entry narrows it | every operation of the type |
+| group | the entry key `<name>@<group>`; the device is asked about `<name>` alone | the primitive is measured once |
 | key, key size, input | what the operation consumes (`operation/`), not what the type declares | the axis does not exist for that operation |
 | key size | entry `keySizes`; a size written into the name (`AES_128`) | the provider's default |
 | input size | entry `inputSizes`, else `run.inputSizes` | the type takes no input |

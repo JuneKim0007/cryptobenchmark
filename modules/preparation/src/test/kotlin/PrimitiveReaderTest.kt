@@ -53,4 +53,14 @@ class PrimitiveReaderTest {
             "arguments" to listOf("SHA-256", "MGF1", mapOf("field" to "java.security.spec.MGF1ParameterSpec.SHA256"), mapOf("field" to "javax.crypto.spec.PSource\$PSpecified.DEFAULT")),
         )
     }
+
+    /** One primitive measured twice: the entry key carries the group, the algorithm the device is asked for does not. */
+    @Test
+    fun anEntryKeyCarriesItsGroup() {
+        val text = EffectiveFixture.TEXT.replace("      RSA:\n", "      RSA@oaep256:\n")
+        val selections = PrimitiveReader.read(InboundFile.read("effective.yaml", text), EffectiveFixture.ONE_WARM_RUN)
+        val rsa = selections.single { it.algorithm == "RSA" }
+        assertEquals("oaep256", rsa.group)
+        assertEquals("", selections.single { it.algorithm == "SHA-256" }.group)
+    }
 }
