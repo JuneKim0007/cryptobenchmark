@@ -4,12 +4,12 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Metric
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 
 data class GlobalSettings(
-    val inputSizes: List<Int> = listOf(DEFAULT_INPUT_SIZE),
-    val phases: Set<Phase> = setOf(Phase.WARM),
-    val metrics: Set<Metric> = setOf(Metric.TIME),
-    val processRepetitions: Int = 1,
-    val seed: Long = 0L,
-    val onFailure: OnFailure = OnFailure.SKIP,
+    val inputSizes: List<Int>,
+    val phases: Set<Phase>,
+    val metrics: Set<Metric>,
+    val processRepetitions: Int,
+    val seed: Long,
+    val onFailure: OnFailure,
 ) {
 
     init {
@@ -22,8 +22,4 @@ data class GlobalSettings(
     }
 
     fun inputSizesFor(entryInputSizes: List<Int>): List<Int> = entryInputSizes.ifEmpty { inputSizes }
-
-    companion object {
-        const val DEFAULT_INPUT_SIZE = 1024
-    }
 }

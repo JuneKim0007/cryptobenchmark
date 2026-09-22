@@ -1,13 +1,14 @@
-package io.github.junekim0007.cryptobench.preparation.resolve
+package io.github.junekim0007.cryptobench.preparation.engine
 
 import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
-data class AxisRule(
+data class EngineType(
+    val operations: List<Operation>,
     val usesKeySize: Boolean,
     val usesInputSize: Boolean,
-    val operations: List<Operation>,
+    val keyShape: KeyShape,
 ) {
 
     init {

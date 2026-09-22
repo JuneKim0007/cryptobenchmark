@@ -41,6 +41,9 @@
         - `TrialledTransformation.kt`
     - `engine/`
       - `CaseEngines.kt`
+      - `EngineType.kt`
+      - `EngineTypes.kt`
+      - `KeyShape.kt`
     - `global/`
       - `GlobalReader.kt`
       - `GlobalSettings.kt`
@@ -64,8 +67,6 @@
         - `KeyCandidate.kt`
         - `KeyPlanner.kt`
         - `KeyRecipe.kt`
-        - `KeyShape.kt`
-        - `KeyShapes.kt`
     - `measurement/`
       - `BenchmarkCase.kt`
       - `CaseName.kt`
@@ -97,8 +98,6 @@
       - `BenchmarkRequest.kt`
       - `Selection.kt`
     - `resolve/`
-      - `AxisRule.kt`
-      - `AxisRules.kt`
       - `CaseResolver.kt`
       - `Rejection.kt`
       - `Resolution.kt`
@@ -108,12 +107,12 @@
       - `DocumentFields.kt`
       - `YamlCodec.kt`
   - `src/test/kotlin/`
-    - `AxisRulesTest.kt`
     - `BenchmarkCaseTest.kt`
     - `BenchmarkRequestTest.kt`
     - `CaseResolverTest.kt`
     - `DiscoveryCapabilityTest.kt`
     - `EffectiveFixture.kt`
+    - `EngineTypesTest.kt`
     - `ExampleFilesTest.kt`
     - `GlobalReaderTest.kt`
     - `InboundFileTest.kt`

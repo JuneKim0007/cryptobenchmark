@@ -1,6 +1,20 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
+import io.github.junekim0007.cryptobench.preparation.global.OnFailure
+import io.github.junekim0007.cryptobench.preparation.measurement.Metric
+import io.github.junekim0007.cryptobench.preparation.measurement.Phase
+
 object EffectiveFixture {
+
+    val ONE_WARM_RUN = GlobalSettings(
+        inputSizes = listOf(1024),
+        phases = setOf(Phase.WARM),
+        metrics = setOf(Metric.TIME),
+        processRepetitions = 1,
+        seed = 0L,
+        onFailure = OnFailure.SKIP,
+    )
 
     const val TEXT = """schemaVersion: 1
 generatedFrom:

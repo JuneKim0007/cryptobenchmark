@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
-import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.primitive.PrimitiveReader
@@ -31,7 +30,7 @@ class PrimitiveReaderTest {
     /** The same entries read against different global settings resolve differently: the order is load-bearing. */
     @Test
     fun theGlobalSettingsDecideTheFallback() {
-        val selections = PrimitiveReader.read(inbound, GlobalSettings(inputSizes = listOf(64, 16384)))
+        val selections = PrimitiveReader.read(inbound, EffectiveFixture.ONE_WARM_RUN.copy(inputSizes = listOf(64, 16384)))
         assertEquals(listOf(64, 16384), selections.first { it.algorithm == "SHA-256" }.inputSizes)
         assertEquals(listOf(32), selections.first { it.algorithm == "RSA" }.inputSizes)
     }

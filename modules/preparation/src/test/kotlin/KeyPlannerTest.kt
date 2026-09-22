@@ -2,8 +2,9 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeyShape
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeyShapes
+import io.github.junekim0007.cryptobench.preparation.engine.EngineType
+import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
+import io.github.junekim0007.cryptobench.preparation.engine.KeyShape
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.port.Availability
@@ -67,7 +68,7 @@ class KeyPlannerTest {
 
     @Test
     fun shapesCanBeRegistered() {
-        val planner = KeyPlanner(device, KeyShapes.standard().with("SecretKeyFactory", KeyShape.NONE))
+        val planner = KeyPlanner(device, EngineTypes.standard().with("SecretKeyFactory", EngineType(listOf(Operation.TYPE_DEFAULT), usesKeySize = true, usesInputSize = true, keyShape = KeyShape.NONE)))
         assertEquals(KeyRecipe.None, planner.plan(BenchmarkCase("SecretKeyFactory", "PBKDF2WithHmacSHA256", "AndroidOpenSSL", Operation.TYPE_DEFAULT)))
     }
 
