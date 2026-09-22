@@ -6,7 +6,7 @@
 
 Config lookup: --config, then CRYPTOBENCH_CONFIG, then ~/.config/cryptobench/global.yaml, then config/global.yaml.
 """
-import argparse, os, pathlib, shutil, subprocess, sys
+import argparse, os, pathlib, shutil, subprocess, sys, time
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -28,11 +28,20 @@ def global_config(argument):
     fail("no global.yaml: pass --config, set CRYPTOBENCH_CONFIG, or keep config/global.yaml")
 
 
-def gradle(project, arguments, stacktrace):
+def elapsed(label, started):
+    print(f"took:      {label} in {time.monotonic() - started:.1f}s")
+
+
+def gradle(project, arguments, stacktrace, stream=False):
     wrapper = ROOT / "tools/jca-contract/gradlew"
     if not wrapper.is_file():
         fail(f"missing_file: {wrapper}")
     command = [str(wrapper), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q", f"--args={arguments}"]
+    if stream:
+        result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+        if result.returncode != 0:
+            fail(f"{project} failed; rerun without --stream for a filtered message")
+        return result.stdout.strip().splitlines()
     result = subprocess.run(command, capture_output=True, text=True)
     output = (result.stdout + result.stderr).splitlines()
     if result.returncode != 0:
@@ -75,7 +84,9 @@ def main():
                         help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device")
     parser.add_argument("--bench", action="store_true", help="also prepare, measure and analyse (quick-bench, JVM)")
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
+    parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
     options = parser.parse_args()
+    sys.stdout.reconfigure(line_buffering=True)
 
     configuration = global_config(options.config)
     results = pathlib.Path(options.results).resolve()
@@ -86,23 +97,29 @@ def main():
 
     print(f"config:    {configuration}")
     reuse = " --reuse" if options.discovery == "reuse" else ""
-    written = gradle("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace)
+    started = time.monotonic()
+    written = gradle("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream)
     for path in written:
         print(f"wrote:     {path}")
     effective = configured / "effective.yaml"
     if not effective.is_file():
         fail(f"missing_file: {effective}")
     summary(effective)
+    elapsed("discover and configure", started)
 
     if not options.bench:
         return
     capture = max(discovery.glob("probe_2*.yaml"), key=lambda p: p.name)
     trial = max(discovery.glob("trial_*.yaml"), key=lambda p: p.name)
     benchmark = results / "benchmark"
-    gradle("quick-bench", f"{capture} {trial} {effective} {benchmark}", options.stacktrace)
+    started = time.monotonic()
+    gradle("quick-bench", f"{capture} {trial} {effective} {benchmark}", options.stacktrace, options.stream)
     print(f"wrote:     {benchmark / 'benchmark.json'}")
+    elapsed("prepare and measure", started)
     analysis = results / "analysis"
+    started = time.monotonic()
     subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(analysis)], check=True)
+    elapsed("analyse", started)
 
 
 if __name__ == "__main__":

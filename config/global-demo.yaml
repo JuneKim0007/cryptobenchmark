@@ -1,0 +1,11 @@
+schemaVersion: 1
+selection:
+  testSet: testsets/smoke.yaml
+run:
+  inputSizes: [1024]
+  phases: [WARM]
+  metrics: [TIME]
+  processRepetitions: 1
+  seed: 42
+policy:
+  onFailure: skip
