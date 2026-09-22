@@ -1,8 +1,7 @@
 # <cryptographic_primitives>
 
 Cryptographic primitives, the providers that supply them, and what each is for.
-Provider support and scope: [providers.md](providers.md). Benchmark scope:
-[README](../../README.md).
+Provider support: [providers.md](providers.md).
 
 Devices: Pixel 9 (Tensor G4), Pixel 10 (Tensor G5), Android 17 (API 37), baseline
 Android 16 (API 36). Titan M2 backs StrongBox keys.
@@ -89,6 +88,13 @@ No provider here supplies: single DES, Blowfish, DSA, DESEDE/ECB, AES OFB/CFB, R
 | GCM needs a 12-byte IV, passed via `GCMParameterSpec` | AES/GCM, AES/GCM-SIV |
 | `PKCS7Padding` resolves to the same code as `PKCS5Padding` | all Conscrypt ciphers |
 | 512-bit keys are rejected | all AndroidOpenSSL |
+
+### Benchmark scope
+
+Measured: AES/GCM/NoPadding (12-byte IV), AES/CBC/PKCS5Padding, AES/CTR/NoPadding, ChaCha20,
+ChaCha20-Poly1305, RSA/ECB/OAEP*, RSA/ECB/PKCS1Padding, SHA-1/256/512, HmacSHA1/256, SHA256withRSA,
+SHA256withECDSA, and key generation for each. Baselines only: MD5, 3DES, RC4.
+Out of scope: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519, ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519, DES, Blowfish, DSA.
 
 ### Key sizes
 

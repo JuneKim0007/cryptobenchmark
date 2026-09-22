@@ -49,6 +49,7 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 |---|---|---|
 | `Discovery` | root | entry point; wires probe, trial and writers over one `ProbeDirectory`; `reusable(runtime)` returns the newest complete capture of that device, or null. `tools/jca-contract`: `./gradlew run --args=<dir>` |
 | `DiscoveryRun` | root | what `probe` returns: the capture and the two files |
+| `ReusedRun` | root | what `reusable` returns: the newest capture of this device and its three files |
 | `ProviderProbe` | `adapter` | JCA → capture; joins services with aliases and attributes |
 | `PropertyMapIndex` | `adapter` | one provider's property map → aliases, attributes — `internal` |
 | `PropertyKeyParser` | `adapter` | decodes the property-map grammar — `internal` |
@@ -89,14 +90,13 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 
 ## Drift alarm
 
-`src/test/kotlin/JcaContractTest.kt` asserts the limits above against the running JVM. The
-`jca contract` workflow runs it weekly on Java 17, 21 and 25 and attaches each capture. A
-failure means the JCA moved. Android providers are not covered (#14).
+`JcaContractTest` asserts the limits above against the running JVM; the `jca contract` workflow runs
+it weekly on Java 17, 21 and 25. A failure means the JCA moved. Android providers are not covered (#14).
+`ExampleFilesTest` round-trips `example/`, so a schema change that forgets the examples fails.
 
 ## Not yet
 
 | Missing | Issue |
 |---|---|
-| read a capture back | #21 |
 | verify key sizes by trial | #18 |
 | run as an independent process | #16 |

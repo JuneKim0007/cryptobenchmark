@@ -1,4 +1,4 @@
-# <docs>
+# docs
 
 ## documents
 
@@ -11,25 +11,28 @@
 | `modules/config/docs/config.md` | authored and generated config files, fields, precedence |
 | `modules/preparation/docs/prepare.md` | `effective.yaml` → cases: axes, parameter trees, failures |
 | `modules/environment/discovery/docs/probe.md` | what `:environment:discovery` does, JCA APIs, limits, classes |
-| `modules/environment/discovery/docs/security_contract.md` | capture and setting field tables |
+| `modules/environment/discovery/docs/security_contract.md` | capture and trial field tables |
+| `tools/module-isolation/README.md`, `tools/quick-bench/README.md` | the isolation build; the JVM stand-in harness |
 
 ## file structure
 
 - gradle root is the repository root; modules live under `modules/`; package root in every module is `io.github.junekim0007.cryptobench`
   - `config/` : authored, committed — `global.yaml` (selection, run, policy), `testsets/{scope,quick,all,smoke}.yaml`
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin) — what this device offers
-  - `modules/*/example/` : one small device in the files that module reads and writes, named `<module>_<responsibility>_example.yaml`
-  - `modules/config/` : module `:config` (kotlin) — inventory × authored config → `effective.yaml`
-  - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` → prepared cases
-  - `modules/android/` : module `:android` (application) — app shell; the harness lands here with #33
+  - `modules/config/` : module `:config` (kotlin) — capture × trial × authored config → `effective.yaml`
+  - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` + capture + trial → prepared cases
+  - `modules/*/example/` : one small device in the files that module reads and writes, `<module>_<responsibility>_example.yaml`
+  - `modules/android/` : module `:android` (application) — app shell; the harness lands here with #33 (Java 8, Gradle 6.5 until then)
   - `gradle.properties` : gradle env + signing
 - `scripts/`
-  - `pipeline.py` : the host driver — runs the stages in order, one readable failure, `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`
+  - `pipeline.py` : the host driver — stages in order, one readable failure; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`, `--stream`
+  - `demo.sh` : one live run into `results/demo/`; `--warm`, `--fast`, `--reuse`
   - `requirements.txt` : host python deps
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles the on-device modules against `android.jar` without the JDK
   - `quick-bench/` : JVM stand-in harness and analysis, until #33
+  - `module-isolation/` : compiles each module alone and runs it against its `example/` files
 - `docs/`
   - `docs.md` : this file
   - `cryptography/primitives.md`, `cryptography/providers.md` : catalogue
