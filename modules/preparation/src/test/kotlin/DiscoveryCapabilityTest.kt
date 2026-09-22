@@ -1,20 +1,25 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
+import io.github.junekim0007.cryptobench.preparation.device.CaptureFile
+import io.github.junekim0007.cryptobench.preparation.device.TrialFile
 import io.github.junekim0007.cryptobench.preparation.port.Availability
-import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.security.Security
+import java.io.File
 
-/** Against the live JVM: what the adapter answers is what the trial saw, not what the provider declared. */
+/** Against the example capture and trial: what the adapter answers is what the trial saw, not what the provider declared. */
 class DiscoveryCapabilityTest {
 
-    private val capture = ProviderProbe().capture(Security.getProviders())
-    private val capability = DiscoveryCapability(capture, TrialRunner().run(capture, Security.getProviders()))
+    private val example = File("example")
+
+    private val captureFile = File(example, "preparation_capture_example.yaml")
+
+    private val trialFile = File(example, "preparation_trial_example.yaml")
+
+    private val capability = DiscoveryCapability(captureFile, trialFile)
 
     private fun reason(provider: String, type: String, algorithm: String): String =
         when (val availability = capability.check(provider, type, algorithm)) {
@@ -26,7 +31,8 @@ class DiscoveryCapabilityTest {
     fun registeredNamesAliasesAndComposedTransformations() {
         assertEquals("available", reason("SunJCE", "Cipher", "AES/GCM/NoPadding"))
         assertEquals("available", reason("SunJCE", "Cipher", "AES/CBC/PKCS5Padding"))
-        assertEquals("available", reason("SunRsaSign", "Signature", "1.2.840.113549.1.1.11"))
+        assertEquals("available", reason("SunJCE", "Mac", "1.2.840.113549.2.9"))
+        assertEquals("available", reason("SUN", "MessageDigest", "OID.2.16.840.1.101.3.4.2.1"))
     }
 
     @Test
@@ -44,15 +50,16 @@ class DiscoveryCapabilityTest {
 
     @Test
     fun providersComeInPrecedenceOrder() {
-        assertEquals(Security.getProviders().map { it.name }, capability.providers())
+        assertEquals(listOf("SUN", "SunJCE"), capability.providers())
     }
 
     /** A trial describes one capture; pairing it with another would answer for a different device state. */
     @Test
     fun refusesATrialOfAnotherCapture() {
-        val other = ProviderProbe().capture(Security.getProviders(), capturedAtMillis = capture.capturedAtMillis + 1)
+        val capture = CaptureFile.read(captureFile)
+        val trial = TrialFile.read(trialFile)
         val error = assertThrows(IllegalArgumentException::class.java) {
-            DiscoveryCapability(other, TrialRunner().run(capture, Security.getProviders()))
+            DiscoveryCapability(capture.copy(capturedAtMillis = trial.capturedAtMillis + 1), trial)
         }
         assertTrue(error.message!!.startsWith("mismatched_trial"))
     }

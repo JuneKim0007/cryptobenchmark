@@ -5,6 +5,7 @@
 ## Responsibilities
 
 - Read `effective.yaml` in order: the file, then the global settings, then the primitives.
+- Read the capture and trial YAML for what the device serves; no other module is on the classpath.
 - Resolve what was asked for against what the device has, and reject the rest by name.
 - Build each case's key, input and parameters, and call every case once to prove it runs.
 
@@ -17,8 +18,24 @@
   - `README.md`
   - `docs/`
     - `prepare.md`
+  - `example/`
+- `preparation_capture_example.yaml`
+- `preparation_trial_example.yaml`
+- `preparation_effective_example.yaml`
+- `preparation_skipped_example.yaml`
   - `src/main/kotlin/`
     - `Preparation.kt`
+    - `device/`
+      - `CaptureFile.kt`
+      - `TrialFile.kt`
+      - `ServiceName.kt`
+      - `dto/`
+        - `CapturedDevice.kt`
+        - `CapturedProvider.kt`
+        - `CapturedService.kt`
+        - `TrialledDevice.kt`
+        - `TrialledService.kt`
+        - `TrialledTransformation.kt`
     - `inbound/`
       - `InboundFile.kt`
       - `InboundDocument.kt`
@@ -93,3 +110,15 @@
 - Preparation reads `effective.yaml` only. It never reads the configuration module's classes, and never probes the device itself.
 - A case is proved by one call, not by a measurement: timing, warmup and iteration counts belong to the harness.
 - `TYPE_DEFAULT` cases are not called: nothing here knows how to invoke an engine type it has no rule for.
+
+## Example
+
+`example/` holds one small device, in the files this module reads and writes:
+
+- `preparation_capture_example.yaml`
+- `preparation_trial_example.yaml`
+- `preparation_effective_example.yaml`
+- `preparation_skipped_example.yaml`
+
+`tools/module-isolation` compiles this module alone — no other module on the classpath — and runs its
+tests from this directory against those files. Regenerate the generated ones with `-Dexamples.update`.

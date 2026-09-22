@@ -9,7 +9,6 @@ compileKotlin {
 }
 
 dependencies {
-    api project(':environment:discovery')
     implementation 'org.yaml:snakeyaml:2.3'
     testImplementation 'junit:junit:4.13.2'
 }

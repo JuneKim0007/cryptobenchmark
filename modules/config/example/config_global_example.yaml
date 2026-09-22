@@ -1,0 +1,16 @@
+# Inbound, written by hand. What a run measures, and what it does when something fails.
+schemaVersion: 1
+
+selection:
+  testSet: config_testset_example.yaml   # relative to this file
+  exclude: []                            # e.g. {provider: SunJCE} to drop one provider
+
+run:
+  inputSizes: [1024]
+  phases: [WARM]
+  metrics: [TIME]
+  processRepetitions: 1
+  seed: 42
+
+policy:
+  onFailure: skip                        # stop | skip

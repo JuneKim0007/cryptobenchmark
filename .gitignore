@@ -23,3 +23,6 @@ env/
 /docs/REFACTOR-BACKLOG.md
 /docs/benchmark-methodology.md
 /test_pair.md
+/tools/module-isolation/.gradle
+/tools/module-isolation/build
+/tools/module-isolation/*/build

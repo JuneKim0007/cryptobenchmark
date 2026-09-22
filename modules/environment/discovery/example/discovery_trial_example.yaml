@@ -1,0 +1,69 @@
+# Outbound. What discovery writes after calling every captured service once with a default key:
+# what really runs on this device, and what the JCA refused. Pairs with the capture by capturedAtMillis.
+schemaVersion: 2
+capturedAtMillis: 1750000000000
+services:
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-256
+  instantiates: true
+  defaultRun:
+    works: true
+    inputSize: 1024
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-512
+  instantiates: true
+  defaultRun:
+    works: true
+    inputSize: 1024
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES
+  instantiates: true
+  transformations:
+  - name: AES/GCM/NoPadding
+    instantiates: true
+    defaultRun:
+      works: true
+      keyAlgorithm: AES
+      keyProvider: SunJCE
+      keySize: 256
+      inputSize: 1024
+  - name: AES/CBC/PKCS5Padding
+    instantiates: true
+    defaultRun:
+      works: true
+      keyAlgorithm: AES
+      keyProvider: SunJCE
+      keySize: 256
+      inputSize: 1024
+  - name: AES/CTR/PKCS5Padding
+    instantiates: false
+    error: 'NoSuchPaddingException: PKCS5Padding cannot be used with CTR'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA256
+    keyProvider: SunJCE
+    inputSize: 1024
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: AES
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA256
+    keyProvider: SunJCE

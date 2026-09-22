@@ -1,0 +1,14 @@
+# Inbound, written by hand. The primitives a run measures, with the key sizes and parameters each needs.
+schemaVersion: 1
+description: three primitives from the example capture, one of each shape
+
+include:
+  - {type: MessageDigest, name: SHA-256}
+  - {type: Mac, name: HmacSHA256}
+  - {type: Cipher, name: AES/GCM/NoPadding}
+
+overrides:
+  - match: {type: Cipher, name: "AES/*"}
+    set: {keySizes: [128, 256]}
+  - match: {type: Cipher, name: AES/GCM/NoPadding}
+    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}

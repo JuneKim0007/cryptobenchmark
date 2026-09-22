@@ -1,0 +1,74 @@
+# Outbound. What discovery writes after reading java.security: every registered provider and service,
+# with what the provider declares about it. A real capture is thousands of lines; this one is cut to
+# the services the config and preparation examples use.
+schemaVersion: 1
+capturedAtMillis: 1750000000000
+runtime:
+  model: ''
+  manufacturer: ''
+  hardware: ''
+  sdkInt: 0
+  release: ''
+  javaVersion: 17.0.11
+  defaultKeySizeProperty: ''
+providers:
+- name: SUN
+  version: '17'
+  precedence: 1
+  info: SUN (SHA-2 digests; SecureRandom; X.509 certificates)
+  usable: true
+  services:
+  - type: MessageDigest
+    algorithm: SHA-256
+    className: sun.security.provider.SHA2$SHA256
+    aliases:
+    - 2.16.840.1.101.3.4.2.1
+    - OID.2.16.840.1.101.3.4.2.1
+    attributes:
+      ImplementedIn: Software
+  - type: MessageDigest
+    algorithm: SHA-512
+    className: sun.security.provider.SHA5$SHA512
+    attributes:
+      ImplementedIn: Software
+- name: SunJCE
+  version: '17'
+  precedence: 2
+  info: SunJCE (AES, HmacSHA256)
+  usable: true
+  services:
+  - type: Cipher
+    algorithm: AES
+    className: com.sun.crypto.provider.AESCipher$General
+    aliases:
+    - 2.16.840.1.101.3.4.1
+    - OID.2.16.840.1.101.3.4.1
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      - CBC
+      - CTR
+      - GCM
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS5PADDING
+  - type: Mac
+    algorithm: HmacSHA256
+    className: com.sun.crypto.provider.HmacCore$HmacSHA256
+    aliases:
+    - 1.2.840.113549.2.9
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: KeyGenerator
+    algorithm: AES
+    className: com.sun.crypto.provider.AESKeyGenerator
+    attributes:
+      KeySize: 256
+  - type: KeyGenerator
+    algorithm: HmacSHA256
+    className: com.sun.crypto.provider.HmacSHA2KeyGenerator$SHA256
+    aliases:
+    - 1.2.840.113549.2.9

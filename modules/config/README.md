@@ -72,3 +72,17 @@
 - The inventory is generated and always overwritten; the authored files under `config/` are never written by this module.
 - An inventory describes one device at one moment: a test set names primitives, never providers of a given machine.
 - A rule that matches nothing is a warning, not a failure: it may be legitimate on another device.
+
+## Example
+
+`example/` holds one small device, in the files this module reads and writes:
+
+- `config_capture_example.yaml`
+- `config_trial_example.yaml`
+- `config_global_example.yaml`
+- `config_testset_example.yaml`
+- `config_inventory_example.yaml`
+- `config_effective_example.yaml`
+
+`tools/module-isolation` compiles this module alone — no other module on the classpath — and runs its
+tests from this directory against those files. Regenerate the generated ones with `-Dexamples.update`.

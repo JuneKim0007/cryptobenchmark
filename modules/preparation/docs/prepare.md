@@ -7,12 +7,13 @@
 ```
 effective.yaml ─► InboundFile ─► GlobalReader ─► PrimitiveReader ─► BenchmarkRequest
                                                                         │
-                        DiscoveryCapability (capture + trial) ─► CaseResolver ─► cases + rejections
+probe_<utc>.yaml, trial_<utc>.yaml ─► CaptureFile, TrialFile ─► DiscoveryCapability ─► CaseResolver ─► cases + rejections
                                                                         │
                             KeyPlanner ─► KeyMaterialGenerator ─► InputPreparer ─► CaseCheck ─► PreparedRun
 ```
 
 Each stage takes the previous stage's value, so the order is checked by the compiler.
+Every inbound is a YAML file; no other module is on the classpath.
 
 ## Axes of one case
 

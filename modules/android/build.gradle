@@ -57,7 +57,6 @@ tasks.withType(Test) {
 }
 
 dependencies {
-    implementation project(':crypto')
     implementation project(':environment:discovery')
     implementation project(':preparation')
     //testImplementation 'junit:junit:4.12'
