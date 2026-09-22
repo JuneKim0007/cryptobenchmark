@@ -1,16 +1,16 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
-import io.github.junekim0007.cryptobench.preparation.engine.EngineType
+import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 internal class SelectionCheck(private val binder: ParameterBinder) {
 
-    fun problem(selection: Selection, engineType: EngineType): String? {
-        val unsupported = selection.operations - engineType.operations.toSet()
+    fun problem(selection: Selection, operations: List<Operation>): String? {
+        val unsupported = selection.operations - operations.toSet()
         if (unsupported.isNotEmpty()) {
-            return "unsupported_operation: $unsupported for ${selection.type}, one of ${engineType.operations}"
+            return "unsupported_operation: $unsupported for ${selection.type}, one of $operations"
         }
         if (selection.keyParameters.isNotEmpty() && selection.keySizes.isNotEmpty()) {
             return "key_parameters_and_key_sizes: set one; a key spec already fixes the size"

@@ -2,9 +2,7 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
-import io.github.junekim0007.cryptobench.preparation.engine.EngineType
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
-import io.github.junekim0007.cryptobench.preparation.engine.KeyShape
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.port.Availability
@@ -30,7 +28,7 @@ class KeyPlannerTest {
     private val planner = KeyPlanner(device)
 
     private fun plan(type: String, algorithm: String, provider: String = "AndroidOpenSSL", keySize: Int? = null) =
-        planner.plan(BenchmarkCase(type, algorithm, provider, Operation.TYPE_DEFAULT, keySize = keySize, inputSize = 1024))
+        planner.plan(BenchmarkCase(type, algorithm, provider, EngineTypes.standard().operationsOf(type).first(), keySize = keySize, inputSize = 1024))
 
     /** Cipher does not say whether its key is secret or a pair; the device's generators do. */
     @Test
@@ -66,10 +64,11 @@ class KeyPlannerTest {
         assertEquals(KeyRecipe.Unavailable("no_key_generator: KeyGenerator.HmacSHA512"), plan("Mac", "HmacSHA512"))
     }
 
+    /** The key a case needs comes from its operation, so a type nobody registered needs none once it is measured by a generator. */
     @Test
-    fun shapesCanBeRegistered() {
-        val planner = KeyPlanner(device, EngineTypes.standard().with("SecretKeyFactory", EngineType(listOf(Operation.TYPE_DEFAULT), usesKeySize = true, usesInputSize = true, keyShape = KeyShape.NONE)))
-        assertEquals(KeyRecipe.None, planner.plan(BenchmarkCase("SecretKeyFactory", "PBKDF2WithHmacSHA256", "AndroidOpenSSL", Operation.TYPE_DEFAULT)))
+    fun theOperationDecidesWhetherAKeyIsNeeded() {
+        assertEquals(KeyRecipe.None, planner.plan(BenchmarkCase("SecretKeyFactory", "PBKDF2WithHmacSHA256", "AndroidOpenSSL", Operation.GENERATE_KEY)))
+        assertEquals(KeyRecipe.None, plan("MessageDigest", "SHA-256"))
     }
 
     /** A size written into the name is the key's size: AES_128 takes a 128-bit AES key, not the provider default. */

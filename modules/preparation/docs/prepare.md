@@ -9,7 +9,7 @@ effective.yaml ─► InboundFile ─► GlobalReader ─► PrimitiveReader ─
                                                                         │
 probe_<utc>.yaml, trial_<utc>.yaml ─► CaptureFile, TrialFile ─► DiscoveryCapability ─► CaseResolver ─► cases + rejections
                                                                         │
-                            KeyPlanner ─► KeyMaterialGenerator ─► InputPreparer ─► CaseCheck ─► PreparedRun
+                   KeyPlanner ─► KeyMaterialGenerator ─► OperationDefinition: input, then one call ─► PreparedRun
 ```
 
 Each stage takes the previous stage's value, so the order is checked by the compiler.
@@ -21,6 +21,7 @@ Every inbound is a YAML file; no other module is on the classpath. Run settings 
 | Axis | From | Absent means |
 |---|---|---|
 | operation | `EngineTypes` per engine type; `operations` in the entry narrows it | every operation of the type |
+| key, key size, input | what the operation consumes (`operation/`), not what the type declares | the axis does not exist for that operation |
 | key size | entry `keySizes`; a size written into the name (`AES_128`) | the provider's default |
 | input size | entry `inputSizes`, else `run.inputSizes` | the type takes no input |
 | phase | `run.phases` | — |
@@ -56,7 +57,8 @@ Contract keys stay with their readers and JCA names with the code that uses them
 
 | Value | Where | Default |
 |---|---|---|
-| what each engine type is measured along, and the key it needs | `EngineTypes.standard()`, passed once to `Preparation` | 8 types + a fallback; add a type with `with(type, row)` |
+| which operations an engine type has | `EngineTypes.standard()`, passed once to `Preparation` | 7 types + a fallback of `TYPE_DEFAULT`; add one with `with(type, operations)` |
+| what an operation consumes and how it is called once | one definition per `Operation` in `operation/` | the ten operations |
 | which classes a parameter tree may name | `BindPolicy.standard()` | `AlgorithmParameterSpec`, `PSource`, `BigInteger` |
 | how a key is initialised per provider | `KeyMaterialGenerator(initializers)` | `DefaultKeyInitializer` for every provider |
 
@@ -79,10 +81,12 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `ParameterBinder`, `ValueNode`, `ValueCoercion`, `BindPolicy`, `BoundParameters`, `BindException` | `parameter/bind` | parameter trees → `AlgorithmParameterSpec` |
 | `KeyPlanner`, `KeyAlgorithmName`, `KeyCandidate`, `KeyRecipe` | `key/plan` | which key a case needs, from which generator |
 | `KeyMaterialGenerator`, `KeyInitializer`, `DefaultKeyInitializer`, `KeyMaterial` | `key/generate` | the key itself, cached per recipe |
-| `InputPreparer`, `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded messages, ciphertexts and signatures, round-tripped |
-| `EngineTypes`, `EngineType`, `KeyShape` | `engine` | one row per engine type: operations, key and input axes, key shape; one fallback row |
+| `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded bytes, the input a case carries, the key a cipher takes |
+| `EngineTypes` | `engine` | which operations an engine type has, and one fallback |
 | `CaseEngines` | `engine` | the `Cipher` and `Signature` for a case |
-| `CaseCheck` | `check` | one real call per case before the timer |
+| `OperationDefinition`, `OperationDefinitions`, `KeyShape` | `operation` | what each operation consumes (key, key size, input) and the one call that proves it runs |
+| `EncryptDefinition` … `TypeDefaultDefinition` | `operation` | one definition per operation |
+| `CaseArguments` | `operation` | the message, secret key or key pair a prepared case carries |
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |
 | `Skip`, `SkipFile` | `report` | `skipped.yaml` |
 | `DocumentFields`, `YamlCodec` | `shared` | typed reads, YAML text |
