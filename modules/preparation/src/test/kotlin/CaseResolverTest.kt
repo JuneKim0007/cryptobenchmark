@@ -6,9 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
-import io.github.junekim0007.cryptobench.preparation.engine.EngineType
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
-import io.github.junekim0007.cryptobench.preparation.engine.KeyShape
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -84,8 +82,8 @@ class CaseResolverTest {
 
     @Test
     fun anUnregisteredTypeResolvesUnderTheFallbackAndCanBeRegistered() {
-        val digestAsKeyOnly = CaseResolver(device, EngineTypes.standard().with("messagedigest", EngineType(listOf(Operation.DIGEST), usesKeySize = true, usesInputSize = false, keyShape = KeyShape.NONE)))
-        assertEquals(listOf(null, null), digestAsKeyOnly.resolve(request(Selection("MessageDigest", "SHA-256"))).cases.map { it.inputSize })
+        val digestAsGenerator = CaseResolver(device, EngineTypes.standard().with("messagedigest", listOf(Operation.GENERATE_KEY)))
+        assertEquals(listOf(null, null), digestAsGenerator.resolve(request(Selection("MessageDigest", "SHA-256"))).cases.map { it.inputSize })
     }
 
     /** A parameter that cannot be built rejects its selection; nothing reaches a run. */

@@ -20,14 +20,14 @@ class CaseResolver(
         val cases = mutableListOf<BenchmarkCase>()
         val rejections = mutableListOf<Rejection>()
         for (selection in request.selections) {
-            val engineType = engineTypes.of(selection.type)
-            val problem = selectionCheck.problem(selection, engineType)
+            val operations = engineTypes.operationsOf(selection.type)
+            val problem = selectionCheck.problem(selection, operations)
             if (problem != null) {
                 rejections += Rejection(selection, null, problem)
                 continue
             }
             val providers = providersFor(selection, rejections)
-            cases += SelectionExpander.expand(request.global, selection, providers, engineType)
+            cases += SelectionExpander.expand(request.global, selection, providers, operations)
         }
         return Resolution(cases, rejections)
     }

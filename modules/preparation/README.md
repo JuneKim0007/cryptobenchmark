@@ -26,8 +26,6 @@
     - `Preparation.kt`
     - `adapter/`
       - `DiscoveryCapability.kt`
-    - `check/`
-      - `CaseCheck.kt`
     - `device/`
       - `CaptureFile.kt`
       - `ServiceName.kt`
@@ -41,9 +39,7 @@
         - `TrialledTransformation.kt`
     - `engine/`
       - `CaseEngines.kt`
-      - `EngineType.kt`
       - `EngineTypes.kt`
-      - `KeyShape.kt`
     - `global/`
       - `GlobalReader.kt`
       - `GlobalSettings.kt`
@@ -54,7 +50,6 @@
     - `input/`
       - `CipherKeys.kt`
       - `InputBytes.kt`
-      - `InputPreparer.kt`
       - `OperationInput.kt`
     - `key/`
       - `generate/`
@@ -74,6 +69,21 @@
       - `Metric.kt`
       - `Operation.kt`
       - `Phase.kt`
+    - `operation/`
+      - `AgreeKeyDefinition.kt`
+      - `CaseArguments.kt`
+      - `ComputeMacDefinition.kt`
+      - `DecryptDefinition.kt`
+      - `DigestDefinition.kt`
+      - `EncryptDefinition.kt`
+      - `GenerateKeyDefinition.kt`
+      - `GenerateKeyPairDefinition.kt`
+      - `KeyShape.kt`
+      - `OperationDefinition.kt`
+      - `OperationDefinitions.kt`
+      - `SignDefinition.kt`
+      - `TypeDefaultDefinition.kt`
+      - `VerifyDefinition.kt`
     - `parameter/`
       - `bind/`
         - `BindException.kt`
@@ -116,10 +126,10 @@
     - `ExampleFilesTest.kt`
     - `GlobalReaderTest.kt`
     - `InboundFileTest.kt`
-    - `InputPreparerTest.kt`
     - `KeyAlgorithmNameTest.kt`
     - `KeyMaterialGeneratorTest.kt`
     - `KeyPlannerTest.kt`
+    - `OperationInputTest.kt`
     - `ParameterBinderTest.kt`
     - `PreparationTest.kt`
     - `PrimitiveReaderTest.kt`

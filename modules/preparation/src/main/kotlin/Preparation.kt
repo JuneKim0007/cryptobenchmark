@@ -1,13 +1,12 @@
 package io.github.junekim0007.cryptobench.preparation
 
-import io.github.junekim0007.cryptobench.preparation.check.CaseCheck
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
-import io.github.junekim0007.cryptobench.preparation.input.InputPreparer
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
+import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -28,11 +27,9 @@ class Preparation(
     private val report: SkipFile,
     engineTypes: EngineTypes = EngineTypes.standard(),
     private val resolver: CaseResolver = CaseResolver(capability, engineTypes),
-    private val planner: KeyPlanner = KeyPlanner(capability, engineTypes),
+    private val planner: KeyPlanner = KeyPlanner(capability),
     private val generator: KeyMaterialGenerator = KeyMaterialGenerator(),
     private val binder: ParameterBinder = ParameterBinder(),
-    private val inputs: InputPreparer = InputPreparer(),
-    private val caseCheck: CaseCheck = CaseCheck(),
 ) {
 
     fun prepare(effectiveFile: File): PreparedRun {
@@ -57,12 +54,13 @@ class Preparation(
                 continue
             }
             val parameters = bound(case)
-            val input = runCatching { inputs.prepare(case, material, parameters) }.getOrElse { failure ->
+            val definition = OperationDefinitions.of(case.operation)
+            val input = runCatching { definition.input(case, material, parameters) }.getOrElse { failure ->
                 skipped += skip(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
                 continue
             }
             val candidate = PreparedCase(case, recipe, material, parameters, input)
-            val failure = runCatching { caseCheck.check(candidate) }.exceptionOrNull()
+            val failure = runCatching { definition.check(candidate) }.exceptionOrNull()
             if (failure != null) {
                 skipped += skip(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}")
                 continue
