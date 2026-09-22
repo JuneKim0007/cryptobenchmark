@@ -15,6 +15,7 @@ providers:
     const val TRIAL = """
 schemaVersion: 2
 capturedAtMillis: 1700000000000
+defaultRunInputSize: 1024
 services:
 - provider: SunJCE
   type: Cipher

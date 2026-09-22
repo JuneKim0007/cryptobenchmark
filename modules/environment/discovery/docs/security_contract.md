@@ -68,6 +68,7 @@ Config and preparation read these files, never these classes.
 |---|---|---|
 | `schemaVersion` | int | trial format version, `2` |
 | `capturedAtMillis` | long | the capture this trial belongs to; a mismatch is refused |
+| `defaultRunInputSize` | int | the input size every default run tries first; absent in trials without default runs |
 | `services` | list | one entry per captured service |
 
 ## services[] (trial)

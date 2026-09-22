@@ -2,6 +2,7 @@
 # what really runs on this device, and what the JCA refused. Pairs with the capture by capturedAtMillis.
 schemaVersion: 2
 capturedAtMillis: 1750000000000
+defaultRunInputSize: 1024
 services:
 - provider: SUN
   type: MessageDigest

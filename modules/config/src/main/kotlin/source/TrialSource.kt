@@ -25,7 +25,7 @@ object TrialSource : DocumentReader<TrialView> {
             }
             listOfNotNull(own) + transformations
         }
-        return TrialView(number(document, "capturedAtMillis").toLong(), entries)
+        return TrialView(number(document, "capturedAtMillis").toLong(), entries, optionalNumber(document, "defaultRunInputSize")?.toInt())
     }
 
     private fun defaultRun(document: Map<String, Any>): TrialView.DefaultRun = TrialView.DefaultRun(

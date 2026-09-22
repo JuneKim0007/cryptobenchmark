@@ -20,6 +20,7 @@ object TrialDocument {
     const val SCHEMA_VERSION = "schemaVersion"
     const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     const val SERVICES = "services"
+    const val DEFAULT_RUN_INPUT_SIZE = "defaultRunInputSize"
 
     const val PROVIDER = "provider"
     const val TYPE = "type"
@@ -38,11 +39,13 @@ object TrialDocument {
     const val PROVIDER_CHOSE = "providerChose"
     const val BARE_NAME = "bareName"
 
-    fun of(report: TrialReport): Map<String, Any> = linkedMapOf(
+    fun of(report: TrialReport): Map<String, Any> = linkedMapOf<String, Any>(
         SCHEMA_VERSION to report.schemaVersion,
         CAPTURED_AT_MILLIS to report.capturedAtMillis,
-        SERVICES to report.services.map { serviceDocument(it) },
-    )
+    ).apply {
+        report.defaultRunInputSize?.let { put(DEFAULT_RUN_INPUT_SIZE, it) }
+        put(SERVICES, report.services.map { serviceDocument(it) })
+    }
 
     fun parse(document: Map<String, Any>): TrialReport {
         val schemaVersion = number(document, SCHEMA_VERSION).toInt()
@@ -53,6 +56,7 @@ object TrialDocument {
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),
             services = sections(document, SERVICES).map { serviceEntry(it) },
             schemaVersion = schemaVersion,
+            defaultRunInputSize = optionalNumber(document, DEFAULT_RUN_INPUT_SIZE)?.toInt(),
         )
     }
 
