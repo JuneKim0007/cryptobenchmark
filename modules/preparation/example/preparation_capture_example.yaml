@@ -1,6 +1,9 @@
 # Outbound. What discovery writes after reading java.security: every registered provider and service,
 # with what the provider declares about it. A real capture is thousands of lines; this one is cut to
 # the services the config and preparation examples use.
+# SUN and SunJCE are the two providers every OpenJDK build registers — Linux, macOS and Windows alike —
+# so this example runs anywhere the tests run. An Android device registers different names
+# (AndroidOpenSSL, AndroidKeyStore, BC); capturing one is #14.
 schemaVersion: 1
 capturedAtMillis: 1750000000000
 runtime:
