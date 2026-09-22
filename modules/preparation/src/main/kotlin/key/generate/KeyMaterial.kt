@@ -10,4 +10,8 @@ sealed class KeyMaterial {
     data class Secret(val key: SecretKey) : KeyMaterial()
 
     data class Pairs(val pairs: List<KeyPair>) : KeyMaterial()
+
+    val secretKeyOrNull: SecretKey? get() = (this as? Secret)?.key
+
+    val keyPairsOrNull: List<KeyPair>? get() = (this as? Pairs)?.pairs
 }
