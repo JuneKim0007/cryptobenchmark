@@ -78,7 +78,9 @@ private fun operationOf(prepared: PreparedCase): () -> Unit {
             ({ blackHole += digest.digest(input).size })
         }
         Operation.COMPUTE_MAC -> {
-            val mac = Mac.getInstance(case.algorithm, case.provider).apply { init(secret(prepared.key)) }
+            val macSpec = prepared.parameters?.next()
+            val mac = Mac.getInstance(case.algorithm, case.provider)
+                .apply { if (macSpec == null) init(secret(prepared.key)) else init(secret(prepared.key), macSpec) }
             val input = message(prepared)
             ({ blackHole += mac.doFinal(input).size })
         }
@@ -116,17 +118,32 @@ private fun operationOf(prepared: PreparedCase): () -> Unit {
             ({ signature.update(input.message); blackHole += if (signature.verify(input.signature)) 1 else 0 })
         }
         Operation.GENERATE_KEY -> {
-            val generator = KeyGenerator.getInstance(case.algorithm, case.provider).also { g -> case.keySize?.let { g.init(it) } }
+            val generator = KeyGenerator.getInstance(case.algorithm, case.provider)
+            val keySpec = prepared.keyParameters?.next()
+            when {
+                keySpec != null -> generator.init(keySpec)
+                case.keySize != null -> generator.init(case.keySize)
+            }
             ({ blackHole += generator.generateKey().encoded.size })
         }
         Operation.GENERATE_KEY_PAIR -> {
-            val generator = KeyPairGenerator.getInstance(case.algorithm, case.provider).also { g -> case.keySize?.let { g.initialize(it) } }
+            val generator = KeyPairGenerator.getInstance(case.algorithm, case.provider)
+            val pairSpec = prepared.keyParameters?.next()
+            when {
+                pairSpec != null -> generator.initialize(pairSpec)
+                case.keySize != null -> generator.initialize(case.keySize)
+            }
             ({ blackHole += generator.generateKeyPair().public.encoded.size })
         }
         Operation.AGREE_KEY -> {
             val pairs = (prepared.key as KeyMaterial.Pairs).pairs
             val agreement = KeyAgreement.getInstance(case.algorithm, case.provider)
-            ({ agreement.init(pairs.first().private); agreement.doPhase(pairs.last().public, true); blackHole += agreement.generateSecret().size })
+            val agreementSpec = prepared.parameters?.next()
+            ({
+                if (agreementSpec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, agreementSpec)
+                agreement.doPhase(pairs.last().public, true)
+                blackHole += agreement.generateSecret().size
+            })
         }
         Operation.TYPE_DEFAULT -> ({ blackHole += 0 })
     }

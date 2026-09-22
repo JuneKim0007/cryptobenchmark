@@ -11,14 +11,18 @@ internal object ComputeMacDefinition : OperationDefinition {
 
     override val keyShape = KeyShape.SECRET
     override val consumesKeySize = true
+    override val consumesKeySpec = true
+    override val consumesParameters = true
     override val consumesInput = true
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
         OperationInput.Message(CaseArguments.seededMessage(case))
 
     override fun check(prepared: PreparedCase) {
-        Mac.getInstance(prepared.case.algorithm, prepared.case.provider)
-            .apply { init(CaseArguments.secret(prepared.key)) }
-            .doFinal(CaseArguments.preparedMessage(prepared))
+        val mac = Mac.getInstance(prepared.case.algorithm, prepared.case.provider)
+        val key = CaseArguments.secret(prepared.key)
+        val spec = prepared.parameters?.next()
+        if (spec == null) mac.init(key) else mac.init(key, spec)
+        mac.doFinal(CaseArguments.preparedMessage(prepared))
     }
 }

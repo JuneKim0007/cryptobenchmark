@@ -11,13 +11,19 @@ internal object GenerateKeyDefinition : OperationDefinition {
 
     override val keyShape = KeyShape.NONE
     override val consumesKeySize = true
+    override val consumesKeySpec = true
+    override val consumesParameters = false
     override val consumesInput = false
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput = OperationInput.None
 
     override fun check(prepared: PreparedCase) {
-        KeyGenerator.getInstance(prepared.case.algorithm, prepared.case.provider)
-            .also { generator -> prepared.case.keySize?.let { generator.init(it) } }
-            .generateKey()
+        val generator = KeyGenerator.getInstance(prepared.case.algorithm, prepared.case.provider)
+        val spec = prepared.keyParameters?.next()
+        when {
+            spec != null -> generator.init(spec)
+            prepared.case.keySize != null -> generator.init(prepared.case.keySize)
+        }
+        generator.generateKey()
     }
 }

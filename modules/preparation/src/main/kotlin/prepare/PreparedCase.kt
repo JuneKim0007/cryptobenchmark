@@ -11,5 +11,6 @@ data class PreparedCase(
     val recipe: KeyRecipe,
     val key: KeyMaterial,
     val parameters: BoundParameters?,
+    val keyParameters: BoundParameters?,
     val input: OperationInput,
 )

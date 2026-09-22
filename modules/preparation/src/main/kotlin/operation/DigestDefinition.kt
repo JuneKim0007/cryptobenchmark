@@ -11,6 +11,8 @@ internal object DigestDefinition : OperationDefinition {
 
     override val keyShape = KeyShape.NONE
     override val consumesKeySize = false
+    override val consumesKeySpec = false
+    override val consumesParameters = false
     override val consumesInput = true
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =

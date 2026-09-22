@@ -11,6 +11,8 @@ internal object SignDefinition : OperationDefinition {
 
     override val keyShape = KeyShape.PAIR
     override val consumesKeySize = true
+    override val consumesKeySpec = true
+    override val consumesParameters = true
     override val consumesInput = true
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
