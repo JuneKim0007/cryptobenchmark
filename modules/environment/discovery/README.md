@@ -105,3 +105,14 @@
 
 `tools/module-isolation` compiles this module alone — no other module on the classpath — and runs its
 tests from this directory against those files. Regenerate the generated ones with `-Dexamples.update`.
+
+Runnable examples over a live JVM live in `tools/jca-contract/src/main/kotlin/examples/`:
+
+| Example | Shows |
+|---|---|
+| `examples.TreeKt` | `CaptureQuery.tree()` as the markdown in `docs/tree.md` |
+| `examples.ReportKt` | `whoServes`, `serviceOf`, `namesOf`, `onlyOn`, `serviceTrial`, `transformationTrial`, `failingServices`, `failingTransformations`, `instantiationByProvider` |
+
+```
+cd tools/jca-contract && ./gradlew run -q -PmainClass=examples.ReportKt --args="Cipher AES SunJCE"
+```
