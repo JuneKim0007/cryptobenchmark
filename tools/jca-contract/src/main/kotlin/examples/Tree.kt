@@ -2,12 +2,16 @@ package examples
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.query.CaptureQuery
-import io.github.junekim0007.cryptobench.discovery.setting.BenchmarkScope
 import java.security.Security
 
-/** Renders CaptureQuery.tree() as the markdown in modules/environment/discovery/docs/tree.md; engine types as arguments, BenchmarkScope by default. */
+private val BENCHMARKED_TYPES = listOf(
+    "Cipher", "MessageDigest", "Mac", "Signature",
+    "KeyGenerator", "KeyPairGenerator", "KeyAgreement",
+)
+
+/** Renders CaptureQuery.tree() as the markdown in modules/environment/discovery/docs/tree.md; engine types as arguments, the benchmarked ones by default. */
 fun main(arguments: Array<String>) {
-    val types = arguments.toList().ifEmpty { BenchmarkScope.TYPES.toList() }
+    val types = arguments.toList().ifEmpty { BENCHMARKED_TYPES }
     val tree = CaptureQuery(ProviderProbe().capture(Security.getProviders())).tree()
     for ((type, algorithms) in tree) {
         if (types.none { it.equals(type, ignoreCase = true) }) continue

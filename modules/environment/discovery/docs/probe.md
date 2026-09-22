@@ -1,6 +1,6 @@
 # probe
 
-Captures registered JCA providers and services, writes them as JSON, reduces them to a discovery setting.
+Captures registered JCA providers and services, writes them as YAML, and calls each one once.
 
 Field contract: [security_contract.md](security_contract.md)
 
@@ -11,7 +11,6 @@ Discovery(directory).probe(providers)         -> DiscoveryRun: capture, probe_<u
 Discovery(directory).trial(capture, providers) -> trial_<utc>.yaml
 
 Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter     -> probe_<utc>.yaml
-                                                               -> DiscoverySettingConverter -> DiscoverySetting
                                                                -> TrialRunner -> TrialReport -> TrialYamlWriter -> trial_<utc>.yaml
 ```
 
@@ -65,11 +64,6 @@ Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the A
 | `ServiceAttributes` | `contract` | typed attribute accessors |
 | `RuntimeInfo` | `contract` | device and runtime provenance |
 | `ServiceKey` | `contract` | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
-| `DiscoverySettingConverter` | `setting` | capture → setting |
-| `BenchmarkScope` | `setting` | the 7 engine types measured |
-| `DiscoverySetting` | `setting` | reduced setting; `providersFor`, `algorithms` |
-| `ProviderSetting`, `ServiceSetting`, `Device` | `setting` | the reduced data |
-| `ServiceLookup` | `setting` | find by name or alias — `internal` |
 | `CaptureDocument` | `write` | the YAML schema: key names, capture → document (`of`), document → capture (`parse`) |
 | `DocumentFields` | `write` | typed reads of one document key — `internal` |
 | `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
