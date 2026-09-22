@@ -25,6 +25,9 @@
   - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` → prepared cases
   - `modules/android/` : module `:android` (application) — app shell; the harness lands here with #33
   - `gradle.properties` : gradle env + signing
+- `scripts/`
+  - `pipeline.py` : the host driver — runs the stages in order, one readable failure, `--config`, `--results`, `--discovery overwrite|keep`, `--bench`
+  - `requirements.txt` : host python deps
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles the on-device modules against `android.jar` without the JDK
