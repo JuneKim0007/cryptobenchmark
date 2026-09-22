@@ -1,4 +1,4 @@
-# <prepare>
+# prepare
 
 `effective.yaml` → prepared cases. Nothing here runs inside a measurement.
 
@@ -48,3 +48,29 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 - `fresh(n)` specs must be drawn before the timer; `BoundParameters.varies` says when
 - `KeyInitializer` has one implementation on the host; the per-provider slot is for AndroidKeyStore
   and StrongBox, which generate keys through their own spec types (#33)
+
+## Classes
+
+| Class | Package | Role |
+|---|---|---|
+| `Preparation` | root | entry point: `prepare(effectiveFile)` → `PreparedRun`, applies `policy.onFailure` |
+| `InboundFile`, `InboundDocument` | `inbound` | `effective.yaml` → sections, `schemaVersion` checked |
+| `GlobalReader`, `GlobalSettings`, `OnFailure` | `global` | the `run` and `policy` sections |
+| `PrimitiveReader` | `primitive` | the `providers` section → selections, against the global settings |
+| `BenchmarkRequest`, `Selection` | `request` | what was asked for |
+| `CaptureFile`, `TrialFile`, `ServiceName` | `device` | discovery's two files → DTOs; names folded for lookup |
+| `CapturedDevice`, `CapturedProvider`, `CapturedService`, `Trialled*` | `device/dto` | the device as preparation reads it |
+| `DeviceCapability`, `Availability` | `port` | what the device can run, and why not |
+| `DiscoveryCapability` | `adapter` | the port over the capture and trial: registered name, alias, or transformation |
+| `CaseResolver`, `SelectionCheck`, `SelectionExpander` | `resolve` | selections → cases or rejections |
+| `AxisRules`, `AxisRule`, `Resolution`, `Rejection` | `resolve` | operations and axes per engine type; the result |
+| `BenchmarkCase`, `CaseName`, `Operation`, `Phase`, `Metric`, `EngineTypeName` | `measurement` | one case and its id |
+| `ParameterBinder`, `ValueNode`, `ValueCoercion`, `BindPolicy`, `BoundParameters`, `BindException` | `parameter/bind` | parameter trees → `AlgorithmParameterSpec` |
+| `KeyPlanner`, `KeyShapes`, `KeyShape`, `KeyAlgorithmName`, `KeyCandidate`, `KeyRecipe` | `key/plan` | which key a case needs, from which generator |
+| `KeyMaterialGenerator`, `KeyInitializer`, `DefaultKeyInitializer`, `KeyMaterial` | `key/generate` | the key itself, cached per recipe |
+| `InputPreparer`, `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded messages, ciphertexts and signatures, round-tripped |
+| `CaseEngines` | `engine` | the `Cipher` and `Signature` for a case |
+| `CaseCheck` | `check` | one real call per case before the timer |
+| `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |
+| `Skip`, `SkipFile` | `report` | `skipped.yaml` |
+| `DocumentFields`, `YamlCodec` | `shared` | typed reads, YAML text |

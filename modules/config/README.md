@@ -4,7 +4,7 @@
 
 ## Responsibilities
 
-- Turn environment's capture and trial into `inventory.yaml`: what this device runs, observations only.
+- Turn discovery's capture and trial into `inventory.yaml`: what this device runs, observations only.
 - Cross the inventory with the authored `config/` (global settings and a test set) into `effective.yaml`.
 
   1. For more information, refer to <config.md>.
@@ -16,13 +16,35 @@
   - `README.md`
   - `docs/`
     - `config.md`
+  - `example/`
+    - `config_capture_example.yaml`
+    - `config_effective_example.yaml`
+    - `config_global_example.yaml`
+    - `config_inventory_example.yaml`
+    - `config_testset_example.yaml`
+    - `config_trial_example.yaml`
   - `src/main/kotlin/`
     - `Configuration.kt`
-    - `source/`
-      - `CaptureSource.kt`
-      - `CaptureView.kt`
-      - `TrialSource.kt`
-      - `TrialView.kt`
+    - `effective/`
+      - `EffectiveBuilder.kt`
+      - `EffectiveDocument.kt`
+      - `LocatedMatch.kt`
+      - `OverrideResolver.kt`
+      - `StoppedOnFailureException.kt`
+      - `dto/`
+        - `EffectiveConfig.kt`
+        - `EffectiveEntry.kt`
+        - `EffectiveSource.kt`
+        - `Skip.kt`
+    - `global/`
+      - `GlobalDocument.kt`
+      - `PolicyDocument.kt`
+      - `RunDocument.kt`
+      - `dto/`
+        - `GlobalConfig.kt`
+        - `Policy.kt`
+        - `RunSettings.kt`
+        - `Selection.kt`
     - `inventory/`
       - `InventoryBuilder.kt`
       - `InventoryDocument.kt`
@@ -30,42 +52,36 @@
         - `Inventory.kt`
         - `InventoryEntry.kt`
         - `InventorySource.kt`
-    - `global/`
-      - `GlobalDocument.kt`
-      - `RunDocument.kt`
-      - `PolicyDocument.kt`
-      - `dto/`
-        - `GlobalConfig.kt`
-        - `Selection.kt`
-        - `RunSettings.kt`
-        - `Policy.kt`
+    - `source/`
+      - `CaptureSource.kt`
+      - `CaptureView.kt`
+      - `TrialSource.kt`
+      - `TrialView.kt`
     - `testset/`
-      - `TestSetDocument.kt`
       - `RuleDocument.kt`
+      - `TestSetDocument.kt`
       - `dto/`
-        - `TestSet.kt`
-        - `Rule.kt`
         - `Override.kt`
-    - `effective/`
-      - `EffectiveBuilder.kt`
-      - `OverrideResolver.kt`
-      - `EffectiveDocument.kt`
-      - `LocatedMatch.kt`
-      - `StoppedOnFailureException.kt`
-      - `dto/`
-        - `EffectiveConfig.kt`
-        - `EffectiveEntry.kt`
-        - `EffectiveSource.kt`
-        - `Skip.kt`
+        - `Rule.kt`
+        - `TestSet.kt`
     - `yaml/`
-      - `YamlFiles.kt`
-      - `YamlFile.kt`
-      - `ReadOnlyYamlFile.kt`
+      - `DocumentFields.kt`
       - `DocumentHandler.kt`
       - `DocumentReader.kt`
       - `ProviderTree.kt`
-      - `DocumentFields.kt`
+      - `ReadOnlyYamlFile.kt`
       - `YamlCodec.kt`
+      - `YamlFile.kt`
+      - `YamlFiles.kt`
+  - `src/test/kotlin/`
+    - `ConfigurationTest.kt`
+    - `DocumentsTest.kt`
+    - `EffectiveBuilderTest.kt`
+    - `ExampleFilesTest.kt`
+    - `Fixtures.kt`
+    - `InventoryBuilderTest.kt`
+    - `OverrideResolverTest.kt`
+    - `RuleTest.kt`
 
 ## Limitations
 
@@ -75,14 +91,5 @@
 
 ## Example
 
-`example/` holds one small device, in the files this module reads and writes:
-
-- `config_capture_example.yaml`
-- `config_trial_example.yaml`
-- `config_global_example.yaml`
-- `config_testset_example.yaml`
-- `config_inventory_example.yaml`
-- `config_effective_example.yaml`
-
-`tools/module-isolation` compiles this module alone — no other module on the classpath — and runs its
-tests from this directory against those files. Regenerate the generated ones with `-Dexamples.update`.
+`example/` is one small device: capture, trial, global and test set in; inventory and effective out.
+`ExampleFilesTest` runs both steps and compares the output with the committed files.

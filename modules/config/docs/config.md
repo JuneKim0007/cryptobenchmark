@@ -1,4 +1,4 @@
-# <config>
+# config
 
 Two kinds of file, never mixed:
 
@@ -16,7 +16,7 @@ inventory.yaml ─────────────────────�
 ```
 
 EffectiveBuilder: include (empty = everything that runs) → test-set exclude → global exclude (exclude always wins)
-→ overrides, broadest rule first → `policy.onUnavailable`.
+→ overrides, broadest rule first → `policy.onFailure`.
 
 ## global.yaml
 
@@ -84,17 +84,23 @@ Passed through untouched; bound by preparation.
 
 Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be named.
 
-## Code
+## Classes
 
-| Package | Holds |
-|---|---|
-| root | `Configuration` — `inventory(capture, trial)`, `effective(global)` |
-| `source/` | environment's probe and trial files read as `DocumentReader`s |
-| `inventory/`, `inventory/dto/` | `InventoryBuilder`, `InventoryDocument`; `Inventory`, `InventoryEntry`, `InventorySource` |
-| `global/`, `global/dto/` | `GlobalDocument` (section list), `RunDocument`, `PolicyDocument`; `GlobalConfig`, `Selection`, `RunSettings`, `Policy` |
-| `testset/`, `testset/dto/` | `TestSetDocument`, `RuleDocument`; `TestSet`, `Rule`, `Override` |
-| `effective/`, `effective/dto/` | `EffectiveBuilder`, `OverrideResolver`, `EffectiveDocument`, `StoppedOnFailureException`; `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` |
-| `yaml/` | shared plumbing: `DocumentReader` / `DocumentHandler` (per kind: value ⇄ map), `ReadOnlyYamlFile` (load, `schemaVersion` check) and `YamlFile` (+ stamp, overwrite), `YamlFiles` (factory: `at` for read-write, `readOnly` for environment's files), `ProviderTree`, `DocumentFields`, `YamlCodec` |
+| Class | Package | Role |
+|---|---|---|
+| `Configuration` | root | entry point: `inventory(capture, trial)`, `effective(global)`, `readEffective()` |
+| `CaptureSource`, `TrialSource`, `CaptureView`, `TrialView` | `source` | discovery's two files read as views; no discovery class is imported |
+| `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
+| `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
+| `GlobalDocument`, `RunDocument`, `PolicyDocument` | `global` | `global.yaml` schema, one reader per section |
+| `GlobalConfig`, `Selection`, `RunSettings`, `Policy` | `global/dto` | the global settings |
+| `TestSetDocument`, `RuleDocument` | `testset` | test-set schema |
+| `TestSet`, `Rule`, `Override` | `testset/dto` | the test set |
+| `EffectiveBuilder`, `OverrideResolver`, `LocatedMatch` | `effective` | include → exclude → overrides → policy |
+| `EffectiveDocument`, `StoppedOnFailureException` | `effective` | effective schema; `stop` policy |
+| `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` | `effective/dto` | the effective set |
+| `YamlFiles`, `YamlFile`, `ReadOnlyYamlFile` | `yaml` | factory; read-write with stamp and atomic write; read-only with `schemaVersion` check |
+| `DocumentHandler`, `DocumentReader`, `ProviderTree`, `DocumentFields`, `YamlCodec` | `yaml` | value ⇄ map per kind, provider tree, typed reads, YAML text |
 
 ## Provider-specific, observed on JDK 25
 

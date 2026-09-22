@@ -4,13 +4,13 @@
 
 ## Responsibilities
 
-- Discovery is responsible for identifying available cryptography providers.
+- Identify the cryptography providers and services this device registers, and what each declares.
+- Call every service once, then once more with a default key, and record what really runs.
 
-  1. For more information, refer to <probe.md>.
+  1. For more information, refer to <probe.md>. Field tables: <security_contract.md>.
 
 ## File Structure
-> File structure + their responsibilities. For potential ambiguity, I've prepared documents for each components. 
-
+> File structure + their responsibilities. For potential ambiguity, I've prepared documents for each components.
 
 - `discovery/`
   - `build.gradle`
@@ -18,101 +18,99 @@
   - `docs/`
     - `probe.md`
     - `security_contract.md`
+    - `tree.md`
+  - `example/`
+    - `discovery_capture_example.yaml`
+    - `discovery_trial_example.yaml`
   - `src/main/kotlin/`
     - `Discovery.kt`
     - `DiscoveryRun.kt`
     - `ReusedRun.kt`
     - `adapter/`
-      - `ProviderProbe.kt`
-      - `PropertyMapIndex.kt`
-      - `PropertyKeyParser.kt`
-      - `PropertyKey.kt`
-      - `DeclaredAlias.kt`
       - `AttributeKind.kt`
       - `AttributeValueParser.kt`
+      - `DeclaredAlias.kt`
       - `DeviceRuntimeReader.kt`
+      - `PropertyKey.kt`
+      - `PropertyKeyParser.kt`
+      - `PropertyMapIndex.kt`
+      - `ProviderProbe.kt`
     - `contract/`
-      - `CapturedEnvironment.kt`
-      - `ProviderEntry.kt`
-      - `ServiceEntry.kt`
       - `AliasEntry.kt`
-      - `ServiceAttributes.kt`
+      - `CapturedEnvironment.kt`
+      - `DefaultRunOutcome.kt`
+      - `ProviderEntry.kt`
       - `RuntimeInfo.kt`
+      - `ServiceAttributes.kt`
+      - `ServiceEntry.kt`
       - `ServiceKey.kt`
       - `ServiceKeyException.kt`
-      - `TrialReport.kt`
       - `ServiceTrialEntry.kt`
       - `TransformationTrialEntry.kt`
       - `TrialOutcome.kt`
-      - `DefaultRunOutcome.kt`
+      - `TrialReport.kt`
     - `query/`
       - `CaptureQuery.kt`
-      - `TrialQuery.kt`
-      - `ServiceShape.kt`
-      - `TransformationFailure.kt`
       - `ServiceIndex.kt`
+      - `ServiceShape.kt`
       - `ServiceTree.kt`
+      - `TransformationFailure.kt`
+      - `TrialQuery.kt`
     - `trial/`
-      - `TrialRunner.kt`
       - `Attempt.kt`
-      - `TransformationSet.kt`
       - `DefaultRunTrial.kt`
+      - `TransformationSet.kt`
+      - `TrialRunner.kt`
       - `call/`
+        - `AgreementCall.kt`
+        - `CipherCall.kt`
         - `DefaultCall.kt`
         - `DefaultCalls.kt`
-        - `CipherCall.kt`
-        - `SignatureCall.kt`
-        - `MacCall.kt`
+        - `DefaultKeys.kt`
         - `DigestCall.kt`
         - `GeneratorCall.kt`
-        - `AgreementCall.kt`
-        - `DefaultKeys.kt`
-        - `KeyNames.kt`
         - `KeyBits.kt`
+        - `KeyNames.kt`
+        - `MacCall.kt`
+        - `SignatureCall.kt`
     - `write/`
       - `CaptureDocument.kt`
       - `DocumentFields.kt`
       - `EnvironmentYamlWriter.kt`
+      - `ProbeDirectory.kt`
+      - `ProbeFileName.kt`
       - `ProviderClassNameWriter.kt`
       - `TrialDocument.kt`
       - `TrialYamlWriter.kt`
       - `YamlCodec.kt`
-      - `ProbeDirectory.kt`
-      - `ProbeFileName.kt`
   - `src/test/kotlin/`
-    - `JcaContractTest.kt`
     - `CaptureDocumentTest.kt`
-    - `ProviderProbeTest.kt`
-    - `ProbeDirectoryTest.kt`
-    - `YamlCodecTest.kt`
-    - `TrialRunnerTest.kt`
-    - `TrialDocumentTest.kt`
     - `CaptureQueryTest.kt`
-    - `TrialQueryTest.kt`
+    - `DefaultRunTrialTest.kt`
+    - `ExampleFilesTest.kt`
+    - `JcaContractTest.kt`
+    - `KeyNamesTest.kt`
+    - `ProbeDirectoryTest.kt`
+    - `ProviderProbeTest.kt`
+    - `ReuseTest.kt`
+    - `ServiceAttributesTest.kt`
     - `ServiceKeyTest.kt`
+    - `TrialDocumentTest.kt`
+    - `TrialQueryTest.kt`
+    - `TrialRunnerTest.kt`
+    - `YamlCodecTest.kt`
 
 ## Limitations
 
-- The `Probe` module primarily uses the Java Security library, particularly `java.security.Provider`, making it highly dependent on the Java Security API.
-- `Probe` only searches for cryptography providers registered in Java. Unregistered cryptography algorithms and pr
+- Depends on `java.security.Provider`: it sees only what a provider registers and declares.
+- Unregistered implementations, native code behind JNI and hardware (StrongBox, AES acceleration) are invisible.
 
 ## Example
 
-`example/` holds one small device, in the files this module reads and writes:
-
-- `discovery_capture_example.yaml`
-- `discovery_trial_example.yaml`
-
-`tools/module-isolation` compiles this module alone — no other module on the classpath — and runs its
-tests from this directory against those files. Regenerate the generated ones with `-Dexamples.update`.
-
-Runnable examples over a live JVM live in `tools/jca-contract/src/main/kotlin/examples/`:
-
-| Example | Shows |
-|---|---|
-| `examples.TreeKt` | `CaptureQuery.tree()` as the markdown in `docs/tree.md` |
-| `examples.ReportKt` | `whoServes`, `serviceOf`, `namesOf`, `onlyOn`, `serviceTrial`, `transformationTrial`, `failingServices`, `failingTransformations`, `instantiationByProvider` |
+`example/` is one small device in the two files this module writes; `ExampleFilesTest` round-trips them.
+Runnable over a live JVM from `tools/jca-contract`: `examples.TreeKt` (writes `docs/tree.md`) and
+`examples.ReportKt` (every `CaptureQuery` and `TrialQuery` question).
 
 ```
-cd tools/jca-contract && ./gradlew run -q -PmainClass=examples.ReportKt --args="Cipher AES SunJCE"
+./gradlew run -q -PmainClass=examples.ReportKt --args="Cipher AES SunJCE"
 ```
