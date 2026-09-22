@@ -44,8 +44,26 @@ One section per feature, one owner each; an unknown section or key is an error.
 | `exclude` | rules |
 | `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?, operations?}}` |
 
-Rule: `{provider?, type?, name?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
-Override precedence, lowest first: type → name pattern → exact name → provider. Ties: file order. Lists replace.
+Rule: `{provider?, type?, name?, group?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
+Override precedence, lowest first: type → name pattern → exact name → provider → group. Ties: file order. Lists replace.
+
+## Groups
+
+One primitive measured more than once, under different parameters. An include names the group, an
+override sets what that group changes, and the entry is written as `<name>@<group>`:
+
+```yaml
+include:
+  - {type: KeyPairGenerator, name: EC, group: p256}
+  - {type: KeyPairGenerator, name: EC, group: p384}
+overrides:
+  - match: {type: KeyPairGenerator, name: EC, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+```
+
+An override with no `group` applies to every group of that name. The device is asked about the name
+only, never the group: a group is a second measurement of one registered primitive. `@` is safe as a
+separator because no JCA algorithm or alias name uses it.
 
 ## effective.yaml
 
@@ -55,6 +73,7 @@ Override precedence, lowest first: type → name pattern → exact name → prov
 | `run` | the global `run` section, frozen |
 | `policy` | the global `policy` section, frozen: preparation and the benchmark apply the same rule |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations` (empty = every operation of the type), `providerDefaults` |
+| `providers.<p>.<type>.<name>@<group>` | the same, for one group of a primitive measured more than once |
 | `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
 | `warnings` | rules that touched nothing: `exclude_matches_nothing`, `override_matches_nothing` — usually a typo; not a failure, printed by the host command |
 | `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |

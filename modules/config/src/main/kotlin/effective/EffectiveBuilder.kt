@@ -27,14 +27,19 @@ class EffectiveBuilder {
         }
 
         val running = selected.filter { it.entry.runs }
+        val groups = running.associateWith { located -> groupsOf(testSet, located) }
         val warnings = excludes.filter { rule -> included.none { rule.matches(it) } }.map { "exclude_matches_nothing: $it" } +
-            testSet.overrides.filter { override -> running.none { override.match.matches(it) } }.map { "override_matches_nothing: ${it.match}" }
+            testSet.overrides
+                .filter { override -> groups.none { (located, names) -> override.match.matches(located) && names.any { override.match.appliesTo(it) } } }
+                .map { "override_matches_nothing: ${it.match}" }
 
         val resolver = OverrideResolver(testSet.overrides)
         val providers = LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, EffectiveEntry>>>()
-        for (located in running) {
-            providers.getOrPut(located.provider) { LinkedHashMap() }
-                .getOrPut(located.type) { LinkedHashMap() }[located.name] = resolver.resolve(located)
+        for ((located, names) in groups) {
+            for (group in names) {
+                providers.getOrPut(located.provider) { LinkedHashMap() }
+                    .getOrPut(located.type) { LinkedHashMap() }[entryKey(located.name, group)] = resolver.resolve(located, group)
+            }
         }
         return EffectiveConfig(
             generatedFrom = EffectiveSource(files.global, files.testSet, files.inventory, inventory.generatedFrom),
@@ -45,6 +50,16 @@ class EffectiveBuilder {
             warnings = warnings,
         )
     }
+
+    /** One device entry is measured once per group the test set names, and once as itself when no include names a group. */
+    private fun groupsOf(testSet: TestSet, located: Inventory.Located): List<String?> {
+        if (testSet.include.isEmpty()) {
+            return listOf(null)
+        }
+        return testSet.include.filter { it.matches(located) }.map { it.group }.distinct()
+    }
+
+    private fun entryKey(name: String, group: String?): String = if (group == null) name else "$name@$group"
 
     data class Files(val global: String, val testSet: String, val inventory: String)
 }

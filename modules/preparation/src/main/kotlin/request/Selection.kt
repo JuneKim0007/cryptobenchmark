@@ -11,11 +11,13 @@ data class Selection(
     val keyParameters: Map<String, Any> = emptyMap(),
     val parameters: Map<String, Any> = emptyMap(),
     val operations: Set<Operation> = emptySet(),
+    val group: String = "",
 ) {
 
     init {
         require(type.isNotBlank()) { "missing_field: type" }
         require(algorithm.isNotBlank()) { "missing_field: algorithm" }
+        require(!group.contains('@')) { "invalid_group: $group" }
         require(providers.none { it.isBlank() }) { "blank_provider: $type/$algorithm" }
         require(keySizes.all { it > 0 }) { "not_positive: keySizes $keySizes" }
         require(keySizes.size == keySizes.distinct().size) { "duplicate: keySizes $keySizes" }

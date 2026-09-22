@@ -41,4 +41,12 @@ class BenchmarkCaseTest {
         assertTrue(tuned.id, tuned.id.matches(Regex("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM_p[0-9a-f]{8}")))
         assertEquals(tuned.id, reordered.id)
     }
+
+    /** Two groups of one primitive are two measurements, so the id names the group. */
+    @Test
+    fun theGroupIsPartOfTheName() {
+        val case = BenchmarkCase("KeyPairGenerator", "EC", "SunEC", Operation.GENERATE_KEY_PAIR, group = "p256")
+        assertEquals("KeyPairGenerator_EC-p256_GENERATE-KEY-PAIR_SunEC_WARM", case.id)
+        assertEquals("KeyPairGenerator_EC_GENERATE-KEY-PAIR_SunEC_WARM", case.copy(group = "").id)
+    }
 }

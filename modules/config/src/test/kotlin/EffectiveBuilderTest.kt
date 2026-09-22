@@ -10,6 +10,7 @@ import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
+import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import org.junit.Assert.assertEquals
@@ -100,5 +101,23 @@ class EffectiveBuilderTest {
             listOf("exclude_matches_nothing: {name=SHA-265}", "override_matches_nothing: {type=Cipher name=AES/GCM/NoPaddng}"),
             EffectiveBuilder().build(global, typos, inventory, names).warnings,
         )
+    }
+
+    /** A group is the same device entry measured again under another name, so it is one entry per group. */
+    @Test
+    fun anIncludeGroupMakesItsOwnEntry() {
+        val grouped = TestSet(
+            description = "one primitive, two groups",
+            include = listOf(
+                Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "pkcs5"),
+                Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "sized"),
+            ),
+            overrides = listOf(Override(Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "sized"), keySizes = listOf(128))),
+        )
+        val effective = EffectiveBuilder().build(global, grouped, inventory, names)
+        val entries = effective.providers.getValue("SunJCE").getValue("Cipher")
+        assertEquals(listOf("AES/CBC/PKCS5PADDING@pkcs5", "AES/CBC/PKCS5PADDING@sized"), entries.keys.toList())
+        assertEquals(emptyList<Int>(), entries.getValue("AES/CBC/PKCS5PADDING@pkcs5").keySizes)
+        assertEquals(listOf(128), entries.getValue("AES/CBC/PKCS5PADDING@sized").keySizes)
     }
 }

@@ -15,16 +15,17 @@ object PrimitiveReader {
     fun read(inbound: InboundDocument, global: GlobalSettings): List<Selection> {
         val selections = inbound.providers.flatMap { (provider, types) ->
             asSection(types, provider).flatMap { (type, entries) ->
-                asSection(entries, "$provider.$type").map { (name, value) -> selection(provider, type, name, asSection(value, "$provider.$type.$name"), global) }
+                asSection(entries, "$provider.$type").map { (key, value) -> selection(provider, type, key, asSection(value, "$provider.$type.$key"), global) }
             }
         }
         require(selections.isNotEmpty()) { "nothing_selected: ${inbound.fileName}" }
         return selections
     }
 
-    private fun selection(provider: String, type: String, name: String, entry: Map<String, Any>, global: GlobalSettings) = Selection(
+    private fun selection(provider: String, type: String, key: String, entry: Map<String, Any>, global: GlobalSettings) = Selection(
         type = type,
-        algorithm = name,
+        algorithm = key.substringBefore('@'),
+        group = key.substringAfter('@', missingDelimiterValue = ""),
         providers = listOf(provider),
         keySizes = optionalNumbers(entry, "keySizes"),
         inputSizes = global.inputSizesFor(optionalNumbers(entry, "inputSizes")),

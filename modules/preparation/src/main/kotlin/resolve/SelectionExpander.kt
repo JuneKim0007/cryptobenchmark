@@ -19,6 +19,7 @@ internal object SelectionExpander {
                             cases += BenchmarkCase(
                                 type = selection.type,
                                 algorithm = selection.algorithm,
+                                group = selection.group,
                                 provider = provider,
                                 operation = operation,
                                 keySize = keySize,
