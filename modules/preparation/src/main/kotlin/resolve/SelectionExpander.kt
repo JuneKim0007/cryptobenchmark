@@ -1,21 +1,18 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
+import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 internal object SelectionExpander {
 
-    fun expand(request: BenchmarkRequest, selection: Selection, providers: List<String>, rule: AxisRule): List<BenchmarkCase> {
-        val operations = selection.operations.ifEmpty { rule.operations }.toList()
-        val keySizes: List<Int?> = if (rule.usesKeySize && selection.keySizes.isNotEmpty()) selection.keySizes else listOf(null)
-        val inputSizes: List<Int?> = if (rule.usesInputSize) request.global.inputSizesFor(selection.inputSizes) else listOf(null)
+    fun expand(global: GlobalSettings, selection: Selection, providers: List<String>, rule: AxisRule): List<BenchmarkCase> {
         val cases = mutableListOf<BenchmarkCase>()
         for (provider in providers) {
-            for (operation in operations) {
-                for (keySize in keySizes) {
-                    for (inputSize in inputSizes) {
-                        for (phase in request.global.phases) {
+            for (operation in rule.operationsFor(selection)) {
+                for (keySize in rule.keySizesFor(selection)) {
+                    for (inputSize in rule.inputSizesFor(selection, global)) {
+                        for (phase in global.phases) {
                             cases += BenchmarkCase(
                                 type = selection.type,
                                 algorithm = selection.algorithm,
@@ -24,8 +21,8 @@ internal object SelectionExpander {
                                 keySize = keySize,
                                 inputSize = inputSize,
                                 phase = phase,
-                                metrics = request.global.metrics,
-                                seed = request.global.seed,
+                                metrics = global.metrics,
+                                seed = global.seed,
                                 keyParameters = selection.keyParameters,
                                 parameters = selection.parameters,
                             )

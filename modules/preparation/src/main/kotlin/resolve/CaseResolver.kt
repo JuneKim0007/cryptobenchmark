@@ -26,7 +26,7 @@ class CaseResolver(
                 continue
             }
             val providers = providersFor(selection, rejections)
-            cases += SelectionExpander.expand(request, selection, providers, rule)
+            cases += SelectionExpander.expand(request.global, selection, providers, rule)
         }
         return Resolution(cases, rejections)
     }

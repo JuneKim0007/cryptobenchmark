@@ -19,7 +19,7 @@ class CaseCheck {
         val case = prepared.case
         val key = prepared.key
         when (case.operation) {
-            Operation.ENCRYPT -> cipher(prepared, Cipher.ENCRYPT_MODE, CipherKeys.encrypting(key), message(prepared))
+            Operation.ENCRYPT -> encrypt(prepared)
             Operation.DECRYPT -> decrypt(prepared)
             Operation.SIGN -> sign(prepared)
             Operation.VERIFY -> verify(prepared)
@@ -35,11 +35,12 @@ class CaseCheck {
         }
     }
 
-    private fun cipher(prepared: PreparedCase, mode: Int, key: java.security.Key, input: ByteArray) {
+    private fun encrypt(prepared: PreparedCase) {
         val cipher = CaseEngines.cipher(prepared.case)
+        val key = CipherKeys.encrypting(prepared.key)
         val spec = prepared.parameters?.next()
-        if (spec == null) cipher.init(mode, key) else cipher.init(mode, key, spec)
-        cipher.doFinal(input)
+        if (spec == null) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, spec)
+        cipher.doFinal(message(prepared))
     }
 
     private fun decrypt(prepared: PreparedCase) {

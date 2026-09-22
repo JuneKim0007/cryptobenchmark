@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
+import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 data class AxisRule(
     val usesKeySize: Boolean,
@@ -11,4 +13,12 @@ data class AxisRule(
     init {
         require(operations.isNotEmpty()) { "missing_field: operations" }
     }
+
+    fun operationsFor(selection: Selection): List<Operation> = selection.operations.ifEmpty { operations }.toList()
+
+    fun keySizesFor(selection: Selection): List<Int?> =
+        if (usesKeySize && selection.keySizes.isNotEmpty()) selection.keySizes else listOf(null)
+
+    fun inputSizesFor(selection: Selection, global: GlobalSettings): List<Int?> =
+        if (usesInputSize) global.inputSizesFor(selection.inputSizes) else listOf(null)
 }
