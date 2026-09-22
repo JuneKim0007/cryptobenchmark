@@ -13,7 +13,8 @@ probe_<utc>.yaml, trial_<utc>.yaml ─► CaptureFile, TrialFile ─► Discover
 ```
 
 Each stage takes the previous stage's value, so the order is checked by the compiler.
-Every inbound is a YAML file; no other module is on the classpath.
+Every inbound is a YAML file; no other module is on the classpath. Run settings come only from
+`effective.yaml`: config owns their defaults, and preparation requires every field.
 
 ## Axes of one case
 
@@ -49,6 +50,16 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 - `KeyInitializer` has one implementation on the host; the per-provider slot is for AndroidKeyStore
   and StrongBox, which generate keys through their own spec types (#33)
 
+## Tunables
+
+Contract keys stay with their readers and JCA names with the code that uses them; only these are choices.
+
+| Value | Where | Default |
+|---|---|---|
+| what each engine type is measured along, and the key it needs | `EngineTypes.standard()`, passed once to `Preparation` | 8 types + a fallback; add a type with `with(type, row)` |
+| which classes a parameter tree may name | `BindPolicy.standard()` | `AlgorithmParameterSpec`, `PSource`, `BigInteger` |
+| how a key is initialised per provider | `KeyMaterialGenerator(initializers)` | `DefaultKeyInitializer` for every provider |
+
 ## Classes
 
 | Class | Package | Role |
@@ -63,12 +74,13 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 | `DeviceCapability`, `Availability` | `port` | what the device can run, and why not |
 | `DiscoveryCapability` | `adapter` | the port over the capture and trial: registered name, alias, or transformation |
 | `CaseResolver`, `SelectionCheck`, `SelectionExpander` | `resolve` | selections → cases or rejections |
-| `AxisRules`, `AxisRule`, `Resolution`, `Rejection` | `resolve` | operations and axes per engine type; the result |
+| `Resolution`, `Rejection` | `resolve` | the result |
 | `BenchmarkCase`, `CaseName`, `Operation`, `Phase`, `Metric`, `EngineTypeName` | `measurement` | one case and its id |
 | `ParameterBinder`, `ValueNode`, `ValueCoercion`, `BindPolicy`, `BoundParameters`, `BindException` | `parameter/bind` | parameter trees → `AlgorithmParameterSpec` |
-| `KeyPlanner`, `KeyShapes`, `KeyShape`, `KeyAlgorithmName`, `KeyCandidate`, `KeyRecipe` | `key/plan` | which key a case needs, from which generator |
+| `KeyPlanner`, `KeyAlgorithmName`, `KeyCandidate`, `KeyRecipe` | `key/plan` | which key a case needs, from which generator |
 | `KeyMaterialGenerator`, `KeyInitializer`, `DefaultKeyInitializer`, `KeyMaterial` | `key/generate` | the key itself, cached per recipe |
 | `InputPreparer`, `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded messages, ciphertexts and signatures, round-tripped |
+| `EngineTypes`, `EngineType`, `KeyShape` | `engine` | one row per engine type: operations, key and input axes, key shape; one fallback row |
 | `CaseEngines` | `engine` | the `Cipher` and `Signature` for a case |
 | `CaseCheck` | `check` | one real call per case before the timer |
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |

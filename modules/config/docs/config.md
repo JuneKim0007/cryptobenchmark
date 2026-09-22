@@ -86,6 +86,15 @@ Passed through untouched; bound by preparation.
 
 Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be named.
 
+## Tunables
+
+Every run default in the pipeline lives here; preparation has none of its own.
+
+| Value | Where | Default |
+|---|---|---|
+| `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0` |
+| failure policy default | `Policy` | `skip` |
+
 ## Classes
 
 | Class | Package | Role |

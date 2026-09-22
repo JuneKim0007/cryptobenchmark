@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 
 data class BenchmarkRequest(
     val selections: List<Selection>,
-    val global: GlobalSettings = GlobalSettings(),
+    val global: GlobalSettings,
 ) {
 
     init {

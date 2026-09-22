@@ -1,14 +1,14 @@
 package io.github.junekim0007.cryptobench.preparation
 
-import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
-import io.github.junekim0007.cryptobench.preparation.resolve.AxisRule
-import io.github.junekim0007.cryptobench.preparation.resolve.AxisRules
+import io.github.junekim0007.cryptobench.preparation.engine.EngineType
+import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
+import io.github.junekim0007.cryptobench.preparation.engine.KeyShape
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -33,11 +33,13 @@ class CaseResolverTest {
 
     private val resolver = CaseResolver(device)
 
+    private fun request(vararg selections: Selection) = BenchmarkRequest(selections.toList(), EffectiveFixture.ONE_WARM_RUN)
+
     @Test
     fun expandsEveryAxisTheTypeIsMeasuredAlong() {
         val request = BenchmarkRequest(
             listOf(Selection("Cipher", "AES/GCM/NoPadding", keySizes = listOf(128, 256))),
-            GlobalSettings(inputSizes = listOf(64, 1024), phases = setOf(Phase.WARM, Phase.COLD)),
+            EffectiveFixture.ONE_WARM_RUN.copy(inputSizes = listOf(64, 1024), phases = setOf(Phase.WARM, Phase.COLD)),
         )
         val resolution = resolver.resolve(request)
         assertEquals(16, resolution.cases.size)
@@ -47,10 +49,10 @@ class CaseResolverTest {
 
     @Test
     fun digestsTakeNoKeyAndKeyGenerationTakesNoInput() {
-        val resolution = resolver.resolve(BenchmarkRequest(listOf(
+        val resolution = resolver.resolve(request(
             Selection("MessageDigest", "SHA-256", keySizes = listOf(256)),
             Selection("KeyGenerator", "AES", keySizes = listOf(128, 256)),
-        )))
+        ))
         assertEquals(
             listOf(
                 "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM",
@@ -65,10 +67,10 @@ class CaseResolverTest {
     /** Every unrunnable request is reported together, so one pass fixes the config. */
     @Test
     fun collectsEveryRejectionWithItsReason() {
-        val resolution = resolver.resolve(BenchmarkRequest(listOf(
+        val resolution = resolver.resolve(request(
             Selection("Cipher", "AES/GCM/NoPadding", providers = listOf("AndroidOpenSSL", "BC", "SunJCE")),
             Selection("Cipher", "ChaCha20"),
-        )))
+        ))
         assertEquals(listOf("AndroidOpenSSL", "AndroidOpenSSL"), resolution.cases.map { it.provider })
         assertEquals(
             listOf(
@@ -82,9 +84,8 @@ class CaseResolverTest {
 
     @Test
     fun anUnregisteredTypeResolvesUnderTheFallbackAndCanBeRegistered() {
-        val request = BenchmarkRequest(listOf(Selection("MessageDigest", "SHA-256")))
-        val digestAsKeyOnly = CaseResolver(device, AxisRules.standard().with("messagedigest", AxisRule(usesKeySize = true, usesInputSize = false, operations = listOf(Operation.DIGEST))))
-        assertEquals(listOf(null, null), digestAsKeyOnly.resolve(request).cases.map { it.inputSize })
+        val digestAsKeyOnly = CaseResolver(device, EngineTypes.standard().with("messagedigest", EngineType(listOf(Operation.DIGEST), usesKeySize = true, usesInputSize = false, keyShape = KeyShape.NONE)))
+        assertEquals(listOf(null, null), digestAsKeyOnly.resolve(request(Selection("MessageDigest", "SHA-256"))).cases.map { it.inputSize })
     }
 
     /** A parameter that cannot be built rejects its selection; nothing reaches a run. */
@@ -94,7 +95,7 @@ class CaseResolverTest {
         val bothKeys = Selection("Cipher", "AES/GCM/NoPadding", keySizes = listOf(128),
             keyParameters = mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("secp256r1")))
         val fine = Selection("Cipher", "AES/GCM/NoPadding", parameters = mapOf("class" to "javax.crypto.spec.GCMParameterSpec", "arguments" to listOf(128, "fresh(12)")))
-        val resolution = resolver.resolve(BenchmarkRequest(listOf(broken, bothKeys, fine)))
+        val resolution = resolver.resolve(request(broken, bothKeys, fine))
         assertEquals(listOf(fine.parameters, fine.parameters), resolution.cases.map { it.parameters })
         assertEquals(
             listOf(
@@ -108,7 +109,7 @@ class CaseResolverTest {
     @Test
     fun aSelectionCanNarrowTheOperations() {
         val verifyOnly = Selection("Cipher", "AES/GCM/NoPadding", operations = setOf(Operation.DECRYPT))
-        assertEquals(setOf(Operation.DECRYPT), resolver.resolve(BenchmarkRequest(listOf(verifyOnly))).cases.map { it.operation }.toSet())
+        assertEquals(setOf(Operation.DECRYPT), resolver.resolve(request(verifyOnly)).cases.map { it.operation }.toSet())
     }
 
     /** Asking a digest to sign is a config mistake: rejected by name, with the operations that type does have. */
@@ -116,6 +117,6 @@ class CaseResolverTest {
     fun anOperationTheTypeDoesNotHaveIsRejected() {
         val wrong = Selection("MessageDigest", "SHA-256", operations = setOf(Operation.SIGN))
         assertEquals(listOf("unsupported_operation: [SIGN] for MessageDigest, one of [DIGEST]"),
-            resolver.resolve(BenchmarkRequest(listOf(wrong))).rejections.map { it.reason })
+            resolver.resolve(request(wrong)).rejections.map { it.reason })
     }
 }

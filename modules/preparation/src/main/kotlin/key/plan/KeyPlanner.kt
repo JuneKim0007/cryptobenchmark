@@ -1,18 +1,20 @@
 package io.github.junekim0007.cryptobench.preparation.key.plan
 
+import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
+import io.github.junekim0007.cryptobench.preparation.engine.KeyShape
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 
 class KeyPlanner(
     private val capability: DeviceCapability,
-    private val shapes: KeyShapes = KeyShapes.standard(),
+    private val engineTypes: EngineTypes = EngineTypes.standard(),
 ) {
 
     fun plan(case: BenchmarkCase): KeyRecipe {
         val names = KeyAlgorithmName.candidates(case.type, case.algorithm)
         val algorithm = names.first().algorithm
-        return when (shapes.of(case.type)) {
+        return when (engineTypes.of(case.type).keyShape) {
             KeyShape.NONE -> KeyRecipe.None
             KeyShape.SECRET -> names.firstNotNullOfOrNull { secret(case, it) } ?: unavailable(SECRET_GENERATOR, algorithm)
             KeyShape.PAIR -> names.firstNotNullOfOrNull { pair(case, it, count = 1) } ?: unavailable(PAIR_GENERATOR, algorithm)
