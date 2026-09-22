@@ -94,6 +94,7 @@ Kotlin is not installed separately; the Gradle plugin fetches the compiler.
 ```
 python3 scripts/pipeline.py                      # probe -> trial -> inventory -> effective
 python3 scripts/pipeline.py --bench              # and prepare -> measure -> analyse (JVM, until #33)
+python3 scripts/pipeline.py --discovery reuse    # keep this device's capture, skip probing
 ```
 
 Writes `results/discovery/{probe,probe_classes,trial}_<utc>.yaml`, `results/configuration/{inventory,effective}.yaml`,

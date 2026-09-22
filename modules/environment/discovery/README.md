@@ -21,6 +21,7 @@
   - `src/main/kotlin/`
     - `Discovery.kt`
     - `DiscoveryRun.kt`
+    - `ReusedRun.kt`
     - `adapter/`
       - `ProviderProbe.kt`
       - `PropertyMapIndex.kt`

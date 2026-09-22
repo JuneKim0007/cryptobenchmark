@@ -7,14 +7,16 @@ import java.security.Security
 import kotlin.system.exitProcess
 
 fun main(arguments: Array<String>) {
-    val discoveryDirectory = arguments.getOrNull(0)?.let { File(it) } ?: run {
-        System.err.println("usage: probe <discovery output directory> [<configuration output directory>] [<global.yaml>]")
+    val paths = arguments.filterNot { it.startsWith("--") }
+    val reuse = arguments.contains("--reuse")
+    val discoveryDirectory = paths.getOrNull(0)?.let { File(it) } ?: run {
+        System.err.println("usage: probe <discovery output directory> [<configuration output directory>] [<global.yaml>] [--reuse]")
         exitProcess(2)
     }
-    val configurationDirectory = arguments.getOrNull(1)?.let { File(it) } ?: File(discoveryDirectory.absoluteFile.parentFile, "configuration")
-    val globalFile = arguments.getOrNull(2)?.let { File(it) } ?: committedGlobal()
+    val configurationDirectory = paths.getOrNull(1)?.let { File(it) } ?: File(discoveryDirectory.absoluteFile.parentFile, "configuration")
+    val globalFile = paths.getOrNull(2)?.let { File(it) } ?: committedGlobal()
     try {
-        run(discoveryDirectory, configurationDirectory, globalFile)
+        run(discoveryDirectory, configurationDirectory, globalFile, reuse)
     } catch (expected: IllegalArgumentException) {
         fail(expected)
     } catch (expected: IllegalStateException) {
@@ -24,14 +26,27 @@ fun main(arguments: Array<String>) {
     }
 }
 
-private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?) {
+private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?, reuse: Boolean) {
     val discovery = Discovery(ProbeDirectory(discoveryDirectory))
-    val probe = discovery.probe(Security.getProviders())
-    val trialFile = discovery.trial(probe.capture, Security.getProviders())
+    val reused = if (reuse) discovery.reusable() else null
+    val captureFile: File
+    val classesFile: File
+    val trialFile: File
+    if (reused != null) {
+        captureFile = reused.captureFile
+        classesFile = reused.classesFile
+        trialFile = reused.trialFile
+        System.err.println("reused: ${reused.captureFile.name}")
+    } else {
+        val probe = discovery.probe(Security.getProviders())
+        captureFile = probe.captureFile
+        classesFile = probe.classesFile
+        trialFile = discovery.trial(probe.capture, Security.getProviders())
+    }
     val configuration = Configuration(configurationDirectory)
-    val inventoryFile = configuration.inventory(probe.captureFile, trialFile)
-    println(probe.captureFile)
-    println(probe.classesFile)
+    val inventoryFile = configuration.inventory(captureFile, trialFile)
+    println(captureFile)
+    println(classesFile)
     println(trialFile)
     println(inventoryFile)
     if (globalFile == null) {
