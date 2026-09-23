@@ -26,3 +26,4 @@ env/
 /tools/module-isolation/.gradle
 /tools/module-isolation/build
 /tools/module-isolation/*/build
+cryptobenchmark-release-key.jks
