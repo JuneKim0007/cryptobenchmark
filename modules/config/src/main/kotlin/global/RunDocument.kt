@@ -1,10 +1,12 @@
 package io.github.junekim0007.cryptobench.config.global
 
+import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.numbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
 
 object RunDocument {
@@ -14,6 +16,7 @@ object RunDocument {
     private const val METRICS = "metrics"
     private const val PROCESS_REPETITIONS = "processRepetitions"
     private const val SEED = "seed"
+    private const val HARNESS = "harness"
 
     fun of(run: RunSettings): Map<String, Any> = linkedMapOf(
         INPUT_SIZES to run.inputSizes,
@@ -21,10 +24,10 @@ object RunDocument {
         METRICS to run.metrics,
         PROCESS_REPETITIONS to run.processRepetitions,
         SEED to run.seed,
-    )
+    ).apply { if (!run.harness.isEmpty) put(HARNESS, HarnessDocument.of(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, SEED), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, SEED, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
@@ -32,6 +35,7 @@ object RunDocument {
             metrics = optional(document, METRICS, defaults.metrics, ::strings),
             processRepetitions = optional(document, PROCESS_REPETITIONS, defaults.processRepetitions) { section, key -> number(section, key).toInt() },
             seed = optional(document, SEED, defaults.seed) { section, key -> number(section, key).toLong() },
+            harness = optionalSection(document, HARNESS)?.let { HarnessDocument.parse(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )
     }
 }

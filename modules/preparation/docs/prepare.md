@@ -26,6 +26,7 @@ Every inbound is a YAML file; no other module is on the classpath. Run settings 
 | key size | entry `keySizes`; a size written into the name (`AES_128`) | the provider's default |
 | input size | entry `inputSizes`, else `run.inputSizes` | the type takes no input |
 | phase | `run.phases` | — |
+| harness | `run.harness`, field by field under the entry's `harness` | the harness's own defaults |
 | parameters | entry `key` and `parameters` trees | the provider fills them in |
 
 ## What each operation takes
@@ -87,6 +88,7 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `Preparation` | root | entry point: `prepare(effectiveFile)` → `PreparedRun`, applies `policy.onFailure` |
 | `InboundFile`, `InboundDocument` | `inbound` | `effective.yaml` → sections, `schemaVersion` checked |
 | `GlobalReader`, `GlobalSettings`, `OnFailure` | `global` | the `run` and `policy` sections |
+| `HarnessReader`, `HarnessSettings` | `global` | what the timer is told, global merged with the entry's |
 | `PrimitiveReader` | `primitive` | the `providers` section → selections, against the global settings |
 | `BenchmarkRequest`, `Selection` | `request` | what was asked for |
 | `CaptureFile`, `TrialFile`, `ServiceName` | `device` | discovery's two files → DTOs; names folded for lookup |

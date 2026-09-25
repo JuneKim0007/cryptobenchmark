@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.primitive
 
 import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
+import io.github.junekim0007.cryptobench.preparation.global.HarnessReader
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundDocument
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.request.Selection
@@ -32,5 +33,6 @@ object PrimitiveReader {
         keyParameters = optionalSection(entry, "key"),
         parameters = optionalSection(entry, "parameters"),
         operations = optionalStrings(entry, "operations").mapTo(LinkedHashSet()) { choice<Operation>("operation", it) },
+        harness = HarnessReader.read(optionalSection(entry, "harness"), "$provider.$type.$key.harness"),
     )
 }

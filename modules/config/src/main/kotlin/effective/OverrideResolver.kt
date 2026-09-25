@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
+import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 
@@ -17,6 +18,7 @@ internal class OverrideResolver(private val overrides: List<Override>) {
         val key = applicable.lastOrNull { it.key != null }?.key.orEmpty()
         val parameters = applicable.lastOrNull { it.parameters != null }?.parameters.orEmpty()
         val operations = applicable.lastOrNull { it.operations != null }?.operations.orEmpty()
+        val harness = applicable.fold(HarnessSettings()) { merged, override -> merged.mergedWith(override.harness) }
         val observed = located.entry
         return EffectiveEntry(
             keySizes = keySizes.orEmpty(),
@@ -24,6 +26,7 @@ internal class OverrideResolver(private val overrides: List<Override>) {
             key = key,
             parameters = parameters,
             operations = operations,
+            harness = harness,
             providerDefaults = listOfNotNull(
                 "keySize".takeIf { keySizes == null && key.isEmpty() && observed.keySizes.isNotEmpty() },
                 "parameters".takeIf { parameters.isEmpty() && observed.providerChose.isNotEmpty() },

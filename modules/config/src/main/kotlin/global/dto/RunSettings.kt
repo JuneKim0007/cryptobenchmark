@@ -6,6 +6,7 @@ data class RunSettings(
     val metrics: List<String> = listOf("TIME"),
     val processRepetitions: Int = 1,
     val seed: Long = 0L,
+    val harness: HarnessSettings = HarnessSettings(),
 ) {
 
     init {
