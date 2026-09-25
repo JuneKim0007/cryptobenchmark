@@ -18,11 +18,12 @@ internal object ComputeMacDefinition : OperationDefinition {
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
         OperationInput.Message(CaseArguments.seededMessage(case))
 
-    override fun check(prepared: PreparedCase) {
+    override fun invocation(prepared: PreparedCase): Invocation {
         val mac = Mac.getInstance(prepared.case.algorithm, prepared.case.provider)
         val key = CaseArguments.secret(prepared.key)
         val spec = prepared.parameters?.next()
         if (spec == null) mac.init(key) else mac.init(key, spec)
-        mac.doFinal(CaseArguments.preparedMessage(prepared))
+        val message = CaseArguments.preparedMessage(prepared)
+        return Invocation(perIteration = { mac.doFinal(message) })
     }
 }

@@ -22,7 +22,7 @@ internal interface OperationDefinition {
 
     fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput
 
-    fun check(prepared: PreparedCase)
+    fun invocation(prepared: PreparedCase): Invocation
 
     fun keySizesFor(selection: Selection): List<Int?> =
         if (consumesKeySize && selection.keySizes.isNotEmpty()) selection.keySizes else listOf(null)

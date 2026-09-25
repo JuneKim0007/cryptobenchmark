@@ -17,12 +17,14 @@ internal object AgreeKeyDefinition : OperationDefinition {
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput = OperationInput.None
 
-    override fun check(prepared: PreparedCase) {
+    override fun invocation(prepared: PreparedCase): Invocation {
         val pairs = prepared.key.keyPairsOrNull ?: throw IllegalArgumentException("agreement_needs_key_pairs")
         val agreement = KeyAgreement.getInstance(prepared.case.algorithm, prepared.case.provider)
         val spec = prepared.parameters?.next()
-        if (spec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, spec)
-        agreement.doPhase(pairs.last().public, true)
-        agreement.generateSecret()
+        return Invocation(perIteration = {
+            if (spec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, spec)
+            agreement.doPhase(pairs.last().public, true)
+            agreement.generateSecret()
+        })
     }
 }

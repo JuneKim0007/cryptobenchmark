@@ -18,11 +18,14 @@ internal object SignDefinition : OperationDefinition {
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
         OperationInput.Message(CaseArguments.seededMessage(case))
 
-    override fun check(prepared: PreparedCase) {
+    override fun invocation(prepared: PreparedCase): Invocation {
         val signature = CaseEngines.signature(prepared.case)
         prepared.parameters?.next()?.let { signature.setParameter(it) }
         signature.initSign(CaseArguments.pair(prepared.key).private)
-        signature.update(CaseArguments.preparedMessage(prepared))
-        signature.sign()
+        val message = CaseArguments.preparedMessage(prepared)
+        return Invocation(perIteration = {
+            signature.update(message)
+            signature.sign()
+        })
     }
 }

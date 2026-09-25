@@ -20,11 +20,20 @@ internal object EncryptDefinition : OperationDefinition {
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
         OperationInput.Message(CaseArguments.seededMessage(case))
 
-    override fun check(prepared: PreparedCase) {
+    override fun invocation(prepared: PreparedCase): Invocation {
         val cipher = CaseEngines.cipher(prepared.case)
         val key = CipherKeys.encrypting(prepared.key)
-        val spec = prepared.parameters?.next()
-        if (spec == null) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, spec)
-        cipher.doFinal(CaseArguments.preparedMessage(prepared))
+        val message = CaseArguments.preparedMessage(prepared)
+        val specs = CaseArguments.specPool(prepared.parameters)
+        var drawn = 0
+        var spec = specs.firstOrNull()
+        return Invocation(
+            setUp = { if (specs.isNotEmpty()) spec = specs[drawn++ % specs.size] },
+            perIteration = {
+                val current = spec
+                if (current == null) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, current)
+                cipher.doFinal(message)
+            },
+        )
     }
 }

@@ -7,6 +7,7 @@
 - Read `effective.yaml` in order: the file, then the global settings, then the primitives.
 - Read the capture and trial for what the device serves, and reject what it cannot run by name.
 - Build each case's key, input and parameters, and call every case once to prove it runs.
+- Hand the harness that same call: `Invocations.of(prepared)` is what the timer wraps.
 
   1. For more information, refer to <prepare.md>.
 
@@ -78,6 +79,8 @@
       - `EncryptDefinition.kt`
       - `GenerateKeyDefinition.kt`
       - `GenerateKeyPairDefinition.kt`
+      - `Invocation.kt`
+      - `Invocations.kt`
       - `KeyShape.kt`
       - `OperationDefinition.kt`
       - `OperationDefinitions.kt`
@@ -126,6 +129,7 @@
     - `ExampleFilesTest.kt`
     - `GlobalReaderTest.kt`
     - `InboundFileTest.kt`
+    - `InvocationTest.kt`
     - `KeyAlgorithmNameTest.kt`
     - `KeyMaterialGeneratorTest.kt`
     - `KeyPlannerTest.kt`
