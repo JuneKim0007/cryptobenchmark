@@ -108,9 +108,15 @@
 ## Example
 
 `example/` is one small device in the two files this module writes; `ExampleFilesTest` round-trips them.
-Runnable over a live JVM from `tools/jca-contract`: `examples.TreeKt` (writes `docs/tree.md`) and
-`examples.ReportKt` (every `CaptureQuery` and `TrialQuery` question).
+Runnable over a live JVM from `tools/jca-contract`:
+
+| Main class | Prints |
+|---|---|
+| `examples.TreeKt` | `docs/tree.md` |
+| `examples.ReportKt` | every `CaptureQuery` and `TrialQuery` question |
+| `examples.ParametersKt` | every `AlgorithmParameterSpec` this runtime has, and one class's constructors as a `parameters:` block to paste into a test set |
 
 ```
 ./gradlew run -q -PmainClass=examples.ReportKt --args="Cipher AES SunJCE"
+./gradlew run -q -PmainClass=examples.ParametersKt --args="javax.crypto.spec.GCMParameterSpec"
 ```
