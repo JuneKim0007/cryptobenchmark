@@ -22,7 +22,7 @@ overrides:
   - match: {type: Cipher, name: ChaCha20}
     set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}
   - match: {type: Cipher, name: "RSA/*"}
-    set: {keySizes: [2048], inputSizes: [32]}
+    set: {keySizes: [2048], inputSizes: [32], harness: {iterations: 5}}
   - match: {type: Signature, name: SHA256withRSA}
     set: {keySizes: [2048]}
   - match: {type: Signature, name: SHA256withECDSA}

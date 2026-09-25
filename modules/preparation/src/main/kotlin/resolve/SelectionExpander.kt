@@ -27,6 +27,7 @@ internal object SelectionExpander {
                                 phase = phase,
                                 metrics = global.metrics,
                                 seed = global.seed,
+                                harness = global.harness.mergedWith(selection.harness),
                                 keyParameters = selection.keyParameters,
                                 parameters = selection.parameters,
                             )

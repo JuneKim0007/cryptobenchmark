@@ -38,10 +38,12 @@
         - `Skip.kt`
     - `global/`
       - `GlobalDocument.kt`
+      - `HarnessDocument.kt`
       - `PolicyDocument.kt`
       - `RunDocument.kt`
       - `dto/`
         - `GlobalConfig.kt`
+        - `HarnessSettings.kt`
         - `Policy.kt`
         - `RunSettings.kt`
         - `Selection.kt`

@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.measurement
 
+import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+
 data class BenchmarkCase(
     val type: String,
     val algorithm: String,
@@ -13,6 +15,7 @@ data class BenchmarkCase(
     val keyParameters: Map<String, Any> = emptyMap(),
     val parameters: Map<String, Any> = emptyMap(),
     val group: String = "",
+    val harness: HarnessSettings = HarnessSettings(),
 ) {
 
     init {

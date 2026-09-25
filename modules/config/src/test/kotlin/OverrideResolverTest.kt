@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
@@ -73,5 +74,23 @@ class OverrideResolverTest {
         assertEquals(listOf(256), resolver.resolve(entry, null).keySizes)
         assertEquals(listOf(256), resolver.resolve(entry, "p256").keySizes)
         assertEquals(listOf(384), resolver.resolve(entry, "p384").keySizes)
+    }
+
+    /**
+     * Harness settings merge field by field, unlike a list, which replaces: naming the iterations a
+     * slow primitive needs must not silently drop the profiling every case was asked to run under.
+     */
+    @Test
+    fun aNarrowerRuleChangesOnlyTheHarnessFieldsItNames() {
+        val resolver = OverrideResolver(listOf(
+            Override(Rule(type = "Cipher"), harness = HarnessSettings(iterations = 50, profiling = "MethodTracing")),
+            Override(Rule(type = "Cipher", name = "AES/*"), harness = HarnessSettings(iterations = 5)),
+        ))
+        assertEquals(HarnessSettings(iterations = 5, profiling = "MethodTracing"), resolver.resolve(gcm, null).harness)
+    }
+
+    @Test
+    fun anEntryNamingNoHarnessLeavesItToTheGlobalSettings() {
+        assertEquals(HarnessSettings(), OverrideResolver(listOf(Override(Rule(type = "Cipher"), keySizes = listOf(128)))).resolve(gcm, null).harness)
     }
 }

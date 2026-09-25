@@ -10,6 +10,7 @@ data class GlobalSettings(
     val processRepetitions: Int,
     val seed: Long,
     val onFailure: OnFailure,
+    val harness: HarnessSettings = HarnessSettings(),
 ) {
 
     init {

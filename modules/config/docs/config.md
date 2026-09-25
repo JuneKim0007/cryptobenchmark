@@ -33,6 +33,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` (rooted device) |
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
+| | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default |
 | `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
 
 ## testsets/*.yaml
@@ -42,10 +43,12 @@ One section per feature, one owner each; an unknown section or key is an error.
 | `description` | free text |
 | `include` | rules; empty = every primitive the inventory can run |
 | `exclude` | rules |
-| `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?, operations?}}` |
+| `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?, operations?, harness?}}` |
 
 Rule: `{provider?, type?, name?, group?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
 Override precedence, lowest first: type → name pattern → exact name → provider → group. Ties: file order. Lists replace.
+`harness` merges field by field, so a narrow rule naming `iterations` keeps the `profiling` a broad one set; every other key replaces.
+An entry carries only the harness fields that differ from `run.harness`; the rest stay in `run`.
 
 ## Groups
 
@@ -111,7 +114,8 @@ Every run default in the pipeline lives here; preparation has none of its own.
 
 | Value | Where | Default |
 |---|---|---|
-| `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0` |
+| `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0`, `harness {}` |
+| harness values a missing field leaves to the timer | `HarnessSettings` | `iterations`, `warmupIterations`, `profiling` all unset |
 | failure policy default | `Policy` | `skip` |
 
 ## Classes
@@ -122,8 +126,8 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `CaptureSource`, `TrialSource`, `CaptureView`, `TrialView` | `source` | discovery's two files read as views; no discovery class is imported |
 | `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
 | `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
-| `GlobalDocument`, `RunDocument`, `PolicyDocument` | `global` | `global.yaml` schema, one reader per section |
-| `GlobalConfig`, `Selection`, `RunSettings`, `Policy` | `global/dto` | the global settings |
+| `GlobalDocument`, `RunDocument`, `PolicyDocument`, `HarnessDocument` | `global` | `global.yaml` schema, one reader per section |
+| `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `HarnessSettings` | `global/dto` | the global settings |
 | `TestSetDocument`, `RuleDocument` | `testset` | test-set schema |
 | `TestSet`, `Rule`, `Override` | `testset/dto` | the test set |
 | `EffectiveBuilder`, `OverrideResolver`, `LocatedMatch` | `effective` | include → exclude → overrides → policy |

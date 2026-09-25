@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.choice
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.numbers
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.strings
 
@@ -18,5 +19,6 @@ object GlobalReader {
         processRepetitions = number(inbound.run, "processRepetitions").toInt(),
         seed = number(inbound.run, "seed").toLong(),
         onFailure = choice<OnFailure>("onFailure", string(inbound.policy, "onFailure")),
+        harness = HarnessReader.read(optionalSection(inbound.run, "harness"), "run.harness"),
     )
 }

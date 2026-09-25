@@ -44,6 +44,8 @@
     - `global/`
       - `GlobalReader.kt`
       - `GlobalSettings.kt`
+      - `HarnessReader.kt`
+      - `HarnessSettings.kt`
       - `OnFailure.kt`
     - `inbound/`
       - `InboundDocument.kt`

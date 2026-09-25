@@ -10,6 +10,10 @@ run:
   metrics: [TIME]
   processRepetitions: 1
   seed: 0
+  harness:                       # the run's defaults; an entry states only what differs
+    iterations: 50               # androidx.benchmark.iterations
+    warmupIterations: null       # null leaves warmup to the harness
+    profiling: none              # none | MethodTracing | StackSampling
 
 policy:
   onFailure: skip                # stop | skip — every stage; a broken config file always stops

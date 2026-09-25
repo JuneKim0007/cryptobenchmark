@@ -1,10 +1,12 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
+import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.primitive.PrimitiveReader
 import io.github.junekim0007.cryptobench.preparation.request.Selection
+import io.github.junekim0007.cryptobench.preparation.resolve.SelectionExpander
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -62,5 +64,25 @@ class PrimitiveReaderTest {
         val rsa = selections.single { it.algorithm == "RSA" }
         assertEquals("oaep256", rsa.group)
         assertEquals("", selections.single { it.algorithm == "SHA-256" }.group)
+    }
+
+    /**
+     * A setting a run shares lives in one place: an entry states only what differs, so changing the
+     * global iterations does not mean editing every entry that never asked for its own.
+     */
+    @Test
+    fun anEntryStatesOnlyTheHarnessSettingsThatDifferFromTheGlobalOnes() {
+        val text = EffectiveFixture.TEXT
+            .replace("  seed: 0\n", "  seed: 0\n  harness: {iterations: 50, profiling: MethodTracing}\n")
+            .replace("      SHA-256: {}", "      SHA-256: {harness: {iterations: 5}}")
+        val inbound = InboundFile.read("effective.yaml", text)
+        val global = GlobalReader.read(inbound)
+        assertEquals(HarnessSettings(iterations = 50, profiling = "MethodTracing"), global.harness)
+        val selections = PrimitiveReader.read(inbound, global)
+        val digest = selections.single { it.algorithm == "SHA-256" }
+        assertEquals(HarnessSettings(iterations = 5), digest.harness)
+        assertEquals(HarnessSettings(), selections.single { it.algorithm == "RSA" }.harness)
+        val cases = SelectionExpander.expand(global, digest, listOf("SUN"), listOf(Operation.DIGEST))
+        assertEquals(HarnessSettings(iterations = 5, profiling = "MethodTracing"), cases.first().harness)
     }
 }

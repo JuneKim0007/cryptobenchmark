@@ -38,6 +38,11 @@ internal object DocumentFields {
     fun optionalSections(document: Map<String, Any>, key: String): List<Map<String, Any>> =
         if (document[key] == null) emptyList() else sections(document, key)
 
+    fun expectKeys(document: Map<String, Any>, known: List<String>, path: String) {
+        val unknown = document.keys.filterNot { it in known }
+        require(unknown.isEmpty()) { "unknown_field: $unknown at $path, known $known" }
+    }
+
     fun asSection(value: Any, key: String): Map<String, Any> {
         @Suppress("UNCHECKED_CAST")
         return value as? Map<String, Any> ?: wrongType(key)

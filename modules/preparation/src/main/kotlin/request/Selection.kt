@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.request
 
+import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 
 data class Selection(
@@ -12,6 +13,7 @@ data class Selection(
     val parameters: Map<String, Any> = emptyMap(),
     val operations: Set<Operation> = emptySet(),
     val group: String = "",
+    val harness: HarnessSettings = HarnessSettings(),
 ) {
 
     init {

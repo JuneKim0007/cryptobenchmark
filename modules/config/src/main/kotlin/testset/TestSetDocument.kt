@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.testset
 
+import io.github.junekim0007.cryptobench.config.global.HarnessDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
@@ -27,6 +28,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
     private const val KEY = "key"
     private const val PARAMETERS = "parameters"
     private const val OPERATIONS = "operations"
+    private const val HARNESS = "harness"
 
     override fun of(value: TestSet): Map<String, Any> = linkedMapOf(
         DESCRIPTION to value.description,
@@ -39,6 +41,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
                 override.key?.let { put(KEY, LinkedHashMap(it)) }
                 override.parameters?.let { put(PARAMETERS, LinkedHashMap(it)) }
                 override.operations?.let { put(OPERATIONS, it) }
+                override.harness?.let { put(HARNESS, HarnessDocument.of(it)) }
             })
         },
     )
@@ -56,7 +59,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
     private fun override(document: Map<String, Any>, path: String): Override {
         expectKeys(document, listOf(MATCH, SET), path)
         val set = section(document, SET)
-        expectKeys(set, listOf(KEY_SIZES, INPUT_SIZES, KEY, PARAMETERS, OPERATIONS), "$path.$SET")
+        expectKeys(set, listOf(KEY_SIZES, INPUT_SIZES, KEY, PARAMETERS, OPERATIONS, HARNESS), "$path.$SET")
         return Override(
             match = RuleDocument.parse(section(document, MATCH), "$path.$MATCH"),
             keySizes = optionalNumbersOrNull(set, KEY_SIZES),
@@ -64,6 +67,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
             key = optionalSection(set, KEY),
             parameters = optionalSection(set, PARAMETERS),
             operations = optional(set, OPERATIONS, null, ::strings),
+            harness = optionalSection(set, HARNESS)?.let { HarnessDocument.parse(it, "$path.$SET.$HARNESS") },
         )
     }
 }
