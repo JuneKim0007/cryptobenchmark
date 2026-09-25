@@ -36,6 +36,7 @@ subprojects {
     tasks.withType<Test>().configureEach {
         workingDir = moduleDirectory
         systemProperty("capture.dir", layout.buildDirectory.dir("capture").get().asFile.path)
+        System.getProperty("examples.update")?.let { systemProperty("examples.update", it) }
         testLogging { showStandardStreams = true }
     }
 }

@@ -1,0 +1,90 @@
+schemaVersion: 1
+generatedFrom: {effective: preparation_effective_example.yaml}
+run: {seed: 42, processRepetitions: 1}
+cases:
+- id: MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM
+  type: MessageDigest
+  algorithm: SHA-256
+  provider: SUN
+  operation: DIGEST
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  key: {kind: none}
+  input: {kind: message, bytes: 1024}
+  fingerprint: 4cf5f521
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: ENCRYPT
+  keySize: 128
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 128, encodedBytes: 16}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: message, bytes: 1024}
+  fingerprint: 0f27b659
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: ENCRYPT
+  keySize: 256
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 256, encodedBytes: 32}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: message, bytes: 1024}
+  fingerprint: bc5d4e3b
+- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: DECRYPT
+  keySize: 128
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 128, encodedBytes: 16}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
+  fingerprint: e211cf8f
+- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: DECRYPT
+  keySize: 256
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 256, encodedBytes: 32}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
+  fingerprint: 9cee7a34
+- id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM
+  type: Mac
+  algorithm: HmacSHA256
+  provider: SunJCE
+  operation: COMPUTE_MAC
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  key: {kind: secret, algorithm: HmacSHA256, provider: SunJCE, encodedBytes: 32}
+  input: {kind: message, bytes: 1024}
+  fingerprint: 0d4d5381

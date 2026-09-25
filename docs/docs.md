@@ -39,7 +39,7 @@
 - `results/` : run output, ignored
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`
   - `configuration/` : `inventory.yaml`, `effective.yaml`
-  - `preparation/` : `skipped.yaml`
+  - `preparation/` : `prepared.yaml`, `skipped.yaml`
   - `benchmark/`, `analysis/` : quick-bench output; Jetpack output lands here with #33
 
 Each module's own README lists its files and responsibilities.

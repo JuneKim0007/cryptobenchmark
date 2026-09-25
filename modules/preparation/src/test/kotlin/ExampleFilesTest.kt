@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
+import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -24,7 +25,8 @@ class ExampleFilesTest {
     @Test
     fun theExampleEffectivePreparesEveryCase() {
         val report = SkipFile(output.root)
-        val run = Preparation(capability, report).prepare(File(example, "preparation_effective_example.yaml"))
+        val record = PreparedFile(output.root)
+        val run = Preparation(capability, report, record).prepare(File(example, "preparation_effective_example.yaml"))
 
         assertEquals(emptyList<String>(), run.skipped.map { it.toString() })
         assertEquals(
@@ -39,6 +41,7 @@ class ExampleFilesTest {
             run.cases.map { it.case.id }.sorted(),
         )
         assertExample("preparation_skipped_example.yaml", report.file)
+        assertExample("preparation_prepared_example.yaml", record.file)
     }
 
     @Test

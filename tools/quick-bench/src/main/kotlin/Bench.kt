@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
 
@@ -16,7 +17,8 @@ fun main(arguments: Array<String>) {
     val codec = YamlCodec()
     val capture = CaptureDocument.parse(codec.load(File(arguments[0]).readText()))
     val outputDirectory = File(arguments[3]).apply { mkdirs() }
-    val run = Preparation(DiscoveryCapability(File(arguments[0]), File(arguments[1])), SkipFile(outputDirectory)).prepare(File(arguments[2]))
+    val preparationDirectory = File(arguments[4]).apply { mkdirs() }
+    val run = Preparation(DiscoveryCapability(File(arguments[0]), File(arguments[1])), SkipFile(preparationDirectory), PreparedFile(preparationDirectory)).prepare(File(arguments[2]))
     System.err.println("prepared=${run.cases.size} skipped=${run.skipped.size}")
 
     val results = StringBuilder("{\n  \"runtime\": {\"javaVersion\": \"${capture.runtime.javaVersion}\", \"defaultKeySizeProperty\": \"${capture.runtime.defaultKeySizeProperty}\"},\n  \"cases\": [\n")

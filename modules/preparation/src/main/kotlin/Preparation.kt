@@ -19,12 +19,14 @@ import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.primitive.PrimitiveReader
+import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import java.io.File
 
 class Preparation(
     capability: DeviceCapability,
     private val report: SkipFile,
+    private val record: PreparedFile,
     engineTypes: EngineTypes = EngineTypes.standard(),
     private val resolver: CaseResolver = CaseResolver(capability, engineTypes),
     private val planner: KeyPlanner = KeyPlanner(capability),
@@ -73,7 +75,9 @@ class Preparation(
             throw StoppedOnFailureException(skipped)
         }
         require(prepared.isNotEmpty()) { "nothing_prepared: every case was skipped, see ${report.file}" }
-        return PreparedRun(prepared, skipped, global.processRepetitions)
+        val run = PreparedRun(prepared, skipped, global.processRepetitions)
+        record.write(run, inbound.fileName, global.harness, global.seed)
+        return run
     }
 
     private fun bound(tree: Map<String, Any>, path: String) =

@@ -1,6 +1,6 @@
 # prepare
 
-`effective.yaml` → prepared cases. Nothing here runs inside a measurement.
+`effective.yaml` → prepared cases, and `prepared.yaml` describing them. Nothing here runs inside a measurement.
 
 ## Flow
 
@@ -10,6 +10,8 @@ effective.yaml ─► InboundFile ─► GlobalReader ─► PrimitiveReader ─
 probe_<utc>.yaml, trial_<utc>.yaml ─► CaptureFile, TrialFile ─► DiscoveryCapability ─► CaseResolver ─► cases + rejections
                                                                         │
                    KeyPlanner ─► KeyMaterialGenerator ─► OperationDefinition: input, then the invocation ─► PreparedRun
+                                                                        │
+                                                            PreparedFile ─► prepared.yaml
 ```
 
 Each stage takes the previous stage's value, so the order is checked by the compiler.
@@ -61,9 +63,30 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 
 `policy.onFailure` decides: `skip` records each in `results/preparation/skipped.yaml`, `stop` writes the report and exits.
 
+## prepared.yaml
+
+The run as built, for reading and for the harness to check itself against. One file per run,
+always overwritten.
+
+| Key | Holds |
+|---|---|
+| `generatedFrom.effective` | the file this run was read from |
+| `run` | `seed`, `processRepetitions`, `harness` — the run's defaults |
+| `cases[].id` … `metrics` | the case, as the case id spells it |
+| `cases[].harness` | global merged with the entry's: what the timer is told for this case |
+| `cases[].key` | `kind` (`none`, `secret`, `pair`), the recipe, and the built key's `encodedBytes` or `pairs` |
+| `cases[].keyParameters`, `parameters` | the spec trees that reached the generator and the call |
+| `cases[].specPerIteration` | present when a `fresh(n)` spec is drawn before every iteration |
+| `cases[].input` | `kind` (`none`, `message`, `ciphertext`, `signedMessage`) and its sizes |
+| `cases[].fingerprint` | SHA-256 of the case block, first 8 hex: a harness that resolved something else can see it |
+
+No key material and no input bytes: both are reproducible from `seed` and the recipe, and a
+benchmark file on a device is not a place for keys.
+
 ## Limits
 
 - one call per case proves it runs; it says nothing about timing
+- `prepared.yaml` is a record of what was built, not an input: nothing reads it back to rebuild a case
 - the harness gets the same `Invocation`, so what is proved is what is measured
 - keys are reused across cases with the same recipe
 - `fresh(n)` specs must be drawn before the timer; `BoundParameters.varies` says when
@@ -110,4 +133,5 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `CaseArguments` | `operation` | the message, secret key or key pair a prepared case carries |
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |
 | `Skip`, `SkipFile` | `report` | `skipped.yaml` |
+| `PreparedFile`, `PreparedDocument`, `Fingerprint` | `record` | `prepared.yaml`, written from the cases that were built |
 | `DocumentFields`, `YamlCodec` | `shared` | typed reads, YAML text |
