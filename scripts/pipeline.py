@@ -111,9 +111,10 @@ def main():
         return
     capture = max(discovery.glob("probe_2*.yaml"), key=lambda p: p.name)
     trial = max(discovery.glob("trial_*.yaml"), key=lambda p: p.name)
-    benchmark = results / "benchmark"
+    benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
-    gradle("quick-bench", f"{capture} {trial} {effective} {benchmark}", options.stacktrace, options.stream)
+    gradle("quick-bench", f"{capture} {trial} {effective} {benchmark} {preparation}", options.stacktrace, options.stream)
+    print(f"wrote:     {preparation / 'prepared.yaml'}")
     print(f"wrote:     {benchmark / 'benchmark.json'}")
     elapsed("prepare and measure", started)
     analysis = results / "analysis"

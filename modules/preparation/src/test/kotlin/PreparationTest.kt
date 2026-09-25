@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
@@ -52,7 +53,7 @@ skipped: []
 """.trimIndent())
     }
 
-    private val preparation = Preparation(device, SkipFile(File(directory, "preparation")))
+    private val preparation = Preparation(device, SkipFile(File(directory, "preparation")), PreparedFile(File(directory, "preparation")))
 
     @Test
     fun skipPreparesWhatItCanAndRecordsTheRest() {

@@ -16,3 +16,10 @@ dependencies {
     implementation 'org.yaml:snakeyaml:2.3'
     testImplementation 'junit:junit:4.13.2'
 }
+
+tasks.withType(Test).configureEach {
+    def update = System.getProperty('examples.update')
+    if (update != null) {
+        systemProperty 'examples.update', update
+    }
+}

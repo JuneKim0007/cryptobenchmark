@@ -8,6 +8,7 @@
 - Read the capture and trial for what the device serves, and reject what it cannot run by name.
 - Build each case's key, input and parameters, and call every case once to prove it runs.
 - Hand the harness that same call: `Invocations.of(prepared)` is what the timer wraps.
+- Write `prepared.yaml`: every case as built, for reading and for the harness to check itself against.
 
   1. For more information, refer to <prepare.md>.
 
@@ -21,6 +22,7 @@
   - `example/`
     - `preparation_capture_example.yaml`
     - `preparation_effective_example.yaml`
+    - `preparation_prepared_example.yaml`
     - `preparation_skipped_example.yaml`
     - `preparation_trial_example.yaml`
   - `src/main/kotlin/`
@@ -106,6 +108,10 @@
       - `StoppedOnFailureException.kt`
     - `primitive/`
       - `PrimitiveReader.kt`
+    - `record/`
+      - `Fingerprint.kt`
+      - `PreparedDocument.kt`
+      - `PreparedFile.kt`
     - `report/`
       - `Skip.kt`
       - `SkipFile.kt`
@@ -138,6 +144,7 @@
     - `OperationInputTest.kt`
     - `ParameterBinderTest.kt`
     - `PreparationTest.kt`
+    - `PreparedFileTest.kt`
     - `PrimitiveReaderTest.kt`
 
 ## Limitations
@@ -148,5 +155,6 @@
 
 ## Example
 
-`example/` is one small device: capture, trial and effective in; skipped out.
-`ExampleFilesTest` prepares every case against the running JVM and compares `skipped` with the committed file.
+`example/` is one small device: capture, trial and effective in; prepared and skipped out.
+`ExampleFilesTest` prepares every case against the running JVM and compares both outputs with the committed files.
+Regenerate them with `./gradlew :preparation:test -Dexamples.update`.
