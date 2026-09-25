@@ -17,5 +17,5 @@ internal object TypeDefaultDefinition : OperationDefinition {
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
         OperationInput.Message(CaseArguments.seededMessage(case))
 
-    override fun check(prepared: PreparedCase) = Unit
+    override fun invocation(prepared: PreparedCase): Invocation = Invocation(perIteration = { null })
 }

@@ -29,10 +29,13 @@ internal object DecryptDefinition : OperationDefinition {
         return input
     }
 
-    override fun check(prepared: PreparedCase) {
+    override fun invocation(prepared: PreparedCase): Invocation {
         val input = prepared.input as? OperationInput.Ciphertext ?: throw IllegalArgumentException("decrypt_without_ciphertext")
         val cipher = CaseEngines.cipher(prepared.case)
-        input.initDecrypting(cipher, CipherKeys.decrypting(prepared.key))
-        check(cipher.doFinal(input.bytes).size == input.plaintextSize) { "decrypt_size_mismatch" }
+        val key = CipherKeys.decrypting(prepared.key)
+        return Invocation(perIteration = {
+            input.initDecrypting(cipher, key)
+            cipher.doFinal(input.bytes)
+        })
     }
 }

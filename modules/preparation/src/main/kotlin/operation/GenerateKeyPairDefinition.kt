@@ -17,13 +17,13 @@ internal object GenerateKeyPairDefinition : OperationDefinition {
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput = OperationInput.None
 
-    override fun check(prepared: PreparedCase) {
+    override fun invocation(prepared: PreparedCase): Invocation {
         val generator = KeyPairGenerator.getInstance(prepared.case.algorithm, prepared.case.provider)
         val spec = prepared.keyParameters?.next()
         when {
             spec != null -> generator.initialize(spec)
             prepared.case.keySize != null -> generator.initialize(prepared.case.keySize)
         }
-        generator.generateKeyPair()
+        return Invocation(perIteration = { generator.generateKeyPair() })
     }
 }

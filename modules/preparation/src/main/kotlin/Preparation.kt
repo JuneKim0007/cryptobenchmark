@@ -61,7 +61,7 @@ class Preparation(
                 continue
             }
             val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
-            val failure = runCatching { definition.check(candidate) }.exceptionOrNull()
+            val failure = runCatching { definition.invocation(candidate).once() }.exceptionOrNull()
             if (failure != null) {
                 skipped += skip(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}")
                 continue

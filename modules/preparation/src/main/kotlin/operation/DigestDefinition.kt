@@ -18,7 +18,9 @@ internal object DigestDefinition : OperationDefinition {
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
         OperationInput.Message(CaseArguments.seededMessage(case))
 
-    override fun check(prepared: PreparedCase) {
-        MessageDigest.getInstance(prepared.case.algorithm, prepared.case.provider).digest(CaseArguments.preparedMessage(prepared))
+    override fun invocation(prepared: PreparedCase): Invocation {
+        val digest = MessageDigest.getInstance(prepared.case.algorithm, prepared.case.provider)
+        val message = CaseArguments.preparedMessage(prepared)
+        return Invocation(perIteration = { digest.digest(message) })
     }
 }

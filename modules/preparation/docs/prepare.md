@@ -9,7 +9,7 @@ effective.yaml ─► InboundFile ─► GlobalReader ─► PrimitiveReader ─
                                                                         │
 probe_<utc>.yaml, trial_<utc>.yaml ─► CaptureFile, TrialFile ─► DiscoveryCapability ─► CaseResolver ─► cases + rejections
                                                                         │
-                   KeyPlanner ─► KeyMaterialGenerator ─► OperationDefinition: input, then one call ─► PreparedRun
+                   KeyPlanner ─► KeyMaterialGenerator ─► OperationDefinition: input, then the invocation ─► PreparedRun
 ```
 
 Each stage takes the previous stage's value, so the order is checked by the compiler.
@@ -56,13 +56,14 @@ Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be nam
 | `provider_not_installed`, `not_registered`, `transformation_fails`, `not_tried` | resolve |
 | `bind_failed: <path>`, `key_parameters_and_key_sizes`, `unsupported_operation`, `unused_setting` | resolve |
 | `no_key_generator`, `key_generation_failed` | key |
-| `input_preparation_failed`, `dry_run_failed` | input, check |
+| `input_preparation_failed`, `dry_run_failed` | input, invocation |
 
 `policy.onFailure` decides: `skip` records each in `results/preparation/skipped.yaml`, `stop` writes the report and exits.
 
 ## Limits
 
 - one call per case proves it runs; it says nothing about timing
+- the harness gets the same `Invocation`, so what is proved is what is measured
 - keys are reused across cases with the same recipe
 - `fresh(n)` specs must be drawn before the timer; `BoundParameters.varies` says when
 - `KeyInitializer` has one implementation on the host; the per-provider slot is for AndroidKeyStore
@@ -101,7 +102,8 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded bytes, the input a case carries, the key a cipher takes |
 | `EngineTypes` | `engine` | which operations an engine type has, and one fallback |
 | `CaseEngines` | `engine` | the `Cipher` and `Signature` for a case |
-| `OperationDefinition`, `OperationDefinitions`, `KeyShape` | `operation` | what each operation consumes (key, key size, input) and the one call that proves it runs |
+| `OperationDefinition`, `OperationDefinitions`, `KeyShape` | `operation` | what each operation consumes (key, key size, input), and the call it builds |
+| `Invocation`, `Invocations` | `operation` | `setUp` and `perIteration` for one case: called once here, timed by the harness |
 | `EncryptDefinition` … `TypeDefaultDefinition` | `operation` | one definition per operation |
 | `CaseArguments` | `operation` | the message, secret key or key pair a prepared case carries |
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |
