@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.withPathInFailure
 
 object RuleDocument {
 
@@ -22,10 +23,8 @@ object RuleDocument {
     fun parse(value: Any, path: String): Rule {
         val document = asSection(value, path)
         expectKeys(document, listOf(PROVIDER, TYPE, NAME, GROUP), path)
-        return try {
+        return withPathInFailure(path) {
             Rule(optionalStringOrNull(document, PROVIDER), optionalStringOrNull(document, TYPE), optionalStringOrNull(document, NAME), optionalStringOrNull(document, GROUP))
-        } catch (failure: IllegalArgumentException) {
-            throw IllegalArgumentException("${failure.message} at $path", failure)
         }
     }
 

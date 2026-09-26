@@ -9,47 +9,38 @@ import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optio
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.sections
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.string
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
-import org.yaml.snakeyaml.error.YAMLException
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
 object TrialFile {
 
     const val SUPPORTED_SCHEMA_VERSION = 2
 
-    fun read(file: File): TrialledDevice {
-        require(file.isFile) { "missing_file: ${file.path}" }
-        return read(file.name, file.readText())
-    }
+    private const val SCHEMA_NAME = "trial"
 
-    fun read(fileName: String, text: String): TrialledDevice {
-        val document = try {
-            YamlCodec().load(text)
-        } catch (failure: YAMLException) {
-            throw IllegalArgumentException("unreadable_yaml: $fileName: ${failure.message}", failure)
-        }
-        val schemaVersion = number(document, "schemaVersion").toInt()
-        require(schemaVersion == SUPPORTED_SCHEMA_VERSION) {
-            "unsupported_trial_schema: $fileName: $schemaVersion, this build reads $SUPPORTED_SCHEMA_VERSION"
-        }
-        return TrialledDevice(
-            capturedAtMillis = number(document, "capturedAtMillis").toLong(),
-            services = sections(document, "services").map { service ->
-                TrialledService(
-                    provider = string(service, "provider"),
-                    type = string(service, "type"),
-                    algorithm = string(service, "algorithm"),
-                    instantiates = boolean(service, "instantiates"),
-                    error = optionalString(service, "error"),
-                    transformations = optionalSections(service, "transformations").map { transformation ->
-                        TrialledTransformation(
-                            name = string(transformation, "name"),
-                            instantiates = boolean(transformation, "instantiates"),
-                            error = optionalString(transformation, "error"),
-                        )
-                    },
-                )
-            },
-        )
-    }
+    fun read(file: File): TrialledDevice =
+        device(DocumentFile.read(file, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+
+    fun read(fileName: String, text: String): TrialledDevice =
+        device(DocumentFile.read(fileName, text, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+
+    private fun device(document: Map<String, Any>): TrialledDevice = TrialledDevice(
+        capturedAtMillis = number(document, "capturedAtMillis").toLong(),
+        services = sections(document, "services").map { service ->
+            TrialledService(
+                provider = string(service, "provider"),
+                type = string(service, "type"),
+                algorithm = string(service, "algorithm"),
+                instantiates = boolean(service, "instantiates"),
+                error = optionalString(service, "error"),
+                transformations = optionalSections(service, "transformations").map { transformation ->
+                    TrialledTransformation(
+                        name = string(transformation, "name"),
+                        instantiates = boolean(transformation, "instantiates"),
+                        error = optionalString(transformation, "error"),
+                    )
+                },
+            )
+        },
+    )
 }

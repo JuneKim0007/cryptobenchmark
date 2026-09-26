@@ -103,10 +103,11 @@ device's own. The capture and trial must come from that same device.
 | `RefusedPlanException` | root | the default when refusals are not handled |
 | `PlanCheck`, `Refusal` | `check` | what this device will not run, by name |
 | `HostHarness`, `CaseMeasurement`, `BlackHole` | `run` | the host loop, one case's samples, the sink |
-| `BenchmarkJson` | `report` | `benchmark.json` for `tools/quick-bench/analyze.py` |
+| `BenchmarkJson`, `ResultRow` | `report` | `benchmark.json` for `tools/quick-bench/analyze.py`, and one case in it |
+| `JetpackResults`, `Merge` | `report` | `benchmarkData.json` converted, one file per process joined |
+| `CaseDocument` | `report` | the one reader both use: mapping, case list, samples, row |
 
 ## Limits
 
 - The host loop locks no clocks and reads no thermal state: a host number is a shape, not a device number.
-- Jetpack writes `benchmarkData.json`; converting it into `benchmark.json` for the analysis is not done yet.
 - `processRepetitions` is the runner's job: one process per repetition, not a loop in here.

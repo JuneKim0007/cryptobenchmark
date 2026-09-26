@@ -14,7 +14,12 @@ class CaseMeasurement(
         require(nanosPerOperation.isNotEmpty()) { "missing_field: nanosPerOperation" }
     }
 
-    val medianNanos: Long get() = nanosPerOperation.sorted()[nanosPerOperation.size / 2]
+    val medianNanos: Long
+        get() {
+            val sorted = nanosPerOperation.sorted()
+            val middle = sorted.size / 2
+            return if (sorted.size % 2 == 1) sorted[middle] else (sorted[middle - 1] + sorted[middle]) / 2
+        }
 
     fun row(): ResultRow = ResultRow(
         id = case.id,

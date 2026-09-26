@@ -41,7 +41,6 @@
         - `TrialledService.kt`
         - `TrialledTransformation.kt`
     - `engine/`
-      - `CaseEngines.kt`
       - `EngineTypes.kt`
     - `global/`
       - `GlobalReader.kt`
@@ -126,6 +125,7 @@
       - `SelectionExpander.kt`
     - `shared/`
       - `DocumentFields.kt`
+      - `DocumentFile.kt`
       - `YamlCodec.kt`
   - `src/test/kotlin/`
     - `BenchmarkCaseTest.kt`

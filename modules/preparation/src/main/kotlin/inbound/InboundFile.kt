@@ -1,30 +1,21 @@
 package io.github.junekim0007.cryptobench.preparation.inbound
 
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.section
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
-import org.yaml.snakeyaml.error.YAMLException
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
 object InboundFile {
 
     const val SUPPORTED_SCHEMA_VERSION = 1
 
-    fun read(file: File): InboundDocument {
-        require(file.isFile) { "missing_file: ${file.path}" }
-        return read(file.name, file.readText())
-    }
+    private const val SCHEMA_NAME = "config"
 
-    fun read(fileName: String, text: String): InboundDocument {
-        val document = try {
-            YamlCodec().load(text)
-        } catch (failure: YAMLException) {
-            throw IllegalArgumentException("unreadable_yaml: $fileName: ${failure.message}", failure)
-        }
-        val schemaVersion = number(document, "schemaVersion").toInt()
-        require(schemaVersion == SUPPORTED_SCHEMA_VERSION) {
-            "unsupported_config_schema: $fileName: $schemaVersion, this build reads $SUPPORTED_SCHEMA_VERSION"
-        }
-        return InboundDocument(fileName, section(document, "run"), section(document, "policy"), section(document, "providers"))
-    }
+    fun read(file: File): InboundDocument =
+        inbound(file.name, DocumentFile.read(file, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+
+    fun read(fileName: String, text: String): InboundDocument =
+        inbound(fileName, DocumentFile.read(fileName, text, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+
+    private fun inbound(fileName: String, document: Map<String, Any>): InboundDocument =
+        InboundDocument(fileName, section(document, "run"), section(document, "policy"), section(document, "providers"))
 }

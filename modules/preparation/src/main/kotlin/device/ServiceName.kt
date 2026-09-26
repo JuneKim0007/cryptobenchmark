@@ -9,6 +9,6 @@ internal data class ServiceName(val type: String, val algorithm: String) {
         fun of(type: String, algorithm: String): ServiceName =
             ServiceName(fold(type), fold(algorithm))
 
-        fun fold(value: String): String = value.uppercase(Locale.ROOT)
+        private fun fold(value: String): String = value.uppercase(Locale.ROOT)
     }
 }

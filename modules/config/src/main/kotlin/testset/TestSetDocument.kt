@@ -12,6 +12,7 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStri
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
+import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
 
 object TestSetDocument : DocumentHandler<TestSet> {
 
@@ -47,7 +48,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
     )
 
     override fun parse(document: Map<String, Any>): TestSet {
-        expectKeys(document, listOf("schemaVersion", DESCRIPTION, INCLUDE, EXCLUDE, OVERRIDES), "testSet")
+        expectKeys(document, listOf(ReadOnlyYamlFile.SCHEMA_VERSION, DESCRIPTION, INCLUDE, EXCLUDE, OVERRIDES), "testSet")
         return TestSet(
             description = optionalString(document, DESCRIPTION),
             include = RuleDocument.parseList(optionalSections(document, INCLUDE), INCLUDE),

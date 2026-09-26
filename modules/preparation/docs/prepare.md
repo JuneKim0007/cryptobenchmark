@@ -126,7 +126,6 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `KeyMaterialGenerator`, `KeyInitializer`, `DefaultKeyInitializer`, `KeyMaterial` | `key/generate` | the key itself, cached per recipe |
 | `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded bytes, the input a case carries, the key a cipher takes |
 | `EngineTypes` | `engine` | which operations an engine type has, and one fallback |
-| `CaseEngines` | `engine` | the `Cipher` and `Signature` for a case |
 | `OperationDefinition`, `OperationDefinitions`, `KeyShape` | `operation` | what each operation consumes (key, key size, input), and the call it builds |
 | `Invocation`, `Invocations` | `operation` | `setUp` and `perIteration` for one case: called once here, timed by the harness |
 | `EncryptDefinition` … `TypeDefaultDefinition` | `operation` | one definition per operation |
@@ -134,4 +133,4 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |
 | `Skip`, `SkipFile` | `report` | `skipped.yaml` |
 | `PreparedFile`, `PreparedDocument`, `Fingerprint` | `record` | `prepared.yaml`, written from the cases that were built |
-| `DocumentFields`, `YamlCodec` | `shared` | typed reads, YAML text |
+| `DocumentFields`, `DocumentFile`, `YamlCodec` | `shared` | typed reads, one YAML file in or out, YAML text |

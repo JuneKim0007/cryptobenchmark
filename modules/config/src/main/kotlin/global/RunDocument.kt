@@ -3,9 +3,9 @@ package io.github.junekim0007.cryptobench.config.global
 import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.numbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
 
@@ -33,8 +33,8 @@ object RunDocument {
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
             phases = optional(document, PHASES, defaults.phases, ::strings),
             metrics = optional(document, METRICS, defaults.metrics, ::strings),
-            processRepetitions = optional(document, PROCESS_REPETITIONS, defaults.processRepetitions) { section, key -> number(section, key).toInt() },
-            seed = optional(document, SEED, defaults.seed) { section, key -> number(section, key).toLong() },
+            processRepetitions = optionalNumber(document, PROCESS_REPETITIONS)?.toInt() ?: defaults.processRepetitions,
+            seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
             harness = optionalSection(document, HARNESS)?.let { HarnessDocument.parse(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )
     }

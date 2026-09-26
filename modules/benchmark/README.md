@@ -29,6 +29,7 @@
       - `Refusal.kt`
     - `report/`
       - `BenchmarkJson.kt`
+      - `CaseDocument.kt`
       - `JetpackResults.kt`
       - `Merge.kt`
       - `ResultRow.kt`
@@ -37,6 +38,8 @@
       - `CaseMeasurement.kt`
       - `HostHarness.kt`
   - `src/test/kotlin/`
+    - `BlackHoleTest.kt`
+    - `CaseDocumentTest.kt`
     - `HostHarnessTest.kt`
     - `JetpackResultsTest.kt`
     - `MergeTest.kt`
