@@ -18,10 +18,11 @@ flowchart LR
 | `:environment:discovery` | lists every provider and service the device registers, and calls each once to see what runs |
 | `:config` | crosses what the device runs with the authored `config/` into `effective.yaml`, the one file a run reads |
 | `:preparation` | turns `effective.yaml` into cases — keys, inputs, parameters — and calls each once before any timer |
-| `:benchmark` | the timed run on the device, Jetpack Microbenchmark *(planned, #33)* |
+| `:benchmark` | refuses a plan this device cannot run, then times each case; Jetpack Microbenchmark on the device |
 
-Modules talk only through YAML files; none imports another. Each is built and tested alone
-against its own `example/` files (`tools/module-isolation`).
+Modules talk only through YAML files; each is built and tested alone against its own `example/`
+files (`tools/module-isolation`). One exception: `:benchmark` is built with `:preparation`,
+because it times the call preparation builds.
 
 ## Scope
 

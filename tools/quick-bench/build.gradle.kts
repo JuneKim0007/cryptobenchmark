@@ -21,6 +21,7 @@ sourceSets {
         kotlin.setSrcDirs(listOf(
             "../../modules/environment/discovery/src/main/kotlin",
             "../../modules/preparation/src/main/kotlin",
+            "../../modules/benchmark/src/main/kotlin",
             "src/main/kotlin",
         ))
     }

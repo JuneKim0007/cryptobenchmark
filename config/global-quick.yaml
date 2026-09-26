@@ -7,6 +7,6 @@ run:
   metrics: [TIME]
   processRepetitions: 1
   seed: 42
-  harness: {iterations: 50, profiling: none}
+  harness: {iterations: 5, profiling: none}
 policy:
   onFailure: skip

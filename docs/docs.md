@@ -10,6 +10,7 @@
 | [cryptography/providers.md](cryptography/providers.md) | per-provider supported and unsupported algorithms |
 | `modules/config/docs/config.md` | authored and generated config files, fields, precedence |
 | `modules/preparation/docs/prepare.md` | `effective.yaml` → cases: axes, parameter trees, failures |
+| `modules/benchmark/docs/measure.md` | cases → measurements: what one sample is, refusals, the device run |
 | `modules/environment/discovery/docs/probe.md` | what `:environment:discovery` does, JCA APIs, limits, classes |
 | `modules/environment/discovery/docs/security_contract.md` | capture and trial field tables |
 | `tools/module-isolation/README.md`, `tools/quick-bench/README.md` | the isolation build; the JVM stand-in harness |
@@ -21,8 +22,9 @@
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin) — what this device offers
   - `modules/config/` : module `:config` (kotlin) — capture × trial × authored config → `effective.yaml`
   - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` + capture + trial → prepared cases
+  - `modules/benchmark/` : module `:benchmark` (kotlin) — prepared cases → measurements; built with `:preparation`
   - `modules/*/example/` : one small device in the files that module reads and writes, `<module>_<responsibility>_example.yaml`
-  - `modules/android/` : module `:android` (application) — app shell; the harness lands here with #33 (Java 8, Gradle 6.5 until then)
+  - `modules/android/` : module `:android` (application) — the instrumentation target; `src/androidTest/` holds the Jetpack harness
   - `gradle.properties` : gradle env + signing
 - `scripts/`
   - `pipeline.py` : the host driver — stages in order, one readable failure; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`, `--stream`
@@ -31,7 +33,7 @@
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles the on-device modules against `android.jar` without the JDK
-  - `quick-bench/` : JVM stand-in harness and analysis, until #33
+  - `quick-bench/` : the host driver for `:benchmark` and the analysis script
   - `module-isolation/` : compiles each module alone and runs it against its `example/` files
 - `docs/`
   - `docs.md` : this file
@@ -40,7 +42,7 @@
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`
   - `configuration/` : `inventory.yaml`, `effective.yaml`
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
-  - `benchmark/`, `analysis/` : quick-bench output; Jetpack output lands here with #33
+  - `benchmark/`, `analysis/` : `benchmark.json` and the summary; Jetpack writes `benchmarkData.json` on the device
 
 Each module's own README lists its files and responsibilities.
 
@@ -49,8 +51,8 @@ Each module's own README lists its files and responsibilities.
 | Module | Language | Inside a measurement |
 |---|---|---|
 | `:preparation` | Kotlin | no — prepares before the timed block |
-| `:benchmark` *(planned)* | Java or Kotlin, after a control measurement | yes — it is the timed run |
-| `:android` | Java | app shell; hosts the harness with #33 |
+| `:benchmark` | Kotlin | yes — it is the timed run; the call it times is built before the timer |
+| `:android` | Kotlin, `androidTest` only | yes — `BenchmarkRule` over the same call |
 | `:environment:discovery` | Kotlin | no — runs before any measurement |
 | `:config` | Kotlin | no — files only |
 
@@ -68,7 +70,7 @@ Rules:
 1. `environment/` : providers, services, aliases, attributes; what instantiates and what runs with a default key
 2. `configuration/` : inventory × authored `config/` → the effective set for one run
 3. `preparation/` : operations, keys, inputs and parameters per case; each case called once
-4. `benchmark/` : the timed run *(planned, #33)*
+4. `benchmark/` : refuse what this device cannot run, then time each case
 5. `analysis/` : median, percentiles, stability, comparisons *(planned)*
 
 ### dependency rules
@@ -80,11 +82,11 @@ Enforced by gradle module dependencies:
 | `:environment:discovery` | — |
 | `:config` | — reads the capture and trial files, not `:environment:discovery` classes |
 | `:preparation` | — reads the capture, the trial and `effective.yaml`, not another module's classes |
-| `:benchmark` *(planned)* | `:preparation` |
+| `:benchmark` | `:preparation` — the one project dependency: it times the `Invocation` preparation builds |
 | `:android` | all |
 
-No module declares a project dependency. `tools/module-isolation` compiles each one with only
-snakeyaml and JUnit on the classpath, so a reach across modules fails the build, and CI runs the
-three as a matrix.
+Only `:benchmark` declares a project dependency. `tools/module-isolation` compiles each module with
+only snakeyaml and JUnit on the classpath — `benchmark` with `preparation` beside it — so a reach
+across any other pair fails the build, and CI runs the four as a matrix.
 
 `tools/` builds are separate Gradle projects; they read module sources directly and ship nothing.
