@@ -1,0 +1,36 @@
+schemaVersion: 1
+generatedFrom: {effective: effective.yaml}
+run:
+  seed: 42
+  processRepetitions: 1
+  harness: {iterations: 5}
+cases:
+- id: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM
+  type: MessageDigest
+  algorithm: SHA-256
+  provider: AndroidOpenSSL
+  operation: DIGEST
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  harness: {iterations: 5}
+  key: {kind: none}
+  input: {kind: message, bytes: 1024}
+  fingerprint: 4cf5f521
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: AndroidOpenSSL
+  operation: ENCRYPT
+  keySize: 128
+  inputSize: 1024
+  phase: WARM
+  metrics: [TIME]
+  harness: {iterations: 5}
+  key: {kind: secret, algorithm: AES, provider: AndroidOpenSSL, keySize: 128, encodedBytes: 16}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: message, bytes: 1024}
+  fingerprint: 0f27b659

@@ -33,7 +33,7 @@
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles the on-device modules against `android.jar` without the JDK
-  - `quick-bench/` : the host driver for `:benchmark` and the analysis script
+  - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`) and the analysis script
   - `module-isolation/` : compiles each module alone and runs it against its `example/` files
 - `docs/`
   - `docs.md` : this file
@@ -42,7 +42,8 @@
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`
   - `configuration/` : `inventory.yaml`, `effective.yaml`
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
-  - `benchmark/`, `analysis/` : `benchmark.json` and the summary; Jetpack writes `benchmarkData.json` on the device
+  - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
+  - `analysis/` : `summary.md` and three charts
 
 Each module's own README lists its files and responsibilities.
 

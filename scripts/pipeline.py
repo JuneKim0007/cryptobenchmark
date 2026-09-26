@@ -32,11 +32,13 @@ def elapsed(label, started):
     print(f"took:      {label} in {time.monotonic() - started:.1f}s")
 
 
-def gradle(project, arguments, stacktrace, stream=False):
+def gradle(project, arguments, stacktrace, stream=False, main_class=None):
     wrapper = ROOT / "tools/jca-contract/gradlew"
     if not wrapper.is_file():
         fail(f"missing_file: {wrapper}")
     command = [str(wrapper), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q", f"--args={arguments}"]
+    if main_class:
+        command.append(f"-PmainClass={main_class}")
     if stream:
         result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:
@@ -63,6 +65,15 @@ def gradle(project, arguments, stacktrace, stream=False):
         if line.startswith(("warning:", "skipped:", "reused:")):
             print(line)
     return result.stdout.strip().splitlines()
+
+
+def process_repetitions(effective):
+    import yaml
+    run = yaml.safe_load(effective.read_text()).get("run") or {}
+    repetitions = run.get("processRepetitions", 1)
+    if not isinstance(repetitions, int) or repetitions < 1:
+        fail(f"not_positive: processRepetitions {repetitions}")
+    return repetitions
 
 
 def summary(effective):
@@ -113,7 +124,16 @@ def main():
     trial = max(discovery.glob("trial_*.yaml"), key=lambda p: p.name)
     benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
-    gradle("quick-bench", f"{capture} {trial} {effective} {benchmark} {preparation}", options.stacktrace, options.stream)
+    repetitions = process_repetitions(effective)
+    written = []
+    for repetition in range(1, repetitions + 1):
+        into = benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
+        if repetitions > 1:
+            print(f"process:   {repetition} of {repetitions}")
+        gradle("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
+        written.append(into / "benchmark.json")
+    if repetitions > 1:
+        gradle("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
     print(f"wrote:     {preparation / 'prepared.yaml'}")
     print(f"wrote:     {benchmark / 'benchmark.json'}")
     elapsed("prepare and measure", started)

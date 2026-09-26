@@ -26,7 +26,7 @@ fun main(arguments: Array<String>) {
     }
     val written = BenchmarkJson(outputDirectory).write(
         mapOf("javaVersion" to capture.runtime.javaVersion, "defaultKeySizeProperty" to capture.runtime.defaultKeySizeProperty),
-        measurements,
+        measurements.map { it.row() },
     )
     println(written.path)
 }

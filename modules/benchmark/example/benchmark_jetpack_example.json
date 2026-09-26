@@ -1,0 +1,78 @@
+{
+  "context": {
+    "build": {
+      "brand": "google",
+      "device": "tokay",
+      "fingerprint": "google/tokay/tokay:16/BP3A.250905.014/13718934:user/release-keys",
+      "id": "BP3A.250905.014",
+      "model": "Pixel 9",
+      "type": "user",
+      "version": {"codename": "REL", "sdk": 36}
+    },
+    "cpuCoreCount": 8,
+    "cpuLocked": false,
+    "cpuMaxFreqHz": 3105000000,
+    "memTotalBytes": 12173950976,
+    "sustainedPerformanceModeEnabled": true,
+    "artMainlineVersion": 361124000,
+    "osCodenameAbbreviated": "R",
+    "compilationMode": "DEFAULT",
+    "payload": {}
+  },
+  "benchmarks": [
+    {
+      "name": "measure[MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM]",
+      "params": {},
+      "className": "io.github.junekim0007.cryptobench.CryptoBenchmark",
+      "totalRunTimeNs": 1174000000,
+      "metrics": {
+        "timeNs": {
+          "minimum": 1180.0,
+          "maximum": 1256.0,
+          "median": 1191.0,
+          "coefficientOfVariation": 0.019,
+          "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0]
+        }
+      },
+      "sampledMetrics": {},
+      "warmupIterations": 3291,
+      "repeatIterations": 8192,
+      "thermalThrottleSleepSeconds": 0,
+      "profilerOutputs": []
+    },
+    {
+      "name": "measure[Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4]",
+      "params": {},
+      "className": "io.github.junekim0007.cryptobench.CryptoBenchmark",
+      "totalRunTimeNs": 2260000000,
+      "metrics": {
+        "timeNs": {
+          "minimum": 2380.0,
+          "maximum": 2611.0,
+          "median": 2401.0,
+          "coefficientOfVariation": 0.031,
+          "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0]
+        }
+      },
+      "sampledMetrics": {},
+      "warmupIterations": 2048,
+      "repeatIterations": 4096,
+      "thermalThrottleSleepSeconds": 90,
+      "profilerOutputs": []
+    },
+    {
+      "name": "measure[Cipher_ChaCha20_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM]",
+      "params": {},
+      "className": "io.github.junekim0007.cryptobench.CryptoBenchmark",
+      "totalRunTimeNs": 900000000,
+      "metrics": {
+        "timeNs": {"minimum": 1900.0, "maximum": 1980.0, "median": 1920.0, "coefficientOfVariation": 0.015, "runs": [1920.0, 1900.0, 1980.0]}
+      },
+      "sampledMetrics": {},
+      "warmupIterations": 2048,
+      "repeatIterations": 4096,
+      "thermalThrottleSleepSeconds": 0,
+      "profilerOutputs": []
+    }
+  ]
+}

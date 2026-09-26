@@ -28,6 +28,39 @@ Nothing here builds a call. `Invocation.perIteration` is what preparation proved
 `iterations` is how many samples a case yields, not how many calls one sample makes: the inner loop
 comes from a time budget, so a 40 ns digest is not measured against the clock's resolution.
 
+## Jetpack's output → `benchmark.json`
+
+`androidx.benchmark` writes `<package>-benchmarkData.json`, verified against 1.5.0:
+
+| Jetpack | Used as |
+|---|---|
+| `benchmarks[].name` = `measure[<case id>]` | the join key into `prepared.yaml` |
+| `benchmarks[].metrics.timeNs.runs` | `nanosPerOperation` |
+| `benchmarks[].repeatIterations` | `iterations` — the calls one sample loops |
+| `benchmarks[].thermalThrottleSleepSeconds` | summed into the runtime: the device paused mid-run |
+| `context.cpuLocked`, `context.sustainedPerformanceModeEnabled`, `context.compilationMode` | the runtime: whether the numbers are comparable |
+| `context.build.model`, `fingerprint`, `version.sdk` | the runtime: which device |
+
+Jetpack knows how long a name took, not what it measured. Algorithm, provider, operation and sizes
+come from the `prepared.yaml` written on the same device. A measurement with no case in the plan is
+reported as `no_case_in_the_plan: <id>`, never guessed at.
+
+```
+adb pull /sdcard/Android/media/io.github.junekim0007.cryptobench/<package>-benchmarkData.json
+../jca-contract/gradlew -p tools/quick-bench run -q -PmainClass=ConvertKt \
+  --args="<benchmarkData.json> results/preparation/prepared.yaml results/benchmark"
+```
+
+## processRepetitions
+
+One process per repetition, never a loop inside one process: JIT state, heap layout and page
+placement are per process, and averaging them away hides the variance the number is supposed to
+report. `scripts/pipeline.py` reads `run.processRepetitions` from `effective.yaml`, runs the harness
+that many times into `results/benchmark/process-<n>/`, then merges.
+
+Merging concatenates each case's samples in process order and keeps the first process's
+`iterations`. A case one process skipped keeps what the others measured.
+
 ## Refusals
 
 Checked before the first timer, against the device that will run it — not the one that wrote the plan.
