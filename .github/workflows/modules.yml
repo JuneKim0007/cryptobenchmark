@@ -2,6 +2,7 @@ name: modules
 
 # Each module is built alone — only snakeyaml and JUnit on the classpath — and run against its
 # own example/ files. A module that reaches into another module stops compiling here.
+# benchmark is the one exception: it compiles with preparation, and without config or discovery.
 on:
   push:
     branches: ['master', 'module/**']
@@ -14,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [discovery, config, preparation]
+        module: [discovery, config, preparation, benchmark]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

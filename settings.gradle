@@ -1,7 +1,8 @@
-include ':android', ':preparation', ':environment:discovery', ':config'
+include ':android', ':preparation', ':benchmark', ':environment:discovery', ':config'
 
 project(':android').projectDir = file('modules/android')
 project(':preparation').projectDir = file('modules/preparation')
+project(':benchmark').projectDir = file('modules/benchmark')
 project(':environment').projectDir = file('modules/environment')
 project(':environment:discovery').projectDir = file('modules/environment/discovery')
 project(':config').projectDir = file('modules/config')

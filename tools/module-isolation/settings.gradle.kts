@@ -1,3 +1,3 @@
 rootProject.name = "module-isolation"
 
-include("discovery", "config", "preparation")
+include("discovery", "config", "preparation", "benchmark")

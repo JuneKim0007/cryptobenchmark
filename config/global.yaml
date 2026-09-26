@@ -11,7 +11,7 @@ run:
   processRepetitions: 1
   seed: 0
   harness:                       # the run's defaults; an entry states only what differs
-    iterations: 50               # androidx.benchmark.iterations
+    iterations: 50               # measurement samples per case (androidx.benchmark.iterations)
     warmupIterations: null       # null leaves warmup to the harness
     profiling: none              # none | MethodTracing | StackSampling
 

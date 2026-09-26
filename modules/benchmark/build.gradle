@@ -1,0 +1,26 @@
+apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    api project(':preparation')
+    implementation 'org.yaml:snakeyaml:2.3'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.withType(Test).configureEach {
+    def update = System.getProperty('examples.update')
+    if (update != null) {
+        systemProperty 'examples.update', update
+    }
+}

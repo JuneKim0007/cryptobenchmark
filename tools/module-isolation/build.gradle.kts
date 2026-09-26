@@ -8,6 +8,7 @@ val moduleDirectories = mapOf(
     "discovery" to "../../modules/environment/discovery",
     "config" to "../../modules/config",
     "preparation" to "../../modules/preparation",
+    "benchmark" to "../../modules/benchmark",
 )
 
 subprojects {
@@ -24,7 +25,11 @@ subprojects {
 
     extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
-        sourceSets["main"].kotlin.setSrcDirs(listOf(File(moduleDirectory, "src/main/kotlin")))
+        val sources = listOfNotNull(
+            File(moduleDirectory, "src/main/kotlin"),
+            rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
+        )
+        sourceSets["main"].kotlin.setSrcDirs(sources)
         sourceSets["test"].kotlin.setSrcDirs(listOf(File(moduleDirectory, "src/test/kotlin")))
     }
 

@@ -4,6 +4,10 @@ android {
     namespace 'io.github.junekim0007.cryptobench'
     compileSdk 36
 
+    sourceSets {
+        androidTest.kotlin.srcDirs += 'src/androidTest/kotlin'
+    }
+
     defaultConfig {
         minSdkVersion 26
         targetSdkVersion 36
@@ -32,6 +36,7 @@ android {
 dependencies {
     implementation project(':environment:discovery')
     implementation project(':preparation')
+    androidTestImplementation project(':benchmark')
     androidTestImplementation 'androidx.benchmark:benchmark-junit4:1.5.0'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
