@@ -44,6 +44,13 @@ object DocumentFields {
 
     fun optionalNumbersOrNull(document: Map<String, Any>, key: String): List<Int>? = optional(document, key, null, ::numbers)
 
+    inline fun <T> withPathInFailure(path: String, read: () -> T): T =
+        try {
+            read()
+        } catch (failure: IllegalArgumentException) {
+            throw IllegalArgumentException("${failure.message} at $path", failure)
+        }
+
     fun expectKeys(document: Map<String, Any>, allowed: Collection<String>, path: String) {
         val unknown = document.keys.filter { it !in allowed }
         if (unknown.isNotEmpty()) throw IllegalArgumentException("unknown_keys: $path $unknown, known $allowed")

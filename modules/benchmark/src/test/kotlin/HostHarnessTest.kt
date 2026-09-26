@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
+import io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.input.InputBytes
@@ -39,5 +40,16 @@ class HostHarnessTest {
         val measurement = quick.measure(digest(HarnessSettings()))
         assertTrue("iterations ${measurement.iterations}", measurement.iterations > 1)
         assertTrue("median ${measurement.medianNanos}", measurement.medianNanos > 0)
+    }
+
+    /**
+     * The progress line and the summary table must not disagree about one word: analyze.py takes the
+     * mean of the two middle samples, and an even sample count is what processRepetitions produces.
+     */
+    @Test
+    fun theMedianIsTheOneTheAnalysisComputes() {
+        val case = digest(HarnessSettings()).case
+        assertEquals(30L, CaseMeasurement(case, 1, listOf(10L, 50L, 20L, 40L)).medianNanos)
+        assertEquals(20L, CaseMeasurement(case, 1, listOf(10L, 50L, 20L)).medianNanos)
     }
 }

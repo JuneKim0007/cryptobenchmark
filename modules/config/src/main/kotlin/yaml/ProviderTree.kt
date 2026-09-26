@@ -9,12 +9,11 @@ object ProviderTree {
             types.mapValuesTo(LinkedHashMap()) { (_, entries) -> entries.mapValuesTo(LinkedHashMap()) { (_, value) -> entry(value) } }
         }
 
-    fun <T> parse(document: Map<String, Any>, path: String, entry: (Map<String, Any>, String) -> T): Map<String, Map<String, Map<String, T>>> =
+    fun <T> parse(document: Map<String, Any>, path: String, entry: (Map<String, Any>) -> T): Map<String, Map<String, Map<String, T>>> =
         document.mapValuesTo(LinkedHashMap()) { (provider, types) ->
             asSection(types, "$path.$provider").mapValuesTo(LinkedHashMap()) { (type, entries) ->
                 asSection(entries, "$path.$provider.$type").mapValuesTo(LinkedHashMap()) { (name, value) ->
-                    val entryPath = "$path.$provider.$type.$name"
-                    entry(asSection(value, entryPath), entryPath)
+                    entry(asSection(value, "$path.$provider.$type.$name"))
                 }
             }
         }

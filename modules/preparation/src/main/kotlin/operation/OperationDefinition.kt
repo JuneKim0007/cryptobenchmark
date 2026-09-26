@@ -20,7 +20,8 @@ internal interface OperationDefinition {
 
     val consumesParameters: Boolean
 
-    fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput
+    fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
+        if (consumesInput) OperationInput.Message(CaseArguments.seededMessage(case)) else OperationInput.None
 
     fun invocation(prepared: PreparedCase): Invocation
 

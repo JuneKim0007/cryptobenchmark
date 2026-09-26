@@ -50,6 +50,7 @@
     - `inventory/`
       - `InventoryBuilder.kt`
       - `InventoryDocument.kt`
+      - `InventorySourceDocument.kt`
       - `dto/`
         - `Inventory.kt`
         - `InventoryEntry.kt`

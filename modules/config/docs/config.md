@@ -125,6 +125,7 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `Configuration` | root | entry point: `inventory(capture, trial)`, `effective(global)`, `readEffective()` |
 | `CaptureSource`, `TrialSource`, `CaptureView`, `TrialView` | `source` | discovery's two files read as views; no discovery class is imported |
 | `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
+| `InventorySourceDocument` | `inventory` | the `generatedFrom` capture, trial and device fields, shared by both generated files |
 | `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
 | `GlobalDocument`, `RunDocument`, `PolicyDocument`, `HarnessDocument` | `global` | `global.yaml` schema, one reader per section |
 | `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `HarnessSettings` | `global/dto` | the global settings |

@@ -2,14 +2,15 @@ package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.withPathInFailure
 
 object HarnessDocument {
 
-    const val ITERATIONS = "iterations"
-    const val WARMUP_ITERATIONS = "warmupIterations"
-    const val PROFILING = "profiling"
+    private const val ITERATIONS = "iterations"
+    private const val WARMUP_ITERATIONS = "warmupIterations"
+    private const val PROFILING = "profiling"
 
     private val KEYS = listOf(ITERATIONS, WARMUP_ITERATIONS, PROFILING)
 
@@ -21,14 +22,12 @@ object HarnessDocument {
 
     fun parse(document: Map<String, Any>, path: String): HarnessSettings {
         expectKeys(document, KEYS, path)
-        return try {
+        return withPathInFailure(path) {
             HarnessSettings(
-                iterations = document[ITERATIONS]?.let { number(document, ITERATIONS).toInt() },
-                warmupIterations = document[WARMUP_ITERATIONS]?.let { number(document, WARMUP_ITERATIONS).toInt() },
+                iterations = optionalNumber(document, ITERATIONS)?.toInt(),
+                warmupIterations = optionalNumber(document, WARMUP_ITERATIONS)?.toInt(),
                 profiling = optionalStringOrNull(document, PROFILING),
             )
-        } catch (failure: IllegalArgumentException) {
-            throw IllegalArgumentException("${failure.message} at $path", failure)
         }
     }
 }

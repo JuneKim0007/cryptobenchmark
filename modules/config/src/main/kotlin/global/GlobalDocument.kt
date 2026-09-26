@@ -11,19 +11,19 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSect
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
+import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
 
 object GlobalDocument : DocumentHandler<GlobalConfig> {
 
     override val schemaVersion: Int = 1
 
-    const val SELECTION = "selection"
-    const val RUN = "run"
-    const val POLICY = "policy"
-
+    private const val SELECTION = "selection"
+    private const val RUN = "run"
+    private const val POLICY = "policy"
     private const val TEST_SET = "testSet"
     private const val EXCLUDE = "exclude"
 
-    val SECTIONS: List<String> = listOf(SELECTION, RUN, POLICY)
+    private val SECTIONS: List<String> = listOf(SELECTION, RUN, POLICY)
 
     override fun of(value: GlobalConfig): Map<String, Any> = linkedMapOf(
         SELECTION to linkedMapOf(TEST_SET to value.selection.testSet, EXCLUDE to value.selection.exclude.map { RuleDocument.of(it) }),
@@ -32,7 +32,7 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
     )
 
     override fun parse(document: Map<String, Any>): GlobalConfig {
-        val unknown = document.keys.filter { it != "schemaVersion" && it !in SECTIONS }
+        val unknown = document.keys.filter { it != ReadOnlyYamlFile.SCHEMA_VERSION && it !in SECTIONS }
         require(unknown.isEmpty()) { "unknown_section: $unknown, known $SECTIONS" }
         return GlobalConfig(
             selection = selection(section(document, SELECTION)),

@@ -32,7 +32,7 @@
   - `requirements.txt` : host python deps
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
-  - `android-api-check/` : compiles the on-device modules against `android.jar` without the JDK
+  - `android-api-check/` : compiles `discovery`, `preparation` and `benchmark` against `android.jar` with no JDK on the classpath
   - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`) and the analysis script
   - `module-isolation/` : compiles each module alone and runs it against its `example/` files
 - `docs/`
@@ -84,7 +84,7 @@ Enforced by gradle module dependencies:
 | `:config` | — reads the capture and trial files, not `:environment:discovery` classes |
 | `:preparation` | — reads the capture, the trial and `effective.yaml`, not another module's classes |
 | `:benchmark` | `:preparation` — the one project dependency: it times the `Invocation` preparation builds |
-| `:android` | all |
+| `:android` | `:benchmark`, in `androidTest` only — it has no main sources |
 
 Only `:benchmark` declares a project dependency. `tools/module-isolation` compiles each module with
 only snakeyaml and JUnit on the classpath — `benchmark` with `preparation` beside it — so a reach

@@ -1,17 +1,13 @@
 package io.github.junekim0007.cryptobench.preparation.report
 
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
-import java.io.IOException
 
 class SkipFile(private val directory: File) {
 
     val file: File get() = File(directory, NAME)
 
     fun write(skipped: List<Skip>): File {
-        if (!directory.exists() && !directory.mkdirs()) {
-            throw IOException("cannot create ${directory.absolutePath}")
-        }
         val document = linkedMapOf<String, Any>(
             "schemaVersion" to 1,
             "skipped" to skipped.map { skip ->
@@ -24,8 +20,7 @@ class SkipFile(private val directory: File) {
                 }
             },
         )
-        file.writeText(YamlCodec().dump(document), Charsets.UTF_8)
-        return file
+        return DocumentFile.write(file, document)
     }
 
     companion object {

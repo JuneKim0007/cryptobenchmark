@@ -1,11 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.operation
 
-import io.github.junekim0007.cryptobench.preparation.engine.CaseEngines
-import io.github.junekim0007.cryptobench.preparation.input.OperationInput
-import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
-import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import java.security.Signature
 
 internal object SignDefinition : OperationDefinition {
 
@@ -15,11 +11,8 @@ internal object SignDefinition : OperationDefinition {
     override val consumesParameters = true
     override val consumesInput = true
 
-    override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput =
-        OperationInput.Message(CaseArguments.seededMessage(case))
-
     override fun invocation(prepared: PreparedCase): Invocation {
-        val signature = CaseEngines.signature(prepared.case)
+        val signature = Signature.getInstance(prepared.case.algorithm, prepared.case.provider)
         prepared.parameters?.next()?.let { signature.setParameter(it) }
         signature.initSign(CaseArguments.pair(prepared.key).private)
         val message = CaseArguments.preparedMessage(prepared)

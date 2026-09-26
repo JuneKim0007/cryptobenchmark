@@ -63,4 +63,24 @@ class DiscoveryCapabilityTest {
         }
         assertTrue(error.message!!.startsWith("mismatched_trial"))
     }
+
+    /**
+     * Each of the three inbound files names itself when it refuses: one shared reader, three schemas,
+     * and the version a build reads is the version it says it reads.
+     */
+    @Test
+    fun eachInboundFileRefusesAVersionThisBuildDoesNotRead() {
+        fun refusal(block: () -> Any) = assertThrows(IllegalArgumentException::class.java) { block() }.message
+        assertEquals(
+            "unsupported_capture_schema: probe.yaml: 99, this build reads ${CaptureFile.SUPPORTED_SCHEMA_VERSION}",
+            refusal { CaptureFile.read("probe.yaml", "schemaVersion: 99\n") },
+        )
+        assertEquals(
+            "unsupported_trial_schema: trial.yaml: 99, this build reads ${TrialFile.SUPPORTED_SCHEMA_VERSION}",
+            refusal { TrialFile.read("trial.yaml", "schemaVersion: 99\n") },
+        )
+        assertEquals("missing_file: nowhere.yaml", refusal { CaptureFile.read(File("nowhere.yaml")) })
+        val unreadable = refusal { CaptureFile.read("probe.yaml", "schemaVersion: : 1\n") }!!
+        assertTrue(unreadable, unreadable.startsWith("unreadable_yaml: probe.yaml: mapping values are not allowed here"))
+    }
 }
