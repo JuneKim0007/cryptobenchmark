@@ -29,4 +29,4 @@ sourceSets {
 
 dependencies { implementation("org.yaml:snakeyaml:2.3") }
 
-application { mainClass.set("BenchKt") }
+application { mainClass.set(providers.gradleProperty("mainClass").orElse("BenchKt")) }

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.run
 
+import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 
 class CaseMeasurement(
@@ -14,4 +15,16 @@ class CaseMeasurement(
     }
 
     val medianNanos: Long get() = nanosPerOperation.sorted()[nanosPerOperation.size / 2]
+
+    fun row(): ResultRow = ResultRow(
+        id = case.id,
+        type = case.type,
+        algorithm = case.algorithm,
+        provider = case.provider,
+        operation = case.operation.name,
+        keySize = case.keySize,
+        inputSize = case.inputSize,
+        iterations = iterations,
+        nanosPerOperation = nanosPerOperation,
+    )
 }

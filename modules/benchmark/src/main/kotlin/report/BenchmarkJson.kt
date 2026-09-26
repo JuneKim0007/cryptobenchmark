@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
-import io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement
 import java.io.File
 import java.io.IOException
 
@@ -8,24 +7,23 @@ class BenchmarkJson(private val directory: File) {
 
     val file: File get() = File(directory, NAME)
 
-    fun write(runtime: Map<String, String>, measurements: List<CaseMeasurement>): File {
+    fun write(runtime: Map<String, String>, rows: List<ResultRow>): File {
         if (!directory.exists() && !directory.mkdirs()) {
             throw IOException("cannot create ${directory.absolutePath}")
         }
-        file.writeText(text(runtime, measurements), Charsets.UTF_8)
+        file.writeText(text(runtime, rows), Charsets.UTF_8)
         return file
     }
 
-    fun text(runtime: Map<String, String>, measurements: List<CaseMeasurement>): String {
+    fun text(runtime: Map<String, String>, rows: List<ResultRow>): String {
         val document = StringBuilder("{\n  \"runtime\": {")
         document.append(runtime.entries.joinToString(", ") { (key, value) -> "\"$key\": \"$value\"" })
         document.append("},\n  \"cases\": [\n")
-        measurements.forEachIndexed { index, measurement ->
-            val case = measurement.case
-            document.append("    {\"id\": \"${case.id}\", \"type\": \"${case.type}\", \"algorithm\": \"${case.algorithm}\", \"provider\": \"${case.provider}\"")
-            document.append(", \"operation\": \"${case.operation}\", \"keySize\": ${case.keySize}, \"inputSize\": ${case.inputSize}")
-            document.append(", \"iterations\": ${measurement.iterations}, \"nanosPerOperation\": [${measurement.nanosPerOperation.joinToString(", ")}]}")
-            document.append(if (index == measurements.lastIndex) "\n" else ",\n")
+        rows.forEachIndexed { index, row ->
+            document.append("    {\"id\": \"${row.id}\", \"type\": \"${row.type}\", \"algorithm\": \"${row.algorithm}\", \"provider\": \"${row.provider}\"")
+            document.append(", \"operation\": \"${row.operation}\", \"keySize\": ${row.keySize}, \"inputSize\": ${row.inputSize}")
+            document.append(", \"iterations\": ${row.iterations}, \"nanosPerOperation\": [${row.nanosPerOperation.joinToString(", ")}]}")
+            document.append(if (index == rows.lastIndex) "\n" else ",\n")
         }
         document.append("  ]\n}\n")
         return document.toString()
