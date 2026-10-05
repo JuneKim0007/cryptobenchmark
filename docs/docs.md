@@ -46,7 +46,7 @@
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
   - `chart/<run-id>/` : `summary.md`, `chart-data.json`, `manifest.yaml`, and `<n>-<group>/iqr-bars_<op>_input-<size>.png`; `analysis.dir` moves the root
   - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
-  - `analysis/` : `summary.md` and three charts, from `analyze.py` (the older script)
+  - `analysis/` : `throughput.png`, `latency.png`, `stability.png`, from `analyze.py`
 
 Each module's `docs/` file has a Classes table: every class and its role. READMEs do not repeat it.
 

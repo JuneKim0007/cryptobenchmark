@@ -36,7 +36,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
 | | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default |
-| `analysis` | `charts` | all four | which charts the run draws: `iqrBars`, `throughput`, `latency`, `stability`. Naming some turns the rest off; `[]` writes the summary only. `tools/quick-bench/charts.py` draws `iqrBars`; the other three are still `analyze.py`'s and do not read this list yet. A name outside this list fails at configuration, not after the run |
+| `analysis` | `charts` | all four | which charts the run draws: `iqrBars`, `throughput`, `latency`, `stability`. Naming some turns the rest off; `[]` writes the summary only. `tools/quick-bench/charts.py` draws `iqrBars`, and `analyze.py` draws `throughput`, `latency` and `stability`; both read this list and the CoV limit from `effective.yaml`. A name outside this list fails at configuration, not after the run |
 | | `dir` | `results/chart/<run-id>` | where the charts and `summary.md` go; `<run-id>` is the discovery capture stamp. The layout under it is fixed |
 | | `statistic.headline` | `auto` | which statistic leads in tables and charts: `auto`, `median`, `mean`. Both are always computed. `auto` leads with the mean while a case's CoV is within `meanUpToCovPercent`, with the median above it |
 | | `statistic.meanUpToCovPercent` | `5` | percent, `> 0`; read only when `headline` is `auto`. CoV is sample sd ÷ mean, as Jetpack's `coefficientOfVariation`. A rooted device with locked clocks is steadier, so this is the knob to move there |

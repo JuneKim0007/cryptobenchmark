@@ -23,6 +23,9 @@ def summarize(runs):
         "sd": sd,
         "cov": sd / mean if mean else 0.0,                  # sample sd / mean, as Jetpack's coefficientOfVariation
         "median": quantile(runs, 50),
+        "min": min(runs),
+        "max": max(runs),
+        "p90": quantile(runs, 90),
         "q1": q1,
         "q3": q3,
         "iqr": q3 - q1,
