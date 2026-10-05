@@ -133,6 +133,7 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `Invocation`, `Invocations` | `operation` | `setUp` and `perIteration` for one case: called once here, timed by the harness |
 | `EncryptDefinition` … `TypeDefaultDefinition` | `operation` | one definition per operation |
 | `CaseArguments` | `operation` | the message, secret key or key pair a prepared case carries |
+| `CasePreparer` | `prepare` | one case: plan the key, make it once per recipe, bind, build the input, call once; a case that cannot be built is a `Skip`, not an exception |
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |
 | `Skip`, `SkipFile` | `report` | `skipped.yaml` |
 | `PreparedFile`, `PreparedDocument`, `Fingerprint` | `record` | `prepared.yaml`, written from the cases that were built |
