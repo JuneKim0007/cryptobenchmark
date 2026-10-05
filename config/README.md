@@ -14,4 +14,4 @@ Authored, committed. Nothing here is generated.
 | `testsets/smoke.yaml` | three staples |
 
 Generated from these plus the probe: `results/configuration/inventory.yaml`, `results/configuration/effective.yaml`, and beside it `report.yaml` (warnings and skips).
-Fields and precedence: `modules/config/docs/config.md`.
+Fields and precedence: `modules/config/docs/config.md`. What a run resolved to, and which file each value came from: `python scripts/explain.py`.
