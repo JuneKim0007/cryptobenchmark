@@ -10,11 +10,11 @@ Timing only — allocation counts and CPU counters are Jetpack's, on a device.
 ```
 cd tools/jca-contract && ./gradlew run --args="../../results/discovery ../../results/configuration ../../config/global-quick.yaml"
 cd ../quick-bench   && ./../jca-contract/gradlew run --args="<capture> <trial> ../../results/configuration/effective.yaml ../../results/benchmark"
-python3 analyze.py ../../results/benchmark/benchmark.json ../../results/analysis
+python3 analyze.py ../../results/benchmark/benchmark.json ../../results/analysis ../../results/configuration/effective.yaml ../../results/preparation/prepared.yaml
 python3 charts.py ../../results/benchmark/benchmark.json ../../results/preparation/prepared.yaml ../../results/configuration/effective.yaml ../../results
 ```
 
-Output: `results/benchmark/benchmark.json`; `analyze.py` writes `results/analysis/{summary.md,throughput.png,latency.png,stability.png}`;
+Output: `results/benchmark/benchmark.json`; `analyze.py` writes `results/analysis/{throughput.png,latency.png,stability.png}`;
 `charts.py` writes `results/chart/<run-id>/` (`summary.md`, `chart-data.json`, `manifest.yaml`, one `iqr-bars_*.png` per group, operation and input size),
 following `analysis` in `effective.yaml`.
 
@@ -23,5 +23,5 @@ following `analysis` in `effective.yaml`.
 | `stats.py` | the statistics, one definition each: CoV is sample sd ÷ mean (as Jetpack), quantiles interpolate |
 | `charts.py` | entry point: reads, summarises, draws, writes |
 | `chart_input.py`, `chart_model.py`, `chart_draw.py`, `chart_report.py` | what is read; one case summarised; matplotlib only; summary, data and manifest |
-| `analyze.py` | the older flat script: summary and three charts. Still defines its own CoV (σ ÷ median), which `stats.py` does not |
+| `analyze.py` | the run-level charts: throughput, latency, stability. Reads `analysis.charts` and the CoV limit from `effective.yaml`; uses `stats.py`, so its CoV is sample sd ÷ mean like everything else |
 
