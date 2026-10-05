@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.config.global.dto
+package io.github.junekim0007.cryptobench.config.harness
 
 data class HarnessSettings(
     val iterations: Int? = null,

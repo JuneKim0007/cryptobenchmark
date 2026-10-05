@@ -6,10 +6,10 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.global.AnalysisDocument
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocument
-import io.github.junekim0007.cryptobench.config.global.HarnessDocument
+import io.github.junekim0007.cryptobench.config.harness.HarnessDocument
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
-import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
+import io.github.junekim0007.cryptobench.config.harness.HarnessSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections

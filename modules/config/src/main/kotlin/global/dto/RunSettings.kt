@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.config.global.dto
 
+import io.github.junekim0007.cryptobench.config.harness.HarnessSettings
+
 data class RunSettings(
     val inputSizes: List<Int> = listOf(1024),
     val phases: List<String> = listOf("WARM"),

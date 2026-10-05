@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.effective.dto
 
-import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
+import io.github.junekim0007.cryptobench.config.harness.HarnessSettings
 
 data class EffectiveEntry(
     val keySizes: List<Int> = emptyList(),
