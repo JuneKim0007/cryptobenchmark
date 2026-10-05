@@ -73,6 +73,7 @@ always overwritten.
 | `generatedFrom.effective` | the file this run was read from |
 | `run` | `seed`, `processRepetitions`, `harness` — the run's defaults |
 | `cases[].id` … `metrics` | the case, as the case id spells it |
+| `cases[].chartGroup`, `chartGroupId` | the group a chart compares within: `unidentified` (0), `symmetric-cipher` (1), `asymmetric-cipher` (2), `signature` (3), `hash` (4), `mac` (5), `kem` (6), `key-agreement` (7), `keygen-symmetric` (8), `keygen-asymmetric` (9). The service type decides; only `Cipher` is split by name. Not the config `group`, which means parameter variants |
 | `cases[].harness` | global merged with the entry's: what the timer is told for this case |
 | `cases[].key` | `kind` (`none`, `secret`, `pair`), the recipe, and the built key's `encodedBytes` or `pairs` |
 | `cases[].keyParameters`, `parameters` | the spec trees that reached the generator and the call |
@@ -121,6 +122,7 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `CaseResolver`, `SelectionCheck`, `SelectionExpander` | `resolve` | selections → cases or rejections |
 | `Resolution`, `Rejection` | `resolve` | the result |
 | `BenchmarkCase`, `CaseName`, `Operation`, `Phase`, `Metric`, `EngineTypeName` | `measurement` | one case and its id |
+| `ChartGroup` | `measurement` | which cases a chart may compare, from the service type, then the name |
 | `ParameterBinder`, `ValueNode`, `ValueCoercion`, `BindPolicy`, `BoundParameters`, `BindException` | `parameter/bind` | parameter trees → `AlgorithmParameterSpec` |
 | `KeyPlanner`, `KeyAlgorithmName`, `KeyCandidate`, `KeyRecipe` | `key/plan` | which key a case needs, from which generator |
 | `KeyMaterialGenerator`, `KeyInitializer`, `DefaultKeyInitializer`, `KeyMaterial` | `key/generate` | the key itself, cached per recipe |

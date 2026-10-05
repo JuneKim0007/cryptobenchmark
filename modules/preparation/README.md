@@ -69,6 +69,7 @@
     - `measurement/`
       - `BenchmarkCase.kt`
       - `CaseName.kt`
+      - `ChartGroup.kt`
       - `EngineTypeName.kt`
       - `Metric.kt`
       - `Operation.kt`
@@ -131,6 +132,7 @@
     - `BenchmarkCaseTest.kt`
     - `BenchmarkRequestTest.kt`
     - `CaseResolverTest.kt`
+    - `ChartGroupTest.kt`
     - `DiscoveryCapabilityTest.kt`
     - `EffectiveFixture.kt`
     - `EngineTypesTest.kt`
