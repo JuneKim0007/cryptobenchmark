@@ -37,7 +37,15 @@ def build(benchmark_file, prepared_file, effective_file, results):
             by_chart[(c["group"], c["groupLabel"], c["operation"], c["inputSize"])].append(c)
         for (group_id, group_label, operation, size), items in sorted(by_chart.items(), key=lambda kv: (kv[0][0], kv[0][2], kv[0][3] or 0)):
             written.append(chart_draw.iqr_bars(items, group_label, operation, size, root / f"{group_id}-{group_label}"))
-    chart_report.write(root, cases, cfg, written)
+    counts = {m: [r for r in (chart_model.summarize_count(c, groups, m) for c in raw) if r] for m in chart_model.count_metrics(raw)}
+    if counts and cfg["countBars"]:
+        for metric, rows in counts.items():
+            by_chart = defaultdict(list)
+            for r in rows:
+                by_chart[(r["group"], r["groupLabel"], r["operation"], r["inputSize"])].append(r)
+            for (group_id, group_label, operation, size), items in sorted(by_chart.items(), key=lambda kv: (kv[0][0], kv[0][2], kv[0][3] or 0)):
+                written.append(chart_draw.count_bars(items, items[0]["label"], group_label, operation, size, root / f"{group_id}-{group_label}", metric))
+    chart_report.write(root, cases, cfg, written, counts)
     return root, written
 
 

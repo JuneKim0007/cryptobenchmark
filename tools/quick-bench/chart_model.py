@@ -38,3 +38,30 @@ def summarize_case(case, groups, cfg):
         "unit": unit, "ns": ns, "shown": shown, "lead": stats.headline(ns, cfg["headline"], cfg["limit"]),
         "noisy": ns["cov"] * 100 > cfg["limit"],
     }
+
+
+TIME = "timeNs"
+COUNT_LABELS = {"allocationCount": "allocations per call"}      # any other non-time metric (a CPU event) is labelled by its own name
+
+
+def count_metrics(raw_cases):
+    """The metrics a run carries besides timeNs, in the order first seen; only those with at least one run."""
+    names = []
+    for case in raw_cases:
+        for name, block in (case.get("metrics") or {}).items():
+            if name != TIME and (block or {}).get("runs") and name not in names:
+                names.append(name)
+    return names
+
+
+def summarize_count(case, groups, metric):
+    """One case's runs of a count metric, as measured: no unit conversion. None when the case has no runs for it."""
+    runs = ((case.get("metrics") or {}).get(metric) or {}).get("runs") or []
+    if not runs:
+        return None
+    group_id, group_label = groups.get(case["id"], UNIDENTIFIED)
+    return {
+        "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
+        "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": case.get("inputSize"),
+        "metric": metric, "label": COUNT_LABELS.get(metric, metric), "runs": list(runs), "stats": stats.summarize(runs),
+    }
