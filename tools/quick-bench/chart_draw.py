@@ -38,6 +38,62 @@ def iqr_bars(items, group_label, operation, size, folder):
     return path
 
 
+def _number(value):
+    return f"{value:.0f}" if float(value).is_integer() else f"{value:.3g}"
+
+
+def count_bars(items, metric_label, group_label, operation, size, folder, metric):
+    """Median of a count metric with min-max whiskers. Few runs (Jetpack's allocation pass is 5) make quartiles meaningless."""
+    items.sort(key=lambda c: (c["algorithm"], c["keySize"] or 0, c["provider"]))
+    providers = {c["provider"] for c in items}
+    labels = [short(c["algorithm"]) + (f"-{c['keySize']}" if c["keySize"] else "") + (f" ({c['provider'][:8]})" if len(providers) > 1 else "") for c in items]
+    median = [c["stats"]["median"] for c in items]
+    below = [c["stats"]["median"] - c["stats"]["min"] for c in items]
+    above = [c["stats"]["max"] - c["stats"]["median"] for c in items]
+    fig, ax = plt.subplots(figsize=(max(6, 0.55 * len(items) + 2), 4.2))
+    ax.bar(range(len(items)), median, yerr=[below, above], capsize=3, width=0.7, ecolor="#2d0057", color=CALM_COLOR)
+    top = max(c["stats"]["max"] for c in items)
+    for i, c in enumerate(items):
+        ax.text(i, c["stats"]["max"] + 0.02 * max(top, 1), _number(c["stats"]["median"]), ha="center", va="bottom", fontsize=7)
+    ax.set_xticks(range(len(items)))
+    ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
+    ax.set_ylabel(metric_label)
+    ax.set_ylim(0, max(top, 1) * 1.12)
+    ax.grid(axis="y", alpha=.3)
+    runs = ",".join(str(n) for n in sorted({c["stats"]["n"] for c in items}))
+    ax.set_title(f"{group_label} · {operation.lower().replace('-', ' ')} · input {size_label(size)} · {metric_label}\n"
+                 f"median, whiskers min-max, n={runs} runs (too few for quartiles, so no IQR)", fontsize=8)
+    fig.tight_layout()
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{metric}-bars_{operation.lower()}_input-{size_label(size)}.png"
+    fig.savefig(path, dpi=130)
+    plt.close(fig)
+    return path
+
+
+def count_vs_time(pairs, metric_label, out, metric):
+    """Median count per call against median time per call, one point per case, both axes log; each point carries its own n."""
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    groups = sorted({c["groupLabel"] for c, _ in pairs})
+    colors = plt.get_cmap("tab10")
+    for i, name in enumerate(groups):
+        pts = [(c, t) for c, t in pairs if c["groupLabel"] == name]
+        ax.scatter([t["ns"]["median"] / 1000 for _, t in pts], [max(c["stats"]["median"], 0.5) for c, _ in pts], s=22, color=colors(i % 10), label=name, alpha=.8)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    zero = sum(1 for c, _ in pairs if c["stats"]["median"] == 0)
+    ax.set_xlabel(f"median time, us/op (n={','.join(str(n) for n in sorted({t['ns']['n'] for _, t in pairs}))} runs)")
+    ax.set_ylabel(f"median {metric_label} (n={','.join(str(n) for n in sorted({c['stats']['n'] for c, _ in pairs}))} runs; zero medians drawn at 0.5)")
+    ax.set_title(f"{metric_label} against time, {len(pairs)} cases" + (f"; {zero} with a median of 0" if zero else ""), fontsize=10)
+    ax.grid(alpha=.3, which="both")
+    ax.legend(fontsize=7)
+    fig.tight_layout()
+    path = out / f"{metric}-vs-time.png"
+    fig.savefig(path, dpi=140)
+    plt.close(fig)
+    return path
+
+
 def label(case):
     return case["algorithm"] + (f"-{case['keySize']}" if case["keySize"] else "")
 

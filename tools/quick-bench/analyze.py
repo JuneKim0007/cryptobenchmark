@@ -32,6 +32,12 @@ def build(benchmark_file, out, effective_file="", prepared_file=""):
         "stability": lambda: chart_draw.stability(cases, out, cfg["limit"]),
     }
     written = [drawn[name]() for name in RUN_LEVEL if name in cfg["charts"] and cases]
+    if cfg["countBars"]:       # additive: only when the run carries a count metric (allocationCount, a CPU event)
+        by_id = {c["id"]: c for c in cases}
+        for metric in chart_model.count_metrics(raw):
+            pairs = [(r, by_id[r["id"]]) for r in (chart_model.summarize_count(c, groups, metric) for c in raw) if r]
+            if pairs:
+                written.append(chart_draw.count_vs_time(pairs, pairs[0][0]["label"], out, metric))
     return cases, cfg, written
 
 

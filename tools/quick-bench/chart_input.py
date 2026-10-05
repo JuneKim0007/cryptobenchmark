@@ -29,4 +29,7 @@ def settings(effective):
         "headline": statistic.get("headline", DEFAULTS["headline"]),
         "limit": float(statistic.get("meanUpToCovPercent", DEFAULTS["meanUpToCovPercent"])),
         "run_id": effective.get("runId") or "adhoc",
+        # additive: count-metric bars (allocationCount, CPU events) are drawn when the run has such a metric, unless an explicit
+        # analysis.charts list leaves "countBars" out. DEFAULTS above stays what :config writes.
+        "countBars": "charts" not in analysis or "countBars" in (analysis["charts"] or []),
     }
