@@ -13,6 +13,11 @@ def runs_of(case):
     return (metrics.get("timeNs") or {}).get("runs") or case["nanosPerOperation"]
 
 
+def op_slug(operation):
+    """GENERATE_KEY_PAIR and GENERATE-KEY-PAIR are the same operation; file names and titles use one spelling."""
+    return operation.lower().replace("_", "-")
+
+
 def size_label(size):
     return "n-a" if size is None else (f"{size}B" if size < 1024 else f"{size // 1024}KiB")
 

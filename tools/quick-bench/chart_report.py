@@ -7,12 +7,12 @@ from chart_model import AUDIT_TOLERANCE, short, size_label
 
 
 def summary_table(cases):
-    rows = ["| group | case | op | key | input | n | mean | sd (ns) | cov | median | q1 | q3 | qcd | headline | unit | flag |",
-            "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    rows = ["| group | case | op | key | input | n | unit | mean | median | q1 | q3 | cov | qcd | headline | flag |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for c in sorted(cases, key=lambda c: (c["group"], c["algorithm"], c["operation"], c["keySize"] or 0, c["inputSize"] or 0)):
         s, ns = c["shown"], c["ns"]
         rows.append(f"| {c['groupLabel']} | {short(c['algorithm'])} ({c['provider']}) | {c['operation']} | {c['keySize'] or '-'} | {size_label(c['inputSize'])} | {ns['n']} "
-                    f"| {s['mean']:.4g} | {ns['sd']:.4g} | {ns['cov']:.1%} | {s['median']:.4g} | {s['q1']:.4g} | {s['q3']:.4g} | {ns['qcd']:.1%} | {c['lead']} | {c['unit']} | {'noisy' if c['noisy'] else ''} |")
+                    f"| {c['unit']} | {s['mean']:.4g} | {s['median']:.4g} | {s['q1']:.4g} | {s['q3']:.4g} | {ns['cov']:.1%} | {ns['qcd']:.1%} | {c['lead']} | {'noisy' if c['noisy'] else ''} |")
     return "\n".join(rows) + "\n"
 
 
