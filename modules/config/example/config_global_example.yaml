@@ -15,3 +15,8 @@ run:                                     # optional — every key falls back to 
 
 policy:                                  # optional
   onFailure: skip                        # optional, default skip — stop | skip
+
+# analysis:                              # optional — how results are summarised
+#   statistic:
+#     headline: auto                     # optional, default auto — auto | median | mean
+#     meanUpToCovPercent: 5              # optional, default 5 — auto: mean while CoV <= this, else median

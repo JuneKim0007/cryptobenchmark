@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.global
 
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
@@ -20,15 +21,17 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
     private const val SELECTION = "selection"
     private const val RUN = "run"
     private const val POLICY = "policy"
+    private const val ANALYSIS = "analysis"
     private const val TEST_SET = "testSet"
     private const val EXCLUDE = "exclude"
 
-    private val SECTIONS: List<String> = listOf(SELECTION, RUN, POLICY)
+    private val SECTIONS: List<String> = listOf(SELECTION, RUN, POLICY, ANALYSIS)
 
     override fun of(value: GlobalConfig): Map<String, Any> = linkedMapOf(
         SELECTION to linkedMapOf(TEST_SET to value.selection.testSet, EXCLUDE to value.selection.exclude.map { RuleDocument.of(it) }),
         RUN to RunDocument.of(value.run),
         POLICY to PolicyDocument.of(value.policy),
+        ANALYSIS to AnalysisDocument.of(value.analysis),
     )
 
     override fun parse(document: Map<String, Any>): GlobalConfig {
@@ -38,6 +41,7 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
             selection = selection(section(document, SELECTION)),
             run = optionalSection(document, RUN)?.let { RunDocument.parse(it, RUN) } ?: RunSettings(),
             policy = optionalSection(document, POLICY)?.let { PolicyDocument.parse(it, POLICY) } ?: Policy(),
+            analysis = optionalSection(document, ANALYSIS)?.let { AnalysisDocument.parse(it, ANALYSIS) } ?: AnalysisSettings(),
         )
     }
 

@@ -10,3 +10,4 @@ run:                             # optional
   # harness: omitted — optional, the harness's own defaults apply
 policy:                          # optional
   onFailure: skip                # optional, default skip
+# analysis: omitted — optional, headline auto at 5% CoV (see global.yaml)

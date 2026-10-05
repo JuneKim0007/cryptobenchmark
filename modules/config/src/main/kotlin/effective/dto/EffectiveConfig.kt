@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.effective.dto
 
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 
@@ -10,6 +11,7 @@ data class EffectiveConfig(
     val providers: Map<String, Map<String, Map<String, EffectiveEntry>>>,
     val skipped: List<Skip> = emptyList(),
     val warnings: List<String> = emptyList(),
+    val analysis: AnalysisSettings = AnalysisSettings(),
 ) {
 
     init {
