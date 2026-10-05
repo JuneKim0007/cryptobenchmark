@@ -7,6 +7,11 @@ It measures the same prepared cases the device harness will: real keys, real inp
 a pool of `fresh(n)` specs drawn before timing, warmup, then `harness.iterations` runs per case (5 when it is not set).
 Timing only — allocation counts and CPU counters are Jetpack's, on a device.
 
+When a `benchmark.json` carries a count metric (`allocationCount`, a CPU event) besides `timeNs`, `charts.py` also draws `<metric>-bars_*.png`
+(median, min-max whiskers, n shown: with 5 runs a quartile is noise) and adds a per-metric table to `summary.md`;
+`analyze.py` adds `<metric>-vs-time.png`. A time-only file produces exactly the output it did before.
+An explicit `analysis.charts` list without `countBars` turns the count charts off.
+
 ```
 cd tools/jca-contract && ./gradlew run --args="../../results/discovery ../../results/configuration ../../config/global-quick.yaml"
 cd ../quick-bench   && ./../jca-contract/gradlew run --args="<capture> <trial> ../../results/configuration/effective.yaml ../../results/benchmark"
