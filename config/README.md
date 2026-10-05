@@ -4,7 +4,8 @@ Authored, committed. Nothing here is generated.
 
 | File | Holds |
 |---|---|
-| `global.yaml` | `selection` (test set, extra excludes), `run`, `policy` |
+| `global.yaml` | the four settings most runs change: test set, input sizes, seed, iterations. Everything else takes its default |
+| `global.reference.yaml` | every key `global.yaml` accepts, with its default and whether it is required. Not read by anything |
 | `global-quick.yaml` | the same, pointed at `testsets/quick.yaml` |
 | `global-demo.yaml` | `testsets/smoke.yaml`, one input size — the live demo |
 | `testsets/scope.yaml` | README scope with explicit key sizes and parameters |

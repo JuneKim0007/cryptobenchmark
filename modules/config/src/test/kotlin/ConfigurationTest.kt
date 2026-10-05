@@ -39,6 +39,10 @@ class ConfigurationTest {
             files.at(file, io.github.junekim0007.cryptobench.config.testset.TestSetDocument).read()
         }
         assertEquals("testsets/scope.yaml", committed.selection.testSet)
+        // the reference lists every key, so a key renamed in the schema fails here instead of misleading a reader
+        val reference = files.at(File(root, "config/global.reference.yaml"), io.github.junekim0007.cryptobench.config.global.GlobalDocument).read()
+        assertEquals("testsets/scope.yaml", reference.selection.testSet)
+        assertEquals(50, reference.run.harness.iterations)
     }
 
     /** A missing or broken file is named, and a missing test set names the setting that pointed there. */
