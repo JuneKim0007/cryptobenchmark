@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Chart
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Headline
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Statistic
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.choice
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
@@ -37,17 +38,13 @@ object AnalysisDocument {
         return withPathInFailure(path) { AnalysisSettings(statistic, charts, optionalStringOrNull(document, DIR)) }
     }
 
-    private fun charts(names: List<String>, path: String): List<Chart> = names.map { name ->
-        Chart.entries.firstOrNull { it.key.equals(name, ignoreCase = true) }
-            ?: throw IllegalArgumentException("invalid: $path $name, one of ${Chart.entries.map { it.key }}")
-    }
+    private fun charts(names: List<String>, path: String): List<Chart> = names.map { name -> choice(path, name, Chart.entries) { it.key } }
 
     private fun statistic(document: Map<String, Any>, path: String): Statistic {
         expectKeys(document, listOf(HEADLINE, MEAN_UP_TO_COV_PERCENT), path)
         val defaults = Statistic()
         val named = optionalString(document, HEADLINE)
-        val headline = if (named.isEmpty()) defaults.headline else Headline.values().firstOrNull { it.name.equals(named, ignoreCase = true) }
-            ?: throw IllegalArgumentException("invalid: $path.$HEADLINE $named, one of ${Headline.values().map { it.name.lowercase(Locale.ROOT) }}")
+        val headline = if (named.isEmpty()) defaults.headline else choice("$path.$HEADLINE", named, Headline.values().toList()) { it.name.lowercase(Locale.ROOT) }
         return withPathInFailure(path) {
             Statistic(headline, optionalNumber(document, MEAN_UP_TO_COV_PERCENT)?.toDouble() ?: defaults.meanUpToCovPercent)
         }

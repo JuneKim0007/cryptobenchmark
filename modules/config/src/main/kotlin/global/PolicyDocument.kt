@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.choice
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
 import java.util.Locale
@@ -14,8 +15,6 @@ object PolicyDocument {
     fun parse(document: Map<String, Any>, path: String): Policy {
         expectKeys(document, listOf(ON_FAILURE), path)
         val value = optionalString(document, ON_FAILURE).ifEmpty { return Policy() }
-        val choice = Policy.OnFailure.values().firstOrNull { it.name.equals(value, ignoreCase = true) }
-            ?: throw IllegalArgumentException("invalid: $path.$ON_FAILURE $value, one of ${Policy.OnFailure.values().map { it.name.lowercase(Locale.ROOT) }}")
-        return Policy(choice)
+        return Policy(choice("$path.$ON_FAILURE", value, Policy.OnFailure.values().toList()) { it.name.lowercase(Locale.ROOT) })
     }
 }
