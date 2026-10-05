@@ -30,5 +30,7 @@ data class BenchmarkCase(
 
     val id: String get() = CaseName.of(this)
 
+    val chartGroup: ChartGroup get() = ChartGroup.of(type, algorithm)
+
     override fun toString(): String = id
 }

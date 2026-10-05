@@ -7,17 +7,21 @@ cases:
   algorithm: SHA-256
   provider: SUN
   operation: DIGEST
+  chartGroup: hash
+  chartGroupId: 4
   inputSize: 1024
   phase: WARM
   metrics: [TIME]
   key: {kind: none}
   input: {kind: message, bytes: 1024}
-  fingerprint: 4cf5f521
+  fingerprint: 6535816b
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
   operation: ENCRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
   keySize: 128
   inputSize: 1024
   phase: WARM
@@ -28,12 +32,14 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: message, bytes: 1024}
-  fingerprint: 0f27b659
+  fingerprint: 58d03995
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
   operation: ENCRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
   keySize: 256
   inputSize: 1024
   phase: WARM
@@ -44,12 +50,14 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: message, bytes: 1024}
-  fingerprint: bc5d4e3b
+  fingerprint: 38409d3b
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
   operation: DECRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
   keySize: 128
   inputSize: 1024
   phase: WARM
@@ -60,12 +68,14 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
-  fingerprint: e211cf8f
+  fingerprint: 2b49c8fe
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
   operation: DECRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
   keySize: 256
   inputSize: 1024
   phase: WARM
@@ -76,15 +86,17 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
-  fingerprint: 9cee7a34
+  fingerprint: 7fd5d97b
 - id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM
   type: Mac
   algorithm: HmacSHA256
   provider: SunJCE
   operation: COMPUTE_MAC
+  chartGroup: mac
+  chartGroupId: 5
   inputSize: 1024
   phase: WARM
   metrics: [TIME]
   key: {kind: secret, algorithm: HmacSHA256, provider: SunJCE, encodedBytes: 32}
   input: {kind: message, bytes: 1024}
-  fingerprint: 0d4d5381
+  fingerprint: eace64d3
