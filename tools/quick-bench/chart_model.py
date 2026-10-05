@@ -4,6 +4,7 @@ import re
 import stats
 from chart_input import UNIDENTIFIED
 
+AUDIT_TOLERANCE = 1e-9         # relative; stats.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement
 PAYLOAD_GROUPS = {1, 4, 5}      # symmetric-cipher, hash, mac: cost scales with the input, so MB/s means something
 
 
@@ -18,6 +19,16 @@ def size_label(size):
 
 def short(algorithm):
     return re.sub(r"(PKCS5Padding|NoPadding|AndMGF1Padding|/ECB)", "", algorithm).strip("-/")
+
+
+def audit(case, ns):
+    """Our statistics against the ones androidx wrote for the same runs, or None when benchmark.json carries none (a host run, or a merge of processes)."""
+    reported = ((case.get("metrics") or {}).get("timeNs") or {}).get("reported")
+    if not reported:
+        return None
+    rel = lambda ours, theirs: abs(ours - theirs) / abs(theirs) if theirs else abs(ours - theirs)
+    return {"median": rel(ns["median"], reported["median"]), "min": rel(ns["min"], reported["minimum"]),
+            "max": rel(ns["max"], reported["maximum"]), "cov": rel(ns["cov"], reported["coefficientOfVariation"])}
 
 
 def summarize_case(case, groups, cfg):
@@ -36,5 +47,5 @@ def summarize_case(case, groups, cfg):
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": size,
         "unit": unit, "ns": ns, "shown": shown, "lead": stats.headline(ns, cfg["headline"], cfg["limit"]),
-        "noisy": ns["cov"] * 100 > cfg["limit"],
+        "noisy": ns["cov"] * 100 > cfg["limit"], "audit": audit(case, ns),
     }

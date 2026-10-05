@@ -103,5 +103,47 @@ class Charts(unittest.TestCase):
         self.assertEqual(chart_input.DEFAULTS["meanUpToCovPercent"], analysis["statistic"]["meanUpToCovPercent"])
 
 
+class AuditAgainstJetpack(unittest.TestCase):
+    """benchmark.json carries what androidx reported; our statistics must equal it, and a difference must be said, not smoothed over."""
+
+    def setUp(self):
+        self.dir = pathlib.Path(tempfile.mkdtemp())
+        import stats
+        self.runs = [100.5, 101.25, 99.75, 100.0, 100.5, 99.5] * 8 + [100.0, 100.0]
+        s = stats.summarize(self.runs)
+        self.truth = {"minimum": s["min"], "maximum": s["max"], "median": s["median"], "coefficientOfVariation": s["cov"]}
+
+    def build(self, reported):
+        block = {"runs": self.runs}
+        if reported is not None:
+            block["reported"] = reported
+        (self.dir / "benchmark.json").write_text(json.dumps({"cases": [dict(case("c", "Mac", "HmacSHA256", "COMPUTE_MAC", None, 64, self.runs), metrics={"timeNs": block})]}))
+        (self.dir / "prepared.yaml").write_text(yaml.safe_dump({"cases": [{"id": "c", "chartGroupId": 5, "chartGroup": "mac"}]}))
+        (self.dir / "effective.yaml").write_text(yaml.safe_dump({"runId": "r"}))
+        return charts.build(self.dir / "benchmark.json", self.dir / "prepared.yaml", self.dir / "effective.yaml", self.dir / "results")[0]
+
+    def manifest(self, root):
+        return yaml.safe_load((root / "manifest.yaml").read_text())["auditAgainstJetpack"]
+
+    def test_statistics_that_equal_the_reported_ones_pass(self):
+        audit = self.manifest(self.build(self.truth))
+        self.assertEqual((1, []), (audit["checked"], audit["mismatches"]))
+
+    def test_a_difference_is_named_in_the_manifest_and_on_stderr(self):
+        import contextlib
+        import io
+        wrong = dict(self.truth, coefficientOfVariation=self.truth["coefficientOfVariation"] * 1.01)
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured):
+            audit = self.manifest(self.build(wrong))
+        self.assertEqual(["c"], audit["mismatches"])
+        self.assertAlmostEqual(0.01 / 1.01, audit["maxRelativeDifference"]["cov"], places=9)   # relative to the reported value
+        self.assertIn("disagree with the statistics androidx reported", captured.getvalue())
+
+    def test_a_case_with_nothing_reported_is_not_audited_and_not_failed(self):
+        audit = self.manifest(self.build(None))
+        self.assertEqual((0, []), (audit["checked"], audit["mismatches"]))
+
+
 if __name__ == "__main__":
     unittest.main()
