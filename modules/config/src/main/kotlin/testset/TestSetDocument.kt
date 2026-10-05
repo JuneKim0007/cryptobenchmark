@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.testset
 
-import io.github.junekim0007.cryptobench.config.global.HarnessDocument
+import io.github.junekim0007.cryptobench.config.harness.HarnessDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys

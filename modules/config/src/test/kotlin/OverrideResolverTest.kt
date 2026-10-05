@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
-import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
+import io.github.junekim0007.cryptobench.config.harness.HarnessSettings
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule

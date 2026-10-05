@@ -1,6 +1,5 @@
-package io.github.junekim0007.cryptobench.config.global
+package io.github.junekim0007.cryptobench.config.harness
 
-import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
