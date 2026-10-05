@@ -7,6 +7,7 @@ import unittest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import chart_input  # noqa: E402
 import charts  # noqa: E402
 
 CALM = [100.0, 101.0, 99.0, 100.0, 100.0] * 10
@@ -93,6 +94,13 @@ class Charts(unittest.TestCase):
         root, _ = self.run_charts()
         data = json.load(open(root / "chart-data.json"))
         self.assertTrue(all(c["noisy"] for c in data))
+ 
+    def test_the_python_defaults_match_the_ones_the_config_module_writes(self):
+        example = pathlib.Path(__file__).resolve().parents[3] / "modules/config/example/config_effective_example.yaml"
+        analysis = yaml.safe_load(example.read_text())["analysis"]
+        self.assertEqual(chart_input.DEFAULTS["charts"], analysis["charts"])
+        self.assertEqual(chart_input.DEFAULTS["headline"], analysis["statistic"]["headline"])
+        self.assertEqual(chart_input.DEFAULTS["meanUpToCovPercent"], analysis["statistic"]["meanUpToCovPercent"])
 
 
 if __name__ == "__main__":
