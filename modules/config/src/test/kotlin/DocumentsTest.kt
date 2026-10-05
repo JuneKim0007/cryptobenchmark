@@ -63,7 +63,10 @@ class DocumentsTest {
             { GlobalDocument.parse(codec.load(global + "analysis: {statistic: {headline: average}}\n")) } to "invalid: analysis.statistic.headline average, one of [auto, median, mean]",
             { GlobalDocument.parse(codec.load(global + "analysis: {statistic: {meanUpToCovPercent: 0}}\n")) } to "not_positive: meanUpToCovPercent 0.0 at analysis.statistic",
             { GlobalDocument.parse(codec.load(global + "analysis: {statistic: {covLimit: 5}}\n")) } to "unknown_keys: analysis.statistic [covLimit], known [headline, meanUpToCovPercent]",
-            { GlobalDocument.parse(codec.load(global + "analysis: {stat: {}}\n")) } to "unknown_keys: analysis [stat], known [statistic]",
+            { GlobalDocument.parse(codec.load(global + "analysis: {stat: {}}\n")) } to "unknown_keys: analysis [stat], known [statistic, charts, dir]",
+            { GlobalDocument.parse(codec.load(global + "analysis: {charts: [bars]}\n")) } to "invalid: analysis.charts bars, one of [iqrBars, throughput, latency, stability]",
+            { GlobalDocument.parse(codec.load(global + "analysis: {charts: [iqrBars, iqrbars]}\n")) } to "duplicate: charts [iqrBars, iqrBars] at analysis",
+            { GlobalDocument.parse(codec.load(global + "analysis: {dir: ' '}\n")) } to "blank: dir at analysis",
             { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) } to "empty_rule: give provider, type or name at selection.exclude[1]",
             { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) } to "unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations, harness]",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {iterations: 0}}\n")) } to "not_positive: iterations 0 at run.harness",
@@ -98,5 +101,17 @@ class DocumentsTest {
         val built = EffectiveBuilder().build(chosen, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
         val reread = EffectiveDocument.parse(codec.load(YamlCodec().dump(EffectiveDocument.of(built))))
         assertEquals(chosen.analysis, reread.analysis)
+    }
+
+    /** No charts line means every chart; naming some turns the rest off; an empty list writes the summary only. */
+    @Test
+    fun theChartListDefaultsToAllAndNamingSomeTurnsTheRestOff() {
+        val all = AnalysisSettings.Chart.entries.toList()
+        assertEquals(all, GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\n")).analysis.charts)
+        assertEquals(null, GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\n")).analysis.dir)
+        val some = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nanalysis: {charts: [iqrBars, stability], dir: out/charts/<run-id>}\n")).analysis
+        assertEquals(listOf(AnalysisSettings.Chart.IQR_BARS, AnalysisSettings.Chart.STABILITY), some.charts)
+        assertEquals("out/charts/<run-id>", some.dir)
+        assertEquals(emptyList<AnalysisSettings.Chart>(), GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nanalysis: {charts: []}\n")).analysis.charts)
     }
 }

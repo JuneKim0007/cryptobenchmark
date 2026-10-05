@@ -16,6 +16,7 @@ run:
 policy: {onFailure: skip}
 analysis:
   statistic: {headline: auto, meanUpToCovPercent: 5.0}
+  charts: [iqrBars, throughput, latency, stability]
 providers:
   SUN:
     MessageDigest:

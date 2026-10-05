@@ -18,7 +18,9 @@ run:                             # optional — every key below falls back to it
 policy:                          # optional
   onFailure: skip                # optional, default skip — stop | skip, every stage; a broken config file always stops
 
-analysis:                        # optional — how results are summarised; not read by the measurement stages
+analysis:                        # optional — how results are summarised and drawn; not read by the measurement stages
+  charts: [iqrBars, throughput, latency, stability]   # optional, default all four — name some to draw only those; [] writes the summary only
+  dir: null                      # optional — null writes to results/chart/<run-id>; <run-id> may appear in a path you give
   statistic:                     # optional
     headline: auto               # optional, default auto — auto | median | mean. Which statistic leads in tables and charts; both are always computed
     meanUpToCovPercent: 5        # optional, default 5 — only read when headline is auto: the mean leads while a case's CoV (sample sd / mean) is within this many percent, the median above it
