@@ -9,6 +9,8 @@ import sys
 
 import yaml
 
+import effective_view
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SECTIONS = ("run", "policy", "analysis")
 
@@ -38,7 +40,7 @@ def explain(global_file, effective_file):
     for section in SECTIONS:
         for dotted, value in flatten(effective.get(section) or {}, f"{section}."):
             rows.append((dotted, value, pathlib.Path(global_file).name if written(authored, dotted) else "default"))
-    entries = sum(len(names) for types in (effective.get("providers") or {}).values() for names in types.values())
+    entries = effective_view.entry_count(effective)
     testset = (effective.get("generatedFrom") or {}).get("testSet", "?")
     return rows, entries, testset, effective.get("runId")
 
