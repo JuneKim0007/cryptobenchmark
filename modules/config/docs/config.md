@@ -22,6 +22,8 @@ EffectiveBuilder: include (empty = everything that runs) â†’ test-set exclude â†
 
 ## global.yaml
 
+Three tiers: `config/global.yaml` holds the four settings most runs change; `config/global.reference.yaml` lists every key below with its default; the rest is documented here and never needs to appear in a file.
+
 One section per feature, one owner each; an unknown section or key is an error.
 
 | Section | Key | Default | Meaning |
