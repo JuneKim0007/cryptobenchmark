@@ -32,10 +32,10 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `exclude` | `[]` | rules dropped after the test set |
 | `run` | `inputSizes` | `[1024]` | bytes per call |
 | | `phases` | `[WARM]` | `WARM`, `COLD` |
-| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` (rooted device) |
+| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` (rooted device). On a device TIME and ALLOCATION are always measured; `CPU_EVENTS` is a launch argument, printed by `scripts/device_args.py` |
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
-| | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default |
+| | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default. On a device they reach androidx per case; what it can and cannot apply (allocation is always 5 runs, warm-up of 0 is refused) is in `measure.md` |
 | `analysis` | `charts` | all four | which charts the run draws: `iqrBars`, `throughput`, `latency`, `stability`. Naming some turns the rest off; `[]` writes the summary only. `tools/quick-bench/charts.py` draws `iqrBars`, and `analyze.py` draws `throughput`, `latency` and `stability`; both read this list and the CoV limit from `effective.yaml`. A name outside this list fails at configuration, not after the run |
 | | `dir` | `results/chart/<run-id>` | where the charts and `summary.md` go; `<run-id>` is the discovery capture stamp. The layout under it is fixed |
 | | `statistic.headline` | `auto` | which statistic leads in tables and charts: `auto`, `median`, `mean`. Both are always computed. `auto` leads with the mean while a case's CoV is within `meanUpToCovPercent`, with the median above it |

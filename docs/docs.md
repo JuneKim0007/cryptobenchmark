@@ -29,6 +29,7 @@
 - `scripts/`
   - `pipeline.py` : the host driver — stages in order, one readable failure; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`, `--stream`
   - `effective_view.py`, `gradle_runner.py`, `failure.py` : what `pipeline.py` and `explain.py` share — reading `effective.yaml` with its report, running a gradle tool, stopping with one message
+  - `device_args.py` : the launch arguments a device run needs for the plan's metrics (CPU events); everything per case reaches androidx inside the app
   - `explain.py` : prints the settings a run resolved to and where each came from (the global file or a default); `--config`, `--results`
   - `demo.sh` : one live run into `results/demo/`; `--warm`, `--fast`, `--reuse`
   - `requirements.txt` : host python deps
