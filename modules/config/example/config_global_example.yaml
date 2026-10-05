@@ -16,7 +16,9 @@ run:                                     # optional — every key falls back to 
 policy:                                  # optional
   onFailure: skip                        # optional, default skip — stop | skip
 
-# analysis:                              # optional — how results are summarised
+# analysis:                              # optional — how results are summarised and drawn
+#   charts: [iqrBars, throughput, latency, stability]   # optional, default all four
+#   dir: results/chart/<run-id>          # optional, default results/chart/<run-id>
 #   statistic:
 #     headline: auto                     # optional, default auto — auto | median | mean
 #     meanUpToCovPercent: 5              # optional, default 5 — auto: mean while CoV <= this, else median

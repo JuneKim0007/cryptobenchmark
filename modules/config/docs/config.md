@@ -34,7 +34,9 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
 | | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default |
-| `analysis` | `statistic.headline` | `auto` | which statistic leads in tables and charts: `auto`, `median`, `mean`. Both are always computed. `auto` leads with the mean while a case's CoV is within `meanUpToCovPercent`, with the median above it |
+| `analysis` | `charts` | all four | which charts the run draws: `iqrBars`, `throughput`, `latency`, `stability`. Naming some turns the rest off; `[]` writes the summary only. A name outside this list fails at configuration, not after the run |
+| | `dir` | `results/chart/<run-id>` | where the charts and `summary.md` go; `<run-id>` is the discovery capture stamp. The layout under it is fixed |
+| | `statistic.headline` | `auto` | which statistic leads in tables and charts: `auto`, `median`, `mean`. Both are always computed. `auto` leads with the mean while a case's CoV is within `meanUpToCovPercent`, with the median above it |
 | | `statistic.meanUpToCovPercent` | `5` | percent, `> 0`; read only when `headline` is `auto`. CoV is sample sd ÷ mean, as Jetpack's `coefficientOfVariation`. A rooted device with locked clocks is steadier, so this is the knob to move there |
 | `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
 
@@ -74,7 +76,7 @@ What each axis is in YAML, where it may be set, and where it shows up. An axis a
 `chartGroup` is not the rule `group`: it says which cases a chart may compare, and group 0 is unidentified (see `prepare.md`).
 A chart on one axis leaves out the cases without it: input size drops keygen, key size drops digests.
 
-Planned, not in the schema yet: `output.chartDir` and `output.xAxis` (`inputSize` or `keySize`), and a per-testset `chartGroup` override.
+Planned, not in the schema yet: a per-testset `chartGroup` override.
 
 ## Groups
 
@@ -144,7 +146,7 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0`, `harness {}` |
 | harness values a missing field leaves to the timer | `HarnessSettings` | `iterations`, `warmupIterations`, `profiling` all unset |
 | failure policy default | `Policy` | `skip` |
-| analysis defaults | `AnalysisSettings` | `headline auto`, `meanUpToCovPercent 5` |
+| analysis defaults | `AnalysisSettings` | `headline auto`, `meanUpToCovPercent 5`, all four charts, `dir` unset |
 
 ## Classes
 
