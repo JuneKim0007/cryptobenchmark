@@ -1,5 +1,11 @@
 package io.github.junekim0007.cryptobench.config.testset
 
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.KEY_SIZES
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.INPUT_SIZES
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.KEY
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.PARAMETERS
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.OPERATIONS
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.HARNESS
 import io.github.junekim0007.cryptobench.config.harness.HarnessDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
@@ -24,12 +30,6 @@ object TestSetDocument : DocumentHandler<TestSet> {
     private const val OVERRIDES = "overrides"
     private const val MATCH = "match"
     private const val SET = "set"
-    private const val KEY_SIZES = "keySizes"
-    private const val INPUT_SIZES = "inputSizes"
-    private const val KEY = "key"
-    private const val PARAMETERS = "parameters"
-    private const val OPERATIONS = "operations"
-    private const val HARNESS = "harness"
 
     override fun of(value: TestSet): Map<String, Any> = linkedMapOf(
         DESCRIPTION to value.description,
