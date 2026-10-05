@@ -18,7 +18,7 @@
 ## file structure
 
 - gradle root is the repository root; modules live under `modules/`; package root in every module is `io.github.junekim0007.cryptobench`
-  - `config/` : authored, committed — `global.yaml` (selection, run, policy), `testsets/{scope,quick,all,smoke}.yaml`
+  - `config/` : authored, committed — `global.yaml` (test set, input sizes, seed, iterations), `global.reference.yaml` (every key), `global-{quick,demo}.yaml`, `testsets/{scope,quick,all,smoke}.yaml`
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin) — what this device offers
   - `modules/config/` : module `:config` (kotlin) — capture × trial × authored config → `effective.yaml`
   - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` + capture + trial → prepared cases
@@ -28,13 +28,14 @@
   - `gradle.properties` : gradle env + signing
 - `scripts/`
   - `pipeline.py` : the host driver — stages in order, one readable failure; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`, `--stream`
+  - `effective_view.py`, `gradle_runner.py`, `failure.py` : what `pipeline.py` and `explain.py` share — reading `effective.yaml` with its report, running a gradle tool, stopping with one message
   - `explain.py` : prints the settings a run resolved to and where each came from (the global file or a default); `--config`, `--results`
   - `demo.sh` : one live run into `results/demo/`; `--warm`, `--fast`, `--reuse`
   - `requirements.txt` : host python deps
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles `discovery`, `preparation` and `benchmark` against `android.jar` with no JDK on the classpath
-  - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`), the analysis script, `charts.py` (IQR bars, `summary.md`, `chart-data.json`, `manifest.yaml` under `results/chart/<run-id>/`) and `stats.py` (the statistics, one definition each)
+  - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`), the analysis script, `charts.py` with its `chart_*.py` parts (IQR bars, `summary.md`, `chart-data.json`, `manifest.yaml` under `results/chart/<run-id>/`) and `stats.py` (the statistics, one definition each)
   - `module-isolation/` : compiles each module alone and runs it against its `example/` files
 - `docs/`
   - `docs.md` : this file
@@ -45,7 +46,7 @@
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
   - `chart/<run-id>/` : `summary.md`, `chart-data.json`, `manifest.yaml`, and `<n>-<group>/iqr-bars_<op>_input-<size>.png`; `analysis.dir` moves the root
   - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
-  - `analysis/` : `summary.md` and three charts
+  - `analysis/` : `summary.md` and three charts, from `analyze.py` (the older script)
 
 Each module's own README lists its files and responsibilities.
 
@@ -74,7 +75,7 @@ Rules:
 2. `configuration/` : inventory × authored `config/` → the effective set for one run
 3. `preparation/` : operations, keys, inputs and parameters per case; each case called once
 4. `benchmark/` : refuse what this device cannot run, then time each case
-5. `analysis/` : median, percentiles, stability, comparisons *(planned)*
+5. `analysis/`, `chart/` : medians, spread, stability and IQR charts per group; `analysis.charts` in the global file picks them
 
 ### dependency rules
 

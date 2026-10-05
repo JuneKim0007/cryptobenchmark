@@ -168,13 +168,14 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
 | `InventorySourceDocument` | `inventory` | the `generatedFrom` capture, trial and device fields, shared by both generated files |
 | `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
-| `GlobalDocument`, `RunDocument`, `PolicyDocument`, `HarnessDocument`, `AnalysisDocument` | `global` | `global.yaml` schema, one reader per section |
-| `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `HarnessSettings`, `AnalysisSettings` | `global/dto` | the global settings |
+| `GlobalDocument`, `RunDocument`, `PolicyDocument`, `AnalysisDocument` | `global` | `global.yaml` schema, one reader per section |
+| `HarnessDocument`, `HarnessSettings` | `harness` | the harness block and its values; shared by `global`, `testset` and `effective`, so neither of those imports the other |
+| `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `AnalysisSettings` | `global/dto` | the global settings |
 | `TestSetDocument`, `RuleDocument` | `testset` | test-set schema |
 | `TestSet`, `Rule`, `Override` | `testset/dto` | the test set |
 | `EffectiveBuilder`, `OverrideResolver`, `LocatedMatch` | `effective` | include → exclude → overrides → policy |
-| `EffectiveDocument`, `StoppedOnFailureException` | `effective` | effective schema; `stop` policy |
-| `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` | `effective/dto` | the effective set |
+| `EffectiveDocument`, `ReportDocument`, `SkipDocument`, `StoppedOnFailureException` | `effective` | effective schema; `report.yaml` schema; one skipped entry as a map; `stop` policy |
+| `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip`, `Report` | `effective/dto` | the effective set; what the run noticed |
 | `YamlFiles`, `YamlFile`, `ReadOnlyYamlFile` | `yaml` | factory; read-write with stamp and atomic write; read-only with `schemaVersion` check |
 | `DocumentHandler`, `DocumentReader`, `ProviderTree`, `DocumentFields`, `YamlCodec` | `yaml` | value ⇄ map per kind, provider tree, typed reads, YAML text |
 
