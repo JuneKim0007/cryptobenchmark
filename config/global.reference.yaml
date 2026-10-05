@@ -13,8 +13,8 @@ run:                             # optional — every key below falls back to it
   processRepetitions: 1          # optional, default 1 — independent process runs
   seed: 0                        # optional, default 0 — seeds the input bytes
   harness:                       # optional — the run's defaults; an entry states only what differs
-    iterations: 50               # optional — measurement samples per case (androidx.benchmark.iterations)
-    warmupIterations: null       # optional — null leaves warmup to the harness
+    iterations: 50               # optional — timing samples per case; the device applies it per case (allocation is always 5 runs)
+    warmupIterations: null       # optional — null leaves warmup to the harness; 0 is refused on a device, androidx needs at least 1
     profiling: none              # optional — none | MethodTracing | StackSampling
 
 policy:                          # optional
