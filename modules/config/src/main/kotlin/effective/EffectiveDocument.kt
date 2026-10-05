@@ -4,10 +4,12 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
+import io.github.junekim0007.cryptobench.config.global.AnalysisDocument
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocument
 import io.github.junekim0007.cryptobench.config.global.HarnessDocument
 import io.github.junekim0007.cryptobench.config.global.RunDocument
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
@@ -26,6 +28,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val GENERATED_FROM = "generatedFrom"
     private const val RUN = "run"
     private const val POLICY = "policy"
+    private const val ANALYSIS = "analysis"
     private const val PROVIDERS = "providers"
     private const val SKIPPED = "skipped"
     private const val WARNINGS = "warnings"
@@ -56,6 +59,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         },
         RUN to RunDocument.of(value.run),
         POLICY to PolicyDocument.of(value.policy),
+        ANALYSIS to AnalysisDocument.of(value.analysis),
         PROVIDERS to ProviderTree.of(value.providers, ::entry),
         WARNINGS to value.warnings,
         SKIPPED to value.skipped.map { skip ->
@@ -80,6 +84,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             ),
             run = RunDocument.parse(section(document, RUN), RUN),
             policy = PolicyDocument.parse(section(document, POLICY), POLICY),
+            analysis = optionalSection(document, ANALYSIS)?.let { AnalysisDocument.parse(it, ANALYSIS) } ?: AnalysisSettings(),
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS, ::entryOf),
             warnings = optionalStrings(document, WARNINGS),
             skipped = optionalSections(document, SKIPPED).map { skip ->

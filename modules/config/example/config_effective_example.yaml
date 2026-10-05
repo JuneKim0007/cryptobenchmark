@@ -14,6 +14,8 @@ run:
   processRepetitions: 1
   seed: 42
 policy: {onFailure: skip}
+analysis:
+  statistic: {headline: auto, meanUpToCovPercent: 5.0}
 providers:
   SUN:
     MessageDigest:

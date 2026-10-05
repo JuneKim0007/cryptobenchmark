@@ -48,6 +48,7 @@ class EffectiveBuilder {
             providers = providers,
             skipped = skipped,
             warnings = warnings,
+            analysis = global.analysis,
         )
     }
 

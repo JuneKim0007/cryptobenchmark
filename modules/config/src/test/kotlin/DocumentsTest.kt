@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
@@ -55,10 +56,14 @@ class DocumentsTest {
     fun malformedDocumentsAreRefusedByName() {
         val global = "schemaVersion: 1\nselection: {testSet: a.yaml}\n"
         listOf<Pair<() -> Any, String>>(
-            { GlobalDocument.parse(codec.load(global + "rn: {}\n")) } to "unknown_section: [rn], known [selection, run, policy]",
+            { GlobalDocument.parse(codec.load(global + "rn: {}\n")) } to "unknown_section: [rn], known [selection, run, policy, analysis]",
             { GlobalDocument.parse(codec.load(global + "run: {inputSize: [1]}\n")) } to "unknown_keys: run [inputSize], known [inputSizes, phases, metrics, processRepetitions, seed, harness]",
             { GlobalDocument.parse(codec.load(global + "policy: {onFailure: retry}\n")) } to "invalid: policy.onFailure retry, one of [stop, skip]",
             { GlobalDocument.parse(codec.load(global + "policy: {onUnavailable: skip}\n")) } to "unknown_keys: policy [onUnavailable], known [onFailure]",
+            { GlobalDocument.parse(codec.load(global + "analysis: {statistic: {headline: average}}\n")) } to "invalid: analysis.statistic.headline average, one of [auto, median, mean]",
+            { GlobalDocument.parse(codec.load(global + "analysis: {statistic: {meanUpToCovPercent: 0}}\n")) } to "not_positive: meanUpToCovPercent 0.0 at analysis.statistic",
+            { GlobalDocument.parse(codec.load(global + "analysis: {statistic: {covLimit: 5}}\n")) } to "unknown_keys: analysis.statistic [covLimit], known [headline, meanUpToCovPercent]",
+            { GlobalDocument.parse(codec.load(global + "analysis: {stat: {}}\n")) } to "unknown_keys: analysis [stat], known [statistic]",
             { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) } to "empty_rule: give provider, type or name at selection.exclude[1]",
             { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) } to "unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations, harness]",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {iterations: 0}}\n")) } to "not_positive: iterations 0 at run.harness",
@@ -79,5 +84,19 @@ class DocumentsTest {
         val partial = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {processRepetitions: 3}\n"))
         assertEquals(3, partial.run.processRepetitions)
         assertEquals(listOf(1024), partial.run.inputSizes)
+    }
+
+    /** The statistic that leads is the user's call; auto at 5% when nothing is said, and the choice is frozen into effective.yaml. */
+    @Test
+    fun theHeadlineStatisticDefaultsToAutoAndTravelsToTheEffectiveFile() {
+        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
+        assertEquals(AnalysisSettings.Headline.AUTO, minimal.analysis.statistic.headline)
+        assertEquals(5.0, minimal.analysis.statistic.meanUpToCovPercent, 0.0)
+
+        val chosen = GlobalDocument.parse(codec.load(Fixtures.GLOBAL + "analysis: {statistic: {headline: MEDIAN, meanUpToCovPercent: 2.5}}\n"))
+        assertEquals(AnalysisSettings.Headline.MEDIAN, chosen.analysis.statistic.headline)
+        val built = EffectiveBuilder().build(chosen, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
+        val reread = EffectiveDocument.parse(codec.load(YamlCodec().dump(EffectiveDocument.of(built))))
+        assertEquals(chosen.analysis, reread.analysis)
     }
 }

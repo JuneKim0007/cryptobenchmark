@@ -34,6 +34,8 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
 | | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default |
+| `analysis` | `statistic.headline` | `auto` | which statistic leads in tables and charts: `auto`, `median`, `mean`. Both are always computed. `auto` leads with the mean while a case's CoV is within `meanUpToCovPercent`, with the median above it |
+| | `statistic.meanUpToCovPercent` | `5` | percent, `> 0`; read only when `headline` is `auto`. CoV is sample sd ÷ mean, as Jetpack's `coefficientOfVariation`. A rooted device with locked clocks is steadier, so this is the knob to move there |
 | `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
 
 ## testsets/*.yaml
@@ -99,6 +101,7 @@ separator because no JCA algorithm or alias name uses it.
 | `generatedFrom` | global, test set, inventory, capture, trial file names; device |
 | `run` | the global `run` section, frozen |
 | `policy` | the global `policy` section, frozen: preparation and the benchmark apply the same rule |
+| `analysis` | the global `analysis` section, frozen, so the analysis of a run can be repeated. Preparation and the benchmark do not read it |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations` (empty = every operation of the type), `providerDefaults` |
 | `providers.<p>.<type>.<name>@<group>` | the same, for one group of a primitive measured more than once |
 | `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
@@ -141,6 +144,7 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0`, `harness {}` |
 | harness values a missing field leaves to the timer | `HarnessSettings` | `iterations`, `warmupIterations`, `profiling` all unset |
 | failure policy default | `Policy` | `skip` |
+| analysis defaults | `AnalysisSettings` | `headline auto`, `meanUpToCovPercent 5` |
 
 ## Classes
 
@@ -151,8 +155,8 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
 | `InventorySourceDocument` | `inventory` | the `generatedFrom` capture, trial and device fields, shared by both generated files |
 | `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
-| `GlobalDocument`, `RunDocument`, `PolicyDocument`, `HarnessDocument` | `global` | `global.yaml` schema, one reader per section |
-| `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `HarnessSettings` | `global/dto` | the global settings |
+| `GlobalDocument`, `RunDocument`, `PolicyDocument`, `HarnessDocument`, `AnalysisDocument` | `global` | `global.yaml` schema, one reader per section |
+| `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `HarnessSettings`, `AnalysisSettings` | `global/dto` | the global settings |
 | `TestSetDocument`, `RuleDocument` | `testset` | test-set schema |
 | `TestSet`, `Rule`, `Override` | `testset/dto` | the test set |
 | `EffectiveBuilder`, `OverrideResolver`, `LocatedMatch` | `effective` | include → exclude → overrides → policy |
