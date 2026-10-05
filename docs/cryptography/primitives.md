@@ -63,7 +63,7 @@ Bouncy Castle (`org.bouncycastle:bcprov-jdk18on`).
 | HmacSHA{1,224,256,384,512} | AndroidKeyStore | mac | integrity tag under a hardware key | no |
 | SHA{1,224,256,384,512}withRSA, MD5withRSA | AndroidOpenSSL | signature | authenticity with an RSA key | yes |
 | SHA{1,224,256,384,512}withRSA/PSS | AndroidOpenSSL | signature | as above, modern padding | no |
-| SHA{1,224,256,384,512}withECDSA, NONEwithECDSA | AndroidOpenSSL | signature | authenticity with a small EC key | **no** |
+| SHA{1,224,256,384,512}withECDSA, NONEwithECDSA | AndroidOpenSSL | signature | authenticity with a small EC key | partly: SHA256withECDSA only |
 | EdDSA (Ed25519) | AndroidOpenSSL | signature | authenticity, deterministic nonce | no |
 | ML-DSA-{44,65,87}, SLH-DSA-SHA2-128S, MLDSA*-hybrids | AndroidOpenSSL | signature | post-quantum authenticity | no |
 | RSA, ECDSA | AndroidKeyStoreBCWorkaround | signature | authenticity with a hardware key | yes (RSA) |
