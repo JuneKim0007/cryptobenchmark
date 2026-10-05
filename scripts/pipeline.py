@@ -144,6 +144,8 @@ def main():
     analysis = results / "analysis"
     started = time.monotonic()
     subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(analysis)], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/charts.py"), str(benchmark / "benchmark.json"),
+                    str(preparation / "prepared.yaml"), str(effective), str(results)], check=True)
     elapsed("analyse", started)
 
 

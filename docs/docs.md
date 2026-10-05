@@ -34,7 +34,7 @@
 - `tools/`
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles `discovery`, `preparation` and `benchmark` against `android.jar` with no JDK on the classpath
-  - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`) and the analysis script
+  - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`), the analysis script, `charts.py` (IQR bars, `summary.md`, `chart-data.json`, `manifest.yaml` under `results/chart/<run-id>/`) and `stats.py` (the statistics, one definition each)
   - `module-isolation/` : compiles each module alone and runs it against its `example/` files
 - `docs/`
   - `docs.md` : this file
@@ -43,6 +43,7 @@
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`
   - `configuration/` : `inventory.yaml`, `effective.yaml`, `report.yaml`
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
+  - `chart/<run-id>/` : `summary.md`, `chart-data.json`, `manifest.yaml`, and `<n>-<group>/iqr-bars_<op>_input-<size>.png`; `analysis.dir` moves the root
   - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
   - `analysis/` : `summary.md` and three charts
 
