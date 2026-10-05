@@ -1,16 +1,17 @@
 # Inbound, written by hand. What a run measures, and what it does when something fails.
-schemaVersion: 1
+schemaVersion: 1                         # required
 
-selection:
-  testSet: config_testset_example.yaml   # relative to this file
-  exclude: []                            # e.g. {provider: SunJCE} to drop one provider
+selection:                               # required
+  testSet: config_testset_example.yaml   # required — relative to this file
+  exclude: []                            # optional, default [] — e.g. {provider: SunJCE} to drop one provider
 
-run:
-  inputSizes: [1024]
-  phases: [WARM]
-  metrics: [TIME]
-  processRepetitions: 1
-  seed: 42
+run:                                     # optional — every key falls back to its default
+  inputSizes: [1024]                     # optional, default [1024] — bytes per call
+  phases: [WARM]                         # optional, default [WARM] — WARM | COLD
+  metrics: [TIME]                        # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS
+  processRepetitions: 1                  # optional, default 1
+  seed: 42                               # optional, default 0
+  # harness: {iterations: 50, warmupIterations: null, profiling: none}   # optional — omitted here, the harness's defaults apply
 
-policy:
-  onFailure: skip                        # stop | skip
+policy:                                  # optional
+  onFailure: skip                        # optional, default skip — stop | skip

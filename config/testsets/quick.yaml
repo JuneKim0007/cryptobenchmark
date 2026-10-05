@@ -1,4 +1,5 @@
-schemaVersion: 1
+# Schema and which keys are optional: see scope.yaml.
+schemaVersion: 1                 # required
 description: quick vertical run — one representative per primitive in the README scope, explicit parameters
 
 include:

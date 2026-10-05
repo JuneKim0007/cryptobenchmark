@@ -1,4 +1,5 @@
-schemaVersion: 1
+# Schema and which keys are optional: see scope.yaml.
+schemaVersion: 1                 # required
 description: a few staples, for CI and dry runs
 
 include:
