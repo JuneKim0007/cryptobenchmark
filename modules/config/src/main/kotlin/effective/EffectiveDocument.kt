@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.config.effective
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
-import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.global.AnalysisDocument
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocument
@@ -14,7 +13,6 @@ import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
@@ -29,6 +27,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val RUN = "run"
     private const val POLICY = "policy"
     private const val ANALYSIS = "analysis"
+    private const val RUN_ID = "runId"
     private const val PROVIDERS = "providers"
     private const val SKIPPED = "skipped"
     private const val WARNINGS = "warnings"
@@ -44,34 +43,20 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val GLOBAL = "global"
     private const val TEST_SET = "testSet"
     private const val INVENTORY = "inventory"
-    private const val STAGE = "stage"
-    private const val PROVIDER = "provider"
-    private const val TYPE = "type"
-    private const val NAME = "name"
-    private const val REASON = "reason"
 
-    override fun of(value: EffectiveConfig): Map<String, Any> = linkedMapOf(
-        GENERATED_FROM to LinkedHashMap<String, Any>().apply {
+    override fun of(value: EffectiveConfig): Map<String, Any> = LinkedHashMap<String, Any>().apply {
+        put(GENERATED_FROM, LinkedHashMap<String, Any>().apply {
             put(GLOBAL, value.generatedFrom.global)
             put(TEST_SET, value.generatedFrom.testSet)
             put(INVENTORY, value.generatedFrom.inventory)
             putAll(InventorySourceDocument.of(value.generatedFrom.environment))
-        },
-        RUN to RunDocument.of(value.run),
-        POLICY to PolicyDocument.of(value.policy),
-        ANALYSIS to AnalysisDocument.of(value.analysis),
-        PROVIDERS to ProviderTree.of(value.providers, ::entry),
-        WARNINGS to value.warnings,
-        SKIPPED to value.skipped.map { skip ->
-            LinkedHashMap<String, Any>().apply {
-                put(STAGE, skip.stage)
-                skip.provider?.let { put(PROVIDER, it) }
-                skip.type?.let { put(TYPE, it) }
-                skip.name?.let { put(NAME, it) }
-                put(REASON, skip.reason)
-            }
-        },
-    )
+        })
+        value.runId?.let { put(RUN_ID, it) }
+        put(RUN, RunDocument.of(value.run))
+        put(POLICY, PolicyDocument.of(value.policy))
+        put(ANALYSIS, AnalysisDocument.of(value.analysis))
+        put(PROVIDERS, ProviderTree.of(value.providers, ::entry))
+    }
 
     override fun parse(document: Map<String, Any>): EffectiveConfig {
         val source = section(document, GENERATED_FROM)
@@ -87,9 +72,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             analysis = optionalSection(document, ANALYSIS)?.let { AnalysisDocument.parse(it, ANALYSIS) } ?: AnalysisSettings(),
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS, ::entryOf),
             warnings = optionalStrings(document, WARNINGS),
-            skipped = optionalSections(document, SKIPPED).map { skip ->
-                Skip(string(skip, STAGE), optionalStringOrNull(skip, PROVIDER), optionalStringOrNull(skip, TYPE), optionalStringOrNull(skip, NAME), string(skip, REASON))
-            },
+            skipped = optionalSections(document, SKIPPED).map { SkipDocument.parse(it) },
         )
     }
 

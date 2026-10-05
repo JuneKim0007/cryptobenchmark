@@ -12,5 +12,5 @@ Authored, committed. Nothing here is generated.
 | `testsets/all.yaml` | everything the device can run |
 | `testsets/smoke.yaml` | three staples |
 
-Generated from these plus the probe: `results/configuration/inventory.yaml`, `results/configuration/effective.yaml`.
+Generated from these plus the probe: `results/configuration/inventory.yaml`, `results/configuration/effective.yaml`, and beside it `report.yaml` (warnings and skips).
 Fields and precedence: `modules/config/docs/config.md`.

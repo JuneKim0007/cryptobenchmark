@@ -2,6 +2,8 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
+import io.github.junekim0007.cryptobench.config.effective.ReportDocument
+import io.github.junekim0007.cryptobench.config.effective.dto.Report
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
@@ -35,7 +37,11 @@ class DocumentsTest {
     fun everyKindRoundTripsInFull() {
         val warned = effective.copy(warnings = listOf("override_matches_nothing: {name=X}"))
         assertEquals(inventory, files.at(File(directory, "inventory.yaml"), InventoryDocument).let { it.write(inventory); it.read() })
-        assertEquals(warned, files.at(File(directory, "effective.yaml"), EffectiveDocument).let { it.write(warned); it.read() })
+        // effective.yaml holds settings only: what the run noticed travels in report.yaml
+        assertEquals(warned.copy(warnings = emptyList(), skipped = emptyList()),
+            files.at(File(directory, "effective.yaml"), EffectiveDocument).let { it.write(warned); it.read() })
+        val report = Report(warned.runId, warned.warnings, warned.skipped)
+        assertEquals(report, files.at(File(directory, "report.yaml"), ReportDocument).let { it.write(report); it.read() })
         assertEquals(global, files.at(File(directory, "global.yaml"), GlobalDocument).let { it.write(global); it.read() })
         assertEquals(testSet, files.at(File(directory, "scope.yaml"), TestSetDocument).let { it.write(testSet); it.read() })
         val text = File(directory, "effective.yaml").readText()
@@ -113,5 +119,16 @@ class DocumentsTest {
         assertEquals(listOf(AnalysisSettings.Chart.IQR_BARS, AnalysisSettings.Chart.STABILITY), some.charts)
         assertEquals("out/charts/<run-id>", some.dir)
         assertEquals(emptyList<AnalysisSettings.Chart>(), GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nanalysis: {charts: []}\n")).analysis.charts)
+    }
+
+    /** The run id is the capture's discovery stamp, so every file of a run can name the same one; a hand-named capture has none. */
+    @Test
+    fun theRunIdIsTheCaptureStampOrNothing() {
+        val stamped = effective.copy(generatedFrom = effective.generatedFrom.copy(
+            environment = effective.generatedFrom.environment.copy(capture = "probe_20261005T103349Z.yaml")))
+        assertEquals("20261005T103349Z", stamped.runId)
+        assertEquals(null, effective.runId)
+        files.at(File(directory, "effective.yaml"), EffectiveDocument).write(stamped)
+        assertTrue(File(directory, "effective.yaml").readText().contains("runId: 20261005T103349Z"))
     }
 }

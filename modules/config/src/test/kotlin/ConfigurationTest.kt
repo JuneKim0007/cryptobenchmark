@@ -69,6 +69,27 @@ class ConfigurationTest {
         assertFalse(configuration.effectiveFile.exists())
     }
 
+    /** Warnings and skips live in report.yaml beside effective.yaml, and reading the effective settings joins them back. */
+    @Test
+    fun whatTheRunNoticedIsWrittenBesideTheSettingsAndJoinedOnRead() {
+        configuration.inventory(capture, trial)
+        configuration.effective(global)
+        assertTrue(configuration.reportFile.exists())
+        val settings = configuration.effectiveFile.readText()
+        assertTrue(settings, !settings.contains("warnings:") && !settings.contains("skipped:"))
+        configuration.reportFile.writeText(configuration.reportFile.readText().replace("warnings: []", "warnings: [typo_in_a_rule]"))
+        assertEquals(listOf("typo_in_a_rule"), configuration.readEffective().warnings)
+    }
+
+    @Test
+    fun aFailedRunLeavesNoStaleReportEither() {
+        configuration.inventory(capture, trial)
+        configuration.effective(global)
+        global.writeText(Fixtures.GLOBAL.replace("policy: {onFailure: skip}", "policy: {onFailure: stop}"))
+        assertThrows(IllegalStateException::class.java) { configuration.effective(global) }
+        assertFalse(configuration.reportFile.exists())
+    }
+
     @Test
     fun anAbsoluteTestSetPathIsUsedAsGiven() {
         configuration.inventory(capture, trial)

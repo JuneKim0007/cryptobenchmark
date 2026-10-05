@@ -76,7 +76,7 @@ class Preparation(
         }
         require(prepared.isNotEmpty()) { "nothing_prepared: every case was skipped, see ${report.file}" }
         val run = PreparedRun(prepared, skipped, global.processRepetitions)
-        record.write(run, inbound.fileName, global.harness, global.seed)
+        record.write(run, inbound.fileName, inbound.runId, global.harness, global.seed)
         return run
     }
 

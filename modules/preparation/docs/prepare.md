@@ -71,6 +71,7 @@ always overwritten.
 | Key | Holds |
 |---|---|
 | `generatedFrom.effective` | the file this run was read from |
+| `generatedFrom.runId` | the run id of that effective file (the capture's discovery stamp); absent when the capture was hand-named |
 | `run` | `seed`, `processRepetitions`, `harness` — the run's defaults |
 | `cases[].id` … `metrics` | the case, as the case id spells it |
 | `cases[].chartGroup`, `chartGroupId` | the group a chart compares within: `unidentified` (0), `symmetric-cipher` (1), `asymmetric-cipher` (2), `signature` (3), `hash` (4), `mac` (5), `kem` (6), `key-agreement` (7), `keygen-symmetric` (8), `keygen-asymmetric` (9). The service type decides; only `Cipher` is split by name. Not the config `group`, which means parameter variants |
