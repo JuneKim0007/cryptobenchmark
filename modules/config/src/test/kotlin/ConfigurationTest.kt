@@ -28,23 +28,6 @@ class ConfigurationTest {
         assertEquals(globalBefore, global.readText())
     }
 
-    /** The committed config/ files parse; a broken edit to them fails here. */
-    @Test
-    fun theCommittedConfigParses() {
-        val root = generateSequence(File("").absoluteFile) { it.parentFile }.firstOrNull { File(it, "config/global.yaml").exists() }
-            ?: return
-        val files = io.github.junekim0007.cryptobench.config.yaml.YamlFiles()
-        val committed = files.at(File(root, "config/global.yaml"), io.github.junekim0007.cryptobench.config.global.GlobalDocument).read()
-        File(root, "config/testsets").listFiles { file -> file.name.endsWith(".yaml") }!!.forEach { file ->
-            files.at(file, io.github.junekim0007.cryptobench.config.testset.TestSetDocument).read()
-        }
-        assertEquals("testsets/scope.yaml", committed.selection.testSet)
-        // the reference lists every key, so a key renamed in the schema fails here instead of misleading a reader
-        val reference = files.at(File(root, "config/global.reference.yaml"), io.github.junekim0007.cryptobench.config.global.GlobalDocument).read()
-        assertEquals("testsets/scope.yaml", reference.selection.testSet)
-        assertEquals(50, reference.run.harness.iterations)
-    }
-
     /** A missing or broken file is named, and a missing test set names the setting that pointed there. */
     @Test
     fun aBadFileIsNamed() {

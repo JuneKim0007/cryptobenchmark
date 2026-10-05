@@ -1,5 +1,11 @@
 package io.github.junekim0007.cryptobench.config.effective
 
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.KEY_SIZES
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.INPUT_SIZES
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.KEY
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.PARAMETERS
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.OPERATIONS
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.HARNESS
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
@@ -32,13 +38,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val SKIPPED = "skipped"
     private const val WARNINGS = "warnings"
 
-    private const val KEY_SIZES = "keySizes"
-    private const val INPUT_SIZES = "inputSizes"
-    private const val KEY = "key"
-    private const val PARAMETERS = "parameters"
     private const val PROVIDER_DEFAULTS = "providerDefaults"
-    private const val OPERATIONS = "operations"
-    private const val HARNESS = "harness"
 
     private const val GLOBAL = "global"
     private const val TEST_SET = "testSet"
