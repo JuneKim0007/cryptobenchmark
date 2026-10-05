@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from chart_model import short, size_label  # noqa: E402
+from chart_model import op_slug, short, size_label  # noqa: E402
 
 NOISY_COLOR, CALM_COLOR = "#e07a1f", "#57068c"
 
@@ -27,12 +27,12 @@ def iqr_bars(items, group_label, operation, size, folder):
     if items[0]["unit"] == "us/op" and max(median) / max(min(median), 1e-9) > 200:
         ax.set_yscale("log")
     runs = ",".join(str(n) for n in sorted({c["ns"]["n"] for c in items}))
-    ax.set_title(f"{group_label} · {operation.lower().replace('-', ' ')} · input {size_label(size)}\n"
+    ax.set_title(f"{group_label} · {op_slug(operation).replace('-', ' ')} · input {size_label(size)}\n"
                  f"median, whiskers Q1-Q3, n={runs} runs; orange = CoV above the limit", fontsize=8)
     ax.legend(fontsize=7, loc="upper left")
     fig.tight_layout()
     folder.mkdir(parents=True, exist_ok=True)
-    path = folder / f"iqr-bars_{operation.lower()}_input-{size_label(size)}.png"
+    path = folder / f"iqr-bars_{op_slug(operation)}_input-{size_label(size)}.png"
     fig.savefig(path, dpi=130)
     plt.close(fig)
     return path
@@ -61,11 +61,11 @@ def count_bars(items, metric_label, group_label, operation, size, folder, metric
     ax.set_ylim(0, max(top, 1) * 1.12)
     ax.grid(axis="y", alpha=.3)
     runs = ",".join(str(n) for n in sorted({c["stats"]["n"] for c in items}))
-    ax.set_title(f"{group_label} · {operation.lower().replace('-', ' ')} · input {size_label(size)} · {metric_label}\n"
+    ax.set_title(f"{group_label} · {op_slug(operation).replace('-', ' ')} · input {size_label(size)} · {metric_label}\n"
                  f"median, whiskers min-max, n={runs} runs (too few for quartiles, so no IQR)", fontsize=8)
     fig.tight_layout()
     folder.mkdir(parents=True, exist_ok=True)
-    path = folder / f"{metric}-bars_{operation.lower()}_input-{size_label(size)}.png"
+    path = folder / f"{metric}-bars_{op_slug(operation)}_input-{size_label(size)}.png"
     fig.savefig(path, dpi=130)
     plt.close(fig)
     return path
@@ -108,10 +108,11 @@ def throughput(cases, out):
         for c in cases:
             if c["group"] in groups and c["unit"] == "MB/s" and c["operation"] in ("ENCRYPT", "DIGEST", "COMPUTE_MAC"):
                 series.setdefault(label(c), []).append(c)
-        for name, points in sorted(series.items()):
+        palette = plt.get_cmap("tab20")
+        for index, (name, points) in enumerate(sorted(series.items())):
             points.sort(key=lambda c: c["inputSize"])
             xs = [c["inputSize"] for c in points]
-            line, = ax.plot(xs, [c["shown"]["median"] for c in points], marker="o", label=name)
+            line, = ax.plot(xs, [c["shown"]["median"] for c in points], marker="o", label=name, color=palette(index % 20))
             ax.fill_between(xs, [c["shown"]["min"] for c in points], [c["shown"]["max"] for c in points], color=line.get_color(), alpha=0.15)
         ax.set_xscale("log", base=2)
         ax.set_xlabel("input size (bytes)")
@@ -128,19 +129,24 @@ def throughput(cases, out):
     return path
 
 
+LATENCY_ROWS = 30       # what stays readable on a slide; the IQR bars carry every case
+
+
 def latency(cases, out):
-    """Median time of the operations whose cost does not scale with a payload: asymmetric, signatures, key generation."""
-    slow = sorted((c for c in cases if c["group"] in {2, 3, 8, 9}), key=lambda c: c["shown"]["median"])
-    plt.figure(figsize=(8, max(3, 0.28 * len(slow) + 1.5)))
-    names = [f"{label(c)} {c['operation'].lower()}" + (f" {c['inputSize']}B" if c["inputSize"] else "") for c in slow]
+    """Median time of the operations whose cost does not scale with a payload: asymmetric, signatures, key generation.
+    Only the slowest LATENCY_ROWS are drawn, and the title says how many there are."""
+    every = sorted((c for c in cases if c["group"] in {2, 3, 8, 9}), key=lambda c: c["shown"]["median"])
+    slow = every[-LATENCY_ROWS:]
+    plt.figure(figsize=(8, 0.28 * len(slow) + 1.8))
+    names = [f"{label(c)} {op_slug(c['operation'])}" + (f" {c['inputSize']}B" if c["inputSize"] else "") for c in slow]
     plt.barh(names, [c["shown"]["median"] for c in slow], color="#4c72b0")
     plt.xscale("log")
     plt.xlabel("median us/op (log)")
-    plt.title("Asymmetric operations, signatures and key generation")
+    plt.title(f"Asymmetric, signatures, key generation: slowest {len(slow)} of {len(every)} cases")
     plt.grid(axis="x", alpha=.3)
     plt.tight_layout()
     path = out / "latency.png"
-    plt.savefig(path, dpi=140, bbox_inches="tight")
+    plt.savefig(path, dpi=140)
     plt.close()
     return path
 
@@ -151,14 +157,15 @@ def stability(cases, out, limit_percent):
     unstable = [c for c in cases if c["noisy"]]
     runs = ",".join(str(n) for n in sorted({c["ns"]["n"] for c in cases}))
     plt.figure(figsize=(8, 4.5))
-    plt.hist(covs, bins=[0, 1, 2, 3, 5, 8, 13, 21, max(21, max(covs) + 1)], color="#4c72b0", edgecolor="white")
+    top = 30                                    # equal-width bins: uneven ones plotted as counts make the tail look empty
+    plt.hist([min(v, top - 1e-9) for v in covs], bins=list(range(0, top + 1, 2)), color="#4c72b0", edgecolor="white")
     plt.axvline(limit_percent, color="crimson", linestyle="--", label=f"{limit_percent:g}% limit")
-    plt.xlabel(f"coefficient of variation % (sample sd / mean; one case = {runs} runs)")
+    plt.xlabel(f"coefficient of variation % (sample sd / mean; one case = {runs} runs; above {top}% is counted in the last bin)")
     plt.ylabel("number of cases")
     plt.title(f"Run-to-run stability: {len(cases) - len(unstable)}/{len(cases)} cases within the {limit_percent:g}% limit")
     if unstable:
         worst = sorted(unstable, key=lambda c: -c["ns"]["cov"])[:5]
-        note = "Worst offenders:\n" + "\n".join(f"{label(c)} {c['operation'].lower()}: {c['ns']['cov']:.0%}" for c in worst)
+        note = "Worst offenders:\n" + "\n".join(f"{label(c)} {op_slug(c['operation'])}: {c['ns']['cov']:.0%}" for c in worst)
         plt.gca().text(0.98, 0.95, note, transform=plt.gca().transAxes, fontsize=8, va="top", ha="right", family="monospace",
                        bbox=dict(boxstyle="round", facecolor="#fde9c8", edgecolor="#8a4b00"))
     plt.legend()

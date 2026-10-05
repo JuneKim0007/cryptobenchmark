@@ -58,3 +58,35 @@ class RunLevelCharts(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ChartFixes(unittest.TestCase):
+    """Bugs found by running the tools on a real 163-case device run."""
+
+    def setUp(self):
+        self.dir = pathlib.Path(tempfile.mkdtemp())
+
+    def test_the_latency_chart_stays_readable_however_many_cases_there_are(self):
+        from PIL import Image
+        import chart_draw
+        cases = [{"group": 3, "algorithm": f"Alg{i}", "keySize": None, "operation": "SIGN", "inputSize": 64,
+                  "shown": {"median": float(i + 1)}, "ns": {"n": 50}} for i in range(120)]
+        path = chart_draw.latency(cases, self.dir)
+        self.assertLessEqual(Image.open(path).size[1], 12 * 140, "a chart taller than a slide cannot be read")
+
+    def test_one_spelling_of_an_operation_in_file_names(self):
+        import chart_model
+        self.assertEqual("generate-key-pair", chart_model.op_slug("GENERATE_KEY_PAIR"))
+        self.assertEqual("generate-key-pair", chart_model.op_slug("GENERATE-KEY-PAIR"))
+
+    def test_the_stability_chart_counts_an_outlier_in_its_last_bin(self):
+        import chart_draw
+        cases = [{"ns": {"cov": v, "n": 50, "median": 1.0}, "noisy": v > 0.05, "algorithm": "A", "keySize": None, "operation": "SIGN", "id": str(v)}
+                 for v in (0.01, 0.03, 0.2, 4.5)]
+        self.assertTrue(chart_draw.stability(cases, self.dir, 5).is_file())
+
+    def test_the_summary_keeps_one_unit_per_row(self):
+        import chart_report
+        header = chart_report.summary_table([]).splitlines()[0]
+        self.assertIn("| unit | mean | median | q1 | q3 | cov |", header)
+        self.assertNotIn("sd (ns)", header)
