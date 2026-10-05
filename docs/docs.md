@@ -48,7 +48,7 @@
   - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
   - `analysis/` : `summary.md` and three charts, from `analyze.py` (the older script)
 
-Each module's own README lists its files and responsibilities.
+Each module's `docs/` file has a Classes table: every class and its role. READMEs do not repeat it.
 
 ### language
 
