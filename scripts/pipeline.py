@@ -80,11 +80,15 @@ def summary(effective):
     import yaml
     document = yaml.safe_load(effective.read_text())
     entries = sum(len(names) for types in document["providers"].values() for names in types.values())
-    for warning in document.get("warnings") or []:
+    report_file = effective.parent / "report.yaml"
+    report = yaml.safe_load(report_file.read_text()) if report_file.is_file() else {}
+    warnings = (report.get("warnings") or []) + (document.get("warnings") or [])   # older effective files carry them inline
+    skipped = (report.get("skipped") or []) + (document.get("skipped") or [])
+    for warning in warnings:
         print(f"warning: {warning}")
-    for skip in document.get("skipped") or []:
+    for skip in skipped:
         print(f"skipped: {skip.get('provider', '*')} {skip.get('type', '*')} {skip.get('name', '*')}: {skip['reason']}")
-    print(f"effective: {entries} entries, {len(document.get('skipped') or [])} skipped")
+    print(f"effective: {entries} entries, {len(skipped)} skipped")
 
 
 def main():

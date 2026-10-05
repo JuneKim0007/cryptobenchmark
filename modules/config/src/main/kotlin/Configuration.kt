@@ -2,7 +2,9 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
+import io.github.junekim0007.cryptobench.config.effective.ReportDocument
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
+import io.github.junekim0007.cryptobench.config.effective.dto.Report
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
@@ -24,6 +26,8 @@ class Configuration(
 
     val effectiveFile: File get() = File(output, EFFECTIVE)
 
+    val reportFile: File get() = File(output, REPORT)
+
     fun inventory(captureFile: File, trialFile: File): File {
         Files.deleteIfExists(inventoryFile.toPath())
         val capture = files.readOnly(captureFile, CaptureSource).read()
@@ -34,6 +38,7 @@ class Configuration(
 
     fun effective(globalFile: File, inventoryFile: File = this.inventoryFile): File {
         Files.deleteIfExists(effectiveFile.toPath())
+        Files.deleteIfExists(reportFile.toPath())
         val global = files.at(globalFile, GlobalDocument).read()
         val named = File(global.selection.testSet)
         val testSetFile = if (named.isAbsolute) named else File(globalFile.absoluteFile.parentFile, global.selection.testSet)
@@ -41,13 +46,21 @@ class Configuration(
         val testSet = files.at(testSetFile, TestSetDocument).read()
         val inventory = files.at(inventoryFile, InventoryDocument).read()
         val effective = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name))
+        files.at(reportFile, ReportDocument).write(Report(effective.runId, effective.warnings, effective.skipped))
         return files.at(effectiveFile, EffectiveDocument).write(effective)
     }
 
-    fun readEffective(file: File = effectiveFile): EffectiveConfig = files.at(file, EffectiveDocument).read()
+    /** The settings, with what the run noticed joined back from the report file beside them when there is one. */
+    fun readEffective(file: File = effectiveFile): EffectiveConfig {
+        val effective = files.at(file, EffectiveDocument).read()
+        val report = File(file.absoluteFile.parentFile, REPORT).takeIf { it.isFile } ?: return effective
+        val noticed = files.at(report, ReportDocument).read()
+        return effective.copy(warnings = effective.warnings + noticed.warnings, skipped = effective.skipped + noticed.skipped)
+    }
 
     companion object {
         const val INVENTORY = "inventory.yaml"
         const val EFFECTIVE = "effective.yaml"
+        const val REPORT = "report.yaml"
     }
 }

@@ -75,4 +75,14 @@ class PreparedFileTest {
         assertNotEquals(digest(prepare())["fingerprint"], digest(prepare(fewer))["fingerprint"])
         assertEquals(mapOf("iterations" to 5), digest(prepare(fewer))["harness"])
     }
+
+    /** The run id travels from the effective file, so a prepared file can be matched to the capture it came from. */
+    @Test
+    fun theRunIdIsCarriedFromTheEffectiveFile() {
+        val example = File(example, "preparation_effective_example.yaml").readText()
+        @Suppress("UNCHECKED_CAST")
+        fun generatedFrom(text: String?) = prepare(text)["generatedFrom"] as Map<String, Any>
+        assertEquals(false, generatedFrom(null).containsKey("runId"))
+        assertEquals("20261005T103349Z", generatedFrom(example.replaceFirst("generatedFrom:", "runId: 20261005T103349Z\ngeneratedFrom:"))["runId"])
+    }
 }

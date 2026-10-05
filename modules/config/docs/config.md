@@ -107,11 +107,20 @@ separator because no JCA algorithm or alias name uses it.
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations` (empty = every operation of the type), `providerDefaults` |
 | `providers.<p>.<type>.<name>@<group>` | the same, for one group of a primitive measured more than once |
 | `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
-| `warnings` | rules that touched nothing: `exclude_matches_nothing`, `override_matches_nothing` — usually a typo; not a failure, printed by the host command |
-| `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |
+| `runId` | the capture's discovery stamp (`probe_<stamp>.yaml`), e.g. `20261005T103349Z`; absent for a hand-named capture. Preparation copies it into `prepared.yaml`, so the files of one run can be matched |
 
 A size no override sets stays empty (provider default): an observed size is not a valid init argument
 (DESede's default key encodes to 192 bits; `init` accepts 112 or 168). The observed size is in `inventory.yaml`.
+
+## report.yaml
+
+What the run noticed, written beside `effective.yaml` and read back with it by `Configuration.readEffective`. An older `effective.yaml` that still holds these keys is read as before.
+
+| Key | Meaning |
+|---|---|
+| `runId` | as in `effective.yaml` |
+| `warnings` | rules that touched nothing: `exclude_matches_nothing`, `override_matches_nothing` — usually a typo; not a failure, printed by the host command |
+| `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |
 
 ## Errors and output files
 
@@ -119,7 +128,7 @@ A size no override sets stays empty (provider default): an observed size is not 
 |---|---|
 | a file is missing | `missing_file: <path>`; a test set also names the setting that pointed there |
 | a file does not parse or has a wrong key | `<file>: <code>: <location>`, e.g. `scope.yaml: unknown_keys: include[0] [nme]` |
-| a run fails | the previous `inventory.yaml` / `effective.yaml` is removed first, so no stale file survives |
+| a run fails | the previous `inventory.yaml` / `effective.yaml` / `report.yaml` is removed first, so no stale file survives |
 | a file is written | written to `<name>.partial`, then moved into place |
 | host command | expected errors print one `error:` line and exit 1; warnings and skips go to stderr |
 

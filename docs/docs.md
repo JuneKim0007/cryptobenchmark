@@ -40,7 +40,7 @@
   - `cryptography/primitives.md`, `cryptography/providers.md` : catalogue
 - `results/` : run output, ignored
   - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`
-  - `configuration/` : `inventory.yaml`, `effective.yaml`
+  - `configuration/` : `inventory.yaml`, `effective.yaml`, `report.yaml`
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
   - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
   - `analysis/` : `summary.md` and three charts

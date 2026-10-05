@@ -17,5 +17,5 @@ object InboundFile {
         inbound(fileName, DocumentFile.read(fileName, text, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
 
     private fun inbound(fileName: String, document: Map<String, Any>): InboundDocument =
-        InboundDocument(fileName, section(document, "run"), section(document, "policy"), section(document, "providers"))
+        InboundDocument(fileName, (document["runId"] as? String)?.takeIf { it.isNotBlank() }, section(document, "run"), section(document, "policy"), section(document, "providers"))
 }
