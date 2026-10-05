@@ -1,14 +1,18 @@
 # Inbound, written by hand. The primitives a run measures, with the key sizes and parameters each needs.
-schemaVersion: 1
-description: three primitives from the example capture, one of each shape
+schemaVersion: 1                         # required
+description: three primitives from the example capture, one of each shape   # optional, free text
 
-include:
+include:                                 # optional — empty selects every primitive the inventory can run
+  # a rule needs at least one of provider | type | name; each part is optional; name accepts *
   - {type: MessageDigest, name: SHA-256}
   - {type: Mac, name: HmacSHA256}
   - {type: Cipher, name: AES/GCM/NoPadding}
 
-overrides:
-  - match: {type: Cipher, name: "AES/*"}
-    set: {keySizes: [128, 256]}
+# exclude: []                            # optional, default [] — same rule shape; exclude always wins
+
+overrides:                               # optional
+  - match: {type: Cipher, name: "AES/*"} # required — a rule; precedence in docs/config.md
+    set: {keySizes: [128, 256]}          # required — every key inside is optional:
+                                         #   keySizes, inputSizes, key, parameters, operations, harness
   - match: {type: Cipher, name: AES/GCM/NoPadding}
     set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}

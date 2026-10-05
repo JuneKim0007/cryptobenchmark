@@ -1,11 +1,12 @@
-schemaVersion: 1
-selection:
-  testSet: testsets/smoke.yaml
-run:
-  inputSizes: [1024]
-  phases: [WARM]
-  metrics: [TIME]
-  processRepetitions: 1
-  seed: 42
-policy:
-  onFailure: skip
+schemaVersion: 1                 # required
+selection:                       # required
+  testSet: testsets/smoke.yaml   # required
+run:                             # optional
+  inputSizes: [1024]             # optional, default [1024]
+  phases: [WARM]                 # optional, default [WARM]
+  metrics: [TIME]                # optional, default [TIME]
+  processRepetitions: 1          # optional, default 1
+  seed: 42                       # optional, default 0
+  # harness: omitted — optional, the harness's own defaults apply
+policy:                          # optional
+  onFailure: skip                # optional, default skip

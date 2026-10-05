@@ -1,19 +1,19 @@
-schemaVersion: 1
+schemaVersion: 1                 # required
 
-selection:
-  testSet: testsets/scope.yaml   # relative to this file
-  exclude: []                    # applied after the test set; exclude always wins, e.g. {provider: BC}
+selection:                       # required
+  testSet: testsets/scope.yaml   # required — relative to this file
+  exclude: []                    # optional, default [] — applied after the test set; exclude always wins, e.g. {provider: BC}
 
-run:
-  inputSizes: [64, 1024, 16384]
-  phases: [WARM]
-  metrics: [TIME]
-  processRepetitions: 1
-  seed: 0
-  harness:                       # the run's defaults; an entry states only what differs
-    iterations: 50               # measurement samples per case (androidx.benchmark.iterations)
-    warmupIterations: null       # null leaves warmup to the harness
-    profiling: none              # none | MethodTracing | StackSampling
+run:                             # optional — every key below falls back to its default
+  inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call; one case per size (types that take no input ignore it)
+  phases: [WARM]                 # optional, default [WARM] — WARM | COLD
+  metrics: [TIME]                # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS (rooted device)
+  processRepetitions: 1          # optional, default 1 — independent process runs
+  seed: 0                        # optional, default 0 — seeds the input bytes
+  harness:                       # optional — the run's defaults; an entry states only what differs
+    iterations: 50               # optional — measurement samples per case (androidx.benchmark.iterations)
+    warmupIterations: null       # optional — null leaves warmup to the harness
+    profiling: none              # optional — none | MethodTracing | StackSampling
 
-policy:
-  onFailure: skip                # stop | skip — every stage; a broken config file always stops
+policy:                          # optional
+  onFailure: skip                # optional, default skip — stop | skip, every stage; a broken config file always stops

@@ -1,12 +1,12 @@
-schemaVersion: 1
-selection:
-  testSet: testsets/quick.yaml
-run:
-  inputSizes: [64, 1024, 16384]
-  phases: [WARM]
-  metrics: [TIME]
-  processRepetitions: 1
-  seed: 42
-  harness: {iterations: 5, profiling: none}
-policy:
-  onFailure: skip
+schemaVersion: 1                 # required
+selection:                       # required
+  testSet: testsets/quick.yaml   # required
+run:                             # optional
+  inputSizes: [64, 1024, 16384]  # optional, default [1024]
+  phases: [WARM]                 # optional, default [WARM]
+  metrics: [TIME]                # optional, default [TIME]
+  processRepetitions: 1          # optional, default 1
+  seed: 42                       # optional, default 0
+  harness: {iterations: 5, profiling: none}   # optional — 5 samples: a fast check, not paper numbers
+policy:                          # optional
+  onFailure: skip                # optional, default skip

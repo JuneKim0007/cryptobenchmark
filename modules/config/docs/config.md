@@ -50,6 +50,30 @@ Override precedence, lowest first: type → name pattern → exact name → prov
 `harness` merges field by field, so a narrow rule naming `iterations` keeps the `profiling` a broad one set; every other key replaces.
 An entry carries only the harness fields that differ from `run.harness`; the rest stay in `run`.
 
+## Axes
+
+What each axis is in YAML, where it may be set, and where it shows up. An axis a type cannot take is absent from its cases, not zero.
+
+| Axis | Key | Set in | Default | Applies to | Case id | `prepared.yaml` |
+|---|---|---|---|---|---|---|
+| input size | `inputSizes` (bytes) | `run`, or an override `set` (replaces) | `[1024]` | types that consume input; keygen takes none | `_i<bytes>` | `inputSize`, `input.bytes` |
+| key size | `keySizes` (bits) | an override `set` only | the provider's own | entries that set it; absent for digests and when unset | `_k<bits>` | `keySize`, `key.keySize` |
+| phase | `phases` | `run` | `[WARM]` | every case | `_WARM`, `_COLD` | `phase` |
+| metric | `metrics` | `run` | `[TIME]` | every case | none | `metrics` |
+| process repetition | `processRepetitions` | `run` | `1` | the whole run | none | `run.processRepetitions` |
+| seed | `seed` | `run` | `0` | the input bytes | none | `run.seed` |
+| key spec | `key` | an override `set` | none | cases that need a spec, e.g. an EC curve; excludes `keySizes` | `_p<crc32>` | `keyParameters` |
+| call parameters | `parameters` | an override `set` | none | IV, nonce, GCM tag, OAEP spec | `_p<crc32>` | `parameters` |
+| operation | `operations` | an override `set` | every operation of the type | one entry | operation name | `operation` |
+| harness | `harness.iterations`, `warmupIterations`, `profiling` | `run`, merged field by field with an override `set` | unset: the harness decides | every case | none | `harness` |
+| parameter variant | `group` in a rule | include and override rules | none | one primitive measured more than once | `<name>@<group>` | `group` |
+| chart group | derived, not set | | | every case, from the service type, then the name | none | `chartGroup`, `chartGroupId` |
+
+`chartGroup` is not the rule `group`: it says which cases a chart may compare, and group 0 is unidentified (see `prepare.md`).
+A chart on one axis leaves out the cases without it: input size drops keygen, key size drops digests.
+
+Planned, not in the schema yet: `output.chartDir` and `output.xAxis` (`inputSize` or `keySize`), and a per-testset `chartGroup` override.
+
 ## Groups
 
 One primitive measured more than once, under different parameters. An include names the group, an
