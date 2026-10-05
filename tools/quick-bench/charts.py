@@ -28,6 +28,10 @@ def build(benchmark_file, prepared_file, effective_file, results):
     if ungrouped:
         print(f"warning: {ungrouped} of {len(cases)} cases have no chartGroup in {prepared_file}; they are drawn as group 0. "
               "Run preparation again: groups come from the service type, not from this script.", file=sys.stderr)
+    mismatches = chart_report.audit_summary(cases)["mismatches"]
+    if mismatches:
+        print(f"warning: {len(mismatches)} cases disagree with the statistics androidx reported for the same runs "
+              f"(first: {mismatches[0]}); see auditAgainstJetpack in manifest.yaml", file=sys.stderr)
     root = pathlib.Path(cfg["dir"].replace("<run-id>", cfg["run_id"])) if cfg["dir"] else pathlib.Path(results) / "chart" / cfg["run_id"]
     root.mkdir(parents=True, exist_ok=True)
     written = []

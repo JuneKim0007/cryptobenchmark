@@ -3,7 +3,7 @@ import json
 
 import yaml
 
-from chart_model import short, size_label
+from chart_model import AUDIT_TOLERANCE, short, size_label
 
 
 def summary_table(cases):
@@ -16,12 +16,20 @@ def summary_table(cases):
     return "\n".join(rows) + "\n"
 
 
+def audit_summary(cases):
+    checked = [c for c in cases if c["audit"]]
+    worst = {k: max((c["audit"][k] for c in checked), default=0.0) for k in ("median", "min", "max", "cov")}
+    return {"checked": len(checked), "tolerance": AUDIT_TOLERANCE, "maxRelativeDifference": worst,
+            "mismatches": sorted(c["id"] for c in checked if max(c["audit"].values()) > AUDIT_TOLERANCE)}
+
+
 def manifest(cases, cfg, written, root):
     return {
         "runId": cfg["run_id"], "cases": len(cases), "noisy": sum(c["noisy"] for c in cases),
         "headline": cfg["headline"], "meanUpToCovPercent": cfg["limit"], "charts": cfg["charts"],
         "definitions": {"cov": "sample sd / mean, as Jetpack", "qcd": "(Q3-Q1)/(Q3+Q1)", "quantile": "linear interpolation, as Jetpack"},
         "runsPerCase": sorted({c["ns"]["n"] for c in cases}),
+        "auditAgainstJetpack": audit_summary(cases),
         "files": sorted(str(p.relative_to(root)) for p in written) + ["summary.md", "chart-data.json"],
     }
 
