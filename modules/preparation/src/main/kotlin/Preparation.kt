@@ -1,14 +1,11 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
-import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
-import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
+import io.github.junekim0007.cryptobench.preparation.prepare.CasePreparer
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import io.github.junekim0007.cryptobench.preparation.prepare.StoppedOnFailureException
@@ -42,33 +39,13 @@ class Preparation(
         val skipped = resolution.rejections.mapTo(mutableListOf()) { rejection ->
             Skip(Skip.PREPARATION, rejection.provider, rejection.selection.type, rejection.selection.algorithm, rejection.reason)
         }
-        val keys = HashMap<KeyRecipe, Result<KeyMaterial>>()
+        val preparer = CasePreparer(planner, generator, binder)
         val prepared = mutableListOf<PreparedCase>()
         for (case in resolution.cases) {
-            val recipe = planner.plan(case)
-            if (recipe is KeyRecipe.Unavailable) {
-                skipped += skip(case, recipe.reason)
-                continue
+            when (val outcome = preparer.prepare(case)) {
+                is CasePreparer.Outcome.Prepared -> prepared += outcome.case
+                is CasePreparer.Outcome.Skipped -> skipped += outcome.skip
             }
-            val key = keys.getOrPut(recipe) { runCatching { generator.generate(recipe) } }
-            val material = key.getOrElse { failure ->
-                skipped += skip(case, "key_generation_failed: ${failure.message}")
-                continue
-            }
-            val definition = OperationDefinitions.of(case.operation)
-            val parameters = bound(case.parameters, "parameters")
-            val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
-            val input = runCatching { definition.input(case, material, parameters) }.getOrElse { failure ->
-                skipped += skip(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
-                continue
-            }
-            val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
-            val failure = runCatching { definition.invocation(candidate).once() }.exceptionOrNull()
-            if (failure != null) {
-                skipped += skip(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}")
-                continue
-            }
-            prepared += candidate
         }
         report.write(skipped)
         if (skipped.isNotEmpty() && global.onFailure == OnFailure.STOP) {
@@ -79,10 +56,4 @@ class Preparation(
         record.write(run, inbound.fileName, inbound.runId, global.harness, global.seed)
         return run
     }
-
-    private fun bound(tree: Map<String, Any>, path: String) =
-        if (tree.isEmpty()) null else binder.bind(tree, path)
-
-    private fun skip(case: BenchmarkCase, reason: String) =
-        Skip(Skip.PREPARATION, case.provider, case.type, case.algorithm, "${case.id}: $reason")
 }
