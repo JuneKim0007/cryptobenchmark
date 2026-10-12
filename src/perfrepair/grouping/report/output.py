@@ -1,8 +1,3 @@
-"""groups.json: the grouping as an indexed document for whatever consumes it next.
-
-Groups list member ids; `items` maps each id to its fully qualified name, its group and what static code
-knows of it; `dropped` keeps every item no agent placed, with the reasons.
-"""
 from __future__ import annotations
 
 from ...dto.grouping import Item, Profile

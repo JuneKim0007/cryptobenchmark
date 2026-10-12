@@ -1,9 +1,3 @@
-"""Gate C: an agent's answer for one item, against that item and the current knowledge.
-
-Join an existing group of the item's family, or create one with a fresh slug id and a description;
-amend only groups of the same family; always give a reason. Families are catalog entries, never groups,
-so their descriptions cannot be amended.
-"""
 from __future__ import annotations
 
 import re

@@ -1,4 +1,3 @@
-"""The first gate on any model reply: it is JSON, and a JSON object."""
 from __future__ import annotations
 
 import json

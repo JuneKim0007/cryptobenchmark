@@ -1,4 +1,3 @@
-"""--agent on every command: the backend name → Conversations, and the arguments every stage shares."""
 from __future__ import annotations
 
 import argparse
@@ -18,7 +17,6 @@ def add_agent_args(parser: argparse.ArgumentParser, effort: str = "medium") -> N
 
 
 def conversations(args: argparse.Namespace, dry_run):
-    """dry_run: the Conversations the command uses when no model is called."""
     if args.agent == "claude":
         return ClaudeConversations(args.model, args.effort)
     if args.agent == "claude-code":

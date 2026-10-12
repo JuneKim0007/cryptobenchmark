@@ -1,4 +1,3 @@
-"""One metric's runs, summarised once so nothing downstream recomputes a number."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -24,8 +23,6 @@ class Summary:
 
 @dataclass
 class Measurements:
-    """measurements.json: per rowId, its timing and allocation summaries, travelling with the
-    runtime they were taken on and the reasons they may not transfer."""
     runtime: dict
     comparability: list[str]
     byRow: dict[str, dict[str, Summary | None]] = field(default_factory=dict)

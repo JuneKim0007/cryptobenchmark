@@ -1,14 +1,3 @@
-"""What happened to each primitive in a run, deduplicated.
-
-`status`:
-  measured      a case produced samples
-  skipped       preparation or config dropped it (skipped.yaml)
-  refused       PlanCheck refused it before any timer (needs the refusals in a file the manifest lists)
-  unmeasured    prepared, but no samples came back and no file says why
-  not_runnable  the device registers the service but the trial could not run it
-One entry per (status, stage, provider, type, algorithm, reason); `rowIds` lists the cases it covers,
-`occurrences` how many raw records were folded into it.
-"""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

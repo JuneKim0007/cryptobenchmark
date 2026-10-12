@@ -1,5 +1,3 @@
-"""Where the stage stands: the next item no record covers. Computed from the outbox, so it cannot drift;
-cursor.json is written only so a person can see progress."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

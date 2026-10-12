@@ -1,9 +1,3 @@
-"""generated_perf_repair.yaml — a cryptobenchmark global.yaml that selects everything the device can run.
-
-The base global's `run` and `policy` are kept; `selection` is replaced. The test set is written as an
-absolute path: the benchmark's Configuration.effective resolves `selection.testSet` against the global
-file's directory unless the path is absolute, and the generated file does not live in the benchmark.
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -17,7 +11,7 @@ KEPT_SECTIONS = ("run", "policy")
 
 
 def _merge(base: dict, overrides: dict) -> dict:
-    """One level deep, so overriding one harness field keeps the others, as the benchmark merges harness."""
+    """One level deep, matching how the benchmark merges `harness`."""
     merged = dict(base)
     for key, value in overrides.items():
         if isinstance(value, dict) and isinstance(merged.get(key), dict):
@@ -28,6 +22,7 @@ def _merge(base: dict, overrides: dict) -> dict:
 
 
 def build_run_config(base: dict, test_set: Path, run_overrides: dict | None = None) -> dict:
+    # Absolute: the benchmark resolves a relative testSet against the global file's directory, not ours.
     doc = {"schemaVersion": base.get("schemaVersion", 1),
            "selection": {"testSet": str(Path(test_set).resolve()), "exclude": []}}
     for section in KEPT_SECTIONS:

@@ -1,4 +1,3 @@
-"""Stage: groups.json + measurements → <run>/worthiness-<mode>/: evidence.json, outbox, verdicts.json."""
 from __future__ import annotations
 
 from dataclasses import asdict

@@ -1,8 +1,3 @@
-"""A conversation: several turns with one agent, its history kept inside; a new one starts with none.
-
-The grouping loop asks again in the same conversation when an answer is rejected, and starts a new one
-to respawn; Conversations is the factory it is given, so it never knows whether a model is real.
-"""
 from __future__ import annotations
 
 import json
@@ -43,7 +38,6 @@ class ClaudeConversations:
 
 
 class ScriptedConversations:
-    """Tests and dry runs: replies from `answer(user message, conversation number, turn)`; every turn recorded."""
 
     def __init__(self, answer: Callable[[str, int, int], dict | str]):
         self.answer, self.started, self.turns = answer, 0, []

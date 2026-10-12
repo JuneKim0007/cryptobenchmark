@@ -1,4 +1,3 @@
-"""One measured configuration: identity and arguments, no numbers."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

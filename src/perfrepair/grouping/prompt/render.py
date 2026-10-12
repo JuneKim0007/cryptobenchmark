@@ -1,7 +1,3 @@
-"""One item's user message: its family, that family's groups (a few members each), and the item itself.
-
-Only the item's family is shown: no other group can be joined, and the message stays small as groups grow.
-"""
 from __future__ import annotations
 
 import re
@@ -16,7 +12,6 @@ EXAMPLES = 3
 
 
 def system_prompt() -> str:
-    """The prompt states the limits gate C enforces, taken from the gate itself so the two cannot drift."""
     return SYSTEM.read_text().replace("{id_pattern}", SLUG.pattern).replace("{max_description}", str(MAX_DESCRIPTION))
 
 
@@ -36,6 +31,5 @@ def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, It
 
 
 def item_id_of(message: str) -> int | None:
-    """The item a rendered message asks about; for stand-in agents, which see only the message."""
     found = re.search(r"^ITEM\n  id (\d+) ", message, re.M)
     return int(found.group(1)) if found else None

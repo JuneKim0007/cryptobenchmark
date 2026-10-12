@@ -1,5 +1,3 @@
-"""One committed decision of any kind: the outbox record. The outbox is the only commit; a kind's state
-is the projection of its records."""
 from __future__ import annotations
 
 from dataclasses import dataclass

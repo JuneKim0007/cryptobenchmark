@@ -1,4 +1,3 @@
-"""Stage: a benchmark manifest → <run>/grouping/items.json and profiles.json, validated before writing."""
 from __future__ import annotations
 
 from pathlib import Path

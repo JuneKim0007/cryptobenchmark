@@ -24,7 +24,7 @@ def test_universe_is_the_catalogued_engine_types_with_ids_in_family_order():
 def test_each_key_kind_rule_decides_where_it_should():
     got = {k: (p.keyKind, p.keyKindFrom) for k, (_, p) in by_name(*built()).items()}
     assert got[("ALG-S/M1", "P1")] == ("secret", "measured")
-    assert got[("ALG-S/M1", "P2")] == ("secret", "key_generator")      # resolved through the generator's alias
+    assert got[("ALG-S/M1", "P2")] == ("secret", "key_generator")
     assert got[("ALG-P/X", "P1")] == ("pair", "key_generator")
     assert got[("ALG-RAW", "P1")] == ("secret", "declared")
     assert got[("PASSWORD-ALG", "P2")] == ("unknown", "none")

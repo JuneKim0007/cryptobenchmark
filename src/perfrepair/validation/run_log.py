@@ -1,4 +1,3 @@
-"""run_log.json: measured entries name only rows that exist; every other entry carries a reason."""
 from __future__ import annotations
 
 from ..dto import PrimitiveRow, RunLog

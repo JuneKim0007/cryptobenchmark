@@ -1,11 +1,3 @@
-"""Claude Code's headless mode (`claude -p`) as an agent: one CLI session per conversation, continued with
---resume, under the user's existing Claude Code login (no API key).
-
-Context isolation, each flag measured against the CLI: no user or project settings or CLAUDE.md
-(--setting-sources ""), no MCP servers (--strict-mcp-config with an empty config: their tool definitions
-were 25K tokens), no tools, no skills, no dynamic system-prompt sections, and an empty working directory.
-What remains is the CLI's own short preamble and the account's attribution line.
-"""
 from __future__ import annotations
 
 import json

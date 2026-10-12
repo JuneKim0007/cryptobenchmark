@@ -1,9 +1,3 @@
-"""Grouping as a decision kind on the engine: one primitive per item, placed into a group of its family.
-
-Gate A (validate): items and profiles valid, knowledge well-formed and equal to the replay of the outbox.
-Gate B (admit): the popped item, re-read from items.json, parses whole and carries no group.
-Gate C (check): parse_answer + validate_answer.
-"""
 from __future__ import annotations
 
 from ..dto.decision import OutboxRecord

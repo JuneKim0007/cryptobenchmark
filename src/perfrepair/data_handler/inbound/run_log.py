@@ -1,10 +1,3 @@
-"""What happened to every primitive in one run, folded into a RunLog.
-
-Sources: the measured rows, skipped.yaml (preparation/config drops), prepared.yaml (cases that were
-planned but produced no samples) and inventory.yaml (`runs: false`, the trial's verdict). Raw records
-differ only in the case id embedded in a reason, or in an object hash the JVM printed; both are moved
-out of the reason so identical failures fold into one entry.
-"""
 from __future__ import annotations
 
 from ...files import read_yaml
@@ -26,7 +19,6 @@ NO_SAMPLES = "no_samples: prepared, but absent from benchmark.json (refused befo
 
 
 def split_case_id(reason: str) -> tuple[str | None, str]:
-    """('<caseId>', rest) when the reason starts with a case id, else (None, reason)."""
     m = _ID_PREFIX.match(reason)
     if m and not _SNAKE.match(m["id"]):
         return m["id"], m["rest"]
@@ -34,7 +26,6 @@ def split_case_id(reason: str) -> tuple[str | None, str]:
 
 
 def normalise_reason(reason: str | None) -> str | None:
-    """Drop what differs per JVM object (identity hashes, key material), collapse whitespace."""
     if reason is None:
         return None
     reason = _LONG_HEX.sub("…", _IDENTITY_HASH.sub("@…", str(reason)))
@@ -47,7 +38,6 @@ def _yaml(path: Path | None) -> dict:
 
 def build_run_log(rows: list[PrimitiveRow], prepared: dict[str, dict] | None = None,
                   skipped_yaml: Path | None = None, inventory_yaml: Path | None = None) -> tuple[RunLog, int]:
-    """(deduplicated log, number of raw records folded into it)."""
     folded: dict[tuple, list[str | None]] = defaultdict(list)
 
     def add(status, stage, provider, type_, algorithm, reason, row_id=None):

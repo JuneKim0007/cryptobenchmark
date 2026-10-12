@@ -1,4 +1,3 @@
-"""What the grouping stage hands on: static findings, and groups.json, the indexed result."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

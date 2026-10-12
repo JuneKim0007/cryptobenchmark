@@ -1,11 +1,3 @@
-"""JCA call sites in an app's source tree.
-
-Matches the API shape `<EngineType>.getInstance(algorithm[, provider])`, with the engine types
-taken from the probe's service types rather than listed here. Only literal arguments are resolved; any
-other expression is kept verbatim for the orchestrate layer to resolve by reading the code.
-A site naming no provider is resolved the way JCA would: the first provider, in the manifest's
-precedence order, whose probe entry registers the algorithm or an alias of it.
-"""
 from __future__ import annotations
 
 import re
@@ -115,7 +107,6 @@ def scan(root: Path, engine_types: set[str]) -> list[Site]:
 
 def default_provider(index: ProbeIndex, providers: list[ProviderEntry], engine_type: str,
                      algorithm: str) -> tuple[str, str] | None:
-    """(provider, canonical algorithm) JCA's getInstance(type, alg) would pick first."""
     for p in sorted(providers, key=lambda p: p.precedence):
         name = index.canonical(p.name, engine_type, algorithm)
         if name is not None:
@@ -124,7 +115,6 @@ def default_provider(index: ProbeIndex, providers: list[ProviderEntry], engine_t
 
 
 def resolve(site: Site, index: ProbeIndex, providers: list[ProviderEntry]) -> dict:
-    """The site plus `resolvedProvider`, `resolvedAlgorithm` and how they were found (`resolution`)."""
     alg = site.algorithm.literal
     on_device = {p.name for p in providers}
     if site.provider is not None:

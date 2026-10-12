@@ -1,4 +1,3 @@
-"""What one model turn returns, and the refusal a model may answer with instead."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

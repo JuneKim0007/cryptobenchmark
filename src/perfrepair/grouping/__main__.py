@@ -1,9 +1,7 @@
 """python3 -m perfrepair.grouping {build,assign,report} — the grouping stage, one step per command.
-
   build   --manifest <results>/manifest.yaml --run <dir>     items.json, profiles.json
   assign  --run <dir> [--agent ...] [--turns 3] [--sessions 2] [--limit N]
-  report  --run <dir> [--supervisor] [--agent ...]          checks.json, groups.json [, supervisor.json]
-"""
+  report  --run <dir> [--supervisor] [--agent ...]          checks.json, groups.json [, supervisor.json]"""
 from __future__ import annotations
 
 import argparse
@@ -23,7 +21,6 @@ from .supervise.run import supervise
 
 
 def _dry_run(message: str, *_):
-    """Every item founds its own group: exercises gates, outbox and projections without a model."""
     item = item_id_of(message)
     return {"group": "", "newGroup": {"id": f"dry-{item}", "description": "dry run: no model was called"},
             "amend": [], "reason": "dry run"}

@@ -1,8 +1,3 @@
-"""Where one cryptobenchmark run put its files: the only entry point into a results tree.
-
-perf-repair never globs a results directory; it reads what the manifest lists and nothing else, so a
-stage that did not run is visibly absent instead of silently replaced by an older file.
-"""
 from __future__ import annotations
 
 from ...files import read_yaml
@@ -14,16 +9,12 @@ from ...dto import BenchmarkManifest
 
 
 def read_manifest(path: Path) -> tuple[BenchmarkManifest, Path]:
-    """(manifest, base directory its relative paths resolve against)."""
     path = Path(path)
     doc = read_yaml(path)
     return BenchmarkManifest.from_json(doc), path.parent.resolve()
 
 
 def manifest_file(manifest: BenchmarkManifest, base: Path, key: str) -> Path | None:
-    """Absolute path of `files[key]`; None when the stage did not run.
-
-    A listed file that is missing is an error: the manifest claims it was written."""
     rel = manifest.files.get(key)
     if rel is None:
         return None

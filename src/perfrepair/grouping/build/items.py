@@ -1,8 +1,3 @@
-"""Benchmark documents → grouping items and profiles. Pure: parsed documents in, DTOs out.
-
-The universe is every service the device registers under an engine type the family catalog covers; an
-item keeps its id across rebuilds of the same capture because ids follow (family, name, provider).
-"""
 from __future__ import annotations
 
 from collections import defaultdict

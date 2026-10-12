@@ -1,4 +1,3 @@
-"""Verdicts: one per group, static ones equal triage, model ones only for asked groups, pairs name members."""
 from __future__ import annotations
 
 from ..dto import GroupEvidence, Verdicts

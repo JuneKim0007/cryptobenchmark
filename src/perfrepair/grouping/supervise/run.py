@@ -1,8 +1,3 @@
-"""Supervisor: one review conversation per family over groups.json; findings only, validated, never applied.
-
-A review is not an outbox decision: it changes no state, so it is asked through the engine's `ask` but
-committed as one supervisor.json.
-"""
 from __future__ import annotations
 
 from ...files import read_json, write_json

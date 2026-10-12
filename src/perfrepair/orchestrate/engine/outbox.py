@@ -1,8 +1,3 @@
-"""<dir>/outbox/: one file per decided or dropped item, the only commit of a decision stage.
-
-A record is written durably and exclusively (temp file, flush, rename, flush the directory; never over an
-existing record), so after a crash it exists whole or not at all; a temp file left behind is discarded on open.
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -29,7 +24,6 @@ class Outbox:
         return OutboxRecord.from_json(read_json(self.path(seq)))
 
     def records(self) -> list[OutboxRecord]:
-        """Every record in sequence order; a gap or an unreadable record is refused, never skipped."""
         records = []
         for n, path in enumerate(sorted(self.directory.glob("[0-9]*.json")), 1):
             if path.name != self.path(n).name:
@@ -41,6 +35,5 @@ class Outbox:
         return records
 
     def append(self, record: OutboxRecord) -> OutboxRecord:
-        """Commit, then read the record back from disk: what is returned is what a crash would leave."""
         write_json(self.path(record.seq), record.to_json(), durable=True, exclusive=True)
         return self.read(record.seq)

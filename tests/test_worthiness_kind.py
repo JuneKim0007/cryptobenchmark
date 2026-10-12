@@ -19,7 +19,7 @@ def reply(decision="test", pairs=None, reason="r"):
 def test_render_carries_numbers_mode_and_warnings():
     text = KIND.render(G, Verdicts("latency"))
     assert "MODE: latency" in text and "cpu_not_locked" in text and "0.500" in text
-    assert "input 1024" not in text  # a configuration without pairs is not shown
+    assert "input 1024" not in text
 
 
 @pytest.mark.parametrize("answer, problem", [

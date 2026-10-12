@@ -1,4 +1,3 @@
-"""The gate every stage runs before it writes: problems found → the stage stops, naming them all."""
 from __future__ import annotations
 
 
