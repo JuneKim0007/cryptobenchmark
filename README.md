@@ -14,7 +14,7 @@ python3 -m perfrepair.orchestrate worthiness --run <run> --mode battery
 python3 -m perfrepair.validation <run>
 ```
 
-`--agent dry-run` runs any stage without a model. Model calls need `ANTHROPIC_API_KEY` or an `ant auth login` profile.
+Model backend: copy `.env.example` to `.env`. `claude-code` (default) uses a Claude subscription through the logged-in `claude` CLI; `claude` uses the Anthropic API with `ANTHROPIC_API_KEY` (`pip install -e .[api]`); `dry-run` calls no model. `--agent` overrides per command.
 
 Requires Python 3.10+, `pyyaml`, `anthropic` for model calls. `make check` runs docs-lint and the tests.
 
