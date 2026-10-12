@@ -1,0 +1,13 @@
+schemaVersion: 1
+generatedFrom: {capture: probe_20260101T000000Z.yaml, trial: trial_20260101T000000Z.yaml}
+providers:
+  Fast:
+    Cipher:
+      AES/GCM/NoPadding: {runs: true, keySizes: [128]}
+    MessageDigest:
+      SHA-256: {runs: true}
+  Slow:
+    Cipher:
+      AES/GCM/NoPadding: {runs: true, keySizes: [128]}
+    Mac:
+      HmacSHA256: {runs: false, reason: 'BadKey: only store keys. Key: Spec@9b4f8de3'}

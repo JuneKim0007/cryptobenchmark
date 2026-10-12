@@ -1,0 +1,23 @@
+# Predefined families. Static code assigns every item to exactly one; agents form groups inside them and
+# may not change these descriptions. Key kind: secret | pair | none | peer | unknown. An engine type with one
+# entry has that key kind; Cipher's is derived per service (grouping/build/key_kind.py).
+schemaVersion: 1
+families:
+- {id: cipher.secret, type: Cipher, keyKind: secret,
+   description: "Symmetric ciphers: one secret key encrypts and decrypts. Interchangeable only with the same mode, padding, IV/nonce contract and authentication (AEAD or not)."}
+- {id: cipher.pair, type: Cipher, keyKind: pair,
+   description: "Asymmetric ciphers: a public key encrypts, the private key decrypts. Interchangeable only with the same padding scheme and the same resolved digest parameters (e.g. OAEP digest and MGF1)."}
+- {id: cipher.unknown, type: Cipher, keyKind: unknown,
+   description: "Ciphers whose key kind no recorded field reveals: password-based (PBE) and key-wrap transformations. Their caller contract differs from plain encryption."}
+- {id: signature.pair, type: Signature, keyKind: pair,
+   description: "Signatures: a private key signs, the public key verifies. Interchangeable only with the same digest, padding/encoding scheme, curve and whether the input is pre-hashed."}
+- {id: mac.secret, type: Mac, keyKind: secret,
+   description: "Message authentication codes over a secret key. Interchangeable only with the same construction and hash."}
+- {id: digest.none, type: MessageDigest, keyKind: none,
+   description: "Hash functions. Interchangeable only when they compute the same function (identical output)."}
+- {id: keygen.none, type: KeyGenerator, keyKind: none,
+   description: "Secret key generators. Interchangeable when they produce keys of the same algorithm and size that the consuming primitive accepts."}
+- {id: keypairgen.none, type: KeyPairGenerator, keyKind: none,
+   description: "Key pair generators. Interchangeable when they produce keys of the same algorithm, size or curve that the consuming primitive accepts."}
+- {id: agreement.peer, type: KeyAgreement, keyKind: peer,
+   description: "Key agreement between two key pairs. Interchangeable only with the same algorithm, curve and shared-secret derivation."}

@@ -1,0 +1,7 @@
+schemaVersion: 1
+run: {processRepetitions: 1}
+cases:
+- {id: g_fast, type: Cipher, algorithm: AES/GCM/NoPadding, provider: Fast, phase: WARM, key: {kind: secret}}
+- {id: g_slow, type: Cipher, algorithm: AES/GCM/NoPadding, provider: Slow, phase: WARM, key: {kind: secret}}
+- {id: d_fast, type: MessageDigest, algorithm: SHA-256, provider: Fast, phase: WARM, key: {kind: none}}
+- {id: d_slow, type: MessageDigest, algorithm: SHA-256, provider: Slow, phase: WARM, key: {kind: none}}
