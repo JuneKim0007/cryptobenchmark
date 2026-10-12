@@ -15,10 +15,10 @@ def triage(evidence: list[GroupEvidence], mode: Mode) -> tuple[list[GroupEvidenc
     for e in evidence:
         pairs = [p for c in e.configurations for p in c.pairs]
         if not pairs:
-            decided.append(Verdict(e.itemId, mode.name, "not_comparable",
+            decided.append(Verdict(e.groupId, mode.name, "not_comparable",
                                    "no configuration measured two primitives of this group", "static", mode.proxy))
         elif not any(mode.improves(p) for p in pairs):
-            decided.append(Verdict(e.itemId, mode.name, "no_improvement",
+            decided.append(Verdict(e.groupId, mode.name, "no_improvement",
                                    f"no replacement improves under {mode.name}: {mode.rule}", "static", mode.proxy))
         else:
             ask.append(e)

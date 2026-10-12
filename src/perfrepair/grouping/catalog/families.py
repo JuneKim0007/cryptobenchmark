@@ -8,6 +8,7 @@ import yaml
 from ...dto.grouping import Family
 
 CATALOG = Path(__file__).with_name("families.yaml")
+SCHEMA_VERSION = 1
 
 
 class Families:
@@ -22,8 +23,8 @@ class Families:
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Families":
         doc = yaml.safe_load(Path(path).read_text())
-        if doc.get("schemaVersion") != 1:
-            raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not 1")
+        if doc.get("schemaVersion") != SCHEMA_VERSION:
+            raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
         return cls([Family(**f) for f in doc["families"]])
 
     @property

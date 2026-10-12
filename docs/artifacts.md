@@ -10,11 +10,11 @@ All in one run directory, except `manifest.yaml` (the benchmark's `results/`).
 | `run_log.json` | inbound | — | `validation/run_log.py` |
 | `sites.json` | inbound, with `--app` | — | none |
 | `grouping/*` | grouping | worthiness reads `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
-| `evidence-<mode>.json` | worthiness | audit | rebuilt from inputs by `validation/verdicts.py` |
-| `worthiness-<mode>.state.json` | worthiness | refeed (planned) | `validation/verdicts.py` |
-| `worthiness-<mode>.journal.jsonl` | worthiness | validation (replay) | `validation/replay.py` |
-| `worthiness-<mode>.queue.json` | worthiness | worthiness (resume) | queue open: same items or refuse |
+| `worthiness-<mode>/evidence.json` | worthiness | audit | rebuilt from inputs by `validation/run.py` |
+| `worthiness-<mode>/outbox/NNNNNN.json` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
+| `worthiness-<mode>/verdicts.json` | worthiness | refeed (planned) | `validation/worthiness.py` + projection equality |
+| `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | — |
 
 - Every JSON document carries `schemaVersion: 1`.
-- A journal is append-only; one line per model call.
+- A journal is append-only, one line per model turn, audit only; state is the projection of the outbox.
 - `measurements.json` carries the run's `runtime` and `comparability` notes.

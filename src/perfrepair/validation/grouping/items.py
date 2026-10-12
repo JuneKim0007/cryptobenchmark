@@ -1,5 +1,5 @@
 """items.json + profiles.json: ids 1..n, one item per (type, name, provider), every family known and
-matching its item, one profile per item and none extra; unassigned items carry no group."""
+matching its item, one profile per item and none extra; no item carries a group (assignments live in the outbox)."""
 from __future__ import annotations
 
 from collections import Counter
@@ -8,8 +8,7 @@ from ...dto.grouping import Item, Profile
 from ...grouping.catalog.families import Families
 
 
-def validate_items(items: list[Item], profiles: dict[int, Profile], families: Families,
-                   unassigned: bool = True) -> list[str]:
+def validate_items(items: list[Item], profiles: dict[int, Profile], families: Families) -> list[str]:
     problems = []
     ids = [i.id for i in items]
     if ids != list(range(1, len(items) + 1)):
@@ -23,7 +22,7 @@ def validate_items(items: list[Item], profiles: dict[int, Profile], families: Fa
             problems.append(f"{i.id}: family {i.family} is for {family.type}, not {i.type}")
         elif i.id in profiles and family.keyKind != profiles[i.id].keyKind:
             problems.append(f"{i.id}: family {i.family} is for key kind {family.keyKind}, profile says {profiles[i.id].keyKind}")
-        if unassigned and i.group is not None:
+        if i.group is not None:
             problems.append(f"{i.id}: carries group {i.group!r} before any agent ran")
         if not (i.type and i.name and i.provider):
             problems.append(f"{i.id}: type, name or provider is empty")

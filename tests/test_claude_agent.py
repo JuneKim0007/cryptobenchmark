@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from perfrepair.orchestrate.agent import AgentRefused, ClaudeAgent
+from perfrepair.orchestrate.agent import AgentRefused, ClaudeConversations
 
 
 class FakeMessages:
@@ -10,7 +10,7 @@ class FakeMessages:
         self.kwargs, self.stop_reason = None, stop_reason
 
     def create(self, **kwargs):
-        self.kwargs = kwargs
+        self.kwargs = {**kwargs, "messages": list(kwargs["messages"])}
         return SimpleNamespace(
             stop_reason=self.stop_reason, stop_details=SimpleNamespace(explanation="declined"),
             content=[SimpleNamespace(type="text", text="{}")], model=kwargs["model"],
@@ -20,7 +20,7 @@ class FakeMessages:
 
 def test_one_turn_cached_system_and_schema():
     messages, schema = FakeMessages(), {"type": "object"}
-    reply = ClaudeAgent(client=SimpleNamespace(messages=messages))("SYS", "ITEM", schema)
+    reply = ClaudeConversations(client=SimpleNamespace(messages=messages)).start("SYS", schema).ask("ITEM")
     k = messages.kwargs
     assert k["messages"] == [{"role": "user", "content": "ITEM"}]
     assert k["system"][0]["cache_control"] == {"type": "ephemeral"}
@@ -30,4 +30,4 @@ def test_one_turn_cached_system_and_schema():
 
 def test_refusal_raises():
     with pytest.raises(AgentRefused):
-        ClaudeAgent(client=SimpleNamespace(messages=FakeMessages("refusal")))("SYS", "ITEM", {})
+        ClaudeConversations(client=SimpleNamespace(messages=FakeMessages("refusal"))).start("SYS", {}).ask("ITEM")

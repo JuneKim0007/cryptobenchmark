@@ -7,11 +7,12 @@ out of the reason so identical failures fold into one entry.
 """
 from __future__ import annotations
 
+from ...files import read_yaml
+
 import re
 from collections import defaultdict
 from pathlib import Path
 
-import yaml
 
 from ...dto import LogEntry, PrimitiveRow, RunLog
 
@@ -41,7 +42,7 @@ def normalise_reason(reason: str | None) -> str | None:
 
 
 def _yaml(path: Path | None) -> dict:
-    return (yaml.safe_load(Path(path).read_text()) or {}) if path is not None else {}
+    return read_yaml(path) if path is not None else {}
 
 
 def build_run_log(rows: list[PrimitiveRow], prepared: dict[str, dict] | None = None,

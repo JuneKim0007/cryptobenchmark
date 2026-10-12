@@ -23,6 +23,7 @@ src/perfrepair/data_handler/inbound/results.py : benchmark.json + prepared.yaml 
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py; returns the manifest path
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
+src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind
 src/perfrepair/dto/grouping.py : Family, Item, Profile; items.json and profiles.json documents
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, OutboxRecord, Group, Knowledge

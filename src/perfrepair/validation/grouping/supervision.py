@@ -2,17 +2,15 @@
 with the arity each kind needs."""
 from __future__ import annotations
 
-import json
-
 from ...grouping.supervise.schema import KINDS
+from ..json_reply import parse_object
 
 
 def parse_review(text: str, groups: dict[str, list[int]]) -> tuple[list[dict] | None, list[str]]:
-    try:
-        d = json.loads(text)
-    except json.JSONDecodeError as e:
-        return None, [f"reply is not JSON: {e}"]
-    findings = d.get("findings") if isinstance(d, dict) else None
+    d, problems = parse_object(text)
+    if d is None:
+        return None, problems
+    findings = d.get("findings")
     if not isinstance(findings, list):
         return None, ["findings is not a list"]
     members = {m for ms in groups.values() for m in ms}

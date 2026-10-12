@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 from typing import Callable, Protocol
 
-from .claude import ClaudeClient
+from .claude import DEFAULT_MODEL, MAX_TOKENS, ClaudeClient
 from .reply import AgentReply
 
 
@@ -35,7 +35,7 @@ class ClaudeConversation:
 
 class ClaudeConversations:
 
-    def __init__(self, model: str = "claude-opus-5-5", effort: str = "medium", max_tokens: int = 16000, client=None):
+    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
         self.client = ClaudeClient(model, effort, max_tokens, client)
 
     def start(self, system: str, schema: dict) -> ClaudeConversation:

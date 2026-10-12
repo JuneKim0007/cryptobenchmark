@@ -4,6 +4,7 @@ Only the item's family is shown: no other group can be joined, and the message s
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from ...dto.grouping import Family, Item
@@ -34,5 +35,7 @@ def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, It
     return "\n".join(lines)
 
 
-def rejection(problems: list[str]) -> str:
-    return "YOUR ANSWER WAS REJECTED:\n" + "\n".join(f"  - {p}" for p in problems) + "\nAnswer again with JSON only."
+def item_id_of(message: str) -> int | None:
+    """The item a rendered message asks about; for stand-in agents, which see only the message."""
+    found = re.search(r"^ITEM\n  id (\d+) ", message, re.M)
+    return int(found.group(1)) if found else None

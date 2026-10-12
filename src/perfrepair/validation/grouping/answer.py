@@ -6,24 +6,21 @@ so their descriptions cannot be amended.
 """
 from __future__ import annotations
 
-import json
 import re
 
 from ...dto.grouping import Item
 from ...dto.grouping_state import Amendment, Answer, Knowledge
 from ...grouping.catalog.families import Families
+from ..json_reply import parse_object
 
 SLUG = re.compile(r"^[a-z0-9][a-z0-9.-]{1,39}$")
 MAX_DESCRIPTION = 400
 
 
 def parse_answer(text: str) -> tuple[Answer | None, list[str]]:
-    try:
-        d = json.loads(text)
-    except json.JSONDecodeError as e:
-        return None, [f"reply is not JSON: {e}"]
-    if not isinstance(d, dict):
-        return None, ["reply is not an object"]
+    d, problems = parse_object(text)
+    if d is None:
+        return None, problems
     shape = []
     if not isinstance(d.get("group", ""), str):
         shape.append("group is not a string")

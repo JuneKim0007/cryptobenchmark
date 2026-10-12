@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from ...dto.grouping import Item, Profile
 from ...dto.grouping_output import SCHEMA_VERSION, Finding
-from ...dto.grouping_state import Knowledge, OutboxRecord
+from ...dto.decision import OutboxRecord
+from ...dto.grouping_state import Knowledge
 from ..catalog.families import Families
 from .rules import common_key_sizes
 
@@ -28,5 +29,5 @@ def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
                    for gid, g in sorted(k.groups.items())],
         "items": {str(i): {"qualified": items[i].qualified, "group": k.group_of(i), "runs": profiles[i].runs,
                            "measured": profiles[i].measured, "resolved": items[i].resolved} for i in sorted(items)},
-        "dropped": [{"item": r.item, "problems": list(r.problems)} for r in records if r.outcome == "dropped"],
+        "dropped": [{"item": int(r.item), "problems": list(r.problems)} for r in records if r.outcome == "dropped"],
     }

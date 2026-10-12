@@ -12,7 +12,7 @@
 ## File structure
 
 ```
-src/perfrepair/result/evidence.py : registry + rows + measurements → GroupEvidence: configurations, members, ordered pair metrics
+src/perfrepair/result/evidence.py : groups.json + rows + measurements → GroupEvidence: configurations, members, ordered pair metrics
 src/perfrepair/result/modes.py : latency and battery (proxy) improvement criteria
 src/perfrepair/result/triage.py : not_comparable and no_improvement verdicts; the rest asked
 ```

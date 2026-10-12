@@ -1,12 +1,24 @@
 """Grouping: the item an agent sees, the static profile it never sees, and the families that frame both.
 
-An item's `group` is null until an agent assigns it; everything else is fixed by static code.
+items.json carries `group: null` for every item and is never edited: an assignment lives in the outbox and
+appears in groups.json. Everything else about an item is fixed by static code.
 """
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
 SCHEMA_VERSION = 1
+SEPARATOR = "|"
+
+
+def qualified(engine_type: str, name: str, provider: str) -> str:
+    """The fully qualified primitive: the one spelling every file uses to name it."""
+    return SEPARATOR.join((engine_type, name, provider))
+
+
+def parse_qualified(text: str) -> tuple[str, str, str]:
+    engine_type, name, provider = text.split(SEPARATOR)
+    return engine_type, name, provider
 
 
 @dataclass(frozen=True)
@@ -29,7 +41,11 @@ class Item:
 
     @property
     def qualified(self) -> str:
-        return f"{self.type}|{self.name}|{self.provider}"
+        return qualified(self.type, self.name, self.provider)
+
+    @property
+    def key(self) -> str:
+        return str(self.id)
 
     def to_json(self) -> dict:
         return asdict(self)

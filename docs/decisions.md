@@ -10,7 +10,7 @@ Grouping is a multi-turn decision: `docs/grouping.md`.
 | answer | `decision` test\|skip, `pairs` [{from, to, reason}], `reason` |
 | ids minted by | code: aliases resolve to primitive ids |
 | fallback | `skip` with source `fallback` |
-| state | `worthiness-<mode>.state.json` (Verdicts) |
+| state | `worthiness-<mode>/verdicts.json` (Verdicts): static triage plus the projection of the outbox |
 
 ## worthiness gate
 

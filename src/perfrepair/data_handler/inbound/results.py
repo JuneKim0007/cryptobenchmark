@@ -1,18 +1,13 @@
-"""benchmark.json + prepared.yaml → PrimitiveRows and their summarised measurements.
-
-benchmark.json carries the samples; prepared.yaml carries what Jetpack cannot know (phase, key kind).
-Identity and numbers leave this module as two separate structures keyed by rowId, so the assign
-decision can be handed the rows without any timing riding along. Statistics are computed here once;
-nothing downstream, least of all the LLM, recomputes a number.
-"""
+"""benchmark.json + prepared.yaml → PrimitiveRows and their summarised measurements, computed once here."""
 from __future__ import annotations
+
+from ...files import read_yaml
 
 import json
 import math
 import statistics
 from pathlib import Path
 
-import yaml
 
 from ...dto import PrimitiveRow, Summary
 
@@ -45,7 +40,7 @@ def read_prepared(prepared_yaml: Path | None) -> dict[str, dict]:
     """Prepared cases by id; empty when preparation's file is absent."""
     if prepared_yaml is None:
         return {}
-    doc = yaml.safe_load(Path(prepared_yaml).read_text()) or {}
+    doc = read_yaml(prepared_yaml)
     return {c["id"]: c for c in doc.get("cases") or []}
 
 

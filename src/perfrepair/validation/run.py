@@ -4,17 +4,20 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..orchestrate import journal
-from ..dto.grouping import read_items
+from ..dto import Verdicts
 from ..files import read_json
+from ..grouping.kind import GroupingKind
 from ..grouping.paths import GroupingPaths
+from ..grouping.report.checks import read_groups
+from ..orchestrate.decisions.worthiness import VERDICTS, WorthinessKind
+from ..orchestrate.engine.kind import project
+from ..orchestrate.engine.outbox import Outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
+from .failure import ValidationFailed
 from .measurements import validate_measurements
-from .grouping.output import validate_output
 from .rows import validate_rows
 from .run_log import validate_run_log
-from .verdicts import validate_verdicts
 
 
 def validate_run(run: Path) -> dict[str, list[str]]:
@@ -26,14 +29,25 @@ def validate_run(run: Path) -> dict[str, list[str]]:
     if (run / rd.RUN_LOG).exists():
         out[rd.RUN_LOG] = validate_run_log(rd.load_run_log(run), rows)
     grouping = GroupingPaths(run)
+    if grouping.items.exists():
+        kind = GroupingKind(grouping)
+        records = Outbox(grouping.outbox).open().records()
+        out["grouping"] = kind.validate(project(kind, records), records)
     if not grouping.groups.exists():
         return out
-    groups = read_json(grouping.groups)
-    out["grouping/groups.json"] = validate_output(groups, {i.id: i for i in read_items(read_json(grouping.items))})
+    try:
+        groups = read_groups(grouping)
+        out["grouping/groups.json"] = []
+    except ValidationFailed as e:
+        out["grouping/groups.json"] = e.problems
+        return out
     for mode in MODES.values():
-        kind = rd.worthiness(mode.name)
-        if rd.state(run, kind).exists():
-            evidence = build_evidence(groups, rows, rd.load_measurements(run).byRow)
-            out[kind] = validate_verdicts(rd.load_verdicts(run, mode.name), evidence, mode,
-                                          journal.read(rd.journal(run, kind)))
+        directory = rd.worthiness(run, mode.name)
+        if (directory / VERDICTS).exists():
+            measurements = rd.load_measurements(run)
+            kind = WorthinessKind(mode, measurements.comparability, build_evidence(groups, rows, measurements.byRow),
+                                  directory, prompt="")
+            records = Outbox(directory / "outbox").open().records()
+            saved = Verdicts.from_json(read_json(directory / VERDICTS))
+            out[directory.name] = kind.validate(saved, records)
     return out

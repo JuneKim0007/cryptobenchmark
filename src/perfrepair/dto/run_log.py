@@ -1,4 +1,4 @@
-"""What happened to each primitive in a run, deduplicated: the input to the run-log LLM view.
+"""What happened to each primitive in a run, deduplicated.
 
 `status`:
   measured      a case produced samples

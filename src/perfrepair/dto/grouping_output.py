@@ -15,6 +15,10 @@ class Finding:
     items: tuple[int, ...]
     detail: str
 
+    def __post_init__(self):
+        if self.severity not in SEVERITIES:
+            raise ValueError(f"finding {self.kind}: severity {self.severity!r} is not one of {SEVERITIES}")
+
     def to_json(self) -> dict:
         return {**asdict(self), "items": list(self.items)}
 

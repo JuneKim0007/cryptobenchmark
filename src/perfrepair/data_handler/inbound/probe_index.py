@@ -5,10 +5,11 @@ needs that to know which engine types to look for and what an algorithm name can
 """
 from __future__ import annotations
 
+from ...files import read_yaml
+
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import yaml
 
 SUPPORTED_SCHEMA = 1
 
@@ -30,7 +31,7 @@ class ProbeIndex:
 
 
 def read_probe_index(path: Path) -> ProbeIndex:
-    doc = yaml.safe_load(Path(path).read_text()) or {}
+    doc = read_yaml(path)
     if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
         raise ValueError(f"{path}: probe schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
     names: dict[tuple[str, str, str], str] = {}

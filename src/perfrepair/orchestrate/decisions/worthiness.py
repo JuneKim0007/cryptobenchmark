@@ -1,21 +1,20 @@
-"""Decision: is replacing one primitive with another in its group worth testing in an app?
-
-The model sees one group's evidence (every number computed by code), the mode, and the run's
-comparability warnings, and answers test or skip. The gate refuses a pair that names a primitive
-outside the group, or that the mode says does not improve in any configuration.
-"""
+"""Worthiness as a decision kind: is replacing one group member with another worth testing in an app?"""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from ...dto import GroupEvidence, Pair, Verdict, Verdicts
+from ...dto.decision import OutboxRecord
 from ...dto.worthiness import DECISIONS
-from ...files import read_json
+from ...files import write_json
 from ...result.modes import Mode
-from .kind import Checked
+from ...result.triage import triage
+from ...validation.json_reply import parse_object
+from ...validation.worthiness import validate_verdicts
+from ..engine.kind import project
 
 PROMPT = Path(__file__).parents[1] / "prompts" / "worthiness.system.md"
+VERDICTS = "verdicts.json"
 
 SCHEMA = {
     "type": "object",
@@ -34,36 +33,42 @@ SCHEMA = {
 }
 
 
-def open_verdicts(path: Path, mode: Mode) -> Verdicts:
-    if Path(path).exists():
-        verdicts = Verdicts.from_json(read_json(path))
-        if verdicts.mode != mode.name:
-            raise ValueError(f"{path}: verdicts for mode {verdicts.mode!r}, not {mode.name!r}")
-        return verdicts
-    return Verdicts(mode.name)
-
 
 def _num(x: float | None, fmt: str = "{:.0f}") -> str:
     return "-" if x is None else fmt.format(x)
 
 
 def aliases(e: GroupEvidence) -> dict[str, str]:
-    """M1..Mn for the group's members in sorted order; ids contain the table's column separator."""
+    """M1..Mn: member ids contain the table's column separator."""
     return {f"M{n}": m for n, m in enumerate(e.members, 1)}
 
 
 class WorthinessKind:
     schema = SCHEMA
 
-    def __init__(self, mode: Mode, comparability: list[str], prompt: str | None = None,
-                 name: str = "worthiness"):
-        self.mode, self.comparability, self.name = mode, comparability, name
-        self.prompt = prompt if prompt is not None else PROMPT.read_text()
+    def __init__(self, mode: Mode, comparability: list[str], evidence: list[GroupEvidence], directory: Path,
+                 prompt: str | None = None):
+        self.mode, self.comparability, self.evidence, self.directory = mode, comparability, evidence, Path(directory)
+        self.name = f"worthiness-{mode.name}"
+        self.system = prompt if prompt is not None else PROMPT.read_text()
+        self._ask, self.static = triage(evidence, mode)
 
-    def render(self, e: GroupEvidence, verdicts: Verdicts, refused: list[str] | None) -> str:
+    def items(self) -> list[GroupEvidence]:
+        return self._ask
+
+    def empty(self) -> Verdicts:
+        return Verdicts(self.mode.name, 0, {v.groupId: v for v in self.static})
+
+    def admit(self, e: GroupEvidence) -> list[str]:
+        return []
+
+    def label(self, e: GroupEvidence) -> str:
+        return e.groupId
+
+    def render(self, e: GroupEvidence, verdicts: Verdicts) -> str:
         lines = [f"MODE: {self.mode.name} — {self.mode.rule}", "RUN WARNINGS:"]
         lines += [f"  - {w}" for w in self.comparability] or ["  (none)"]
-        lines += ["", f"GROUP {e.itemId} | {e.label} | {e.type} | family {e.family}"]
+        lines += ["", f"GROUP {e.groupId} | {e.label} | {e.type} | family {e.family}"]
         alias = aliases(e)
         short = {m: a for a, m in alias.items()}
         lines += ["", "MEMBERS (answer with these names)"] + [f"  {a} = {m}" for a, m in alias.items()]
@@ -81,21 +86,16 @@ class WorthinessKind:
             for p in c.pairs:
                 lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {p.iqrOverlap} | "
                              f"{_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
-        if refused:
-            lines += ["", "YOUR PREVIOUS ANSWER WAS REFUSED:"] + [f"  - {p}" for p in refused]
         return "\n".join(lines)
 
-    def validate(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> Checked:
-        try:
-            d = json.loads(text)
-        except json.JSONDecodeError as err:
-            return Checked(problems=[f"reply is not JSON: {err}"])
-        if not isinstance(d, dict):
-            return Checked(problems=["reply is not an object"])
+    def check(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> tuple[dict | None, list[str]]:
+        d, problems = parse_object(text)
+        if d is None:
+            return None, problems
         decision = d.get("decision")
         reason = d.get("reason").strip() if isinstance(d.get("reason"), str) else ""
         raw = d.get("pairs") if isinstance(d.get("pairs"), list) else None
-        problems, warnings, pairs = [], [], []
+        problems, pairs = [], []
         if decision not in DECISIONS:
             problems.append(f"decision {decision!r} is not one of {DECISIONS}")
         if not reason:
@@ -124,25 +124,24 @@ class WorthinessKind:
             hits = [m for m in metrics if m.fromItem == a and m.toItem == b and self.mode.improves(m)]
             if not hits:
                 problems.append(f"pairs[{i}]: {b} does not improve on {a} under {self.mode.name} in any configuration")
-            elif all(m.iqrOverlap for m in hits):
-                warnings.append(f"pairs[{i}]: every improving configuration overlaps in IQR")
             pairs.append(Pair(a, b, why))
         if problems:
-            return Checked(problems=problems, warnings=warnings)
-        return Checked(Verdict(e.itemId, self.mode.name, decision, reason, "llm", self.mode.proxy, tuple(pairs)),
-                       warnings=warnings)
+            return None, problems
+        return Verdict(e.groupId, self.mode.name, decision, reason, "llm", self.mode.proxy, tuple(pairs)).to_json(), []
 
-    def apply(self, e: GroupEvidence, verdict: Verdict, verdicts: Verdicts) -> dict:
-        verdicts.verdicts[e.itemId] = verdict
+    def apply(self, verdicts: Verdicts, e: GroupEvidence, record: OutboxRecord) -> None:
+        verdicts.verdicts[e.groupId] = (Verdict.from_json(record.decision) if record.outcome == "decided" else
+                                        Verdict(e.groupId, self.mode.name, "skip", "dropped: " + "; ".join(record.problems),
+                                                "fallback", self.mode.proxy))
         verdicts.version += 1
-        return {"groupId": e.itemId, "decision": verdict.decision}
 
-    def fallback(self, e: GroupEvidence, problems: list[str]) -> Verdict:
-        return Verdict(e.itemId, self.mode.name, "skip", "every answer was refused: " + "; ".join(problems),
-                       "fallback", self.mode.proxy)
+    def validate(self, verdicts: Verdicts, records: list[OutboxRecord]) -> list[str]:
+        problems = validate_verdicts(verdicts, self.evidence, self.mode)
+        if verdicts.version != len(records):
+            problems.append(f"verdicts version {verdicts.version} is not the {len(records)} records committed")
+        if project(self, records) != verdicts:
+            problems.append("verdicts differ from triage plus the replay of the outbox")
+        return problems
 
-    def decision_json(self, verdict: Verdict) -> dict:
-        return verdict.to_json()
-
-    def decision_from_json(self, doc: dict) -> Verdict:
-        return Verdict.from_json(doc)
+    def write(self, verdicts: Verdicts, records: list[OutboxRecord]) -> None:
+        write_json(self.directory / VERDICTS, verdicts.to_json())

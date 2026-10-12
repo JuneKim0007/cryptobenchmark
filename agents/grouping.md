@@ -29,9 +29,7 @@ src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measu
 src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profiles.json, validated before writing
 src/perfrepair/grouping/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/grouping/catalog/families.yaml : predefined families with fixed descriptions
-src/perfrepair/grouping/gates.py : gates A, B, D around every item
-src/perfrepair/grouping/loop/attempt.py : one conversation's turns: ask, gate, re-ask with the problems
-src/perfrepair/grouping/loop/run.py : the item loop: gates, conversations, respawn, drop, outbox, projections
+src/perfrepair/grouping/kind.py : GroupingKind on the engine: admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/grouping/paths.py : every file name under <run>/grouping/
 src/perfrepair/grouping/prompt/assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
 src/perfrepair/grouping/prompt/render.py : one item's message: family, its groups, the item; the rejection message
@@ -41,7 +39,6 @@ src/perfrepair/grouping/report/output.py : groups.json assembly
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping
 src/perfrepair/grouping/state/cursor.py : next undecided item, computed from the outbox
 src/perfrepair/grouping/state/knowledge.py : knowledge as a projection of the outbox
-src/perfrepair/grouping/state/outbox.py : atomic append, ordered read, temp-file recovery
 src/perfrepair/grouping/supervise/render.py : one family's review message
 src/perfrepair/grouping/supervise/run.py : supervisor: one review conversation per family → supervisor.json
 src/perfrepair/grouping/supervise/schema.py : the supervisor's JSON schema
