@@ -9,7 +9,7 @@ MAX_CV = 0.05
 
 def _stable(pair: PairMetrics, config: Configuration) -> bool:
     cv = {m.itemId: m.timeNs.cv for m in config.members if m.timeNs is not None}
-    return all(cv.get(i) is not None and cv[i] <= MAX_CV for i in (pair.fromItem, pair.toItem))
+    return all((cv.get(i) or 0) <= MAX_CV for i in (pair.fromItem, pair.toItem))
 
 
 def triage(evidence: list[GroupEvidence], mode: Mode) -> tuple[list[GroupEvidence], list[Verdict]]:
