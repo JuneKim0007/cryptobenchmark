@@ -1,8 +1,7 @@
-"""What an agent is: one stateless call `(system, user, schema) -> AgentReply`, nothing remembered."""
+"""What one model turn returns, and the refusal a model may answer with instead."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Protocol
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass(frozen=True)
@@ -12,10 +11,9 @@ class AgentReply:
     requestId: str = ""
     usage: dict = field(default_factory=dict)
 
+    def to_json(self) -> dict:
+        return asdict(self)
+
 
 class AgentRefused(RuntimeError):
     """The model declined the request (stop_reason "refusal")."""
-
-
-class Agent(Protocol):
-    def __call__(self, system: str, user: str, schema: dict) -> AgentReply: ...

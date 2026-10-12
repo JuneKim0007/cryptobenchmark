@@ -5,12 +5,13 @@ from __future__ import annotations
 from collections import Counter
 
 from ...dto.grouping import Item
+from ...dto.grouping_output import SCHEMA_VERSION
 
 
 def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
     problems = []
-    if doc.get("schemaVersion") != 1:
-        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not 1")
+    if doc.get("schemaVersion") != SCHEMA_VERSION:
+        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
     placed = Counter(m for g in doc["groups"] for m in g["members"])
     dropped = {d["item"] for d in doc["dropped"]}
     problems += [f"item {m}: in {n} groups" for m, n in placed.items() if n > 1]

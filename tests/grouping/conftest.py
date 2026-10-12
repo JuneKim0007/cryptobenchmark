@@ -9,7 +9,7 @@ from perfrepair.files import write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.paths import GroupingPaths
 
-QUIET = {"echo": lambda _: None}
+from helpers import QUIET  # noqa: F401  (re-exported for grouping tests)
 
 
 @pytest.fixture

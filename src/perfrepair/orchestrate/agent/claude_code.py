@@ -14,6 +14,7 @@ import tempfile
 from pathlib import Path
 from typing import Callable
 
+from .claude import DEFAULT_MODEL
 from .reply import AgentRefused, AgentReply
 
 Runner = Callable[[list[str], str, Path], subprocess.CompletedProcess]
@@ -62,7 +63,7 @@ class ClaudeCodeSession:
 
 class ClaudeCodeConversations:
 
-    def __init__(self, model: str = "claude-opus-5-5", effort: str = "medium", binary: str = "claude",
+    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", binary: str = "claude",
                  runner: Runner = _run, workdir: Path | None = None):
         self.model, self.effort, self.binary, self.runner = model, effort, binary, runner
         self.workdir = Path(workdir) if workdir else Path(tempfile.mkdtemp(prefix="perfrepair-agent-"))
@@ -71,13 +72,3 @@ class ClaudeCodeConversations:
 
     def start(self, system: str, schema: dict) -> ClaudeCodeSession:
         return ClaudeCodeSession(self, system, schema)
-
-
-class ClaudeCodeAgent:
-    """Agent: one single-turn CLI session per call."""
-
-    def __init__(self, model: str = "claude-opus-5-5", effort: str = "medium", **kwargs):
-        self.conversations = ClaudeCodeConversations(model, effort, **kwargs)
-
-    def __call__(self, system: str, user: str, schema: dict) -> AgentReply:
-        return self.conversations.start(system, schema).ask(user)

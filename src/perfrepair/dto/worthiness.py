@@ -46,11 +46,15 @@ class Configuration:
 
 @dataclass(frozen=True)
 class GroupEvidence:
-    itemId: str               # the registry groupId; named itemId so it can sit in a decision queue
+    groupId: str
     label: str
     type: str
     family: str
     configurations: tuple[Configuration, ...]
+
+    @property
+    def key(self) -> str:
+        return self.groupId
 
     @property
     def members(self) -> tuple[str, ...]:

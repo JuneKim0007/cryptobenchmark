@@ -6,7 +6,8 @@ from conftest import QUIET, by_name
 
 from perfrepair.dto.grouping import Item, Profile
 from perfrepair.dto.grouping_state import Group, Knowledge
-from perfrepair.grouping.loop.run import run
+from perfrepair.grouping.kind import GroupingKind
+from perfrepair.orchestrate.engine.decide import decide
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check, common_key_sizes
 from perfrepair.orchestrate.agent import ScriptedConversations
@@ -42,7 +43,7 @@ def test_a_dropped_item_is_an_error_finding():
 
 
 def test_report_writes_validated_checks_and_groups(paths):
-    run(paths, ScriptedConversations(by_name), FAMILIES, **QUIET)
+    decide(GroupingKind(paths, FAMILIES), ScriptedConversations(by_name), paths.root, **QUIET)
     document = report(paths, FAMILIES)
     assert json.loads(paths.groups.read_text()) == document
     assert {g["id"] for g in document["groups"]} >= {"alg-s-m1"}

@@ -1,25 +1,26 @@
-"""--agent on every command: the backend name → an Agent (single call) or Conversations (multi-turn)."""
+"""--agent on every command: the backend name → Conversations, and the arguments every stage shares."""
 from __future__ import annotations
 
-from .claude import ClaudeAgent
-from .claude_code import ClaudeCodeAgent, ClaudeCodeConversations
+import argparse
+
+from .claude import DEFAULT_MODEL
+from .claude_code import ClaudeCodeConversations
 from .conversation import ClaudeConversations
 
 BACKENDS = ("claude", "claude-code", "dry-run")
+EFFORTS = ("low", "medium", "high", "xhigh", "max")
 
 
-def conversations(name: str, model: str, effort: str, dry_run):
+def add_agent_args(parser: argparse.ArgumentParser, effort: str = "medium") -> None:
+    parser.add_argument("--agent", choices=BACKENDS, default="claude")
+    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--effort", default=effort, choices=EFFORTS)
+
+
+def conversations(args: argparse.Namespace, dry_run):
     """dry_run: the Conversations the command uses when no model is called."""
-    if name == "claude":
-        return ClaudeConversations(model, effort)
-    if name == "claude-code":
-        return ClaudeCodeConversations(model, effort)
-    return dry_run
-
-
-def agent(name: str, model: str, effort: str, dry_run):
-    if name == "claude":
-        return ClaudeAgent(model, effort)
-    if name == "claude-code":
-        return ClaudeCodeAgent(model, effort)
+    if args.agent == "claude":
+        return ClaudeConversations(args.model, args.effort)
+    if args.agent == "claude-code":
+        return ClaudeCodeConversations(args.model, args.effort)
     return dry_run

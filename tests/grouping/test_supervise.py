@@ -4,7 +4,9 @@ import re
 from conftest import QUIET, Remembering, by_name
 from grouping_data import FAMILIES
 
-from perfrepair.grouping.loop.run import Limits, run
+from perfrepair.grouping.kind import GroupingKind
+from perfrepair.orchestrate.engine.ask import Limits
+from perfrepair.orchestrate.engine.decide import decide
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.supervise.run import supervise
 from perfrepair.orchestrate.agent import ScriptedConversations
@@ -12,7 +14,7 @@ from perfrepair.validation.grouping.supervision import parse_review
 
 
 def finished(paths):
-    run(paths, ScriptedConversations(by_name), FAMILIES, **QUIET)
+    decide(GroupingKind(paths, FAMILIES), ScriptedConversations(by_name), paths.root, **QUIET)
     report(paths, FAMILIES)
     return json.loads(paths.groups.read_text())
 

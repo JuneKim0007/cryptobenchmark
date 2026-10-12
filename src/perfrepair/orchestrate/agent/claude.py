@@ -1,14 +1,17 @@
-"""The Messages API: one request builder, used as a single-call Agent and as a multi-turn Conversation."""
+"""The Messages API: the one request builder every Claude conversation uses."""
 from __future__ import annotations
 
 from .reply import AgentRefused, AgentReply
+
+DEFAULT_MODEL = "claude-opus-5-5"
+MAX_TOKENS = 16000
 
 
 class ClaudeClient:
     """The system prompt is the same bytes on every request of a stage, so it is marked for caching;
     messages change every request and are never cached."""
 
-    def __init__(self, model: str = "claude-opus-5-5", effort: str = "medium", max_tokens: int = 16000, client=None):
+    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
         import anthropic
 
         self.model, self.effort, self.max_tokens = model, effort, max_tokens
@@ -35,13 +38,3 @@ class ClaudeClient:
             "cacheRead": getattr(u, "cache_read_input_tokens", 0) or 0,
             "cacheWrite": getattr(u, "cache_creation_input_tokens", 0) or 0,
         }), list(response.content)
-
-
-class ClaudeAgent:
-    """Agent: one single-turn request per call."""
-
-    def __init__(self, model: str = "claude-opus-5-5", effort: str = "medium", max_tokens: int = 16000, client=None):
-        self.client = ClaudeClient(model, effort, max_tokens, client)
-
-    def __call__(self, system: str, user: str, schema: dict) -> AgentReply:
-        return self.client.request(system, [{"role": "user", "content": user}], schema)[0]

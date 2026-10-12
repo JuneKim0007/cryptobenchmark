@@ -5,9 +5,10 @@ stage that did not run is visibly absent instead of silently replaced by an olde
 """
 from __future__ import annotations
 
+from ...files import read_yaml
+
 from pathlib import Path
 
-import yaml
 
 from ...dto import BenchmarkManifest
 
@@ -15,7 +16,7 @@ from ...dto import BenchmarkManifest
 def read_manifest(path: Path) -> tuple[BenchmarkManifest, Path]:
     """(manifest, base directory its relative paths resolve against)."""
     path = Path(path)
-    doc = yaml.safe_load(path.read_text()) or {}
+    doc = read_yaml(path)
     return BenchmarkManifest.from_json(doc), path.parent.resolve()
 
 

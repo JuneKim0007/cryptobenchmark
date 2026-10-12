@@ -17,7 +17,7 @@ M = {"a1": {"timeNs": summary(200), "allocations": summary(10)},
      "a1b": {"timeNs": summary(900), "allocations": None},
      "s1": {"timeNs": summary(50), "allocations": None},
      "u1": {"timeNs": summary(100), "allocations": None}, "u2": {"timeNs": summary(100), "allocations": None}}
-EVIDENCE = {e.itemId: e for e in build_evidence(GROUPS, ROWS, M)}
+EVIDENCE = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M)}
 
 
 def test_pairs_only_within_one_configuration():
@@ -35,7 +35,7 @@ def test_modes_differ_only_on_allocations():
 
 def test_triage_asks_only_where_a_pair_improves():
     ask, decided = triage(list(EVIDENCE.values()), MODES["latency"])
-    assert [e.itemId for e in ask] == ["g-a"]
+    assert [e.groupId for e in ask] == ["g-a"]
     assert {v.groupId: v.decision for v in decided} == {"g-s": "not_comparable", "g-u": "no_improvement"}
     ask, decided = triage(list(EVIDENCE.values()), MODES["battery"])
     assert ask == [] and all(v.proxy for v in decided)

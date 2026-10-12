@@ -1,13 +1,12 @@
-"""Grouping state: an agent's answer, the outbox record that makes it durable, and the knowledge built from records.
+"""Grouping state: an agent's answer, and the knowledge projected from the committed answers.
 
-The outbox is the only record of decisions; Knowledge is never written except as a projection of it.
+Knowledge is never written except as the projection of the outbox (orchestrate/engine).
 """
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
 SCHEMA_VERSION = 1
-OUTCOMES = ("assigned", "dropped")
 
 
 @dataclass(frozen=True)
@@ -41,33 +40,6 @@ class Answer:
         new = d.get("newGroup") or {}
         return cls(d.get("group") or "", new.get("id") or "", new.get("description") or "",
                    tuple(Amendment(a["group"], a["description"]) for a in d.get("amend") or ()), d.get("reason") or "")
-
-
-@dataclass(frozen=True)
-class OutboxRecord:
-    seq: int
-    item: int
-    outcome: str
-    session: int
-    turn: int
-    knowledgeVersion: int
-    answer: Answer | None = None
-    problems: tuple[str, ...] = ()
-
-    def to_json(self) -> dict:
-        return {"schemaVersion": SCHEMA_VERSION, "seq": self.seq, "item": self.item, "outcome": self.outcome,
-                "session": self.session, "turn": self.turn, "knowledgeVersion": self.knowledgeVersion,
-                "answer": self.answer.to_json() if self.answer else None, "problems": list(self.problems)}
-
-    @classmethod
-    def from_json(cls, d: dict) -> "OutboxRecord":
-        if d.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"outbox record schemaVersion {d.get('schemaVersion')} is not {SCHEMA_VERSION}")
-        if d.get("outcome") not in OUTCOMES:
-            raise ValueError(f"outbox record {d.get('seq')}: outcome {d.get('outcome')!r} is not one of {OUTCOMES}")
-        return cls(int(d["seq"]), int(d["item"]), d["outcome"], int(d["session"]), int(d["turn"]),
-                   int(d["knowledgeVersion"]), Answer.from_json(d["answer"]) if d.get("answer") else None,
-                   tuple(d.get("problems") or ()))
 
 
 @dataclass

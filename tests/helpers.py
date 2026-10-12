@@ -1,4 +1,4 @@
-"""Builders shared by the tests: fake rows and summaries."""
+"""Shared test builders."""
 from perfrepair.dto import PrimitiveRow, Summary
 
 
@@ -9,3 +9,6 @@ def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_
 
 def summary(median, spread=1.0):
     return Summary(median, median - spread, median + spread, 0.01, 50)
+
+
+QUIET = {"echo": lambda _: None}
