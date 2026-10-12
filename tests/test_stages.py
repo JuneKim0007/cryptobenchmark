@@ -1,4 +1,3 @@
-"""Every stage end to end on the fixture results: inbound → grouping (build, assign, report) → worthiness."""
 import json
 from pathlib import Path
 
@@ -21,7 +20,6 @@ F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 
 
 def same_name(message, *_):
-    """Join the group whose example shares the item's name; otherwise found one."""
     item = message.split("ITEM\n  id ")[1].split(" · ")
     for line in message.splitlines():
         if line.startswith("      e.g. ") and f"{item[2]} @" in line:

@@ -1,8 +1,3 @@
-"""Documents on disk: read JSON or YAML; write JSON replacing atomically, so a crash never leaves half a file.
-
-durable: also flush the file and its directory to disk before returning -- the outbox's commit.
-exclusive: refuse to replace an existing file -- a commit is never rewritten.
-"""
 from __future__ import annotations
 
 import json

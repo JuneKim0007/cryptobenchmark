@@ -1,4 +1,3 @@
-"""One family's review message: its groups with descriptions, every member, and the static findings."""
 from __future__ import annotations
 
 from pathlib import Path

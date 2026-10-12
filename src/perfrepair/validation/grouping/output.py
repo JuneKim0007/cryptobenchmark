@@ -1,5 +1,3 @@
-"""groups.json: every item either in exactly one group or dropped, never both; members and item ids agree
-with items.json; every group's family is listed."""
 from __future__ import annotations
 
 from collections import Counter

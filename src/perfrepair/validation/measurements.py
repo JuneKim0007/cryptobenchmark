@@ -1,4 +1,3 @@
-"""measurements.json: keyed by known rows; every summary ordered (p25 ≤ median ≤ p75), positive, n ≥ 1."""
 from __future__ import annotations
 
 import math

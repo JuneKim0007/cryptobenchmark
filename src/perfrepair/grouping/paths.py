@@ -1,4 +1,3 @@
-"""<run>/grouping/: the name of every file the stage reads or writes."""
 from __future__ import annotations
 
 from pathlib import Path

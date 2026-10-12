@@ -1,5 +1,3 @@
-"""Stage: a finished grouping → checks.json and groups.json, each validated before it is written; and the
-one validated reader of groups.json for whatever consumes it."""
 from __future__ import annotations
 
 from ...dto.grouping import read_items
@@ -33,7 +31,6 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
 
 
 def read_groups(paths: GroupingPaths) -> dict:
-    """groups.json, validated against items.json; a consumer never reads it any other way."""
     document = read_json(paths.groups)
     require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}))
     return document

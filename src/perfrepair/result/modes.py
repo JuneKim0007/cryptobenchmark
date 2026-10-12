@@ -1,9 +1,5 @@
-"""Improvement criteria. A mode fixes which measured metric decides whether a replacement improves.
-
-No energy is measured (the benchmark records time and allocations), so battery mode is a proxy:
-CPU time stands in for energy, and a replacement that allocates more per operation never counts
-as an improvement, because collection work happens outside the timed region and still drains.
-"""
+"""Battery is a proxy (no energy measured): more allocations never improve, because GC runs
+outside the timed region yet still drains the battery."""
 from __future__ import annotations
 
 from dataclasses import dataclass

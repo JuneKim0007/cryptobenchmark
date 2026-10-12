@@ -1,5 +1,3 @@
-"""Static checks over a finished grouping. Each rule proves one thing from recorded data and reports
-findings; none changes a group. Add a check by adding a function to RULES."""
 from __future__ import annotations
 
 from typing import Callable

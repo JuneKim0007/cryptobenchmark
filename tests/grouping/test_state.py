@@ -1,4 +1,3 @@
-
 import pytest
 from grouping_data import FAMILIES
 

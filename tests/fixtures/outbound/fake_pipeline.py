@@ -1,7 +1,3 @@
-"""Stands in for cryptobenchmark's scripts/pipeline.py: records its arguments, writes a manifest.
-
-FAKE_EXIT=<n> exits n after printing; FAKE_NO_MANIFEST=1 exits 0 without writing the manifest.
-"""
 import argparse, json, os, pathlib, sys
 
 parser = argparse.ArgumentParser()

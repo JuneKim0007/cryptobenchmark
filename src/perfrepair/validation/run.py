@@ -1,4 +1,3 @@
-"""Validates every artifact present in a run directory, each against the ones it depends on."""
 from __future__ import annotations
 
 from pathlib import Path

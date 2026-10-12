@@ -1,5 +1,3 @@
-"""journal.jsonl: one line per model turn, appended and never rewritten. Audit only: state is projected
-from the outbox, never from here."""
 from __future__ import annotations
 
 import json

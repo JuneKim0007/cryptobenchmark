@@ -1,8 +1,3 @@
-"""Runs cryptobenchmark's scripts/pipeline.py into a perf-repair run directory.
-
-The two packages meet only at files: this module starts the benchmark as a process and hands back the
-path of the manifest it wrote. Reading the manifest is the inbound layer's job.
-"""
 from __future__ import annotations
 
 import os
@@ -25,7 +20,6 @@ class BenchmarkRunError(RuntimeError):
 
 
 def benchmark_root(explicit: Path | str | None = None) -> Path:
-    """Parameter, then CRYPTOBENCH_ROOT, then a sibling checkout of perf-repair."""
     root = Path(explicit or os.environ.get("CRYPTOBENCH_ROOT") or PERF_REPAIR_ROOT.parent / "cryptobenchmark")
     if not (root / PIPELINE).is_file():
         raise BenchmarkRunError(f"no {PIPELINE} under {root}: pass the benchmark root or set CRYPTOBENCH_ROOT")
@@ -33,7 +27,6 @@ def benchmark_root(explicit: Path | str | None = None) -> Path:
 
 
 def new_run_dir(root: Path | str) -> Path:
-    """runs/<utc>/, suffixed when two runs start in the same second; never reuses a directory."""
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -50,7 +43,6 @@ def new_run_dir(root: Path | str) -> Path:
 def run_pipeline(config: Path, results: Path, stage: str = "configure", benchmark: Path | str | None = None,
                  extra_args: list[str] | None = None, echo: Callable[[str], None] | None = print,
                  tail: int = 40) -> Path:
-    """Returns <results>/manifest.yaml. The full output is kept in <results>/pipeline.log."""
     if stage not in STAGES:
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")
     root = benchmark_root(benchmark)

@@ -1,8 +1,3 @@
-"""Service and alias index over discovery's probe_<utc>.yaml.
-
-The manifest carries the providers and their precedence but not what each registers; app_source
-needs that to know which engine types to look for and what an algorithm name canonically is.
-"""
 from __future__ import annotations
 
 from ...files import read_yaml
@@ -16,7 +11,6 @@ SUPPORTED_SCHEMA = 1
 
 @dataclass
 class ProbeIndex:
-    # (provider, type, NAME-OR-ALIAS upper) -> the provider's registered algorithm name
     names: dict[tuple[str, str, str], str] = field(default_factory=dict)
 
     @property
@@ -24,9 +18,6 @@ class ProbeIndex:
         return {t for (_, t, _) in self.names}
 
     def canonical(self, provider: str, engine_type: str, algorithm: str) -> str | None:
-        """The provider's own name for `algorithm`, or None when it does not register it.
-
-        JCA matches names case-insensitively, so this does too."""
         return self.names.get((provider, engine_type, algorithm.upper()))
 
 

@@ -1,5 +1,3 @@
-"""A supervisor's answer for one family: well-formed findings that name only that family's groups and items,
-with the arity each kind needs."""
 from __future__ import annotations
 
 from ...grouping.supervise.schema import KINDS

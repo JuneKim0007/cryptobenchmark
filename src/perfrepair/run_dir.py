@@ -1,4 +1,3 @@
-"""The run directory: the name of every artifact in it, and how each is read back."""
 from __future__ import annotations
 
 from pathlib import Path

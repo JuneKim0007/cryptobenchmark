@@ -1,5 +1,3 @@
-"""The supervisor's JSON schema, for structured output."""
-
 KINDS = ("merge", "split", "describe", "misplaced")
 
 SCHEMA = {

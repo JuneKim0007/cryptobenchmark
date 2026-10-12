@@ -1,9 +1,3 @@
-"""Decides statically every group that needs no judgement, so only real questions reach the model.
-
-- no configuration with two measured primitives → `not_comparable`
-- comparable, but no pair improves under the mode in any configuration → `no_improvement`
-- otherwise → asked: the model decides whether an improvement is worth testing
-"""
 from __future__ import annotations
 
 from ..dto import GroupEvidence, Verdict

@@ -1,4 +1,3 @@
-"""The predefined families (families.yaml) and the lookup from (engine type, key kind) to one of them."""
 from __future__ import annotations
 
 from pathlib import Path

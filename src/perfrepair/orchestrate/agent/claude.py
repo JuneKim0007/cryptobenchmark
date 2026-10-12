@@ -1,4 +1,3 @@
-"""The Messages API: the one request builder every Claude conversation uses."""
 from __future__ import annotations
 
 from .reply import AgentRefused, AgentReply
@@ -8,8 +7,6 @@ MAX_TOKENS = 16000
 
 
 class ClaudeClient:
-    """The system prompt is the same bytes on every request of a stage, so it is marked for caching;
-    messages change every request and are never cached."""
 
     def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
         import anthropic
@@ -18,7 +15,6 @@ class ClaudeClient:
         self.client = client or anthropic.Anthropic()
 
     def request(self, system: str, messages: list[dict], schema: dict) -> tuple[AgentReply, list]:
-        """The reply, and the response's content blocks to append to the history as they are."""
         response = self.client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,

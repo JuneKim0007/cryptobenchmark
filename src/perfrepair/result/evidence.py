@@ -1,10 +1,3 @@
-"""groups.json + rows + measurements → per-group evidence: every configuration the group's members were
-measured in, each member's numbers, and every ordered pair's ratios.
-
-A member is a fully qualified primitive (type|name|provider); a measured row belongs to it by (type,
-algorithm, provider). Only rows that did the same work compare, so a group is split by operation, key
-size, input size and phase.
-"""
 from __future__ import annotations
 
 from collections import defaultdict

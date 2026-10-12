@@ -1,7 +1,3 @@
-"""Grouping state: an agent's answer, and the knowledge projected from the committed answers.
-
-Knowledge is never written except as the projection of the outbox (orchestrate/engine).
-"""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

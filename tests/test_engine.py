@@ -25,7 +25,6 @@ class Labels:
 
 
 class LabelKind:
-    """The agent labels each item; any non-empty label passes."""
     name, system, schema = "labels", "SYS", {"type": "object"}
 
     def __init__(self, keys=("a", "b", "c")):

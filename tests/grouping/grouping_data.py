@@ -1,4 +1,3 @@
-"""Tiny benchmark documents with fake names: two providers, one cipher measured, one keyed by generator."""
 from perfrepair.dto.grouping import Family
 from perfrepair.grouping.catalog.families import Families
 

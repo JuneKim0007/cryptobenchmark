@@ -1,26 +1,3 @@
-"""results/manifest.yaml — what one cryptobenchmark run wrote, and where.
-
-Written by cryptobenchmark's scripts/pipeline.py at the end of every run; read by
-perfrepair.data_handler.inbound.manifest. Paths are relative to the manifest's own directory,
-so a results directory can be moved or archived whole.
-
-    schemaVersion: 1
-    mode: host | device
-    config: <path of the global.yaml the run used>
-    runtime: {...}                      # benchmark.json's runtime block; the probe's when not measured
-    providers:                          # from the probe, in precedence order
-    - {name: X, precedence: 1, serviceCount: 105}
-    files:                              # a stage that did not run is absent, never null
-      probe: discovery/probe_<utc>.yaml
-      trial: discovery/trial_<utc>.yaml
-      inventory: configuration/inventory.yaml
-      effective: configuration/effective.yaml
-      prepared: preparation/prepared.yaml
-      skipped: preparation/skipped.yaml
-      benchmark: benchmark/benchmark.json
-      processes: [benchmark/process-1/benchmark.json, ...]   # only when processRepetitions > 1
-    counts: {prepared: n, skipped: n, measured: n}
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

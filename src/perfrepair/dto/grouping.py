@@ -1,8 +1,3 @@
-"""Grouping: the item an agent sees, the static profile it never sees, and the families that frame both.
-
-items.json carries `group: null` for every item and is never edited: an assignment lives in the outbox and
-appears in groups.json. Everything else about an item is fixed by static code.
-"""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -12,7 +7,6 @@ SEPARATOR = "|"
 
 
 def qualified(engine_type: str, name: str, provider: str) -> str:
-    """The fully qualified primitive: the one spelling every file uses to name it."""
     return SEPARATOR.join((engine_type, name, provider))
 
 

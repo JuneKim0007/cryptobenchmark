@@ -1,4 +1,3 @@
-"""rows.json: unique ids, identity fields present, sizes positive."""
 from __future__ import annotations
 
 from collections import Counter

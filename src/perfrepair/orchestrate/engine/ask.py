@@ -1,5 +1,3 @@
-"""Asking for one item: a conversation's turns, re-asking with the problems after a rejection, then a fresh
-conversation with no memory of the failed one, until an answer passes the check or the limits run out."""
 from __future__ import annotations
 
 import hashlib

@@ -1,5 +1,3 @@
-"""items.json + profiles.json: ids 1..n, one item per (type, name, provider), every family known and
-matching its item, one profile per item and none extra; no item carries a group (assignments live in the outbox)."""
 from __future__ import annotations
 
 from collections import Counter

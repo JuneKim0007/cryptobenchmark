@@ -1,8 +1,4 @@
-"""Test-worthiness: the measured evidence for one primitive group, and the verdict on it.
-
-Evidence is computed by code (result/evidence.py) and handed to the model as is; the model only
-decides. A pair reads "replace `from` with `to`"; its ratios are `to` ÷ `from`, so < 1 is better.
-"""
+"""A pair reads "replace `from` with `to`"; its ratios are `to` ÷ `from`, so < 1 is better."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

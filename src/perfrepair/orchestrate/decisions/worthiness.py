@@ -1,4 +1,3 @@
-"""Worthiness as a decision kind: is replacing one group member with another worth testing in an app?"""
 from __future__ import annotations
 
 from pathlib import Path

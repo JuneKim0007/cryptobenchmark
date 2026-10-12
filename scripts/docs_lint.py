@@ -1,6 +1,3 @@
-"""Fails on: a CLAUDE.md that differs from AGENTS.md, a mapped path that does not exist, a path in two
-maps, an unsorted map, an unmapped source file, a docs folder without index.md, a .md not reachable
-from AGENTS.md, a doc that links to a guide."""
 from __future__ import annotations
 
 import re

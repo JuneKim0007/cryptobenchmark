@@ -1,4 +1,3 @@
-"""benchmark.json + prepared.yaml → PrimitiveRows and their summarised measurements, computed once here."""
 from __future__ import annotations
 
 from ...files import read_yaml
@@ -37,7 +36,6 @@ def _runs(case: dict, metric: str) -> list[float] | None:
 
 
 def read_prepared(prepared_yaml: Path | None) -> dict[str, dict]:
-    """Prepared cases by id; empty when preparation's file is absent."""
     if prepared_yaml is None:
         return {}
     doc = read_yaml(prepared_yaml)
@@ -46,7 +44,6 @@ def read_prepared(prepared_yaml: Path | None) -> dict[str, dict]:
 
 def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None
                  ) -> tuple[list[PrimitiveRow], Measurements]:
-    """Cases with no timing samples are not rows; run_log reports them."""
     doc = json.loads(Path(benchmark_json).read_text())
     prepared = prepared or {}
     rows: list[PrimitiveRow] = []
@@ -69,7 +66,6 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None
 
 
 def comparability(runtime: dict, processes: int) -> list[str]:
-    """Reasons these numbers may not transfer to another run, from the run's own runtime block."""
     notes = []
     if str(runtime.get("cpuLocked", "")).lower() != "true":
         notes.append("cpu_not_locked: clocks were free to scale; ratios between cases are noisier than they look")

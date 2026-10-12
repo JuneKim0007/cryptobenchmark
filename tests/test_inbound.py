@@ -48,7 +48,6 @@ def log(run, results, prepared):
     return build_run_log(results[0], prepared, run[2]("skipped"), run[2]("inventory"))
 
 
-# manifest
 
 def test_manifest_paths_resolve_against_its_own_directory(run):
     manifest, base, path = run
@@ -72,7 +71,6 @@ def test_manifest_refuses_other_schema_versions(tmp_path):
         read_manifest(tmp_path / "manifest.yaml")
 
 
-# results
 
 def test_summary_statistics():
     s = summarise([1, 2, 3, 4, 5])
@@ -102,7 +100,6 @@ def test_comparability_from_runtime_and_process_count(run):
     assert not any(n.startswith("single_process") for n in comparability({"cpuLocked": "true"}, 3))
 
 
-# run log
 
 def test_case_id_is_split_out_of_a_reason():
     assert split_case_id("Cipher_X_k192_p81667fe4: dry_run_failed: Bad: 24 bytes") == (
@@ -132,7 +129,6 @@ def test_run_log_round_trips(log):
     assert RunLog.from_json(json.loads(json.dumps(log[0].to_json()))) == log[0]
 
 
-# probe index + app source
 
 @pytest.fixture
 def index(run):
@@ -172,12 +168,10 @@ def test_default_resolution_follows_manifest_precedence(tmp_path, run, index):
     flipped = [ProviderEntry("Slow", 1, 2), ProviderEntry("Fast", 2, 2)]
     assert resolve(cipher, index, run[0].providers)["resolvedProvider"] == "Fast"
     assert resolve(cipher, index, flipped)["resolvedProvider"] == "Slow"
-    # the first provider that registers the name wins, not simply the first provider
     assert resolve(mac, index, run[0].providers)["resolvedProvider"] == "Slow"
     assert resolve(cipher, index, run[0].providers)["resolvedAlgorithm"] == "AES/GCM/NoPadding"
 
 
-# command
 
 def test_command_writes_the_run_directory(tmp_path, capsys):
     assert main(["--manifest", str(MANIFEST), "--app", str(F / "app"), "-o", str(tmp_path)]) == 0

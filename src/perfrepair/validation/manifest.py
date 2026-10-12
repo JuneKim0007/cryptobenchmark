@@ -1,4 +1,3 @@
-"""manifest.yaml: listed files exist, precedence is 1..n without gaps, counts name files that exist."""
 from __future__ import annotations
 
 from pathlib import Path

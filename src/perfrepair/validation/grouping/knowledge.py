@@ -1,5 +1,3 @@
-"""Knowledge: well-formed groups, every member a known item of the group's family and in one group only,
-no dropped item in a group. That it equals the replay of the outbox is checked by GroupingKind.validate."""
 from __future__ import annotations
 
 from collections import Counter

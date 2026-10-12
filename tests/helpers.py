@@ -1,4 +1,3 @@
-"""Shared test builders."""
 from perfrepair.dto import PrimitiveRow, Summary
 
 

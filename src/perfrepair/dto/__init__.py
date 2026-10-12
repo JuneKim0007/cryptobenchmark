@@ -1,4 +1,3 @@
-"""Interchange shapes between perf-repair's layers and with cryptobenchmark. No I/O lives here."""
 from .manifest import BenchmarkManifest, ProviderEntry
 from .measurement import Measurements, Summary
 from .primitive import PrimitiveRow

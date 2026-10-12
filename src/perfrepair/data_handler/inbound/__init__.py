@@ -1,7 +1,3 @@
-"""Inbound adaptors: a cryptobenchmark manifest (and optionally an app source tree) → dtos.
-
-Starts from results/manifest.yaml and reads only the files it lists.
-"""
 from .app_source import Site, resolve, scan
 from .manifest import manifest_file, read_manifest
 from .probe_index import ProbeIndex, read_probe_index

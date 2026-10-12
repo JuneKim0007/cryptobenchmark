@@ -1,14 +1,3 @@
-"""The decision engine: until every item of a kind is decided, gate, pop, ask, commit, project.
-
-  A  before pop:   the state is valid and is the projection of the outbox
-  B  after pop:    the item is whole (kind.admit)
-  C  every answer: the kind's check
-  commit:          the outbox record, durable and exclusive, read back from disk
-  D  after commit: the new state is valid
-The outbox is the only commit; projections (kind.write, errors.jsonl) are rewritten from it every item,
-so a crash anywhere loses at most the answer being committed. `limit` decides at most that many items in
-this call; the next call resumes.
-"""
 from __future__ import annotations
 
 import json

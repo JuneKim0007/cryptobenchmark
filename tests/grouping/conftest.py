@@ -1,4 +1,3 @@
-"""Shared grouping test fixtures: a built run directory and scripted agent policies."""
 import re
 
 import pytest
@@ -27,7 +26,6 @@ def item_name(message):
 
 
 def by_name(message, *_):
-    """Join a listed group whose examples share the item's name, else create one named after it."""
     name = item_name(message)
     for line in message.splitlines():
         m = re.match(r"\s+(\S+) \(\d+ members\)", line)
@@ -40,7 +38,6 @@ def by_name(message, *_):
 
 
 class Remembering:
-    """A scripted agent sees one message per turn; like a real conversation, recall the item it was asked about."""
 
     def __init__(self, decide):
         self.decide, self.first = decide, {}
