@@ -38,7 +38,8 @@ def _errors(records: list[OutboxRecord], items: dict[int, Item]) -> str:
 
 
 def run(paths: GroupingPaths, conversations: Conversations, families: Families | None = None,
-        limits: Limits = Limits(), echo=print) -> Knowledge:
+        limits: Limits = Limits(), echo=print, limit: int | None = None) -> Knowledge:
+    """Decide items until none is left, or until `limit` items were decided by this call; a later call resumes."""
     families = families or Families.load()
     raw_items = read_json(paths.items)
     items, profiles = read_items(raw_items), read_profiles(read_json(paths.profiles))
@@ -47,6 +48,7 @@ def run(paths: GroupingPaths, conversations: Conversations, families: Families |
     records = outbox.records()
     knowledge = project(records, by_id)
     system = system_prompt()
+    decided = 0
 
     while True:
         gates.before_pop(items, profiles, records, knowledge, families)
@@ -54,7 +56,7 @@ def run(paths: GroupingPaths, conversations: Conversations, families: Families |
         write_json(paths.knowledge, knowledge.to_json())
         write_json(paths.cursor, place.to_json())
         paths.errors.write_text(_errors(records, by_id))
-        if place.next is None:
+        if place.next is None or (limit is not None and decided == limit):
             return knowledge
         item = gates.after_pop(raw_items["items"][place.next - 1], profiles, families)
         message = render(item, families.by_id[item.family], knowledge, by_id)
@@ -79,6 +81,7 @@ def run(paths: GroupingPaths, conversations: Conversations, families: Families |
         written = outbox.append(record)
         apply(knowledge, record, item)
         records.append(record)
+        decided += 1
         gates.after_write(record, OutboxRecord.from_json(json.loads(written.read_text())), records, knowledge, items,
                           families)
         echo(f"item {item.id} {item.qualified}: {record.outcome}"

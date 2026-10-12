@@ -57,6 +57,7 @@ flowchart TD
 |---|---|---|
 | turns per conversation | 3 | `--turns` |
 | conversations per item | 2 | `--sessions` |
+| items decided per call | all | `--limit` |
 
 A respawned conversation starts with no history of the failed one.
 
