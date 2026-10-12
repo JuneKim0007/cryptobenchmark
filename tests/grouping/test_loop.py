@@ -73,3 +73,20 @@ def test_a_crash_resumes_without_losing_or_repeating_a_decision(paths):
     knowledge = run(paths, agent, FAMILIES, **QUIET)
     assert agent.started == 3 and len(records(paths)) == 6
     assert sorted(m for g in knowledge.groups.values() for m in g.members) == [1, 2, 3, 4, 5, 6]
+
+
+def test_a_limit_stops_early_and_the_next_call_resumes(paths):
+    first = ScriptedConversations(by_name)
+    run(paths, first, FAMILIES, limit=2, **QUIET)
+    assert first.started == 2 and len(records(paths)) == 2
+    rest = ScriptedConversations(by_name)
+    run(paths, rest, FAMILIES, **QUIET)
+    assert rest.started == 4 and len(records(paths)) == 6
+
+
+def test_the_system_prompt_states_the_limits_the_gate_enforces():
+    from perfrepair.grouping.prompt.render import system_prompt
+    from perfrepair.validation.grouping.answer import MAX_DESCRIPTION, SLUG
+    prompt = " ".join(system_prompt().split())
+    assert f"at most {MAX_DESCRIPTION} characters" in prompt and SLUG.pattern in prompt
+    assert "{max_description}" not in prompt and "{id_pattern}" not in prompt

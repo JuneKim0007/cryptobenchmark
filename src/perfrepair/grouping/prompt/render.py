@@ -8,13 +8,15 @@ from pathlib import Path
 
 from ...dto.grouping import Family, Item
 from ...dto.grouping_state import Knowledge
+from ...validation.grouping.answer import MAX_DESCRIPTION, SLUG
 
 SYSTEM = Path(__file__).with_name("assign.system.md")
 EXAMPLES = 3
 
 
 def system_prompt() -> str:
-    return SYSTEM.read_text()
+    """The prompt states the limits gate C enforces, taken from the gate itself so the two cannot drift."""
+    return SYSTEM.read_text().replace("{id_pattern}", SLUG.pattern).replace("{max_description}", str(MAX_DESCRIPTION))
 
 
 def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, Item]) -> str:

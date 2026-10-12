@@ -22,8 +22,10 @@
 ```
 src/perfrepair/orchestrate/__main__.py : command: the worthiness stage
 src/perfrepair/orchestrate/agent/claude.py : Messages API agent: single turn, cached system prompt, JSON schema output, refusal fallback
+src/perfrepair/orchestrate/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login
 src/perfrepair/orchestrate/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
 src/perfrepair/orchestrate/agent/reply.py : Agent protocol, AgentReply, AgentRefused
+src/perfrepair/orchestrate/agent/select.py : --agent backend name → Agent or Conversations
 src/perfrepair/orchestrate/agent/stand_ins.py : FixedAgent (dry run), ScriptedAgent (tests)
 src/perfrepair/orchestrate/commands/worthiness.py : stage: registry + measurements → evidence, triage, verdicts per mode; gated
 src/perfrepair/orchestrate/decisions/kind.py : DecisionKind contract and Checked
