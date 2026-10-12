@@ -39,3 +39,11 @@ def test_triage_asks_only_where_a_pair_improves():
     assert {v.groupId: v.decision for v in decided} == {"g-s": "not_comparable", "g-u": "no_improvement"}
     ask, decided = triage(list(EVIDENCE.values()), MODES["battery"])
     assert ask == [] and all(v.proxy for v in decided)
+
+
+def test_noise_never_reaches_the_model():
+    noisy = {**M, "a2": {"timeNs": summary(100, spread=40.0), "allocations": summary(30)}}
+    noisy["a2"]["timeNs"] = type(noisy["a2"]["timeNs"])(100, 60, 140, 0.4, 50)
+    evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, noisy)}
+    ask, decided = triage(list(evidence.values()), MODES["latency"])
+    assert ask == [] and {v.groupId: v.decision for v in decided}["g-a"] == "unstable"

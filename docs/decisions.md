@@ -22,3 +22,11 @@ Grouping is a multi-turn decision: `docs/grouping.md`.
 
 - A refused answer is asked once more with the problems listed in the message; a second refusal applies the fallback.
 - Model: `claude-opus-5-5`, effort `medium`, JSON schema output, server-side refusal fallback.
+
+## Static triage (no model call)
+
+| Verdict | When |
+|---|---|
+| `not_comparable` | no configuration measured two members |
+| `no_improvement` | no pair improves under the mode |
+| `unstable` | every improving pair has a member with CoV above 5% |

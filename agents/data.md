@@ -32,6 +32,7 @@ src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/worthiness.py : GroupEvidence, PairMetrics, Verdict, Verdicts
+src/perfrepair/env.py : .env loader: fills unset environment keys
 src/perfrepair/files.py : JSON read and atomic write
 src/perfrepair/run_dir.py : run directory: artifact names and loaders
 ```
