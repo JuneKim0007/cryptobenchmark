@@ -7,7 +7,7 @@ def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_
 
 
 def summary(median, spread=1.0):
-    return Summary(median, median - spread, median + spread, 0.01, 50)
+    return Summary(median, median - spread, median + spread, 0.01, 50, median - spread / 4, median + spread / 4)
 
 
 QUIET = {"echo": lambda _: None}

@@ -13,17 +13,28 @@ from ...dto import PrimitiveRow, Summary
 Measurements = dict[str, dict[str, Summary | None]]
 
 
+def median_interval(values: list[float]) -> tuple[float, float]:
+    """Distribution-free 95% interval of the median: order statistics k and n-k+1 of the sorted runs."""
+    ordered, n = sorted(values), len(values)
+    k, below = 0, 0.0
+    while k < n // 2 and below + math.comb(n, k) / 2 ** n <= 0.025:
+        below += math.comb(n, k) / 2 ** n
+        k += 1
+    k = max(k, 1)
+    return ordered[k - 1], ordered[n - k]
+
+
 def summarise(runs: list[float]) -> Summary:
     values = [float(v) for v in runs]
     if not values or not all(math.isfinite(v) for v in values):
         raise ValueError(f"cannot summarise runs {runs!r}")
     if len(values) == 1:
         v = values[0]
-        return Summary(v, v, v, None, 1)
+        return Summary(v, v, v, None, 1, v, v)
     p25, _, p75 = statistics.quantiles(values, n=4, method="inclusive")
     mean = statistics.fmean(values)
     cv = statistics.stdev(values) / mean if mean else None
-    return Summary(statistics.median(values), p25, p75, cv, len(values))
+    return Summary(statistics.median(values), p25, p75, cv, len(values), *median_interval(values))
 
 
 def _runs(case: dict, metric: str) -> list[float] | None:

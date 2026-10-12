@@ -7,7 +7,7 @@ from .measurement import Summary
 
 SCHEMA_VERSION = 1
 DECISIONS = ("test", "skip")
-VERDICTS = ("test", "skip", "not_comparable", "no_improvement", "unstable")
+VERDICTS = ("test", "skip", "not_comparable", "no_improvement", "within_noise")
 SOURCES = ("llm", "static", "fallback")
 
 
@@ -26,7 +26,7 @@ class PairMetrics:
     fromItem: str
     toItem: str
     timeRatio: float
-    iqrOverlap: bool
+    ciOverlap: bool
     allocationRatio: float | None
 
 

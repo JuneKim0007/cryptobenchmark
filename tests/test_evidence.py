@@ -1,3 +1,4 @@
+from perfrepair.data_handler.inbound.results import median_interval
 import pytest
 from helpers import row, summary
 
@@ -25,7 +26,7 @@ def test_pairs_only_within_one_configuration():
     assert g.family == "f" and g.type == "TypeA"
     assert [(c.inputSize, len(c.pairs)) for c in g.configurations] == [(1024, 0), (64, 2)]
     p = next(p for c in g.configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
-    assert p.timeRatio == pytest.approx(0.5) and p.allocationRatio == pytest.approx(3.0) and not p.iqrOverlap
+    assert p.timeRatio == pytest.approx(0.5) and p.allocationRatio == pytest.approx(3.0) and not p.ciOverlap
 
 
 def test_modes_differ_only_on_allocations():
@@ -41,9 +42,14 @@ def test_triage_asks_only_where_a_pair_improves():
     assert ask == [] and all(v.proxy for v in decided)
 
 
-def test_noise_never_reaches_the_model():
-    noisy = {**M, "a2": {"timeNs": summary(100, spread=40.0), "allocations": summary(30)}}
-    noisy["a2"]["timeNs"] = type(noisy["a2"]["timeNs"])(100, 60, 140, 0.4, 50)
-    evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, noisy)}
+def test_differences_inside_the_median_interval_never_reach_the_model():
+    close = {**M, "a1": {"timeNs": summary(100, spread=8.0), "allocations": summary(30)},
+             "a2": {"timeNs": summary(99, spread=8.0), "allocations": summary(30)}}
+    evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, close)}
     ask, decided = triage(list(evidence.values()), MODES["latency"])
-    assert ask == [] and {v.groupId: v.decision for v in decided}["g-a"] == "unstable"
+    assert {v.groupId: v.decision for v in decided}.get("g-a") == "within_noise"
+
+
+def test_median_interval_uses_order_statistics():
+    assert median_interval([float(v) for v in range(1, 51)]) == (18.0, 33.0)
+    assert median_interval([1.0, 2.0, 3.0]) == (1.0, 3.0)
