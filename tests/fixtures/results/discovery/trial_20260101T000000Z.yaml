@@ -1,0 +1,11 @@
+schemaVersion: 2
+capturedAtMillis: 1
+defaultRunInputSize: 1024
+services:
+- {provider: Fast, type: Cipher, algorithm: AES/GCM/NoPadding, instantiates: true,
+   defaultRun: {works: true, keyAlgorithm: AES, keyProvider: Fast, keySize: 128, inputSize: 1024, providerChose: GCM iv=12B}}
+- {provider: Fast, type: MessageDigest, algorithm: SHA-256, instantiates: true, defaultRun: {works: true, inputSize: 1024}}
+- {provider: Slow, type: Cipher, algorithm: AES/GCM/NoPadding, instantiates: true,
+   defaultRun: {works: true, keyAlgorithm: AES, keyProvider: Fast, keySize: 128, inputSize: 1024, providerChose: GCM iv=12B}}
+- {provider: Slow, type: Mac, algorithm: HmacSHA256, instantiates: true,
+   defaultRun: {works: false, inputSize: 1024, error: 'BadKey: only store keys'}}
