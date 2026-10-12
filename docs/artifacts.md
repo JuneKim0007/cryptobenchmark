@@ -15,7 +15,7 @@ All in one run directory, except `manifest.yaml` (the benchmark's `results/`).
 | `worthiness-<mode>/verdicts.json` | worthiness | refeed (planned) | `validation/worthiness.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | — |
 
-- Every JSON document carries `schemaVersion: 1`.
+- Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 2 (each summary adds `low`, `high`: the median's 95% interval).
 - A journal is append-only, one line per model turn, audit only; state is the projection of the outbox.
 - `measurements.json` carries the run's `runtime` and `comparability` notes.
 

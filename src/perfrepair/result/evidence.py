@@ -14,7 +14,7 @@ def _pair(a: MemberStats, b: MemberStats) -> PairMetrics:
     alloc = (b.allocations / a.allocations
              if a.allocations not in (None, 0) and b.allocations is not None else None)
     return PairMetrics(a.itemId, b.itemId, tb.median / ta.median,
-                       ta.p25 <= tb.p75 and tb.p25 <= ta.p75, alloc)
+                       ta.low <= tb.high and tb.low <= ta.high, alloc)
 
 
 def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict]) -> list[GroupEvidence]:

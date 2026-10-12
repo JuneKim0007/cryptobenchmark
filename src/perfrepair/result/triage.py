@@ -1,15 +1,7 @@
 from __future__ import annotations
 
-from ..dto import Configuration, GroupEvidence, PairMetrics, Verdict
+from ..dto import GroupEvidence, Verdict
 from .modes import Mode
-
-# Same threshold as cryptobenchmark's analyze.py "unstable(CoV>5%)".
-MAX_CV = 0.05
-
-
-def _stable(pair: PairMetrics, config: Configuration) -> bool:
-    cv = {m.itemId: m.timeNs.cv for m in config.members if m.timeNs is not None}
-    return all((cv.get(i) or 0) <= MAX_CV for i in (pair.fromItem, pair.toItem))
 
 
 def triage(evidence: list[GroupEvidence], mode: Mode) -> tuple[list[GroupEvidence], list[Verdict]]:
@@ -23,9 +15,9 @@ def triage(evidence: list[GroupEvidence], mode: Mode) -> tuple[list[GroupEvidenc
         elif not improving:
             decided.append(Verdict(e.groupId, mode.name, "no_improvement",
                                    f"no replacement improves under {mode.name}: {mode.rule}", "static", mode.proxy))
-        elif not any(_stable(p, c) for p, c in improving):
-            decided.append(Verdict(e.groupId, mode.name, "unstable",
-                                   f"every improving pair has a member with CoV above {MAX_CV:.0%}", "static", mode.proxy))
+        elif all(p.ciOverlap for p, _ in improving):
+            decided.append(Verdict(e.groupId, mode.name, "within_noise",
+                                   "every improving pair's median 95% intervals overlap", "static", mode.proxy))
         else:
             ask.append(e)
     return ask, decided

@@ -176,7 +176,7 @@ def test_default_resolution_follows_manifest_precedence(tmp_path, run, index):
 def test_command_writes_the_run_directory(tmp_path, capsys):
     assert main(["--manifest", str(MANIFEST), "--app", str(F / "app"), "-o", str(tmp_path)]) == 0
     docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log", "sites")}
-    assert all(d["schemaVersion"] == 1 for d in docs.values())
+    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 2, "run_log": 1, "sites": 1}
     assert len(docs["rows"]["rows"]) == 3
     assert docs["measurements"]["measurements"]["g_fast"]["timeNs"]["median"] == 100
     assert len(docs["sites"]["sites"]) == 5
@@ -191,5 +191,5 @@ def test_command_without_app_writes_no_sites(tmp_path):
 
 def test_measurements_document_round_trips(tmp_path):
     from perfrepair.dto import Measurements, Summary
-    m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5), "allocations": None}})
+    m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5, 1, 3), "allocations": None}})
     assert Measurements.from_json(json.loads(json.dumps(m.to_json()))) == m

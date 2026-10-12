@@ -75,15 +75,15 @@ class WorthinessKind:
             if not c.pairs:
                 continue
             lines += ["", f"CONFIGURATION {c.operation} key {c.keySize} input {c.inputSize} {c.phase}",
-                      "  member | median ns | p25 | p75 | cv | n | allocations/op"]
+                      "  member | median ns | median 95% CI | p25 | p75 | cv | n | allocations/op"]
             for m in c.members:
                 t = m.timeNs
-                lines.append(f"  {short[m.itemId]} | " + (" | ".join([_num(t.median), _num(t.p25), _num(t.p75),
-                             _num(t.cv, "{:.3f}"), str(t.n)]) if t else "not measured | | | |")
+                lines.append(f"  {short[m.itemId]} | " + (" | ".join([_num(t.median), f"{_num(t.low)}..{_num(t.high)}", _num(t.p25), _num(t.p75),
+                             _num(t.cv, "{:.3f}"), str(t.n)]) if t else "not measured | | | | |")
                              + f" | {_num(m.allocations)}")
-            lines.append("  pair from -> to | time ratio | IQR overlap | allocation ratio | improves")
+            lines.append("  pair from -> to | time ratio | CI overlap | allocation ratio | improves")
             for p in c.pairs:
-                lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {p.iqrOverlap} | "
+                lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {p.ciOverlap} | "
                              f"{_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
         return "\n".join(lines)
 
