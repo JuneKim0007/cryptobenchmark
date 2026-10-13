@@ -13,17 +13,17 @@ for c in source["cases"]:
     cov = statistics.pstdev(runs) / mean if mean else 0
     mn, mx = min(runs), max(runs)
     def mbps_of(nanos): return (c["inputSize"] / nanos * 1000) if c["inputSize"] and nanos else None
-    rows.append(dict(c, mean=mean, removed=len(removed), median=median, p90=sorted(runs)[int(0.9 * (len(runs) - 1))], min=mn, max=mx, cov=cov,
+    rows.append(dict(c, mean=mean, removed=len(removed), median=median, ops=1e9 / mean, p90=sorted(runs)[int(0.9 * (len(runs) - 1))], min=mn, max=mx, cov=cov,
                      mbps=mbps_of(mean), mbps_min=mbps_of(mx), mbps_max=mbps_of(mn)))
 
 def label(r):
     key = f"-{r['keySize']}" if r["keySize"] else ""
     return f"{r['algorithm']}{key}"
 
-lines = ["| case | op | key | input | mean ns | median ns | p90 ns | CoV | outliers | MB/s |", "|---|---|---|---|---|---|---|---|---|---|"]
+lines = ["| case | op | key | input | ops/s | MB/s | CoV | outliers |", "|---|---|---|---|---|---|---|---|"]
 for r in sorted(rows, key=lambda r: (r["type"], r["algorithm"], r["operation"], r["inputSize"] or 0)):
-    lines.append(f"| {r['algorithm']} | {r['operation']} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} | {r['mean']:,.1f} | {r['median']:,} | {r['p90']:,} | {r['cov']:.1%} | {r['removed']} | {f'{r
-["mbps"]:.0f}' if r['mbps'] else '-'} |")
+    mbps = f"{r['mbps']:,.0f}" if r["mbps"] else "-"
+    lines.append(f"| {r['algorithm']} | {r['operation']} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} | {r['ops']:,.0f} | {mbps} | {r['cov']:.1%} | {r['removed']} |")
 (out / "summary.md").write_text("\n".join(lines) + "\n")
 
 # Cipher covers both AES and RSA, so asymmetric is excluded by name: RSA has one
@@ -63,10 +63,10 @@ plt.close(fig)
 
 plt.figure(figsize=(8, 4.5))
 slow = [r for r in rows if r["type"] in ("Signature", "KeyPairGenerator", "KeyGenerator") or r["algorithm"].startswith("RSA")]
-slow.sort(key=lambda r: r["mean"])
+slow.sort(key=lambda r: -r["ops"])
 names = [f"{label(r)} {r['operation'].lower()}" + (f" {r['inputSize']}B" if r["inputSize"] else "") for r in slow]
-plt.barh(names, [r["mean"] for r in slow], color="#4c72b0")
-plt.xscale("log"); plt.xlabel("ns/op (log)"); plt.title("Asymmetric operations and key generation")
+plt.barh(names, [r["ops"] for r in slow], color="#4c72b0")
+plt.xscale("log"); plt.xlabel("ops/s (log)"); plt.title("Asymmetric operations and key generation")
 plt.grid(axis="x", alpha=.3); plt.tight_layout(); plt.savefig(out / "latency.png", dpi=140, bbox_inches="tight"); plt.close()
 
 covs_pct = [r["cov"] * 100 for r in rows]
@@ -87,5 +87,5 @@ if unstable:
 plt.legend(); plt.grid(axis="y", alpha=.3); plt.tight_layout(); plt.savefig(out / "stability.png", dpi=140); plt.close()
 print(f"cases={len(rows)} unstable(CoV>5%)={len(unstable)}")
 for r in sorted(unstable, key=lambda r: -r["cov"])[:5]:
-    print(f"  {r['id']}: CoV {r['cov']:.1%}, mean {r['mean']:.1f} ns, {r['removed']} outliers removed")
+    print(f"  {r['id']}: CoV {r['cov']:.1%}, {r['ops']:,.0f} ops/s, {r['removed']} outliers removed")
 print("wrote", ", ".join(sorted(p.name for p in out.iterdir())))
