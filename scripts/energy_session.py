@@ -36,7 +36,7 @@ class EnergySession:
             self.record(config, remote, busy=loaded)
             self.device.pull(remote, local)
 
-    def dry_pass(self, config, trace, calls, preparation):
+    def dry_pass(self, config, trace, calls, preparation, test_class="EnergyDryBenchmark"):
         """No Jetpack trace runs in this pass, so none kills the host session."""
         self.device.shell(f"rm -f {FILES}/{DRY_CALLS}")
         self.device.run("push", str(config), f"{SCRATCH}/{config.name}")
@@ -46,11 +46,11 @@ class EnergySession:
         if started is None:
             raise DeviceError(f"perfetto did not start: {printed.strip()}")
         try:
-            output = self.device.instrument("EnergyDryBenchmark", *NO_DEFAULT_PROFILER)
+            output = self.device.instrument(test_class, *NO_DEFAULT_PROFILER)
         finally:
             self.device.shell(f"kill {started}; while kill -0 {started} 2>/dev/null; do sleep 0.2; done")
         if not re.search(r"^OK \(\d+ tests?\)", output, re.M):
-            raise DeviceError("EnergyDryBenchmark failed on the device:\n" + instrumentation_report(output))
+            raise DeviceError(f"{test_class} failed on the device:\n" + instrumentation_report(output))
         trace.parent.mkdir(parents=True, exist_ok=True)
         self.device.pull(remote, trace)
         self.device.pull(f"{FILES}/{DRY_CALLS}", calls)
