@@ -8,6 +8,7 @@ Entry point. perf-repair reads cryptobenchmark results and decides which crypto 
 - grouping primitives into interchangeable groups: families, items, outbox, gates, supervisor → `agents/grouping.md`
 - model decisions: decision kinds, prompts, agents, the loop, stage commands → `agents/decisions.md`
 - static tools: evidence, modes, triage → `agents/static-tools.md`
+- repair: app call sites, replacements, patches, before/after → `agents/repair.md`
 - validation: artifact validators, journal replay, the stage gate → `agents/validation.md`
 - docs, guides and file maps: writing or changing any .md → `agents/docs/writing.md`
 - facts: pipeline, artifacts, decisions, modes, limits → `docs/index.md`
@@ -15,7 +16,7 @@ Entry point. perf-repair reads cryptobenchmark results and decides which crypto 
 ## Rules
 - principle: the model only decides; every number, list, filter and check is a static tool.
 - generality: code names no device, provider, algorithm or engine type; tests and fixtures may.
-- dependency: `dto` imports nothing ← `files`, `run_dir` ← `data_handler`, `result` ← `orchestrate` (agent, decisions, runner) ← `validation` ← `orchestrate/commands`, `grouping`.
+- dependency: `dto` imports nothing ← `files`, `run_dir` ← `data_handler`, `result` ← `orchestrate` (agent, decisions, runner) ← `validation` ← `orchestrate/commands`, `grouping`, `repair`.
 - change: one file, one responsibility; update the owning map in the same change.
 - delete/rename: grep the symbol or path, remove its references first, re-grep returns nothing.
 - check: `make check` green before a change is done.

@@ -26,6 +26,7 @@ src/perfrepair/validation/grouping/supervision.py : supervisor findings: name on
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: files exist, precedence 1..n, counts match files
 src/perfrepair/validation/measurements.py : measurements: known rows, ordered finite summaries, positive medians
+src/perfrepair/validation/repair.py : a patch changes only string literals of the call on its line
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run.py : validate every artifact present in a run directory
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
