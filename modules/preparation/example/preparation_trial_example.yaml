@@ -1,5 +1,4 @@
-# Outbound. What discovery writes after calling every captured service once with a default key:
-# what really runs on this device, and what the JCA refused. Pairs with the capture by capturedAtMillis.
+# Discovery's trial output; pairs with the capture by capturedAtMillis.
 schemaVersion: 2
 capturedAtMillis: 1750000000000
 defaultRunInputSize: 1024
@@ -17,6 +16,26 @@ services:
   instantiates: true
   defaultRun:
     works: true
+    inputSize: 1024
+- provider: SUN
+  type: Signature
+  algorithm: SHA256withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+    inputSize: 1024
+- provider: SUN
+  type: Signature
+  algorithm: SHA256withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
     inputSize: 1024
 - provider: SunJCE
   type: Cipher

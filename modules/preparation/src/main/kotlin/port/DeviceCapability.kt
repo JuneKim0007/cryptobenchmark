@@ -5,4 +5,6 @@ interface DeviceCapability {
     fun providers(): List<String>
 
     fun check(provider: String, type: String, algorithm: String): Availability
+
+    fun measuredKeyAlgorithm(provider: String, type: String, algorithm: String): String? = null
 }

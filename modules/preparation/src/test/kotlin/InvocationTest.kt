@@ -11,7 +11,6 @@ import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParamet
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertThrows
 import org.junit.Test
 
 /**
@@ -59,24 +58,14 @@ class InvocationTest {
         everyShape.forEach { prepared ->
             val invocation = Invocations.of(prepared)
             assertNotNull(prepared.case.id, invocation.once())
-            repeat(3) {
-                invocation.setUp()
-                assertNotNull(prepared.case.id, invocation.perIteration())
-            }
+            repeat(3) { assertNotNull(prepared.case.id, invocation.perIteration()) }
         }
     }
 
-    /**
-     * SunJCE refuses an IV the key has just encrypted under, so the drawn spec is what setUp is for:
-     * a harness that skips it measures one encryption and then fails.
-     */
+    // SunJCE refuses an IV the key has just encrypted under; each call must draw the next pooled spec.
     @Test
-    fun encryptDrawsAFreshSpecPerIteration() {
+    fun encryptNeverReusesTheLastIv() {
         val invocation = Invocations.of(prepared("Cipher", "AES/GCM/NoPadding", "SunJCE", Operation.ENCRYPT, key = aes, parameters = gcm()))
-        repeat(3) {
-            invocation.setUp()
-            invocation.perIteration()
-        }
-        assertThrows(java.security.InvalidAlgorithmParameterException::class.java) { invocation.perIteration() }
+        repeat(5) { assertNotNull(invocation.perIteration()) }
     }
 }

@@ -4,4 +4,5 @@ data class TrialledTransformation(
     val name: String,
     val instantiates: Boolean,
     val error: String = "",
+    val keyAlgorithm: String = "",
 )

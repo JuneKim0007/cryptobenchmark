@@ -4,6 +4,7 @@ data class HarnessSettings(
     val iterations: Int? = null,
     val warmupIterations: Int? = null,
     val profiling: String? = null,
+    val energy: EnergySettings = EnergySettings(),
 ) {
 
     init {
@@ -12,13 +13,14 @@ data class HarnessSettings(
         require(profiling == null || profiling in PROFILING) { "invalid: profiling $profiling, known $PROFILING" }
     }
 
-    val isEmpty: Boolean get() = iterations == null && warmupIterations == null && profiling == null
+    val isEmpty: Boolean get() = iterations == null && warmupIterations == null && profiling == null && energy.isEmpty
 
     fun mergedWith(later: HarnessSettings?): HarnessSettings =
         if (later == null) this else HarnessSettings(
             iterations = later.iterations ?: iterations,
             warmupIterations = later.warmupIterations ?: warmupIterations,
             profiling = later.profiling ?: profiling,
+            energy = energy.mergedWith(later.energy),
         )
 
     companion object {
