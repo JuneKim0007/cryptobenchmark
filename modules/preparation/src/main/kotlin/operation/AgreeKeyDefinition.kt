@@ -15,8 +15,8 @@ internal object AgreeKeyDefinition : OperationDefinition {
         val pairs = prepared.key.keyPairsOrNull ?: throw IllegalArgumentException("agreement_needs_key_pairs")
         val agreement = KeyAgreement.getInstance(prepared.case.algorithm, prepared.case.provider)
         val spec = prepared.parameters?.next()
+        if (spec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, spec)
         return Invocation(perIteration = {
-            if (spec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, spec)
             agreement.doPhase(pairs.last().public, true)
             agreement.generateSecret()
         })
