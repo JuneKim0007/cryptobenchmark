@@ -1,19 +1,19 @@
-| case | op | key | input | mean ns | median ns | p90 ns | CoV | outliers | MB/s |
-|---|---|---|---|---|---|---|---|---|---|
-| AES/GCM/NoPadding | ENCRYPT | 128 | 64 | 1,321.3 | 1,276 | 1,486 | 8.6% | 5 | 48 |
-| AES/GCM/NoPadding | ENCRYPT | 128 | 1024 | 1,804.8 | 1,800.0 | 1,867 | 2.4% | 4 | 567 |
-| AES/GCM/NoPadding | ENCRYPT | 128 | 16384 | 8,117.2 | 8,141.5 | 8,454 | 3.5% | 6 | 2018 |
-| ChaCha20 | ENCRYPT | - | 64 | 809.3 | 806 | 833 | 3.0% | 7 | 79 |
-| ChaCha20 | ENCRYPT | - | 1024 | 1,425.2 | 1,423.5 | 1,451 | 1.6% | 6 | 718 |
-| ChaCha20 | ENCRYPT | - | 16384 | 10,496.2 | 10,489.0 | 10,857 | 2.3% | 6 | 1561 |
-| RSA/ECB/PKCS1Padding | ENCRYPT | 2048 | 32 | 9,198.9 | 9,173 | 9,345 | 1.2% | 5 | 3 |
-| RSA/ECB/PKCS1Padding | ENCRYPT | 4096 | 32 | 29,591.3 | 29,556 | 29,822 | 0.5% | 5 | 1 |
-| EC | GENERATE_KEY_PAIR | - | - | 19,521.3 | 19,531.0 | 19,661 | 0.6% | 2 | - |
-| HmacSHA256 | COMPUTE_MAC | - | 64 | 251.7 | 251.0 | 254 | 0.8% | 4 | 254 |
-| HmacSHA256 | COMPUTE_MAC | - | 1024 | 560.4 | 559 | 568 | 1.0% | 7 | 1827 |
-| HmacSHA256 | COMPUTE_MAC | - | 16384 | 5,193.4 | 5,165.0 | 5,296 | 1.5% | 0 | 3155 |
-| SHA-256 | DIGEST | - | 64 | 219.1 | 217 | 228 | 2.5% | 5 | 292 |
-| SHA-256 | DIGEST | - | 1024 | 543.0 | 511.5 | 636 | 9.9% | 6 | 1886 |
-| SHA-256 | DIGEST | - | 16384 | 5,163.1 | 5,159 | 5,241 | 1.2% | 9 | 3173 |
-| SHA256withRSA | SIGN | 2048 | 64 | 404,248.2 | 403,989.5 | 408,173 | 0.7% | 6 | 0 |
-| SHA256withRSA | SIGN | 2048 | 1024 | 401,763.4 | 401,533 | 403,535 | 0.4% | 5 | 3 |
+| case | op | key | input | ops/s | MB/s | CoV | outliers |
+|---|---|---|---|---|---|---|---|
+| AES/GCM/NoPadding | ENCRYPT | 128 | 64 | 756,849 | 48 | 8.6% | 5 |
+| AES/GCM/NoPadding | ENCRYPT | 128 | 1024 | 554,070 | 567 | 2.4% | 4 |
+| AES/GCM/NoPadding | ENCRYPT | 128 | 16384 | 123,195 | 2,018 | 3.5% | 6 |
+| ChaCha20 | ENCRYPT | - | 64 | 1,235,703 | 79 | 3.0% | 7 |
+| ChaCha20 | ENCRYPT | - | 1024 | 701,654 | 718 | 1.6% | 6 |
+| ChaCha20 | ENCRYPT | - | 16384 | 95,273 | 1,561 | 2.3% | 6 |
+| RSA/ECB/PKCS1Padding | ENCRYPT | 2048 | 32 | 108,709 | 3 | 1.2% | 5 |
+| RSA/ECB/PKCS1Padding | ENCRYPT | 4096 | 32 | 33,794 | 1 | 0.5% | 5 |
+| EC | GENERATE_KEY_PAIR | - | - | 51,226 | - | 0.6% | 2 |
+| HmacSHA256 | COMPUTE_MAC | - | 64 | 3,973,739 | 254 | 0.8% | 4 |
+| HmacSHA256 | COMPUTE_MAC | - | 1024 | 1,784,380 | 1,827 | 1.0% | 7 |
+| HmacSHA256 | COMPUTE_MAC | - | 16384 | 192,553 | 3,155 | 1.5% | 0 |
+| SHA-256 | DIGEST | - | 64 | 4,563,432 | 292 | 2.5% | 5 |
+| SHA-256 | DIGEST | - | 1024 | 1,841,544 | 1,886 | 9.9% | 6 |
+| SHA-256 | DIGEST | - | 16384 | 193,680 | 3,173 | 1.2% | 9 |
+| SHA256withRSA | SIGN | 2048 | 64 | 2,474 | 0 | 0.7% | 6 |
+| SHA256withRSA | SIGN | 2048 | 1024 | 2,489 | 3 | 0.4% | 5 |
