@@ -1,0 +1,5 @@
+schemaVersion: 1
+skipped:
+- {stage: preparation, provider: Slow, type: Mac, name: HmacSHA256, reason: 'Mac_HmacSHA256_MAC_Slow_i64_WARM_p0a1b2c3d: dry_run_failed: BadKey: size 24'}
+- {stage: preparation, provider: Slow, type: Mac, name: HmacSHA256, reason: 'Mac_HmacSHA256_MAC_Slow_i1024_WARM_p0a1b2c3d: dry_run_failed: BadKey: size 24'}
+- {stage: preparation, provider: Slow, type: Mac, name: HmacSHA256, reason: 'Mac_HmacSHA256_MAC_Slow_i64_WARM_p0a1b2c3d: input_preparation_failed: no IV'}

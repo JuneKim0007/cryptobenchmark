@@ -1,0 +1,103 @@
+{
+ "runtime": {
+  "model": "test",
+  "cpuLocked": "false",
+  "thermalThrottleSleepSeconds": "0"
+ },
+ "cases": [
+  {
+   "id": "g_fast",
+   "type": "Cipher",
+   "algorithm": "AES/GCM/NoPadding",
+   "provider": "Fast",
+   "operation": "ENCRYPT",
+   "keySize": 128,
+   "inputSize": 1024,
+   "keyKind": "secret",
+   "iterations": 10,
+   "nanosPerOperation": [
+    100,
+    110,
+    105,
+    95,
+    100
+   ],
+   "metrics": {
+    "timeNs": {
+     "iterations": 10,
+     "runs": [
+      100,
+      104,
+      102,
+      98,
+      100
+     ]
+    },
+    "allocationCount": {
+     "iterations": 1,
+     "runs": [
+      3,
+      3,
+      3
+     ]
+    }
+   }
+  },
+  {
+   "id": "g_slow",
+   "type": "Cipher",
+   "algorithm": "AES/GCM/NoPadding",
+   "provider": "Slow",
+   "operation": "ENCRYPT",
+   "keySize": 128,
+   "inputSize": 1024,
+   "keyKind": "secret",
+   "iterations": 10,
+   "nanosPerOperation": [
+    300,
+    310,
+    290,
+    305,
+    295
+   ],
+   "metrics": {
+    "timeNs": {
+     "iterations": 10,
+     "runs": [
+      300,
+      310,
+      290,
+      305,
+      295
+     ]
+    }
+   }
+  },
+  {
+   "id": "d_fast",
+   "type": "MessageDigest",
+   "algorithm": "SHA-256",
+   "provider": "Fast",
+   "operation": "DIGEST",
+   "keySize": null,
+   "inputSize": 1024,
+   "keyKind": "secret",
+   "iterations": 10,
+   "nanosPerOperation": [
+    50,
+    51,
+    49
+   ],
+   "metrics": {
+    "timeNs": {
+     "iterations": 10,
+     "runs": [
+      50,
+      51,
+      49
+     ]
+    }
+   }
+  }
+ ]
+}
