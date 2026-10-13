@@ -15,7 +15,7 @@ def _beyond(value, others):
 def split(runs):
     """Returns (kept, removed); more than MAX_REMOVED removals falls back to keeping every run."""
     runs = list(runs)
-    if not any(_beyond(value, runs) for value in runs):
+    if not any(_beyond(value, runs[:i] + runs[i + 1:]) for i, value in enumerate(runs)):
         return runs, []
     kept, removed = list(runs), []
     while len(kept) > 2:

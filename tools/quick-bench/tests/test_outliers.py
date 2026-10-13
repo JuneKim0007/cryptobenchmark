@@ -18,3 +18,8 @@ def test_more_than_twenty_removals_fall_back_to_every_run():
     runs = [100.0 + i * 0.001 for i in range(30)] + [100.0 * 1.5 ** i for i in range(1, 30)]
     kept, removed = outliers.split(runs)
     assert removed == [] and kept == runs
+
+
+def test_a_spike_is_found_in_a_small_sample():
+    kept, removed = outliers.split([100.0, 101.0, 99.0, 100.0, 102.0, 98.0, 100.0, 101.0, 99.0, 1000.0])
+    assert removed == [1000.0] and len(kept) == 9
