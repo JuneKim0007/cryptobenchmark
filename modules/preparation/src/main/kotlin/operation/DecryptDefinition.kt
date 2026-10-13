@@ -15,6 +15,7 @@ internal object DecryptDefinition : OperationDefinition {
     override val consumesKeySpec = true
     override val consumesParameters = true
     override val consumesInput = true
+    override val consumesArtifact = true
 
     override fun input(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): OperationInput {
         val plaintext = CaseArguments.seededMessage(case)
