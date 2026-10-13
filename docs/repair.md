@@ -2,10 +2,10 @@
 
 | Step | Input | Output |
 |---|---|---|
-| candidates | `sites.json`, `grouping/groups.json` | `repair/candidates.json` |
+| candidates | an app's inbound `sites.json`, `grouping/groups.json` | `repair/<app>/candidates.json` |
 | test-set | candidates | a test set for cryptobenchmark: what the app runs and the alternatives |
-| choose | candidates, `worthiness-<mode>/verdicts.json` | `repair/choices.json`: replacement or none, with the reason |
-| patch | choices, the app tree | `repair/patches.json`, validated by `validation/repair.py` |
+| choose | candidates, `worthiness-<mode>/verdicts.json` | `repair/<app>/choices.json`: replacement or none, with the reason |
+| patch | choices, the app tree | `repair/<app>/patches.json`, validated by `validation/repair.py` |
 | replay | a `benchmark.json` (+ `energy.json`) | before/after per site |
 
 ## Limits

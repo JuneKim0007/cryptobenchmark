@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
     for name in ("candidates", "test-set", "choose", "patch"):
         p = sub.add_parser(name)
         p.add_argument("--run", type=Path, required=True)
+        p.add_argument("--app-name", required=True, help="output folder under <run>/repair/")
+    sub.choices["candidates"].add_argument("--sites", type=Path, required=True, help="an inbound sites.json for this app")
     sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
     sub.choices["choose"].add_argument("--mode", default="latency")
     sub.choices["patch"].add_argument("--app", type=Path, required=True)
@@ -45,16 +47,17 @@ def main(argv: list[str] | None = None) -> int:
         print(yaml.safe_dump(compare(side(bench, energy, *parse_qualified(a.before), a.input),
                                      side(bench, energy, *parse_qualified(a.after), a.input)), sort_keys=False))
         return 0
-    out = a.run / DIRECTORY
+    out = a.run / DIRECTORY / a.app_name
     groups = read_json(GroupingPaths(a.run).groups)
     if a.command == "candidates":
-        found = candidates(read_json(a.run / rd.SITES), groups)
-        write_json(out / "candidates.json", {"schemaVersion": 1, "candidates": [c.to_json() for c in found]})
+        sites = read_json(a.sites)
+        found = candidates(sites, groups)
+        write_json(out / "candidates.json", {"schemaVersion": 1, "app": sites["app"], "candidates": [c.to_json() for c in found]})
         print(f"{out / 'candidates.json'}: {len(found)} call sites")
         return 0
     found = [Candidate.from_json(c) for c in read_json(out / "candidates.json")["candidates"]]
     if a.command == "test-set":
-        a.out.write_text(yaml.safe_dump(build_test_set(found, groups, read_json(a.run / rd.SITES)["app"]), sort_keys=False))
+        a.out.write_text(yaml.safe_dump(build_test_set(found, groups, a.app_name), sort_keys=False))
         print(a.out)
         return 0
     if a.command == "choose":
