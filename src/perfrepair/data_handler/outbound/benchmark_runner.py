@@ -20,7 +20,7 @@ class BenchmarkRunError(RuntimeError):
 
 
 def benchmark_root(explicit: Path | str | None = None) -> Path:
-    root = Path(explicit or os.environ.get("CRYPTOBENCH_ROOT") or PERF_REPAIR_ROOT.parent / "cryptobenchmark")
+    root = Path(explicit or os.environ.get("CRYPTOBENCH_ROOT") or PERF_REPAIR_ROOT.parent)
     if not (root / PIPELINE).is_file():
         raise BenchmarkRunError(f"no {PIPELINE} under {root}: pass the benchmark root or set CRYPTOBENCH_ROOT")
     return root.resolve()
