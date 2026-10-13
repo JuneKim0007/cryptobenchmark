@@ -77,6 +77,34 @@ def _argument(expr: str, provider: bool = False) -> Argument:
     return Argument(expr, None)
 
 
+def _comments(text: str) -> list[tuple[int, int]]:
+    """Spans of // and /* */ comments, skipping string and char literals."""
+    spans, i, quote = [], 0, None
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            i += 2 if ch == "\\" else 1
+            if ch == quote:
+                quote = None
+            continue
+        if ch in "\"'":
+            quote = ch
+        elif text.startswith("//", i):
+            end = text.find("\n", i)
+            end = len(text) if end < 0 else end
+            spans.append((i, end))
+            i = end
+            continue
+        elif text.startswith("/*", i):
+            end = text.find("*/", i + 2)
+            end = len(text) if end < 0 else end + 2
+            spans.append((i, end))
+            i = end
+            continue
+        i += 1
+    return spans
+
+
 def scan(root: Path, engine_types: set[str]) -> list[Site]:
     root = Path(root)
     if not engine_types:
@@ -88,7 +116,10 @@ def scan(root: Path, engine_types: set[str]) -> list[Site]:
             continue
         text = path.read_text(errors="replace")
         lines = text.splitlines()
+        comments = _comments(text)
         for m in call.finditer(text):
+            if any(a <= m.start() < b for a, b in comments):
+                continue
             parsed = _split_args(text, m.end())
             if not parsed or not parsed[0]:
                 continue

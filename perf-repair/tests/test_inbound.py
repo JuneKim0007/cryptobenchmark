@@ -193,3 +193,13 @@ def test_measurements_document_round_trips(tmp_path):
     from perfrepair.dto import Measurements, Summary
     m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5, 1, 3), "allocations": None}})
     assert Measurements.from_json(json.loads(json.dumps(m.to_json()))) == m
+
+
+def test_calls_inside_comments_are_not_sites(tmp_path, index):
+    (tmp_path / "A.java").write_text('class A {\n'
+                                     '  // Object a = Cipher.getInstance("AES/GCM/NoPadding");\n'
+                                     '  /* Object b = Mac.getInstance("HmacSHA256"); */\n'
+                                     '  String s = "// not a comment"; Object c = Mac.getInstance("HmacSHA256");\n'
+                                     '}\n')
+    [site] = scan(tmp_path, index.engine_types)
+    assert (site.engineType, site.line) == ("Mac", 4)
