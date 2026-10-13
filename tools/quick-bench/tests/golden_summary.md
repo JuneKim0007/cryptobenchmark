@@ -1,6 +1,6 @@
 | case | op | key | input | ops/s | MB/s | CoV | outliers |
 |---|---|---|---|---|---|---|---|
-| AES/GCM/NoPadding | ENCRYPT | 128 | 64 | 756,849 | 48 | 8.6% | 5 |
+| AES/GCM/NoPadding | ENCRYPT | 128 | 64 | 756,849 | 48 | 8.7% | 5 |
 | AES/GCM/NoPadding | ENCRYPT | 128 | 1024 | 554,070 | 567 | 2.4% | 4 |
 | AES/GCM/NoPadding | ENCRYPT | 128 | 16384 | 123,195 | 2,018 | 3.5% | 6 |
 | ChaCha20 | ENCRYPT | - | 64 | 1,235,703 | 79 | 3.0% | 7 |
@@ -11,9 +11,9 @@
 | EC | GENERATE_KEY_PAIR | - | - | 51,226 | - | 0.6% | 2 |
 | HmacSHA256 | COMPUTE_MAC | - | 64 | 3,973,739 | 254 | 0.8% | 4 |
 | HmacSHA256 | COMPUTE_MAC | - | 1024 | 1,784,380 | 1,827 | 1.0% | 7 |
-| HmacSHA256 | COMPUTE_MAC | - | 16384 | 192,553 | 3,155 | 1.5% | 0 |
+| HmacSHA256 | COMPUTE_MAC | - | 16384 | 193,067 | 3,163 | 1.1% | 3 |
 | SHA-256 | DIGEST | - | 64 | 4,563,432 | 292 | 2.5% | 5 |
-| SHA-256 | DIGEST | - | 1024 | 1,841,544 | 1,886 | 9.9% | 6 |
+| SHA-256 | DIGEST | - | 1024 | 1,841,544 | 1,886 | 10.0% | 6 |
 | SHA-256 | DIGEST | - | 16384 | 193,680 | 3,173 | 1.2% | 9 |
 | SHA256withRSA | SIGN | 2048 | 64 | 2,474 | 0 | 0.7% | 6 |
 | SHA256withRSA | SIGN | 2048 | 1024 | 2,489 | 3 | 0.4% | 5 |

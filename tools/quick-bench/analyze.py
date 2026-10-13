@@ -10,7 +10,7 @@ rows = []
 for c in source["cases"]:
     runs, removed = split(c["nanosPerOperation"])
     mean, median = statistics.fmean(runs), statistics.median(runs)
-    cov = statistics.pstdev(runs) / mean if mean else 0
+    cov = statistics.stdev(runs) / mean if mean and len(runs) > 1 else 0
     mn, mx = min(runs), max(runs)
     def mbps_of(nanos): return (c["inputSize"] / nanos * 1000) if c["inputSize"] and nanos else None
     rows.append(dict(c, mean=mean, removed=len(removed), median=median, ops=1e9 / mean, p90=sorted(runs)[int(0.9 * (len(runs) - 1))], min=mn, max=mx, cov=cov,
