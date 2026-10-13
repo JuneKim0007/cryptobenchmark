@@ -1,6 +1,7 @@
 # perf-repair
 
 Reads cryptobenchmark results for one device and decides which crypto replacements are worth testing in an app, under a latency-first or battery-first criterion. Static tools compute everything; a model, called once per item with no history, only decides.
+It lives in the cryptobenchmark repo as `perf-repair/` and finds the benchmark one level up (`CRYPTOBENCH_ROOT` overrides).
 
 ## Run
 
