@@ -13,10 +13,6 @@ import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/**
- * A plan is checked against the device that will run it, not the one that wrote it: the file may
- * have been prepared on a host, pushed to a phone, and the provider it names may not be there.
- */
 class PlanCheckTest {
 
     private val installed = { setOf("SUN", "SunJCE") }
@@ -64,7 +60,6 @@ class PlanCheckTest {
         assertEquals(listOf("nothing_to_measure"), PlanCheck(installed).check(run()).map { it.toString() })
     }
 
-    /** Two cases with one id would overwrite each other in the results: the run stops instead. */
     @Test
     fun twoCasesCannotShareAnId() {
         assertEquals(
@@ -73,14 +68,13 @@ class PlanCheckTest {
         )
     }
 
-    /** A measured case is only dropped, so one impossible case does not cost the whole run. */
     @Test
     fun theRefusedCasesAreTheOnlyOnesLeftUnmeasured() {
         val measured = mutableListOf<String>()
         val benchmark = Benchmark(PlanCheck(installed), onRefusal = {})
         benchmark.measure(run(case(), case(algorithm = "SHA-512", provider = "BC"))) { prepared ->
             measured += prepared.case.id
-            io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement(prepared.case, 1, listOf(1L))
+            io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement(prepared.case, prepared.recipe.kind, 1, listOf(1.0))
         }
         assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM"), measured)
     }

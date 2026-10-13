@@ -21,12 +21,29 @@ class BenchmarkJson(private val directory: File) {
         document.append("},\n  \"cases\": [\n")
         rows.forEachIndexed { index, row ->
             document.append("    {\"id\": \"${row.id}\", \"type\": \"${row.type}\", \"algorithm\": \"${row.algorithm}\", \"provider\": \"${row.provider}\"")
-            document.append(", \"operation\": \"${row.operation}\", \"keySize\": ${row.keySize}, \"inputSize\": ${row.inputSize}")
-            document.append(", \"iterations\": ${row.iterations}, \"nanosPerOperation\": [${row.nanosPerOperation.joinToString(", ")}]}")
+            document.append(", \"operation\": \"${row.operation}\", \"keySize\": ${row.keySize}, \"inputSize\": ${row.inputSize}, \"keyKind\": ${quoted(row.keyKind)}")
+            document.append(legacyTime(row))
+            document.append(",\n     \"metrics\": {")
+            document.append(row.metrics.entries.joinToString(", ") { (metric, samples) -> metricBlock(metric, samples) })
+            document.append("}}")
             document.append(if (index == rows.lastIndex) "\n" else ",\n")
         }
         document.append("  ]\n}\n")
         return document.toString()
+    }
+
+    private fun metricBlock(metric: String, samples: MetricSamples): String =
+        "\"$metric\": {\"iterations\": ${samples.iterations}, \"runs\": [${samples.runs.joinToString(", ")}]${reported(samples.reported)}}"
+
+    private fun reported(stats: ReportedStats?): String =
+        if (stats == null) "" else ", \"reported\": {\"minimum\": ${stats.minimum}, \"maximum\": ${stats.maximum}, \"median\": ${stats.median}, \"coefficientOfVariation\": ${stats.coefficientOfVariation}}"
+
+    private fun quoted(value: String?): String = if (value == null) "null" else "\"$value\""
+
+    // Transitional duplicate of metrics.timeNs: tools/quick-bench/analyze.py still reads this flat pair.
+    private fun legacyTime(row: ResultRow): String {
+        val time = row.time ?: return ""
+        return ",\n     \"iterations\": ${time.iterations}, \"nanosPerOperation\": [${time.runs.joinToString(", ")}]"
     }
 
     companion object {

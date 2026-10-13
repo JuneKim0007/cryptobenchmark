@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace 'io.github.junekim0007.cryptobench'
@@ -33,9 +34,24 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
 dependencies {
+    // The app APK is a pure instrumentation target: it holds no measured code, but
+    // AndroidBenchmarkRunner launches androidx.benchmark's IsolationActivity inside it,
+    // so the library's manifest has to merge into the app, not only into the test APK.
+    implementation 'androidx.benchmark:benchmark-junit4:1.5.0'
     androidTestImplementation project(':benchmark')
+    // DeviceProbe writes this device's own capture and trial; without it the only plan a
+    // device can be given is a host JVM's, which preparation correctly refuses.
+    androidTestImplementation project(':environment:discovery')
     androidTestImplementation 'androidx.benchmark:benchmark-junit4:1.5.0'
-    androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    // 1.5.2, not a newer pin: benchmark-junit4 resolves androidx.test:runner strictly at
+    // 1.5.2, and AGP keeps the app and androidTest classpaths consistent.
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'junit:junit:4.13.2'
 }

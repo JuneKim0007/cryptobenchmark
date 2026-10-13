@@ -22,4 +22,10 @@ tasks.withType(Test).configureEach {
     if (update != null) {
         systemProperty 'examples.update', update
     }
+    // A device's own trial, for KeyAlgorithmContractTest: the example trial carries this module's
+    // names, a real capture carries the device's.
+    def trial = System.getProperty('trial')
+    if (trial != null) {
+        systemProperty 'trial', trial
+    }
 }

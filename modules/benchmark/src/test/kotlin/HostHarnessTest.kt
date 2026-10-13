@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
+import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
@@ -27,14 +28,12 @@ class HostHarnessTest {
 
     private val quick = HostHarness(warmupNanos = 2_000_000L, runNanos = 1_000_000L, runs = 3)
 
-    /** iterations is how many samples a case yields, not how many calls one sample makes. */
     @Test
     fun aCaseYieldsAsManySamplesAsTheHarnessSettingsAskFor() {
         assertEquals(3, quick.measure(digest(HarnessSettings())).nanosPerOperation.size)
         assertEquals(11, quick.measure(digest(HarnessSettings(iterations = 11))).nanosPerOperation.size)
     }
 
-    /** The inner loop comes from the time budget, so a fast primitive is not measured against the clock's resolution. */
     @Test
     fun oneSampleLoopsUntilTheBudgetIsSpent() {
         val measurement = quick.measure(digest(HarnessSettings()))
@@ -42,14 +41,16 @@ class HostHarnessTest {
         assertTrue("median ${measurement.medianNanos}", measurement.medianNanos > 0)
     }
 
-    /**
-     * The progress line and the summary table must not disagree about one word: analyze.py takes the
-     * mean of the two middle samples, and an even sample count is what processRepetitions produces.
-     */
+    @Test
+    fun theHostRowCarriesOnlyWhatTheHostCanMeasure() {
+        val row = quick.measure(digest(HarnessSettings())).row()
+        assertEquals(listOf(MetricSamples.TIME), row.metrics.keys.toList())
+    }
+
     @Test
     fun theMedianIsTheOneTheAnalysisComputes() {
         val case = digest(HarnessSettings()).case
-        assertEquals(30L, CaseMeasurement(case, 1, listOf(10L, 50L, 20L, 40L)).medianNanos)
-        assertEquals(20L, CaseMeasurement(case, 1, listOf(10L, 50L, 20L)).medianNanos)
+        assertEquals(30.0, CaseMeasurement(case, "none", 1, listOf(10.0, 50.0, 20.0, 40.0)).medianNanos, 0.0)
+        assertEquals(20.0, CaseMeasurement(case, "none", 1, listOf(10.0, 50.0, 20.0)).medianNanos, 0.0)
     }
 }

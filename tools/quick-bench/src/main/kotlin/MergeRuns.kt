@@ -9,6 +9,10 @@ fun main(arguments: Array<String>) {
     }
     val merged = Merge.merge(arguments.drop(1).map { File(it).readText() })
     val written = BenchmarkJson(File(arguments[0]).apply { mkdirs() }).write(merged.runtime, merged.rows)
-    System.err.println("merged=${merged.rows.size} processes=${merged.processes} samples=${merged.rows.firstOrNull()?.nanosPerOperation?.size ?: 0}")
+    val first = merged.rows.firstOrNull()
+    System.err.println(
+        "merged=${merged.rows.size} processes=${merged.processes} samples=${first?.time?.runs?.size ?: 0}" +
+            " metrics=${first?.metrics?.keys?.joinToString(",") ?: "-"}",
+    )
     println(written.path)
 }

@@ -1,9 +1,5 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
-/**
- * One process per repetition, then the samples joined: a case measured in three processes carries
- * all three processes' samples, which is the only way process-to-process variance is visible.
- */
 object Merge {
 
     class Merged(val runtime: Map<String, String>, val rows: List<ResultRow>, val processes: Int)
@@ -17,14 +13,24 @@ object Merge {
             CaseDocument.section(document["runtime"])
                 .forEach { (key, value) -> runtime.putIfAbsent(key, value.toString()) }
             for (case in CaseDocument.sections(document["cases"])) {
-                val row = CaseDocument.row(
-                    case,
-                    CaseDocument.iterations(case["iterations"]),
-                    CaseDocument.samples(case["nanosPerOperation"]),
-                )
+                val row = CaseDocument.row(case, metricsOf(case))
                 rows[row.id] = rows[row.id]?.mergedWith(row) ?: row
             }
         }
         return Merged(runtime, rows.values.toList(), texts.size)
+    }
+
+    // Files written before `metrics` existed carry only the flat iterations/nanosPerOperation pair.
+    private fun metricsOf(case: Map<String, Any>): Map<String, MetricSamples> {
+        val metrics = CaseDocument.metrics(case["metrics"])
+        if (metrics.isNotEmpty()) {
+            return metrics
+        }
+        return linkedMapOf(
+            MetricSamples.TIME to MetricSamples(
+                CaseDocument.samples(case["nanosPerOperation"]),
+                CaseDocument.iterations(case["iterations"]),
+            ),
+        )
     }
 }

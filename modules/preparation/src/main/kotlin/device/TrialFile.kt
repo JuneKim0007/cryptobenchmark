@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledService
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledTransformation
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.boolean
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.sections
@@ -33,14 +34,19 @@ object TrialFile {
                 algorithm = string(service, "algorithm"),
                 instantiates = boolean(service, "instantiates"),
                 error = optionalString(service, "error"),
+                keyAlgorithm = measuredKeyAlgorithm(service),
                 transformations = optionalSections(service, "transformations").map { transformation ->
                     TrialledTransformation(
                         name = string(transformation, "name"),
                         instantiates = boolean(transformation, "instantiates"),
                         error = optionalString(transformation, "error"),
+                        keyAlgorithm = measuredKeyAlgorithm(transformation),
                     )
                 },
             )
         },
     )
+
+    private fun measuredKeyAlgorithm(trialled: Map<String, Any>): String =
+        optionalString(optionalSection(trialled, "defaultRun"), "keyAlgorithm")
 }

@@ -33,7 +33,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` (rooted device) |
 | | `processRepetitions` | `1` | independent process runs |
 | | `seed` | `0` | input seed |
-| | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`). A missing value is the harness's own default |
+| | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`), `energy` (`capture` `none`/`measured`/`dry`, `windowSeconds`, `warmupSeconds`, `cooldownSeconds`; modules/benchmark/docs/measure.md#energy). A missing value is the harness's own default |
 | `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
 
 ## testsets/*.yaml
@@ -47,7 +47,7 @@ One section per feature, one owner each; an unknown section or key is an error.
 
 Rule: `{provider?, type?, name?, group?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
 Override precedence, lowest first: type → name pattern → exact name → provider → group. Ties: file order. Lists replace.
-`harness` merges field by field, so a narrow rule naming `iterations` keeps the `profiling` a broad one set; every other key replaces.
+`harness` merges field by field, so a narrow rule naming `iterations` keeps the `profiling` a broad one set; `harness.energy` merges field by field too; every other key replaces.
 An entry carries only the harness fields that differ from `run.harness`; the rest stay in `run`.
 
 ## Groups
@@ -115,7 +115,7 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | Value | Where | Default |
 |---|---|---|
 | `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0`, `harness {}` |
-| harness values a missing field leaves to the timer | `HarnessSettings` | `iterations`, `warmupIterations`, `profiling` all unset |
+| harness values a missing field leaves to the timer | `HarnessSettings` | `iterations`, `warmupIterations`, `profiling` all unset; `energy` empty (capture none) |
 | failure policy default | `Policy` | `skip` |
 
 ## Classes

@@ -11,25 +11,17 @@ class HostHarness(
 
     fun measure(prepared: PreparedCase): CaseMeasurement {
         val invocation = Invocations.of(prepared)
-        var warmupIterations = 0L
         val warmupStart = System.nanoTime()
-        while (System.nanoTime() - warmupStart < warmupNanos) {
-            invocation.setUp()
-            BlackHole.consume(invocation.perIteration())
-            warmupIterations++
-        }
-        val observedNanos = (System.nanoTime() - warmupStart).toDouble() / warmupIterations
+        val warmupIterations = TimedLoop.run(invocation, warmupNanos)
+        val observedNanos = (System.nanoTime() - warmupStart).toDouble() / maxOf(1L, warmupIterations)
         val iterations = maxOf(1, (runNanos / maxOf(1.0, observedNanos)).toInt())
         val samples = prepared.case.harness.iterations ?: runs
         val nanosPerOperation = (1..samples).map {
             val start = System.nanoTime()
-            repeat(iterations) {
-                invocation.setUp()
-                BlackHole.consume(invocation.perIteration())
-            }
-            (System.nanoTime() - start) / iterations
+            repeat(iterations) { BlackHole.consume(invocation.perIteration()) }
+            (System.nanoTime() - start).toDouble() / iterations
         }
-        return CaseMeasurement(prepared.case, iterations, nanosPerOperation)
+        return CaseMeasurement(prepared.case, prepared.recipe.kind, iterations, nanosPerOperation)
     }
 
     companion object {

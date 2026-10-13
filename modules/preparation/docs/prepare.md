@@ -80,8 +80,10 @@ always overwritten.
 | `cases[].input` | `kind` (`none`, `message`, `ciphertext`, `signedMessage`) and its sizes |
 | `cases[].fingerprint` | SHA-256 of the case block, first 8 hex: a harness that resolved something else can see it |
 
-No key material and no input bytes: both are reproducible from `seed` and the recipe, and a
-benchmark file on a device is not a place for keys.
+No key material and no input bytes. Input bytes are reproducible from `seed` and size
+(`InputBytes`, `java.util.Random(seed)`); key material is not: `KeyMaterialGenerator` draws from an
+unseeded `SecureRandom`, so every preparation generates new keys from the same recipe. A benchmark
+file on a device is not a place for keys either way.
 
 ## Limits
 
@@ -127,7 +129,7 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `InputBytes`, `OperationInput`, `CipherKeys` | `input` | seeded bytes, the input a case carries, the key a cipher takes |
 | `EngineTypes` | `engine` | which operations an engine type has, and one fallback |
 | `OperationDefinition`, `OperationDefinitions`, `KeyShape` | `operation` | what each operation consumes (key, key size, input), and the call it builds |
-| `Invocation`, `Invocations` | `operation` | `setUp` and `perIteration` for one case: called once here, timed by the harness |
+| `Invocation`, `Invocations` | `operation` | the one timed call of a case: called once here, timed by the harness; pooled specs are indexed inside it |
 | `EncryptDefinition` … `TypeDefaultDefinition` | `operation` | one definition per operation |
 | `CaseArguments` | `operation` | the message, secret key or key pair a prepared case carries |
 | `PreparedCase`, `PreparedRun`, `StoppedOnFailureException` | `prepare` | the output |

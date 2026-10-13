@@ -32,6 +32,13 @@
           "median": 1191.0,
           "coefficientOfVariation": 0.019,
           "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0]
+        },
+        "allocationCount": {
+          "minimum": 2.0,
+          "maximum": 3.0,
+          "median": 2.0,
+          "coefficientOfVariation": 0.183,
+          "runs": [2.0, 2.0, 3.0, 2.0, 2.0]
         }
       },
       "sampledMetrics": {},

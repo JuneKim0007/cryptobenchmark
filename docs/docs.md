@@ -27,10 +27,22 @@
   - `modules/android/` : module `:android` (application) — the instrumentation target; `src/androidTest/` holds the Jetpack harness
   - `gradle.properties` : gradle env + signing
 - `scripts/`
-  - `pipeline.py` : the host driver — stages in order, one readable failure; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench`, `--stream`
+  - `pipeline.py` : the driver — stages in order, one readable failure, `results/manifest.yaml` at the end; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench` (JVM) or `--device` (adb; `--suppress-errors`, `--energy-python`, `--energy-accept-unresponsive`), `--stream`
+  - `device.py` : the `--device` stages — install, `DeviceProbe`, push the plan, AOT compile, `CryptoBenchmark`, pull; no root: the app creates its own directory, shell (`ext_data_rw`) reads it
+  - `clocks.py` : per-core governor, floor and ceiling over adb before and after a measure → `benchmark/clocks.yaml`; the manifest's `cpuLocked`
+  - `energy_session.py` : Perfetto on the device — the rail pre-flight windows, the dry pass's host session around `EnergyDryBenchmark`, Jetpack's per-case traces
+  - `energy_stage.py` : the energy steps of a `--device` run — which captures the plan asks for, pre-flight then settle, `tools/energy` calls
+  - `tests/` : `test_manifest.py`
   - `demo.sh` : one live run into `results/demo/`; `--warm`, `--fast`, `--reuse`
   - `requirements.txt` : host python deps
 - `tools/`
+  - `energy/` : joules from power-rail traces; needs `requirements.txt` (perfetto)
+    - `preflight.py` : idle and busy rail windows → `discovery/energy.yaml` (rails present, responsive)
+    - `energy.py` : traces → `benchmark/energy.json`: joules per window, net of idle, judged valid or not
+    - `capture.py` : which energy capture a case asks for (its own, else the run's, else none); also used by `scripts/energy_stage.py`
+    - `energy.pbtx` : the dry pass's session config: rails every 100 ms, this app's atrace sections
+    - `rails/counters.py` : cumulative rail counters → energy between two timestamps, interpolated
+    - `rails/trace.py` : one trace's rail counters, energy markers, Jetpack timed phases, clock offset
   - `jca-contract/` : the host command (probe → trial → inventory → effective) and the JCA contract tests
   - `android-api-check/` : compiles `discovery`, `preparation` and `benchmark` against `android.jar` with no JDK on the classpath
   - `quick-bench/` : the host driver for `:benchmark` (`BenchKt`, `ConvertKt`, `MergeRunsKt`) and the analysis script
@@ -39,10 +51,11 @@
   - `docs.md` : this file
   - `cryptography/primitives.md`, `cryptography/providers.md` : catalogue
 - `results/` : run output, ignored
-  - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`
+  - `manifest.yaml` : what the run wrote, written last by every run — `mode` (`host`, `device`), `config`, `runtime`, `providers` in precedence order, `files` relative to it (a stage that did not run is absent), `counts`
+  - `discovery/` : `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml`; with energy, `energy.yaml` and `energy-preflight/`
   - `configuration/` : `inventory.yaml`, `effective.yaml`
   - `preparation/` : `prepared.yaml`, `skipped.yaml`
-  - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one
+  - `benchmark/` : `benchmark.json`, and `process-<n>/` when `processRepetitions` is more than one; `--device` keeps androidx's `benchmarkData.json` beside each; with energy, `energy.json`, `traces/`, and `energy-dry.yaml` for dry cases
   - `analysis/` : `summary.md` and three charts
 
 Each module's own README lists its files and responsibilities.

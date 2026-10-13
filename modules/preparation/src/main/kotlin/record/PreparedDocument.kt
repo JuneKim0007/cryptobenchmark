@@ -50,18 +50,18 @@ internal object PreparedDocument {
     }
 
     private fun key(recipe: KeyRecipe, material: KeyMaterial): Map<String, Any> = when (recipe) {
-        is KeyRecipe.None -> linkedMapOf("kind" to "none")
-        is KeyRecipe.Secret -> linkedMapOf<String, Any>("kind" to "secret", "algorithm" to recipe.algorithm, "provider" to recipe.provider).apply {
+        is KeyRecipe.None -> linkedMapOf("kind" to recipe.kind)
+        is KeyRecipe.Secret -> linkedMapOf<String, Any>("kind" to recipe.kind, "algorithm" to recipe.algorithm, "provider" to recipe.provider).apply {
             recipe.keySize?.let { put("keySize", it) }
             if (recipe.parameters.isNotEmpty()) put("parameters", LinkedHashMap(recipe.parameters))
             put("encodedBytes", material.secretKeyOrNull?.encoded?.size ?: 0)
         }
-        is KeyRecipe.Pair -> linkedMapOf<String, Any>("kind" to "pair", "algorithm" to recipe.algorithm, "provider" to recipe.provider).apply {
+        is KeyRecipe.Pair -> linkedMapOf<String, Any>("kind" to recipe.kind, "algorithm" to recipe.algorithm, "provider" to recipe.provider).apply {
             recipe.keySize?.let { put("keySize", it) }
             if (recipe.parameters.isNotEmpty()) put("parameters", LinkedHashMap(recipe.parameters))
             put("pairs", material.keyPairsOrNull?.size ?: 0)
         }
-        is KeyRecipe.Unavailable -> linkedMapOf("kind" to "unavailable", "reason" to recipe.reason)
+        is KeyRecipe.Unavailable -> linkedMapOf("kind" to recipe.kind, "reason" to recipe.reason)
     }
 
     private fun input(input: OperationInput): Map<String, Any> = when (input) {
@@ -84,5 +84,6 @@ internal object PreparedDocument {
         harness.iterations?.let { put("iterations", it) }
         harness.warmupIterations?.let { put("warmupIterations", it) }
         harness.profiling?.let { put("profiling", it) }
+        harness.energy.document()?.let { put("energy", it) }
     }.takeIf { it.isNotEmpty() }
 }

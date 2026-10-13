@@ -63,6 +63,24 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
         return availability(transformation?.instantiates, transformation?.error, "transformation_fails")
     }
 
+    override fun measuredKeyAlgorithm(provider: String, type: String, algorithm: String): String? {
+        val registered = serviceOf(provider, type, algorithm)
+        if (registered != null) {
+            return trialsByProvider[provider]
+                ?.get(ServiceName.of(type, registered.algorithm))
+                ?.keyAlgorithm
+                ?.takeIf { it.isNotBlank() }
+        }
+        val base = algorithm.substringBefore('/', missingDelimiterValue = "")
+        val baseService = if (base.isEmpty()) null else serviceOf(provider, type, base)
+        return trialsByProvider[provider]
+            ?.get(ServiceName.of(CIPHER, (baseService ?: return null).algorithm))
+            ?.transformations
+            ?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
+            ?.keyAlgorithm
+            ?.takeIf { it.isNotBlank() }
+    }
+
     private fun serviceOf(provider: String, type: String, algorithmOrAlias: String): CapturedService? =
         servicesByProvider[provider]?.get(ServiceName.of(type, algorithmOrAlias))
 

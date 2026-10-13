@@ -17,7 +17,6 @@ import org.junit.Test
 import java.io.File
 import java.nio.file.Files
 
-/** Every handler round-trips through a real file, and the shared file layer stamps and checks the version. */
 class DocumentsTest {
 
     private val files = YamlFiles()
@@ -29,7 +28,6 @@ class DocumentsTest {
     private val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
     private val effective = EffectiveBuilder().build(global, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
 
-    /** One override feeds many entries the same list; the file must still read back as plain values. */
     @Test
     fun everyKindRoundTripsInFull() {
         val warned = effective.copy(warnings = listOf("override_matches_nothing: {name=X}"))
@@ -50,7 +48,6 @@ class DocumentsTest {
             assertThrows(IllegalArgumentException::class.java) { files.at(written, InventoryDocument).read() }.message)
     }
 
-    /** A misspelt section, key or choice fails by name instead of quietly falling back to defaults. */
     @Test
     fun malformedDocumentsAreRefusedByName() {
         val global = "schemaVersion: 1\nselection: {testSet: a.yaml}\n"
@@ -62,7 +59,10 @@ class DocumentsTest {
             { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) } to "empty_rule: give provider, type or name at selection.exclude[1]",
             { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) } to "unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations, harness]",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {iterations: 0}}\n")) } to "not_positive: iterations 0 at run.harness",
-            { GlobalDocument.parse(codec.load(global + "run: {harness: {profile: none}}\n")) } to "unknown_keys: run.harness [profile], known [iterations, warmupIterations, profiling]",
+            { GlobalDocument.parse(codec.load(global + "run: {harness: {profile: none}}\n")) } to "unknown_keys: run.harness [profile], known [iterations, warmupIterations, profiling, energy]",
+            { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {capture: always}}}\n")) } to "invalid: energy.capture always, known [none, measured, dry] at run.harness.energy",
+            { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {capture: off}}}\n")) } to "invalid: energy.capture false (YAML reads off/on/yes/no as booleans), write one of [none, measured, dry] at run.harness.energy",
+            { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {window: 5}}}\n")) } to "unknown_keys: run.harness.energy [window], known [capture, windowSeconds, warmupSeconds, cooldownSeconds]",
             { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {harness: {profiling: flame}}}\n")) } to "invalid: profiling flame, known [none, MethodTracing, StackSampling] at overrides[0].set.harness",
             { codec.load("- one\n- two\n") } to "not_a_mapping: the document is not a set of key: value entries",
         ).forEach { (parse, expected) ->

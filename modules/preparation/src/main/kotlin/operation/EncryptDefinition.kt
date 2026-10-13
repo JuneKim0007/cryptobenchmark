@@ -18,14 +18,9 @@ internal object EncryptDefinition : OperationDefinition {
         val message = CaseArguments.preparedMessage(prepared)
         val specs = CaseArguments.specPool(prepared.parameters)
         var drawn = 0
-        var spec = specs.firstOrNull()
-        return Invocation(
-            setUp = { if (specs.isNotEmpty()) spec = specs[drawn++ % specs.size] },
-            perIteration = {
-                val current = spec
-                if (current == null) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, current)
-                cipher.doFinal(message)
-            },
-        )
+        return Invocation {
+            if (specs.isEmpty()) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, specs[drawn++ % specs.size])
+            cipher.doFinal(message)
+        }
     }
 }

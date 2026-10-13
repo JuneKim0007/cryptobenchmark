@@ -1,11 +1,15 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
+import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import java.security.Security
 
-class PlanCheck(private val installedProviders: () -> Set<String> = { Security.getProviders().mapTo(LinkedHashSet()) { it.name } }) {
+class PlanCheck(
+    private val installedProviders: () -> Set<String> = { Security.getProviders().mapTo(LinkedHashSet()) { it.name } },
+    private val energyCapability: () -> EnergyCapability? = { null },
+) {
 
     fun check(run: PreparedRun): List<Refusal> {
         val refusals = mutableListOf<Refusal>()
@@ -16,12 +20,25 @@ class PlanCheck(private val installedProviders: () -> Set<String> = { Security.g
             refusals += Refusal("", "not_positive: processRepetitions ${run.processRepetitions}")
         }
         val installed = installedProviders()
+        val energy = energyRefusal(run)
         run.cases.groupBy { it.case.id }
             .filterValues { it.size > 1 }
             .forEach { (id, duplicates) -> refusals += Refusal(id, "duplicate_case: ${duplicates.size} cases share this id") }
         run.cases.forEach { prepared -> refusals += refusalsFor(prepared, installed) }
+        if (energy != null) {
+            run.cases.filter { capturesEnergy(it) }.forEach { refusals += Refusal(it.case.id, energy) }
+        }
         return refusals
     }
+
+    private fun energyRefusal(run: PreparedRun): String? {
+        if (run.cases.none { capturesEnergy(it) }) return null
+        val capability = energyCapability()
+            ?: return "energy_capability_unknown: push ${EnergyCapability.FILE} from the pre-flight"
+        return capability.refusal()
+    }
+
+    private fun capturesEnergy(prepared: PreparedCase): Boolean = Energy.of(prepared.case.harness.energy).capture != Energy.Capture.NONE
 
     private fun refusalsFor(prepared: PreparedCase, installed: Set<String>): List<Refusal> {
         val case = prepared.case

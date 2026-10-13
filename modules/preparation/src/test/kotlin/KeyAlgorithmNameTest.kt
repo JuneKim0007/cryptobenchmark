@@ -13,6 +13,8 @@ class KeyAlgorithmNameTest {
             Triple("Cipher", "ChaCha20", "ChaCha20"),
             Triple("Signature", "SHA256withRSA", "RSA"),
             Triple("Signature", "SHA256WithECDSA", "EC"),
+            Triple("Signature", "SHA256withECDSAinP1363Format", "EC"),
+            Triple("Signature", "SHA256withDSAinP1363Format", "DSA"),
             Triple("Signature", "Ed25519", "Ed25519"),
             Triple("Signature", "RSASSA-PSS", "RSASSA-PSS"),
             Triple("KeyAgreement", "ECDH", "EC"),
@@ -23,7 +25,6 @@ class KeyAlgorithmNameTest {
         }
     }
 
-    /** Tried in order until the device has a generator: what environment's default run also falls back to. */
     @Test
     fun cipherCandidatesFallBackToTheFamily() {
         assertEquals(listOf(KeyCandidate("ChaCha20-Poly1305"), KeyCandidate("ChaCha20")), KeyAlgorithmName.candidates("Cipher", "ChaCha20-Poly1305"))

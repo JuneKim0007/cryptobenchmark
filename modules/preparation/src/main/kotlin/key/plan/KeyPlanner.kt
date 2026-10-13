@@ -11,7 +11,7 @@ class KeyPlanner(
 ) {
 
     fun plan(case: BenchmarkCase): KeyRecipe {
-        val names = KeyAlgorithmName.candidates(case.type, case.algorithm)
+        val names = candidates(case)
         val algorithm = names.first().algorithm
         return when (OperationDefinitions.of(case.operation).keyShape) {
             KeyShape.NONE -> KeyRecipe.None
@@ -21,6 +21,15 @@ class KeyPlanner(
             KeyShape.DEVICE_DECIDES -> names.firstNotNullOfOrNull { secret(case, it) } ?: names.firstNotNullOfOrNull { pair(case, it, count = 1) }
                 ?: KeyRecipe.Unavailable("no_key_generator: $algorithm")
         }
+    }
+
+    private fun candidates(case: BenchmarkCase): List<KeyCandidate> {
+        val derived = KeyAlgorithmName.candidates(case.type, case.algorithm)
+        val measured = capability.measuredKeyAlgorithm(case.provider, case.type, case.algorithm)
+        if (measured.isNullOrBlank()) {
+            return derived
+        }
+        return listOf(KeyCandidate(measured)) + derived.filterNot { it.algorithm.equals(measured, ignoreCase = true) }
     }
 
     private fun secret(case: BenchmarkCase, candidate: KeyCandidate): KeyRecipe.Secret? =

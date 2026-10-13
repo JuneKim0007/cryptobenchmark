@@ -1,12 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.operation
 
-class Invocation(
-    val perIteration: () -> Any?,
-    val setUp: () -> Unit = {},
-) {
+class Invocation(val perIteration: () -> Any?) {
 
-    fun once(): Any? {
-        setUp()
-        return perIteration()
-    }
+    fun once(): Any? = perIteration()
 }

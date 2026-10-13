@@ -6,5 +6,6 @@ data class TrialledService(
     val algorithm: String,
     val instantiates: Boolean,
     val error: String = "",
+    val keyAlgorithm: String = "",
     val transformations: List<TrialledTransformation> = emptyList(),
 )

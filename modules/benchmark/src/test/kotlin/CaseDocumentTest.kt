@@ -1,15 +1,11 @@
 package io.github.junekim0007.cryptobench.benchmark
 
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
+import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-/**
- * One reader for every file this module did not write: Jetpack's `benchmarkData.json`, preparation's
- * `prepared.yaml` and an earlier process's `benchmark.json`. A shape it does not recognise is named,
- * never coerced into a number, because the number would end up in the results as if it were measured.
- */
 class CaseDocumentTest {
 
     @Test
@@ -20,16 +16,26 @@ class CaseDocumentTest {
         assertEquals("not_a_list: 7", notAList.message)
     }
 
-    /** A missing count is one call per sample, and a missing size is unknown — not zero. */
     @Test
     fun aCaseMappingWithoutSizesStillBecomesARow() {
         val row = CaseDocument.row(
             mapOf("id" to "digest", "type" to "MessageDigest", "algorithm" to "SHA-256", "provider" to "SUN", "operation" to "DIGEST"),
-            CaseDocument.iterations(null),
-            listOf(10L),
+            mapOf(MetricSamples.TIME to MetricSamples(listOf(10.0), CaseDocument.iterations(null))),
         )
         assertEquals(null, row.keySize)
         assertEquals(null, row.inputSize)
-        assertEquals(1, row.iterations)
+        assertEquals(1, row.time?.iterations)
+    }
+
+    @Test
+    fun aMetricWithNoRunsIsNotAMeasurement() {
+        val metrics = CaseDocument.metrics(
+            mapOf(
+                "timeNs" to mapOf("iterations" to 8192, "runs" to listOf(10.0)),
+                "allocationCount" to mapOf("iterations" to 1, "runs" to emptyList<Double>()),
+            ),
+        )
+        assertEquals(listOf("timeNs"), metrics.keys.toList())
+        assertEquals(emptyMap<String, MetricSamples>(), CaseDocument.metrics(null))
     }
 }

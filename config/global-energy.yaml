@@ -1,0 +1,15 @@
+schemaVersion: 1
+selection:
+  testSet: testsets/energy-smoke.yaml
+run:
+  inputSizes: [1024]
+  phases: [WARM]
+  metrics: [TIME]
+  processRepetitions: 1
+  seed: 42
+  harness:
+    iterations: 20
+    profiling: none
+    energy: {capture: measured, windowSeconds: 3, warmupSeconds: 1, cooldownSeconds: 1}
+policy:
+  onFailure: skip

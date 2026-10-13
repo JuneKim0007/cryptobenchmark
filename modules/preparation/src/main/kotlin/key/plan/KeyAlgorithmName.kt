@@ -29,7 +29,7 @@ internal object KeyAlgorithmName {
 
     private fun signatureKey(algorithm: String): String {
         val parts = algorithm.split(WITH)
-        val key = if (parts.size > 1) parts.last() else algorithm
+        val key = (if (parts.size > 1) parts.last() else algorithm).removeSuffix("inP1363Format")
         return if (key.equals("ECDSA", ignoreCase = true)) "EC" else key
     }
 }
