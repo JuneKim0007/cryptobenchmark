@@ -1,0 +1,15 @@
+schemaVersion: 1
+mode: device
+config: config/global.yaml
+runtime: {model: test, cpuLocked: 'false', thermalThrottleSleepSeconds: '0'}
+providers:
+- {name: Fast, precedence: 1, serviceCount: 2}
+- {name: Slow, precedence: 2, serviceCount: 2}
+files:
+  probe: discovery/probe_20260101T000000Z.yaml
+  trial: discovery/trial_20260101T000000Z.yaml
+  inventory: configuration/inventory.yaml
+  prepared: preparation/prepared.yaml
+  skipped: preparation/skipped.yaml
+  benchmark: benchmark/benchmark.json
+counts: {prepared: 4, skipped: 3, measured: 3}
