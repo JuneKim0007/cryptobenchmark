@@ -14,3 +14,7 @@ python3 analyze.py ../../results/benchmark/benchmark.json ../../results/analysis
 ```
 
 Output: `results/benchmark/benchmark.json`, then `results/analysis/{summary.md,throughput.png,latency.png,stability.png}`.
+
+`analyze.py` reports the mean of each case's runs after `outliers.py`: every run is kept unless one lies
+more than 3 standard deviations from the others' mean; then the farthest run is dropped and the check
+repeats; more than 20 drops keeps every run. The threshold is temporary.
