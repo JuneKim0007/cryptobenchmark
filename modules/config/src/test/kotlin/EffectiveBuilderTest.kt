@@ -13,7 +13,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
-import io.github.junekim0007.cryptobench.settings.CpuRequest
+import io.github.junekim0007.cryptobench.settings.CpuSettings
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import org.junit.Assert.assertEquals
@@ -125,20 +125,32 @@ class EffectiveBuilderTest {
         assertEquals(listOf(128), entries.getValue("AES/CBC/PKCS5PADDING@sized").keySizes)
     }
 
-    private val pinnable = Facts(37, false, listOf(Facts.Core(0, true, 2_000_000), Facts.Core(7, true, 3_800_000)), true)
+    private val pinnable = Facts(true, 37, false, listOf(Facts.Core(0, true, 2_000_000), Facts.Core(7, true, 3_800_000)), true)
 
-    private fun withRunCpu(cpu: CpuRequest) = global.copy(run = global.run.copy(harness = global.run.harness.copy(cpu = cpu)))
+    private fun withRunCpu(cpu: CpuSettings) = global.copy(run = global.run.copy(harness = global.run.harness.copy(cpu = cpu)))
 
-    private fun entryCpu(cpu: CpuRequest) = testSet.copy(overrides = testSet.overrides + Override(Rule(type = "MessageDigest"), harness = HarnessSettings(cpu = cpu)))
+    private fun entryCpu(cpu: CpuSettings) = testSet.copy(overrides = testSet.overrides + Override(Rule(type = "MessageDigest"), harness = HarnessSettings(cpu = cpu)))
 
     @Test
-    fun aSupportedSettingIsKeptAsWritten() {
-        assertEquals(CpuRequest("big"), EffectiveBuilder().build(withRunCpu(CpuRequest("big")), testSet, inventory, names, pinnable).run.harness.cpu)
+    fun aSupportedSettingIsKeptWithBigResolvedToACore() {
+        assertEquals(CpuSettings("7"), EffectiveBuilder().build(withRunCpu(CpuSettings("big")), testSet, inventory, names, pinnable).run.harness.cpu)
+    }
+
+    @Test
+    fun anEntryIsCheckedWithTheRunValuesItInherits() {
+        val built = EffectiveBuilder().build(withRunCpu(CpuSettings("big", required = true)), entryCpu(CpuSettings("5")), inventory, names, pinnable)
+        assertTrue(built.skipped.toString(), built.skipped.any { it.type == "MessageDigest" && it.reason.contains("no_core: core 5") && it.reason.endsWith("(required)") })
+    }
+
+    @Test
+    fun aDroppedEntryValueSaysTheRunValueApplies() {
+        val built = EffectiveBuilder().build(withRunCpu(CpuSettings("big")), entryCpu(CpuSettings("5")), inventory, names, pinnable)
+        assertTrue(built.warnings.toString(), built.warnings.any { it.contains(".cpu: no_core: core 5") && it.endsWith("; run.harness.cpu applies") })
     }
 
     @Test
     fun anUnsupportedRunSettingIsRemovedWithAWarning() {
-        val built = EffectiveBuilder().build(withRunCpu(CpuRequest("big")), testSet, inventory, names)
+        val built = EffectiveBuilder().build(withRunCpu(CpuSettings("big")), testSet, inventory, names)
         assertNull(built.run.harness.cpu)
         assertTrue(built.warnings.toString(), built.warnings.any { it.startsWith("not_supported: run.harness.cpu: facts_unknown:") })
     }
@@ -146,14 +158,14 @@ class EffectiveBuilderTest {
     @Test
     fun anUnsupportedRequiredRunSettingStopsTheConfig() {
         val failure = assertThrows(IllegalArgumentException::class.java) {
-            EffectiveBuilder().build(withRunCpu(CpuRequest("9", required = true)), testSet, inventory, names, pinnable)
+            EffectiveBuilder().build(withRunCpu(CpuSettings("9", required = true)), testSet, inventory, names, pinnable)
         }
         assertTrue(failure.message!!.startsWith("not_supported: run.harness.cpu: no_core:"))
     }
 
     @Test
     fun anUnsupportedRequiredEntrySettingSkipsOnlyThoseEntries() {
-        val built = EffectiveBuilder().build(global, entryCpu(CpuRequest("big", required = true)), inventory, names, pinnable.copy(pinning = false))
+        val built = EffectiveBuilder().build(global, entryCpu(CpuSettings("big", required = true)), inventory, names, pinnable.copy(pinning = false))
         assertTrue(built.skipped.toString(), built.skipped.any { it.type == "MessageDigest" && it.reason.contains("no_pinning") })
         assertTrue(built.providers.values.none { it.containsKey("MessageDigest") })
     }

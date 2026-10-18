@@ -8,7 +8,6 @@ from device import CPU_PINS, Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-APK = ROOT / "modules/android/build/outputs/apk/release/android-release.apk"
 
 
 def fail(message):
@@ -191,7 +190,7 @@ def main():
         capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
         if not capture or not trial:
             fail(f"missing_file: {discovery}/probe_<utc>.yaml, trial_<utc>.yaml (DeviceProbe wrote none)")
-        known = facts.write(discovery / facts.FACTS, facts.collect(device, capture, APK))
+        known = facts.gather(device, discovery, capture)
         written = gradle("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
@@ -250,6 +249,10 @@ def main():
             files.setdefault("clocks", []).append(into / CLOCKS)
             if (into / CPU_PINS).is_file():
                 files.setdefault("cpuPins", []).append(into / CPU_PINS)
+                import yaml
+                for case, pin in (yaml.safe_load((into / CPU_PINS).read_text()) or {}).items():
+                    if "failed" in pin:
+                        print(f"warning: cpu_pin_failed: {case}: {pin['failed']}")
     if repetitions > 1 and timed:
         gradle("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
     print(f"wrote:     {preparation / 'prepared.yaml'}")

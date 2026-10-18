@@ -129,8 +129,7 @@ class Device:
         self.pull_plan(preparation)
         pins = data.parent / CPU_PINS
         pins.unlink(missing_ok=True)
-        if self.run("shell", f"ls {FILES}/{CPU_PINS}", check=False).returncode == 0:
-            self.pull(f"{FILES}/{CPU_PINS}", pins)
+        self.run("pull", f"{FILES}/{CPU_PINS}", str(pins), check=False)
 
     def pull_plan(self, preparation):
         preparation.mkdir(parents=True, exist_ok=True)

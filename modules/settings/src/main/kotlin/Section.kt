@@ -11,7 +11,7 @@ class Section<O>(private val empty: O, private val prefix: String, private val k
         require(unknown.isEmpty()) { "unknown_keys: $path $unknown, known $names" }
         return keys().fold(empty) { built, key ->
             val value = document[key.name] ?: return@fold built
-            if (key.nested) key.readInto(built, value, prefix + key.name, "$path.${key.name}")
+            if (key is Nested<*, *>) key.readInto(built, value, prefix + key.name, "$path.${key.name}")
             else try {
                 key.readInto(built, value, prefix + key.name, path)
             } catch (failure: IllegalArgumentException) {
@@ -22,11 +22,16 @@ class Section<O>(private val empty: O, private val prefix: String, private val k
 
     fun write(value: O): Map<String, Any> = LinkedHashMap<String, Any>().also { out -> keys().forEach { it.writeFrom(value, out) } }
 
-    fun unsupported(value: O, facts: Facts, path: String): List<Unsupported> = keys().flatMap { it.unsupported(value, facts, path) }
-
-    /** The value without the keys named in unsupported, so nothing downstream sees a setting the device cannot honour. */
-    fun supported(value: O, unsupported: List<Unsupported>, path: String): O =
-        keys().fold(value) { kept, key -> key.supportedIn(kept, unsupported, path) }
-
     fun merged(base: O, later: O?): O = if (later == null) base else keys().fold(base) { merged, key -> key.mergeInto(merged, later) }
+
+    fun unsupported(value: O, facts: Facts, path: String): List<Unsupported> = keys().flatMap { it.unsupportedIn(value, facts, path) }
+
+    fun honoured(value: O, unsupported: List<Unsupported>, facts: Facts, path: String): O =
+        keys().fold(value) { kept, key -> key.honouredIn(kept, unsupported, facts, path) }
+
+    /** What this device can run, and what it cannot, in one pass. */
+    fun forDevice(value: O, facts: Facts, path: String): Pair<O, List<Unsupported>> {
+        val unsupported = unsupported(value, facts, path)
+        return honoured(value, unsupported, facts, path) to unsupported
+    }
 }

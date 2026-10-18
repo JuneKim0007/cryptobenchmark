@@ -6,11 +6,13 @@ data class HarnessSettings(
     val warmupIterations: Int? = null,
     val profiling: String? = null,
     val energy: EnergySettings = EnergySettings(),
-    val cpu: CpuRequest? = null,
+    val cpu: CpuSettings? = null,
 ) {
     init {
         require(iterations == null || iterations >= 1) { "not_positive: iterations $iterations" }
-        require(warmupIterations == null || warmupIterations >= 1) { "not_supported: warmupIterations $warmupIterations$WARMUP_HINT" }
+        require(warmupIterations == null || warmupIterations >= 1) {
+            "not_supported: warmupIterations $warmupIterations, androidx needs at least 1; leave it out to let the library decide"
+        }
         require(profiling == null || profiling in PROFILING) { "invalid: profiling $profiling, known $PROFILING" }
     }
 
@@ -20,17 +22,15 @@ data class HarnessSettings(
 
     companion object {
         val PROFILING: List<String> = listOf("none", "MethodTracing", "StackSampling")
-        private const val WARMUP_HINT = ", androidx needs at least 1; leave it out to let the library decide"
 
         val HARNESS: Section<HarnessSettings> = Section(HarnessSettings(), "") {
             listOf(
-                Key.value("iterations", Values.int(1, "not_positive"), { it.iterations }, { o, v -> o.copy(iterations = v) }),
-                Key.value("warmupIterations", Values.int(1, "not_supported", WARMUP_HINT), { it.warmupIterations }, { o, v -> o.copy(warmupIterations = v) }),
-                Key.value("profiling", Values.choice(PROFILING), { it.profiling }, { o, v -> o.copy(profiling = v) }),
-                Key.section("energy", EnergySettings.ENERGY, { it.energy.takeUnless { e -> e.isEmpty } }, { o, v -> o.copy(energy = v) }),
-                Key("cpu", { value, label, path -> CpuRequest.read(Values.section(value, "$path.cpu"), label) }, { it.cpu }, { o, v -> o.copy(cpu = v) },
-                    write = { it.document() }, requires = { request, facts -> request.support(facts) }, drop = { it.copy(cpu = null) },
-                    required = { it.required }),
+                Leaf("iterations", Values.int, { it.iterations }, { o, v -> o.copy(iterations = v) }),
+                Leaf("warmupIterations", Values.int, { it.warmupIterations }, { o, v -> o.copy(warmupIterations = v) }),
+                Leaf("profiling", Values.text(PROFILING), { it.profiling }, { o, v -> o.copy(profiling = v) }),
+                Nested("energy", EnergySettings.ENERGY, { it.energy.takeUnless { e -> e.isEmpty } }, { o, v -> o.copy(energy = v ?: EnergySettings()) }),
+                Nested("cpu", CpuSettings.CPU, { it.cpu }, { o, v -> o.copy(cpu = v) },
+                    requires = { cpu, facts -> cpu.support(facts) }, resolve = { cpu, facts -> cpu.resolved(facts) }),
             )
         }
 
@@ -62,41 +62,52 @@ data class EnergySettings(
 
         val ENERGY: Section<EnergySettings> = Section(EnergySettings(), "energy.") {
             listOf(
-                Key.value("capture", Values.choice(CAPTURES), { it.capture }, { o, v -> o.copy(capture = v) }),
-                Key.value("windowSeconds", Values.int(1, "not_positive"), { it.windowSeconds }, { o, v -> o.copy(windowSeconds = v) }),
-                Key.value("warmupSeconds", Values.int(1, "not_positive"), { it.warmupSeconds }, { o, v -> o.copy(warmupSeconds = v) }),
-                Key.value("cooldownSeconds", Values.int(0, "negative"), { it.cooldownSeconds }, { o, v -> o.copy(cooldownSeconds = v) }),
+                Leaf("capture", Values.text(CAPTURES), { it.capture }, { o, v -> o.copy(capture = v) }),
+                Leaf("windowSeconds", Values.int, { it.windowSeconds }, { o, v -> o.copy(windowSeconds = v) }),
+                Leaf("warmupSeconds", Values.int, { it.warmupSeconds }, { o, v -> o.copy(warmupSeconds = v) }),
+                Leaf("cooldownSeconds", Values.int, { it.cooldownSeconds }, { o, v -> o.copy(cooldownSeconds = v) }),
             )
         }
     }
 }
 
-/** Pin the measuring thread to one core: an index, or "big" for the highest-frequency online core. */
-data class CpuRequest(val core: String, val required: Boolean = false) {
+/** Pin the measuring thread to one core: an index, or "big" for the highest-frequency online core, resolved from facts. */
+data class CpuSettings(val core: String? = null, val required: Boolean? = null) {
     init {
-        require(core == BIG || core.toIntOrNull()?.let { it >= 0 } == true) { "invalid: cpu.core $core, an index or $BIG" }
+        require(core == null || core == BIG || core.toIntOrNull()?.let { it in 0..MAX_CORE } == true) { "invalid: cpu.core $core, an index 0..$MAX_CORE or $BIG" }
     }
 
-    fun document(): Map<String, Any> = linkedMapOf("core" to (core.toIntOrNull() ?: core), "required" to required)
+    val isRequired: Boolean get() = required == true
 
-    fun support(facts: Facts): Support = when {
-        facts.pinning == null || facts.cores == null -> Support.NotSupported("facts_unknown: no facts.yaml for this run")
-        facts.pinning == false -> Support.NotSupported("no_pinning: the installed app carries no native affinity library")
-        core == BIG && facts.cores.none { it.online && it.maxKhz != null } -> Support.NotSupported("no_frequencies: no online core reports a maximum frequency")
-        core != BIG && facts.cores.none { it.index == core.toInt() && it.online } -> Support.NotSupported("no_core: core $core is not an online core of ${facts.cores.map { it.index }}")
-        else -> Support.Supported
+    fun support(facts: Facts): Support {
+        val reason = when {
+            core == null -> "no_core: cpu.core is not set"
+            facts.pinning == null -> facts.unknown("pinning")
+            facts.pinning == false -> "no_pinning: the installed app carries no native affinity library"
+            facts.cores == null -> facts.unknown("cpu.cores")
+            core == BIG && bigCore(facts) == null -> "no_frequencies: no online core reports a maximum frequency"
+            core != BIG && facts.cores.none { it.index == core.toInt() && it.online } -> "no_core: core $core is not an online core of ${facts.cores.map { it.index }}"
+            else -> return Support.Supported
+        }
+        return Support.NotSupported(reason, isRequired)
     }
+
+    fun resolved(facts: Facts): CpuSettings = if (core == BIG) copy(core = bigCore(facts)?.toString() ?: core) else this
 
     companion object {
         const val BIG = "big"
+        const val MAX_CORE = 63
 
-        fun read(document: Map<String, Any>, label: String): CpuRequest {
-            val unknown = document.keys - setOf("core", "required")
-            require(unknown.isEmpty()) { "unknown_keys: $label $unknown, known [core, required]" }
-            val core = document["core"] ?: throw IllegalArgumentException("missing_field: $label.core")
-            val required = document["required"] ?: false
-            require(required is Boolean) { "wrong_type: $label.required expects true or false" }
-            return CpuRequest(core.toString(), required)
+        val CPU: Section<CpuSettings> = Section(CpuSettings(), "cpu.") {
+            listOf(
+                Leaf("core", Values.word, { it.core }, { o, v -> o.copy(core = v) }, writer = { it.toIntOrNull() ?: it }),
+                Leaf("required", Values.boolean, { it.required }, { o, v -> o.copy(required = v) }),
+            )
         }
+
+        /** The online core with the highest maximum frequency; the highest index on a tie. */
+        fun bigCore(facts: Facts): Int? = facts.cores
+            ?.filter { it.online && it.maxKhz != null }
+            ?.maxWithOrNull(compareBy({ it.maxKhz }, { it.index }))?.index
     }
 }

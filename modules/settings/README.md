@@ -6,10 +6,10 @@ an unknown key, writing emits only what is set, merging is key by key.
 
 | File | Responsibility |
 |---|---|
-| `Key.kt` | one setting: read, get, with, write, merge; a nested key holds a section |
-| `Section.kt` | read (unknown key → `unknown_keys`), write, merge for a table of keys |
-| `Values.kt` | typed reads of one value: bounded int, choice; failures name the key |
-| `Harness.kt` | `HarnessSettings`, `EnergySettings`, `CpuRequest` with their key tables |
+| `Key.kt` | one setting: a `Leaf` holds a value, a `Nested` holds a section merged key by key, with an optional `requires` and `resolve` |
+| `Section.kt` | read (unknown key → `unknown_keys`), write, merge, and `forDevice`: what the device can run and what it cannot |
+| `Values.kt` | type checks of one value; bounds and choices are checked once, by the class the value goes into |
+| `Harness.kt` | `HarnessSettings`, `EnergySettings`, `CpuSettings` with their key tables |
 | `Facts.kt` | what the device can support, read from `discovery/facts.yaml`; unknown when not gathered |
 | `Support.kt` | `Supported` / `NotSupported(reason)`, and `Unsupported(path, reason, required)` for a set key |
 
@@ -26,7 +26,9 @@ against the device's facts:
 | not required | removed, warning `not_supported: <path>: <reason>` | removed from those entries, same warning |
 | `required: true` | the config fails with that reason | those entries are skipped with that reason |
 
-`cpu: {core: <index> | big, required: <bool>}` pins the measuring thread to one core. It needs the
-native affinity library in the installed APK (`facts.pinning`) and an online core; without facts
-(a host run) it is `facts_unknown`. Other processes can still run on that core: pinning is not
-isolation, which needs root.
+`cpu: {core: <index> | big, required: <bool>}` pins the measuring thread to one core. It merges field by
+field, so a rule naming only `core` keeps the run's `required`. It needs the native affinity library in
+the installed APK (`facts.pinning`) and an online core; `big` is resolved here, once, to the online core
+with the highest `cpuinfo_max_freq`, so the device only ever pins an index. Without facts it is
+`facts_unknown`. An entry is checked with the run values it inherits; when its own value is dropped the
+warning ends `; run.harness.cpu applies`. Pinning restricts our thread; it is not isolation, which needs root.

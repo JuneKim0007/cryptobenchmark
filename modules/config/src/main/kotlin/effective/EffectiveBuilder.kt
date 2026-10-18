@@ -10,13 +10,14 @@ import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.Unsupported
 
 class EffectiveBuilder {
 
     fun build(global: GlobalConfig, testSet: TestSet, inventory: Inventory, files: Files, facts: Facts = Facts.UNKNOWN): EffectiveConfig {
-        val runUnsupported = HARNESS.unsupported(global.run.harness, facts, RUN_HARNESS)
+        val (runHarness, runUnsupported) = HARNESS.forDevice(global.run.harness, facts, RUN_HARNESS)
         runUnsupported.firstOrNull { it.required }?.let { throw IllegalArgumentException(it.toString()) }
-        val run = global.run.copy(harness = HARNESS.supported(global.run.harness, runUnsupported, RUN_HARNESS))
+        val run = global.run.copy(harness = runHarness)
         val all = inventory.entries()
         val included = if (testSet.include.isEmpty()) all else all.filter { located -> testSet.include.any { it.matches(located) } }
         val excludes = testSet.exclude + global.selection.exclude
@@ -47,14 +48,14 @@ class EffectiveBuilder {
                 val key = entryKey(located.name, group)
                 val path = "${located.provider}.${located.type}.$key.harness"
                 val entry = resolver.resolve(located, group)
-                val unsupported = HARNESS.unsupported(entry.harness, facts, path)
+                val unsupported = HARNESS.unsupported(runHarness.mergedWith(entry.harness), facts, path)
                 unsupported.firstOrNull { it.required }?.let {
                     entrySkips += Skip(Skip.CONFIG, located.provider, located.type, key, it.toString())
                     continue
                 }
-                entryWarnings += unsupported.map { it.toString() }
+                entryWarnings += unsupported.map { fallback(it, path, runHarness) }
                 providers.getOrPut(located.provider) { LinkedHashMap() }
-                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(harness = HARNESS.supported(entry.harness, unsupported, path))
+                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(harness = HARNESS.honoured(entry.harness, unsupported, facts, path))
             }
         }
         if (entrySkips.isNotEmpty() && global.policy.onFailure == Policy.OnFailure.STOP) {
@@ -81,6 +82,12 @@ class EffectiveBuilder {
     private fun entryKey(name: String, group: String?): String = if (group == null) name else "$name@$group"
 
     data class Files(val global: String, val testSet: String, val inventory: String)
+
+    /** An entry's dropped key leaves the run's value in force; the warning says which. */
+    private fun fallback(unsupported: Unsupported, path: String, run: HarnessSettings): String {
+        val key = unsupported.path.removePrefix("$path.").substringBefore('.')
+        return if (key in HarnessSettings.write(run)) "$unsupported; $RUN_HARNESS.$key applies" else unsupported.toString()
+    }
 
     private companion object {
         const val RUN_HARNESS = "run.harness"

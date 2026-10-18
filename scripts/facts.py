@@ -1,5 +1,5 @@
-"""Device facts for the settings table: what this device can support, gathered once after the probe; nothing here decides."""
-import zipfile
+"""Device facts for the settings table: what this device can support, gathered once after install and probe; nothing here decides."""
+import pathlib, zipfile
 
 import yaml
 
@@ -7,10 +7,18 @@ import clocks
 
 FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
+APK = pathlib.Path(__file__).resolve().parent.parent / "modules/android/build/outputs/apk/release/android-release.apk"
+PACKAGE = "io.github.junekim0007.cryptobench"
 
 
 def rooted(device):
-    return "uid=0" in device.run("shell", "su -c id", check=False).stdout
+    return "uid=0" in device.run("shell", "timeout 5 su -c id", check=False).stdout
+
+
+def installed_abi(device):
+    dump = device.run("shell", f"pm dump {PACKAGE} | grep -m1 primaryCpuAbi", check=False).stdout
+    abi = dump.split("=", 1)[1].strip() if "=" in dump else ""
+    return abi if abi and abi != "null" else device.shell("getprop ro.product.cpu.abi").strip()
 
 
 def pinning(apk, abi):
@@ -20,21 +28,19 @@ def pinning(apk, abi):
         return f"lib/{abi}/{NATIVE_LIBRARY}" in archive.namelist()
 
 
-def collect(device, capture, apk):
+def collect(device, capture, apk=APK):
     runtime = (yaml.safe_load(capture.read_text()) or {}).get("runtime") or {}
-    cores = clocks.read(device)
-    abi = device.shell("getprop ro.product.cpu.abi").strip()
+    sdk = runtime.get("sdkInt")
     return {
         "schemaVersion": 1,
-        "os": {"sdkInt": int(runtime.get("sdkInt") or 0), "release": str(runtime.get("release") or "")},
+        "os": {"sdkInt": int(sdk) if str(sdk).isdigit() else None},
         "rooted": rooted(device),
-        "cpu": {"cores": [{"core": int(c["core"][3:]), "online": c["online"], "maxKhz": c["maxKhz"]} for c in cores],
-                "governor": next((c["governor"] for c in cores if c["online"]), "-"),
-                "locked": clocks.locked([cores])},
-        "pinning": pinning(apk, abi),
+        "cpu": {"cores": [{"core": c["index"], "online": c["online"], "maxKhz": c["cpuMaxKhz"]} for c in clocks.read(device)]},
+        "pinning": pinning(apk, installed_abi(device)),
     }
 
 
-def write(path, facts):
-    path.write_text(yaml.safe_dump(facts, sort_keys=False))
+def gather(device, discovery, capture):
+    path = discovery / FACTS
+    path.write_text(yaml.safe_dump(collect(device, capture), sort_keys=False))
     return path

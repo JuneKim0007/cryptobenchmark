@@ -30,7 +30,7 @@
 - `scripts/`
   - `pipeline.py` : the driver — stages in order, one readable failure, `results/manifest.yaml` at the end; `--config`, `--results`, `--discovery overwrite|keep|reuse`, `--bench` (JVM) or `--device` (adb; `--suppress-errors`, `--energy-python`, `--energy-accept-unresponsive`), `--stream`
   - `device.py` : the `--device` stages — install, `DeviceProbe`, push the plan, AOT compile, `CryptoBenchmark`, pull; no root: the app creates its own directory, shell (`ext_data_rw`) reads it
-  - `facts.py` : device facts after the probe → `discovery/facts.yaml`: os, rooted, cores and frequencies, governor, pinning available
+  - `facts.py` : device facts after install and probe → `discovery/facts.yaml`: sdk, rooted, cores (online, cpuinfo max frequency), pinning available in the installed APK
   - `clocks.py` : per-core governor, floor and ceiling over adb before and after a measure → `benchmark/clocks.yaml`; the manifest's `cpuLocked`
   - `energy_session.py` : Perfetto on the device — the rail pre-flight windows, the dry pass's host session around `EnergyDryBenchmark`, Jetpack's per-case traces
   - `energy_stage.py` : the energy steps of a `--device` run — which captures the plan asks for, pre-flight then settle, `tools/energy` calls

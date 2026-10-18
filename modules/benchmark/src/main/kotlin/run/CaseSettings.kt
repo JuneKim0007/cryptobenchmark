@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.run
 
-import io.github.junekim0007.cryptobench.settings.CpuRequest
+import io.github.junekim0007.cryptobench.settings.CpuSettings
 
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
@@ -10,7 +10,7 @@ data class CaseSettings(
     val warmupIterations: Int?,
     val profiling: Profiling,
     val energy: Energy = Energy.NONE,
-    val cpu: CpuRequest? = null,
+    val cpu: CpuSettings? = null,
 ) {
 
     enum class Profiling { NONE, METHOD_TRACING, STACK_SAMPLING }

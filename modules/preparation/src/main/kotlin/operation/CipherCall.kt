@@ -7,7 +7,7 @@ import javax.crypto.Cipher
 internal class CipherCall(private val cipher: Cipher, private val input: ByteArray, private val init: (Int) -> Unit, perCallParameters: Boolean) {
 
     private val output: ByteArray
-    val reinitialises: Boolean
+    internal val reinitialises: Boolean
     private var calls = 0
     private var written = 0
 
@@ -35,13 +35,11 @@ internal class CipherCall(private val cipher: Cipher, private val input: ByteArr
         return repeated
     }
 
-    fun invoke(): ByteArray {
+    private fun invoke(): ByteArray {
         if (reinitialises) init(++calls)
         written = cipher.doFinal(input, 0, input.size, output, 0)
         return output
     }
 
-    fun exact(@Suppress("UNUSED_PARAMETER") result: Any?): ByteArray = output.copyOf(written)
-
-    fun invocation(): Invocation = Invocation(::invoke, ::exact)
+    fun invocation(): Invocation = Invocation(::invoke) { output.copyOf(written) }
 }
