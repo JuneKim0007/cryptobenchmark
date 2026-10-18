@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.record
 
-import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
@@ -80,10 +80,5 @@ internal object PreparedDocument {
         )
     }
 
-    private fun harnessOf(harness: HarnessSettings): Map<String, Any>? = LinkedHashMap<String, Any>().apply {
-        harness.iterations?.let { put("iterations", it) }
-        harness.warmupIterations?.let { put("warmupIterations", it) }
-        harness.profiling?.let { put("profiling", it) }
-        harness.energy.document()?.let { put("energy", it) }
-    }.takeIf { it.isNotEmpty() }
+    private fun harnessOf(harness: HarnessSettings): Map<String, Any>? = HarnessSettings.write(harness).takeIf { it.isNotEmpty() }
 }

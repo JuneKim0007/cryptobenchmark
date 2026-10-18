@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.EnergyWindow
 import io.github.junekim0007.cryptobench.benchmark.run.TimedLoop
 import io.github.junekim0007.cryptobench.benchmark.run.energy.WindowMarker
-import io.github.junekim0007.cryptobench.preparation.global.EnergySettings
+import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.preparation.operation.Invocation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame

@@ -4,8 +4,8 @@ import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
-import io.github.junekim0007.cryptobench.preparation.global.EnergySettings
-import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.EnergySettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe

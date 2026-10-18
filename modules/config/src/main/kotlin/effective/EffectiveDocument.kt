@@ -6,9 +6,8 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocument
-import io.github.junekim0007.cryptobench.config.global.HarnessDocument
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.RunDocument
-import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
@@ -95,7 +94,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         if (entry.parameters.isNotEmpty()) put(PARAMETERS, LinkedHashMap(entry.parameters))
         if (entry.operations.isNotEmpty()) put(OPERATIONS, entry.operations)
         if (entry.providerDefaults.isNotEmpty()) put(PROVIDER_DEFAULTS, entry.providerDefaults)
-        if (!entry.harness.isEmpty) put(HARNESS, HarnessDocument.of(entry.harness))
+        if (!entry.harness.isEmpty) put(HARNESS, HarnessSettings.write(entry.harness))
     }
 
     private fun entryOf(document: Map<String, Any>): EffectiveEntry = EffectiveEntry(
@@ -105,6 +104,6 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         parameters = optionalSection(document, PARAMETERS) ?: emptyMap(),
         providerDefaults = optionalStrings(document, PROVIDER_DEFAULTS),
         operations = optionalStrings(document, OPERATIONS),
-        harness = optionalSection(document, HARNESS)?.let { HarnessDocument.parse(it, HARNESS) } ?: HarnessSettings(),
+        harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, HARNESS) } ?: HarnessSettings(),
     )
 }

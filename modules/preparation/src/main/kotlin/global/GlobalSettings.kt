@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.global
 
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
+
 import io.github.junekim0007.cryptobench.preparation.measurement.Metric
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 

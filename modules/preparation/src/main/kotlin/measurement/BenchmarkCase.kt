@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.measurement
 
-import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 data class BenchmarkCase(
     val type: String,

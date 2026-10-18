@@ -1,8 +1,7 @@
 package io.github.junekim0007.cryptobench.config
 
-import io.github.junekim0007.cryptobench.config.global.HarnessDocument
-import io.github.junekim0007.cryptobench.config.global.dto.EnergySettings
-import io.github.junekim0007.cryptobench.config.global.dto.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.EnergySettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -20,12 +19,12 @@ class EnergySettingsTest {
     @Test
     fun energyRoundTripsThroughTheHarnessDocument() {
         val harness = HarnessSettings(profiling = "none", energy = EnergySettings("dry", 10, 2, 5))
-        assertEquals(harness, HarnessDocument.parse(HarnessDocument.of(harness), "run.harness"))
+        assertEquals(harness, HarnessSettings.read(HarnessSettings.write(harness), "run.harness"))
     }
 
     @Test
     fun anUnsetEnergyBlockIsNotWritten() {
         assertTrue(HarnessSettings().isEmpty)
-        assertEquals(mapOf("iterations" to 5), HarnessDocument.of(HarnessSettings(iterations = 5)))
+        assertEquals(mapOf("iterations" to 5), HarnessSettings.write(HarnessSettings(iterations = 5)))
     }
 }

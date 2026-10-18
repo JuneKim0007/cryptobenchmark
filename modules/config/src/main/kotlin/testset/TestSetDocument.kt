@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.testset
 
-import io.github.junekim0007.cryptobench.config.global.HarnessDocument
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
@@ -42,7 +42,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
                 override.key?.let { put(KEY, LinkedHashMap(it)) }
                 override.parameters?.let { put(PARAMETERS, LinkedHashMap(it)) }
                 override.operations?.let { put(OPERATIONS, it) }
-                override.harness?.let { put(HARNESS, HarnessDocument.of(it)) }
+                override.harness?.let { put(HARNESS, HarnessSettings.write(it)) }
             })
         },
     )
@@ -68,7 +68,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
             key = optionalSection(set, KEY),
             parameters = optionalSection(set, PARAMETERS),
             operations = optional(set, OPERATIONS, null, ::strings),
-            harness = optionalSection(set, HARNESS)?.let { HarnessDocument.parse(it, "$path.$SET.$HARNESS") },
+            harness = optionalSection(set, HARNESS)?.let { HarnessSettings.read(it, "$path.$SET.$HARNESS") },
         )
     }
 }

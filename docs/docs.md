@@ -21,6 +21,7 @@
   - `config/` : authored, committed — `global.yaml` (selection, run, policy), `testsets/{scope,quick,all,smoke}.yaml`
   - `modules/environment/discovery/` : module `:environment:discovery` (kotlin) — what this device offers
   - `modules/config/` : module `:config` (kotlin) — capture × trial × authored config → `effective.yaml`
+  - `modules/settings/` : module `:settings` (kotlin) — the harness key table shared by config, preparation and benchmark; depends on nothing
   - `modules/preparation/` : module `:preparation` (kotlin) — `effective.yaml` + capture + trial → prepared cases
   - `modules/benchmark/` : module `:benchmark` (kotlin) — prepared cases → measurements; built with `:preparation`
   - `modules/*/example/` : one small device in the files that module reads and writes, `<module>_<responsibility>_example.yaml`

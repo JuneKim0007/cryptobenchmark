@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.run.energy
 
-import io.github.junekim0007.cryptobench.preparation.global.EnergySettings
+import io.github.junekim0007.cryptobench.settings.EnergySettings
 
 // A window under ~20 rail polls (250 ms each in Jetpack's trace) loses a few percent to edge interpolation.
 data class Energy(val capture: Capture, val windowSeconds: Int, val warmupSeconds: Int, val cooldownSeconds: Int) {
