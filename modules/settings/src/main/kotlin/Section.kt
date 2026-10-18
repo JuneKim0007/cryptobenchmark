@@ -22,5 +22,11 @@ class Section<O>(private val empty: O, private val prefix: String, private val k
 
     fun write(value: O): Map<String, Any> = LinkedHashMap<String, Any>().also { out -> keys().forEach { it.writeFrom(value, out) } }
 
+    fun unsupported(value: O, facts: Facts, path: String): List<Unsupported> = keys().flatMap { it.unsupported(value, facts, path) }
+
+    /** The value without the keys named in unsupported, so nothing downstream sees a setting the device cannot honour. */
+    fun supported(value: O, unsupported: List<Unsupported>, path: String): O =
+        keys().fold(value) { kept, key -> key.supportedIn(kept, unsupported, path) }
+
     fun merged(base: O, later: O?): O = if (later == null) base else keys().fold(base) { merged, key -> key.mergeInto(merged, later) }
 }

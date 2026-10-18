@@ -59,7 +59,7 @@ class DocumentsTest {
             { GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml, exclude: [{type: Mac}, {}]}\n")) } to "empty_rule: give provider, type or name at selection.exclude[1]",
             { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {keySize: [1]}}\n")) } to "unknown_keys: overrides[0].set [keySize], known [keySizes, inputSizes, key, parameters, operations, harness]",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {iterations: 0}}\n")) } to "not_positive: iterations 0 at run.harness",
-            { GlobalDocument.parse(codec.load(global + "run: {harness: {profile: none}}\n")) } to "unknown_keys: run.harness [profile], known [iterations, warmupIterations, profiling, energy]",
+            { GlobalDocument.parse(codec.load(global + "run: {harness: {profile: none}}\n")) } to "unknown_keys: run.harness [profile], known [iterations, warmupIterations, profiling, energy, cpu]",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {capture: always}}}\n")) } to "invalid: energy.capture always, known [none, measured, dry] at run.harness.energy",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {capture: off}}}\n")) } to "invalid: energy.capture false (YAML reads off/on/yes/no as booleans), write one of [none, measured, dry] at run.harness.energy",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {window: 5}}}\n")) } to "unknown_keys: run.harness.energy [window], known [capture, windowSeconds, warmupSeconds, cooldownSeconds]",

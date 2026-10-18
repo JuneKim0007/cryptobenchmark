@@ -2,12 +2,13 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, json, os, pathlib, shutil, subprocess, sys, time
 
-import clocks, energy_stage
+import clocks, energy_stage, facts
 from clocks import CLOCKS
 from device import Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+APK = ROOT / "modules/android/build/outputs/apk/release/android-release.apk"
 
 
 def fail(message):
@@ -190,7 +191,8 @@ def main():
         capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
         if not capture or not trial:
             fail(f"missing_file: {discovery}/probe_<utc>.yaml, trial_<utc>.yaml (DeviceProbe wrote none)")
-        written = gradle("jca-contract", f"{capture} {trial} {configured} {configuration}", options.stacktrace, options.stream, main_class="ConfigureKt")
+        known = facts.write(discovery / facts.FACTS, facts.collect(device, capture, APK))
+        written = gradle("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
         started = time.monotonic()

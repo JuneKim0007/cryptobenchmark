@@ -8,10 +8,15 @@ import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.settings.Facts
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 class EffectiveBuilder {
 
-    fun build(global: GlobalConfig, testSet: TestSet, inventory: Inventory, files: Files): EffectiveConfig {
+    fun build(global: GlobalConfig, testSet: TestSet, inventory: Inventory, files: Files, facts: Facts = Facts.UNKNOWN): EffectiveConfig {
+        val runUnsupported = HARNESS.unsupported(global.run.harness, facts, RUN_HARNESS)
+        runUnsupported.firstOrNull { it.required }?.let { throw IllegalArgumentException(it.toString()) }
+        val run = global.run.copy(harness = HARNESS.supported(global.run.harness, runUnsupported, RUN_HARNESS))
         val all = inventory.entries()
         val included = if (testSet.include.isEmpty()) all else all.filter { located -> testSet.include.any { it.matches(located) } }
         val excludes = testSet.exclude + global.selection.exclude
@@ -35,19 +40,33 @@ class EffectiveBuilder {
 
         val resolver = OverrideResolver(testSet.overrides)
         val providers = LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, EffectiveEntry>>>()
+        val entrySkips = mutableListOf<Skip>()
+        val entryWarnings = mutableListOf<String>()
         for ((located, names) in groups) {
             for (group in names) {
+                val key = entryKey(located.name, group)
+                val path = "${located.provider}.${located.type}.$key.harness"
+                val entry = resolver.resolve(located, group)
+                val unsupported = HARNESS.unsupported(entry.harness, facts, path)
+                unsupported.firstOrNull { it.required }?.let {
+                    entrySkips += Skip(Skip.CONFIG, located.provider, located.type, key, it.toString())
+                    continue
+                }
+                entryWarnings += unsupported.map { it.toString() }
                 providers.getOrPut(located.provider) { LinkedHashMap() }
-                    .getOrPut(located.type) { LinkedHashMap() }[entryKey(located.name, group)] = resolver.resolve(located, group)
+                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(harness = HARNESS.supported(entry.harness, unsupported, path))
             }
+        }
+        if (entrySkips.isNotEmpty() && global.policy.onFailure == Policy.OnFailure.STOP) {
+            throw StoppedOnFailureException(skipped + entrySkips)
         }
         return EffectiveConfig(
             generatedFrom = EffectiveSource(files.global, files.testSet, files.inventory, inventory.generatedFrom),
-            run = global.run,
+            run = run,
             policy = global.policy,
             providers = providers,
-            skipped = skipped,
-            warnings = warnings,
+            skipped = skipped + entrySkips,
+            warnings = warnings + runUnsupported.map { it.toString() } + entryWarnings,
         )
     }
 
@@ -62,4 +81,9 @@ class EffectiveBuilder {
     private fun entryKey(name: String, group: String?): String = if (group == null) name else "$name@$group"
 
     data class Files(val global: String, val testSet: String, val inventory: String)
+
+    private companion object {
+        const val RUN_HARNESS = "run.harness"
+        val HARNESS = HarnessSettings.HARNESS
+    }
 }
