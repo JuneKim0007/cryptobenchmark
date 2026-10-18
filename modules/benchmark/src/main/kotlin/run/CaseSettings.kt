@@ -1,19 +1,11 @@
 package io.github.junekim0007.cryptobench.benchmark.run
 
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
-import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 data class CaseSettings(val iterations: Int?, val warmupIterations: Int?, val profiling: Profiling, val energy: Energy = Energy.NONE) {
 
     enum class Profiling { NONE, METHOD_TRACING, STACK_SAMPLING }
-
-    init {
-        require(iterations == null || iterations >= 1) { "not_positive: iterations $iterations" }
-        // androidx refuses a warm-up count of zero ("must null or positive"); asking for none is not expressible, so it is not accepted
-        require(warmupIterations == null || warmupIterations >= 1) {
-            "not_supported: warmupIterations $warmupIterations, androidx needs at least 1; leave it out to let the library decide"
-        }
-    }
 
     companion object {
 

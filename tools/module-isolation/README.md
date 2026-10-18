@@ -1,6 +1,6 @@
 # module-isolation
 
-Compiles each module on its own — only snakeyaml and JUnit on the classpath, no project dependency —
+Compiles each module on its own — only snakeyaml, JUnit and the shared `settings` key table on the classpath, no other project dependency —
 and runs its tests from the module directory, so `example/` resolves.
 
 `benchmark` is the one exception: it compiles with `preparation`, because it times the invocation

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.record
 
-import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File

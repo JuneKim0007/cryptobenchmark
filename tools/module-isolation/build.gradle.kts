@@ -27,6 +27,7 @@ subprojects {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
         val sources = listOfNotNull(
             File(moduleDirectory, "src/main/kotlin"),
+            rootDir.resolve("../../modules/settings/src/main/kotlin").takeIf { name != "discovery" },
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)

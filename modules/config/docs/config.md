@@ -127,8 +127,8 @@ Every run default in the pipeline lives here; preparation has none of its own.
 | `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
 | `InventorySourceDocument` | `inventory` | the `generatedFrom` capture, trial and device fields, shared by both generated files |
 | `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
-| `GlobalDocument`, `RunDocument`, `PolicyDocument`, `HarnessDocument` | `global` | `global.yaml` schema, one reader per section |
-| `GlobalConfig`, `Selection`, `RunSettings`, `Policy`, `HarnessSettings` | `global/dto` | the global settings |
+| `GlobalDocument`, `RunDocument`, `PolicyDocument` | `global` | `global.yaml` schema, one reader per section; `harness` is read through `settings` |
+| `GlobalConfig`, `Selection`, `RunSettings`, `Policy` | `global/dto` | the global settings; `HarnessSettings` comes from `settings` |
 | `TestSetDocument`, `RuleDocument` | `testset` | test-set schema |
 | `TestSet`, `Rule`, `Override` | `testset/dto` | the test set |
 | `EffectiveBuilder`, `OverrideResolver`, `LocatedMatch` | `effective` | include → exclude → overrides → policy |

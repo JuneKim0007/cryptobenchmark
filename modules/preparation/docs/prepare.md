@@ -113,7 +113,7 @@ Contract keys stay with their readers and JCA names with the code that uses them
 | `Preparation` | root | entry point: `prepare(effectiveFile)` → `PreparedRun`, applies `policy.onFailure` |
 | `InboundFile`, `InboundDocument` | `inbound` | `effective.yaml` → sections, `schemaVersion` checked |
 | `GlobalReader`, `GlobalSettings`, `OnFailure` | `global` | the `run` and `policy` sections |
-| `HarnessReader`, `HarnessSettings` | `global` | what the timer is told, global merged with the entry's |
+| `HarnessSettings` (module `settings`) | — | what the timer is told, global merged with the entry's; read through the shared key table |
 | `PrimitiveReader` | `primitive` | the `providers` section → selections, against the global settings |
 | `BenchmarkRequest`, `Selection` | `request` | what was asked for |
 | `CaptureFile`, `TrialFile`, `ServiceName` | `device` | discovery's two files → DTOs; names folded for lookup |

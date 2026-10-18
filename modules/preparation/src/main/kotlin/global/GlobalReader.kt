@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.global
 
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
+
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundDocument
 import io.github.junekim0007.cryptobench.preparation.measurement.Metric
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
@@ -19,6 +21,6 @@ object GlobalReader {
         processRepetitions = number(inbound.run, "processRepetitions").toInt(),
         seed = number(inbound.run, "seed").toLong(),
         onFailure = choice<OnFailure>("onFailure", string(inbound.policy, "onFailure")),
-        harness = HarnessReader.read(optionalSection(inbound.run, "harness"), "run.harness"),
+        harness = HarnessSettings.read(optionalSection(inbound.run, "harness"), "run.harness"),
     )
 }

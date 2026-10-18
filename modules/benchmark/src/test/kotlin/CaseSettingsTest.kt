@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark
 
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings.Profiling
-import io.github.junekim0007.cryptobench.preparation.global.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
