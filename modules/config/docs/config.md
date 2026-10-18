@@ -50,6 +50,13 @@ Override precedence, lowest first: type → name pattern → exact name → prov
 `harness` merges field by field, so a narrow rule naming `iterations` keeps the `profiling` a broad one set; `harness.energy` merges field by field too; every other key replaces.
 An entry carries only the harness fields that differ from `run.harness`; the rest stay in `run`.
 
+## Settings a device cannot honour
+
+`run.harness` and rule `harness` keys are checked against `discovery/facts.yaml` (from `scripts/facts.py`,
+passed as `--facts=`). An unsupported key is removed with a `not_supported:` warning; with
+`required: true` it fails the config (run level) or skips those entries (rule level). Without a
+facts file every key that needs a fact is `facts_unknown`. The rules live in `modules/settings`.
+
 ## Groups
 
 One primitive measured more than once, under different parameters. An include names the group, an

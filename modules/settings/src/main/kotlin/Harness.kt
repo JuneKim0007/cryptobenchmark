@@ -6,6 +6,7 @@ data class HarnessSettings(
     val warmupIterations: Int? = null,
     val profiling: String? = null,
     val energy: EnergySettings = EnergySettings(),
+    val cpu: CpuRequest? = null,
 ) {
     init {
         require(iterations == null || iterations >= 1) { "not_positive: iterations $iterations" }
@@ -27,6 +28,9 @@ data class HarnessSettings(
                 Key.value("warmupIterations", Values.int(1, "not_supported", WARMUP_HINT), { it.warmupIterations }, { o, v -> o.copy(warmupIterations = v) }),
                 Key.value("profiling", Values.choice(PROFILING), { it.profiling }, { o, v -> o.copy(profiling = v) }),
                 Key.section("energy", EnergySettings.ENERGY, { it.energy.takeUnless { e -> e.isEmpty } }, { o, v -> o.copy(energy = v) }),
+                Key("cpu", { value, label, path -> CpuRequest.read(Values.section(value, "$path.cpu"), label) }, { it.cpu }, { o, v -> o.copy(cpu = v) },
+                    write = { it.document() }, requires = { request, facts -> request.support(facts) }, drop = { it.copy(cpu = null) },
+                    required = { it.required }),
             )
         }
 
@@ -63,6 +67,36 @@ data class EnergySettings(
                 Key.value("warmupSeconds", Values.int(1, "not_positive"), { it.warmupSeconds }, { o, v -> o.copy(warmupSeconds = v) }),
                 Key.value("cooldownSeconds", Values.int(0, "negative"), { it.cooldownSeconds }, { o, v -> o.copy(cooldownSeconds = v) }),
             )
+        }
+    }
+}
+
+/** Pin the measuring thread to one core: an index, or "big" for the highest-frequency online core. */
+data class CpuRequest(val core: String, val required: Boolean = false) {
+    init {
+        require(core == BIG || core.toIntOrNull()?.let { it >= 0 } == true) { "invalid: cpu.core $core, an index or $BIG" }
+    }
+
+    fun document(): Map<String, Any> = linkedMapOf("core" to (core.toIntOrNull() ?: core), "required" to required)
+
+    fun support(facts: Facts): Support = when {
+        facts.pinning == null || facts.cores == null -> Support.NotSupported("facts_unknown: no facts.yaml for this run")
+        facts.pinning == false -> Support.NotSupported("no_pinning: the installed app carries no native affinity library")
+        core == BIG && facts.cores.none { it.online && it.maxKhz != null } -> Support.NotSupported("no_frequencies: no online core reports a maximum frequency")
+        core != BIG && facts.cores.none { it.index == core.toInt() && it.online } -> Support.NotSupported("no_core: core $core is not an online core of ${facts.cores.map { it.index }}")
+        else -> Support.Supported
+    }
+
+    companion object {
+        const val BIG = "big"
+
+        fun read(document: Map<String, Any>, label: String): CpuRequest {
+            val unknown = document.keys - setOf("core", "required")
+            require(unknown.isEmpty()) { "unknown_keys: $label $unknown, known [core, required]" }
+            val core = document["core"] ?: throw IllegalArgumentException("missing_field: $label.core")
+            val required = document["required"] ?: false
+            require(required is Boolean) { "wrong_type: $label.required expects true or false" }
+            return CpuRequest(core.toString(), required)
         }
     }
 }

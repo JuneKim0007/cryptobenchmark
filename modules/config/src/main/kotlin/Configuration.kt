@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
@@ -32,7 +34,7 @@ class Configuration(
         return files.at(inventoryFile, InventoryDocument).write(inventory)
     }
 
-    fun effective(globalFile: File, inventoryFile: File = this.inventoryFile): File {
+    fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null): File {
         Files.deleteIfExists(effectiveFile.toPath())
         val global = files.at(globalFile, GlobalDocument).read()
         val named = File(global.selection.testSet)
@@ -40,7 +42,11 @@ class Configuration(
         require(testSetFile.isFile) { "missing_file: ${testSetFile.path} (${globalFile.name} selection.testSet: ${global.selection.testSet})" }
         val testSet = files.at(testSetFile, TestSetDocument).read()
         val inventory = files.at(inventoryFile, InventoryDocument).read()
-        val effective = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name))
+        val facts = factsFile?.let {
+            require(it.isFile) { "missing_file: ${it.path} (--facts)" }
+            Facts.read(YamlCodec().load(it.readText()))
+        } ?: Facts.UNKNOWN
+        val effective = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name), facts)
         return files.at(effectiveFile, EffectiveDocument).write(effective)
     }
 

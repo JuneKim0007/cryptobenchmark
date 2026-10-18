@@ -8,13 +8,14 @@ import kotlin.system.exitProcess
 fun main(arguments: Array<String>) {
     val paths = arguments.filterNot { it.startsWith("--") }
     if (paths.size < 3) {
-        System.err.println("usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<global.yaml>]")
+        System.err.println("usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<global.yaml>] [--facts=<facts.yaml>]")
         exitProcess(2)
     }
     val captureFile = File(paths[0])
     val trialFile = File(paths[1])
     val configurationDirectory = File(paths[2])
     val globalFile = paths.getOrNull(3)?.let { File(it) } ?: committedGlobal()
+    val factsFile = arguments.firstOrNull { it.startsWith("--facts=") }?.removePrefix("--facts=")?.let { File(it) }
     for (required in listOf(captureFile, trialFile)) {
         if (!required.isFile) {
             System.err.println("error: missing_file: ${required.path}")
@@ -29,7 +30,7 @@ fun main(arguments: Array<String>) {
             System.err.println("warning: no config/global.yaml found; effective.yaml not written")
             return
         }
-        val effectiveFile = configuration.effective(globalFile, inventoryFile)
+        val effectiveFile = configuration.effective(globalFile, inventoryFile, factsFile)
         println(effectiveFile)
         val effective = configuration.readEffective(effectiveFile)
         effective.warnings.forEach { System.err.println("warning: $it") }
