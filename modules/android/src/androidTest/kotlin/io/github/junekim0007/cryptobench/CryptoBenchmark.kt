@@ -25,10 +25,11 @@ class CryptoBenchmark(private val caseId: String, private val prepared: Prepared
     @Test
     fun measure() {
         val invocation = Invocations.of(prepared)
-        val pin = settings.cpu?.let { request -> CorePin.apply(request).also { CorePins.record(caseId, request, it.outcome) } }
-        pin.use {
-            val failed = it?.outcome as? CorePin.Outcome.Failed
-            check(failed == null || settings.cpu?.required != true) { "cpu_pin_failed: ${failed?.reason}" }
+        val cpu = settings.cpu
+        (cpu?.let(CorePin::apply)).use { pin ->
+            if (cpu != null && pin != null) CorePins.record(caseId, cpu, pin.outcome)
+            val failed = pin?.outcome as? CorePin.Outcome.Failed
+            check(failed == null || cpu?.isRequired != true) { "cpu_pin_failed: ${failed?.reason}" }
             CaseRuns.timed(caseId, settings.energy) {
                 benchmarkRule.measureRepeated {
                     // Unit stands in for null: the invocation returns Any? and BlackHole.consume takes Any.

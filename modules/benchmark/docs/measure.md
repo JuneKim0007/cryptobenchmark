@@ -159,10 +159,10 @@ when nothing else handles them.
 |---|---|
 | `DevicePlan` | prepares on the device, from the three files pushed to its external files directory |
 | `CryptoBenchmark` | one parameterised measurement per prepared case |
-| `CorePin`, `CorePins` | the `cpu` setting: pin the measuring thread to a core (`big` = highest `cpuinfo_max_freq`), read it back, undo it after the case; one line per case in `cpu-pins.yaml` |
+| `CorePin`, `CorePins` | the `cpu` setting: pin the measuring thread to the core `effective.yaml` names, read it back, restore the previous cores after the case (a failed restore fails the run); one line per case in `cpu-pins.yaml`, a failed pin also logged and printed by the pipeline |
 
 `src/main` carries `Affinity` and `cpp/affinity.c` (built to `libaffinity.so` with the NDK): the calling
-thread's `sched_setaffinity`, `sched_getaffinity` and `sched_getcpu`. Pinning restricts our thread; it does
+thread's `sched_setaffinity` and `sched_getaffinity` for cores 0..63. Pinning restricts our thread; it does
 not keep other processes off that core, which needs root. A required pin that fails fails that case with
 `cpu_pin_failed: <reason>`.
 

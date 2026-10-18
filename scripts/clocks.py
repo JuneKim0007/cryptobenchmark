@@ -1,22 +1,27 @@
 """CPU clock state read through adb shell; locked means every online core's floor equals its ceiling."""
+import re
+
 import yaml
 
 CLOCKS = "clocks.yaml"
 
 READ = ('for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; '
         'echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) '
-        '$(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -)"; done')
+        '$(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) '
+        '$(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done')
 
 
 def parse(text):
+    """One entry per cpu<N> line; an unreadable sysfs (the glob left as written) yields none."""
     cores = []
     for line in text.splitlines():
         fields = line.split()
-        if len(fields) != 5:
+        if len(fields) != 6 or not re.fullmatch(r"cpu\d+", fields[0]):
             continue
-        name, online, governor, low, high = fields
-        cores.append({"core": name, "online": online == "1", "governor": governor,
-                      "minKhz": int(low) if low.isdigit() else None, "maxKhz": int(high) if high.isdigit() else None})
+        name, online, governor, low, high, ceiling = fields
+        number = lambda value: int(value) if value.isdigit() else None
+        cores.append({"core": name, "index": int(name[3:]), "online": online == "1", "governor": governor,
+                      "minKhz": number(low), "maxKhz": number(high), "cpuMaxKhz": number(ceiling)})
     return cores
 
 

@@ -8,7 +8,10 @@ class FakeDevice:
         self.su_output = su_output
 
     def run(self, *arguments, check=True):
-        return type("Result", (), {"stdout": self.su_output})()
+        return type("Result", (), {"stdout": self.su_output if "su" in arguments[-1] else ""})()
+
+    def shell(self, command):
+        return "arm64-v8a\n"
 
 
 def test_pinning_needs_the_library_for_the_device_abi(tmp_path):
@@ -23,3 +26,7 @@ def test_pinning_needs_the_library_for_the_device_abi(tmp_path):
 def test_root_is_only_a_uid_zero_answer():
     assert facts.rooted(FakeDevice("uid=0(root) gid=0(root)")) is True
     assert facts.rooted(FakeDevice("/system/bin/sh: su: inaccessible or not found")) is False
+
+
+def test_the_installed_abi_falls_back_to_the_device_abi():
+    assert facts.installed_abi(FakeDevice("")) == "arm64-v8a"
