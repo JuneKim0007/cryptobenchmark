@@ -4,7 +4,7 @@ import argparse, json, os, pathlib, shutil, subprocess, sys, time
 
 import clocks, energy_stage, facts
 from clocks import CLOCKS
-from device import Device, DeviceError
+from device import CPU_PINS, Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -248,12 +248,14 @@ def main():
             files.setdefault("energy", []).append(into / "energy.json")
         if device and timed:
             files.setdefault("clocks", []).append(into / CLOCKS)
+            if (into / CPU_PINS).is_file():
+                files.setdefault("cpuPins", []).append(into / CPU_PINS)
     if repetitions > 1 and timed:
         gradle("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
     print(f"wrote:     {preparation / 'prepared.yaml'}")
     elapsed("prepare and measure", started)
     files.update(prepared=preparation / "prepared.yaml", skipped=preparation / "skipped.yaml")
-    for single in ("energy", "clocks"):
+    for single in ("energy", "clocks", "cpuPins"):
         if single in files and repetitions == 1:
             files[single] = files[single][0]
     if not timed:

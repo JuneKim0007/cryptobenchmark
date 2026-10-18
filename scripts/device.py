@@ -6,6 +6,7 @@ RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 FILES = f"/sdcard/Android/data/{PACKAGE}/files/cryptobench"   # DevicePlan.directory
 MEDIA = f"/sdcard/Android/media/{PACKAGE}"                     # androidx.benchmark's output directory
 DATA = f"{MEDIA}/{PACKAGE}-benchmarkData.json"
+CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
@@ -112,7 +113,7 @@ class Device:
                 raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
 
     def measure(self, suppress, data, preparation):
-        self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/prepared.yaml {FILES}/skipped.yaml")
+        self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/prepared.yaml {FILES}/skipped.yaml {FILES}/{CPU_PINS}")
         arguments = NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
         output = self.instrument("CryptoBenchmark", *arguments)
         if not re.search(r"^OK \(\d+ tests?\)", output, re.M):
@@ -126,6 +127,10 @@ class Device:
         preparation.mkdir(parents=True, exist_ok=True)
         self.pull(DATA, data)
         self.pull_plan(preparation)
+        pins = data.parent / CPU_PINS
+        pins.unlink(missing_ok=True)
+        if self.run("shell", f"ls {FILES}/{CPU_PINS}", check=False).returncode == 0:
+            self.pull(f"{FILES}/{CPU_PINS}", pins)
 
     def pull_plan(self, preparation):
         preparation.mkdir(parents=True, exist_ok=True)
