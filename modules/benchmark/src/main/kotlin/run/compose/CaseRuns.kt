@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.run.compose
 
+import io.github.junekim0007.cryptobench.benchmark.run.TimedLoop
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.Cooldown
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.EnergyWindow
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.Rewarm
@@ -17,7 +18,7 @@ object CaseRuns {
 
     fun dry(caseId: String, energy: Energy, marker: WindowMarker, invocation: Invocation): CaseRun {
         require(energy.capture == Energy.Capture.DRY) { "not_dry: $caseId captures ${energy.capture}" }
-        val window = EnergyWindow(DryLoopRun(invocation, energy.windowNanos), marker, caseId)
+        val window = EnergyWindow({ TimedLoop.run(invocation, energy.windowNanos) }, marker, caseId)
         return Cooldown(Rewarm(window, invocation, energy.warmupNanos), energy.cooldownMillis)
     }
 }

@@ -74,7 +74,7 @@ minus at its start, interpolated between polls. No voltage, current or power is 
 |---|---|---|---|---|
 | `none` | `CryptoBenchmark` | — | — | — |
 | `measured` | `CryptoBenchmark`, then `Cooldown` | Jetpack's `Benchmark Time` slice, after its last thermal sleep | `repeatIterations` × timing runs | Jetpack's per-case trace (rails every 250 ms) |
-| `dry` | `EnergyDryBenchmark`: `Cooldown(Rewarm(EnergyWindow(DryLoopRun)))` | the case's `energy:<id>` atrace section | calls `DryLoopRun` counted | one host session, `tools/energy/energy.pbtx` (rails every 100 ms) |
+| `dry` | `EnergyDryBenchmark`: `Cooldown(Rewarm(EnergyWindow(TimedLoop)))` | the case's `energy:<id>` atrace section | calls `TimedLoop` counted | one host session, `tools/energy/energy.pbtx` (rails every 100 ms) |
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -187,7 +187,6 @@ device's own. The capture and trial must come from that same device.
 | `CaseSettings` | `run` | what one case asks of the timer and the energy capture, with no androidx type |
 | `TimedLoop` | `run` | calls an invocation for a duration; shared by host warm-up, re-warm and the dry loop |
 | `CaseRun`, `CaseRuns` | `run.compose` | one case's run, and the factory that composes it from the energy capture |
-| `DryLoopRun` | `run.compose` | the energy-only loop: calls counted, nothing timed |
 | `Cooldown`, `Rewarm`, `EnergyWindow` | `run.decorate` | decorators: idle after, warm before, bracket with a trace marker |
 | `Energy`, `WindowMarker` | `run.energy` | a case's energy settings with defaults; the marker port the device implements |
 | `BenchmarkJson`, `ResultRow` | `report` | `benchmark.json` for `tools/quick-bench/analyze.py`, and one case in it |

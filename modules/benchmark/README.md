@@ -51,7 +51,6 @@
       - `compose/`
         - `CaseRun.kt` : one case's run
         - `CaseRuns.kt` : composes a run from its energy capture
-        - `DryLoopRun.kt` : the energy-only, counted loop
       - `decorate/`
         - `Cooldown.kt` : idles after a run
         - `EnergyWindow.kt` : brackets a run with a trace marker
