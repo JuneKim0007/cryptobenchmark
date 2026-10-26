@@ -10,10 +10,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ROUTERS = ("", "perf-repair")
-ENTRY, ENTRY_COPY = "AGENTS.md", "CLAUDE.md"
+ENTRY = "AGENTS.md"
 LINE_LIMIT = 150
 NOT_GRAPHED = {"modules/environment/discovery/docs/tree.md", "tools/quick-bench/tests/golden_summary.md"}
-UNMAPPED_OK = {"CLAUDE.md", ".gitignore", "gradlew", "gradlew.bat"}
+UNMAPPED_OK = {".gitignore", "gradlew", "gradlew.bat"}
 GENERATED = {"build", ".gradle", ".venv", "node_modules", ".kotlin", "__pycache__"}
 BANNED = [(re.compile(r"20\d\d-\d\d-\d\d"), "date"), (re.compile(r"TODO"), "TODO"), (re.compile("—"), "em dash")]
 MAP_LINE = re.compile(r"^(\S+) : \S")
@@ -114,11 +114,9 @@ def main() -> int:
         return path in fileset or path in dirs or (ROOT / path).exists()
 
     for r in ROUTERS:
-        entry, copy = join(r, ENTRY), join(r, ENTRY_COPY)
+        entry = join(r, ENTRY)
         if not (ROOT / entry).is_file():
             problems.append(f"{entry}: missing")
-        elif not (ROOT / copy).is_file() or (ROOT / copy).read_bytes() != (ROOT / entry).read_bytes():
-            problems.append(f"{copy}: not a byte copy of {entry}; run cp {ENTRY} {ENTRY_COPY}")
 
     owners: dict[str, str] = {}
     for p in md:
@@ -171,7 +169,7 @@ def main() -> int:
             return join(posixpath.dirname(src), token)
         r = router_of(src)
         first = token.split("/")[0]
-        if first in tops[r] or first in (ENTRY, ENTRY_COPY):
+        if first in tops[r] or first == ENTRY:
             return join(r, token)
         if first == "..":
             return join(posixpath.dirname(src) if not r else r, token)

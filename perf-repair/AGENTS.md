@@ -18,12 +18,11 @@
 - change: one file, one responsibility; update the owning map in the same change.
 - delete/rename: grep the symbol or path, remove its references first, re-grep returns nothing.
 - check: `make check` green before a change is done.
-- entry: `CLAUDE.md` is a byte copy of `AGENTS.md`; edit `AGENTS.md`, then `cp AGENTS.md CLAUDE.md`.
-- docs: kebab-case `.md` names; root standards (`AGENTS.md`, `README.md`, `CLAUDE.md`) stay UPPER.
+- docs: kebab-case `.md` names; root standards (`AGENTS.md`, `README.md`) stay UPPER.
 - commit: never `.env` or `runs/`.
 
 ## Workflow
-- guide change: edit `AGENTS.md` → `cp AGENTS.md CLAUDE.md` → `make docs-lint`
+- guide change: edit `AGENTS.md` → `make docs-lint`
 - code change: owning map line → `make check`
 
 ## File structure
@@ -32,7 +31,6 @@
 .env.example : template for `.env`: PERFREPAIR_AGENT, PERFREPAIR_MODEL, PERFREPAIR_EFFORT, ANTHROPIC_API_KEY
 .gitignore : local state kept out of git: caches, `runs/`, `.venv/`, `.env`
 AGENTS.md : agent entry: route, rules, file map
-CLAUDE.md : byte copy of AGENTS.md
 Makefile : test, docs-lint, check
 README.md : what perf-repair is, setup
 agents/ : guides: directives per component

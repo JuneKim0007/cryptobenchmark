@@ -25,18 +25,17 @@
 - check: after a docs or guide change, pass `python3 scripts/docs_lint.py`.
 - commit: never commit `results/`, `build/` or signing keys (`*.jks`).
 - commit: no AI or tool attribution and no `Co-Authored-By` line in commit messages or PR bodies.
-- entry: after editing `AGENTS.md`, run `cp AGENTS.md CLAUDE.md`; never edit `CLAUDE.md` by hand.
 
 ## Workflow
 - module schema change: code → `-Dexamples.update=true` run → module doc
 - harness setting: `Key` in `modules/settings/src/main/kotlin/Harness.kt` → field on the typed class → `modules/settings/docs/settings.md`
 - module file added: its line in `modules/<m>/docs/index.md`
-- guide change: `cp AGENTS.md CLAUDE.md` → `python3 scripts/docs_lint.py`
+- guide change: `python3 scripts/docs_lint.py`
 
 ## File structure
 
 ```
-.github/workflows/docs.yml : CI docs lint and CLAUDE.md copy checks for the root and perf-repair
+.github/workflows/docs.yml : CI docs lint
 .github/workflows/jca-contract.yml : CI JCA contract tests on Java 17, 21, 25 and the Android API compile check
 .github/workflows/modules.yml : CI isolated build and test per module
 AGENTS.md : agent router
@@ -56,7 +55,7 @@ perf-repair/ : cryptobenchmark results to crypto replacements worth testing in a
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo
 scripts/device.py : adb steps of a --device run: install, probe, push, AOT compile, measure, pull
-scripts/docs_lint.py : docs and guide graph check: entry copies, maps, coverage, index.md, edges, reachability, size, banned text
+scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, pre-flight, tools/energy calls
 scripts/facts.py : device facts into discovery/facts.yaml
