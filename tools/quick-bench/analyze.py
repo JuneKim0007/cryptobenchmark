@@ -8,7 +8,7 @@ from outliers import split  # noqa: E402
 source = json.load(open(sys.argv[1])); out = pathlib.Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
 rows = []
 for c in source["cases"]:
-    runs, removed = split(c["nanosPerOperation"])
+    runs, removed = split(((c.get("metrics") or {}).get("timeNs") or {}).get("runs") or c["nanosPerOperation"])
     mean, median = statistics.fmean(runs), statistics.median(runs)
     cov = statistics.stdev(runs) / mean if mean and len(runs) > 1 else 0
     mn, mx = min(runs), max(runs)
