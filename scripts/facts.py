@@ -28,7 +28,7 @@ def pinning(apk, abi):
         return f"lib/{abi}/{NATIVE_LIBRARY}" in archive.namelist()
 
 
-def collect(device, capture, apk=APK):
+def collect(device, capture):
     runtime = (yaml.safe_load(capture.read_text()) or {}).get("runtime") or {}
     sdk = runtime.get("sdkInt")
     return {
@@ -36,7 +36,7 @@ def collect(device, capture, apk=APK):
         "os": {"sdkInt": int(sdk) if str(sdk).isdigit() else None},
         "rooted": rooted(device),
         "cpu": {"cores": [{"core": c["index"], "online": c["online"], "maxKhz": c["cpuMaxKhz"]} for c in clocks.read(device)]},
-        "pinning": pinning(apk, installed_abi(device)),
+        "pinning": pinning(APK, installed_abi(device)),
     }
 
 
