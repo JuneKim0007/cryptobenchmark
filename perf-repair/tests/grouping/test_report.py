@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 
 import pytest
 from grouping_data import FAMILIES
@@ -69,3 +70,13 @@ def test_output_validator_names_inconsistencies():
     for expected in ("item 2: in 2 groups", "item 1: grouped and dropped", "item 5: neither grouped nor dropped",
                      "items index differs", "family cipher.secret is not listed"):
         assert any(expected in p for p in problems), expected
+
+
+def test_report_reads_the_active_outbox_only(paths):
+    changed = replace(CHARTER, schema={**CHARTER.schema, "title": "v2"})
+    decide(GroupingKind(paths, FAMILIES), CHARTER, ScriptedConversations(by_name), paths.root, limit=2, **QUIET)
+    decide(GroupingKind(paths, FAMILIES), changed, ScriptedConversations(by_name), paths.root, **QUIET)
+    assert report(paths, FAMILIES)["groups"]
+    (paths.root / "outbox" / "active").write_text(CHARTER.fingerprint + "\n")
+    with pytest.raises(ValidationFailed, match="not decided yet"):
+        report(paths, FAMILIES)
