@@ -12,15 +12,16 @@ from ...result.evidence import build_evidence
 from ...result.modes import Mode
 from ...validation import require, validate_measurements
 from ..agent import Conversations, ScriptedConversations
-from ..decisions.worthiness import WorthinessKind
+from ..decisions.worthiness import WorthinessKind, charter
 from ..engine.ask import Limits
 from ..engine.decide import decide
+from ..prompt import PromptLibrary
 
 DRY_RUN = ScriptedConversations(lambda *_: {"decision": "skip", "pairs": [], "reason": "dry run: no model was called"})
 EVIDENCE_SCHEMA_VERSION = 1
 
 
-def worthiness(run_path: Path, mode: Mode, conversations: Conversations, limits: Limits = Limits(),
+def worthiness(run_path: Path, mode: Mode, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
                limit: int | None = None, echo=print) -> Verdicts:
     rows, measurements = rd.load_rows(run_path), rd.load_measurements(run_path)
     require(rd.MEASUREMENTS, validate_measurements(measurements, rows))
@@ -29,7 +30,7 @@ def worthiness(run_path: Path, mode: Mode, conversations: Conversations, limits:
     directory.mkdir(parents=True, exist_ok=True)
     write_json(directory / rd.EVIDENCE, {"schemaVersion": EVIDENCE_SCHEMA_VERSION, "groups": [asdict(e) for e in evidence]})
     kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
-    verdicts = decide(kind, conversations, directory, limits, limit, echo)
+    verdicts = decide(kind, charter(library), conversations, directory, limits, limit, echo)
     counts: dict[str, int] = {}
     for v in verdicts.verdicts.values():
         counts[v.decision] = counts.get(v.decision, 0) + 1

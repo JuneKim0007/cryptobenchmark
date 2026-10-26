@@ -2,7 +2,7 @@ import json
 
 import pytest
 from grouping_data import FAMILIES
-from conftest import QUIET, by_name
+from conftest import CHARTER, QUIET, by_name
 
 from perfrepair.dto.grouping import Item, Profile
 from perfrepair.dto.grouping_state import Group, Knowledge
@@ -43,7 +43,7 @@ def test_a_dropped_item_is_an_error_finding():
 
 
 def test_report_writes_validated_checks_and_groups(paths):
-    decide(GroupingKind(paths, FAMILIES), ScriptedConversations(by_name), paths.root, **QUIET)
+    decide(GroupingKind(paths, FAMILIES), CHARTER, ScriptedConversations(by_name), paths.root, **QUIET)
     document = report(paths, FAMILIES)
     assert json.loads(paths.groups.read_text()) == document
     assert {g["id"] for g in document["groups"]} >= {"alg-s-m1"}

@@ -1,12 +1,11 @@
 import json
 
 import pytest
-from conftest import QUIET, Remembering, by_name, item_name
+from conftest import CHARTER, QUIET, Remembering, by_name, item_name
 from grouping_data import FAMILIES
 
 from perfrepair.files import write_json
 from perfrepair.grouping.kind import GroupingKind
-from perfrepair.grouping.prompt.render import system_prompt
 from perfrepair.orchestrate.agent import AgentRefused, ScriptedConversations
 from perfrepair.orchestrate.engine.ask import Limits
 from perfrepair.orchestrate.engine.decide import decide
@@ -16,7 +15,7 @@ from perfrepair.validation.grouping.answer import MAX_DESCRIPTION, SLUG
 
 
 def group(paths, agent, limits=Limits(), limit=None):
-    return decide(GroupingKind(paths, FAMILIES), agent, paths.root, limits, limit, **QUIET)
+    return decide(GroupingKind(paths, FAMILIES), CHARTER, agent, paths.root, limits, limit, **QUIET)
 
 
 def records(paths):
@@ -31,7 +30,7 @@ def test_every_item_gets_one_fresh_conversation_and_a_committed_outcome(paths):
     assert json.loads(paths.cursor.read_text())["next"] is None
     assert json.loads(paths.knowledge.read_text()) == knowledge.to_json()
     first = [m for _, turn, m in agent.turns if turn == 1]
-    assert all(m.count("ITEM") == 1 for m in first)
+    assert all(m.text.count("ITEM") == 1 for m in first)
 
 
 def test_a_rejected_answer_is_corrected_in_the_same_conversation(paths):
@@ -79,6 +78,6 @@ def test_a_tampered_items_file_is_refused_at_pop(paths):
 
 
 def test_the_system_prompt_states_the_limits_the_gate_enforces():
-    prompt = " ".join(system_prompt().split())
+    prompt = " ".join(CHARTER.system.text.split())
     assert f"at most {MAX_DESCRIPTION} characters" in prompt and SLUG.pattern in prompt
     assert "{max_description}" not in prompt and "{id_pattern}" not in prompt

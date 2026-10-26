@@ -3,11 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ...dto.prompt import CorrectionPrompt, Lifetime, SystemPrompt
+from ...dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt
 from ...files import read_yaml
 
 PACKAGED = Path(__file__).resolve().parents[2] / "prompts"
 REGISTRY = "prompts.yaml"
+CORRECTION = "rejection"
 SCHEMA_VERSION = 1
 
 
@@ -61,19 +62,23 @@ class PromptLibrary:
 
     @classmethod
     def from_texts(cls, texts: dict[str, str]) -> "PromptLibrary":
-        """The packaged registry with the given texts; for tests."""
-        entries = read_registry(PACKAGED / REGISTRY)
-        unknown = sorted(set(texts) - set(entries))
+        """The packaged prompts with the named ones replaced by text; for tests."""
+        packaged = cls.load()
+        unknown = sorted(set(texts) - set(packaged.entries))
         if unknown:
             raise PromptError(f"prompt_unknown: {', '.join(unknown)}")
-        sources = {name: Path(f"<{name}>") for name in entries}
-        return cls(entries, {name: texts.get(name, "".join("{" + v + "}" for v in e.values)) for name, e in entries.items()}, sources)
+        sources = {**packaged.sources, **{name: Path(f"<{name}>") for name in texts}}
+        return cls(packaged.entries, {**packaged.texts, **texts}, sources)
 
     def system(self, name: str, **values) -> SystemPrompt:
         return SystemPrompt(name, self._fill(name, Lifetime.RUN, values))
 
     def correction(self, name: str, **values) -> CorrectionPrompt:
         return CorrectionPrompt(name, self._fill(name, Lifetime.TURN, values))
+
+    def charter(self, name: str, schema: dict, **values) -> Charter:
+        return Charter(self.system(name, **values), schema, self.texts[CORRECTION],
+                       lambda problems: self.correction(CORRECTION, problems="\n".join(f"  - {p}" for p in problems)))
 
     def source(self, name: str) -> Path:
         return self.sources[name]

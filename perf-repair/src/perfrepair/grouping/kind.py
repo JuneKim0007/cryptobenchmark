@@ -3,17 +3,23 @@ from __future__ import annotations
 from ..dto.decision import OutboxRecord
 from ..dto.grouping import Item, read_items, read_profiles
 from ..dto.grouping_state import Knowledge
+from ..dto.prompt import Charter, TaskPrompt
 from ..files import read_json, write_json
 from ..orchestrate.engine.kind import project
-from ..validation.grouping.answer import parse_answer, validate_answer
+from ..orchestrate.prompt import PromptLibrary
+from ..validation.grouping.answer import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
 from ..validation.grouping.items import validate_items
 from ..validation.grouping.knowledge import validate_knowledge
 from .catalog.families import Families
 from .paths import GroupingPaths
-from .prompt.render import render, system_prompt
+from .prompt.render import render
 from .prompt.schema import SCHEMA
 from .state.cursor import cursor
 from .state.knowledge import apply
+
+
+def charter(library: PromptLibrary) -> Charter:
+    return library.charter("grouping-assign", SCHEMA, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
 
 
 class GroupingKind:
@@ -22,7 +28,6 @@ class GroupingKind:
 
     def __init__(self, paths: GroupingPaths, families: Families | None = None):
         self.paths, self.families = paths, families or Families.load()
-        self.system = system_prompt()
         raw = read_json(paths.items)
         self._raw = {r["id"]: r for r in raw["items"]}
         self._items = read_items(raw)
@@ -50,8 +55,8 @@ class GroupingKind:
             f"{item.id}: no profile" if item.id not in self.profiles else "",
         ) if p]
 
-    def render(self, item: Item, knowledge: Knowledge) -> str:
-        return render(item, self.families.by_id[item.family], knowledge, self.by_id)
+    def render(self, item: Item, knowledge: Knowledge) -> TaskPrompt:
+        return TaskPrompt(self.name, render(item, self.families.by_id[item.family], knowledge, self.by_id), item.key)
 
     def check(self, item: Item, text: str, knowledge: Knowledge) -> tuple[dict | None, list[str]]:
         answer, problems = parse_answer(text)

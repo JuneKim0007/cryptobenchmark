@@ -9,6 +9,7 @@ from ..result.modes import MODES
 from .agent.select import add_agent_args, conversations
 from .commands import worthiness as worthiness_cmd
 from .engine.ask import Limits
+from .prompt import PromptLibrary
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -22,7 +23,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--sessions", type=int, default=Limits.sessions)
     p.add_argument("--limit", type=int)
     a = ap.parse_args(argv)
-    worthiness_cmd.worthiness(a.run, MODES[a.mode], conversations(a, worthiness_cmd.DRY_RUN),
+    worthiness_cmd.worthiness(a.run, MODES[a.mode], conversations(a, worthiness_cmd.DRY_RUN), PromptLibrary.load(),
                               Limits(a.turns, a.sessions), a.limit)
     return 0
 

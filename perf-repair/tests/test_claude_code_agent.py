@@ -2,7 +2,9 @@ import json
 import subprocess
 
 import pytest
+from helpers import task
 
+from perfrepair.dto.prompt import SystemPrompt
 from perfrepair.orchestrate.agent import AgentRefused, ClaudeCodeConversations, ClaudeCodeError
 
 
@@ -24,9 +26,9 @@ def ok(session, structured):
 
 def test_a_conversation_is_one_isolated_session_resumed_turn_by_turn(tmp_path):
     cli = FakeCli([ok("s-1", {"a": 1}), ok("s-1", {"a": 2})])
-    convo = ClaudeCodeConversations(runner=cli, workdir=tmp_path).start("SYS", {"type": "object"})
-    assert json.loads(convo.ask("first").text) == {"a": 1}
-    assert convo.ask("second").usage["costUsd"] == 0.01
+    convo = ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {"type": "object"})
+    assert json.loads(convo.ask(task("first")).text) == {"a": 1}
+    assert convo.ask(task("second")).usage["costUsd"] == 0.01
     first, second = cli.calls[0][0], cli.calls[1][0]
     for flag in ("--setting-sources", "--strict-mcp-config", "--disable-slash-commands", "--tools"):
         assert flag in first
@@ -39,8 +41,8 @@ def test_a_conversation_is_one_isolated_session_resumed_turn_by_turn(tmp_path):
 def test_a_new_conversation_never_resumes_another(tmp_path):
     cli = FakeCli([ok("s-1", {}), ok("s-2", {})])
     convos = ClaudeCodeConversations(runner=cli, workdir=tmp_path)
-    convos.start("SYS", {}).ask("x")
-    convos.start("SYS", {}).ask("y")
+    convos.start(SystemPrompt("t", "SYS"), {}).ask(task("x"))
+    convos.start(SystemPrompt("t", "SYS"), {}).ask(task("y"))
     assert all("--resume" not in c[0] for c in cli.calls)
 
 
@@ -49,8 +51,8 @@ def test_refusal_and_cli_errors_are_told_apart(tmp_path):
     cli = FakeCli([refused, "not json", {**ok("s", {}), "is_error": True, "subtype": "error_max_budget_usd"}])
     convos = ClaudeCodeConversations(runner=cli, workdir=tmp_path)
     with pytest.raises(AgentRefused):
-        convos.start("S", {}).ask("x")
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     with pytest.raises(ClaudeCodeError, match="exited"):
-        convos.start("S", {}).ask("x")
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     with pytest.raises(ClaudeCodeError, match="error_max_budget_usd"):
-        convos.start("S", {}).ask("x")
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))

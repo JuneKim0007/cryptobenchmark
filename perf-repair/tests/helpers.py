@@ -1,4 +1,17 @@
 from perfrepair.dto import PrimitiveRow, Summary
+from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
+from perfrepair.orchestrate.prompt import PromptLibrary
+
+LIBRARY = PromptLibrary.load()
+SYSTEM = SystemPrompt("test", "SYS")
+
+
+def task(text, item="x"):
+    return TaskPrompt("test", text, item)
+
+
+def label_charter(schema):
+    return PromptLibrary.from_texts({"worthiness": "SYS"}).charter("worthiness", schema)
 
 
 def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_size=128, input_size=64,

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from ...dto.decision import OutboxRecord
+from ...dto.prompt import Charter
 from ...validation import require
 from .. import journal
 from ..agent import Conversations
@@ -17,7 +18,7 @@ def _errors(kind: DecisionKind, records: list[OutboxRecord], by_key: dict) -> st
                                "problems": list(r.problems)}) + "\n" for r in records if r.outcome == "dropped")
 
 
-def decide(kind: DecisionKind, conversations: Conversations, root: Path, limits: Limits = Limits(),
+def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, root: Path, limits: Limits = Limits(),
            limit: int | None = None, echo=print):
     root = Path(root)
     items = kind.items()
@@ -35,7 +36,7 @@ def decide(kind: DecisionKind, conversations: Conversations, root: Path, limits:
         if item is None or (limit is not None and decided == limit):
             return state
         require(f"{kind.name} item {item.key}", kind.admit(item))
-        asked = ask(conversations, kind.system, kind.schema, kind.render(item, state),
+        asked = ask(conversations, charter, kind.render(item, state),
                     lambda text: kind.check(item, text, state), limits,
                     lambda turn: journal.append(root / "journal.jsonl", {"item": item.key, **turn.to_json()}))
         accepted = asked.decision is not None

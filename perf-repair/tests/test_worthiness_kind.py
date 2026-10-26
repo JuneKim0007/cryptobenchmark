@@ -7,7 +7,7 @@ from perfrepair.dto import Verdicts
 from perfrepair.orchestrate.decisions.worthiness import WorthinessKind
 from perfrepair.result.modes import MODES
 
-KIND = WorthinessKind(MODES["latency"], ["cpu_not_locked: ..."], list(EVIDENCE.values()), ".", prompt="")
+KIND = WorthinessKind(MODES["latency"], ["cpu_not_locked: ..."], list(EVIDENCE.values()), ".")
 G = EVIDENCE["g-a"]
 P1, P2 = "M1", "M2"  # aliases of TypeA|ALG-A|P1, TypeA|ALG-A|P2
 
@@ -17,7 +17,7 @@ def reply(decision="test", pairs=None, reason="r"):
 
 
 def test_render_carries_numbers_mode_and_warnings():
-    text = KIND.render(G, Verdicts("latency"))
+    text = KIND.render(G, Verdicts("latency")).text
     assert "MODE: latency" in text and "cpu_not_locked" in text and "0.500" in text
     assert "input 1024" not in text
 
@@ -40,6 +40,6 @@ def test_gate(answer, problem):
 
 
 def test_battery_gate_refuses_a_pair_that_allocates_more():
-    kind = WorthinessKind(MODES["battery"], [], list(EVIDENCE.values()), ".", prompt="")
+    kind = WorthinessKind(MODES["battery"], [], list(EVIDENCE.values()), ".")
     _, problems = kind.check(G, reply(pairs=[{"from": P1, "to": P2, "reason": "x"}]), Verdicts("battery"))
     assert any("does not improve" in p for p in problems)

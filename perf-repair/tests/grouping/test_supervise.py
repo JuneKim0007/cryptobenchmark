@@ -1,7 +1,7 @@
 import json
 import re
 
-from conftest import QUIET, Remembering, by_name
+from conftest import CHARTER, QUIET, SUPERVISOR, Remembering, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.grouping.kind import GroupingKind
@@ -14,18 +14,18 @@ from perfrepair.validation.grouping.supervision import parse_review
 
 
 def finished(paths):
-    decide(GroupingKind(paths, FAMILIES), ScriptedConversations(by_name), paths.root, **QUIET)
+    decide(GroupingKind(paths, FAMILIES), CHARTER, ScriptedConversations(by_name), paths.root, **QUIET)
     report(paths, FAMILIES)
     return json.loads(paths.groups.read_text())
 
 
-def groups_in(message):
-    return re.findall(r"^GROUP (\S+)", message, re.M)
+def groups_in(task):
+    return re.findall(r"^GROUP (\S+)", task.text, re.M)
 
 
 def test_a_sound_grouping_reviews_clean_and_the_grouping_is_untouched(paths):
     before = finished(paths)
-    out = supervise(paths, ScriptedConversations(lambda *_: {"findings": []}), **QUIET)
+    out = supervise(paths, SUPERVISOR, ScriptedConversations(lambda *_: {"findings": []}), **QUIET)
     assert {f["status"] for f in out["families"].values()} == {"reviewed"}
     assert json.loads(paths.groups.read_text()) == before
     assert json.loads(paths.supervisor.read_text()) == out
@@ -41,7 +41,7 @@ def test_findings_are_kept_and_out_of_family_ones_corrected(paths):
         if turn == 1:
             return {"findings": [{"kind": "merge", "groups": [names[0], "elsewhere"], "items": [], "reason": "x"}]}
         return {"findings": [{"kind": "merge", "groups": names[:2], "items": [], "reason": "same function"}]}
-    out = supervise(paths, ScriptedConversations(Remembering(review)), **QUIET)
+    out = supervise(paths, SUPERVISOR, ScriptedConversations(Remembering(review)), **QUIET)
     secret = out["families"]["cipher.secret"]
     assert secret["status"] == "reviewed" and secret["findings"][0]["kind"] == "merge"
     log = [json.loads(line) for line in paths.supervisor_journal.read_text().splitlines()]
@@ -50,7 +50,7 @@ def test_findings_are_kept_and_out_of_family_ones_corrected(paths):
 
 def test_a_review_no_conversation_completes_is_marked_failed(paths):
     finished(paths)
-    out = supervise(paths, ScriptedConversations(lambda *_: "not json"), Limits(turns=1, sessions=2), **QUIET)
+    out = supervise(paths, SUPERVISOR, ScriptedConversations(lambda *_: "not json"), Limits(turns=1, sessions=2), **QUIET)
     assert all(f["status"] == "failed" and len(f["problems"]) == 2 for f in out["families"].values())
 
 

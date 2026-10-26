@@ -1,7 +1,9 @@
 from types import SimpleNamespace
 
 import pytest
+from helpers import task
 
+from perfrepair.dto.prompt import SystemPrompt
 from perfrepair.orchestrate.agent import AgentRefused, ClaudeConversations
 
 
@@ -20,7 +22,7 @@ class FakeMessages:
 
 def test_one_turn_cached_system_and_schema():
     messages, schema = FakeMessages(), {"type": "object"}
-    reply = ClaudeConversations(client=SimpleNamespace(messages=messages)).start("SYS", schema).ask("ITEM")
+    reply = ClaudeConversations(client=SimpleNamespace(messages=messages)).start(SystemPrompt("t", "SYS"), schema).ask(task("ITEM"))
     k = messages.kwargs
     assert k["messages"] == [{"role": "user", "content": "ITEM"}]
     assert k["system"][0]["cache_control"] == {"type": "ephemeral"}
@@ -30,4 +32,4 @@ def test_one_turn_cached_system_and_schema():
 
 def test_refusal_raises():
     with pytest.raises(AgentRefused):
-        ClaudeConversations(client=SimpleNamespace(messages=FakeMessages("refusal"))).start("SYS", {}).ask("ITEM")
+        ClaudeConversations(client=SimpleNamespace(messages=FakeMessages("refusal"))).start(SystemPrompt("t", "SYS"), {}).ask(task("ITEM"))

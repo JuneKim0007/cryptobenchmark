@@ -45,7 +45,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         if (directory / VERDICTS).exists():
             measurements = rd.load_measurements(run)
             kind = WorthinessKind(mode, measurements.comparability, build_evidence(groups, rows, measurements.byRow),
-                                  directory, prompt="")
+                                  directory)
             records = Outbox(directory / "outbox").open().records()
             saved = Verdicts.from_json(read_json(directory / VERDICTS))
             out[directory.name] = kind.validate(saved, records)
