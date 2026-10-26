@@ -6,7 +6,7 @@ import os
 from .claude import DEFAULT_MODEL
 from .claude_code import ClaudeCodeConversations
 from .conversation import ClaudeConversations
-from ...env import load_env
+from ....env import load_env
 
 BACKENDS = ("claude", "claude-code", "dry-run")
 EFFORTS = ("low", "medium", "high", "xhigh", "max")

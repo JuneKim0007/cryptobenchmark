@@ -4,7 +4,7 @@ import pytest
 from test_evidence import EVIDENCE
 
 from perfrepair.dto import Verdicts
-from perfrepair.orchestrate.decisions.worthiness import WorthinessKind
+from perfrepair.ai.evaluate.worthiness.kind import WorthinessKind
 from perfrepair.result.modes import MODES
 
 KIND = WorthinessKind(MODES["latency"], ["cpu_not_locked: ..."], list(EVIDENCE.values()), ".")

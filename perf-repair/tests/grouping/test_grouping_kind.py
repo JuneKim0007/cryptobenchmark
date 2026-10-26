@@ -5,11 +5,11 @@ from conftest import CHARTER, QUIET, Remembering, by_name, item_name
 from grouping_data import FAMILIES
 
 from perfrepair.files import write_json
-from perfrepair.grouping.kind import GroupingKind
-from perfrepair.orchestrate.agent import AgentRefused, ScriptedConversations
-from perfrepair.orchestrate.engine.ask import Limits
-from perfrepair.orchestrate.engine.decide import decide
-from perfrepair.orchestrate.engine.outbox import Outbox
+from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
+from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
+from perfrepair.ai.runtime.engine.ask import Limits
+from perfrepair.ai.runtime.engine.decide import decide
+from perfrepair.ai.runtime.engine.outbox import Outbox
 from perfrepair.validation import ValidationFailed
 from perfrepair.validation.grouping.answer import MAX_DESCRIPTION, SLUG
 

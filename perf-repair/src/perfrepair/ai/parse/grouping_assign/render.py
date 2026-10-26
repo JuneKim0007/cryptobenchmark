@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ...dto.grouping import Family, Item
-from ...dto.grouping_state import Knowledge
+from ....dto.grouping import Family, Item
+from ....dto.grouping_state import Knowledge
 
 EXAMPLES = 3
 

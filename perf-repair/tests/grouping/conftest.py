@@ -6,8 +6,8 @@ from grouping_data import BENCHMARK, FAMILIES, INVENTORY, PREPARED, PROBE, TRIAL
 from perfrepair.dto.grouping import items_document, profiles_document
 from perfrepair.files import write_json
 from perfrepair.grouping.build.items import build
-from perfrepair.grouping.kind import charter
-from perfrepair.grouping.supervise.run import charter as supervisor_charter
+from perfrepair.ai.parse.grouping_assign.kind import charter
+from perfrepair.ai.review.grouping_review.run import charter as supervisor_charter
 from perfrepair.grouping.paths import GroupingPaths
 
 from helpers import LIBRARY, QUIET  # noqa: F401  (re-exported for grouping tests)

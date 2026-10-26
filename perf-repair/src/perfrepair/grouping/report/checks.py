@@ -3,12 +3,12 @@ from __future__ import annotations
 from ...dto.grouping import read_items
 from ...dto.grouping_output import checks_document
 from ...files import read_json, write_json
-from ...orchestrate.engine.kind import project
-from ...orchestrate.engine.outbox import Outbox
+from ...ai.runtime.engine.kind import project
+from ...ai.runtime.engine.outbox import Outbox
 from ...validation import require
 from ...validation.grouping.output import validate_output
 from ..catalog.families import Families
-from ..kind import GroupingKind
+from ...ai.parse.grouping_assign.kind import GroupingKind
 from ..paths import GroupingPaths
 from ..state.cursor import cursor
 from .output import assemble

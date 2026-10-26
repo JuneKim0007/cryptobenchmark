@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from ...dto.decision import OutboxRecord
-from ...dto.prompt import TaskPrompt
+from ....dto.decision import OutboxRecord
+from ....dto.prompt import TaskPrompt
 
 
 class Item(Protocol):

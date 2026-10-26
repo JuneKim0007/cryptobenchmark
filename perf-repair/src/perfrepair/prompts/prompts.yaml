@@ -1,6 +1,6 @@
 schemaVersion: 1
 prompts:
-  grouping-assign: {file: grouping-assign.system.md, lifetime: run, values: [id_pattern, max_description]}
-  grouping-supervise: {file: grouping-supervise.system.md, lifetime: run, values: []}
-  worthiness: {file: worthiness.system.md, lifetime: run, values: []}
-  rejection: {file: rejection.turn.md, lifetime: turn, values: [problems]}
+  parse/grouping-assign: {file: parse/grouping-assign.system.md, lifetime: run, values: [id_pattern, max_description]}
+  evaluate/worthiness: {file: evaluate/worthiness.system.md, lifetime: run, values: []}
+  review/grouping-review: {file: review/grouping-review.system.md, lifetime: run, values: []}
+  shared/rejection: {file: shared/rejection.turn.md, lifetime: turn, values: [problems]}

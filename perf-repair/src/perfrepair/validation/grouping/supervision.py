@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ...grouping.supervise.schema import KINDS
+from ...ai.review.grouping_review.schema import KINDS
 from ..json_reply import parse_object
 
 

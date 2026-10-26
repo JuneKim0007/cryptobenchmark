@@ -9,16 +9,16 @@ import sys
 from pathlib import Path
 
 from ..dto.prompt import TaskPrompt
-from ..orchestrate.agent import ScriptedConversations
-from ..orchestrate.agent.select import add_agent_args, conversations
-from ..orchestrate.engine.ask import Limits
-from ..orchestrate.engine.decide import decide
-from ..orchestrate.prompt import PromptLibrary
+from ..ai.runtime.agent import ScriptedConversations
+from ..ai.runtime.agent.select import add_agent_args, conversations
+from ..ai.runtime.engine.ask import Limits
+from ..ai.runtime.engine.decide import decide
+from ..ai.runtime.prompt import PromptLibrary
 from .build.stage import build_stage
-from .kind import GroupingKind, charter
+from ..ai.parse.grouping_assign.kind import GroupingKind, charter
 from .paths import GroupingPaths
 from .report.checks import report
-from .supervise.run import charter as supervisor_charter, supervise
+from ..ai.review.grouping_review.run import charter as supervisor_charter, supervise
 
 
 def _dry_run(task: TaskPrompt, *_):

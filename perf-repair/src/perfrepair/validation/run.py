@@ -5,12 +5,12 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto import Verdicts
 from ..files import read_json
-from ..grouping.kind import GroupingKind
+from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..grouping.paths import GroupingPaths
 from ..grouping.report.checks import read_groups
-from ..orchestrate.decisions.worthiness import VERDICTS, WorthinessKind
-from ..orchestrate.engine.kind import project
-from ..orchestrate.engine.outbox import Outbox
+from ..ai.evaluate.worthiness.kind import VERDICTS, WorthinessKind
+from ..ai.runtime.engine.kind import project
+from ..ai.runtime.engine.outbox import Outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
 from .failure import ValidationFailed

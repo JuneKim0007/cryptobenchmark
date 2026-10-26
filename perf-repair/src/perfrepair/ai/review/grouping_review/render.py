@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ...dto.grouping import parse_qualified
+from ....dto.grouping import parse_qualified
 
 def render(family: str, description: str, groups: list[dict], items: dict[str, dict], findings: list[dict]) -> str:
     lines = [f"FAMILY {family} — {description}", ""]

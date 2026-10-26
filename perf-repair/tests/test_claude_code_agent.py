@@ -5,7 +5,7 @@ import pytest
 from helpers import task
 
 from perfrepair.dto.prompt import SystemPrompt
-from perfrepair.orchestrate.agent import AgentRefused, ClaudeCodeConversations, ClaudeCodeError
+from perfrepair.ai.runtime.agent import AgentRefused, ClaudeCodeConversations, ClaudeCodeError
 
 
 class FakeCli:

@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from ...dto.prompt import Charter, TaskPrompt
-from ...files import read_json, write_json
-from ...orchestrate import journal
-from ...orchestrate.agent import Conversations
-from ...orchestrate.engine.ask import Limits, ask
-from ...orchestrate.prompt import PromptLibrary
-from ...validation.grouping.supervision import parse_review
-from ..paths import GroupingPaths
-from ..report.checks import read_groups
+from ....dto.prompt import Charter, TaskPrompt
+from ....files import read_json, write_json
+from ...runtime.engine import journal
+from ...runtime.agent import Conversations
+from ...runtime.engine.ask import Limits, ask
+from ...runtime.prompt import PromptLibrary
+from ....validation.grouping.supervision import parse_review
+from ....grouping.paths import GroupingPaths
+from ....grouping.report.checks import read_groups
 from .render import render
 from .schema import SCHEMA
 
 SCHEMA_VERSION = 1
-NAME = "grouping-supervise"
+NAME = "review/grouping-review"
 
 
 def charter(library: PromptLibrary) -> Charter:

@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 from typing import Callable
 
-from ...dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
+from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
 from .claude import DEFAULT_MODEL
 from .reply import AgentRefused, AgentReply
 
