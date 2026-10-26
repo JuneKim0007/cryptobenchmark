@@ -1,7 +1,7 @@
 """python3 -m perfrepair.grouping {build,assign,report} — the grouping stage, one step per command.
   build   --manifest <results>/manifest.yaml --run <dir>     items.json, profiles.json
   assign  --run <dir> [--agent ...] [--prompts DIR] [--turns 3] [--sessions 2] [--limit N]
-  report  --run <dir> [--supervisor] [--agent ...] [--prompts DIR]   checks.json, groups.json [, supervisor.json]"""
+  report  --run <dir> [--supervisor [--prompts DIR]] [--agent ...]   checks.json, groups.json [, supervisor.json]"""
 from __future__ import annotations
 
 import argparse
@@ -18,7 +18,7 @@ from .build.stage import build_stage
 from ..ai.parse.grouping_assign.kind import GroupingKind, charter
 from .paths import GroupingPaths
 from .report.checks import report
-from ..ai.review.grouping_review.run import supervise
+from ..ai.review.grouping_review.run import charter as supervisor_charter, supervise
 
 
 def _dry_run(task: TaskPrompt, *_):
@@ -52,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
         build_stage(args.manifest, args.run)
         print(f"wrote {paths.items} and {paths.profiles}")
         return 0
+    if args.step == "report" and args.prompts is not None and not args.supervisor:
+        r.error("--prompts only applies with --supervisor; report alone calls no model")
     library = load_prompts(ap, args)
     if args.step == "assign":
         knowledge = decide(GroupingKind(paths), charter(library), conversations(args, ScriptedConversations(_dry_run)), paths.root,
@@ -61,7 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         document = report(paths)
         print(f"{len(document['groups'])} groups, {len(document['dropped'])} dropped -> {paths.groups}")
         if args.supervisor:
-            supervise(paths, library, conversations(args, ScriptedConversations(lambda *_: {"findings": []})))
+            used = supervisor_charter(library)
+            supervise(paths, used, conversations(args, ScriptedConversations(lambda *_: {"findings": []})), library.provenance(used))
     return 0
 
 

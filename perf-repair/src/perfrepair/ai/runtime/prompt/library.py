@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt
+from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt, fill
 from ....files import read_yaml
 
 PACKAGED = Path(__file__).resolve().parents[3] / "prompts"
@@ -61,25 +61,17 @@ class PromptLibrary:
             raise PromptError(f"prompt_missing: {', '.join(absent)}")
         return cls(entries, {name: path.read_text() for name, path in sources.items()}, sources)
 
-    @classmethod
-    def from_texts(cls, texts: dict[str, str]) -> "PromptLibrary":
-        """The packaged prompts with the named ones replaced by text; for tests."""
-        packaged = cls.load()
-        unknown = sorted(set(texts) - set(packaged.entries))
-        if unknown:
-            raise PromptError(f"prompt_unknown: {', '.join(unknown)}")
-        sources = {**packaged.sources, **{name: Path(f"<{name}>") for name in texts}}
-        return cls(packaged.entries, {**packaged.texts, **texts}, sources)
-
     def system(self, name: str, **values) -> SystemPrompt:
         return SystemPrompt(name, self._fill(name, Lifetime.RUN, values))
 
-    def correction(self, name: str, **values) -> CorrectionPrompt:
-        return CorrectionPrompt(name, self._fill(name, Lifetime.TURN, values))
-
     def charter(self, name: str, schema: dict, **values) -> Charter:
-        return Charter(self.system(name, **values), schema, self.texts[CORRECTION],
-                       lambda problems: self.correction(CORRECTION, problems="\n".join(f"  - {p}" for p in problems)))
+        entry = self.entries[CORRECTION]
+        if entry.lifetime is not Lifetime.TURN or entry.values != ("problems",):
+            raise PromptError(f"value_mismatch: {CORRECTION} must be a turn prompt declaring only [problems]")
+        return Charter(self.system(name, **values), schema, CorrectionPrompt(CORRECTION, self.texts[CORRECTION]))
+
+    def provenance(self, charter: Charter) -> dict[str, str]:
+        return {name: str(self.sources[name]) for name in charter.prompts}
 
     def source(self, name: str) -> Path:
         return self.sources[name]
@@ -93,8 +85,5 @@ class PromptLibrary:
         missing, unexpected = sorted(set(entry.values) - set(values)), sorted(set(values) - set(entry.values))
         if missing or unexpected:
             raise PromptError(f"value_mismatch: {name} missing {missing}, unexpected {unexpected}")
-        text = self.texts[name]
-        for key in entry.values:
-            text = text.replace("{" + key + "}", str(values[key]))
-        return text
+        return fill(self.texts[name], {key: values[key] for key in entry.values})
 
