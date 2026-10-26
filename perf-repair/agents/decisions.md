@@ -34,5 +34,10 @@ src/perfrepair/orchestrate/engine/decide.py : the engine loop: gates, ask, durab
 src/perfrepair/orchestrate/engine/kind.py : DecisionKind contract and project(kind, records)
 src/perfrepair/orchestrate/engine/outbox.py : the only commit: durable, exclusive, ordered outbox records
 src/perfrepair/orchestrate/journal.py : journal.jsonl append and read; audit only
-src/perfrepair/orchestrate/prompts/worthiness.system.md : system prompt: test-worthiness
+src/perfrepair/orchestrate/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
+src/perfrepair/prompts/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
+src/perfrepair/prompts/grouping-supervise.system.md : supervisor system prompt: findings only
+src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
+src/perfrepair/prompts/rejection.turn.md : the turn message after a rejected answer
+src/perfrepair/prompts/worthiness.system.md : system prompt: test-worthiness
 ```

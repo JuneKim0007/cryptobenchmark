@@ -12,7 +12,7 @@ from ...validation.json_reply import parse_object
 from ...validation.worthiness import validate_verdicts
 from ..engine.kind import project
 
-PROMPT = Path(__file__).parents[1] / "prompts" / "worthiness.system.md"
+PROMPT = Path(__file__).parents[2] / "prompts" / "worthiness.system.md"
 VERDICTS = "verdicts.json"
 
 SCHEMA = {

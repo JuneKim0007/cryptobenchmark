@@ -18,7 +18,7 @@
 ## Workflow
 - run: `build` → `assign` → `report [--supervisor]` (`python3 -m perfrepair.grouping`)
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
-- change the answer contract: `prompt/schema.py` → `prompt/assign.system.md` → `validation/grouping/answer.py` → `docs/grouping.md`
+- change the answer contract: `prompt/schema.py` → `prompts/grouping-assign.system.md` → `validation/grouping/answer.py` → `docs/grouping.md`
 
 ## File structure
 
@@ -31,7 +31,6 @@ src/perfrepair/grouping/catalog/families.py : the family catalog and (engine typ
 src/perfrepair/grouping/catalog/families.yaml : predefined families with fixed descriptions
 src/perfrepair/grouping/kind.py : GroupingKind on the engine: admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/grouping/paths.py : every file name under <run>/grouping/
-src/perfrepair/grouping/prompt/assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
 src/perfrepair/grouping/prompt/render.py : one item's message: family, its groups, the item; the rejection message
 src/perfrepair/grouping/prompt/schema.py : the answer's JSON schema
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → checks.json, groups.json
@@ -42,5 +41,4 @@ src/perfrepair/grouping/state/knowledge.py : knowledge as a projection of the ou
 src/perfrepair/grouping/supervise/render.py : one family's review message
 src/perfrepair/grouping/supervise/run.py : supervisor: one review conversation per family → supervisor.json
 src/perfrepair/grouping/supervise/schema.py : the supervisor's JSON schema
-src/perfrepair/grouping/supervise/supervisor.system.md : supervisor system prompt: findings only
 ```

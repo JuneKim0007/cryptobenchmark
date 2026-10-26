@@ -30,6 +30,7 @@ src/perfrepair/dto/grouping_state.py : Answer, Amendment, OutboxRecord, Group, K
 src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
+src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/worthiness.py : GroupEvidence, PairMetrics, Verdict, Verdicts
 src/perfrepair/env.py : .env loader: fills unset environment keys
