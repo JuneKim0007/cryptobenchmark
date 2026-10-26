@@ -17,9 +17,11 @@ from .schema import SCHEMA
 from ....grouping.state.cursor import cursor
 from ....grouping.state.knowledge import apply
 
+NAME = "parse/grouping-assign"
+
 
 def charter(library: PromptLibrary) -> Charter:
-    return library.charter("parse/grouping-assign", SCHEMA, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
+    return library.charter(NAME, SCHEMA, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
 
 
 class GroupingKind:
@@ -56,7 +58,7 @@ class GroupingKind:
         ) if p]
 
     def render(self, item: Item, knowledge: Knowledge) -> TaskPrompt:
-        return TaskPrompt(self.name, render(item, self.families.by_id[item.family], knowledge, self.by_id), item.key)
+        return TaskPrompt(NAME, render(item, self.families.by_id[item.family], knowledge, self.by_id), item.key)
 
     def check(self, item: Item, text: str, knowledge: Knowledge) -> tuple[dict | None, list[str]]:
         answer, problems = parse_answer(text)
