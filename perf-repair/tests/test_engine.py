@@ -5,7 +5,7 @@ import pytest
 from helpers import QUIET, label_charter
 
 from perfrepair.dto.decision import OutboxRecord
-from perfrepair.dto.prompt import TaskPrompt
+from perfrepair.dto.prompt import CorrectionPrompt, TaskPrompt
 from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.decide import decide
@@ -92,6 +92,31 @@ def test_a_refusal_is_a_failed_turn(tmp_path):
     assert "model refused: declined" in active_outbox(tmp_path).records()[0].problems[0]
 
 
+def test_a_refusal_ends_the_session_and_the_next_opens_with_the_task(tmp_path):
+    def refuse_first(m, conversation, turn):
+        if conversation == 1:
+            raise AgentRefused("declined")
+        return {"label": label_of(m)}
+    agent = ScriptedConversations(refuse_first)
+    state = decide(LabelKind(("a",)), CHARTER, agent, tmp_path, Limits(turns=3, sessions=2), **QUIET)
+    assert [(s, t, type(m)) for s, t, m in agent.turns] == [(1, 1, TaskPrompt), (2, 1, TaskPrompt)]
+    assert agent.started == 2 and state.seen == {"a": "a"}
+    record = active_outbox(tmp_path).records()[0]
+    assert record.outcome == "decided" and (record.session, record.turn) == (2, 1)
+
+
+def test_no_correction_follows_a_refusal(tmp_path):
+    def reject_then_refuse(m, conversation, turn):
+        if turn == 2:
+            raise AgentRefused("declined")
+        return {"label": ""}
+    agent = ScriptedConversations(reject_then_refuse)
+    decide(LabelKind(("a",)), CHARTER, agent, tmp_path, Limits(turns=3, sessions=2), **QUIET)
+    sent = [(s, t, type(m)) for s, t, m in agent.turns]
+    assert sent == [(1, 1, TaskPrompt), (1, 2, CorrectionPrompt), (2, 1, TaskPrompt), (2, 2, CorrectionPrompt)]
+    assert active_outbox(tmp_path).records()[0].outcome == "dropped"
+
+
 def test_a_crash_never_repeats_or_loses_a_decision(tmp_path):
     calls = {"n": 0}
 
@@ -125,7 +150,7 @@ def test_an_inconsistent_state_stops_the_engine(tmp_path):
 
 
 def test_the_outbox_commits_whole_records_once_and_in_order(tmp_path):
-    box = Outbox(tmp_path / "box").open()
+    box = Outbox(tmp_path / "box", "0123456789ab").open()
     first = OutboxRecord(1, "a", "decided", 1, 1, {"label": "a"})
     assert box.append(first) == first
     with pytest.raises(FileExistsError):
