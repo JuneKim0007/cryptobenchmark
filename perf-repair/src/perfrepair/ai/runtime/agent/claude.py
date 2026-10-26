@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ....dto.prompt import Lifetime, SystemPrompt
 from .reply import AgentRefused, AgentReply
 
 DEFAULT_MODEL = "claude-opus-5-5"
@@ -14,11 +15,15 @@ class ClaudeClient:
         self.model, self.effort, self.max_tokens = model, effort, max_tokens
         self.client = client or anthropic.Anthropic()
 
-    def request(self, system: str, messages: list[dict], schema: dict) -> tuple[AgentReply, list]:
+    def request(self, system: SystemPrompt, messages: list[dict], schema: dict) -> tuple[AgentReply, list]:
+        block = {"type": "text", "text": system.text}
+        # Only text that outlives one conversation repays a cache write.
+        if system.lifetime is Lifetime.RUN:
+            block["cache_control"] = {"type": "ephemeral"}
         response = self.client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
-            system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
+            system=[block],
             messages=messages,
             output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": schema}},
             # On a policy decline the API re-runs the request on a fallback model inside the same call.
