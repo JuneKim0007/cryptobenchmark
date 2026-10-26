@@ -11,7 +11,7 @@ from .. import run_dir as rd
 from ..dto.grouping import parse_qualified
 from ..files import read_json, write_json
 from ..grouping.paths import GroupingPaths
-from ..orchestrate.decisions.worthiness import VERDICTS
+from ..ai.evaluate.worthiness.kind import VERDICTS
 from ..validation.repair import validate_patch
 from .candidates import Candidate, candidates
 from .choose import choose

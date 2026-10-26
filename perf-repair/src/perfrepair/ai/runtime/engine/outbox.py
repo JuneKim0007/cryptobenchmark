@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ...dto.decision import OutboxRecord
-from ...files import TEMP_SUFFIX, read_json, write_json
+from ....dto.decision import OutboxRecord
+from ....files import TEMP_SUFFIX, read_json, write_json
 
 
 class Outbox:

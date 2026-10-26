@@ -6,11 +6,11 @@ from helpers import QUIET, label_charter
 
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.prompt import TaskPrompt
-from perfrepair.orchestrate.agent import AgentRefused, ScriptedConversations
-from perfrepair.orchestrate.engine.ask import Limits
-from perfrepair.orchestrate.engine.decide import decide
-from perfrepair.orchestrate.engine.kind import project
-from perfrepair.orchestrate.engine.outbox import Outbox
+from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
+from perfrepair.ai.runtime.engine.ask import Limits
+from perfrepair.ai.runtime.engine.decide import decide
+from perfrepair.ai.runtime.engine.kind import project
+from perfrepair.ai.runtime.engine.outbox import Outbox
 from perfrepair.validation import ValidationFailed
 
 

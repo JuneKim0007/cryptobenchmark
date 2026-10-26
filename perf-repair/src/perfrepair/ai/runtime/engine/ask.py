@@ -4,7 +4,7 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import Callable
 
-from ...dto.prompt import Charter, TaskPrompt
+from ....dto.prompt import Charter, TaskPrompt
 from ..agent import AgentRefused, Conversations
 
 Check = Callable[[str], tuple[dict | None, list[str]]]

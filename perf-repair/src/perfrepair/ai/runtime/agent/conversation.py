@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Callable, Protocol
 
-from ...dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
+from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
 from .claude import DEFAULT_MODEL, MAX_TOKENS, ClaudeClient
 from .reply import AgentReply
 

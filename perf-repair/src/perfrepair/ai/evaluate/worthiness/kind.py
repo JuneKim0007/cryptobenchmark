@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ...dto import GroupEvidence, Pair, Verdict, Verdicts
-from ...dto.decision import OutboxRecord
-from ...dto.prompt import Charter, TaskPrompt
-from ...dto.worthiness import DECISIONS
-from ...files import write_json
-from ...result.modes import Mode
-from ...result.triage import triage
-from ...validation.json_reply import parse_object
-from ...validation.worthiness import validate_verdicts
-from ..engine.kind import project
-from ..prompt import PromptLibrary
+from ....dto import GroupEvidence, Pair, Verdict, Verdicts
+from ....dto.decision import OutboxRecord
+from ....dto.prompt import Charter, TaskPrompt
+from ....dto.worthiness import DECISIONS
+from ....files import write_json
+from ....result.modes import Mode
+from ....result.triage import triage
+from ....validation.json_reply import parse_object
+from ....validation.worthiness import validate_verdicts
+from ...runtime.engine.kind import project
+from ...runtime.prompt import PromptLibrary
 
 VERDICTS = "verdicts.json"
 
@@ -44,7 +44,7 @@ def aliases(e: GroupEvidence) -> dict[str, str]:
 
 
 def charter(library: PromptLibrary) -> Charter:
-    return library.charter("worthiness", SCHEMA)
+    return library.charter("evaluate/worthiness", SCHEMA)
 
 
 class WorthinessKind:

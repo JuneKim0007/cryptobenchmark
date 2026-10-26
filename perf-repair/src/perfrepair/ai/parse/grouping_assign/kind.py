@@ -1,25 +1,25 @@
 from __future__ import annotations
 
-from ..dto.decision import OutboxRecord
-from ..dto.grouping import Item, read_items, read_profiles
-from ..dto.grouping_state import Knowledge
-from ..dto.prompt import Charter, TaskPrompt
-from ..files import read_json, write_json
-from ..orchestrate.engine.kind import project
-from ..orchestrate.prompt import PromptLibrary
-from ..validation.grouping.answer import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
-from ..validation.grouping.items import validate_items
-from ..validation.grouping.knowledge import validate_knowledge
-from .catalog.families import Families
-from .paths import GroupingPaths
-from .prompt.render import render
-from .prompt.schema import SCHEMA
-from .state.cursor import cursor
-from .state.knowledge import apply
+from ....dto.decision import OutboxRecord
+from ....dto.grouping import Item, read_items, read_profiles
+from ....dto.grouping_state import Knowledge
+from ....dto.prompt import Charter, TaskPrompt
+from ....files import read_json, write_json
+from ...runtime.engine.kind import project
+from ...runtime.prompt import PromptLibrary
+from ....validation.grouping.answer import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
+from ....validation.grouping.items import validate_items
+from ....validation.grouping.knowledge import validate_knowledge
+from ....grouping.catalog.families import Families
+from ....grouping.paths import GroupingPaths
+from .render import render
+from .schema import SCHEMA
+from ....grouping.state.cursor import cursor
+from ....grouping.state.knowledge import apply
 
 
 def charter(library: PromptLibrary) -> Charter:
-    return library.charter("grouping-assign", SCHEMA, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
+    return library.charter("parse/grouping-assign", SCHEMA, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
 
 
 class GroupingKind:

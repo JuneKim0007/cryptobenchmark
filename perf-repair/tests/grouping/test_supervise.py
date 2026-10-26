@@ -4,12 +4,12 @@ import re
 from conftest import CHARTER, QUIET, SUPERVISOR, Remembering, by_name
 from grouping_data import FAMILIES
 
-from perfrepair.grouping.kind import GroupingKind
-from perfrepair.orchestrate.engine.ask import Limits
-from perfrepair.orchestrate.engine.decide import decide
+from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
+from perfrepair.ai.runtime.engine.ask import Limits
+from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.grouping.report.checks import report
-from perfrepair.grouping.supervise.run import supervise
-from perfrepair.orchestrate.agent import ScriptedConversations
+from perfrepair.ai.review.grouping_review.run import supervise
+from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.validation.grouping.supervision import parse_review
 
 

@@ -4,7 +4,7 @@ import pytest
 from helpers import task
 
 from perfrepair.dto.prompt import SystemPrompt
-from perfrepair.orchestrate.agent import AgentRefused, ClaudeConversations
+from perfrepair.ai.runtime.agent import AgentRefused, ClaudeConversations
 
 
 class FakeMessages:

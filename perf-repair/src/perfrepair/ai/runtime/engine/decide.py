@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ...dto.decision import OutboxRecord
-from ...dto.prompt import Charter
-from ...validation import require
-from .. import journal
+from ....dto.decision import OutboxRecord
+from ....dto.prompt import Charter
+from ....validation import require
+from . import journal
 from ..agent import Conversations
 from .ask import Limits, ask
 from .kind import DecisionKind, project

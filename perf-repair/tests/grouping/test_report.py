@@ -6,11 +6,11 @@ from conftest import CHARTER, QUIET, by_name
 
 from perfrepair.dto.grouping import Item, Profile
 from perfrepair.dto.grouping_state import Group, Knowledge
-from perfrepair.grouping.kind import GroupingKind
-from perfrepair.orchestrate.engine.decide import decide
+from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
+from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check, common_key_sizes
-from perfrepair.orchestrate.agent import ScriptedConversations
+from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.validation import ValidationFailed
 from perfrepair.validation.grouping.output import validate_output
 

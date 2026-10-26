@@ -3,12 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ...dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt
-from ...files import read_yaml
+from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt
+from ....files import read_yaml
 
-PACKAGED = Path(__file__).resolve().parents[2] / "prompts"
+PACKAGED = Path(__file__).resolve().parents[3] / "prompts"
 REGISTRY = "prompts.yaml"
-CORRECTION = "rejection"
+CORRECTION = "shared/rejection"
 SCHEMA_VERSION = 1
 
 
@@ -51,10 +51,11 @@ class PromptLibrary:
             override = Path(override)
             if not override.is_dir():
                 raise PromptError(f"missing_directory: {override} (--prompts)")
-            for path in sorted(override.iterdir()):
-                if path.name not in by_file:
+            for path in sorted(p for p in override.rglob("*") if p.is_file()):
+                relative = path.relative_to(override).as_posix()
+                if relative not in by_file:
                     raise PromptError(f"prompt_unknown: {path} matches no prompt in {REGISTRY} (known: {', '.join(sorted(by_file))})")
-                sources[by_file[path.name]] = path
+                sources[by_file[relative]] = path
         absent = [str(p) for p in sources.values() if not p.is_file()]
         if absent:
             raise PromptError(f"prompt_missing: {', '.join(absent)}")
