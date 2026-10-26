@@ -17,7 +17,7 @@ class OutboxError(ValueError):
 
 class Outbox:
 
-    def __init__(self, directory: Path, fingerprint: str = LEGACY):
+    def __init__(self, directory: Path, fingerprint: str):
         self.directory = Path(directory)
         self.fingerprint = fingerprint
 

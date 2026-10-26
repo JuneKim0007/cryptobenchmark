@@ -46,8 +46,6 @@ class Asked:
 
 def ask(conversations: Conversations, charter: Charter, message: TaskPrompt, check: Check, limits: Limits,
         on_turn: Callable[[Turn], None] = lambda _: None) -> Asked:
-    if not isinstance(message, TaskPrompt):
-        raise TypeError(f"lifetime_mismatch: a session opens with a TaskPrompt, not {type(message).__name__}")
     asked = Asked()
     for session in range(1, limits.sessions + 1):
         conversation, prompt = conversations.start(charter.system, charter.schema), message
@@ -67,5 +65,8 @@ def ask(conversations: Conversations, charter: Charter, message: TaskPrompt, che
             if status == "accepted":
                 asked.decision = decision
                 return asked
+            if status == "refused":
+                # a refusal can leave no session to correct (no session id on turn 1); the next session re-sends the task
+                break
             prompt = charter.correct(problems)
     return asked
