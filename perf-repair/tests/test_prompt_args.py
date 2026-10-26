@@ -3,8 +3,12 @@ from pathlib import Path
 
 import pytest
 
+from perfrepair import run_dir as rd
 from perfrepair.ai.__main__ import main as ai
+from perfrepair.ai.evaluate.worthiness.kind import charter as worthiness_charter
+from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
 from perfrepair.ai.review.grouping_review.run import charter as supervisor_charter
+from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.__main__ import main as grouping
@@ -28,6 +32,17 @@ def override(tmp_path):
     (folder / "review").mkdir(parents=True)
     (folder / "review" / "grouping-review.system.md").write_text("REVIEW OVERRIDE")
     return folder
+
+
+def overriding(tmp_path, relative, extra):
+    folder = tmp_path / "prompts"
+    (folder / relative).parent.mkdir(parents=True)
+    (folder / relative).write_text((PromptLibrary.load().source(relative.removesuffix(".system.md"))).read_text() + extra)
+    return folder
+
+
+def outboxes(root):
+    return sorted(p.name for p in (root / "outbox").iterdir() if p.is_dir())
 
 
 def supervised(run, *extra):
@@ -67,3 +82,37 @@ def test_worthiness_rejects_a_missing_prompts_folder(run, tmp_path, capsys):
         ai(["worthiness", "--run", str(run), "--mode", "latency", *DRY, "--prompts", str(tmp_path / "absent")])
     assert exit_.value.code == 2
     assert "error: missing_directory" in capsys.readouterr().err
+
+
+def test_assign_with_an_override_decides_into_a_new_outbox_beside_the_default(run, tmp_path):
+    root = GroupingPaths(run).root
+    assert grouping(["assign", "--run", str(run), *DRY]) == 0
+    default = active_fingerprint(root)
+    assert default == assign_charter(PromptLibrary.load()).fingerprint
+    folder = overriding(tmp_path, "parse/grouping-assign.system.md", "\nOVERRIDE")
+    assert grouping(["assign", "--run", str(run), *DRY, "--prompts", str(folder)]) == 0
+    overridden = active_fingerprint(root)
+    assert overridden == assign_charter(PromptLibrary.load(folder)).fingerprint != default
+    assert outboxes(root) == sorted([default, overridden])
+
+
+def test_worthiness_with_an_override_decides_into_a_new_outbox_beside_the_default(run, tmp_path):
+    assert grouping(["assign", "--run", str(run), *DRY]) == 0
+    assert grouping(["report", "--run", str(run)]) == 0
+    root = rd.worthiness(run, "latency")
+    assert ai(["worthiness", "--run", str(run), "--mode", "latency", *DRY]) == 0
+    default = active_fingerprint(root)
+    assert default == worthiness_charter(PromptLibrary.load()).fingerprint
+    folder = overriding(tmp_path, "evaluate/worthiness.system.md", "\nOVERRIDE")
+    assert ai(["worthiness", "--run", str(run), "--mode", "latency", *DRY, "--prompts", str(folder)]) == 0
+    overridden = active_fingerprint(root)
+    assert overridden == worthiness_charter(PromptLibrary.load(folder)).fingerprint != default
+    assert outboxes(root) == sorted([default, overridden])
+
+
+def test_report_refuses_prompts_without_the_supervisor(run, override, capsys):
+    assert grouping(["assign", "--run", str(run), *DRY]) == 0
+    with pytest.raises(SystemExit) as exit_:
+        grouping(["report", "--run", str(run), "--prompts", str(override)])
+    assert exit_.value.code == 2
+    assert "--prompts only applies with --supervisor" in capsys.readouterr().err

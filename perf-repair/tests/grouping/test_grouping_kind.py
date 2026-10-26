@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from conftest import CHARTER, QUIET, Remembering, by_name, item_name
+from conftest import CHARTER, QUIET, by_name, item_name
 from grouping_data import FAMILIES
 
 from perfrepair.files import write_json
@@ -34,7 +34,7 @@ def test_every_item_gets_one_fresh_conversation_and_a_committed_outcome(paths):
 
 
 def test_a_rejected_answer_is_corrected_in_the_same_conversation(paths):
-    agent = ScriptedConversations(Remembering(lambda m, c, turn: "not json" if turn == 1 else by_name(m)))
+    agent = ScriptedConversations(lambda m, c, turn: "not json" if turn == 1 else by_name(m))
     group(paths, agent)
     assert agent.started == 6
     statuses = [json.loads(line)["status"] for line in (paths.root / "journal.jsonl").read_text().splitlines()]
@@ -46,7 +46,7 @@ def test_an_item_no_conversation_answers_is_dropped_and_the_run_continues(paths)
         if item_name(m) == "H1":
             raise AgentRefused("declined")
         return by_name(m)
-    knowledge = group(paths, ScriptedConversations(Remembering(answer)), Limits(turns=2, sessions=2))
+    knowledge = group(paths, ScriptedConversations(answer), Limits(turns=2, sessions=2))
     dropped = [r for r in records(paths) if r.outcome == "dropped"]
     assert len(dropped) == 1 and knowledge.dropped == [int(dropped[0].item)]
     errors = [json.loads(line) for line in paths.errors.read_text().splitlines()]

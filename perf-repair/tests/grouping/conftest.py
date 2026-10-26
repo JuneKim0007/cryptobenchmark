@@ -38,15 +38,3 @@ def by_name(task, *_):
                 return {"group": m.group(1), "newGroup": {"id": "", "description": ""}, "amend": [], "reason": "same"}
     slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
     return {"group": "", "newGroup": {"id": slug, "description": f"the function {name}"}, "amend": [], "reason": "new"}
-
-
-class Remembering:
-
-    def __init__(self, decide):
-        self.decide, self.first = decide, {}
-
-    def __call__(self, message, conversation, turn):
-        first = self.first.setdefault(conversation, message)
-        return self.decide(first, conversation, turn)
-
-

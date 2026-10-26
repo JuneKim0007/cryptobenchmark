@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, ClassVar
+from typing import ClassVar
 
 
 class Lifetime(Enum):
@@ -44,15 +44,28 @@ class CorrectionPrompt(Prompt):
     lifetime = Lifetime.TURN
 
 
+def fill(text: str, values: dict) -> str:
+    for key, value in values.items():
+        text = text.replace("{" + key + "}", str(value))
+    return text
+
+
 @dataclass(frozen=True)
 class Charter:
-    """What every conversation of a run shares; its fingerprint names the run's answers."""
+    """What every conversation of a run shares; the fingerprint hashes the system prompt, schema and correction template."""
     system: SystemPrompt
     schema: dict
-    correction: str
-    correct: Callable[[list[str]], CorrectionPrompt] = field(compare=False, repr=False)
+    correction: CorrectionPrompt  # unfilled: correct() fills {problems}
+
+    @property
+    def prompts(self) -> tuple[str, ...]:
+        return self.system.name, self.correction.name
+
+    def correct(self, problems: list[str]) -> CorrectionPrompt:
+        return CorrectionPrompt(self.correction.name,
+                                fill(self.correction.text, {"problems": "\n".join(f"  - {p}" for p in problems)}))
 
     @property
     def fingerprint(self) -> str:
-        body = "\0".join([self.system.text, json.dumps(self.schema, sort_keys=True), self.correction])
+        body = "\0".join([self.system.text, json.dumps(self.schema, sort_keys=True), self.correction.text])
         return hashlib.sha256(body.encode()).hexdigest()[:12]

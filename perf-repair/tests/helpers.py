@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
@@ -10,8 +12,16 @@ def task(text, item="x"):
     return TaskPrompt("test", text, item)
 
 
+def library_with(texts):
+    """The packaged prompts with the named ones replaced by text."""
+    unknown = sorted(set(texts) - set(LIBRARY.entries))
+    assert not unknown, f"prompt_unknown: {unknown}"
+    return PromptLibrary(LIBRARY.entries, {**LIBRARY.texts, **texts},
+                         {**LIBRARY.sources, **{name: Path(f"<{name}>") for name in texts}})
+
+
 def label_charter(schema):
-    return PromptLibrary.from_texts({"evaluate/worthiness": "SYS"}).charter("evaluate/worthiness", schema)
+    return library_with({"evaluate/worthiness": "SYS"}).charter("evaluate/worthiness", schema)
 
 
 def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_size=128, input_size=64,
