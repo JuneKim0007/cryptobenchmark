@@ -3,8 +3,8 @@ from types import SimpleNamespace
 import pytest
 from helpers import task
 
-from perfrepair.dto.prompt import SystemPrompt
-from perfrepair.ai.runtime.agent import AgentRefused, ClaudeConversations
+from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
+from perfrepair.ai.runtime.agent import AgentRefused, ClaudeClient, ClaudeConversations
 
 
 class FakeMessages:
@@ -33,3 +33,19 @@ def test_one_turn_cached_system_and_schema():
 def test_refusal_raises():
     with pytest.raises(AgentRefused):
         ClaudeConversations(client=SimpleNamespace(messages=FakeMessages("refusal"))).start(SystemPrompt("t", "SYS"), {}).ask(task("ITEM"))
+
+
+def test_a_correction_resends_the_history_under_the_same_cached_system():
+    messages = FakeMessages()
+    convo = ClaudeConversations(client=SimpleNamespace(messages=messages)).start(SystemPrompt("t", "SYS"), {})
+    convo.ask(task("ITEM"))
+    convo.ask(CorrectionPrompt("t", "FIX"))
+    k = messages.kwargs
+    assert [m["content"] for m in k["messages"] if m["role"] == "user"] == ["ITEM", "FIX"]
+    assert k["system"] == [{"type": "text", "text": "SYS", "cache_control": {"type": "ephemeral"}}]
+
+
+def test_only_run_lifetime_text_is_cached():
+    messages = FakeMessages()
+    ClaudeClient(client=SimpleNamespace(messages=messages)).request(task("PER-ITEM"), [{"role": "user", "content": "x"}], {})
+    assert messages.kwargs["system"] == [{"type": "text", "text": "PER-ITEM"}]
