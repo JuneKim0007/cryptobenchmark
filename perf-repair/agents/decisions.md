@@ -34,6 +34,7 @@ src/perfrepair/ai/runtime/engine/decide.py : the engine loop: gates, ask, durabl
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
 src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract and project(kind, records)
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered outbox records
+src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
