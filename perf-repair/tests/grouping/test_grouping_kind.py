@@ -9,7 +9,7 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.runtime.engine.outbox import Outbox
+from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.validation import ValidationFailed
 from perfrepair.validation.grouping.answer import MAX_DESCRIPTION, SLUG
 
@@ -19,7 +19,7 @@ def group(paths, agent, limits=Limits(), limit=None):
 
 
 def records(paths):
-    return Outbox(paths.outbox).records()
+    return active_outbox(paths.root).records()
 
 
 def test_every_item_gets_one_fresh_conversation_and_a_committed_outcome(paths):
