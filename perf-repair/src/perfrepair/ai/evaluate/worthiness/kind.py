@@ -15,6 +15,7 @@ from ...runtime.engine.kind import project
 from ...runtime.prompt import PromptLibrary
 
 VERDICTS = "verdicts.json"
+NAME = "evaluate/worthiness"
 
 SCHEMA = {
     "type": "object",
@@ -44,7 +45,7 @@ def aliases(e: GroupEvidence) -> dict[str, str]:
 
 
 def charter(library: PromptLibrary) -> Charter:
-    return library.charter("evaluate/worthiness", SCHEMA)
+    return library.charter(NAME, SCHEMA)
 
 
 class WorthinessKind:
@@ -87,7 +88,7 @@ class WorthinessKind:
             for p in c.pairs:
                 lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {p.ciOverlap} | "
                              f"{_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
-        return TaskPrompt(self.name, "\n".join(lines), e.key)
+        return TaskPrompt(NAME, "\n".join(lines), e.key)
 
     def check(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> tuple[dict | None, list[str]]:
         d, problems = parse_object(text)
