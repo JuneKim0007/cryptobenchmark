@@ -143,7 +143,7 @@ def measure_on_device(device, session, options, captures, into, preparation, dis
         gradle("quick-bench", f"{data} {preparation / 'prepared.yaml'} {into}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
 
 
-def main():
+def parse_options():
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
     parser.add_argument("--results", default=str(ROOT / "results"), help="output root (default: results/)")
@@ -161,20 +161,16 @@ def main():
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
     parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
     options = parser.parse_args()
-    sys.stdout.reconfigure(line_buffering=True)
-
     if options.device and options.discovery == "reuse":
         fail("--discovery reuse: a device run probes the device it measures")
     if options.suppress_errors and not options.device:
         fail("--suppress-errors: only a --device run reaches androidx.benchmark")
     if options.energy_accept_unresponsive and not options.device:
         fail("--energy-accept-unresponsive: only a --device run captures energy")
+    return options
 
-    configuration = global_config(options.config)
-    device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
-    if device:
-        device.connect()
-    results = pathlib.Path(options.results).resolve()
+
+def discover(options, configuration, device, results):
     discovery, configured = results / "discovery", results / "configuration"
     if options.discovery == "overwrite" and discovery.exists():
         shutil.rmtree(discovery)
@@ -206,15 +202,71 @@ def main():
     capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
     files = {key: path for key, path in (("probe", capture), ("trial", trial), ("inventory", configured / "inventory.yaml"),
                                          ("effective", effective)) if path and path.is_file()}
+    return discovery, effective, capture, trial, files
 
+
+def energy_preflight(options, session, discovery, files):
+    started = time.monotonic()
+    capability = energy_stage.preflight(session, discovery, options.energy_python, options.energy_accept_unresponsive,
+                                        stacktrace=options.stacktrace)
+    files["energyCapability"] = capability
+    elapsed("energy pre-flight and settle", started)
+    return capability
+
+
+def push(device, options, plan):
+    device.push_plan(*plan)
+    if options.suppress_errors:
+        print(f"warning: suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
+
+
+def record(files, into, captures, device):
+    if captures - {"none"}:
+        files.setdefault("energy", []).append(into / "energy.json")
+    if device and captures - {"dry"}:
+        files.setdefault("clocks", []).append(into / CLOCKS)
+        if (into / CPU_PINS).is_file():
+            files.setdefault("cpuPins", []).append(into / CPU_PINS)
+            import yaml
+            for case, pin in (yaml.safe_load((into / CPU_PINS).read_text()) or {}).items():
+                if "failed" in pin:
+                    print(f"warning: cpu_pin_failed: {case}: {pin['failed']}")
+
+
+def collapse(files, preparation, repetitions):
+    files.update(prepared=preparation / "prepared.yaml", skipped=preparation / "skipped.yaml")
+    for single in ("energy", "clocks", "cpuPins"):
+        if single in files and repetitions == 1:
+            files[single] = files[single][0]
+
+
+def analyse(results, files, benchmark, written, repetitions):
+    print(f"wrote:     {benchmark / 'benchmark.json'}")
+    files["benchmark"] = benchmark / "benchmark.json"
+    if repetitions > 1:
+        files["processes"] = written
+    started = time.monotonic()
+    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(results / "analysis")], check=True)
+    elapsed("analyse", started)
+
+
+def main():
+    options = parse_options()
+    sys.stdout.reconfigure(line_buffering=True)
+    configuration = global_config(options.config)
+    device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
+    if device:
+        device.connect()
+    results = pathlib.Path(options.results).resolve()
+    discovery, effective, capture, trial, files = discover(options, configuration, device, results)
     mode = "device" if device else "host"
     if not (options.bench or device):
         manifest(results, mode, configuration, files)
         return
+
     benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
     repetitions = process_repetitions(effective)
-    written = []
     captures = energy_stage.captures(effective)
     energy = captures - {"none"}
     timed = bool(captures - {"dry"})
@@ -223,16 +275,10 @@ def main():
     plan = [effective, capture, trial]
     session = EnergySession(device) if device else None
     if energy:
-        started = time.monotonic()
-        capability = energy_stage.preflight(session, discovery, options.energy_python, options.energy_accept_unresponsive,
-                                            stacktrace=options.stacktrace)
-        plan.append(capability)
-        files["energyCapability"] = capability
-        elapsed("energy pre-flight and settle", started)
+        plan.append(energy_preflight(options, session, discovery, files))
     if device:
-        device.push_plan(*plan)
-        if options.suppress_errors:
-            print(f"warning: suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
+        push(device, options, plan)
+    written = []
     for repetition in range(1, repetitions + 1):
         into = benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
         if repetitions > 1:
@@ -243,37 +289,15 @@ def main():
             gradle("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
         if timed:
             written.append(into / "benchmark.json")
-        if energy:
-            files.setdefault("energy", []).append(into / "energy.json")
-        if device and timed:
-            files.setdefault("clocks", []).append(into / CLOCKS)
-            if (into / CPU_PINS).is_file():
-                files.setdefault("cpuPins", []).append(into / CPU_PINS)
-                import yaml
-                for case, pin in (yaml.safe_load((into / CPU_PINS).read_text()) or {}).items():
-                    if "failed" in pin:
-                        print(f"warning: cpu_pin_failed: {case}: {pin['failed']}")
+        record(files, into, captures, device)
     if repetitions > 1 and timed:
         gradle("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
     print(f"wrote:     {preparation / 'prepared.yaml'}")
     elapsed("prepare and measure", started)
-    files.update(prepared=preparation / "prepared.yaml", skipped=preparation / "skipped.yaml")
-    for single in ("energy", "clocks", "cpuPins"):
-        if single in files and repetitions == 1:
-            files[single] = files[single][0]
-    if not timed:
-        manifest(results, mode, configuration, files)
-        return
-    print(f"wrote:     {benchmark / 'benchmark.json'}")
-    files["benchmark"] = benchmark / "benchmark.json"
-    if repetitions > 1:
-        files["processes"] = written
-    analysis = results / "analysis"
-    started = time.monotonic()
-    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(analysis)], check=True)
-    elapsed("analyse", started)
+    collapse(files, preparation, repetitions)
+    if timed:
+        analyse(results, files, benchmark, written, repetitions)
     manifest(results, mode, configuration, files)
-
 
 if __name__ == "__main__":
     try:
