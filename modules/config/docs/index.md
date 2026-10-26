@@ -5,27 +5,34 @@ modules/config/.gitignore : ignores /build
 modules/config/README.md : module summary and link to this index
 modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and :settings; passes examples.update to tests
 modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
-modules/config/docs/generated.md : inventory.yaml and effective.yaml: build order, skips, warnings, errors
+modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors
 modules/config/docs/index.md : this map
 modules/config/example/config_capture_example.yaml : example input capture
 modules/config/example/config_effective_example.yaml : expected effective output
 modules/config/example/config_global_example.yaml : example input global settings
 modules/config/example/config_inventory_example.yaml : expected inventory output
+modules/config/example/config_report_example.yaml : expected report output
 modules/config/example/config_testset_example.yaml : example input test set
 modules/config/example/config_trial_example.yaml : example input trial
-modules/config/src/main/kotlin/Configuration.kt : facade: inventory, effective, readEffective
+modules/config/src/main/kotlin/Configuration.kt : facade: inventory, effective with its report, readEffective
 modules/config/src/main/kotlin/effective/EffectiveBuilder.kt : global x test set x inventory x facts to EffectiveConfig
 modules/config/src/main/kotlin/effective/EffectiveDocument.kt : effective.yaml schema
 modules/config/src/main/kotlin/effective/LocatedMatch.kt : Rule.matches(Inventory.Located)
 modules/config/src/main/kotlin/effective/OverrideResolver.kt : merges applicable overrides into one EffectiveEntry
+modules/config/src/main/kotlin/effective/ReportDocument.kt : report.yaml schema
+modules/config/src/main/kotlin/effective/SkipDocument.kt : one skip record as a map, shared by effective and report
 modules/config/src/main/kotlin/effective/StoppedOnFailureException.kt : stop-policy failure carrying all skips
-modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection
+modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection; run id from the capture name
 modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : one selected primitive's settings
 modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml
+modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
 modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
+modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
+modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
 modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
 modules/config/src/main/kotlin/global/RunDocument.kt : run section reader and writer
+modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic
 modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
 modules/config/src/main/kotlin/global/dto/Policy.kt : onFailure enum STOP, SKIP
 modules/config/src/main/kotlin/global/dto/RunSettings.kt : run defaults and validation
@@ -53,12 +60,17 @@ modules/config/src/main/kotlin/yaml/ReadOnlyYamlFile.kt : read with missing, par
 modules/config/src/main/kotlin/yaml/YamlCodec.kt : SafeConstructor YAML, duplicate keys refused
 modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion and .partial atomic write
 modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
+modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
-modules/config/src/test/kotlin/DocumentsTest.kt : schema tests
+modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests
+modules/config/src/test/kotlin/DocumentRoundTripTest.kt : every document round-trips; schemaVersion stamp and check
 modules/config/src/test/kotlin/EffectiveBuilderTest.kt : selection, policy and facts tests
+modules/config/src/test/kotlin/EffectiveConfigTest.kt : run id tests
 modules/config/src/test/kotlin/ExampleFilesTest.kt : example inputs must produce the committed outputs
 modules/config/src/test/kotlin/Fixtures.kt : shared test fixtures
+modules/config/src/test/kotlin/GlobalDocumentTest.kt : global.yaml analysis section tests
 modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventory tests
+modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
 modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 ```

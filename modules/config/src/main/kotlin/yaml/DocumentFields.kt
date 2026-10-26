@@ -51,6 +51,11 @@ object DocumentFields {
             throw IllegalArgumentException("${failure.message} at $path", failure)
         }
 
+    /** The option whose key matches `value`, ignoring case; a miss names the path and every choice. */
+    fun <T> choice(path: String, value: String, options: Collection<T>, key: (T) -> String): T =
+        options.firstOrNull { key(it).equals(value, ignoreCase = true) }
+            ?: throw IllegalArgumentException("invalid: $path $value, one of ${options.map(key)}")
+
     fun expectKeys(document: Map<String, Any>, allowed: Collection<String>, path: String) {
         val unknown = document.keys.filter { it !in allowed }
         if (unknown.isNotEmpty()) throw IllegalArgumentException("unknown_keys: $path $unknown, known $allowed")

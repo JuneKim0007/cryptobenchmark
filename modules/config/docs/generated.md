@@ -1,20 +1,20 @@
 # generated
 
-`inventory.yaml` (what the device has) and `effective.yaml` (what will run), written by `Configuration(output)` into `output`. Pipeline output directory: `docs/results.md`. Authored inputs: [config.md](config.md).
+`inventory.yaml` (what the device has), `effective.yaml` (what will run) and `report.yaml` (what the build noticed), written by `Configuration(output)` into `output`. Pipeline output directory: `docs/results.md`. Authored inputs: [config.md](config.md).
 
 ## Flow
 
 ```
 probe_<utc>.yaml + trial_<utc>.yaml -> InventoryBuilder -> inventory.yaml
 global.yaml -> selection.testSet -> testsets/<name>.yaml -+
-inventory.yaml + facts.yaml (optional) --------------------+-> EffectiveBuilder -> effective.yaml
+inventory.yaml + facts.yaml (optional) --------------------+-> EffectiveBuilder -> effective.yaml + report.yaml
 ```
 
 | call | does |
 |---|---|
 | `inventory(captureFile, trialFile)` | deletes the old inventory; reads capture (schema 1) and trial (schema 2); writes inventory |
-| `effective(globalFile, inventoryFile, factsFile?)` | deletes the old effective; reads global and its test set; writes effective |
-| `readEffective()` | reads `effective.yaml` back |
+| `effective(globalFile, inventoryFile, factsFile?)` | deletes the old effective and report; reads global and its test set; writes report, then effective |
+| `readEffective()` | reads `effective.yaml` back, with `warnings` and `skipped` of the `report.yaml` beside it when present |
 
 Host entry `ConfigureKt`: `docs/tools.md`.
 
@@ -75,10 +75,20 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | key | holds |
 |---|---|
 | `generatedFrom` | `global`, `testSet` (the `selection.testSet` string as written), `inventory`, `capture`, `trial`, `device` |
+| `runId` | the capture's stamp, `probe_<stamp>.yaml` -> `<stamp>` (e.g. `20261005T103349Z`); absent for a capture named otherwise |
 | `run` | the global `run` section |
 | `policy` | the global `policy` section |
+| `analysis` | the global `analysis` section, defaults filled in |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `providerDefaults`, `harness`; empty ones omitted |
 | `providers.<p>.<type>.<name>@<group>` | the same, for one group |
+
+## report.yaml
+
+`schemaVersion: 1`. Written beside `effective.yaml`; `effective.yaml` itself carries no `warnings` or `skipped`.
+
+| key | holds |
+|---|---|
+| `runId` | as in `effective.yaml` |
 | `warnings` | `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, then run-level and entry-level `not_supported:` |
 | `skipped` | `{stage, provider?, type?, name?, reason}`; preparation writes the same shape with stage `preparation` |
 
@@ -98,4 +108,4 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 
 ## Example
 
-`example/` holds capture, trial, global and test set inputs and the expected inventory and effective outputs. `ExampleFilesTest` compares them; `./gradlew :config:test -Dexamples.update` rewrites the outputs.
+`example/` holds capture, trial, global and test set inputs and the expected inventory, effective and report outputs. `ExampleFilesTest` compares them; `./gradlew :config:test -Dexamples.update` rewrites the outputs.

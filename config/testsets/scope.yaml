@@ -1,4 +1,10 @@
-schemaVersion: 1
+# Schema — required: schemaVersion. Everything else is optional.
+#   description  free text
+#   include      rules {provider?, type?, name?, group?}; at least one of provider|type|name; empty = whole inventory; name accepts *
+#   exclude      same rule shape; exclude always wins
+#   overrides    [{match: rule (required), set: (required) {keySizes?, inputSizes?, key?, parameters?, operations?, harness?}}]
+#   group        optional, only with a name: one primitive measured more than once with different parameters (not the chart group)
+schemaVersion: 1                 # required
 description: README scope — primitives measured, plus MD5, 3DES and RC4 as baselines
 
 include:

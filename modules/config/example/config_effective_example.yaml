@@ -14,6 +14,9 @@ run:
   processRepetitions: 1
   seed: 42
 policy: {onFailure: skip}
+analysis:
+  statistic: {headline: auto, meanUpToCovPercent: 5.0}
+  charts: [iqrBars, throughput, latency, stability]
 providers:
   SUN:
     MessageDigest:
@@ -27,5 +30,3 @@ providers:
           arguments: [128, fresh(12)]
     Mac:
       HmacSHA256: {}
-warnings: []
-skipped: []

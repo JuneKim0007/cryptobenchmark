@@ -35,6 +35,7 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 | key | holds |
 |---|---|
 | `generatedFrom.effective` | file name of the effective.yaml read |
+| `generatedFrom.runId` | `runId` of that effective.yaml; absent when it has none |
 | `run` | `seed`, `processRepetitions`, `harness` when non-empty |
 | `cases[]` | one block per prepared case |
 
@@ -43,6 +44,7 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 | key | holds |
 |---|---|
 | `id`, `type`, `algorithm`, `provider`, `operation` | the case |
+| `chartGroup`, `chartGroupId` | which cases a chart may compare; from the service type, `Cipher` split by name; `unidentified` (0) otherwise |
 | `group`, `keySize`, `inputSize` | when set |
 | `phase`, `metrics` | the case axes |
 | `harness` | `run.harness` merged with the entry's; when non-empty |

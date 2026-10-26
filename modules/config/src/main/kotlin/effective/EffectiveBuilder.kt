@@ -68,6 +68,7 @@ class EffectiveBuilder {
             providers = providers,
             skipped = skipped + entrySkips,
             warnings = warnings + runUnsupported.map { it.toString() } + entryWarnings,
+            analysis = global.analysis,
         )
     }
 

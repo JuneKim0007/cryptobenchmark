@@ -4,4 +4,5 @@ data class GlobalConfig(
     val selection: Selection,
     val run: RunSettings = RunSettings(),
     val policy: Policy = Policy(),
+    val analysis: AnalysisSettings = AnalysisSettings(),
 )

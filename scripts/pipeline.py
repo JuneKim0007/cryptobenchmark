@@ -2,17 +2,13 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, json, os, pathlib, shutil, subprocess, sys, time
 
-import clocks, energy_stage, facts
+import clocks, effective_view, energy_stage, facts, gradle_runner
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
+from failure import fail
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-
-
-def fail(message):
-    print(f"error: {message}", file=sys.stderr)
-    raise SystemExit(1)
 
 
 def global_config(argument):
@@ -31,59 +27,13 @@ def elapsed(label, started):
     print(f"took:      {label} in {time.monotonic() - started:.1f}s")
 
 
-def gradle(project, arguments, stacktrace, stream=False, main_class=None):
-    wrapper = ROOT / "tools/jca-contract/gradlew"
-    if not wrapper.is_file():
-        fail(f"missing_file: {wrapper}")
-    command = [str(wrapper), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q", f"--args={arguments}"]
-    if main_class:
-        command.append(f"-PmainClass={main_class}")
-    if stream:
-        result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
-        if result.returncode != 0:
-            fail(f"{project} failed; rerun without --stream for a filtered message")
-        return result.stdout.strip().splitlines()
-    result = subprocess.run(command, capture_output=True, text=True)
-    output = (result.stdout + result.stderr).splitlines()
-    if result.returncode != 0:
-        if stacktrace:
-            print("\n".join(output), file=sys.stderr)
-        reported, following = [], False
-        for line in output:
-            if line.startswith(("error:", "skipped:", "warning:")):
-                reported.append(line[len("error: "):] if line.startswith("error: ") else line)
-                following = True
-            elif following and line.startswith("  "):
-                reported.append(line)
-            else:
-                following = False
-        noise = ("FAILURE:", "BUILD FAILED", "* Try:", "* Get more help", "* What went wrong", "> Process 'command", "Run with --", "* Exception is:")
-        fallback = [line for line in output if line.strip() and not line.startswith(noise)]
-        fail("\n".join(reported or fallback[-5:])[:2000])
-    for line in output:
-        if line.startswith(("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "no_case_in_the_plan:", "energy_not_joined:")):
-            print(line)
-    return result.stdout.strip().splitlines()
-
-
-def process_repetitions(effective):
-    import yaml
-    run = yaml.safe_load(effective.read_text()).get("run") or {}
-    repetitions = run.get("processRepetitions", 1)
-    if not isinstance(repetitions, int) or repetitions < 1:
-        fail(f"not_positive: processRepetitions {repetitions}")
-    return repetitions
-
-
 def summary(effective):
-    import yaml
-    document = yaml.safe_load(effective.read_text())
-    entries = sum(len(names) for types in document["providers"].values() for names in types.values())
-    for warning in document.get("warnings") or []:
+    view = effective_view.read(effective)
+    for warning in view["warnings"]:
         print(f"warning: {warning}")
-    for skip in document.get("skipped") or []:
+    for skip in view["skipped"]:
         print(f"skipped: {skip.get('provider', '*')} {skip.get('type', '*')} {skip.get('name', '*')}: {skip['reason']}")
-    print(f"effective: {entries} entries, {len(document.get('skipped') or [])} skipped")
+    print(f"effective: {effective_view.entry_count(view['document'])} entries, {len(view['skipped'])} skipped")
 
 
 def newest(directory, pattern):
@@ -140,7 +90,7 @@ def measure_on_device(device, session, options, captures, into, preparation, dis
                             into / DRY_CALLS, into / "energy.json", stacktrace=options.stacktrace)
     if captures - {"dry"}:
         joined = f" {into / 'energy.json'}" if "measured" in captures else ""
-        gradle("quick-bench", f"{data} {preparation / 'prepared.yaml'} {into}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
+        gradle_runner.run("quick-bench", f"{data} {preparation / 'prepared.yaml'} {into}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
 
 
 def parse_options():
@@ -187,11 +137,11 @@ def discover(options, configuration, device, results):
         if not capture or not trial:
             fail(f"missing_file: {discovery}/probe_<utc>.yaml, trial_<utc>.yaml (DeviceProbe wrote none)")
         known = facts.gather(device, discovery, capture)
-        written = gradle("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
+        written = gradle_runner.run("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
         started = time.monotonic()
-        written = gradle("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream)
+        written = gradle_runner.run("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream)
     for path in written:
         print(f"wrote:     {path}")
     effective = configured / "effective.yaml"
@@ -201,7 +151,7 @@ def discover(options, configuration, device, results):
     elapsed("discover and configure", started)
     capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
     files = {key: path for key, path in (("probe", capture), ("trial", trial), ("inventory", configured / "inventory.yaml"),
-                                         ("effective", effective)) if path and path.is_file()}
+                                         ("effective", effective), ("report", configured / "report.yaml")) if path and path.is_file()}
     return discovery, effective, capture, trial, files
 
 
@@ -240,13 +190,16 @@ def collapse(files, preparation, repetitions):
             files[single] = files[single][0]
 
 
-def analyse(results, files, benchmark, written, repetitions):
+def analyse(results, files, effective, preparation, benchmark, written, repetitions):
     print(f"wrote:     {benchmark / 'benchmark.json'}")
     files["benchmark"] = benchmark / "benchmark.json"
     if repetitions > 1:
         files["processes"] = written
     started = time.monotonic()
-    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(results / "analysis")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(results / "analysis"),
+                    str(effective), str(preparation / "prepared.yaml")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/charts.py"), str(benchmark / "benchmark.json"),
+                    str(preparation / "prepared.yaml"), str(effective), str(results)], check=True)
     elapsed("analyse", started)
 
 
@@ -266,7 +219,7 @@ def main():
 
     benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
-    repetitions = process_repetitions(effective)
+    repetitions = effective_view.process_repetitions(effective_view.read(effective)["document"])
     captures = energy_stage.captures(effective)
     energy = captures - {"none"}
     timed = bool(captures - {"dry"})
@@ -286,17 +239,17 @@ def main():
         if device:
             measure_on_device(device, session, options, captures, into, preparation, discovery)
         else:
-            gradle("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
+            gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
         if timed:
             written.append(into / "benchmark.json")
         record(files, into, captures, device)
     if repetitions > 1 and timed:
-        gradle("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
+        gradle_runner.run("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
     print(f"wrote:     {preparation / 'prepared.yaml'}")
     elapsed("prepare and measure", started)
     collapse(files, preparation, repetitions)
     if timed:
-        analyse(results, files, benchmark, written, repetitions)
+        analyse(results, files, effective, preparation, benchmark, written, repetitions)
     manifest(results, mode, configuration, files)
 
 if __name__ == "__main__":

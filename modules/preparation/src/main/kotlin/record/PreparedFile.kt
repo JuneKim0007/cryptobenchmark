@@ -9,8 +9,8 @@ class PreparedFile(private val directory: File) {
 
     val file: File get() = File(directory, NAME)
 
-    internal fun write(run: PreparedRun, effectiveFileName: String, harness: HarnessSettings, seed: Long): File =
-        DocumentFile.write(file, PreparedDocument.of(run, effectiveFileName, harness, seed))
+    internal fun write(run: PreparedRun, effectiveFileName: String, runId: String?, harness: HarnessSettings, seed: Long): File =
+        DocumentFile.write(file, PreparedDocument.of(run, effectiveFileName, runId, harness, seed))
 
     companion object {
         const val NAME = "prepared.yaml"

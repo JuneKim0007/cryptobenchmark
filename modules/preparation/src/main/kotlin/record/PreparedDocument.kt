@@ -12,9 +12,9 @@ internal object PreparedDocument {
 
     const val SCHEMA_VERSION = 1
 
-    fun of(run: PreparedRun, effectiveFileName: String, harness: HarnessSettings, seed: Long): Map<String, Any> = linkedMapOf(
+    fun of(run: PreparedRun, effectiveFileName: String, runId: String?, harness: HarnessSettings, seed: Long): Map<String, Any> = linkedMapOf(
         "schemaVersion" to SCHEMA_VERSION,
-        "generatedFrom" to linkedMapOf("effective" to effectiveFileName),
+        "generatedFrom" to linkedMapOf<String, Any>("effective" to effectiveFileName).apply { runId?.let { put("runId", it) } },
         "run" to linkedMapOf<String, Any>(
             "seed" to seed,
             "processRepetitions" to run.processRepetitions,
@@ -36,6 +36,8 @@ internal object PreparedDocument {
             put("provider", case.provider)
             put("operation", case.operation.name)
             if (case.group.isNotEmpty()) put("group", case.group)
+            put("chartGroup", case.chartGroup.label)
+            put("chartGroupId", case.chartGroup.id)
             case.keySize?.let { put("keySize", it) }
             case.inputSize?.let { put("inputSize", it) }
             put("phase", case.phase.name)

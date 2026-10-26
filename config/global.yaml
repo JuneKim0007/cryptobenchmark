@@ -1,19 +1,11 @@
-schemaVersion: 1
+# What a run measures. Everything not written here takes its default: see global.reference.yaml for every key.
+schemaVersion: 1                 # required
 
-selection:
-  testSet: testsets/scope.yaml   # relative to this file
-  exclude: []                    # applied after the test set; exclude always wins, e.g. {provider: BC}
+selection:                       # required
+  testSet: testsets/scope.yaml   # required — relative to this file
 
-run:
-  inputSizes: [64, 1024, 16384]
-  phases: [WARM]
-  metrics: [TIME]
-  processRepetitions: 1
-  seed: 0
-  harness:                       # the run's defaults; an entry states only what differs
-    iterations: 100              # measurement samples per case (androidx.benchmark.iterations)
-    warmupIterations: null       # null leaves warmup to the harness
-    profiling: none              # none | MethodTracing | StackSampling
-
-policy:
-  onFailure: skip                # stop | skip — every stage; a broken config file always stops
+run:                             # optional
+  inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call
+  seed: 0                        # optional, default 0 — seeds the input bytes
+  harness:
+    iterations: 100              # optional — measurement samples per case

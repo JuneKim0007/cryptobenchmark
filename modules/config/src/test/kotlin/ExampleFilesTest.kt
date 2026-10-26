@@ -15,13 +15,14 @@ class ExampleFilesTest {
     private val example = File("example")
 
     @Test
-    fun theExamplesProduceTheCommittedInventoryAndEffective() {
+    fun theExamplesProduceTheCommittedInventoryEffectiveAndReport() {
         val configuration = Configuration(output.root)
         configuration.inventory(File(example, "config_capture_example.yaml"), File(example, "config_trial_example.yaml"))
         configuration.effective(File(example, "config_global_example.yaml"))
 
         assertExample("config_inventory_example.yaml", configuration.inventoryFile)
         assertExample("config_effective_example.yaml", configuration.effectiveFile)
+        assertExample("config_report_example.yaml", configuration.reportFile)
     }
 
     private fun assertExample(name: String, written: File) {

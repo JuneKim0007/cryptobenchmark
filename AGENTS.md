@@ -55,10 +55,15 @@ perf-repair/ : cryptobenchmark results to crypto replacements worth testing in a
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo
 scripts/device.py : adb steps of a --device run: install, probe, push, AOT compile, measure, pull
+scripts/device_args.py : instrumentation launch arguments for the plan's metrics (CPU events)
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
+scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, pre-flight, tools/energy calls
+scripts/explain.py : each resolved setting of a run and the file it came from
 scripts/facts.py : device facts into discovery/facts.yaml
+scripts/failure.py : one error line and exit
+scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/pipeline.py : run driver: stages in order, results/manifest.yaml
 scripts/requirements.txt : host Python dependencies
 scripts/tests/ : pytest and standalone tests for scripts/

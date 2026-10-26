@@ -13,7 +13,7 @@
 - examples: regenerate committed `example/` files only after a schema change: `tools/jca-contract/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.
 - python: a change under `scripts/` or `tools/energy/` passes `python3 -m pytest scripts/tests tools/energy/tests tools/quick-bench/tests`.
 - python: a change to `scripts/pipeline.py` passes `python3 scripts/tests/test_manifest.py`.
-- analysis: a change to `tools/quick-bench/analyze.py` passes `python3 tools/quick-bench/tests/test_analyze.py`; `-u` rewrites `tools/quick-bench/tests/golden_summary.md`.
+- analysis: a change to `tools/quick-bench/*.py` passes `python3 tools/quick-bench/tests/test_analyze.py`; `-u` rewrites `tools/quick-bench/tests/golden_summary.md` and `golden_chart_summary.md`.
 - perf-repair: a change under `perf-repair/` passes `make -C perf-repair check`.
 - docs: a change to any guide or doc passes `python3 scripts/docs_lint.py`.
 - ci: no workflow runs the Python tests or `make -C perf-repair check`; run them locally.

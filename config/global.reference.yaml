@@ -1,0 +1,36 @@
+# Reference: every key global.yaml accepts, with its default and whether it is required.
+# Nothing reads this file; copy a key into global.yaml only when the default is wrong for you.
+schemaVersion: 1                 # required
+
+selection:                       # required
+  testSet: testsets/scope.yaml   # required — relative to the global file that names it
+  exclude: []                    # optional, default [] — applied after the test set; exclude always wins, e.g. {provider: BC}
+
+run:                             # optional — every key below falls back to its default
+  inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call; one case per size (types that take no input ignore it)
+  phases: [WARM]                 # optional, default [WARM] — WARM | COLD
+  metrics: [TIME]                # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS (rooted device)
+  processRepetitions: 1          # optional, default 1 — independent process runs
+  seed: 0                        # optional, default 0 — seeds the input bytes
+  harness:                       # optional — the run's defaults; an entry states only what differs
+    iterations: 50               # optional — timing samples per case; the device applies it per case (allocation is always 5 runs)
+    warmupIterations: null       # optional — null leaves warmup to the harness; 0 is refused on a device, androidx needs at least 1
+    profiling: none              # optional — none | MethodTracing | StackSampling
+    energy:                      # optional — device runs only; semantics in docs/energy.md
+      capture: none              # optional, default none — none | measured | dry
+      windowSeconds: 10          # optional, default 10
+      warmupSeconds: 2           # optional, default 2
+      cooldownSeconds: 5         # optional, default 5
+    cpu:                         # optional — pin the measuring thread; checked against discovery/facts.yaml
+      core: null                 # optional — a core index 0..63 or big
+      required: false            # optional, default false — true makes an unmet pin fail config (a test-set entry: skip it)
+
+policy:                          # optional
+  onFailure: skip                # optional, default skip — stop | skip, every stage; a broken config file always stops
+
+analysis:                        # optional — how results are summarised and drawn; not read by the measurement stages
+  charts: [iqrBars, throughput, latency, stability]   # optional, default all four — name some to draw only those; [] writes the summary only
+  dir: null                      # optional — null writes to results/chart/<run-id>; <run-id> may appear in a path you give
+  statistic:                     # optional
+    headline: auto               # optional, default auto — auto | median | mean. Which statistic leads in tables and charts; both are always computed
+    meanUpToCovPercent: 5        # optional, default 5 — only read when headline is auto: the mean leads while a case's CoV (sample sd / mean) is within this many percent, the median above it

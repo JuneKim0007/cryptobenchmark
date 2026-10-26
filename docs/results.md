@@ -11,13 +11,14 @@
 | `discovery/` | `probe_<stamp>.yaml`, `probe_classes_<stamp>.yaml`, `trial_<stamp>.yaml` | every run |
 | `discovery/` | `facts.yaml`; the whole device plan directory | `--device` |
 | `discovery/` | `energy.yaml`, `energy-preflight/{rails.pbtx,idle.pftrace,busy.pftrace}` | energy capture |
-| `configuration/` | `inventory.yaml`, `effective.yaml` | every run |
+| `configuration/` | `inventory.yaml`, `effective.yaml`, `report.yaml` | every run |
 | `preparation/` | `prepared.yaml`, `skipped.yaml` | `--bench`, `--device` |
 | `benchmark/` | `benchmark.json` | `--bench`, `--device`, at least one case not `dry` |
 | `benchmark/process-<n>/` | one run's files | `processRepetitions` > 1 |
 | `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `cpu-pins.yaml` when written | `--device` |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml` | energy capture |
-| `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png` | with `benchmark.json` |
+| `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
+| `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |
 
 - Energy file fields: [energy.md](energy.md#outputs).
 
@@ -33,7 +34,7 @@
 | `files` | stage outputs, paths relative to `results/` |
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 
-- `files` keys: `probe`, `trial`, `inventory`, `effective`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`.
+- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`.
 - A key is absent when its stage did not run.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
 

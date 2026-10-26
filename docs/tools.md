@@ -44,13 +44,36 @@ cd tools/android-api-check && ../jca-contract/gradlew compileKotlin -PandroidJar
 ### analyze.py
 
 ```
-python3 tools/quick-bench/analyze.py <benchmark.json> <out dir>
+python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml>] [<prepared.yaml>]
 ```
 
-- Writes `summary.md`, `throughput.png`, `latency.png`, `stability.png`.
+- Writes `summary.md`; `throughput.png`, `latency.png`, `stability.png` when `analysis.charts` names them.
+- Writes `<metric>-vs-time.png` per count metric (`allocationCount`, a CPU event) in `benchmark.json`.
 - Summary columns: case, op, key, input, ops/s, MB/s, CoV, outliers.
-- Uses `timeNs.runs` when present, else `nanosPerOperation`.
-- Stability chart gate: CoV 5%.
+- Uses `timeNs.runs` when present, else `nanosPerOperation`; statistics on the runs `outliers.py` keeps.
+- Stability chart gate: `analysis.statistic.meanUpToCovPercent`, default 5%.
+- Without `prepared.yaml` the cases have no chart group; a warning says so.
+
+### charts.py
+
+```
+python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.yaml> <results dir>
+```
+
+- Output folder: `analysis.dir`, else `<results dir>/chart/<run-id>` (`adhoc` without a run id).
+- Writes `summary.md`, `chart-data.json`, `manifest.yaml`.
+- Writes `<group id>-<group>/iqr-bars_<operation>_input-<size>.png` per chart group, operation and input size when `analysis.charts` names `iqrBars`.
+- Writes `<metric>-bars_*.png` and `chart-data-<metric>.json` per count metric; an explicit `analysis.charts` without `countBars` turns them off.
+- Statistics on every run; `manifest.yaml` `auditAgainstJetpack` compares them with the ones androidx reported.
+- Payload groups (symmetric cipher, hash, mac) show MB/s; the others us/op.
+
+| file | holds |
+|---|---|
+| `stats.py` | per-case statistics: mean, sample SD, CoV (SD / mean), interpolated quantiles, IQR, QCD, headline choice |
+| `chart_input.py` | reads benchmark.json, chart groups from prepared.yaml, analysis settings |
+| `chart_model.py` | one case summarised in its display unit; count metrics |
+| `chart_draw.py` | matplotlib drawing for both scripts |
+| `chart_report.py` | `summary.md`, `chart-data*.json`, `manifest.yaml` |
 
 ### outliers.py
 

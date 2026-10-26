@@ -1,4 +1,4 @@
-"""Characterisation test for analyze.py: pins current output; -u accepts it as the new golden."""
+"""Characterisation test for analyze.py and the summary charts.py writes: pins current output; -u accepts it as the new golden."""
 import json
 import pathlib
 import subprocess
@@ -7,8 +7,11 @@ import tempfile
 
 HERE = pathlib.Path(__file__).resolve().parent
 ANALYZE = HERE.parent / "analyze.py"
+CHARTS_PY = HERE.parent / "charts.py"
 FIXTURE = HERE / "fixture_benchmark.json"
+PREPARED = HERE / "fixture_prepared.yaml"
 GOLDEN = HERE / "golden_summary.md"
+CHART_GOLDEN = HERE / "golden_chart_summary.md"
 CHARTS = ("throughput.png", "latency.png", "stability.png")
 
 
@@ -17,6 +20,33 @@ def run_analyze(into: pathlib.Path) -> subprocess.CompletedProcess:
         [sys.executable, str(ANALYZE), str(FIXTURE), str(into)],
         capture_output=True, text=True,
     )
+
+
+def run_charts(results: pathlib.Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [sys.executable, str(CHARTS_PY), str(FIXTURE), str(PREPARED), "", str(results)],
+        capture_output=True, text=True,
+    )
+
+
+def compared(name: str, produced: str, golden: pathlib.Path, update: bool) -> list:
+    if update:
+        golden.write_text(produced)
+        print("updated", golden)
+        return []
+    if not golden.is_file():
+        return ["no golden yet; rerun with -u to accept the current output"]
+    if produced == golden.read_text():
+        return []
+    expected = golden.read_text().splitlines()
+    actual = produced.splitlines()
+    diff = [
+        "  line {}:\n    golden: {}\n    actual: {}".format(n + 1, e, a)
+        for n, (e, a) in enumerate(zip(expected, actual)) if e != a
+    ]
+    if len(expected) != len(actual):
+        diff.append("  line count: golden {}, actual {}".format(len(expected), len(actual)))
+    return ["{} changed:\n".format(name) + "\n".join(diff[:10])]
 
 
 def failures(update: bool) -> list:
@@ -30,23 +60,15 @@ def failures(update: bool) -> list:
         written = into / "summary.md"
         if not written.is_file():
             return ["analyze.py wrote no summary.md"]
-        produced = written.read_text()
+        problems += compared("summary.md", written.read_text(), GOLDEN, update)
 
-        if update:
-            GOLDEN.write_text(produced)
-            print("updated", GOLDEN)
-        elif not GOLDEN.is_file():
-            problems.append("no golden yet; rerun with -u to accept the current output")
-        elif produced != GOLDEN.read_text():
-            expected = GOLDEN.read_text().splitlines()
-            actual = produced.splitlines()
-            diff = [
-                "  line {}:\n    golden: {}\n    actual: {}".format(n + 1, e, a)
-                for n, (e, a) in enumerate(zip(expected, actual)) if e != a
-            ]
-            if len(expected) != len(actual):
-                diff.append("  line count: golden {}, actual {}".format(len(expected), len(actual)))
-            problems.append("summary.md changed:\n" + "\n".join(diff[:10]))
+        charted = run_charts(into / "results")
+        if charted.returncode != 0:
+            return problems + ["charts.py exited {}:\n{}".format(charted.returncode, charted.stderr[-2000:])]
+        chart_summary = into / "results" / "chart" / "adhoc" / "summary.md"
+        if not chart_summary.is_file():
+            return problems + ["charts.py wrote no summary.md"]
+        problems += compared("chart summary.md", chart_summary.read_text(), CHART_GOLDEN, update)
 
         for chart in CHARTS:
             drawn = into / chart

@@ -40,6 +40,7 @@ modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyReci
 modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable
 modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's axes, validated
 modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
+modules/preparation/src/main/kotlin/measurement/ChartGroup.kt : which cases a chart may compare, from the service type, then the name
 modules/preparation/src/main/kotlin/measurement/EngineTypeName.kt : uppercase fold for engine type names
 modules/preparation/src/main/kotlin/measurement/Metric.kt : enum TIME, ALLOCATION, CPU_EVENTS
 modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
@@ -69,6 +70,7 @@ modules/preparation/src/main/kotlin/parameter/bind/ValueCoercion.kt : YAML value
 modules/preparation/src/main/kotlin/parameter/bind/ValueNode.kt : tree nodes: Literal, Fresh, StaticField, Construction
 modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason)
 modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm
+modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call; a failure is a skip
 modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input
 modules/preparation/src/main/kotlin/prepare/PreparedRun.kt : prepared cases, skips, processRepetitions
 modules/preparation/src/main/kotlin/prepare/StoppedOnFailureException.kt : thrown under onFailure stop
@@ -91,6 +93,7 @@ modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe 
 modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
 modules/preparation/src/test/kotlin/CaseResolverTest.kt : expansion and rejection tests
+modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart group tests
 modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall repeat and re-init tests
 modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
@@ -107,7 +110,9 @@ modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recipe planning test
 modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests
 modules/preparation/src/test/kotlin/ParameterBinderTest.kt : parameter tree binding tests
-modules/preparation/src/test/kotlin/PreparationTest.kt : end-to-end prepare tests (skip, stop)
+modules/preparation/src/test/kotlin/PreparationFixture.kt : shared preparation test fixtures
+modules/preparation/src/test/kotlin/PreparationPolicyTest.kt : onFailure policy tests
+modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests
 modules/preparation/src/test/kotlin/PreparedFileTest.kt : prepared.yaml content tests
 modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : providers-section read tests
 ```

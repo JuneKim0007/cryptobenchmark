@@ -6,8 +6,9 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 
 | file | selection.testSet | run | notes |
 |---|---|---|---|
-| `config/global.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, WARM, TIME, processRepetitions 1, seed 0 | harness `iterations: 100`, `warmupIterations: null`, `profiling: none`; exclude `[]`; onFailure `skip` |
-| `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}` |
+| `config/global.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, seed 0 | harness `iterations: 100`; every other key takes its default |
+| `config/global.reference.yaml` | `testsets/scope.yaml` | every key with its default and whether it is required | read by no stage; `CommittedConfigTest` parses it |
+| `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}`; analysis charts `[iqrBars, stability]` |
 | `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
 | `config/global-energy.yaml` | `testsets/energy-smoke.yaml` | inputSizes `[1024]`, seed 42 | harness `iterations: 20`, energy `{capture: measured, windowSeconds: 3, warmupSeconds: 1, cooldownSeconds: 1}` |
 
@@ -23,7 +24,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 ## global.yaml
 
-`schemaVersion: 1`. Sections `selection` (required), `run`, `policy`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
+`schemaVersion: 1`. Sections `selection` (required), `run`, `policy`, `analysis`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
 
 | section | key | default | rule |
 |---|---|---|---|
@@ -36,8 +37,14 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `seed` | `0` | input seed |
 | | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
+| `analysis` | `charts` | `[iqrBars, throughput, latency, stability]` | names from that list, no duplicates; `[]` draws none; another name fails `invalid: analysis.charts` |
+| | `dir` | unset: `results/chart/<run-id>` | non-blank; `<run-id>` in it is replaced by the run id |
+| | `statistic.headline` | `auto` | `auto`, `median`, `mean`; the statistic that leads in the chart summary |
+| | `statistic.meanUpToCovPercent` | `5` | `> 0`; `auto` leads with the mean at or below this CoV, else the median; also the stability limit |
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
+
+`analysis` is read by `tools/quick-bench/analyze.py` and `charts.py` only (`docs/tools.md`).
 
 ## testsets/*.yaml
 
