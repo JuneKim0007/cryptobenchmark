@@ -4,13 +4,13 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..dto import Verdicts
+from ..dto.grouping_state import Knowledge
 from ..files import read_json
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..grouping.paths import GroupingPaths
 from ..grouping.report.checks import read_groups
 from ..ai.evaluate.worthiness.kind import VERDICTS, WorthinessKind
-from ..ai.runtime.engine.kind import project
-from ..ai.runtime.engine.outbox import active_outbox
+from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
 from .failure import ValidationFailed
@@ -29,9 +29,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         out[rd.RUN_LOG] = validate_run_log(rd.load_run_log(run), rows)
     grouping = GroupingPaths(run)
     if grouping.items.exists():
-        kind = GroupingKind(grouping)
-        records = active_outbox(grouping.root).records()
-        out["grouping"] = kind.validate(project(kind, records), records)
+        out["grouping"] = _grouping(grouping)
     if not grouping.groups.exists():
         return out
     try:
@@ -46,7 +44,25 @@ def validate_run(run: Path) -> dict[str, list[str]]:
             measurements = rd.load_measurements(run)
             kind = WorthinessKind(mode, measurements.comparability, build_evidence(groups, rows, measurements.byRow),
                                   directory)
-            records = active_outbox(directory).records()
+            try:
+                records = active_outbox(directory).records()
+            except OutboxError as e:
+                out[directory.name] = [str(e)]
+                continue
             saved = Verdicts.from_json(read_json(directory / VERDICTS))
             out[directory.name] = kind.validate(saved, records)
     return out
+
+
+def _grouping(grouping: GroupingPaths) -> list[str]:
+    try:
+        records = active_outbox(grouping.root).records()
+    except OutboxError as e:
+        return [str(e)]
+    if not grouping.knowledge.exists():
+        return [f"{grouping.knowledge.name} missing for {len(records)} committed records"] if records else []
+    try:
+        saved = Knowledge.from_json(read_json(grouping.knowledge))
+    except (KeyError, TypeError, ValueError) as e:
+        return [f"{grouping.knowledge.name} does not parse: {e}"]
+    return GroupingKind(grouping).validate(saved, records)
