@@ -22,12 +22,16 @@ def read_document(path: Path) -> dict:
 
 
 def write_json(path: Path, doc: dict, durable: bool = False, exclusive: bool = False) -> Path:
+    return write_text(path, json.dumps(doc, indent=1), durable, exclusive)
+
+
+def write_text(path: Path, text: str, durable: bool = False, exclusive: bool = False) -> Path:
     path = Path(path)
     if exclusive and path.exists():
         raise FileExistsError(f"{path}: already written")
     tmp = path.with_name(path.name + TEMP_SUFFIX)
     with tmp.open("w") as f:
-        json.dump(doc, f, indent=1)
+        f.write(text)
         if durable:
             f.flush()
             os.fsync(f.fileno())

@@ -10,7 +10,7 @@ from ..grouping.paths import GroupingPaths
 from ..grouping.report.checks import read_groups
 from ..ai.evaluate.worthiness.kind import VERDICTS, WorthinessKind
 from ..ai.runtime.engine.kind import project
-from ..ai.runtime.engine.outbox import Outbox
+from ..ai.runtime.engine.outbox import active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
 from .failure import ValidationFailed
@@ -30,7 +30,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
     grouping = GroupingPaths(run)
     if grouping.items.exists():
         kind = GroupingKind(grouping)
-        records = Outbox(grouping.outbox).open().records()
+        records = active_outbox(grouping.root).records()
         out["grouping"] = kind.validate(project(kind, records), records)
     if not grouping.groups.exists():
         return out
@@ -46,7 +46,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
             measurements = rd.load_measurements(run)
             kind = WorthinessKind(mode, measurements.comparability, build_evidence(groups, rows, measurements.byRow),
                                   directory)
-            records = Outbox(directory / "outbox").open().records()
+            records = active_outbox(directory).records()
             saved = Verdicts.from_json(read_json(directory / VERDICTS))
             out[directory.name] = kind.validate(saved, records)
     return out
