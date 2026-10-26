@@ -10,7 +10,7 @@ from . import journal
 from ..agent import Conversations
 from .ask import Limits, ask
 from .kind import DecisionKind, project
-from .outbox import Outbox
+from .outbox import activate
 
 
 def _errors(kind: DecisionKind, records: list[OutboxRecord], by_key: dict) -> str:
@@ -23,8 +23,11 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
     root = Path(root)
     items = kind.items()
     by_key = {i.key: i for i in items}
-    outbox = Outbox(root / "outbox").open()
+    outbox, replaced = activate(root, charter.fingerprint)
     records = outbox.records()
+    if replaced is not None:
+        echo(f"prompt changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "
+             f"({len(replaced.records())} records kept in {replaced.fingerprint}, {len(records)} resumed)")
     state = project(kind, records)
     decided = 0
     while True:
@@ -38,7 +41,7 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
         require(f"{kind.name} item {item.key}", kind.admit(item))
         asked = ask(conversations, charter, kind.render(item, state),
                     lambda text: kind.check(item, text, state), limits,
-                    lambda turn: journal.append(root / "journal.jsonl", {"item": item.key, **turn.to_json()}))
+                    lambda turn: journal.append(root / "journal.jsonl", {"charter": outbox.fingerprint, "item": item.key, **turn.to_json()}))
         accepted = asked.decision is not None
         record = OutboxRecord(len(records) + 1, item.key, "decided" if accepted else "dropped", asked.last.session,
                               asked.last.turn, asked.decision, () if accepted else tuple(asked.problems))
