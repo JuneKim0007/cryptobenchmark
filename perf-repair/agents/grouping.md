@@ -1,16 +1,17 @@
 # Grouping
 
 ## Calls
-- `docs/grouping.md` : contracts, files, gates, retry policy, families
-- `agents/decisions.md` : agents and conversations the loop uses
+- `docs/grouping.md` : files, answer contract, gates, families, findings
+- `agents/decisions.md` : agents, conversations and retry of the engine loop
 - `agents/validation.md` : the validators the gates run
 
 ## Rules
-- tiers: a family is static (catalog, engine type + key kind); a group is an agent's decision inside one family; key size, tag length, key residency and availability are static capabilities, never group identity.
+- family: static; a catalog entry keyed by engine type + key kind.
+- group: an agent's decision inside one family.
+- capabilities: key size, tag length, key residency and availability are static; never group identity.
 - items: ids `1..n` per run; `items.json` is never edited after build; the agent sees `{id, type, name, provider, resolved}` and its family's groups only.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
 - gates: A before every pop, B after it, C on every answer, D after every write; a failed gate stops the stage.
-- retry: a rejected answer goes back to the same conversation with the problems (`--turns`); then a fresh conversation (`--sessions`); then the item is dropped.
 - families: a new family is a catalog entry, not code; descriptions in the catalog are immutable to agents.
 - supervisor: findings only; it never edits a group.
 - checks: a static finding is one function in `grouping/report/rules.py`.
@@ -18,13 +19,13 @@
 ## Workflow
 - run: `build` → `assign` → `report [--supervisor]` (`python3 -m perfrepair.grouping`)
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
-- change the answer contract: `prompt/schema.py` → `prompts/grouping-assign.system.md` → `validation/grouping/answer.py` → `docs/grouping.md`
+- change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/grouping/answer.py` → `docs/grouping.md`
 
 ## File structure
 
 ```
 src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: admit (gate B), check (gate C), apply, validate (gates A, D), projections
-src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups, the item; the rejection message
+src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups, the item
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
 src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family → supervisor.json

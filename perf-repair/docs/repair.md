@@ -1,16 +1,21 @@
 # Repair
 
-| Step | Input | Output |
-|---|---|---|
-| candidates | an app's inbound `sites.json`, `grouping/groups.json` | `repair/<app>/candidates.json` |
-| test-set | candidates | a test set for cryptobenchmark: what the app runs and the alternatives |
-| choose | candidates, `worthiness-<mode>/verdicts.json` | `repair/<app>/choices.json`: replacement or none, with the reason |
-| patch | choices, the app tree | `repair/<app>/patches.json`, validated by `validation/repair.py` |
-| replay | a `benchmark.json` (+ `energy.json`) | before/after per site |
+Command: `python3 -m perfrepair.repair <step>`; every step but replay takes `--run <run> --app-name <app>` and writes under `<run>/repair/<app>/`.
+
+| Step | Flags | Input | Output |
+|---|---|---|---|
+| candidates | `--sites` | an app's inbound `sites.json`, `grouping/groups.json` | `candidates.json`: sites resolved `default` or `explicit` |
+| test-set | `-o` | candidates | YAML test set at `-o`: items the app runs and their alternatives |
+| choose | `--mode` (default `latency`) | candidates, `worthiness-<mode>/verdicts.json` | `choices.json`: replacement or none, with the reason |
+| patch | `--app` | choices, the app tree | `patches.json`, validated by `validation/repair.py` |
+| replay | `--benchmark`, `--energy`, `--before`, `--after` (`Type\|name\|provider`), `--input` | a `benchmark.json` (+ `energy.json`) | YAML on stdout: before, after, `speedup`, `energyRatio` |
 
 ## Limits
-- patch rewrites literals on one line; a call built from variables is left for a person.
-- replay times the call's primitive at one input size in the benchmark harness, not the app running.
-- the default provider of a site is the first by precedence that registers the name; a provider that
-  rejects the key at `init` is not skipped, and a Cipher transformation served only through its base
-  service is not resolved.
+
+| Limit | Rule |
+|---|---|
+| patch | literal arguments on one line; a call built from variables is skipped |
+| replay | times the call's primitive at one input size in the benchmark harness, not the app running |
+| default provider | the first by precedence that registers the name |
+| provider rejecting the key at `init` | not skipped |
+| Cipher transformation served only through its base service | not resolved |

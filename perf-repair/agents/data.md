@@ -15,7 +15,7 @@
 ## File structure
 
 ```
-src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, sites.json; validated before writing
+src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, validated before writing; sites.json with --app
 src/perfrepair/data_handler/inbound/app_source.py : JCA getInstance call sites in an app tree; default provider by manifest precedence
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
 src/perfrepair/data_handler/inbound/probe_index.py : probe → engine types and name/alias index per provider
@@ -26,14 +26,14 @@ src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repai
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind
 src/perfrepair/dto/grouping.py : Family, Item, Profile; items.json and profiles.json documents
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
-src/perfrepair/dto/grouping_state.py : Answer, Amendment, OutboxRecord, Group, Knowledge
+src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge
 src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
-src/perfrepair/dto/worthiness.py : GroupEvidence, PairMetrics, Verdict, Verdicts
+src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/env.py : .env loader: fills unset environment keys
-src/perfrepair/files.py : JSON read and atomic write
+src/perfrepair/files.py : JSON and YAML read; atomic JSON write
 src/perfrepair/run_dir.py : run directory: artifact names and loaders
 ```

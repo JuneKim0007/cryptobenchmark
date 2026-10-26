@@ -1,66 +1,98 @@
 # config
 
-Two kinds of file, never mixed:
+Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed and written only by the user. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
 
-| | Files | Owner | Written by |
+## Authored files
+
+| file | selection.testSet | run | notes |
 |---|---|---|---|
-| authored | `config/global.yaml`, `config/testsets/*.yaml` | the user, committed | the user only |
-| generated | `results/configuration/inventory.yaml`, `effective.yaml` | this module | every probe / every run |
+| `config/global.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, WARM, TIME, processRepetitions 1, seed 0 | harness `iterations: 100`, `warmupIterations: null`, `profiling: none`; exclude `[]`; onFailure `skip` |
+| `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}` |
+| `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
+| `config/global-energy.yaml` | `testsets/energy-smoke.yaml` | inputSizes `[1024]`, seed 42 | harness `iterations: 20`, energy `{capture: measured, windowSeconds: 3, warmupSeconds: 1, cooldownSeconds: 1}` |
 
-## Flow
+| test set | contents |
+|---|---|
+| `testsets/all.yaml` | description only; empty include = whole inventory |
+| `testsets/scope.yaml` | 19 includes, baselines MD5, DESede/CBC/PKCS5Padding, ARCFOUR; AES 128/192/256; RSA 2048/4096 with inputSizes `[32]`; OAEP-SHA256 with explicit `OAEPParameterSpec`; ChaCha20 with `fresh(12)` |
+| `testsets/quick.yaml` | 11 includes, one per primitive; RSA/* keySizes `[2048]`, inputSizes `[32]`; harness iterations 5; ChaCha20 `ChaCha20ParameterSpec [fresh(12), 1]` |
+| `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`, GCM 128 + `fresh(12)`; HmacSHA256 |
+| `testsets/energy-smoke.yaml` | the smoke staples; AES-GCM override adds `harness.energy.capture: dry` |
 
-```
-probe_<utc>.yaml + trial_<utc>.yaml ─► InventoryBuilder ─► inventory.yaml        what the device has (observations only)
-global.yaml ─► selection.testSet ─► testsets/<name>.yaml ─┐
-inventory.yaml ───────────────────────────────────────────┴─► EffectiveBuilder ─► effective.yaml   what will run (preparation reads only this)
-```
-
-InventoryBuilder records an observed input size only when it differs from the trial's `defaultRunInputSize`.
-
-EffectiveBuilder: include (empty = everything that runs) → test-set exclude → global exclude (exclude always wins)
-→ overrides, broadest rule first → `policy.onFailure`.
+Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 ## global.yaml
 
-One section per feature, one owner each; an unknown section or key is an error.
+`schemaVersion: 1`. Sections `selection` (required), `run`, `policy`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
 
-| Section | Key | Default | Meaning |
+| section | key | default | rule |
 |---|---|---|---|
-| `selection` | `testSet` | required | path, relative to global.yaml |
+| `selection` | `testSet` | required | non-blank; relative to global.yaml's directory unless absolute |
 | | `exclude` | `[]` | rules dropped after the test set |
-| `run` | `inputSizes` | `[1024]` | bytes per call |
-| | `phases` | `[WARM]` | `WARM`, `COLD` |
-| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS` (rooted device) |
-| | `processRepetitions` | `1` | independent process runs |
+| `run` | `inputSizes` | `[1024]` | non-empty, all `> 0`; bytes per call |
+| | `phases` | `[WARM]` | non-empty, non-blank; values `WARM`, `COLD` checked by preparation |
+| | `metrics` | `[TIME]` | non-empty, non-blank; values `TIME`, `ALLOCATION`, `CPU_EVENTS` checked by preparation |
+| | `processRepetitions` | `1` | `>= 1`; independent process runs |
 | | `seed` | `0` | input seed |
-| | `harness` | `{}` | what the timer is told: `iterations`, `warmupIterations`, `profiling` (`none`, `MethodTracing`, `StackSampling`), `energy` (`capture` `none`/`measured`/`dry`, `windowSeconds`, `warmupSeconds`, `cooldownSeconds`; modules/benchmark/docs/measure.md#energy). A missing value is the harness's own default |
-| `policy` | `onFailure` | `skip` | every stage: a selected primitive that cannot run is `skip`ped and recorded, or the run `stop`s. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops |
+| | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
+| `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
+
+`onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 
 ## testsets/*.yaml
 
-| Key | Meaning |
+`schemaVersion: 1`. An unknown key fails `unknown_keys: testSet`.
+
+| key | rule |
 |---|---|
 | `description` | free text |
 | `include` | rules; empty = every primitive the inventory can run |
 | `exclude` | rules |
-| `overrides` | `{match: rule, set: {keySizes?, inputSizes?, key?, parameters?, operations?, harness?}}` |
+| `overrides` | list of `{match: rule, set: {...}}` |
 
-Rule: `{provider?, type?, name?, group?}`; a missing part matches anything, case-insensitive, `*` is a wildcard.
-Override precedence, lowest first: type → name pattern → exact name → provider → group. Ties: file order. Lists replace.
-`harness` merges field by field, so a narrow rule naming `iterations` keeps the `profiling` a broad one set; `harness.energy` merges field by field too; every other key replaces.
-An entry carries only the harness fields that differ from `run.harness`; the rest stay in `run`.
+| `set` key | rule |
+|---|---|
+| `keySizes`, `inputSizes` | all `> 0` |
+| `operations` | non-empty, non-blank |
+| `key`, `parameters` | parameter trees, passed through untouched |
+| `harness` | settings key table; merges field by field |
+| any other | refused |
+| none set | `empty_override` |
 
-## Settings a device cannot honour
+## Rules
 
-`run.harness` and rule `harness` keys are checked against `discovery/facts.yaml` (from `scripts/facts.py`,
-passed as `--facts=`). An unsupported key is removed with a `not_supported:` warning; with
-`required: true` it fails the config (run level) or skips those entries (rule level). Without a
-facts file every key that needs a fact is `facts_unknown`. The rules live in `modules/settings`.
+`{provider?, type?, name?, group?}`.
+
+| rule | value |
+|---|---|
+| required | at least one of `provider`, `type`, `name` |
+| blank part | refused |
+| `group` | needs `name`; may not contain `@` |
+| `provider`, `type` | equal ignoring case; missing = any |
+| `name` | case-insensitive pattern, `*` = any text; missing = any |
+| error path | e.g. `include[0]`, `overrides[2].match`, `selection.exclude[0]` |
+
+## Override precedence
+
+| specificity part | weight |
+|---|---|
+| `group` | 16 |
+| `provider` | 8 |
+| exact `name` | 4 |
+| wildcard `name` | 2 |
+| `type` | 1 |
+
+| rule | value |
+|---|---|
+| order | ascending specificity, ties by file order; the last applicable override wins per key |
+| lists | replace |
+| `harness` | merges field by field, nested `energy` and `cpu` too |
+| override without `group` | applies to every group of that name |
+| override with `group` | applies to that group only |
 
 ## Groups
 
-One primitive measured more than once, under different parameters. An include names the group, an
-override sets what that group changes, and the entry is written as `<name>@<group>`:
+One primitive measured more than once under different settings. Each distinct `group` of the includes that match a primitive yields one entry `<name>@<group>`; an include with no group yields the plain name. The device is asked about the name only.
 
 ```yaml
 include:
@@ -71,87 +103,6 @@ overrides:
     set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
 ```
 
-An override with no `group` applies to every group of that name. The device is asked about the name
-only, never the group: a group is a second measurement of one registered primitive. `@` is safe as a
-separator because no JCA algorithm or alias name uses it.
-
-## effective.yaml
-
-| Key | Meaning |
-|---|---|
-| `generatedFrom` | global, test set, inventory, capture, trial file names; device |
-| `run` | the global `run` section, frozen |
-| `policy` | the global `policy` section, frozen: preparation and the benchmark apply the same rule |
-| `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations` (empty = every operation of the type), `providerDefaults` |
-| `providers.<p>.<type>.<name>@<group>` | the same, for one group of a primitive measured more than once |
-| `providerDefaults` | what is still the provider's choice: `keySize`, `parameters`, `modeAndPadding` |
-| `warnings` | rules that touched nothing: `exclude_matches_nothing`, `override_matches_nothing` — usually a typo; not a failure, printed by the host command |
-| `skipped` | `{stage, provider?, type?, name?, reason}`: `no_match` (include found nothing) or `not_runnable: <error>`; the same record preparation writes to `results/preparation/skipped.yaml` |
-
-A size no override sets stays empty (provider default): an observed size is not a valid init argument
-(DESede's default key encodes to 192 bits; `init` accepts 112 or 168). The observed size is in `inventory.yaml`.
-
-## Errors and output files
-
-| Situation | Result |
-|---|---|
-| a file is missing | `missing_file: <path>`; a test set also names the setting that pointed there |
-| a file does not parse or has a wrong key | `<file>: <code>: <location>`, e.g. `scope.yaml: unknown_keys: include[0] [nme]` |
-| a run fails | the previous `inventory.yaml` / `effective.yaml` is removed first, so no stale file survives |
-| a file is written | written to `<name>.partial`, then moved into place |
-| host command | expected errors print one `error:` line and exit 1; warnings and skips go to stderr |
-
 ## Parameter trees (`key`, `parameters`)
 
-Passed through untouched; bound by preparation.
-
-| Form | Means |
-|---|---|
-| `{class: <fully qualified name>, arguments: [...]}` | public constructor, tried in turn for the argument count |
-| `{field: <fully qualified class>.<NAME>}` | public static field |
-| `fresh(n)` | n new random bytes on every call |
-| `!!binary <base64>` or `[0, 1, 255]` | `byte[]` |
-| a number | `int`, `long` or `BigInteger`, whichever the constructor takes |
-
-Only subtypes of `AlgorithmParameterSpec`, `PSource` and `BigInteger` may be named.
-
-## Tunables
-
-Every run default in the pipeline lives here; preparation has none of its own.
-
-| Value | Where | Default |
-|---|---|---|
-| `run` defaults applied when `global.yaml` omits a key | `RunSettings` | `inputSizes [1024]`, `phases [WARM]`, `metrics [TIME]`, `processRepetitions 1`, `seed 0`, `harness {}` |
-| harness values a missing field leaves to the timer | `HarnessSettings` | `iterations`, `warmupIterations`, `profiling` all unset; `energy` empty (capture none) |
-| failure policy default | `Policy` | `skip` |
-
-## Classes
-
-| Class | Package | Role |
-|---|---|---|
-| `Configuration` | root | entry point: `inventory(capture, trial)`, `effective(global)`, `readEffective()` |
-| `CaptureSource`, `TrialSource`, `CaptureView`, `TrialView` | `source` | discovery's two files read as views; no discovery class is imported |
-| `InventoryBuilder`, `InventoryDocument` | `inventory` | capture × trial → inventory; its YAML schema |
-| `InventorySourceDocument` | `inventory` | the `generatedFrom` capture, trial and device fields, shared by both generated files |
-| `Inventory`, `InventoryEntry`, `InventorySource` | `inventory/dto` | the inventory |
-| `GlobalDocument`, `RunDocument`, `PolicyDocument` | `global` | `global.yaml` schema, one reader per section; `harness` is read through `settings` |
-| `GlobalConfig`, `Selection`, `RunSettings`, `Policy` | `global/dto` | the global settings; `HarnessSettings` comes from `settings` |
-| `TestSetDocument`, `RuleDocument` | `testset` | test-set schema |
-| `TestSet`, `Rule`, `Override` | `testset/dto` | the test set |
-| `EffectiveBuilder`, `OverrideResolver`, `LocatedMatch` | `effective` | include → exclude → overrides → policy |
-| `EffectiveDocument`, `StoppedOnFailureException` | `effective` | effective schema; `stop` policy |
-| `EffectiveConfig`, `EffectiveEntry`, `EffectiveSource`, `Skip` | `effective/dto` | the effective set |
-| `YamlFiles`, `YamlFile`, `ReadOnlyYamlFile` | `yaml` | factory; read-write with stamp and atomic write; read-only with `schemaVersion` check |
-| `DocumentHandler`, `DocumentReader`, `ProviderTree`, `DocumentFields`, `YamlCodec` | `yaml` | value ⇄ map per kind, provider tree, typed reads, YAML text |
-
-## Provider-specific, observed on JDK 25
-
-| Observation | Handling |
-|---|---|
-| spelling chosen by provider (`AES/CBC/PKCS5PADDING`) | rules and names compared ignoring case |
-| size inside the name (`AES_128/GCM/NoPadding`) | fixed by the name |
-| default key sizes differ between providers (RSA 3072 JDK / 2048 Conscrypt) | recorded in the inventory; set explicitly in the test set to compare |
-| input limits (RSA, `NONEwithDSA` 20 bytes) | `inputSizes` observed in the inventory, carried unless overridden |
-| needs parameters not given by default (PBE, RSASSA-PSS, `SunTls*`) | `runs: false` with the reason; include them with `parameters` |
-| no two JVM providers serve the same name | cross-provider behaviour unverified until a device run (#14) |
-| SunJCE `ChaCha20` encrypts with a random nonce it does not expose in `getParameters()` | decrypt needs an explicit `ChaCha20ParameterSpec` with `fresh(12)`; set in `scope.yaml` |
+Config passes trees through as maps. Preparation binds them: forms in `modules/preparation/docs/operations.md#parameter-trees`.

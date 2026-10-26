@@ -1,20 +1,12 @@
 # quick-bench
 
-A JVM stand-in for the Jetpack harness (#33), so the vertical flow can be run end to end today:
-`probe → trial → inventory → effective → prepare → measure → analyse`.
-
-It measures the same prepared cases the device harness will: real keys, real inputs, bound parameters,
-a pool of `fresh(n)` specs drawn before timing, warmup, then five runs per case.
-Timing only — allocation counts and CPU counters are Jetpack's, on a device.
+Host (JVM) prepare, measure and analyse over the same prepared cases the device harness runs; timing only.
+`python3 scripts/pipeline.py --bench` runs these steps; by hand, from `tools/quick-bench`:
 
 ```
-cd tools/jca-contract && ./gradlew run --args="../../results/discovery ../../results/configuration ../../config/global-quick.yaml"
-cd ../quick-bench   && ./../jca-contract/gradlew run --args="<capture> <trial> ../../results/configuration/effective.yaml ../../results/benchmark"
+../jca-contract/gradlew -p ../jca-contract run --args="../../results/discovery ../../results/configuration ../../config/global-quick.yaml"
+../jca-contract/gradlew run --args="<capture> <trial> ../../results/configuration/effective.yaml ../../results/benchmark ../../results/preparation"
 python3 analyze.py ../../results/benchmark/benchmark.json ../../results/analysis
 ```
 
-Output: `results/benchmark/benchmark.json`, then `results/analysis/{summary.md,throughput.png,latency.png,stability.png}`.
-
-`analyze.py` reports throughput per second (ops/s, MB/s) from the mean of each case's runs after `outliers.py`: every run is kept unless one lies
-more than 3 standard deviations from the others' mean; then the farthest run is dropped and the check
-repeats; more than 20 drops keeps every run. The threshold is temporary.
+Arguments, outputs and the outlier filter: [docs/tools.md](../../docs/tools.md).

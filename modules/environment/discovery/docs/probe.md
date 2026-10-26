@@ -1,110 +1,138 @@
 # probe
 
-Captures registered JCA providers and services, writes them as YAML, and calls each one once.
+Captures registered JCA providers and services, writes them as YAML, and calls each service once.
 
-Field contract: [security_contract.md](security_contract.md)
+File fields: [security_contract.md](security_contract.md). File map: [index.md](index.md).
 
 ## Flow
 
 ```
-Discovery(directory).probe(providers)         -> DiscoveryRun: capture, probe_<utc>.yaml, probe_classes_<utc>.yaml
+Discovery(directory).probe(providers)          -> DiscoveryRun: capture, probe_<utc>.yaml, probe_classes_<utc>.yaml
 Discovery(directory).trial(capture, providers) -> trial_<utc>.yaml
+Discovery(directory).reusable(runtime)         -> ReusedRun or null
 
-Security.getProviders() -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter     -> probe_<utc>.yaml
-                                                               -> TrialRunner -> TrialReport -> TrialYamlWriter -> trial_<utc>.yaml
+Provider[] -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter, ProviderClassNameWriter
+CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYamlWriter
 ```
+
+| entry | caller |
+|---|---|
+| host | `ProbeKt` in `tools/jca-contract`, passes `Security.getProviders()`; command line in `docs/tools.md` |
+| device | `DeviceProbe` in `modules/android`: `probe`, then `trial` |
+| runtime default | `probe` and `reusable` default to `DeviceRuntimeReader.read()` |
 
 ## JCA APIs used
 
-| API | Gives |
+| API | gives |
 |---|---|
-| `Security.getProviders()` (caller) | providers, in preference order |
-| `Provider.getName()`, `getInfo()`, property `Provider.id version` | provider identity — Android has no `getVersionStr()` |
-| `Provider.getServices()` | type, algorithm, class name |
-| `Provider.stringPropertyNames()`, `getProperty()` | aliases, attributes |
+| `Security.getProviders()` (caller) | providers; precedence = 1-based array index, `>= 1` enforced |
+| `Provider.getName()`, `getInfo()` (`""` when null), property `Provider.id version` | provider identity |
+| `Provider.getServices()` | type, algorithm, class name (`""` when null); sorted by (type, algorithm) |
+| `Provider.stringPropertyNames()`, `getProperty()` | aliases, attributes; blank values skipped |
 
 ## Property keys
 
-| Raw property | `PropertyKey` | Captured as |
+| raw property | `PropertyKey` | captured as |
 |---|---|---|
-| `Provider.id name` | `ProviderMeta(field)` | kept in `PropertyMapIndex.meta`; `id version` becomes the entry's version |
-| `Alg.Alias.Cipher.RC4` = `ARC4` | `Alias` | alias on target service |
-| `Cipher.AES SupportedModes` = `ECB\|CBC` | `Attribute` | typed attribute |
-| `Cipher.AES` | `ServiceImpl` | skipped; services come from `getServices()` |
+| `Provider.<field>` | `ProviderMeta` | meta; `id version` is the provider version |
+| `Alg.Alias.<type>.<name>` | `Alias` | alias on the service whose case-folded (type, target) matches; else `unresolvedAliases`, sorted by (type, name) |
+| `<type>.<alg> <attr>` | `Attribute` | typed attribute |
+| `<type>.<alg>` | `ServiceImpl` | ignored; services come from `getServices()` |
 | anything else | `Malformed` | dropped |
+
+| attribute kind | names | parse |
+|---|---|---|
+| LIST | `SupportedModes`, `SupportedPaddings`, `SupportedKeyClasses`, `SupportedKeyFormats`, `SupportedCurves` | split on `\|`, trim, drop empties |
+| INT | `KeySize` | raw string kept when unparsable |
+| BOOL | `ThreadSafe` | `toBoolean()` |
+| STRING | `ImplementedIn`, `MechanismType`, any other | as written |
+
+`ServiceKey` folds type and algorithm with `uppercase(Locale.ROOT)`; a blank part fails `missing_field`.
+
+## Runtime
+
+`DeviceRuntimeReader.read()` reads `android.os.Build` `MODEL`, `MANUFACTURER`, `HARDWARE` and `Build$VERSION` `RELEASE`, `SDK_INT` reflectively (`""` and `0` on a JVM), `java.version`, and `jdk.security.defaultKeySize`.
+
+## Trial
+
+| level | class | does |
+|---|---|---|
+| 1 | `TrialRunner` | each captured service: `provider.getService(type, alg).newInstance(null)`; provider absent from the live list: `provider_not_installed` |
+| 1 | `TrialRunner` | Cipher services also try every `TransformationSet` name with `Cipher.getInstance(name, provider)` |
+| 2 | `DefaultRunTrial` | one real call per instantiated service and transformation with a default key |
+
+| rule | value |
+|---|---|
+| `TransformationSet` | bare algorithm first, then `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
+| `Attempt` | catches `Exception` and `LinkageError`; error text `<SimpleName>: <message>` |
+| types with a default call | Cipher, Signature, Mac, MessageDigest, KeyGenerator, KeyPairGenerator, KeyAgreement (case-folded) |
+| no default run | type has no call, provider not installed, or instantiation failed |
+| transformation default run | skipped when it failed to instantiate or equals the bare algorithm |
+| input-taking calls | Cipher, Signature, Mac, MessageDigest; KeyAgreement and generators take none (`inputSize` absent) |
+| input sizes | tried in order; first working size returns, else the first failure is recorded |
+| trial file stamp | the capture's `capturedAtMillis` |
+
+| call | default run |
+|---|---|
+| Cipher | `ENCRYPT_MODE`, `doFinal(input)`; key from the first `KeyGenerator` candidate (base name, `<base>_<n>` size suffix, part before `-`), else a key pair's public key |
+| Cipher `providerChose` | `OAEP digest=<d> mgf1=<d>` for OAEP, else `<paramsAlg> iv=<n>B`, `""` without parameters; `bareName` when the name has no `/` |
+| Signature | key algorithm = text after the last `with`, minus `inP1363Format`, `ECDSA` to `EC` |
+| KeyAgreement | `ECDH` to `EC`; peer pair generated with the same EC or DH parameters |
+| KeyGenerator, KeyPairGenerator | provider default size; records key size only |
+
+| default key rule | value |
+|---|---|
+| cache | per run, by (preferred provider, folded algorithm, size) |
+| generator order | preferred provider first, then the others; none: `no provider generates <alg>` |
+| key size bits | RSA modulus, EC field size, DSA/DH `p`, secret key encoded length x 8, else null |
+
+## Output files and reuse
+
+| rule | value |
+|---|---|
+| names | `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml` |
+| stamp | `yyyyMMdd'T'HHmmss'Z'`, UTC, from `capturedAtMillis` |
+| create | `ProbeDirectory.create` makes the directory and writes `CREATE_NEW` |
+| existing name | `FileAlreadyExistsException`: `probe_exists: a capture is never overwritten; probe again after a second, or remove the file` |
+| newest | greatest file name matching `<prefix>_\d{8}T\d{6}Z.yaml` |
+| YAML | block style, indent 2, a new `Yaml` per call |
+
+`reusable(runtime)` returns null unless every check holds:
+
+| check |
+|---|
+| newest `probe_<stamp>.yaml` parses |
+| its `runtime` equals the given runtime |
+| sibling `probe_classes_` and `trial_` files exist |
+| the trial parses and its `capturedAtMillis` equals the capture's |
+
+## Queries
+
+| class | questions |
+|---|---|
+| `CaptureQuery` | `whoServes(type, nameOrAlias)` in precedence order, `serviceOf`, `namesOf`, `onlyOn(provider)`, `tree()`; names match case-folded name or alias; no JCA call |
+| `CaptureQuery.tree()` | type to algorithm to `ServiceShape(modes, paddings, providers)`, case-insensitive sorted, spellings merged by `ServiceKey` |
+| `TrialQuery` | `serviceTrial`, `transformationTrial` (Cipher, case-insensitive), `failingServices`, `failingTransformations`, `instantiationByProvider` (ok, total) |
 
 ## Limits
 
-- attributes are optional: `SupportedModes`, `SupportedPaddings`, `KeySize` often absent
-- transformations resolved by fallback are not listed (`Cipher.AES` serves `AES/CBC/PKCS5Padding`)
+- only what a provider registers and declares is captured; JNI crypto, unregistered providers and hardware are not visible
+- attributes are optional: `SupportedModes`, `SupportedPaddings`, `KeySize` are often absent
+- transformations resolved by fallback are not declared (`Cipher.AES` serves `AES/CBC/PKCS5Padding`)
 - an alias is a name, not a separate implementation
-- the trial instantiates (level 1), then calls once with a default key (level 2); a default run says nothing about other key sizes or parameters (#18)
-- not visible: native crypto via JNI, providers not registered in this process, hardware (StrongBox, AES acceleration)
+- a default run covers one key and the provider's default parameters
 
 ## Tunables
 
-Contract keys stay with their codec and JCA facts with their parser; only these are choices.
-
-| Value | Where | Default |
+| value | where | default |
 |---|---|---|
-| input sizes a default run tries, in order | `DefaultRunTrial(inputSizes)` | `[1024, 32]`; the first is written as `defaultRunInputSize` |
-
-## Classes
-
-Kotlin under `src/main/kotlin/`. `internal` means module-only, not part of the API.
-
-| Class | Package | Role |
-|---|---|---|
-| `Discovery` | root | entry point; wires probe, trial and writers over one `ProbeDirectory`; `reusable(runtime)` returns the newest complete capture of that device, or null. `tools/jca-contract`: `./gradlew run --args=<dir>` |
-| `DiscoveryRun` | root | what `probe` returns: the capture and the two files |
-| `ReusedRun` | root | what `reusable` returns: the newest capture of this device and its three files |
-| `ProviderProbe` | `adapter` | JCA → capture; joins services with aliases and attributes |
-| `PropertyMapIndex` | `adapter` | one provider's property map → aliases, attributes — `internal` |
-| `PropertyKeyParser` | `adapter` | decodes the property-map grammar — `internal` |
-| `PropertyKey` | `adapter` | one decoded key, discarded after use — sealed, `internal` |
-| `DeclaredAlias` | `adapter` | one alias as declared — `internal` |
-| `AttributeKind` | `adapter` | attribute name → `LIST`, `INT`, `BOOL`, `STRING` — `internal` |
-| `AttributeValueParser` | `adapter` | attribute value → that type — `internal` |
-| `DeviceRuntimeReader` | `adapter` | the one place that reads the runtime: `android.os.Build` reflectively (empty on a JVM), `java.version`, `jdk.security.defaultKeySize`; the default for `probe` and `reusable` |
-| `CapturedEnvironment` | `contract` | one capture |
-| `ProviderEntry` | `contract` | one provider |
-| `ServiceEntry` | `contract` | one service |
-| `AliasEntry` | `contract` | one alias that resolved to nothing |
-| `ServiceAttributes` | `contract` | typed attribute accessors |
-| `RuntimeInfo` | `contract` | device and runtime provenance, plain data |
-| `ServiceKey` | `contract` | `(type, algorithm)` key, `Locale.ROOT` folding — `internal` |
-| `CaptureDocument` | `write` | the YAML schema: key names, capture → document (`of`), document → capture (`parse`) |
-| `DocumentFields` | `write` | typed reads of one document key — `internal` |
-| `EnvironmentYamlWriter` | `write` | document → `probe_<utc>.yaml` |
-| `ProviderClassNameWriter` | `write` | provider → implementing class names, `probe_classes_<utc>.yaml` |
-| `CaptureQuery` | `query` | `whoServes(type, name)` in precedence order, `serviceOf(provider, type, name)`, `namesOf`, `onlyOn(provider)`, `tree()` — pure, no JCA call |
-| `TrialQuery` | `query` | `serviceTrial`, `transformationTrial`, `failingServices()`, `failingTransformations()`, `instantiationByProvider()` |
-| `ServiceShape`, `TransformationFailure` | `query` | what `tree()` and `failingTransformations()` return |
-| `ServiceIndex` | `query` | one provider's services by name or alias — `internal` |
-| `ServiceTree` | `query` | builds `tree()`: merges spellings, unions modes and paddings — `internal` |
-| `TrialRunner` | `trial` | capture × live providers → `TrialReport`: one outcome per service, one per declared cipher transformation |
-| `Attempt` | `trial` | runs one instantiation, turns `Exception`/`LinkageError` into a `TrialOutcome` — `internal` |
-| `DefaultRunTrial` | `trial` | level 2: one real call per instantiated service/transformation with a default key; records key algorithm, key provider, key size, input size used, what the provider chose, bare name |
-| `DefaultCall`, `DefaultCalls` + one call per engine type | `trial/call` | registry of per-type calls; a type with no call gets no default run — `internal` |
-| `DefaultKeys`, `KeyNames`, `KeyBits` | `trial/call` | default keys, cached per run; key algorithm from the name; key size in bits — `internal` |
-| `DefaultRunOutcome` | `contract` | one default run; carries an error exactly when it fails |
-| `TransformationSet` | `trial` | algorithm + algorithm/mode/padding for every declared pair — `internal` |
-| `TrialReport`, `ServiceTrialEntry`, `TransformationTrialEntry`, `TrialOutcome` | `contract` | the trial model |
-| `TrialDocument` | `write` | the trial YAML schema, `of` ⇄ `parse` |
-| `TrialYamlWriter` | `write` | report → `trial_<utc>.yaml` |
-| `YamlCodec` | `write` | document ⇄ YAML text, a `Yaml` per call |
-| `ProbeDirectory` | `write` | output directory, injected into the writers; `create` fails on an existing name |
-| `ProbeFileName` | `write` | `<prefix>_<utc>.yaml` — `internal` |
+| input sizes a default run tries, in order | `DefaultRunTrial(inputSizes)` | `[1024, 32]`; non-empty, all `>= 0`; the first is written as `defaultRunInputSize` |
 
 ## Drift alarm
 
-`JcaContractTest` asserts the limits above against the running JVM; the `jca contract` workflow runs
-it weekly on Java 17, 21 and 25. A failure means the JCA moved. Android providers are not covered (#14).
-`ExampleFilesTest` round-trips `example/`, so a schema change that forgets the examples fails.
-
-## Not yet
-
-| Missing | Issue |
+| test | asserts |
 |---|---|
-| verify key sizes by trial | #18 |
-| run as an independent process | #16 |
+| `JcaContractTest` | precedence `1..n`; `whoServes` sorted; Cipher AES, MessageDigest SHA-256, Mac HmacSHA256, Signature SHA256withRSA, KeyPairGenerator RSA resolve; SunJCE AES instantiates; `AES/CBC/PKCS5Padding` tried; some declared transformation fails; the facade writes the three files |
+| `ExampleFilesTest` | both `example/` files round-trip; they share `capturedAtMillis`; providers SUN, SunJCE |
+
+`tools/jca-contract` compiles discovery, settings and config sources and runs the discovery and config tests except `*ExampleFilesTest`. The `jca contract` workflow runs it on push and PR to the module paths, weekly (`0 6 * * 1`), on Java 17, 21 and 25.

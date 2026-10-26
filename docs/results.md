@@ -1,0 +1,56 @@
+# Results
+
+- `results/` is gitignored.
+- `manifest.yaml` is written last by every run.
+
+## Layout
+
+| path | files | when |
+|---|---|---|
+| `manifest.yaml` | run index | every run |
+| `discovery/` | `probe_<stamp>.yaml`, `probe_classes_<stamp>.yaml`, `trial_<stamp>.yaml` | every run |
+| `discovery/` | `facts.yaml`; the whole device plan directory | `--device` |
+| `discovery/` | `energy.yaml`, `energy-preflight/{rails.pbtx,idle.pftrace,busy.pftrace}` | energy capture |
+| `configuration/` | `inventory.yaml`, `effective.yaml` | every run |
+| `preparation/` | `prepared.yaml`, `skipped.yaml` | `--bench`, `--device` |
+| `benchmark/` | `benchmark.json` | `--bench`, `--device`, at least one case not `dry` |
+| `benchmark/process-<n>/` | one run's files | `processRepetitions` > 1 |
+| `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `cpu-pins.yaml` when written | `--device` |
+| `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml` | energy capture |
+| `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png` | with `benchmark.json` |
+
+- Energy file fields: [energy.md](energy.md#outputs).
+
+## manifest.yaml
+
+| field | value |
+|---|---|
+| `schemaVersion` | 1 |
+| `mode` | `host` or `device` |
+| `config` | path of the `global.yaml` used |
+| `runtime` | `benchmark.json` runtime if measured, else the probe runtime; `cpuLocked` added when clocks exist |
+| `providers` | `name`, `precedence`, `serviceCount`, sorted by precedence |
+| `files` | stage outputs, paths relative to `results/` |
+| `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
+
+- `files` keys: `probe`, `trial`, `inventory`, `effective`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`.
+- A key is absent when its stage did not run.
+- `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
+
+## clocks.yaml
+
+| field | value |
+|---|---|
+| `schemaVersion` | 1 |
+| `locked` | `true`, `false` or `unknown` |
+| `before`, `after` | per core: `core`, `index`, `online`, `governor`, `minKhz`, `maxKhz`, `cpuMaxKhz` |
+
+## facts.yaml
+
+| field | value |
+|---|---|
+| `schemaVersion` | 1 |
+| `os.sdkInt` | device SDK level |
+| `rooted` | see [run.md](run.md#device-facts) |
+| `cpu.cores` | per core: `core`, `online`, `maxKhz` |
+| `pinning` | see [run.md](run.md#device-facts) |

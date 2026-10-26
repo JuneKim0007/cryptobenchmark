@@ -1,21 +1,23 @@
 # Decisions
 
 ## Calls
-- `docs/decisions.md` : what each decision sees, its answer, its gate
+- `docs/decisions.md` : the engine's retry and model defaults; what the worthiness decision sees, answers, and its gate
 - `agents/validation.md` : the validator every decision state needs
 
 ## Rules
-- role: a model call decides one item; it never computes, filters, lists or writes code.
-- context: one fresh single-turn request per item: system prompt + the item's rendered message; no history.
+- role: a model call decides one item.
+- context: items are context-free: each session starts from the system prompt + the item's TaskPrompt; later turns in a session carry only CorrectionPrompts.
 - input: a rendered message carries only what the decision needs; assignment never sees timings.
-- ids: code mints and resolves every id; the model answers with names from the message (`G00n`, `M1`).
-- gate: every answer passes the kind's `validate` before `apply`; a refused answer is asked once more with the reasons, then the kind's `fallback` applies.
+- ids: code mints item ids and member aliases (`M1..Mn`) and resolves them; a grouping answer mints a new group id, checked by gate C.
+- gate: every answer passes the kind's `check` before `apply`.
+- retry: a rejected answer gets a correction turn in the same session (`--turns`); a refusal ends the session; the next session re-sends the task (`--sessions`); then the item is committed as `dropped`.
 - static first: an item code can settle (triage) never reaches the model.
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
-- journal: every turn is appended to `<dir>/journal.jsonl`; audit only.
+- journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
+- prompts: read only through `PromptLibrary`; a changed prompt changes the charter fingerprint and starts a new outbox.
 
 ## Workflow
-- add a decision: a DecisionKind (items, empty, admit, render, check, apply, validate, write) → prompt → command calling `engine/decide.py` → structure validator (`agents/validation.md`) → `docs/decisions.md`
+- add a decision: a DecisionKind (name, items, empty, admit, label, render → TaskPrompt, check, apply, validate, write) under `ai/<role>/` → prompt file under `prompts/<role>/` and its `prompts.yaml` entry → command calling `ai/runtime/engine/decide.py` → structure validator (`agents/validation.md`) → `docs/decisions.md`
 - change a prompt: its gate and `docs/decisions.md` in the same change
 
 ## File structure
@@ -24,16 +26,16 @@
 src/perfrepair/ai/__main__.py : command: the worthiness stage
 src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurements → evidence, triage, WorthinessKind on the engine
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; render, gate, apply, fallback
-src/perfrepair/ai/runtime/agent/claude.py : Messages API agent: single turn, cached system prompt, JSON schema output, refusal fallback
+src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output, server-side refusal fallback
 src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
 src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
-src/perfrepair/ai/runtime/agent/select.py : --agent backend name → Agent or Conversations
+src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort arguments → Conversations
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: gates, ask, durable commit, projections, journal, errors, --limit
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
 src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract and project(kind, records)
-src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered outbox records
+src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; `active` pointer
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness

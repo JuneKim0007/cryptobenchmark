@@ -1,30 +1,29 @@
-# <cryptographic_providers>
+# Providers
 
-Which provider supplies what, and which are in scope. Primitive definitions are in
-[primitives.md](primitives.md).
+## Observed devices
 
----
+- Pixel 9 (Tensor G4) and Pixel 10 (Tensor G5), Android 17 (API 37); baseline Android 16 (API 36).
+- Titan M2 backs StrongBox keys.
+- Primitive catalogue and scope: [primitives.md](primitives.md).
 
-## Scope
+## Selection
 
-| Provider | Installed | Status |
-|---|---|---|
-| `AndroidOpenSSL` | device | benchmarked |
-| `AndroidKeyStore` + `AndroidKeyStoreBCWorkaround` | device | benchmarked |
-| `Conscrypt` (`org.conscrypt:conscrypt-android`) | bundle in APK | candidate |
-| Bouncy Castle (`org.bouncycastle:bcprov-jdk18on`) | bundle in APK | candidate |
-| `BC` (platform) | device | excluded |
-| `Crypto` | — | not present on Android |
+- `config/testsets/scope.yaml` rules name no provider; every provider serving a matched name is selected.
+- `exclude` is empty in `config/global.yaml` and `scope.yaml`; platform `BC` is selected wherever it serves a matched name.
+- The APK bundles no crypto provider library; `:android` depends only on androidx benchmark and test libraries.
 
-An unqualified `getInstance` resolves to `AndroidOpenSSL`.
+| provider | observed on device |
+|---|---|
+| `AndroidOpenSSL` | yes |
+| `AndroidKeyStore` + `AndroidKeyStoreBCWorkaround` | yes |
+| `BC` (platform) | yes |
+| `Crypto` | no |
 
----
+- An unqualified `getInstance` resolves to `AndroidOpenSSL`.
 
 ## AndroidOpenSSL
 
-### Supports
-
-| Service | Algorithms |
+| service | algorithms |
 |---|---|
 | Cipher | AES/{ECB,CBC}/{NoPadding,PKCS5Padding}, AES/CTR/NoPadding, AES/GCM/NoPadding, AES/GCM-SIV/NoPadding, AES_{128,256} variants, ChaCha20, ChaCha20/Poly1305/NoPadding, DESEDE/CBC/{NoPadding,PKCS5Padding}, ARC4, RSA/ECB/{NoPadding,PKCS1Padding,OAEPPadding,OAEPWithSHA-{1,224,256,384,512}AndMGF1Padding} |
 | MessageDigest | MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512 |
@@ -34,41 +33,20 @@ An unqualified `getInstance` resolves to `AndroidOpenSSL`.
 | KeyPairGenerator | RSA, EC, EdDSA, XDH, ML-DSA-*, ML-KEM-{768,1024}, SLH-DSA-SHA2-128S, XWING |
 | KeyAgreement | XDH (X25519) |
 
-### Does not support
-
-Single DES, Blowfish, RC2, DSA, DESEDE/ECB, AES OFB/CFB, PKCS7Padding as distinct
-code (aliased to PKCS5Padding), keys of 512 bits.
-
----
+- Not supported: single DES, Blowfish, RC2, DSA, DESEDE/ECB, AES OFB/CFB.
+- Usage rules: [primitives.md](primitives.md#observed-usage-rules).
 
 ## AndroidKeyStore + AndroidKeyStoreBCWorkaround
 
-### Supports
-
-| Service | Algorithms |
+| service | algorithms |
 |---|---|
 | KeyStore | AndroidKeyStore |
-| KeyPairGenerator / KeyFactory | RSA, EC, XDH, ED25519, ML-DSA-{65,87} |
-| KeyGenerator / SecretKeyFactory | AES, DESede, HmacSHA{1,224,256,384,512} |
+| KeyPairGenerator, KeyFactory | RSA, EC, XDH, ED25519, ML-DSA-{65,87} |
+| KeyGenerator, SecretKeyFactory | AES, DESede, HmacSHA{1,224,256,384,512} |
 | Cipher | AES/{ECB,CBC,CTR,GCM}, DESede, RSA (PKCS1, OAEP) |
 | Signature | RSA, ECDSA, ML-DSA-{65,87} |
 | Mac | HmacSHA{1,224,256,384,512} |
 | KeyAgreement | ECDH, XDH |
 
-### StrongBox subset
-
-RSA 2048, AES 128/256, ECDSA P-256, ECDH P-256, HMAC-SHA256 (8–64 byte keys),
-Triple DES.
-
-### Does not support
-
-Key export, raw key material access, ChaCha20, arbitrary EC curves under StrongBox.
-
----
-
-## Candidates
-
-| Provider | Adds | Notes |
-|---|---|---|
-| `Conscrypt` bundled | a newer BoringSSL than the device's | same API as `AndroidOpenSSL`; register under its own name |
-| Bouncy Castle bundled | full algorithm set: DES, Blowfish, DSA, SHA-3, Argon2, extended modes and paddings | provider name `BC` clashes with the platform copy; register under another name |
+- StrongBox subset: RSA 2048, AES 128/256, ECDSA P-256, ECDH P-256, HMAC-SHA256 (8 to 64 byte keys), Triple DES.
+- Not supported: key export, raw key material access, ChaCha20, arbitrary EC curves under StrongBox.

@@ -1,0 +1,22 @@
+name: docs
+
+on:
+  push:
+    branches: ['master']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Docs lint
+        run: python3 scripts/docs_lint.py
+      - name: CLAUDE.md is a byte copy of AGENTS.md
+        run: cmp AGENTS.md CLAUDE.md
+      - name: perf-repair CLAUDE.md is a byte copy of AGENTS.md
+        run: cmp perf-repair/AGENTS.md perf-repair/CLAUDE.md

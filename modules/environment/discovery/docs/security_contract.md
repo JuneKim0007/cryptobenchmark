@@ -1,94 +1,117 @@
 # security_contract
 
-Fields of the two files discovery writes: `probe_<utc>.yaml` (key names on `CaptureDocument`) and
-`trial_<utc>.yaml` (key names on `TrialDocument`). Each `parse` rejects any other `schemaVersion`.
-Config and preparation read these files, never these classes.
+Fields of the files discovery writes. Key names live on `CaptureDocument` and `TrialDocument`. Config and preparation read these files by key name; no discovery class is on their classpath.
+
+| rule | value |
+|---|---|
+| version check | each `parse` rejects another `schemaVersion`: `unsupported_schema_version: <v>, this build reads <n>` |
+| read failures | `missing_field: <key>`, `wrong_type: <key>` |
+| pairing | a trial belongs to the capture with the same `capturedAtMillis`; config refuses a mismatch with `mismatched_trial: capture <a>, trial <b>` |
 
 ## capture
 
-| Field | Type | Description |
+Top-level keys, in this order.
+
+| field | type | description |
 |---|---|---|
-| `schemaVersion` | int | capture format version |
+| `schemaVersion` | int | `1` |
 | `capturedAtMillis` | long | capture time, epoch milliseconds |
 | `runtime` | object | device the capture was taken on |
-| `providers` | list | installed providers, in preference order |
+| `providers` | list | installed providers, in precedence order |
 
 ## runtime
 
-| Field | Type | Description |
+| field | type | description |
 |---|---|---|
 | `model` | string | device model |
 | `manufacturer` | string | device manufacturer |
 | `hardware` | string | hardware name |
-| `sdkInt` | int | Android API level |
+| `sdkInt` | int | Android API level; `0` on a JVM |
 | `release` | string | Android version |
-| `javaVersion` | string | Java runtime version |
-| `defaultKeySizeProperty` | string | system property `jdk.security.defaultKeySize`; overrides provider default key sizes; `''` when unset or absent (older captures) |
+| `javaVersion` | string | `java.version` |
+| `defaultKeySizeProperty` | string | system property `jdk.security.defaultKeySize`; `''` when unset; optional on read (absent = `''`) |
+
+All other runtime fields are required on read.
 
 ## providers[]
 
-| Field | Type | Description |
+| field | type | description |
 |---|---|---|
 | `name` | string | provider name |
-| `version` | string | provider version |
+| `version` | string | property `Provider.id version` |
 | `precedence` | int | 1-based position in the search order |
 | `info` | string | provider description |
-| `usable` | bool | false when the provider registers no services |
+| `usable` | bool | services non-empty; written, not read back |
 | `services` | list | services the provider registers |
-| `unresolvedAliases` | list | aliases whose target service is not registered, each `{type, alias, target}`; omitted when empty |
+| `unresolvedAliases` | list | `{type, alias, target}` for aliases whose target is not registered; omitted when empty |
 
 ## services[]
 
-| Field | Type | Description |
+| field | type | description |
 |---|---|---|
-| `type` | string | service type, e.g. `Cipher`, `MessageDigest` |
-| `algorithm` | string | algorithm name, e.g. `AES/GCM/NoPadding` |
+| `type` | string | service type, e.g. `Cipher` |
+| `algorithm` | string | algorithm name |
 | `className` | string | implementing class |
-| `aliases` | list | alternate names for this service; omitted when empty |
-| `attributes` | map | declared attributes; omitted when empty |
+| `aliases` | list | alternate names; omitted when empty |
+| `attributes` | map | declared attributes, sorted keys; omitted when empty |
 
 ## attributes
 
-| Field | Type | Description |
+| field | type | description |
 |---|---|---|
 | `SupportedModes` | list | cipher modes |
 | `SupportedPaddings` | list | cipher paddings |
 | `SupportedKeyClasses` | list | accepted key classes |
 | `SupportedKeyFormats` | list | accepted encoded key formats |
 | `SupportedCurves` | list | supported elliptic curves |
-| `KeySize` | int | largest supported key size; kept as the raw string when it does not parse |
-| `ThreadSafe` | bool | implementation is thread safe |
-| `ImplementedIn` | string | `Software` or `Hardware` |
-| `MechanismType` | string | mechanism type |
-| *any other* | string | vendor attribute, kept raw |
+| `KeySize` | int | raw string when it does not parse |
+| `ThreadSafe` | bool | any value other than `true` reads as false |
+| `ImplementedIn` | string | as declared |
+| `MechanismType` | string | as declared |
+| any other | string | vendor attribute, raw |
+
+## probe_classes
+
+Provider name to its sorted, distinct, non-blank implementing class names.
 
 ## trial
 
-| Field | Type | Description |
+| field | type | description |
 |---|---|---|
-| `schemaVersion` | int | trial format version, `2` |
-| `capturedAtMillis` | long | the capture this trial belongs to; a mismatch is refused |
-| `defaultRunInputSize` | int | the input size every default run tries first; absent in trials without default runs |
+| `schemaVersion` | int | `2` |
+| `capturedAtMillis` | long | the capture this trial belongs to |
+| `defaultRunInputSize` | int | the input size every default run tries first; written only when set |
 | `services` | list | one entry per captured service |
 
 ## services[] (trial)
 
-| Field | Type | Description |
+| field | type | description |
 |---|---|---|
 | `provider`, `type`, `algorithm` | string | the service |
-| `instantiates` | bool | `getInstance` succeeded |
+| `instantiates` | bool | instantiation succeeded |
 | `error` | string | present exactly when `instantiates` is false |
-| `defaultRun` | object | one real call with a default key; absent when the type has no call |
-| `transformations` | list | declared `algorithm/mode/padding` pairs: `name`, `instantiates`, `error`, `defaultRun` |
+| `defaultRun` | object | absent when the type has no call, the provider is not installed, or instantiation failed |
+| `transformations` | list | Cipher only; omitted when empty; first entry is the bare algorithm, then each declared `alg/mode/padding` |
+
+## transformations[]
+
+| field | type | description |
+|---|---|---|
+| `name` | string | transformation name |
+| `instantiates` | bool | `Cipher.getInstance(name, provider)` succeeded |
+| `error` | string | present exactly when `instantiates` is false |
+| `defaultRun` | object | absent for the bare algorithm entry and when instantiation failed |
 
 ## defaultRun
 
-| Field | Type | Description |
+`works` first; each other field only when set.
+
+| field | type | description |
 |---|---|---|
 | `works` | bool | the call returned |
 | `keyAlgorithm`, `keyProvider` | string | the key used |
-| `keySize` | int | key size in bits, when known |
-| `inputSize` | int | bytes passed |
+| `keySize` | int | key size in bits, `> 0` |
+| `inputSize` | int | bytes passed, `>= 0`; absent for KeyAgreement and generators |
 | `providerChose` | string | what the provider filled in, e.g. `GCM iv=12B` |
-| `bareName` | bool | the bare algorithm name was used, not a transformation |
+| `bareName` | bool | `true` when the name has no `/` |
 | `error` | string | present exactly when `works` is false |
