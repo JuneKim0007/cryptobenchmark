@@ -8,6 +8,7 @@ from typing import Callable
 
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
 from .claude import DEFAULT_MODEL
+from .conversation import LifetimeGuarded
 from .reply import AgentRefused, AgentReply
 
 Runner = Callable[[list[str], str, Path], subprocess.CompletedProcess]
@@ -21,12 +22,13 @@ def _run(command: list[str], stdin: str, cwd: Path) -> subprocess.CompletedProce
     return subprocess.run(command, input=stdin, capture_output=True, text=True, cwd=cwd)
 
 
-class ClaudeCodeSession:
+class ClaudeCodeSession(LifetimeGuarded):
 
     def __init__(self, owner: "ClaudeCodeConversations", system: SystemPrompt, schema: dict):
-        self.owner, self.system, self.schema, self.session_id = owner, system, schema, None
+        super().__init__(system)
+        self.owner, self.schema, self.session_id = owner, schema, None
 
-    def ask(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
+    def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
         o = self.owner
         command = [o.binary, "-p", "--output-format", "json", "--model", o.model, "--effort", o.effort,
                    "--system-prompt", self.system.text, "--json-schema", json.dumps(self.schema),
