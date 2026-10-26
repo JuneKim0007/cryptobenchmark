@@ -4,7 +4,7 @@ from pathlib import Path
 
 from ...dto.grouping import parse_qualified
 
-SYSTEM = Path(__file__).with_name("supervisor.system.md")
+SYSTEM = Path(__file__).parents[2] / "prompts" / "grouping-supervise.system.md"
 
 
 def system_prompt() -> str:

@@ -7,7 +7,7 @@ from ...dto.grouping import Family, Item
 from ...dto.grouping_state import Knowledge
 from ...validation.grouping.answer import MAX_DESCRIPTION, SLUG
 
-SYSTEM = Path(__file__).with_name("assign.system.md")
+SYSTEM = Path(__file__).parents[2] / "prompts" / "grouping-assign.system.md"
 EXAMPLES = 3
 
 

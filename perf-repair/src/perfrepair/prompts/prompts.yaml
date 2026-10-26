@@ -1,0 +1,6 @@
+schemaVersion: 1
+prompts:
+  grouping-assign: {file: grouping-assign.system.md, lifetime: run, values: [id_pattern, max_description]}
+  grouping-supervise: {file: grouping-supervise.system.md, lifetime: run, values: []}
+  worthiness: {file: worthiness.system.md, lifetime: run, values: []}
+  rejection: {file: rejection.turn.md, lifetime: turn, values: [problems]}
