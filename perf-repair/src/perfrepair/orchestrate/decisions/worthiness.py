@@ -4,6 +4,7 @@ from pathlib import Path
 
 from ...dto import GroupEvidence, Pair, Verdict, Verdicts
 from ...dto.decision import OutboxRecord
+from ...dto.prompt import Charter, TaskPrompt
 from ...dto.worthiness import DECISIONS
 from ...files import write_json
 from ...result.modes import Mode
@@ -11,8 +12,8 @@ from ...result.triage import triage
 from ...validation.json_reply import parse_object
 from ...validation.worthiness import validate_verdicts
 from ..engine.kind import project
+from ..prompt import PromptLibrary
 
-PROMPT = Path(__file__).parents[2] / "prompts" / "worthiness.system.md"
 VERDICTS = "verdicts.json"
 
 SCHEMA = {
@@ -42,14 +43,15 @@ def aliases(e: GroupEvidence) -> dict[str, str]:
     return {f"M{n}": m for n, m in enumerate(e.members, 1)}
 
 
-class WorthinessKind:
-    schema = SCHEMA
+def charter(library: PromptLibrary) -> Charter:
+    return library.charter("worthiness", SCHEMA)
 
-    def __init__(self, mode: Mode, comparability: list[str], evidence: list[GroupEvidence], directory: Path,
-                 prompt: str | None = None):
+
+class WorthinessKind:
+
+    def __init__(self, mode: Mode, comparability: list[str], evidence: list[GroupEvidence], directory: Path):
         self.mode, self.comparability, self.evidence, self.directory = mode, comparability, evidence, Path(directory)
         self.name = f"worthiness-{mode.name}"
-        self.system = prompt if prompt is not None else PROMPT.read_text()
         self._ask, self.static = triage(evidence, mode)
 
     def items(self) -> list[GroupEvidence]:
@@ -64,7 +66,7 @@ class WorthinessKind:
     def label(self, e: GroupEvidence) -> str:
         return e.groupId
 
-    def render(self, e: GroupEvidence, verdicts: Verdicts) -> str:
+    def render(self, e: GroupEvidence, verdicts: Verdicts) -> TaskPrompt:
         lines = [f"MODE: {self.mode.name} — {self.mode.rule}", "RUN WARNINGS:"]
         lines += [f"  - {w}" for w in self.comparability] or ["  (none)"]
         lines += ["", f"GROUP {e.groupId} | {e.label} | {e.type} | family {e.family}"]
@@ -85,7 +87,7 @@ class WorthinessKind:
             for p in c.pairs:
                 lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {p.ciOverlap} | "
                              f"{_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
-        return "\n".join(lines)
+        return TaskPrompt(self.name, "\n".join(lines), e.key)
 
     def check(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> tuple[dict | None, list[str]]:
         d, problems = parse_object(text)

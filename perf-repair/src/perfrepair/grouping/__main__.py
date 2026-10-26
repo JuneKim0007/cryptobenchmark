@@ -8,21 +8,21 @@ import argparse
 import sys
 from pathlib import Path
 
+from ..dto.prompt import TaskPrompt
 from ..orchestrate.agent import ScriptedConversations
 from ..orchestrate.agent.select import add_agent_args, conversations
 from ..orchestrate.engine.ask import Limits
 from ..orchestrate.engine.decide import decide
+from ..orchestrate.prompt import PromptLibrary
 from .build.stage import build_stage
-from .kind import GroupingKind
+from .kind import GroupingKind, charter
 from .paths import GroupingPaths
-from .prompt.render import item_id_of
 from .report.checks import report
-from .supervise.run import supervise
+from .supervise.run import charter as supervisor_charter, supervise
 
 
-def _dry_run(message: str, *_):
-    item = item_id_of(message)
-    return {"group": "", "newGroup": {"id": f"dry-{item}", "description": "dry run: no model was called"},
+def _dry_run(task: TaskPrompt, *_):
+    return {"group": "", "newGroup": {"id": f"dry-{task.item}", "description": "dry run: no model was called"},
             "amend": [], "reason": "dry run"}
 
 
@@ -50,14 +50,14 @@ def main(argv: list[str] | None = None) -> int:
         build_stage(args.manifest, args.run)
         print(f"wrote {paths.items} and {paths.profiles}")
     elif args.step == "assign":
-        knowledge = decide(GroupingKind(paths), conversations(args, ScriptedConversations(_dry_run)), paths.root,
+        knowledge = decide(GroupingKind(paths), charter(PromptLibrary.load()), conversations(args, ScriptedConversations(_dry_run)), paths.root,
                            Limits(args.turns, args.sessions), args.limit)
         print(f"{len(knowledge.groups)} groups, {len(knowledge.dropped)} dropped, knowledge version {knowledge.version}")
     else:
         document = report(paths)
         print(f"{len(document['groups'])} groups, {len(document['dropped'])} dropped -> {paths.groups}")
         if args.supervisor:
-            supervise(paths, conversations(args, ScriptedConversations(lambda *_: {"findings": []})))
+            supervise(paths, supervisor_charter(PromptLibrary.load()), conversations(args, ScriptedConversations(lambda *_: {"findings": []})))
     return 0
 
 

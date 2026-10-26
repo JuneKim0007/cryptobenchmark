@@ -1,18 +1,9 @@
 from __future__ import annotations
 
-import re
-from pathlib import Path
-
 from ...dto.grouping import Family, Item
 from ...dto.grouping_state import Knowledge
-from ...validation.grouping.answer import MAX_DESCRIPTION, SLUG
 
-SYSTEM = Path(__file__).parents[2] / "prompts" / "grouping-assign.system.md"
 EXAMPLES = 3
-
-
-def system_prompt() -> str:
-    return SYSTEM.read_text().replace("{id_pattern}", SLUG.pattern).replace("{max_description}", str(MAX_DESCRIPTION))
 
 
 def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, Item]) -> str:
@@ -29,7 +20,3 @@ def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, It
         lines.append(f"  resolved: {item.resolved}")
     return "\n".join(lines)
 
-
-def item_id_of(message: str) -> int | None:
-    found = re.search(r"^ITEM\n  id (\d+) ", message, re.M)
-    return int(found.group(1)) if found else None

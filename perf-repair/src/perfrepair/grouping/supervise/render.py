@@ -1,15 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from ...dto.grouping import parse_qualified
-
-SYSTEM = Path(__file__).parents[2] / "prompts" / "grouping-supervise.system.md"
-
-
-def system_prompt() -> str:
-    return SYSTEM.read_text()
-
 
 def render(family: str, description: str, groups: list[dict], items: dict[str, dict], findings: list[dict]) -> str:
     lines = [f"FAMILY {family} — {description}", ""]

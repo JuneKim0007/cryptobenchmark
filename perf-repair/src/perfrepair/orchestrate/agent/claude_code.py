@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 from typing import Callable
 
+from ...dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
 from .claude import DEFAULT_MODEL
 from .reply import AgentRefused, AgentReply
 
@@ -22,19 +23,19 @@ def _run(command: list[str], stdin: str, cwd: Path) -> subprocess.CompletedProce
 
 class ClaudeCodeSession:
 
-    def __init__(self, owner: "ClaudeCodeConversations", system: str, schema: dict):
+    def __init__(self, owner: "ClaudeCodeConversations", system: SystemPrompt, schema: dict):
         self.owner, self.system, self.schema, self.session_id = owner, system, schema, None
 
-    def ask(self, user: str) -> AgentReply:
+    def ask(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
         o = self.owner
         command = [o.binary, "-p", "--output-format", "json", "--model", o.model, "--effort", o.effort,
-                   "--system-prompt", self.system, "--json-schema", json.dumps(self.schema),
+                   "--system-prompt", self.system.text, "--json-schema", json.dumps(self.schema),
                    "--setting-sources", "", "--strict-mcp-config", "--mcp-config", str(o.no_mcp),
                    "--disable-slash-commands", "--exclude-dynamic-system-prompt-sections", "--tools", ""]
         if self.session_id:
             command += ["--resume", self.session_id]
         # The prompt goes on stdin: --tools takes a variable number of values and would swallow it.
-        done = o.runner(command, user, o.workdir)
+        done = o.runner(command, message.text, o.workdir)
         try:
             out = json.loads(done.stdout)
         except json.JSONDecodeError:
@@ -62,5 +63,5 @@ class ClaudeCodeConversations:
         self.no_mcp = self.workdir / ".no-mcp.json"
         self.no_mcp.write_text(json.dumps({"mcpServers": {}}))
 
-    def start(self, system: str, schema: dict) -> ClaudeCodeSession:
+    def start(self, system: SystemPrompt, schema: dict) -> ClaudeCodeSession:
         return ClaudeCodeSession(self, system, schema)

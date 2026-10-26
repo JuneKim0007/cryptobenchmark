@@ -6,9 +6,14 @@ from grouping_data import BENCHMARK, FAMILIES, INVENTORY, PREPARED, PROBE, TRIAL
 from perfrepair.dto.grouping import items_document, profiles_document
 from perfrepair.files import write_json
 from perfrepair.grouping.build.items import build
+from perfrepair.grouping.kind import charter
+from perfrepair.grouping.supervise.run import charter as supervisor_charter
 from perfrepair.grouping.paths import GroupingPaths
 
-from helpers import QUIET  # noqa: F401  (re-exported for grouping tests)
+from helpers import LIBRARY, QUIET  # noqa: F401  (re-exported for grouping tests)
+
+CHARTER = charter(LIBRARY)
+SUPERVISOR = supervisor_charter(LIBRARY)
 
 
 @pytest.fixture
@@ -21,12 +26,12 @@ def paths(tmp_path):
     return p
 
 
-def item_name(message):
-    return re.search(r"id \d+ · \S+ · (\S+) · (\S+)", message).group(1)
+def item_name(task):
+    return re.search(r"id \d+ · \S+ · (\S+) · (\S+)", task.text).group(1)
 
 
-def by_name(message, *_):
-    name = item_name(message)
+def by_name(task, *_):
+    name, message = item_name(task), task.text
     for line in message.splitlines():
         m = re.match(r"\s+(\S+) \(\d+ members\)", line)
         if m:

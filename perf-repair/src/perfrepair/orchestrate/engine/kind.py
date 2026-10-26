@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Protocol
 
 from ...dto.decision import OutboxRecord
+from ...dto.prompt import TaskPrompt
 
 
 class Item(Protocol):
@@ -12,8 +13,6 @@ class Item(Protocol):
 
 class DecisionKind(Protocol):
     name: str
-    system: str
-    schema: dict
 
     def items(self) -> list: ...
 
@@ -25,7 +24,7 @@ class DecisionKind(Protocol):
     def label(self, item) -> str:
         """How the item is named in the errors file and progress lines."""
 
-    def render(self, item, state) -> str: ...
+    def render(self, item, state) -> TaskPrompt: ...
 
     def check(self, item, text: str, state) -> tuple[dict | None, list[str]]:
         """Gate C: the decision as JSON when acceptable, else every problem."""

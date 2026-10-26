@@ -1,7 +1,6 @@
 import pytest
 
-from perfrepair.dto.prompt import CorrectionPrompt, Lifetime, Prompt, SystemPrompt, TaskPrompt, fingerprint
-from perfrepair.orchestrate.engine.ask import rejection
+from perfrepair.dto.prompt import CorrectionPrompt, Lifetime, Prompt, SystemPrompt, TaskPrompt
 from perfrepair.orchestrate.prompt import PromptError, PromptLibrary
 from perfrepair.orchestrate.prompt.library import PACKAGED
 
@@ -20,10 +19,10 @@ def test_packaged_prompts_load_and_fill_only_declared_values():
     assert "{`kind`" in library.system("grouping-supervise").text
 
 
-def test_the_correction_template_renders_what_the_engine_sends():
-    problems = ["a", "b"]
-    text = PromptLibrary.load().correction("rejection", problems="\n".join(f"  - {p}" for p in problems)).text
-    assert text == rejection(problems)
+def test_the_charter_corrects_with_the_rejection_template():
+    correction = PromptLibrary.load().charter("worthiness", {}).correct(["a", "b"])
+    assert isinstance(correction, CorrectionPrompt)
+    assert correction.text == "YOUR ANSWER WAS REJECTED:\n  - a\n  - b\nAnswer again with JSON only."
 
 
 def test_values_and_lifetimes_are_checked():
@@ -51,7 +50,10 @@ def test_an_override_must_keep_declared_placeholders(tmp_path):
         PromptLibrary.load(tmp_path)
 
 
-def test_the_fingerprint_moves_with_the_system_prompt_and_the_schema():
-    a, b = SystemPrompt("s", "one"), SystemPrompt("s", "two")
-    assert fingerprint(a, {"x": 1}) != fingerprint(b, {"x": 1}) != fingerprint(b, {"x": 2})
-    assert fingerprint(a, {"x": 1, "y": 2}) == fingerprint(a, {"y": 2, "x": 1})
+def test_the_fingerprint_moves_with_every_run_element(tmp_path):
+    library = PromptLibrary.load()
+    base = library.charter("worthiness", {"x": 1, "y": 2})
+    assert base.fingerprint == library.charter("worthiness", {"y": 2, "x": 1}).fingerprint
+    assert base.fingerprint != library.charter("worthiness", {"x": 2}).fingerprint
+    (tmp_path / "rejection.turn.md").write_text("again: {problems}")
+    assert base.fingerprint != PromptLibrary.load(tmp_path).charter("worthiness", {"x": 1, "y": 2}).fingerprint

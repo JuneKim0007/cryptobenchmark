@@ -4,6 +4,7 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import Callable
 
+from ...dto.prompt import Charter, TaskPrompt
 from ..agent import AgentRefused, Conversations
 
 Check = Callable[[str], tuple[dict | None, list[str]]]
@@ -43,19 +44,17 @@ class Asked:
         return [f"s{t.session}t{t.turn}: {p}" for t in self.turns for p in t.problems]
 
 
-def rejection(problems: list[str]) -> str:
-    return "YOUR ANSWER WAS REJECTED:\n" + "\n".join(f"  - {p}" for p in problems) + "\nAnswer again with JSON only."
-
-
-def ask(conversations: Conversations, system: str, schema: dict, message: str, check: Check, limits: Limits,
+def ask(conversations: Conversations, charter: Charter, message: TaskPrompt, check: Check, limits: Limits,
         on_turn: Callable[[Turn], None] = lambda _: None) -> Asked:
+    if not isinstance(message, TaskPrompt):
+        raise TypeError(f"lifetime_mismatch: a session opens with a TaskPrompt, not {type(message).__name__}")
     asked = Asked()
     for session in range(1, limits.sessions + 1):
-        conversation, text = conversations.start(system, schema), message
+        conversation, prompt = conversations.start(charter.system, charter.schema), message
         for n in range(1, limits.turns + 1):
-            sha = hashlib.sha256(text.encode()).hexdigest()[:12]
+            sha = hashlib.sha256(prompt.text.encode()).hexdigest()[:12]
             try:
-                reply = conversation.ask(text)
+                reply = conversation.ask(prompt)
             except AgentRefused as e:
                 decision, problems, status, kept = None, [f"model refused: {e}"], "refused", None
             else:
@@ -68,5 +67,5 @@ def ask(conversations: Conversations, system: str, schema: dict, message: str, c
             if status == "accepted":
                 asked.decision = decision
                 return asked
-            text = rejection(problems)
+            prompt = charter.correct(problems)
     return asked

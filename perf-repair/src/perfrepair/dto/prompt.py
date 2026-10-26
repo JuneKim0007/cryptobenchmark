@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import ClassVar
+from typing import Callable, ClassVar
 
 
 class Lifetime(Enum):
@@ -44,7 +44,15 @@ class CorrectionPrompt(Prompt):
     lifetime = Lifetime.TURN
 
 
-def fingerprint(system: SystemPrompt, schema: dict) -> str:
-    """What a run's answers depend on besides the item: the system prompt and the answer schema."""
-    body = system.text + "\0" + json.dumps(schema, sort_keys=True)
-    return hashlib.sha256(body.encode()).hexdigest()[:12]
+@dataclass(frozen=True)
+class Charter:
+    """What every conversation of a run shares; its fingerprint names the run's answers."""
+    system: SystemPrompt
+    schema: dict
+    correction: str
+    correct: Callable[[list[str]], CorrectionPrompt] = field(compare=False, repr=False)
+
+    @property
+    def fingerprint(self) -> str:
+        body = "\0".join([self.system.text, json.dumps(self.schema, sort_keys=True), self.correction])
+        return hashlib.sha256(body.encode()).hexdigest()[:12]
