@@ -40,7 +40,7 @@ class BenchmarkJson(private val directory: File) {
 
     private fun quoted(value: String?): String = if (value == null) "null" else "\"$value\""
 
-    // Transitional duplicate of metrics.timeNs: tools/quick-bench/analyze.py still reads this flat pair.
+    // Duplicate of metrics.timeNs, kept so readers of files written before `metrics` still find it.
     private fun legacyTime(row: ResultRow): String {
         val time = row.time ?: return ""
         return ",\n     \"iterations\": ${time.iterations}, \"nanosPerOperation\": [${time.runs.joinToString(", ")}]"

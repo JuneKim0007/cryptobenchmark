@@ -30,8 +30,8 @@ comes from a time budget, so a 40 ns digest is not measured against the clock's 
 A case carries one block per metric, not one sample list: Jetpack measures `timeNs` over 50 runs of
 `repeatIterations` calls and `allocationCount` over 5 runs it has already divided by its own,
 shorter loop, so neither the run count nor the iteration count is shared. The timing is also written
-flat as `iterations`/`nanosPerOperation` — a deliberate duplication, kept until `analyze.py` and
-`Merge` read `metrics` instead. The host loop writes only `timeNs`: `System.nanoTime` cannot count
+flat as `iterations`/`nanosPerOperation` — a deliberate duplication: every reader takes `metrics`
+first and falls back to the flat pair, so files written before `metrics` stay readable. The host loop writes only `timeNs`: `System.nanoTime` cannot count
 allocations, and an absent key says that where a zero would not.
 
 Samples are fractional. Jetpack reports nanoseconds per operation as a double, and cutting it to an
