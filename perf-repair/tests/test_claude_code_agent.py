@@ -4,7 +4,7 @@ import subprocess
 import pytest
 from helpers import task
 
-from perfrepair.dto.prompt import SystemPrompt
+from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
 from perfrepair.ai.runtime.agent import AgentRefused, ClaudeCodeConversations, ClaudeCodeError
 
 
@@ -28,7 +28,7 @@ def test_a_conversation_is_one_isolated_session_resumed_turn_by_turn(tmp_path):
     cli = FakeCli([ok("s-1", {"a": 1}), ok("s-1", {"a": 2})])
     convo = ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {"type": "object"})
     assert json.loads(convo.ask(task("first")).text) == {"a": 1}
-    assert convo.ask(task("second")).usage["costUsd"] == 0.01
+    assert convo.ask(CorrectionPrompt("t", "second")).usage["costUsd"] == 0.01
     first, second = cli.calls[0][0], cli.calls[1][0]
     for flag in ("--setting-sources", "--strict-mcp-config", "--disable-slash-commands", "--tools"):
         assert flag in first
@@ -56,3 +56,18 @@ def test_refusal_and_cli_errors_are_told_apart(tmp_path):
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     with pytest.raises(ClaudeCodeError, match="error_max_budget_usd"):
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
+
+
+def test_system_text_is_a_flag_and_the_message_goes_on_stdin(tmp_path):
+    cli = FakeCli([ok("s-1", {})])
+    ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {}).ask(task("MSG"))
+    command, stdin, _ = cli.calls[0]
+    assert command[command.index("--system-prompt") + 1] == "SYS" and stdin == "MSG"
+
+
+def test_lifetime_misuse_never_reaches_the_cli(tmp_path):
+    cli = FakeCli([])
+    convo = ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "S"), {})
+    with pytest.raises(TypeError, match="lifetime_mismatch"):
+        convo.ask(CorrectionPrompt("t", "x"))
+    assert cli.calls == []
