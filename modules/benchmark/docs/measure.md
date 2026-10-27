@@ -43,7 +43,7 @@ Host (`HostHarness`):
 | inner loop count | 30 ms (`RUN_NANOS`) / warm-up ns per call, min 1 |
 | samples | `harness.iterations`, else 5 (`RUNS`) |
 | one sample | elapsed ns / inner loop count; results passed to `BlackHole` |
-| row | `timeNs` only; `keyKind` = recipe kind; median = middle or mean of the two middles |
+| row | `timeNs` only; `keyKind` = recipe kind; `parameters` = the prepared case's `resolvedParameters`; median = middle or mean of the two middles |
 
 `TimedLoop` calls `once()` until the budget is spent and returns the call count. The host loop locks no clocks and reads no thermal state. `processRepetitions` is one process per repetition, run by the caller: `docs/run.md`.
 
@@ -63,7 +63,7 @@ Harness settings as plain values, no androidx type.
 | key | holds |
 |---|---|
 | `runtime` | string map |
-| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, flat `iterations` and `nanosPerOperation` (copy of `timeNs`), `metrics` |
+| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `parameters`, flat `iterations` and `nanosPerOperation` (copy of `timeNs`), `metrics` |
 | `metrics.<key>` | `iterations`, `runs[]`, optional `reported{minimum, maximum, median, coefficientOfVariation}` |
 
 | rule | value |
@@ -71,6 +71,7 @@ Harness settings as plain values, no androidx type.
 | metric keys | `timeNs`, `allocationCount`, `energyJ` |
 | `timeNs` | required in every row |
 | `keyKind` | `secret`, `pair`, `none` |
+| `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`modules/preparation/docs/prepared.md`); `{}` when nothing applies; absent only in files written before it |
 | `runs` | doubles; non-finite: `not_finite: runs` |
 | `iterations` | `>= 1` |
 | `reported` | dropped when any of the four numbers is missing |
@@ -86,6 +87,7 @@ Harness settings as plain values, no androidx type.
 | `reported` | dropped |
 | partial presence | a case or metric present in only some processes survives |
 | `runtime` keys | first value wins |
+| `parameters` | must be equal across processes, else `different_parameters: <id>: <a> and <b>` |
 
 ## Jetpack conversion
 
@@ -97,6 +99,7 @@ Harness settings as plain values, no androidx type.
 | `timeNs.iterations` | `repeatIterations`, default 1 |
 | `allocationCount.iterations` | 1 |
 | case shape | algorithm, provider, operation, sizes, `keyKind` from the `prepared.yaml` case |
+| `parameters` | the case's `resolvedParameters`; absent: `missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |
 | androidx.benchmark | 1.5.0 |
 
 | `runtime` key | Jetpack source |

@@ -7,6 +7,8 @@ import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
 
 object JetpackResults {
 
+    private const val RESOLVED_PARAMETERS = "resolvedParameters"
+
     class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val missing: List<String>, val notApplied: List<String> = emptyList())
 
     fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap()): Converted {
@@ -29,7 +31,7 @@ object JetpackResults {
                 continue
             }
             energy[id]?.let { metrics[MetricSamples.ENERGY] = it }
-            rows += CaseDocument.row(case, metrics)
+            rows += CaseDocument.row(case, metrics, resolvedParametersOf(id, case))
             notApplied += RunCountAudit.findings(id, CaseDocument.requestedIterations(case), metrics)
         }
         return Converted(runtime(data), rows, missing, notApplied)
@@ -55,6 +57,10 @@ object JetpackResults {
     // so one allocation run is already per operation.
     private fun iterationsOf(metric: String, benchmark: Map<String, Any>): Int =
         if (metric == MetricSamples.TIME) CaseDocument.iterations(benchmark["repeatIterations"]) else 1
+
+    private fun resolvedParametersOf(id: String, case: Map<String, Any>): Map<String, Any> =
+        CaseDocument.optionalSection(case[RESOLVED_PARAMETERS])
+            ?: throw IllegalArgumentException("missing_field: $RESOLVED_PARAMETERS for $id; prepared.yaml predates schemaVersion 2")
 
     fun caseIdOf(benchmark: Map<String, Any>): String {
         val name = benchmark["name"].toString()

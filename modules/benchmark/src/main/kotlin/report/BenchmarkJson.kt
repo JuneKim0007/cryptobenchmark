@@ -22,6 +22,7 @@ class BenchmarkJson(private val directory: File) {
         rows.forEachIndexed { index, row ->
             document.append("    {\"id\": \"${row.id}\", \"type\": \"${row.type}\", \"algorithm\": \"${row.algorithm}\", \"provider\": \"${row.provider}\"")
             document.append(", \"operation\": \"${row.operation}\", \"keySize\": ${row.keySize}, \"inputSize\": ${row.inputSize}, \"keyKind\": ${quoted(row.keyKind)}")
+            row.parameters?.let { document.append(", \"$PARAMETERS\": ").append(parameters(it)) }
             document.append(legacyTime(row))
             document.append(",\n     \"metrics\": {")
             document.append(row.metrics.entries.joinToString(", ") { (metric, samples) -> metricBlock(metric, samples) })
@@ -40,6 +41,11 @@ class BenchmarkJson(private val directory: File) {
 
     private fun quoted(value: String?): String = if (value == null) "null" else "\"$value\""
 
+    private fun parameters(fields: Map<String, Any>): String =
+        fields.entries.joinToString(", ", "{", "}") { (key, value) -> "\"$key\": ${if (value is Number) value else escaped(value.toString())}" }
+
+    private fun escaped(text: String): String = "\"" + text.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
     // Duplicate of metrics.timeNs, kept so readers of files written before `metrics` still find it.
     private fun legacyTime(row: ResultRow): String {
         val time = row.time ?: return ""
@@ -48,5 +54,6 @@ class BenchmarkJson(private val directory: File) {
 
     companion object {
         const val NAME = "benchmark.json"
+        const val PARAMETERS = "parameters"
     }
 }

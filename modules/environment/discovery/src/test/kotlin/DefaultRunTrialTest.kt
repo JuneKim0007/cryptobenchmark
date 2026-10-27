@@ -28,10 +28,19 @@ class DefaultRunTrialTest {
         val gcm = service("SunJCE", "Cipher", "AES/GCM/NoPadding")!!
         assertTrue(gcm.works)
         assertEquals("AES", gcm.keyAlgorithm)
-        assertEquals("GCM iv=12B", gcm.providerChose)
+        assertEquals("ivBytes=12 tagBits=128", gcm.providerChose)
         assertEquals(1024, gcm.inputSize)
         assertTrue(service("SunJCE", "Cipher", "AES")!!.bareName)
         assertEquals(128, service("SunJCE", "Cipher", "AES_128/GCM/NoPadding")!!.keySize)
+    }
+
+    /** A key-wrap integrity check value is the same on every init, so it is not reported as an IV; a CBC IV changes. */
+    @Test
+    fun aConstantTheProviderFillsInIsNotAnIv() {
+        val wrap = service("SunJCE", "Cipher", "AES/KWP/NoPadding")!!
+        assertTrue(wrap.error, wrap.works)
+        assertEquals("fixedValueBytes=4", wrap.providerChose)
+        assertEquals("ivBytes=16", transformation("SunJCE", "AES", "AES/CBC/NoPadding")!!.providerChose)
     }
 
     /** RSA cannot encrypt 1024 bytes; the smaller size is tried and recorded instead of failing the entry. */
@@ -40,7 +49,7 @@ class DefaultRunTrialTest {
         val oaep = transformation("SunJCE", "RSA", "RSA/ECB/OAEPPadding")!!
         assertTrue(oaep.error, oaep.works)
         assertEquals(32, oaep.inputSize)
-        assertTrue(oaep.providerChose, oaep.providerChose.startsWith("OAEP digest=SHA-1"))
+        assertEquals("digest=SHA-1 mgf1=SHA-1 labelBytes=0", oaep.providerChose)
     }
 
     @Test

@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 generatedFrom: {effective: effective.yaml}
 run:
   seed: 42
@@ -17,6 +17,7 @@ cases:
   key: {kind: none}
   input: {kind: message, bytes: 1024}
   fingerprint: 4cf5f521
+  resolvedParameters: {}
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -34,3 +35,4 @@ cases:
   specPerIteration: true
   input: {kind: message, bytes: 1024}
   fingerprint: 0f27b659
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}

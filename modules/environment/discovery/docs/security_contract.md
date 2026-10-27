@@ -112,6 +112,6 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 | `keyAlgorithm`, `keyProvider` | string | the key used |
 | `keySize` | int | key size in bits, `> 0` |
 | `inputSize` | int | bytes passed, `>= 0`; absent for KeyAgreement and generators |
-| `providerChose` | string | what the provider filled in, e.g. `GCM iv=12B` |
+| `providerChose` | string | what the provider filled in, e.g. `ivBytes=12 tagBits=128`; format in [probe.md](probe.md) |
 | `bareName` | bool | `true` when the name has no `/` |
 | `error` | string | present exactly when `works` is false |

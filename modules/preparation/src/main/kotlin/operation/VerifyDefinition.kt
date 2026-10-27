@@ -41,6 +41,6 @@ internal object VerifyDefinition : OperationDefinition {
         return Invocation(perIteration = {
             signature.update(input.message)
             check(signature.verify(input.signature)) { "verify_failed" }
-        })
+        }, engine = signature)
     }
 }

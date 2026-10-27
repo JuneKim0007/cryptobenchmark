@@ -75,7 +75,7 @@ CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYam
 | call | default run |
 |---|---|
 | Cipher | `ENCRYPT_MODE`, `doFinal(input)`; key from the first `KeyGenerator` candidate (base name, `<base>_<n>` size suffix, part before `-`), else a key pair's public key |
-| Cipher `providerChose` | `OAEP digest=<d> mgf1=<d>` for OAEP, else `<paramsAlg> iv=<n>B`, `""` without parameters; `bareName` when the name has no `/` |
+| Cipher `providerChose` | space-separated `key=value`, keys as prepared.yaml `resolvedParameters`: `ivBytes=<n> tagBits=<n>` for GCM; `digest=<d> mgf1=<d> labelBytes=<n>` for OAEP; else `ivBytes=<n>` when a second init fills in a different value, `fixedValueBytes=<n>` when it fills in the same one (a key-wrap integrity check value); `""` without parameters; `bareName` when the name has no `/` |
 | Signature | key algorithm = text after the last `with`, minus `inP1363Format`, `ECDSA` to `EC` |
 | KeyAgreement | `ECDH` to `EC`; peer pair generated with the same EC or DH parameters |
 | KeyGenerator, KeyPairGenerator | provider default size; records key size only |
