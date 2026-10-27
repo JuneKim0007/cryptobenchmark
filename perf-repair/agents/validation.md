@@ -31,7 +31,7 @@ src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive
 src/perfrepair/validation/run.py : validate every artifact present in a run directory
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/suggest/dossier.py : dossiers.json: header, scope id, sinks, key source, unique aliases, estimates in range
-src/perfrepair/validation/suggest/replace.py : gate C of site-replace: a reply against its dossier, in its aliases; RISKS
+src/perfrepair/validation/suggest/replace.py : gate C of site-replace: a reply against its dossier, in its aliases; RISKS and the DERIVED_RISKS table
 src/perfrepair/validation/suggest/replacements.py : replacements: known scopes, keep without edits, edits exactly the option's provider and pins
 src/perfrepair/validation/worthiness.py : verdicts: known groups, static equal triage, pairs are members
 ```

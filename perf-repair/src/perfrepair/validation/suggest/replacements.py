@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from ...dto.site import DECISIONS, EDIT_KINDS, Dossier, Replacement
-from .dossier import provider_of
-from .replace import RISKS
+from .dossier import algorithm_of, provider_of
+from .replace import RISKS, required_risks
 
 SOURCES = ("llm", "fallback", "static")
 
@@ -19,10 +19,14 @@ def _edits(r: Replacement, d: Dossier) -> list[str]:
     for e in r.edits:
         if e.kind == "set_provider" and (e.provider != provider_of(option.item) or e.parameters):
             problems.append(f"{r.scope}: set_provider is not exactly the option's provider")
+        if e.kind == "set_algorithm" and (e.parameters != {"algorithm": algorithm_of(option.item)} or e.provider):
+            problems.append(f"{r.scope}: set_algorithm is not exactly the option's algorithm")
         if e.kind == "pin_parameters" and (e.parameters != option.pins or e.provider):
             problems.append(f"{r.scope}: pin_parameters is not exactly the option's pins")
     if option.pins and "pin_parameters" not in kinds:
         problems.append(f"{r.scope}: the option's pins are not applied")
+    problems += [f"{r.scope}: risk {k} implied by the scope is not declared" for k in required_risks(d.scope)
+                 if k not in r.risks]
     return problems
 
 

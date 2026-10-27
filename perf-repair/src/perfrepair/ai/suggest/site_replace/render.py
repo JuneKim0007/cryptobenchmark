@@ -4,14 +4,16 @@ from __future__ import annotations
 import hashlib
 
 from ....dto.site import EDIT_KINDS, Dossier, Option
-from ....validation.suggest.dossier import provider_of
-from ....validation.suggest.replace import pin_text
+from ....validation.suggest.dossier import algorithm_of, provider_of
+from ....validation.suggest.replace import pin_text, required_risks
 
 EDIT_MEANINGS = {
     "set_provider": "construct the call's engine from the chosen option's provider; provider = that name exactly, "
-                    "parameters []",
+                    "algorithm \"\", parameters []",
+    "set_algorithm": "request the chosen option's name instead of the current one; algorithm = that name exactly, "
+                     "provider \"\", parameters []",
     "pin_parameters": "state the option's pins at the call so the result stays like-for-like; provider \"\", "
-                      "parameters = every pin as {name, value}, exactly as listed",
+                      "algorithm \"\", parameters = every pin as {name, value}, exactly as listed",
 }
 
 
@@ -21,7 +23,7 @@ def _known(x) -> str:
 
 def _option(o: Option) -> list[str]:
     pins = ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
-    lines = [f"  {o.alias} = {o.item} | provider {provider_of(o.item)}", f"    pins: {pins}"]
+    lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}"]
     if not o.estimates:
         return lines + ["    estimates: none measured"]
     lines.append("    metric | ratio | pImprove | n | configuration")
@@ -44,7 +46,8 @@ def render(d: Dossier) -> str:
              f"| resolution {s.resolution}",
              f"  key size {_known(s.keySize)} | input size {_known(s.inputSize)}",
              "", "SCOPE FACTS", f"  sinks: {', '.join(s.sinks)}", f"  key source: {s.keySource}",
-             "", f"CURRENT {d.current} | provider {provider_of(d.current)}",
+             f"  risks a replace must declare: {', '.join(required_risks(s)) or 'none'}",
+             "", f"CURRENT {d.current} | name {algorithm_of(d.current)} | provider {provider_of(d.current)}",
              "", "OPTIONS (answer with these names)"]
     for o in d.options:
         lines += _option(o)

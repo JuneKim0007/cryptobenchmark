@@ -13,11 +13,12 @@ SCHEMA = {
             "properties": {
                 "kind": {"type": "string", "enum": list(EDIT_KINDS)},
                 "provider": {"type": "string"},
+                "algorithm": {"type": "string"},
                 "parameters": {"type": "array", "items": {
                     "type": "object", "properties": {"name": {"type": "string"}, "value": {"type": "string"}},
                     "required": ["name", "value"], "additionalProperties": False}},
             },
-            "required": ["kind", "provider", "parameters"],
+            "required": ["kind", "provider", "algorithm", "parameters"],
             "additionalProperties": False,
         }},
         "risks": {"type": "array", "items": {"type": "string", "enum": list(RISKS)}},

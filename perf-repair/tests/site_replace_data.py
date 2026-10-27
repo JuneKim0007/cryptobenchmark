@@ -17,6 +17,7 @@ def dossier(options=None, **kw) -> Dossier:
                    (Estimate("timeNs", 0.62, 0.99, 40, "OP1 key 128 input 1024"),
                     Estimate("allocationCount", 0.9, 0.7, 40, "OP1 key 128 input 1024"))),
             Option("R2", "TypeA|ALG-A/MODE-X|P3", {}, (Estimate("timeNs", 0.97, 0.55, 12, "OP1 key 128 input 64"),)),
+            Option("R3", "TypeA|ALG-B|P1", {}, (Estimate("energyUj", 0.8, 0.96, 20, "OP1 key 128 input 1024"),)),
         )
     return Dossier(scope(**kw), SOURCE, "TypeA|ALG-A/MODE-X|P1", options)
 
@@ -25,15 +26,16 @@ def doc(*dossiers: Dossier, app=APP) -> dict:
     return {"schemaVersion": SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers]}
 
 
-def edit(kind, provider="", parameters=()):
-    return {"kind": kind, "provider": provider, "parameters": [{"name": n, "value": v} for n, v in parameters]}
+def edit(kind, provider="", parameters=(), algorithm=""):
+    return {"kind": kind, "provider": provider, "algorithm": algorithm,
+            "parameters": [{"name": n, "value": v} for n, v in parameters]}
 
 
 PINS = (("ivLength", "12"), ("tagMode", "full"))
 GOOD_EDITS = [edit("set_provider", "P2"), edit("pin_parameters", parameters=PINS)]
 
 
-def answer(decision="replace", option="R1", edits=None, risks=("persisted_data",), reason="timeNs ratio 0.62, pImprove 0.99"):
+def answer(decision="replace", option="R1", edits=None, risks=("persisted_data", "key_compatibility"), reason="timeNs ratio 0.62, pImprove 0.99"):
     return {"decision": decision, "option": option, "edits": GOOD_EDITS if edits is None else edits,
             "risks": list(risks), "reason": reason}
 

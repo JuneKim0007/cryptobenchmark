@@ -9,6 +9,10 @@ def provider_of(item: str) -> str:
     return parse_qualified(item)[2]
 
 
+def algorithm_of(item: str) -> str:
+    return parse_qualified(item)[1]
+
+
 def validate_dossier(d: Dossier, app: str) -> list[str]:
     s, k = d.scope, d.key
     problems = [p for p in (

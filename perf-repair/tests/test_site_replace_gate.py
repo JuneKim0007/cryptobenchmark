@@ -1,10 +1,10 @@
 import json
 
 import pytest
-from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit
+from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, scope
 
 from perfrepair.dto.site import Replacement
-from perfrepair.validation.suggest.replace import check_reply
+from perfrepair.validation.suggest.replace import check_reply, required_risks
 
 D = dossier()
 
@@ -49,6 +49,15 @@ def test_a_good_keep():
     (answer(edits=[GOOD_EDITS[0], edit("pin_parameters", "P2", PINS)]), "pin_parameters takes no provider"),
     (answer(option="R2", edits=[edit("set_provider", "P3"), edit("pin_parameters", parameters=PINS)]),
      "pin_parameters on R2, which lists no pins"),
+    (answer(edits=[edit("set_provider", "P2", algorithm="ALG-A/MODE-X"), GOOD_EDITS[1]]),
+     "set_provider takes no algorithm"),
+    (answer(option="R3", edits=[]), "replace names no edit"),
+    (answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-C")]), "set_algorithm names 'ALG-C', but R3 is named 'ALG-B'"),
+    (answer(option="R3", edits=[edit("set_provider", "P1")]), "R3 is named 'ALG-B', not the current 'ALG-A/MODE-X'; set_algorithm must name it"),
+    (answer(option="R3", edits=[edit("set_algorithm", "P1", algorithm="ALG-B")]), "set_algorithm takes no provider"),
+    (answer(edits=[GOOD_EDITS[0], {**edit("pin_parameters", parameters=PINS), "algorithm": None}]), "algorithm is not a string"),
+    (answer(risks=["persisted_data"]), "risks must include key_compatibility: the key lives in a key store"),
+    (answer(risks=[]), "risks must include persisted_data: the output is stored and read back later"),
     (answer(risks=["fast"]), "risk 'fast' is not one of"),
     (answer(risks=["wire_format", "wire_format"]), "risk 'wire_format' given more than once"),
     (answer(reason="  "), "reason is empty"),
@@ -61,10 +70,35 @@ def test_gate(reply, problem):
 
 
 def test_a_replace_without_pins_needs_only_set_provider():
-    decision, problems = check(answer(option="R2", edits=[edit("set_provider", "P3")], risks=[]))
+    decision, problems = check(answer(option="R2", edits=[edit("set_provider", "P3")]))
     assert problems == [] and [e["kind"] for e in decision["edits"]] == ["set_provider"]
 
 
 def test_messages_never_name_an_item_id_the_model_was_not_asked_for():
     _, problems = check(answer(option="R9", edits=[edit("set_provider", "P3")]))
     assert not any("|" in p for p in problems)
+
+
+def test_set_algorithm_resolves_to_the_option_name():
+    decision, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")]))
+    assert problems == [] and decision["edits"] == [{"kind": "set_algorithm", "provider": None,
+                                                     "parameters": {"algorithm": "ALG-B"}}]
+
+
+def test_the_model_may_add_risks_beyond_the_derived_ones():
+    _, problems = check(answer(risks=["persisted_data", "key_compatibility", "wire_format"]))
+    assert problems == []
+
+
+def test_a_keep_need_not_declare_derived_risks():
+    assert check(KEEP)[1] == []
+
+
+@pytest.mark.parametrize("sinks, key_source, risks", [
+    (("persist",), "keystore", {"persisted_data", "key_compatibility"}),
+    (("network", "return"), "generated", {"wire_format"}),
+    (("unknown",), "literal", {"unknown_sink", "key_compatibility"}),
+    (("local",), "derived", set()),
+])
+def test_required_risks_come_from_the_scope_facts(sinks, key_source, risks):
+    assert set(required_risks(scope(sinks=sinks, key_source=key_source))) == risks

@@ -3,15 +3,33 @@ from __future__ import annotations
 
 import json
 
-from ...dto.site import DECISIONS, EDIT_KINDS, Dossier, Edit, Option, Replacement
+from ...dto.site import DECISIONS, EDIT_KINDS, Dossier, Edit, Option, Replacement, Scope
 from ..json_reply import parse_object
-from .dossier import provider_of
+from .dossier import algorithm_of, provider_of
 
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink")
+# (scope field, value, risk it implies, plain words): the minimum risks a replace must declare
+DERIVED_RISKS = (
+    ("sinks", "persist", "persisted_data", "the output is stored and read back later"),
+    ("sinks", "network", "wire_format", "the output leaves the process"),
+    ("sinks", "unknown", "unknown_sink", "where the output goes is unknown"),
+    ("keySource", "keystore", "key_compatibility", "the key lives in a key store"),
+    ("keySource", "literal", "key_compatibility", "the key is a literal in the code"),
+)
 
 
 def pin_text(value) -> str:
     return value if isinstance(value, str) else json.dumps(value)
+
+
+def required_risks(scope: Scope) -> dict[str, list[str]]:
+    """Each risk the scope facts imply, with the plain words that imply it."""
+    out: dict[str, list[str]] = {}
+    for field, value, risk, words in DERIVED_RISKS:
+        facts = getattr(scope, field)
+        if value in (facts if isinstance(facts, tuple) else (facts,)):
+            out.setdefault(risk, []).append(words)
+    return out
 
 
 def _text(d: dict, field: str) -> str | None:
@@ -44,6 +62,29 @@ def _pins(given: dict[str, str], option: Option, where: str) -> list[str]:
     return problems
 
 
+def _named(kind: str, field: str, given: str | None, want: str, option: Option, where: str) -> list[str]:
+    if given is not None and given != want:
+        return [f"{where}: {kind} names {given!r}, but {option.alias} is {field} {want!r}"]
+    return []
+
+
+def _resolve(kind: str, e: dict, option: Option, where: str, problems: list[str]) -> Edit:
+    provider, algorithm = _text(e, "provider"), _text(e, "algorithm")
+    given = _parameters(e.get("parameters"), where, problems)
+    unused = {"set_provider": ("algorithm", "parameters"), "set_algorithm": ("provider", "parameters"),
+              "pin_parameters": ("provider", "algorithm")}[kind]
+    values = {"provider": provider, "algorithm": algorithm, "parameters": given}
+    problems += [f"{where}: {kind} takes no {f}" for f in unused if values[f]]
+    if kind == "set_provider":
+        problems += _named(kind, "provided by", provider, provider_of(option.item), option, where)
+        return Edit(kind, provider=provider_of(option.item))
+    if kind == "set_algorithm":
+        problems += _named(kind, "named", algorithm, algorithm_of(option.item), option, where)
+        return Edit(kind, parameters={"algorithm": algorithm_of(option.item)})
+    problems += _pins(given, option, where)
+    return Edit(kind, parameters=dict(option.pins))
+
+
 def _edits(raw: list, option: Option | None, current: str, problems: list[str]) -> list[Edit]:
     edits, kinds = [], []
     for i, e in enumerate(raw):
@@ -51,37 +92,36 @@ def _edits(raw: list, option: Option | None, current: str, problems: list[str]) 
         if not isinstance(e, dict):
             problems.append(f"{where} is not an object")
             continue
-        kind, provider = e.get("kind"), _text(e, "provider")
+        kind = e.get("kind")
         if kind not in EDIT_KINDS:
             problems.append(f"{where}: kind {kind!r} is not one of {EDIT_KINDS}")
             continue
         if kind in kinds:
             problems.append(f"{where}: {kind} given more than once")
         kinds.append(kind)
-        given = _parameters(e.get("parameters"), where, problems)
-        if provider is None:
-            problems.append(f"{where}: provider is not a string")
-        if option is None:
-            continue
-        if kind == "set_provider":
-            if provider is not None and provider != provider_of(option.item):
-                problems.append(f"{where}: set_provider names {provider!r}, but {option.alias} is provided by "
-                                f"{provider_of(option.item)!r}")
-            if given:
-                problems.append(f"{where}: set_provider takes no parameters")
-            edits.append(Edit(kind, provider=provider_of(option.item)))
-        else:
-            if provider:
-                problems.append(f"{where}: pin_parameters takes no provider")
-            problems += _pins(given, option, where)
-            edits.append(Edit(kind, parameters=dict(option.pins)))
+        problems += [f"{where}: {f} is not a string" for f in ("provider", "algorithm") if _text(e, f) is None]
+        if option is not None:
+            edits.append(_resolve(kind, e, option, where, problems))
     if option is not None:
         if option.pins and "pin_parameters" not in kinds:
             problems.append(f"{option.alias} lists pins; pin_parameters must state them")
         if provider_of(option.item) != provider_of(current) and "set_provider" not in kinds:
             problems.append(f"{option.alias} is provided by {provider_of(option.item)!r}, not the current "
                             f"{provider_of(current)!r}; set_provider must name it")
+        if algorithm_of(option.item) != algorithm_of(current) and "set_algorithm" not in kinds:
+            problems.append(f"{option.alias} is named {algorithm_of(option.item)!r}, not the current "
+                            f"{algorithm_of(current)!r}; set_algorithm must name it")
     return edits
+
+
+def _risks(risks: list, scope: Scope, decision: str) -> list[str]:
+    problems = [f"risk {r!r} is not one of {RISKS}" for r in risks if r not in RISKS]
+    problems += [f"risk {r!r} given more than once" for r in sorted({r for r in risks if isinstance(r, str)
+                                                                       and risks.count(r) > 1})]
+    if decision == "replace":
+        problems += [f"risks must include {r}: {' and '.join(words)}"
+                     for r, words in required_risks(scope).items() if r not in risks]
+    return problems
 
 
 def check_reply(text: str, dossier: Dossier) -> tuple[dict | None, list[str]]:
@@ -114,9 +154,7 @@ def check_reply(text: str, dossier: Dossier) -> tuple[dict | None, list[str]]:
         if edits:
             problems.append("keep names edits; a keep has none")
     resolved = _edits(edits, option, dossier.current, problems)
-    problems += [f"risk {r!r} is not one of {RISKS}" for r in risks if r not in RISKS]
-    problems += [f"risk {r!r} given more than once" for r in sorted({r for r in risks if isinstance(r, str)
-                                                                       and risks.count(r) > 1})]
+    problems += _risks(risks, dossier.scope, decision)
     if problems:
         return None, problems
     return Replacement(dossier.key, decision, option.item if option else None, tuple(resolved), tuple(risks),
