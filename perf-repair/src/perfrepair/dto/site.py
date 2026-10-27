@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass, field
 SCHEMA_VERSION = 1
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
-EDIT_KINDS = ("set_provider", "pin_parameters")
+EDIT_KINDS = ("set_provider", "set_algorithm", "pin_parameters")
 DECISIONS = ("replace", "keep")
 METRICS = ("timeNs", "allocationCount", "energyUj")
 

@@ -23,7 +23,7 @@
 ## File structure
 
 ```
-src/perfrepair/ai/__main__.py : command: the worthiness stage
+src/perfrepair/ai/__main__.py : command: the worthiness and replace stages
 src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurements → evidence, triage, WorthinessKind on the engine
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; render, gate, apply, fallback
 src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output, server-side refusal fallback
@@ -38,9 +38,15 @@ src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract and project(kin
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; `active` pointer
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
+src/perfrepair/ai/suggest/site_replace/command.py : stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
+src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; static keep without options, gate, apply, dropped → fallback keep
+src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins and estimates, edit kinds, fenced source
+src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required
+src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
 src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer
+src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace or keep a call site; like-for-like, risks, cite the metric
 ```
