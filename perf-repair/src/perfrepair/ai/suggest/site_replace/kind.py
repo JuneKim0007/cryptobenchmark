@@ -1,0 +1,81 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from ....dto.decision import OutboxRecord
+from ....dto.prompt import Charter, TaskPrompt
+from ....dto.site import Dossier, Replacement
+from ....files import write_json
+from ....validation.suggest.dossier import parse_dossiers, validate_dossier
+from ....validation.suggest.replace import check_reply
+from ....validation.suggest.replacements import validate_replacements
+from ...runtime.engine.kind import project
+from ...runtime.prompt import PromptLibrary
+from .render import render
+from .schema import SCHEMA
+from .state import Replacements
+
+NAME = "suggest/site-replace"
+REPLACEMENTS = "replacements.json"
+NO_OPTION = "static: no option of the site's group is available in the app"
+
+
+def charter(library: PromptLibrary) -> Charter:
+    return library.charter(NAME, SCHEMA)
+
+
+class SiteReplaceKind:
+    name = "site-replace"
+
+    def __init__(self, app: str, doc: dict, directory: Path):
+        self.app, self.doc, self.directory = app, doc, Path(directory)
+        self.dossiers, self.problems = parse_dossiers(doc, app)
+        self._ask = [d for d in self.dossiers if d.options]
+
+    def items(self) -> list[Dossier]:
+        return self._ask
+
+    def empty(self) -> Replacements:
+        state = Replacements(self.app)
+        for d in self.dossiers:
+            if not d.options:
+                state.put(Replacement(d.key, "keep", None, (), (), NO_OPTION), "static")
+        return state
+
+    def admit(self, d: Dossier) -> list[str]:
+        raw = next((r for r in self.doc.get("dossiers") or [] if (r.get("scope") or {}).get("id") == d.key), None)
+        try:
+            popped = Dossier.from_json(raw)
+        except (KeyError, TypeError, ValueError, AttributeError) as e:
+            return [f"{d.key}: does not parse into Dossier: {e!r}"]
+        return (["differs from the dossier the run was built with"] if popped != d else []) + validate_dossier(popped, self.app)
+
+    def label(self, d: Dossier) -> str:
+        return f"{d.scope.file}:{d.scope.line}"
+
+    def render(self, d: Dossier, state: Replacements) -> TaskPrompt:
+        return TaskPrompt(NAME, render(d), d.key)
+
+    def check(self, d: Dossier, text: str, state: Replacements) -> tuple[dict | None, list[str]]:
+        return check_reply(text, d)
+
+    def apply(self, state: Replacements, d: Dossier, record: OutboxRecord) -> None:
+        if record.outcome == "decided":
+            state.put(Replacement.from_json(record.decision), "llm")
+        else:
+            state.put(Replacement(d.key, "keep", None, (), (), "dropped: " + "; ".join(record.problems)), "fallback")
+        state.version += 1
+
+    def validate(self, state: Replacements, records: list[OutboxRecord]) -> list[str]:
+        problems = list(self.problems) + validate_replacements(state.replacements, state.sources, self.dossiers)
+        if state.version != len(records):
+            problems.append(f"replacements version {state.version} is not the {len(records)} records committed")
+        try:
+            if project(self, records) != state:
+                problems.append("replacements differ from the static keeps plus the replay of the outbox")
+        except (KeyError, ValueError, TypeError) as e:
+            problems.append(f"outbox does not replay: {e!r}")
+        return problems
+
+    def write(self, state: Replacements, records: list[OutboxRecord]) -> None:
+        write_json(self.directory / REPLACEMENTS, state.to_json())

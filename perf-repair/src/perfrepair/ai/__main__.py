@@ -1,4 +1,5 @@
-"""python3 -m perfrepair.ai worthiness --run <dir> --mode latency|battery [--agent ...] [--prompts DIR] — after grouping."""
+"""python3 -m perfrepair.ai worthiness --run <dir> --mode latency|battery — after grouping;
+   python3 -m perfrepair.ai replace --run <dir> --app <name> — after dossiers. Both take [--agent ...] [--prompts DIR]."""
 from __future__ import annotations
 
 import argparse
@@ -8,8 +9,17 @@ from pathlib import Path
 from ..result.modes import MODES
 from .runtime.agent.select import add_agent_args, conversations
 from .evaluate.worthiness import command as worthiness_cmd
+from .suggest.site_replace import command as replace_cmd
 from .runtime.engine.ask import Limits
 from .runtime.prompt.args import add_prompt_args, load_prompts
+
+
+def _engine_args(p: argparse.ArgumentParser) -> None:
+    add_agent_args(p)
+    add_prompt_args(p)
+    p.add_argument("--turns", type=int, default=Limits.turns)
+    p.add_argument("--sessions", type=int, default=Limits.sessions)
+    p.add_argument("--limit", type=int)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -18,15 +28,18 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("worthiness")
     p.add_argument("--run", type=Path, required=True)
     p.add_argument("--mode", required=True, choices=sorted(MODES))
-    add_agent_args(p)
-    add_prompt_args(p)
-    p.add_argument("--turns", type=int, default=Limits.turns)
-    p.add_argument("--sessions", type=int, default=Limits.sessions)
-    p.add_argument("--limit", type=int)
+    _engine_args(p)
+    p = sub.add_parser("replace")
+    p.add_argument("--run", type=Path, required=True)
+    p.add_argument("--app", required=True)
+    _engine_args(p)
     a = ap.parse_args(argv)
     library = load_prompts(ap, a)
-    worthiness_cmd.worthiness(a.run, MODES[a.mode], conversations(a, worthiness_cmd.DRY_RUN), library,
-                              Limits(a.turns, a.sessions), a.limit)
+    limits = Limits(a.turns, a.sessions)
+    if a.stage == "worthiness":
+        worthiness_cmd.worthiness(a.run, MODES[a.mode], conversations(a, worthiness_cmd.DRY_RUN), library, limits, a.limit)
+    else:
+        replace_cmd.replace(a.run, a.app, conversations(a, replace_cmd.DRY_RUN), library, limits, a.limit)
     return 0
 
 

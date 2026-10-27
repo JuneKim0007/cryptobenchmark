@@ -3,4 +3,5 @@ prompts:
   parse/grouping-assign: {file: parse/grouping-assign.system.md, lifetime: run, values: [id_pattern, max_description]}
   evaluate/worthiness: {file: evaluate/worthiness.system.md, lifetime: run, values: []}
   review/grouping-review: {file: review/grouping-review.system.md, lifetime: run, values: []}
+  suggest/site-replace: {file: suggest/site-replace.system.md, lifetime: run, values: []}
   shared/rejection: {file: shared/rejection.turn.md, lifetime: turn, values: [problems]}

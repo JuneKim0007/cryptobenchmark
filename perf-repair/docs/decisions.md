@@ -10,9 +10,9 @@
 
 - A rejected answer gets a correction turn (`prompts/shared/rejection.turn.md`) in the same session, listing its problems.
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
-- `--prompts DIR` on `grouping assign`, `grouping report --supervisor`, `ai worthiness`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
+- `--prompts DIR` on `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
-- Commands with a model: `grouping assign`, `grouping report --supervisor`, `ai worthiness`.
+- Commands with a model: `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
 - Backend, model and effort: the `PERFREPAIR_*` keys of `.env.example`; `--agent`, `--model`, `--effort` override.
 - `grouping report` defaults to effort `high`.
 - `claude` backend: JSON schema output, server-side refusal fallback.
@@ -35,6 +35,26 @@
 - `test` names at least one pair; `skip` names none; `reason` is not empty.
 - A pair names two different members by alias.
 - A pair improves under the mode in at least one configuration.
+
+## Site replace
+
+| field | site-replace |
+|---|---|
+| item | one `Dossier` of `apps/<app>/dossiers.json` with at least one option |
+| message | site, sinks and key source, current item, options `R1..Rn` with pins and estimates (ratio, pImprove, n, configuration), edit kinds, function source between digest markers |
+| answer | `decision` replace\|keep, `option` alias or "", `edits` [{kind, provider, parameters [{name, value}]}], `risks`, `reason` |
+| ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
+| no option | static `keep`, source `static`, never asked |
+| dropped item | `keep` with reason `dropped: …`, source `fallback` |
+| state | `apps/<app>/replacements.json`: `{schemaVersion, app, replacements, sources}`; outbox under `apps/<app>/replace/` |
+
+## Site replace gate
+
+- `replace` names a listed alias and at least one edit; `keep` names no option and no edits; `reason` is not empty.
+- Edit kinds come from `EDIT_KINDS`, each at most once.
+- `set_provider` names exactly the option's provider; required when it differs from the current provider.
+- `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
+- Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`.
 
 ## Static triage (no model call)
 
