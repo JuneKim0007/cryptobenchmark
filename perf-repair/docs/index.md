@@ -8,4 +8,5 @@ docs/limits.md : what the measurements and the app scan cannot answer
 docs/modes.md : improvement criteria: latency and battery (proxy)
 docs/pipeline.md : stages, commands, and what each reads and writes
 docs/repair.md : call sites to before/after: steps, inputs, outputs, limits
+docs/replacement.md : app source to measured before/after per replaced call site: flow, files, contracts
 ```

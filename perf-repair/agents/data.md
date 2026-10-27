@@ -32,6 +32,7 @@ src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
+src/perfrepair/dto/site.py : Scope, Dossier, Option, Estimate, Edit, Replacement: what the replacement layers pass between them
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/env.py : .env loader: fills unset environment keys
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write
