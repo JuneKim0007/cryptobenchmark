@@ -47,7 +47,11 @@ kotlin {
     }
 }
 
+// -PbundledArtifacts=group:name:version,... : providers an app ships; scripts/pipeline.py reads them from global.yaml.
+def bundledArtifacts = (findProperty('bundledArtifacts') ?: '').toString().split(',').collect { it.trim() }.findAll { it }
+
 dependencies {
+    bundledArtifacts.each { implementation it }
     // The app APK is a pure instrumentation target: it holds no measured code, but
     // AndroidBenchmarkRunner launches androidx.benchmark's IsolationActivity inside it,
     // so the library's manifest has to merge into the app, not only into the test APK.

@@ -54,8 +54,8 @@ class Device:
         if state.stdout.strip() != "device":
             raise DeviceError(f"no_device: adb get-state: {(state.stderr or state.stdout).strip()}")
 
-    def install(self):
-        command = [str(self.root / "gradlew"), "-p", str(self.root), ":android:installRelease", ":android:installReleaseAndroidTest"]
+    def install(self, properties=()):
+        command = [str(self.root / "gradlew"), "-p", str(self.root), *properties, ":android:installRelease", ":android:installReleaseAndroidTest"]
         if self.stream:
             if subprocess.run(command, env=self.environment).returncode != 0:
                 raise DeviceError("gradle install failed; rerun without --stream for a filtered message")
@@ -94,11 +94,11 @@ class Device:
                 reason += "; shell reads the app's files through group ext_data_rw, which only a directory the app created carries"
             raise DeviceError(f"adb pull {remote}: {reason}")
 
-    def probe(self, discovery):
+    def probe(self, discovery, arguments=()):
         # The app must create its own directory: one made by shell is not writable by the app's uid.
         self.shell(f"rm -rf {FILES}")
         self.shell(f"rm -f {MEDIA}/*-benchmarkData.json")
-        output = self.instrument("DeviceProbe")
+        output = self.instrument("DeviceProbe", *arguments)
         if "OK (1 test)" not in output:
             raise DeviceError("DeviceProbe failed on the device:\n" + instrumentation_report(output))
         self.pull(f"{FILES}/.", discovery)

@@ -79,6 +79,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | `run` | the global `run` section |
 | `policy` | the global `policy` section |
 | `analysis` | the global `analysis` section, defaults filled in |
+| `bundledProviders` | the global `providers.bundled` list as written; absent when empty. `DevicePlan` installs it before preparing |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `providerDefaults`, `harness`; empty ones omitted |
 | `providers.<p>.<type>.<name>@<group>` | the same, for one group |
 

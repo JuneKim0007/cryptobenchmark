@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
+import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import java.nio.file.Files
 import org.junit.Assert.assertEquals
@@ -54,5 +55,20 @@ class GlobalDocumentTest {
         assertEquals(listOf(AnalysisSettings.Chart.IQR_BARS, AnalysisSettings.Chart.STABILITY), some.charts)
         assertEquals("out/charts/<run-id>", some.dir)
         assertEquals(emptyList<AnalysisSettings.Chart>(), GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nanalysis: {charts: []}\n")).analysis.charts)
+    }
+
+    /** A bundled provider list is optional; written, it travels unchanged to effective.yaml for the build and the device. */
+    @Test
+    fun bundledProvidersAreOptionalAndTravelToTheEffectiveFile() {
+        assertEquals(emptyList<BundledProvider>(), GlobalDocument.parse(codec.load(Fixtures.GLOBAL)).providers.bundled)
+
+        val bundled = GlobalDocument.parse(codec.load(Fixtures.GLOBAL + "providers:\n  bundled:\n  - {artifact: 'g:n:1', create: 'a.b.P#newProvider', alias: P2}\n  - {artifact: 'h:m:2', create: a.b.Q}\n"))
+        assertEquals(listOf(BundledProvider("g:n:1", "a.b.P#newProvider", "P2"), BundledProvider("h:m:2", "a.b.Q")), bundled.providers.bundled)
+        assertEquals(bundled, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(bundled)))))
+        val built = EffectiveBuilder().build(bundled, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
+        val written = EffectiveDocument.of(built)
+        assertEquals(listOf(mapOf("artifact" to "g:n:1", "create" to "a.b.P#newProvider", "alias" to "P2"), mapOf("artifact" to "h:m:2", "create" to "a.b.Q")), written["bundledProviders"])
+        assertEquals(bundled.providers.bundled, EffectiveDocument.parse(codec.load(YamlCodec().dump(written))).bundledProviders)
+        assertEquals(null, EffectiveDocument.of(EffectiveBuilder().build(GlobalDocument.parse(codec.load(Fixtures.GLOBAL)), testSet, inventory, EffectiveBuilder.Files("g", "t", "i")))["bundledProviders"])
     }
 }
