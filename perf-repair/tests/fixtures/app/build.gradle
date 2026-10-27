@@ -1,0 +1,21 @@
+plugins {
+    id 'com.android.application'
+}
+
+ext {
+    target = 34
+}
+
+android {
+    defaultConfig {
+        minSdk 24
+        targetSdk rootProject.ext.target
+    }
+}
+
+dependencies {
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
+    implementation libs.tink
+    implementation 'androidx.core:core:1.6.0'
+    // implementation 'org.conscrypt:conscrypt-android:2.5.2'
+}

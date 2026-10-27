@@ -4,7 +4,7 @@ Command: `python3 -m perfrepair.repair <step>`; every step but replay takes `--r
 
 | Step | Flags | Input | Output |
 |---|---|---|---|
-| candidates | `--sites` | an app's inbound `sites.json`, `grouping/groups.json` | `candidates.json`: sites resolved `default` or `explicit` |
+| candidates | `--sites` | an app's `apps/<app>/sites.json`, `grouping/groups.json` | `candidates.json`: sites resolved `default` or `explicit` |
 | test-set | `-o` | candidates | YAML test set at `-o`: items the app runs and their alternatives |
 | choose | `--mode` (default `latency`) | candidates, `worthiness-<mode>/verdicts.json` | `choices.json`: replacement or none, with the reason |
 | patch | `--app` | choices, the app tree | `patches.json`, validated by `validation/repair.py` |

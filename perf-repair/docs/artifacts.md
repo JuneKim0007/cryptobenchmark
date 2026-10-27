@@ -8,7 +8,9 @@
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
-| `sites.json` | inbound, with `--app` | repair candidates (`--sites`) | none |
+| `apps/<app>/sites.json` | `perfrepair.app` | scope, repair candidates (`--sites`) | none |
+| `apps/<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
+| `apps/<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing |
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |

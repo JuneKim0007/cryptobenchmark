@@ -17,6 +17,7 @@
 
 ```
 src/perfrepair/validation/__main__.py : command: validate a run directory; exit 1 on any problem, 2 on bad usage
+src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
 src/perfrepair/validation/grouping/answer.py : gate C: an agent answer against its item and the knowledge
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json

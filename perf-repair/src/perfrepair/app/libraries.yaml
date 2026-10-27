@@ -1,0 +1,22 @@
+# Crypto libraries an app can declare, matched on artifact group and name prefix; the first matching entry wins.
+# providerName: the JCA provider the artifact registers, or null when it ships crypto but no JCA provider.
+schemaVersion: 1
+libraries:
+  - {group: org.bouncycastle, name: bcprov, providerName: BC}
+  - {group: org.bouncycastle, name: bc-fips, providerName: BCFIPS}
+  - {group: org.bouncycastle, name: "", providerName: null}
+  - {group: com.madgag.spongycastle, name: prov, providerName: SC}
+  - {group: com.madgag.spongycastle, name: "", providerName: null}
+  - {group: com.madgag, name: sc-light, providerName: SC}
+  - {group: org.conscrypt, name: "", providerName: Conscrypt}
+  - {group: software.amazon.cryptools, name: AmazonCorrettoCryptoProvider, providerName: AmazonCorrettoCryptoProvider}
+  - {group: net.i2p.crypto, name: eddsa, providerName: EdDSA}
+  - {group: com.google.crypto.tink, name: "", providerName: null}
+  - {group: androidx.security, name: security-crypto, providerName: null}
+  - {group: net.zetetic, name: "", providerName: null}
+  - {group: com.goterl, name: lazysodium, providerName: null}
+  - {group: com.github.joshjdevl.libsodiumjni, name: "", providerName: null}
+  - {group: org.signal, name: libsignal, providerName: null}
+  - {group: org.whispersystems, name: "", providerName: null}
+  - {group: org.mindrot, name: jbcrypt, providerName: null}
+  - {group: at.favre.lib, name: "", providerName: null}
