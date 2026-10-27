@@ -2,11 +2,12 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, json, os, pathlib, shutil, subprocess, sys, time
 
-import clocks, effective_view, energy_stage, facts, gradle_runner
+import clocks, effective_view, energy_stage, facts, gradle_runner, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
+from scope_harness import HarnessError
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -110,7 +111,11 @@ def parse_options():
                         help="run energy cases even when the rails do not respond to load; for plumbing tests only, the joules are not measurements")
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
     parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
+    parser.add_argument("--harness", metavar="HARNESS_YAML",
+                        help="with --device: measure perf-repair's scopes, original and patched, instead of the plan's cases")
     options = parser.parse_args()
+    if options.harness and not options.device:
+        fail("--harness: scopes are measured only on a --device run")
     if options.device and options.discovery == "reuse":
         fail("--discovery reuse: a device run probes the device it measures")
     if options.suppress_errors and not options.device:
@@ -203,6 +208,71 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
     elapsed("analyse", started)
 
 
+def generate_scopes(options, scoped):
+    if scoped.exists():
+        shutil.rmtree(scoped)
+    started = time.monotonic()
+    plan, compiled = scope_generate.generate(options.harness, ROOT, scoped)
+    elapsed(f"generate and compile {len(compiled)} scopes", started)
+    print(f"wrote:     {plan}")
+    if not compiled:
+        fail(f"no_scope_compiled: every scope is not_compilable, see {plan}")
+    return plan
+
+
+def measure_scopes(options, configuration, device, results, scoped):
+    import yaml
+    discovery, effective, capture, trial, files = discover(options, configuration, device, results)
+    run_capture = energy_stage.capture((yaml.safe_load(effective.read_text()) or {}).get("run"))
+    if run_capture == "dry":
+        fail("not_supported: run.harness.energy.capture dry with --harness; use measured or none")
+    session, plan_files = EnergySession(device), [effective, capture, trial]
+    if run_capture == "measured":
+        plan_files.append(energy_preflight(options, session, discovery, files))
+    push(device, options, plan_files)
+    print("measure:   ScopedBenchmark on the device")
+    started, before = time.monotonic(), clocks.read(device)
+    ran = device.measure_scoped(options.suppress_errors, scoped / "benchmarkData.json", scoped / "scoped-interop.yaml")
+    clocks.write(scoped / CLOCKS, before, clocks.read(device))
+    elapsed("interop check and measure", started)
+    return discovery, effective, files, session, run_capture, ran
+
+
+def convert_scopes(options, plan, scoped, effective, discovery, session, run_capture, ran, files):
+    document, measured = scope_results.merge(plan, scoped / "scoped-interop.yaml")
+    files.update(scopedPlan=plan, scopedInterop=scoped / "scoped-interop.yaml", clocks=scoped / CLOCKS)
+    for record in document["scopes"]:
+        print(f"scope:     {record['id']} {record['status']}" + (f": {record['reason']}" if record.get("reason") else "")
+              + (f" ({record['interop'].get('reason')})" if record.get("interop", {}).get("reason") else ""))
+    if not (ran and measured):
+        return
+    prepared = scope_results.prepared(document, measured, effective, scoped / "prepared.yaml")
+    joined = ""
+    if run_capture == "measured":
+        print(f"traces:    {session.pull_traces(scoped / 'traces')} pulled")
+        energy_stage.joules(options.energy_python, {"measured"}, discovery / "energy.yaml", scoped, scoped / "benchmarkData.json",
+                            scoped / "traces", None, scoped / "energy.json", stacktrace=options.stacktrace)
+        files["energy"], joined = scoped / "energy.json", f" {scoped / 'energy.json'}"
+    gradle_runner.run("quick-bench", f"{scoped / 'benchmarkData.json'} {prepared} {scoped}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
+    files["scoped"] = scoped / "benchmark.json"
+    print(f"wrote:     {files['scoped']}")
+    if (scoped / CPU_PINS).is_file():
+        files["cpuPins"] = scoped / CPU_PINS
+
+
+def harness_run(options, configuration, device, results):
+    scoped = results / "scoped"
+    try:
+        plan = generate_scopes(options, scoped)
+        discovery, effective, files, session, run_capture, ran = measure_scopes(options, configuration, device, results, scoped)
+    except (HarnessError, scope_generate.GenerateError) as error:
+        fail(str(error))
+    finally:
+        scope_generate.clean(ROOT)
+    convert_scopes(options, plan, scoped, effective, discovery, session, run_capture, ran, files)
+    manifest(results, "device", configuration, files)
+
+
 def main():
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
@@ -211,6 +281,9 @@ def main():
     if device:
         device.connect()
     results = pathlib.Path(options.results).resolve()
+    if options.harness:
+        harness_run(options, configuration, device, results)
+        return
     discovery, effective, capture, trial, files = discover(options, configuration, device, results)
     mode = "device" if device else "host"
     if not (options.bench or device):
@@ -255,5 +328,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (DeviceError, energy_stage.EnergyError) as error:
+    except (DeviceError, energy_stage.EnergyError, scope_results.ScopeResultError) as error:
         fail(str(error))

@@ -16,7 +16,7 @@
 ```
 python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
-                            [--energy-accept-unresponsive] [--stacktrace] [--stream]
+                            [--energy-accept-unresponsive] [--stacktrace] [--stream] [--harness HARNESS_YAML]
 ```
 
 | flag | default | effect |
@@ -31,6 +31,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--stacktrace` | off | print the tool's full output on failure |
 | `--stream` | off | show each tool's progress |
+| `--harness HARNESS_YAML` | off | with `--device`: generate, install and measure perf-repair's scopes instead of the plan's cases, see [scoped.md](../modules/android/docs/scoped.md) |
 
 | rule | result |
 |---|---|
@@ -38,6 +39,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--device` with `--discovery reuse` | fails |
 | `--suppress-errors` or `--energy-accept-unresponsive` without `--device` | fails |
 | energy capture other than `none` without `--device` | fails |
+| `--harness` without `--device` | fails |
 | neither `--bench` nor `--device` | discover and configure only, then manifest |
 | any failure | prints `error: <message>`, exits 1 |
 

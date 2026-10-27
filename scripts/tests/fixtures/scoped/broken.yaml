@@ -1,0 +1,43 @@
+schemaVersion: 1
+app: broken
+scopes:
+  - id: 3d4e5f607182
+    language: kotlin
+    function: "fun stored(Context, ByteArray): ByteArray"
+    before: context.kt
+    after: context.kt
+    imports: [import android.content.Context]
+    inputs: {inputSize: 64, keySize: null}
+    option: "MessageDigest|SHA-256|AndroidOpenSSL"
+    metrics: [timeNs]
+    dependencies: [Context]
+  - id: 4e5f60718293
+    language: kotlin
+    function: "fun seal(ByteArray): ByteArray"
+    before: helper.kt
+    after: helper.kt
+    imports: []
+    inputs: {inputSize: 64, keySize: null}
+    option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
+    metrics: [timeNs]
+    dependencies: [cipherFor, KEY_ALIAS]
+  - id: 5f60718293a4
+    language: java
+    function: "int length(byte[])"
+    before: mistyped.java
+    after: mistyped.java
+    imports: []
+    inputs: {inputSize: 64, keySize: null}
+    option: "MessageDigest|SHA-256|AndroidOpenSSL"
+    metrics: [timeNs]
+    dependencies: []
+  - id: 2c3d4e5f6071
+    language: kotlin
+    function: "fun digest(ByteArray): ByteArray"
+    before: digest_before.kt
+    after: digest_after.kt
+    imports: [import java.security.MessageDigest]
+    inputs: {inputSize: 1024, keySize: null}
+    option: "MessageDigest|SHA-256|AndroidOpenSSL"
+    metrics: [timeNs]
+    dependencies: [MessageDigest]

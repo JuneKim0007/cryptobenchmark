@@ -66,6 +66,15 @@ scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/pipeline.py : run driver: stages in order, results/manifest.yaml
 scripts/requirements.txt : host Python dependencies
+scripts/scope_compile.py : compiles the android test sources with Gradle; the compiler's error lines
+scripts/scope_dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
+scripts/scope_generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
+scripts/scope_harness.py : reads perf-repair's harness.yaml
+scripts/scope_inputs.py : synthesisable parameter types and their ScopeInputs calls
+scripts/scope_interop.py : each scope's interop check: round trip with a partner, same output, or none
+scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
+scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
+scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/tests/ : pytest and standalone tests for scripts/
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
