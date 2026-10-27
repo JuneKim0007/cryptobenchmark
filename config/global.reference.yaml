@@ -34,3 +34,9 @@ analysis:                        # optional — how results are summarised and d
   statistic:                     # optional
     headline: auto               # optional, default auto — auto | median | mean. Which statistic leads in tables and charts; both are always computed
     meanUpToCovPercent: 5        # optional, default 5 — only read when headline is auto: the mean leads while a case's CoV (sample sd / mean) is within this many percent, the median above it
+
+providers:                       # optional — providers an app ships, measured beside the platform's (device runs)
+  bundled: []                    # optional, default [] — each entry is built into the APK and appended after every platform provider, e.g.
+  #   - artifact: org.conscrypt:conscrypt-android:2.5.3   # required — group:name:version, added as an implementation dependency
+  #     create: org.conscrypt.Conscrypt#newProvider       # required — Class (public no-argument constructor) or Class#staticFactory
+  #     alias: null                                       # optional — the registered name; required when the provider's own name is already installed

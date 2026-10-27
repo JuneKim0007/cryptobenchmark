@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, json, os, pathlib, shutil, subprocess, sys, time
 
-import clocks, effective_view, energy_stage, facts, gradle_runner
+import bundled, clocks, effective_view, energy_stage, facts, gradle_runner
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
@@ -127,12 +127,15 @@ def discover(options, configuration, device, results):
     discovery.mkdir(parents=True, exist_ok=True)
 
     print(f"config:    {configuration}")
+    shipped = bundled.read(configuration)
+    if shipped and not device:
+        print("warning: providers.bundled: only a --device run builds and installs bundled providers; this run measures the platform's")
     if device:
         started = time.monotonic()
-        device.install()
+        device.install(bundled.gradle_properties(shipped))
         elapsed("build and install", started)
         started = time.monotonic()
-        device.probe(discovery)
+        device.probe(discovery, bundled.instrumentation_arguments(shipped))
         capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
         if not capture or not trial:
             fail(f"missing_file: {discovery}/probe_<utc>.yaml, trial_<utc>.yaml (DeviceProbe wrote none)")
@@ -147,6 +150,8 @@ def discover(options, configuration, device, results):
     effective = configured / "effective.yaml"
     if not effective.is_file():
         fail(f"missing_file: {effective}")
+    if device:
+        bundled.check_effective(effective, shipped)
     summary(effective)
     elapsed("discover and configure", started)
     capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
@@ -255,5 +260,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (DeviceError, energy_stage.EnergyError) as error:
+    except (DeviceError, energy_stage.EnergyError, bundled.BundledError) as error:
         fail(str(error))

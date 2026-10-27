@@ -40,10 +40,12 @@ All other runtime fields are required on read.
 | `name` | string | provider name |
 | `version` | string | property `Provider.id version` |
 | `precedence` | int | 1-based position in the search order |
+| `origin` | string | `platform`, or `bundled` for a provider the app ships and `BundledInstaller` installed; required on read |
 | `info` | string | provider description |
 | `usable` | bool | services non-empty; written, not read back |
 | `services` | list | services the provider registers |
 | `unresolvedAliases` | list | `{type, alias, target}` for aliases whose target is not registered; omitted when empty |
+| `artifact` | string | `group:name:version` of a bundled provider; omitted for `platform` |
 
 ## services[]
 

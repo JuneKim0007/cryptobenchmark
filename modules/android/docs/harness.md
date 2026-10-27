@@ -25,8 +25,8 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 
 | class | does |
 |---|---|
-| `DeviceProbe` | writes this device's capture, classes file and trial into the device directory via `Discovery`; run alone |
-| `DevicePlan` | prepares and checks the plan on the device |
+| `DeviceProbe` | installs the bundled providers of the `bundledProviders` argument, then writes this device's capture, classes file and trial via `Discovery`; run alone |
+| `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, then prepares and checks the plan on the device |
 | `CryptoBenchmark` | one parameterised test per timed case; test name = case id |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
 | `CovProbe` | timing experiment; arguments `ops` (default 1000000), `runs` (20), `warmupSeconds` (2.0); writes `cov-probe.yaml` |

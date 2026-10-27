@@ -16,7 +16,7 @@ class MalformedDocumentsTest {
     fun malformedDocumentsAreRefusedByName() {
         val global = "schemaVersion: 1\nselection: {testSet: a.yaml}\n"
         listOf<Pair<() -> Any, String>>(
-            { GlobalDocument.parse(codec.load(global + "rn: {}\n")) } to "unknown_section: [rn], known [selection, run, policy, analysis]",
+            { GlobalDocument.parse(codec.load(global + "rn: {}\n")) } to "unknown_section: [rn], known [selection, run, policy, analysis, providers]",
             { GlobalDocument.parse(codec.load(global + "run: {inputSize: [1]}\n")) } to "unknown_keys: run [inputSize], known [inputSizes, phases, metrics, processRepetitions, seed, harness]",
             { GlobalDocument.parse(codec.load(global + "policy: {onFailure: retry}\n")) } to "invalid: policy.onFailure retry, one of [stop, skip]",
             { GlobalDocument.parse(codec.load(global + "policy: {onUnavailable: skip}\n")) } to "unknown_keys: policy [onUnavailable], known [onFailure]",
@@ -35,6 +35,15 @@ class MalformedDocumentsTest {
             { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {capture: off}}}\n")) } to "invalid: energy.capture false (YAML reads off/on/yes/no as booleans), write one of [none, measured, dry] at run.harness.energy",
             { GlobalDocument.parse(codec.load(global + "run: {harness: {energy: {window: 5}}}\n")) } to "unknown_keys: run.harness.energy [window], known [capture, windowSeconds, warmupSeconds, cooldownSeconds]",
             { TestSetDocument.parse(codec.load("schemaVersion: 1\noverrides:\n- {match: {type: Cipher}, set: {harness: {profiling: flame}}}\n")) } to "invalid: profiling flame, known [none, MethodTracing, StackSampling] at overrides[0].set.harness",
+            { GlobalDocument.parse(codec.load(global + "providers: {platform: []}\n")) } to "unknown_keys: providers [platform], known [bundled]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: a:b, create: a.B}]}\n")) } to "invalid_artifact: a:b, expected group:name:version at providers.bundled[0]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: 'a:b:1', create: B}]}\n")) } to "invalid_create: B, expected fully.qualified.Class or fully.qualified.Class#staticFactory at providers.bundled[0]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: 'a:b:1', create: 'a.B#'}]}\n")) } to "invalid_create: a.B#, expected fully.qualified.Class or fully.qualified.Class#staticFactory at providers.bundled[0]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: 'a:b:1', create: a.B, alias: ' '}]}\n")) } to "invalid_alias: ' ', expected a non-blank name without whitespace at providers.bundled[0]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: 'a:b:1', create: a.B, position: 1}]}\n")) } to "unknown_keys: providers.bundled[0] [position], known [artifact, create, alias]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{create: a.B}]}\n")) } to "missing_field: artifact at providers.bundled[0]",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: 'a:b:1', create: a.B}, {artifact: 'a:b:1', create: a.C}]}\n")) } to "duplicate_artifact: [a:b:1] at providers.bundled",
+            { GlobalDocument.parse(codec.load(global + "providers: {bundled: [{artifact: 'a:b:1', create: a.B, alias: X}, {artifact: 'c:d:1', create: c.D, alias: X}]}\n")) } to "duplicate_alias: [X] at providers.bundled",
             { codec.load("- one\n- two\n") } to "not_a_mapping: the document is not a set of key: value entries",
         ).forEach { (parse, expected) ->
             assertEquals(expected, assertThrows(IllegalArgumentException::class.java) { parse() }.message)

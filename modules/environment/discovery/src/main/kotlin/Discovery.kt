@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
+import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
@@ -34,8 +35,9 @@ class Discovery(
         providers: Array<Provider>?,
         runtime: RuntimeInfo = DeviceRuntimeReader.read(),
         capturedAtMillis: Long = System.currentTimeMillis(),
+        bundled: List<InstalledProvider> = emptyList(),
     ): DiscoveryRun {
-        val capture = providerProbe.capture(providers, runtime, capturedAtMillis)
+        val capture = providerProbe.capture(providers, runtime, capturedAtMillis, bundled)
         return DiscoveryRun(
             capture = capture,
             captureFile = captureWriter.write(capture),

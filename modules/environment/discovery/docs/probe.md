@@ -18,7 +18,7 @@ CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYam
 | entry | caller |
 |---|---|
 | host | `ProbeKt` in `tools/jca-contract`, passes `Security.getProviders()`; command line in `docs/tools.md` |
-| device | `DeviceProbe` in `modules/android`: `probe`, then `trial` |
+| device | `DeviceProbe` in `modules/android`: `BundledInstaller.install`, then `probe` with what it installed, then `trial` |
 | runtime default | `probe` and `reusable` default to `DeviceRuntimeReader.read()` |
 
 ## JCA APIs used
@@ -48,6 +48,18 @@ CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYam
 | STRING | `ImplementedIn`, `MechanismType`, any other | as written |
 
 `ServiceKey` folds type and algorithm with `uppercase(Locale.ROOT)`; a blank part fails `missing_field`.
+
+## Bundled providers
+
+| step | class | does |
+|---|---|---|
+| read | `BundledProviders.read(document)` | the `bundledProviders` list of `{artifact, create, alias?}` from any map: the instrumentation argument or `effective.yaml` |
+| create | `ProviderFactory(classLoader)` | `create` is `Class` (public no-argument constructor) or `Class#staticFactory` (public static, no arguments); failures `bundled_class_not_found`, `bundled_factory_not_found`, `bundled_factory_not_static`, `bundled_create_failed`, `bundled_not_a_provider` |
+| register | `BundledInstaller.install(list)` | `Security.addProvider`, which always appends, never inserts; a name already installed needs `alias`, else `bundled_name_taken`; a taken alias fails `bundled_alias_taken` |
+| alias | `AliasedProvider(alias, provider)` | forwards `getService` and `getServices`; each service is re-bound so an instance reports the alias; property map copied except `Provider.id*` |
+| record | `ProviderProbe.capture(..., bundled)` | an installed name gets `origin: bundled` and its `artifact`; every other provider `platform` |
+
+Errors are `BundledProviderException` with a `code`. The capture stays `schemaVersion: 1`: `origin` and `artifact` are additions, and the preparation and perf-repair readers ignore keys they do not know. Discovery's own reader requires `origin`, so `reusable` re-probes over an older capture.
 
 ## Runtime
 

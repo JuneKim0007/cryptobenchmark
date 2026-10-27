@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.discovery.write
 import io.github.junekim0007.cryptobench.discovery.contract.AliasEntry
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
+import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceAttributes
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
@@ -35,6 +36,8 @@ object CaptureDocument {
     private const val PRECEDENCE = "precedence"
     private const val INFO = "info"
     private const val USABLE = "usable"
+    internal const val ORIGIN = "origin"
+    private const val ARTIFACT = "artifact"
     private const val SERVICES = "services"
     private const val UNRESOLVED_ALIASES = "unresolvedAliases"
 
@@ -91,10 +94,14 @@ object CaptureDocument {
             NAME to provider.name,
             VERSION to provider.version,
             PRECEDENCE to provider.precedence,
+            ORIGIN to provider.origin.key,
             INFO to provider.info,
             USABLE to provider.usable,
             SERVICES to provider.services.map { serviceDocument(it) },
         )
+        if (provider.artifact.isNotEmpty()) {
+            document[ARTIFACT] = provider.artifact
+        }
         if (provider.unresolvedAliases.isNotEmpty()) {
             document[UNRESOLVED_ALIASES] = provider.unresolvedAliases.map { alias ->
                 linkedMapOf(TYPE to alias.type, ALIAS to alias.name, TARGET to alias.target)
@@ -110,6 +117,8 @@ object CaptureDocument {
         info = string(document, INFO),
         services = sections(document, SERVICES).map { serviceEntry(it) },
         unresolvedAliases = optionalSections(document, UNRESOLVED_ALIASES).map { aliasEntry(it) },
+        origin = ProviderOrigin.of(string(document, ORIGIN)),
+        artifact = optionalString(document, ARTIFACT),
     )
 
     private fun aliasEntry(document: Map<String, Any>): AliasEntry = AliasEntry(

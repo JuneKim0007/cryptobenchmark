@@ -1,8 +1,10 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
+import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
 import io.github.junekim0007.cryptobench.discovery.contract.AliasEntry
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
+import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceAttributes
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
@@ -15,13 +17,17 @@ class ProviderProbe {
         providers: Array<Provider>?,
         runtime: RuntimeInfo = DeviceRuntimeReader.read(),
         capturedAtMillis: Long = System.currentTimeMillis(),
-    ): CapturedEnvironment = CapturedEnvironment(
-        runtime = runtime,
-        providers = providers?.mapIndexed { index, provider -> toEntry(provider, index + 1) }.orEmpty(),
-        capturedAtMillis = capturedAtMillis,
-    )
+        bundled: List<InstalledProvider> = emptyList(),
+    ): CapturedEnvironment {
+        val artifacts = bundled.associate { it.name to it.artifact }
+        return CapturedEnvironment(
+            runtime = runtime,
+            providers = providers?.mapIndexed { index, provider -> toEntry(provider, index + 1, artifacts[provider.name]) }.orEmpty(),
+            capturedAtMillis = capturedAtMillis,
+        )
+    }
 
-    private fun toEntry(provider: Provider, precedence: Int): ProviderEntry {
+    private fun toEntry(provider: Provider, precedence: Int, artifact: String?): ProviderEntry {
         val index = PropertyMapIndex.of(provider)
 
         val services = provider.services.orEmpty().map { service ->
@@ -47,6 +53,8 @@ class ProviderProbe {
                 .filterNot { it.targetKey in present }
                 .map { AliasEntry(it.type, it.name, it.target) }
                 .sortedWith(compareBy({ it.type }, { it.name })),
+            origin = if (artifact == null) ProviderOrigin.PLATFORM else ProviderOrigin.BUNDLED,
+            artifact = artifact.orEmpty(),
         )
     }
 }

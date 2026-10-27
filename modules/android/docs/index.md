@@ -2,7 +2,7 @@
 
 ```
 modules/android/.gitignore : ignores /build
-modules/android/build.gradle : app module: SDK, NDK and CMake versions, androidx benchmark dependencies, release test build type
+modules/android/build.gradle : app module: SDK, NDK and CMake versions, androidx benchmark dependencies, -PbundledArtifacts implementation dependencies, release test build type
 modules/android/docs/harness.md : instrumentation harness, device plan, core pinning
 modules/android/docs/index.md : this map
 modules/android/proguard-rules.pro : Android Studio template, all rules commented out
@@ -10,8 +10,8 @@ modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePin
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePins.kt : appends one line per pinned case to cpu-pins.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CovProbe.kt : fixed-ops-per-run timing experiment writing cov-probe.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CryptoBenchmark.kt : parameterised Jetpack measurement per timed case
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DevicePlan.kt : prepares and checks the plan on the device from pushed files
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DeviceProbe.kt : writes this device's capture and trial via discovery
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DevicePlan.kt : installs effective.yaml's bundled providers; prepares and checks the plan on the device from pushed files
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DeviceProbe.kt : installs the argument's bundled providers; writes this device's capture and trial via discovery
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/EnergyDryBenchmark.kt : parameterised dry energy run per dry case
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/TraceWindowMarker.kt : WindowMarker over android.os.Trace sections

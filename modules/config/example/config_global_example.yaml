@@ -22,3 +22,9 @@ policy:                                  # optional
 #   statistic:
 #     headline: auto                     # optional, default auto — auto | median | mean
 #     meanUpToCovPercent: 5              # optional, default 5 — auto: mean while CoV <= this, else median
+
+providers:                               # optional — providers the app ships, appended after the platform's
+  bundled:                               # optional, default [] — each built into the APK and installed before the probe
+  - artifact: org.example:crypto-provider:1.0     # required — group:name:version, an implementation dependency
+    create: org.example.crypto.ExampleProvider#newProvider   # required — Class (no-argument constructor) or Class#staticFactory
+    alias: ExampleBundled                # optional — required when the provider's name is already installed

@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
@@ -29,6 +30,7 @@ class CaptureDocumentTest {
             { document: MutableMap<String, Any> -> document[CaptureDocument.SCHEMA_VERSION] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version: 2, this build reads 1",
             { document: MutableMap<String, Any> -> document.remove(CaptureDocument.PROVIDERS); Unit } to "missing_field: providers",
             { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = "not a section" } to "wrong_type: runtime",
+            { document: MutableMap<String, Any> -> document[CaptureDocument.PROVIDERS] = providersWithout(document, CaptureDocument.ORIGIN) } to "missing_field: origin",
         )
         damages.forEach { (damage, expected) ->
             val document = LinkedHashMap(CaptureDocument.of(capture)).also(damage)
@@ -54,6 +56,17 @@ class CaptureDocumentTest {
         document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY) }
         assertEquals("", CaptureDocument.parse(document).runtime.defaultKeySizeProperty)
     }
+
+    @Test
+    fun aBundledProviderRoundTripsWithItsOriginAndArtifact() {
+        val bundled = capture.copy(providers = capture.providers.take(1).map { it.copy(origin = ProviderOrigin.BUNDLED, artifact = "g:n:1") })
+        val document = CaptureDocument.of(bundled)
+        assertEquals("bundled", ((document[CaptureDocument.PROVIDERS] as List<*>).single() as Map<*, *>)[CaptureDocument.ORIGIN])
+        assertEquals(bundled, CaptureDocument.parse(document))
+    }
+
+    private fun providersWithout(document: Map<String, Any>, key: String): List<Map<*, *>> =
+        (document[CaptureDocument.PROVIDERS] as List<*>).map { LinkedHashMap(it as Map<*, *>).apply { remove(key) } }
 
     private companion object {
         val CAPTURE = ProviderProbe().capture(

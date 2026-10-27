@@ -10,7 +10,11 @@ import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
+import io.github.junekim0007.cryptobench.discovery.bundled.BundledInstaller
+import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviders
+import io.github.junekim0007.cryptobench.discovery.bundled.ProviderFactory
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
+import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
 
@@ -36,6 +40,8 @@ object DevicePlan {
     private fun prepare(): List<PreparedCase> {
         val effective = File(directory, EFFECTIVE)
         check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
+        val bundled = BundledProviders.read(YamlCodec().load(effective.readText()))
+        BundledInstaller(ProviderFactory(InstrumentationRegistry.getInstrumentation().targetContext.classLoader)).install(bundled)
         val run = Preparation(
             DiscoveryCapability(newest("probe"), newest("trial")),
             SkipFile(directory),

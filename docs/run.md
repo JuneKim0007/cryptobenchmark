@@ -84,7 +84,8 @@ python3 scripts/device_args.py [effective.yaml]
 
 | step | command or path |
 |---|---|
-| install | root `gradlew :android:installRelease :android:installReleaseAndroidTest` |
+| install | root `gradlew :android:installRelease :android:installReleaseAndroidTest`, plus `-PbundledArtifacts=<artifact>,...` when global.yaml has `providers.bundled` |
+| bundled providers | `DeviceProbe` gets `-e bundledProviders '<json>'`; after configure, `effective.yaml` `bundledProviders` must equal the built list, else `bundled_mismatch` |
 | plan directory | `/sdcard/Android/data/io.github.junekim0007.cryptobench/files/cryptobench` |
 | androidx output | `/sdcard/Android/media/io.github.junekim0007.cryptobench` |
 | AOT compile | `cmd package compile -f -m speed` on both APKs |

@@ -5,4 +5,5 @@ data class GlobalConfig(
     val run: RunSettings = RunSettings(),
     val policy: Policy = Policy(),
     val analysis: AnalysisSettings = AnalysisSettings(),
+    val providers: ProviderSources = ProviderSources(),
 )

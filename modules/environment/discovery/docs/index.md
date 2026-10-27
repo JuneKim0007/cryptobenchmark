@@ -21,10 +21,18 @@ modules/environment/discovery/src/main/kotlin/adapter/PropertyKey.kt : sealed de
 modules/environment/discovery/src/main/kotlin/adapter/PropertyKeyParser.kt : provider property name to PropertyKey
 modules/environment/discovery/src/main/kotlin/adapter/PropertyMapIndex.kt : one provider's property map to meta, aliases, attributes
 modules/environment/discovery/src/main/kotlin/adapter/ProviderProbe.kt : Provider[] to CapturedEnvironment
+modules/environment/discovery/src/main/kotlin/bundled/AliasedProvider.kt : delegating Provider under an alias; services re-bound to it
+modules/environment/discovery/src/main/kotlin/bundled/BundledInstaller.kt : creates and appends each bundled provider; alias on a name clash
+modules/environment/discovery/src/main/kotlin/bundled/BundledProvider.kt : one bundled provider spec {artifact, create, alias?}
+modules/environment/discovery/src/main/kotlin/bundled/BundledProviderException.kt : coded install or spec error
+modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map
+modules/environment/discovery/src/main/kotlin/bundled/InstalledProvider.kt : registered name and artifact of one installed provider
+modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
 modules/environment/discovery/src/main/kotlin/contract/AliasEntry.kt : unresolved alias record
 modules/environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
 modules/environment/discovery/src/main/kotlin/contract/DefaultRunOutcome.kt : one default-run result
-modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record
+modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record with origin and artifact
+modules/environment/discovery/src/main/kotlin/contract/ProviderOrigin.kt : platform or bundled
 modules/environment/discovery/src/main/kotlin/contract/RuntimeInfo.kt : device and runtime provenance
 modules/environment/discovery/src/main/kotlin/contract/ServiceAttributes.kt : typed view of a service's declared attributes
 modules/environment/discovery/src/main/kotlin/contract/ServiceEntry.kt : one service record
@@ -54,6 +62,8 @@ modules/environment/discovery/src/main/kotlin/write/ProviderClassNameWriter.kt :
 modules/environment/discovery/src/main/kotlin/write/TrialDocument.kt : trial YAML schema (of, parse)
 modules/environment/discovery/src/main/kotlin/write/TrialYamlWriter.kt : writes trial_<utc>.yaml
 modules/environment/discovery/src/main/kotlin/write/YamlCodec.kt : snakeyaml dump and load, block style, indent 2
+modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper
+modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
 modules/environment/discovery/src/test/kotlin/CaptureDocumentTest.kt : capture schema tests
 modules/environment/discovery/src/test/kotlin/CaptureQueryTest.kt : CaptureQuery tests
 modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest.kt : default runs against the live JVM
