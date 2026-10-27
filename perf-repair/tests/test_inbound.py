@@ -73,10 +73,10 @@ def test_manifest_refuses_other_schema_versions(tmp_path):
 
 
 def test_summary_statistics():
-    s = summarise([1, 2, 3, 4, 5])
+    s = summarise([[1, 2, 3, 4, 5]])
     assert (s.median, s.p25, s.p75, s.n) == (3, 2, 4, 5)
     with pytest.raises(ValueError):
-        summarise([1, float("nan")])
+        summarise([[1, float("nan")]])
 
 
 def test_rows_join_phase_and_key_kind_from_prepared(results):
@@ -176,7 +176,7 @@ def test_default_resolution_follows_manifest_precedence(tmp_path, run, index):
 def test_command_writes_the_run_directory(tmp_path, capsys):
     assert main(["--manifest", str(MANIFEST), "--app", str(F / "app"), "-o", str(tmp_path)]) == 0
     docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log", "sites")}
-    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 2, "run_log": 1, "sites": 1}
+    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 3, "run_log": 1, "sites": 1}
     assert len(docs["rows"]["rows"]) == 3
     assert docs["measurements"]["measurements"]["g_fast"]["timeNs"]["median"] == 100
     assert len(docs["sites"]["sites"]) == 5

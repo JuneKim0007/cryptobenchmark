@@ -1,4 +1,3 @@
-from perfrepair.data_handler.inbound.results import median_interval
 import pytest
 from helpers import row, summary
 
@@ -26,7 +25,7 @@ def test_pairs_only_within_one_configuration():
     assert g.family == "f" and g.type == "TypeA"
     assert [(c.inputSize, len(c.pairs)) for c in g.configurations] == [(1024, 0), (64, 2)]
     p = next(p for c in g.configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
-    assert p.timeRatio == pytest.approx(0.5) and p.allocationRatio == pytest.approx(3.0) and not p.ciOverlap
+    assert p.timeRatio == pytest.approx(0.5) and p.allocationRatio == pytest.approx(3.0) and p.pImprove == 1.0 and p.level == "ok"
 
 
 def test_modes_differ_only_on_allocations():
@@ -42,14 +41,35 @@ def test_triage_asks_only_where_a_pair_improves():
     assert ask == [] and all(v.proxy for v in decided)
 
 
-def test_differences_inside_the_median_interval_never_reach_the_model():
-    close = {**M, "a1": {"timeNs": summary(100, spread=8.0), "allocations": summary(30)},
-             "a2": {"timeNs": summary(99, spread=8.0), "allocations": summary(30)}}
-    evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, close)}
-    ask, decided = triage(list(evidence.values()), MODES["latency"])
-    assert {v.groupId: v.decision for v in decided}.get("g-a") == "within_noise"
+def _decided(measurements, mode="latency"):
+    evidence = build_evidence(GROUPS, ROWS, measurements)
+    ask, decided = triage(evidence, MODES[mode])
+    return {e.groupId: e for e in ask}, {v.groupId: v.decision for v in decided}
 
 
-def test_median_interval_uses_order_statistics():
-    assert median_interval([float(v) for v in range(1, 51)]) == (18.0, 33.0)
-    assert median_interval([1.0, 2.0, 3.0]) == (1.0, 3.0)
+def test_a_gain_below_the_minimum_effect_is_not_an_improvement():
+    close = {**M, "a1": {"timeNs": summary(100), "allocations": summary(30)},
+             "a2": {"timeNs": summary(99), "allocations": summary(30)}}
+    assert MODES["latency"].improvingRatio == 0.97
+    assert _decided(close)[1]["g-a"] == "no_improvement"
+
+
+def test_a_gain_inside_the_spread_is_asked_with_its_level_not_refused():
+    noisy = {**M, "a1": {"timeNs": summary(100, spread=40.0), "allocations": None},
+             "a2": {"timeNs": summary(95, spread=40.0), "allocations": None}}
+    ask, _ = _decided(noisy)
+    p = next(p for c in ask["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
+    assert 0.5 < p.pImprove < 0.95 and p.level in ("warn", "weak")
+
+
+def test_missing_allocations_are_not_measured_never_no_improvement():
+    unknown = {**M, "a2": {"timeNs": summary(100), "allocations": None}}
+    assert _decided(unknown, "battery")[1]["g-a"] == "not_measured"
+    assert _decided(unknown, "latency")[0]["g-a"]
+
+
+def test_a_single_run_has_no_confidence():
+    single = {**M, "a1": {"timeNs": summary(200, n=1), "allocations": None}}
+    ask, _ = _decided(single)
+    p = next(p for c in ask["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
+    assert p.pImprove is None and p.level == "too_few_runs" and p.n == 1

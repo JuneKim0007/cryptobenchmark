@@ -1,0 +1,5 @@
+{
+ "schemaVersion": 1,
+ "app": "demo",
+ "bundled": [{"artifact": "org.example:bundled-provider:1.0", "providerName": "Bundled"}]
+}

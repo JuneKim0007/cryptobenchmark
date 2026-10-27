@@ -1,0 +1,15 @@
+# Policy as data: what counts as improving, and how confidence is graded. Read by modes.py and confidence.py.
+improvingRatio: 0.97        # to / from at or below this counts as improving; smaller gains are not worth an app change
+levels:                     # the first level whose atLeast pImprove reaches; a level grades, it never rejects
+  - {name: ok, atLeast: 0.95}
+  - {name: warn, atLeast: 0.8}
+  - {name: weak, atLeast: 0.0}
+modes:
+  - name: latency
+    proxy: false
+    allocationsMustNotRise: false
+    rule: improves when time per operation is lower; allocations are context
+  - name: battery
+    proxy: true
+    allocationsMustNotRise: true
+    rule: "proxy (no energy measured): improves when time per operation is lower and allocations per operation are not higher"

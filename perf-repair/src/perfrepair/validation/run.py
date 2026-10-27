@@ -5,6 +5,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto import Verdicts
 from ..dto.grouping_state import Knowledge
+from ..dto.site import Scope
 from ..files import read_json
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..grouping.paths import GroupingPaths
@@ -13,6 +14,7 @@ from ..ai.evaluate.worthiness.kind import VERDICTS, WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
+from .dossiers import validate_dossiers
 from .failure import ValidationFailed
 from .measurements import validate_measurements
 from .rows import validate_rows
@@ -38,6 +40,9 @@ def validate_run(run: Path) -> dict[str, list[str]]:
     except ValidationFailed as e:
         out["grouping/groups.json"] = e.problems
         return out
+    for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
+        scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
+        out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups)
     for mode in MODES.values():
         directory = rd.worthiness(run, mode.name)
         if (directory / VERDICTS).exists():
