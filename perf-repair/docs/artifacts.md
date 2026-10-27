@@ -14,12 +14,13 @@
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
 | `worthiness-<mode>/verdicts.json` | worthiness | repair choose | `validation/worthiness.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
+| `apps/<app>/dossiers.json` | `result dossier` | replace | `validation/dossiers.py` |
 | `repair/<app>/candidates.json` | repair candidates | repair test-set, choose | none |
 | `repair/<app>/choices.json` | repair choose | repair patch | none |
 | `repair/<app>/patches.json` | repair patch | none | `validation/repair.py`, before writing |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
-- Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 2 (each summary adds `low`, `high`: the median's 95% interval).
+- Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).
 - A journal is append-only, one line per model turn, audit only; state is the projection of the outbox.
 - `measurements.json` carries the run's `runtime` and `comparability` notes.
 - `validation/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.

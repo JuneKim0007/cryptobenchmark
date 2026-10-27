@@ -14,6 +14,7 @@ class PrimitiveRow:
     inputSize: int | None
     phase: str | None
     keyKind: str | None = None
+    parameters: dict | None = None
 
     def to_json(self) -> dict:
         return asdict(self)

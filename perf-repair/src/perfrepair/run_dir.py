@@ -7,10 +7,15 @@ from .files import read_json
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
 EVIDENCE = "evidence.json"
+APPS, APP, SCOPES, DOSSIERS = "apps", "app.json", "scopes.json", "dossiers.json"
 
 
 def worthiness(run: Path, mode: str) -> Path:
     return Path(run) / f"worthiness-{mode}"
+
+
+def app(run: Path, name: str) -> Path:
+    return Path(run) / APPS / name
 
 
 def load_rows(run: Path) -> list[PrimitiveRow]:

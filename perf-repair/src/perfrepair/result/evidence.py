@@ -5,16 +5,17 @@ from itertools import permutations
 
 from ..dto import Configuration, GroupEvidence, MemberStats, PairMetrics, PrimitiveRow
 from ..dto.grouping import parse_qualified, qualified
+from .confidence import level
+from .estimate import compare
 
 WORK_FIELDS = ("operation", "keySize", "inputSize", "phase")
 
 
 def _pair(a: MemberStats, b: MemberStats) -> PairMetrics:
-    ta, tb = a.timeNs, b.timeNs
+    time = compare(a.timeNs, b.timeNs)
     alloc = (b.allocations / a.allocations
              if a.allocations not in (None, 0) and b.allocations is not None else None)
-    return PairMetrics(a.itemId, b.itemId, tb.median / ta.median,
-                       ta.low <= tb.high and tb.low <= ta.high, alloc)
+    return PairMetrics(a.itemId, b.itemId, time.ratio, time.pImprove, level(time.pImprove), time.n, alloc)
 
 
 def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict]) -> list[GroupEvidence]:

@@ -53,7 +53,7 @@ def test_all_stages_validate(run):
     latency = worthiness(run, MODES["latency"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
     battery = worthiness(run, MODES["battery"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
     assert [v.decision for v in latency.verdicts.values() if v.source == "llm"] == ["test"]
-    assert {v.decision for v in battery.verdicts.values()} <= {"not_comparable", "no_improvement"}
+    assert {v.decision for v in battery.verdicts.values()} == {"not_comparable", "not_measured"}
     assert all(not problems for problems in validate_run(run).values())
 
 

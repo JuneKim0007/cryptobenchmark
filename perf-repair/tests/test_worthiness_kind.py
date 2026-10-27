@@ -1,10 +1,12 @@
 import json
 
 import pytest
-from test_evidence import EVIDENCE
+from helpers import summary
+from test_evidence import EVIDENCE, GROUPS, M, ROWS
 
 from perfrepair.dto import Verdicts
 from perfrepair.ai.evaluate.worthiness.kind import WorthinessKind
+from perfrepair.result.evidence import build_evidence
 from perfrepair.result.modes import MODES
 
 KIND = WorthinessKind(MODES["latency"], ["cpu_not_locked: ..."], list(EVIDENCE.values()), ".")
@@ -43,3 +45,17 @@ def test_battery_gate_refuses_a_pair_that_allocates_more():
     kind = WorthinessKind(MODES["battery"], [], list(EVIDENCE.values()), ".")
     _, problems = kind.check(G, reply(pairs=[{"from": P1, "to": P2, "reason": "x"}]), Verdicts("battery"))
     assert any("does not improve" in p for p in problems)
+
+
+def test_render_and_verdict_carry_the_graded_confidence():
+    assert "100% (ok)" in KIND.render(G, Verdicts("latency")).text
+    decision, _ = KIND.check(G, reply(pairs=[{"from": P1, "to": P2, "reason": "2x"}]), Verdicts("latency"))
+    assert (decision["pairs"][0]["pImprove"], decision["pairs"][0]["level"]) == (1.0, "ok")
+
+
+def test_battery_gate_names_missing_allocations_as_unmeasured():
+    unknown = {**M, "a2": {"timeNs": summary(100), "allocations": None}}
+    evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, unknown)}
+    kind = WorthinessKind(MODES["battery"], [], list(evidence.values()), ".")
+    _, problems = kind.check(evidence["g-a"], reply(pairs=[{"from": P1, "to": P2, "reason": "x"}]), Verdicts("battery"))
+    assert any("lacks the measurements" in p for p in problems)

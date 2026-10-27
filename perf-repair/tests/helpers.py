@@ -29,8 +29,10 @@ def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_
     return PrimitiveRow(rid, type_, algorithm, provider, operation, key_size, input_size, "WARM", key_kind)
 
 
-def summary(median, spread=1.0):
-    return Summary(median, median - spread, median + spread, 0.01, 50, median - spread / 4, median + spread / 4)
+def summary(median, spread=1.0, n=50):
+    """One process of n runs spread evenly over median ± spread, so the median is exact."""
+    runs = tuple(median + spread * (2 * i / (n - 1) - 1) for i in range(n)) if n > 1 else (float(median),)
+    return Summary(median, median - spread, median + spread, 0.01, n, median - spread / 4, median + spread / 4, (runs,))
 
 
 QUIET = {"echo": lambda _: None}

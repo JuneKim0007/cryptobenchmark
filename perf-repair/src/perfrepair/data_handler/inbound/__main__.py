@@ -37,10 +37,11 @@ def main(argv: list[str] | None = None) -> int:
     if benchmark is None:
         ap.error(f"{a.manifest}: no benchmark file; the run measured nothing")
     prepared = read_prepared(manifest_file(manifest, base, "prepared"))
-    rows, measurements = read_results(benchmark, prepared)
+    processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
+    rows, measurements = read_results(benchmark, prepared, processes)
     log, raw = build_run_log(rows, prepared, manifest_file(manifest, base, "skipped"),
                              manifest_file(manifest, base, "inventory"))
-    notes = comparability(manifest.runtime, max(1, len(manifest.files.get("processes") or [])))
+    notes = comparability(manifest.runtime, max(1, len(processes)))
     summaries = Measurements(manifest.runtime, notes, measurements)
     require(rd.ROWS, validate_rows(rows))
     require(rd.MEASUREMENTS, validate_measurements(summaries, rows))

@@ -7,6 +7,7 @@ from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.worthiness import DECISIONS
 from ....files import write_json
+from ....result.confidence import describe
 from ....result.modes import Mode
 from ....result.triage import triage
 from ....validation.json_reply import parse_object
@@ -78,16 +79,16 @@ class WorthinessKind:
             if not c.pairs:
                 continue
             lines += ["", f"CONFIGURATION {c.operation} key {c.keySize} input {c.inputSize} {c.phase}",
-                      "  member | median ns | median 95% CI | p25 | p75 | cv | n | allocations/op"]
+                      "  member | median ns | median 95% interval (bootstrap) | p25 | p75 | cv | n | allocations/op"]
             for m in c.members:
                 t = m.timeNs
                 lines.append(f"  {short[m.itemId]} | " + (" | ".join([_num(t.median), f"{_num(t.low)}..{_num(t.high)}", _num(t.p25), _num(t.p75),
                              _num(t.cv, "{:.3f}"), str(t.n)]) if t else "not measured | | | | |")
                              + f" | {_num(m.allocations)}")
-            lines.append("  pair from -> to | time ratio | CI overlap | allocation ratio | improves")
+            lines.append("  pair from -> to | time ratio | pImprove (confidence) | n | allocation ratio | improves")
             for p in c.pairs:
-                lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {p.ciOverlap} | "
-                             f"{_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
+                lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {describe(p.pImprove)} | "
+                             f"{p.n} | {_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
         return TaskPrompt(NAME, "\n".join(lines), e.key)
 
     def check(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> tuple[dict | None, list[str]]:
@@ -123,10 +124,15 @@ class WorthinessKind:
             a, b = alias[p["from"]], alias[p["to"]]
             if not why:
                 problems.append(f"pairs[{i}]: reason is empty")
-            hits = [m for m in metrics if m.fromItem == a and m.toItem == b and self.mode.improves(m)]
+            judged = [(self.mode.judge(m), m) for m in metrics if m.fromItem == a and m.toItem == b]
+            hits = [m for j, m in judged if j == "improves"]
             if not hits:
-                problems.append(f"pairs[{i}]: {b} does not improve on {a} under {self.mode.name} in any configuration")
-            pairs.append(Pair(a, b, why))
+                why_not = "lacks the measurements" if any(j == "not_measured" for j, _ in judged) else "does not improve"
+                problems.append(f"pairs[{i}]: {b} {why_not} on {a} under {self.mode.name} in any configuration")
+                continue
+            # the pair carries its best-supported configuration; a low level is reported, never refused
+            best = max(hits, key=lambda m: -1.0 if m.pImprove is None else m.pImprove)
+            pairs.append(Pair(a, b, why, best.pImprove, best.level))
         if problems:
             return None, problems
         return Verdict(e.groupId, self.mode.name, decision, reason, "llm", self.mode.proxy, tuple(pairs)).to_json(), []

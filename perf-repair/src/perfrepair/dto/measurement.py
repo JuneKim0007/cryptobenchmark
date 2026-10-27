@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 @dataclass(frozen=True)
@@ -12,15 +12,17 @@ class Summary:
     p75: float
     cv: float | None
     n: int
-    low: float
-    high: float
+    low: float | None
+    high: float | None
+    processes: tuple[tuple[float, ...], ...] = ()
 
     def to_json(self) -> dict:
-        return asdict(self)
+        return asdict(self) | {"processes": [list(p) for p in self.processes]}
 
     @classmethod
     def from_json(cls, d: dict) -> "Summary":
-        return cls(d["median"], d["p25"], d["p75"], d.get("cv"), d["n"], d["low"], d["high"])
+        return cls(d["median"], d["p25"], d["p75"], d.get("cv"), d["n"], d.get("low"), d.get("high"),
+                   tuple(tuple(p) for p in d.get("processes") or ()))
 
 
 @dataclass

@@ -17,9 +17,10 @@
 ```
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, validated before writing; sites.json with --app
 src/perfrepair/data_handler/inbound/app_source.py : JCA getInstance call sites in an app tree; default provider by manifest precedence
+src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
 src/perfrepair/data_handler/inbound/probe_index.py : probe → engine types and name/alias index per provider
-src/perfrepair/data_handler/inbound/results.py : benchmark.json + prepared.yaml → PrimitiveRows and Summaries; comparability notes
+src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and Summaries with runs per process; comparability notes
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py; returns the manifest path
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
