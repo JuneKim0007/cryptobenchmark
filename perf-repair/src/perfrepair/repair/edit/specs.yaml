@@ -1,0 +1,20 @@
+# pin_parameters: Edit.parameters keys are `field`s; the one spec whose fields cover them is rendered at the init's `position`.
+position: 2
+encryptingModes: [ENCRYPT_MODE, WRAP_MODE]
+construct:
+  java: "new {class}({args})"
+  kotlin: "{class}({args})"
+randomBytes:
+  java: "((java.util.function.Supplier<byte[]>) () -> { byte[] pinnedIvBytes = new byte[{n}]; new java.security.SecureRandom().nextBytes(pinnedIvBytes); return pinnedIvBytes; }).get()"
+  kotlin: "ByteArray({n}).also { java.security.SecureRandom().nextBytes(it) }"
+specs:
+  - class: javax.crypto.spec.GCMParameterSpec
+    args:
+      - {field: tagBits, type: int}
+      - {field: ivBytes, type: random_bytes}
+  - class: javax.crypto.spec.OAEPParameterSpec
+    args:
+      - {field: digest, type: string}
+      - {field: mgf, type: string, default: MGF1}
+      - {field: mgfDigest, type: spec, class: java.security.spec.MGF1ParameterSpec}
+      - {field: pSource, type: constant, default: javax.crypto.spec.PSource.PSpecified.DEFAULT}

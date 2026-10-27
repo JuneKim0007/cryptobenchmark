@@ -15,8 +15,9 @@
 | `worthiness-<mode>/verdicts.json` | worthiness | repair choose | `validation/worthiness.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `repair/<app>/candidates.json` | repair candidates | repair test-set, choose | none |
-| `repair/<app>/choices.json` | repair choose | repair patch | none |
-| `repair/<app>/patches.json` | repair patch | none | `validation/repair.py`, before writing |
+| `repair/<app>/choices.json` | repair choose | none | none |
+| `apps/<app>/edits.json`, `original/`, `patched/` | repair edit | repair harness | `validation/repair.py`, before writing |
+| `apps/<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 2 (each summary adds `low`, `high`: the median's 95% interval).
