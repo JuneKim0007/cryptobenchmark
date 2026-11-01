@@ -184,3 +184,8 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     assert option["item"] == "Cipher|AES/GCM/NoPadding|Fast" and time["ratio"] < 0.4 and time["pImprove"] == 1.0
     assert {n["reason"] for n in doc["noOptions"]} == {"unresolved", "no_alternative"}
     assert validate_run(run)["apps/demo/dossiers.json"] == []
+
+
+def test_an_unknown_key_size_takes_every_measured_key_size_so_pins_are_known(tmp_path):
+    doc = build([scope(key_size=None)], tmp_path)
+    assert [o["pins"] for o in doc["dossiers"][0]["options"]] == [{"ivBytes": 16}, {}]

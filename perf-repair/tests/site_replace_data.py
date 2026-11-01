@@ -17,7 +17,7 @@ def dossier(options=None, **kw) -> Dossier:
                    (Estimate("timeNs", 0.62, 0.99, 40, "OP1 key 128 input 1024"),
                     Estimate("allocationCount", 0.9, 0.7, 40, "OP1 key 128 input 1024"))),
             Option("R2", "TypeA|ALG-A/MODE-X|P3", {}, "pass", (Estimate("timeNs", 0.97, 0.55, 12, "OP1 key 128 input 64"),)),
-            Option("R3", "TypeA|ALG-B|P1", {}, "not_run", (Estimate("energyUj", 0.8, 0.96, 20, "OP1 key 128 input 1024"),)),
+            Option("R3", "TypeA|ALG-B|P1", {}, "not_run", (Estimate("energyJ", 0.8, 0.96, 20, "OP1 key 128 input 1024"),)),
         )
     return Dossier(scope(**kw), SOURCE, "TypeA|ALG-A/MODE-X|P1", options)
 

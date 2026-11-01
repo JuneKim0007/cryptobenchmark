@@ -1,0 +1,15 @@
+{
+ "runtime": {"model": "fixture"},
+ "cases": [
+  {"id": "scope:a00000000001:before", "type": "Scope", "algorithm": "seal", "provider": "shop", "operation": "before",
+   "inputSize": 1024, "keySize": 128, "keyKind": "none", "parameters": {},
+   "metrics": {"timeNs": {"iterations": 1, "runs": [998, 999, 1000, 1001, 1002]},
+               "allocationCount": {"iterations": 1, "runs": [10, 10, 10]},
+               "energyJ": {"iterations": 5000, "runs": [0.002]}}},
+  {"id": "scope:a00000000001:after", "type": "Scope", "algorithm": "seal", "provider": "shop", "operation": "after",
+   "inputSize": 1024, "keySize": 128, "keyKind": "none", "parameters": {},
+   "metrics": {"timeNs": {"iterations": 1, "runs": [798, 799, 800, 801, 802]},
+               "allocationCount": {"iterations": 1, "runs": [10, 10, 10]},
+               "energyJ": {"iterations": 5000, "runs": [0.0015]}}}
+ ]
+}

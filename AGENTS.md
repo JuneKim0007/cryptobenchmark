@@ -65,6 +65,7 @@ scripts/facts.py : device facts into discovery/facts.yaml
 scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
+scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
 scripts/pipeline.py : run driver: stages in order, results/manifest.yaml
 scripts/requirements.txt : host Python dependencies
 scripts/scope_compile.py : compiles the android test sources with Gradle; the compiler's error lines

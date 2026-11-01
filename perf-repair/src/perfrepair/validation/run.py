@@ -19,6 +19,7 @@ from .app import validate_app_dir
 from .failure import ValidationFailed
 from .grouping.interop import validate_interop
 from .measurements import validate_measurements
+from .report import validate_report, validate_summary
 from .rows import validate_rows
 from .run_log import validate_run_log
 
@@ -31,8 +32,14 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         out[rd.MEASUREMENTS] = validate_measurements(rd.load_measurements(run), rows)
     if (run / rd.RUN_LOG).exists():
         out[rd.RUN_LOG] = validate_run_log(rd.load_run_log(run), rows)
+    reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)
+        if (directory / rd.REPORT).is_file():
+            reports.append(read_json(directory / rd.REPORT))
+            out[f"{rd.APPS}/{directory.name}/{rd.REPORT}"] = validate_report(reports[-1], directory.name)
+    if (run / rd.APPS / rd.SUMMARY).is_file():
+        out[f"{rd.APPS}/{rd.SUMMARY}"] = validate_summary(read_json(run / rd.APPS / rd.SUMMARY), reports)
     grouping = GroupingPaths(run)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)

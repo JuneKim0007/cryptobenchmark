@@ -8,8 +8,9 @@ scopes:
     after: encrypt_after.java
     imports: [import javax.crypto.Cipher;, import javax.crypto.SecretKey;, import javax.crypto.spec.GCMParameterSpec;, import java.security.SecureRandom;, import java.util.Arrays;]
     inputs: {inputSize: 1024, keySize: 256}
+    current: "Cipher|AES/GCM/NoPadding|BC"
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
-    metrics: [timeNs, allocationCount, energyUj]
+    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [Cipher, SecretKey, GCMParameterSpec, SecureRandom, Arrays, System]
   - id: 1b2c3d4e5f60
     language: java
@@ -18,8 +19,9 @@ scopes:
     after: decrypt_after.java
     imports: [import javax.crypto.Cipher;, import javax.crypto.SecretKey;, import javax.crypto.spec.GCMParameterSpec;]
     inputs: {inputSize: 1024, keySize: 256}
+    current: "Cipher|AES/GCM/NoPadding|BC"
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
-    metrics: [timeNs, allocationCount, energyUj]
+    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [Cipher, SecretKey, GCMParameterSpec]
   - id: 2c3d4e5f6071
     language: kotlin
@@ -28,6 +30,7 @@ scopes:
     after: digest_after.kt
     imports: [import java.security.MessageDigest]
     inputs: {inputSize: 1024, keySize: null}
+    current: "MessageDigest|SHA-256|BC"
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
-    metrics: [timeNs, allocationCount, energyUj]
+    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [MessageDigest]

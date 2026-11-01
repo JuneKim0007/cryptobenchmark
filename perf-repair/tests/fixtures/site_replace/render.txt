@@ -25,7 +25,7 @@ OPTIONS (answer with these names)
     pins: none
     interop: not_run; a replace to it must also declare unverified_interop
     metric | ratio | pImprove | n | configuration
-    energyUj | 0.800 | 0.960 | 20 | OP1 key 128 input 1024
+    energyJ | 0.800 | 0.960 | 20 | OP1 key 128 input 1024
 
 EDIT KINDS (the only edits allowed)
   set_provider: construct the call's engine from the chosen option's provider; provider = that name exactly, algorithm "", parameters []; required when the option's provider differs from the current one

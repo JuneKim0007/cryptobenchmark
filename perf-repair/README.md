@@ -15,6 +15,17 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 | `claude` | `ANTHROPIC_API_KEY`, `pip install -e .[api]` |
 | `dry-run` | nothing; no model is called |
 
+## Usage
+
+One app from source to a measured report, after inbound and grouping have filled the run:
+
+```
+python3 scripts/llm_guide.py --app <app root> --name <app> --run ~/capstone/runs/<date>-<name> \
+    --results <cryptobenchmark results> [--mode latency|battery] [--device]
+```
+
+`python3 -m perfrepair guide` takes the same arguments once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path. Without `--device` it ends at `harness.yaml`; `--device` needs an attached phone. Steps and stop codes: `docs/replacement.md`.
+
 ## Docs
 
 Commands per stage: `docs/pipeline.md`. All facts: `docs/index.md`.

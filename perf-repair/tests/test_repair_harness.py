@@ -24,6 +24,7 @@ def setup_run(tmp_path):
     write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
         replace(LITERAL, provider("Fast")).to_json(), replace(NESTED, provider("Fast")).to_json(),
         replace(TWICE, pins(tagBits=128)).to_json(), replace(TEMPLATE, provider("Fast"), option="9").to_json()]})
+    write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s.id}, "current": "1"} for s in SCOPES]})
     return paths
 
 
@@ -49,8 +50,8 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
         "before": f"harness/{LITERAL.id}/before.java", "after": f"harness/{LITERAL.id}/after.java",
         "imports": ["import java.security.Security;", "import javax.crypto.Cipher;", "import javax.crypto.SecretKey;",
                     "import javax.crypto.spec.GCMParameterSpec;"],
-        "inputs": {"inputSize": 1024, "keySize": 256}, "option": "7",
-        "metrics": ["timeNs", "allocationCount", "energyUj"], "dependencies": ["key"]}
+        "inputs": {"inputSize": 1024, "keySize": 256}, "current": "1", "option": "7",
+        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"]}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
@@ -84,6 +85,8 @@ def test_validators_refuse_broken_documents(tmp_path):
     doc["scopes"] = doc["scopes"][:2]
     problems = validate_harness(doc, APP, paths.root, edits)
     assert any("applied edits" in p for p in problems) and any("metrics" in p for p in problems)
+    doc["scopes"][1]["current"] = doc["scopes"][1]["option"]
+    assert any("are not two items" in p for p in validate_harness(doc, APP, paths.root, edits))
 
 
 def test_an_unknown_edit_kind_is_rejected(tmp_path):

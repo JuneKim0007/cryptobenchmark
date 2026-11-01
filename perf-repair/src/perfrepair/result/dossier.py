@@ -25,8 +25,8 @@ def label(c: Config) -> str:
 
 
 def nearest(scope: Scope, current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow]) -> list[Config]:
-    """Configurations both measured at the scope's key size and the closest input size; every input size when unknown."""
-    shared = [c for c in current if c in option and c[1] == scope.keySize]
+    """Configurations both measured at the scope's key size and the closest input size; every size when unknown."""
+    shared = [c for c in current if c in option and scope.keySize in (None, c[1])]
     if scope.inputSize is None or not shared:
         return sorted(shared, key=str)
     gap = min(abs((c[2] or 0) - scope.inputSize) for c in shared)

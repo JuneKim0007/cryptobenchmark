@@ -15,7 +15,7 @@
 ## Rules
 - principle: the model only decides; every number, list, filter and check is a static tool.
 - generality: code names no device, provider, algorithm or engine type; tests and fixtures may.
-- dependency: `dto` imports nothing ← `files`, `run_dir` ← `data_handler`, `result` ← `ai/runtime` (agent, engine, prompt) ← `validation` ← `ai/evaluate`, `ai/parse`, `ai/review`, `grouping`, `repair`.
+- dependency: `dto` imports nothing ← `files`, `run_dir` ← `data_handler`, `result` ← `ai/runtime` (agent, engine, prompt) ← `validation` ← `ai/evaluate`, `ai/parse`, `ai/review`, `grouping`, `repair` ← `report` ← `guide`.
 - change: one file, one responsibility; update the owning map in the same change.
 - delete/rename: grep the symbol or path, remove its references first, re-grep returns nothing.
 - check: `make check` green before a change is done.

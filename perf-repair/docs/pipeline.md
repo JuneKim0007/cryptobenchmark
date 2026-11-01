@@ -18,6 +18,8 @@ flowchart LR
     D -- apps/app/dossiers.json --> T[repair test-set]
     D -- apps/app/dossiers.json --> P[ai replace: model per scope]
     P -- apps/app/replacements.json --> R[repair: edit, harness]
+    R -- apps/app/harness.yaml --> M[cryptobenchmark pipeline.py --device --harness]
+    M -- apps/app/measured/scoped/ --> Q[report: app, summary]
 ```
 
 ## Stages
@@ -35,9 +37,13 @@ flowchart LR
 | grouping interop-read | `python3 -m perfrepair.grouping interop-read --run <run> --results <interop.yaml>` | `interop.yaml`, `grouping/` | `grouping/interop.yaml`; reruns report | no |
 | worthiness | `python3 -m perfrepair.ai worthiness --run <run> --mode latency\|battery` | `rows.json`, `measurements.json`, `grouping/groups.json` | `worthiness-<mode>/` (evidence.json, outbox/, verdicts.json, journal.jsonl, errors.jsonl) | one per group with an improving pair |
 | repair | `python3 -m perfrepair.repair dossier\|test-set\|edit\|harness --run <run> --app <app>` | `docs/repair.md` | `apps/<app>/`; test-set at `-o` | no |
+| device | cryptobenchmark `pipeline.py --device --harness <run>/apps/<app>/harness.yaml --results <run>/apps/<app>/measured` | `harness.yaml`, the phone | `apps/<app>/measured/` | no |
+| report | `python3 -m perfrepair.report app --run <run> --app <app> [--mode]` ; `report summary --run <run>` | `apps/<app>/` | `report.json`, `report.md`; `apps/summary.json`, `summary.md` | no |
+| guide | `python3 -m perfrepair guide --app <src> --name <app> --run <run> --results <results> [--device]` | the run, the app tree | app, dossier, replace, edit, harness; with `--device` measured and report | the replace step |
 | validate | `python3 -m perfrepair.validation <run>` | every artifact present | nothing | no |
 
 - `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
 - Inbound, app, grouping build and repair dossier, edit and harness validate before they write.
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; changed prompts start a new outbox, and an earlier prompt set resumes its own.
 - `--prompts DIR`: `docs/decisions.md`.
+- The guide runs one app; inbound and grouping are run-level and must exist first. Steps, stop codes and the report: `docs/replacement.md`.

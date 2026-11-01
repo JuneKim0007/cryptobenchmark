@@ -73,7 +73,8 @@ def _harness(a: argparse.Namespace) -> int:
     paths = AppPaths(a.run, a.app)
     scopes, replacements = _load(paths)
     edits = read_json(paths.edits)
-    doc = harness(paths, scopes, replacements, edits)
+    currents = {d["scope"]["id"]: d["current"] for d in read_json(paths.dossiers)["dossiers"]}
+    doc = harness(paths, scopes, replacements, edits, currents)
     problems = validate_harness(doc, a.app, paths.root, edits)
     if problems:
         return _report(paths.harness, problems)

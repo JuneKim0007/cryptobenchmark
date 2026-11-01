@@ -40,7 +40,7 @@ def new_run_dir(root: Path | str) -> Path:
     raise BenchmarkRunError(f"could not create a run directory under {root}")
 
 
-def run_pipeline(config: Path, results: Path, stage: str = "configure", benchmark: Path | str | None = None,
+def run_pipeline(config: Path | None, results: Path, stage: str = "configure", benchmark: Path | str | None = None,
                  extra_args: list[str] | None = None, echo: Callable[[str], None] | None = print,
                  tail: int = 40) -> Path:
     if stage not in STAGES:
@@ -48,8 +48,10 @@ def run_pipeline(config: Path, results: Path, stage: str = "configure", benchmar
     root = benchmark_root(benchmark)
     results = Path(results).resolve()
     results.mkdir(parents=True, exist_ok=True)
-    command = [sys.executable, str(root / PIPELINE), "--config", str(Path(config).resolve()),
-               "--results", str(results), *STAGES[stage], *(extra_args or [])]
+    # config None: pipeline.py resolves global.yaml itself (--config, CRYPTOBENCH_CONFIG, then its defaults)
+    chosen = ["--config", str(Path(config).resolve())] if config is not None else []
+    command = [sys.executable, str(root / PIPELINE), *chosen, "--results", str(results), *STAGES[stage],
+               *(extra_args or [])]
     last: deque[str] = deque(maxlen=tail)
     with open(results / LOG, "w") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
