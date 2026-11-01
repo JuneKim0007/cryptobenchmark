@@ -5,12 +5,13 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from .sources import IGNORED_DIRS, SOURCE_SUFFIXES
+from ..dto.language import NAMES, SOURCE_SUFFIXES
+from .sources import IGNORED_DIRS
 
 REASONS = ("not_a_directory", "not_readable", "not_android_project", "escapes_root", "too_large")
 PROJECT_FILES = ("settings.gradle", "settings.gradle.kts", "build.gradle", "build.gradle.kts")
 MANIFEST = "AndroidManifest.xml"
-SOURCE_SET_DIRS = ("java", "kotlin")
+SOURCE_SET_DIRS = NAMES  # Gradle names a source set folder after its language
 MAX_FILES = 200_000
 MAX_SOURCE_BYTES = 256 * 2**20
 

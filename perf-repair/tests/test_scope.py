@@ -5,6 +5,7 @@ import pytest
 
 from perfrepair.app.__main__ import main
 from perfrepair.app.lexer import Code
+from perfrepair.dto.language import JAVA, KOTLIN
 from perfrepair.scope.extract import enclosing, functions
 from perfrepair.scope.facts import key_source, read_patterns, sinks
 from perfrepair.validation.app import validate_app_facts, validate_scopes
@@ -14,8 +15,8 @@ F = Path(__file__).parent / "fixtures"
 MANIFEST = F / "results" / "manifest.yaml"
 
 
-def _fn(text: str, kotlin: bool, needle: str = "getInstance"):
-    code = Code.of(text, kotlin)
+def _fn(text: str, language, needle: str = "getInstance"):
+    code = Code.of(text, language)
     fn = enclosing(functions(code), code.text.index(needle))
     return code, fn
 
@@ -32,56 +33,56 @@ def scopes(tmp_path):
 
 def test_java_method_span_includes_annotations_and_skips_control_blocks():
     code, fn = _fn("class A {\n  int x;\n  @Override\n  public byte[] f(byte[] in, int n) throws Exception {\n"
-                   "    if (n > 0) { return C.getInstance(\"x\"); }\n    return null;\n  }\n}\n", False)
+                   "    if (n > 0) { return C.getInstance(\"x\"); }\n    return null;\n  }\n}\n", JAVA)
     assert _span(code, fn) == ("f", 3, 7) and fn.params == ("in", "n")
 
 
 def test_java_anonymous_class_method_is_the_enclosing_function():
     code, fn = _fn("class A {\n void outer() {\n  Runnable r = new Runnable() {\n   public void run() {\n"
-                   "    C.getInstance(\"x\");\n   }\n  };\n }\n}\n", False)
+                   "    C.getInstance(\"x\");\n   }\n  };\n }\n}\n", JAVA)
     assert _span(code, fn) == ("run", 4, 6)
 
 
 def test_java_initializer_has_no_function():
-    code, fn = _fn("class A {\n static { C.getInstance(\"x\"); }\n Object f = C.getInstance(\"y\");\n}\n", False)
+    code, fn = _fn("class A {\n static { C.getInstance(\"x\"); }\n Object f = C.getInstance(\"y\");\n}\n", JAVA)
     assert fn is None
 
 
 def test_kotlin_expression_bodied_fun_spans_its_continuation_lines():
     code, fn = _fn("class A {\n  fun f(b: ByteArray) =\n    C.getInstance(\"x\")\n      .digest(b)\n"
-                   "  fun g() = 1\n}\n", True)
+                   "  fun g() = 1\n}\n", KOTLIN)
     assert _span(code, fn) == ("f", 2, 4) and fn.expression
 
 
 def test_kotlin_lambda_belongs_to_its_function_and_modifiers_start_it():
     code, fn = _fn("class A {\n  @Throws(E::class)\n  private suspend fun <T> List<T>.f(): () -> Any {\n"
-                   "    val m = { C.getInstance(\"x\") }\n    return m\n  }\n}\n", True)
+                   "    val m = { C.getInstance(\"x\") }\n    return m\n  }\n}\n", KOTLIN)
     assert _span(code, fn) == ("f", 2, 6)
 
 
 def test_kotlin_property_and_abstract_fun_are_not_functions():
-    code, fn = _fn("interface I {\n  fun a(x: Int): Int\n}\nclass A {\n  val c = C.getInstance(\"x\")\n}\n", True)
+    code, fn = _fn("interface I {\n  fun a(x: Int): Int\n}\nclass A {\n  val c = C.getInstance(\"x\")\n}\n", KOTLIN)
     assert fn is None and [f.name for f in functions(code)] == []
 
 
 def test_kotlin_secondary_constructor_but_not_primary():
-    code = Code.of("class A constructor(x: Int) {\n  constructor() : this(1) {\n    C.getInstance(\"x\")\n  }\n}\n", True)
+    code = Code.of("class A constructor(x: Int) {\n  constructor() : this(1) {\n    C.getInstance(\"x\")\n  }\n}\n", KOTLIN)
     assert [f.name for f in functions(code)] == ["constructor"]
     assert _span(code, enclosing(functions(code), code.text.index("C.get"))) == ("constructor", 2, 4)
 
 
-@pytest.mark.parametrize("body, kotlin, expected_sinks, expected_key", [
-    ("fun f(k: Key) { c.init(1, k); prefs.edit().putString(\"a\", c.doFinal()).apply() }", True,
+@pytest.mark.parametrize("body, language, expected_sinks, expected_key", [
+    ("fun f(k: Key) { c.init(1, k); prefs.edit().putString(\"a\", c.doFinal()).apply() }", KOTLIN,
      ("persist",), "parameter"),
     ("void f(Socket s) { c.init(1, new SecretKeySpec(new byte[]{1}, \"A\")); s.getOutputStream().write(x); }",
-     False, ("network",), "literal"),
-    ("fun f() = KeyGenerator.getInstance(\"A\").generateKey()", True, ("return",), "generated"),
-    ("void f(char[] p) { SecretKeyFactory.getInstance(\"P\").generateSecret(new PBEKeySpec(p)); }", False,
+     JAVA, ("network",), "literal"),
+    ("fun f() = KeyGenerator.getInstance(\"A\").generateKey()", KOTLIN, ("return",), "generated"),
+    ("void f(char[] p) { SecretKeyFactory.getInstance(\"P\").generateSecret(new PBEKeySpec(p)); }", JAVA,
      ("local",), "derived"),
-    ("void f() { this.out = c.doFinal(); }", False, ("unknown",), "unknown"),
+    ("void f() { this.out = c.doFinal(); }", JAVA, ("unknown",), "unknown"),
 ])
-def test_sinks_and_key_sources(body, kotlin, expected_sinks, expected_key):
-    code = Code.of(body, kotlin)
+def test_sinks_and_key_sources(body, language, expected_sinks, expected_key):
+    code = Code.of(body, language)
     [fn] = functions(code)
     assert sinks(code, fn, read_patterns()) == expected_sinks
     assert key_source(code, fn, read_patterns()) == expected_key

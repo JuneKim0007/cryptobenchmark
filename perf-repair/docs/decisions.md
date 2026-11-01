@@ -47,14 +47,14 @@
 | ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
 | no option | static `keep`, source `static`, never asked |
 | dropped item | `keep` with reason `dropped: …`, source `fallback` |
-| state | `apps/<app>/replacements.json`: `{schemaVersion, app, replacements, sources}`; outbox under `apps/<app>/replace/` |
+| state | `apps/<app>/replacements.json`: `{schemaVersion: 2, app, replacements, sources}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, and the edit step refuses another version; outbox under `apps/<app>/replace/` |
 
 ## Site replace gate
 
 - `replace` names a listed alias and at least one edit; `keep` names no option and no edits; `reason` is not empty.
-- Edit kinds come from `EDIT_KINDS`, each at most once.
+- Edit kinds come from `EDIT_KIND_TABLE` (`dto/site.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
-- `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as parameters `{algorithm: name}`.
+- `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.
 - An edit fills no field its kind does not use.
 - `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
 - Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`.

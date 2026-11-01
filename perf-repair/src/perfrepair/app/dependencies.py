@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ..files import read_yaml
 from .imports import import_reason
+from ..dto.language import of_build_file
 from .lexer import Code, mask
 
 LIBRARIES = Path(__file__).with_name("libraries.yaml")
@@ -52,7 +53,7 @@ def _uncommented(path: Path) -> str:
     text = path.read_text(errors="replace")
     if path.suffix == ".toml":
         return "\n".join("" if line.lstrip().startswith("#") else line for line in text.splitlines())
-    return mask(text, kotlin=path.suffix == ".kts", strings=False)
+    return mask(text, of_build_file(path.name), strings=False)
 
 
 def coordinates(build_files: list[Path]) -> set[tuple[str, str]]:

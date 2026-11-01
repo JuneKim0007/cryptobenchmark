@@ -1,6 +1,9 @@
 import pytest
 
+from perfrepair.dto.site import EDIT_KINDS, Scope, scope_id
+
 from perfrepair.repair.edit import edit_app
+from perfrepair.repair.edit.plan import APPLY
 from perfrepair.repair.edit.specs import load
 from perfrepair.run_dir import AppPaths
 from perfrepair.validation.repair import validate_edits
@@ -162,3 +165,35 @@ def test_editing_is_deterministic_and_never_touches_the_app(tmp_path):
 def test_a_replacement_for_an_unknown_scope_is_an_input_error(tmp_path):
     with pytest.raises(ValueError, match="missing from scopes.json"):
         run(tmp_path, replace(LITERAL, provider("Fast")), scopes=[ABSENT])
+
+
+def _own_app(tmp_path, file, text, function, call):
+    root = tmp_path / "app"
+    (root / file).parent.mkdir(parents=True)
+    (root / file).write_text(text)
+    lines = text.splitlines()
+    start = next(i for i, l in enumerate(lines, 1) if function in l)
+    end = next(i for i in range(start, len(lines) + 1) if lines[i - 1] == "    }")
+    line = next(i for i in range(start, end + 1) if "getInstance(" in lines[i - 1])
+    s = Scope(scope_id(APP, file, function, line, call), APP, file, line, call, function, start, end,
+              "Cipher", None, None, "default")
+    doc = edit_app({s.id: s}, [replace(s, provider("Fast"))], root, AppPaths(tmp_path / "run", APP), load())
+    return doc["edits"][0]
+
+
+@pytest.mark.parametrize("file, text", [
+    # a nested Kotlin comment: the old edit lexer ended it at the first */ and saw an unbalanced {
+    ("src/A.kt", 'object A {\n    fun f(): Cipher {\n        /* old /* inner */ { */\n'
+                 '        return Cipher.getInstance("AES/GCM/NoPadding")\n    }\n}\n'),
+    # Java has no string templates: the old edit lexer read "${" as one and swallowed the call
+    ("src/A.java", 'class A {\n    Cipher f() throws Exception {\n        String t = "${";\n'
+                   '        return Cipher.getInstance("AES/GCM/NoPadding");\n    }\n}\n'),
+])
+def test_edit_lexes_like_the_scope_step(tmp_path, file, text):
+    row = _own_app(tmp_path, file, text, "f()", 'Cipher.getInstance("AES/GCM/NoPadding")')
+    assert (row["status"], row["reason"]) == ("applied", None)
+    assert '+        return Cipher.getInstance("AES/GCM/NoPadding", "Fast")' in row["diff"]
+
+
+def test_every_edit_kind_has_one_apply_function():
+    assert set(APPLY) == set(EDIT_KINDS)

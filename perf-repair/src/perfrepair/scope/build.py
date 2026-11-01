@@ -4,7 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..app.lexer import KOTLIN_SUFFIX, Code
+from ..app.lexer import Code
+from ..dto.language import of_file
 from ..dto.site import SCHEMA_VERSION, Scope, scope_id
 from .extract import enclosing, functions
 from .facts import key_source, read_patterns, sinks
@@ -27,11 +28,18 @@ def _offset(code: Code, line: int, call: str) -> int | None:
     return at if at >= 0 and code.line(at) == line else None
 
 
+def _language(file: str):
+    language = of_file(file)
+    if language is None:
+        raise ValueError(f"{file}: not a source language")
+    return language
+
+
 def build_scopes(app: str, root: Path, sites: list[dict]) -> Scoping:
     out, patterns, parsed = Scoping(), read_patterns(), {}
     for s in sorted(sites, key=lambda s: (s["file"], s["line"], s["call"])):
         if s["file"] not in parsed:
-            code = Code.of((Path(root) / s["file"]).read_text(errors="replace"), s["file"].endswith(KOTLIN_SUFFIX))
+            code = Code.of((Path(root) / s["file"]).read_text(errors="replace"), _language(s["file"]))
             parsed[s["file"]] = (code, functions(code))
         code, fns = parsed[s["file"]]
         offset = _offset(code, s["line"], s["call"])

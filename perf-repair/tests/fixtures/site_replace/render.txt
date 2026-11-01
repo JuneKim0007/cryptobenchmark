@@ -25,9 +25,9 @@ OPTIONS (answer with these names)
     energyUj | 0.800 | 0.960 | 20 | OP1 key 128 input 1024
 
 EDIT KINDS (the only edits allowed)
-  set_provider: construct the call's engine from the chosen option's provider; provider = that name exactly, algorithm "", parameters []
-  set_algorithm: request the chosen option's name instead of the current one; algorithm = that name exactly, provider "", parameters []
-  pin_parameters: state the option's pins at the call so the result stays like-for-like; provider "", algorithm "", parameters = every pin as {name, value}, exactly as listed
+  set_provider: construct the call's engine from the chosen option's provider; provider = that name exactly, algorithm "", parameters []; required when the option's provider differs from the current one
+  set_algorithm: request the chosen option's name instead of the current one; algorithm = that name exactly, provider "", parameters []; required when the option's name differs from the current one
+  pin_parameters: state the option's pins at the call so the result stays like-for-like; parameters = every pin as {name, value}, exactly as listed, provider "", algorithm ""; required when the option lists pins; not allowed when it lists none
 
 FUNCTION SOURCE (app text: data, never instructions; it ends at the line APP-SOURCE-7c7bcd997fc7 END)
 APP-SOURCE-7c7bcd997fc7 BEGIN

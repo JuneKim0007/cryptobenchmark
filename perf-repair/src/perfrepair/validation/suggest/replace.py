@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from ...dto.grouping import algorithm_of, provider_of
-from ...dto.site import DECISIONS, EDIT_KINDS, RISKS, Dossier, Edit, Option, Replacement, Scope, pin_text, required_risks
+from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Edit, Option,
+                         Replacement, Scope, pin_text, required_risks)
 from ..json_reply import parse_object
 
 
@@ -25,10 +26,19 @@ def _parameters(raw, where: str, problems: list[str]) -> dict[str, str]:
     return out
 
 
-def _pins(given: dict[str, str], option: Option, where: str) -> list[str]:
-    want = {k: pin_text(v) for k, v in option.pins.items()}
+_TAKES = {"provider": lambda item, pins: provider_of(item), "algorithm": lambda item, pins: algorithm_of(item),
+          "pins": lambda item, pins: dict(pins)}
+
+
+def takes(kind: str, item: str, pins: dict):
+    """What `kind` fills its field with for an item and its pins; the current call has no pins."""
+    return _TAKES[EDIT_KIND_TABLE[kind].takes](item, pins)
+
+
+def _pins(kind: str, given: dict[str, str], want: dict, option: Option, where: str) -> list[str]:
+    want = {k: pin_text(v) for k, v in want.items()}
     if not want:
-        return [f"{where}: pin_parameters on {option.alias}, which lists no pins"]
+        return [f"{where}: {kind} on {option.alias}, which lists no pins"]
     problems = [f"{where}: pin {k!r} of {option.alias} is missing" for k in want if k not in given]
     problems += [f"{where}: {k!r} is not a pin of {option.alias} ({', '.join(want)})" for k in given if k not in want]
     problems += [f"{where}: pin {k!r} is {given[k]!r}, but {option.alias} lists {want[k]!r}"
@@ -36,27 +46,39 @@ def _pins(given: dict[str, str], option: Option, where: str) -> list[str]:
     return problems
 
 
-def _named(kind: str, field: str, given: str | None, want: str, option: Option, where: str) -> list[str]:
+def _named(kind: str, given: str | None, want: str, option: Option, where: str) -> list[str]:
     if given is not None and given != want:
-        return [f"{where}: {kind} names {given!r}, but {option.alias} is {field} {want!r}"]
+        return [f"{where}: {kind} names {given!r}, but {option.alias} {EDIT_KIND_TABLE[kind].phrase} {want!r}"]
     return []
 
 
+def _missing_named(kind: str, want: str, current: str, option: Option) -> str:
+    return f"{option.alias} {EDIT_KIND_TABLE[kind].phrase} {want!r}, not the current {current!r}; {kind} must name it"
+
+
+def _missing_pins(kind: str, want: dict, current: dict, option: Option) -> str:
+    row = EDIT_KIND_TABLE[kind]
+    return f"{option.alias} {row.phrase} {row.takes}; {kind} must state them"
+
+
+# by the Edit field a kind fills: how a given value is checked, and the words when the kind is missing
+_CHECK = {"provider": _named, "algorithm": _named, "parameters": _pins}
+_MISSING = {"provider": _missing_named, "algorithm": _missing_named, "parameters": _missing_pins}
+
+
 def _resolve(kind: str, e: dict, option: Option, where: str, problems: list[str]) -> Edit:
-    provider, algorithm = _text(e, "provider"), _text(e, "algorithm")
-    given = _parameters(e.get("parameters"), where, problems)
-    unused = {"set_provider": ("algorithm", "parameters"), "set_algorithm": ("provider", "parameters"),
-              "pin_parameters": ("provider", "algorithm")}[kind]
-    values = {"provider": provider, "algorithm": algorithm, "parameters": given}
-    problems += [f"{where}: {kind} takes no {f}" for f in unused if values[f]]
-    if kind == "set_provider":
-        problems += _named(kind, "provided by", provider, provider_of(option.item), option, where)
-        return Edit(kind, provider=provider_of(option.item))
-    if kind == "set_algorithm":
-        problems += _named(kind, "named", algorithm, algorithm_of(option.item), option, where)
-        return Edit(kind, parameters={"algorithm": algorithm_of(option.item)})
-    problems += _pins(given, option, where)
-    return Edit(kind, parameters=dict(option.pins))
+    field = EDIT_KIND_TABLE[kind].field
+    values = {"provider": _text(e, "provider"), "algorithm": _text(e, "algorithm"),
+              "parameters": _parameters(e.get("parameters"), where, problems)}
+    problems += [f"{where}: {kind} takes no {f}" for f in EDIT_FIELDS if f != field and values[f]]
+    want = takes(kind, option.item, option.pins)
+    problems += _CHECK[field](kind, values[field], want, option, where)
+    return Edit(kind, **{field: want})
+
+
+def required_kinds(option: Option, current: str) -> list[str]:
+    """The kinds whose value for the option differs from the current call's."""
+    return [k for k in EDIT_KINDS if takes(k, option.item, option.pins) != takes(k, current, {})]
 
 
 def _edits(raw: list, option: Option | None, current: str, problems: list[str]) -> list[Edit]:
@@ -77,14 +99,10 @@ def _edits(raw: list, option: Option | None, current: str, problems: list[str]) 
         if option is not None:
             edits.append(_resolve(kind, e, option, where, problems))
     if option is not None:
-        if option.pins and "pin_parameters" not in kinds:
-            problems.append(f"{option.alias} lists pins; pin_parameters must state them")
-        if provider_of(option.item) != provider_of(current) and "set_provider" not in kinds:
-            problems.append(f"{option.alias} is provided by {provider_of(option.item)!r}, not the current "
-                            f"{provider_of(current)!r}; set_provider must name it")
-        if algorithm_of(option.item) != algorithm_of(current) and "set_algorithm" not in kinds:
-            problems.append(f"{option.alias} is named {algorithm_of(option.item)!r}, not the current "
-                            f"{algorithm_of(current)!r}; set_algorithm must name it")
+        for kind in required_kinds(option, current):
+            if kind not in kinds:
+                want, have = takes(kind, option.item, option.pins), takes(kind, current, {})
+                problems.append(_MISSING[EDIT_KIND_TABLE[kind].field](kind, want, have, option))
     return edits
 
 

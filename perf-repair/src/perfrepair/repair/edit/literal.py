@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-_ESCAPES = {"java": {"\\": "\\\\", '"': '\\"'}, "kotlin": {"\\": "\\\\", '"': '\\"', "$": "\\$"}}
+from ...dto.language import Language
 
 
-def string_literal(value: str, language: str) -> str:
+def string_literal(value: str, language: Language) -> str:
     if any(ch in value for ch in "\n\r"):
         raise ValueError(f"{value!r}: a line break in a rendered literal")
-    return '"' + "".join(_ESCAPES[language].get(ch, ch) for ch in value) + '"'
+    escapes = {"\\": "\\\\", '"': '\\"'}
+    if language.template:
+        escapes[language.template] = "\\" + language.template
+    return '"' + "".join(escapes.get(ch, ch) for ch in value) + '"'

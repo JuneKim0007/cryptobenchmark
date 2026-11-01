@@ -3,29 +3,30 @@ from __future__ import annotations
 
 import re
 
+from ...app.lexer import Code
 from ...dto.site import Edit
-from .lexer import Source
 from .literal import string_literal
 from .locate import Located
 from .reject import Rejected
+from .specs import Table
 from .splice import Splice
 
 _GET_PROVIDER = re.compile(r'(?:\w+\s*\.\s*)*getProvider\s*\(\s*("(?:[^"\\\n]|\\.)*")\s*\)')
 
 
-def set_provider(source: Source, located: Located, edit: Edit, language: str) -> Splice:
+def set_provider(code: Code, located: Located, edit: Edit, table: Table) -> list[Splice]:
     if not edit.provider:
         raise Rejected("missing_parameter")
-    new = string_literal(edit.provider, language)
+    new = string_literal(edit.provider, code.language)
     spans = located.args.spans
     if len(spans) == 1:
-        return Splice(spans[0][1], spans[0][1], f", {new}")
+        return [Splice(spans[0][1], spans[0][1], f", {new}")]
     if len(spans) != 2:
         raise Rejected("unsupported_expression")
     start, end = spans[1]
-    if source.is_literal(start, end):
-        return Splice(start, end, new)
-    m = _GET_PROVIDER.fullmatch(source.text, start, end)
-    if m and source.is_literal(*m.span(1)):
-        return Splice(*m.span(1), new)
+    if code.is_literal(start, end):
+        return [Splice(start, end, new)]
+    m = _GET_PROVIDER.fullmatch(code.text, start, end)
+    if m and code.is_literal(*m.span(1)):
+        return [Splice(*m.span(1), new)]
     raise Rejected("unsupported_expression")

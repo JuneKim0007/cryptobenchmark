@@ -4,11 +4,11 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+from ...app.lexer import Code
 from ...dto.site import SCHEMA_VERSION, Replacement, Scope
 from ...files import write_text
 from ...run_dir import AppPaths
-from .lexer import Source, lex
-from .plan import plan
+from .plan import language, plan
 from .reject import Rejected
 from .specs import Table
 from .splice import Splice, apply, diff
@@ -33,7 +33,7 @@ def _write(path: Path, text: str) -> None:
 
 def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Path, out: AppPaths,
              table: Table) -> dict:
-    sources: dict[str, Source] = {}
+    sources: dict[str, Code] = {}
     accepted: dict[str, list[Splice]] = {}
     rows = []
     for r in sorted((r for r in replacements if r.decision == "replace"), key=lambda r: r.scope):
@@ -49,7 +49,7 @@ def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Pa
             if not path.is_file():
                 raise Rejected("file_missing")
             if scope.file not in sources:
-                sources[scope.file] = lex(read_source(path))
+                sources[scope.file] = Code.of(read_source(path), language(scope.file))
             source = sources[scope.file]
             splices = plan(scope, r, source, table)
             apply(source.text, accepted.get(scope.file, []) + splices)

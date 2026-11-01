@@ -4,19 +4,18 @@ from __future__ import annotations
 import hashlib
 
 from ....dto.grouping import algorithm_of, provider_of
-from ....dto.site import EDIT_KINDS, Dossier, Option, pin_text, required_risks
+from ....dto.site import EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, pin_text, required_risks
 
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
 TOO_FEW_RUNS = "n/a (n<2)"
 
-EDIT_MEANINGS = {
-    "set_provider": "construct the call's engine from the chosen option's provider; provider = that name exactly, "
-                    "algorithm \"\", parameters []",
-    "set_algorithm": "request the chosen option's name instead of the current one; algorithm = that name exactly, "
-                     "provider \"\", parameters []",
-    "pin_parameters": "state the option's pins at the call so the result stays like-for-like; provider \"\", "
-                      "algorithm \"\", parameters = every pin as {name, value}, exactly as listed",
-}
+_EMPTY = {"provider": '""', "algorithm": '""', "parameters": "[]"}
+
+
+def edit_meaning(kind: str) -> str:
+    row = EDIT_KIND_TABLE[kind]
+    empty = ", ".join(f"{f} {_EMPTY[f]}" for f in EDIT_FIELDS if f != row.field)
+    return f"{row.meaning}; {row.field} = {row.value}, {empty}; required {row.required}"
 
 
 def _known(x) -> str:
@@ -54,5 +53,5 @@ def render(d: Dossier) -> str:
              "", "OPTIONS (answer with these names)"]
     for o in d.options:
         lines += _option(o)
-    lines += ["", "EDIT KINDS (the only edits allowed)"] + [f"  {k}: {EDIT_MEANINGS[k]}" for k in EDIT_KINDS]
+    lines += ["", "EDIT KINDS (the only edits allowed)"] + [f"  {k}: {edit_meaning(k)}" for k in EDIT_KINDS]
     return "\n".join(lines + [""] + _source(d))

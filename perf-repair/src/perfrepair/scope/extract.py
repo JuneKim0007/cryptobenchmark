@@ -8,6 +8,7 @@ import re
 from dataclasses import dataclass
 
 from ..app.lexer import Code, matching, opening, split_top
+from ..dto.language import JAVA, KOTLIN
 
 JAVA_KEYWORDS = frozenset({"if", "for", "while", "switch", "catch", "synchronized", "try", "else", "do", "return",
                            "new", "super", "this", "assert", "throw", "when", "case", "finally"})
@@ -92,29 +93,6 @@ def _java(code: Code) -> list[Function]:
     return out
 
 
-def _expression_end(code: Code, eq: int) -> int:
-    """End of a Kotlin expression body: a line end at depth 0 that no operator continues, or the enclosing '}'."""
-    m, depth, k, last = code.masked, 0, eq + 1, eq + 1
-    while k < len(m):
-        ch = m[k]
-        if ch in "([{":
-            depth += 1
-        elif ch in ")]}":
-            if depth == 0:
-                return last
-            depth -= 1
-        elif depth == 0 and ch == ";":
-            return k
-        elif depth == 0 and ch == "\n":
-            before, after = m[eq + 1:k].rstrip(), m[k:].lstrip()
-            if before and not before.endswith(_CONTINUES_AFTER) and not after.startswith(_CONTINUES_BEFORE):
-                return last
-        if not ch.isspace():
-            last = k + 1
-        k += 1
-    return last
-
-
 def _kotlin_start(m: str, keyword: int) -> int:
     prefix = _KOTLIN_PREFIX.search(m[max(0, keyword - 300):keyword])
     return max(0, keyword - 300) + prefix.start() if prefix else keyword
@@ -133,7 +111,7 @@ def _kotlin_body(code: Code, close: int) -> tuple[int, int, bool] | None:
             end = matching(m, k)
             return (k, end + 1, False) if end is not None else None
         elif depth == 0 and ch == "=" and m[k + 1:k + 2] != "=":
-            return k, _expression_end(code, k), True
+            return k, code.expression_end(k + 1, _CONTINUES_AFTER, _CONTINUES_BEFORE), True
         elif depth == 0 and _KOTLIN_STOP.match(m, k):
             return None
         k += 1
@@ -166,8 +144,11 @@ def _kotlin(code: Code) -> list[Function]:
     return out
 
 
+_EXTRACTORS = {JAVA: _java, KOTLIN: _kotlin}
+
+
 def functions(code: Code) -> list[Function]:
-    return sorted(_kotlin(code) if code.kotlin else _java(code), key=lambda f: (f.start, -f.end))
+    return sorted(_EXTRACTORS[code.language](code), key=lambda f: (f.start, -f.end))
 
 
 def enclosing(fns: list[Function], offset: int) -> Function | None:
