@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Callable
 
+from ...catalog.names import Names
+from ...catalog.probe_names import with_probe
 from ...dto.grouping import Item, Profile
 from ..catalog.families import Families
 from .key_kind import Context, Evidence, key_kind
@@ -14,10 +17,11 @@ def _attributes(probe: dict) -> dict[tuple, dict]:
             for p in probe["providers"] for s in p.get("services") or []}
 
 
-def _generators(probe: dict, kind: str) -> frozenset[str]:
-    engine = next(t for t, k in GENERATOR_KINDS.items() if k == kind)
-    return frozenset(n.upper() for p in probe["providers"] for s in p.get("services") or [] if s["type"] == engine
-                     for n in [s["algorithm"], *(s.get("aliases") or [])])
+def _generator_kind(probe: dict, names: Names) -> Callable[[str], str | None]:
+    keys = {(s["type"], names.canonical(s["type"], s["algorithm"]).key)
+            for p in probe["providers"] for s in p.get("services") or [] if s["type"] in GENERATOR_KINDS}
+    return lambda name: next((kind for engine, kind in GENERATOR_KINDS.items()
+                              if (engine, names.canonical(engine, name).key) in keys), None)
 
 
 def _runs(inventory: dict) -> dict[tuple, dict]:
@@ -31,8 +35,8 @@ def _as_list(value) -> tuple[str, ...]:
 
 def build(probe: dict, trial: dict, inventory: dict, prepared: dict, benchmark: dict,
           families: Families) -> tuple[list[Item], dict[int, Profile]]:
-    attributes, runs = _attributes(probe), _runs(inventory)
-    context = Context(families, _generators(probe, "secret"), _generators(probe, "pair"))
+    attributes, runs, names = _attributes(probe), _runs(inventory), with_probe(Names.load(), probe)
+    context = Context(families, names, _generator_kind(probe, names))
     kinds, sizes = {}, defaultdict(set)
     for c in prepared.get("cases") or []:
         key = (c["provider"], c["type"], c["algorithm"])
@@ -62,7 +66,7 @@ def build(probe: dict, trial: dict, inventory: dict, prepared: dict, benchmark: 
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
             bareName=bool(run.get("bareName")), measured=key in measured, preparedKeySizes=tuple(sorted(sizes[key]))))
 
-    order = sorted(drafts, key=lambda k: (drafts[k][0], k[2].upper(), k[0]))
+    order = sorted(drafts, key=lambda k: (drafts[k][0], names.canonical(k[1], k[2]).key[0], k[0], k[2]))
     items, profiles = [], {}
     for n, (provider, engine, name) in enumerate(order, 1):
         family, resolved, profile = drafts[(provider, engine, name)]

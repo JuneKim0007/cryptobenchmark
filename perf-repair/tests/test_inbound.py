@@ -138,8 +138,8 @@ def test_engine_types_come_from_the_probe(index):
 
 
 def test_aliases_and_case_resolve_to_the_registered_name(index):
-    assert index.canonical("Fast", "MessageDigest", "sha256") == "SHA-256"
-    assert index.canonical("Fast", "Mac", "HmacSHA256") is None
+    assert index.registered("Fast", "MessageDigest", "sha256") == "SHA-256"
+    assert index.registered("Fast", "Mac", "HmacSHA256") is None
 
 
 def test_command_writes_the_run_directory(tmp_path, capsys):

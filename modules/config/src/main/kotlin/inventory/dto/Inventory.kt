@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.inventory.dto
 
-import java.util.Locale
+import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 
 data class Inventory(
     val generatedFrom: InventorySource,
@@ -10,8 +10,8 @@ data class Inventory(
     init {
         for ((provider, types) in providers) {
             for ((type, entries) in types) {
-                val folded = entries.keys.groupBy { it.uppercase(Locale.ROOT) }.filterValues { it.size > 1 }
-                require(folded.isEmpty()) { "duplicate_name: $provider.$type ${folded.values.flatten()}" }
+                val same = entries.keys.groupBy { AlgorithmNames.catalog.key(type, it) }.filterValues { it.size > 1 }
+                require(same.isEmpty()) { "duplicate_name: $provider.$type ${same.values.flatten()}" }
             }
         }
     }

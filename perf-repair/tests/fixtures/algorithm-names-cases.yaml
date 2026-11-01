@@ -1,0 +1,37 @@
+# Shared by perf-repair's tests/test_names.py and modules/config's AlgorithmNamesTest: both readers must agree.
+schemaVersion: 1
+cases:
+- {type: MessageDigest, name: SHA-256, canonical: SHA-256, keySize: null, known: true}
+- {type: MessageDigest, name: SHA256, canonical: SHA-256, keySize: null, known: true}
+- {type: MessageDigest, name: sha-256, canonical: SHA-256, keySize: null, known: true}
+- {type: MessageDigest, name: SHA-1, canonical: SHA-1, keySize: null, known: true}
+- {type: MessageDigest, name: SHA1, canonical: SHA-1, keySize: null, known: true}
+- {type: MessageDigest, name: sha-1, canonical: SHA-1, keySize: null, known: true}
+- {type: MessageDigest, name: SHA, canonical: SHA-1, keySize: null, known: true}
+- {type: MessageDigest, name: md5, canonical: MD5, keySize: null, known: true}
+- {type: MessageDigest, name: SHA512, canonical: SHA-512, keySize: null, known: true}
+- {type: MessageDigest, name: sha-384, canonical: SHA-384, keySize: null, known: true}
+- {type: MessageDigest, name: gost-3411, canonical: GOST3411, keySize: null, known: true}
+- {type: SecureRandom, name: SHA, canonical: SHA, keySize: null, known: false}
+- {type: Mac, name: hmac-sha256, canonical: HmacSHA256, keySize: null, known: true}
+- {type: Signature, name: SHA1WithRSA, canonical: SHA1withRSA, keySize: null, known: true}
+- {type: Signature, name: SHA256withRSA/PSS, canonical: SHA256withRSA/PSS, keySize: null, known: true}
+- {type: SecretKeyFactory, name: PBEWITHSHA1AND256BITAES-CBC-BC, canonical: PBEWITHSHAAND256BITAES-CBC-BC, keySize: null, known: true}
+- {type: KeyFactory, name: ecgost-3410, canonical: ECGOST3410, keySize: null, known: true}
+- {type: KeyAgreement, name: X25519, canonical: XDH, keySize: null, known: true}
+- {type: Cipher, name: aes/cbc/pkcs5padding, canonical: AES/CBC/PKCS5Padding, keySize: null, known: true}
+- {type: Cipher, name: AES/CBC/PKCS7Padding, canonical: AES/CBC/PKCS5Padding, keySize: null, known: true}
+- {type: Cipher, name: AES_256/GCM/NoPadding, canonical: AES/GCM/NoPadding, keySize: 256, known: true}
+- {type: Cipher, name: AES_128, canonical: AES, keySize: 128, known: true}
+- {type: Cipher, name: Rijndael/ECB/NoPadding, canonical: AES/ECB/NoPadding, keySize: null, known: true}
+- {type: Cipher, name: RSA/ECB/PKCS1PADDING, canonical: RSA/ECB/PKCS1Padding, keySize: null, known: true}
+- {type: Cipher, name: RSA/None/OAEPWithSHA-256AndMGF1Padding, canonical: RSA/ECB/OAEPWithSHA-256AndMGF1Padding, keySize: null, known: true}
+- {type: Cipher, name: RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding, canonical: RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding, keySize: null, known: true}
+- {type: Cipher, name: RSA/ECB/OAEPPadding, canonical: RSA/ECB/OAEPPadding, keySize: null, known: true}
+- {type: Cipher, name: RSA/ECB/PKCS7Padding, canonical: RSA/ECB/PKCS7Padding, keySize: null, known: false}
+- {type: Cipher, name: chacha20/poly1305/nopadding, canonical: ChaCha20-Poly1305, keySize: null, known: true}
+- {type: Cipher, name: AES/XYZ/NoPadding, canonical: AES/XYZ/NoPadding, keySize: null, known: false}
+- {type: Cipher, name: AES/CBC, canonical: AES/CBC, keySize: null, known: false}
+- {type: Cipher, name: aes, canonical: AES, keySize: null, known: true}
+- {type: Mac, name: HMAC/SHA1, canonical: HmacSHA1, keySize: null, known: true}
+- {type: Cipher, name: PBEWithHmacSHA256AndAES_256, canonical: PBEWithHmacSHA256AndAES_256, keySize: null, known: false}

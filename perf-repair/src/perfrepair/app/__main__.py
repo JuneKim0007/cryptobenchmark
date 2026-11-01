@@ -6,14 +6,16 @@ import sys
 from pathlib import Path
 
 from .. import run_dir as rd
+from ..catalog.names import Names, NamesError
+from ..catalog.probe_names import with_probe
 from ..data_handler.inbound import manifest_file, read_manifest, read_probe_index
-from ..files import write_json
+from ..files import read_yaml, write_json
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
 from .app_facts import app_facts
 from .dependencies import bundled, read_libraries
-from .detect import detect
+from .detect import Detection, detect
 from .gate import AppRoot, GateError, open_apps
 from .sdk import sdk_levels
 from .sources import build_files
@@ -51,9 +53,14 @@ def main(argv: list[str] | None = None) -> int:
         dirs = {name: rd.app_dir(a.run, name) for name in units}
     except ValueError as e:
         ap.error(str(e))
-    index = read_probe_index(probe)
+    index, names = read_probe_index(probe), with_probe(Names.load(), read_yaml(probe))
+    try:
+        found = {name: detect(app, index, names, manifest.providers) for name, app in units.items()}
+    except NamesError as e:
+        print(f"error {e}", file=sys.stderr)
+        return 2
     for name, app in units.items():
-        write_unit(name, app, dirs[name], index, manifest.providers)
+        write_unit(name, app, dirs[name], found[name])
     return 0
 
 
@@ -61,8 +68,7 @@ def unit_name(name: str, project_root: str) -> str:
     return ".".join([name, *project_root.split("/")])
 
 
-def write_unit(name: str, app: AppRoot, out_dir: Path, index, providers) -> None:
-    found = detect(app, index, providers)
+def write_unit(name: str, app: AppRoot, out_dir: Path, found: Detection) -> None:
     builds = build_files(app.path)
     facts = app_facts(name, app.path, app.projectRoot, bundled(builds, read_libraries()), found.registers,
                       sdk_levels(builds))

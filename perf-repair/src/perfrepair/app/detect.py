@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 
+from ..catalog.names import Names
 from ..data_handler.inbound.probe_index import ProbeIndex
 from ..dto import ProviderEntry
 from .constants import Constants
@@ -38,7 +39,7 @@ def fold(site: Site, constants: Constants) -> Site:
                    provider=_fold(site.provider, constants, True))
 
 
-def detect(app: AppRoot, index: ProbeIndex, providers: list[ProviderEntry]) -> Detection:
+def detect(app: AppRoot, index: ProbeIndex, names: Names, providers: list[ProviderEntry]) -> Detection:
     out, pattern = Detection(), call_pattern(index.engine_types)
     for f in source_files(app.path):
         if f.origin == TEST:
@@ -59,5 +60,5 @@ def detect(app: AppRoot, index: ProbeIndex, providers: list[ProviderEntry]) -> D
             constants = constants or Constants(code)
             folded = fold(site, constants)
             out.folded += folded != site
-            out.sites.append(resolve(folded, index, providers))
+            out.sites.append(resolve(folded, index, names, providers))
     return out

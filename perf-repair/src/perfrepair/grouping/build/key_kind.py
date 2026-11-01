@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
+from ...catalog.names import Names
 from ..catalog.families import Families
 
 SECRET, PAIR, UNKNOWN = "secret", "pair", "unknown"
@@ -20,8 +21,8 @@ class Evidence:
 @dataclass(frozen=True)
 class Context:
     families: Families
-    secret_generators: frozenset[str]
-    pair_generators: frozenset[str]
+    names: Names
+    generator_kind: Callable[[str], str | None]
 
 
 Rule = Callable[[Evidence, Context], str | None]
@@ -41,18 +42,11 @@ def engine_type(e: Evidence, ctx: Context) -> str | None:
 
 
 def key_generator(e: Evidence, ctx: Context) -> str | None:
-    if not e.key_algorithm:
-        return None
-    name = e.key_algorithm.upper()
-    if name in ctx.secret_generators:
-        return SECRET
-    if name in ctx.pair_generators:
-        return PAIR
-    return None
+    return ctx.generator_kind(e.key_algorithm) if e.key_algorithm else None
 
 
 def declared(e: Evidence, ctx: Context) -> str | None:
-    formats = {f.upper() for f in e.key_formats}
+    formats = {ctx.names.key_format(f).name for f in e.key_formats}
     if "RAW" in formats:
         return SECRET
     if formats & {"PKCS#8", "X.509"}:

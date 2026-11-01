@@ -18,6 +18,10 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
+processResources {
+    from rootProject.file('perf-repair/src/perfrepair/catalog/algorithm-names.yaml')
+}
+
 tasks.withType(Test).configureEach {
     def update = System.getProperty('examples.update')
     if (update != null) {
