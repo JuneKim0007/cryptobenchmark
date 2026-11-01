@@ -4,7 +4,6 @@ import androidx.benchmark.BlackHole
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import io.github.junekim0007.cryptobench.benchmark.run.compose.CaseRuns
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -25,18 +24,11 @@ class CryptoBenchmark(private val caseId: String, private val prepared: Prepared
     @Test
     fun measure() {
         val invocation = Invocations.of(prepared)
-        val cpu = settings.cpu
-        (cpu?.let(CorePin::apply)).use { pin ->
-            if (cpu != null && pin != null) CorePins.record(caseId, cpu, pin.outcome)
-            val failed = pin?.outcome as? CorePin.Outcome.Failed
-            check(failed == null || cpu?.isRequired != true) { "cpu_pin_failed: ${failed?.reason}" }
-            CaseRuns.timed(caseId, settings.energy) {
-                benchmarkRule.measureRepeated {
-                    // Unit stands in for null: the invocation returns Any? and BlackHole.consume takes Any.
-                    BlackHole.consume(invocation.perIteration() ?: Unit)
-                }
-                null
-            }.run()
+        PinnedCase.run(caseId, settings) {
+            benchmarkRule.measureRepeated {
+                // Unit stands in for null: the invocation returns Any? and BlackHole.consume takes Any.
+                BlackHole.consume(invocation.perIteration() ?: Unit)
+            }
         }
     }
 

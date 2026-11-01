@@ -7,6 +7,7 @@ FILES = f"/sdcard/Android/data/{PACKAGE}/files/cryptobench"   # DevicePlan.direc
 MEDIA = f"/sdcard/Android/media/{PACKAGE}"                     # androidx.benchmark's output directory
 DATA = f"{MEDIA}/{PACKAGE}-benchmarkData.json"
 CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
+SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
@@ -135,3 +136,26 @@ class Device:
         preparation.mkdir(parents=True, exist_ok=True)
         self.pull(f"{FILES}/prepared.yaml", preparation / "prepared.yaml")
         self.pull(f"{FILES}/skipped.yaml", preparation / "skipped.yaml")
+
+    def measure_scoped(self, suppress, data, interop):
+        """ScopedBenchmark: interop verdicts always; benchmarkData.json only when a scope was measured."""
+        self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/{SCOPED_INTEROP} {FILES}/{CPU_PINS}")
+        arguments = NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
+        output = self.instrument("ScopedBenchmark", *arguments)
+        data.parent.mkdir(parents=True, exist_ok=True)
+        for stale in (data, interop):
+            stale.unlink(missing_ok=True)
+        ran = re.search(r"^OK \((\d+) tests?\)", output, re.M)
+        if not ran:
+            counted = re.search(r"^Tests run: (\d+),\s+Failures: (\d+)", output, re.M)
+            if not counted or counted.group(1) == counted.group(2):
+                raise DeviceError("ScopedBenchmark failed on the device:\n" + instrumentation_report(output))
+            print("warning: ScopedBenchmark: " + instrumentation_report(output).replace("\n", "\nwarning: "))
+        self.pull(f"{FILES}/{SCOPED_INTEROP}", interop)
+        if ran and ran.group(1) == "0":
+            return False
+        self.pull(DATA, data)
+        pins = data.parent / CPU_PINS
+        pins.unlink(missing_ok=True)
+        self.run("pull", f"{FILES}/{CPU_PINS}", str(pins), check=False)
+        return True

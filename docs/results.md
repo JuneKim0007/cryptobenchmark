@@ -17,6 +17,7 @@
 | `benchmark/process-<n>/` | one run's files | `processRepetitions` > 1 |
 | `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `cpu-pins.yaml` when written | `--device` |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml` | energy capture |
+| `scoped/` | `scoped-plan.yaml`, `scoped-interop.yaml`, `benchmarkData.json`, `prepared.yaml`, `benchmark.json`, `clocks.yaml`; `energy.json`, `traces/` on measured capture | `--harness`: [scoped.md](../modules/android/docs/scoped.md) |
 | `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
 | `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |
 
@@ -34,7 +35,7 @@
 | `files` | stage outputs, paths relative to `results/` |
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 
-- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`.
+- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`, `scoped`.
 - A key is absent when its stage did not run.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
 

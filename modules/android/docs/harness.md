@@ -29,6 +29,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, then prepares and checks the plan on the device |
 | `CryptoBenchmark` | one parameterised test per timed case; test name = case id |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
+| `ScopedBenchmark` | one parameterised test per generated scope variant: [scoped.md](scoped.md) |
 | `CovProbe` | timing experiment; arguments `ops` (default 1000000), `runs` (20), `warmupSeconds` (2.0); writes `cov-probe.yaml` |
 
 ## DevicePlan
@@ -46,7 +47,7 @@ Capture and trial come from the same device; preparation enforces the pair by `c
 ## CryptoBenchmark
 
 ```
-CaseRuns.timed { benchmarkRule.measureRepeated { BlackHole.consume(invocation.perIteration() ?: Unit) } }
+PinnedCase.run { benchmarkRule.measureRepeated { BlackHole.consume(invocation.perIteration() ?: Unit) } }
 ```
 
 `JetpackConfig` maps `CaseSettings` to `MicrobenchmarkConfig`:
