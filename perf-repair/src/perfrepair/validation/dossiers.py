@@ -1,58 +1,123 @@
+"""dossiers.json: the one validator; the replace stage parses with the same per-dossier checks."""
 from __future__ import annotations
 
 import math
 from collections import Counter
 
-from ..dto.site import METRICS, Dossier, Scope
-from ..result.dossier import NO_OPTION_REASONS, SCHEMA_VERSION
+from ..dto.grouping import parse_qualified
+from ..dto.site import METRICS, NO_OPTION_REASONS, SCHEMA_VERSION, Dossier, Scope
+from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "dossiers", "noOptions"}
 
 
-def _estimates(where: str, d: dict) -> list[str]:
+def _id(raw) -> str | None:
+    scope = raw.get("scope") if isinstance(raw, dict) else None
+    return scope.get("id") if isinstance(scope, dict) else None
+
+
+def _qualified(item) -> bool:
+    try:
+        parse_qualified(item)
+    except (ValueError, AttributeError):
+        return False
+    return True
+
+
+def _number(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+
+
+def check_header(doc) -> list[str]:
+    if not isinstance(doc, dict):
+        return ["dossiers.json is not an object"]
+    problems = [] if set(doc) == KEYS else [f"keys {sorted(doc)} are not {sorted(KEYS)}"]
+    if doc.get("schemaVersion") != SCHEMA_VERSION:
+        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions") if not isinstance(doc.get(k), list)]
+    return problems + ([] if isinstance(doc.get("app"), str) else ["app is not a string"])
+
+
+def check_no_options(doc: dict) -> list[str]:
     problems = []
-    for o in d["options"]:
-        for e in o.get("estimates") or []:
-            at = f"{where} {o['alias']} {e.get('metric')}"
-            if e.get("metric") not in METRICS:
+    for i, n in enumerate(doc.get("noOptions") or []):
+        if not isinstance(n, dict) or set(n) != {"scope", "reason"} or not isinstance(n["scope"], str):
+            problems.append(f"noOptions[{i}]: is not a {{scope, reason}} object")
+        elif n["reason"] not in NO_OPTION_REASONS:
+            problems.append(f"noOptions {n['scope']}: reason {n['reason']!r} is not one of {NO_OPTION_REASONS}")
+    return problems
+
+
+def _estimates(where: str, d: Dossier) -> list[str]:
+    problems = []
+    for o in d.options:
+        for e in o.estimates:
+            at = f"{where} {o.alias} {e.metric}"
+            if e.metric not in METRICS:
                 problems.append(f"{at}: metric is not one of {METRICS}")
-            if not (isinstance(e.get("ratio"), (int, float)) and math.isfinite(e["ratio"]) and e["ratio"] > 0):
-                problems.append(f"{at}: ratio {e.get('ratio')!r} is not a positive number")
-            p, n = e.get("pImprove"), e.get("n")
+            if not (_number(e.ratio) and e.ratio > 0):
+                problems.append(f"{at}: ratio {e.ratio!r} is not a positive number")
+            p, n = e.pImprove, e.n
             if not isinstance(n, int) or n < 1:
                 problems.append(f"{at}: n {n!r} is not a positive integer")
             elif (p is None) != (n < 2):
                 problems.append(f"{at}: pImprove {p!r} with n {n}; only fewer than two runs leave it empty")
-            if p is not None and not 0 <= p <= 1:
-                problems.append(f"{at}: pImprove {p} is not a probability")
+            if p is not None and not (_number(p) and 0 <= p <= 1):
+                problems.append(f"{at}: pImprove {p!r} is not a probability")
     return problems
+
+
+def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
+    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins and estimates."""
+    where = f"dossier {_id(raw)}"
+    if not isinstance(raw, dict):
+        return None, [f"{where}: is not an object"]
+    problems = scope_problems(where, raw.get("scope"), app)
+    if problems:
+        return None, problems
+    try:
+        d = Dossier.from_json(raw)
+    except (KeyError, TypeError, ValueError, AttributeError) as e:
+        return None, [f"{where}: does not parse into Dossier: {e!r}"]
+    if not isinstance(d.source, str) or not d.source.strip():
+        problems.append(f"{where}: source is empty")
+    items = [d.current] + [o.item for o in d.options]
+    problems += [f"{where}: {item!r} is not a qualified item id" for item in items if not _qualified(item)]
+    if not d.options:
+        problems.append(f"{where}: no options; such a scope belongs in noOptions")
+    if [o.alias for o in d.options] != [f"R{n}" for n in range(1, len(d.options) + 1)]:
+        problems.append(f"{where}: aliases are not R1..R{len(d.options)} in order")
+    if len(set(items)) != len(items):
+        problems.append(f"{where}: an option repeats the current item or another option")
+    problems += [f"{where} {o.alias}: pins {o.pins!r} is neither an object nor null (unknown)"
+                 for o in d.options if o.pins is not None and not isinstance(o.pins, dict)]
+    return d, problems + _estimates(where, d)
 
 
 def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict) -> list[str]:
     """dossiers.json against scopes.json and groups.json: every scope once, options from the current item's group."""
-    problems = [] if set(doc) == KEYS else [f"keys {sorted(doc)} are not {sorted(KEYS)}"]
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    problems = check_header(doc)
+    if not isinstance(doc, dict):
+        return problems
+    problems += check_no_options(doc)
     by_id = {s.id: s for s in scopes}
     group_of = {v["qualified"]: v.get("group") for v in groups["items"].values()}
-    seen = Counter([d["scope"]["id"] for d in doc.get("dossiers") or []] + [n["scope"] for n in doc.get("noOptions") or []])
-    problems += [f"scope {s} appears {n} times" for s, n in sorted(seen.items()) if n > 1]
-    problems += [f"scope {s}: not in scopes.json" for s in sorted(set(seen) - set(by_id))]
+    no_options = [n["scope"] for n in doc.get("noOptions") or [] if isinstance(n, dict) and "scope" in n]
+    seen = Counter([_id(raw) for raw in doc.get("dossiers") or []] + no_options)
+    problems += [f"scope {s} appears {n} times" for s, n in sorted(seen.items(), key=str) if n > 1]
+    problems += [f"scope {s}: not in scopes.json" for s in sorted(set(seen) - set(by_id), key=str)]
     problems += [f"scope {s}: neither a dossier nor in noOptions" for s in sorted(set(by_id) - set(seen))]
-    problems += [f"noOptions {n['scope']}: reason {n.get('reason')!r} is not one of {NO_OPTION_REASONS}"
-                 for n in doc.get("noOptions") or [] if n.get("reason") not in NO_OPTION_REASONS]
     for raw in doc.get("dossiers") or []:
-        d, where = Dossier.from_json(raw), f"dossier {raw['scope']['id']}"
+        d, found = check_dossier(raw, doc.get("app"))
+        problems += found
+        if d is None:
+            continue
+        where = f"dossier {d.key}"
         if d.scope.id in by_id and d.scope != by_id[d.scope.id]:
             problems.append(f"{where}: scope differs from scopes.json")
         group = group_of.get(d.current)
         if group is None:
             problems.append(f"{where}: current {d.current} is not a grouped item")
-        if not d.options:
-            problems.append(f"{where}: no options; such a scope belongs in noOptions")
-        if [o.alias for o in d.options] != [f"R{n}" for n in range(1, len(d.options) + 1)]:
-            problems.append(f"{where}: aliases are not R1..R{len(d.options)} in order")
         problems += [f"{where} {o.alias}: {o.item} is not another member of group {group}"
                      for o in d.options if o.item == d.current or group_of.get(o.item) != group]
-        problems += _estimates(where, raw)
     return problems

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import asdict, dataclass, field
+import json
+from dataclasses import asdict, dataclass
 
 SCHEMA_VERSION = 1
 SINKS = ("persist", "network", "return", "local", "unknown")
@@ -9,6 +10,16 @@ KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unkn
 EDIT_KINDS = ("set_provider", "set_algorithm", "pin_parameters")
 DECISIONS = ("replace", "keep")
 METRICS = ("timeNs", "allocationCount", "energyUj")
+NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available")
+RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink")
+# (scope field, value, risk it implies, plain words): the minimum risks a replace must declare
+DERIVED_RISKS = (
+    ("sinks", "persist", "persisted_data", "the output is stored and read back later"),
+    ("sinks", "network", "wire_format", "the output leaves the process"),
+    ("sinks", "unknown", "unknown_sink", "where the output goes is unknown"),
+    ("keySource", "keystore", "key_compatibility", "the key lives in a key store"),
+    ("keySource", "literal", "key_compatibility", "the key is a literal in the code"),
+)
 
 
 def scope_id(app: str, file: str, function: str, line: int, call: str) -> str:
@@ -43,21 +54,37 @@ class Scope:
         return cls(**{**d, "sinks": tuple(d.get("sinks") or ("unknown",))})
 
 
+def required_risks(scope: Scope) -> dict[str, list[str]]:
+    """Each risk the scope facts imply, with the plain words that imply it."""
+    out: dict[str, list[str]] = {}
+    for field_name, value, risk, words in DERIVED_RISKS:
+        facts = getattr(scope, field_name)
+        if value in (facts if isinstance(facts, tuple) else (facts,)):
+            out.setdefault(risk, []).append(words)
+    return out
+
+
+def pin_text(value) -> str:
+    return value if isinstance(value, str) else json.dumps(value)
+
+
 @dataclass(frozen=True)
 class Estimate:
-    """One metric of one option against the site's current choice, at the nearest measured configuration."""
+    """One metric of one option against the site's current choice, at the nearest measured configuration;
+    pImprove is None when either side has fewer than two runs."""
     metric: str
     ratio: float
-    pImprove: float
+    pImprove: float | None
     n: int
     configuration: str
 
 
 @dataclass(frozen=True)
 class Option:
+    """pins None: the parameters are unknown, so no like-for-like swap can be stated; {} means nothing to pin."""
     alias: str
     item: str
-    pins: dict = field(default_factory=dict)
+    pins: dict | None
     estimates: tuple[Estimate, ...] = ()
 
     def to_json(self) -> dict:
@@ -65,7 +92,7 @@ class Option:
 
     @classmethod
     def from_json(cls, d: dict) -> "Option":
-        return cls(d["alias"], d["item"], d.get("pins") or {}, tuple(Estimate(**e) for e in d.get("estimates") or ()))
+        return cls(d["alias"], d["item"], d["pins"], tuple(Estimate(**e) for e in d.get("estimates") or ()))
 
 
 @dataclass(frozen=True)

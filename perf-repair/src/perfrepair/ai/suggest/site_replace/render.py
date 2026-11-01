@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import hashlib
 
-from ....dto.site import EDIT_KINDS, Dossier, Option
-from ....validation.suggest.dossier import algorithm_of, provider_of
-from ....validation.suggest.replace import pin_text, required_risks
+from ....dto.grouping import algorithm_of, provider_of
+from ....dto.site import EDIT_KINDS, Dossier, Option, pin_text, required_risks
+
+UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
+TOO_FEW_RUNS = "n/a (n<2)"
 
 EDIT_MEANINGS = {
     "set_provider": "construct the call's engine from the chosen option's provider; provider = that name exactly, "
@@ -22,12 +24,13 @@ def _known(x) -> str:
 
 
 def _option(o: Option) -> list[str]:
-    pins = ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
+    pins = UNKNOWN_PINS if o.pins is None else ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
     lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}"]
     if not o.estimates:
         return lines + ["    estimates: none measured"]
     lines.append("    metric | ratio | pImprove | n | configuration")
-    lines += [f"    {e.metric} | {e.ratio:.3f} | {e.pImprove:.3f} | {e.n} | {e.configuration}" for e in o.estimates]
+    lines += [f"    {e.metric} | {e.ratio:.3f} | {TOO_FEW_RUNS if e.pImprove is None else f'{e.pImprove:.3f}'} | {e.n} "
+              f"| {e.configuration}" for e in o.estimates]
     return lines
 
 

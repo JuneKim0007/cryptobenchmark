@@ -7,7 +7,8 @@ from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.site import Dossier, Replacement
 from ....files import write_json
-from ....validation.suggest.dossier import parse_dossiers, validate_dossier
+from ....validation.dossiers import check_dossier
+from ....validation.suggest.dossier import parse_dossiers
 from ....validation.suggest.replace import check_reply
 from ....validation.suggest.replacements import validate_replacements
 from ...runtime.engine.kind import project
@@ -17,7 +18,6 @@ from .schema import SCHEMA
 from .state import Replacements
 
 NAME = "suggest/site-replace"
-NO_OPTION = "static: no option of the site's group is available in the app"
 
 
 def charter(library: PromptLibrary) -> Charter:
@@ -29,26 +29,21 @@ class SiteReplaceKind:
 
     def __init__(self, app: str, doc: dict, directory: Path):
         self.app, self.doc, self.directory = app, doc, Path(directory)
-        self.dossiers, self.problems = parse_dossiers(doc, app)
-        self._ask = [d for d in self.dossiers if d.options]
+        self.dossiers, self.no_options, self.problems = parse_dossiers(doc, app)
 
     def items(self) -> list[Dossier]:
-        return self._ask
+        return self.dossiers
 
     def empty(self) -> Replacements:
         state = Replacements(self.app)
-        for d in self.dossiers:
-            if not d.options:
-                state.put(Replacement(d.key, "keep", None, (), (), NO_OPTION), "static")
+        for scope, reason in self.no_options.items():
+            state.put(Replacement(scope, "keep", None, (), (), reason), "static")
         return state
 
     def admit(self, d: Dossier) -> list[str]:
         raw = next((r for r in self.doc.get("dossiers") or [] if (r.get("scope") or {}).get("id") == d.key), None)
-        try:
-            popped = Dossier.from_json(raw)
-        except (KeyError, TypeError, ValueError, AttributeError) as e:
-            return [f"{d.key}: does not parse into Dossier: {e!r}"]
-        return (["differs from the dossier the run was built with"] if popped != d else []) + validate_dossier(popped, self.app)
+        popped, problems = check_dossier(raw, self.app)
+        return (["differs from the dossier the run was built with"] if popped != d else []) + problems
 
     def label(self, d: Dossier) -> str:
         return f"{d.scope.file}:{d.scope.line}"
@@ -67,7 +62,8 @@ class SiteReplaceKind:
         state.version += 1
 
     def validate(self, state: Replacements, records: list[OutboxRecord]) -> list[str]:
-        problems = list(self.problems) + validate_replacements(state.replacements, state.sources, self.dossiers)
+        problems = list(self.problems) + validate_replacements(state.replacements, state.sources, self.dossiers,
+                                                                    self.no_options)
         if state.version != len(records):
             problems.append(f"replacements version {state.version} is not the {len(records)} records committed")
         try:

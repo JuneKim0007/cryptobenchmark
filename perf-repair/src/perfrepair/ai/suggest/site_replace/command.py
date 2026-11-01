@@ -27,5 +27,5 @@ def replace(run_path: Path, app: str, conversations: Conversations, library: Pro
     for scope, r in state.replacements.items():
         key = f"{r.decision} ({state.sources[scope]})"
         counts[key] = counts.get(key, 0) + 1
-    echo(f"{app}: {len(kind.dossiers)} sites, {len(kind.items())} asked, {counts}")
+    echo(f"{app}: {len(kind.dossiers) + len(kind.no_options)} sites, {len(kind.items())} asked, {counts}")
     return state

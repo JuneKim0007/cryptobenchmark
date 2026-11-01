@@ -1,12 +1,14 @@
 import json
 import shutil
+
+import pytest
 from dataclasses import replace
 from pathlib import Path
 
 from helpers import QUIET, row, summary
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from perfrepair.dto.site import Dossier, Scope
+from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.validation.dossiers import validate_dossiers
@@ -25,20 +27,20 @@ ROWS = [replace(row("c64", "P1", input_size=64), parameters=PARAMS),
         replace(row("c4k", "P1", input_size=4096), parameters=PARAMS),
         replace(row("o64", "P2", input_size=64), parameters={**PARAMS, "ivBytes": 16}),
         replace(row("o4k", "P2", input_size=4096), parameters={**PARAMS, "ivBytes": 16}),
-        row("a64", "P3", algorithm="alg-a-alias", input_size=64)]
+        replace(row("a64", "P3", algorithm="alg-a-alias", input_size=64), parameters=PARAMS)]
 M = {"c64": {"timeNs": summary(100), "allocations": summary(10)}, "c4k": {"timeNs": summary(900), "allocations": None},
      "o64": {"timeNs": summary(80), "allocations": summary(12)}, "o4k": {"timeNs": summary(950), "allocations": None},
      "a64": {"timeNs": summary(99, spread=30.0), "allocations": None}}
 
 
-def scope(sid="s1", provider="P1", algorithm="ALG-A", resolution="explicit", input_size=100):
-    return Scope(sid, "app", "A.java", 2, "TypeA.getInstance", "f", 1, 3, "TypeA", algorithm, provider, resolution,
-                 128, input_size)
+def scope(provider="P1", algorithm="ALG-A", resolution="explicit", input_size=100, key_size=128, line=2):
+    return Scope(scope_id("app", "A.java", "f", line, "TypeA.getInstance"), "app", "A.java", line, "TypeA.getInstance",
+                 "f", 1, 3, "TypeA", algorithm, provider, resolution, key_size, input_size)
 
 
-def build(scopes, tmp_path, app_doc=None):
+def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M):
     (tmp_path / "A.java").write_text("void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}\nvoid g() {}\n")
-    return build_dossiers("app", scopes, app_doc or {"bundled": []}, GROUPS, ROWS, M, tmp_path)
+    return build_dossiers("app", scopes, app_doc or {"bundled": []}, GROUPS, rows, measurements, tmp_path)
 
 
 def test_options_are_the_runnable_other_members_with_estimates_at_the_nearest_size(tmp_path):
@@ -54,19 +56,47 @@ def test_options_are_the_runnable_other_members_with_estimates_at_the_nearest_si
     assert alloc.ratio == 1.2 and alloc.pImprove < 0.01
 
 
-def test_a_row_without_parameters_gives_unknown_pins_never_a_guess(tmp_path):
+def test_a_same_parameter_option_has_nothing_to_pin(tmp_path):
     raw = build([scope()], tmp_path)["dossiers"][0]["options"][1]
-    assert raw["item"] == "TypeA|alg-a-alias|P3" and raw["pins"] is None
+    assert raw["item"] == "TypeA|alg-a-alias|P3" and raw["pins"] == {}
     assert [e["metric"] for e in raw["estimates"]] == ["timeNs"]
 
 
+def test_a_row_without_parameters_is_a_coded_error(tmp_path):
+    with pytest.raises(ValueError, match="missing_parameters: rows a64"):
+        build([scope()], tmp_path, rows=ROWS[:4] + [row("a64", "P3", algorithm="alg-a-alias", input_size=64)])
+
+
+def test_no_shared_configuration_gives_unknown_pins_that_survive_the_round_trip(tmp_path):
+    s = scope(key_size=256)
+    doc = build([s], tmp_path)
+    assert [o["pins"] for o in doc["dossiers"][0]["options"]] == [None, None]
+    d = Dossier.from_json(json.loads(json.dumps(doc["dossiers"][0])))
+    assert [o.pins for o in d.options] == [None, None] and d.to_json() == doc["dossiers"][0]
+    assert validate_dossiers(doc, [s], GROUPS) == []
+
+
+def test_a_one_run_estimate_has_no_pimprove_and_validates(tmp_path):
+    one = {**M, "c64": {"timeNs": summary(100, n=1), "allocations": None}}
+    doc = build([scope()], tmp_path, measurements=one)
+    e = doc["dossiers"][0]["options"][0]["estimates"][0]
+    assert (e["metric"], e["n"], e["pImprove"]) == ("timeNs", 1, None)
+    assert validate_dossiers(doc, [scope()], GROUPS) == []
+
+
+def test_a_pins_value_that_is_neither_an_object_nor_null_is_caught(tmp_path):
+    doc = build([scope()], tmp_path)
+    doc["dossiers"][0]["options"][0]["pins"] = "ivBytes=16"
+    assert any("neither an object nor null" in p for p in validate_dossiers(doc, [scope()], GROUPS))
+
+
 def test_scopes_without_options_say_why(tmp_path):
-    scopes = [scope("u", provider=None, resolution="unresolved_provider"), scope("n", provider="P9"),
-              scope("l", algorithm="ALG-L")]
+    scopes = [scope(provider=None, resolution="unresolved_provider"), scope(provider="P9", line=1),
+              scope(algorithm="ALG-L", line=3)]
     doc = build(scopes, tmp_path)
     assert doc["dossiers"] == [] and doc["noOptions"] == [
-        {"scope": "u", "reason": "unresolved"}, {"scope": "n", "reason": "not_grouped"},
-        {"scope": "l", "reason": "no_alternative"}]
+        {"scope": scopes[0].id, "reason": "unresolved"}, {"scope": scopes[1].id, "reason": "not_grouped"},
+        {"scope": scopes[2].id, "reason": "no_alternative"}]
     assert validate_dossiers(doc, scopes, GROUPS) == []
 
 
@@ -80,9 +110,10 @@ def test_the_builder_is_deterministic_and_validates(tmp_path):
 def test_the_validator_catches_a_foreign_option_and_a_missing_scope(tmp_path):
     doc = build([scope()], tmp_path)
     doc["dossiers"][0]["options"][0]["item"] = "TypeA|ALG-L|P1"
-    problems = validate_dossiers(doc, [scope(), scope("s2")], GROUPS)
+    other = scope(line=3)
+    problems = validate_dossiers(doc, [scope(), other], GROUPS)
     assert any("not another member" in p for p in problems)
-    assert any("s2: neither a dossier nor in noOptions" in p for p in problems)
+    assert any(f"{other.id}: neither a dossier nor in noOptions" in p for p in problems)
 
 
 def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
