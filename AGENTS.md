@@ -3,6 +3,7 @@
 ## Route
 - Kotlin, Python and shell code, module dependencies, comments → `agents/code.md`
 - Gradle tests, module isolation, Android API check, Python tests, perf-repair check → `agents/testing.md`
+- reviews and refactors: complexity, dead code, duplication, coverage, dependency commands → `agents/review.md`
 - device runs: prerequisites, adb, `--suppress-errors`, core pinning, energy on a device → `agents/device.md`
 - docs, guides, file maps, READMEs, any `.md` change → `agents/docs/writing.md`
 - cross-module facts: architecture, run, results, energy, tools, cryptography catalogue → `docs/index.md`
