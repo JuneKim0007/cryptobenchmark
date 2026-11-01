@@ -5,7 +5,7 @@ from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
 from ....files import read_json, write_json
-from ...runtime.engine.kind import project
+from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
 from ....validation.grouping.answer import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
 from ....validation.grouping.items import validate_items
@@ -71,14 +71,7 @@ class GroupingKind:
     def validate(self, knowledge: Knowledge, records: list[OutboxRecord]) -> list[str]:
         problems = validate_items(self._items, self.profiles, self.families)
         problems += validate_knowledge(knowledge, self.by_id, self.families)
-        if knowledge.version != len(records):
-            problems.append(f"knowledge version {knowledge.version} is not the {len(records)} records committed")
-        try:
-            if project(self, records).to_json() != knowledge.to_json():
-                problems.append("knowledge differs from the replay of the outbox")
-        except (KeyError, ValueError) as e:
-            problems.append(f"outbox does not replay: {e}")
-        return problems
+        return problems + replay_problems(self, knowledge, records)
 
     def write(self, knowledge: Knowledge, records: list[OutboxRecord]) -> None:
         write_json(self.paths.knowledge, knowledge.to_json())

@@ -11,7 +11,7 @@ from ....validation.dossiers import check_dossier
 from ....validation.suggest.dossier import parse_dossiers
 from ....validation.suggest.replace import check_reply
 from ....validation.suggest.replacements import validate_replacements
-from ...runtime.engine.kind import project
+from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
 from .render import render
 from .schema import SCHEMA
@@ -64,14 +64,7 @@ class SiteReplaceKind:
     def validate(self, state: Replacements, records: list[OutboxRecord]) -> list[str]:
         problems = list(self.problems) + validate_replacements(state.replacements, state.sources, self.dossiers,
                                                                     self.no_options)
-        if state.version != len(records):
-            problems.append(f"replacements version {state.version} is not the {len(records)} records committed")
-        try:
-            if project(self, records) != state:
-                problems.append("replacements differ from the static keeps plus the replay of the outbox")
-        except (KeyError, ValueError, TypeError) as e:
-            problems.append(f"outbox does not replay: {e!r}")
-        return problems
+        return problems + replay_problems(self, state, records)
 
     def write(self, state: Replacements, records: list[OutboxRecord]) -> None:
         write_json(self.directory / rd.REPLACEMENTS, state.to_json())

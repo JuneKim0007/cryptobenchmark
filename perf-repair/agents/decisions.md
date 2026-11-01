@@ -17,7 +17,15 @@
 - prompts: read only through `PromptLibrary`; a changed prompt changes the charter fingerprint and starts a new outbox.
 
 ## Workflow
-- add a decision: a DecisionKind (name, items, empty, admit, label, render → TaskPrompt, check, apply, validate, write) under `ai/<role>/` → prompt file under `prompts/<role>/` and its `prompts.yaml` entry → command calling `ai/runtime/engine/decide.py` → structure validator (`agents/validation.md`) → `docs/decisions.md`
+- add a role: copy the layout of `ai/suggest/site_replace/` into `ai/<role-kind>/<name>/`, one file per job:
+  - `kind.py`: the DecisionKind (name, items, empty, admit, label, render, check, apply, validate, write) and `charter(library)`; render calls `render.py`, check calls the gate, validate ends with `replay_problems`
+  - `render.py`: the message text only
+  - `schema.py`: the answer's JSON schema only
+  - `state.py`: the role's projection type, when no dto type fits
+  - `command.py`: the stage function the CLI calls, and its `DRY_RUN` conversations
+  - gate C: `validation/<role-kind>/<name>.py`, and the state validator (`agents/validation.md`)
+  - prompt file under `prompts/<role-kind>/` and its `prompts.yaml` entry
+  - CLI subcommand → map lines → `docs/decisions.md`
 - change a prompt: its gate and `docs/decisions.md` in the same change
 
 ## File structure
@@ -25,7 +33,9 @@
 ```
 src/perfrepair/ai/__main__.py : command: the worthiness and replace stages
 src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurements → evidence, triage, WorthinessKind on the engine
-src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; render, gate, apply, fallback
+src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; triage statics, apply, dropped → fallback skip
+src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables
+src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required
 src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output, server-side refusal fallback
 src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
@@ -34,7 +44,7 @@ src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort arguments
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: gates, ask, durable commit, projections, journal, errors, --limit
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
-src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract and project(kind, records)
+src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract, project(kind, records), replay_problems: version count and replay equality
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; `active` pointer
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values

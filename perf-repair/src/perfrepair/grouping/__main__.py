@@ -10,24 +10,16 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..dto.prompt import TaskPrompt
-from ..ai.runtime.agent import ScriptedConversations
 from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.engine.ask import Limits
-from ..ai.runtime.engine.decide import decide
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from .build.stage import build_stage
 from .interop_plan import write_plan
 from .interop_read import import_results
-from ..ai.parse.grouping_assign.kind import GroupingKind, charter
+from ..ai.parse.grouping_assign import command as assign_cmd
 from .paths import GroupingPaths
 from .report.checks import report
-from ..ai.review.grouping_review.run import charter as supervisor_charter, supervise
-
-
-def _dry_run(task: TaskPrompt, *_):
-    return {"group": "", "newGroup": {"id": f"dry-{task.item}", "description": "dry run: no model was called"},
-            "amend": [], "reason": "dry run"}
+from ..ai.review.grouping_review import command as review_cmd
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -73,15 +65,12 @@ def main(argv: list[str] | None = None) -> int:
         r.error("--prompts only applies with --supervisor; report alone calls no model")
     library = load_prompts(ap, args)
     if args.step == "assign":
-        knowledge = decide(GroupingKind(paths), charter(library), conversations(args, ScriptedConversations(_dry_run)), paths.root,
-                           Limits(args.turns, args.sessions), args.limit)
-        print(f"{len(knowledge.groups)} groups, {len(knowledge.dropped)} dropped, knowledge version {knowledge.version}")
+        assign_cmd.assign(paths, conversations(args, assign_cmd.DRY_RUN), library, Limits(args.turns, args.sessions), args.limit)
     else:
         document = report(paths)
         print(f"{len(document['groups'])} groups, {len(document['dropped'])} dropped -> {paths.groups}")
         if args.supervisor:
-            used = supervisor_charter(library)
-            supervise(paths, used, conversations(args, ScriptedConversations(lambda *_: {"findings": []})), library.provenance(used))
+            review_cmd.review(paths, conversations(args, review_cmd.DRY_RUN), library)
     return 0
 
 
