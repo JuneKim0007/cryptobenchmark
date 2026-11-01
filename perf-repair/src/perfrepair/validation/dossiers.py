@@ -5,6 +5,7 @@ import math
 from collections import Counter
 
 from ..dto.grouping import parse_qualified
+from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.site import METRICS, NO_OPTION_REASONS, SCHEMA_VERSION, Dossier, Scope
 from .app import scope_problems
 
@@ -68,7 +69,7 @@ def _estimates(where: str, d: Dossier) -> list[str]:
 
 
 def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
-    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins and estimates."""
+    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels and estimates."""
     where = f"dossier {_id(raw)}"
     if not isinstance(raw, dict):
         return None, [f"{where}: is not an object"]
@@ -91,14 +92,21 @@ def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
         problems.append(f"{where}: an option repeats the current item or another option")
     problems += [f"{where} {o.alias}: pins {o.pins!r} is neither an object nor null (unknown)"
                  for o in d.options if o.pins is not None and not isinstance(o.pins, dict)]
+    problems += [f"{where} {o.alias}: interop {o.interop!r} is not one of {PAIR_STATUSES}"
+                 for o in d.options if o.interop not in PAIR_STATUSES]
+    problems += [f"{where} {o.alias}: interop fail; a failed pair is never an option"
+                 for o in d.options if o.interop == "fail"]
     return d, problems + _estimates(where, d)
 
 
 def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict) -> list[str]:
-    """dossiers.json against scopes.json and groups.json: every scope once, options from the current item's group."""
+    """dossiers.json against scopes.json and groups.json: every scope once, options from the current item's group
+    labelled with the pair's interop status."""
     problems = check_header(doc)
     if not isinstance(doc, dict):
         return problems
+    if "interop" not in groups:
+        return problems + ["groups.json has no interop section; rerun grouping report"]
     problems += check_no_options(doc)
     by_id = {s.id: s for s in scopes}
     group_of = {v["qualified"]: v.get("group") for v in groups["items"].values()}
@@ -120,4 +128,6 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict) -> list[str]
             problems.append(f"{where}: current {d.current} is not a grouped item")
         problems += [f"{where} {o.alias}: {o.item} is not another member of group {group}"
                      for o in d.options if o.item == d.current or group_of.get(o.item) != group]
+        problems += [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
+                     for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
     return problems

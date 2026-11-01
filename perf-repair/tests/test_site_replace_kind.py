@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 from helpers import LIBRARY, QUIET, library_with
-from site_replace_data import APP, KEEP, SOURCE, answer, doc, dossier
+from site_replace_data import APP, KEEP, SOURCE, answer, doc, dossier, edit
 
 from perfrepair.ai.__main__ import main
 from perfrepair.ai.runtime.agent import ScriptedConversations
@@ -154,6 +154,19 @@ def test_a_hand_edited_replacement_missing_a_required_kind_is_caught(tmp_path):
     edited["decision"]["edits"] = [e for e in edited["decision"]["edits"] if e["kind"] != "set_provider"]
     record.write_text(json.dumps(edited))
     with pytest.raises(ValidationFailed, match="the option's provider needs set_provider, which is not applied"):
+        replace(run, APP, ScriptedConversations(lambda *_: KEEP), LIBRARY, **QUIET)
+
+
+def test_a_hand_edited_replacement_dropping_the_options_interop_risk_is_caught(tmp_path):
+    run, app = run_dir(tmp_path, A)
+    r3 = answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")],
+                risks=("persisted_data", "key_compatibility", "unverified_interop"))
+    replace(run, APP, ScriptedConversations(lambda *_: r3), LIBRARY, **QUIET)
+    record = active_outbox(app / "replace").path(1)
+    edited = read_json(record)
+    edited["decision"]["risks"].remove("unverified_interop")
+    record.write_text(json.dumps(edited))
+    with pytest.raises(ValidationFailed, match="risk unverified_interop implied by the scope or its option"):
         replace(run, APP, ScriptedConversations(lambda *_: KEEP), LIBRARY, **QUIET)
 
 

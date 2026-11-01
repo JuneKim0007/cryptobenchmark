@@ -40,7 +40,7 @@ src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling 
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
 src/perfrepair/ai/suggest/site_replace/command.py : stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
 src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep
-src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown) and estimates (n/a when n<2), edit kinds, fenced source
+src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
@@ -48,5 +48,5 @@ src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: intercha
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
 src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer
-src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace or keep a call site; like-for-like, risks, cite the metric
+src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace or keep a call site; like-for-like, risks (unverified interop is one), cite the metric
 ```

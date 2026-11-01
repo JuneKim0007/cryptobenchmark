@@ -12,15 +12,18 @@ CURRENT TypeA|ALG-A/MODE-X|P1 | name ALG-A/MODE-X | provider P1
 OPTIONS (answer with these names)
   R1 = TypeA|ALG-A/MODE-X|P2 | name ALG-A/MODE-X | provider P2
     pins: ivLength=12, tagMode=full
+    interop: pass
     metric | ratio | pImprove | n | configuration
     timeNs | 0.620 | 0.990 | 40 | OP1 key 128 input 1024
     allocationCount | 0.900 | 0.700 | 40 | OP1 key 128 input 1024
   R2 = TypeA|ALG-A/MODE-X|P3 | name ALG-A/MODE-X | provider P3
     pins: none
+    interop: pass
     metric | ratio | pImprove | n | configuration
     timeNs | 0.970 | 0.550 | 12 | OP1 key 128 input 64
   R3 = TypeA|ALG-B|P1 | name ALG-B | provider P1
     pins: none
+    interop: not_run; a replace to it must also declare unverified_interop
     metric | ratio | pImprove | n | configuration
     energyUj | 0.800 | 0.960 | 20 | OP1 key 128 input 1024
 

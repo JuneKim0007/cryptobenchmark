@@ -10,6 +10,7 @@ RESULTS = ("pass", "fail", "not_checkable")
 NOT_RUN = "not_run"
 NOT_PLANNED = "not_planned"
 STATUSES = ("checked", NOT_RUN)
+PAIR_STATUSES = (*RESULTS, NOT_PLANNED, NOT_RUN)
 
 
 def member(text: str) -> dict:

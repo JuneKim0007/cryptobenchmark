@@ -22,7 +22,11 @@ GROUPS = {"groups": [{"id": "g", "members": [1, 2, 3, 4]}, {"id": "lone", "membe
                     "2": {"qualified": "TypeA|ALG-A|P2", "group": "g", "runs": True},
                     "3": {"qualified": "TypeA|alg-a-alias|P3", "group": "g", "runs": True},
                     "4": {"qualified": "TypeA|ALG-A|P4", "group": "g", "runs": False},
-                    "5": {"qualified": "TypeA|ALG-L|P1", "group": "lone", "runs": True}}}
+                    "5": {"qualified": "TypeA|ALG-L|P1", "group": "lone", "runs": True}},
+          "interop": {"status": "checked", "pairs": [
+              {"id": 1, "group": "g", "a": "TypeA|ALG-A|P1", "b": "TypeA|ALG-A|P2", "result": "pass", "reason": ""},
+              {"id": 2, "group": "g", "a": "TypeA|ALG-A|P1", "b": "TypeA|alg-a-alias|P3", "result": "not_checkable",
+               "reason": "no shared key size"}]}}
 ROWS = [replace(row("c64", "P1", input_size=64), parameters=PARAMS),
         replace(row("c4k", "P1", input_size=4096), parameters=PARAMS),
         replace(row("o64", "P2", input_size=64), parameters={**PARAMS, "ivBytes": 16}),
@@ -38,9 +42,14 @@ def scope(provider="P1", algorithm="ALG-A", resolution="explicit", input_size=10
                  "f", 1, 3, "TypeA", algorithm, provider, resolution, key_size, input_size)
 
 
-def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M):
+def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M, groups=GROUPS):
     (tmp_path / "A.java").write_text("void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}\nvoid g() {}\n")
-    return build_dossiers("app", scopes, app_doc or {"bundled": []}, GROUPS, rows, measurements, tmp_path)
+    return build_dossiers("app", scopes, app_doc or {"bundled": []}, groups, rows, measurements, tmp_path)
+
+
+def failing(*results):
+    pairs = [{**p, "result": r, "reason": r} for p, r in zip(GROUPS["interop"]["pairs"], results)]
+    return {**GROUPS, "interop": {"status": "checked", "pairs": pairs}}
 
 
 def test_options_are_the_runnable_other_members_with_estimates_at_the_nearest_size(tmp_path):
@@ -114,6 +123,52 @@ def test_the_validator_catches_a_foreign_option_and_a_missing_scope(tmp_path):
     problems = validate_dossiers(doc, [scope(), other], GROUPS)
     assert any("not another member" in p for p in problems)
     assert any(f"{other.id}: neither a dossier nor in noOptions" in p for p in problems)
+
+
+def test_each_option_carries_its_pairs_interop_status(tmp_path):
+    doc = build([scope()], tmp_path)
+    assert [o["interop"] for o in doc["dossiers"][0]["options"]] == ["pass", "not_checkable"]
+    unplanned = {**GROUPS, "interop": {"status": "checked", "pairs": GROUPS["interop"]["pairs"][:1]}}
+    assert [o["interop"] for o in build([scope()], tmp_path, groups=unplanned)["dossiers"][0]["options"]] == [
+        "pass", "not_planned"]
+
+
+def test_a_failed_pair_is_never_an_option(tmp_path):
+    doc = build([scope()], tmp_path, groups=failing("fail", "pass"))
+    assert [(o["alias"], o["item"], o["interop"]) for o in doc["dossiers"][0]["options"]] == [
+        ("R1", "TypeA|alg-a-alias|P3", "pass")]
+    assert validate_dossiers(doc, [scope()], failing("fail", "pass")) == []
+
+
+def test_a_scope_whose_every_option_failed_interop_has_no_options(tmp_path):
+    doc = build([scope()], tmp_path, groups=failing("fail", "fail"))
+    assert doc["dossiers"] == [] and doc["noOptions"] == [{"scope": scope().id, "reason": "interop_failed"}]
+    assert validate_dossiers(doc, [scope()], failing("fail", "fail")) == []
+
+
+def test_groups_without_an_interop_section_are_refused(tmp_path):
+    bare = {k: v for k, v in GROUPS.items() if k != "interop"}
+    with pytest.raises(ValueError, match="no interop section"):
+        build([scope()], tmp_path, groups=bare)
+    assert validate_dossiers(build([scope()], tmp_path), [scope()], bare) == [
+        "groups.json has no interop section; rerun grouping report"]
+
+
+@pytest.mark.parametrize("status, problem", [
+    ("maybe", "interop 'maybe' is not one of"),
+    ("fail", "interop fail; a failed pair is never an option"),
+    ("not_run", "interop not_run is not the groups.json status pass"),
+])
+def test_the_validator_checks_each_options_interop(tmp_path, status, problem):
+    doc = build([scope()], tmp_path)
+    doc["dossiers"][0]["options"][0]["interop"] = status
+    assert any(problem in p for p in validate_dossiers(doc, [scope()], GROUPS))
+
+
+def test_an_option_without_interop_does_not_parse(tmp_path):
+    doc = build([scope()], tmp_path)
+    del doc["dossiers"][0]["options"][0]["interop"]
+    assert any("does not parse into Dossier" in p for p in validate_dossiers(doc, [scope()], GROUPS))
 
 
 def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811

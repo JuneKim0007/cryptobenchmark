@@ -8,7 +8,7 @@ From an app's source to a measured before/after of each call site the model chos
 |---|---|---|---|
 | detect | static | app root, the run's probe | `apps/<app>/sites.json` |
 | scope | static | sites, app source | `apps/<app>/scopes.json` (`Scope` per site: function span, sinks, key source) |
-| dossier | static | scopes, `grouping/groups.json`, `measurements.json` | `apps/<app>/dossiers.json` (`Dossier`: function source, current item, `Option`s with `Estimate`s) |
+| dossier | static | scopes, `grouping/groups.json` (with its `interop` section), `measurements.json` | `apps/<app>/dossiers.json` (`Dossier`: function source, current item, `Option`s with interop status and `Estimate`s) |
 | replace | model | one `Dossier` per conversation | `apps/<app>/replace/` outbox, `replacements.json` (`Replacement`) |
 | edit | static | replacements, app source | `apps/<app>/patched/` (a copy; the app is never edited), `edits.json` |
 | harness | static | scopes, the original and patched function | `apps/<app>/harness.yaml` for cryptobenchmark |
@@ -19,7 +19,9 @@ From an app's source to a measured before/after of each call site the model chos
 
 - A scope's `id` is `scope_id(app, file, function, line, call)`, so rerunning detection and scoping on the same source gives the same ids, and every later step refers to a scope only by id.
 - An `Option` is a member of the site's group that is available in the app's process, from the platform or bundled by the app. Its `pins` are the parameters that make the swap like-for-like (IV length, tag length, OAEP digests); `null` means unknown (no configuration measured on both sides), and the gate refuses a `replace` to it. A benchmark row without `parameters` is the coded error `missing_parameters`.
+- An `Option`'s `interop` is `pair_status(groups, current, item)`: `pass`, `not_checkable`, `not_planned` or `not_run`; required, no default. A pair whose interop check failed is never an option; a scope that loses every option that way is in `noOptions` with `interop_failed`. A groups.json without an `interop` section is refused. The validator refuses a status outside that set, `fail`, or one that differs from groups.json.
+- A `replace` to an option whose `interop` is not `pass` must declare `unverified_interop` (a `DERIVED_RISKS` row on the option, like the scope rows).
 - An `Estimate` is graded, never a gate: `pImprove` is the probability the option is better on that metric. Below 0.95 the report says `warn` with the number; it is `null` when either side has fewer than two runs, rendered `n/a (n<2)`.
-- A scope in `noOptions` is never asked: `replacements.json` holds a static `keep` for it whose reason is its code, so it covers every scope.
+- `noOptions` reasons are `NO_OPTION_REASONS`: `unresolved`, `not_grouped`, `no_alternative`, `none_available`, `interop_failed`. A scope in `noOptions` is never asked: `replacements.json` holds a static `keep` for it whose reason is its code, so it covers every scope.
 - The model picks one option or `keep`, and expresses the change only as `Edit`s of a kind in `EDIT_KINDS`. Static code renders and applies them. A replacement whose edits do not apply, do not compile in the harness, or fail the interop check (data from before the swap must still decrypt after it) is reported as `rejected` with the reason, and is never measured.
 - `harness.yaml` names each scope's original and patched function source and its inputs. cryptobenchmark compiles both into the benchmark app and measures them like any other case.
