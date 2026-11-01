@@ -30,6 +30,7 @@ class PairMetrics:
     level: str
     n: int
     allocationRatio: float | None
+    interop: str
 
 
 @dataclass(frozen=True)

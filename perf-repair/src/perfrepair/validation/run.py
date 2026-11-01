@@ -17,6 +17,7 @@ from ..result.modes import MODES
 from .dossiers import validate_dossiers
 from .app import validate_app_dir
 from .failure import ValidationFailed
+from .grouping.interop import validate_interop
 from .measurements import validate_measurements
 from .rows import validate_rows
 from .run_log import validate_run_log
@@ -43,6 +44,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
     except ValidationFailed as e:
         out["grouping/groups.json"] = e.problems
         return out
+    out |= validate_interop(run, groups, grouping.interop_plan, grouping.interop)
     for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
         scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
         out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups)

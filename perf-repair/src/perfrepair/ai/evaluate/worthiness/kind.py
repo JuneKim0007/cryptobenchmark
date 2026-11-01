@@ -85,10 +85,10 @@ class WorthinessKind:
                 lines.append(f"  {short[m.itemId]} | " + (" | ".join([_num(t.median), f"{_num(t.low)}..{_num(t.high)}", _num(t.p25), _num(t.p75),
                              _num(t.cv, "{:.3f}"), str(t.n)]) if t else "not measured | | | | |")
                              + f" | {_num(m.allocations)}")
-            lines.append("  pair from -> to | time ratio | pImprove (confidence) | n | allocation ratio | improves")
+            lines.append("  pair from -> to | time ratio | pImprove (confidence) | n | allocation ratio | interop | improves")
             for p in c.pairs:
                 lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | {p.timeRatio:.3f} | {describe(p.pImprove)} | "
-                             f"{p.n} | {_num(p.allocationRatio, '{:.3f}')} | {self.mode.improves(p)}")
+                             f"{p.n} | {_num(p.allocationRatio, '{:.3f}')} | {p.interop} | {self.mode.improves(p)}")
         return TaskPrompt(NAME, "\n".join(lines), e.key)
 
     def check(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> tuple[dict | None, list[str]]:

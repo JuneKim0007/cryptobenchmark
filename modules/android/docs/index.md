@@ -15,6 +15,7 @@ modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CryptoB
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DevicePlan.kt : installs effective.yaml's bundled providers; prepares and checks the plan on the device from pushed files
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DeviceProbe.kt : installs the argument's bundled providers; writes this device's capture and trial via discovery
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/EnergyDryBenchmark.kt : parameterised dry energy run per dry case
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/InteropCheck.kt : installs bundled providers; runs the pushed interop_plan.yaml into interop.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PinnedCase.kt : one timed case under its cpu pin and energy setting
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Scope.kt : one scope's before and after calls and its interop check

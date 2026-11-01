@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, json, os, pathlib, shutil, subprocess, sys, time
 
-import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, scope_generate, scope_results
+import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from energy_session import DRY_CALLS, EnergySession
@@ -113,6 +113,7 @@ def parse_options():
     parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
     parser.add_argument("--harness", metavar="HARNESS_YAML",
                         help="with --device: measure perf-repair's scopes, original and patched, instead of the plan's cases")
+    parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
     options = parser.parse_args()
     if options.harness and not options.device:
         fail("--harness: scopes are measured only on a --device run")
@@ -278,6 +279,27 @@ def harness_run(options, configuration, device, results):
     manifest(results, "device", configuration, files)
 
 
+def interop_run(options, configuration, device, results):
+    plan = pathlib.Path(options.interop)
+    if not (options.bench or device) or options.harness:
+        fail("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")
+    if not plan.is_file():
+        fail(f"missing_file: {plan} (--interop)")
+    discovery, effective, capture, trial, files = discover(options, configuration, device, results)
+    staged = interop_stage.stage_plan(plan, results / "interop")
+    out = staged.parent / interop_stage.RESULT
+    started = time.monotonic()
+    if device:
+        interop_stage.on_device(device, effective, capture, trial, staged, out)
+    else:
+        interop_stage.on_host(capture, trial, staged, out, options.stacktrace, options.stream)
+    elapsed("interop check", started)
+    interop_stage.summary(out)
+    print(f"wrote:     {out}")
+    files.update(interopPlan=staged, interop=out)
+    manifest(results, "device" if device else "host", configuration, files)
+
+
 def main():
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
@@ -286,6 +308,8 @@ def main():
     if device:
         device.connect()
     results = pathlib.Path(options.results).resolve()
+    if options.interop:
+        return interop_run(options, configuration, device, results)
     if options.harness:
         harness_run(options, configuration, device, results)
         return

@@ -11,7 +11,11 @@ other context and keep none between calls.
   and allocations per operation; and every ordered pair "from -> to" with time ratio (to ÷ from;
   below 1 is faster), pImprove (the probability that `to`'s median is lower) with its confidence
   level (`ok` at 95% or more, `warn` from 80%, `weak` below, `too_few_runs` when there is no
-  number), the run count, the allocation ratio, and whether the mode counts it as improving.
+  number), the run count, the allocation ratio, the pair's interop check, and whether the mode counts
+  it as improving.
+- Interop: `pass` (each decrypts or verifies what the other produced, both directions, shared key,
+  each at its own defaults), `not_checkable` (the check could not run; the reason is code's, not
+  a failure), `not_planned` or `not_run` (never checked). Pairs that failed are already removed.
 - A level grades the evidence; it is never a refusal. A `warn` or `weak` pair is still yours to
   weigh against the size of the gain.
 

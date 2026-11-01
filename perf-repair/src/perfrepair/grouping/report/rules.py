@@ -5,6 +5,7 @@ from typing import Callable
 from ...dto.grouping import Item, Profile
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Knowledge
+from ...dto.interop import PairResult
 
 Rule = Callable[[Knowledge, dict[int, Item], dict[int, Profile]], list[Finding]]
 
@@ -54,3 +55,22 @@ RULES: tuple[Rule, ...] = (resolved_parameters_differ, no_common_key_size, no_ru
 
 def check(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
     return [f for rule in RULES for f in rule(k, items, profiles)]
+
+
+def interop_failed(results: list[PairResult], ids: dict[str, int]) -> list[Finding]:
+    return [Finding("interop_failed", "error", r.group, (ids[r.a], ids[r.b]),
+                    f"{r.a} and {r.b} do not interoperate, never an option for each other: {r.reason}")
+            for r in results if r.result == "fail"]
+
+
+def interop_not_checkable(results: list[PairResult], ids: dict[str, int]) -> list[Finding]:
+    return [Finding("interop_not_checkable", "info", r.group, (ids[r.a], ids[r.b]), f"{r.a} and {r.b}: {r.reason}")
+            for r in results if r.result == "not_checkable"]
+
+
+INTEROP_RULES = (interop_failed, interop_not_checkable)
+
+
+def check_interop(results: list[PairResult] | None, items: dict[int, Item]) -> list[Finding]:
+    ids = {i.qualified: i.id for i in items.values()}
+    return [f for rule in INTEROP_RULES for f in rule(results or [], ids)]

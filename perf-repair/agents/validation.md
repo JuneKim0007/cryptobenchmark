@@ -21,6 +21,7 @@ src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract val
 src/perfrepair/validation/dossiers.py : dossiers.json: every scope once, options from the current item's group, estimates well-formed
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
 src/perfrepair/validation/grouping/answer.py : gate C: an agent answer against its item and the knowledge
+src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
 src/perfrepair/validation/grouping/knowledge.py : knowledge: well-formed groups, members in one group of their family
 src/perfrepair/validation/grouping/output.py : groups.json: one group or dropped per item, consistent index

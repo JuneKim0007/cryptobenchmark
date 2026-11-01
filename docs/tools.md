@@ -37,6 +37,7 @@ cd tools/android-api-check && ../jca-contract/gradlew compileKotlin -PandroidJar
 | `BenchKt` (default) | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; prints the `benchmark.json` path |
 | `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json]` | `benchmark.json` from androidx output |
 | `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
+| `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
 
 - `BenchKt` prepares and measures with the host harness: `modules/benchmark/docs/measure.md`.
 - Compiles discovery, settings, preparation, benchmark sources.

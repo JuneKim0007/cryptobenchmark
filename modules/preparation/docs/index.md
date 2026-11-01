@@ -29,7 +29,7 @@ modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yam
 modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
 modules/preparation/src/main/kotlin/input/InputBytes.kt : seeded input bytes (java.util.Random(seed))
 modules/preparation/src/main/kotlin/input/OperationInput.kt : sealed case input: None, Message, Ciphertext, SignedMessage
-modules/preparation/src/main/kotlin/interop/ : cross-provider interop check: plan file, checks, verdicts, interop.yaml
+modules/preparation/src/main/kotlin/interop/ : cross-provider interop check: plan file, checks, verdicts, the plan run, interop.yaml
 modules/preparation/src/main/kotlin/key/generate/DefaultKeyInitializer.kt : default KeyGenerator and KeyPairGenerator init
 modules/preparation/src/main/kotlin/key/generate/KeyInitializer.kt : per-provider key-init port
 modules/preparation/src/main/kotlin/key/generate/KeyMaterial.kt : sealed key material: None, Secret, Pairs

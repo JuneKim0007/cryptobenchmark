@@ -27,6 +27,7 @@ src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kin
 src/perfrepair/dto/grouping.py : Family, Item, Profile; items.json and profiles.json documents
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge
+src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml, the groups.json interop section, failed_pairs, pair_status
 src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers

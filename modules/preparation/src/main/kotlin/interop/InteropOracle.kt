@@ -27,14 +27,14 @@ class InteropOracle(
             (capability.check(m.provider, m.type, m.algorithm) as? Availability.Unavailable)?.let { "$m: ${it.reason}" }
         }
         if (missing.isNotEmpty()) {
-            val out = Outcome.Untestable("not_registered: ${missing.joinToString()}")
-            return InteropVerdict(pair.id, InteropVerdict.NONE, out, out)
+            val out = Outcome.NotCheckable("not_registered: ${missing.joinToString()}")
+            return InteropVerdict(pair, InteropVerdict.NONE, out, out)
         }
         val operations = engineTypes.operationsOf(pair.a.type)
         val consuming = operations.firstOrNull { OperationDefinitions.of(it).consumesArtifact }
         val operation = consuming ?: operations.first()
         val mode = if (consuming != null) InteropVerdict.PRODUCE_CONSUME else InteropVerdict.SAME_OUTPUT
-        return InteropVerdict(pair.id, mode, direction(pair.a, pair.b, operation, pair, consuming != null),
+        return InteropVerdict(pair, mode, direction(pair.a, pair.b, operation, pair, consuming != null),
                               direction(pair.b, pair.a, operation, pair, consuming != null))
     }
 
@@ -42,11 +42,11 @@ class InteropOracle(
         val one = PairCases.of(first, operation, pair)
         val other = PairCases.of(second, operation, pair)
         val recipe = planner.plan(one)
-        if (recipe is KeyRecipe.Unavailable) return Outcome.Untestable("no_key: ${recipe.reason}")
+        if (recipe is KeyRecipe.Unavailable) return Outcome.NotCheckable("no_key: ${recipe.reason}")
         val key = try {
             generator.generate(recipe)
         } catch (failure: Exception) {
-            return Outcome.Untestable("key_generation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
+            return Outcome.NotCheckable("key_generation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
         }
         return if (produce) CrossCheck.produceConsume(one, other, recipe, key) else CrossCheck.sameOutput(one, other, recipe, key)
     }
