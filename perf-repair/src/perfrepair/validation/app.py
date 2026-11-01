@@ -21,7 +21,7 @@ def _typed(where: str, d: dict, types: dict, optional: dict) -> list[str]:
 
 def validate_app_facts(doc: dict) -> list[str]:
     out = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
-    out += _typed(rd.APP, doc, {"app": str, "root": str, "bundled": list, "registers": list},
+    out += _typed(rd.APP, doc, {"app": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
                   {"minSdk": int, "targetSdk": int})
     for i, b in enumerate(doc.get("bundled") or []):
         out += _typed(f"bundled[{i}]", b, {"artifact": str}, {"providerName": str})

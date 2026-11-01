@@ -8,11 +8,12 @@ from perfrepair.app.__main__ import main
 from perfrepair.app.constants import Constants
 from perfrepair.app.dependencies import bundled, read_libraries, registrations
 from perfrepair.app.detect import detect
-from perfrepair.app.gate import GateError, open_app
+from perfrepair.app.gate import GateError, open_app, open_apps
 from perfrepair.app.imports import import_reason
 from perfrepair.app.lexer import Code, literal
 from perfrepair.dto.language import JAVA, KOTLIN
 from perfrepair.app.resolve import resolve
+from perfrepair.app.roots import project_roots
 from perfrepair.app.scan import call_pattern, scan
 from perfrepair.app.sdk import sdk_levels
 from perfrepair.app.sources import GENERATED, MAIN, TEST, build_files, origin, source_files
@@ -31,7 +32,7 @@ def run():
 
 
 def _android(root: Path) -> Path:
-    root.mkdir(exist_ok=True)
+    root.mkdir(parents=True, exist_ok=True)
     (root / "settings.gradle").write_text("")
     (root / "src" / "main" / "java").mkdir(parents=True)
     return root
@@ -70,6 +71,65 @@ def test_gate_refuses_a_symlink_out_of_the_root(tmp_path):
     with pytest.raises(GateError) as e:
         open_app(root)
     assert e.value.reason == "escapes_root"
+
+
+def test_roots_top_level_is_the_folder_itself(tmp_path):
+    _android(tmp_path / "app")
+    (tmp_path / "app" / "lib").mkdir()
+    (tmp_path / "app" / "lib" / "settings.gradle").write_text("")
+    assert project_roots(tmp_path / "app") == ["."]
+    (tmp_path / "bare" / "mod").mkdir(parents=True)
+    (tmp_path / "bare" / "build.gradle").write_text("")
+    _android(tmp_path / "bare" / "mod")
+    assert project_roots(tmp_path / "bare") == ["."]
+
+
+def test_roots_nested_and_several(tmp_path):
+    _android(tmp_path / "one")
+    (tmp_path / "deep" / "two" / "src" / "main" / "kotlin").mkdir(parents=True)
+    (tmp_path / "deep" / "two" / "build.gradle.kts").write_text("")
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "build.gradle").write_text("")
+    _android(tmp_path / "build" / "skipped")
+    assert project_roots(tmp_path) == ["deep/two", "one"]
+    assert [a.projectRoot for a in open_apps(tmp_path)] == ["deep/two", "one"]
+
+
+def test_roots_stop_at_the_depth_bound(tmp_path):
+    _android(tmp_path / "a" / "b" / "c" / "d" / "e")
+    assert project_roots(tmp_path) == []
+    assert project_roots(tmp_path / "a") == ["b/c/d/e"]
+
+
+def test_no_root_is_not_an_android_project(tmp_path):
+    (tmp_path / "web" / "src").mkdir(parents=True)
+    (tmp_path / "web" / "package.json").write_text("{}")
+    with pytest.raises(GateError) as e:
+        open_apps(tmp_path)
+    assert e.value.reason == "not_android_project"
+
+
+def test_roots_never_follow_a_symlink_out_of_the_folder(tmp_path):
+    _android(tmp_path / "outside")
+    (tmp_path / "app").mkdir()
+    os.symlink(tmp_path / "outside", tmp_path / "app" / "android")
+    with pytest.raises(GateError) as e:
+        open_apps(tmp_path / "app")
+    assert e.value.reason == "escapes_root"
+
+
+def test_command_writes_one_unit_per_root(tmp_path, capsys):
+    src = tmp_path / "src"
+    for rel in ("android", "android_donation"):
+        _android(src / rel)
+        (src / rel / "src" / "main" / "java" / "A.java").write_text(
+            "import javax.crypto.Cipher;\nclass A { void f() { Cipher.getInstance(\"AES\"); } }\n")
+    assert main(["--manifest", str(MANIFEST), "--app", str(src), "--run", str(tmp_path / "run"), "--name", "x"]) == 0
+    assert len(capsys.readouterr().out.strip().splitlines()) == 2
+    for unit, rel in (("x.android", "android"), ("x.android_donation", "android_donation")):
+        out = tmp_path / "run" / "apps" / unit
+        assert json.loads((out / "app.json").read_text())["projectRoot"] == rel
+        assert json.loads((out / "scopes.json").read_text())["app"] == unit
 
 
 def test_gate_caps_size(tmp_path):
@@ -203,7 +263,7 @@ def test_command_writes_the_app_folder(tmp_path, capsys):
     out = tmp_path / "apps" / "demo"
     docs = {n: json.loads((out / f"{n}.json").read_text()) for n in ("sites", "app", "scopes")}
     assert len(docs["sites"]["sites"]) == 12 and len(docs["scopes"]["scopes"]) == 11
-    assert docs["app"]["minSdk"] == 24 and docs["app"]["registers"][0]["expr"] == "new BundledProvider()"
+    assert docs["app"]["projectRoot"] == "." and docs["app"]["minSdk"] == 24 and docs["app"]["registers"][0]["expr"] == "new BundledProvider()"
     assert "1 dropped by import" in capsys.readouterr().out
 
 
