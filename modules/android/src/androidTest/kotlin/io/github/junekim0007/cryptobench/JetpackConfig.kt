@@ -1,15 +1,17 @@
 package io.github.junekim0007.cryptobench
 
-import android.annotation.SuppressLint
-import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.ProfilerConfig
+import androidx.test.platform.app.InstrumentationRegistry
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.settings.Metric
 
 @OptIn(ExperimentalBenchmarkConfigApi::class)
 internal object JetpackConfig {
+
+    // Paired with scripts/device.py CPU_EVENTS.
+    private const val CPU_EVENT_COUNTER = "androidx.benchmark.cpuEventCounter.enable"
 
     val METRICS: Set<Metric> = Metric.entries.toSet()
 
@@ -24,22 +26,14 @@ internal object JetpackConfig {
         measurementCount = settings.iterations,
     )
 
-    fun timingOnly(settings: CaseSettings): Boolean = Metric.ALLOCATION !in settings.metrics
-
-    fun refusal(settings: CaseSettings): String? =
-        if (timingOnly(settings) && settings.profiling != CaseSettings.Profiling.NONE)
-            "not_supported: profiling ${settings.profiling} needs ALLOCATION in run.metrics; androidx's timing-only mode has no profiled phase"
-        else null
-
-    // The counter is a launch argument, so it is checked when a case runs, not when the plan is prepared.
-    @SuppressLint("RestrictedApi")
+    // Checks the launch argument, not androidx's own decision; a counter androidx drops anyway fails the conversion.
     fun counterMismatch(settings: CaseSettings): String? {
-        val counting = Arguments.cpuEventCounterEnable
+        val counting = (InstrumentationRegistry.getArguments().getString(CPU_EVENT_COUNTER) ?: "false").toBoolean()
         return when {
             Metric.CPU_EVENTS in settings.metrics && !counting ->
-                "not_supported: CPU_EVENTS, androidx did not enable its CPU event counter (launch argument androidx.benchmark.cpuEventCounter.enable, rooted device)"
+                "not_supported: CPU_EVENTS, the launch argument $CPU_EVENT_COUNTER is not true"
             Metric.CPU_EVENTS !in settings.metrics && counting ->
-                "not_requested: androidx counts CPU events but run.metrics has no CPU_EVENTS"
+                "not_requested: $CPU_EVENT_COUNTER is true but run.metrics has no CPU_EVENTS"
             else -> null
         }
     }

@@ -11,12 +11,12 @@ modules/android/src/androidTest/java/.gitignore : ignores the generated scoped/ 
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePin.kt : pins the measuring thread to one core and restores on close
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePins.kt : appends one line per pinned case to cpu-pins.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CryptoBenchmark.kt : parameterised Jetpack measurement per timed case
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DeviceDirectory.kt : the plan directory on the device, by API level
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DevicePlan.kt : installs effective.yaml's bundled providers; prepares and checks the plan on the device from pushed files
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/DeviceProbe.kt : installs the argument's bundled providers; writes this device's capture and trial via discovery
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/EnergyDryBenchmark.kt : parameterised dry energy run per dry case
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/InteropCheck.kt : installs bundled providers; runs the pushed interop_plan.yaml into interop.yaml
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig; measurable metrics, timing-only, CPU event counter checks
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackRule.kt : test rule that measures only the case's metrics through androidx
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig; reportable metrics, CPU event counter argument check
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PinnedCase.kt : one timed case under its cpu pin and energy setting
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Scope.kt : one scope's before and after calls and its interop check
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeCatalog.kt : loads the generated GeneratedScopes catalog

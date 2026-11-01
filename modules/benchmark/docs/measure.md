@@ -71,7 +71,7 @@ Harness settings as plain values, no androidx type.
 | rule | value |
 |---|---|
 | metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` |
-| measured metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `tools/energy` |
+| reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `tools/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
 | `timeNs` | required in every row |
 | `keyKind` | `secret`, `pair`, `none` |
 | `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`modules/preparation/docs/prepared.md`); `{}` when nothing applies; required |
@@ -97,7 +97,8 @@ Harness settings as plain values, no androidx type.
 |---|---|
 | join key | text inside `[...]` of `benchmarks[].name` = case id in `prepared.yaml` |
 | no plan case or no metrics | `missing`; `ConvertKt` prints `no_case_in_the_plan: <id>` |
-| carried metrics | the `prepared.yaml` case's `metrics`, as `MetricKeys.of`; others androidx wrote are dropped |
+| carried metrics | the `prepared.yaml` case's `metrics`, as `MetricKeys.of`; others androidx wrote are dropped; the only place `run.metrics` filters device rows |
+| ALLOCATION not requested | androidx still runs its allocation phase and writes `allocationCount`; it is not reported |
 | a requested metric absent | `missing_field: metrics.<key> for <id>; androidx wrote [..]` |
 | case without `metrics` | `missing_field: metrics for <id>` |
 | `timeNs.iterations`, CPU event `iterations` | `repeatIterations`, default 1 |

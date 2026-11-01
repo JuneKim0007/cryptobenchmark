@@ -4,7 +4,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.junekim0007.cryptobench.benchmark.RefusedPlanException
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
-import io.github.junekim0007.cryptobench.benchmark.check.Refusal
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.Preparation
@@ -21,7 +20,6 @@ import java.io.File
 
 object DevicePlan {
 
-    private const val DIRECTORY = "cryptobench"
     private const val EFFECTIVE = "effective.yaml"
 
     val cases: List<PreparedCase> by lazy { prepare() }
@@ -32,11 +30,7 @@ object DevicePlan {
 
     private fun captureOf(prepared: PreparedCase) = CaseSettings.of(prepared.case).energy.capture
 
-    val directory: File
-        get() = File(
-            InstrumentationRegistry.getInstrumentation().targetContext.getExternalFilesDir(null),
-            DIRECTORY,
-        )
+    val directory: File get() = DeviceDirectory.plan
 
     private fun prepare(): List<PreparedCase> {
         val effective = File(directory, EFFECTIVE)
@@ -48,8 +42,7 @@ object DevicePlan {
             SkipFile(directory),
             PreparedFile(directory),
         ).prepare(effective)
-        val refusals = PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability).check(run) +
-            run.cases.filter { captureOf(it) != Energy.Capture.DRY }.mapNotNull { prepared -> JetpackConfig.refusal(CaseSettings.of(prepared.case))?.let { Refusal(prepared.case.id, it) } }
+        val refusals = PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability).check(run)
         if (refusals.isNotEmpty()) {
             throw RefusedPlanException(refusals)
         }

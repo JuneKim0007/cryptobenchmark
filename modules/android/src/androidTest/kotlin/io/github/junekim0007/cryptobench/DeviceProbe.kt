@@ -9,22 +9,15 @@ import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 import java.security.Security
 
 // Run this class alone (am instrument -e class ...DeviceProbe): CryptoBenchmark builds its plan
 // at class load and fails until effective.yaml exists.
 class DeviceProbe {
 
-    private val directory: File
-        get() = File(
-            InstrumentationRegistry.getInstrumentation().targetContext.getExternalFilesDir(null),
-            "cryptobench",
-        )
-
     @Test
     fun writesThisDevicesCaptureAndTrial() {
-        val into = directory.apply { mkdirs() }
+        val into = DeviceDirectory.plan.apply { mkdirs() }
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val bundled = InstrumentationRegistry.getArguments().getString(BundledProviders.KEY)
             ?.let { BundledProviders.read(YamlCodec().load(it)) }.orEmpty()

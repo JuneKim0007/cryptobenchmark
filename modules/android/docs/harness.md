@@ -11,15 +11,26 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | runner | `androidx.benchmark.junit4.AndroidBenchmarkRunner` |
 | test build type | `release`, signed with the debug key, minify off |
 | native | NDK 29.0.14206865; CMake 3.22.1 builds `src/main/cpp/CMakeLists.txt` |
-| dependencies | benchmark-junit4 1.5.0 (app and androidTest), `:benchmark`, `:environment:discovery`, androidx.test:runner 1.5.2, junit 4.13.2 |
+| dependencies | benchmark-junit4 1.5.0 (app and androidTest; set once, `benchmarkVersion` in `build.gradle`), `:benchmark`, `:environment:discovery`, androidx.test:runner 1.5.2, junit 4.13.2 |
 | manifest | `allowBackup=false` |
+| tracebox | `traceboxAssets` copies benchmark-common's `tracebox_*` assets into the test APK; below API 29 androidx runs that binary for its Perfetto trace, and without it every case fails `Unable to start perfetto tracing` |
 
 ## Device directories
 
-| directory | holds |
+`DeviceDirectory.plan` (Kotlin) and `directories(sdk)` in `scripts/device.py` choose them; both read the API level.
+
+| API | plan directory | androidx output |
+|---|---|---|
+| 29 and above | `externalMediaDirs[0]/cryptobench` (`/sdcard/Android/media/<package>/cryptobench`) | `/sdcard/Android/media/<package>` |
+| 26 to 28 | `getExternalFilesDir(null)/cryptobench` (`/sdcard/Android/data/<package>/files/cryptobench`) | `/sdcard/Android/data/<package>/cache` |
+
+| rule | value |
 |---|---|
-| `getExternalFilesDir(null)/cryptobench` (`/sdcard/Android/data/<package>/files/cryptobench`) | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `energy-dry.yaml` |
-| `/sdcard/Android/media/<package>` | androidx output |
+| plan directory holds | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `energy-dry.yaml`, `scoped-interop.yaml` |
+| why media from API 29 | API 30 denies `adb shell` any read of `/sdcard/Android/data`; androidx itself writes to the media directory from API 29 |
+| androidx output | androidx's own choice per API level; the script only mirrors it |
+| no media directory mounted | `no_storage: external storage is not mounted for <package>` |
+| `getprop ro.build.version.sdk` not a number | `no_sdk: getprop ro.build.version.sdk printed '<v>'` |
 
 ## Tests
 
@@ -37,7 +48,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 |---|---|
 | inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` and `trial_*` via discovery's `ProbeDirectory`; none: `missing_file: <dir>/<prefix>_<stamp>.yaml` |
 | prepare | `Preparation` writes `skipped.yaml` and `prepared.yaml` into the device directory |
-| check | `PlanCheck` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory, plus `JetpackConfig.refusal` per timed case; any refusal throws `RefusedPlanException` |
+| check | `PlanCheck` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory; any refusal throws `RefusedPlanException` |
 | timed cases | `harness.energy.capture` other than `dry` |
 | dry cases | `harness.energy.capture` = `dry` |
 
@@ -59,18 +70,29 @@ PinnedCase.run { benchmarkRule.measureRepeated { BlackHole.consume(invocation.pe
 | `warmupIterations` | `warmupCount` |
 | `iterations` | `measurementCount` |
 
-`JetpackRule` replaces androidx's `BenchmarkRule`, which always adds the allocation phase:
+`BenchmarkRule` is androidx's public rule; its `measureRepeated` always runs every phase, whatever `run.metrics` says:
 
-| `run.metrics` | androidx phases |
-|---|---|
-| no `ALLOCATION` | timing only (`measureRepeatedImplWithTracing`, `simplifiedTimingOnlyMode`); a profiler then fails `not_supported: profiling <p> needs ALLOCATION in run.metrics; ...` |
-| `ALLOCATION` | timing, profiling, allocation |
-| `CPU_EVENTS` | androidx's CPU event counter; `scripts/device.py` passes `androidx.benchmark.cpuEventCounter.enable=true`; config refuses it on an unrooted device: [settings.md](../../settings/docs/settings.md#device-support) |
+| phase | runs | in `benchmark.json` |
+|---|---|---|
+| timing | always | `timeNs` |
+| profiling | when `profiling` is set | no; trace files only |
+| allocation | always, 5 runs | `allocationCount` only when `run.metrics` has `ALLOCATION` |
+| CPU event counter | `scripts/device.py` passes `androidx.benchmark.cpuEventCounter.enable=true` when `run.metrics` has `CPU_EVENTS`; config refuses it on an unrooted device: [settings.md](../../settings/docs/settings.md#device-support) | `instructions`, `cpuCycles`, `branchMisses` only when asked |
 
-| counter vs `run.metrics` | failure when the case runs |
+ALLOCATION not requested: androidx still runs its allocation phase; it is not reported. `run.metrics` selects what is reported, not what runs; the filter is `JetpackResults`: `modules/benchmark/docs/measure.md#jetpack-conversion`.
+
+| rule | value |
 |---|---|
-| `CPU_EVENTS` asked, counter off | `not_supported: CPU_EVENTS, androidx did not enable its CPU event counter ...` |
-| counter on, `CPU_EVENTS` not asked | `not_requested: androidx counts CPU events but run.metrics has no CPU_EVENTS` |
+| rule setup | `GrantPermissionRule` for `WRITE_EXTERNAL_STORAGE`; skipped when `androidx.benchmark.enabledRules` leaves out `Microbenchmark`; skipped on an emulator with `androidx.benchmark.skipBenchmarksOnEmulator=true` |
+| thread | `measureRepeated` on the main thread fails |
+| profiler | any `profiling` with any `run.metrics`; androidx runs it in its own phase |
+| API | public androidx API only; no restricted entry point or lint suppression |
+
+| counter argument vs `run.metrics` | failure when the case runs |
+|---|---|
+| `CPU_EVENTS` asked, argument not `true` | `not_supported: CPU_EVENTS, the launch argument androidx.benchmark.cpuEventCounter.enable is not true` |
+| argument `true`, `CPU_EVENTS` not asked | `not_requested: androidx.benchmark.cpuEventCounter.enable is true but run.metrics has no CPU_EVENTS` |
+| argument `true`, androidx drops the counter (unrooted, dry run) | conversion fails `missing_field: metrics.instructions for <id>; ...` |
 
 Result conversion to `benchmark.json`: `modules/benchmark/docs/measure.md#jetpack-conversion`.
 

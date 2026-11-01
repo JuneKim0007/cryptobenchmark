@@ -56,7 +56,7 @@ Only `cpu` declares `requires` and `resolve`. How config applies the result: `mo
 
 `cpu.core` outside `0..63` and not `big` fails `invalid: cpu.core <v>, an index 0..63 or big`.
 
-`run.metrics` (`Metric`): config refuses an unsupported metric, `not_supported: run.metrics.<M>: <reason>`; never dropped.
+`run.metrics` (`Metric`): config refuses an unsupported metric, `not_supported: run.metrics.<M>: <reason>`; never dropped. It selects what `benchmark.json` reports, not what androidx runs: ALLOCATION not requested: androidx still runs its allocation phase; it is not reported. `CPU_EVENTS` also turns androidx's counter on: `modules/android/docs/harness.md#cryptobenchmark`.
 
 | metric | condition | reason |
 |---|---|---|

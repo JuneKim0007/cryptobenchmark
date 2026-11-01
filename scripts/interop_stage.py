@@ -5,7 +5,7 @@ import shutil
 import yaml
 
 import gradle_runner
-from device import FILES, DeviceError, instrumentation_report
+from device import DeviceError, instrumentation_report
 
 PLAN = "interop_plan.yaml"   # InteropPlanFile.NAME
 RESULT = "interop.yaml"      # InteropFile.NAME
@@ -25,12 +25,12 @@ def on_host(capture, trial, plan, out, stacktrace, stream):
 
 
 def on_device(device, effective, capture, trial, plan, out):
-    device.shell(f"rm -f {FILES}/{RESULT}")
-    device.run("push", str(effective), str(capture), str(trial), str(plan), f"{FILES}/")
+    device.shell(f"rm -f {device.files}/{RESULT}")
+    device.run("push", str(effective), str(capture), str(trial), str(plan), f"{device.files}/")
     output = device.instrument("InteropCheck")
     if not re.search(r"^OK \(1 test\)", output, re.M):
         raise DeviceError("InteropCheck failed on the device:\n" + instrumentation_report(output))
-    device.pull(f"{FILES}/{RESULT}", out)
+    device.pull(f"{device.files}/{RESULT}", out)
 
 
 def summary(out):
