@@ -18,8 +18,9 @@ def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
     return str(path.relative_to(out.root))
 
 
-def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict) -> dict:
-    """Paths in the document are relative to harness.yaml's folder."""
+def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
+            currents: dict[str, str]) -> dict:
+    """Paths in the document are relative to harness.yaml's folder; `currents` is each dossier's current item."""
     shutil.rmtree(out.extracts, ignore_errors=True)
     entries = []
     for row in sorted((e for e in edits["edits"] if e["status"] == "applied"), key=lambda e: e["scope"]):
@@ -40,6 +41,7 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "after": _extract(out, scope, "after", patched),
             "imports": imports,
             "inputs": {"inputSize": scope.inputSize, "keySize": scope.keySize},
+            "current": currents[scope.id],
             "option": replacements[scope.id].option,
             "metrics": list(METRICS),
             "dependencies": sorted(uses),

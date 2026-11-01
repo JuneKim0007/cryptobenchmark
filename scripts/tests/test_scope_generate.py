@@ -82,3 +82,9 @@ def test_clean_removes_the_generated_folder(tmp_path):
     run(tmp_path)
     scope_generate.clean(tmp_path / "root")
     assert not (tmp_path / "root" / GENERATED).exists()
+
+
+def test_the_current_item_rides_next_to_the_option_into_the_plan(tmp_path):
+    plan, _ = run(tmp_path)
+    first = plan["scopes"][0]
+    assert (first["current"], first["option"]) == ("Cipher|AES/GCM/NoPadding|BC", "Cipher|AES/GCM/NoPadding|AndroidOpenSSL")

@@ -94,10 +94,12 @@ A consumer scope is measured on the before producer's output.
 
 | file | holds |
 |---|---|
-| `scoped-plan.yaml` | per scope: `id`, `function`, `language`, `option`, `inputs`, `metrics`, `status`, `reason`, `interop`, `cases` |
+| `scoped-plan.yaml` | per scope: `id`, `function`, `language`, `current`, `option`, `inputs`, `metrics`, `status`, `reason`, `interop`, `cases` |
 | `scoped-interop.yaml` | `"<id>": {interop, check, reason}` from the device |
 | `prepared.yaml` | measured cases: `type: Scope`, `algorithm` = function, `provider` = app, `operation` = `before` or `after` |
 | `benchmark.json` | the cases' shape; ids `scope:<id>:before`, `scope:<id>:after` |
+
+- `current` is the app's item before the swap, carried from `harness.yaml` so the primitive interop oracle can check the `current` → `option` pair; no step here reads it yet.
 
 | status | meaning |
 |---|---|

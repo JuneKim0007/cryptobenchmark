@@ -10,8 +10,8 @@ EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_cal
                 "algorithm_not_literal", "no_init", "ambiguous_init", "missing_parameter",
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
                 "no_change", "overlapping_edits")
-HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "option", "metrics",
-                "dependencies")
+HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "current", "option",
+                "metrics", "dependencies")
 
 
 def _header(doc: dict, app: str, key: str) -> list[str]:
@@ -73,8 +73,8 @@ def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
             problems.append(f"{where}: an import is not an import line")
         if set(s["inputs"]) != {"inputSize", "keySize"} or not all(map(_size, s["inputs"].values())):
             problems.append(f"{where}: inputs {s['inputs']}")
-        if not isinstance(s["option"], str):
-            problems.append(f"{where}: option {s['option']!r}")
+        if not isinstance(s["option"], str) or not isinstance(s["current"], str) or s["current"] == s["option"]:
+            problems.append(f"{where}: current {s['current']!r} and option {s['option']!r} are not two items")
         if s["metrics"] != list(METRICS):
             problems.append(f"{where}: metrics {s['metrics']}")
         if s["dependencies"] != sorted(set(s["dependencies"])):

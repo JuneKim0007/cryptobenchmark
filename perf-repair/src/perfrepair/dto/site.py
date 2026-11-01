@@ -10,7 +10,7 @@ REPLACEMENTS_SCHEMA_VERSION = 2
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")
-METRICS = ("timeNs", "allocationCount", "energyUj")
+METRICS = ("timeNs", "allocationCount", "energyJ")
 NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available", "interop_failed")
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare

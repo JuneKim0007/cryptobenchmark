@@ -19,6 +19,9 @@
 | `apps/<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py`, before writing |
 | `apps/<app>/edits.json`, `original/`, `patched/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `apps/<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
+| `apps/<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
+| `apps/<app>/report.json`, `report.md` | report app | report summary | `validation/report.py`, before writing |
+| `apps/summary.json`, `summary.md` | report summary | people | `validation/report.py`, before writing |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).

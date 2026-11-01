@@ -6,7 +6,7 @@ import yaml
 
 import scope_languages
 
-SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "option", "metrics", "dependencies"}
+SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies"}
 ID = re.compile(r"^[0-9a-f]{12}$")
 
 
@@ -24,6 +24,7 @@ class HarnessScope:
     imports: tuple
     input_size: int | None
     key_size: int | None
+    current: str | None
     option: str | None
     metrics: tuple
     dependencies: tuple
@@ -72,7 +73,7 @@ def scope(entry, index, base):
         imports=tuple(str(line) for line in entry.get("imports") or ()),
         input_size=size(inputs.get("inputSize"), f"{where}.inputs.inputSize"),
         key_size=size(inputs.get("keySize"), f"{where}.inputs.keySize"),
-        option=entry.get("option"), metrics=tuple(entry.get("metrics") or ()),
+        current=entry.get("current"), option=entry.get("option"), metrics=tuple(entry.get("metrics") or ()),
         dependencies=tuple(str(name) for name in entry.get("dependencies") or ()),
     )
 

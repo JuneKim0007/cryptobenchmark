@@ -10,6 +10,9 @@ ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APPS, APP, SCOPES, DOSSIERS = "apps", "app.json", "scopes.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
+MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
+# cryptobenchmark's --harness layout under its --results directory: docs/results.md `scoped/`
+SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
@@ -38,6 +41,11 @@ class AppPaths:
     patched = property(lambda self: self.root / "patched")
     harness = property(lambda self: self.root / HARNESS)
     extracts = property(lambda self: self.root / "harness")
+    measured = property(lambda self: self.root / MEASURED)
+    scoped_plan = property(lambda self: self.root / MEASURED / SCOPED_PLAN)
+    scoped_benchmark = property(lambda self: self.root / MEASURED / SCOPED_BENCHMARK)
+    report = property(lambda self: self.root / REPORT)
+    report_md = property(lambda self: self.root / REPORT_MD)
 
 
 def app_dirs(run: Path) -> list[Path]:

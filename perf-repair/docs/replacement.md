@@ -11,9 +11,52 @@ From an app's source to a measured before/after of each call site the model chos
 | dossier | static | scopes, `grouping/groups.json` (with its `interop` section), `measurements.json` | `apps/<app>/dossiers.json` (`Dossier`: function source, current item, `Option`s with interop status and `Estimate`s) |
 | replace | model | one `Dossier` per conversation | `apps/<app>/replace/` outbox, `replacements.json` (`Replacement`) |
 | edit | static | replacements, app source | `apps/<app>/patched/` (a copy; the app is never edited), `edits.json` |
-| harness | static | scopes, the original and patched function | `apps/<app>/harness.yaml` for cryptobenchmark |
-| measure | device | `harness.yaml` | before/after `benchmark.json` per scope: `timeNs`, `allocationCount`, energy |
-| report | static | measurements | `apps/<app>/report.json`, `report.md`; `apps/summary.md` across apps |
+| harness | static | scopes, dossiers, the original and patched function | `apps/<app>/harness.yaml` for cryptobenchmark |
+| measure | device | `harness.yaml` | `apps/<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
+| report | static | every file above | `apps/<app>/report.json`, `report.md`; `apps/summary.json`, `summary.md` across apps |
+
+## Guide
+
+```
+python3 -m perfrepair guide --app <root> --name <app> --run <run> --results <benchmark results> \
+    [--mode latency|battery] [--agent ...] [--prompts DIR] [--limit N] [--device [--config <global.yaml>]]
+python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
+```
+
+- `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
+- `--run` is required; keep runs under `~/capstone/runs/<date>-<name>`. It must already hold `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): run-level stages, made once per run, never per app.
+- Steps in order: prerequisites, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml> --results <run>/apps/<app>/measured`, an attached phone), then report. Without `--device` the guide ends at the harness and prints the device command.
+- Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>` and the guide exits 1.
+
+| stop code | step | when |
+|---|---|---|
+| `missing_results` | prerequisites | no `manifest.yaml` under `--results` |
+| `missing_run_stage` | prerequisites | `rows.json`, `measurements.json` or `grouping/groups.json` absent; the line names the commands |
+| `app_failed` | app | `perfrepair.app` exits non-zero |
+| `no_options` | dossier | no scope has an option; the line lists the `noOptions` reasons |
+| `no_replacement` | replace | every scope is kept |
+| `edit_invalid`, `no_edit_applied` | edit | edits.json fails its validator; every edit is rejected, with the reasons |
+| `harness_invalid` | harness | harness.yaml fails its validator |
+| `<step>_failed` | any | a validation failure, coded `ValueError`, missing file or failed pipeline run inside the step |
+
+## Report
+
+`python3 -m perfrepair.report app --run <run> --app <app> [--mode latency|battery]`, then `python3 -m perfrepair.report summary --run <run>`. A step whose file is absent is `not_run`; `sites.json` and `scopes.json` are required.
+
+| report.json row field | value |
+|---|---|
+| `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static` |
+| `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
+| `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `skipped`; `not_run` (no device run) |
+| `interop` | `passed`, `unchecked`, `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |
+| `metrics` | `timeNs` (ns/op, with ops/s and MB/s when the case has an input size), `allocationCount`, `energyJ`: median before and after, ratio (after ÷ before; null when before is 0), pImprove and its level, n |
+| `verdict` | the mode's rule on the measured ratios: `improves`, `not_improving`, `not_measured` |
+| `primitive` | the chosen option's dossier estimates: the benchmark's evidence when the function itself is not measured |
+
+- A metric without runs on both sides is `{"measured": false, "reason"}`: the first step that stopped, e.g. `primitive_only: missing_input: inputSize for in`. No number is ever filled in.
+- `funnel`: sites → scopes → withOptions → replace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`.
+- A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.
+- summary.json: the funnel summed and per app; per metric each app's ratio is the median over its measured scopes, `improved` at or below `improvingRatio` (`result/criteria.yaml`), `worse` at or above its inverse, else `unchanged` or `notMeasured`; `medianChange` is the median app ratio − 1. Reports of different modes are `mixed_modes`.
 
 ## Contracts
 
@@ -24,5 +67,5 @@ From an app's source to a measured before/after of each call site the model chos
 - A `replace` to an option whose `interop` is not `pass` must declare `unverified_interop` (a `DERIVED_RISKS` row on the option, like the scope rows).
 - An `Estimate` is graded, never a gate: `pImprove` is the probability the option is better on that metric. Below 0.95 the report says `warn` with the number; it is `null` when either side has fewer than two runs, rendered `n/a (n<2)`.
 - `noOptions` reasons are `NO_OPTION_REASONS`: `unresolved`, `not_grouped`, `no_alternative`, `none_available`, `interop_failed`. A scope in `noOptions` is never asked: `replacements.json` holds a static `keep` for it whose reason is its code, so it covers every scope.
-- The model picks one option or `keep`, and expresses the change only as `Edit`s of a kind in `EDIT_KINDS`. Static code renders and applies them. A replacement whose edits do not apply, do not compile in the harness, or fail the interop check (data from before the swap must still decrypt after it) is reported as `rejected` with the reason, and is never measured.
-- `harness.yaml` names each scope's original and patched function source and its inputs. cryptobenchmark compiles both into the benchmark app and measures them like any other case.
+- The model picks one option or `keep`, and expresses the change only as `Edit`s of a kind in `EDIT_KINDS`. Static code renders and applies them. A replacement whose edits do not apply (`edit: rejected`), do not compile in the harness (`compile: primitive_only`), or fail the interop check (`interop: interop_failed`; data from before the swap must still decrypt after it) is reported with the reason, and is never measured.
+- `harness.yaml` names each scope's original and patched function source, its inputs, and its `current` and `option` items. cryptobenchmark compiles both into the benchmark app and measures them like any other case.

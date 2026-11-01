@@ -52,17 +52,20 @@ app: <name>
 scopes:
   - id: <scope id>
     language: java|kotlin
-    function: <signature>
+    function: <the scope's function name>
     before: harness/<scope id>/before.java
     after: harness/<scope id>/after.java
     imports: [<the file's import lines>]
     inputs: {inputSize: <bytes or null>, keySize: <bits or null>}
-    option: <item id>
-    metrics: [timeNs, allocationCount, energyUj]
+    current: <the dossier's current item>
+    option: <the chosen item>
+    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [<identifiers used but not defined in the function>]
 ```
 
 - Paths are relative to the folder of `harness.yaml`; only applied scopes are listed.
+- `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
+- `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
 - `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim.
 - `dependencies` is the union over both functions: identifiers not declared in the function, not after another receiver's `.`, not a keyword, not imported, and not in `repair/names.yaml`.
 

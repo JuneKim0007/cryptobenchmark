@@ -1,0 +1,31 @@
+"""A fake `pipeline.py --device --harness`: every harness scope compiled, interop passed, after 20% faster."""
+import argparse, json, os, pathlib, sys
+
+import yaml
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--config")
+parser.add_argument("--results", required=True)
+parser.add_argument("--device", action="store_true")
+parser.add_argument("--harness", required=True)
+options = parser.parse_args()
+if os.environ.get("FAKE_EXIT"):
+    print("no_scope_compiled: every scope is not_compilable", file=sys.stderr)
+    sys.exit(int(os.environ["FAKE_EXIT"]))
+scoped = pathlib.Path(options.results) / "scoped"
+scoped.mkdir(parents=True, exist_ok=True)
+harness = yaml.safe_load(pathlib.Path(options.harness).read_text())
+records, cases = [], []
+for s in harness["scopes"]:
+    ids = [f"scope:{s['id']}:{side}" for side in ("before", "after")]
+    records.append({"id": s["id"], "function": s["function"], "language": s["language"], "current": s["current"],
+                    "option": s["option"], "inputs": s["inputs"], "metrics": s["metrics"], "status": "measured",
+                    "interop": {"check": "same_output", "result": "passed"}, "cases": ids})
+    for case, base in zip(ids, (1000, 800)):
+        cases.append({"id": case, "type": "Scope", "algorithm": s["function"], "provider": harness["app"],
+                      "operation": case.rsplit(":", 1)[1], "inputSize": 1024, "keyKind": "none", "parameters": {},
+                      "metrics": {"timeNs": {"iterations": 1, "runs": [base + d for d in (-2, -1, 0, 1, 2)]},
+                                  "allocationCount": {"iterations": 1, "runs": [4, 4, 4]}}})
+(scoped / "scoped-plan.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "app": harness["app"], "scopes": records}))
+(scoped / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": cases}))
+(pathlib.Path(options.results) / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")
