@@ -23,6 +23,13 @@ def entry_count(document):
     return sum(len(names) for types in (document.get("providers") or {}).values() for names in types.values())
 
 
+def metrics(document):
+    listed = (document.get("run") or {}).get("metrics")
+    if not listed:
+        fail("missing_field: run.metrics in effective.yaml")
+    return listed
+
+
 def process_repetitions(document):
     repetitions = (document.get("run") or {}).get("processRepetitions", 1)
     if not isinstance(repetitions, int) or repetitions < 1:

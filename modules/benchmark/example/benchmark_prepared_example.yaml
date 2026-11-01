@@ -12,7 +12,7 @@ cases:
   operation: DIGEST
   inputSize: 1024
   phase: WARM
-  metrics: [TIME]
+  metrics: [TIME, ALLOCATION]
   harness: {iterations: 5}
   key: {kind: none}
   input: {kind: message, bytes: 1024}

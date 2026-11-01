@@ -23,7 +23,8 @@ kotlin {
 
 sourceSets {
     main { kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/main/kotlin", "../../modules/settings/src/main/kotlin", "../../modules/config/src/main/kotlin", "src/main/kotlin")) }
-    test { kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/test/kotlin", "../../modules/config/src/test/kotlin")) }
+    // Preparation only for the contract test: discovery itself never compiles against it.
+    test { kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/test/kotlin", "../../modules/config/src/test/kotlin", "../../modules/preparation/src/main/kotlin", "src/test/kotlin")) }
 }
 
 dependencies {

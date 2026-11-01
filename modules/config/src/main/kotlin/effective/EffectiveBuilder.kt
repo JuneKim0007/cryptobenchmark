@@ -10,6 +10,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.Metric
 import io.github.junekim0007.cryptobench.settings.Unsupported
 
 class EffectiveBuilder {
@@ -17,6 +18,7 @@ class EffectiveBuilder {
     fun build(global: GlobalConfig, testSet: TestSet, inventory: Inventory, files: Files, facts: Facts = Facts.UNKNOWN): EffectiveConfig {
         val (runHarness, runUnsupported) = HARNESS.forDevice(global.run.harness, facts, RUN_HARNESS)
         runUnsupported.firstOrNull { it.required }?.let { throw IllegalArgumentException(it.toString()) }
+        Metric.unsupported(Metric.read(global.run.metrics, RUN_METRICS), facts, RUN_METRICS).firstOrNull()?.let { throw IllegalArgumentException(it.toString()) }
         val run = global.run.copy(harness = runHarness)
         val all = inventory.entries()
         val included = if (testSet.include.isEmpty()) all else all.filter { located -> testSet.include.any { it.matches(located) } }
@@ -93,6 +95,7 @@ class EffectiveBuilder {
 
     private companion object {
         const val RUN_HARNESS = "run.harness"
+        const val RUN_METRICS = "run.metrics"
         val HARNESS = HarnessSettings.HARNESS
     }
 }

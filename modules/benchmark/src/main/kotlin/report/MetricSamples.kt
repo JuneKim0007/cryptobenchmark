@@ -17,7 +17,5 @@ data class MetricSamples(val runs: List<Double>, val iterations: Int, val report
 
         // From power rails via tools/energy, not from Jetpack: one run per window.
         const val ENERGY = "energyJ"
-
-        val MEASURED = listOf(TIME, ALLOCATIONS)
     }
 }

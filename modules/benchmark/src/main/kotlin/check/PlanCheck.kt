@@ -4,9 +4,11 @@ import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
+import io.github.junekim0007.cryptobench.settings.Metric
 import java.security.Security
 
 class PlanCheck(
+    private val measurable: Set<Metric>,
     private val installedProviders: () -> Set<String> = { Security.getProviders().mapTo(LinkedHashSet()) { it.name } },
     private val energyCapability: () -> EnergyCapability? = { null },
 ) {
@@ -52,6 +54,10 @@ class PlanCheck(
         val iterations = case.harness.iterations
         if (iterations != null && iterations < 1) {
             refusals += Refusal(case.id, "not_positive: iterations $iterations")
+        }
+        val unmeasurable = case.metrics - measurable
+        if (unmeasurable.isNotEmpty()) {
+            refusals += Refusal(case.id, "not_supported: metrics ${unmeasurable.map { it.name }}, this harness measures ${measurable.map { it.name }}")
         }
         val inputSize = case.inputSize
         if (inputSize != null && inputSize <= 0) {

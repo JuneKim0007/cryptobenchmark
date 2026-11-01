@@ -20,7 +20,7 @@ class BenchmarkJsonRoundTripTest {
     private fun text(rows: List<ResultRow>) = BenchmarkJson(output.root).text(runtime, rows)
 
     private fun row(id: String, metrics: Map<String, MetricSamples>) =
-        ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", metrics)
+        ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", metrics, emptyMap())
 
     private val runtime = mapOf("model" to "sdk_gphone64_arm64", "compilationMode" to "speed")
 
@@ -63,7 +63,7 @@ class BenchmarkJsonRoundTripTest {
 
     private val gcm = linkedMapOf<String, Any>("mode" to "GCM", "padding" to "NoPadding", "ivBytes" to 12, "tagBits" to 128, "keyBits" to 128)
 
-    private fun withParameters(id: String, parameters: Map<String, Any>?) =
+    private fun withParameters(id: String, parameters: Map<String, Any>) =
         ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", both, parameters)
 
     @Test
@@ -81,10 +81,11 @@ class BenchmarkJsonRoundTripTest {
     }
 
     @Test
-    fun aFileFromBeforeParametersWritesNone() {
-        val written = text(listOf(withParameters("a", null)))
-        assertTrue(written, !written.contains("\"parameters\""))
-        assertEquals(null, Merge.merge(listOf(written)).rows.single().parameters)
+    fun aFileWithoutParametersOrMetricsIsRefused() {
+        val written = text(listOf(row("a", both)))
+        fun refused(text: String) = assertThrows(IllegalArgumentException::class.java) { Merge.merge(listOf(text)) }.message
+        assertEquals("missing_field: parameters for a", refused(written.replace(", \"parameters\": {}", "")))
+        assertEquals("missing_field: metrics for a", refused(written.replace(Regex(",\\n     \"metrics\": \\{.*\\}\\}"), "}")))
     }
 
     @Test
@@ -96,11 +97,9 @@ class BenchmarkJsonRoundTripTest {
     }
 
     @Test
-    fun theLegacyPairAgreesWithTheTimingItDuplicates() {
+    fun onlyTheMetricsBlockCarriesTheTiming() {
         val written = text(listOf(row("a", both)))
-
-        assertTrue(written, written.contains("\"iterations\": 8192"))
-        assertTrue(written, written.contains("\"nanosPerOperation\": [1191.0, 1180.0, 1204.0]"))
+        assertTrue(written, !written.contains("nanosPerOperation"))
         assertTrue(written, written.contains("\"timeNs\": {\"iterations\": 8192, \"runs\": [1191.0, 1180.0, 1204.0]}"))
     }
 

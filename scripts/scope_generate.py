@@ -3,7 +3,7 @@ import pathlib, shutil, sys
 
 import yaml
 
-import scope_compile, scope_dependencies, scope_harness, scope_inputs, scope_interop, scope_signature, scope_wrapper
+import scope_compile, scope_dependencies, scope_harness, scope_inputs, scope_interop, scope_languages, scope_signature, scope_wrapper
 
 PLAN = "scoped-plan.yaml"
 GENERATED_MARK = "/cryptobench/scoped/"
@@ -18,7 +18,7 @@ def clean(root):
 
 
 def checked(scope):
-    signatures = {v: scope_signature.parse(getattr(scope, v), scope.language) for v in scope_wrapper.VARIANTS}
+    signatures = {v: scope_languages.of(scope.language).parse(getattr(scope, v)) for v in scope_wrapper.VARIANTS}
     before, after = signatures["before"], signatures["after"]
     if (before.name, before.parameters, before.returns) != (after.name, after.parameters, after.returns):
         raise scope_signature.SignatureError(f"signature_changed: before {before.name}{before.parameters}, after {after.name}{after.parameters}")

@@ -32,7 +32,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `exclude` | `[]` | rules dropped after the test set |
 | `run` | `inputSizes` | `[1024]` | non-empty, all `> 0`; bytes per call |
 | | `phases` | `[WARM]` | non-empty, non-blank; values `WARM`, `COLD` checked by preparation |
-| | `metrics` | `[TIME]` | non-empty, non-blank; values `TIME`, `ALLOCATION`, `CPU_EVENTS` checked by preparation |
+| | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read`); device support checked at effective build: `modules/settings/docs/settings.md#device-support`; the harness measures only these |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
 | | `seed` | `0` | input seed |
 | | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |

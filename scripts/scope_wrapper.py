@@ -1,7 +1,7 @@
 """Renders the generated androidTest sources: one wrapper per scope variant, and the GeneratedScopes catalog."""
 from dataclasses import dataclass
 
-import scope_inputs
+import scope_inputs, scope_languages
 
 PACKAGE = "io.github.junekim0007.cryptobench.scoped"
 FOLDER = "modules/android/src/androidTest/java/io/github/junekim0007/cryptobench/scoped"
@@ -25,7 +25,7 @@ def owner(scope_id, variant):
 def import_line(line, language):
     text = line.strip().rstrip(";").strip()
     text = text if text.startswith("import ") else f"import {text}"
-    return text + (";" if language == "java" else "")
+    return text + scope_languages.of(language).statement_end
 
 
 def indent(text, by="    "):
@@ -37,13 +37,9 @@ def wrapper(entry, variant):
     imports = "\n".join(import_line(line, scope.language) for line in scope.imports)
     stubs = "".join(f"    {stub}\n\n" for stub in entry.stubs)
     member = indent(signature.member.strip())
-    folder = f"{FOLDER}/s{scope.id}/{variant}"
-    if scope.language == "java":
-        text = (f"package {PACKAGE}.s{scope.id}.{variant};\n\n{imports}\n\n"
-                f"public final class {WRAPPER} {{\n\n    private {WRAPPER}() {{\n    }}\n\n{stubs}{member}\n}}\n")
-        return f"{folder}/{WRAPPER}.java", text
-    text = f"package {PACKAGE}.s{scope.id}.{variant}\n\n{imports}\n\nobject {WRAPPER} {{\n\n{stubs}{member}\n}}\n"
-    return f"{folder}/{WRAPPER}.kt", text
+    language = scope_languages.of(scope.language)
+    text = language.wrapper.format(package=f"{PACKAGE}.s{scope.id}.{variant}", imports=imports, name=WRAPPER, stubs=stubs, member=member)
+    return f"{FOLDER}/s{scope.id}/{variant}/{WRAPPER}{language.suffix}", text
 
 
 def call(scope_id, variant, signature, arguments):

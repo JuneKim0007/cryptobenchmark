@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.measurement
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
+
 /** Which cases a chart may compare. Ids are stable; names follow docs/cryptography/primitives.md. Unidentified is always 0. */
 enum class ChartGroup(val id: Int, val label: String) {
     UNIDENTIFIED(0, "unidentified"),
@@ -15,11 +17,13 @@ enum class ChartGroup(val id: Int, val label: String) {
 
     companion object {
 
-        private val ASYMMETRIC_CIPHERS = listOf("RSA", "ECIES", "ELGAMAL")
-
-        /** The JCA service type decides; the name only splits Cipher, which covers both kinds. SHA or RSA inside another type's name never counts. */
-        fun of(type: String, algorithm: String): ChartGroup = when (type.uppercase()) {
-            "CIPHER" -> if (ASYMMETRIC_CIPHERS.any { algorithm.uppercase().startsWith(it) }) ASYMMETRIC_CIPHER else SYMMETRIC_CIPHER
+        // The JCA service type decides; Cipher covers both kinds, so its key kind splits it.
+        fun of(type: String, key: KeyRecipe): ChartGroup = when (type.uppercase()) {
+            "CIPHER" -> when (key) {
+                is KeyRecipe.Secret -> SYMMETRIC_CIPHER
+                is KeyRecipe.Pair -> ASYMMETRIC_CIPHER
+                else -> UNIDENTIFIED
+            }
             "SIGNATURE" -> SIGNATURE
             "MESSAGEDIGEST" -> HASH
             "MAC" -> MAC

@@ -16,6 +16,7 @@ modules/benchmark/src/main/kotlin/check/Refusal.kt : one refusal (caseId, reason
 modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt : writes benchmark.json text
 modules/benchmark/src/main/kotlin/report/CaseDocument.kt : shared YAML and JSON reader for case documents
 modules/benchmark/src/main/kotlin/report/Merge.kt : merges per-process benchmark.json texts
+modules/benchmark/src/main/kotlin/report/MetricKeys.kt : run.metrics entry to its benchmark.json metric keys
 modules/benchmark/src/main/kotlin/report/MetricSamples.kt : one metric's runs, iteration count, reported stats; metric key names
 modules/benchmark/src/main/kotlin/report/ReportedStats.kt : androidx minimum, maximum, median, CoV for one process
 modules/benchmark/src/main/kotlin/report/ResultRow.kt : one case row of benchmark.json

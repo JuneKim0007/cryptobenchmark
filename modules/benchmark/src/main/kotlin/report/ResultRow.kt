@@ -11,8 +11,8 @@ class ResultRow(
     // secret|pair|none: separates symmetric from asymmetric, which the JCA engine type cannot (AES and RSA are both Cipher).
     val keyKind: String?,
     metrics: Map<String, MetricSamples>,
-    // What the provider used (prepared.yaml resolvedParameters); null for a file written before it was recorded.
-    val parameters: Map<String, Any>? = null,
+    // What the provider used: prepared.yaml resolvedParameters.
+    val parameters: Map<String, Any>,
 ) {
 
     val metrics: Map<String, MetricSamples> = LinkedHashMap(metrics)

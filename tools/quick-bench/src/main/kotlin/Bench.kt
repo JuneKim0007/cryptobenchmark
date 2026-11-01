@@ -1,4 +1,5 @@
 import io.github.junekim0007.cryptobench.benchmark.Benchmark
+import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
@@ -21,7 +22,7 @@ fun main(arguments: Array<String>) {
     System.err.println("prepared=${run.cases.size} skipped=${run.skipped.size}")
 
     val harness = HostHarness()
-    val measurements = Benchmark().measure(run) { prepared ->
+    val measurements = Benchmark(PlanCheck(HostHarness.METRICS)).measure(run) { prepared ->
         harness.measure(prepared).also { System.err.println("  ${prepared.case.id}: median ${it.medianNanos} ns/op") }
     }
     val written = BenchmarkJson(outputDirectory).write(

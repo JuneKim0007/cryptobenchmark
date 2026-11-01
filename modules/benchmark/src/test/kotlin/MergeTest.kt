@@ -7,13 +7,6 @@ import org.junit.Test
 
 class MergeTest {
 
-    private fun legacy(id: String, vararg samples: Long) = """
-        {"runtime": {"model": "Pixel 9"},
-         "cases": [{"id": "$id", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "SUN",
-                    "operation": "DIGEST", "keySize": null, "inputSize": 1024, "iterations": 8192,
-                    "nanosPerOperation": [${samples.joinToString(", ")}]}]}
-    """.trimIndent()
-
     private fun text(id: String, time: List<Double>, allocations: List<Double>? = null): String {
         val metrics = buildList {
             add("\"timeNs\": {\"iterations\": 8192, \"runs\": [${time.joinToString(", ")}]}")
@@ -24,7 +17,7 @@ class MergeTest {
         return """
             {"runtime": {"model": "Pixel 9"},
              "cases": [{"id": "$id", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "SUN",
-                        "operation": "DIGEST", "keySize": null, "inputSize": 1024,
+                        "operation": "DIGEST", "keySize": null, "inputSize": 1024, "parameters": {},
                         "metrics": {${metrics.joinToString(", ")}}}]}
         """.trimIndent()
     }
@@ -57,12 +50,6 @@ class MergeTest {
         val merged = Merge.merge(listOf(text("digest", listOf(10.0), allocations = listOf(2.0)), text("digest", listOf(20.0))))
         assertEquals(MetricSamples(listOf(2.0), 1), merged.rows.single().metrics[MetricSamples.ALLOCATIONS])
         assertEquals(listOf(10.0, 20.0), merged.rows.single().time?.runs)
-    }
-
-    @Test
-    fun aFileWithOnlyTheFlatPairIsStillRead() {
-        val merged = Merge.merge(listOf(legacy("digest", 10, 11), text("digest", listOf(20.0))))
-        assertEquals(MetricSamples(listOf(10.0, 11.0, 20.0), 8192), merged.rows.single().time)
     }
 
     @Test

@@ -44,7 +44,7 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 | key | holds |
 |---|---|
 | `id`, `type`, `algorithm`, `provider`, `operation` | the case |
-| `chartGroup`, `chartGroupId` | which cases a chart may compare; from the service type, `Cipher` split by name; `unidentified` (0) otherwise |
+| `chartGroup`, `chartGroupId` | which cases a chart may compare; from the service type, `Cipher` split by key kind (`secret` symmetric, `pair` asymmetric); `unidentified` (0) otherwise |
 | `group`, `keySize`, `inputSize` | when set |
 | `phase`, `metrics` | the case axes |
 | `harness` | `run.harness` merged with the entry's; when non-empty |

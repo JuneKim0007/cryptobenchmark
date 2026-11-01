@@ -40,8 +40,8 @@ internal object PreparedDocument {
             put("provider", case.provider)
             put("operation", case.operation.name)
             if (case.group.isNotEmpty()) put("group", case.group)
-            put("chartGroup", case.chartGroup.label)
-            put("chartGroupId", case.chartGroup.id)
+            put("chartGroup", prepared.chartGroup.label)
+            put("chartGroupId", prepared.chartGroup.id)
             case.keySize?.let { put("keySize", it) }
             case.inputSize?.let { put("inputSize", it) }
             put("phase", case.phase.name)

@@ -26,6 +26,11 @@ class EffectiveView(unittest.TestCase):
         view = effective_view.read(self.effective)
         self.assertEqual((["old"], 1), (view["warnings"], len(view["skipped"])))
 
+    def test_metrics_are_read_and_their_absence_fails(self):
+        self.assertEqual(["TIME", "CPU_EVENTS"], effective_view.metrics({"run": {"metrics": ["TIME", "CPU_EVENTS"]}}))
+        with self.assertRaises(SystemExit):
+            effective_view.metrics({"run": {}})
+
     def test_repetitions_default_to_one_and_must_be_positive(self):
         self.assertEqual(1, effective_view.process_repetitions({}))
         with self.assertRaises(SystemExit):

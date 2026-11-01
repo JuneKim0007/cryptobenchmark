@@ -96,7 +96,7 @@ def fixture_shape() -> list:
             problems.append("fixture no longer covers {}, so a chart path is untested".format(needed))
     if not any(case["inputSize"] and case["operation"] == "ENCRYPT" for case in cases):
         problems.append("fixture has no sized ENCRYPT case, so throughput is untested")
-    if not any(len(case["nanosPerOperation"]) > 1 for case in cases):
+    if not any(len(case["metrics"]["timeNs"]["runs"]) > 1 for case in cases):
         problems.append("fixture has no multi-run case, so CoV is untested")
     return problems
 

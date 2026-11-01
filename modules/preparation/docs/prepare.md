@@ -41,7 +41,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 |---|---|
 | `inputSizes` | required; non-empty, positive, distinct |
 | `phases` | required; non-empty; `WARM`, `COLD` |
-| `metrics` | required; non-empty; `TIME`, `ALLOCATION`, `CPU_EVENTS` |
+| `metrics` | required; `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
 | `processRepetitions` | required; `>= 1` |
 | `seed` | required |
 | `harness` | optional; settings key table |

@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 
 class Benchmark(
-    private val check: PlanCheck = PlanCheck(),
+    private val check: PlanCheck,
     private val onRefusal: (List<Refusal>) -> Unit = { refusals -> throw RefusedPlanException(refusals) },
 ) {
 

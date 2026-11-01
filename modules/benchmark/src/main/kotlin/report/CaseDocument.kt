@@ -45,7 +45,7 @@ internal object CaseDocument {
 
     fun requestedIterations(case: Map<String, Any>): Int? = integer(optionalSection(case["harness"])?.get("iterations"))
 
-    fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>?): ResultRow = ResultRow(
+    fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>): ResultRow = ResultRow(
         id = case["id"].toString(),
         type = case["type"].toString(),
         algorithm = case["algorithm"].toString(),

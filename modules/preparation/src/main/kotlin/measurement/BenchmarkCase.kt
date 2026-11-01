@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.measurement
 
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.Metric
 
 data class BenchmarkCase(
     val type: String,
@@ -29,8 +30,6 @@ data class BenchmarkCase(
     }
 
     val id: String get() = CaseName.of(this)
-
-    val chartGroup: ChartGroup get() = ChartGroup.of(type, algorithm)
 
     override fun toString(): String = id
 }

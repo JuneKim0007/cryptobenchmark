@@ -11,6 +11,13 @@ SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
+# androidx's CPU event capture is internal; only this launch argument adds it (JetpackConfig.counterMismatch).
+CPU_EVENTS = ["-e", "androidx.benchmark.cpuEventCounter.enable", "true"]
+
+
+def measure_arguments(suppress, metrics):
+    return (NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
+            + (CPU_EVENTS if "CPU_EVENTS" in metrics else []))
 
 
 class DeviceError(Exception):
@@ -113,9 +120,9 @@ class Device:
             if "Success" not in compiled:
                 raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
 
-    def measure(self, suppress, data, preparation):
+    def measure(self, suppress, metrics, data, preparation):
         self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/prepared.yaml {FILES}/skipped.yaml {FILES}/{CPU_PINS}")
-        arguments = NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
+        arguments = measure_arguments(suppress, metrics)
         output = self.instrument("CryptoBenchmark", *arguments)
         if not re.search(r"^OK \(\d+ tests?\)", output, re.M):
             counted = re.search(r"^Tests run: (\d+),\s+Failures: (\d+)", output, re.M)
@@ -137,10 +144,10 @@ class Device:
         self.pull(f"{FILES}/prepared.yaml", preparation / "prepared.yaml")
         self.pull(f"{FILES}/skipped.yaml", preparation / "skipped.yaml")
 
-    def measure_scoped(self, suppress, data, interop):
+    def measure_scoped(self, suppress, metrics, data, interop):
         """ScopedBenchmark: interop verdicts always; benchmarkData.json only when a scope was measured."""
         self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/{SCOPED_INTEROP} {FILES}/{CPU_PINS}")
-        arguments = NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
+        arguments = measure_arguments(suppress, metrics)
         output = self.instrument("ScopedBenchmark", *arguments)
         data.parent.mkdir(parents=True, exist_ok=True)
         for stale in (data, interop):
