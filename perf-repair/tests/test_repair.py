@@ -1,11 +1,7 @@
-from pathlib import Path
-
 from perfrepair.repair.candidates import candidates
 from perfrepair.repair.choose import choose
-from perfrepair.repair.patch import rewrite
 from perfrepair.repair.replay import compare, side
 from perfrepair.repair.test_set import build_test_set
-from perfrepair.validation.repair import validate_patch
 
 GROUPS = {"items": {"1": {"qualified": "MessageDigest|SHA-256|P1", "group": "g"},
                     "2": {"qualified": "MessageDigest|SHA-256|P2", "group": "g"},
@@ -33,21 +29,6 @@ def test_only_a_test_verdict_with_a_pair_from_the_site_item_replaces_it():
     skip = {"verdicts": [{"groupId": "g", "decision": "skip", "reason": "no", "pairs": []}]}
     assert choose([c], test)[0]["replacement"] == "2"
     assert choose([c], skip)[0]["replacement"] is None
-
-
-def test_a_patch_pins_the_new_provider_and_changes_only_literals(tmp_path):
-    (tmp_path / "A.java").write_text('class A {\n  MessageDigest md = MessageDigest.getInstance("SHA-256");\n}\n')
-    [c] = candidates({"sites": [site()]}, GROUPS)
-    patch = rewrite(c, "P1", "SHA-256", "P2", tmp_path)
-    assert patch.after == 'MessageDigest.getInstance("SHA-256", "P2")'
-    assert validate_patch(patch.to_json(), tmp_path) == []
-    assert "+  MessageDigest md = MessageDigest.getInstance(\"SHA-256\", \"P2\");" in patch.diff(tmp_path)
-
-
-def test_a_patch_that_rewrites_code_is_refused(tmp_path):
-    (tmp_path / "A.java").write_text('x\nMessageDigest.getInstance("SHA-256")\n')
-    bad = {"file": "A.java", "line": 2, "before": 'MessageDigest.getInstance("SHA-256")', "after": 'MessageDigest.getInstance(name)'}
-    assert validate_patch(bad, tmp_path)
 
 
 def test_replay_reports_speedup_and_energy():

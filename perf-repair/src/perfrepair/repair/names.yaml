@@ -1,0 +1,22 @@
+# Names a function may use without defining them: keywords, primitive types, and what each language puts in scope implicitly.
+java:
+  keywords: [abstract, assert, break, case, catch, class, continue, default, do, else, enum, extends, final, finally,
+             for, if, implements, import, instanceof, interface, native, new, package, private, protected, public,
+             return, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, volatile,
+             while, var, yield, record, "null", "true", "false"]
+  types: [boolean, byte, char, short, int, long, float, double, void, var, final]
+  implicit: [java, javax, String, Object, System, Math, Integer, Long, Short, Byte, Character, Boolean, Float, Double,
+             Number, StringBuilder, Exception, RuntimeException, Throwable, Error, IllegalArgumentException,
+             IllegalStateException, UnsupportedOperationException, NullPointerException, Override, Iterable, Class,
+             Thread, Void, Runnable, AutoCloseable, CharSequence]
+kotlin:
+  keywords: [as, break, class, continue, do, else, "false", for, fun, if, in, interface, is, "null", object, package,
+             return, super, this, throw, "true", try, typealias, val, var, when, while, catch, finally, by, constructor,
+             init, where, override, private, protected, public, internal, open, data, inline, suspend, lateinit, const,
+             companion, sealed, abstract, final, vararg, import, get, set, field]
+  types: [val, var]
+  implicit: [java, javax, kotlin, it, String, Any, Unit, Nothing, Int, Long, Short, Byte, Char, Boolean, Float, Double,
+             ByteArray, IntArray, CharArray, Array, List, Map, Set, MutableList, MutableMap, Exception, RuntimeException,
+             Throwable, IllegalArgumentException, IllegalStateException, Charsets, Throws, JvmStatic, println, require,
+             check, error, arrayOf, byteArrayOf, listOf, mapOf, setOf, mutableListOf, mutableMapOf, emptyList,
+             emptyMap, lazy, also, apply, let, run, with, repeat, TODO]

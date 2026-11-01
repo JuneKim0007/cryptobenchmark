@@ -6,7 +6,7 @@
 - grouping primitives into interchangeable groups: families, items, gates, supervisor → `agents/grouping.md`
 - model decisions: decision kinds, prompts, agents, the engine loop, retry → `agents/decisions.md`
 - static tools: evidence, modes, triage → `agents/static-tools.md`
-- repair: app call sites, replacements, patches, before/after → `agents/repair.md`
+- repair: app call sites, replacements, edits, harness, before/after → `agents/repair.md`
 - validation: artifact validators, outbox projection, the stage gate → `agents/validation.md`
 - docs, guides and file maps: writing or changing any .md → `../agents/docs/writing.md`
 - facts: pipeline, artifacts, decisions, grouping, modes, repair, limits → `docs/index.md`

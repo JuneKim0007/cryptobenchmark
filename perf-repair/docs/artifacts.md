@@ -16,8 +16,9 @@
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `apps/<app>/dossiers.json` | `result dossier` | replace | `validation/dossiers.py` |
 | `repair/<app>/candidates.json` | repair candidates | repair test-set, choose | none |
-| `repair/<app>/choices.json` | repair choose | repair patch | none |
-| `repair/<app>/patches.json` | repair patch | none | `validation/repair.py`, before writing |
+| `repair/<app>/choices.json` | repair choose | none | none |
+| `apps/<app>/edits.json`, `original/`, `patched/` | repair edit | repair harness | `validation/repair.py`, before writing |
+| `apps/<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).

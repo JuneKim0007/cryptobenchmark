@@ -12,7 +12,7 @@ flowchart LR
     E -- groups with an improving pair --> W[worthiness: model per group]
     E -- static verdicts --> V[worthiness-mode/verdicts.json]
     W --> V
-    I -- sites.json --> R[repair: candidates, choose, patch]
+    I -- sites.json --> R[repair: candidates, choose, edit, harness]
     G -- grouping/groups.json --> R
     V --> R
 ```
@@ -27,10 +27,10 @@ flowchart LR
 | grouping assign | `python3 -m perfrepair.grouping assign --run <run>` | `grouping/` | `grouping/` (`docs/grouping.md`) | one conversation per item, up to turns × sessions |
 | grouping report | `python3 -m perfrepair.grouping report --run <run> [--supervisor]` | `grouping/` | `checks.json`, `groups.json`; supervisor files | supervisor: one conversation per family |
 | worthiness | `python3 -m perfrepair.ai worthiness --run <run> --mode latency\|battery` | `rows.json`, `measurements.json`, `grouping/groups.json` | `worthiness-<mode>/` (evidence.json, outbox/, verdicts.json, journal.jsonl, errors.jsonl) | one per group with an improving pair |
-| repair | `python3 -m perfrepair.repair candidates\|test-set\|choose\|patch\|replay` | `docs/repair.md` | `repair/<app>/` | no |
+| repair | `python3 -m perfrepair.repair candidates\|test-set\|choose\|edit\|harness\|replay` | `docs/repair.md` | `repair/<app>/`, `apps/<app>/` | no |
 | validate | `python3 -m perfrepair.validation <run>` | every artifact present | nothing | no |
 
 - `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
-- Inbound, grouping build and repair patch validate before they write.
+- Inbound, grouping build and repair edit and harness validate before they write.
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; changed prompts start a new outbox, and an earlier prompt set resumes its own.
 - `--prompts DIR`: `docs/decisions.md`.
