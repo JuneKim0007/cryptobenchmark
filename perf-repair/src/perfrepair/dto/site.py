@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 
 SCHEMA_VERSION = 1
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm
@@ -11,15 +11,18 @@ SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")
 METRICS = ("timeNs", "allocationCount", "energyUj")
-NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available")
-RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink")
-# (scope field, value, risk it implies, plain words): the minimum risks a replace must declare
+NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available", "interop_failed")
+RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
+# (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
 DERIVED_RISKS = (
     ("sinks", "persist", "persisted_data", "the output is stored and read back later"),
     ("sinks", "network", "wire_format", "the output leaves the process"),
     ("sinks", "unknown", "unknown_sink", "where the output goes is unknown"),
     ("keySource", "keystore", "key_compatibility", "the key lives in a key store"),
     ("keySource", "literal", "key_compatibility", "the key is a literal in the code"),
+    ("interop", "not_checkable", "unverified_interop", "the interop check could not decide the pair"),
+    ("interop", "not_planned", "unverified_interop", "the pair was not in the interop plan"),
+    ("interop", "not_run", "unverified_interop", "no interop check has run"),
 )
 
 
@@ -55,11 +58,13 @@ class Scope:
         return cls(**{**d, "sinks": tuple(d.get("sinks") or ("unknown",))})
 
 
-def required_risks(scope: Scope) -> dict[str, list[str]]:
-    """Each risk the scope facts imply, with the plain words that imply it."""
+def required_risks(scope: Scope, option: "Option | None" = None) -> dict[str, list[str]]:
+    """Each risk the scope facts, and the chosen option's when given, imply, with the plain words that imply it."""
     out: dict[str, list[str]] = {}
+    option_fields = {f.name for f in fields(Option)}
     for field_name, value, risk, words in DERIVED_RISKS:
-        facts = getattr(scope, field_name)
+        subject = option if field_name in option_fields else scope
+        facts = getattr(subject, field_name) if subject is not None else ()
         if value in (facts if isinstance(facts, tuple) else (facts,)):
             out.setdefault(risk, []).append(words)
     return out
@@ -82,18 +87,21 @@ class Estimate:
 
 @dataclass(frozen=True)
 class Option:
-    """pins None: the parameters are unknown, so no like-for-like swap can be stated; {} means nothing to pin."""
+    """pins None: the parameters are unknown, so no like-for-like swap can be stated; {} means nothing to pin.
+    interop: the pair_status of the current item and this one."""
     alias: str
     item: str
     pins: dict | None
+    interop: str
     estimates: tuple[Estimate, ...] = ()
 
     def to_json(self) -> dict:
-        return {"alias": self.alias, "item": self.item, "pins": self.pins, "estimates": [asdict(e) for e in self.estimates]}
+        return {"alias": self.alias, "item": self.item, "pins": self.pins, "interop": self.interop,
+                "estimates": [asdict(e) for e in self.estimates]}
 
     @classmethod
     def from_json(cls, d: dict) -> "Option":
-        return cls(d["alias"], d["item"], d["pins"], tuple(Estimate(**e) for e in d.get("estimates") or ()))
+        return cls(d["alias"], d["item"], d["pins"], d["interop"], tuple(Estimate(**e) for e in d.get("estimates") or ()))
 
 
 @dataclass(frozen=True)

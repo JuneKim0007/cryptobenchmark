@@ -6,6 +6,7 @@ from pathlib import Path
 
 from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
+from ..dto.interop import failed_pairs, pair_status
 from ..dto.site import METRICS, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
 from .estimate import compare
 
@@ -63,7 +64,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
         raise ValueError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
-    items = groups["items"]
+    items, failed = groups["items"], failed_pairs(groups)
     by_qualified = {v["qualified"]: key for key, v in items.items()}
     members = {g["id"]: [str(m) for m in g["members"]] for g in groups["groups"]}
     # the probe lists what the platform registers; an app adds what it bundles
@@ -89,12 +90,18 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
         if not usable:
             none.append({"scope": s.id, "reason": "none_available" if others else "no_alternative"})
             continue
+        # data from before a failed swap does not decrypt after it, so such a pair is never an option
+        interoperable = [q for q in usable if frozenset((current, q)) not in failed]
+        if not interoperable:
+            none.append({"scope": s.id, "reason": "interop_failed"})
+            continue
         options = []
-        for n, q in enumerate(usable, 1):
+        for n, q in enumerate(interoperable, 1):
             configs = nearest(s, measured[current], measured[q])
             # no configuration measured on both sides: the pins are unknown, never guessed
             pinned = pins(measured[current][configs[0]], measured[q][configs[0]]) if configs else None
-            options.append(Option(f"R{n}", q, pinned, estimates(configs, measured[current], measured[q], measurements)))
+            options.append(Option(f"R{n}", q, pinned, pair_status(groups, current, q),
+                                  estimates(configs, measured[current], measured[q], measurements)))
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))
     return {"schemaVersion": SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers],
             "noOptions": none}

@@ -14,7 +14,7 @@
 ```
 src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, modes
-src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements → Dossiers with options, pins, estimates; noOptions with reasons
+src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements → Dossiers with options, pins, interop status, estimates; failed pairs dropped; noOptions with reasons
 src/perfrepair/result/estimate.py : pImprove of one Summary against another by the process- and block-aware bootstrap
 src/perfrepair/result/evidence.py : groups.json + rows + measurements → GroupEvidence: configurations, members, ordered pair metrics with pImprove
 src/perfrepair/result/modes.py : Mode loaded from criteria.yaml: judges a pair improves, not_improving or not_measured

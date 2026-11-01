@@ -1,10 +1,11 @@
-"""What the replacement decision sees for one dossier: site, scope facts, current item, aliased options, edit kinds, source."""
+"""What the replacement decision sees for one dossier: site, scope facts, current, aliased options, edit kinds, source."""
 from __future__ import annotations
 
 import hashlib
 
 from ....dto.grouping import algorithm_of, provider_of
-from ....dto.site import EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, pin_text, required_risks
+from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
+                         required_risks)
 
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
 TOO_FEW_RUNS = "n/a (n<2)"
@@ -22,9 +23,15 @@ def _known(x) -> str:
     return "unknown" if x is None else str(x)
 
 
-def _option(o: Option) -> list[str]:
+def _interop(s: Scope, o: Option) -> str:
+    added = [r for r in required_risks(s, o) if r not in required_risks(s)]
+    return f"    interop: {o.interop}" + (f"; a replace to it must also declare {', '.join(added)}" if added else "")
+
+
+def _option(s: Scope, o: Option) -> list[str]:
     pins = UNKNOWN_PINS if o.pins is None else ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
-    lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}"]
+    lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}",
+             _interop(s, o)]
     if not o.estimates:
         return lines + ["    estimates: none measured"]
     lines.append("    metric | ratio | pImprove | n | configuration")
@@ -52,6 +59,6 @@ def render(d: Dossier) -> str:
              "", f"CURRENT {d.current} | name {algorithm_of(d.current)} | provider {provider_of(d.current)}",
              "", "OPTIONS (answer with these names)"]
     for o in d.options:
-        lines += _option(o)
+        lines += _option(s, o)
     lines += ["", "EDIT KINDS (the only edits allowed)"] + [f"  {k}: {edit_meaning(k)}" for k in EDIT_KINDS]
     return "\n".join(lines + [""] + _source(d))

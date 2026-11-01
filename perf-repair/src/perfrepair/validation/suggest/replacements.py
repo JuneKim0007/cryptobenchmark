@@ -24,8 +24,8 @@ def _edits(r: Replacement, d: Dossier) -> list[str]:
             problems.append(f"{r.scope}: {e.kind} is not exactly the option's {row.takes}")
     problems += [f"{r.scope}: the option's {EDIT_KIND_TABLE[k].takes} needs {k}, which is not applied"
                  for k in required_kinds(option, d.current) if k not in kinds]
-    problems += [f"{r.scope}: risk {k} implied by the scope is not declared" for k in required_risks(d.scope)
-                 if k not in r.risks]
+    problems += [f"{r.scope}: risk {k} implied by the scope or its option is not declared"
+                 for k in required_risks(d.scope, option) if k not in r.risks]
     return problems
 
 

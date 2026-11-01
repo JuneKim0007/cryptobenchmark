@@ -42,7 +42,7 @@
 | field | site-replace |
 |---|---|
 | item | one `Dossier` of `apps/<app>/dossiers.json` with at least one option |
-| message | site, sinks and key source, the risks code derives from them, current item and name, options `R1..Rn` with pins and estimates (ratio, pImprove, n, configuration), edit kinds, function source between digest markers |
+| message | site, sinks and key source, the risks code derives from them, current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates (ratio, pImprove, n, configuration), edit kinds, function source between digest markers |
 | answer | `decision` replace\|keep, `option` alias or "", `edits` [{kind, provider, algorithm, parameters [{name, value}]}], `risks`, `reason` |
 | ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
 | no option | static `keep`, source `static`, never asked |
@@ -57,8 +57,8 @@
 - `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.
 - An edit fills no field its kind does not use.
 - `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
-- Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`.
-- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore or literal → `key_compatibility`.
+- Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`, `unverified_interop`.
+- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore or literal → `key_compatibility`; the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
 
 ## Static triage (no model call)
 

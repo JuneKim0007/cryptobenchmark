@@ -98,5 +98,7 @@ Turns, sessions and `--limit`: `docs/decisions.md`.
 | `not_planned` | checked run, pair absent from the plan (a member does not run) |
 | `not_run` | no interop.yaml imported |
 
+- A dossier option labelled anything but `pass` makes a `replace` to it declare `unverified_interop`.
+
 - `dto/interop.py` `failed_pairs(groups)` and `pair_status(groups, a, b)` read the section; a groups.json without it is refused.
 - `validation/run.py` checks plan, results, the section and every `dossiers.json` option against failed pairs.

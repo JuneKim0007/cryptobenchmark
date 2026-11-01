@@ -106,13 +106,13 @@ def _edits(raw: list, option: Option | None, current: str, problems: list[str]) 
     return edits
 
 
-def _risks(risks: list, scope: Scope, decision: str) -> list[str]:
+def _risks(risks: list, scope: Scope, option: Option | None, decision: str) -> list[str]:
     problems = [f"risk {r!r} is not one of {RISKS}" for r in risks if r not in RISKS]
     problems += [f"risk {r!r} given more than once" for r in sorted({r for r in risks if isinstance(r, str)
                                                                        and risks.count(r) > 1})]
     if decision == "replace":
         problems += [f"risks must include {r}: {' and '.join(words)}"
-                     for r, words in required_risks(scope).items() if r not in risks]
+                     for r, words in required_risks(scope, option).items() if r not in risks]
     return problems
 
 
@@ -148,7 +148,7 @@ def check_reply(text: str, dossier: Dossier) -> tuple[dict | None, list[str]]:
         if edits:
             problems.append("keep names edits; a keep has none")
     resolved = _edits(edits, option, dossier.current, problems)
-    problems += _risks(risks, dossier.scope, decision)
+    problems += _risks(risks, dossier.scope, option, decision)
     if problems:
         return None, problems
     return Replacement(dossier.key, decision, option.item if option else None, tuple(resolved), tuple(risks),

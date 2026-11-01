@@ -80,7 +80,8 @@ def test_messages_never_name_an_item_id_the_model_was_not_asked_for():
 
 
 def test_set_algorithm_resolves_to_the_option_name():
-    decision, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")]))
+    decision, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")],
+                                      risks=("persisted_data", "key_compatibility", "unverified_interop")))
     assert problems == [] and decision["edits"] == [{"kind": "set_algorithm", "provider": None,
                                                      "algorithm": "ALG-B", "parameters": None}]
 
@@ -105,7 +106,19 @@ def test_required_risks_come_from_the_scope_facts(sinks, key_source, risks):
 
 
 def test_an_option_with_unknown_pins_cannot_be_replaced_to():
-    unknown = dossier(options=(Option("R1", "TypeA|ALG-A/MODE-X|P2", None, ()),))
+    unknown = dossier(options=(Option("R1", "TypeA|ALG-A/MODE-X|P2", None, "pass"),))
     decision, problems = check(answer(edits=[edit("set_provider", "P2")]), unknown)
     assert decision is None and any("R1 has unknown pins" in p for p in problems), problems
     assert check(KEEP, unknown)[1] == []
+
+
+def test_a_replace_to_an_option_whose_interop_is_not_pass_must_declare_unverified_interop():
+    _, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")]))
+    assert problems == ["risks must include unverified_interop: no interop check has run"]
+
+
+@pytest.mark.parametrize("status, risks", [("pass", set()), ("not_checkable", {"unverified_interop"}),
+                                           ("not_planned", {"unverified_interop"}), ("not_run", {"unverified_interop"})])
+def test_required_risks_add_the_options_interop(status, risks):
+    s = scope(sinks=("local",), key_source="derived")
+    assert set(required_risks(s, Option("R1", "TypeA|ALG-B|P1", {}, status))) == risks
