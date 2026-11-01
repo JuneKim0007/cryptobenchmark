@@ -30,7 +30,9 @@ flowchart TD
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
 | `checks.json` | report | static findings with severity; counts |
-| `groups.json` | report | families, groups with members, runnable members, common key sizes, findings; items index; dropped |
+| `groups.json` | report | families, groups with members, runnable members, common key sizes, findings; items index; dropped; `interop` |
+| `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size |
+| `interop.yaml` | interop-read | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions |
 | `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings |
 | `supervisor.journal.jsonl` | report --supervisor | one line per review turn, with `charter` |
 
@@ -81,3 +83,20 @@ Turns, sessions and `--limit`: `docs/decisions.md`.
 | `no_common_key_size` | warning |
 | `no_runnable_member` | warning |
 | `singleton` | info |
+| `interop_failed` | error |
+| `interop_not_checkable` | info |
+
+## Interop
+
+| key or label | meaning |
+|---|---|
+| `groups.json` `interop.status` | `checked` after interop-read; `not_run` before |
+| `interop.pairs[]` | `{id, group, a, b, result, reason}`; `a`, `b` qualified names |
+| `fail` | the pair is out of evidence pairs and dossier options; finding `interop_failed` |
+| `not_checkable` | the pair stays; evidence and dossier carry the label; finding `interop_not_checkable` |
+| `pass` | the pair stays, labelled |
+| `not_planned` | checked run, pair absent from the plan (a member does not run) |
+| `not_run` | no interop.yaml imported |
+
+- `dto/interop.py` `failed_pairs(groups)` and `pair_status(groups, a, b)` read the section; a groups.json without it is refused.
+- `validation/run.py` checks plan, results, the section and every `dossiers.json` option against failed pairs.

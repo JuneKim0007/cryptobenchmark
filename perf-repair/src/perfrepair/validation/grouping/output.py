@@ -16,6 +16,8 @@ def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
     problems += [f"item {m}: grouped and dropped" for m in dropped if m in placed]
     problems += [f"item {i}: neither grouped nor dropped" for i in items if i not in placed and i not in dropped]
     problems += [f"item {m}: not in items.json" for m in set(placed) | dropped if m not in items]
+    if "interop" not in doc:
+        problems.append("no interop section; rerun grouping report")
     if set(doc["items"]) != {str(i) for i in items}:
         problems.append("items index differs from items.json")
     for g in doc["groups"]:

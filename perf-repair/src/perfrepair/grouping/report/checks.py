@@ -11,8 +11,9 @@ from ..catalog.families import Families
 from ...ai.parse.grouping_assign.kind import GroupingKind
 from ..paths import GroupingPaths
 from ..state.cursor import cursor
+from ..interop_read import imported
 from .output import assemble
-from .rules import check
+from .rules import check, check_interop
 
 
 def report(paths: GroupingPaths, families: Families | None = None) -> dict:
@@ -22,9 +23,10 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
     require("grouping", kind.validate(knowledge, records))
     unfinished = cursor(kind.items(), records).next
     require("grouping", [] if unfinished is None else [f"item {unfinished} is not decided yet; run assign first"])
-    findings = check(knowledge, kind.by_id, kind.profiles)
+    interop = imported(paths)
+    findings = check(knowledge, kind.by_id, kind.profiles) + check_interop(interop, kind.by_id)
     write_json(paths.checks, checks_document(findings))
-    document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families)
+    document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop)
     require("groups.json", validate_output(document, kind.by_id))
     write_json(paths.groups, document)
     return document

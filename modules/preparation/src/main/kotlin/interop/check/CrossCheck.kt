@@ -25,7 +25,7 @@ internal object CrossCheck {
         val artifact = try {
             travelling(definition.input(producer, key, null))
         } catch (failure: Exception) {
-            return Outcome.Untestable("producer_failed: ${describe(failure)}")
+            return Outcome.NotCheckable("producer_failed: ${describe(failure)}")
         }
         return try {
             val returned = definition.invocation(PreparedCase(consumer, recipe, key, null, null, artifact)).once()
@@ -48,7 +48,7 @@ internal object CrossCheck {
         }
         val (a, b) = outputs
         return when {
-            a !is ByteArray || b !is ByteArray -> Outcome.Untestable("outputs_not_comparable: ${a?.javaClass?.simpleName}")
+            a !is ByteArray || b !is ByteArray -> Outcome.NotCheckable("outputs_not_comparable: ${a?.javaClass?.simpleName}")
             a.contentEquals(b) -> Outcome.Pass
             else -> Outcome.Fail("outputs differ for the same key and input")
         }
@@ -62,11 +62,11 @@ internal object CrossCheck {
 
     fun classify(failure: Throwable): Outcome = when {
         failure is InvalidKeyException || failure is InvalidAlgorithmParameterException || failure is ClassCastException ->
-            Outcome.Untestable("key_or_parameters_rejected: ${describe(failure)}")
+            Outcome.NotCheckable("key_or_parameters_rejected: ${describe(failure)}")
         failure is BadPaddingException || failure is IllegalBlockSizeException || failure is SignatureException ||
             (failure is IllegalStateException && failure.message == "verify_failed") ->
             Outcome.Fail(describe(failure))
-        else -> Outcome.Untestable("error: ${describe(failure)}")
+        else -> Outcome.NotCheckable("error: ${describe(failure)}")
     }
 
     private fun describe(failure: Throwable): String = "${failure.javaClass.simpleName}: ${failure.message}"

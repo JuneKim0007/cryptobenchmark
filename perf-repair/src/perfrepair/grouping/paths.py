@@ -20,3 +20,5 @@ class GroupingPaths:
     supervisor = property(lambda self: self.root / "supervisor.json")
     supervisor_journal = property(lambda self: self.root / "supervisor.journal.jsonl")
     groups = property(lambda self: self.root / "groups.json")
+    interop_plan = property(lambda self: self.root / "interop_plan.yaml")
+    interop = property(lambda self: self.root / "interop.yaml")

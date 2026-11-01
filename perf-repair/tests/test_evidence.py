@@ -11,7 +11,7 @@ QUALIFIED = {1: "TypeA|ALG-A|P1", 2: "TypeA|ALG-A|P2", 3: "TypeA|ALG-S|P3", 4: "
 GROUPS = {"groups": [{"id": "g-a", "family": "f", "description": "A", "members": [1, 2]},
                      {"id": "g-s", "family": "f", "description": "S", "members": [3]},
                      {"id": "g-u", "family": "f", "description": "U", "members": [4, 5]}],
-          "items": {str(k): {"qualified": v} for k, v in QUALIFIED.items()}}
+          "items": {str(k): {"qualified": v} for k, v in QUALIFIED.items()}, "interop": {"status": "not_run", "pairs": []}}
 M = {"a1": {"timeNs": summary(200), "allocations": summary(10)},
      "a2": {"timeNs": summary(100), "allocations": summary(30)},
      "a1b": {"timeNs": summary(900), "allocations": None},
@@ -73,3 +73,26 @@ def test_a_single_run_has_no_confidence():
     ask, _ = _decided(single)
     p = next(p for c in ask["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
     assert p.pImprove is None and p.level == "too_few_runs" and p.n == 1
+
+
+def _checked(result, reason="r"):
+    pair = {"id": 1, "group": "g-a", "a": QUALIFIED[2], "b": QUALIFIED[1], "result": result, "reason": reason}
+    return {**GROUPS, "interop": {"status": "checked", "pairs": [pair]}}
+
+
+def test_a_failed_interop_pair_is_never_a_replacement():
+    evidence = {e.groupId: e for e in build_evidence(_checked("fail"), ROWS, M)}
+    assert [len(c.pairs) for c in evidence["g-a"].configurations] == [0, 0]
+    ask, decided = triage(list(evidence.values()), MODES["latency"])
+    assert ask == [] and {v.groupId: v.decision for v in decided}["g-a"] == "not_comparable"
+
+
+def test_interop_labels_ride_on_every_pair():
+    assert {p.interop for c in EVIDENCE["g-a"].configurations for p in c.pairs} == {"not_run"}
+    kept = build_evidence(_checked("not_checkable"), ROWS, M)
+    assert {p.interop for e in kept for c in e.configurations for p in c.pairs} == {"not_checkable", "not_planned"}
+
+
+def test_groups_without_an_interop_section_are_refused():
+    with pytest.raises(ValueError, match="no interop section"):
+        build_evidence({k: v for k, v in GROUPS.items() if k != "interop"}, ROWS, M)

@@ -5,17 +5,18 @@ from itertools import permutations
 
 from ..dto import Configuration, GroupEvidence, MemberStats, PairMetrics, PrimitiveRow
 from ..dto.grouping import parse_qualified, qualified
+from ..dto.interop import failed_pairs, pair_status
 from .confidence import level
 from .estimate import compare
 
 WORK_FIELDS = ("operation", "keySize", "inputSize", "phase")
 
 
-def _pair(a: MemberStats, b: MemberStats) -> PairMetrics:
+def _pair(a: MemberStats, b: MemberStats, interop: str) -> PairMetrics:
     time = compare(a.timeNs, b.timeNs)
     alloc = (b.allocations / a.allocations
              if a.allocations not in (None, 0) and b.allocations is not None else None)
-    return PairMetrics(a.itemId, b.itemId, time.ratio, time.pImprove, level(time.pImprove), time.n, alloc)
+    return PairMetrics(a.itemId, b.itemId, time.ratio, time.pImprove, level(time.pImprove), time.n, alloc, interop)
 
 
 def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict]) -> list[GroupEvidence]:
@@ -30,13 +31,14 @@ def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[st
         configs[member_of[name]][tuple(getattr(r, f) for f in WORK_FIELDS)].append(MemberStats(
             r.rowId, name, r.provider, r.algorithm, m.get("timeNs"), alloc.median if alloc else None))
 
-    out = []
+    out, failed = [], failed_pairs(groups)
     for g in sorted(groups["groups"], key=lambda g: g["id"]):
         cs = []
         for key, members in sorted(configs[g["id"]].items(), key=lambda kv: str(kv[0])):
             members = sorted(members, key=lambda s: s.itemId)
             measured = [s for s in members if s.timeNs is not None]
-            pairs = tuple(_pair(a, b) for a, b in permutations(measured, 2) if a.itemId != b.itemId)
+            pairs = tuple(_pair(a, b, pair_status(groups, a.itemId, b.itemId)) for a, b in permutations(measured, 2)
+                          if a.itemId != b.itemId and frozenset((a.itemId, b.itemId)) not in failed)
             cs.append(Configuration(*key, tuple(members), pairs))
         engine = parse_qualified(groups["items"][str(g["members"][0])]["qualified"])[0]
         out.append(GroupEvidence(g["id"], g["description"], engine, g["family"], tuple(cs)))
