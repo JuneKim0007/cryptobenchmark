@@ -11,6 +11,7 @@ from perfrepair.app.detect import detect
 from perfrepair.app.gate import GateError, open_app
 from perfrepair.app.imports import import_reason
 from perfrepair.app.lexer import Code, literal
+from perfrepair.dto.language import JAVA, KOTLIN
 from perfrepair.app.resolve import resolve
 from perfrepair.app.scan import call_pattern, scan
 from perfrepair.app.sdk import sdk_levels
@@ -36,8 +37,8 @@ def _android(root: Path) -> Path:
     return root
 
 
-def _sites(text: str, index, kotlin: bool = False):
-    return scan(Code.of(text, kotlin), "A", MAIN, call_pattern(index.engine_types))
+def _sites(text: str, index, language=JAVA):
+    return scan(Code.of(text, language), "A", MAIN, call_pattern(index.engine_types))
 
 
 def test_gate_accepts_an_android_project():
@@ -90,10 +91,10 @@ def test_sources_are_tagged_and_ignored_folders_skipped():
 
 
 def test_lexer_masks_comments_strings_and_nested_kotlin_comments():
-    code = Code.of('/* a /* b */ c */ val s = "x}" // d\n', kotlin=True)
+    code = Code.of('/* a /* b */ c */ val s = "x}" // d\n', KOTLIN)
     assert code.masked.strip().startswith("val s =") and "}" not in code.masked
-    assert literal('"AES/$m"', kotlin=True) is None and literal('"AES/$m"', kotlin=False) == "AES/$m"
-    assert literal('"""raw"""', kotlin=True) == "raw"
+    assert literal('"AES/$m"', KOTLIN) is None and literal('"AES/$m"', JAVA) == "AES/$m"
+    assert literal('"""raw"""', KOTLIN) == "raw"
 
 
 def test_calls_inside_comments_and_strings_are_not_sites(run):
@@ -106,7 +107,7 @@ def test_calls_inside_comments_and_strings_are_not_sites(run):
 
 
 def test_a_call_split_across_lines_keeps_its_exact_text(run):
-    [site] = _sites('val c = Cipher\n    .getInstance(\n  "AES/GCM/NoPadding",\n "Fast")\n', run[1], kotlin=True)
+    [site] = _sites('val c = Cipher\n    .getInstance(\n  "AES/GCM/NoPadding",\n "Fast")\n', run[1], KOTLIN)
     assert site.line == 1 and site.algorithm.literal == "AES/GCM/NoPadding" and site.provider.literal == "Fast"
     assert site.call == 'Cipher\n    .getInstance(\n  "AES/GCM/NoPadding",\n "Fast")'
 
@@ -120,12 +121,12 @@ def test_a_call_split_across_lines_keeps_its_exact_text(run):
     ("", "not_imported"),
 ])
 def test_import_decides_whether_the_type_is_the_platform_class(text, reason):
-    code = Code.of(text + "x = Cipher.getInstance(a)", kotlin=True)
+    code = Code.of(text + "x = Cipher.getInstance(a)", KOTLIN)
     assert import_reason(code, "Cipher", code.masked.index("Cipher.get")) == reason
 
 
 def test_fully_qualified_names_need_no_import():
-    code = Code.of("x = javax.crypto.Cipher.getInstance(a); y = other.Cipher.getInstance(a)", kotlin=False)
+    code = Code.of("x = javax.crypto.Cipher.getInstance(a); y = other.Cipher.getInstance(a)", JAVA)
     first, second = (i for i in range(len(code.text)) if code.text.startswith("Cipher.get", i))
     assert import_reason(code, "Cipher", first) is None
     assert import_reason(code, "Cipher", second) == "other_qualifier"
@@ -133,17 +134,17 @@ def test_fully_qualified_names_need_no_import():
 
 def test_constants_fold_java_and_kotlin():
     java = Constants(Code.of('class A { private static final String M = "GCM";\n'
-                             'static final String T = "AES/" + M + "/NoPadding"; String inst = "x"; }', False))
+                             'static final String T = "AES/" + M + "/NoPadding"; String inst = "x"; }', JAVA))
     assert java.fold("T") == "AES/GCM/NoPadding" and java.fold("inst") is None and java.fold("A.T") == java.fold("T")
     kotlin = Constants(Code.of('const val A = "x"\nval B = A + "y"\nobject O { val C = "z" }\n'
                                'class K { val D = "w"\n fun f() { val E = "v" } }\n'
-                               'val T = "$A"\n', True))
+                               'val T = "$A"\n', KOTLIN))
     assert (kotlin.fold("B"), kotlin.fold("O.C"), kotlin.fold("D"), kotlin.fold("E"), kotlin.fold("T")) == \
         ("xy", "z", None, None, None)
 
 
 def test_a_name_declared_twice_is_not_folded():
-    c = Constants(Code.of('class A { static final String X = "a"; void f() { String X = "b"; } }', False))
+    c = Constants(Code.of('class A { static final String X = "a"; void f() { String X = "b"; } }', JAVA))
     assert c.fold("X") is None
 
 
@@ -211,3 +212,21 @@ def test_command_refuses_a_gate_failure_and_a_path_name(tmp_path, capsys):
     assert "not_android_project" in capsys.readouterr().err
     with pytest.raises(SystemExit):
         main(["--manifest", str(MANIFEST), "--app", str(APP), "--run", str(tmp_path), "--name", "../x"])
+
+
+def test_an_argument_next_to_a_comment_is_still_a_literal(run):
+    [site] = _sites('Object c = Cipher.getInstance(\n  "AES/GCM/NoPadding", // why\n  /* who */ "Fast");\n', run[1])
+    assert (site.algorithm.expr, site.provider.expr) == ('"AES/GCM/NoPadding"', '"Fast"')
+    assert (site.algorithm.literal, site.provider.literal) == ("AES/GCM/NoPadding", "Fast")
+
+
+def test_a_kotlin_constant_with_a_trailing_comment_folds():
+    assert Constants(Code.of('const val A = "x" // note\n', KOTLIN)).fold("A") == "x"
+
+
+def test_one_expression_end_with_the_continuations_as_a_parameter():
+    code = Code.of('val a = "x" +\n  "y"\nval b = 1\n', KOTLIN)
+    assert code.text[8:code.expression_end(8, ("+",), ("+",))] == '"x" +\n  "y"'
+    assert code.text[8:code.expression_end(8, (), ())] == '"x" +'
+    java = Code.of('String a = "x"\n  + "y"; int b;', JAVA)
+    assert java.text[10:java.expression_end(10, (), ())] == ' "x"\n  + "y"'

@@ -8,18 +8,7 @@ from ..dto.site import METRICS, SCHEMA_VERSION, Replacement, Scope
 from ..files import write_text
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
-from .edit import language, lex, line_offsets, read_source
-
-
-def function_lines(text: str, start: int, end: int) -> str:
-    """Lines `start..end`, 1-based inclusive; edits keep line numbers, so one range serves both copies."""
-    starts = line_offsets(text)
-    return text[starts[start - 1]:starts[end] if end < len(starts) else len(text)]
-
-
-def import_lines(text: str) -> list[str]:
-    masked = lex(text).masked.splitlines()
-    return [line.strip() for line, code in zip(text.splitlines(), masked) if code.lstrip().startswith("import ")]
+from .edit import function_lines, import_lines, language, read_source
 
 
 def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
@@ -38,14 +27,14 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
         lang = language(scope.file)
         original = read_source(out.original / scope.file)
         patched = read_source(out.patched / scope.file)
-        imports = import_lines(original)
-        names = load(lang)
+        imports = import_lines(original, lang)
+        names = load(lang.name)
         uses = set()
         for text in (original, patched):
             uses |= set(dependencies(function_lines(text, scope.start, scope.end), lang, imports, names))
         entries.append({
             "id": scope.id,
-            "language": lang,
+            "language": lang.name,
             "function": scope.function,
             "before": _extract(out, scope, "before", original),
             "after": _extract(out, scope, "after", patched),

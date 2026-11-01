@@ -17,7 +17,7 @@ Command: `python3 -m perfrepair.repair <step> --run <run> --app <app>`; every st
 | Kind | Fields | Change |
 |---|---|---|
 | `set_provider` | `provider` | a string provider argument or the literal inside `getProvider("X")` replaced; appended when the call has one argument |
-| `set_algorithm` | `parameters.algorithm` | the literal first argument replaced |
+| `set_algorithm` | `algorithm` | the literal first argument replaced |
 | `pin_parameters` | `parameters`: spec fields | the spec in `repair/edit/specs.yaml` whose fields cover the keys, appended to the one `init` on the engine; an existing spec of that class keeps its unpinned arguments |
 
 - A scope's call is re-found on `scope.line`, inside lines `scope.start..scope.end`, by its text with whitespace and comments ignored.

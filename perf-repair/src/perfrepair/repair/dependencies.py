@@ -7,8 +7,9 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from ..app.lexer import mask
+from ..dto.language import Language
 from ..files import read_yaml
-from .edit import lex
 
 TABLE = Path(__file__).with_name("names.yaml")
 _TOKEN = re.compile(r"[A-Za-z_]\w*|->|==|!=|<=|>=|\S")
@@ -47,8 +48,8 @@ def _lambda_parameter(tokens: list[str], i: int) -> bool:
     return j < len(tokens) and tokens[j] == "->"
 
 
-def dependencies(function: str, language: str, imports: list[str], names: Names) -> list[str]:
-    tokens = _TOKEN.findall(lex(function).masked)
+def dependencies(function: str, language: Language, imports: list[str], names: Names) -> list[str]:
+    tokens = _TOKEN.findall(mask(function, language))
     typed = lambda t: t == "]" or (bool(_IDENT.fullmatch(t)) and (t not in names.keywords or t in names.types))
     used, declared = set(), set()
     first_call = next((i - 1 for i, t in enumerate(tokens) if t == "(" and i), None)
@@ -61,7 +62,7 @@ def dependencies(function: str, language: str, imports: list[str], names: Names)
         if prev == "@" or (prev == "." and before not in {"this", "super"}):
             continue
         if (i == first_call or prev in {"val", "var", "fun"} or (typed(prev) and after in _DECLARED_BEFORE)
-                or (prev in {"(", ","} and after == ":" and language == "kotlin")
+                or (prev in {"(", ","} and after == ":" and language.colon_types)
                 or (prev == "(" and before == "for") or _lambda_parameter(tokens, i)):
             declared.add(t)
         else:

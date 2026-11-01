@@ -4,6 +4,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from ..dto.language import of_build_file
 from .lexer import mask, matching
 from .sources import CATALOG
 
@@ -46,7 +47,7 @@ def _block(text: str) -> str:
 
 def sdk_levels(build_files: list[Path]) -> dict[str, int | None]:
     """{'minSdk', 'targetSdk'}: one value when every application module agrees, else None."""
-    texts = {p: mask(p.read_text(errors="replace"), kotlin=p.suffix == ".kts", strings=False)
+    texts = {p: mask(p.read_text(errors="replace"), of_build_file(p.name), strings=False)
              for p in build_files if p.name != CATALOG}
     catalogs = [p.read_text(errors="replace") for p in build_files if p.name == CATALOG]
     every = [*texts.values(), *catalogs]

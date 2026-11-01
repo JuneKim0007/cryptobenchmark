@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from ..dto.site import Replacement, Scope
+from ..dto.site import Replacement, Scope, read_replacements
 from ..files import read_json, write_json, write_text
 from ..run_dir import AppPaths
 from ..validation.repair import validate_edits, validate_harness
@@ -46,7 +46,7 @@ def _test_set(a: argparse.Namespace) -> int:
 
 def _load(paths: AppPaths) -> tuple[dict[str, Scope], dict[str, Replacement]]:
     scopes = {s["id"]: Scope.from_json(s) for s in read_json(paths.scopes)["scopes"]}
-    replacements = {r["scope"]: Replacement.from_json(r) for r in read_json(paths.replacements)["replacements"]}
+    replacements = read_replacements(read_json(paths.replacements))
     return scopes, replacements
 
 

@@ -45,7 +45,7 @@ def detect(app: AppRoot, index: ProbeIndex, providers: list[ProviderEntry]) -> D
             out.testFiles += 1
             continue
         out.files += 1
-        code = Code.of(f.path.read_text(errors="replace"), f.kotlin)
+        code = Code.of(f.path.read_text(errors="replace"), f.language)
         out.registers += registrations(code, f.rel)
         if pattern is None:
             continue

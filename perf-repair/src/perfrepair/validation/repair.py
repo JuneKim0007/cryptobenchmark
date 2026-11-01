@@ -3,13 +3,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ..dto.language import NAMES
 from ..dto.site import METRICS, SCHEMA_VERSION
 
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
                 "algorithm_not_literal", "no_init", "ambiguous_init", "missing_parameter",
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
                 "no_change", "overlapping_edits")
-LANGUAGES = ("java", "kotlin")
 HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "option", "metrics",
                 "dependencies")
 
@@ -62,7 +62,7 @@ def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
         if tuple(s) != HARNESS_KEYS:
             problems.append(f"{where}: keys {list(s)}")
             continue
-        if s["language"] not in LANGUAGES:
+        if s["language"] not in NAMES:
             problems.append(f"{where}: language {s['language']!r}")
         paths = [base / s[side] for side in ("before", "after")]
         if not all(p.is_file() for p in paths):

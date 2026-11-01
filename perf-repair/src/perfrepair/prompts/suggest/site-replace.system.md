@@ -63,14 +63,9 @@ JSON only, matching the schema:
   `keep`.
 - `edits`: for `replace`, the edits that apply the option, each kind at most once; `[]` for
   `keep`. Each edit has `kind`, `provider`, `algorithm` and `parameters`; a field the kind does
-  not use is `""` or `[]`:
-  - `set_provider`: `provider` is the option's provider exactly as listed. Required when the
-    option's provider differs from the current one.
-  - `set_algorithm`: `algorithm` is the option's name exactly as listed. Required when the
-    option's name differs from the current one.
-  - `pin_parameters`: `parameters` holds every pin of the option as
-    `{name, value}`, written exactly as listed, and nothing else. Required when the option lists
-    pins; not allowed when it lists none. You never choose parameter values.
+  not use is `""` or `[]`. The task's EDIT KINDS list gives each kind's field, the value it
+  takes from the option, and when it is required. Values are copied exactly as listed; you never
+  choose parameter values.
 - `risks`: from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`; for
   `replace`, at least those the scope facts list; `[]` when none applies.
 - `reason`: one or two sentences citing the metric and number.
@@ -80,8 +75,7 @@ JSON only, matching the schema:
 Code refuses an answer when the decision is not `replace` or `keep`; when `replace` names an
 alias that is not listed, an option whose pins are unknown, or no edit; when `keep` names an option or edits; when an edit kind is
 not one of the edit kinds listed, is given twice, or fills a field its kind does not use; when
-`set_provider` or `set_algorithm` names another provider or name than the option's, or is missing
-while the option's provider or name differs from the current one; when `pin_parameters` adds,
-drops or changes a pin, or is missing while the option lists pins; when a risk is not one of the
+an edit's value is not the option's value for its field (a pin added, dropped or changed counts),
+or a kind is missing while EDIT KINDS says it is required; when a risk is not one of the
 four; when a `replace` leaves out a risk the scope facts list; or when the reason is empty. A refused answer is asked
 again with the reasons; after the last attempt the site is recorded as `keep`.

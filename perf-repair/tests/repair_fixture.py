@@ -31,7 +31,7 @@ def provider(name: str) -> Edit:
 
 
 def algorithm(name: str) -> Edit:
-    return Edit("set_algorithm", parameters={"algorithm": name})
+    return Edit("set_algorithm", algorithm=name)
 
 
 def pins(**values) -> Edit:

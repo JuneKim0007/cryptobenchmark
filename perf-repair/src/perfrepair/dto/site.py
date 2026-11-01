@@ -5,9 +5,10 @@ import json
 from dataclasses import asdict, dataclass
 
 SCHEMA_VERSION = 1
+# 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm
+REPLACEMENTS_SCHEMA_VERSION = 2
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
-EDIT_KINDS = ("set_provider", "set_algorithm", "pin_parameters")
 DECISIONS = ("replace", "keep")
 METRICS = ("timeNs", "allocationCount", "energyUj")
 NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available")
@@ -117,9 +118,37 @@ class Dossier:
 
 
 @dataclass(frozen=True)
+class EditKind:
+    """`field` of an Edit is the one this kind fills, with the chosen option's `takes`; the other fields stay empty."""
+    field: str
+    takes: str
+    phrase: str
+    meaning: str
+    value: str
+    required: str
+
+
+EDIT_FIELDS = ("provider", "algorithm", "parameters")
+EDIT_KIND_TABLE = {
+    "set_provider": EditKind("provider", "provider", "is provided by",
+                             "construct the call's engine from the chosen option's provider", "that name exactly",
+                             "when the option's provider differs from the current one"),
+    "set_algorithm": EditKind("algorithm", "algorithm", "is named",
+                              "request the chosen option's name instead of the current one", "that name exactly",
+                              "when the option's name differs from the current one"),
+    "pin_parameters": EditKind("parameters", "pins", "lists",
+                               "state the option's pins at the call so the result stays like-for-like",
+                               "every pin as {name, value}, exactly as listed",
+                               "when the option lists pins; not allowed when it lists none"),
+}
+EDIT_KINDS = tuple(EDIT_KIND_TABLE)
+
+
+@dataclass(frozen=True)
 class Edit:
     kind: str
     provider: str | None = None
+    algorithm: str | None = None
     parameters: dict | None = None
 
 
@@ -141,3 +170,9 @@ class Replacement:
     def from_json(cls, d: dict) -> "Replacement":
         return cls(d["scope"], d["decision"], d.get("option"), tuple(Edit(**e) for e in d.get("edits") or ()),
                    tuple(d.get("risks") or ()), d["reason"])
+
+
+def read_replacements(doc: dict) -> dict[str, Replacement]:
+    if doc.get("schemaVersion") != REPLACEMENTS_SCHEMA_VERSION:
+        raise ValueError(f"replacements schemaVersion {doc.get('schemaVersion')} is not {REPLACEMENTS_SCHEMA_VERSION}")
+    return {r["scope"]: Replacement.from_json(r) for r in doc["replacements"]}

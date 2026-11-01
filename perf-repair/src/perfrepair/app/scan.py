@@ -4,6 +4,7 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass
 
+from ..dto.language import Language
 from .lexer import Code, literal
 
 _GET_PROVIDER = re.compile(r'getProvider\s*\((.*)\)\s*$', re.S)
@@ -46,10 +47,10 @@ def provider_inner(expr: str) -> str | None:
     return m.group(1).strip() if m else None
 
 
-def argument(expr: str, kotlin: bool, provider: bool = False) -> Argument:
-    value = literal(expr, kotlin)
+def argument(expr: str, language: Language, provider: bool = False) -> Argument:
+    value = literal(expr, language)
     if value is None and provider and (inner := provider_inner(expr)) is not None:
-        value = literal(inner, kotlin)
+        value = literal(inner, language)
     return Argument(expr, value)
 
 
@@ -63,8 +64,8 @@ def scan(code: Code, rel: str, origin: str, pattern: re.Pattern) -> list[Site]:
         line = code.line(m.start())
         sites.append(Site(
             file=rel, line=line, engineType=m.group(1),
-            algorithm=argument(args[0], code.kotlin),
-            provider=argument(args[1], code.kotlin, provider=True) if len(args) > 1 else None,
+            algorithm=argument(args[0], code.language),
+            provider=argument(args[1], code.language, provider=True) if len(args) > 1 else None,
             snippet=code.line_text(line).strip(), call=code.text[m.start():close + 1], origin=origin,
             offset=m.start()))
     return sites

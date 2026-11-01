@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from ...dto.language import Language
 from ...files import read_yaml
 from .literal import string_literal
 from .reject import Rejected
@@ -50,10 +51,10 @@ class Table:
             raise Rejected("unknown_parameters")
         return hits[0]
 
-    def new(self, cls: str, args: list[str], language: str) -> str:
-        return self.construct[language].replace("{class}", cls).replace("{args}", ", ".join(args))
+    def new(self, cls: str, args: list[str], language: Language) -> str:
+        return self.construct[language.name].replace("{class}", cls).replace("{args}", ", ".join(args))
 
-    def render(self, f: Field, value, language: str) -> str:
+    def render(self, f: Field, value, language: Language) -> str:
         """A pinned value as code; `constant` fields come only from the table, never from the model."""
         if f.type == "int" and type(value) is int:
             return str(value)
@@ -62,10 +63,10 @@ class Table:
         if f.type == "spec" and isinstance(value, str):
             return self.new(f.cls, [string_literal(value, language)], language)
         if f.type == "random_bytes" and type(value) is int and value > 0:
-            return self.random_bytes[language].replace("{n}", str(value))
+            return self.random_bytes[language.name].replace("{n}", str(value))
         raise Rejected("unknown_parameters")
 
-    def default(self, f: Field, language: str) -> str:
+    def default(self, f: Field, language: Language) -> str:
         if f.default is None:
             raise Rejected("missing_parameter")
         return f.default if f.type == "constant" else self.render(f, f.default, language)

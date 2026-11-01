@@ -20,16 +20,15 @@
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--run --app`
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens
 src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements → apps/<app>/dossiers.json, validated before writing
-src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, lex, line_offsets
+src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
 src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies; edits.json document
-src/perfrepair/repair/edit/calls.py : a call's closing parenthesis and top-level argument spans
 src/perfrepair/repair/edit/init.py : the one init call on the engine a scope's call returns
-src/perfrepair/repair/edit/lexer.py : Java and Kotlin source classed as code, literal or comment; masked copy
+src/perfrepair/repair/edit/lines.py : whole lines of a source: a function's line range, its import lines
 src/perfrepair/repair/edit/literal.py : a string rendered as a Java or Kotlin literal
-src/perfrepair/repair/edit/locate.py : a scope's function span and its call re-found in today's source
+src/perfrepair/repair/edit/locate.py : a scope's function span and its call re-found with the scope step's lexer; argument spans or a coded rejection
 src/perfrepair/repair/edit/parameters.py : pin_parameters: the init's parameter spec rendered or its pinned fields overridden
-src/perfrepair/repair/edit/plan.py : one scope's edits turned into splices, or a coded rejection
+src/perfrepair/repair/edit/plan.py : one scope's edits turned into splices through the kind → apply function table, or a coded rejection
 src/perfrepair/repair/edit/provider.py : set_provider: the provider argument rewritten or appended
 src/perfrepair/repair/edit/reject.py : the coded rejection an edit raises
 src/perfrepair/repair/edit/specs.py : specs.yaml loaded: spec choice by pinned fields, field rendering

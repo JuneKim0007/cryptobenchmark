@@ -25,7 +25,7 @@ src/perfrepair/app/dependencies.py : declared crypto libraries from Gradle and t
 src/perfrepair/app/detect.py : the detect step: non-test sources → import-checked, constant-folded, resolved sites
 src/perfrepair/app/gate.py : app root gate: directory, readable, Android project, no escaping symlink, size caps; coded reasons
 src/perfrepair/app/imports.py : whether a type name is the java.security / javax.crypto class
-src/perfrepair/app/lexer.py : comment and string masking for Java and Kotlin; literals; bracket matching; call arguments
+src/perfrepair/app/lexer.py : the one Java and Kotlin lexer: per-char code/literal/comment classes, masking, literals, bracket matching, argument spans, expression end
 src/perfrepair/app/libraries.yaml : artifact group and name prefix → JCA provider name
 src/perfrepair/app/resolve.py : a site's provider and canonical algorithm, explicit or by manifest precedence
 src/perfrepair/app/scan.py : getInstance calls in one file, across lines; Site and Argument

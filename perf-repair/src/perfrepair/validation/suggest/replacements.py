@@ -1,8 +1,8 @@
 """replacements: each one names a known scope, a well-formed decision, and edits that apply its option exactly."""
 from __future__ import annotations
 
-from ...dto.grouping import algorithm_of, provider_of
-from ...dto.site import DECISIONS, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
+from ...dto.site import DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
+from .replace import required_kinds, takes
 
 SOURCES = ("llm", "fallback", "static")
 
@@ -17,15 +17,13 @@ def _edits(r: Replacement, d: Dossier) -> list[str]:
     problems = []
     if not kinds or len(set(kinds)) != len(kinds) or set(kinds) - set(EDIT_KINDS):
         problems.append(f"{r.scope}: edit kinds {kinds} are not distinct kinds of {EDIT_KINDS}")
-    for e in r.edits:
-        if e.kind == "set_provider" and (e.provider != provider_of(option.item) or e.parameters):
-            problems.append(f"{r.scope}: set_provider is not exactly the option's provider")
-        if e.kind == "set_algorithm" and (e.parameters != {"algorithm": algorithm_of(option.item)} or e.provider):
-            problems.append(f"{r.scope}: set_algorithm is not exactly the option's algorithm")
-        if e.kind == "pin_parameters" and (e.parameters != option.pins or e.provider):
-            problems.append(f"{r.scope}: pin_parameters is not exactly the option's pins")
-    if option.pins and "pin_parameters" not in kinds:
-        problems.append(f"{r.scope}: the option's pins are not applied")
+    for e in (e for e in r.edits if e.kind in EDIT_KIND_TABLE):
+        row = EDIT_KIND_TABLE[e.kind]
+        if (getattr(e, row.field) != takes(e.kind, option.item, option.pins)
+                or any(getattr(e, f) for f in EDIT_FIELDS if f != row.field)):
+            problems.append(f"{r.scope}: {e.kind} is not exactly the option's {row.takes}")
+    problems += [f"{r.scope}: the option's {EDIT_KIND_TABLE[k].takes} needs {k}, which is not applied"
+                 for k in required_kinds(option, d.current) if k not in kinds]
     problems += [f"{r.scope}: risk {k} implied by the scope is not declared" for k in required_risks(d.scope)
                  if k not in r.risks]
     return problems

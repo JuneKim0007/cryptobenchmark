@@ -6,7 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-SOURCE_SUFFIXES = (".java", ".kt")
+from ..dto.language import SOURCE_SUFFIXES, Language, of_file
+
 BUILD_NAMES = ("build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradle.properties")
 CATALOG = "libs.versions.toml"
 IGNORED_DIRS = frozenset({"build", ".gradle", ".git", ".idea", "node_modules"})
@@ -22,8 +23,8 @@ class SourceFile:
     origin: str
 
     @property
-    def kotlin(self) -> bool:
-        return self.path.suffix == ".kt"
+    def language(self) -> Language:
+        return of_file(self.path.name)
 
 
 def walk(root: Path):

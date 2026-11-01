@@ -1,6 +1,8 @@
+import pytest
 import yaml
 
-from perfrepair.dto.site import Edit
+from perfrepair.dto import language
+from perfrepair.dto.site import Edit, read_replacements
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
@@ -19,7 +21,7 @@ def setup_run(tmp_path):
     paths = AppPaths(tmp_path, APP)
     paths.root.mkdir(parents=True)
     write_json(paths.scopes, {"schemaVersion": 1, "app": APP, "scopes": [s.to_json() for s in SCOPES]})
-    write_json(paths.replacements, {"schemaVersion": 1, "app": APP, "replacements": [
+    write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
         replace(LITERAL, provider("Fast")).to_json(), replace(NESTED, provider("Fast")).to_json(),
         replace(TWICE, pins(tagBits=128)).to_json(), replace(TEMPLATE, provider("Fast"), option="9").to_json()]})
     return paths
@@ -67,9 +69,9 @@ def test_both_steps_are_deterministic(tmp_path):
 
 def test_dependencies_skip_locals_parameters_lambdas_and_imports():
     java = "byte[] f(byte[] in) {\n  int n = in.length;\n  for (byte b : in) { n += b; }\n  return this.key.x(n, helper(in), (a, c) -> a);\n}\n"
-    assert dependencies(java, "java", ["import a.b.Helper;"], load("java")) == ["helper", "key"]
+    assert dependencies(java, language.JAVA, ["import a.b.Helper;"], load("java")) == ["helper", "key"]
     kotlin = "fun g(x: Int): Int {\n  val y = x + offset\n  return listOf(y).map { it + 1 }.sum()\n}\n"
-    assert dependencies(kotlin, "kotlin", [], load("kotlin")) == ["offset"]
+    assert dependencies(kotlin, language.KOTLIN, [], load("kotlin")) == ["offset"]
 
 
 def test_validators_refuse_broken_documents(tmp_path):
@@ -86,7 +88,12 @@ def test_validators_refuse_broken_documents(tmp_path):
 
 def test_an_unknown_edit_kind_is_rejected(tmp_path):
     paths = setup_run(tmp_path)
-    write_json(paths.replacements, {"schemaVersion": 1, "app": APP, "replacements": [
+    write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
         replace(LITERAL, Edit("rename_class")).to_json()]})
     assert main(["edit", "--run", str(tmp_path), "--app", APP, "--source", str(ROOT)]) == 0
     assert read_json(paths.edits)["edits"][0]["reason"] == "unsupported_kind"
+
+
+def test_a_replacements_file_of_another_version_is_refused():
+    with pytest.raises(ValueError, match="replacements schemaVersion 1 is not 2"):
+        read_replacements({"schemaVersion": 1, "app": APP, "replacements": []})

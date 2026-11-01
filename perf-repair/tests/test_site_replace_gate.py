@@ -82,7 +82,7 @@ def test_messages_never_name_an_item_id_the_model_was_not_asked_for():
 def test_set_algorithm_resolves_to_the_option_name():
     decision, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")]))
     assert problems == [] and decision["edits"] == [{"kind": "set_algorithm", "provider": None,
-                                                     "parameters": {"algorithm": "ALG-B"}}]
+                                                     "algorithm": "ALG-B", "parameters": None}]
 
 
 def test_the_model_may_add_risks_beyond_the_derived_ones():
