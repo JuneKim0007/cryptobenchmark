@@ -6,7 +6,9 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import interop_stage  # noqa: E402
-from device import FILES, DeviceError  # noqa: E402
+from device import DeviceError  # noqa: E402
+
+FILES = "/sdcard/plan"
 
 RESULT = {"schemaVersion": 1, "pairs": [
     {"id": 1, "group": "oaep", "result": "fail", "reason": "aToB: BadPaddingException"},
@@ -16,7 +18,7 @@ RESULT = {"schemaVersion": 1, "pairs": [
 class FakeDevice:
 
     def __init__(self, output):
-        self.output, self.calls = output, []
+        self.output, self.calls, self.files = output, [], FILES
 
     def shell(self, command):
         self.calls.append(("shell", command))

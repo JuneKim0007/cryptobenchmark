@@ -9,7 +9,7 @@ selection:                       # required
 run:                             # optional — every key below falls back to its default
   inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call; one case per size (types that take no input ignore it)
   phases: [WARM]                 # optional, default [WARM] — WARM | COLD
-  metrics: [TIME]                # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS (rooted device)
+  metrics: [TIME]                # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS (rooted device); what benchmark.json reports, the device always runs its allocation phase
   processRepetitions: 1          # optional, default 1 — independent process runs
   seed: 0                        # optional, default 0 — seeds the input bytes
   harness:                       # optional — the run's defaults; an entry states only what differs

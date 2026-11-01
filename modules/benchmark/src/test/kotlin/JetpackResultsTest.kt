@@ -61,8 +61,10 @@ class JetpackResultsTest {
     }
 
     @Test
-    fun aMetricThePlanDidNotAskForIsNotCarried() {
+    fun timeOnlyDropsTheAllocationPhaseAndroidxAlwaysRuns() {
         val timeOnly = plan().replace("metrics: [TIME, ALLOCATION]", "metrics: [TIME]")
+        val written = CaseDocument.sections(CaseDocument.load(data())["benchmarks"]).first { "SHA-256" in it["name"].toString() }
+        assertEquals(true, MetricSamples.ALLOCATIONS in CaseDocument.section(written["metrics"]))
         val row = JetpackResults.convert(data(), timeOnly).rows.single { it.algorithm == "SHA-256" }
         assertEquals(listOf(MetricSamples.TIME), row.metrics.keys.toList())
     }

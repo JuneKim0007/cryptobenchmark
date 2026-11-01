@@ -3,9 +3,7 @@ import os, pathlib, re, subprocess
 
 PACKAGE = "io.github.junekim0007.cryptobench"
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-FILES = f"/sdcard/Android/data/{PACKAGE}/files/cryptobench"   # DevicePlan.directory
-MEDIA = f"/sdcard/Android/media/{PACKAGE}"                     # androidx.benchmark's output directory
-DATA = f"{MEDIA}/{PACKAGE}-benchmarkData.json"
+PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
 CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
 SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
@@ -22,6 +20,15 @@ def measure_arguments(suppress, metrics):
 
 class DeviceError(Exception):
     pass
+
+
+def directories(sdk):
+    """(plan directory, androidx output directory) at this API level; paired with DeviceDirectory.kt."""
+    if sdk >= 29:
+        media = f"/sdcard/Android/media/{PACKAGE}"
+        return f"{media}/{PLAN_DIRECTORY}", media
+    data = f"/sdcard/Android/data/{PACKAGE}"
+    return f"{data}/files/{PLAN_DIRECTORY}", f"{data}/cache"
 
 
 def android_home():
@@ -61,6 +68,11 @@ class Device:
         state = self.run("get-state", check=False)
         if state.stdout.strip() != "device":
             raise DeviceError(f"no_device: adb get-state: {(state.stderr or state.stdout).strip()}")
+        sdk = self.shell("getprop ro.build.version.sdk").strip()
+        if not sdk.isdigit():
+            raise DeviceError(f"no_sdk: getprop ro.build.version.sdk printed {sdk!r}")
+        self.files, self.media = directories(int(sdk))
+        self.data = f"{self.media}/{PACKAGE}-benchmarkData.json"
 
     def install(self, properties=()):
         command = [str(self.root / "gradlew"), "-p", str(self.root), *properties, ":android:installRelease", ":android:installReleaseAndroidTest"]
@@ -99,20 +111,20 @@ class Device:
         if result.returncode != 0:
             reason = (result.stderr or result.stdout).strip()
             if "Permission denied" in reason:
-                reason += "; shell reads the app's files through group ext_data_rw, which only a directory the app created carries"
+                reason += "; shell reaches the app's files only in a directory the app created"
             raise DeviceError(f"adb pull {remote}: {reason}")
 
     def probe(self, discovery, arguments=()):
         # The app must create its own directory: one made by shell is not writable by the app's uid.
-        self.shell(f"rm -rf {FILES}")
-        self.shell(f"rm -f {MEDIA}/*-benchmarkData.json")
+        self.shell(f"rm -rf {self.files}")
+        self.shell(f"rm -f {self.media}/*-benchmarkData.json")
         output = self.instrument("DeviceProbe", *arguments)
         if "OK (1 test)" not in output:
             raise DeviceError("DeviceProbe failed on the device:\n" + instrumentation_report(output))
-        self.pull(f"{FILES}/.", discovery)
+        self.pull(f"{self.files}/.", discovery)
 
     def push_plan(self, *files):
-        self.run("push", *map(str, files), f"{FILES}/")
+        self.run("push", *map(str, files), f"{self.files}/")
         # Without androidx.benchmark's gradle plugin nothing AOT-compiles the APKs, and Jetpack fails
         # every case with NOT-AOT-COMPILED.
         for package in (PACKAGE, f"{PACKAGE}.test"):
@@ -121,7 +133,7 @@ class Device:
                 raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
 
     def measure(self, suppress, metrics, data, preparation):
-        self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/prepared.yaml {FILES}/skipped.yaml {FILES}/{CPU_PINS}")
+        self.shell(f"rm -f {self.media}/*-benchmarkData.json {self.media}/*.perfetto-trace {self.media}/*.trace {self.files}/prepared.yaml {self.files}/skipped.yaml {self.files}/{CPU_PINS}")
         arguments = measure_arguments(suppress, metrics)
         output = self.instrument("CryptoBenchmark", *arguments)
         if not re.search(r"^OK \(\d+ tests?\)", output, re.M):
@@ -133,20 +145,20 @@ class Device:
             stale.unlink(missing_ok=True)
         data.parent.mkdir(parents=True, exist_ok=True)
         preparation.mkdir(parents=True, exist_ok=True)
-        self.pull(DATA, data)
+        self.pull(self.data, data)
         self.pull_plan(preparation)
         pins = data.parent / CPU_PINS
         pins.unlink(missing_ok=True)
-        self.run("pull", f"{FILES}/{CPU_PINS}", str(pins), check=False)
+        self.run("pull", f"{self.files}/{CPU_PINS}", str(pins), check=False)
 
     def pull_plan(self, preparation):
         preparation.mkdir(parents=True, exist_ok=True)
-        self.pull(f"{FILES}/prepared.yaml", preparation / "prepared.yaml")
-        self.pull(f"{FILES}/skipped.yaml", preparation / "skipped.yaml")
+        self.pull(f"{self.files}/prepared.yaml", preparation / "prepared.yaml")
+        self.pull(f"{self.files}/skipped.yaml", preparation / "skipped.yaml")
 
     def measure_scoped(self, suppress, metrics, data, interop):
         """ScopedBenchmark: interop verdicts always; benchmarkData.json only when a scope was measured."""
-        self.shell(f"rm -f {MEDIA}/*-benchmarkData.json {MEDIA}/*.perfetto-trace {MEDIA}/*.trace {FILES}/{SCOPED_INTEROP} {FILES}/{CPU_PINS}")
+        self.shell(f"rm -f {self.media}/*-benchmarkData.json {self.media}/*.perfetto-trace {self.media}/*.trace {self.files}/{SCOPED_INTEROP} {self.files}/{CPU_PINS}")
         arguments = measure_arguments(suppress, metrics)
         output = self.instrument("ScopedBenchmark", *arguments)
         data.parent.mkdir(parents=True, exist_ok=True)
@@ -158,11 +170,11 @@ class Device:
             if not counted or counted.group(1) == counted.group(2):
                 raise DeviceError("ScopedBenchmark failed on the device:\n" + instrumentation_report(output))
             print("warning: ScopedBenchmark: " + instrumentation_report(output).replace("\n", "\nwarning: "))
-        self.pull(f"{FILES}/{SCOPED_INTEROP}", interop)
+        self.pull(f"{self.files}/{SCOPED_INTEROP}", interop)
         if ran and ran.group(1) == "0":
             return False
-        self.pull(DATA, data)
+        self.pull(self.data, data)
         pins = data.parent / CPU_PINS
         pins.unlink(missing_ok=True)
-        self.run("pull", f"{FILES}/{CPU_PINS}", str(pins), check=False)
+        self.run("pull", f"{self.files}/{CPU_PINS}", str(pins), check=False)
         return True

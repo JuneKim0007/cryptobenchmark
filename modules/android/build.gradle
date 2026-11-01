@@ -50,17 +50,56 @@ kotlin {
 // -PbundledArtifacts=group:name:version,... : providers an app ships; scripts/pipeline.py reads them from global.yaml.
 def bundledArtifacts = (findProperty('bundledArtifacts') ?: '').toString().split(',').collect { it.trim() }.findAll { it }
 
+// The androidx benchmark version is set only here; harness.md and measure.md name it.
+def benchmarkVersion = '1.5.0'
+
+configurations {
+    benchmarkCommonAar { transitive = false }
+}
+
+// Below API 29 androidx runs its own tracebox from the test APK's assets, but AGP leaves
+// benchmark-common out of the test APK because the app already ships it.
+abstract class TraceboxAssets extends DefaultTask {
+    @InputFiles abstract ConfigurableFileCollection getAar()
+    @OutputDirectory abstract DirectoryProperty getOutputDir()
+    @Inject abstract ArchiveOperations getArchives()
+    @Inject abstract FileSystemOperations getFileSystem()
+
+    @TaskAction
+    void extract() {
+        fileSystem.sync {
+            from(archives.zipTree(aar.singleFile)) {
+                include 'assets/tracebox_*'
+                eachFile { it.path = it.name }
+            }
+            includeEmptyDirs = false
+            into outputDir
+        }
+    }
+}
+
+def traceboxAssets = tasks.register('traceboxAssets', TraceboxAssets) {
+    aar.from(configurations.benchmarkCommonAar)
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.androidTest?.sources?.assets?.addGeneratedSourceDirectory(traceboxAssets) { it.outputDir }
+    }
+}
+
 dependencies {
     bundledArtifacts.each { implementation it }
     // The app APK is a pure instrumentation target: it holds no measured code, but
     // AndroidBenchmarkRunner launches androidx.benchmark's IsolationActivity inside it,
     // so the library's manifest has to merge into the app, not only into the test APK.
-    implementation 'androidx.benchmark:benchmark-junit4:1.5.0'
+    implementation "androidx.benchmark:benchmark-junit4:$benchmarkVersion"
     androidTestImplementation project(':benchmark')
     // DeviceProbe writes this device's own capture and trial; without it the only plan a
     // device can be given is a host JVM's, which preparation correctly refuses.
     androidTestImplementation project(':environment:discovery')
-    androidTestImplementation 'androidx.benchmark:benchmark-junit4:1.5.0'
+    androidTestImplementation "androidx.benchmark:benchmark-junit4:$benchmarkVersion"
+    benchmarkCommonAar "androidx.benchmark:benchmark-common:$benchmarkVersion@aar"
     // 1.5.2, not a newer pin: benchmark-junit4 resolves androidx.test:runner strictly at
     // 1.5.2, and AGP keeps the app and androidTest classpaths consistent.
     androidTestImplementation 'androidx.test:runner:1.5.2'

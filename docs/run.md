@@ -81,8 +81,7 @@ python3 scripts/explain.py [--config PATH] [--results DIR]
 |---|---|
 | install | root `gradlew :android:installRelease :android:installReleaseAndroidTest`, plus `-PbundledArtifacts=<artifact>,...` when global.yaml has `providers.bundled` |
 | bundled providers | `DeviceProbe` gets `-e bundledProviders '<json>'`; after configure, `effective.yaml` `bundledProviders` must equal the built list, else `bundled_mismatch` |
-| plan directory | `/sdcard/Android/data/io.github.junekim0007.cryptobench/files/cryptobench` |
-| androidx output | `/sdcard/Android/media/io.github.junekim0007.cryptobench` |
+| plan and androidx output directories | by API level: `modules/android/docs/harness.md#device-directories` |
 | AOT compile | `cmd package compile -f -m speed` on both APKs |
 | profiler | `-e androidx.benchmark.profiling.mode None` |
 | pull | whole plan directory into `discovery/` |
