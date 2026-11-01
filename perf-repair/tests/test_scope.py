@@ -118,9 +118,11 @@ def test_validators_catch_a_tampered_scope_and_app(scopes):
     problems = validate_scopes(doc)
     assert any("id is not scope_id" in p for p in problems) and any("outside" in p for p in problems)
     assert any("sinks" in p for p in problems)
-    assert validate_app_facts({"schemaVersion": 1, "app": "a", "root": "r", "bundled": [{"artifact": 1}],
+    assert validate_app_facts({"schemaVersion": 1, "app": "a", "root": "r", "projectRoot": ".", "bundled": [{"artifact": 1}],
                                "registers": [], "minSdk": "24", "targetSdk": None}) == [
         "app.json: minSdk is not int or null", "bundled[0]: artifact is not str"]
+    assert validate_app_facts({"schemaVersion": 1, "app": "a", "root": "r", "bundled": [], "registers": []}) == [
+        "app.json: projectRoot is not str"]
 
 
 def test_validate_run_reads_app_folders(scopes):
