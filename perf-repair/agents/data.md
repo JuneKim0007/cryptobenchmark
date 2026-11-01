@@ -8,6 +8,9 @@
 - dto: no I/O; every file-level document carries `schemaVersion` and its reader refuses another.
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
+- names: every algorithm-name comparison goes through `catalog/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.
+- names: a spelling goes in `catalog/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
+- names: a probe alias the catalog or another provider contradicts is `name_conflict` where it is used, never a pick.
 
 ## Workflow
 - add an artifact: dto → name in `src/perfrepair/run_dir.py` → validator (`agents/validation.md`) → row in `docs/artifacts.md`
@@ -15,10 +18,13 @@
 ## File structure
 
 ```
+src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
+src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), fold, key formats, name_conflict
+src/perfrepair/catalog/probe_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
-src/perfrepair/data_handler/inbound/probe_index.py : probe → engine types and name/alias index per provider
+src/perfrepair/data_handler/inbound/probe_index.py : probe → engine types and the name each provider registers for a spelling
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and Summaries with runs per process; comparability notes
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py; returns the manifest path

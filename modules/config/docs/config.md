@@ -82,7 +82,8 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | blank part | refused |
 | `group` | needs `name`; may not contain `@` |
 | `provider`, `type` | equal ignoring case; missing = any |
-| `name` | case-insensitive pattern, `*` = any text; missing = any |
+| `name` | same canonical name and key size (`perf-repair/src/perfrepair/catalog/algorithm-names.yaml`), so `SHA256` matches `SHA-256`; missing = any |
+| `name` with `*` | case-insensitive pattern, `*` = any text, against the given or the canonical spelling |
 | error path | e.g. `include[0]`, `overrides[2].match`, `selection.exclude[0]` |
 
 ## Override precedence

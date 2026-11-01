@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ...catalog.names import fold
 from ...files import read_yaml
 
 from dataclasses import dataclass, field
@@ -17,8 +18,8 @@ class ProbeIndex:
     def engine_types(self) -> set[str]:
         return {t for (_, t, _) in self.names}
 
-    def canonical(self, provider: str, engine_type: str, algorithm: str) -> str | None:
-        return self.names.get((provider, engine_type, algorithm.upper()))
+    def registered(self, provider: str, engine_type: str, algorithm: str) -> str | None:
+        return self.names.get((provider, engine_type, fold(algorithm)))
 
 
 def read_probe_index(path: Path) -> ProbeIndex:
@@ -29,5 +30,5 @@ def read_probe_index(path: Path) -> ProbeIndex:
     for p in doc.get("providers") or []:
         for s in p.get("services") or []:
             for n in [s["algorithm"], *(s.get("aliases") or [])]:
-                names.setdefault((p["name"], s["type"], str(n).upper()), s["algorithm"])
+                names.setdefault((p["name"], s["type"], fold(str(n))), s["algorithm"])
     return ProbeIndex(names)

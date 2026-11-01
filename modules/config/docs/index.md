@@ -3,7 +3,7 @@
 ```
 modules/config/.gitignore : ignores /build
 modules/config/README.md : module summary and link to this index
-modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and :settings; passes examples.update to tests
+modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and :settings; perf-repair's algorithm-names.yaml as a resource; passes examples.update to tests
 modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
 modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors
 modules/config/docs/index.md : this map
@@ -43,9 +43,11 @@ modules/config/src/main/kotlin/global/dto/Selection.kt : testSet and global excl
 modules/config/src/main/kotlin/inventory/InventoryBuilder.kt : capture x trial to inventory
 modules/config/src/main/kotlin/inventory/InventoryDocument.kt : inventory.yaml schema
 modules/config/src/main/kotlin/inventory/InventorySourceDocument.kt : capture, trial, device block shared by both generated files
-modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model; rejects case-folded duplicate names
+modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model; rejects two spellings of one canonical name
 modules/config/src/main/kotlin/inventory/dto/InventoryEntry.kt : one observed primitive
 modules/config/src/main/kotlin/inventory/dto/InventorySource.kt : inventory provenance
+modules/config/src/main/kotlin/names/AlgorithmNames.kt : algorithm-names.yaml reader: canonical name and key size, rule name match, identifier fold
+modules/config/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 modules/config/src/main/kotlin/source/CaptureSource.kt : reads a discovery capture file as CaptureView
 modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses
 modules/config/src/main/kotlin/source/TrialSource.kt : reads a discovery trial file as TrialView
@@ -53,7 +55,7 @@ modules/config/src/main/kotlin/source/TrialView.kt : trial fields config uses
 modules/config/src/main/kotlin/testset/RuleDocument.kt : rule {provider, type, name, group} reader and writer
 modules/config/src/main/kotlin/testset/TestSetDocument.kt : test-set schema
 modules/config/src/main/kotlin/testset/dto/Override.kt : one override and its validation
-modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching and specificity
+modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through AlgorithmNames, and specificity
 modules/config/src/main/kotlin/testset/dto/TestSet.kt : test-set model
 modules/config/src/main/kotlin/yaml/DocumentFields.kt : typed reads, expectKeys, path-annotated failures
 modules/config/src/main/kotlin/yaml/DocumentHandler.kt : reader and writer interface
@@ -63,6 +65,7 @@ modules/config/src/main/kotlin/yaml/ReadOnlyYamlFile.kt : read with missing, par
 modules/config/src/main/kotlin/yaml/YamlCodec.kt : SafeConstructor YAML, duplicate keys refused
 modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion and .partial atomic write
 modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
+modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases shared with perf-repair, every catalogued spelling, inventory duplicates, rule names
 modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
 modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests

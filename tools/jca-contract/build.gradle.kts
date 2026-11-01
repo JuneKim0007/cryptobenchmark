@@ -27,6 +27,8 @@ sourceSets {
     test { kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/test/kotlin", "../../modules/config/src/test/kotlin", "../../modules/preparation/src/main/kotlin", "src/test/kotlin")) }
 }
 
+tasks.processResources { from("../../perf-repair/src/perfrepair/catalog/algorithm-names.yaml") }
+
 dependencies {
     implementation("org.yaml:snakeyaml:2.3")
     testImplementation("junit:junit:4.13.2")

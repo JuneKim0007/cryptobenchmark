@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.config.testset.dto
 
+import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
+
 data class Rule(
     val provider: String? = null,
     val type: String? = null,
@@ -14,14 +16,10 @@ data class Rule(
         require(group == null || !group.contains('@')) { "invalid_group: $group" }
     }
 
-    private val namePattern: Regex? = name?.let { pattern ->
-        Regex(pattern.split('*').joinToString(".*") { Regex.escape(it) }, RegexOption.IGNORE_CASE)
-    }
-
     fun matches(provider: String, type: String, name: String): Boolean =
-        (this.provider == null || this.provider.equals(provider, ignoreCase = true)) &&
-            (this.type == null || this.type.equals(type, ignoreCase = true)) &&
-            (namePattern == null || namePattern.matches(name))
+        (this.provider == null || AlgorithmNames.fold(this.provider) == AlgorithmNames.fold(provider)) &&
+            (this.type == null || AlgorithmNames.fold(this.type) == AlgorithmNames.fold(type)) &&
+            (this.name == null || AlgorithmNames.catalog.matches(type, this.name, name))
 
     fun appliesTo(group: String?): Boolean = this.group == null || this.group == group
 

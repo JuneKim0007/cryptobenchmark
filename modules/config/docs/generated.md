@@ -28,7 +28,7 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 | `inputSizes` | recorded only when the run's input size differs from the trial's `defaultRunInputSize` |
 | `reason` | trial error, else `failed` |
 | `generatedFrom` | `capture`, `trial` file names; `device` = the capture's `runtime` block |
-| duplicate | names differing only by case in one provider and type: `duplicate_name` |
+| duplicate | two names with one canonical name and key size in one provider and type: `duplicate_name` |
 | pairing | capture and trial `capturedAtMillis` differ: `mismatched_trial: capture <a>, trial <b>` |
 
 ## Build order

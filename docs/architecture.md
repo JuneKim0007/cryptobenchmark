@@ -74,6 +74,7 @@ config/global.yaml + config/testsets/*.yaml
 | `benchmark` | `modules/benchmark` + `modules/preparation` + `modules/settings` | same |
 
 - `:settings` and `:android` are not subprojects.
+- `config` resources: `perf-repair/src/perfrepair/catalog/algorithm-names.yaml`, copied by every build that compiles `modules/config` (root, isolation, jca-contract).
 - Tests run with `workingDir` = the module directory.
 - `-Dexamples.update` is forwarded to tests.
 - CI: `.github/workflows/modules.yml` runs `../jca-contract/gradlew -p . :<m>:test` per subproject on Java 17.

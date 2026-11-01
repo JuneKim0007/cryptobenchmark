@@ -39,6 +39,10 @@ subprojects {
         "testImplementation"("junit:junit:4.13.2")
     }
 
+    if (name == "config") {
+        tasks.named<ProcessResources>("processResources") { from(rootDir.resolve("../../perf-repair/src/perfrepair/catalog/algorithm-names.yaml")) }
+    }
+
     tasks.withType<Test>().configureEach {
         workingDir = moduleDirectory
         systemProperty("capture.dir", layout.buildDirectory.dir("capture").get().asFile.path)
