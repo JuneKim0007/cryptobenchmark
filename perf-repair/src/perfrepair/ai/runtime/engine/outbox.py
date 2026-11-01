@@ -6,7 +6,7 @@ from pathlib import Path
 from ....dto.decision import OutboxRecord
 from ....files import TEMP_SUFFIX, read_json, write_json, write_text
 
-OUTBOXES, ACTIVE, LEGACY = "outbox", "active", "legacy"
+OUTBOXES, ACTIVE = "outbox", "active"
 RECORDS = "[0-9]*.json"
 FINGERPRINT = re.compile(r"[0-9a-f]{12}")
 
@@ -49,29 +49,38 @@ class Outbox:
         return self.read(record.seq)
 
 
+class NoOutbox:
+    """Nothing committed yet: reads as no records and has no folder."""
+    fingerprint = None
+
+    def records(self) -> list[OutboxRecord]:
+        return []
+
+
 def _outbox(root: Path, fingerprint: str) -> Outbox:
-    # legacy records sit flat in outbox/ from before prompts had fingerprints; they are never moved
-    base = Path(root) / OUTBOXES
-    return Outbox(base if fingerprint == LEGACY else base / fingerprint, fingerprint)
+    return Outbox(Path(root) / OUTBOXES / fingerprint, fingerprint)
 
 
 def active_fingerprint(root: Path) -> str | None:
-    """The fingerprint `outbox/active` names; legacy for flat records without it; None before any record."""
+    """The fingerprint `outbox/active` names; None before any record."""
     base = Path(root) / OUTBOXES
     marker = base / ACTIVE
     if not marker.exists():
-        return LEGACY if any(base.glob(RECORDS)) else None
+        if any(base.glob(RECORDS)):
+            raise OutboxError(f"outbox_unversioned: {base} holds records outside a fingerprint folder")
+        return None
     name = marker.read_text().strip()
-    if name != LEGACY and not FINGERPRINT.fullmatch(name):
+    if not FINGERPRINT.fullmatch(name):
         raise OutboxError(f"outbox_active_invalid: {marker} holds {name!r}")
     if not _outbox(root, name).directory.is_dir():
         raise OutboxError(f"outbox_missing: {marker} names {name}, which has no folder")
     return name
 
 
-def active_outbox(root: Path) -> Outbox:
-    """The run's outbox, for every reader; empty when nothing was ever committed."""
-    return _outbox(root, active_fingerprint(root) or LEGACY)
+def active_outbox(root: Path) -> Outbox | NoOutbox:
+    """The run's outbox, for every reader; NoOutbox when nothing was ever committed."""
+    fingerprint = active_fingerprint(root)
+    return NoOutbox() if fingerprint is None else _outbox(root, fingerprint)
 
 
 def activate(root: Path, fingerprint: str) -> tuple[Outbox, Outbox | None]:

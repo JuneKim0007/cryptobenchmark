@@ -38,7 +38,6 @@ agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
 pyproject.toml : package, pyyaml dependency, optional `test` and `api` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
-src/perfrepair/refeed/__init__.py : refeed package; holds no code
 tests/ : pytest suites, one per module or stage; `helpers.py` shared builders
 tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data

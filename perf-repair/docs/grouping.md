@@ -24,7 +24,7 @@ flowchart TD
 | `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
 | `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter |
-| `outbox/active` | assign | the fingerprint of the outbox in use; flat `outbox/*.json` with no `active` reads as `legacy` |
+| `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
 | `knowledge.json` | assign | projection of the outbox: groups `{family, description, members}`, dropped ids, version |
 | `cursor.json` | assign | `next` id, `decided` and `dropped` counts, `knowledgeVersion` |
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..files import read_yaml
-from .edit.lexer import lex
+from .edit import lex
 
 TABLE = Path(__file__).with_name("names.yaml")
 _TOKEN = re.compile(r"[A-Za-z_]\w*|->|==|!=|<=|>=|\S")

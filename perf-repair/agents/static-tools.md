@@ -12,7 +12,6 @@
 ## File structure
 
 ```
-src/perfrepair/result/__main__.py : command: `dossier --run --app --source` writes apps/<app>/dossiers.json, validated
 src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, modes
 src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements → Dossiers with options, pins, estimates; noOptions with reasons

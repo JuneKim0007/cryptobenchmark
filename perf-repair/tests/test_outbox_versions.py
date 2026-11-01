@@ -8,7 +8,7 @@ from test_engine import LabelKind, label_of
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.runtime.engine.outbox import LEGACY, OutboxError, active_fingerprint, active_outbox
+from perfrepair.ai.runtime.engine.outbox import NoOutbox, OutboxError, active_fingerprint, active_outbox
 
 V1 = label_charter({"type": "object"})
 V2 = label_charter({"type": "object", "title": "v2"})
@@ -94,21 +94,14 @@ def test_reverting_resumes_the_old_outbox_and_rebuilds_the_projections(tmp_path)
     assert agent.started == 0 and saved(tmp_path) == {"a": "A", "b": "B", "c": "C"}
 
 
-def test_a_flat_outbox_reads_as_legacy_and_is_never_touched(tmp_path):
+def test_records_outside_a_fingerprint_folder_are_an_error(tmp_path):
     flat = tmp_path / "outbox"
     flat.mkdir()
-    for seq, key in ((1, "a"), (2, "b")):
-        (flat / f"{seq:06d}.json").write_text(json.dumps(OutboxRecord(seq, key, "decided", 1, 1, {"label": "old"}).to_json()))
-    before = hashes(flat)
-    assert active_fingerprint(tmp_path) == LEGACY and len(active_outbox(tmp_path).records()) == 2
-    agent, lines = run(tmp_path, V1)
-    assert agent.started == 3 and changes(lines) == [
-        f"prompt changed: outbox legacy → {V1.fingerprint} (2 records kept in legacy, 0 resumed)"]
-    assert {k: v for k, v in hashes(flat).items() if k != "active"} == before
-    (flat / "active").write_text(LEGACY + "\n")
-    assert [r.decision for r in active_outbox(tmp_path).records()] == [{"label": "old"}] * 2
-    agent, lines = run(tmp_path, V1)
-    assert agent.started == 0 and changes(lines)[0].startswith(f"prompt changed: outbox legacy → {V1.fingerprint}")
+    (flat / "000001.json").write_text(json.dumps(OutboxRecord(1, "a", "decided", 1, 1, {"label": "old"}).to_json()))
+    with pytest.raises(OutboxError, match="outbox_unversioned"):
+        active_outbox(tmp_path)
+    with pytest.raises(OutboxError, match="outbox_unversioned"):
+        run(tmp_path, V1)
 
 
 def test_a_crash_on_a_new_fingerprint_resumes_it_without_touching_the_old(tmp_path):
@@ -124,7 +117,8 @@ def test_a_crash_on_a_new_fingerprint_resumes_it_without_touching_the_old(tmp_pa
 
 
 def test_nothing_committed_resolves_to_an_empty_outbox(tmp_path):
-    assert active_fingerprint(tmp_path) is None and active_outbox(tmp_path).records() == []
+    assert active_fingerprint(tmp_path) is None and isinstance(active_outbox(tmp_path), NoOutbox)
+    assert active_outbox(tmp_path).records() == []
 
 
 def test_an_active_file_naming_a_missing_folder_is_an_error(tmp_path):

@@ -10,7 +10,7 @@ from ..files import read_json
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..grouping.paths import GroupingPaths
 from ..grouping.report.checks import read_groups
-from ..ai.evaluate.worthiness.kind import VERDICTS, WorthinessKind
+from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
@@ -48,7 +48,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups)
     for mode in MODES.values():
         directory = rd.worthiness(run, mode.name)
-        if (directory / VERDICTS).exists():
+        if (directory / rd.VERDICTS).exists():
             measurements = rd.load_measurements(run)
             kind = WorthinessKind(mode, measurements.comparability, build_evidence(groups, rows, measurements.byRow),
                                   directory)
@@ -57,7 +57,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
             except OutboxError as e:
                 out[directory.name] = [str(e)]
                 continue
-            saved = Verdicts.from_json(read_json(directory / VERDICTS))
+            saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
             out[directory.name] = kind.validate(saved, records)
     return out
 

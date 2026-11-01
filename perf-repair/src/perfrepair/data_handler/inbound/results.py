@@ -31,11 +31,7 @@ def summarise(processes: list[list[float]]) -> Summary:
 
 def _runs(case: dict, metric: str) -> list[float] | None:
     block = (case.get("metrics") or {}).get(metric)
-    if block and block.get("runs"):
-        return block["runs"]
-    if metric == "timeNs":
-        return case.get("nanosPerOperation")
-    return None
+    return block["runs"] if block and block.get("runs") else None
 
 
 def _processes(case: dict, metric: str, per_process: list[dict[str, dict]]) -> list[list[float]] | None:

@@ -12,16 +12,15 @@
 - edit: never edit a constant's declaration or render code from model text; constants come from `specs.yaml`.
 - edit: a new reason code goes in `EDIT_REASONS` (`validation/repair.py`) and the limits table of `docs/repair.md`.
 - pin: a new parameter spec is a row in `specs.yaml`, never code.
-- order: candidates → test-set → (benchmark run, grouping, worthiness) → choose; scope → replace → edit → harness → replay.
+- order: scope → dossier → test-set (per-app benchmark run) → replace → edit → harness.
 
 ## File structure
 
 ```
-src/perfrepair/repair/__main__.py : command: candidates | test-set | choose | edit | harness | replay
-src/perfrepair/repair/candidates.py : sites.json × groups.json → each site's item and its group's runnable alternatives
-src/perfrepair/repair/choose.py : worthiness verdicts × candidates → the replacement per site, or none with the verdict's reason
+src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--run --app`
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens
-src/perfrepair/repair/edit/__init__.py : re-exports edit_app
+src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements → apps/<app>/dossiers.json, validated before writing
+src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, lex, line_offsets
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
 src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies; edits.json document
 src/perfrepair/repair/edit/calls.py : a call's closing parenthesis and top-level argument spans
@@ -38,7 +37,5 @@ src/perfrepair/repair/edit/specs.yaml : JCA parameter specs: constructor argumen
 src/perfrepair/repair/edit/splice.py : exact-span replacement that keeps line numbers; unified diff
 src/perfrepair/repair/harness.py : harness.yaml: each applied scope's original and patched function, imports, dependencies
 src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names per language
-src/perfrepair/repair/paths.py : the files of one app under <run>/apps/<app>/
-src/perfrepair/repair/replay.py : before/after for one site from a benchmark run: mean, median, MB/s, µJ/op
-src/perfrepair/repair/test_set.py : candidates → cryptobenchmark test set of the items an app runs and their alternatives
+src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option
 ```

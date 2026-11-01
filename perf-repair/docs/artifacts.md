@@ -8,17 +8,15 @@
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
-| `apps/<app>/sites.json` | `perfrepair.app` | scope, repair candidates (`--sites`) | none |
+| `apps/<app>/sites.json` | `perfrepair.app` | scope | none |
 | `apps/<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
 | `apps/<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing |
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
-| `worthiness-<mode>/verdicts.json` | worthiness | repair choose | `validation/worthiness.py` + projection equality |
+| `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/worthiness.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
-| `apps/<app>/dossiers.json` | `result dossier` | replace | `validation/dossiers.py` |
-| `repair/<app>/candidates.json` | repair candidates | repair test-set, choose | none |
-| `repair/<app>/choices.json` | repair choose | none | none |
+| `apps/<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py`, before writing |
 | `apps/<app>/edits.json`, `original/`, `patched/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `apps/<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |

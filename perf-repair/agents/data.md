@@ -36,5 +36,5 @@ src/perfrepair/dto/site.py : Scope, Dossier, Option, Estimate, Edit, Replacement
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/env.py : .env loader: fills unset environment keys
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write
-src/perfrepair/run_dir.py : run directory: artifact names and loaders; apps/<name>/ paths
+src/perfrepair/run_dir.py : run directory: artifact names and loaders; AppPaths, the only definition of apps/<name>/ paths
 ```

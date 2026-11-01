@@ -6,7 +6,7 @@ from pathlib import Path
 
 from ...dto.site import SCHEMA_VERSION, Replacement, Scope
 from ...files import write_text
-from ..paths import AppPaths
+from ...run_dir import AppPaths
 from .lexer import Source, lex
 from .plan import plan
 from .reject import Rejected

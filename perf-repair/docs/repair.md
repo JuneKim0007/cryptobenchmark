@@ -1,15 +1,16 @@
 # Repair
 
-Command: `python3 -m perfrepair.repair <step>`. candidates, test-set and choose take `--run <run> --app-name <app>` and write under `<run>/repair/<app>/`; edit and harness take `--run <run> --app <app>` and write under `<run>/apps/<app>/`.
+Command: `python3 -m perfrepair.repair <step> --run <run> --app <app>`; every step reads and writes under `<run>/apps/<app>/`.
 
 | Step | Flags | Input | Output |
 |---|---|---|---|
-| candidates | `--sites` | an app's `apps/<app>/sites.json`, `grouping/groups.json` | `candidates.json`: sites resolved `default` or `explicit` |
-| test-set | `-o` | candidates | YAML test set at `-o`: items the app runs and their alternatives |
-| choose | `--mode` (default `latency`) | candidates, `worthiness-<mode>/verdicts.json` | `choices.json`: replacement or none, with the reason |
+| dossier | `--source <app root>` | `scopes.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
+| test-set | `-o` | `dossiers.json` | YAML test set at `-o`: each scope's current item and every option, once each |
 | edit | `--source <app root>` | `scopes.json`, `replacements.json`, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
 | harness | none | `scopes.json`, `replacements.json`, `edits.json`, `original/`, `patched/` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
-| replay | `--benchmark`, `--energy`, `--before`, `--after` (`Type\|name\|provider`), `--input` | a `benchmark.json` (+ `energy.json`) | YAML on stdout: before, after, `speedup`, `energyRatio` |
+
+- test-set refuses a `dossiers.json` of another app, and one with no scope that has an option.
+- A per-app benchmark run on the test set measures only what the app uses and its swap candidates.
 
 ## Edit kinds
 
@@ -72,7 +73,6 @@ scopes:
 | dependencies | token rules only: Kotlin `when` branch labels and infix operands read as declared; wildcard imports hide nothing |
 | argument split | generic angle brackets are not counted, so `f(Map<A, B>)` reads as two arguments |
 | pin with an app-supplied IV | rejected; the IV length cannot be changed without changing the app's data flow |
-| replay | times the call's primitive at one input size in the benchmark harness, not the app running |
 | default provider | the first by precedence that registers the name |
 | provider rejecting the key at `init` | not skipped |
 | Cipher transformation served only through its base service | not resolved |

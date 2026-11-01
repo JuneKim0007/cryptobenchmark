@@ -10,7 +10,6 @@ Criteria are data: `src/perfrepair/result/criteria.yaml`. A mode differs only in
 - A pair is judged `improves`, `not_improving` or `not_measured`.
 - `not_measured`: time improves but a criterion's data is missing (allocations unknown, or `from` allocations 0). It is never reported as `no_improvement`.
 - Worthiness reads no energy: time and allocations only.
-- `repair replay --energy` reads `joulesPerOperation` from an `energy.json`.
 - Every battery verdict carries `proxy: true`.
 - Energy measurement: [docs/energy.md](../../docs/energy.md).
 

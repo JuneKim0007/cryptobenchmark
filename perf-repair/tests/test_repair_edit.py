@@ -2,7 +2,7 @@ import pytest
 
 from perfrepair.repair.edit import edit_app
 from perfrepair.repair.edit.specs import load
-from perfrepair.repair.paths import AppPaths
+from perfrepair.run_dir import AppPaths
 from perfrepair.validation.repair import validate_edits
 from repair_fixture import APP, JAVA, KOTLIN, ROOT, algorithm, digests, pins, provider, replace, scope
 
