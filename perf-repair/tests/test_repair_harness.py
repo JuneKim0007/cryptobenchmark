@@ -4,7 +4,7 @@ from perfrepair.dto.site import Edit
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
-from perfrepair.repair.paths import AppPaths
+from perfrepair.run_dir import AppPaths
 from perfrepair.validation.repair import validate_edits, validate_harness
 from repair_fixture import APP, JAVA, KOTLIN, ROOT, digests, pins, provider, replace, scope
 

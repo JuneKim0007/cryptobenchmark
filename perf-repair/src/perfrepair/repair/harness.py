@@ -7,11 +7,8 @@ from pathlib import Path
 from ..dto.site import METRICS, SCHEMA_VERSION, Replacement, Scope
 from ..files import write_text
 from .dependencies import dependencies, load
-from .edit.app import read_source
-from .edit.lexer import lex
-from .edit.locate import line_offsets
-from .edit.plan import language
-from .paths import AppPaths
+from ..run_dir import AppPaths
+from .edit import language, lex, line_offsets, read_source
 
 
 def function_lines(text: str, start: int, end: int) -> str:

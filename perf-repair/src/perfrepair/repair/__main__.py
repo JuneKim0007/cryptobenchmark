@@ -1,4 +1,4 @@
-"""python3 -m perfrepair.repair — call sites → test set → replacements → edits → harness → before/after."""
+"""python3 -m perfrepair.repair — scopes → dossiers → test set; replacements → edits → harness."""
 from __future__ import annotations
 
 import argparse
@@ -7,72 +7,40 @@ from pathlib import Path
 
 import yaml
 
-from .. import run_dir as rd
-from ..dto.grouping import parse_qualified
-from ..files import read_json, write_json, write_text
-from ..grouping.paths import GroupingPaths
-from ..ai.evaluate.worthiness.kind import VERDICTS
 from ..dto.site import Replacement, Scope
+from ..files import read_json, write_json, write_text
+from ..run_dir import AppPaths
 from ..validation.repair import validate_edits, validate_harness
-from .candidates import Candidate, candidates
-from .choose import choose
-from .edit import edit_app
-from .edit.specs import load as load_specs
+from .dossier import dossier
+from .edit import edit_app, load_specs
 from .harness import harness
-from .paths import AppPaths
-from .replay import compare, side
 from .test_set import build_test_set
-
-DIRECTORY = "repair"
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="perfrepair.repair")
     sub = ap.add_subparsers(dest="command", required=True)
-    for name in ("candidates", "test-set", "choose"):
-        p = sub.add_parser(name)
-        p.add_argument("--run", type=Path, required=True)
-        p.add_argument("--app-name", required=True, help="output folder under <run>/repair/")
-    sub.choices["candidates"].add_argument("--sites", type=Path, required=True, help="an inbound sites.json for this app")
-    sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
-    sub.choices["choose"].add_argument("--mode", default="latency")
-    for name in ("edit", "harness"):
+    for name in ("dossier", "test-set", "edit", "harness"):
         p = sub.add_parser(name)
         p.add_argument("--run", type=Path, required=True)
         p.add_argument("--app", required=True, help="folder under <run>/apps/")
-    sub.choices["edit"].add_argument("--source", type=Path, required=True, help="the app's root; only read")
-    r = sub.add_parser("replay")
-    r.add_argument("--benchmark", type=Path, required=True)
-    r.add_argument("--energy", type=Path)
-    r.add_argument("--before", required=True, help="Type|name|provider")
-    r.add_argument("--after", required=True, help="Type|name|provider")
-    r.add_argument("--input", type=int)
+    for name in ("dossier", "edit"):
+        sub.choices[name].add_argument("--source", type=Path, required=True,
+                                       help="the app's root; only read, scope files are relative to it")
+    sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
     a = ap.parse_args(argv)
-
-    if a.command == "replay":
-        energy = read_json(a.energy) if a.energy else None
-        bench = read_json(a.benchmark)
-        print(yaml.safe_dump(compare(side(bench, energy, *parse_qualified(a.before), a.input),
-                                     side(bench, energy, *parse_qualified(a.after), a.input)), sort_keys=False))
+    if a.command == "dossier":
+        dossier(a.run, a.app, a.source)
         return 0
-    if a.command in ("edit", "harness"):
-        return _edit(a) if a.command == "edit" else _harness(a)
-    out = a.run / DIRECTORY / a.app_name
-    groups = read_json(GroupingPaths(a.run).groups)
-    if a.command == "candidates":
-        sites = read_json(a.sites)
-        found = candidates(sites, groups)
-        write_json(out / "candidates.json", {"schemaVersion": 1, "app": sites["app"], "candidates": [c.to_json() for c in found]})
-        print(f"{out / 'candidates.json'}: {len(found)} call sites")
-        return 0
-    found = [Candidate.from_json(c) for c in read_json(out / "candidates.json")["candidates"]]
     if a.command == "test-set":
-        a.out.write_text(yaml.safe_dump(build_test_set(found, groups, a.app_name), sort_keys=False))
-        print(a.out)
-        return 0
-    choices = choose(found, read_json(rd.worthiness(a.run, a.mode) / VERDICTS))
-    write_json(out / "choices.json", {"schemaVersion": 1, "mode": a.mode, "choices": choices})
-    print(f"{out / 'choices.json'}: {sum(c['replacement'] is not None for c in choices)} of {len(choices)} sites replaced")
+        return _test_set(a)
+    return _edit(a) if a.command == "edit" else _harness(a)
+
+
+def _test_set(a: argparse.Namespace) -> int:
+    doc = build_test_set(read_json(AppPaths(a.run, a.app).dossiers), a.app)
+    write_text(a.out, yaml.safe_dump(doc, sort_keys=False))
+    print(f"{a.out}: {len(doc['include'])} primitives")
     return 0
 
 
@@ -112,6 +80,7 @@ def _harness(a: argparse.Namespace) -> int:
     write_text(paths.harness, yaml.safe_dump(doc, sort_keys=False))
     print(f"{paths.harness}: {len(doc['scopes'])} scopes")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

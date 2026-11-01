@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .... import run_dir as rd
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.site import Dossier, Replacement
@@ -16,7 +17,6 @@ from .schema import SCHEMA
 from .state import Replacements
 
 NAME = "suggest/site-replace"
-REPLACEMENTS = "replacements.json"
 NO_OPTION = "static: no option of the site's group is available in the app"
 
 
@@ -78,4 +78,4 @@ class SiteReplaceKind:
         return problems
 
     def write(self, state: Replacements, records: list[OutboxRecord]) -> None:
-        write_json(self.directory / REPLACEMENTS, state.to_json())
+        write_json(self.directory / rd.REPLACEMENTS, state.to_json())

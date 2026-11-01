@@ -1,40 +1,42 @@
-from perfrepair.repair.candidates import candidates
-from perfrepair.repair.choose import choose
-from perfrepair.repair.replay import compare, side
+import pytest
+import yaml
+from site_replace_data import APP, doc, dossier
+
+from perfrepair.dto.site import Option
+from perfrepair.files import write_json
+from perfrepair.repair.__main__ import main
 from perfrepair.repair.test_set import build_test_set
+from perfrepair.run_dir import AppPaths
 
-GROUPS = {"items": {"1": {"qualified": "MessageDigest|SHA-256|P1", "group": "g"},
-                    "2": {"qualified": "MessageDigest|SHA-256|P2", "group": "g"},
-                    "3": {"qualified": "MessageDigest|X|P1", "group": "h"}},
-          "groups": [{"id": "g", "runnable": [1, 2]}, {"id": "h", "runnable": [3]}]}
+ALG = "ALG-A/MODE-X"
 
 
-def site(literal_provider=None, expr="\"SHA-256\""):
-    return {"file": "A.java", "line": 2, "snippet": "", "engineType": "MessageDigest",
-            "algorithm": {"expr": expr, "literal": "SHA-256"},
-            "provider": {"expr": f'"{literal_provider}"', "literal": literal_provider} if literal_provider else None,
-            "resolvedProvider": "P1", "resolvedAlgorithm": "SHA-256", "resolution": "default"}
+def test_the_test_set_holds_each_current_item_and_every_option_once():
+    a = dossier(options=(Option("R1", f"TypeA|{ALG}|P2"), Option("R2", "TypeA|ALG-B|P1")))
+    b = dossier(file="src/Other.kt", options=(Option("R1", f"TypeA|{ALG}|P2"),))
+    assert build_test_set(doc(a, b), APP) == {
+        "schemaVersion": 1, "description": f"call sites of {APP} and their replacements",
+        "include": [{"provider": "P1", "type": "TypeA", "name": ALG},
+                    {"provider": "P2", "type": "TypeA", "name": ALG},
+                    {"provider": "P1", "type": "TypeA", "name": "ALG-B"}]}
 
 
-def test_a_site_joins_its_item_and_the_group_alternatives():
-    [c] = candidates({"sites": [site(), {**site(), "resolution": "not_registered"}]}, GROUPS)
-    assert (c.item, c.group, c.alternatives) == ("1", "g", ("2",))
-    assert build_test_set([c], GROUPS, "app")["include"] == [{"provider": "P1", "type": "MessageDigest", "name": "SHA-256"},
-                                                       {"provider": "P2", "type": "MessageDigest", "name": "SHA-256"}]
+def test_a_test_set_refuses_another_app_or_nothing_to_measure():
+    with pytest.raises(ValueError, match=f"not '{APP}'"):
+        build_test_set(doc(dossier(), app="other"), APP)
+    with pytest.raises(ValueError, match="nothing to measure"):
+        build_test_set(doc(), APP)
 
 
-def test_only_a_test_verdict_with_a_pair_from_the_site_item_replaces_it():
-    [c] = candidates({"sites": [site()]}, GROUPS)
-    test = {"verdicts": [{"groupId": "g", "decision": "test", "reason": "r", "pairs": [{"from": "1", "to": "2", "reason": "faster"}]}]}
-    skip = {"verdicts": [{"groupId": "g", "decision": "skip", "reason": "no", "pairs": []}]}
-    assert choose([c], test)[0]["replacement"] == "2"
-    assert choose([c], skip)[0]["replacement"] is None
+def test_the_test_set_command_reads_the_app_dossiers(tmp_path):
+    paths = AppPaths(tmp_path, APP)
+    paths.root.mkdir(parents=True)
+    write_json(paths.dossiers, doc(dossier(options=(Option("R1", f"TypeA|{ALG}|P2"),))))
+    out = tmp_path / "set.yaml"
+    assert main(["test-set", "--run", str(tmp_path), "--app", APP, "-o", str(out)]) == 0
+    assert [i["provider"] for i in yaml.safe_load(out.read_text())["include"]] == ["P1", "P2"]
 
 
-def test_replay_reports_speedup_and_energy():
-    cases = [{"id": i, "type": "MessageDigest", "algorithm": "SHA-256", "provider": p, "inputSize": 64,
-              "metrics": {"timeNs": {"runs": [t, t]}}} for i, p, t in (("a", "P1", 200.0), ("b", "P2", 100.0))]
-    energy = {"cases": {"a": {"valid": True, "joulesPerOperation": 2e-6}, "b": {"valid": True, "joulesPerOperation": 1e-6}}}
-    result = compare(side({"cases": cases}, energy, "MessageDigest", "SHA-256", "P1", 64),
-                     side({"cases": cases}, energy, "MessageDigest", "SHA-256", "P2", 64))
-    assert result["speedup"] == 2.0 and result["energyRatio"] == 0.5 and result["after"]["mbPerSecond"] == 640.0
+def test_app_paths_refuse_a_name_that_is_not_one_segment(tmp_path):
+    with pytest.raises(ValueError, match="app name"):
+        AppPaths(tmp_path, "../elsewhere")

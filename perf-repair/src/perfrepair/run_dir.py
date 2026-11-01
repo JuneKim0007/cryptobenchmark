@@ -7,16 +7,37 @@ from .dto import Measurements, PrimitiveRow, RunLog
 from .files import read_json
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
-EVIDENCE = "evidence.json"
+EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APPS, APP, SCOPES, DOSSIERS = "apps", "app.json", "scopes.json", "dossiers.json"
+REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
 def app_dir(run: Path, name: str) -> Path:
-    """apps/<name>/: one app's detect and scope outputs; the name is a single path segment."""
+    """apps/<name>/: one app's files; the name is a single path segment."""
     if not _APP_NAME.fullmatch(name):
         raise ValueError(f"app name {name!r}: letters, digits, '.', '_' or '-', not starting with a symbol")
     return Path(run) / APPS / name
+
+
+class AppPaths:
+    """Files of one app under `<run>/apps/<app>/`; `original/` and `patched/` hold only the files an edit changed."""
+
+    def __init__(self, run: Path, app: str):
+        self.app = app
+        self.root = app_dir(run, app)
+
+    sites = property(lambda self: self.root / SITES)
+    facts = property(lambda self: self.root / APP)
+    scopes = property(lambda self: self.root / SCOPES)
+    dossiers = property(lambda self: self.root / DOSSIERS)
+    replace = property(lambda self: self.root / REPLACE)
+    replacements = property(lambda self: self.root / REPLACEMENTS)
+    edits = property(lambda self: self.root / EDITS)
+    original = property(lambda self: self.root / "original")
+    patched = property(lambda self: self.root / "patched")
+    harness = property(lambda self: self.root / HARNESS)
+    extracts = property(lambda self: self.root / "harness")
 
 
 def app_dirs(run: Path) -> list[Path]:
@@ -26,10 +47,6 @@ def app_dirs(run: Path) -> list[Path]:
 
 def worthiness(run: Path, mode: str) -> Path:
     return Path(run) / f"worthiness-{mode}"
-
-
-def app(run: Path, name: str) -> Path:
-    return Path(run) / APPS / name
 
 
 def load_rows(run: Path) -> list[PrimitiveRow]:

@@ -29,10 +29,11 @@ Every number is computed by code. Do not recompute or reinterpret them.
 
 ## What is checked after you answer
 
-Code refuses an answer when a pair names something that is not a member, names the same member
+Code rejects an answer when a pair names something that is not a member, names the same member
 twice, or does not improve under the mode in any configuration; when `test` names no pair; when
-`skip` names pairs; or when a reason is empty. A refused answer may be asked once more with the
-reasons; a second refusal records `skip`.
+`skip` names pairs; or when a reason is empty. A rejected answer comes back with its problems for a
+correction, a limited number of turns per conversation and conversations per group. If you decline
+the task, that conversation ends. When every attempt fails, the group is recorded as `skip`.
 
 ## Answer
 

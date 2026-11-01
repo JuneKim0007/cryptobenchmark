@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .... import run_dir as rd
 from ....files import read_json
 from ....validation import require
 from ...runtime.agent import Conversations, ScriptedConversations
@@ -12,18 +13,16 @@ from ...runtime.prompt import PromptLibrary
 from .kind import SiteReplaceKind, charter
 from .state import Replacements
 
-APPS, DOSSIERS, OUTBOX_ROOT = "apps", "dossiers.json", "replace"
-
 DRY_RUN = ScriptedConversations(lambda *_: {"decision": "keep", "option": "", "edits": [], "risks": [],
                                             "reason": "dry run: no model was called"})
 
 
 def replace(run_path: Path, app: str, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
             limit: int | None = None, echo=print) -> Replacements:
-    directory = Path(run_path) / APPS / app
-    kind = SiteReplaceKind(app, read_json(directory / DOSSIERS), directory)
-    require(str(directory / DOSSIERS), kind.problems)
-    state = decide(kind, charter(library), conversations, directory / OUTBOX_ROOT, limits, limit, echo)
+    paths = rd.AppPaths(run_path, app)
+    kind = SiteReplaceKind(app, read_json(paths.dossiers), paths.root)
+    require(str(paths.dossiers), kind.problems)
+    state = decide(kind, charter(library), conversations, paths.replace, limits, limit, echo)
     counts: dict[str, int] = {}
     for scope, r in state.replacements.items():
         key = f"{r.decision} ({state.sources[scope]})"

@@ -7,7 +7,7 @@ from helpers import QUIET, row, summary
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.dto.site import Dossier, Scope
-from perfrepair.result.__main__ import dossier
+from perfrepair.repair.dossier import dossier
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.validation.dossiers import validate_dossiers
 from perfrepair.validation.run import validate_run

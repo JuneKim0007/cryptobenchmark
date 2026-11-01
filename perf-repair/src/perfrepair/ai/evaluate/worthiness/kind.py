@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .... import run_dir as rd
 from ....dto import GroupEvidence, Pair, Verdict, Verdicts
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
@@ -15,7 +16,6 @@ from ....validation.worthiness import validate_verdicts
 from ...runtime.engine.kind import project
 from ...runtime.prompt import PromptLibrary
 
-VERDICTS = "verdicts.json"
 NAME = "evaluate/worthiness"
 
 SCHEMA = {
@@ -152,4 +152,4 @@ class WorthinessKind:
         return problems
 
     def write(self, verdicts: Verdicts, records: list[OutboxRecord]) -> None:
-        write_json(self.directory / VERDICTS, verdicts.to_json())
+        write_json(self.directory / rd.VERDICTS, verdicts.to_json())

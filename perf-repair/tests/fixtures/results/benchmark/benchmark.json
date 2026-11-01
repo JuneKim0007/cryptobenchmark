@@ -14,14 +14,13 @@
    "keySize": 128,
    "inputSize": 1024,
    "keyKind": "secret",
-   "iterations": 10,
-   "nanosPerOperation": [
-    100,
-    110,
-    105,
-    95,
-    100
-   ],
+   "parameters": {
+    "mode": "GCM",
+    "padding": "NoPadding",
+    "ivBytes": 12,
+    "tagBits": 128,
+    "keyBits": 128
+   },
    "metrics": {
     "timeNs": {
      "iterations": 10,
@@ -52,14 +51,13 @@
    "keySize": 128,
    "inputSize": 1024,
    "keyKind": "secret",
-   "iterations": 10,
-   "nanosPerOperation": [
-    300,
-    310,
-    290,
-    305,
-    295
-   ],
+   "parameters": {
+    "mode": "GCM",
+    "padding": "NoPadding",
+    "ivBytes": 12,
+    "tagBits": 128,
+    "keyBits": 128
+   },
    "metrics": {
     "timeNs": {
      "iterations": 10,
@@ -82,12 +80,7 @@
    "keySize": null,
    "inputSize": 1024,
    "keyKind": "secret",
-   "iterations": 10,
-   "nanosPerOperation": [
-    50,
-    51,
-    49
-   ],
+   "parameters": {},
    "metrics": {
     "timeNs": {
      "iterations": 10,
