@@ -11,6 +11,8 @@ class ResultRow(
     // secret|pair|none: separates symmetric from asymmetric, which the JCA engine type cannot (AES and RSA are both Cipher).
     val keyKind: String?,
     metrics: Map<String, MetricSamples>,
+    // What the provider used (prepared.yaml resolvedParameters); null for a file written before it was recorded.
+    val parameters: Map<String, Any>? = null,
 ) {
 
     val metrics: Map<String, MetricSamples> = LinkedHashMap(metrics)
@@ -25,10 +27,11 @@ class ResultRow(
 
     fun mergedWith(later: ResultRow): ResultRow {
         require(id == later.id) { "different_case: $id and ${later.id}" }
+        require(parameters == later.parameters) { "different_parameters: $id: $parameters and ${later.parameters}" }
         val merged = LinkedHashMap(metrics)
         later.metrics.forEach { (metric, samples) ->
             merged[metric] = merged[metric]?.mergedWith(samples) ?: samples
         }
-        return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged)
+        return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged, parameters)
     }
 }

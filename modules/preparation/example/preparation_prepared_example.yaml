@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 generatedFrom: {effective: preparation_effective_example.yaml}
 run: {seed: 42, processRepetitions: 1}
 cases:
@@ -15,6 +15,7 @@ cases:
   key: {kind: none}
   input: {kind: message, bytes: 1024}
   fingerprint: 6535816b
+  resolvedParameters: {}
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -33,6 +34,7 @@ cases:
   specPerIteration: true
   input: {kind: message, bytes: 1024}
   fingerprint: 58d03995
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -51,6 +53,7 @@ cases:
   specPerIteration: true
   input: {kind: message, bytes: 1024}
   fingerprint: 38409d3b
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -69,6 +72,7 @@ cases:
   specPerIteration: true
   input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
   fingerprint: 2b49c8fe
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -87,6 +91,7 @@ cases:
   specPerIteration: true
   input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
   fingerprint: 7fd5d97b
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
 - id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM
   type: Mac
   algorithm: HmacSHA256
@@ -100,3 +105,4 @@ cases:
   key: {kind: secret, algorithm: HmacSHA256, provider: SunJCE, encodedBytes: 32}
   input: {kind: message, bytes: 1024}
   fingerprint: eace64d3
+  resolvedParameters: {keyBits: 256}

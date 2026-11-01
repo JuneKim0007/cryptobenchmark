@@ -43,6 +43,17 @@ class PreparedCaseTest {
         assertEquals(null, preparation.prepare(effective("skip")).cases.first { it.case.algorithm == "SHA-256" }.parameters)
     }
 
+    /** The one call before the run is also where the provider's parameters are read back. */
+    @Test
+    fun aPreparedCaseCarriesWhatTheProviderUsed() {
+        val cases = preparation.prepare(effective("skip")).cases
+        val gcm = cases.first { it.case.algorithm == "AES/GCM/NoPadding" }
+        assertEquals(12, gcm.resolvedParameters["ivBytes"])
+        assertEquals(128, gcm.resolvedParameters["tagBits"])
+        assertEquals(gcm.case.keySize, gcm.resolvedParameters["keyBits"])
+        assertEquals(emptyMap<String, Any>(), cases.first { it.case.algorithm == "SHA-256" }.resolvedParameters)
+    }
+
     /** Encrypt is called once with the case's own key: a 256-bit key on AES_128 fails here, not inside the timed region. */
     @Test
     fun aKeyThatDoesNotFitTheAlgorithmIsCaughtBeforeTheRun() {

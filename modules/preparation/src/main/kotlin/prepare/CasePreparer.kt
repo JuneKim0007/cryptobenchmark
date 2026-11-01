@@ -7,10 +7,11 @@ import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
 import io.github.junekim0007.cryptobench.preparation.report.Skip
 
 /**
- * Builds one case: plan its key, make it (once per recipe), bind its parameters, build its input, call it once.
+ * Builds one case: plan its key, make it (once per recipe), bind its parameters, build its input, call it once, read back what the provider used.
  * A case that cannot be built is a [Skip] with the reason, never an exception: whether that stops the run is the caller's policy.
  * One instance per run, because the keys it made are reused by every case with the same recipe.
  */
@@ -38,9 +39,13 @@ internal class CasePreparer(
         val input = runCatching { definition.input(case, material, parameters) }
             .getOrElse { failure -> return skipped(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
         val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
-        val failure = runCatching { definition.invocation(candidate).once() }.exceptionOrNull()
-        if (failure != null) return skipped(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}")
-        return Outcome.Prepared(candidate)
+        val invocation = runCatching { definition.invocation(candidate) }
+            .getOrElse { failure -> return skipped(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
+        val result = runCatching { invocation.once() }
+            .getOrElse { failure -> return skipped(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
+        val resolved = runCatching { ResolvedParameters.of(invocation.engine, material, result) }
+            .getOrElse { failure -> return skipped(case, "parameters_unreadable: ${failure.javaClass.simpleName}: ${failure.message}") }
+        return Outcome.Prepared(candidate.copy(resolvedParameters = resolved))
     }
 
     private fun bound(tree: Map<String, Any>, path: String) =

@@ -13,7 +13,7 @@ object Merge {
             CaseDocument.section(document["runtime"])
                 .forEach { (key, value) -> runtime.putIfAbsent(key, value.toString()) }
             for (case in CaseDocument.sections(document["cases"])) {
-                val row = CaseDocument.row(case, metricsOf(case))
+                val row = CaseDocument.row(case, metricsOf(case), CaseDocument.optionalSection(case[BenchmarkJson.PARAMETERS]))
                 rows[row.id] = rows[row.id]?.mergedWith(row) ?: row
             }
         }

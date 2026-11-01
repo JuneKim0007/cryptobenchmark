@@ -13,4 +13,5 @@ data class PreparedCase(
     val parameters: BoundParameters?,
     val keyParameters: BoundParameters?,
     val input: OperationInput,
+    val resolvedParameters: Map<String, Any> = emptyMap(),
 )

@@ -21,6 +21,22 @@ class JetpackResultsTest {
     private val digest = converted.rows.single { it.algorithm == "SHA-256" }
 
     @Test
+    fun theResolvedParametersComeFromThePlan() {
+        assertEquals(emptyMap<String, Any>(), digest.parameters)
+        assertEquals(mapOf("mode" to "GCM", "padding" to "NoPadding", "ivBytes" to 12, "tagBits" to 128, "keyBits" to 128),
+            converted.rows.single { it.type == "Cipher" }.parameters)
+    }
+
+    @Test
+    fun aPlanWithoutResolvedParametersIsRefused() {
+        val old = File(example, "benchmark_prepared_example.yaml").readText().replace(Regex("  resolvedParameters: .*\n"), "")
+        val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+            JetpackResults.convert(File(example, "benchmark_jetpack_example.json").readText(), old)
+        }
+        assertEquals("missing_field: resolvedParameters for MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM; prepared.yaml predates schemaVersion 2", refused.message)
+    }
+
+    @Test
     fun aCaseKeepsItsSamplesAndGetsItsShapeFromThePlan() {
         assertEquals("MessageDigest", digest.type)
         assertEquals("AndroidOpenSSL", digest.provider)
@@ -90,10 +106,10 @@ class JetpackResultsTest {
             """{
   "runtime": {"model": "Pixel 9", "fingerprint": "google/tokay/tokay:16/BP3A.250905.014/13718934:user/release-keys", "sdkInt": "36", "jetpackCpuLocked": "false", "sustainedPerformanceModeEnabled": "true", "compilationMode": "DEFAULT", "thermalThrottleSleepSeconds": "90"},
   "cases": [
-    {"id": "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "AndroidOpenSSL", "operation": "DIGEST", "keySize": null, "inputSize": 1024, "keyKind": "none",
+    {"id": "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "AndroidOpenSSL", "operation": "DIGEST", "keySize": null, "inputSize": 1024, "keyKind": "none", "parameters": {},
      "iterations": 8192, "nanosPerOperation": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0],
      "metrics": {"timeNs": {"iterations": 8192, "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0], "reported": {"minimum": 1180.0, "maximum": 1256.0, "median": 1191.0, "coefficientOfVariation": 0.019}}, "allocationCount": {"iterations": 1, "runs": [2.0, 2.0, 3.0, 2.0, 2.0], "reported": {"minimum": 2.0, "maximum": 3.0, "median": 2.0, "coefficientOfVariation": 0.183}}}},
-    {"id": "Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4", "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "provider": "AndroidOpenSSL", "operation": "ENCRYPT", "keySize": 128, "inputSize": 1024, "keyKind": "secret",
+    {"id": "Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4", "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "provider": "AndroidOpenSSL", "operation": "ENCRYPT", "keySize": 128, "inputSize": 1024, "keyKind": "secret", "parameters": {"mode": "GCM", "padding": "NoPadding", "ivBytes": 12, "tagBits": 128, "keyBits": 128},
      "iterations": 4096, "nanosPerOperation": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0],
      "metrics": {"timeNs": {"iterations": 4096, "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0], "reported": {"minimum": 2380.0, "maximum": 2611.0, "median": 2401.0, "coefficientOfVariation": 0.031}}}}
   ]

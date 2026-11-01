@@ -21,7 +21,7 @@ class HostHarness(
             repeat(iterations) { BlackHole.consume(invocation.perIteration()) }
             (System.nanoTime() - start).toDouble() / iterations
         }
-        return CaseMeasurement(prepared.case, prepared.recipe.kind, iterations, nanosPerOperation)
+        return CaseMeasurement(prepared.case, prepared.recipe.kind, iterations, nanosPerOperation, prepared.resolvedParameters)
     }
 
     companion object {

@@ -19,6 +19,6 @@ internal object SignDefinition : OperationDefinition {
         return Invocation(perIteration = {
             signature.update(message)
             signature.sign()
-        })
+        }, engine = signature)
     }
 }

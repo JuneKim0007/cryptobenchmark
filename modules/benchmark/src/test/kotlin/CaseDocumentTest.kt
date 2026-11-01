@@ -21,6 +21,7 @@ class CaseDocumentTest {
         val row = CaseDocument.row(
             mapOf("id" to "digest", "type" to "MessageDigest", "algorithm" to "SHA-256", "provider" to "SUN", "operation" to "DIGEST"),
             mapOf(MetricSamples.TIME to MetricSamples(listOf(10.0), CaseDocument.iterations(null))),
+            null,
         )
         assertEquals(null, row.keySize)
         assertEquals(null, row.inputSize)

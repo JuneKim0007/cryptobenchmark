@@ -54,7 +54,7 @@ modules/preparation/src/main/kotlin/operation/DigestDefinition.kt : DIGEST defin
 modules/preparation/src/main/kotlin/operation/EncryptDefinition.kt : ENCRYPT definition
 modules/preparation/src/main/kotlin/operation/GenerateKeyDefinition.kt : GENERATE_KEY definition
 modules/preparation/src/main/kotlin/operation/GenerateKeyPairDefinition.kt : GENERATE_KEY_PAIR definition
-modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration) and once()
+modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once() and the engine it calls
 modules/preparation/src/main/kotlin/operation/Invocations.kt : of(prepared) to the case's Invocation
 modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum NONE, SECRET, PAIR, PEER_PAIRS, DEVICE_DECIDES
 modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
@@ -68,10 +68,14 @@ modules/preparation/src/main/kotlin/parameter/bind/BoundParameters.kt : compiled
 modules/preparation/src/main/kotlin/parameter/bind/ParameterBinder.kt : compiles a parameter tree into a ValueNode
 modules/preparation/src/main/kotlin/parameter/bind/ValueCoercion.kt : YAML value to constructor parameter type
 modules/preparation/src/main/kotlin/parameter/bind/ValueNode.kt : tree nodes: Literal, Fresh, StaticField, Construction
+modules/preparation/src/main/kotlin/parameter/resolve/KeyFields.kt : keyBits and curve of a key, by key interface
+modules/preparation/src/main/kotlin/parameter/resolve/PerInitValue.kt : whether an IvParameterSpec value is an IV or a constant the provider fills in
+modules/preparation/src/main/kotlin/parameter/resolve/ResolvedParameters.kt : what the provider used after one call; key names
+modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
 modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason)
 modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm
-modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call; a failure is a skip
-modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input
+modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back; a failure is a skip
+modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input, resolvedParameters
 modules/preparation/src/main/kotlin/prepare/PreparedRun.kt : prepared cases, skips, processRepetitions
 modules/preparation/src/main/kotlin/prepare/StoppedOnFailureException.kt : thrown under onFailure stop
 modules/preparation/src/main/kotlin/primitive/PrimitiveReader.kt : providers section to selections
@@ -115,4 +119,5 @@ modules/preparation/src/test/kotlin/PreparationPolicyTest.kt : onFailure policy 
 modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests
 modules/preparation/src/test/kotlin/PreparedFileTest.kt : prepared.yaml content tests
 modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : providers-section read tests
+modules/preparation/src/test/kotlin/ResolvedParametersTest.kt : read-back tests per parameter kind: GCM, CBC, key wrap, OAEP, PSS, EC curve, key size
 ```

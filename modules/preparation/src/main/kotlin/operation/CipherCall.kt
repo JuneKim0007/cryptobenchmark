@@ -41,5 +41,5 @@ internal class CipherCall(private val cipher: Cipher, private val input: ByteArr
         return output
     }
 
-    fun invocation(): Invocation = Invocation(::invoke) { output.copyOf(written) }
+    fun invocation(): Invocation = Invocation(::invoke, { output.copyOf(written) }, cipher)
 }

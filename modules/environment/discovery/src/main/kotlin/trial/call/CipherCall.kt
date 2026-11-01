@@ -1,11 +1,16 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
+import java.security.AlgorithmParameters
 import java.security.Key
 import java.security.Provider
+import java.security.spec.AlgorithmParameterSpec
+import java.security.spec.InvalidParameterSpecException
 import java.security.spec.MGF1ParameterSpec
 import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
+import javax.crypto.spec.PSource
 
 internal object CipherCall : DefaultCall {
 
@@ -21,7 +26,7 @@ internal object CipherCall : DefaultCall {
             keyAlgorithm = key.algorithm,
             keyProvider = key.provider,
             keySize = KeyBits.of(key.key),
-            providerChose = chosenParameters(cipher),
+            providerChose = chosenParameters(cipher, key.key),
             bareName = !algorithm.contains('/'),
         )
     }
@@ -37,13 +42,26 @@ internal object CipherCall : DefaultCall {
         return EncryptionKey(pair.algorithm, pair.provider, pair.keys.public)
     }
 
-    private fun chosenParameters(cipher: Cipher): String {
-        val parameters = cipher.parameters ?: return ""
-        val oaep = runCatching { parameters.getParameterSpec(OAEPParameterSpec::class.java) }.getOrNull()
+    // key=value pairs named as prepared.yaml resolvedParameters; a value the provider fills in identically on every init is not an IV.
+    private fun chosenParameters(cipher: Cipher, key: Key): String {
+        val parameters = cipher.parameters
+        val gcm = parameters?.let { spec(it, GCMParameterSpec::class.java) }
+        if (gcm != null) return "ivBytes=${gcm.iv.size} tagBits=${gcm.tLen}"
+        val oaep = parameters?.let { spec(it, OAEPParameterSpec::class.java) }
         if (oaep != null) {
-            val mgf = (oaep.mgfParameters as? MGF1ParameterSpec)?.digestAlgorithm ?: oaep.mgfAlgorithm
-            return "OAEP digest=${oaep.digestAlgorithm} mgf1=$mgf"
+            val fields = mutableListOf("digest=${oaep.digestAlgorithm}")
+            (oaep.mgfParameters as? MGF1ParameterSpec)?.let { fields += "mgf1=${it.digestAlgorithm}" }
+            (oaep.pSource as? PSource.PSpecified)?.let { fields += "labelBytes=${it.value.size}" }
+            return fields.joinToString(" ")
         }
-        return "${parameters.algorithm} iv=${cipher.iv?.size ?: 0}B"
+        val chosen = cipher.iv ?: return ""
+        cipher.init(Cipher.ENCRYPT_MODE, key)
+        return if (chosen.contentEquals(cipher.iv)) "fixedValueBytes=${chosen.size}" else "ivBytes=${chosen.size}"
+    }
+
+    private fun <T : AlgorithmParameterSpec> spec(parameters: AlgorithmParameters, type: Class<T>): T? = try {
+        parameters.getParameterSpec(type)
+    } catch (notThisType: InvalidParameterSpecException) {
+        null
     }
 }

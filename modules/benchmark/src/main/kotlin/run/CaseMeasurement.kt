@@ -4,10 +4,10 @@ import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 
-class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: MetricSamples) {
+class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: MetricSamples, val parameters: Map<String, Any> = emptyMap()) {
 
-    constructor(case: BenchmarkCase, keyKind: String?, iterations: Int, nanosPerOperation: List<Double>) :
-        this(case, keyKind, MetricSamples(nanosPerOperation, iterations))
+    constructor(case: BenchmarkCase, keyKind: String?, iterations: Int, nanosPerOperation: List<Double>, parameters: Map<String, Any> = emptyMap()) :
+        this(case, keyKind, MetricSamples(nanosPerOperation, iterations), parameters)
 
     val iterations: Int get() = time.iterations
 
@@ -30,5 +30,6 @@ class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: M
         inputSize = case.inputSize,
         keyKind = keyKind,
         metrics = linkedMapOf(MetricSamples.TIME to time),
+        parameters = parameters,
     )
 }

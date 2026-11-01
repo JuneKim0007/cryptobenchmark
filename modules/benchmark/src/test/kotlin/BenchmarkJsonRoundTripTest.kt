@@ -61,6 +61,32 @@ class BenchmarkJsonRoundTripTest {
         assertEquals(listOf(2.0, 2.0, 3.0, 4.0), row.metrics.getValue(MetricSamples.ALLOCATIONS).runs)
     }
 
+    private val gcm = linkedMapOf<String, Any>("mode" to "GCM", "padding" to "NoPadding", "ivBytes" to 12, "tagBits" to 128, "keyBits" to 128)
+
+    private fun withParameters(id: String, parameters: Map<String, Any>?) =
+        ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", both, parameters)
+
+    @Test
+    fun resolvedParametersRoundTripAndSurviveAMerge() {
+        val written = text(listOf(withParameters("a", gcm)))
+        assertTrue(written, written.contains("\"parameters\": {\"mode\": \"GCM\", \"padding\": \"NoPadding\", \"ivBytes\": 12, \"tagBits\": 128, \"keyBits\": 128}"))
+        assertEquals(gcm, Merge.merge(listOf(written, written)).rows.single().parameters)
+    }
+
+    @Test
+    fun processesThatResolvedDifferentParametersDoNotMerge() {
+        val other = text(listOf(withParameters("a", gcm + ("ivBytes" to 16))))
+        val refused = assertThrows(IllegalArgumentException::class.java) { Merge.merge(listOf(text(listOf(withParameters("a", gcm))), other)) }
+        assertTrue(refused.message, refused.message!!.startsWith("different_parameters: a"))
+    }
+
+    @Test
+    fun aFileFromBeforeParametersWritesNone() {
+        val written = text(listOf(withParameters("a", null)))
+        assertTrue(written, !written.contains("\"parameters\""))
+        assertEquals(null, Merge.merge(listOf(written)).rows.single().parameters)
+    }
+
     @Test
     fun aRowWithoutATimingIsRefusedWhereItIsBuilt() {
         val refused = assertThrows(IllegalArgumentException::class.java) {

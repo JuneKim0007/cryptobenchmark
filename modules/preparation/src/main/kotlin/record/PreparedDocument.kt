@@ -10,7 +10,8 @@ import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
 
 internal object PreparedDocument {
 
-    const val SCHEMA_VERSION = 1
+    const val SCHEMA_VERSION = 2
+    const val RESOLVED_PARAMETERS = "resolvedParameters"
 
     fun of(run: PreparedRun, effectiveFileName: String, runId: String?, harness: HarnessSettings, seed: Long): Map<String, Any> = linkedMapOf(
         "schemaVersion" to SCHEMA_VERSION,
@@ -24,7 +25,10 @@ internal object PreparedDocument {
 
     private fun case(prepared: PreparedCase): Map<String, Any> {
         val described = described(prepared)
-        return LinkedHashMap(described).apply { put("fingerprint", Fingerprint.of(YamlCodec().dump(described))) }
+        return LinkedHashMap(described).apply {
+            put("fingerprint", Fingerprint.of(YamlCodec().dump(described)))
+            put(RESOLVED_PARAMETERS, LinkedHashMap(prepared.resolvedParameters))
+        }
     }
 
     private fun described(prepared: PreparedCase): Map<String, Any> {
