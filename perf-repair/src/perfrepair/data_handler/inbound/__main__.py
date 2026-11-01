@@ -1,4 +1,4 @@
-"""python3 -m perfrepair.data_handler.inbound — a results manifest → rows, measurements, run log, sites."""
+"""python3 -m perfrepair.data_handler.inbound — a results manifest → rows, measurements, run log; apps: perfrepair.app."""
 from __future__ import annotations
 
 import argparse
@@ -15,10 +15,7 @@ from . import (
     manifest_file,
     read_manifest,
     read_prepared,
-    read_probe_index,
     read_results,
-    resolve,
-    scan,
 )
 
 SCHEMA_VERSION = 1
@@ -27,7 +24,6 @@ SCHEMA_VERSION = 1
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="perfrepair.data_handler.inbound", description=__doc__)
     ap.add_argument("--manifest", type=Path, required=True, help="a cryptobenchmark results/manifest.yaml")
-    ap.add_argument("--app", type=Path, help="app source root; omit to read the benchmark alone")
     ap.add_argument("-o", "--out", type=Path, required=True, help="run directory to write into")
     a = ap.parse_args(argv)
 
@@ -52,17 +48,7 @@ def main(argv: list[str] | None = None) -> int:
     write_json(a.out / rd.MEASUREMENTS, summaries.to_json())
     write_json(a.out / rd.RUN_LOG, log.to_json())
 
-    sites = ""
-    if a.app:
-        probe = manifest_file(manifest, base, "probe")
-        if probe is None:
-            ap.error(f"{a.manifest}: no probe file; --app needs it for engine types and aliases")
-        index = read_probe_index(probe)
-        resolved = [resolve(s, index, manifest.providers) for s in scan(a.app, index.engine_types)]
-        write_json(a.out / rd.SITES, {"schemaVersion": SCHEMA_VERSION, "app": str(a.app), "sites": resolved})
-        sites = f", {len(resolved)} sites"
-
-    print(f"{a.out}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records{sites}")
+    print(f"{a.out}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records")
     for note in notes:
         print(f"  warning {note}")
     return 0

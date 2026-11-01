@@ -4,7 +4,7 @@ Command: `python3 -m perfrepair.repair <step>`. candidates, test-set and choose 
 
 | Step | Flags | Input | Output |
 |---|---|---|---|
-| candidates | `--sites` | an app's inbound `sites.json`, `grouping/groups.json` | `candidates.json`: sites resolved `default` or `explicit` |
+| candidates | `--sites` | an app's `apps/<app>/sites.json`, `grouping/groups.json` | `candidates.json`: sites resolved `default` or `explicit` |
 | test-set | `-o` | candidates | YAML test set at `-o`: items the app runs and their alternatives |
 | choose | `--mode` (default `latency`) | candidates, `worthiness-<mode>/verdicts.json` | `choices.json`: replacement or none, with the reason |
 | edit | `--source <app root>` | `scopes.json`, `replacements.json`, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |

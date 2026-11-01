@@ -15,6 +15,7 @@ from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
 from .dossiers import validate_dossiers
+from .app import validate_app_dir
 from .failure import ValidationFailed
 from .measurements import validate_measurements
 from .rows import validate_rows
@@ -29,6 +30,8 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         out[rd.MEASUREMENTS] = validate_measurements(rd.load_measurements(run), rows)
     if (run / rd.RUN_LOG).exists():
         out[rd.RUN_LOG] = validate_run_log(rd.load_run_log(run), rows)
+    for directory in rd.app_dirs(run):
+        out |= validate_app_dir(directory)
     grouping = GroupingPaths(run)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)

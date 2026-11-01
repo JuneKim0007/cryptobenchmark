@@ -11,8 +11,6 @@ from perfrepair.data_handler.inbound import (
     read_prepared,
     read_probe_index,
     read_results,
-    resolve,
-    scan,
     summarise,
 )
 from perfrepair.data_handler.inbound.__main__ import main
@@ -21,7 +19,7 @@ from perfrepair.data_handler.inbound.run_log import (
     normalise_reason,
     split_case_id,
 )
-from perfrepair.dto import ProviderEntry, RunLog
+from perfrepair.dto import RunLog
 
 F = Path(__file__).parent / "fixtures"
 MANIFEST = F / "results" / "manifest.yaml"
@@ -144,62 +142,18 @@ def test_aliases_and_case_resolve_to_the_registered_name(index):
     assert index.canonical("Fast", "Mac", "HmacSHA256") is None
 
 
-def test_scan_finds_sites_and_ignores_build_dirs(index):
-    sites = scan(F / "app", index.engine_types)
-    assert [(s.engineType, s.line) for s in sites] == [
-        ("Cipher", 12), ("MessageDigest", 17), ("Cipher", 21), ("Mac", 25), ("Cipher", 31)]
-    assert sites[2].algorithm.literal is None and sites[2].algorithm.expr == "ALG"
-    assert sites[2].provider.literal == "Fast"
-    assert sites[3].provider.literal is None
-
-
-def test_resolution_per_site(run, index):
-    got = [resolve(s, index, run[0].providers) for s in scan(F / "app", index.engine_types)]
-    assert [(s["resolvedProvider"], s["resolvedAlgorithm"], s["resolution"]) for s in got] == [
-        ("Slow", "AES/GCM/NoPadding", "explicit"), ("Fast", "SHA-256", "default"),
-        ("Fast", None, "unresolved_algorithm"), (None, None, "unresolved_provider"),
-        ("Bundled", "AES/GCM/NoPadding", "provider_not_on_device")]
-
-
-def test_default_resolution_follows_manifest_precedence(tmp_path, run, index):
-    (tmp_path / "A.java").write_text('class A { Object c = Cipher.getInstance("aes/gcm/nopadding"); '
-                                     'Object m = Mac.getInstance("HmacSHA256"); }')
-    cipher, mac = scan(tmp_path, index.engine_types)
-    flipped = [ProviderEntry("Slow", 1, 2), ProviderEntry("Fast", 2, 2)]
-    assert resolve(cipher, index, run[0].providers)["resolvedProvider"] == "Fast"
-    assert resolve(cipher, index, flipped)["resolvedProvider"] == "Slow"
-    assert resolve(mac, index, run[0].providers)["resolvedProvider"] == "Slow"
-    assert resolve(cipher, index, run[0].providers)["resolvedAlgorithm"] == "AES/GCM/NoPadding"
-
-
-
 def test_command_writes_the_run_directory(tmp_path, capsys):
-    assert main(["--manifest", str(MANIFEST), "--app", str(F / "app"), "-o", str(tmp_path)]) == 0
-    docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log", "sites")}
-    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 3, "run_log": 1, "sites": 1}
+    assert main(["--manifest", str(MANIFEST), "-o", str(tmp_path)]) == 0
+    docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log")}
+    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 3, "run_log": 1}
     assert len(docs["rows"]["rows"]) == 3
     assert docs["measurements"]["measurements"]["g_fast"]["timeNs"]["median"] == 100
-    assert len(docs["sites"]["sites"]) == 5
+    assert not (tmp_path / "sites.json").exists()
     out = capsys.readouterr().out
     assert "3 rows" in out and "warning cpu_not_locked" in out
-
-
-def test_command_without_app_writes_no_sites(tmp_path):
-    assert main(["--manifest", str(MANIFEST), "-o", str(tmp_path)]) == 0
-    assert not (tmp_path / "sites.json").exists()
 
 
 def test_measurements_document_round_trips(tmp_path):
     from perfrepair.dto import Measurements, Summary
     m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5, 1, 3), "allocations": None}})
     assert Measurements.from_json(json.loads(json.dumps(m.to_json()))) == m
-
-
-def test_calls_inside_comments_are_not_sites(tmp_path, index):
-    (tmp_path / "A.java").write_text('class A {\n'
-                                     '  // Object a = Cipher.getInstance("AES/GCM/NoPadding");\n'
-                                     '  /* Object b = Mac.getInstance("HmacSHA256"); */\n'
-                                     '  String s = "// not a comment"; Object c = Mac.getInstance("HmacSHA256");\n'
-                                     '}\n')
-    [site] = scan(tmp_path, index.engine_types)
-    assert (site.engineType, site.line) == ("Mac", 4)

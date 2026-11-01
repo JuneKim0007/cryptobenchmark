@@ -1,0 +1,51 @@
+# Regular expressions matched against a function body with comments and string contents blanked.
+# sinks: where the function's output goes; keySources: where its key comes from, first matching kind wins.
+schemaVersion: 1
+sinks:
+  persist:
+    - '\bFileOutputStream\b'
+    - '\bFileWriter\b'
+    - '\bRandomAccessFile\b'
+    - '\bFiles\s*\.\s*write'
+    - '\.\s*write(?:Bytes|Text)\s*\('
+    - '\bopenFileOutput\s*\('
+    - '\bSharedPreferences\b'
+    - '\.\s*edit\s*[({]'
+    - '\.\s*put(?:String|StringSet|Int|Long|Boolean|Float)\s*\('
+    - '\bSQLiteDatabase\b'
+    - '\.\s*(?:execSQL|insertOrThrow|insertWithOnConflict|updateWithOnConflict)\s*\('
+    - '\bContentValues\b'
+    - '\bDataStore\b'
+  network:
+    - '\bSocket\b'
+    - '\bDatagramPacket\b'
+    - '\bHttps?URLConnection\b'
+    - '\.\s*openConnection\s*\('
+    - '\.\s*getOutputStream\s*\('
+    - '\bOkHttpClient\b'
+    - '\.\s*newCall\s*\('
+    - '\bRequestBody\b'
+    - '\bRetrofit\b'
+    - '\bWebSocket\b'
+  return:
+    - '\breturn\s+(?!@)[^\s;}]'
+keySources:
+  keystore:
+    - '\bKeyStore\b'
+    - '\bKeyGenParameterSpec\b'
+    - '\bKeyProtection\b'
+  derived:
+    - '\bSecretKeyFactory\b'
+    - '\bPBEKeySpec\b'
+    - '\bHKDF'
+    - '\.\s*generateSecret\s*\('
+  generated:
+    - '\bKeyGenerator\b'
+    - '\bKeyPairGenerator\b'
+    - '\.\s*generateKey(?:Pair)?\s*\('
+  literal:
+    - '\bSecretKeySpec\s*\(\s*(?:byteArrayOf\s*\(|new\s+byte\s*\[\s*\]\s*\{|"[^"]*"\s*\.\s*(?:toByteArray|getBytes)\b)'
+# Calls whose identifier arguments name the key; an argument that is a function parameter makes the source `parameter`.
+keyCalls: '\.\s*init(?:Sign|Verify)?\s*\(|\bSecretKeySpec\s*\('
+# A write to a field means the output may leave the function another way: `unknown` rather than `local`.
+fieldWrite: '\bthis\s*\.\s*\w+\s*=[^=]'

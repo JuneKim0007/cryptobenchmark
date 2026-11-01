@@ -1,0 +1,102 @@
+"""Same-file string constants folded to their value: `const val`, top-level or object `val`, `static final String`."""
+from __future__ import annotations
+
+import re
+from collections import Counter
+
+from .lexer import Code, literal, opening, split_top
+
+_KOTLIN = re.compile(r"\b(const\s+)?val\s+(\w+)\s*(?::\s*String\s*)?=")
+_JAVA = re.compile(r"\b((?:(?:public|private|protected|static|final)\s+)+)String\s+(\w+)\s*=")
+_DECLARED = re.compile(r"\b(?:val|var)\s+(\w+)|\b[\w>\]]+\s+(\w+)\s*(?==[^=])")
+_TYPE = re.compile(r"\b(?:class|object|interface|enum\s+class|enum)\s+(\w+)")
+_OBJECT_HEADER = re.compile(r"\bobject\b[^;{}]*$")
+_NAME = re.compile(r"(?:(\w+)\s*\.\s*)?(\w+)")
+_CONTINUED = ("+",)
+
+
+def _rhs_end(code: Code, start: int) -> int:
+    """End of the initializer starting at start: ';' or, in Kotlin, a line end not continued by '+'."""
+    depth, k, m = 0, start, code.masked
+    while k < len(m):
+        ch = m[k]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            if depth == 0:
+                return k
+            depth -= 1
+        elif depth == 0 and ch == ";":
+            return k
+        elif depth == 0 and ch == "\n" and code.kotlin:
+            before, after = m[start:k].rstrip(), m[k:].lstrip()
+            if before and not before.endswith(_CONTINUED) and not after.startswith(_CONTINUED):
+                return k
+        k += 1
+    return k
+
+
+def _enclosing_brace(masked: str, offset: int) -> int | None:
+    depth = 0
+    for k in range(offset - 1, -1, -1):
+        ch = masked[k]
+        if ch == "}":
+            depth += 1
+        elif ch == "{":
+            if depth == 0:
+                return k
+            depth -= 1
+    return None
+
+
+def _member_level(code: Code, offset: int) -> bool:
+    """Kotlin: at top level or directly in an object body."""
+    brace = _enclosing_brace(code.masked, offset)
+    if brace is None:
+        return True
+    return bool(_OBJECT_HEADER.search(code.masked[max(0, brace - 200):brace]))
+
+
+def declarations(code: Code) -> dict[str, str]:
+    """Constant name → initializer text, for names declared exactly once in the file."""
+    found: dict[str, str] = {}
+    m = code.masked
+    if code.kotlin:
+        for d in _KOTLIN.finditer(m):
+            if d.group(1) or _member_level(code, d.start()):
+                found[d.group(2)] = code.text[d.end():_rhs_end(code, d.end())].strip()
+    else:
+        for d in _JAVA.finditer(m):
+            mods = d.group(1).split()
+            if "static" in mods and "final" in mods:
+                found[d.group(2)] = code.text[d.end():_rhs_end(code, d.end())].strip()
+    counts = Counter(a or b for a, b in _DECLARED.findall(m))
+    return {k: v for k, v in found.items() if counts[k] <= 1}
+
+
+class Constants:
+    def __init__(self, code: Code):
+        self.code = code
+        self.table = declarations(code)
+        self.types = set(_TYPE.findall(code.masked)) | {"Companion"}
+
+    def fold(self, expr: str, seen: frozenset[str] = frozenset()) -> str | None:
+        """The string value of a literal, a constant, or a '+' of those; None when any part is not one."""
+        value = literal(expr, self.code.kotlin)
+        if value is not None:
+            return value
+        sub = Code.of(expr, self.code.kotlin)
+        parts = split_top(sub.masked, sub.text, 0, len(sub.text), "+")
+        if len(parts) > 1:
+            values = [self.fold(p, seen) for p in parts]
+            return None if None in values else "".join(values)
+        stripped = expr.strip()
+        if stripped.startswith("(") and stripped.endswith(")") and opening(stripped, len(stripped) - 1) == 0:
+            return self.fold(stripped[1:-1], seen)
+        m = _NAME.fullmatch(stripped)
+        if not m or (m.group(1) and m.group(1) not in self.types):
+            return None
+        name = m.group(2)
+        if name in seen or name not in self.table:
+            return None
+        return self.fold(self.table[name], seen | {name})
