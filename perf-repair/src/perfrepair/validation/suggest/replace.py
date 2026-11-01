@@ -1,35 +1,9 @@
 """Gate C of the replacement decision: a reply against its dossier, in the aliases the model saw."""
 from __future__ import annotations
 
-import json
-
-from ...dto.site import DECISIONS, EDIT_KINDS, Dossier, Edit, Option, Replacement, Scope
+from ...dto.grouping import algorithm_of, provider_of
+from ...dto.site import DECISIONS, EDIT_KINDS, RISKS, Dossier, Edit, Option, Replacement, Scope, pin_text, required_risks
 from ..json_reply import parse_object
-from .dossier import algorithm_of, provider_of
-
-RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink")
-# (scope field, value, risk it implies, plain words): the minimum risks a replace must declare
-DERIVED_RISKS = (
-    ("sinks", "persist", "persisted_data", "the output is stored and read back later"),
-    ("sinks", "network", "wire_format", "the output leaves the process"),
-    ("sinks", "unknown", "unknown_sink", "where the output goes is unknown"),
-    ("keySource", "keystore", "key_compatibility", "the key lives in a key store"),
-    ("keySource", "literal", "key_compatibility", "the key is a literal in the code"),
-)
-
-
-def pin_text(value) -> str:
-    return value if isinstance(value, str) else json.dumps(value)
-
-
-def required_risks(scope: Scope) -> dict[str, list[str]]:
-    """Each risk the scope facts imply, with the plain words that imply it."""
-    out: dict[str, list[str]] = {}
-    for field, value, risk, words in DERIVED_RISKS:
-        facts = getattr(scope, field)
-        if value in (facts if isinstance(facts, tuple) else (facts,)):
-            out.setdefault(risk, []).append(words)
-    return out
 
 
 def _text(d: dict, field: str) -> str | None:
@@ -144,6 +118,8 @@ def check_reply(text: str, dossier: Dossier) -> tuple[dict | None, list[str]]:
     if decision == "replace":
         if alias not in by_alias:
             problems.append(f"option {alias!r} is not one of {', '.join(by_alias) or '(none)'}")
+        elif by_alias[alias].pins is None:
+            problems.append(f"{alias} has unknown pins, so no like-for-like swap can be stated; it cannot be chosen")
         else:
             option = by_alias[alias]
         if not edits:

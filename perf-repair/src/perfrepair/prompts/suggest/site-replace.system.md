@@ -24,7 +24,9 @@ measurement and can be rejected; a `keep` costs only the gain.
   (the parameters that keep the swap like-for-like) and, per metric, an estimate: `ratio` (option
   ÷ current; below 1 is less time, fewer allocations or less energy), `pImprove` (the probability
   the option is better on that metric), `n` (samples) and the measured configuration nearest to
-  this site.
+  this site. A `pImprove` of `n/a (n<2)` means too few runs to judge: it is not evidence either
+  way. Pins of `unknown` mean no configuration was measured on both sides, so the swap cannot be
+  stated like-for-like; such an option cannot be chosen.
 - EDIT KINDS: the only edits allowed, and what each does.
 - FUNCTION SOURCE: the function's lines, between a BEGIN and an END marker line.
 
@@ -76,7 +78,7 @@ JSON only, matching the schema:
 ## What is checked after you answer
 
 Code refuses an answer when the decision is not `replace` or `keep`; when `replace` names an
-alias that is not listed, or no edit; when `keep` names an option or edits; when an edit kind is
+alias that is not listed, an option whose pins are unknown, or no edit; when `keep` names an option or edits; when an edit kind is
 not one of the edit kinds listed, is given twice, or fills a field its kind does not use; when
 `set_provider` or `set_algorithm` names another provider or name than the option's, or is missing
 while the option's provider or name differs from the current one; when `pin_parameters` adds,

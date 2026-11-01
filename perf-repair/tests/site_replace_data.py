@@ -22,8 +22,9 @@ def dossier(options=None, **kw) -> Dossier:
     return Dossier(scope(**kw), SOURCE, "TypeA|ALG-A/MODE-X|P1", options)
 
 
-def doc(*dossiers: Dossier, app=APP) -> dict:
-    return {"schemaVersion": SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers]}
+def doc(*dossiers: Dossier, app=APP, no_options=()) -> dict:
+    return {"schemaVersion": SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers],
+            "noOptions": [{"scope": s, "reason": r} for s, r in no_options]}
 
 
 def edit(kind, provider="", parameters=(), algorithm=""):

@@ -3,8 +3,8 @@ import json
 import pytest
 from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, scope
 
-from perfrepair.dto.site import Replacement
-from perfrepair.validation.suggest.replace import check_reply, required_risks
+from perfrepair.dto.site import Option, Replacement, required_risks
+from perfrepair.validation.suggest.replace import check_reply
 
 D = dossier()
 
@@ -102,3 +102,10 @@ def test_a_keep_need_not_declare_derived_risks():
 ])
 def test_required_risks_come_from_the_scope_facts(sinks, key_source, risks):
     assert set(required_risks(scope(sinks=sinks, key_source=key_source))) == risks
+
+
+def test_an_option_with_unknown_pins_cannot_be_replaced_to():
+    unknown = dossier(options=(Option("R1", "TypeA|ALG-A/MODE-X|P2", None, ()),))
+    decision, problems = check(answer(edits=[edit("set_provider", "P2")]), unknown)
+    assert decision is None and any("R1 has unknown pins" in p for p in problems), problems
+    assert check(KEEP, unknown)[1] == []

@@ -17,8 +17,8 @@
 
 ```
 src/perfrepair/validation/__main__.py : command: validate a run directory; exit 1 on any problem, 2 on bad usage
-src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids
-src/perfrepair/validation/dossiers.py : dossiers.json: every scope once, options from the current item's group, estimates well-formed
+src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
+src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier, every scope once, options from the current item's group
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
 src/perfrepair/validation/grouping/answer.py : gate C: an agent answer against its item and the knowledge
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
@@ -32,8 +32,8 @@ src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run.py : validate every artifact present in a run directory
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
-src/perfrepair/validation/suggest/dossier.py : dossiers.json: header, scope id, sinks, key source, unique aliases, estimates in range
-src/perfrepair/validation/suggest/replace.py : gate C of site-replace: a reply against its dossier, in its aliases; RISKS and the DERIVED_RISKS table
-src/perfrepair/validation/suggest/replacements.py : replacements: known scopes, keep without edits, edits exactly the option's provider and pins
+src/perfrepair/validation/suggest/dossier.py : dossiers.json into Dossiers and noOptions for the replace stage, by the checks of validation/dossiers.py
+src/perfrepair/validation/suggest/replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins
+src/perfrepair/validation/suggest/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins
 src/perfrepair/validation/worthiness.py : verdicts: known groups, static equal triage, pairs are members
 ```

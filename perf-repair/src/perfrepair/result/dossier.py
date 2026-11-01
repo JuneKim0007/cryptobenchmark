@@ -6,12 +6,10 @@ from pathlib import Path
 
 from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
-from ..dto.site import METRICS, Dossier, Estimate, Option, Scope
+from ..dto.site import METRICS, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
 from .estimate import compare
 
-SCHEMA_VERSION = 1
 RESOLVED = ("default", "explicit")
-NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available")
 MEASUREMENT_KEY = {"allocationCount": "allocations"}
 
 Config = tuple  # (operation, keySize, inputSize, phase)
@@ -34,10 +32,8 @@ def nearest(scope: Scope, current: dict[Config, PrimitiveRow], option: dict[Conf
     return sorted((c for c in shared if abs((c[2] or 0) - scope.inputSize) == gap), key=str)
 
 
-def pins(current: PrimitiveRow, option: PrimitiveRow) -> dict | None:
-    """The option's parameters that differ from the current ones; None when either row does not report them."""
-    if current.parameters is None or option.parameters is None:
-        return None
+def pins(current: PrimitiveRow, option: PrimitiveRow) -> dict:
+    """The option's parameters that differ from the current ones."""
     keys = sorted(set(current.parameters) | set(option.parameters))
     return {k: option.parameters.get(k) for k in keys if current.parameters.get(k) != option.parameters.get(k)}
 
@@ -64,6 +60,9 @@ def function_source(root: Path, scope: Scope) -> str:
 
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
                    measurements: dict[str, dict[str, Summary | None]], source_root: Path) -> dict:
+    bare = sorted(r.rowId for r in rows if r.parameters is None)
+    if bare:
+        raise ValueError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
     items = groups["items"]
     by_qualified = {v["qualified"]: key for key, v in items.items()}
     members = {g["id"]: [str(m) for m in g["members"]] for g in groups["groups"]}
@@ -93,6 +92,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
         options = []
         for n, q in enumerate(usable, 1):
             configs = nearest(s, measured[current], measured[q])
+            # no configuration measured on both sides: the pins are unknown, never guessed
             pinned = pins(measured[current][configs[0]], measured[q][configs[0]]) if configs else None
             options.append(Option(f"R{n}", q, pinned, estimates(configs, measured[current], measured[q], measurements)))
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))

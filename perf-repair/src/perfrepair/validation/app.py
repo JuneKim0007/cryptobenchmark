@@ -30,33 +30,41 @@ def validate_app_facts(doc: dict) -> list[str]:
     return out
 
 
+def scope_problems(where: str, s, app: str | None) -> list[str]:
+    """One scope's shape and contract values; shared by scopes.json and every dossier that carries a scope."""
+    if not isinstance(s, dict):
+        return [f"{where}: scope is not an object"]
+    out = _typed(where, s, _SCOPE_TYPES, _OPTIONAL)
+    if out:
+        return out
+    try:
+        Scope.from_json(s)
+    except TypeError as e:
+        out.append(f"{where}: {e}")
+    if s["id"] != scope_id(s["app"], s["file"], s["function"], s["line"], s["call"]):
+        out.append(f"{where}: id is not scope_id of its parts")
+    if s["app"] != app:
+        out.append(f"{where}: app {s['app']!r} is not the document's {app!r}")
+    if not s["start"] <= s["line"] <= s["end"]:
+        out.append(f"{where}: line {s['line']} outside {s['start']}..{s['end']}")
+    if not s["sinks"] or set(s["sinks"]) - set(SINKS):
+        out.append(f"{where}: sinks {s['sinks']} not a non-empty subset of {SINKS}")
+    if s["keySource"] not in KEY_SOURCES:
+        out.append(f"{where}: keySource {s['keySource']} not in {KEY_SOURCES}")
+    return out
+
+
 def validate_scopes(doc: dict) -> list[str]:
     out = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
     out += _typed(rd.SCOPES, doc, {"app": str, "scopes": list, "unscoped": list}, {})
     seen = set()
     for i, s in enumerate(doc.get("scopes") or []):
-        where = f"scopes[{i}]"
-        problems = _typed(where, s, _SCOPE_TYPES, _OPTIONAL)
-        if problems:
-            out += problems
-            continue
-        try:
-            Scope.from_json(s)
-        except TypeError as e:
-            out.append(f"{where}: {e}")
-        if s["id"] != scope_id(s["app"], s["file"], s["function"], s["line"], s["call"]):
-            out.append(f"{where}: id is not scope_id of its parts")
-        if s["id"] in seen:
-            out.append(f"{where}: duplicate id {s['id']}")
-        seen.add(s["id"])
-        if s["app"] != doc.get("app"):
-            out.append(f"{where}: app {s['app']} is not the document's")
-        if not s["start"] <= s["line"] <= s["end"]:
-            out.append(f"{where}: line {s['line']} outside {s['start']}..{s['end']}")
-        if not s["sinks"] or set(s["sinks"]) - set(SINKS):
-            out.append(f"{where}: sinks {s['sinks']} not a non-empty subset of {SINKS}")
-        if s["keySource"] not in KEY_SOURCES:
-            out.append(f"{where}: keySource {s['keySource']} not in {KEY_SOURCES}")
+        out += scope_problems(f"scopes[{i}]", s, doc.get("app"))
+        sid = s.get("id") if isinstance(s, dict) else None
+        if sid in seen:
+            out.append(f"scopes[{i}]: duplicate id {sid}")
+        if isinstance(sid, str):
+            seen.add(sid)
     return out
 
 

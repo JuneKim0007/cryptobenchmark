@@ -1,9 +1,8 @@
 """replacements: each one names a known scope, a well-formed decision, and edits that apply its option exactly."""
 from __future__ import annotations
 
-from ...dto.site import DECISIONS, EDIT_KINDS, Dossier, Replacement
-from .dossier import algorithm_of, provider_of
-from .replace import RISKS, required_risks
+from ...dto.grouping import algorithm_of, provider_of
+from ...dto.site import DECISIONS, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
 
 SOURCES = ("llm", "fallback", "static")
 
@@ -12,6 +11,8 @@ def _edits(r: Replacement, d: Dossier) -> list[str]:
     option = next((o for o in d.options if o.item == r.option), None)
     if option is None:
         return [f"{r.scope}: option {r.option!r} is not an option of its dossier"]
+    if option.pins is None:
+        return [f"{r.scope}: option {option.alias} has unknown pins and cannot be a replace"]
     kinds = [e.kind for e in r.edits]
     problems = []
     if not kinds or len(set(kinds)) != len(kinds) or set(kinds) - set(EDIT_KINDS):
@@ -30,10 +31,19 @@ def _edits(r: Replacement, d: Dossier) -> list[str]:
     return problems
 
 
+def _static(k: str, r: Replacement, source: str | None, no_options: dict[str, str]) -> list[str]:
+    if (source == "static") != (k in no_options):
+        return [f"{k}: static is the source exactly of the noOptions scopes"]
+    if k in no_options and (r.decision != "keep" or r.reason != no_options[k]):
+        return [f"{k}: a noOptions scope is a keep whose reason is its code {no_options[k]!r}"]
+    return []
+
+
 def validate_replacements(replacements: dict[str, Replacement], sources: dict[str, str],
-                          dossiers: list[Dossier]) -> list[str]:
+                          dossiers: list[Dossier], no_options: dict[str, str]) -> list[str]:
     by_key = {d.key: d for d in dossiers}
-    problems = [f"{k}: replacement for an unknown scope" for k in replacements if k not in by_key]
+    problems = [f"{k}: replacement for an unknown scope" for k in replacements if k not in by_key and k not in no_options]
+    problems += [f"{k}: noOptions scope without its static keep" for k in no_options if k not in replacements]
     problems += [f"{k}: source {sources.get(k)!r} is not one of {SOURCES}" for k in replacements
                  if sources.get(k) not in SOURCES]
     problems += [f"{k}: source without a replacement" for k in sources if k not in replacements]
@@ -46,6 +56,7 @@ def validate_replacements(replacements: dict[str, Replacement], sources: dict[st
             f"{k}: reason is empty" if not r.reason.strip() else "",
             f"{k}: a fallback is not a keep" if sources.get(k) == "fallback" and r.decision != "keep" else "",
         ) if p]
+        problems += _static(k, r, sources.get(k), no_options)
         if r.decision == "replace" and k in by_key:
             problems += _edits(r, by_key[k])
     return problems

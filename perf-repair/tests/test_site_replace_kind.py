@@ -11,23 +11,23 @@ from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.suggest.site_replace.command import replace
 from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, charter
-from perfrepair.ai.suggest.site_replace.render import EDIT_MEANINGS
+from perfrepair.ai.suggest.site_replace.render import EDIT_MEANINGS, UNKNOWN_PINS
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA
-from perfrepair.dto.site import DECISIONS, EDIT_KINDS
+from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Edit, Estimate, Option, Replacement
 from perfrepair.files import read_json
 from perfrepair.validation import ValidationFailed
-from perfrepair.validation.suggest.replace import RISKS
+from perfrepair.validation.suggest.replacements import validate_replacements
 
 SNAPSHOT = Path(__file__).parent / "fixtures" / "site_replace" / "render.txt"
 A = dossier()
 B = dossier(file="src/Wire.kt", sinks=("network",), key_source="derived")
-NONE = dossier(file="src/Lone.kt", options=())
+NONE = dossier(file="src/Lone.kt").key
 
 
-def run_dir(tmp_path, *dossiers):
+def run_dir(tmp_path, *dossiers, no_options=()):
     app = tmp_path / "apps" / APP
     app.mkdir(parents=True)
-    (app / "dossiers.json").write_text(json.dumps(doc(*dossiers)))
+    (app / "dossiers.json").write_text(json.dumps(doc(*dossiers, no_options=no_options)))
     return tmp_path, app
 
 
@@ -72,15 +72,15 @@ def test_the_prompt_states_what_the_gate_enforces():
 
 
 def test_end_to_end_command_writes_replacements_with_static_and_model_sources(tmp_path):
-    run, app = run_dir(tmp_path, A, B, NONE)
+    run, app = run_dir(tmp_path, A, B, no_options=[(NONE, "none_available")])
     agent = ScriptedConversations(lambda m, *_: by_file(m))
     state = replace(run, APP, agent, LIBRARY, **QUIET)
     out = read_json(app / "replacements.json")
     assert out["schemaVersion"] == 1 and out["app"] == APP and agent.started == 2
     decisions = {r["scope"]: r for r in out["replacements"]}
     assert decisions[A.key]["decision"] == "replace" and decisions[A.key]["option"] == "TypeA|ALG-A/MODE-X|P2"
-    assert decisions[B.key]["decision"] == "keep" and decisions[NONE.key]["reason"].startswith("static")
-    assert out["sources"] == {NONE.key: "static", A.key: "llm", B.key: "llm"}
+    assert decisions[B.key]["decision"] == "keep" and decisions[NONE] == {"scope": NONE, "decision": "keep", "option": None, "edits": [], "risks": [], "reason": "none_available"}
+    assert out["sources"] == {NONE: "static", A.key: "llm", B.key: "llm"}
     assert state.version == 2 and (app / "replace" / "journal.jsonl").exists()
 
 
@@ -129,7 +129,7 @@ def test_a_malformed_dossiers_file_stops_before_any_call(tmp_path):
     bad["dossiers"][0]["scope"]["line"] = 99
     (app / "dossiers.json").write_text(json.dumps(bad))
     agent = ScriptedConversations(lambda *_: KEEP)
-    with pytest.raises(ValidationFailed, match="id is not the scope_id"):
+    with pytest.raises(ValidationFailed, match="id is not scope_id"):
         replace(run, APP, agent, LIBRARY, **QUIET)
     assert agent.started == 0
 

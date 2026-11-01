@@ -1,7 +1,6 @@
 """The answer's JSON schema, for structured output. Every field required; "" and [] mean "not given",
 which keeps the schema within what structured output accepts without nullable unions."""
-from ....dto.site import DECISIONS, EDIT_KINDS
-from ....validation.suggest.replace import RISKS
+from ....dto.site import DECISIONS, EDIT_KINDS, RISKS
 
 SCHEMA = {
     "type": "object",

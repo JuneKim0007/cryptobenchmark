@@ -15,6 +15,14 @@ def parse_qualified(text: str) -> tuple[str, str, str]:
     return engine_type, name, provider
 
 
+def provider_of(item: str) -> str:
+    return parse_qualified(item)[2]
+
+
+def algorithm_of(item: str) -> str:
+    return parse_qualified(item)[1]
+
+
 @dataclass(frozen=True)
 class Family:
     id: str
