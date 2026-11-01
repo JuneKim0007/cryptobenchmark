@@ -25,9 +25,11 @@
 ## File structure
 
 ```
+src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; GroupingKind on the engine, its dry run
 src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups, the item
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema
+src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
 src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family → supervisor.json
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema

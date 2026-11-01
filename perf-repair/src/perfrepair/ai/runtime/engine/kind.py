@@ -42,3 +42,17 @@ def project(kind: DecisionKind, records: list[OutboxRecord]):
     for r in records:
         kind.apply(state, by_key[r.item], r)
     return state
+
+
+def replay_problems(kind: DecisionKind, state, records: list[OutboxRecord]) -> list[str]:
+    """The state is one version per committed record and equals the projection of the outbox."""
+    noun = type(state).__name__.lower()
+    problems = [] if state.version == len(records) else [
+        f"{noun} version {state.version} is not the {len(records)} records committed"]
+    try:
+        # to_json: a saved state reloads with sorted lists the replay need not have
+        if project(kind, records).to_json() != state.to_json():
+            problems.append(f"{noun} differs from the replay of the outbox")
+    except (KeyError, ValueError, TypeError) as e:
+        problems.append(f"outbox does not replay: {e!r}")
+    return problems
