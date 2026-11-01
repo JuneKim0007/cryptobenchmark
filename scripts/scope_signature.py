@@ -30,10 +30,6 @@ class Signature:
     member: str
 
 
-def parse(source, language):
-    return (java if language == "java" else kotlin)(source)
-
-
 def split_top(text, separator=","):
     parts, depth, current = [], 0, []
     for char in text:

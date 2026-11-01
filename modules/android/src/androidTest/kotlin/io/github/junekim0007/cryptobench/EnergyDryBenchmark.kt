@@ -14,7 +14,7 @@ class EnergyDryBenchmark(private val caseId: String, private val prepared: Prepa
 
     @Test
     fun capture() {
-        val energy = CaseSettings.of(prepared.case.harness).energy
+        val energy = CaseSettings.of(prepared.case).energy
         val calls = CaseRuns.dry(caseId, energy, TraceWindowMarker, Invocations.of(prepared)).run()
         File(DevicePlan.directory, CALLS).appendText("\"$caseId\": $calls\n")
     }

@@ -56,7 +56,6 @@ scripts/bundled.py : providers.bundled of global.yaml: build property, DevicePro
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo
 scripts/device.py : adb steps of a --device run: install, probe, push, AOT compile, measure, pull
-scripts/device_args.py : instrumentation launch arguments for the plan's metrics (CPU events)
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
@@ -74,6 +73,7 @@ scripts/scope_generate.py : harness.yaml to generated scope sources and scoped-p
 scripts/scope_harness.py : reads perf-repair's harness.yaml
 scripts/scope_inputs.py : synthesisable parameter types and their ScopeInputs calls
 scripts/scope_interop.py : each scope's interop check: round trip with a partner, same output, or none
+scripts/scope_languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
 scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
 scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog

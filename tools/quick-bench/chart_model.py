@@ -9,8 +9,10 @@ PAYLOAD_GROUPS = {1, 4, 5}      # symmetric-cipher, hash, mac: cost scales with 
 
 
 def runs_of(case):
-    metrics = case.get("metrics") or {}
-    return (metrics.get("timeNs") or {}).get("runs") or case["nanosPerOperation"]
+    runs = ((case.get("metrics") or {}).get("timeNs") or {}).get("runs")
+    if not runs:
+        raise ValueError(f"missing_field: metrics.timeNs.runs for {case.get('id')}")
+    return runs
 
 
 def op_slug(operation):

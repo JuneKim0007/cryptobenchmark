@@ -4,6 +4,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.junekim0007.cryptobench.benchmark.RefusedPlanException
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
+import io.github.junekim0007.cryptobench.benchmark.check.Refusal
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.Preparation
@@ -29,7 +30,7 @@ object DevicePlan {
 
     val dryCases: List<PreparedCase> get() = cases.filter { captureOf(it) == Energy.Capture.DRY }
 
-    private fun captureOf(prepared: PreparedCase) = CaseSettings.of(prepared.case.harness).energy.capture
+    private fun captureOf(prepared: PreparedCase) = CaseSettings.of(prepared.case).energy.capture
 
     val directory: File
         get() = File(
@@ -47,7 +48,8 @@ object DevicePlan {
             SkipFile(directory),
             PreparedFile(directory),
         ).prepare(effective)
-        val refusals = PlanCheck(energyCapability = ::energyCapability).check(run)
+        val refusals = PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability).check(run) +
+            run.cases.filter { captureOf(it) != Energy.Capture.DRY }.mapNotNull { prepared -> JetpackConfig.refusal(CaseSettings.of(prepared.case))?.let { Refusal(prepared.case.id, it) } }
         if (refusals.isNotEmpty()) {
             throw RefusedPlanException(refusals)
         }

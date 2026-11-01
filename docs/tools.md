@@ -16,7 +16,7 @@
 - Main class comes from `-PmainClass`, default `ProbeKt`.
 - Both entries fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
 - `ConfigureKt`: fewer than 3 paths exits 2; a missing input prints `error: missing_file`, exits 1; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
-- Compiles discovery, settings and config sources; tests are discovery and config tests.
+- Compiles discovery, settings and config sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes` (test classpath only).
 - `./gradlew test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
 - CI `.github/workflows/jca-contract.yml` job `probe`: `./gradlew test` on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.
 
@@ -51,7 +51,7 @@ python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml
 - Writes `summary.md`; `throughput.png`, `latency.png`, `stability.png` when `analysis.charts` names them.
 - Writes `<metric>-vs-time.png` per count metric (`allocationCount`, a CPU event) in `benchmark.json`.
 - Summary columns: case, op, key, input, ops/s, MB/s, CoV, outliers.
-- Uses `timeNs.runs` when present, else `nanosPerOperation`; statistics on the runs `outliers.py` keeps.
+- Uses `metrics.timeNs.runs`, else `missing_field: metrics.timeNs.runs for <id>`; statistics on the runs `outliers.py` keeps.
 - Stability chart gate: `analysis.statistic.meanUpToCovPercent`, default 5%.
 - Without `prepared.yaml` the cases have no chart group; a warning says so.
 

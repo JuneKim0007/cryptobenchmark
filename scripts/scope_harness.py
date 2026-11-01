@@ -4,7 +4,8 @@ from dataclasses import dataclass
 
 import yaml
 
-LANGUAGES = ("java", "kotlin")
+import scope_languages
+
 SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "option", "metrics", "dependencies"}
 ID = re.compile(r"^[0-9a-f]{12}$")
 
@@ -62,8 +63,8 @@ def scope(entry, index, base):
         raise HarnessError(f"invalid_keys: {where} unknown {sorted(unknown)}, missing {sorted(missing)}")
     if not ID.match(str(entry["id"])):
         raise HarnessError(f"invalid: {where}.id {entry['id']}, expected 12 hex")
-    if entry["language"] not in LANGUAGES:
-        raise HarnessError(f"invalid: {where}.language {entry['language']}, known {list(LANGUAGES)}")
+    if entry["language"] not in scope_languages.LANGUAGES:
+        raise HarnessError(f"invalid: {where}.language {entry['language']}, known {list(scope_languages.LANGUAGES)}")
     inputs = entry.get("inputs") or {}
     return HarnessScope(
         id=str(entry["id"]), language=entry["language"], function=str(entry["function"]),

@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark
 
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
+import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.settings.EnergySettings
@@ -30,11 +31,11 @@ class EnergyCheckTest {
         EnergyCapability(present, responsive, 1500.0, 1500.0, 2.0, accept)
 
     private fun reasons(capture: String?, capability: EnergyCapability?) =
-        PlanCheck(installed) { capability }.check(run(capture)).map { it.reason.substringBefore(':') }
+        PlanCheck(HostHarness.METRICS, installed) { capability }.check(run(capture)).map { it.reason.substringBefore(':') }
 
     @Test
     fun casesWithoutEnergyNeverAskForTheCapability() {
-        assertEquals(emptyList<String>(), PlanCheck(installed) { error("must not be read") }.check(run(null)))
+        assertEquals(emptyList<String>(), PlanCheck(HostHarness.METRICS, installed) { error("must not be read") }.check(run(null)))
     }
 
     @Test

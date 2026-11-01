@@ -1,9 +1,6 @@
 package io.github.junekim0007.cryptobench
 
 import androidx.benchmark.BlackHole
-import androidx.benchmark.ExperimentalBenchmarkConfigApi
-import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
@@ -13,12 +10,11 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
 
-@OptIn(ExperimentalBenchmarkConfigApi::class)
 @RunWith(Parameterized::class)
 class ScopedBenchmark(private val caseId: String, private val call: () -> Any?) {
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule(JetpackConfig.of(settings))
+    val benchmarkRule = JetpackRule(settings)
 
     @Test
     fun measure() {
@@ -33,7 +29,8 @@ class ScopedBenchmark(private val caseId: String, private val call: () -> Any?) 
 
         // The run-level harness of the pushed effective.yaml, the settings every CryptoBenchmark case inherits.
         private val settings: CaseSettings by lazy {
-            CaseSettings.of(GlobalReader.read(InboundFile.read(File(DevicePlan.directory, "effective.yaml"))).harness)
+            val global = GlobalReader.read(InboundFile.read(File(DevicePlan.directory, "effective.yaml")))
+            CaseSettings.of(global.harness, global.metrics).also { settings -> JetpackConfig.refusal(settings)?.let { error(it) } }
         }
 
         @JvmStatic

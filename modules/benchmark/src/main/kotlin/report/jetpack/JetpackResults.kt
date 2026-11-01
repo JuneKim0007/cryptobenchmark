@@ -1,9 +1,11 @@
 package io.github.junekim0007.cryptobench.benchmark.report.jetpack
 
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
+import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
+import io.github.junekim0007.cryptobench.settings.Metric
 
 object JetpackResults {
 
@@ -25,7 +27,7 @@ object JetpackResults {
                 missing += id
                 continue
             }
-            val metrics = metricsOf(benchmark)
+            val metrics = metricsOf(benchmark, requestedOf(id, case))
             if (metrics.isEmpty()) {
                 missing += id
                 continue
@@ -37,26 +39,28 @@ object JetpackResults {
         return Converted(runtime(data), rows, missing, notApplied)
     }
 
-    private fun metricsOf(benchmark: Map<String, Any>): MutableMap<String, MetricSamples> {
+    private fun metricsOf(benchmark: Map<String, Any>, requested: List<String>): MutableMap<String, MetricSamples> {
         val blocks = CaseDocument.optionalSection(benchmark["metrics"]) ?: return LinkedHashMap()
         val metrics = LinkedHashMap<String, MetricSamples>()
-        if (blocks.isNotEmpty() && CaseDocument.optionalSection(blocks[MetricSamples.TIME]) == null) {
-            throw IllegalArgumentException("missing_field: metrics.${MetricSamples.TIME} for ${caseIdOf(benchmark)}")
-        }
-        for (metric in MetricSamples.MEASURED) {
-            val block = CaseDocument.optionalSection(blocks[metric]) ?: continue
-            val runs = CaseDocument.optionalSamples(block["runs"])
-            if (runs.isNotEmpty()) {
-                metrics[metric] = MetricSamples(runs, iterationsOf(metric, benchmark), CaseDocument.reportedStats(block))
-            }
+        if (blocks.isEmpty()) return metrics
+        for (metric in requested) {
+            val block = CaseDocument.optionalSection(blocks[metric])
+            val runs = CaseDocument.optionalSamples(block?.get("runs"))
+            require(runs.isNotEmpty()) { "missing_field: metrics.$metric for ${caseIdOf(benchmark)}; androidx wrote ${blocks.keys}" }
+            metrics[metric] = MetricSamples(runs, iterationsOf(metric, benchmark), CaseDocument.reportedStats(block))
         }
         return metrics
+    }
+
+    private fun requestedOf(id: String, case: Map<String, Any>): List<String> {
+        val names = (case["metrics"] as? List<*>)?.map { it.toString() } ?: throw IllegalArgumentException("missing_field: metrics for $id")
+        return Metric.read(names, "prepared.yaml $id metrics").flatMap(MetricKeys::of)
     }
 
     // androidx divides allocationCount by its own unpublished inner loop before writing,
     // so one allocation run is already per operation.
     private fun iterationsOf(metric: String, benchmark: Map<String, Any>): Int =
-        if (metric == MetricSamples.TIME) CaseDocument.iterations(benchmark["repeatIterations"]) else 1
+        if (metric == MetricSamples.ALLOCATIONS) 1 else CaseDocument.iterations(benchmark["repeatIterations"])
 
     private fun resolvedParametersOf(id: String, case: Map<String, Any>): Map<String, Any> =
         CaseDocument.optionalSection(case[RESOLVED_PARAMETERS])

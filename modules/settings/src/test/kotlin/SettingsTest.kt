@@ -3,6 +3,7 @@ import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings.Companion.HARNESS
+import io.github.junekim0007.cryptobench.settings.Metric
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
@@ -73,5 +74,24 @@ class SettingsTest {
             Facts.read(mapOf("schemaVersion" to 1, "cpu" to mapOf("cores" to listOf(mapOf("core" to "seven", "online" to true)))))
         }
         assertEquals("wrong_type: facts.yaml cpu.cores[0].core expects a number", wrong.message)
+    }
+
+    @Test
+    fun metricsNeedTimeAndKnownNames() {
+        assertEquals(setOf(Metric.TIME, Metric.ALLOCATION), Metric.read(listOf("TIME", "ALLOCATION"), "run.metrics"))
+        fun failure(names: List<String>) = assertThrows(IllegalArgumentException::class.java) { Metric.read(names, "run.metrics") }.message!!
+        assertTrue(failure(listOf("ALLOCATION")).startsWith("missing_metric: run.metrics [ALLOCATION]"))
+        assertTrue(failure(listOf("TIME", "ENERGY")).startsWith("invalid: run.metrics ENERGY"))
+        assertTrue(failure(listOf("TIME", "TIME")).startsWith("duplicate: run.metrics"))
+    }
+
+    @Test
+    fun cpuEventsNeedARootedDeviceAndAreAlwaysRequired() {
+        val metrics = setOf(Metric.TIME, Metric.ALLOCATION, Metric.CPU_EVENTS)
+        assertEquals(emptyList<Any>(), Metric.unsupported(metrics, pinnable.copy(rooted = true), "run.metrics"))
+        val unrooted = Metric.unsupported(metrics, pinnable, "run.metrics").single()
+        assertEquals("run.metrics.CPU_EVENTS", unrooted.path)
+        assertTrue(unrooted.required && unrooted.reason.startsWith("no_root:"))
+        assertEquals("facts_unknown: no facts.yaml for this run", Metric.unsupported(metrics, Facts.UNKNOWN, "run.metrics").single().reason)
     }
 }

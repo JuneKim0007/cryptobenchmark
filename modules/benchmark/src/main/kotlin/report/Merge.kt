@@ -13,24 +13,13 @@ object Merge {
             CaseDocument.section(document["runtime"])
                 .forEach { (key, value) -> runtime.putIfAbsent(key, value.toString()) }
             for (case in CaseDocument.sections(document["cases"])) {
-                val row = CaseDocument.row(case, metricsOf(case), CaseDocument.optionalSection(case[BenchmarkJson.PARAMETERS]))
+                val id = case["id"]
+                val metrics = CaseDocument.metrics(case["metrics"]).ifEmpty { throw IllegalArgumentException("missing_field: metrics for $id") }
+                val parameters = case[BenchmarkJson.PARAMETERS] ?: throw IllegalArgumentException("missing_field: ${BenchmarkJson.PARAMETERS} for $id")
+                val row = CaseDocument.row(case, metrics, CaseDocument.section(parameters))
                 rows[row.id] = rows[row.id]?.mergedWith(row) ?: row
             }
         }
         return Merged(runtime, rows.values.toList(), texts.size)
-    }
-
-    // Files written before `metrics` existed carry only the flat iterations/nanosPerOperation pair.
-    private fun metricsOf(case: Map<String, Any>): Map<String, MetricSamples> {
-        val metrics = CaseDocument.metrics(case["metrics"])
-        if (metrics.isNotEmpty()) {
-            return metrics
-        }
-        return linkedMapOf(
-            MetricSamples.TIME to MetricSamples(
-                CaseDocument.samples(case["nanosPerOperation"]),
-                CaseDocument.iterations(case["iterations"]),
-            ),
-        )
     }
 }

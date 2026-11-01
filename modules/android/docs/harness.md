@@ -18,7 +18,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 
 | directory | holds |
 |---|---|
-| `getExternalFilesDir(null)/cryptobench` (`/sdcard/Android/data/<package>/files/cryptobench`) | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `energy-dry.yaml`, `cov-probe.yaml` |
+| `getExternalFilesDir(null)/cryptobench` (`/sdcard/Android/data/<package>/files/cryptobench`) | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `energy-dry.yaml` |
 | `/sdcard/Android/media/<package>` | androidx output |
 
 ## Tests
@@ -30,7 +30,6 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | `CryptoBenchmark` | one parameterised test per timed case; test name = case id |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
 | `ScopedBenchmark` | one parameterised test per generated scope variant: [scoped.md](scoped.md) |
-| `CovProbe` | timing experiment; arguments `ops` (default 1000000), `runs` (20), `warmupSeconds` (2.0); writes `cov-probe.yaml` |
 
 ## DevicePlan
 
@@ -38,7 +37,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 |---|---|
 | inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` and `trial_*` via discovery's `ProbeDirectory`; none: `missing_file: <dir>/<prefix>_<stamp>.yaml` |
 | prepare | `Preparation` writes `skipped.yaml` and `prepared.yaml` into the device directory |
-| check | `PlanCheck` with `energy.yaml` from the device directory; any refusal throws `RefusedPlanException` |
+| check | `PlanCheck` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory, plus `JetpackConfig.refusal` per timed case; any refusal throws `RefusedPlanException` |
 | timed cases | `harness.energy.capture` other than `dry` |
 | dry cases | `harness.energy.capture` = `dry` |
 
@@ -59,6 +58,19 @@ PinnedCase.run { benchmarkRule.measureRepeated { BlackHole.consume(invocation.pe
 | `profiling` STACK_SAMPLING | `ProfilerConfig.StackSampling` |
 | `warmupIterations` | `warmupCount` |
 | `iterations` | `measurementCount` |
+
+`JetpackRule` replaces androidx's `BenchmarkRule`, which always adds the allocation phase:
+
+| `run.metrics` | androidx phases |
+|---|---|
+| no `ALLOCATION` | timing only (`measureRepeatedImplWithTracing`, `simplifiedTimingOnlyMode`); a profiler then fails `not_supported: profiling <p> needs ALLOCATION in run.metrics; ...` |
+| `ALLOCATION` | timing, profiling, allocation |
+| `CPU_EVENTS` | androidx's CPU event counter; `scripts/device.py` passes `androidx.benchmark.cpuEventCounter.enable=true`; config refuses it on an unrooted device: [settings.md](../../settings/docs/settings.md#device-support) |
+
+| counter vs `run.metrics` | failure when the case runs |
+|---|---|
+| `CPU_EVENTS` asked, counter off | `not_supported: CPU_EVENTS, androidx did not enable its CPU event counter ...` |
+| counter on, `CPU_EVENTS` not asked | `not_requested: androidx counts CPU events but run.metrics has no CPU_EVENTS` |
 
 Result conversion to `benchmark.json`: `modules/benchmark/docs/measure.md#jetpack-conversion`.
 

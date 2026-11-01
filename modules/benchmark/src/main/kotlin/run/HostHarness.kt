@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark.run
 
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import io.github.junekim0007.cryptobench.settings.Metric
 
 class HostHarness(
     private val warmupNanos: Long = WARMUP_NANOS,
@@ -28,5 +29,6 @@ class HostHarness(
         const val WARMUP_NANOS = 200_000_000L
         const val RUN_NANOS = 30_000_000L
         const val RUNS = 5
+        val METRICS: Set<Metric> = setOf(Metric.TIME)
     }
 }

@@ -169,4 +169,12 @@ class EffectiveBuilderTest {
         assertTrue(built.skipped.toString(), built.skipped.any { it.type == "MessageDigest" && it.reason.contains("no_pinning") })
         assertTrue(built.providers.values.none { it.containsKey("MessageDigest") })
     }
+
+    @Test
+    fun cpuEventsAreRefusedAtConfigTimeOnADeviceThatCannotCountThem() {
+        val counting = global.copy(run = global.run.copy(metrics = listOf("TIME", "CPU_EVENTS")))
+        val failure = assertThrows(IllegalArgumentException::class.java) { EffectiveBuilder().build(counting, testSet, inventory, names, pinnable) }
+        assertTrue(failure.message!!.startsWith("not_supported: run.metrics.CPU_EVENTS: no_root:"))
+        assertEquals(listOf("TIME", "CPU_EVENTS"), EffectiveBuilder().build(counting, testSet, inventory, names, pinnable.copy(rooted = true)).run.metrics)
+    }
 }

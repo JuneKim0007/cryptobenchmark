@@ -1,8 +1,10 @@
 package io.github.junekim0007.cryptobench.benchmark
 
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
+import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.benchmark.check.Refusal
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.Metric
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
@@ -23,8 +25,9 @@ class PlanCheckTest {
         operation: Operation = Operation.DIGEST,
         inputSize: Int? = 1024,
         harness: HarnessSettings = HarnessSettings(),
+        metrics: Set<Metric> = setOf(Metric.TIME),
     ) = PreparedCase(
-        BenchmarkCase("MessageDigest", algorithm, provider, operation, inputSize = inputSize, harness = harness),
+        BenchmarkCase("MessageDigest", algorithm, provider, operation, inputSize = inputSize, metrics = metrics, harness = harness),
         KeyRecipe.None,
         KeyMaterial.None,
         null,
@@ -37,12 +40,18 @@ class PlanCheckTest {
 
     @Test
     fun aPlanThisDeviceCanRunIsAccepted() {
-        assertEquals(emptyList<Refusal>(), PlanCheck(installed).check(run(case())))
+        assertEquals(emptyList<Refusal>(), PlanCheck(HostHarness.METRICS, installed).check(run(case())))
+    }
+
+    @Test
+    fun aMetricTheHarnessCannotMeasureIsRefused() {
+        val refusal = PlanCheck(HostHarness.METRICS, installed).check(run(case(metrics = setOf(Metric.TIME, Metric.ALLOCATION)))).single()
+        assertEquals("not_supported: metrics [ALLOCATION], this harness measures [TIME]", refusal.reason)
     }
 
     @Test
     fun namesWhatItWillNotRun() {
-        val refusals = PlanCheck(installed).check(run(
+        val refusals = PlanCheck(HostHarness.METRICS, installed).check(run(
             case(provider = "BC"),
             case(algorithm = "SHA-512", operation = Operation.TYPE_DEFAULT),
         ))
@@ -57,21 +66,21 @@ class PlanCheckTest {
 
     @Test
     fun anEmptyPlanIsRefusedBeforeAnyTimerStarts() {
-        assertEquals(listOf("nothing_to_measure"), PlanCheck(installed).check(run()).map { it.toString() })
+        assertEquals(listOf("nothing_to_measure"), PlanCheck(HostHarness.METRICS, installed).check(run()).map { it.toString() })
     }
 
     @Test
     fun twoCasesCannotShareAnId() {
         assertEquals(
             listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM: duplicate_case: 2 cases share this id"),
-            PlanCheck(installed).check(run(case(), case())).map { it.toString() },
+            PlanCheck(HostHarness.METRICS, installed).check(run(case(), case())).map { it.toString() },
         )
     }
 
     @Test
     fun theRefusedCasesAreTheOnlyOnesLeftUnmeasured() {
         val measured = mutableListOf<String>()
-        val benchmark = Benchmark(PlanCheck(installed), onRefusal = {})
+        val benchmark = Benchmark(PlanCheck(HostHarness.METRICS, installed), onRefusal = {})
         benchmark.measure(run(case(), case(algorithm = "SHA-512", provider = "BC"))) { prepared ->
             measured += prepared.case.id
             io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement(prepared.case, prepared.recipe.kind, 1, listOf(1.0))

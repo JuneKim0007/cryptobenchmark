@@ -56,6 +56,20 @@ Only `cpu` declares `requires` and `resolve`. How config applies the result: `mo
 
 `cpu.core` outside `0..63` and not `big` fails `invalid: cpu.core <v>, an index 0..63 or big`.
 
+`run.metrics` (`Metric`): config refuses an unsupported metric, `not_supported: run.metrics.<M>: <reason>`; never dropped.
+
+| metric | condition | reason |
+|---|---|---|
+| `TIME`, `ALLOCATION` | always supported | |
+| `CPU_EVENTS` | `rooted` fact missing | `facts_unknown` for `rooted` |
+| `CPU_EVENTS` | `rooted` false | `no_root: CPU event counters need a rooted device` |
+
+| `Metric.read` input | failure |
+|---|---|
+| unknown name | `invalid: <path> <name>, known [TIME, ALLOCATION, CPU_EVENTS]` |
+| repeated name | `duplicate: <path> [..]` |
+| no `TIME` | `missing_metric: <path> [..], TIME is always measured` |
+
 | rule | value |
 |---|---|
 | `big` | resolves to the online core with the highest `maxKhz`; highest index on a tie |

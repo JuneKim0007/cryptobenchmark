@@ -25,6 +25,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 | `provider_not_installed: <p>, installed [..]` | provider absent here |
 | `not_measurable: <type> has no operation this harness can time` | a TYPE_DEFAULT case |
 | `not_positive: iterations <n>`, `not_positive: inputSize <n>` | unmeasurable setting |
+| `not_supported: metrics [..], this harness measures [..]` | a case's `metrics` outside the harness's set: host `HostHarness.METRICS` = `[TIME]`; device `JetpackConfig.METRICS` = all three |
 | energy refusals | `docs/energy.md` |
 
 | rule | value |
@@ -57,26 +58,27 @@ Harness settings as plain values, no androidx type.
 | `profiling` | null or `none`: `NONE`; `MethodTracing`: `METHOD_TRACING`; `StackSampling`: `STACK_SAMPLING`; else `invalid: profiling <name>` |
 | `energy` | `Energy.of(harness.energy)`; default `Energy.NONE` |
 | `cpu` | `harness.cpu` |
+| `metrics` | the case's `metrics` (`run.metrics`); `TIME` always present |
 
 ## benchmark.json
 
 | key | holds |
 |---|---|
 | `runtime` | string map |
-| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `parameters`, flat `iterations` and `nanosPerOperation` (copy of `timeNs`), `metrics` |
+| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `parameters`, `metrics` |
 | `metrics.<key>` | `iterations`, `runs[]`, optional `reported{minimum, maximum, median, coefficientOfVariation}` |
 
 | rule | value |
 |---|---|
-| metric keys | `timeNs`, `allocationCount`, `energyJ` |
+| metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` |
+| measured metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `tools/energy` |
 | `timeNs` | required in every row |
 | `keyKind` | `secret`, `pair`, `none` |
-| `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`modules/preparation/docs/prepared.md`); `{}` when nothing applies; absent only in files written before it |
+| `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`modules/preparation/docs/prepared.md`); `{}` when nothing applies; required |
 | `runs` | doubles; non-finite: `not_finite: runs` |
 | `iterations` | `>= 1` |
 | `reported` | dropped when any of the four numbers is missing |
-| readers | prefer `metrics`; fall back to flat `nanosPerOperation` and `iterations` |
-| `run.metrics` | not read here; `timeNs` and `allocationCount` come from what Jetpack wrote |
+| readers | `Merge`: a case without `metrics` or `parameters` fails `missing_field: metrics for <id>` or `missing_field: parameters for <id>` |
 
 ## Merge
 
@@ -95,8 +97,10 @@ Harness settings as plain values, no androidx type.
 |---|---|
 | join key | text inside `[...]` of `benchmarks[].name` = case id in `prepared.yaml` |
 | no plan case or no metrics | `missing`; `ConvertKt` prints `no_case_in_the_plan: <id>` |
-| metrics without `timeNs` | `missing_field: metrics.timeNs for <id>` |
-| `timeNs.iterations` | `repeatIterations`, default 1 |
+| carried metrics | the `prepared.yaml` case's `metrics`, as `MetricKeys.of`; others androidx wrote are dropped |
+| a requested metric absent | `missing_field: metrics.<key> for <id>; androidx wrote [..]` |
+| case without `metrics` | `missing_field: metrics for <id>` |
+| `timeNs.iterations`, CPU event `iterations` | `repeatIterations`, default 1 |
 | `allocationCount.iterations` | 1 |
 | case shape | algorithm, provider, operation, sizes, `keyKind` from the `prepared.yaml` case |
 | `parameters` | the case's `resolvedParameters`; absent: `missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |

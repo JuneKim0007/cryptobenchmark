@@ -61,16 +61,6 @@ python3 scripts/explain.py [--config PATH] [--results DIR]
 - Prints the run id, each `run`, `policy` and `analysis` key of `<results>/configuration/effective.yaml` with its value and source: the global file when written there, else `default`.
 - Ends with the entry count and the test set.
 
-## scripts/device_args.py
-
-```
-python3 scripts/device_args.py [effective.yaml]
-```
-
-- Prints one `-Pandroid.testInstrumentationRunnerArguments.<name>=<value>` per line for a Gradle instrumentation launch.
-- `CPU_EVENTS` in `run.metrics`: `androidx.benchmark.cpuEventCounter.enable=true`; otherwise nothing.
-- `pipeline.py --device` does not call it.
-
 ## scripts/demo.sh
 
 | flag | effect |
