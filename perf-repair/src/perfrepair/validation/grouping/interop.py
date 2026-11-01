@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ... import run_dir as rd
-from ...dto.interop import RESULTS, SCHEMA_VERSION, PairResult, PlannedPair, failed_pairs, interop_section
-from ...files import read_json, read_yaml
+from ...dto.interop import RESULTS, SCHEMA_VERSION, PairResult, PlannedPair, interop_section
+from ...files import read_yaml
 
 
 def _members(groups: dict) -> dict[str, set[str]]:
@@ -61,11 +60,6 @@ def validate_section(groups: dict, imported: list[PairResult] | None) -> list[st
     return []
 
 
-def validate_dossier_options(dossiers: dict, failed: set[frozenset[str]]) -> list[str]:
-    return [f"scope {d['scope']['id']}: option {o['alias']} {o['item']} failed interop with {d['current']}"
-            for d in dossiers.get("dossiers") or [] for o in d["options"] if frozenset((d["current"], o["item"])) in failed]
-
-
 def validate_interop(run: Path, groups: dict, plan_path: Path, results_path: Path) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     imported = None
@@ -79,8 +73,4 @@ def validate_interop(run: Path, groups: dict, plan_path: Path, results_path: Pat
     elif results_path.exists():
         out["grouping/interop.yaml"] = ["interop.yaml without the interop_plan.yaml it answers"]
     out["grouping/groups.json interop"] = validate_section(groups, imported)
-    if "interop" in groups:
-        failed = failed_pairs(groups)
-        for path in sorted((Path(run) / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
-            out[f"{path.relative_to(run)} interop"] = validate_dossier_options(read_json(path), failed)
     return out

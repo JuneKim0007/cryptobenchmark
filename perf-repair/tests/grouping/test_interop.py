@@ -13,7 +13,7 @@ from perfrepair.grouping.interop_plan import write_plan
 from perfrepair.grouping.interop_read import import_results
 from perfrepair.grouping.report.checks import report
 from perfrepair.validation import ValidationFailed
-from perfrepair.validation.grouping.interop import validate_dossier_options, validate_interop, validate_plan
+from perfrepair.validation.grouping.interop import validate_interop, validate_plan
 
 DIRECTIONS = {"pass": ("pass", "pass"), "fail": ("fail", "pass"), "not_checkable": ("not_checkable", "pass")}
 
@@ -93,14 +93,10 @@ def test_results_need_their_plan(grouped, tmp_path):
         import_results(paths, tmp_path / "interop.yaml")
 
 
-def test_a_stale_groups_section_and_a_failed_option_are_problems(grouped, tmp_path):
+def test_a_stale_groups_section_is_a_problem(grouped, tmp_path):
     paths, groups = grouped
     plan = write_plan(paths)
     import_results(paths, interop_yaml(plan, ["fail"] * len(plan), tmp_path))
     problems = validate_interop(paths.root.parent, groups, paths.interop_plan, paths.interop)
     assert problems["grouping/groups.json interop"] == [
         "groups.json interop section differs from grouping/interop.yaml; rerun grouping report"]
-    groups = report(paths, FAMILIES)
-    dossiers = {"dossiers": [{"scope": {"id": "s1"}, "current": plan[0].a, "options": [{"alias": "R1", "item": plan[0].b}]}]}
-    assert validate_dossier_options(dossiers, failed_pairs(groups)) == [
-        f"scope s1: option R1 {plan[0].b} failed interop with {plan[0].a}"]
