@@ -27,7 +27,6 @@ modules/preparation/src/main/kotlin/global/GlobalSettings.kt : validated run-wid
 modules/preparation/src/main/kotlin/global/OnFailure.kt : enum STOP, SKIP
 modules/preparation/src/main/kotlin/inbound/InboundDocument.kt : effective.yaml split into run, policy, providers sections
 modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yaml (schema config v1)
-modules/preparation/src/main/kotlin/inbound/PrimitiveReader.kt : providers section to selections
 modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
 modules/preparation/src/main/kotlin/input/InputBytes.kt : seeded input bytes (java.util.Random(seed))
 modules/preparation/src/main/kotlin/input/OperationInput.kt : sealed case input: None, Message, Ciphertext, SignedMessage
@@ -84,6 +83,7 @@ modules/preparation/src/main/kotlin/record/PreparedFile.kt : writes prepared.yam
 modules/preparation/src/main/kotlin/report/Skip.kt : one skipped item (stage, provider, type, name, reason)
 modules/preparation/src/main/kotlin/report/SkipFile.kt : writes skipped.yaml
 modules/preparation/src/main/kotlin/request/BenchmarkRequest.kt : selections and global settings, validated
+modules/preparation/src/main/kotlin/request/PrimitiveReader.kt : providers section to selections
 modules/preparation/src/main/kotlin/request/Selection.kt : one requested primitive entry, validated
 modules/preparation/src/main/kotlin/resolve/CaseResolver.kt : selections to cases and rejections
 modules/preparation/src/main/kotlin/resolve/Rejection.kt : one rejected selection or provider with reason
