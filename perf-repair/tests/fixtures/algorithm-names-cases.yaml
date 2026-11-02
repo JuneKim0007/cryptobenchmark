@@ -37,3 +37,11 @@ cases:
 - {type: Cipher, name: aes, canonical: AES, keySize: null, known: true}
 - {type: Mac, name: HMAC/SHA1, canonical: HmacSHA1, keySize: null, known: true}
 - {type: Cipher, name: PBEWithHmacSHA256AndAES_256, canonical: PBEWithHmacSHA256AndAES_256, keySize: null, known: false}
+- {type: Cipher, name: AESWrap, canonical: AES/KW/NoPadding, keySize: null, known: true}
+- {type: Cipher, name: aes/kw/nopadding, canonical: AES/KW/NoPadding, keySize: null, known: true}
+- {type: Cipher, name: AES_256/KW/NoPadding, canonical: AES/KW/NoPadding, keySize: 256, known: true}
+- {type: Cipher, name: PBEWITHSHAAND3-KEYTRIPLEDES-CBC, canonical: PBEWithSHA1AndDESede, keySize: null, known: true}
+- {type: Cipher, name: PBEWITHSHA1ANDRC2, canonical: PBEWithSHA1AndRC2, keySize: null, known: true}
+- {type: Signature, name: sha3-256withecdsainp1363format, canonical: SHA3-256withECDSAinP1363Format, keySize: null, known: true}
+- {type: KeyAgreement, name: x448, canonical: X448, keySize: null, known: true}
+- {type: Mac, name: HMACSHA3-256, canonical: HmacSHA3-256, keySize: null, known: true}
