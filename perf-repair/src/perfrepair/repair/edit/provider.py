@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import re
 
-from ...app.lexer import Code
 from ...dto.site import Edit
+from ...source.lexer import Code
 from .literal import string_literal
 from .locate import Located
 from .reject import Rejected

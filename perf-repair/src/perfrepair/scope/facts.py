@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from ..app.lexer import Code
 from ..dto.site import KEY_SOURCES, SINKS
 from ..files import read_yaml
+from ..source.lexer import Code
 from .extract import Function
 
 PATTERNS = Path(__file__).with_name("patterns.yaml")

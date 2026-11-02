@@ -7,8 +7,8 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..catalog.names import Names, NamesError
-from ..catalog.probe_names import with_probe
 from ..data_handler.inbound import manifest_file, read_manifest, read_probe_index
+from ..data_handler.inbound.probe_names import with_probe
 from ..files import read_yaml, write_json
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest

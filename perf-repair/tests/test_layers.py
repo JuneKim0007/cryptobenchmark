@@ -1,5 +1,6 @@
-"""Every perfrepair import points down the layer order in AGENTS.md; today's exceptions are ALLOWLIST."""
+"""Every perfrepair import points down the layer order in AGENTS.md; no package cycles; today's exceptions are the allowlists."""
 import ast
+from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1] / "src" / "perfrepair"
@@ -9,9 +10,9 @@ LAYERS = [
     ("files", "run_dir"),
     ("data_handler",),
     ("result",),
-    ("app", "scope"),
+    ("app", "scope", "source"),
     ("validation",),
-    ("ai/runtime", "env"),
+    ("ai/runtime",),
     ("ai", "ai/evaluate", "ai/parse", "ai/review", "ai/suggest"),
     ("grouping", "repair", "command"),
     ("report",),
@@ -31,6 +32,12 @@ ALLOWLIST: dict[tuple[str, str], str] = {
     ("ai/parse/grouping_assign", "grouping/state"): "assign kind projects cursor and knowledge; B8 (S5)",
     ("guide/steps", "app/__main__"): "guide calls the app command's main; no stage planned",
     ("guide/steps", "repair/__main__"): "guide calls the repair command's main; no stage planned",
+}
+
+# (importer, imported) package edges that close a cycle: reason; the #66 stage that removes it.
+CYCLE_ALLOWLIST: dict[tuple[str, str], str] = {
+    ("validation", "grouping"): "stage replay and the family gates; B1 (S6) check/run.py, B6 (S4a) catalog/families.py",
+    ("ai/parse", "grouping"): "assign kind reads families, paths, cursor; B6 (S4a), B7 (S4b), B8 (S5)",
 }
 
 
@@ -71,14 +78,37 @@ def _targets(node: ast.AST, here: list[str], is_package: bool) -> list[list[str]
     return out
 
 
-def _edges() -> set[tuple[str, str, str, str]]:
-    edges = set()
+def _unit(parts: list[str]) -> str:
+    if not parts or parts[-1] == "__main__":
+        return "/".join(parts) or "__main__"
+    return "/".join(parts[:2]) if parts[0] == "ai" and len(parts) > 2 else parts[0]
+
+
+def _imports():
     for path in sorted(ROOT.rglob("*.py")):
         here = _module(path)
         for node in ast.walk(ast.parse(path.read_text())):
             for target in _targets(node, here, path.name == "__init__.py"):
-                edges.add((_layer(here), _layer(target), _package(here), _package(target)))
-    return edges
+                yield here, target
+
+
+def _edges() -> set[tuple[str, str, str, str]]:
+    return {(_layer(h), _layer(t), _package(h), _package(t)) for h, t in _imports()}
+
+
+def _unit_edges() -> set[tuple[str, str]]:
+    return {(_unit(h), _unit(t)) for h, t in _imports() if _unit(h) != _unit(t)}
+
+
+def _cycle(edges: set[tuple[str, str]]) -> list[str]:
+    graph: dict[str, set[str]] = {}
+    for a, b in edges:
+        graph.setdefault(a, set()).add(b)
+    try:
+        TopologicalSorter(graph).prepare()
+    except CycleError as e:
+        return e.args[1]
+    return []
 
 
 def _violations() -> set[tuple[str, str]]:
@@ -95,3 +125,12 @@ def test_imports_follow_the_layer_order():
 
 def test_allowlist_has_no_stale_entries():
     assert sorted(set(ALLOWLIST) - _violations()) == []
+
+
+def test_no_package_cycles():
+    assert _cycle(_unit_edges() - set(CYCLE_ALLOWLIST)) == []
+
+
+def test_cycle_allowlist_entries_each_break_a_cycle():
+    edges = _unit_edges()
+    assert sorted(e for e in CYCLE_ALLOWLIST if not _cycle(edges - (set(CYCLE_ALLOWLIST) - {e}))) == []

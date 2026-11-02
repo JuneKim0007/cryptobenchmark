@@ -4,8 +4,8 @@ from __future__ import annotations
 import re
 from collections import Counter
 
-from ..dto.language import JAVA, KOTLIN
-from .lexer import Code, literal, opening, split_top
+from ..source.language import JAVA, KOTLIN
+from ..source.lexer import Code, literal, opening, split_top
 
 _KOTLIN = re.compile(r"\b(const\s+)?val\s+(\w+)\s*(?::\s*String\s*)?=")
 _JAVA = re.compile(r"\b((?:(?:public|private|protected|static|final)\s+)+)String\s+(\w+)\s*=")

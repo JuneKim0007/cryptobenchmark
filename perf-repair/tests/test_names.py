@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from perfrepair.catalog.names import CATALOG, Canonical, Names, NamesError
-from perfrepair.catalog.probe_names import with_probe
+from perfrepair.data_handler.inbound.probe_names import with_probe
 
 CASES = Path(__file__).parent / "fixtures" / "algorithm-names-cases.yaml"
 

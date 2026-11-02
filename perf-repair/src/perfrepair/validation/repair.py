@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.language import NAMES
 from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, SCHEMA_VERSION
+from ..source.language import NAMES
 
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
                 "algorithm_not_literal", "no_init", "ambiguous_init", "missing_parameter",

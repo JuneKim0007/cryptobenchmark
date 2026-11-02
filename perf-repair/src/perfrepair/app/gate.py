@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from ..dto.language import NAMES, SOURCE_SUFFIXES
+from ..source.language import NAMES, SOURCE_SUFFIXES
 from .roots import BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, project_roots
 from .sources import IGNORED_DIRS
 

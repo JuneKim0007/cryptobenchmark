@@ -26,7 +26,6 @@ src/perfrepair/app/dependencies.py : declared crypto libraries from Gradle and t
 src/perfrepair/app/detect.py : the detect step: non-test sources → import-checked, constant-folded, resolved sites
 src/perfrepair/app/gate.py : app gate: directory, readable, project roots found, per root Android project, no escaping symlink, size caps; coded reasons
 src/perfrepair/app/imports.py : whether a type name is the java.security / javax.crypto class
-src/perfrepair/app/lexer.py : the one Java and Kotlin lexer: per-char code/literal/comment classes, masking, literals, bracket matching, argument spans, expression end
 src/perfrepair/app/libraries.yaml : artifact group and name prefix → JCA provider name
 src/perfrepair/app/resolve.py : a site's provider and canonical algorithm, explicit or by manifest precedence
 src/perfrepair/app/roots.py : outermost Android project roots under a folder, depth 4, symlinks not followed
@@ -38,4 +37,7 @@ src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per sit
 src/perfrepair/scope/extract.py : named functions and their spans: Java methods, Kotlin funs, expression bodies, constructors
 src/perfrepair/scope/facts.py : a function's sinks and key source from patterns.yaml
 src/perfrepair/scope/patterns.yaml : sink and key-source patterns
+src/perfrepair/source/__init__.py : docstring only
+src/perfrepair/source/language.py : the language table: suffix, script suffix, statement terminators, template, comment nesting, `name: Type`
+src/perfrepair/source/lexer.py : the one Java and Kotlin lexer: per-char code/literal/comment classes, masking, literals, bracket matching, argument spans, expression end
 ```
