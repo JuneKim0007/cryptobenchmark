@@ -175,3 +175,18 @@ def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_pa
     g.settings = load(settings, {}, {})
     assert run_steps(g, device=False) == 1
     assert len(lines) == 1 and lines[0].startswith("guide prerequisites: stop") and "missing_file" in lines[0]
+
+
+def test_a_folder_of_several_project_roots_is_a_coded_stop(run, tmp_path):
+    for name in ("a", "b"):
+        shutil.copytree(APP, tmp_path / "mono" / name)
+    g, lines = guide(run, DRY_RUN, app=tmp_path / "mono")
+    assert run_steps(g, device=False) == 1
+    assert lines[-1].startswith("guide app: stop several_project_roots: ")
+
+
+@pytest.fixture(autouse=True)
+def _scripts_off_path():
+    yield
+    if str(SCRIPTS) in sys.path:
+        sys.path.remove(str(SCRIPTS))

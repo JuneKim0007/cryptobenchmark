@@ -113,3 +113,13 @@ def test_a_project_root_finds_its_unit_of_a_multi_root_folder(tmp_path):
     assert folder.name.endswith(".sub.android") and app_dirs(tmp_path / "device") == [folder]
     assert app_id(tmp_path / "device", mono / "sub/android") == folder.name
     assert app_id(tmp_path / "device", tmp_path / "elsewhere") == path_id(tmp_path / "elsewhere")
+
+
+def test_validation_reports_several_devices_as_its_error_line(tmp_path, capsys):
+    from perfrepair.validation.__main__ import main as validation
+    device(tmp_path / "results", "a")
+    device(tmp_path / "results", "b")
+    config = tmp_path / "c.yaml"
+    config.write_text("paths: {results: results}\n")
+    assert validation(["--perfrepair-config", str(config)]) == 1
+    assert capsys.readouterr().err.splitlines()[-1].startswith("error several_device_results: ")

@@ -114,3 +114,10 @@ def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
     with pytest.raises(SystemExit):
         pipeline.require_harness_device(harness_in(tmp_path / "d", "other-api1-00000000"), capture)
     assert "harness_other_device" in capsys.readouterr().err
+
+
+def test_a_harness_run_takes_no_results_root(capsys):
+    options = type("Options", (), {"results": "r", "harness": "h.yaml"})
+    with pytest.raises(SystemExit):
+        pipeline.measured_folder(options)
+    assert "a --harness run writes measured/ beside its harness.yaml" in capsys.readouterr().err

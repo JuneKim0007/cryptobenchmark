@@ -128,8 +128,6 @@ def parse_options():
     options = parser.parse_args()
     if options.harness and not options.device:
         fail("--harness: scopes are measured only on a --device run")
-    if options.harness and options.results:
-        fail("--results: a --harness run writes measured/ beside its harness.yaml")
     if options.device and options.discovery == "reuse":
         fail("--discovery reuse: a device run probes the device it measures")
     if options.suppress_errors and not options.device:
@@ -382,6 +380,18 @@ def interop_run(options, configuration, device, root):
         manifest(results, mode, configuration, located(results)[-1] | added)
 
 
+def measured_folder(options):
+    if options.results:
+        fail("--results: a --harness run writes measured/ beside its harness.yaml")
+    measured = pathlib.Path(options.harness).resolve().parent / "measured"
+    results_layout.warn_if_temp(measured)
+    return measured
+
+
+def results_root(options):
+    return pathlib.Path(options.results or ROOT / "results").expanduser().resolve()
+
+
 def main():
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
@@ -390,10 +400,8 @@ def main():
     if device:
         device.connect()
     if options.harness:
-        measured = pathlib.Path(options.harness).resolve().parent / "measured"
-        results_layout.warn_if_temp(measured)
-        return harness_run(options, configuration, device, measured)
-    root = pathlib.Path(options.results or ROOT / "results").expanduser().resolve()
+        return harness_run(options, configuration, device, measured_folder(options))
+    root = results_root(options)
     results_layout.warn_if_temp(root)
     if options.interop:
         return interop_run(options, configuration, device, root)
