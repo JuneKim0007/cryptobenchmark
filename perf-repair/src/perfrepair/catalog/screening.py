@@ -11,7 +11,6 @@ SCREENING = Path(__file__).with_name("screening.yaml")
 SCHEMA_VERSION = 1
 DEPRECATED, ACCEPTED = "deprecated", "accepted"
 STATUSES = (DEPRECATED, ACCEPTED)
-GATES = ("targetSdk",)
 UNSOURCED = "unsourced"
 
 
@@ -30,7 +29,6 @@ class Rule:
 class PlatformRule:
     deprecatedApi: int
     removedApi: int | None
-    gate: str
     reason: str
     source: str
 
@@ -167,11 +165,9 @@ class _Reader:
         deprecated, removed = raw.get("deprecatedApi"), raw.get("removedApi")
         if not raw.get("provider"):
             self.problems.append(f"screening_platform: {where}: no provider")
-        if raw.get("gate") not in GATES:
-            self.problems.append(f"screening_gate: {where}: {raw.get('gate')!r} is not one of {list(GATES)}")
         if not isinstance(deprecated, int) or (removed is not None and (not isinstance(removed, int) or removed <= deprecated)):
             self.problems.append(f"screening_platform: {where}: deprecatedApi {deprecated!r}, removedApi {removed!r}")
-        return PlatformRule(deprecated, removed, raw.get("gate"), raw.get("reason") or "",
+        return PlatformRule(deprecated, removed, raw.get("reason") or "",
                             self._source(where, raw.get("source")))
 
     def _contradictions(self, built: Screening) -> None:

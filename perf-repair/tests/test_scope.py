@@ -10,6 +10,7 @@ from perfrepair.source.language import JAVA, KOTLIN
 from perfrepair.source.lexer import Code
 from perfrepair.validation.app import validate_app_facts, validate_scopes
 from perfrepair.check.run import validate_run
+from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures"
 MANIFEST = F / "results" / "manifest.yaml"
@@ -129,5 +130,5 @@ def test_validate_run_reads_app_folders(scopes):
     from perfrepair.data_handler.inbound.__main__ import main as inbound
     run, _ = scopes
     assert inbound(["--manifest", str(MANIFEST), "-o", str(run)]) == 0
-    result = validate_run(run)
+    result = validate_run(run, screening_catalog(None))
     assert result["apps/demo/scopes.json"] == [] and result["apps/demo/app.json"] == []

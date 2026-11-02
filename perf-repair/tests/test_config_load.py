@@ -43,8 +43,9 @@ def test_file_errors_name_the_file(tmp_path):
     bad = write(tmp_path / "c.yaml", "agent: {effort: hgh}\n")
     with pytest.raises(ConfigError, match=r"^invalid: agent.effort hgh, .*c.yaml\)$"):
         load(bad, {}, {})
-    with pytest.raises(ConfigError, match="^invalid_yaml: "):
+    with pytest.raises(ConfigError, match=r"^invalid_yaml: .*y.yaml: .* at line \d+ column \d+\s*\Z") as e:
         load(write(tmp_path / "y.yaml", "agent: [\n"), {}, {})
+    assert "\n" not in str(e.value)
     with pytest.raises(ConfigError, match="^invalid: PERFREPAIR_EFFORT hgh"):
         load(None, {"PERFREPAIR_EFFORT": "hgh"}, {})
     with pytest.raises(ConfigError, match="^invalid: .env PERFREPAIR_AGENT x"):

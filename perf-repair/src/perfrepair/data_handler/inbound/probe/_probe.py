@@ -21,10 +21,6 @@ class Probe:
     def load(cls, path: Path) -> "Probe":
         return cls(read_document(path), str(path))
 
-    @classmethod
-    def from_document(cls, document: dict) -> "Probe":
-        return cls(document)
-
     @cached_property
     def index(self) -> ProbeIndex:
         return index_of(self._document, self._source)

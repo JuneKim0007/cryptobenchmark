@@ -36,7 +36,6 @@ platform:
   - provider: BC
     deprecatedApi: 28
     removedApi: 31
-    gate: targetSdk
     reason: platform BC implementation deprecated in Android 9 and removed in Android 12; use the default provider
     source: AOSP9
     names:
@@ -53,7 +52,6 @@ platform:
   - provider: BC
     deprecatedApi: 28
     removedApi: null
-    gate: targetSdk
     reason: platform BC implementation deprecated in Android 9 and still listed; use the default provider
     source: AOSP12
     names:

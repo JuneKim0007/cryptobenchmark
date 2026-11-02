@@ -83,7 +83,7 @@ def app(g: Guide) -> str:
 
 
 def dossiers(g: Guide) -> str:
-    doc = dossier(g.run, g.name, g.app_root, g.catalog or screening_catalog(g.settings), echo=lambda _: None)
+    doc = dossier(g.run, g.name, g.app_root, g.catalog, echo=lambda _: None)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         raise Stop("no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)})")

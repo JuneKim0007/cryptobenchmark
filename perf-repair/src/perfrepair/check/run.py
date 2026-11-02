@@ -14,7 +14,7 @@ from ..ai.parse.algorithm_classify.kind import ClassifyKind
 from ..ai.parse.algorithm_classify.state import Classified, candidates
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..run_dir import GroupingPaths
-from ..screen.catalog import Catalog, screening_catalog
+from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
 from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
@@ -31,7 +31,7 @@ from ..validation.run_log import validate_run_log
 from ..validation.screen import validate_model_verdicts, validate_screen_document
 
 
-def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[str]]:
+def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     run, out = Path(run), {}
     if not (run / rd.ROWS).is_file():
         return {rd.ROWS: [f"missing: {run / rd.ROWS}"]}
@@ -53,7 +53,6 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
     if (run / rd.APPS / rd.SUMMARY).is_file():
         out[f"{rd.APPS}/{rd.SUMMARY}"] = validate_summary(read_json(run / rd.APPS / rd.SUMMARY), reports)
     grouping = GroupingPaths(run)
-    catalog = _resolved(catalog)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
         out |= _screen(grouping, catalog)
@@ -90,10 +89,6 @@ def _parsed(load, run: Path):
         return load(run)
     except (KeyError, TypeError, ValueError) as e:
         return f"does not parse: {type(e).__name__} {e}"
-
-
-def _resolved(catalog: Catalog | None) -> Catalog:
-    return catalog or screening_catalog(None)
 
 
 def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalog: Catalog) -> dict[str, list[str]]:

@@ -20,7 +20,7 @@ def service(type_, name, aliases=(), attributes=None):
     return s
 
 
-PROBE = Probe.from_document({"providers": [
+PROBE = Probe({"providers": [
     {"name": "P1", "precedence": 1, "services": [
         service("TypeC", "ALG-S/M1"), service("TypeC", "ALG-P/X"), service("TypeD", "H1"),
         service("TypeC", "ALG-RAW", attributes={"SupportedKeyFormats": ["RAW"]}),

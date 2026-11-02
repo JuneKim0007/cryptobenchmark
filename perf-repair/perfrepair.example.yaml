@@ -18,8 +18,8 @@ paths:
   prompts:                 # default --prompts of every model-calling command
 
 grouping:
-  turns: 3
-  sessions: 2
+  turns:                   # empty = the code default
+  sessions:                # empty = the code default
   limit:                   # items per `grouping assign` call; empty = all
   assign: {}               # role keys: backend, model, effort, claudeBinary
   supervisor: {}

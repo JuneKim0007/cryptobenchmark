@@ -16,6 +16,7 @@ from perfrepair.result.dossier import build_dossiers
 from perfrepair.screen.catalog import load_catalog
 from perfrepair.validation.dossiers import validate_dossiers
 from perfrepair.check.run import validate_run
+from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures"
 DEMO = F / "apps" / "demo"
@@ -186,7 +187,7 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     time = next(e for e in option["estimates"] if e["metric"] == "timeNs")
     assert option["item"] == "Cipher|AES/GCM/NoPadding|Fast" and time["ratio"] < 0.4 and time["pImprove"] == 1.0
     assert {n["reason"] for n in doc["noOptions"]} == {"unresolved", "no_alternative"}
-    assert validate_run(run)["apps/demo/dossiers.json"] == []
+    assert validate_run(run, screening_catalog(None))["apps/demo/dossiers.json"] == []
 
 
 def test_an_unknown_key_size_takes_every_measured_key_size_so_pins_are_known(tmp_path):
@@ -263,7 +264,7 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
     app.mkdir(parents=True)
     shutil.copy(DEMO / "scopes.json", app / "scopes.json")
     packaged = load_catalog(SCREENING)
-    rule = PlatformRule(28, None, "targetSdk", "test rule", "S")
+    rule = PlatformRule(28, None, "test rule", "S")
     handler = replace(packaged, screening=replace(packaged.screening,
                                                   platform={("Fast", "Cipher", "AES/GCM/NOPADDING"): rule}))
     facts = json.loads((DEMO / "app.json").read_text())

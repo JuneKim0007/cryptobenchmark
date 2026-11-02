@@ -21,8 +21,8 @@
 - components: a transformation `base/mode/padding` is `broken` when its base or its mode is listed.
 - nominal mode: a mode the names catalog maps another mode onto for a base (`modeSynonyms`) never matches that base; `RSA/ECB/*` is not ECB.
 - platform: applies only with a targetSdk; `screen/stage.py` passes none, so `grouping/screen.json` never says `platform_deprecated`.
-- future: rows from the SP 800-131A r3 draft are recorded beside the key and never change a verdict.
-- recorded key: each verdict in `screen.json` (schema 4) carries the `canonical` name and `keySize` it was looked up by; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs one.
+- future: rows from the SP 800-131A r3 draft are recorded beside the key and never enforced: no status, target or gate reads them.
+- recorded key: each verdict in `screen.json` (schema 4) carries the `canonical` name and `keySize` it was looked up by; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs a canonical name. `keySize` is recorded provenance: no group key, status or target rule reads it.
 
 ## Use
 
@@ -78,7 +78,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | `sources` | short name | the URL a row cites |
 | `crypto` | engine type, canonical name | `status` (`deprecated` or `accepted`), `reason`, `source` |
 | `components` | engine type, then `base` or `mode` | a `deprecated` rule with `reason` and `source` |
-| `platform` | provider, then engine type and canonical names | `deprecatedApi`, `removedApi` (null while still registered), `gate: targetSdk`, `reason`, `source` |
+| `platform` | provider, then engine type and canonical names | `deprecatedApi` (compared with the app's targetSdk), `removedApi` (null while still registered), `reason`, `source` |
 | `future` | engine type, canonical name | `note`, `source` |
 
 ## Loader checks (`ScreeningError`, every problem at once)
@@ -91,7 +91,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | `screening_status` | a status outside `deprecated`, `accepted` |
 | `screening_source` | a source key absent from `sources`; `unsourced` is allowed |
 | `screening_component_status` | a component rule that does not deprecate |
-| `screening_gate`, `screening_platform` | an unknown gate; no provider; `removedApi` not after `deprecatedApi` |
+| `screening_platform` | no provider; `removedApi` not after `deprecatedApi` |
 | `screening_duplicate` | one (provider, type, name) in two platform rules |
 | `screening_contradiction` | an `accepted` crypto row a component rule deprecates |
 

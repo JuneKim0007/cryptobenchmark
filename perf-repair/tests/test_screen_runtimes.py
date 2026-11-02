@@ -41,7 +41,7 @@ EXPECTED = {
 
 
 def load(runtime):
-    probe = Probe.from_document(read_document(ROOT / runtime / "probe.yaml"))
+    probe = Probe(read_document(ROOT / runtime / "probe.yaml"))
     names = probe.names(CATALOG)
     items, _ = build(probe, names, read_document(ROOT / runtime / "trial.yaml"), {}, {}, {}, FAMILIES)
     handler = ScreeningHandler(SCREENING, names)

@@ -10,7 +10,7 @@ from ...validation import require, validate_screen
 from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
 from ...run_dir import GroupingPaths
-from ...screen.catalog import Catalog, screening_catalog
+from ...screen.catalog import Catalog
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
@@ -19,10 +19,9 @@ from .items import build
 INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
 
 
-def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None, reviewer: Reviewer | None = None,
+def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None = None,
                 families: Families | None = None, echo=print) -> GroupingPaths:
     """reviewer: given only with screening.aiReview; it classifies the unknown items before screen.json is written."""
-    catalog = catalog or screening_catalog(None)
     context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])

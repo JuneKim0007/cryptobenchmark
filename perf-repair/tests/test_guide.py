@@ -25,6 +25,7 @@ from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
 from perfrepair.validation.suggest.site_replace import required_kinds, takes
+from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results", F / "guide"
@@ -73,7 +74,7 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     assert statuses(lines) == ["guide prerequisites: ok", "guide app: ok", "guide dossier: ok", "guide replace: ok",
                                "guide edit: ok", "guide harness: ok"]
     assert digests(APP) == before
-    assert all(not problems for problems in validate_run(run).values())
+    assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
     harness = yaml.safe_load(g.paths.harness.read_text())
     assert harness["scopes"] and all(s["current"] != s["option"] for s in harness["scopes"])
     sys.path.insert(0, str(SCRIPTS))
@@ -106,7 +107,7 @@ def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeyp
     assert measured[0]["verdict"] == "improves"
     assert measured[0]["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
     assert "- inputs: input 1024 B, key 128 bits, from run" in g.paths.report_md.read_text()
-    assert all(not problems for problems in validate_run(run).values())
+    assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
 
 
 def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
@@ -136,7 +137,7 @@ def test_singleton_groups_leave_no_options(tmp_path):
     from perfrepair.data_handler.inbound.__main__ import main as inbound
     from perfrepair.grouping.build.stage import build_stage
     assert inbound(["--manifest", str(RESULTS / "manifest.yaml"), "-o", str(tmp_path)]) == 0
-    build_stage(RESULTS / "manifest.yaml", tmp_path)
+    build_stage(RESULTS / "manifest.yaml", tmp_path, screening_catalog(None))
     paths = GroupingPaths(tmp_path)
     decide(GroupingKind(paths), charter(LIBRARY), assign_cmd.DRY_RUN, paths.root, echo=lambda _: None)
     report(paths)

@@ -68,12 +68,18 @@ class Loaded:
         return Agent(**resolved)
 
 
+def _one_line(e: yaml.YAMLError) -> str:
+    mark = getattr(e, "problem_mark", None)
+    where = f" at line {mark.line + 1} column {mark.column + 1}" if mark else ""
+    return f"{getattr(e, 'problem', None) or 'not YAML'}{where}"
+
+
 def load(argument: Path | None, environ: Mapping[str, str], dotenv: Mapping[str, str]) -> Loaded:
     path = config_file(argument, environ)
     try:
         settings = parse(read_yaml(path), path.parent) if path else Settings()
     except yaml.YAMLError as e:
-        raise ConfigError(f"invalid_yaml: {path}: {e}") from None
+        raise ConfigError(f"invalid_yaml: {path}: {_one_line(e)}") from None
     except ConfigError as e:
         raise ConfigError(f"{e} ({path})") from None
     return Loaded(path, settings, _agent_layer(environ, ""), _agent_layer(dotenv, ".env "))

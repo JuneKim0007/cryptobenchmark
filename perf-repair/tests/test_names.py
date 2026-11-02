@@ -35,7 +35,7 @@ def test_a_spelling_under_two_canonical_names_is_refused(tmp_path):
 
 
 def _probe(*services):
-    return Probe.from_document({"providers": [{"name": p, "services": [{"type": t, "algorithm": a, "aliases": al}]}
+    return Probe({"providers": [{"name": p, "services": [{"type": t, "algorithm": a, "aliases": al}]}
                                               for p, t, a, al in services]})
 
 

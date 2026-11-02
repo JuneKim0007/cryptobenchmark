@@ -81,14 +81,13 @@ def test_an_accepted_row_a_component_deprecates_is_a_contradiction(tmp_path):
 
 
 def platform(**over):
-    return {"provider": "P", "deprecatedApi": 28, "removedApi": 31, "gate": "targetSdk", "reason": "r", "source": "S",
+    return {"provider": "P", "deprecatedApi": 28, "removedApi": 31, "reason": "r", "source": "S",
             "names": {"MessageDigest": ["MD5"]}, **over}
 
 
-def test_a_platform_rule_needs_a_known_gate_and_ordered_api_levels(tmp_path):
-    with pytest.raises(ScreeningError) as e:
-        load(tmp_path, platform=[platform(gate="minSdk", removedApi=20)])
-    assert "screening_gate" in str(e.value) and "screening_platform" in str(e.value)
+def test_a_platform_rule_needs_ordered_api_levels(tmp_path):
+    with pytest.raises(ScreeningError, match="screening_platform"):
+        load(tmp_path, platform=[platform(removedApi=20)])
 
 
 def test_a_name_listed_by_two_platform_rules_is_a_duplicate(tmp_path):

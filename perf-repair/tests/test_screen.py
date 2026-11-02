@@ -14,6 +14,7 @@ from perfrepair.dto.screen import Verdict, lowers_status, read_screen, screen_do
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.screen import validate_screen, validate_screen_document
+from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 NAMES = Names.load()
@@ -137,7 +138,7 @@ def test_the_validator_refuses_verdicts_built_from_other_items_or_profiles():
 @pytest.fixture
 def built(tmp_path):
     assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
-    return build_stage(F, tmp_path)
+    return build_stage(F, tmp_path, screening_catalog(None))
 
 
 def test_build_writes_a_verdict_per_item_beside_items_json(built):
@@ -149,11 +150,11 @@ def test_build_writes_a_verdict_per_item_beside_items_json(built):
 
 def test_validate_run_checks_screen_json(built):
     run = built.root.parent
-    assert validate_run(run)["grouping/screen.json"] == []
+    assert validate_run(run, screening_catalog(None))["grouping/screen.json"] == []
     doc = json.loads(built.screen.read_text())
     doc["verdicts"].pop("1")
     built.screen.write_text(json.dumps(doc))
-    assert validate_run(run)["grouping/screen.json"] == ["1: no verdict"]
+    assert validate_run(run, screening_catalog(None))["grouping/screen.json"] == ["1: no verdict"]
 
 
 A, B = Verdict("accepted", "r", "S", "SHA-256"), Verdict("broken", "r", "S", "MD5")

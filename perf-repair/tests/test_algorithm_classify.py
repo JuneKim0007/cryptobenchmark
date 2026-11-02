@@ -84,7 +84,7 @@ def test_unverified_and_unknown_rank_equal_under_accepted_for_the_same_algorithm
 
 
 def test_the_app_gate_raises_an_unverified_verdict_to_platform_deprecated():
-    rule = PlatformRule(28, None, "targetSdk", "gone", "S")
+    rule = PlatformRule(28, None, "gone", "S")
     handler = replace(PACKAGED, screening=replace(PACKAGED.screening, platform={("P", "MessageDigest", "X"): rule})).handler()
     unverified = Verdict("unverified", "r", "model:x", "X")
     assert handler.for_app(unverified, "MessageDigest", "P", 28).status == "platform_deprecated"

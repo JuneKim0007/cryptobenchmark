@@ -144,7 +144,7 @@ def test_aliases_and_case_resolve_to_the_registered_name(index):
 
 
 def _probe(*services):
-    return Probe.from_document({"schemaVersion": 1, "providers": [
+    return Probe({"schemaVersion": 1, "providers": [
         {"name": p, "services": [{"type": t, "algorithm": a, **extra}]} for p, t, a, extra in services]})
 
 
@@ -166,7 +166,7 @@ def test_a_probe_view_is_built_once_and_the_schema_is_checked_when_the_index_is_
     assert probe.attributes("P", "Mac", "M1") == {"SupportedKeyFormats": ["RAW"]}
     assert probe.attributes("P", "Mac", "M2") == {}
     with pytest.raises(ValueError, match="probe schemaVersion 2 is not 1"):
-        Probe.from_document({"schemaVersion": 2, "providers": []}).index
+        Probe({"schemaVersion": 2, "providers": []}).index
 
 
 def test_a_generator_service_gives_the_key_kind_it_makes():

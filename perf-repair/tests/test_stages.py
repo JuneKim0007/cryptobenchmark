@@ -17,6 +17,7 @@ from perfrepair.ai.evaluate.worthiness.command import worthiness
 from perfrepair.result.modes import MODES
 from perfrepair.validation import ValidationFailed
 from perfrepair.check.run import validate_run
+from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 
@@ -41,7 +42,7 @@ def first_improving_pair(task, *_):
 @pytest.fixture
 def run(tmp_path):
     assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
-    build_stage(F, tmp_path)
+    build_stage(F, tmp_path, screening_catalog(None))
     paths = GroupingPaths(tmp_path)
     decide(GroupingKind(paths), charter(LIBRARY), ScriptedConversations(same_name), paths.root, **QUIET)
     report(GroupingPaths(tmp_path))
@@ -56,7 +57,7 @@ def test_all_stages_validate(run):
     battery = worthiness(run, MODES["battery"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
     assert [v.decision for v in latency.verdicts.values() if v.source == "llm"] == ["test"]
     assert {v.decision for v in battery.verdicts.values()} == {"not_comparable", "not_measured"}
-    assert all(not problems for problems in validate_run(run).values())
+    assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
 
 
 def test_changing_the_effort_keeps_the_assign_outbox(run):
@@ -72,12 +73,12 @@ def test_a_hand_edited_grouping_is_caught(run):
     doc = json.loads(path.read_text())
     doc["groups"][0]["members"].append(doc["groups"][1]["members"][0])
     path.write_text(json.dumps(doc))
-    assert validate_run(run)["grouping/groups.json"]
+    assert validate_run(run, screening_catalog(None))["grouping/groups.json"]
     with pytest.raises(ValidationFailed):
         worthiness(run, MODES["latency"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
 
 
 def test_a_run_without_rows_is_a_reported_problem(tmp_path):
     from perfrepair.validation.__main__ import main
-    assert validate_run(tmp_path) == {"rows.json": [f"missing: {tmp_path / 'rows.json'}"]}
+    assert validate_run(tmp_path, screening_catalog(None)) == {"rows.json": [f"missing: {tmp_path / 'rows.json'}"]}
     assert main([str(tmp_path)]) == 1
