@@ -9,7 +9,7 @@ from ....catalog.names import Names
 from ....files import read_document
 from ._index import ProbeIndex, index_of
 from ._names import merged
-from ._services import attributes_of, generator_kind
+from ._services import attributes_of, class_names_of, generator_kind
 
 
 class Probe:
@@ -35,9 +35,16 @@ class Probe:
     def attributes(self, provider: str, engine_type: str, algorithm: str) -> dict:
         return self._attributes.get((provider, engine_type, algorithm), {})
 
+    def class_name(self, provider: str, engine_type: str, algorithm: str) -> str | None:
+        return self._class_names.get((provider, engine_type, algorithm))
+
     def generator_kind(self, names: Names) -> Callable[[str], str | None]:
         return generator_kind(self._document, names)
 
     @cached_property
     def _attributes(self) -> dict[tuple, dict]:
         return attributes_of(self._document)
+
+    @cached_property
+    def _class_names(self) -> dict[tuple, str | None]:
+        return class_names_of(self._document)

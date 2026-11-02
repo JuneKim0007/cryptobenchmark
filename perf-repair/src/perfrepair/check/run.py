@@ -8,7 +8,10 @@ from ..dto.grouping import read_items
 from ..dto.screen import Verdict, qualified_verdicts
 from ..dto.grouping_state import Knowledge
 from ..dto.site import Scope
-from ..files import read_json
+from ..dto.classify import read_batches
+from ..files import read_json, read_yaml
+from ..ai.parse.algorithm_classify.kind import ClassifyKind
+from ..ai.parse.algorithm_classify.state import Classified, candidates
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog, screening_catalog
@@ -25,7 +28,7 @@ from ..validation.measurements import validate_measurements
 from ..validation.report import validate_report, validate_summary
 from ..validation.rows import validate_rows
 from ..validation.run_log import validate_run_log
-from ..validation.screen import validate_screen_document
+from ..validation.screen import validate_model_verdicts, validate_screen_document
 
 
 def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[str]]:
@@ -47,7 +50,7 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
     if (run / rd.APPS / rd.SUMMARY).is_file():
         out[f"{rd.APPS}/{rd.SUMMARY}"] = validate_summary(read_json(run / rd.APPS / rd.SUMMARY), reports)
     grouping = GroupingPaths(run)
-    catalog = catalog or screening_catalog(None)
+    catalog = _resolved(catalog)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
         out |= _screen(grouping, catalog)
@@ -78,6 +81,10 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
     return out
 
 
+def _resolved(catalog: Catalog | None) -> Catalog:
+    return catalog or screening_catalog(None)
+
+
 def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalog: Catalog) -> dict[str, list[str]]:
     out, handler = {}, catalog.handler()
     for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
@@ -106,4 +113,27 @@ def _screen(grouping: GroupingPaths, catalog: Catalog) -> dict[str, list[str]]:
         return {}
     items, doc = read_items(read_json(grouping.items)), read_json(grouping.screen)
     problems = validate_screen_document(doc, items)
-    return {"grouping/screen.json": problems or catalog.mismatch(rd.load_screen_catalog(grouping))}
+    if problems:
+        return {"grouping/screen.json": problems}
+    return {"grouping/screen.json": catalog.mismatch(rd.load_screen_catalog(grouping))} | _classify(grouping)
+
+
+def _classify(grouping: GroupingPaths) -> dict[str, list[str]]:
+    review = rd.load_screen_review(grouping)
+    if review is None:
+        return {}
+    try:
+        batches = read_batches(read_json(grouping.classify_batches))
+        outbox = active_outbox(grouping.classify)
+        records = outbox.records()
+        saved = Classified.from_json(read_json(grouping.classified))
+        proposals = read_yaml(grouping.registry_candidates)
+    except (OSError, KeyError, TypeError, ValueError) as e:
+        return {"grouping/classify": [f"does not read: {e}"]}
+    problems = [] if outbox.fingerprint == review else [
+        f"screen.json was reviewed under {review}, the active classify outbox is {outbox.fingerprint}"]
+    problems += ClassifyKind(batches, grouping).validate(saved, records)
+    problems += validate_model_verdicts(rd.load_screen(grouping), saved.answers, review)
+    if proposals != candidates(saved, batches, review):
+        problems.append(f"{grouping.registry_candidates.name} differs from the accepted answers")
+    return {"grouping/classify": problems}

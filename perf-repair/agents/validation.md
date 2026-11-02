@@ -16,9 +16,10 @@
 ## File structure
 
 ```
-src/perfrepair/check/run.py : stage replay: validate every artifact present in a run directory, rebuilding kinds from their outboxes; screen.json against the resolved catalog
+src/perfrepair/check/run.py : stage replay: validate every artifact present in a run directory, rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
 src/perfrepair/validation/__main__.py : command: validate a run directory by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
+src/perfrepair/validation/classified.py : classify/classified.json: answers only for batched ids, ids in one batch, allowed values, a reason each
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status; parse_dossiers: Dossiers and noOptions for the replace stage, by the same checks
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
@@ -30,6 +31,7 @@ src/perfrepair/validation/grouping/output.py : groups.json (schema 2): one group
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, ordered finite summaries, positive medians
+src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
 src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item and the knowledge
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply
@@ -37,7 +39,7 @@ src/perfrepair/validation/report.py : report.json and summary.json: statuses, me
 src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
-src/perfrepair/validation/screen.py : screen.json: its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a screened-out one
+src/perfrepair/validation/screen.py : screen.json: its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified; validate_model_verdicts: model-sourced verdicts equal the classify answers
 src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins; risks from scope and option
 src/perfrepair/validation/verdicts.py : verdicts: known groups, static equal triage, pairs are members
 ```

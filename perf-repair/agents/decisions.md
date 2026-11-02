@@ -62,6 +62,7 @@ src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer;
 src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role, with each value's source
 src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and defaults
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
+src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
 src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: findings only

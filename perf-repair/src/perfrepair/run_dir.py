@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 from .dto import Measurements, PrimitiveRow, RunLog
-from .dto.screen import Verdict, read_screen, read_screen_catalog
+from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
 from .files import read_json
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
@@ -68,6 +68,10 @@ class GroupingPaths:
     groups = property(lambda self: self.root / "groups.json")
     interop_plan = property(lambda self: self.root / "interop_plan.yaml")
     interop = property(lambda self: self.root / "interop.yaml")
+    classify = property(lambda self: self.root / "classify")
+    classify_batches = property(lambda self: self.root / "classify" / "batches.json")
+    classified = property(lambda self: self.root / "classify" / "classified.json")
+    registry_candidates = property(lambda self: self.root / "registry-candidates.yaml")
 
 
 def app_dirs(run: Path) -> list[Path]:
@@ -97,3 +101,8 @@ def load_screen(paths: GroupingPaths) -> dict[int, Verdict] | None:
 
 def load_screen_catalog(paths: GroupingPaths) -> dict | None:
     return read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None
+
+
+def load_screen_review(paths: GroupingPaths) -> str | None:
+    """The classify outbox fingerprint screen.json was reviewed under; None when no review ran."""
+    return read_screen_review(read_json(paths.screen)) if paths.screen.exists() else None

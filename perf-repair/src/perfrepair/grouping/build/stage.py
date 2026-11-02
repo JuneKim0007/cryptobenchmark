@@ -11,14 +11,17 @@ from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
 from ...run_dir import GroupingPaths
 from ...screen.catalog import Catalog, screening_catalog
+from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
+from ...ai.parse.algorithm_classify.command import Reviewer, classify
 from .items import build
 
 INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
 
 
-def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None,
-                families: Families | None = None) -> GroupingPaths:
+def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None, reviewer: Reviewer | None = None,
+                families: Families | None = None, echo=print) -> GroupingPaths:
+    """reviewer: given only with screening.aiReview; it classifies the unknown items before screen.json is written."""
     catalog = catalog or screening_catalog(None)
     context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
     missing = [k for k in INPUTS if context.file(k) is None]
@@ -32,5 +35,9 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None,
     paths.root.mkdir(parents=True, exist_ok=True)
     write_json(paths.items, items_document(items))
     write_json(paths.profiles, profiles_document(profiles))
-    write_json(paths.screen, screen_document(verdicts, catalog.identity()))
+    review = None
+    if reviewer is not None:
+        verdicts, review = classify(paths, batches(unknown_evidence(context, items, verdicts)), verdicts, reviewer, echo)
+        require("screen", validate_screen(verdicts, items))
+    write_json(paths.screen, screen_document(verdicts, catalog.identity(), review))
     return paths

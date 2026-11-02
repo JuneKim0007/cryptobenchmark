@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from ..dto.grouping import Item
 import re
 
-from ..dto.screen import CODE_GROUPED, STATUSES, UNKNOWN, Verdict, read_screen, read_screen_catalog
+from ..dto.classify import Answer
+from ..dto.grouping import Item
+from ..dto.screen import (MODEL_SOURCE, MODEL_STATUS, NEVER_TARGET, STATUSES, UNKNOWN, UNVERIFIED, Verdict, read_screen,
+                          read_screen_catalog)
 
 SHA256 = re.compile(r"[0-9a-f]{64}")
 
@@ -12,7 +14,8 @@ def _verdict_problems(n: int, v: Verdict) -> list[str]:
     checks = ((v.status not in STATUSES, f"status {v.status!r} is not one of {list(STATUSES)}"),
               (not v.reason, "no reason"),
               (v.status != UNKNOWN and not v.source, f"{v.status} without a source"),
-              (v.status in CODE_GROUPED and not v.canonical, f"{v.status} without the canonical name it was screened by"))
+              (v.status in NEVER_TARGET and not v.canonical, f"{v.status} without the canonical name it was screened by"),
+              (v.status == UNVERIFIED and not (v.source or "").startswith(MODEL_SOURCE), "unverified without a model source"))
     return [f"{n}: {text}" for failed, text in checks if failed]
 
 
@@ -35,3 +38,21 @@ def validate_screen_document(doc: dict, items: list[Item]) -> list[str]:
     except (KeyError, TypeError, ValueError) as e:
         return [f"screen.json does not parse: {e}"]
     return _catalog_problems(catalog) + validate_screen(verdicts, items)
+
+
+def validate_model_verdicts(verdicts: dict[int, Verdict], answers: dict[int, Answer], fingerprint: str) -> list[str]:
+    """screen.json's model-sourced verdicts are exactly the classify answers that change a status, under one outbox."""
+    problems = [p for k, v in sorted(verdicts.items()) for p in _model_problems(k, v, answers.get(k), fingerprint)]
+    return problems + [f"{k}: classify answer for no item" for k in sorted(set(answers) - set(verdicts))]
+
+
+def _model_problems(k: int, v: Verdict, a: Answer | None, fingerprint: str) -> list[str]:
+    status = MODEL_STATUS.get(a.answer) if a else None
+    if status is not None:
+        same = (v.status, v.reason, v.source) == (status, a.reason, MODEL_SOURCE + fingerprint)
+        return [] if same else [f"{k}: classify answered {a.answer}, screen.json says {v.status} from {v.source}"]
+    if (v.source or "").startswith(MODEL_SOURCE):
+        return [f"{k}: {v.status} from {v.source} without a classify answer that sets it"]
+    if a is not None and v.status != UNKNOWN:
+        return [f"{k}: classify answered {a.answer} for an item screened {v.status}"]
+    return []

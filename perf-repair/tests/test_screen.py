@@ -103,7 +103,7 @@ ITEMS = [Item(1, "MessageDigest", "MD5", "P", "f"), Item(2, "MessageDigest", "SH
 def test_the_validator_wants_one_verdict_per_item_from_the_status_set():
     verdicts = {1: Verdict("weak", "r", "s"), 3: Verdict("broken", "r", None, "MD5")}
     assert validate_screen(verdicts, ITEMS) == ["2: no verdict", "3: verdict for no item",
-                                                "1: status 'weak' is not one of ['broken', 'platform_deprecated', "
+                                                "1: status 'weak' is not one of ['broken', 'platform_deprecated', 'unverified', "
                                                 "'accepted', 'unknown']", "3: broken without a source"]
 
 

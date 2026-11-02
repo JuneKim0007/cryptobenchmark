@@ -1,11 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
+
+from . import classify as answer
 
 SCHEMA_VERSION = 3
 BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN = "broken", "platform_deprecated", "accepted", "unknown"
-STATUSES = (BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN)
+UNVERIFIED = "unverified"
+STATUSES = (BROKEN, PLATFORM_DEPRECATED, UNVERIFIED, ACCEPTED, UNKNOWN)
 CODE_GROUPED = (BROKEN, PLATFORM_DEPRECATED)
+NEVER_TARGET = (*CODE_GROUPED, UNVERIFIED)
+MODEL_SOURCE = "model:"
+MODEL_STATUS = {answer.DEPRECATED: BROKEN, answer.ACCEPTED: UNVERIFIED}
 
 
 @dataclass(frozen=True)
@@ -24,9 +30,16 @@ class Verdict:
         return cls(d["status"], d["reason"], d.get("source"), d.get("canonical"), d.get("keySize"))
 
 
+def with_answer(verdict: Verdict, answer: str, reason: str, fingerprint: str) -> Verdict:
+    """A model answer on an unknown verdict: deprecated is broken at once, accepted only unverified, unsure unchanged."""
+    status = MODEL_STATUS.get(answer)
+    return verdict if status is None else replace(verdict, status=status, reason=reason,
+                                                   source=MODEL_SOURCE + fingerprint)
+
+
 def lowers_status(current: Verdict | None, target: Verdict | None) -> bool:
-    """A screened-out target is allowed only as the current item's own algorithm, never at a worse status."""
-    if target is None or target.status not in CODE_GROUPED:
+    """A never-target status is allowed only as the current item's own algorithm, never at a worse status."""
+    if target is None or target.status not in NEVER_TARGET:
         return False
     same = current is not None and target.canonical is not None and (target.canonical, target.keySize) == (
         current.canonical, current.keySize)
@@ -40,10 +53,12 @@ def qualified_verdicts(groups: dict, screen: dict[int, Verdict] | None) -> dict[
     return {e["qualified"]: screen[int(k)] for k, e in groups["items"].items()}
 
 
-def screen_document(verdicts: dict[int, Verdict], catalog: dict) -> dict:
-    """catalog: {source, sha256} of the screening catalog the verdicts came from."""
-    return {"schemaVersion": SCHEMA_VERSION, "catalog": catalog,
-            "verdicts": {str(k): v.to_json() for k, v in sorted(verdicts.items())}}
+def screen_document(verdicts: dict[int, Verdict], catalog: dict, review: str | None = None) -> dict:
+    """catalog: {source, sha256} of the screening catalog; review: the classify outbox fingerprint, only when it ran."""
+    doc = {"schemaVersion": SCHEMA_VERSION, "catalog": catalog}
+    if review is not None:
+        doc["review"] = {"fingerprint": review}
+    return {**doc, "verdicts": {str(k): v.to_json() for k, v in sorted(verdicts.items())}}
 
 
 def _checked(doc: dict) -> dict:
@@ -58,4 +73,8 @@ def read_screen(doc: dict) -> dict[int, Verdict]:
 
 def read_screen_catalog(doc: dict) -> dict:
     return _checked(doc)["catalog"]
+
+
+def read_screen_review(doc: dict) -> str | None:
+    return (_checked(doc).get("review") or {}).get("fingerprint")
 
