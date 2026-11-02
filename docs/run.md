@@ -9,6 +9,7 @@
 | energy Python deps | `tools/energy/requirements.txt`, see [energy.md](energy.md) |
 | `ANDROID_HOME` (`--device`) | default `~/Library/Android/sdk`; adb at `$ANDROID_HOME/platform-tools/adb` |
 | device state (`--device`) | `adb get-state` must print `device` |
+| `ANDROID_SERIAL` (`--device`) | selects one device; several attached and none selected stops with `several_devices`; a serial not attached stops with `device_not_attached` |
 | root (`--device`) | not required: the app creates its own files directory; shell reads it through group `ext_data_rw` |
 
 ## scripts/pipeline.py

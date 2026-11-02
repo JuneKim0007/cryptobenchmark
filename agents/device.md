@@ -10,6 +10,7 @@
 ## Rules
 - entry: run device work through `python3 scripts/pipeline.py --device`; never drive the adb steps of `scripts/device.py` by hand.
 - sdk: set `ANDROID_HOME` before a device run; `adb get-state` must report `device`.
+- serial: with several devices attached, set `ANDROID_SERIAL` to one.
 - root: a device run needs no root; never require it in code or scripts.
 - discovery: `--device` probes the attached device; never combine it with `--discovery reuse`.
 - suppress-errors: pass `--suppress-errors EMULATOR,UNLOCKED` only on an emulator or a device with unlocked clocks.

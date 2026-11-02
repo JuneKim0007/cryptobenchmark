@@ -46,6 +46,16 @@ def instrumentation_report(output):
     return "\n".join(lines or [line for line in output.splitlines() if line.strip()][-5:])
 
 
+def selection_error(listing, serial):
+    """The coded line when `adb devices` output leaves a bare adb command ambiguous or its target absent; else None."""
+    attached = [line.split("\t")[0] for line in listing.splitlines() if "\t" in line]
+    if serial and serial not in attached:
+        return f"device_not_attached: ANDROID_SERIAL={serial}; attached: {', '.join(attached) or 'none'}"
+    if not serial and len(attached) > 1:
+        return f"several_devices: {', '.join(attached)}; set ANDROID_SERIAL to one"
+    return None
+
+
 class Device:
 
     def __init__(self, root, stream, stacktrace):
@@ -65,6 +75,9 @@ class Device:
     def connect(self):
         if not self.adb.is_file():
             raise DeviceError(f"missing_file: {self.adb} (set ANDROID_HOME)")
+        selection = selection_error(self.run("devices").stdout, os.environ.get("ANDROID_SERIAL"))
+        if selection:
+            raise DeviceError(selection)
         state = self.run("get-state", check=False)
         if state.stdout.strip() != "device":
             raise DeviceError(f"no_device: adb get-state: {(state.stderr or state.stdout).strip()}")
