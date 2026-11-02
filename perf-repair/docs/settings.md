@@ -24,7 +24,7 @@
 | 5 | code default | | |
 
 - Role keys beat every agent layer; `PERFREPAIR_EFFORT` never lowers `grouping report --supervisor` below `high`; `--effort` or `grouping.supervisor.effort` does.
-- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`.
+- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once at INFO on stderr: `setting <key>: <value> (<source>)` (`config/load.py`).
 
 ## Keys
 

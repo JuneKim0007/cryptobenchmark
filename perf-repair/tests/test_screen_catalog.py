@@ -30,6 +30,10 @@ def settings(tmp_path, text):
     return path
 
 
+def catalog_lines(caplog):
+    return [r.getMessage() for r in caplog.records if r.name == "perfrepair.inputs"]
+
+
 def test_no_perfrepair_yaml_is_the_packaged_catalog_logged_in_one_line(caplog):
     caplog.set_level(logging.INFO, "perfrepair")
     catalog = screening_catalog(None)
@@ -44,7 +48,7 @@ def test_a_file_without_the_key_says_so_and_names_ai_review(tmp_path, caplog):
     path = settings(tmp_path, "screening: {aiReview: true}\n")
     loaded = load(path, {}, {})
     assert screening_catalog(loaded).path == SCREENING and ai_review(loaded) is True
-    assert caplog.messages == [f"screening.catalog: packaged catalog (screening.catalog unset in {path.resolve()}); "
+    assert catalog_lines(caplog) == [f"screening.catalog: packaged catalog (screening.catalog unset in {path.resolve()}); "
                                f"aiReview on"]
 
 
@@ -53,7 +57,7 @@ def test_a_configured_catalog_is_used_without_a_log_line(tmp_path, caplog):
     shutil.copy(SCREENING, tmp_path / "mine.yaml")
     catalog = screening_catalog(load(settings(tmp_path, "screening: {catalog: mine.yaml}\n"), {}, {}))
     assert catalog.source == str(tmp_path / "mine.yaml") and catalog.sha256 == screening_catalog(None).sha256
-    assert caplog.messages == [PACKAGED_LINE]
+    assert catalog_lines(caplog) == [PACKAGED_LINE]
 
 
 def test_a_configured_catalog_that_does_not_exist_is_missing_file_never_the_packaged_one(tmp_path):
@@ -81,7 +85,7 @@ def test_every_step_that_screens_exits_non_zero_on_a_missing_catalog(tmp_path, c
 
 def test_build_logs_the_packaged_catalog_without_perfrepair_yaml(tmp_path, capsys):
     assert grouping_main(["build", "--manifest", str(F), "--run", str(tmp_path)]) == 0
-    assert capsys.readouterr().err.splitlines() == [PACKAGED_LINE]
+    assert [line for line in capsys.readouterr().err.splitlines() if not line.startswith("setting ")] == [PACKAGED_LINE]
     assert json.loads((tmp_path / "grouping" / "screen.json").read_text())["verdicts"]
 
 

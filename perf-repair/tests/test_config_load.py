@@ -1,4 +1,6 @@
 import argparse
+import logging
+from dataclasses import fields
 
 import pytest
 
@@ -140,3 +142,18 @@ def test_the_guide_limit_takes_only_a_positive_integer(capsys):
         guide_parser().parse_args(["--limit", "0"])
     assert "is not a positive integer" in capsys.readouterr().err
     assert positive_int("3") == 3
+
+
+def test_each_resolved_setting_is_logged_once_with_its_source(tmp_path, caplog):
+    f = tmp_path / "perfrepair.yaml"
+    f.write_text("grouping: {turns: 4}\n")
+    loaded = load(f, {}, {})
+    with caplog.at_level(logging.INFO, logger="perfrepair"):
+        loaded.value("grouping.turns")
+        loaded.value("grouping.turns")
+        loaded.value("grouping.sessions", default=2)
+        loaded.agent("ai.replace", {"model": "m"})
+    lines = caplog.messages
+    assert lines.count(f"setting grouping.turns: 4 (file {f})") == 1
+    assert "setting grouping.sessions: 2 (default)" in lines and "setting ai.replace.model: m (cli)" in lines
+    assert len(lines) == 2 + len(fields(Agent))

@@ -1,6 +1,7 @@
 """Finds perfrepair.yaml and resolves each value: CLI > environment > file > .env > code default, recording its source."""
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any, Mapping
@@ -11,6 +12,7 @@ from ..files import read_yaml
 from .dotenv import ROOT
 from .settings import AGENT_DEFAULT, ROLE_DEFAULTS, ROLES, Agent, ConfigError, Invalid, Settings, parse
 
+LOG = logging.getLogger(__name__)
 DEFAULT_FILE = ROOT / "perfrepair.yaml"
 CONFIG_ENV = "PERFREPAIR_CONFIG"
 AGENT_ENV = {"backend": "PERFREPAIR_AGENT", "model": "PERFREPAIR_MODEL", "effort": "PERFREPAIR_EFFORT"}
@@ -42,16 +44,14 @@ class Loaded:
     sources: dict[str, str] = field(default_factory=dict)
 
     def _pick(self, key: str, candidates) -> Any:
-        for value, source in candidates:
-            if value is not None:
-                self.sources[key] = source
-                return value
-        self.sources[key] = "default"
-        return None
+        value, source = next(((v, s) for v, s in candidates if v is not None), (None, "default"))
+        if key not in self.sources:
+            LOG.info("setting %s: %s (%s)", key, value, source)
+        self.sources[key] = source
+        return value
 
     def value(self, key: str, cli: Any = None, default: Any = None) -> Any:
-        picked = self._pick(key, ((cli, "cli"), (self.settings.get(key), f"file {self.file}")))
-        return default if picked is None else picked
+        return self._pick(key, ((cli, "cli"), (self.settings.get(key), f"file {self.file}"), (default, "default")))
 
     def agent(self, role: str, cli: Mapping[str, Any]) -> Agent:
         """A role key (CLI, file or role default) beats every agent.* layer; env vars name agent.* only."""
