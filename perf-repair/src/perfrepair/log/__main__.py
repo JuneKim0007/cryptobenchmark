@@ -1,6 +1,6 @@
-"""python3 -m perfrepair.log summary <device-results> [--run ID] [--json] — one run of <device>/log/events.jsonl
-(the last by default) per stage and per app folder: time, items, model calls, rejections and their top problems,
-the slowest items, tokens and cost."""
+"""python3 -m perfrepair.log summary <device-results> [--run ID | --last] [--json] — <device>/log/events.jsonl, every run
+by default, per stage and per app folder: time, items, model calls, rejections and their top problems, the slowest
+items, tokens and cost."""
 from __future__ import annotations
 
 import argparse
@@ -20,14 +20,16 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="command", required=True)
     s = sub.add_parser("summary")
     s.add_argument("device_results", type=Path, help="the device's results folder, <results root>/<device id>")
-    s.add_argument("--run", help="a run id from events.jsonl; default: the last run")
+    narrow = s.add_mutually_exclusive_group()
+    narrow.add_argument("--run", help="only this run id from events.jsonl; default: every run")
+    narrow.add_argument("--last", action="store_true", help="only the newest run")
     s.add_argument("--json", action="store_true", help="the summary as JSON")
     a = ap.parse_args(argv)
     path = a.device_results.expanduser() / rd.EVENTS
     try:
         if not path.is_file():
             raise ValueError(f"missing_file: {path}; no command has run on this device folder")
-        doc = summarize(read_events(path), a.run)
+        doc = summarize(read_events(path), a.run, a.last)
     except ValueError as e:
         print(f"error {e}", file=sys.stderr)
         return 1

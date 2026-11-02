@@ -1,4 +1,4 @@
-"""summarize(): one run's events per stage and per app folder: time, items, model calls, rejections, tokens, cost."""
+"""summarize(): a folder's events, all runs or one, per stage and per app folder: time, items, model calls, rejections, tokens, cost."""
 from __future__ import annotations
 
 import re
@@ -8,6 +8,7 @@ from datetime import datetime
 from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, TURN, Event
 
 TOP = 5
+ALL = "all"
 WRAPPERS = ("guide",)
 _TURN_PREFIX = re.compile(r"^s\d+t\d+: ")
 
@@ -57,11 +58,21 @@ def _of(events: list[Event], name: str) -> list[Event]:
     return [e for e in events if e.event == name]
 
 
+def _place(e: Event) -> tuple:
+    return e.run, e.stage, e.step, e.app
+
+
+def _unended_turns_ms(events: list[Event]) -> int:
+    """A model step in a killed run has no end, and only its turns say what it took."""
+    ended = {_place(e) for e in _of(events, END)}
+    return sum(e.durationMs or 0 for e in _of(events, TURN) if _place(e) not in ended)
+
+
 def block(events: list[Event]) -> dict:
     """The numbers of one group of events; a turn is one model call."""
     turns, decisions = _of(events, TURN), _of(events, DECISION)
     # steps of one stage do not nest, so their ends add up; a stage's steps nest in another's (guide, device)
-    return {"durationMs": sum(e.durationMs or 0 for e in _of(events, END)), "steps": _steps(events),
+    return {"durationMs": sum(e.durationMs or 0 for e in _of(events, END)) + _unended_turns_ms(events), "steps": _steps(events),
             "items": len({(e.step, e.item) for e in decisions}),
             "decisions": dict(Counter(e.outcome for e in decisions)),
             "modelCalls": len(turns), "rejections": sum(e.outcome != "accepted" for e in turns),
@@ -77,31 +88,40 @@ def _grouped(events: list[Event], key) -> dict[str, dict]:
     return {name: block(es) for name, es in groups.items()}
 
 
-def _chosen(events: list[Event], run: str | None) -> str:
+def _chosen(events: list[Event], run: str | None, last: bool) -> list[str]:
     ids = runs(events)
     if not ids:
         raise ValueError("no_events: events.jsonl holds no run")
     if run is not None and run not in ids:
         raise ValueError(f"run_unknown: {run}; events.jsonl holds {', '.join(ids)}")
-    return run or ids[-1]
+    return [run] if run else ids[-1:] if last else ids
 
 
-def summarize(events: list[Event], run: str | None = None) -> dict:
-    """run: a run id; None is the last run in the file."""
-    chosen = _chosen(events, run)
-    of_run = [e for e in events if e.run == chosen]
+def summarize(events: list[Event], run: str | None = None, last: bool = False) -> dict:
+    """Every run in the file, unless run names one or last asks for the newest."""
+    chosen = _chosen(events, run, last)
+    newest = runs(events)[-1]
+    of_runs = [e for e in events if e.run in chosen]
     # plain log records (settings, warnings) belong to no stage's numbers
-    staged = [e for e in of_run if e.stage != "run" and e.event != LOG]
-    total = {**block(of_run), "durationMs": _bounds(of_run)["durationMs"]}
+    staged = [e for e in of_runs if e.stage != "run" and e.event != LOG]
+    each = [{"run": r, **_bounds([e for e in of_runs if e.run == r], r == newest)} for r in chosen]
+    overall = each[0] if len(each) == 1 else _overall(each)
     # the guide's steps wrap the app's own, so an app's numbers leave them out
-    return {"run": chosen, **_bounds(of_run), "total": total, "stages": _grouped(staged, lambda e: e.stage),
+    return {**overall, "runs": each, "total": {**block(of_runs), "durationMs": overall["durationMs"]},
+            "stages": _grouped(staged, lambda e: e.stage),
             "apps": _grouped([e for e in staged if e.stage not in WRAPPERS], lambda e: e.app)}
 
 
-def _bounds(of_run: list[Event]) -> dict:
-    """The command, and how the run ended; one still writing is `running`, its time so far."""
+def _overall(each: list[dict]) -> dict:
+    outcomes = Counter(b["outcome"] for b in each)
+    return {"run": ALL, "command": None, "outcome": ", ".join(f"{k} {v}" for k, v in sorted(outcomes.items())),
+            "durationMs": sum(b["durationMs"] for b in each)}
+
+
+def _bounds(of_run: list[Event], newest: bool) -> dict:
+    """The command, and how the run ended; without an end it is `running` if newest, else one that was killed."""
     starts, ends = _of(of_run, RUN_START), _of(of_run, RUN_END)
     command = starts[0].detail if starts else None
     if not ends:
-        return {"command": command, "outcome": "running", "durationMs": _span_ms(of_run)}
+        return {"command": command, "outcome": "running" if newest else "unfinished", "durationMs": _span_ms(of_run)}
     return {"command": command, "outcome": ends[0].outcome, "durationMs": ends[0].durationMs}

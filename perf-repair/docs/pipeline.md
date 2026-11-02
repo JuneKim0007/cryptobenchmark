@@ -42,7 +42,7 @@ flowchart LR
 | guide | `python3 -m perfrepair guide --app <src> --device-results <device> [--device]` | the device folder, the app tree | app, dossier, replace, edit, harness; with `--device` measured and report | the replace step |
 | validate | `python3 -m perfrepair.validation --device-results <device>` | every artifact present | nothing | no |
 | watch | `python3 -m perfrepair.watch <device> [--from-start]` | `log/events.jsonl`, followed | stdout | no |
-| log summary | `python3 -m perfrepair.log summary <device> [--run ID] [--json]` | `log/events.jsonl` | stdout | no |
+| log summary | `python3 -m perfrepair.log summary <device> [--run ID \| --last] [--json]` | `log/events.jsonl` | stdout | no |
 
 - `grouping build` (with `device.screening.aiReview`), `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
 - Inbound, app, grouping build and repair dossier, edit and harness validate before they write.
@@ -101,5 +101,5 @@ Every command appends to `<device>/log/`; nothing in it is read back by a stage.
 - The views are rendered from each event as it is written; `log/views.py` `render()` recomputes them from `events.jsonl`.
 - The stderr lines are the same as without the log: event records stay off stderr, and setting lines at DEBUG reach only `events.jsonl`.
 - A coded error is one `error` event and `error <code>: ...` on stderr; any other exception is a `bug` event, `error bug: <type>: <message>; traceback in <device>/log/bug.log`, exit 1; before the folder is known the traceback goes to stderr.
-- `watch` prints one line per finished step and a counter per model step, `grouping assign 37/176 · 2 rejected · $0.0040 · 41s`, rewritten in place on a terminal with each turn, one line per decision elsewhere; it exits 0 when the last line it read is a `run_end`, 130 on Ctrl-C; without `--from-start` it starts at the file's end.
-- `log summary` takes the last run unless `--run` names one: per stage and per app folder its time (the sum of its step ends; an app folder leaves out the guide's steps), each static step's runs and time, items and decisions, model calls, rejections and their top problems, the slowest items, tokens and cost.
+- `watch` prints one line per finished step and a counter per model step, `grouping assign 37/176 · 2 rejected · $0.0040 · 41s`, rewritten in place on a terminal with each turn, one line per decision elsewhere; it exits 0 when the last line it read is a `run_end`, 130 on Ctrl-C; without `--from-start` it starts at the file's end; with it, every run in the file replays, each `run_start` resetting the counters.
+- `log summary` takes every run of the folder unless `--run` names one or `--last` asks for the newest: a line per run (a run with no end is `running` if newest, else `unfinished`), the total, then per stage and per app folder its time (the sum of its step ends, plus the turns of a model step a killed run left open; an app folder leaves out the guide's steps), each static step's runs and time, items and decisions, model calls, rejections and their top problems, the slowest items, tokens and cost.

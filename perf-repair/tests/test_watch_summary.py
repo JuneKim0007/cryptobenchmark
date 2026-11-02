@@ -88,18 +88,66 @@ def test_the_summary_counts_calls_rejections_tokens_cost_and_problems(tmp_path):
     assert grouping["steps"]["build"]["runs"] == 1
 
 
-def test_the_summary_is_of_the_last_run_unless_one_is_named(tmp_path, capsys):
+def test_the_summary_is_of_every_run_unless_narrowed(tmp_path, capsys):
     _scripted(tmp_path, limit=1)
     _scripted(tmp_path)
     events = read_events(tmp_path / rd.EVENTS)
     first, last = dict.fromkeys(e.run for e in events)
-    assert summarize(events)["stages"]["grouping"]["items"] == 2
+    every = summarize(events)
+    assert every["run"] == "all" and every["total"]["modelCalls"] == 4 and every["total"]["costUsd"] == 0.04
+    assert every["stages"]["grouping"]["items"] == 3 and [r["run"] for r in every["runs"]] == [first, last]
+    assert every["durationMs"] == sum(r["durationMs"] for r in every["runs"]) and every["outcome"] == "ok 2"
     assert summarize(events, first)["stages"]["grouping"]["modelCalls"] == 2
-    assert log_main(["summary", str(tmp_path), "--json"]) == 0
+    assert summarize(events, last=True)["stages"]["grouping"]["items"] == 2
+    assert log_main(["summary", str(tmp_path), "--json", "--last"]) == 0
     assert json.loads(capsys.readouterr().out)["run"] == last
     assert log_main(["summary", str(tmp_path)]) == 0
     text = capsys.readouterr().out
-    assert f"run {last}" in text and "stage grouping:" in text and "2 model calls" in text
+    assert f"run {first}" in text and f"run {last}" in text and "total of 2 runs" in text and "4 model calls" in text
+
+
+def test_a_run_with_no_end_is_running_if_newest_and_else_unfinished(tmp_path):
+    _scripted(tmp_path, limit=1)
+    _scripted(tmp_path)
+    path = tmp_path / rd.EVENTS
+    path.write_text("".join(line + "\n" for line in path.read_text().splitlines() if '"run_end"' not in line))
+    every = summarize(read_events(path))
+    assert [r["outcome"] for r in every["runs"]] == ["unfinished", "running"]
+    assert every["outcome"] == "running 1, unfinished 1"
+
+
+def test_a_killed_model_step_still_counts_its_turns_as_time(tmp_path):
+    _scripted(tmp_path)
+    path = tmp_path / rd.EVENTS
+    lines = [line for line in path.read_text().splitlines() if not ('"end"' in line and '"assign"' in line)]
+    path.write_text("".join(line + "\n" for line in lines))
+    events = read_events(path)
+    turns = sum(e.durationMs or 0 for e in events if e.event == "turn")
+    built = sum(e.durationMs or 0 for e in events if e.event == "end" and e.step == "build")
+    assert summarize(events)["stages"]["grouping"]["durationMs"] == turns + built
+
+
+def test_a_report_after_paid_runs_does_not_hide_them(tmp_path, capsys):
+    _scripted(tmp_path)
+
+    def report_only():
+        attach(tmp_path)
+        with step("report", "summary"):
+            pass
+
+    attach()
+    assert failure.reported(report_only) == 0
+    assert log_main(["summary", str(tmp_path)]) == 0
+    text = capsys.readouterr().out
+    assert "4 model calls" in text.splitlines()[2] and "$0.0400" in text.splitlines()[2]
+
+
+def test_watch_replays_every_run_of_a_folder(tmp_path, capsys):
+    _scripted(tmp_path, limit=1)
+    _scripted(tmp_path)
+    assert watch_main([str(tmp_path), "--from-start", "--interval", "0"]) == 0
+    out = capsys.readouterr().out
+    assert out.count(": started") == 2 and "· done" in out
 
 
 def test_a_summary_without_events_is_one_error_line(tmp_path, capsys):

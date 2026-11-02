@@ -1,4 +1,4 @@
-"""The summary as text lines: the run, then each stage and each app folder."""
+"""The summary as text lines: the runs, then the total, each stage and each app folder."""
 from __future__ import annotations
 
 from .views import seconds, tokens_text
@@ -27,9 +27,13 @@ def _block(title: str, b: dict) -> list[str]:
     return lines
 
 
+def _run(r: dict) -> str:
+    return f"run {r['run']}: {r['command']}: {r['outcome']} ({seconds(r['durationMs'])})"
+
+
 def summary_lines(doc: dict) -> list[str]:
-    lines = [f"run {doc['run']}: {doc['command']}: {doc['outcome']} ({seconds(doc['durationMs'])})",
-             *_block("total", doc["total"])[:1]]
+    lines = [_run(r) for r in doc["runs"]]
+    lines.append(_block(f"total of {len(doc['runs'])} runs" if len(doc["runs"]) > 1 else "total", doc["total"])[0])
     for stage, b in doc["stages"].items():
         lines += _block(f"stage {stage}", b)
     for app, b in doc["apps"].items():
