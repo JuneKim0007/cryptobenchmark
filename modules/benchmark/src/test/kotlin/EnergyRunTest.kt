@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
-import io.github.junekim0007.cryptobench.benchmark.run.compose.CaseRun
+import io.github.junekim0007.cryptobench.benchmark.run.CaseRun
 import io.github.junekim0007.cryptobench.benchmark.run.compose.CaseRuns
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.Cooldown
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy

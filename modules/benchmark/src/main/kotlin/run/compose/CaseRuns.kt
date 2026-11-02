@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.run.compose
 
+import io.github.junekim0007.cryptobench.benchmark.run.CaseRun
 import io.github.junekim0007.cryptobench.benchmark.run.TimedLoop
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.Cooldown
 import io.github.junekim0007.cryptobench.benchmark.run.decorate.EnergyWindow
