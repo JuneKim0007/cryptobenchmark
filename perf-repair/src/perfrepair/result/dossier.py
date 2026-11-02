@@ -8,7 +8,7 @@ from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
-from ..dto.site import METRICS, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
+from ..dto.site import METRICS, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
 from .estimate import compare
 
 RESOLVED = ("default", "explicit")
@@ -113,7 +113,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
             configs = nearest(s, measured[current], measured[q])
             # no configuration measured on both sides: the pins are unknown, never guessed
             pinned = pins(measured[current][configs[0]], measured[q][configs[0]]) if configs else None
-            options.append(Option(f"R{n}", q, pinned, pair_status(groups, current, q),
+            options.append(Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(groups, current, q),
                                   estimates(configs, measured[current], measured[q], measurements),
                                   None if verdicts is None else verdicts[q].status))
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))

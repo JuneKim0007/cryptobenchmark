@@ -18,6 +18,7 @@
 ```
 src/perfrepair/check/run.py : stage replay: validate every artifact present in a run directory, rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
 src/perfrepair/validation/__main__.py : command: validate a run directory by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
+src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
 src/perfrepair/validation/classified.py : classify/classified.json: answers only for batched ids, ids in one batch, allowed values, a reason each
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status; parse_dossiers: Dossiers and noOptions for the replace stage, by the same checks

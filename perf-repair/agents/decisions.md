@@ -23,7 +23,7 @@
 - add a role: copy the layout of `ai/suggest/site_replace/` into `ai/<role-kind>/<name>/`, one file per job:
   - `kind.py`: the DecisionKind (name, items, pending, empty, admit, label, render, check, apply, validate, write) and `charter(library)`; render calls `render.py`, check calls the gate, validate ends with `replay_problems`
   - `render.py`: the message text only
-  - `schema.py`: the answer's JSON schema only
+  - `schema.py`: the answer's JSON schema only; every limit its gate checks (length, pattern, enum) read from the gate's constants
   - `state.py`: the role's projection type, when no dto type fits
   - `command.py`: the stage function the CLI calls, and its `DRY_RUN` conversations
   - gate C: `validation/<role-kind>/<name>.py`, and the state validator (`agents/validation.md`)
@@ -38,8 +38,8 @@ src/perfrepair/ai/__main__.py : command: the worthiness and replace stages
 src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurements → evidence, triage, WorthinessKind on the engine
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; triage statics, apply, dropped → fallback skip
 src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables
-src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required
-src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output, server-side refusal fallback
+src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required; member aliases and non-blank reasons as patterns
+src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
 src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login, no ANTHROPIC_API_KEY in the child
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
 src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
@@ -54,7 +54,7 @@ src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml 
 src/perfrepair/ai/suggest/site_replace/command.py : stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
 src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep
 src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
-src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required
+src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required; option alias (or empty) and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked

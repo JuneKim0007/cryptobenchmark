@@ -52,7 +52,6 @@ def test_render_lists_every_edit_kind_and_fences_the_source():
 
 def test_schema_requires_every_field_and_stays_within_structured_output():
     def walk(node):
-        assert "maxLength" not in node and "pattern" not in node
         if node.get("type") == "object":
             assert set(node["required"]) == set(node["properties"]) and node["additionalProperties"] is False
             for child in node["properties"].values():

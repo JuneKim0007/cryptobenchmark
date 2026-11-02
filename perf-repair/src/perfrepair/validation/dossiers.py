@@ -7,7 +7,7 @@ from collections import Counter
 from ..dto.grouping import parse_qualified
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
-from ..dto.site import METRICS, NO_OPTION_REASONS, SCHEMA_VERSION, Dossier, Scope
+from ..dto.site import METRICS, NO_OPTION_REASONS, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Scope
 from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "dossiers", "noOptions"}
@@ -87,7 +87,7 @@ def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
     problems += [f"{where}: {item!r} is not a qualified item id" for item in items if not _qualified(item)]
     if not d.options:
         problems.append(f"{where}: no options; such a scope belongs in noOptions")
-    if [o.alias for o in d.options] != [f"R{n}" for n in range(1, len(d.options) + 1)]:
+    if [o.alias for o in d.options] != [f"{OPTION_PREFIX}{n}" for n in range(1, len(d.options) + 1)]:
         problems.append(f"{where}: aliases are not R1..R{len(d.options)} in order")
     if len(set(items)) != len(items):
         problems.append(f"{where}: an option repeats the current item or another option")

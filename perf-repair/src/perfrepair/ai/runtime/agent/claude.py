@@ -5,6 +5,17 @@ from ....dto.prompt import Lifetime, SystemPrompt
 from .reply import AgentRefused, AgentReply
 
 MAX_TOKENS = 16000
+# The Messages API answers 400 to string length limits, and to a {n,m} it finds too complex; the gate checks both.
+API_UNSUPPORTED = ("maxLength", "minLength", "pattern")
+
+
+def api_schema(node: dict) -> dict:
+    out = {k: v for k, v in node.items() if k not in API_UNSUPPORTED}
+    if "properties" in out:
+        out["properties"] = {name: api_schema(child) for name, child in out["properties"].items()}
+    if isinstance(out.get("items"), dict):
+        out["items"] = api_schema(out["items"])
+    return out
 
 
 class ClaudeClient:
@@ -25,7 +36,7 @@ class ClaudeClient:
             max_tokens=self.max_tokens,
             system=[block],
             messages=messages,
-            output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": schema}},
+            output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": api_schema(schema)}},
             # On a policy decline the API re-runs the request on a fallback model inside the same call.
             extra_headers={"anthropic-beta": "server-side-fallback-2026-07-01"},
             extra_body={"fallbacks": "default"},

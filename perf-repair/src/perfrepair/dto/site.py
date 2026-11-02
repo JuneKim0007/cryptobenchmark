@@ -13,6 +13,7 @@ INPUT_SOURCES = ("app", "run")
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")
+OPTION_PREFIX = "R"
 METRICS = ("timeNs", "allocationCount", "energyJ")
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing
 NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",

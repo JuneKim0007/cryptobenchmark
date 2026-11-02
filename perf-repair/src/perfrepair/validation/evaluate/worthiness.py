@@ -6,10 +6,12 @@ from ...dto.worthiness import DECISIONS
 from ...result.modes import Mode
 from ..json_reply import parse_object
 
+MEMBER_PREFIX = "M"
+
 
 def aliases(e: GroupEvidence) -> dict[str, str]:
     """M1..Mn: member ids contain the table's column separator."""
-    return {f"M{n}": m for n, m in enumerate(e.members, 1)}
+    return {f"{MEMBER_PREFIX}{n}": m for n, m in enumerate(e.members, 1)}
 
 
 def check_reply(text: str, e: GroupEvidence, mode: Mode) -> tuple[dict | None, list[str]]:

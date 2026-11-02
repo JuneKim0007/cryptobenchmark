@@ -26,7 +26,7 @@ def test_one_turn_cached_system_and_schema():
     k = messages.kwargs
     assert k["messages"] == [{"role": "user", "content": "ITEM"}]
     assert k["system"][0]["cache_control"] == {"type": "ephemeral"}
-    assert k["output_config"]["format"]["schema"] is schema
+    assert k["output_config"]["format"]["schema"] == schema
     assert reply.usage["cacheRead"] == 8
 
 
