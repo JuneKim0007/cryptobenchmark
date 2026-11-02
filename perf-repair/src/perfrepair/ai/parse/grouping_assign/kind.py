@@ -4,7 +4,7 @@ from ....dto.decision import OutboxRecord
 from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
-from ....dto.screen import Verdict, read_screen, statuses
+from ....dto.screen import Verdict, read_screen
 from ....files import read_json, write_json
 from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
@@ -14,7 +14,7 @@ from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....catalog.families import Families
 from ....run_dir import GroupingPaths
-from ....screen.groups import code_groups, screened_out
+from ....screen.groups import charter_inputs, code_groups, screened_out
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
@@ -41,8 +41,7 @@ class GroupingKind:
 
     @property
     def inputs(self) -> str:
-        """The screen's statuses; without screen.json every item is asked."""
-        return "" if self.screen is None else statuses(self.screen)
+        return charter_inputs(self.screen)
 
     def items(self) -> list[Item]:
         return self._items

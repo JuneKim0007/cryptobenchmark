@@ -33,6 +33,3 @@ def read_screen(doc: dict) -> dict[int, Verdict]:
         raise ValueError(f"screen schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
     return {int(k): Verdict.from_json(v) for k, v in doc["verdicts"].items()}
 
-
-def statuses(verdicts: dict[int, Verdict]) -> str:
-    return "\n".join(f"{k} {v.status}" for k, v in sorted(verdicts.items()))

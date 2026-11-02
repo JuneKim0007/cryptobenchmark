@@ -137,3 +137,14 @@ def test_a_code_made_group_must_be_the_one_screen_json_implies(paths):
     problems = kind.validate(knowledge, [])
     assert any(p.startswith(f"group {gid}: differs from the code-made group") for p in problems)
     assert "group code_0000000000: code-made, but screen.json makes no such group" in problems
+
+
+def test_a_status_change_that_asks_the_same_items_keeps_the_outbox(paths):
+    screen(paths)
+    assign(paths)
+    old = active_fingerprint(paths.root)
+    verdicts = {n: Verdict("broken", "r", "s", BROKEN[n]) if n in BROKEN else Verdict("unknown", "other reason", None, f"A{n}")
+                for n in range(1, 7)}
+    write_json(paths.screen, screen_document(verdicts))
+    _, agent = assign(paths)
+    assert active_fingerprint(paths.root) == old and agent.started == 0

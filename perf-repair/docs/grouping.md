@@ -24,7 +24,7 @@ flowchart TD
 | `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
 | `screen.json` | build | schema 2, per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
 | `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
-| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screen's statuses |
+| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out items with their code keys (none: as before screening) |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
 | `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
 | `cursor.json` | assign | `next` pending id, `decided` and `dropped` counts, `knowledgeVersion` |
@@ -48,7 +48,7 @@ flowchart TD
 | description | fixed: code-made group of one algorithm, its canonical name, key size and status |
 | model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |
 | groups.json | a screened-out item is in exactly one code-made group and never in a model group; a code-made group is exactly the one its key implies |
-| screen change | the statuses join the charter fingerprint: a changed screen starts a new outbox, a reverted one resumes its old outbox; `report` on a stale outbox fails with `rerun assign` |
+| screen change | the screened-out items and their code keys join the charter fingerprint: a change in which items are code-grouped starts a new outbox (a change among asked items' statuses does not), a reverted one resumes its old outbox; `report` on a stale outbox fails with `rerun assign` |
 | resolved parameters | not in the key; a group whose members resolved differently gets `resolved_parameters_differ` |
 
 ## Answer contract
