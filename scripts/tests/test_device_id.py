@@ -24,6 +24,19 @@ def test_host_shape():
     assert re.fullmatch(r"host-mac-os-x-jdk25-[0-9a-f]{8}", device_id(HOST))
 
 
+# Real blocks and ids from discovery runs (~/capstone/runs/2026-11-02-l1); an id changing here orphans results.
+@pytest.mark.parametrize("runtime, expected", [
+    ({"model": "sdk_gphone_arm64", "manufacturer": "Google", "hardware": "ranchu", "sdkInt": 30, "release": "11", "javaVersion": "0",
+      "defaultKeySizeProperty": "", "fingerprint": "google/sdk_gphone_arm64/emulator_arm64:11/RSR1.240422.006/12134477:userdebug/dev-keys",
+      "javaVendor": "The Android Project", "javaRuntimeVersion": "0.9", "osName": "Linux", "osArch": "aarch64"},
+     "sdk-gphone-arm64-api30-841c21cf"),
+    (HOST, "host-mac-os-x-jdk25-598f8c72"),
+    (dict(HOST, javaVersion="17.0.20.1", javaRuntimeVersion="17.0.20.1+1"), "host-mac-os-x-jdk17-98b06548"),
+])
+def test_ids_of_real_runtime_blocks(runtime, expected):
+    assert device_id(runtime) == expected
+
+
 def test_an_os_update_gives_a_new_id():
     assert device_id(ANDROID) != device_id(dict(ANDROID, fingerprint=ANDROID["fingerprint"].replace("13718934", "13718935")))
 
