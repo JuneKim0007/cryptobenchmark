@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from ...dto.grouping import Item, Profile
+from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Item, Profile
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Knowledge
 from ...dto.interop import PairResult
@@ -21,6 +21,13 @@ def resolved_parameters_differ(k: Knowledge, items: dict[int, Item], profiles: d
             out.append(Finding("resolved_parameters_differ", "error", gid, tuple(g.members),
                                "members resolved different parameters: " + " | ".join(sorted(resolved))))
     return out
+
+
+def key_contract_differs(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
+    return [Finding("key_contract_differs", "error", gid, tuple(g.members),
+                    "members hold application-held keys and keys inside the provider: not interchangeable")
+            for gid, g in sorted(k.groups.items())
+            if {KEY_APP_HELD, KEY_PROVIDER_HELD} <= {profiles[m].keyContract for m in g.members}]
 
 
 def common_key_sizes(members: list[int], profiles: dict[int, Profile]) -> list[int]:
@@ -53,7 +60,7 @@ def dropped(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) 
             for m in sorted(k.dropped)]
 
 
-RULES: tuple[Rule, ...] = (resolved_parameters_differ, no_common_key_size, no_runnable_member, singleton, dropped)
+RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, no_common_key_size, no_runnable_member, singleton, dropped)
 
 
 def check(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:

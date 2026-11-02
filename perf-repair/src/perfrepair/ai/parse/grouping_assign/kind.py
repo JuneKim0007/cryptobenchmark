@@ -69,7 +69,7 @@ class GroupingKind:
         ) if p]
 
     def render(self, item: Item, knowledge: Knowledge) -> TaskPrompt:
-        return TaskPrompt(NAME, render(item, self.families.by_id[item.family], knowledge, self.by_id), item.key)
+        return TaskPrompt(NAME, render(item, self.families.by_id[item.family], knowledge, self.by_id, self.profiles), item.key)
 
     def check(self, item: Item, text: str, knowledge: Knowledge) -> tuple[dict | None, list[str]]:
         answer, problems = parse_answer(text)
