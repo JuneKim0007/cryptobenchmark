@@ -14,7 +14,7 @@ from .. import run_dir as rd
 from ..run_dir import AppPaths
 from ..config.args import add_config_arg, load_settings
 from ..config.device_results import add_device_results_arg, fill_device_results
-from ..log import log_to_stderr
+from ..log import attach
 from ..failure import reported
 from ..screen.catalog import screening_catalog
 from ..validation.repair import validate_edits, validate_harness
@@ -26,7 +26,7 @@ from .test_set import build_test_set
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap = argparse.ArgumentParser(prog="perfrepair.repair")
     sub = ap.add_subparsers(dest="command", required=True)
     for name in ("dossier", "test-set", "edit", "harness"):
@@ -42,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _located(ap: argparse.ArgumentParser, a: argparse.Namespace) -> argparse.Namespace:
     fill_device_results(ap, a)
+    attach(a.device_results)
     a.source, a.app = absolute(a.app), app_id(a.device_results, a.app)
     return a
 

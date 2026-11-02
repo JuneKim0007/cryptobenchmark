@@ -19,6 +19,10 @@ MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "r
 # cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`
 SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
 GROUPING = "grouping"
+# the run log: events.jsonl is the record; the .log files are views of it
+LOG, EVENTS = "log", "log/events.jsonl"
+SCREENING_AI_LOG, GROUPING_AI_LOG, BUG_LOG = "log/screening/ai.log", "log/grouping/ai.log", "log/bug.log"
+CHARTER = "charter.json"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
@@ -79,6 +83,7 @@ class GroupingPaths:
     checks = property(lambda self: self.root / "checks.json")
     supervisor = property(lambda self: self.root / "supervisor.json")
     supervisor_journal = property(lambda self: self.root / "supervisor.journal.jsonl")
+    supervisor_charter = property(lambda self: self.root / "supervisor.charter.json")
     groups = property(lambda self: self.root / "groups.json")
     interop_plan = property(lambda self: self.root / "interop_plan.yaml")
     interop = property(lambda self: self.root / "interop.yaml")

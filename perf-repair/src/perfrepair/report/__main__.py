@@ -9,14 +9,14 @@ from pathlib import Path
 from ..app.facts.path_id import app_id
 from ..config.args import add_config_arg
 from ..config.device_results import add_device_results_arg, fill_device_results
-from ..log import log_to_stderr
+from ..log import attach
 from ..result.modes import MODES
 from ..failure import reported
 from .command import app_report, device_summary
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap = argparse.ArgumentParser(prog="perfrepair.report", description=__doc__)
     sub = ap.add_subparsers(dest="step", required=True)
     p = sub.add_parser("app")
@@ -31,6 +31,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _step(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     fill_device_results(ap, a)
+    attach(a.device_results)
     if a.step == "app":
         app_report(a.device_results, app_id(a.device_results, a.app), MODES[a.mode])
     else:

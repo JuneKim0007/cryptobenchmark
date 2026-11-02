@@ -28,7 +28,7 @@
 - `aiGateway.<name>.effort` or `PERFREPAIR_EFFORT` sets every role, assign included; `--effort` or the role's own `effort` sets one role.
 - `--agent`, `PERFREPAIR_AGENT` and `aiGateway.use` name the gateway; a role's `gateway` overrides them for that role.
 - Gateway, model and effort stay out of the charter fingerprint: changing them never rotates an outbox.
-- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once as `setting <key>: <value> (<source>)` (`config/load.py`): at INFO, so on stderr, when a file or the environment chose it; at DEBUG when it is a flag or a default, kept for the run log (#71).
+- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once as `setting <key>: <value> (<source>)` (`config/load.py`): at INFO, so on stderr, when a file or the environment chose it; at DEBUG when it is a flag or a default, kept only in `log/events.jsonl`.
 
 ## Keys
 
@@ -110,7 +110,7 @@ An input that loads a file, `device.screening.catalog`, also has a `Need` and a 
 | the packaged default loads | used; one log line `<input>: <source> <note>`, code `default` |
 | nothing found | `REQUIRED`, `DEFAULT`: error `missing_input`; `OPTIONAL`: the null value, one log line, code `not_found` |
 
-- Log records go through the standard `logging` module (logger `perfrepair.inputs`) with `extra` `code`, `input`, `source`; each command's `__main__` attaches one stderr handler (`log.py`), nothing does at import.
+- Log records go through the standard `logging` module (logger `perfrepair.inputs`) with `extra` `code`, `input`, `source`; each command's `__main__` attaches the stderr handler and the event sink (`log/attach.py`), nothing does at import.
 - `PERFREPAIR_CONFIG` and `--perfrepair-config` name the file, so they sit outside the rows.
 
 ## Gateways

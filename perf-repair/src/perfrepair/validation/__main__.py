@@ -9,12 +9,12 @@ from ..config.args import add_config_arg, load_settings
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..config.load import Loaded
 from ..failure import reported
-from ..log import log_to_stderr
+from ..log import attach
 from ..screen.catalog import Catalog, screening_catalog
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     parser = argparse.ArgumentParser(prog="python3 -m perfrepair.validation", description=__doc__.strip())
     add_device_results_arg(parser)
     add_config_arg(parser)
@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _validate(parser: argparse.ArgumentParser, args: argparse.Namespace, settings: Loaded, catalog: Catalog) -> int:
     fill_device_results(parser, args, settings)
+    attach(args.device_results)
     if not args.device_results.is_dir():
         parser.error(f"not a directory: {args.device_results}")
     return _print(validate_run(args.device_results, catalog))

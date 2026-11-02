@@ -158,7 +158,9 @@ def write(tmp_path, text):
 def test_a_bad_file_value_warns_once_and_reads_the_default(tmp_path, caplog, key, text, value):
     loaded = load(write(tmp_path, text), {}, {})
     assert loaded.read(key) == value and loaded.read(key) == value
-    assert len(caplog.messages) == 1 and caplog.messages[0].startswith(f"invalid: {key.key} ")
+    # a command's logger passes DEBUG on to events.jsonl; the warning is the one line at INFO or above
+    shown = [r.getMessage() for r in caplog.records if r.levelno >= logging.INFO]
+    assert len(shown) == 1 and shown[0].startswith(f"invalid: {key.key} ")
     assert loaded.sources[key.key] == "default"
 
 

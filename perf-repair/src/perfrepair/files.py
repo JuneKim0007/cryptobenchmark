@@ -36,6 +36,14 @@ def sha256_file(path: Path) -> str | None:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
 
 
+def append_line(path: Path, line: str) -> None:
+    """One write of one whole line in append mode; a crash can leave only the last line partial, which readers refuse."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a") as f:
+        f.write(line.rstrip("\n") + "\n")
+
+
 def write_json(path: Path, doc: dict, durable: bool = False, exclusive: bool = False) -> Path:
     return write_text(path, json_text(doc), durable, exclusive)
 

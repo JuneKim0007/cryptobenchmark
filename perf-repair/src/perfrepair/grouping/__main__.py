@@ -22,7 +22,7 @@ from ..inputs.table import (GROUPING_ASSIGN, GROUPING_LIMIT, GROUPING_SESSIONS, 
                             SCREENING_CLASSIFY)
 from ..config.load import Loaded
 from ..failure import reported
-from ..log import log_to_stderr
+from ..log import attach
 from ..screen.catalog import ai_review, screening_catalog
 from .build.stage import build_stage
 from .interop_plan import write_plan
@@ -90,7 +90,7 @@ def _model_step(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap, steps = _parser()
     args = ap.parse_args(argv)
     if args.step == "build":
@@ -103,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
 def _with_device(ap: argparse.ArgumentParser, args: argparse.Namespace) -> Loaded:
     settings = load_settings(ap, args)
     fill_device_results(ap, args, settings)
+    attach(args.device_results)
     return settings
 
 

@@ -8,11 +8,11 @@ from ...config.args import add_config_arg
 from ...config.device_results import add_device_results_arg, fill_device_results
 from ...device.inbound import write_inbound
 from ...failure import reported
-from ...log import log_to_stderr
+from ...log import attach
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap = argparse.ArgumentParser(prog="perfrepair.data_handler.inbound", description=__doc__)
     add_device_results_arg(ap)
     add_config_arg(ap)
@@ -22,6 +22,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _inbound(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     fill_device_results(ap, a)
+    attach(a.device_results)
     for line in write_inbound(a.device_results):
         print(line)
 

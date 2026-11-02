@@ -12,7 +12,7 @@ from ..config.args import load_settings, positive_int
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..inputs.table import APPS_REPLACE, WORTHINESS, RoleRow
-from ..log import log_to_stderr
+from ..log import attach
 from ..result.modes import MODES
 from .runtime.gateway.args import add_agent_args
 from .runtime.gateway.spawn import spawn
@@ -31,7 +31,7 @@ def _engine_args(p: argparse.ArgumentParser, role: RoleRow) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap = argparse.ArgumentParser(prog="perfrepair.ai", description=__doc__)
     sub = ap.add_subparsers(dest="stage", required=True)
     p = sub.add_parser("worthiness")
@@ -49,6 +49,7 @@ def main(argv: list[str] | None = None) -> int:
 def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     settings = load_settings(ap, a)
     fill_device_results(ap, a, settings)
+    attach(a.device_results)
     library = load_prompts(ap, a, settings)
     limits = Limits(a.turns, a.sessions)
     if a.stage == "worthiness":

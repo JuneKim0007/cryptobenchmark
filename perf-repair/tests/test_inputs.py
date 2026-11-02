@@ -6,7 +6,8 @@ import pytest
 
 from perfrepair.inputs.resolve import Candidate, InputError, Need, resolve
 from perfrepair.inputs.table import SCREENING_CATALOG, Row
-from perfrepair.log import log_to_stderr
+from perfrepair.log import attach
+from perfrepair.log.stderr import Stderr
 
 
 def read(path):
@@ -78,11 +79,13 @@ def test_the_stderr_handler_is_attached_once_and_follows_a_replaced_stderr(capsy
     before = list(logger.handlers)
     logger.handlers[:] = []
     try:
-        log_to_stderr()
-        log_to_stderr()
-        assert len(logger.handlers) == 1
+        attach()
+        attach()
+        stderr = [h for h in logger.handlers if isinstance(h, Stderr)]
+        assert len(stderr) == 1 and len(logger.handlers) == 2
         logging.getLogger("perfrepair.inputs").info("hello")
+        logging.getLogger("perfrepair.inputs").debug("for the run log only")
         assert capsys.readouterr().err == "hello\n"
-        assert logger.handlers[-1].stream is sys.stderr
+        assert stderr[0].stream is sys.stderr
     finally:
         logger.handlers[:] = before

@@ -13,7 +13,7 @@ from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
-from ..log import log_to_stderr
+from ..log import attach
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
@@ -30,7 +30,7 @@ SCHEMA_VERSION = 1
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap = argparse.ArgumentParser(prog="perfrepair.app", description=__doc__)
     add_device_results_arg(ap)
     add_config_arg(ap)
@@ -42,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     fill_device_results(ap, a)
+    attach(a.device_results)
     primitives = Primitives.load(a.device_results)
     require(str(primitives.context.path), validate_manifest(primitives.context.manifest, primitives.context.base))
     try:

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 
 from ..ai.runtime.gateway.args import add_agent_args
@@ -17,7 +18,9 @@ from ..config.load import Loaded
 from ..inputs.check import check_one_of
 from ..inputs.table import APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, BENCHMARK_CONFIG
 from ..failure import FAILURES, reported
-from ..log import log_to_stderr
+from ..dto.event import END
+from ..log import attach, emit
+from ..log.emit import elapsed_ms
 from ..result.modes import MODES
 from .steps import DEVICE, DRY, Guide, Stop
 
@@ -39,17 +42,28 @@ def parser() -> argparse.ArgumentParser:
     return ap
 
 
+def _step(g: Guide, name: str, step) -> bool:
+    started = time.monotonic()
+    try:
+        detail = step(g)
+    except Stop as e:
+        outcome, line = "stop", f"stop {e.code}: {e.detail}"
+    except FAILURES as e:
+        outcome, line = "stop", f"stop {name}_failed: {e}"
+    else:
+        outcome, line = "ok", f"ok: {detail}"
+    # prerequisites names the device folder when probe_device made it
+    if g.device is not None:
+        attach(g.device)
+    emit("guide", name, END, app=g.app_id, outcome=outcome, durationMs=elapsed_ms(started), detail=line)
+    g.echo(f"guide {name}: {line}")
+    return outcome == "ok"
+
+
 def run_steps(g: Guide, device: bool) -> int:
     for name, step in DRY + (DEVICE if device else ()):
-        try:
-            detail = step(g)
-        except Stop as e:
-            g.echo(f"guide {name}: stop {e.code}: {e.detail}")
+        if not _step(g, name, step):
             return 1
-        except FAILURES as e:
-            g.echo(f"guide {name}: stop {name}_failed: {e}")
-            return 1
-        g.echo(f"guide {name}: ok: {detail}")
     if not device:
         g.echo(f"guide: dry run ends at the harness; measure with --device, or run "
                f"`python3 scripts/pipeline.py --device --harness {g.paths.harness}`")
@@ -57,7 +71,7 @@ def run_steps(g: Guide, device: bool) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    log_to_stderr()
+    attach()
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
