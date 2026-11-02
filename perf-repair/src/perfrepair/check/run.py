@@ -42,9 +42,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
         return {rd.ROWS: [rows]}
     out[rd.ROWS] = validate_rows(rows)
     out |= _beside_rows(run, rows)
-    out |= _charters(run)
-    if (run / rd.EVENTS).is_file():
-        out[rd.EVENTS] = validate_events(run / rd.EVENTS)
+    out |= _charters(run) | _events(run)
     reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)
@@ -105,6 +103,10 @@ def _charters(run: Path) -> dict[str, list[str]]:
         out[str(grouping.supervisor_charter.relative_to(run))] = charter_file.problems(
             grouping.supervisor_charter, read_json(grouping.supervisor).get("charter"))
     return out
+
+
+def _events(run: Path) -> dict[str, list[str]]:
+    return {rd.EVENTS: validate_events(run / rd.EVENTS)} if (run / rd.EVENTS).is_file() else {}
 
 
 def _parsed(load, run: Path):

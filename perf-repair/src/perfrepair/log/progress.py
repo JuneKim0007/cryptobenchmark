@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Callable
 
 from ..dto.event import BUG, DECISION, END, ERROR, LOG, RUN_END, RUN_START, START, TURN, Event
-from .views import seconds
+from .views import counts_text, seconds
 
 SHOWN_LEVELS = ("warning", "error", "critical")
 
@@ -30,8 +31,21 @@ def _ts(ts: str) -> datetime:
     return datetime.fromisoformat(ts.replace("Z", "+00:00"))
 
 
-def _counts(e: Event) -> str:
-    return " ".join(f"{k}={v}" for k, v in (e.data.get("counts") or {}).items())
+def _end(e: Event) -> str:
+    name = " ".join(p for p in (e.stage, e.step, e.app) if p)
+    said = " ".join(p for p in (e.outcome, e.detail, counts_text(e.data)) if p)
+    took = f" ({seconds(e.durationMs)})" if e.durationMs is not None else ""
+    return f"{name}: {said}{took}" if said else f"{name}{took}"
+
+
+TEXTS: dict[str, Callable[[Event], str | None]] = {
+    END: _end,
+    RUN_START: lambda e: f"run {e.detail or e.step}: started",
+    RUN_END: lambda e: f"run {e.step}: {e.outcome} ({seconds(e.durationMs)})",
+    ERROR: lambda e: f"error {e.detail}",
+    BUG: lambda e: f"bug {e.detail}",
+    LOG: lambda e: f"{e.outcome}: {e.detail}" if e.outcome in SHOWN_LEVELS else None,
+}
 
 
 class Progress:
@@ -42,19 +56,8 @@ class Progress:
     def feed(self, e: Event) -> list[Line]:
         if e.kind == "model":
             return self._model(e)
-        if e.event == END:
-            name = " ".join(p for p in (e.stage, e.step, e.app) if p)
-            text = ": ".join(p for p in (name, " ".join(p for p in (e.outcome, e.detail, _counts(e)) if p)) if p)
-            return [Line(text + (f" ({seconds(e.durationMs)})" if e.durationMs is not None else ""))]
-        if e.event == RUN_START:
-            return [Line(f"run {e.detail or e.step}: started")]
-        if e.event == RUN_END:
-            return [Line(f"run {e.step}: {e.outcome} ({seconds(e.durationMs)})")]
-        if e.event in (ERROR, BUG):
-            return [Line(f"{e.event} {e.detail}")]
-        if e.event == LOG and e.outcome in SHOWN_LEVELS:
-            return [Line(f"{e.outcome}: {e.detail}")]
-        return []
+        text = TEXTS[e.event](e) if e.event in TEXTS else None
+        return [] if text is None else [Line(text)]
 
     def _model(self, e: Event) -> list[Line]:
         key = (e.stage, e.step, e.app)

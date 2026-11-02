@@ -17,12 +17,19 @@ def tokens_text(tokens: dict | None) -> str:
     return f"tokens {tokens.get('input', 0)}/{tokens.get('output', 0)} cache {tokens.get('cacheRead', 0)}"
 
 
+def cost_text(cost: float | None) -> str:
+    return "" if cost is None else f"${cost:.4f}"
+
+
+def counts_text(data: dict) -> str:
+    return " ".join(f"{k}={v}" for k, v in (data.get("counts") or {}).items())
+
+
 def model_line(e: Event) -> str:
     d = e.data
     where = f"s{d['session']}t{d['turn']}" if "session" in d and "turn" in d else ""
-    counts = " ".join(f"{k}={v}" for k, v in (d.get("counts") or {}).items())
-    parts = [e.ts, e.step, e.event, e.item or "", where, e.outcome or "", seconds(e.durationMs), tokens_text(e.tokens),
-             "" if e.costUsd is None else f"${e.costUsd:.4f}", counts, e.detail]
+    parts = [e.ts, e.step, e.event, e.item, where, e.outcome, seconds(e.durationMs), tokens_text(e.tokens),
+             cost_text(e.costUsd), counts_text(d), e.detail]
     line = " ".join(p for p in parts if p)
     problems = "".join(f"\n  - {p}" for p in d.get("problems") or ())
     return line + (f" -> {e.ref}" if e.ref else "") + problems
