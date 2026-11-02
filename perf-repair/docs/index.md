@@ -9,6 +9,6 @@ docs/modes.md : improvement criteria: latency and battery (proxy); pImprove, its
 docs/pipeline.md : stages, commands, and what each reads and writes
 docs/repair.md : call sites to before/after: steps, inputs, outputs, limits
 docs/replacement.md : app source to measured before/after per replaced call site: flow, files, contracts
-docs/screening.md : screening statuses, precedence, lookup, the screening.yaml sections, loader codes, sources policy, limits
+docs/screening.md : screening statuses, precedence, lookup, catalog settings and identity, the model review of unknown items, the screening.yaml sections, loader codes, sources policy, limits
 docs/settings.md : perfrepair.yaml and .env: lookup, precedence, keys, roles, errors
 ```

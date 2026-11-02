@@ -6,12 +6,13 @@
 |---|---|
 | `broken` | a `crypto` row says `deprecated`, or a `components` rule matches the transformation |
 | `platform_deprecated` | a `platform` row for the item's provider applies and the app's targetSdk is at or above its `deprecatedApi` |
+| `unverified` | only with `screening.aiReview`: the classify model answered `accepted` for an unknown item; a source, never a target, until a person confirms it |
 | `accepted` | a `crypto` row says `accepted` and nothing above applies |
 | `unknown` | no row applies, or the name is a `name_conflict` |
 
 ## Precedence
 
-`broken` > `platform_deprecated` > `accepted` > `unknown`; the first that applies is the verdict.
+`broken` > `platform_deprecated` > `accepted` > `unknown`; the first that applies is the verdict. The model review only changes an `unknown` verdict ([Model review](#model-review)); `STATUSES` orders `unverified` between `platform_deprecated` and `accepted` for the don't-lower-the-status rule.
 
 ## Lookup
 
@@ -27,7 +28,7 @@
 
 - grouping: `broken` and `platform_deprecated` items are grouped by code on the recorded key and never asked; `groups.json` carries each item's status as `screen` ([grouping.md](grouping.md) Code-made groups).
 - a run without `screen.json` asks every item, and dossiers and evidence apply no status rule.
-- don't lower the status: a `broken` or `platform_deprecated` target is allowed only with the current item's canonical name and key size and at no worse a status (`dto/screen.py` `lowers_status`); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
+- don't lower the status: a `broken`, `platform_deprecated` or `unverified` target (`NEVER_TARGET`) is allowed only with the current item's canonical name and key size and at no worse a status (`dto/screen.py` `lowers_status`); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
 - per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.
 - handler: `grouping build`, `repair dossier`, the guide and `check` judge by the catalog `screen/catalog.py` `screening_catalog` resolves ([Settings](#settings)); the dossier step takes the handler as a parameter, not from a RunContext, since it has no manifest.
 - assign: the prompt does not ask the model to mark a group weak; screening decides it. Removing that clause changed the assign charter fingerprint, so a run assigned before it re-assigns once into a new outbox.
@@ -44,6 +45,31 @@
 - Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide's dossier step and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`, so a run is never judged by two catalogs. Same content under another path passes.
 - A named catalog that does not load is never replaced by the packaged one: skipping screening would let a broken algorithm become a target.
 - The resolution is the `screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
+
+## Model review
+
+With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/parse/algorithm_classify/`, settings role `screening.classify`) about the items no catalog row decides, after the static screen and before `screen.json` is written. Off (the default), the build makes no model call.
+
+| Rule | Value |
+|---|---|
+| asked | `unknown` items with a canonical name; a `name_conflict` has no key a verdict could be recorded by; a sourced row is never second-guessed |
+| batch | 10 items per decision, in item order (`screen/evidence.py` `BATCH`); the batch key is its ids |
+| evidence | engine type, name, canonical, provider, family, trial `instantiates` and error, `className`, attributes; all recorded by code, no tool that runs code |
+| answer | per listed id: `deprecated`, `accepted` or `unsure`, and a reason |
+| gate | only listed ids, each exactly once, an allowed value, a non-empty reason (`validation/parse/algorithm_classify.py`) |
+| outbox | `grouping/classify/outbox/<fingerprint>/`; the charter inputs are the whole evidence, so another unknown set starts a new outbox and a reverted one resumes; a rebuild resumes without new calls |
+| dropped batch | every item of it stays `unknown` (answer `unsure`, reason `dropped: ...`) |
+| dry run | `--agent dry-run` answers `unsure` for every id, so no verdict changes |
+
+| Answer | Verdict | Effect |
+|---|---|---|
+| `deprecated` | `broken`, `source: model:<fingerprint>`, applied at once | grouped by code, never a target; a wrong one only removes a candidate |
+| `accepted` | `unverified`, `source: model:<fingerprint>` | asked by assign; a source, never a target (except as the same algorithm); a row in `grouping/registry-candidates.yaml` |
+| `unsure` | unchanged `unknown` | none |
+
+- `screen.json` then carries `review: {fingerprint}`; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
+- Confirming: a person turns a `registry-candidates.yaml` row (`id`, `type`, `name`, `canonical`, `provider`, `reason`, `fingerprint`) into a sourced `crypto` row of the configured `screening.catalog`; the next build screens it `accepted` statically and the model no longer sees it.
+- Not yet: JDK legacy and disabled algorithm properties as evidence (a probe addition), citations checked by code.
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)
 

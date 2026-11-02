@@ -29,7 +29,7 @@ flowchart LR
 | outbound | `data_handler.outbound` (library) | base `global.yaml`, `config/testsets/all.yaml` default test set | `generated_perf_repair.yaml`, benchmark `results/` | no |
 | inbound | `python3 -m perfrepair.data_handler.inbound --manifest <m> -o <run>` | `manifest.yaml` and its files | `rows.json`, `measurements.json`, `run_log.json` | no |
 | app | `python3 -m perfrepair.app --manifest <m> --app <src> --run <run> --name <app>` | the manifest's probe, the app tree | `apps/<app>/sites.json`, `app.json`, `scopes.json` | no |
-| grouping build | `python3 -m perfrepair.grouping build --manifest <m> --run <run>` | `manifest.yaml` and its files | `grouping/items.json`, `profiles.json`, `screen.json` | no |
+| grouping build | `python3 -m perfrepair.grouping build --manifest <m> --run <run>` | `manifest.yaml` and its files | `grouping/items.json`, `profiles.json`, `screen.json`; with `screening.aiReview` `grouping/classify/`, `registry-candidates.yaml` | with `screening.aiReview`: one conversation per batch of 10 unknown items |
 | grouping assign | `python3 -m perfrepair.grouping assign --run <run>` | `grouping/` | `grouping/` (`docs/grouping.md`) | one conversation per item, up to turns × sessions |
 | grouping report | `python3 -m perfrepair.grouping report --run <run> [--supervisor]` | `grouping/` | `checks.json`, `groups.json`; supervisor files | supervisor: one conversation per family |
 | grouping interop-plan | `python3 -m perfrepair.grouping interop-plan --run <run>` | `grouping/groups.json` | `grouping/interop_plan.yaml` | no |
@@ -42,7 +42,7 @@ flowchart LR
 | guide | `python3 -m perfrepair guide --app <src> --name <app> --run <run> --results <results> [--device]` | the run, the app tree | app, dossier, replace, edit, harness; with `--device` measured and report | the replace step |
 | validate | `python3 -m perfrepair.validation <run>` | every artifact present | nothing | no |
 
-- `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
+- `grouping build` (with `screening.aiReview`), `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
 - Inbound, app, grouping build and repair dossier, edit and harness validate before they write.
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts (and, for assign, the same screen statuses) resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own.
 - `--prompts DIR`: `docs/decisions.md`.

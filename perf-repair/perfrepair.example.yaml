@@ -1,7 +1,7 @@
 # Copy to perfrepair.yaml (git-ignored) or point --perfrepair-config / PERFREPAIR_CONFIG at a copy.
 # Every key is optional; a missing or null key falls through to the next layer:
 #   CLI flag > environment (PERFREPAIR_*) > this file > .env > code default.
-# A role key (grouping.assign, grouping.supervisor, guide.agent, ai.*) beats every agent.* layer,
+# A role key (grouping.assign, grouping.supervisor, guide.agent, ai.*, screening.classify) beats every agent.* layer,
 # environment included; only a CLI flag beats a role key.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.

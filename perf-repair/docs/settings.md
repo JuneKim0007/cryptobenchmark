@@ -53,7 +53,7 @@
 | `guide` | `guide.agent` | none |
 | `ai worthiness` | `ai.worthiness` | none |
 | `ai replace` | `ai.replace` | none |
-| `grouping build` classify | `screening.classify` | none |
+| `grouping build` classify (with `screening.aiReview`) | `screening.classify` | none |
 
 - A role section takes the agent keys: `backend`, `model`, `effort`, `claudeBinary`.
 

@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart TD
-    M[manifest.yaml] --> B[build: items.json, profiles.json, screen.json]
+    M[manifest.yaml] --> B[build: items.json, profiles.json, screen.json; aiReview: classify unknown items first]
     B --> CG[code-made groups: screened-out items] --> A{gate A}
     A --> P[pop next pending id] --> GB{gate B}
     GB --> C[fresh conversation: family + its groups + item]
@@ -22,7 +22,10 @@ flowchart TD
 | File | Written by | Holds |
 |---|---|---|
 | `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
-| `screen.json` | build | schema 3: `catalog` `{source, sha256}` the verdicts came from; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
+| `screen.json` | build | schema 3: `catalog` `{source, sha256}` the verdicts came from; `review` `{fingerprint}` only after a model review; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
+| `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
+| `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
+| `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
 | `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out items with their code keys (none: as before screening) |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
@@ -41,7 +44,7 @@ flowchart TD
 
 | Rule | Value |
 |---|---|
-| pending | items whose screen status is not `broken` or `platform_deprecated`; only these reach the model |
+| pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json); only these reach the model |
 | no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
 | key | family, status, and the canonical name and key size `screen.json` recorded; one group per key across providers |
 | id | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision |

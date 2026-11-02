@@ -10,14 +10,14 @@
 
 - A rejected answer gets a correction turn (`prompts/shared/rejection.turn.md`) in the same session, listing its problems.
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
-- `--prompts DIR` on `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
+- `--prompts DIR` on `grouping build` (read with `screening.aiReview`), `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
-- Commands with a model: `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
+- Commands with a model: `grouping build` with `screening.aiReview`, `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
 - Backend, model, effort and the `claude` binary per command: `docs/settings.md`; `--agent`, `--model`, `--effort` override.
 - `grouping report` defaults to effort `high`; `PERFREPAIR_EFFORT` does not change it.
 - `claude` backend: JSON schema output, server-side refusal fallback.
 - A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items.
-- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are the screen's statuses, the other kinds have none and keep their fingerprints.
+- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are the screen's statuses, classify's the whole batched evidence, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
 ## Worthiness
@@ -38,6 +38,18 @@
 - A pair names two different members by alias.
 - A pair improves under the mode in at least one configuration; a pair whose data is missing is refused as lacking measurements.
 - Confidence never refuses a pair: a `warn` or `weak` pair is kept with its level and number.
+
+## Algorithm classify
+
+| field | algorithm-classify |
+|---|---|
+| item | one batch of up to 10 `unknown` items with a canonical name ([screening.md](screening.md) Model review) |
+| message | per id: engine type, name, canonical, provider, family, trial (instantiates, error), className, attributes |
+| timings shown | no |
+| answer | `answers` [{id, answer deprecated\|accepted\|unsure, reason}] |
+| ids minted by | code: item ids; the batch key is the ids joined by `,` |
+| dropped item | every id `unsure` with reason `dropped: ...`: the items stay `unknown` |
+| state | `grouping/classify/classified.json`, merged into `screen.json` by `with_answer`; `registry-candidates.yaml` |
 
 ## Site replace
 
