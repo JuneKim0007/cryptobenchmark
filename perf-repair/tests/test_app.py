@@ -5,21 +5,21 @@ from pathlib import Path
 import pytest
 
 from perfrepair.app.__main__ import main
-from perfrepair.app.constants import Constants
-from perfrepair.app.dependencies import bundled, read_libraries, registrations
+from perfrepair.app.find.constants import Constants
+from perfrepair.app.facts.dependencies import bundled, read_libraries, registrations
 from perfrepair.app.detect import detect
-from perfrepair.app.gate import GateError, open_app, open_apps
-from perfrepair.app.imports import import_reason
+from perfrepair.app.facts.gate import GateError, open_app, open_apps
+from perfrepair.app.find.imports import import_reason
 from perfrepair.app.resolve import resolve
-from perfrepair.app.roots import project_roots
-from perfrepair.app.scan import call_pattern, scan
-from perfrepair.app.sdk import sdk_levels
-from perfrepair.app.sources import GENERATED, MAIN, TEST, build_files, origin, source_files
+from perfrepair.app.facts.roots import project_roots
+from perfrepair.app.find.scan import call_pattern, scan
+from perfrepair.app.facts.sdk import sdk_levels
+from perfrepair.app.find.sources import GENERATED, MAIN, TEST, build_files, origin, source_files
 from perfrepair.data_handler.inbound import RunContext
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
 from perfrepair.source.lexer import Code, literal
-from perfrepair.app.path_id import path_id
+from perfrepair.app.facts.path_id import path_id
 from helpers import with_results
 
 F = Path(__file__).parent / "fixtures"
@@ -234,7 +234,7 @@ def test_sdk_levels_resolve_literals_and_named_properties(tmp_path):
 
 def test_detect_drops_import_less_sites_and_skips_tests(run):
     manifest, probe, names = run
-    found = detect(open_app(APP), probe, names, manifest.providers)
+    found = detect(open_app(APP), probe.index.engine_types, lambda s: resolve(s, probe, names, manifest.providers))
     files = {s["file"] for s in found.sites}
     assert "src/test/java/demo/CryptoTest.java" not in files and found.testFiles == 1
     assert [(d["file"], d["reason"]) for d in found.dropped] == [("src/main/java/demo/Shadow.java", "not_imported")]
@@ -243,7 +243,7 @@ def test_detect_drops_import_less_sites_and_skips_tests(run):
 
 def test_resolution_per_site(run):
     manifest, probe, names = run
-    crypto = [s for s in detect(open_app(APP), probe, names, manifest.providers).sites if s["file"].endswith("Crypto.java")]
+    crypto = [s for s in detect(open_app(APP), probe.index.engine_types, lambda s: resolve(s, probe, names, manifest.providers)).sites if s["file"].endswith("Crypto.java")]
     assert [(s["line"], s["resolvedProvider"], s["resolvedAlgorithm"], s["resolution"]) for s in crypto] == [
         (12, "Slow", "AES/GCM/NoPadding", "explicit"), (17, "Fast", "SHA-256", "default"),
         (21, "Fast", "AES/GCM/NoPadding", "explicit"), (25, None, None, "unresolved_provider"),

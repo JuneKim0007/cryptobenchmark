@@ -11,7 +11,7 @@ from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
 from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
-from ..app.path_id import path_id
+from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..files import read_json
 from ..run_dir import GroupingPaths

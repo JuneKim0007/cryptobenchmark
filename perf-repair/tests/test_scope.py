@@ -12,7 +12,7 @@ from perfrepair.validation.app import validate_app_facts, validate_scopes
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
 from helpers import with_results
-from perfrepair.app.path_id import path_id
+from perfrepair.app.facts.path_id import path_id
 
 F = Path(__file__).parent / "fixtures"
 MANIFEST = F / "results" / "test-api36-00000000" / "manifest.yaml"

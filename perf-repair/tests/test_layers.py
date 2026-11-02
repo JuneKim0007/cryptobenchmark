@@ -143,3 +143,30 @@ def test_no_package_cycles():
 def test_cycle_allowlist_entries_each_break_a_cycle():
     edges = _unit_edges()
     assert sorted(e for e in CYCLE_ALLOWLIST if not _cycle(edges - (set(CYCLE_ALLOWLIST) - {e}))) == []
+
+
+# (importer, what it must not import, exempt importers): finding sites reads no device data; only resolve meets it
+DEVICE_LEVEL = (["data_handler"], ["grouping"], ["screen"], ["device"], ["run_dir"])
+BOUNDARIES = (
+    (["app", "find"], DEVICE_LEVEL + (["app", "facts"], ["app", "resolve"], ["app", "detect"]), ()),
+    (["app"], (["data_handler"], ["grouping"], ["screen"], ["device"]), (["app", "resolve"],)),
+    (["device"], (["app"],), ()),
+)
+
+
+def _crossings(imports) -> list[tuple[str, str]]:
+    return sorted({("/".join(h), "/".join(t)) for h, t in imports for here, banned, exempt in BOUNDARIES
+                   if h[:len(here)] == here and not any(h[:len(e)] == e for e in exempt)
+                   and any(t[:len(b)] == b for b in banned)})
+
+
+def test_app_and_device_keep_to_their_levels():
+    assert _crossings(_imports()) == []
+
+
+def test_a_crossing_is_caught():
+    assert _crossings([(["app", "find", "scan"], ["data_handler", "inbound", "probe"]),
+                       (["app", "detect"], ["data_handler", "inbound"]), (["app", "resolve"], ["data_handler", "inbound"]),
+                       (["device", "stage"], ["app", "facts", "path_id"]), (["app", "facts", "gate"], ["app", "find", "sources"])]) \
+        == [("app/detect", "data_handler/inbound"), ("app/find/scan", "data_handler/inbound/probe"),
+            ("device/stage", "app/facts/path_id")]

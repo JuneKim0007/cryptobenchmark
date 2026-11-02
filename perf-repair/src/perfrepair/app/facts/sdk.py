@@ -4,9 +4,9 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from ..source.language import of_build_file
-from ..source.lexer import mask, matching
-from .sources import CATALOG
+from ...source.language import of_build_file
+from ...source.lexer import mask, matching
+from ..find.sources import CATALOG
 
 APPLICATION = re.compile(r"\bcom\.android\.application\b|\bplugins\.android\.application\b")
 _DEFAULT_CONFIG = re.compile(r"\bdefaultConfig\s*\{")

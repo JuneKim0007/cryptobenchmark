@@ -5,10 +5,10 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from ..files import read_yaml
-from ..source.language import of_build_file
-from ..source.lexer import Code, mask
-from .imports import import_reason
+from ...files import read_yaml
+from ...source.language import of_build_file
+from ...source.lexer import Code, mask
+from ..find.imports import import_reason
 
 LIBRARIES = Path(__file__).with_name("libraries.yaml")
 REGISTRY = "Security"

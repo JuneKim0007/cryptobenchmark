@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..source.language import SOURCE_SUFFIXES, Language, of_file
+from ...source.language import SOURCE_SUFFIXES, Language, of_file
 
 BUILD_NAMES = ("build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradle.properties")
 CATALOG = "libs.versions.toml"

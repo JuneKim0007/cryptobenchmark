@@ -5,9 +5,9 @@ import os
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from ..source.language import NAMES, SOURCE_SUFFIXES
+from ...source.language import NAMES, SOURCE_SUFFIXES
 from .roots import BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, project_roots
-from .sources import IGNORED_DIRS
+from ..find.sources import IGNORED_DIRS
 
 PROJECT_FILES = SETTINGS_FILES + BUILD_FILES
 SOURCE_SET_DIRS = NAMES  # Gradle names a source set folder after its language

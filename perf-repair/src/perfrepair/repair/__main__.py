@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from ..app.path_id import absolute, app_id
+from ..app.facts.path_id import absolute, app_id
 from ..dto.site import Replacement, Scope, read_replacements
 from ..files import read_json, write_json, write_text
 from .. import run_dir as rd

@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..app.path_id import app_id
+from ..app.facts.path_id import app_id
 from ..config.args import add_config_arg
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..log import log_to_stderr

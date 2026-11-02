@@ -4,8 +4,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .. import run_dir as rd
-from ..files import read_json, sha256_text
+from ... import run_dir as rd
+from ...files import read_json, sha256_text
 
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
 

@@ -5,7 +5,7 @@ import sys
 from typing import Callable
 
 from .ai.runtime.agent.reply import AgentFailed
-from .app.gate import GateError
+from .app.facts.gate import GateError
 from .data_handler.outbound.benchmark_runner import BenchmarkRunError
 from .validation.failure import ValidationFailed
 

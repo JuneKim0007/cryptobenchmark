@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.app.path_id import app_id, path_id, unit_id
+from perfrepair.app.facts.path_id import app_id, path_id, unit_id
 from perfrepair.config.args import add_config_arg
 from perfrepair.config.device_results import _warn_if_temp, add_device_results_arg, fill_device_results, select_device
 from perfrepair.grouping.__main__ import main as grouping

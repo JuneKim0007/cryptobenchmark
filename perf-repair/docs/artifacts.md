@@ -10,7 +10,7 @@
 | `--device-results` | the device folder, on every command |
 | `paths.results` | the root, used when the flag is unset: `device.id` names the folder, else its only device |
 | a device | a folder holding `manifest.yaml`; a run that failed and `.staging-*` are not |
-| `<app>` | `--app <path>` gives `<dirname>-<8 hex of sha256 of the absolute path>` (`app/path_id.py`); `app.json` records it as `pathId`, the absolute path as `root` |
+| `<app>` | `--app <path>` gives `<dirname>-<8 hex of sha256 of the absolute path>` (`app/facts/path_id.py`); `app.json` records it as `pathId`, the absolute path as `root` |
 | several project roots | one `<app>.<root dirs joined by '.'>` per root; `root` is that project root; a later command takes that root as `--app` and finds the unit by `app.json` |
 | an old manifest | `manifest_without_device_id; rerun the benchmark` |
 | a results folder under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one warning `results_in_temp: ...`, then the command goes on |

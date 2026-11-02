@@ -1,10 +1,14 @@
-"""A site's provider and algorithm: explicit, or the first provider by manifest precedence that registers it; its canonical name."""
+"""Where a site meets the device's primitives: explicit provider, or the first by manifest precedence that registers it."""
 from __future__ import annotations
 
+from dataclasses import dataclass
+from pathlib import Path
+
+from .. import run_dir as rd
 from ..catalog.names import Names
-from ..data_handler.inbound.probe import Probe
+from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
-from .scan import Site
+from .find.scan import Site
 
 
 def default_provider(probe: Probe, providers: list[ProviderEntry], engine_type: str,
@@ -38,3 +42,22 @@ def resolve(site: Site, probe: Probe, names: Names, providers: list[ProviderEntr
     return site.to_json() | {"resolvedProvider": provider, "resolvedAlgorithm": alg, "resolution": resolution,
                              "canonicalAlgorithm": canonical and canonical.name,
                              "canonicalKeySize": canonical and canonical.keySize}
+
+
+@dataclass(frozen=True)
+class Primitives:
+    context: RunContext
+
+    @classmethod
+    def load(cls, device: Path) -> "Primitives":
+        context = RunContext.load(Path(device) / rd.MANIFEST)
+        if context.file("probe") is None:
+            raise ValueError(f"missing_probe: {context.path}: no probe file; resolving a site needs the device's providers")
+        return cls(context)
+
+    @property
+    def names(self) -> Names:
+        return self.context.names
+
+    def resolve(self, site: Site) -> dict:
+        return resolve(site, self.context.probe, self.context.names, self.context.manifest.providers)

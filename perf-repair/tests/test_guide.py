@@ -26,7 +26,7 @@ from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
 from perfrepair.validation.suggest.site_replace import required_kinds, takes
 from perfrepair.screen.catalog import screening_catalog
-from perfrepair.app.path_id import path_id
+from perfrepair.app.facts.path_id import path_id
 
 F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results" / "test-api36-00000000", F / "guide"

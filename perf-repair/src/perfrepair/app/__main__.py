@@ -9,20 +9,20 @@ from .. import run_dir as rd
 from ..catalog.names import NamesError
 from ..config.args import add_config_arg
 from ..config.device_results import add_device_results_arg, fill_device_results
-from ..data_handler.inbound import RunContext
 from ..failure import reported
 from ..files import write_json
 from ..log import log_to_stderr
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
-from .app_facts import app_facts
-from .dependencies import bundled, read_libraries
+from .facts.app_facts import app_facts
+from .facts.dependencies import bundled, read_libraries
 from .detect import Detection, detect
-from .gate import AppRoot, GateError, open_apps
-from .path_id import path_id, unit_id
-from .sdk import sdk_levels
-from .sources import build_files
+from .resolve import Primitives
+from .facts.gate import AppRoot, GateError, open_apps
+from .facts.path_id import path_id, unit_id
+from .facts.sdk import sdk_levels
+from .find.sources import build_files
 
 SCHEMA_VERSION = 1
 
@@ -40,11 +40,8 @@ def main(argv: list[str] | None = None) -> int:
 
 def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     fill_device_results(ap, a)
-    manifest = a.device_results / rd.MANIFEST
-    context = RunContext.load(manifest)
-    require(str(manifest), validate_manifest(context.manifest, context.base))
-    if context.file("probe") is None:
-        ap.error(f"{manifest}: no probe file; detection needs it for engine types and aliases")
+    primitives = Primitives.load(a.device_results)
+    require(str(primitives.context.path), validate_manifest(primitives.context.manifest, primitives.context.base))
     try:
         apps = open_apps(a.app)
     except GateError as e:
@@ -58,9 +55,9 @@ def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
         dirs = {name: rd.app_dir(a.device_results, name) for name in units}
     except ValueError as e:
         ap.error(str(e))
-    probe, names = context.probe, context.names
     try:
-        found = {name: detect(app, probe, names, context.manifest.providers) for name, app in units.items()}
+        engine_types = primitives.context.probe.index.engine_types
+        found = {name: detect(app, engine_types, primitives.resolve) for name, app in units.items()}
     except NamesError as e:
         print(f"error {e}", file=sys.stderr)
         return 2

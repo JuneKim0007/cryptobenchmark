@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 
-from ..source.lexer import Code
+from ...source.lexer import Code
 
 PACKAGES = ("java.security", "javax.crypto")
 

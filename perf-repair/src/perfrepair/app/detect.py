@@ -2,18 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from typing import Callable
 
-from ..catalog.names import Names
-from ..data_handler.inbound.probe import Probe
-from ..dto import ProviderEntry
 from ..source.lexer import Code
-from .constants import Constants
-from .dependencies import Registration, registrations
-from .gate import AppRoot
-from .imports import import_reason
-from .resolve import resolve
-from .scan import Argument, Site, call_pattern, provider_inner, scan
-from .sources import TEST, source_files
+from .find.constants import Constants
+from .facts.dependencies import Registration, registrations
+from .facts.gate import AppRoot
+from .find.imports import import_reason
+from .find.scan import Argument, Site, call_pattern, provider_inner, scan
+from .find.sources import TEST, source_files
 
 
 @dataclass
@@ -39,8 +36,9 @@ def fold(site: Site, constants: Constants) -> Site:
                    provider=_fold(site.provider, constants, True))
 
 
-def detect(app: AppRoot, probe: Probe, names: Names, providers: list[ProviderEntry]) -> Detection:
-    out, pattern = Detection(), call_pattern(probe.index.engine_types)
+def detect(app: AppRoot, engine_types: set[str], resolve: Callable[[Site], dict]) -> Detection:
+    """resolve: the site against the device's primitives (resolve.Primitives); detection itself reads no device data."""
+    out, pattern = Detection(), call_pattern(engine_types)
     for f in source_files(app.path):
         if f.origin == TEST:
             out.testFiles += 1
@@ -60,5 +58,5 @@ def detect(app: AppRoot, probe: Probe, names: Names, providers: list[ProviderEnt
             constants = constants or Constants(code)
             folded = fold(site, constants)
             out.folded += folded != site
-            out.sites.append(resolve(folded, probe, names, providers))
+            out.sites.append(resolve(folded))
     return out
