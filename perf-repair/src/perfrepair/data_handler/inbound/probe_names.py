@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from .names import Canonical, Names, fold
+from ...catalog.names import Canonical, Names, fold
 
 
 def with_probe(names: Names, probe: dict) -> Names:

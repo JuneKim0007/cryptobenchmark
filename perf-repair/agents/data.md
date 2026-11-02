@@ -20,11 +20,11 @@
 ```
 src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
 src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), fold, key formats, name_conflict
-src/perfrepair/catalog/probe_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
 src/perfrepair/data_handler/inbound/probe_index.py : probe → engine types and the name each provider registers for a spelling
+src/perfrepair/data_handler/inbound/probe_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and Summaries with runs per process; comparability notes
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`; returns the manifest path

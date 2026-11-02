@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Callable
 
 from ...catalog.names import Names
-from ...catalog.probe_names import with_probe
+from ...data_handler.inbound.probe_names import with_probe
 from ...dto.grouping import Item, Profile
 from ..catalog.families import Families
 from .key_kind import Context, Evidence, key_kind

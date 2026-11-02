@@ -16,8 +16,8 @@ from perfrepair.app.scan import call_pattern, scan
 from perfrepair.app.sdk import sdk_levels
 from perfrepair.app.sources import GENERATED, MAIN, TEST, build_files, origin, source_files
 from perfrepair.catalog.names import Names
-from perfrepair.catalog.probe_names import with_probe
 from perfrepair.data_handler.inbound import manifest_file, read_manifest, read_probe_index
+from perfrepair.data_handler.inbound.probe_names import with_probe
 from perfrepair.files import read_yaml
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
