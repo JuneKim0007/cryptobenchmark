@@ -84,7 +84,8 @@ names:
     EC: []
     DSA: []
     DiffieHellman: [DH]
-    XDH: [X25519]
+    XDH: []
+    X25519: []
     Ed25519: []
     EdDSA: []
   KeyFactory:
@@ -92,12 +93,14 @@ names:
     EC: []
     DSA: []
     DiffieHellman: [DH]
-    XDH: [X25519]
+    XDH: []
+    X25519: []
     ECGOST3410: [GOST-3410-2001, ECGOST-3410]
   KeyAgreement:
     ECDH: []
     DiffieHellman: [DH]
-    XDH: [X25519]
+    XDH: []
+    X25519: []
   SecureRandom:
     SHA1PRNG: []
     NativePRNG: []

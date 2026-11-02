@@ -142,6 +142,19 @@ def test_aliases_and_case_resolve_to_the_registered_name(index):
     assert index.registered("Fast", "Mac", "HmacSHA256") is None
 
 
+def test_a_transformation_resolves_through_the_base_service_like_jca():
+    from perfrepair.data_handler.inbound.probe_index import ProbeIndex, Service
+    aes = Service("AES", frozenset({"CBC", "ECB"}), frozenset({"NOPADDING", "PKCS5PADDING"}))
+    index = ProbeIndex({("P", "Cipher", "AES"): aes, ("P", "Cipher", "DES"): Service("DES"),
+                        ("P", "Cipher", "AES/GCM/NOPADDING"): Service("AES/GCM/NoPadding")})
+    assert index.registered("P", "Cipher", "AES/CBC/PKCS5PADDING") == "AES/CBC/PKCS5PADDING"
+    assert index.registered("P", "Cipher", "aes/gcm/nopadding") == "AES/GCM/NoPadding"
+    assert index.registered("P", "Cipher", "DES/CBC/PKCS5Padding") == "DES/CBC/PKCS5Padding"
+    assert index.registered("P", "Cipher", "AES/OFB/NoPadding") is None
+    assert index.registered("P", "Cipher", "AES/CBC/PKCS7Padding") is None
+    assert index.registered("P", "Mac", "AES/CBC/NoPadding") is None
+
+
 def test_command_writes_the_run_directory(tmp_path, capsys):
     assert main(["--manifest", str(MANIFEST), "-o", str(tmp_path)]) == 0
     docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log")}

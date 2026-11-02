@@ -87,6 +87,6 @@ scopes:
 | dependencies | token rules only: Kotlin `when` branch labels and infix operands read as declared; wildcard imports hide nothing |
 | argument split | generic angle brackets are not counted, so `f(Map<A, B>)` reads as two arguments |
 | pin with an app-supplied IV | rejected; the IV length cannot be changed without changing the app's data flow |
-| default provider | the first by precedence that registers the name |
+| default provider | the first by precedence that registers the name; a Cipher transformation also matches like JCA: `A/M`, `A//P`, then `A`, within the service's `SupportedModes` and `SupportedPaddings` |
 | provider rejecting the key at `init` | not skipped |
 | Cipher transformation served only through its base service | not resolved |

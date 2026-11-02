@@ -18,7 +18,9 @@ cases:
 - {type: Signature, name: SHA256withRSA/PSS, canonical: SHA256withRSA/PSS, keySize: null, known: true}
 - {type: SecretKeyFactory, name: PBEWITHSHA1AND256BITAES-CBC-BC, canonical: PBEWITHSHAAND256BITAES-CBC-BC, keySize: null, known: true}
 - {type: KeyFactory, name: ecgost-3410, canonical: ECGOST3410, keySize: null, known: true}
-- {type: KeyAgreement, name: X25519, canonical: XDH, keySize: null, known: true}
+- {type: KeyAgreement, name: X25519, canonical: X25519, keySize: null, known: true}
+- {type: KeyAgreement, name: xdh, canonical: XDH, keySize: null, known: true}
+- {type: KeyPairGenerator, name: x25519, canonical: X25519, keySize: null, known: true}
 - {type: Cipher, name: aes/cbc/pkcs5padding, canonical: AES/CBC/PKCS5Padding, keySize: null, known: true}
 - {type: Cipher, name: AES/CBC/PKCS7Padding, canonical: AES/CBC/PKCS5Padding, keySize: null, known: true}
 - {type: Cipher, name: AES_256/GCM/NoPadding, canonical: AES/GCM/NoPadding, keySize: 256, known: true}

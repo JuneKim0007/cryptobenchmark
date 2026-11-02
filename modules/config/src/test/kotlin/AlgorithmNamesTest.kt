@@ -13,6 +13,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.security.Security
 
 class AlgorithmNamesTest {
 
@@ -30,6 +31,16 @@ class AlgorithmNamesTest {
             val expected = Canonical(case["canonical"] as String, case["keySize"] as Int?, case["known"] as Boolean)
             assertEquals("${case["type"]} ${case["name"]}", expected, names.canonical(case["type"] as String, case["name"] as String))
         }
+    }
+
+    @Test
+    fun noTwoServicesOfOneRunningProviderShareACanonicalName() {
+        val clashes = Security.getProviders().flatMap { provider ->
+            provider.services.groupBy { it.type to names.key(it.type, it.algorithm) }
+                .filterValues { it.size > 1 }
+                .map { (key, same) -> "${provider.name}.${key.first} ${same.map { it.algorithm }}" }
+        }
+        assertEquals(emptyList<String>(), clashes)
     }
 
     @Suppress("UNCHECKED_CAST")
