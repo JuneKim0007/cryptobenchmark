@@ -7,6 +7,8 @@ from helpers import QUIET, label_charter
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.prompt import CorrectionPrompt, TaskPrompt
 from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
+from perfrepair.ai.runtime.agent.reply import AgentFailed
+from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.kind import project
@@ -76,6 +78,32 @@ def test_each_item_gets_a_fresh_conversation_and_one_commit(tmp_path):
     state = decide(LabelKind(), CHARTER, agent, tmp_path, **QUIET)
     assert state.seen == {"a": "a", "b": "b", "c": "c"} and agent.started == 3
     assert [r.outcome for r in active_outbox(tmp_path).records()] == ["decided"] * 3
+
+
+def test_a_limit_hit_mid_run_records_nothing_for_the_item_and_a_resume_asks_it(tmp_path):
+    def limited(m, conversation, turn):
+        if label_of(m) == "b":
+            raise ClaudeCliError("usage limit reached")
+        return {"label": label_of(m)}
+
+    with pytest.raises(AgentFailed, match="claude_cli_failed: usage limit reached"):
+        decide(LabelKind(), CHARTER, ScriptedConversations(limited), tmp_path, **QUIET)
+    assert [(r.item, r.outcome) for r in active_outbox(tmp_path).records()] == [("a", "decided")]
+    agent = ScriptedConversations(lambda m, *_: {"label": label_of(m)})
+    state = decide(LabelKind(), CHARTER, agent, tmp_path, **QUIET)
+    assert agent.started == 2 and state.seen == {"a": "a", "b": "b", "c": "c"}
+    assert {r.outcome for r in active_outbox(tmp_path).records()} == {"decided"}
+
+
+def test_a_limit_after_a_rejected_turn_does_not_drop_the_item(tmp_path):
+    def rejected_then_limited(m, conversation, turn):
+        if turn == 1:
+            return {"label": ""}
+        raise ClaudeCliError("usage limit reached")
+
+    with pytest.raises(AgentFailed):
+        decide(LabelKind(("a",)), CHARTER, ScriptedConversations(rejected_then_limited), tmp_path, **QUIET)
+    assert active_outbox(tmp_path).records() == [] and not (tmp_path / "errors.jsonl").read_text()
 
 
 def test_rejection_reasks_the_same_conversation_then_respawns_then_drops(tmp_path):

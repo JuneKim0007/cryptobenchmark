@@ -86,6 +86,21 @@ def test_the_child_never_sees_the_credentials_and_runs_the_configured_binary(tmp
     assert "ANTHROPIC_API_KEY" not in env and "ANTHROPIC_AUTH_TOKEN" not in env
 
 
+def test_a_limit_notice_is_a_failure_never_an_answer_to_reject(tmp_path):
+    notice = {**ok("s", {}), "structured_output": None, "result": "usage limit reached",
+              "usage": {"input_tokens": 0, "output_tokens": 0}}
+    convos = ClaudeCliConversations(runner=FakeCli([notice]), workdir=tmp_path)
+    with pytest.raises(ClaudeCliError, match="no model output: usage limit reached"):
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
+
+
+def test_a_nonzero_exit_with_json_on_stdout_is_a_failure(tmp_path):
+    runner = lambda c, *_: subprocess.CompletedProcess(c, 1, json.dumps(ok("s", {})), "")  # noqa: E731
+    convos = ClaudeCliConversations(runner=runner, workdir=tmp_path)
+    with pytest.raises(ClaudeCliError):
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
+
+
 def test_a_multi_line_cli_failure_is_one_coded_line(tmp_path):
     convos = ClaudeCliConversations(runner=lambda c, *_: subprocess.CompletedProcess(c, 1, "", "line one\nline two\n"),
                                     workdir=tmp_path)
