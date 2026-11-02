@@ -55,3 +55,12 @@ def test_validator_names_every_broken_contract():
     assert any("is for TypeC, not TypeD" in p for p in problems)
     assert any("carries group" in p for p in problems)
     assert any("3: no profile" in p for p in problems)
+
+
+def test_build_with_a_missing_input_is_a_one_line_error(tmp_path, capsys):
+    from perfrepair.grouping.__main__ import main
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text("schemaVersion: 1\nfiles: {}\n")
+    assert main(["build", "--manifest", str(manifest), "--run", str(tmp_path / "run")]) == 1
+    err = capsys.readouterr().err
+    assert err.startswith("error ") and "Traceback" not in err

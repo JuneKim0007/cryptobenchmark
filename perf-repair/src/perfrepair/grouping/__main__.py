@@ -22,6 +22,7 @@ from ..ai.parse.grouping_assign import command as assign_cmd
 from ..run_dir import GroupingPaths
 from .report.checks import report
 from ..ai.review.grouping_review import command as review_cmd
+from ..validation import ValidationFailed
 
 
 def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParser]]:
@@ -79,6 +80,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.step in ("assign", "report"):
         _model_step(ap, steps[args.step], args)
         return 0
+    try:
+        _file_step(args)
+    except (FileNotFoundError, ValueError, ValidationFailed) as e:
+        print(f"error {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
+def _file_step(args: argparse.Namespace) -> None:
     paths = GroupingPaths(args.run)
     if args.step == "build":
         build_stage(args.manifest, args.run)
@@ -90,7 +100,6 @@ def main(argv: list[str] | None = None) -> int:
         counts = {r: sum(1 for p in results if p.result == r) for r in sorted({p.result for p in results})}
         document = report(paths)
         print(f"{len(results)} pairs {counts} -> {paths.interop}; {len(document['groups'])} groups -> {paths.groups}")
-    return 0
 
 
 if __name__ == "__main__":
