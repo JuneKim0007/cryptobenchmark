@@ -24,7 +24,7 @@ src/perfrepair/guide/command.py : guide arguments, the step loop, one status lin
 src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites, app, dossier, replace, edit, harness, device, report; Stop codes
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--run --app`
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens
-src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements → apps/<app>/dossiers.json, validated before writing
+src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given ScreeningHandler at app.json's targetSdk → apps/<app>/dossiers.json, validated before writing
 src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
 src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies; edits.json document

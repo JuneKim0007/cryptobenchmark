@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 
 from .dto import Measurements, PrimitiveRow, RunLog
+from .dto.screen import Verdict, read_screen
 from .files import read_json
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
@@ -88,3 +89,7 @@ def load_measurements(run: Path) -> Measurements:
 
 def load_run_log(run: Path) -> RunLog:
     return RunLog.from_json(read_json(Path(run) / RUN_LOG))
+
+
+def load_screen(paths: GroupingPaths) -> dict[int, Verdict] | None:
+    return read_screen(read_json(paths.screen)) if paths.screen.exists() else None

@@ -7,6 +7,7 @@ from pathlib import Path
 from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
+from ..dto.screen import Verdict, lowers_status
 from ..dto.site import METRICS, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
 from .estimate import compare
 
@@ -59,8 +60,24 @@ def function_source(root: Path, scope: Scope) -> str:
     return "\n".join(lines[scope.start - 1:scope.end])
 
 
+def _targets(current: str, others: list[str], usable: list[str], failed: set,
+             verdicts: dict[str, Verdict] | None) -> tuple[list[str], str | None]:
+    """The options left after each filter, or the reason of the first filter that leaves none."""
+    if not usable:
+        return [], "none_available" if others else "no_alternative"
+    v = verdicts or {}
+    allowed = [q for q in usable if not lowers_status(v.get(current), v.get(q))]
+    if not allowed:
+        return [], "deprecated_only"
+    # data from before a failed swap does not decrypt after it, so such a pair is never an option
+    interoperable = [q for q in allowed if frozenset((current, q)) not in failed]
+    return interoperable, None if interoperable else "interop_failed"
+
+
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
-                   measurements: dict[str, dict[str, Summary | None]], source_root: Path) -> dict:
+                   measurements: dict[str, dict[str, Summary | None]], source_root: Path,
+                   verdicts: dict[str, Verdict] | None) -> dict:
+    """verdicts: each item's screen verdict for this app by qualified name; None without screen.json."""
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
         raise ValueError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
@@ -87,21 +104,18 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
             continue
         others = sorted(items[m]["qualified"] for m in members[group] if m != key)
         usable = [q for q in others if items[by_qualified[q]].get("runs") and parse_qualified(q)[2] in available]
-        if not usable:
-            none.append({"scope": s.id, "reason": "none_available" if others else "no_alternative"})
-            continue
-        # data from before a failed swap does not decrypt after it, so such a pair is never an option
-        interoperable = [q for q in usable if frozenset((current, q)) not in failed]
-        if not interoperable:
-            none.append({"scope": s.id, "reason": "interop_failed"})
+        targets, reason = _targets(current, others, usable, failed, verdicts)
+        if reason is not None:
+            none.append({"scope": s.id, "reason": reason})
             continue
         options = []
-        for n, q in enumerate(interoperable, 1):
+        for n, q in enumerate(targets, 1):
             configs = nearest(s, measured[current], measured[q])
             # no configuration measured on both sides: the pins are unknown, never guessed
             pinned = pins(measured[current][configs[0]], measured[q][configs[0]]) if configs else None
             options.append(Option(f"R{n}", q, pinned, pair_status(groups, current, q),
-                                  estimates(configs, measured[current], measured[q], measurements)))
+                                  estimates(configs, measured[current], measured[q], measurements),
+                                  None if verdicts is None else verdicts[q].status))
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))
     return {"schemaVersion": SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers],
             "noOptions": none}

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .... import run_dir as rd
 from ....dto import Verdicts
+from ....dto.screen import qualified_verdicts
 from ....files import write_json
 from ....run_dir import GroupingPaths
 from ....validation.grouping.output import read_groups
@@ -25,7 +26,9 @@ def worthiness(run_path: Path, mode: Mode, conversations: Conversations, library
                limit: int | None = None, echo=print) -> Verdicts:
     rows, measurements = rd.load_rows(run_path), rd.load_measurements(run_path)
     require(rd.MEASUREMENTS, validate_measurements(measurements, rows))
-    evidence = build_evidence(read_groups(GroupingPaths(run_path)), rows, measurements.byRow)
+    grouping = GroupingPaths(run_path)
+    groups = read_groups(grouping)
+    evidence = build_evidence(groups, rows, measurements.byRow, qualified_verdicts(groups, rd.load_screen(grouping)))
     directory = rd.worthiness(run_path, mode.name)
     directory.mkdir(parents=True, exist_ok=True)
     write_json(directory / rd.EVIDENCE, {"schemaVersion": EVIDENCE_SCHEMA_VERSION, "groups": [asdict(e) for e in evidence]})

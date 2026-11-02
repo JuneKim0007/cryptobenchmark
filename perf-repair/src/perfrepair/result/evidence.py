@@ -6,6 +6,7 @@ from itertools import permutations
 from ..dto import Configuration, GroupEvidence, MemberStats, PairMetrics, PrimitiveRow
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
+from ..dto.screen import Verdict, lowers_status
 from .confidence import level
 from .estimate import compare
 
@@ -19,7 +20,14 @@ def _pair(a: MemberStats, b: MemberStats, interop: str) -> PairMetrics:
     return PairMetrics(a.itemId, b.itemId, time.ratio, time.pImprove, level(time.pImprove), time.n, alloc, interop)
 
 
-def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict]) -> list[GroupEvidence]:
+def _kept(a: str, b: str, failed: set, verdicts: dict[str, Verdict]) -> bool:
+    return a != b and frozenset((a, b)) not in failed and not lowers_status(verdicts.get(a), verdicts.get(b))
+
+
+def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict],
+                   verdicts: dict[str, Verdict] | None) -> list[GroupEvidence]:
+    """verdicts: the run-level screen verdicts by qualified name; a pair whose target lowers the status is left out."""
+    v = verdicts or {}
     member_of = {groups["items"][str(m)]["qualified"]: g["id"] for g in groups["groups"] for m in g["members"]}
     configs: dict[str, dict[tuple, list[MemberStats]]] = defaultdict(lambda: defaultdict(list))
     for r in rows:
@@ -38,7 +46,7 @@ def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[st
             members = sorted(members, key=lambda s: s.itemId)
             measured = [s for s in members if s.timeNs is not None]
             pairs = tuple(_pair(a, b, pair_status(groups, a.itemId, b.itemId)) for a, b in permutations(measured, 2)
-                          if a.itemId != b.itemId and frozenset((a.itemId, b.itemId)) not in failed)
+                          if _kept(a.itemId, b.itemId, failed, v))
             cs.append(Configuration(*key, tuple(members), pairs))
         engine = parse_qualified(groups["items"][str(g["members"][0])]["qualified"])[0]
         out.append(GroupEvidence(g["id"], g["description"], engine, g["family"], tuple(cs)))

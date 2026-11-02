@@ -5,11 +5,13 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto import Verdicts
 from ..dto.grouping import read_items
+from ..dto.screen import Verdict, qualified_verdicts
 from ..dto.grouping_state import Knowledge
 from ..dto.site import Scope
 from ..files import read_json
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..run_dir import GroupingPaths
+from ..screen.handler import ScreeningHandler
 from ..validation.grouping.output import read_groups
 from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
@@ -57,15 +59,14 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         out["grouping/groups.json"] = e.problems
         return out
     out |= validate_interop(groups, grouping.interop_plan, grouping.interop)
-    for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
-        scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
-        out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups)
+    screen = rd.load_screen(grouping)
+    out |= _dossiers(run, groups, screen)
     for mode in MODES.values():
         directory = rd.worthiness(run, mode.name)
         if (directory / rd.VERDICTS).exists():
             measurements = rd.load_measurements(run)
-            kind = WorthinessKind(mode, measurements.comparability, build_evidence(groups, rows, measurements.byRow),
-                                  directory)
+            evidence = build_evidence(groups, rows, measurements.byRow, qualified_verdicts(groups, screen))
+            kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
             try:
                 records = active_outbox(directory).records()
             except OutboxError as e:
@@ -73,6 +74,15 @@ def validate_run(run: Path) -> dict[str, list[str]]:
                 continue
             saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
             out[directory.name] = kind.validate(saved, records)
+    return out
+
+
+def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None) -> dict[str, list[str]]:
+    out, handler = {}, ScreeningHandler.packaged()
+    for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
+        scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
+        verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))
+        out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups, verdicts)
     return out
 
 

@@ -47,9 +47,9 @@ src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no n
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
-src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED; screen.json document (schema 2); statuses digest
-src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status); NO_OPTION_REASONS, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
+src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED; lowers_status (the don't-lower-the-status rule); verdicts by qualified name; screen.json document (schema 2); statuses digest
+src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write
-src/perfrepair/run_dir.py : run directory: artifact names and loaders; AppPaths and GroupingPaths, the only definitions of apps/<name>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir.py : run directory: artifact names and loaders (screen.json: load_screen); AppPaths and GroupingPaths, the only definitions of apps/<name>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 ```

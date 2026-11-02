@@ -10,6 +10,7 @@ import yaml
 from ..dto.site import Replacement, Scope, read_replacements
 from ..files import read_json, write_json, write_text
 from ..run_dir import AppPaths
+from ..screen.handler import ScreeningHandler
 from ..validation.repair import validate_edits, validate_harness
 from .dossier import dossier
 from .edit import edit_app, load_specs
@@ -33,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
                                         help="the benchmark results' manifest.yaml; its effective.yaml gives the sizes")
     a = ap.parse_args(argv)
     if a.command == "dossier":
-        dossier(a.run, a.app, a.source)
+        dossier(a.run, a.app, a.source, ScreeningHandler.packaged())
         return 0
     if a.command == "test-set":
         return _test_set(a)

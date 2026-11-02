@@ -14,7 +14,9 @@ SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")
 METRICS = ("timeNs", "allocationCount", "energyJ")
-NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available", "interop_failed")
+# in filter order: a scope is in noOptions under the first filter that leaves it nothing
+NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
+                     "interop_failed")
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
 DERIVED_RISKS = (
@@ -91,20 +93,22 @@ class Estimate:
 @dataclass(frozen=True)
 class Option:
     """pins None: the parameters are unknown, so no like-for-like swap can be stated; {} means nothing to pin.
-    interop: the pair_status of the current item and this one."""
+    interop: the pair_status of the current item and this one. screen: its status for this app; None without screen.json."""
     alias: str
     item: str
     pins: dict | None
     interop: str
     estimates: tuple[Estimate, ...] = ()
+    screen: str | None = None
 
     def to_json(self) -> dict:
         return {"alias": self.alias, "item": self.item, "pins": self.pins, "interop": self.interop,
-                "estimates": [asdict(e) for e in self.estimates]}
+                "screen": self.screen, "estimates": [asdict(e) for e in self.estimates]}
 
     @classmethod
     def from_json(cls, d: dict) -> "Option":
-        return cls(d["alias"], d["item"], d["pins"], d["interop"], tuple(Estimate(**e) for e in d.get("estimates") or ()))
+        return cls(d["alias"], d["item"], d["pins"], d["interop"], tuple(Estimate(**e) for e in d.get("estimates") or ()),
+                   d["screen"])
 
 
 @dataclass(frozen=True)

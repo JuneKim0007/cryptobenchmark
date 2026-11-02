@@ -6,6 +6,7 @@ from collections import Counter
 
 from ..dto.grouping import parse_qualified
 from ..dto.interop import PAIR_STATUSES, pair_status
+from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.site import METRICS, NO_OPTION_REASONS, SCHEMA_VERSION, Dossier, Scope
 from .app import scope_problems
 
@@ -90,18 +91,38 @@ def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
         problems.append(f"{where}: aliases are not R1..R{len(d.options)} in order")
     if len(set(items)) != len(items):
         problems.append(f"{where}: an option repeats the current item or another option")
-    problems += [f"{where} {o.alias}: pins {o.pins!r} is neither an object nor null (unknown)"
-                 for o in d.options if o.pins is not None and not isinstance(o.pins, dict)]
+    problems += [f"{where} {o.alias}: screen {o.screen!r} is neither one of {STATUSES} nor null"
+                 for o in d.options if o.screen is not None and o.screen not in STATUSES]
+    return d, problems + _labels(where, d) + _estimates(where, d)
+
+
+def _labels(where: str, d: Dossier) -> list[str]:
+    problems = [f"{where} {o.alias}: pins {o.pins!r} is neither an object nor null (unknown)"
+                for o in d.options if o.pins is not None and not isinstance(o.pins, dict)]
     problems += [f"{where} {o.alias}: interop {o.interop!r} is not one of {PAIR_STATUSES}"
                  for o in d.options if o.interop not in PAIR_STATUSES]
     problems += [f"{where} {o.alias}: interop fail; a failed pair is never an option"
                  for o in d.options if o.interop == "fail"]
-    return d, problems + _estimates(where, d)
+    return problems
 
 
-def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict) -> list[str]:
-    """dossiers.json against scopes.json and groups.json: every scope once, options from the current item's group
-    labelled with the pair's interop status."""
+def _screen(where: str, d: Dossier, verdicts: dict[str, Verdict] | None) -> list[str]:
+    if verdicts is None:
+        return [f"{where} {o.alias}: screen {o.screen!r} without screen.json; it is null"
+                for o in d.options if o.screen is not None]
+    problems = []
+    for o in d.options:
+        status = verdicts[o.item].status if o.item in verdicts else None
+        if o.screen != status:
+            problems.append(f"{where} {o.alias}: screen {o.screen!r} is not this app's status {status!r}")
+        if lowers_status(verdicts.get(d.current), verdicts.get(o.item)):
+            problems.append(f"{where} {o.alias}: {o.item} is {status} and lowers the status of {d.current}")
+    return problems
+
+
+def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: dict[str, Verdict] | None) -> list[str]:
+    """dossiers.json against scopes.json, groups.json and the app's screen verdicts (None without screen.json): every
+    scope once, options from the current item's group labelled with the pair's interop status and the app's status."""
     problems = check_header(doc)
     if not isinstance(doc, dict):
         return problems
@@ -130,6 +151,7 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict) -> list[str]
                      for o in d.options if o.item == d.current or group_of.get(o.item) != group]
         problems += [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
                      for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
+        problems += _screen(where, d, verdicts)
     return problems
 
 

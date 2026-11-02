@@ -26,7 +26,10 @@
 ## Use
 
 - grouping: `broken` and `platform_deprecated` items are grouped by code on the recorded key and never asked; `groups.json` carries each item's status as `screen` ([grouping.md](grouping.md) Code-made groups).
-- a run without `screen.json` asks every item.
+- a run without `screen.json` asks every item, and dossiers and evidence apply no status rule.
+- don't lower the status: a `broken` or `platform_deprecated` target is allowed only with the current item's canonical name and key size and at no worse a status (`dto/screen.py` `lowers_status`); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
+- per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.
+- handler: `repair dossier`, the guide and `check` pass `ScreeningHandler.packaged()` (the packaged catalog); the dossier step takes it as a parameter, not from a RunContext, since it has no manifest.
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)
 

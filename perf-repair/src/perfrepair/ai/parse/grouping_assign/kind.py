@@ -4,7 +4,7 @@ from ....dto.decision import OutboxRecord
 from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
-from ....dto.screen import Verdict, read_screen
+from ....dto.screen import Verdict
 from ....files import read_json, write_json
 from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
@@ -13,7 +13,7 @@ from ....validation.grouping.code_groups import validate_code_groups
 from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....catalog.families import Families
-from ....run_dir import GroupingPaths
+from ....run_dir import GroupingPaths, load_screen
 from ....screen.groups import charter_inputs, code_groups, screened_out
 from .render import render
 from .schema import SCHEMA
@@ -37,7 +37,7 @@ class GroupingKind:
         self._items = read_items(raw)
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
-        self.screen: dict[int, Verdict] | None = read_screen(read_json(paths.screen)) if paths.screen.exists() else None
+        self.screen: dict[int, Verdict] | None = load_screen(paths)
 
     @property
     def inputs(self) -> str:

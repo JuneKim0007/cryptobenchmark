@@ -1,6 +1,7 @@
 import pytest
 from helpers import row, summary
 
+from perfrepair.dto.screen import Verdict
 from perfrepair.result.evidence import build_evidence
 from perfrepair.result.modes import MODES
 from perfrepair.result.triage import triage
@@ -17,7 +18,7 @@ M = {"a1": {"timeNs": summary(200), "allocations": summary(10)},
      "a1b": {"timeNs": summary(900), "allocations": None},
      "s1": {"timeNs": summary(50), "allocations": None},
      "u1": {"timeNs": summary(100), "allocations": None}, "u2": {"timeNs": summary(100), "allocations": None}}
-EVIDENCE = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M)}
+EVIDENCE = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M, None)}
 
 
 def test_pairs_only_within_one_configuration():
@@ -42,7 +43,7 @@ def test_triage_asks_only_where_a_pair_improves():
 
 
 def _decided(measurements, mode="latency"):
-    evidence = build_evidence(GROUPS, ROWS, measurements)
+    evidence = build_evidence(GROUPS, ROWS, measurements, None)
     ask, decided = triage(evidence, MODES[mode])
     return {e.groupId: e for e in ask}, {v.groupId: v.decision for v in decided}
 
@@ -81,7 +82,7 @@ def _checked(result, reason="r"):
 
 
 def test_a_failed_interop_pair_is_never_a_replacement():
-    evidence = {e.groupId: e for e in build_evidence(_checked("fail"), ROWS, M)}
+    evidence = {e.groupId: e for e in build_evidence(_checked("fail"), ROWS, M, None)}
     assert [len(c.pairs) for c in evidence["g-a"].configurations] == [0, 0]
     ask, decided = triage(list(evidence.values()), MODES["latency"])
     assert ask == [] and {v.groupId: v.decision for v in decided}["g-a"] == "not_comparable"
@@ -89,10 +90,17 @@ def test_a_failed_interop_pair_is_never_a_replacement():
 
 def test_interop_labels_ride_on_every_pair():
     assert {p.interop for c in EVIDENCE["g-a"].configurations for p in c.pairs} == {"not_run"}
-    kept = build_evidence(_checked("not_checkable"), ROWS, M)
+    kept = build_evidence(_checked("not_checkable"), ROWS, M, None)
     assert {p.interop for e in kept for c in e.configurations for p in c.pairs} == {"not_checkable", "not_planned"}
 
 
 def test_groups_without_an_interop_section_are_refused():
     with pytest.raises(ValueError, match="no interop section"):
-        build_evidence({k: v for k, v in GROUPS.items() if k != "interop"}, ROWS, M)
+        build_evidence({k: v for k, v in GROUPS.items() if k != "interop"}, ROWS, M, None)
+
+
+def test_a_pair_whose_target_lowers_the_status_is_left_out_one_direction_only():
+    verdicts = {QUALIFIED[1]: Verdict("accepted", "r", "S", "ALG-A"), QUALIFIED[2]: Verdict("broken", "r", "S", "ALG-B")}
+    evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M, verdicts)}
+    assert [(p.fromItem, p.toItem) for c in evidence["g-a"].configurations for p in c.pairs] == [
+        (QUALIFIED[2], QUALIFIED[1])]
