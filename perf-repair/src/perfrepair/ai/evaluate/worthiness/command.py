@@ -16,6 +16,7 @@ from ...runtime.agent import Conversations, ScriptedConversations
 from .kind import WorthinessKind, charter
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
+from ...runtime.engine.events import Where
 from ...runtime.prompt import PromptLibrary
 
 DRY_RUN = ScriptedConversations(lambda *_: {"decision": "skip", "pairs": [], "reason": "dry run: no model was called"})
@@ -33,7 +34,8 @@ def worthiness(run_path: Path, mode: Mode, conversations: Conversations, library
     directory.mkdir(parents=True, exist_ok=True)
     write_json(directory / rd.EVIDENCE, {"schemaVersion": EVIDENCE_SCHEMA_VERSION, "groups": [asdict(e) for e in evidence]})
     kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
-    verdicts = decide(kind, charter(library), conversations, directory, limits, limit, echo)
+    verdicts = decide(kind, charter(library), conversations, directory, limits, limit, echo,
+                      Where("worthiness", mode.name))
     counts: dict[str, int] = {}
     for v in verdicts.verdicts.values():
         counts[v.decision] = counts.get(v.decision, 0) + 1

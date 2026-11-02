@@ -7,6 +7,7 @@ from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
+from ...runtime.engine.events import Where
 from ...runtime.prompt import PromptLibrary
 from .kind import GroupingKind, charter
 
@@ -22,7 +23,8 @@ DRY_RUN = ScriptedConversations(_dry_run)
 def assign(paths: GroupingPaths, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
            limit: int | None = None, echo=print) -> Knowledge:
     kind = GroupingKind(paths)
-    knowledge = decide(kind, charter(library, kind.inputs), conversations, paths.root, limits, limit)
+    knowledge = decide(kind, charter(library, kind.inputs), conversations, paths.root, limits, limit,
+                       where=Where("grouping", "assign"))
     coded = sum(code_made(g) for g in knowledge.groups)
     echo(f"{len(knowledge.groups)} groups ({coded} made by code), {len(knowledge.dropped)} dropped, "
          f"knowledge version {knowledge.version}")

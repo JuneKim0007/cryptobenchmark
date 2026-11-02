@@ -13,6 +13,7 @@ from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
+from ...runtime.engine.events import Where
 from ...runtime.prompt import PromptLibrary
 from .kind import ClassifyKind, charter
 from .state import candidates, reviewed
@@ -40,7 +41,8 @@ def classify(paths: GroupingPaths, batches: list[Batch], verdicts: dict[int, Ver
     write_json(paths.classify_batches, batches_document(batches))
     kind = ClassifyKind(batches, paths)
     fixed = charter(reviewer.library, kind.inputs)
-    state = decide(kind, fixed, reviewer.conversations, paths.classify, reviewer.limits, echo=echo)
+    state = decide(kind, fixed, reviewer.conversations, paths.classify, reviewer.limits, echo=echo,
+                   where=Where("screening", "classify"))
     proposals = candidates(state, batches, fixed.fingerprint)
     write_text(paths.registry_candidates, yaml.safe_dump(proposals, sort_keys=False))
     counts: dict[str, int] = {}

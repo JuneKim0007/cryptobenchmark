@@ -9,6 +9,7 @@ from ....validation import require
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
+from ...runtime.engine.events import Where
 from ...runtime.prompt import PromptLibrary
 from .kind import SiteReplaceKind, charter
 from .state import Replacements
@@ -22,7 +23,8 @@ def replace(run_path: Path, app: str, conversations: Conversations, library: Pro
     paths = rd.AppPaths(run_path, app)
     kind = SiteReplaceKind(app, read_json(paths.dossiers), paths.root)
     require(str(paths.dossiers), kind.problems)
-    state = decide(kind, charter(library), conversations, paths.replace, limits, limit, echo)
+    state = decide(kind, charter(library), conversations, paths.replace, limits, limit, echo,
+                   Where("replace", "site-replace", app))
     counts: dict[str, int] = {}
     for scope, r in state.replacements.items():
         key = f"{r.decision} ({state.sources[scope]})"

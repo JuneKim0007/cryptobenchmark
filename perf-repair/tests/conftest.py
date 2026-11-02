@@ -1,8 +1,10 @@
+import logging
 import os
 
 import pytest
 
 from perfrepair.config import device_results, dotenv, load
+from perfrepair.log.attach import SINK
 
 
 @pytest.fixture(autouse=True)
@@ -15,3 +17,14 @@ def isolated_settings(tmp_path_factory, monkeypatch):
     monkeypatch.setattr(load, "DEFAULT_FILE", empty / "perfrepair.yaml")
     for key in [k for k in os.environ if k.startswith("PERFREPAIR_")] + ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"]:
         monkeypatch.delenv(key, raising=False)
+
+
+@pytest.fixture(autouse=True)
+def detached_log():
+    """A command's attach() lasts for its process; each test starts without its handlers or level."""
+    logger = logging.getLogger("perfrepair")
+    handlers, level = list(logger.handlers), logger.level
+    yield
+    SINK.close()
+    logger.handlers[:] = handlers
+    logger.setLevel(level)

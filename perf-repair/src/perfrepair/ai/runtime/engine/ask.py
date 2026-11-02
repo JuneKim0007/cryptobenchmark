@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import time
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -25,10 +26,11 @@ class Turn:
     problems: tuple[str, ...]
     reply: dict | None
     messageSha: str
+    durationMs: int = 0
 
     def to_json(self) -> dict:
         return {"session": self.session, "turn": self.turn, "status": self.status, "problems": list(self.problems),
-                "reply": self.reply, "messageSha": self.messageSha}
+                "reply": self.reply, "messageSha": self.messageSha, "durationMs": self.durationMs}
 
 
 @dataclass
@@ -52,15 +54,20 @@ def ask(conversations: Conversations, charter: Charter, message: TaskPrompt, che
         conversation, prompt = conversations.start(charter.system, charter.schema), message
         for n in range(1, limits.turns + 1):
             sha = hashlib.sha256(prompt.text.encode()).hexdigest()[:12]
+            started, refusal = time.monotonic(), None
             try:
                 reply = conversation.ask(prompt)
             except AgentRefused as e:
-                decision, problems, status, kept = None, [f"model refused: {e}"], "refused", None
+                refusal = e
+            # the model's latency only; the gate's check is static and not counted
+            elapsed = int((time.monotonic() - started) * 1000)
+            if refusal is not None:
+                decision, problems, status, kept = None, [f"model refused: {refusal}"], "refused", None
             else:
                 decision, problems = check(reply.text)
                 status = "accepted" if decision is not None and not problems else "rejected"
                 kept = reply.to_json()
-            turn = Turn(session, n, status, tuple(problems), kept, sha)
+            turn = Turn(session, n, status, tuple(problems), kept, sha, elapsed)
             asked.turns.append(turn)
             on_turn(turn)
             if status == "accepted":
