@@ -1,7 +1,4 @@
-from .claude import ClaudeClient
-from .claude_code import ClaudeCodeConversations, ClaudeCodeError
-from .conversation import ClaudeConversations, Conversation, Conversations, ScriptedConversations
-from .reply import AgentRefused, AgentReply
+from .conversation import Conversation, Conversations, ScriptedConversations
+from .reply import AgentFailed, AgentRefused, AgentReply
 
-__all__ = ["AgentRefused", "AgentReply", "ClaudeClient", "ClaudeCodeConversations", "ClaudeCodeError",
-           "ClaudeConversations", "Conversation", "Conversations", "ScriptedConversations"]
+__all__ = ["AgentFailed", "AgentRefused", "AgentReply", "Conversation", "Conversations", "ScriptedConversations"]

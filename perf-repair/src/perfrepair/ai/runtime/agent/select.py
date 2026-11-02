@@ -5,8 +5,8 @@ import argparse
 from ....config.args import add_config_arg
 from ....config.load import AGENT_ENV, Loaded
 from ....config.settings import AGENT_DEFAULT, BACKENDS, EFFORTS, ROLE_DEFAULTS, ROLES, Agent
-from .claude_code import ClaudeCodeConversations
-from .conversation import ClaudeConversations
+from ..gateway.claude_api import ClaudeConversations
+from ..gateway.claude_cli import ClaudeCliConversations
 
 
 def _default(role: str, name: str) -> str:
@@ -28,5 +28,5 @@ def conversations(args: argparse.Namespace, settings: Loaded, dry_run):
     if a.backend == "claude":
         return ClaudeConversations(a.model, a.effort)
     if a.backend == "claude-code":
-        return ClaudeCodeConversations(a.model, a.effort, binary=a.claudeBinary)
+        return ClaudeCliConversations(a.model, a.effort, binary=a.claudeBinary)
     return dry_run

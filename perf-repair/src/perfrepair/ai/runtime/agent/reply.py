@@ -16,3 +16,10 @@ class AgentReply:
 
 class AgentRefused(RuntimeError):
     """The model declined the request (stop_reason "refusal")."""
+
+
+class AgentFailed(RuntimeError):
+    """The provider failed for a reason that is not a refusal; one coded line."""
+
+    def __init__(self, code: str, detail: str):
+        super().__init__(f"{code}: {' '.join(detail.split())}")

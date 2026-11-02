@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from ....config.settings import DEFAULT_MODEL
-from ....dto.prompt import Lifetime, SystemPrompt
-from .reply import AgentRefused, AgentReply
+from ....dto.prompt import CorrectionPrompt, Lifetime, SystemPrompt, TaskPrompt
+from ..agent.conversation import LifetimeGuarded
+from ..agent.reply import AgentFailed, AgentRefused, AgentReply
 
+DEFAULT_MODEL = "claude-opus-5-5"
 MAX_TOKENS = 16000
 # The Messages API answers 400 to string length limits, and to a {n,m} it finds too complex; the gate checks both.
 API_UNSUPPORTED = ("maxLength", "minLength", "pattern")
@@ -21,8 +22,10 @@ def api_schema(node: dict) -> dict:
 class ClaudeClient:
 
     def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
-        import anthropic
-
+        try:
+            import anthropic
+        except ImportError:
+            raise AgentFailed("claude_api_missing", "auth api needs the anthropic package: pip install -e .[api]") from None
         self.model, self.effort, self.max_tokens = model, effort, max_tokens
         self.client = client or anthropic.Anthropic()
 
@@ -50,3 +53,26 @@ class ClaudeClient:
             "cacheRead": getattr(u, "cache_read_input_tokens", 0) or 0,
             "cacheWrite": getattr(u, "cache_creation_input_tokens", 0) or 0,
         }), list(response.content)
+
+
+class ClaudeConversation(LifetimeGuarded):
+
+    def __init__(self, client: ClaudeClient, system: SystemPrompt, schema: dict):
+        super().__init__(system)
+        self.client, self.schema, self.messages = client, schema, []
+
+    def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
+        self.messages.append({"role": "user", "content": message.text})
+        reply, content = self.client.request(self.system, self.messages, self.schema)
+        # The whole content goes back, thinking blocks included: the API checks them on the next turn.
+        self.messages.append({"role": "assistant", "content": content})
+        return reply
+
+
+class ClaudeConversations:
+
+    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
+        self.client = ClaudeClient(model, effort, max_tokens, client)
+
+    def start(self, system: SystemPrompt, schema: dict) -> ClaudeConversation:
+        return ClaudeConversation(self.client, system, schema)

@@ -68,8 +68,8 @@ def test_the_guide_stops_on_claude_cli_failed(tmp_path, capsys, monkeypatch):
     from perfrepair.guide import command
 
     def failing(g):
-        from perfrepair.ai.runtime.agent import ClaudeCodeError
-        raise ClaudeCodeError("not logged in")
+        from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
+        raise ClaudeCliError("not logged in")
     monkeypatch.setattr(command, "DRY", (("dossier", failing),))
     run = tmp_path / "run"
     run.mkdir()

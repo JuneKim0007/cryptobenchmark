@@ -8,21 +8,20 @@ from pathlib import Path
 from typing import Callable
 
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
-from .claude import DEFAULT_MODEL
-from .conversation import LifetimeGuarded
-from .reply import AgentRefused, AgentReply
+from ..agent.conversation import LifetimeGuarded
+from ..agent.reply import AgentFailed, AgentRefused, AgentReply
+from .claude_api import DEFAULT_MODEL
 
 Runner = Callable[[list[str], str, Path, dict[str, str]], subprocess.CompletedProcess]
 # The CLI bills an API key it finds before the logged-in subscription.
 WITHHELD_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
 
 
-class ClaudeCodeError(RuntimeError):
-    """The CLI failed for a reason that is not a refusal (not found, not logged in, overloaded, budget)."""
-    code = "claude_cli_failed"
+class ClaudeCliError(AgentFailed):
+    """Not found, not logged in, overloaded, budget."""
 
     def __init__(self, detail: str):
-        super().__init__(f"{self.code}: {detail}")
+        super().__init__("claude_cli_failed", detail)
 
 
 def _run(command: list[str], stdin: str, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess:
@@ -33,9 +32,9 @@ def child_env() -> dict[str, str]:
     return {k: v for k, v in os.environ.items() if k not in WITHHELD_ENV}
 
 
-class ClaudeCodeSession(LifetimeGuarded):
+class ClaudeCliSession(LifetimeGuarded):
 
-    def __init__(self, owner: "ClaudeCodeConversations", system: SystemPrompt, schema: dict):
+    def __init__(self, owner: "ClaudeCliConversations", system: SystemPrompt, schema: dict):
         super().__init__(system)
         self.owner, self.schema, self.session_id = owner, schema, None
 
@@ -44,7 +43,7 @@ class ClaudeCodeSession(LifetimeGuarded):
         try:
             return o.runner(command, text, o.workdir, child_env())
         except OSError as e:
-            raise ClaudeCodeError(f"cannot run {o.binary}: {e}") from e
+            raise ClaudeCliError(f"cannot run {o.binary}: {e}") from e
 
     def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
         o = self.owner
@@ -59,11 +58,11 @@ class ClaudeCodeSession(LifetimeGuarded):
         try:
             out = json.loads(done.stdout)
         except json.JSONDecodeError:
-            raise ClaudeCodeError(f"claude -p exited {done.returncode}: {(done.stderr or done.stdout).strip()[:300]}")
+            raise ClaudeCliError(f"claude -p exited {done.returncode}: {(done.stderr or done.stdout).strip()[:300]}")
         if out.get("stop_reason") == "refusal":
             raise AgentRefused(str(out.get("result") or "refused"))
         if out.get("is_error") or out.get("subtype") != "success":
-            raise ClaudeCodeError(f"claude -p: {out.get('subtype')}: {str(out.get('result'))[:300]}")
+            raise ClaudeCliError(f"claude -p: {out.get('subtype')}: {str(out.get('result'))[:300]}")
         self.session_id = out["session_id"]
         structured = out.get("structured_output")
         text = json.dumps(structured) if structured is not None else str(out.get("result") or "")
@@ -74,7 +73,7 @@ class ClaudeCodeSession(LifetimeGuarded):
             "costUsd": out.get("total_cost_usd", 0.0)})
 
 
-class ClaudeCodeConversations:
+class ClaudeCliConversations:
 
     def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", binary: str = "claude",
                  runner: Runner = _run, workdir: Path | None = None):
@@ -83,5 +82,5 @@ class ClaudeCodeConversations:
         self.no_mcp = self.workdir / ".no-mcp.json"
         self.no_mcp.write_text(json.dumps({"mcpServers": {}}))
 
-    def start(self, system: SystemPrompt, schema: dict) -> ClaudeCodeSession:
-        return ClaudeCodeSession(self, system, schema)
+    def start(self, system: SystemPrompt, schema: dict) -> ClaudeCliSession:
+        return ClaudeCliSession(self, system, schema)

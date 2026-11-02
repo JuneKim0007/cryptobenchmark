@@ -4,7 +4,8 @@ import pytest
 from helpers import task
 
 from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
-from perfrepair.ai.runtime.agent import AgentRefused, ClaudeClient, ClaudeConversations
+from perfrepair.ai.runtime.agent import AgentRefused
+from perfrepair.ai.runtime.gateway.claude_api import ClaudeClient, ClaudeConversations
 
 
 class FakeMessages:

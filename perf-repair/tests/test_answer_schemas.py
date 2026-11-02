@@ -7,7 +7,7 @@ from perfrepair.ai.evaluate.worthiness.schema import SCHEMA as WORTHINESS
 from perfrepair.ai.parse.algorithm_classify.schema import SCHEMA as CLASSIFY
 from perfrepair.ai.parse.grouping_assign.schema import SCHEMA as ASSIGN
 from perfrepair.ai.review.grouping_review.schema import SCHEMA as REVIEW
-from perfrepair.ai.runtime.agent.claude import API_UNSUPPORTED, api_schema
+from perfrepair.ai.runtime.gateway.claude_api import API_UNSUPPORTED, api_schema
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA as REPLACE
 from perfrepair.dto.site import OPTION_PREFIX
 from perfrepair.validation.answer_text import NOT_BLANK

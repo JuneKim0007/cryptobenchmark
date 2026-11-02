@@ -4,7 +4,7 @@ from dataclasses import fields
 
 import pytest
 
-from perfrepair.ai.runtime.agent import ClaudeCodeConversations
+from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliConversations
 from perfrepair.ai.runtime.agent.select import add_agent_args, conversations
 from perfrepair.config import dotenv, load as load_module
 from perfrepair.ai.__main__ import main as ai_main
@@ -120,7 +120,7 @@ def test_the_flag_reaches_the_backend_and_the_help_names_the_role_default():
     add_agent_args(ap, role="grouping.assign")
     args = ap.parse_args(["--effort", "high", "--agent", "claude-code"])
     convos = conversations(args, load_settings(ap, args), DRY)
-    assert isinstance(convos, ClaudeCodeConversations) and convos.effort == "high"
+    assert isinstance(convos, ClaudeCliConversations) and convos.effort == "high"
     assert "$PERFREPAIR_EFFORT, agent.effort, else low" in " ".join(ap.format_help().split())
 
 

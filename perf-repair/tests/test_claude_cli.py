@@ -5,7 +5,8 @@ import pytest
 from helpers import task
 
 from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
-from perfrepair.ai.runtime.agent import AgentRefused, ClaudeCodeConversations, ClaudeCodeError
+from perfrepair.ai.runtime.agent import AgentRefused
+from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliConversations, ClaudeCliError
 
 
 class FakeCli:
@@ -26,7 +27,7 @@ def ok(session, structured):
 
 def test_a_conversation_is_one_isolated_session_resumed_turn_by_turn(tmp_path):
     cli = FakeCli([ok("s-1", {"a": 1}), ok("s-1", {"a": 2})])
-    convo = ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {"type": "object"})
+    convo = ClaudeCliConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {"type": "object"})
     assert json.loads(convo.ask(task("first")).text) == {"a": 1}
     assert convo.ask(CorrectionPrompt("t", "second")).usage["costUsd"] == 0.01
     first, second = cli.calls[0][0], cli.calls[1][0]
@@ -40,7 +41,7 @@ def test_a_conversation_is_one_isolated_session_resumed_turn_by_turn(tmp_path):
 
 def test_a_new_conversation_never_resumes_another(tmp_path):
     cli = FakeCli([ok("s-1", {}), ok("s-2", {})])
-    convos = ClaudeCodeConversations(runner=cli, workdir=tmp_path)
+    convos = ClaudeCliConversations(runner=cli, workdir=tmp_path)
     convos.start(SystemPrompt("t", "SYS"), {}).ask(task("x"))
     convos.start(SystemPrompt("t", "SYS"), {}).ask(task("y"))
     assert all("--resume" not in c[0] for c in cli.calls)
@@ -49,25 +50,25 @@ def test_a_new_conversation_never_resumes_another(tmp_path):
 def test_refusal_and_cli_errors_are_told_apart(tmp_path):
     refused = {**ok("s", {}), "stop_reason": "refusal", "result": "declined"}
     cli = FakeCli([refused, "not json", {**ok("s", {}), "is_error": True, "subtype": "error_max_budget_usd"}])
-    convos = ClaudeCodeConversations(runner=cli, workdir=tmp_path)
+    convos = ClaudeCliConversations(runner=cli, workdir=tmp_path)
     with pytest.raises(AgentRefused):
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
-    with pytest.raises(ClaudeCodeError, match="exited"):
+    with pytest.raises(ClaudeCliError, match="exited"):
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
-    with pytest.raises(ClaudeCodeError, match="error_max_budget_usd"):
+    with pytest.raises(ClaudeCliError, match="error_max_budget_usd"):
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
 
 
 def test_system_text_is_a_flag_and_the_message_goes_on_stdin(tmp_path):
     cli = FakeCli([ok("s-1", {})])
-    ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {}).ask(task("MSG"))
+    ClaudeCliConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {}).ask(task("MSG"))
     command, stdin, _, _ = cli.calls[0]
     assert command[command.index("--system-prompt") + 1] == "SYS" and stdin == "MSG"
 
 
 def test_lifetime_misuse_never_reaches_the_cli(tmp_path):
     cli = FakeCli([])
-    convo = ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "S"), {})
+    convo = ClaudeCliConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "S"), {})
     with pytest.raises(TypeError, match="lifetime_mismatch"):
         convo.ask(CorrectionPrompt("t", "x"))
     assert cli.calls == []
@@ -78,8 +79,16 @@ def test_the_child_never_sees_the_credentials_and_runs_the_configured_binary(tmp
     monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "token-test")
     monkeypatch.setenv("KEEP_ME", "1")
     cli = FakeCli([ok("s-1", {})])
-    convos = ClaudeCodeConversations(binary="/opt/claude", runner=cli, workdir=tmp_path)
+    convos = ClaudeCliConversations(binary="/opt/claude", runner=cli, workdir=tmp_path)
     convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     command, _, _, env = cli.calls[0]
     assert command[0] == "/opt/claude" and env["KEEP_ME"] == "1"
     assert "ANTHROPIC_API_KEY" not in env and "ANTHROPIC_AUTH_TOKEN" not in env
+
+
+def test_a_multi_line_cli_failure_is_one_coded_line(tmp_path):
+    convos = ClaudeCliConversations(runner=lambda c, *_: subprocess.CompletedProcess(c, 1, "", "line one\nline two\n"),
+                                    workdir=tmp_path)
+    with pytest.raises(ClaudeCliError) as e:
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
+    assert str(e.value) == "claude_cli_failed: claude -p exited 1: line one line two"

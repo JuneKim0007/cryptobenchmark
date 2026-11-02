@@ -4,13 +4,13 @@ from __future__ import annotations
 import sys
 from typing import Callable
 
-from .ai.runtime.agent.claude_code import ClaudeCodeError
+from .ai.runtime.agent.reply import AgentFailed
 from .app.gate import GateError
 from .data_handler.outbound.benchmark_runner import BenchmarkRunError
 from .validation.failure import ValidationFailed
 
 # ValueError covers JSON and YAML parse errors and every coded error (InputError, CatalogMismatch, ...)
-FAILURES = (ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError, ClaudeCodeError)
+FAILURES = (ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError, AgentFailed)
 
 
 def reported(step: Callable[[], object]) -> int:

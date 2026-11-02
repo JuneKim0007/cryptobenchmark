@@ -4,7 +4,6 @@ import json
 from typing import Callable, Protocol
 
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
-from .claude import DEFAULT_MODEL, MAX_TOKENS, ClaudeClient
 from .reply import AgentReply
 
 
@@ -17,7 +16,7 @@ class Conversations(Protocol):
 
 
 class LifetimeGuarded:
-    """Every backend's conversation: a SystemPrompt, then one TaskPrompt, then only CorrectionPrompts."""
+    """Every gateway's conversation: a SystemPrompt, then one TaskPrompt, then only CorrectionPrompts."""
 
     def __init__(self, system: SystemPrompt):
         if not isinstance(system, SystemPrompt):
@@ -34,29 +33,6 @@ class LifetimeGuarded:
 
     def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
         raise NotImplementedError
-
-
-class ClaudeConversation(LifetimeGuarded):
-
-    def __init__(self, client: ClaudeClient, system: SystemPrompt, schema: dict):
-        super().__init__(system)
-        self.client, self.schema, self.messages = client, schema, []
-
-    def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
-        self.messages.append({"role": "user", "content": message.text})
-        reply, content = self.client.request(self.system, self.messages, self.schema)
-        # The whole content goes back, thinking blocks included: the API checks them on the next turn.
-        self.messages.append({"role": "assistant", "content": content})
-        return reply
-
-
-class ClaudeConversations:
-
-    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
-        self.client = ClaudeClient(model, effort, max_tokens, client)
-
-    def start(self, system: SystemPrompt, schema: dict) -> ClaudeConversation:
-        return ClaudeConversation(self.client, system, schema)
 
 
 class ScriptedConversations:
