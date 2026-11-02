@@ -16,7 +16,7 @@ from perfrepair.ai.suggest.site_replace.schema import SCHEMA
 from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Edit, Estimate, Option, Replacement
 from perfrepair.files import read_json
 from perfrepair.validation import ValidationFailed
-from perfrepair.validation.suggest.replacements import validate_replacements
+from perfrepair.validation.replacements import validate_replacements
 
 SNAPSHOT = Path(__file__).parent / "fixtures" / "site_replace" / "render.txt"
 A = dossier()

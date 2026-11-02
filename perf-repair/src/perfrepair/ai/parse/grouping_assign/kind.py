@@ -7,7 +7,7 @@ from ....dto.prompt import Charter, TaskPrompt
 from ....files import read_json, write_json
 from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
-from ....validation.grouping.answer import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
+from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
 from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....grouping.catalog.families import Families

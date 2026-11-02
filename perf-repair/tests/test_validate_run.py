@@ -3,7 +3,7 @@ import json
 from test_stages import run  # noqa: F401  (the stage fixture)
 
 from perfrepair.grouping.paths import GroupingPaths
-from perfrepair.validation.run import validate_run
+from perfrepair.check.run import validate_run
 
 
 def test_a_hand_edited_knowledge_is_caught(run):

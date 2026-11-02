@@ -20,7 +20,7 @@
 - run: `build` → `assign` → `report [--supervisor]` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`)
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; never edit a group for it.
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
-- change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/grouping/answer.py` → `docs/grouping.md`
+- change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/parse/grouping_assign.py` → `docs/grouping.md`
 
 ## File structure
 
@@ -32,7 +32,7 @@ src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema
 src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
 src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family → supervisor.json
-src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema
+src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/grouping/__main__.py : command: build | assign | report [--supervisor] | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measured → engine type → key generator → declared → unknown

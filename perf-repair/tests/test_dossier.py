@@ -12,7 +12,7 @@ from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.validation.dossiers import validate_dossiers
-from perfrepair.validation.run import validate_run
+from perfrepair.check.run import validate_run
 
 F = Path(__file__).parent / "fixtures"
 DEMO = F / "apps" / "demo"

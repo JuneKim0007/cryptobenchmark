@@ -10,7 +10,7 @@ from ....files import write_json
 from ....result.modes import Mode
 from ....result.triage import triage
 from ....validation.evaluate.worthiness import check_reply
-from ....validation.worthiness import validate_verdicts
+from ....validation.verdicts import validate_verdicts
 from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
 from .render import render

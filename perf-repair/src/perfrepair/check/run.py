@@ -14,14 +14,14 @@ from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
-from .dossiers import validate_dossiers
-from .app import validate_app_dir
-from .failure import ValidationFailed
-from .grouping.interop import validate_interop
-from .measurements import validate_measurements
-from .report import validate_report, validate_summary
-from .rows import validate_rows
-from .run_log import validate_run_log
+from ..validation.dossiers import validate_dossiers
+from ..validation.app import validate_app_dir
+from ..validation.failure import ValidationFailed
+from ..validation.grouping.interop import validate_interop
+from ..validation.measurements import validate_measurements
+from ..validation.report import validate_report, validate_summary
+from ..validation.rows import validate_rows
+from ..validation.run_log import validate_run_log
 
 
 def validate_run(run: Path) -> dict[str, list[str]]:

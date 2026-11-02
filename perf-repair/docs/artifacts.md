@@ -14,7 +14,7 @@
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
-| `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/worthiness.py` + projection equality |
+| `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `apps/<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py`, before writing |
 | `apps/<app>/edits.json`, `original/`, `patched/` | repair edit | repair harness | `validation/repair.py`, before writing |
@@ -27,7 +27,7 @@
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).
 - A journal is append-only, one line per model turn, audit only; state is the projection of the outbox.
 - `measurements.json` carries the run's `runtime` and `comparability` notes.
-- `validation/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
+- `check/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
 
 ## `manifest.yaml` (cryptobenchmark)
 

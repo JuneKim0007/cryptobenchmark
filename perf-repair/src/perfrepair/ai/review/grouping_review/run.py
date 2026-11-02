@@ -6,7 +6,7 @@ from ...runtime.engine import journal
 from ...runtime.agent import Conversations
 from ...runtime.engine.ask import Limits, ask
 from ...runtime.prompt import PromptLibrary
-from ....validation.grouping.supervision import parse_review
+from ....validation.review.grouping_review import parse_review
 from ....grouping.paths import GroupingPaths
 from ....grouping.report.checks import read_groups
 from .render import render
