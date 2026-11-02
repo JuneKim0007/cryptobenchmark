@@ -68,7 +68,7 @@ def test_reading_results_records_findings_and_marks_pairs(grouped, tmp_path, res
     assert {(f["kind"], f["severity"], f["group"]) for f in findings if f["kind"].startswith("interop")} == {
         (kind, severity, p.group) for p in plan}
     assert kind in next(g for g in groups["groups"] if g["id"] == plan[0].group)["findings"]
-    assert all(v == [] for v in validate_interop(paths.root.parent, groups, paths.interop_plan, paths.interop).values())
+    assert all(v == [] for v in validate_interop(groups, paths.interop_plan, paths.interop).values())
 
 
 def test_results_that_do_not_answer_the_plan_are_refused(grouped, tmp_path):
@@ -97,6 +97,6 @@ def test_a_stale_groups_section_is_a_problem(grouped, tmp_path):
     paths, groups = grouped
     plan = write_plan(paths)
     import_results(paths, interop_yaml(plan, ["fail"] * len(plan), tmp_path))
-    problems = validate_interop(paths.root.parent, groups, paths.interop_plan, paths.interop)
+    problems = validate_interop(groups, paths.interop_plan, paths.interop)
     assert problems["grouping/groups.json interop"] == [
         "groups.json interop section differs from grouping/interop.yaml; rerun grouping report"]
