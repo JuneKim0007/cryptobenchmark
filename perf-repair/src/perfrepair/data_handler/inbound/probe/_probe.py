@@ -1,0 +1,43 @@
+"""The probe file parsed once; each view is built on first use."""
+from __future__ import annotations
+
+from functools import cached_property
+from pathlib import Path
+from typing import Callable
+
+from ....catalog.names import Names
+from ....files import read_document
+from ._index import ProbeIndex, index_of
+from ._names import merged
+from ._services import attributes_of, generator_kind
+
+
+class Probe:
+
+    def __init__(self, document: dict, source: str = "probe"):
+        self._document, self._source = document, source
+
+    @classmethod
+    def load(cls, path: Path) -> "Probe":
+        return cls(read_document(path), str(path))
+
+    @classmethod
+    def from_document(cls, document: dict) -> "Probe":
+        return cls(document)
+
+    @cached_property
+    def index(self) -> ProbeIndex:
+        return index_of(self._document, self._source)
+
+    def names(self, base: Names) -> Names:
+        return merged(base, self._document)
+
+    def attributes(self, provider: str, engine_type: str, algorithm: str) -> dict:
+        return self._attributes.get((provider, engine_type, algorithm), {})
+
+    def generator_kind(self, names: Names) -> Callable[[str], str | None]:
+        return generator_kind(self._document, names)
+
+    @cached_property
+    def _attributes(self) -> dict[tuple, dict]:
+        return attributes_of(self._document)

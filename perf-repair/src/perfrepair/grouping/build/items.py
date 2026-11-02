@@ -1,27 +1,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Callable
 
 from ...catalog.names import Names
-from ...data_handler.inbound.probe_names import with_probe
+from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import Item, Profile
 from ...catalog.families import Families
 from .key_kind import Context, Evidence, key_kind
-
-GENERATOR_KINDS = {"KeyGenerator": "secret", "KeyPairGenerator": "pair"}
-
-
-def _attributes(probe: dict) -> dict[tuple, dict]:
-    return {(p["name"], s["type"], s["algorithm"]): s.get("attributes") or {}
-            for p in probe["providers"] for s in p.get("services") or []}
-
-
-def _generator_kind(probe: dict, names: Names) -> Callable[[str], str | None]:
-    keys = {(s["type"], names.canonical(s["type"], s["algorithm"]).key)
-            for p in probe["providers"] for s in p.get("services") or [] if s["type"] in GENERATOR_KINDS}
-    return lambda name: next((kind for engine, kind in GENERATOR_KINDS.items()
-                              if (engine, names.canonical(engine, name).key) in keys), None)
 
 
 def _runs(inventory: dict) -> dict[tuple, dict]:
@@ -33,10 +18,10 @@ def _as_list(value) -> tuple[str, ...]:
     return tuple(value) if isinstance(value, list) else ((value,) if value else ())
 
 
-def build(probe: dict, trial: dict, inventory: dict, prepared: dict, benchmark: dict,
+def build(probe: Probe, names: Names, trial: dict, inventory: dict, prepared: dict, benchmark: dict,
           families: Families) -> tuple[list[Item], dict[int, Profile]]:
-    attributes, runs, names = _attributes(probe), _runs(inventory), with_probe(Names.load(), probe)
-    context = Context(families, names, _generator_kind(probe, names))
+    runs = _runs(inventory)
+    context = Context(families, names, probe.generator_kind(names))
     kinds, sizes = {}, defaultdict(set)
     for c in prepared.get("cases") or []:
         key = (c["provider"], c["type"], c["algorithm"])
@@ -51,7 +36,7 @@ def build(probe: dict, trial: dict, inventory: dict, prepared: dict, benchmark: 
         if s["type"] not in families.types or key in drafts:
             continue
         run = s.get("defaultRun") or {}
-        attrs = attributes.get(key, {})
+        attrs = probe.attributes(*key)
         kind, source = key_kind(Evidence(s["type"], kinds.get(key), run.get("keyAlgorithm"),
                                          _as_list(attrs.get("SupportedKeyFormats")),
                                          _as_list(attrs.get("SupportedKeyClasses"))), context)

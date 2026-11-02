@@ -1,4 +1,4 @@
-from grouping_data import BENCHMARK, FAMILIES, INVENTORY, PREPARED, PROBE, TRIAL
+from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
 from perfrepair.dto.grouping import Item, items_document, profiles_document, read_items, read_profiles
 from perfrepair.grouping.build.items import build
@@ -6,7 +6,7 @@ from perfrepair.validation.grouping.items import validate_items
 
 
 def built():
-    return build(PROBE, TRIAL, INVENTORY, PREPARED, BENCHMARK, FAMILIES)
+    return build(PROBE, NAMES, TRIAL, INVENTORY, PREPARED, BENCHMARK, FAMILIES)
 
 
 def by_name(items, profiles):

@@ -6,10 +6,9 @@ import sys
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.names import Names, NamesError
-from ..data_handler.inbound import manifest_file, read_manifest, read_probe_index
-from ..data_handler.inbound.probe_names import with_probe
-from ..files import read_yaml, write_json
+from ..catalog.names import NamesError
+from ..data_handler.inbound import RunContext
+from ..files import write_json
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
@@ -36,10 +35,9 @@ def main(argv: list[str] | None = None) -> int:
         rd.app_dir(a.run, a.name)
     except ValueError as e:
         ap.error(str(e))
-    manifest, base = read_manifest(a.manifest)
-    require(str(a.manifest), validate_manifest(manifest, base))
-    probe = manifest_file(manifest, base, "probe")
-    if probe is None:
+    context = RunContext.load(a.manifest)
+    require(str(a.manifest), validate_manifest(context.manifest, context.base))
+    if context.file("probe") is None:
         ap.error(f"{a.manifest}: no probe file; detection needs it for engine types and aliases")
     try:
         apps = open_apps(a.app)
@@ -53,9 +51,9 @@ def main(argv: list[str] | None = None) -> int:
         dirs = {name: rd.app_dir(a.run, name) for name in units}
     except ValueError as e:
         ap.error(str(e))
-    index, names = read_probe_index(probe), with_probe(Names.load(), read_yaml(probe))
+    probe, names = context.probe, context.names
     try:
-        found = {name: detect(app, index, names, manifest.providers) for name, app in units.items()}
+        found = {name: detect(app, probe, names, context.manifest.providers) for name, app in units.items()}
     except NamesError as e:
         print(f"error {e}", file=sys.stderr)
         return 2

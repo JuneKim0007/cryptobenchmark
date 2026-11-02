@@ -105,6 +105,24 @@ def _violations() -> set[tuple[str, str]]:
     return {(a, b) for la, lb, a, b in _edges() if RANK[la] < RANK[lb]}
 
 
+PRIVATE_PACKAGES = (["data_handler", "inbound", "probe"],)
+
+
+def _private_reach(imports) -> list[tuple[str, str]]:
+    return sorted({("/".join(h), "/".join(t)) for h, t in imports for p in PRIVATE_PACKAGES
+                   if t[:len(p)] == p and len(t) > len(p) and t[len(p)].startswith("_") and h[:len(p)] != p})
+
+
+def test_private_modules_are_imported_only_inside_their_package():
+    assert _private_reach(_imports()) == []
+
+
+def test_a_private_module_imported_from_outside_its_package_is_caught():
+    assert _private_reach([(["app", "detect"], ["data_handler", "inbound", "probe", "_index"]),
+                           (["data_handler", "inbound", "probe", "_probe"], ["data_handler", "inbound", "probe", "_index"])]) \
+        == [("app/detect", "data_handler/inbound/probe/_index")]
+
+
 def test_every_module_has_a_layer():
     assert {la for la, *_ in _edges()} | {lb for _, lb, *_ in _edges()} <= set(RANK)
 

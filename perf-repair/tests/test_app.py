@@ -15,10 +15,7 @@ from perfrepair.app.roots import project_roots
 from perfrepair.app.scan import call_pattern, scan
 from perfrepair.app.sdk import sdk_levels
 from perfrepair.app.sources import GENERATED, MAIN, TEST, build_files, origin, source_files
-from perfrepair.catalog.names import Names
-from perfrepair.data_handler.inbound import manifest_file, read_manifest, read_probe_index
-from perfrepair.data_handler.inbound.probe_names import with_probe
-from perfrepair.files import read_yaml
+from perfrepair.data_handler.inbound import RunContext
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
 from perfrepair.source.lexer import Code, literal
@@ -30,9 +27,8 @@ MANIFEST = F / "results" / "manifest.yaml"
 
 @pytest.fixture
 def run():
-    manifest, base = read_manifest(MANIFEST)
-    probe = manifest_file(manifest, base, "probe")
-    return manifest, read_probe_index(probe), with_probe(Names.load(), read_yaml(probe))
+    context = RunContext.load(MANIFEST)
+    return context.manifest, context.probe, context.names
 
 
 def _android(root: Path) -> Path:
@@ -42,8 +38,8 @@ def _android(root: Path) -> Path:
     return root
 
 
-def _sites(text: str, index, language=JAVA):
-    return scan(Code.of(text, language), "A", MAIN, call_pattern(index.engine_types))
+def _sites(text: str, probe, language=JAVA):
+    return scan(Code.of(text, language), "A", MAIN, call_pattern(probe.index.engine_types))
 
 
 def test_gate_accepts_an_android_project():
@@ -234,8 +230,8 @@ def test_sdk_levels_resolve_literals_and_named_properties(tmp_path):
 
 
 def test_detect_drops_import_less_sites_and_skips_tests(run):
-    manifest, index, names = run
-    found = detect(open_app(APP), index, names, manifest.providers)
+    manifest, probe, names = run
+    found = detect(open_app(APP), probe, names, manifest.providers)
     files = {s["file"] for s in found.sites}
     assert "src/test/java/demo/CryptoTest.java" not in files and found.testFiles == 1
     assert [(d["file"], d["reason"]) for d in found.dropped] == [("src/main/java/demo/Shadow.java", "not_imported")]
@@ -243,8 +239,8 @@ def test_detect_drops_import_less_sites_and_skips_tests(run):
 
 
 def test_resolution_per_site(run):
-    manifest, index, names = run
-    crypto = [s for s in detect(open_app(APP), index, names, manifest.providers).sites if s["file"].endswith("Crypto.java")]
+    manifest, probe, names = run
+    crypto = [s for s in detect(open_app(APP), probe, names, manifest.providers).sites if s["file"].endswith("Crypto.java")]
     assert [(s["line"], s["resolvedProvider"], s["resolvedAlgorithm"], s["resolution"]) for s in crypto] == [
         (12, "Slow", "AES/GCM/NoPadding", "explicit"), (17, "Fast", "SHA-256", "default"),
         (21, "Fast", "AES/GCM/NoPadding", "explicit"), (25, None, None, "unresolved_provider"),
@@ -252,23 +248,23 @@ def test_resolution_per_site(run):
 
 
 def test_default_resolution_follows_manifest_precedence(run):
-    manifest, index, names = run
+    manifest, probe, names = run
     cipher, mac = _sites('Object c = Cipher.getInstance("aes/gcm/nopadding"); Object m = Mac.getInstance("HmacSHA256");',
-                         index)
+                         probe)
     flipped = [ProviderEntry("Slow", 1, 2), ProviderEntry("Fast", 2, 2)]
-    assert resolve(cipher, index, names, manifest.providers)["resolvedProvider"] == "Fast"
-    assert resolve(cipher, index, names, flipped)["resolvedProvider"] == "Slow"
-    assert resolve(mac, index, names, manifest.providers)["resolvedProvider"] == "Slow"
-    assert resolve(cipher, index, names, manifest.providers)["resolvedAlgorithm"] == "AES/GCM/NoPadding"
+    assert resolve(cipher, probe, names, manifest.providers)["resolvedProvider"] == "Fast"
+    assert resolve(cipher, probe, names, flipped)["resolvedProvider"] == "Slow"
+    assert resolve(mac, probe, names, manifest.providers)["resolvedProvider"] == "Slow"
+    assert resolve(cipher, probe, names, manifest.providers)["resolvedAlgorithm"] == "AES/GCM/NoPadding"
 
 
 def test_a_site_carries_its_canonical_name_and_key_size(run):
-    manifest, index, names = run
+    manifest, probe, names = run
     [digest, cipher] = _sites('Object d = MessageDigest.getInstance("sha"); Object c = Cipher.getInstance("AES_256/GCM/PKCS7Padding");',
-                              index)
-    assert {k: resolve(digest, index, names, manifest.providers)[k] for k in ("resolvedAlgorithm", "resolution", "canonicalAlgorithm")} \
+                              probe)
+    assert {k: resolve(digest, probe, names, manifest.providers)[k] for k in ("resolvedAlgorithm", "resolution", "canonicalAlgorithm")} \
         == {"resolvedAlgorithm": "SHA-1", "resolution": "not_registered", "canonicalAlgorithm": "SHA-1"}
-    resolved = resolve(cipher, index, names, manifest.providers)
+    resolved = resolve(cipher, probe, names, manifest.providers)
     assert (resolved["canonicalAlgorithm"], resolved["canonicalKeySize"]) == ("AES/GCM/PKCS5Padding", 256)
 
 

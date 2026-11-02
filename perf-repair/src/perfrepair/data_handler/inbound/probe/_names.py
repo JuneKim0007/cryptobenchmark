@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from ...catalog.names import Canonical, Names, fold
+from ....catalog.names import Canonical, Names, fold
 
 
-def with_probe(names: Names, probe: dict) -> Names:
+def merged(names: Names, doc: dict) -> Names:
     added: dict[tuple[str, str], Canonical] = {}
     said: dict[tuple[str, str], set[str]] = {}
     conflicts: dict[tuple[str, str], str] = {}
-    for p in probe.get("providers") or []:
+    for p in doc.get("providers") or []:
         for s in p.get("services") or []:
             engine, target = s["type"], names.catalogued(s["type"], s["algorithm"])
             for alias in s.get("aliases") or []:

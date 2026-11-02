@@ -4,12 +4,13 @@ from pathlib import Path
 import pytest
 
 from perfrepair.data_handler.inbound import (
+    Probe,
+    RunContext,
     build_run_log,
     comparability,
     manifest_file,
     read_manifest,
     read_prepared,
-    read_probe_index,
     read_results,
     summarise,
 )
@@ -130,7 +131,7 @@ def test_run_log_round_trips(log):
 
 @pytest.fixture
 def index(run):
-    return read_probe_index(run[2]("probe"))
+    return Probe.load(run[2]("probe")).index
 
 
 def test_engine_types_come_from_the_probe(index):
@@ -142,17 +143,48 @@ def test_aliases_and_case_resolve_to_the_registered_name(index):
     assert index.registered("Fast", "Mac", "HmacSHA256") is None
 
 
+def _probe(*services):
+    return Probe.from_document({"schemaVersion": 1, "providers": [
+        {"name": p, "services": [{"type": t, "algorithm": a, **extra}]} for p, t, a, extra in services]})
+
+
 def test_a_transformation_resolves_through_the_base_service_like_jca():
-    from perfrepair.data_handler.inbound.probe_index import ProbeIndex, Service
-    aes = Service("AES", frozenset({"CBC", "ECB"}), frozenset({"NOPADDING", "PKCS5PADDING"}))
-    index = ProbeIndex({("P", "Cipher", "AES"): aes, ("P", "Cipher", "DES"): Service("DES"),
-                        ("P", "Cipher", "AES/GCM/NOPADDING"): Service("AES/GCM/NoPadding")})
+    aes = {"attributes": {"SupportedModes": ["CBC", "ECB"], "SupportedPaddings": ["NoPadding", "PKCS5Padding"]}}
+    index = _probe(("P", "Cipher", "AES", aes), ("P", "Cipher", "DES", {}),
+                   ("P", "Cipher", "AES/GCM/NoPadding", {})).index
     assert index.registered("P", "Cipher", "AES/CBC/PKCS5PADDING") == "AES/CBC/PKCS5PADDING"
     assert index.registered("P", "Cipher", "aes/gcm/nopadding") == "AES/GCM/NoPadding"
     assert index.registered("P", "Cipher", "DES/CBC/PKCS5Padding") == "DES/CBC/PKCS5Padding"
     assert index.registered("P", "Cipher", "AES/OFB/NoPadding") is None
     assert index.registered("P", "Cipher", "AES/CBC/PKCS7Padding") is None
     assert index.registered("P", "Mac", "AES/CBC/NoPadding") is None
+
+
+def test_a_probe_view_is_built_once_and_the_schema_is_checked_when_the_index_is_read():
+    probe = _probe(("P", "Mac", "M1", {"attributes": {"SupportedKeyFormats": ["RAW"]}}))
+    assert probe.index is probe.index
+    assert probe.attributes("P", "Mac", "M1") == {"SupportedKeyFormats": ["RAW"]}
+    assert probe.attributes("P", "Mac", "M2") == {}
+    with pytest.raises(ValueError, match="probe schemaVersion 2 is not 1"):
+        Probe.from_document({"schemaVersion": 2, "providers": []}).index
+
+
+def test_a_generator_service_gives_the_key_kind_it_makes():
+    from perfrepair.catalog.names import Names
+    probe = _probe(("P", "KeyGenerator", "KS", {"aliases": ["ks-alias"]}), ("P", "KeyPairGenerator", "KP", {}))
+    kind = probe.generator_kind(probe.names(Names.load()))
+    assert (kind("ks-alias"), kind("KP"), kind("other")) == ("secret", "pair", None)
+
+
+def test_run_context_reads_each_piece_on_first_use_and_takes_injected_ones():
+    families = object()
+    context = RunContext.load(MANIFEST, families=families)
+    assert context.families is families and "probe" not in vars(context)
+    assert context.probe is context.probe and context.probe.index.engine_types == {"Cipher", "MessageDigest", "Mac"}
+    assert context.names.probe == context.probe.names(context.catalog).probe
+    assert context.trial["schemaVersion"] == 2
+    with pytest.raises(TypeError, match="unknown pieces"):
+        RunContext.load(MANIFEST, screening=object())
 
 
 def test_command_writes_the_run_directory(tmp_path, capsys):

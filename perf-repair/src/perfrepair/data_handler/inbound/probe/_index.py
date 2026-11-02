@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from ...catalog.names import fold
-from ...files import read_yaml
-
 from dataclasses import dataclass, field
-from pathlib import Path
 
+from ....catalog.names import fold
 
 SUPPORTED_SCHEMA = 1
 
@@ -51,10 +48,9 @@ def _attribute(service: dict, key: str) -> frozenset[str] | None:
     return None if values is None else frozenset(fold(str(v)) for v in values)
 
 
-def read_probe_index(path: Path) -> ProbeIndex:
-    doc = read_yaml(path)
+def index_of(doc: dict, source: str) -> ProbeIndex:
     if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise ValueError(f"{path}: probe schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
+        raise ValueError(f"{source}: probe schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
     services: dict[tuple[str, str, str], Service] = {}
     for p in doc.get("providers") or []:
         for s in p.get("services") or []:

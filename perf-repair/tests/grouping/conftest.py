@@ -1,7 +1,7 @@
 import re
 
 import pytest
-from grouping_data import BENCHMARK, FAMILIES, INVENTORY, PREPARED, PROBE, TRIAL
+from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
 from perfrepair.dto.grouping import items_document, profiles_document
 from perfrepair.files import write_json
@@ -16,7 +16,7 @@ CHARTER = charter(LIBRARY)
 
 @pytest.fixture
 def paths(tmp_path):
-    items, profiles = build(PROBE, TRIAL, INVENTORY, PREPARED, BENCHMARK, FAMILIES)
+    items, profiles = build(PROBE, NAMES, TRIAL, INVENTORY, PREPARED, BENCHMARK, FAMILIES)
     p = GroupingPaths(tmp_path)
     p.root.mkdir()
     write_json(p.items, items_document(items))

@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from perfrepair.catalog.names import CATALOG, Canonical, Names, NamesError
-from perfrepair.data_handler.inbound.probe_names import with_probe
+from perfrepair.data_handler.inbound.probe import Probe
 
 CASES = Path(__file__).parent / "fixtures" / "algorithm-names-cases.yaml"
 
@@ -35,26 +35,26 @@ def test_a_spelling_under_two_canonical_names_is_refused(tmp_path):
 
 
 def _probe(*services):
-    return {"providers": [{"name": p, "services": [{"type": t, "algorithm": a, "aliases": al}]}
-                          for p, t, a, al in services]}
+    return Probe.from_document({"providers": [{"name": p, "services": [{"type": t, "algorithm": a, "aliases": al}]}
+                                              for p, t, a, al in services]})
 
 
 def test_probe_aliases_add_names_the_catalog_lacks(names):
-    merged = with_probe(names, _probe(("P", "Cipher", "AES/GCM/NoPadding", ["GCM"])))
+    merged = _probe(("P", "Cipher", "AES/GCM/NoPadding", ["GCM"])).names(names)
     assert names.canonical("Cipher", "gcm") == Canonical("gcm", None, False)
     assert merged.canonical("Cipher", "gcm") == Canonical("AES/GCM/NoPadding")
 
 
 def test_a_probe_alias_the_catalog_disagrees_with_is_a_coded_error_where_used(names):
-    merged = with_probe(names, _probe(("P", "Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding",
-                                       ["RSA/None/OAEPWithSHA-224AndMGF1Padding"])))
+    merged = _probe(("P", "Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding",
+                     ["RSA/None/OAEPWithSHA-224AndMGF1Padding"])).names(names)
     assert merged.canonical("Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding").known
     with pytest.raises(NamesError, match="name_conflict: Cipher RSA/None/OAEPWithSHA-224AndMGF1Padding: catalog says"):
         merged.canonical("Cipher", "RSA/None/OAEPWithSHA-224AndMGF1Padding")
 
 
 def test_two_providers_that_alias_one_spelling_apart_conflict(names):
-    merged = with_probe(names, _probe(("P", "KeyStore", "Foo", ["Bar"]), ("Q", "KeyStore", "Baz", ["bar"])))
+    merged = _probe(("P", "KeyStore", "Foo", ["Bar"]), ("Q", "KeyStore", "Baz", ["bar"])).names(names)
     with pytest.raises(NamesError, match="P says Foo, Q says Baz"):
         merged.canonical("KeyStore", "BAR")
 

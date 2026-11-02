@@ -23,9 +23,13 @@ src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, kn
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
-src/perfrepair/data_handler/inbound/probe_index.py : probe → engine types and the name each provider registers for a spelling
-src/perfrepair/data_handler/inbound/probe_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
+src/perfrepair/data_handler/inbound/probe/__init__.py : exports only `Probe`; the `_` modules are private to the package (`tests/test_layers.py`)
+src/perfrepair/data_handler/inbound/probe/_index.py : probe → engine types and the name each provider registers for a spelling
+src/perfrepair/data_handler/inbound/probe/_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
+src/perfrepair/data_handler/inbound/probe/_probe.py : Probe: the probe file parsed once; index, names, attributes and generator-kind views built on first use
+src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: declared attributes, the key kind a generator makes
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and Summaries with runs per process; comparability notes
+src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, probe and benchmark documents on first use; tests inject any piece
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`; returns the manifest path
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml

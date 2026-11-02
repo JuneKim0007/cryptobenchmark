@@ -2,21 +2,21 @@
 from __future__ import annotations
 
 from ..catalog.names import Names
-from ..data_handler.inbound.probe_index import ProbeIndex
+from ..data_handler.inbound.probe import Probe
 from ..dto import ProviderEntry
 from .scan import Site
 
 
-def default_provider(index: ProbeIndex, providers: list[ProviderEntry], engine_type: str,
+def default_provider(probe: Probe, providers: list[ProviderEntry], engine_type: str,
                      algorithm: str) -> tuple[str, str] | None:
     for p in sorted(providers, key=lambda p: p.precedence):
-        name = index.registered(p.name, engine_type, algorithm)
+        name = probe.index.registered(p.name, engine_type, algorithm)
         if name is not None:
             return p.name, name
     return None
 
 
-def resolve(site: Site, index: ProbeIndex, names: Names, providers: list[ProviderEntry]) -> dict:
+def resolve(site: Site, probe: Probe, names: Names, providers: list[ProviderEntry]) -> dict:
     alg = site.algorithm.literal
     canonical = names.canonical(site.engineType, alg) if alg is not None else None
     on_device = {p.name for p in providers}
@@ -29,11 +29,11 @@ def resolve(site: Site, index: ProbeIndex, names: Names, providers: list[Provide
         elif alg is None:
             provider, resolution = name, "unresolved_algorithm"
         else:
-            provider, alg, resolution = name, index.registered(name, site.engineType, alg) or canonical.name, "explicit"
+            provider, alg, resolution = name, probe.index.registered(name, site.engineType, alg) or canonical.name, "explicit"
     elif alg is None:
         provider, resolution = None, "unresolved_algorithm"
     else:
-        hit = default_provider(index, providers, site.engineType, alg)
+        hit = default_provider(probe, providers, site.engineType, alg)
         provider, alg, resolution = (hit[0], hit[1], "default") if hit else (None, canonical.name, "not_registered")
     return site.to_json() | {"resolvedProvider": provider, "resolvedAlgorithm": alg, "resolution": resolution,
                              "canonicalAlgorithm": canonical and canonical.name,

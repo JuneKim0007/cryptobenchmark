@@ -1,5 +1,7 @@
 from perfrepair.dto.grouping import Family
 from perfrepair.catalog.families import Families
+from perfrepair.catalog.names import Names
+from perfrepair.data_handler.inbound.probe import Probe
 
 FAMILIES = Families([
     Family("cipher.secret", "TypeC", "secret", "secret ciphers"),
@@ -18,14 +20,15 @@ def service(type_, name, aliases=(), attributes=None):
     return s
 
 
-PROBE = {"providers": [
+PROBE = Probe.from_document({"providers": [
     {"name": "P1", "precedence": 1, "services": [
         service("TypeC", "ALG-S/M1"), service("TypeC", "ALG-P/X"), service("TypeD", "H1"),
         service("TypeC", "ALG-RAW", attributes={"SupportedKeyFormats": ["RAW"]}),
         service("KeyGenerator", "KS", aliases=["ks-alias"]), service("KeyPairGenerator", "KP")]},
     {"name": "P2", "precedence": 2, "services": [service("TypeC", "ALG-S/M1"), service("TypeC", "PASSWORD-ALG"),
                                                  service("TypeX", "OUT-OF-SCOPE")]},
-]}
+]})
+NAMES = PROBE.names(Names.load())
 TRIAL = {"services": [
     {"provider": "P1", "type": "TypeC", "algorithm": "ALG-S/M1", "instantiates": True,
      "defaultRun": {"works": True, "keyAlgorithm": "KS", "keyProvider": "P1", "keySize": 128, "providerChose": "M1 iv=16B"}},
