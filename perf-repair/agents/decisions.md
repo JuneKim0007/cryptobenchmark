@@ -3,6 +3,7 @@
 ## Calls
 - `docs/decisions.md` : the engine's retry and model defaults; what the worthiness decision sees, answers, and its gate
 - `agents/validation.md` : the validator every decision state needs
+- `docs/settings.md` : perfrepair.yaml and .env: lookup, precedence, keys, roles
 
 ## Rules
 - role: a model call decides one item.
@@ -14,6 +15,8 @@
 - static first: an item code can settle (triage) never reaches the model.
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
 - journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
+- settings: a key in `perfrepair.yaml` maps to an existing flag or constructor argument; a role default lives in `ROLE_DEFAULTS`, never in a command.
+- settings: secrets stay in the environment or `.env`; the claude-code child never receives `ANTHROPIC_API_KEY`.
 - prompts: read only through `PromptLibrary`; a changed prompt changes the charter fingerprint and starts a new outbox.
 
 ## Workflow
@@ -37,11 +40,10 @@ src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's
 src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables
 src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required
 src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output, server-side refusal fallback
-src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login
+src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login, no ANTHROPIC_API_KEY in the child
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
-src/perfrepair/ai/runtime/agent/env.py : .env loader: fills unset environment keys
 src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
-src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort arguments → Conversations
+src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort per role → resolved agent settings → Conversations
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: gates, ask, durable commit, projections, journal, errors, --limit
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
@@ -54,6 +56,11 @@ src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one c
 src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
+src/perfrepair/config/__init__.py : docstring only
+src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked
+src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
+src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role, with each value's source
+src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and defaults
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values

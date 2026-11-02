@@ -1,19 +1,19 @@
 import os
 from pathlib import Path
 
-from perfrepair.ai.runtime.agent.env import ROOT, load_env
+from perfrepair.config.dotenv import ROOT, load_env
 
 
-def test_env_file_fills_only_unset_keys(tmp_path, monkeypatch):
+def test_env_file_fills_unset_keys_and_keeps_its_own_keys_out_of_the_environment(tmp_path, monkeypatch):
     f = tmp_path / ".env"
-    f.write_text("# comment\nPERFREPAIR_AGENT=claude\nPERFREPAIR_MODEL='m'\nANTHROPIC_API_KEY=\nPERFREPAIR_EFFORT=high\n")
-    monkeypatch.delenv("PERFREPAIR_AGENT", raising=False)
-    monkeypatch.delenv("PERFREPAIR_MODEL", raising=False)
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setenv("PERFREPAIR_EFFORT", "low")
-    load_env(f)
-    assert os.environ["PERFREPAIR_AGENT"] == "claude" and os.environ["PERFREPAIR_MODEL"] == "m"
-    assert "ANTHROPIC_API_KEY" not in os.environ and os.environ["PERFREPAIR_EFFORT"] == "low"
+    f.write_text("# comment\nPERFREPAIR_AGENT=claude\nPERFREPAIR_MODEL='m'\nOTHER_KEY=x\nSET_KEY=file\nEMPTY=\n")
+    monkeypatch.delenv("OTHER_KEY", raising=False)
+    monkeypatch.delenv("EMPTY", raising=False)
+    monkeypatch.setenv("SET_KEY", "env")
+    values = load_env(f)
+    assert values == {"PERFREPAIR_AGENT": "claude", "PERFREPAIR_MODEL": "m", "OTHER_KEY": "x", "SET_KEY": "file"}
+    assert os.environ["OTHER_KEY"] == "x" and os.environ["SET_KEY"] == "env" and "EMPTY" not in os.environ
+    assert "PERFREPAIR_AGENT" not in os.environ
 
 
 def test_env_root_is_the_perf_repair_folder():

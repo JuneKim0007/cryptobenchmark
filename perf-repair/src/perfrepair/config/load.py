@@ -1,0 +1,78 @@
+"""Finds perfrepair.yaml and resolves each value: CLI > environment > file > .env > code default, recording its source."""
+from __future__ import annotations
+
+from dataclasses import dataclass, field, fields
+from pathlib import Path
+from typing import Any, Mapping
+
+import yaml
+
+from ..files import read_yaml
+from .dotenv import ROOT
+from .settings import AGENT_DEFAULT, ROLE_DEFAULTS, ROLES, Agent, ConfigError, Invalid, Settings, parse
+
+DEFAULT_FILE = ROOT / "perfrepair.yaml"
+CONFIG_ENV = "PERFREPAIR_CONFIG"
+AGENT_ENV = {"backend": "PERFREPAIR_AGENT", "model": "PERFREPAIR_MODEL", "effort": "PERFREPAIR_EFFORT"}
+
+
+def config_file(argument: Path | None, environ: Mapping[str, str]) -> Path | None:
+    for path, origin in ((argument, "--perfrepair-config"), (environ.get(CONFIG_ENV), CONFIG_ENV)):
+        if path:
+            if not Path(path).expanduser().is_file():
+                raise ConfigError(f"missing_file: {path} ({origin})")
+            return Path(path).expanduser().resolve()
+    return DEFAULT_FILE if DEFAULT_FILE.is_file() else None
+
+
+def _agent_layer(values: Mapping[str, str], origin: str) -> Agent:
+    layer = {name: values.get(var) or None for name, var in AGENT_ENV.items()}
+    try:
+        return Agent(**layer)
+    except Invalid as e:
+        raise ConfigError(f"invalid: {origin}{AGENT_ENV[e.name]} {e.value}, {e.expected}") from None
+
+
+@dataclass
+class Loaded:
+    file: Path | None
+    settings: Settings
+    environ: Agent
+    dotenv: Agent
+    sources: dict[str, str] = field(default_factory=dict)
+
+    def _pick(self, key: str, candidates) -> Any:
+        for value, source in candidates:
+            if value is not None:
+                self.sources[key] = source
+                return value
+        self.sources[key] = "default"
+        return None
+
+    def value(self, key: str, cli: Any = None, default: Any = None) -> Any:
+        picked = self._pick(key, ((cli, "cli"), (self.settings.get(key), f"file {self.file}")))
+        return default if picked is None else picked
+
+    def agent(self, role: str, cli: Mapping[str, Any]) -> Agent:
+        """A role key (CLI, file or role default) beats every agent.* layer; env vars name agent.* only."""
+        role_file, role_default = self.settings.get(ROLES[role]), ROLE_DEFAULTS.get(role, Agent())
+        resolved = {}
+        for f in fields(Agent):
+            n = f.name
+            resolved[n] = self._pick(f"{role}.{n}", (
+                (cli.get(n), "cli"), (getattr(role_file, n), f"file {self.file} {ROLES[role]}"),
+                (getattr(role_default, n), f"default {role}"), (getattr(self.environ, n), f"env {AGENT_ENV.get(n)}"),
+                (getattr(self.settings.agent, n), f"file {self.file} agent"),
+                (getattr(self.dotenv, n), f".env {AGENT_ENV.get(n)}"), (getattr(AGENT_DEFAULT, n), "default")))
+        return Agent(**resolved)
+
+
+def load(argument: Path | None, environ: Mapping[str, str], dotenv: Mapping[str, str]) -> Loaded:
+    path = config_file(argument, environ)
+    try:
+        settings = parse(read_yaml(path), path.parent) if path else Settings()
+    except yaml.YAMLError as e:
+        raise ConfigError(f"invalid_yaml: {path}: {e}") from None
+    except ConfigError as e:
+        raise ConfigError(f"{e} ({path})") from None
+    return Loaded(path, settings, _agent_layer(environ, ""), _agent_layer(dotenv, ".env "))

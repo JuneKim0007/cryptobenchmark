@@ -1,0 +1,122 @@
+import argparse
+
+import pytest
+
+from perfrepair.ai.runtime.agent import ClaudeCodeConversations
+from perfrepair.ai.runtime.agent.select import add_agent_args, conversations
+from perfrepair.config import dotenv, load as load_module
+from perfrepair.config.args import fill, load_settings
+from perfrepair.config.load import config_file, load
+from perfrepair.config.settings import Agent, ConfigError
+from perfrepair.grouping.__main__ import main as grouping_main
+
+DRY = object()
+
+
+def write(path, text):
+    path.write_text(text)
+    return path
+
+
+def test_lookup_order_is_flag_then_env_then_the_package_file(tmp_path, monkeypatch):
+    flag, env, default = (write(tmp_path / n, "{}") for n in ("flag.yaml", "env.yaml", "perfrepair.yaml"))
+    monkeypatch.setattr(load_module, "DEFAULT_FILE", default)
+    assert config_file(flag, {"PERFREPAIR_CONFIG": str(env)}) == flag.resolve()
+    assert config_file(None, {"PERFREPAIR_CONFIG": str(env)}) == env.resolve()
+    assert config_file(None, {}) == default
+    default.unlink()
+    assert config_file(None, {}) is None
+
+
+def test_a_named_file_that_is_missing_is_an_error(tmp_path):
+    with pytest.raises(ConfigError, match=r"missing_file: .*nope.yaml \(--perfrepair-config\)"):
+        config_file(tmp_path / "nope.yaml", {})
+    with pytest.raises(ConfigError, match=r"\(PERFREPAIR_CONFIG\)"):
+        config_file(None, {"PERFREPAIR_CONFIG": str(tmp_path / "nope.yaml")})
+
+
+def test_file_errors_name_the_file(tmp_path):
+    bad = write(tmp_path / "c.yaml", "agent: {effort: hgh}\n")
+    with pytest.raises(ConfigError, match=r"^invalid: agent.effort hgh, .*c.yaml\)$"):
+        load(bad, {}, {})
+    with pytest.raises(ConfigError, match="^invalid_yaml: "):
+        load(write(tmp_path / "y.yaml", "agent: [\n"), {}, {})
+    with pytest.raises(ConfigError, match="^invalid: PERFREPAIR_EFFORT hgh"):
+        load(None, {"PERFREPAIR_EFFORT": "hgh"}, {})
+    with pytest.raises(ConfigError, match="^invalid: .env PERFREPAIR_AGENT x"):
+        load(None, {}, {"PERFREPAIR_AGENT": "x"})
+
+
+def test_agent_precedence_is_cli_env_file_dotenv_default_with_sources(tmp_path):
+    f = write(tmp_path / "c.yaml", "agent: {backend: claude, model: file-model, effort: low}\n")
+    loaded = load(f, {"PERFREPAIR_MODEL": "env-model"}, {"PERFREPAIR_MODEL": "dot", "PERFREPAIR_EFFORT": "max",
+                                                         "PERFREPAIR_AGENT": "dry-run"})
+    a = loaded.agent("ai.replace", {"backend": "dry-run", "model": None, "effort": None})
+    assert a == Agent("dry-run", "env-model", "low", "claude")
+    assert loaded.sources == {"ai.replace.backend": "cli", "ai.replace.model": "env PERFREPAIR_MODEL",
+                              "ai.replace.effort": f"file {f} agent", "ai.replace.claudeBinary": "default"}
+    no_file = load(None, {}, {"PERFREPAIR_EFFORT": "max"})
+    assert no_file.agent("ai.replace", {}).effort == "max" and no_file.sources["ai.replace.effort"] == ".env PERFREPAIR_EFFORT"
+
+
+def test_a_role_key_beats_agent_from_every_layer_and_other_keys_fall_back(tmp_path):
+    f = write(tmp_path / "c.yaml", "agent: {model: shared, claudeBinary: /opt/claude}\n"
+                                   "grouping: {assign: {effort: xhigh}}\nguide: {agent: {model: guide-model}}\n")
+    loaded = load(f, {"PERFREPAIR_EFFORT": "low"}, {})
+    assert loaded.agent("grouping.assign", {}) == Agent("claude-code", "shared", "xhigh", "/opt/claude")
+    assert loaded.sources["grouping.assign.effort"] == f"file {f} grouping.assign"
+    assert loaded.agent("guide", {}).model == "guide-model" and loaded.agent("ai.worthiness", {}).effort == "low"
+    assert loaded.agent("grouping.assign", {"effort": "medium"}).effort == "medium"
+
+
+def test_the_supervisor_keeps_high_when_the_environment_sets_an_effort(monkeypatch):
+    monkeypatch.setenv("PERFREPAIR_EFFORT", "low")
+    ap = argparse.ArgumentParser()
+    add_agent_args(ap, role="grouping.supervisor")
+    args = ap.parse_args(["--agent", "claude-code"])
+    convos = conversations(args, load_settings(ap, args), DRY)
+    assert isinstance(convos, ClaudeCodeConversations) and convos.effort == "high"
+    args = ap.parse_args(["--effort", "medium", "--agent", "claude-code"])
+    assert conversations(args, load_settings(ap, args), DRY).effort == "medium"
+
+
+def test_assign_takes_the_environment_effort_and_dotenv_fills_the_backend(tmp_path, monkeypatch):
+    monkeypatch.setattr(dotenv, "ENV_FILE", write(tmp_path / ".env", "PERFREPAIR_AGENT=dry-run\n"))
+    ap = argparse.ArgumentParser()
+    add_agent_args(ap, role="grouping.assign")
+    args = ap.parse_args([])
+    assert conversations(args, load_settings(ap, args), DRY) is DRY
+
+
+def test_claude_binary_reaches_the_claude_code_backend(tmp_path):
+    f = write(tmp_path / "c.yaml", "agent: {backend: claude-code}\ngrouping: {supervisor: {claudeBinary: /bin/cc}}\n")
+    ap = argparse.ArgumentParser()
+    add_agent_args(ap, role="grouping.supervisor")
+    args = ap.parse_args(["--perfrepair-config", str(f)])
+    assert conversations(args, load_settings(ap, args), DRY).binary == "/bin/cc"
+
+
+def test_fill_keeps_cli_values_then_file_then_code_default_and_records_the_source(tmp_path):
+    f = write(tmp_path / "c.yaml", "paths: {run: r}\ngrouping: {turns: 5}\n")
+    loaded = load(f, {}, {})
+    args = argparse.Namespace(run=None, turns=None, sessions=None, limit=7)
+    fill(loaded, args, {"run": ("paths.run", None), "turns": ("grouping.turns", 3), "sessions": ("grouping.sessions", 2),
+                        "limit": ("grouping.limit", None)})
+    assert (args.run, args.turns, args.sessions, args.limit) == (tmp_path / "r", 5, 2, 7)
+    assert loaded.sources == {"paths.run": f"file {f}", "grouping.turns": f"file {f}", "grouping.sessions": "default",
+                              "grouping.limit": "cli"}
+
+
+def test_a_bad_file_exits_2_with_the_error_line(tmp_path, capsys):
+    ap = argparse.ArgumentParser()
+    add_agent_args(ap, role="guide")
+    args = ap.parse_args(["--perfrepair-config", str(write(tmp_path / "c.yaml", "agent: {token: x}\n"))])
+    with pytest.raises(SystemExit) as e:
+        load_settings(ap, args)
+    assert e.value.code == 2 and "secret_key: agent.token" in capsys.readouterr().err
+
+
+def test_a_command_without_run_and_without_paths_run_exits_2(capsys):
+    with pytest.raises(SystemExit) as e:
+        grouping_main(["assign", "--agent", "dry-run"])
+    assert e.value.code == 2 and "--run (or paths.run in perfrepair.yaml)" in capsys.readouterr().err

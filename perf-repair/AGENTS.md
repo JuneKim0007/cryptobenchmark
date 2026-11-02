@@ -4,23 +4,23 @@
 - code style for any code: naming, comments, generality → `agents/code.md`
 - dto, files, run directory, benchmark in/out: manifest, results, run log, app sites → `agents/data.md`
 - grouping primitives into interchangeable groups: families, items, gates, supervisor → `agents/grouping.md`
-- model decisions: decision kinds, prompts, agents, the engine loop, retry → `agents/decisions.md`
+- model decisions: decision kinds, prompts, agents, settings (`perfrepair.yaml`, `.env`), the engine loop, retry → `agents/decisions.md`
 - static tools: evidence, modes, triage → `agents/static-tools.md`
 - app source: detect call sites, libraries, scopes (function, sinks, key source) → `agents/app.md`
 - repair: app call sites, replacements, edits, harness, before/after → `agents/repair.md`
 - validation: artifact validators, outbox projection, the stage gate, stage replay (`check/`) → `agents/validation.md`
 - docs, guides and file maps: writing or changing any .md → `../agents/docs/writing.md`
-- facts: pipeline, artifacts, decisions, grouping, modes, repair, limits → `docs/index.md`
+- facts: pipeline, artifacts, decisions, grouping, modes, repair, settings, limits → `docs/index.md`
 
 ## Rules
 - principle: the model only decides; every number, list, filter and check is a static tool.
 - generality: code names no device, provider, algorithm or engine type; tests and fixtures may.
-- dependency: each layer imports only from the layers before it, and no packages import each other in a cycle (each `__main__` is its own node); `tests/test_layers.py` checks it: `dto`, `catalog` ← `files`, `run_dir` ← `data_handler` ← `result` ← `app`/`scope`/`source` (static) ← `validation` (validators only) ← `ai/runtime` ← model roles ← stages (`grouping`, `repair`, role commands) ← `report` ← `guide`, `check` ← every `__main__`.
+- dependency: each layer imports only from the layers before it, and no packages import each other in a cycle (each `__main__` is its own node); `tests/test_layers.py` checks it: `dto`, `catalog` ← `files`, `run_dir` ← `config` ← `data_handler` ← `result` ← `app`/`scope`/`source` (static) ← `validation` (validators only) ← `ai/runtime` ← model roles ← stages (`grouping`, `repair`, role commands) ← `report` ← `guide`, `check` ← every `__main__`.
 - change: one file, one responsibility; update the owning map in the same change.
 - delete/rename: grep the symbol or path, remove its references first, re-grep returns nothing.
 - check: `make check` green before a change is done.
 - docs: kebab-case `.md` names; root standards (`AGENTS.md`, `README.md`) stay UPPER.
-- commit: never `.env` or `runs/`.
+- commit: never `.env`, `perfrepair.yaml` or `runs/`.
 
 ## Workflow
 - guide change: edit `AGENTS.md` → `make docs-lint`
@@ -30,15 +30,16 @@
 
 ```
 .env.example : template for `.env`: PERFREPAIR_AGENT, PERFREPAIR_MODEL, PERFREPAIR_EFFORT, ANTHROPIC_API_KEY
-.gitignore : local state kept out of git: caches, `runs/`, `.venv/`, `.env`
+.gitignore : local state kept out of git: caches, `runs/`, `.venv/`, `.env`, `perfrepair.yaml`
 AGENTS.md : agent entry: route, rules, file map
 Makefile : test, docs-lint, check
 README.md : what perf-repair is, setup
 agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
+perfrepair.example.yaml : template for `perfrepair.yaml`: agent, per-role agents, paths, grouping, guide, screening
 pyproject.toml : package, pyyaml dependency, optional `test` and `api` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
-tests/ : pytest suites, one per module or stage; `helpers.py` shared builders
+tests/ : pytest suites, one per module or stage; `helpers.py` shared builders; `conftest.py` isolates every test from local settings
 tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data
 ```

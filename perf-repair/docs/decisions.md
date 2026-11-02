@@ -13,8 +13,8 @@
 - `--prompts DIR` on `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - Commands with a model: `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
-- Backend, model and effort: the `PERFREPAIR_*` keys of `.env.example`; `--agent`, `--model`, `--effort` override.
-- `grouping report` defaults to effort `high`.
+- Backend, model, effort and the `claude` binary per command: `docs/settings.md`; `--agent`, `--model`, `--effort` override.
+- `grouping report` defaults to effort `high`; `PERFREPAIR_EFFORT` does not change it.
 - `claude` backend: JSON schema output, server-side refusal fallback.
 - Grouping is the other decision kind: `docs/grouping.md`.
 

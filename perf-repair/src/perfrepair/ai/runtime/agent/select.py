@@ -1,28 +1,35 @@
 from __future__ import annotations
 
 import argparse
-import os
 
-from .claude import DEFAULT_MODEL
+from ....config.args import add_config_arg
+from ....config.load import AGENT_ENV, Loaded
+from ....config.settings import AGENT_DEFAULT, BACKENDS, EFFORTS, ROLE_DEFAULTS, ROLES, Agent
 from .claude_code import ClaudeCodeConversations
 from .conversation import ClaudeConversations
-from .env import load_env
-
-BACKENDS = ("claude", "claude-code", "dry-run")
-EFFORTS = ("low", "medium", "high", "xhigh", "max")
 
 
-def add_agent_args(parser: argparse.ArgumentParser, effort: str = "medium") -> None:
-    """Defaults come from PERFREPAIR_AGENT / _MODEL / _EFFORT (.env), then from here."""
-    load_env()
-    parser.add_argument("--agent", choices=BACKENDS, default=os.environ.get("PERFREPAIR_AGENT", "claude-code"))
-    parser.add_argument("--model", default=os.environ.get("PERFREPAIR_MODEL", DEFAULT_MODEL))
-    parser.add_argument("--effort", default=os.environ.get("PERFREPAIR_EFFORT", effort), choices=EFFORTS)
+def _default(role: str, name: str) -> str:
+    own = getattr(ROLE_DEFAULTS.get(role, Agent()), name)
+    if own is not None:
+        return f"default: {ROLES[role]}.{name} in perfrepair.yaml, else {own}"
+    return (f"default: {ROLES[role]}.{name} in perfrepair.yaml, ${AGENT_ENV[name]}, agent.{name}, "
+            f"else {getattr(AGENT_DEFAULT, name)}")
 
 
-def conversations(args: argparse.Namespace, dry_run):
-    if args.agent == "claude":
-        return ClaudeConversations(args.model, args.effort)
-    if args.agent == "claude-code":
-        return ClaudeCodeConversations(args.model, args.effort)
+def add_agent_args(parser: argparse.ArgumentParser, role: str) -> None:
+    """Unset flags resolve per role in `conversations` (docs/settings.md)."""
+    parser.add_argument("--agent", choices=BACKENDS, help=_default(role, "backend"))
+    parser.add_argument("--model", help=_default(role, "model"))
+    parser.add_argument("--effort", choices=EFFORTS, help=_default(role, "effort"))
+    add_config_arg(parser)
+    parser.set_defaults(agent_role=role)
+
+
+def conversations(args: argparse.Namespace, settings: Loaded, dry_run):
+    a = settings.agent(args.agent_role, {"backend": args.agent, "model": args.model, "effort": args.effort})
+    if a.backend == "claude":
+        return ClaudeConversations(a.model, a.effort)
+    if a.backend == "claude-code":
+        return ClaudeCodeConversations(a.model, a.effort, binary=a.claudeBinary)
     return dry_run

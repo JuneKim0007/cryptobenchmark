@@ -6,3 +6,4 @@ runs/
 *.egg-info/
 .venv/
 .env
+perfrepair.yaml

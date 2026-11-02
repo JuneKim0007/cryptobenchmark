@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from ....config.settings import DEFAULT_MODEL
 from ....dto.prompt import Lifetime, SystemPrompt
 from .reply import AgentRefused, AgentReply
 
-DEFAULT_MODEL = "claude-opus-5-5"
 MAX_TOKENS = 16000
 
 
