@@ -68,6 +68,22 @@
 
 - Every error exits 2 through the command's argument parser; an error from the file ends with ` (<file>)`.
 
+## Inputs
+
+An input with a fallback is resolved by `inputs/resolve.py` from its row in `inputs/table.py`: a chain of candidates (flag, environment, setting, packaged default) and a `Need`.
+
+| Case | Result |
+|---|---|
+| a value set explicitly (flag, environment, setting) loads | used; not logged |
+| a value set explicitly does not load | error `missing_file: <input>: <value> (<source>)`; never a fallback |
+| unset | the next candidate |
+| the packaged default loads | used; one log line `<input>: <source> <note>`, code `default` |
+| nothing found, `REQUIRED` or `DEFAULT` | error `missing_input` |
+| nothing found, `OPTIONAL` | the null value; one log line, code `not_found` |
+
+- Log records go through the standard `logging` module (logger `perfrepair.inputs`) with `extra` `code`, `input`, `source`; each command's `__main__` attaches one stderr handler (`log.py`), nothing does at import.
+- Rows: `screening.catalog` ([screening.md](screening.md)).
+
 ## Backend environment
 
 - The `claude-code` backend runs its CLI without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment; it uses the CLI's logged-in subscription.
