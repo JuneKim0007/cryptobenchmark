@@ -5,6 +5,7 @@ import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
 import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
+from device_id import DeviceIdError, device_id
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
 from scope_harness import HarnessError
@@ -61,6 +62,7 @@ def manifest(results, mode, configuration, files):
         "schemaVersion": 1,
         "mode": mode,
         "config": str(configuration),
+        "deviceId": device_id(probe.get("runtime") or {}),
         "runtime": runtime(measured, probe, files),
         "providers": [{"name": p["name"], "precedence": p["precedence"], "serviceCount": len(p.get("services") or [])}
                       for p in sorted(probe.get("providers") or [], key=lambda p: p["precedence"])],
@@ -370,5 +372,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (DeviceError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError) as error:
+    except (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError) as error:
         fail(str(error))

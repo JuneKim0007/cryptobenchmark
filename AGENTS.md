@@ -57,6 +57,7 @@ scripts/bundled.py : providers.bundled of global.yaml: build property, DevicePro
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo
 scripts/device.py : adb steps of a --device run: install, probe, push, AOT compile, measure, pull
+scripts/device_id.py : device id from a capture's runtime block
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull

@@ -35,6 +35,7 @@
 |---|---|
 | `mode` | `host` or `device` |
 | `config` | the global.yaml the run used |
+| `deviceId` | the device id derived from the probe's runtime; optional on read (absent = `""`) |
 | `runtime` | benchmark.json's runtime; the probe's when nothing was measured |
 | `providers[]` | `{name, precedence, serviceCount}` in precedence order |
 | `files` | paths relative to the manifest: probe, trial, inventory, effective, prepared, skipped, benchmark, processes[]; a stage that did not run is absent; perf-repair reads all but `effective` |
