@@ -19,7 +19,7 @@ from ..repair.dossier import dossier
 from ..report.command import app_report
 from ..result.modes import Mode
 from ..config.load import Loaded
-from ..screen.catalog import screening_catalog
+from ..screen.catalog import Catalog, CatalogMismatch, screening_catalog
 
 MANIFEST = "manifest.yaml"
 INBOUND = "python3 -m perfrepair.data_handler.inbound --manifest <results>/manifest.yaml -o <run>"
@@ -47,6 +47,7 @@ class Guide:
     config: Path | None = None
     settings: Loaded | None = None
     echo: Callable[[str], None] = print
+    catalog: Catalog | None = None
 
     @property
     def paths(self) -> rd.AppPaths:
@@ -67,7 +68,12 @@ def prerequisites(g: Guide) -> str:
         if not path.is_file():
             raise Stop("missing_run_stage", f"{path} absent; inbound and grouping are run-level stages, made once "
                                             f"per run: {how}")
-    return f"run {g.run}, results {g.results}"
+    # resolved and checked before any step runs, so a bad catalog stops the guide first
+    g.catalog = screening_catalog(g.settings)
+    problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.run)))
+    if problems:
+        raise CatalogMismatch(problems[0])
+    return f"run {g.run}, results {g.results}, catalog {g.catalog.source}"
 
 
 def app(g: Guide) -> str:
@@ -77,7 +83,7 @@ def app(g: Guide) -> str:
 
 
 def dossiers(g: Guide) -> str:
-    doc = dossier(g.run, g.name, g.app_root, screening_catalog(g.settings), echo=lambda _: None)
+    doc = dossier(g.run, g.name, g.app_root, g.catalog or screening_catalog(g.settings), echo=lambda _: None)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         raise Stop("no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)})")

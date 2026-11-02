@@ -42,7 +42,7 @@
 | `screening.catalog` names a file | that file, relative to `perfrepair.yaml` | none |
 | `screening.catalog` names no file | none: the step exits non-zero with `missing_file` | none |
 
-- Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide's dossier step and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`, so a run is never judged by two catalogs. Same content under another path passes.
+- Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide (at its prerequisites step, before any other step runs) and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`, so a run is never judged by two catalogs. Same content under another path passes.
 - A named catalog that does not load is never replaced by the packaged one: skipping screening would let a broken algorithm become a target.
 - The resolution is the `screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
 

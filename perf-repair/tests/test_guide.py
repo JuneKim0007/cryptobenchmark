@@ -178,3 +178,13 @@ def _scripts_off_path():
     if str(SCRIPTS) in sys.path:
         sys.path.remove(str(SCRIPTS))
 
+
+
+def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_path):
+    from perfrepair.config.load import load
+    settings = tmp_path / "perfrepair.yaml"
+    settings.write_text(f"screening:\n  catalog: {tmp_path / 'absent.yaml'}\n")
+    g, lines = guide(run, DRY_RUN)
+    g.settings = load(settings, {}, {})
+    assert run_steps(g, device=False) == 1
+    assert len(lines) == 1 and lines[0].startswith("guide prerequisites: stop") and "missing_file" in lines[0]
