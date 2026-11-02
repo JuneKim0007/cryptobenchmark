@@ -43,11 +43,3 @@ fun main(arguments: Array<String>) {
         fail(expected)
     }
 }
-
-private fun fail(error: Exception): Nothing {
-    System.err.println("error: ${error.message}")
-    exitProcess(1)
-}
-
-private fun committedGlobal(): File? =
-    generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "config/global.yaml") }.firstOrNull { it.exists() }
