@@ -10,7 +10,12 @@
 - dependency: add no project dependency beyond the table in `docs/architecture.md`.
 - dependency: `:environment:discovery` and `:settings` depend on no project.
 - contract: a stage reads another stage's output from its file (capture, trial, inventory, effective, prepared, benchmark.json), never through that stage's classes.
-- shared code: `:settings` (harness keys) and preparation's `Invocation` (used by `:benchmark`) are the only module classes another module compiles against.
+- shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
+- shared code: `:config` uses settings' `Facts`, `HarnessSettings`, `Metric`, `Unsupported`.
+- shared code: `:preparation` uses settings' `HarnessSettings`, `Metric`.
+- shared code: `:benchmark` uses preparation's `BenchmarkCase`, `Operation`, `PreparedCase`, `PreparedRun`, `Invocations`, `Invocation`, `KeyRecipe`, and settings' `HarnessSettings`, `EnergySettings`, `CpuSettings`, `Metric`.
+- shared code: `:android` androidTest uses preparation's `Preparation`, `DiscoveryCapability`, `GlobalReader`, `InboundFile`, `InteropRun`, `InteropPlanFile`, `InteropFile`, `Invocations`, `PreparedCase`, `PreparedFile`, `SkipFile`; benchmark's `PlanCheck`, `EnergyCapability`, `RefusedPlanException`, `CaseSettings`, `CaseRuns`, `Energy`, `WindowMarker`; settings' `CpuSettings`, `Metric`; discovery's `Discovery`, `BundledInstaller`, `BundledProviders`, `ProviderFactory`, `ProbeDirectory`, `YamlCodec`.
+- shared code: `tools/` drivers call module entry points and writers; they are not modules and carry no handoff list.
 - timing: build keys, inputs and parameters in `:preparation`; the timed block calls only the prepared `Invocation`.
 - android: code in discovery, settings, preparation and benchmark uses only APIs in `android.jar`; `tools/android-api-check` compiles it without the JDK.
 - jvm: modules and tools target Java 17.

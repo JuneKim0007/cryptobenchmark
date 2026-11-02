@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.preparation.measurement
+package io.github.junekim0007.cryptobench.preparation.prepare
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 

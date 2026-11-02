@@ -4,7 +4,6 @@ import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.measurement.ChartGroup
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
 
 data class PreparedCase(

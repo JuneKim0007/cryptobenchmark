@@ -1,10 +1,9 @@
-package io.github.junekim0007.cryptobench.preparation.primitive
+package io.github.junekim0007.cryptobench.preparation.request
 
 import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundDocument
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.asSection
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.choice
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalNumbers

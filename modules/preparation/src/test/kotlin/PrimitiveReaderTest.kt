@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.primitive.PrimitiveReader
+import io.github.junekim0007.cryptobench.preparation.request.PrimitiveReader
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.SelectionExpander
 import org.junit.Assert.assertEquals

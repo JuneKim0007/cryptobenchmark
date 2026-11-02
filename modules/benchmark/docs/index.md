@@ -25,10 +25,10 @@ modules/benchmark/src/main/kotlin/report/jetpack/JetpackResults.kt : benchmarkDa
 modules/benchmark/src/main/kotlin/report/jetpack/RunCountAudit.kt : compares requested iterations and allocation runs to actual runs
 modules/benchmark/src/main/kotlin/run/BlackHole.kt : result sink
 modules/benchmark/src/main/kotlin/run/CaseMeasurement.kt : one host-measured case: timeNs samples, median
+modules/benchmark/src/main/kotlin/run/CaseRun.kt : fun interface run(): Long?
 modules/benchmark/src/main/kotlin/run/CaseSettings.kt : harness settings as plain values, no androidx type
 modules/benchmark/src/main/kotlin/run/HostHarness.kt : host JVM timing loop
 modules/benchmark/src/main/kotlin/run/TimedLoop.kt : calls once() until a nanosecond budget is spent; returns the call count
-modules/benchmark/src/main/kotlin/run/compose/CaseRun.kt : fun interface run(): Long?
 modules/benchmark/src/main/kotlin/run/compose/CaseRuns.kt : composes a CaseRun from the energy capture mode
 modules/benchmark/src/main/kotlin/run/decorate/Cooldown.kt : sleeps after the inner run
 modules/benchmark/src/main/kotlin/run/decorate/EnergyWindow.kt : brackets the inner run with an energy:<id> marker
