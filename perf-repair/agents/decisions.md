@@ -59,7 +59,7 @@ src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement 
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
-src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role; each value's source, logged once at INFO
+src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role; each value's source, logged once (INFO from a file or the environment, else DEBUG)
 src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and role code defaults
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each

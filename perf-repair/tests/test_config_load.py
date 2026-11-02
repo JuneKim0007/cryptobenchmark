@@ -188,7 +188,7 @@ def test_each_resolved_setting_is_logged_once_with_its_source(tmp_path, caplog):
     f = tmp_path / "perfrepair.yaml"
     f.write_text("grouping: {turns: 4}\n")
     loaded = load(f, {}, {})
-    with caplog.at_level(logging.INFO, logger="perfrepair"):
+    with caplog.at_level(logging.DEBUG, logger="perfrepair"):
         loaded.value("grouping.turns")
         loaded.value("grouping.turns")
         loaded.value("grouping.sessions", default=2)
@@ -197,3 +197,5 @@ def test_each_resolved_setting_is_logged_once_with_its_source(tmp_path, caplog):
     assert lines.count(f"setting grouping.turns: 4 (file {f})") == 1
     assert "setting grouping.sessions: 2 (default)" in lines and "setting ai.replace.model: m (cli)" in lines
     assert len(lines) == 2 + len(fields(Agent))
+    shown = [r.getMessage() for r in caplog.records if r.levelno >= logging.INFO]
+    assert shown == [f"setting grouping.turns: 4 (file {f})"]

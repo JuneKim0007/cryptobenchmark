@@ -27,7 +27,7 @@
 
 - `agent.effort` or `PERFREPAIR_EFFORT` sets every role, assign included; `--effort` or the role's own `effort` sets one role.
 - Effort stays out of the charter fingerprint: changing it never rotates an outbox.
-- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once at INFO on stderr: `setting <key>: <value> (<source>)` (`config/load.py`).
+- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once as `setting <key>: <value> (<source>)` (`config/load.py`): at INFO, so on stderr, when a file or the environment chose it; at DEBUG when it is a flag or a default, kept for the run log (#71).
 
 ## Keys
 

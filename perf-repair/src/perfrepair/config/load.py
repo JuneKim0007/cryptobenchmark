@@ -46,7 +46,9 @@ class Loaded:
     def _pick(self, key: str, candidates) -> Any:
         value, source = next(((v, s) for v, s in candidates if v is not None), (None, "default"))
         if key not in self.sources:
-            LOG.info("setting %s: %s (%s)", key, value, source)
+            # shown: what a file or the environment chose; the rest stays in the log
+            quiet = source == "cli" or source.startswith("default")
+            LOG.log(logging.DEBUG if quiet else logging.INFO, "setting %s: %s (%s)", key, value, source)
         self.sources[key] = source
         return value
 

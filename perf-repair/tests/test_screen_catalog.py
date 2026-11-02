@@ -85,7 +85,7 @@ def test_every_step_that_screens_exits_non_zero_on_a_missing_catalog(tmp_path, c
 
 def test_build_logs_the_packaged_catalog_without_perfrepair_yaml(tmp_path, capsys):
     assert grouping_main(["build", "--manifest", str(F), "--run", str(tmp_path)]) == 0
-    assert [line for line in capsys.readouterr().err.splitlines() if not line.startswith("setting ")] == [PACKAGED_LINE]
+    assert capsys.readouterr().err.splitlines() == [PACKAGED_LINE]
     assert json.loads((tmp_path / "grouping" / "screen.json").read_text())["verdicts"]
 
 
