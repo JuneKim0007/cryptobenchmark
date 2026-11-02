@@ -64,11 +64,11 @@ class PromptLibrary:
     def system(self, name: str, **values) -> SystemPrompt:
         return SystemPrompt(name, self._fill(name, Lifetime.RUN, values))
 
-    def charter(self, name: str, schema: dict, **values) -> Charter:
+    def charter(self, name: str, schema: dict, inputs: str = "", **values) -> Charter:
         entry = self.entries[CORRECTION]
         if entry.lifetime is not Lifetime.TURN or entry.values != ("problems",):
             raise PromptError(f"value_mismatch: {CORRECTION} must be a turn prompt declaring only [problems]")
-        return Charter(self.system(name, **values), schema, CorrectionPrompt(CORRECTION, self.texts[CORRECTION]))
+        return Charter(self.system(name, **values), schema, CorrectionPrompt(CORRECTION, self.texts[CORRECTION]), inputs)
 
     def provenance(self, charter: Charter) -> dict[str, str]:
         return {name: str(self.sources[name]) for name in charter.prompts}

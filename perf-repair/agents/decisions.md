@@ -21,7 +21,7 @@
 
 ## Workflow
 - add a role: copy the layout of `ai/suggest/site_replace/` into `ai/<role-kind>/<name>/`, one file per job:
-  - `kind.py`: the DecisionKind (name, items, empty, admit, label, render, check, apply, validate, write) and `charter(library)`; render calls `render.py`, check calls the gate, validate ends with `replay_problems`
+  - `kind.py`: the DecisionKind (name, items, pending, empty, admit, label, render, check, apply, validate, write) and `charter(library)`; render calls `render.py`, check calls the gate, validate ends with `replay_problems`
   - `render.py`: the message text only
   - `schema.py`: the answer's JSON schema only
   - `state.py`: the role's projection type, when no dto type fits
@@ -45,9 +45,9 @@ src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations
 src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
 src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort per role → resolved agent settings → Conversations
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
-src/perfrepair/ai/runtime/engine/decide.py : the engine loop: gates, ask, durable commit, projections, journal, errors, --limit
+src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
-src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract, project(kind, records), replay_problems: version count and replay equality
+src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask), project(kind, records), replay_problems: version count and replay equality
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; `active` pointer
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values

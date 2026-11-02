@@ -21,12 +21,12 @@ def _errors(kind: DecisionKind, records: list[OutboxRecord], by_key: dict) -> st
 def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, root: Path, limits: Limits = Limits(),
            limit: int | None = None, echo=print):
     root = Path(root)
-    items = kind.items()
-    by_key = {i.key: i for i in items}
+    by_key = {i.key: i for i in kind.items()}
+    pending = kind.pending()
     outbox, replaced = activate(root, charter.fingerprint)
     records = outbox.records()
     if replaced is not None:
-        echo(f"prompt changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "
+        echo(f"charter changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "
              f"({len(replaced.records())} records kept in {replaced.fingerprint}, {len(records)} resumed)")
     state = project(kind, records)
     decided = 0
@@ -35,7 +35,7 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
         kind.write(state, records)
         (root / "errors.jsonl").write_text(_errors(kind, records, by_key))
         done = {r.item for r in records}
-        item = next((i for i in items if i.key not in done), None)
+        item = next((i for i in pending if i.key not in done), None)
         if item is None or (limit is not None and decided == limit):
             return state
         require(f"{kind.name} item {item.key}", kind.admit(item))

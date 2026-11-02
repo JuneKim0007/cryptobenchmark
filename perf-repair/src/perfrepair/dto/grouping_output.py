@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 SCHEMA_VERSION = 1
+GROUPS_SCHEMA_VERSION = 2
 SEVERITIES = ("error", "warning", "info")
 
 

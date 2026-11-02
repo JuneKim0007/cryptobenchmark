@@ -16,6 +16,8 @@
 - Backend, model, effort and the `claude` binary per command: `docs/settings.md`; `--agent`, `--model`, `--effort` override.
 - `grouping report` defaults to effort `high`; `PERFREPAIR_EFFORT` does not change it.
 - `claude` backend: JSON schema output, server-side refusal fallback.
+- A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items.
+- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are the screen's statuses, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
 ## Worthiness

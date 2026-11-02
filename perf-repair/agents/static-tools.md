@@ -21,6 +21,7 @@ src/perfrepair/result/evidence.py : groups.json + rows + measurements → GroupE
 src/perfrepair/result/modes.py : Mode loaded from criteria.yaml: judges a pair improves, not_improving or not_measured
 src/perfrepair/result/triage.py : not_comparable, not_measured and no_improvement verdicts; every group with an improving pair asked
 src/perfrepair/screen/__init__.py : the screening package
-src/perfrepair/screen/handler.py : ScreeningHandler: (engine type, name, provider, targetSdk) → Verdict by canonical name; crypto and component broken, then gated platform, then accepted, else unknown
+src/perfrepair/screen/groups.py : code-made groups: screened-out items grouped by family, status, canonical name and key size; stable `code_` ids, fixed description
+src/perfrepair/screen/handler.py : ScreeningHandler: (engine type, name, provider, targetSdk) → Verdict by canonical name, recording that name and key size; crypto and component broken, then gated platform, then accepted, else unknown
 src/perfrepair/screen/stage.py : grouping items → a Verdict per item id, no targetSdk
 ```

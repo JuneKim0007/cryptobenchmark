@@ -1,7 +1,7 @@
-"""Stage: grouping/items.json + profiles.json → GroupingKind on the engine → knowledge, cursor, errors."""
+"""Stage: grouping/items.json + profiles.json + screen.json → GroupingKind on the engine → knowledge, cursor, errors."""
 from __future__ import annotations
 
-from ....dto.grouping_state import Knowledge
+from ....dto.grouping_state import Knowledge, code_made
 from ....dto.prompt import TaskPrompt
 from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
@@ -21,6 +21,9 @@ DRY_RUN = ScriptedConversations(_dry_run)
 
 def assign(paths: GroupingPaths, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
            limit: int | None = None, echo=print) -> Knowledge:
-    knowledge = decide(GroupingKind(paths), charter(library), conversations, paths.root, limits, limit)
-    echo(f"{len(knowledge.groups)} groups, {len(knowledge.dropped)} dropped, knowledge version {knowledge.version}")
+    kind = GroupingKind(paths)
+    knowledge = decide(kind, charter(library, kind.inputs), conversations, paths.root, limits, limit)
+    coded = sum(code_made(g) for g in knowledge.groups)
+    echo(f"{len(knowledge.groups)} groups ({coded} made by code), {len(knowledge.dropped)} dropped, "
+         f"knowledge version {knowledge.version}")
     return knowledge

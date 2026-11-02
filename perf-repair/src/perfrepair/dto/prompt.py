@@ -48,10 +48,12 @@ def fill(text: str, values: dict) -> str:
 
 @dataclass(frozen=True)
 class Charter:
-    """What every conversation of a run shares; the fingerprint hashes the system prompt, schema and correction template."""
+    """What every conversation of a run shares; the fingerprint hashes the system prompt, schema, correction template
+    and the run inputs the decisions depend on (never sent to the model)."""
     system: SystemPrompt
     schema: dict
     correction: CorrectionPrompt  # unfilled: correct() fills {problems}
+    inputs: str = ""
 
     @property
     def prompts(self) -> tuple[str, ...]:
@@ -63,5 +65,7 @@ class Charter:
 
     @property
     def fingerprint(self) -> str:
-        body = "\0".join([self.system.text, json.dumps(self.schema, sort_keys=True), self.correction.text])
+        parts = [self.system.text, json.dumps(self.schema, sort_keys=True), self.correction.text]
+        # empty inputs hash as before, so a charter without them keeps its outbox
+        body = "\0".join(parts + [self.inputs] if self.inputs else parts)
         return hashlib.sha256(body.encode()).hexdigest()[:12]

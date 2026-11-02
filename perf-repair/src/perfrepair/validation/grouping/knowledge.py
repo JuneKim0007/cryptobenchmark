@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 
 from ...dto.grouping import Item
-from ...dto.grouping_state import Knowledge
+from ...dto.grouping_state import Knowledge, code_made
 from ...catalog.families import Families
 from ..parse.grouping_assign import SLUG, description_problems
 
@@ -11,7 +11,7 @@ from ..parse.grouping_assign import SLUG, description_problems
 def validate_knowledge(knowledge: Knowledge, items: dict[int, Item], families: Families) -> list[str]:
     problems = []
     for gid, g in knowledge.groups.items():
-        if not SLUG.match(gid) or gid in families.by_id:
+        if not (SLUG.match(gid) or code_made(gid)) or gid in families.by_id:
             problems.append(f"group {gid!r}: not a valid group id")
         if g.family not in families.by_id:
             problems.append(f"group {gid}: family {g.family!r} is not in the catalog")

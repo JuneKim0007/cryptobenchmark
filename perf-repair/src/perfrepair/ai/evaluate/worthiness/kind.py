@@ -33,6 +33,9 @@ class WorthinessKind:
     def items(self) -> list[GroupEvidence]:
         return self._ask
 
+    def pending(self) -> list[GroupEvidence]:
+        return self.items()
+
     def empty(self) -> Verdicts:
         return Verdicts(self.mode.name, 0, {v.groupId: v for v in self.static})
 

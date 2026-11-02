@@ -34,6 +34,9 @@ class LabelKind:
     def items(self):
         return self._items
 
+    def pending(self):
+        return self._items
+
     def empty(self):
         return Labels()
 

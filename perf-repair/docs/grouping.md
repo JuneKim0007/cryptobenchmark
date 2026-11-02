@@ -5,8 +5,8 @@
 ```mermaid
 flowchart TD
     M[manifest.yaml] --> B[build: items.json, profiles.json, screen.json]
-    B --> A{gate A}
-    A --> P[pop next id] --> GB{gate B}
+    B --> CG[code-made groups: screened-out items] --> A{gate A}
+    A --> P[pop next pending id] --> GB{gate B}
     GB --> C[fresh conversation: family + its groups + item]
     C --> GC{gate C}
     GC -- rejected, turns left --> C
@@ -22,20 +22,34 @@ flowchart TD
 | File | Written by | Holds |
 |---|---|---|
 | `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
-| `screen.json` | build | per id: a screening verdict `{status, reason, source}` ([screening.md](screening.md)) |
+| `screen.json` | build | schema 2, per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
 | `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
-| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter |
+| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screen's statuses |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
-| `knowledge.json` | assign | projection of the outbox: groups `{family, description, members}`, dropped ids, version |
-| `cursor.json` | assign | `next` id, `decided` and `dropped` counts, `knowledgeVersion` |
+| `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
+| `cursor.json` | assign | `next` pending id, `decided` and `dropped` counts, `knowledgeVersion` |
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
 | `checks.json` | report | static findings with severity; counts |
-| `groups.json` | report | families, groups with members, runnable members, common key sizes, findings; items index; dropped; `interop` |
+| `groups.json` | report | schema 2: families, groups with members, runnable members, common key sizes, findings; items index with each item's `screen` status (null without screen.json); dropped; `interop` |
 | `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size |
 | `interop.yaml` | interop-read | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions |
 | `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings |
 | `supervisor.journal.jsonl` | report --supervisor | one line per review turn, with `charter` |
+
+## Code-made groups
+
+| Rule | Value |
+|---|---|
+| pending | items whose screen status is not `broken` or `platform_deprecated`; only these reach the model |
+| no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
+| key | family, status, and the canonical name and key size `screen.json` recorded; one group per key across providers |
+| id | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision |
+| description | fixed: code-made group of one algorithm, its canonical name, key size and status |
+| model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |
+| groups.json | a screened-out item is in exactly one code-made group and never in a model group; a code-made group is exactly the one its key implies |
+| screen change | the statuses join the charter fingerprint: a changed screen starts a new outbox, a reverted one resumes its old outbox; `report` on a stale outbox fails with `rerun assign` |
+| resolved parameters | not in the key; a group whose members resolved differently gets `resolved_parameters_differ` |
 
 ## Answer contract
 
@@ -52,9 +66,9 @@ flowchart TD
 
 | Gate | When | Checks |
 |---|---|---|
-| A | before every pop | items and profiles valid; knowledge equals the projection of the outbox |
+| A | before every pop | items and profiles valid; knowledge equals the projection of the outbox; code-made groups equal the ones screen.json implies; no record for a screened-out item |
 | B | after pop | item parses whole, carries no group, family and profile exist |
-| C | every answer | the answer contract above; the item has no outbox record yet |
+| C | every answer | the answer contract above; `group` and `amend` name model-made groups only; the item has no outbox record yet |
 | D | after write | the record reads back equal; new knowledge validates |
 
 ## Retry

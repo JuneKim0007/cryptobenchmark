@@ -4,14 +4,17 @@ from ....dto.decision import OutboxRecord
 from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
+from ....dto.screen import Verdict, read_screen, statuses
 from ....files import read_json, write_json
 from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
 from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
+from ....validation.grouping.code_groups import validate_code_groups
 from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....catalog.families import Families
 from ....run_dir import GroupingPaths
+from ....screen.groups import code_groups, screened_out
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
@@ -19,8 +22,8 @@ from .state import apply, cursor
 NAME = "parse/grouping-assign"
 
 
-def charter(library: PromptLibrary) -> Charter:
-    return library.charter(NAME, SCHEMA, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
+def charter(library: PromptLibrary, inputs: str = "") -> Charter:
+    return library.charter(NAME, SCHEMA, inputs, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
 
 
 class GroupingKind:
@@ -34,12 +37,21 @@ class GroupingKind:
         self._items = read_items(raw)
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
+        self.screen: dict[int, Verdict] | None = read_screen(read_json(paths.screen)) if paths.screen.exists() else None
+
+    @property
+    def inputs(self) -> str:
+        """The screen's statuses; without screen.json every item is asked."""
+        return "" if self.screen is None else statuses(self.screen)
 
     def items(self) -> list[Item]:
         return self._items
 
+    def pending(self) -> list[Item]:
+        return [i for i in self._items if not screened_out((self.screen or {}).get(i.id))]
+
     def empty(self) -> Knowledge:
-        return Knowledge()
+        return Knowledge(groups=code_groups(self._items, self.screen))
 
     def label(self, item: Item) -> str:
         return item.qualified
@@ -70,8 +82,12 @@ class GroupingKind:
     def validate(self, knowledge: Knowledge, records: list[OutboxRecord]) -> list[str]:
         problems = validate_items(self._items, self.profiles, self.families)
         problems += validate_knowledge(knowledge, self.by_id, self.families)
+        problems += validate_code_groups(knowledge.groups, self.by_id, self.screen)
+        asked = {i.key for i in self.pending()}
+        problems += [f"record {r.seq}: item {r.item} is grouped by code, not asked; rerun assign"
+                     for r in records if r.item not in asked]
         return problems + replay_problems(self, knowledge, records)
 
     def write(self, knowledge: Knowledge, records: list[OutboxRecord]) -> None:
         write_json(self.paths.knowledge, knowledge.to_json())
-        write_json(self.paths.cursor, cursor(self._items, records).to_json())
+        write_json(self.paths.cursor, cursor(self.pending(), records).to_json())

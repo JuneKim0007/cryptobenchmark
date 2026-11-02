@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ....dto.grouping_state import code_made
 from ....dto.prompt import Charter, TaskPrompt
 from ....files import read_json, write_json
 from ...runtime.engine import journal
@@ -28,7 +29,7 @@ def supervise(paths: GroupingPaths, charter: Charter, conversations: Conversatio
     document, checks = read_groups(paths), read_json(paths.checks)
     out = {}
     for family, description in sorted(document["families"].items()):
-        groups = [g for g in document["groups"] if g["family"] == family]
+        groups = [g for g in document["groups"] if g["family"] == family and not code_made(g["id"])]
         if not groups:
             continue
         membership = {g["id"]: g["members"] for g in groups}

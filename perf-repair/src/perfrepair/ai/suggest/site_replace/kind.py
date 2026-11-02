@@ -34,6 +34,9 @@ class SiteReplaceKind:
     def items(self) -> list[Dossier]:
         return self.dossiers
 
+    def pending(self) -> list[Dossier]:
+        return self.items()
+
     def empty(self) -> Replacements:
         state = Replacements(self.app)
         for scope, reason in self.no_options.items():

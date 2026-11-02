@@ -44,7 +44,7 @@ flowchart LR
 
 - `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
 - Inbound, app, grouping build and repair dossier, edit and harness validate before they write.
-- A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; changed prompts start a new outbox, and an earlier prompt set resumes its own.
+- A rerun of `grouping assign` or `ai worthiness` with the same prompts (and, for assign, the same screen statuses) resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own.
 - `--prompts DIR`: `docs/decisions.md`.
 - `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`: `docs/settings.md`.
 - The guide runs one app; inbound and grouping are run-level and must exist first. Steps, stop codes and the report: `docs/replacement.md`.

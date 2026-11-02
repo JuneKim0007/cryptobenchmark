@@ -6,7 +6,7 @@ import pytest
 from perfrepair import run_dir as rd
 from perfrepair.ai.__main__ import main as ai
 from perfrepair.ai.evaluate.worthiness.kind import charter as worthiness_charter
-from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
+from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter as assign_charter
 from perfrepair.ai.review.grouping_review.run import charter as supervisor_charter
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary
@@ -87,12 +87,12 @@ def test_worthiness_rejects_a_missing_prompts_folder(run, tmp_path, capsys):
 def test_assign_with_an_override_decides_into_a_new_outbox_beside_the_default(run, tmp_path):
     root = GroupingPaths(run).root
     assert grouping(["assign", "--run", str(run), *DRY]) == 0
-    default = active_fingerprint(root)
-    assert default == assign_charter(PromptLibrary.load()).fingerprint
+    default, inputs = active_fingerprint(root), GroupingKind(GroupingPaths(run)).inputs
+    assert default == assign_charter(PromptLibrary.load(), inputs).fingerprint
     folder = overriding(tmp_path, "parse/grouping-assign.system.md", "\nOVERRIDE")
     assert grouping(["assign", "--run", str(run), *DRY, "--prompts", str(folder)]) == 0
     overridden = active_fingerprint(root)
-    assert overridden == assign_charter(PromptLibrary.load(folder)).fingerprint != default
+    assert overridden == assign_charter(PromptLibrary.load(folder), inputs).fingerprint != default
     assert outboxes(root) == sorted([default, overridden])
 
 

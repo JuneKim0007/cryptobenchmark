@@ -3,6 +3,11 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 SCHEMA_VERSION = 1
+CODE_PREFIX = "code_"
+
+
+def code_made(group: str) -> bool:
+    return group.startswith(CODE_PREFIX)
 
 
 @dataclass(frozen=True)
@@ -54,8 +59,9 @@ class Knowledge:
     def group_of(self, item: int) -> str | None:
         return next((gid for gid, g in self.groups.items() if item in g.members), None)
 
-    def in_family(self, family: str) -> dict[str, Group]:
-        return {gid: g for gid, g in self.groups.items() if g.family == family}
+    def open_groups(self, family: str) -> dict[str, Group]:
+        """The family's model-made groups: the only ones an answer may join or amend."""
+        return {gid: g for gid, g in self.groups.items() if g.family == family and not code_made(gid)}
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "version": self.version,

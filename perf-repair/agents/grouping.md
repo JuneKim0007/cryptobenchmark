@@ -9,6 +9,7 @@
 - family: static; a catalog entry keyed by engine type + key kind.
 - group: an agent's decision inside one family.
 - capabilities: key size, tag length, key residency and availability are static; never group identity.
+- code-made: a screened-out item is grouped by code (`screen/groups.py`), never asked; `docs/grouping.md` Code-made groups.
 - items: ids `1..n` per run; `items.json` is never edited after build; the agent sees `{id, type, name, provider, resolved}` and its family's groups only.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
 - gates: A before every pop, B after it, C on every answer, D after every write; a failed gate stops the stage.
@@ -26,13 +27,13 @@
 
 ```
 src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; GroupingKind on the engine, its dry run
-src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: admit (gate B), check (gate C), apply, validate (gates A, D), projections
+src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: pending (not screened out), code-made groups seeded in empty, screen statuses as charter inputs, admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups, the item
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema
-src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided item) and knowledge
+src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
 src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
-src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family → supervisor.json
+src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family with a model-made group → supervisor.json
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
@@ -43,6 +44,6 @@ src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profile
 src/perfrepair/grouping/interop_plan.py : groups.json → interop_plan.yaml: every two runnable members of a group, once
 src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked against the plan and imported into grouping/
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → checks.json, groups.json
-src/perfrepair/grouping/report/output.py : groups.json assembly
+src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping
 ```

@@ -45,7 +45,7 @@ def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Famil
     problems = []
     if bool(a.group) == bool(a.newGroupId):
         problems.append("give exactly one of group (join) or newGroup.id (create)")
-    family_groups = knowledge.in_family(item.family)
+    family_groups = knowledge.open_groups(item.family)
     if a.group and a.group not in family_groups:
         problems.append(f"group {a.group!r} is not a group of family {item.family} "
                         f"(its groups: {sorted(family_groups) or 'none yet'})")

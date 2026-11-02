@@ -20,12 +20,12 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
     records = active_outbox(paths.root).records()
     knowledge = project(kind, records)
     require("grouping", kind.validate(knowledge, records))
-    unfinished = cursor(kind.items(), records).next
+    unfinished = cursor(kind.pending(), records).next
     require("grouping", [] if unfinished is None else [f"item {unfinished} is not decided yet; run assign first"])
     interop = imported(paths)
     findings = check(knowledge, kind.by_id, kind.profiles) + check_interop(interop, kind.by_id)
     write_json(paths.checks, checks_document(findings))
-    document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop)
-    require("groups.json", validate_output(document, kind.by_id))
+    document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop, kind.screen)
+    require("groups.json", validate_output(document, kind.by_id, kind.screen))
     write_json(paths.groups, document)
     return document

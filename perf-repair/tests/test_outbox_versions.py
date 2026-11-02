@@ -1,5 +1,6 @@
 import hashlib
 import json
+from dataclasses import replace
 
 import pytest
 from helpers import label_charter
@@ -41,7 +42,7 @@ def hashes(directory):
 
 
 def changes(lines):
-    return [line for line in lines if line.startswith("prompt changed")]
+    return [line for line in lines if line.startswith("charter changed")]
 
 
 def saved(root):
@@ -74,7 +75,7 @@ def test_a_changed_prompt_starts_a_new_outbox_and_leaves_the_old_byte_for_byte(t
     before = hashes(old)
     agent, lines = run(tmp_path, V2, answer=lambda m: label_of(m).upper())
     assert hashes(old) == before and agent.started == 3
-    assert changes(lines) == [f"prompt changed: outbox {V1.fingerprint} → {V2.fingerprint} "
+    assert changes(lines) == [f"charter changed: outbox {V1.fingerprint} → {V2.fingerprint} "
                               f"(3 records kept in {V1.fingerprint}, 0 resumed)"]
     assert saved(tmp_path) == {"a": "A", "b": "B", "c": "C"}
     journal = [json.loads(line)["charter"] for line in (tmp_path / "journal.jsonl").read_text().splitlines()]
@@ -87,7 +88,7 @@ def test_reverting_resumes_the_old_outbox_and_rebuilds_the_projections(tmp_path)
     newer = hashes(tmp_path / "outbox" / V2.fingerprint)
     agent, lines = run(tmp_path, V1)
     assert agent.started == 1 and saved(tmp_path) == {"a": "a", "b": "b", "c": "c"}
-    assert changes(lines) == [f"prompt changed: outbox {V2.fingerprint} → {V1.fingerprint} "
+    assert changes(lines) == [f"charter changed: outbox {V2.fingerprint} → {V1.fingerprint} "
                               f"(3 records kept in {V2.fingerprint}, 2 resumed)"]
     assert hashes(tmp_path / "outbox" / V2.fingerprint) == newer
     agent, _ = run(tmp_path, V2)
@@ -131,3 +132,9 @@ def test_an_active_file_naming_a_missing_folder_is_an_error(tmp_path):
     (tmp_path / "outbox" / "active").write_text("../elsewhere\n")
     with pytest.raises(OutboxError, match="outbox_active_invalid"):
         active_outbox(tmp_path)
+
+
+def test_run_inputs_join_the_fingerprint_and_none_keep_it():
+    with_inputs = replace(V1, inputs="1 broken")
+    assert with_inputs.fingerprint != V1.fingerprint == replace(V1, inputs="").fingerprint
+    assert replace(V1, inputs="1 accepted").fingerprint != with_inputs.fingerprint

@@ -3,16 +3,20 @@ from __future__ import annotations
 from collections import Counter
 
 from ...dto.grouping import Item, read_items
-from ...dto.grouping_output import SCHEMA_VERSION
+from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
+from ...dto.grouping_state import Group
+from ...dto.screen import Verdict, read_screen
 from ...files import read_json
 from ...run_dir import GroupingPaths
 from ..failure import require
+from .code_groups import validate_code_groups
 
 
-def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
+def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None = None) -> list[str]:
+    """screen: screen.json's verdicts, None without it; a screened-out item is grouped by code, never asked."""
     problems = []
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    if doc.get("schemaVersion") != GROUPS_SCHEMA_VERSION:
+        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {GROUPS_SCHEMA_VERSION}")
     placed = Counter(m for g in doc["groups"] for m in g["members"])
     dropped = {d["item"] for d in doc["dropped"]}
     problems += [f"item {m}: in {n} groups" for m, n in placed.items() if n > 1]
@@ -23,6 +27,7 @@ def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
         problems.append("no interop section; rerun grouping report")
     if set(doc["items"]) != {str(i) for i in items}:
         problems.append("items index differs from items.json")
+    problems += _screen_problems(doc, items, screen)
     for g in doc["groups"]:
         if g["family"] not in doc["families"]:
             problems.append(f"group {g['id']}: family {g['family']} is not listed")
@@ -35,7 +40,16 @@ def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
     return problems
 
 
+def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None) -> list[str]:
+    status = {str(n): v.status for n, v in (screen or {}).items()}
+    problems = [f"item {k}: screen {e.get('screen')!r}, screen.json says {status.get(k)!r}"
+                for k, e in sorted(doc["items"].items()) if e.get("screen") != status.get(k)]
+    groups = {g["id"]: Group(g["family"], g.get("description", ""), list(g["members"])) for g in doc["groups"]}
+    return problems + validate_code_groups(groups, items, screen)
+
+
 def read_groups(paths: GroupingPaths) -> dict:
     document = read_json(paths.groups)
-    require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}))
+    screen = read_screen(read_json(paths.screen)) if paths.screen.exists() else None
+    require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}, screen))
     return document

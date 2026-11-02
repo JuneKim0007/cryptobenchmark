@@ -14,7 +14,11 @@ class Item(Protocol):
 class DecisionKind(Protocol):
     name: str
 
-    def items(self) -> list: ...
+    def items(self) -> list:
+        """Every item a record may name: the lookup list of projections and replay."""
+
+    def pending(self) -> list:
+        """The items to ask, a subset of items(); a kind that settles none in code returns items()."""
 
     def empty(self) -> Any: ...
 

@@ -39,15 +39,15 @@ src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repai
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind
 src/perfrepair/dto/grouping.py : Family, Item, Profile; items.json and profiles.json documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
-src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge
+src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only); the `code_` id prefix
 src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml, the groups.json interop section, failed_pairs, pair_status, PAIR_STATUSES
 src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
-src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint
+src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
-src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, accepted, unknown; reason, source); screen.json document
+src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED; screen.json document (schema 2); statuses digest
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status); NO_OPTION_REASONS, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write
