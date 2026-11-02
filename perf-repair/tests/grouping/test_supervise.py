@@ -49,6 +49,9 @@ def test_supervisor_json_records_an_override_source_and_its_own_charter(paths, t
     assert out["charter"] != packaged["charter"]
     journal = [json.loads(line) for line in paths.supervisor_journal.read_text().splitlines()]
     assert {line["charter"] for line in journal} == {packaged["charter"], out["charter"]}
+    charter = json.loads(paths.supervisor_charter.read_text())
+    assert charter["fingerprint"] == out["charter"] and charter["system"]["source"] == str(override)
+    assert charter["system"]["text"] == "REVIEW OVERRIDE" and charter["correction"]["source"] == "packaged"
 
 
 def test_findings_are_kept_and_out_of_family_ones_corrected(paths):

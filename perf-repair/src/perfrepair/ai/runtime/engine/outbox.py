@@ -4,7 +4,10 @@ import re
 from pathlib import Path
 
 from ....dto.decision import OutboxRecord
+from ....dto.prompt import Charter
 from ....files import TEMP_SUFFIX, read_json, write_json, write_text
+from ....run_dir import CHARTER
+from . import charter_file
 
 OUTBOXES, ACTIVE = "outbox", "active"
 RECORDS = "[0-9]*.json"
@@ -83,12 +86,16 @@ def active_outbox(root: Path) -> Outbox | NoOutbox:
     return NoOutbox() if fingerprint is None else _outbox(root, fingerprint)
 
 
-def activate(root: Path, fingerprint: str) -> tuple[Outbox, Outbox | None]:
-    """Opens the fingerprint's outbox and makes it active; returns it and the one it replaced."""
+def activate(root: Path, charter: Charter) -> tuple[Outbox, Outbox | None]:
+    """Opens the charter's outbox, its charter.json written once or checked, and makes it active; returns it and the
+    one it replaced."""
+    fingerprint = charter.fingerprint
     if not FINGERPRINT.fullmatch(fingerprint):
         raise OutboxError(f"outbox_fingerprint_invalid: {fingerprint!r}")
     previous = active_fingerprint(root)
     outbox = _outbox(root, fingerprint).open()
+    # an outbox made before charter.json existed gets it on its next open: its fingerprint vouches for the text
+    charter_file.record(outbox.directory / CHARTER, charter)
     if previous == fingerprint:
         return outbox, None
     write_text(Path(root) / OUTBOXES / ACTIVE, fingerprint + "\n", durable=True)

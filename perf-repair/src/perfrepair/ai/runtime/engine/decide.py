@@ -33,7 +33,7 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
     root = Path(root)
     by_key = {i.key: i for i in kind.items()}
     pending = kind.pending()
-    outbox, replaced = activate(root, charter.fingerprint)
+    outbox, replaced = activate(root, charter)
     records = outbox.records()
     if replaced is not None:
         echo(f"charter changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "

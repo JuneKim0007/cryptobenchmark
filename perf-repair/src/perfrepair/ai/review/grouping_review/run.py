@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ....dto.charter import charter_document
 from ....dto.grouping_state import code_made
 from ....dto.prompt import Charter, TaskPrompt
 from ....files import read_json, write_json
@@ -45,5 +46,7 @@ def supervise(paths: GroupingPaths, charter: Charter, conversations: Conversatio
                        if asked.decision is not None else {"status": "failed", "findings": [], "problems": asked.problems})
         echo(f"supervisor {family}: {out[family]['status']}, {len(out[family]['findings'])} findings")
     result = {"schemaVersion": SCHEMA_VERSION, "charter": charter.fingerprint, "prompts": prompts, "families": out}
+    # no outbox: the charter of this review sits beside the one supervisor.json it made
+    write_json(paths.supervisor_charter, charter_document(charter))
     write_json(paths.supervisor, result)
     return result

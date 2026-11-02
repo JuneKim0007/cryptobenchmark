@@ -68,7 +68,13 @@ class PromptLibrary:
         entry = self.entries[CORRECTION]
         if entry.lifetime is not Lifetime.TURN or entry.values != ("problems",):
             raise PromptError(f"value_mismatch: {CORRECTION} must be a turn prompt declaring only [problems]")
-        return Charter(self.system(name, **values), schema, CorrectionPrompt(CORRECTION, self.texts[CORRECTION]), inputs)
+        return Charter(self.system(name, **values), schema, CorrectionPrompt(CORRECTION, self.texts[CORRECTION]), inputs,
+                       tuple((n, self.origin(n)) for n in (name, CORRECTION)))
+
+    def origin(self, name: str) -> str:
+        """`packaged`, or the override file the prompt was read from."""
+        path = self.sources[name]
+        return "packaged" if path == PACKAGED / self.entries[name].file else str(path)
 
     def provenance(self, charter: Charter) -> dict[str, str]:
         return {name: str(self.sources[name]) for name in charter.prompts}

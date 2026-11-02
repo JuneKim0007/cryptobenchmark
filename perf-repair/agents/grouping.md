@@ -41,7 +41,7 @@ src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
 src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
-src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family with a model-made group → supervisor.json
+src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family with a model-made group → supervisor.json, its charter in supervisor.charter.json
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions

@@ -58,7 +58,7 @@ def test_the_fingerprints_differ():
 def test_a_first_run_opens_the_fingerprint_outbox_and_marks_it_active(tmp_path):
     _, lines = run(tmp_path, V1)
     box = tmp_path / "outbox" / V1.fingerprint
-    assert sorted(p.name for p in box.iterdir()) == ["000001.json", "000002.json", "000003.json"]
+    assert sorted(p.name for p in box.iterdir()) == ["000001.json", "000002.json", "000003.json", "charter.json"]
     assert (tmp_path / "outbox" / "active").read_text() == V1.fingerprint + "\n"
     assert active_outbox(tmp_path).fingerprint == V1.fingerprint and not changes(lines)
     journal = [json.loads(line) for line in (tmp_path / "journal.jsonl").read_text().splitlines()]
@@ -194,3 +194,33 @@ def test_old_records_without_the_fields_stay_readable_and_do_not_warn(tmp_path, 
 def test_an_unknown_record_version_is_refused():
     with pytest.raises(ValueError, match="schemaVersion 3 is not one of"):
         OutboxRecord.from_json({"schemaVersion": 3, "outcome": "dropped", "seq": 1})
+
+
+def test_charter_json_holds_what_the_fingerprint_hashes_and_each_prompt_source(tmp_path):
+    from perfrepair.dto.charter import read_charter
+    run(tmp_path, V1)
+    doc = json.loads((tmp_path / "outbox" / V1.fingerprint / "charter.json").read_text())
+    assert doc["fingerprint"] == V1.fingerprint == read_charter(doc).fingerprint
+    assert doc["system"]["text"] == V1.system.text and doc["schema"] == V1.schema
+    assert doc["correction"]["text"] == V1.correction.text and doc["inputs"] == V1.inputs
+
+
+def test_a_resume_keeps_a_matching_charter_json_and_refuses_a_changed_one(tmp_path):
+    from perfrepair.ai.runtime.engine.charter_file import CharterMismatch
+    run(tmp_path, V1, limit=1)
+    path = tmp_path / "outbox" / V1.fingerprint / "charter.json"
+    written = path.read_bytes()
+    run(tmp_path, V1, limit=1)
+    assert path.read_bytes() == written
+    doc = json.loads(written)
+    path.write_text(json.dumps({**doc, "inputs": "tampered"}))
+    with pytest.raises(CharterMismatch, match="charter_mismatch"):
+        run(tmp_path, V1)
+
+
+def test_an_outbox_from_before_charter_json_gets_it_on_its_next_open(tmp_path):
+    run(tmp_path, V1, limit=1)
+    path = tmp_path / "outbox" / V1.fingerprint / "charter.json"
+    path.unlink()
+    run(tmp_path, V1)
+    assert json.loads(path.read_text())["fingerprint"] == V1.fingerprint

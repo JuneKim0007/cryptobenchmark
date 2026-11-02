@@ -17,10 +17,12 @@ from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
 from ..ai.evaluate.worthiness.kind import WorthinessKind
-from ..ai.runtime.engine.outbox import OutboxError, active_outbox
+from ..ai.runtime.engine import charter_file
+from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES, OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
 from ..validation.dossiers import validate_dossiers
+from ..validation.events import validate_events
 from ..validation.app import validate_app_dir
 from ..validation.failure import ValidationFailed
 from ..validation.grouping.interop import validate_interop
@@ -40,6 +42,9 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
         return {rd.ROWS: [rows]}
     out[rd.ROWS] = validate_rows(rows)
     out |= _beside_rows(run, rows)
+    out |= _charters(run)
+    if (run / rd.EVENTS).is_file():
+        out[rd.EVENTS] = validate_events(run / rd.EVENTS)
     reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)
@@ -86,6 +91,19 @@ def _beside_rows(run: Path, rows) -> dict[str, list[str]]:
         if (run / name).exists():
             doc = _parsed(load, run)
             out[name] = [doc] if isinstance(doc, str) else check(doc, rows)
+    return out
+
+
+def _charters(run: Path) -> dict[str, list[str]]:
+    """Every outbox's charter.json hashes to its folder's name; a supervisor review's to the charter it names."""
+    out = {}
+    for directory in sorted(run.rglob(f"{OUTBOXES}/*")):
+        if directory.is_dir() and FINGERPRINT.fullmatch(directory.name):
+            out[str((directory / rd.CHARTER).relative_to(run))] = charter_file.problems(directory / rd.CHARTER, directory.name)
+    grouping = GroupingPaths(run)
+    if grouping.supervisor.is_file():
+        out[str(grouping.supervisor_charter.relative_to(run))] = charter_file.problems(
+            grouping.supervisor_charter, read_json(grouping.supervisor).get("charter"))
     return out
 
 

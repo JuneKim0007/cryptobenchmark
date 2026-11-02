@@ -60,3 +60,13 @@ def test_the_fingerprint_moves_with_every_run_element(tmp_path):
     (tmp_path / "shared").mkdir()
     (tmp_path / "shared" / "rejection.turn.md").write_text("again: {problems}")
     assert base.fingerprint != PromptLibrary.load(tmp_path).charter("evaluate/worthiness", {"x": 1, "y": 2}).fingerprint
+
+
+def test_a_charter_records_each_prompt_source_and_hashes_none_of_them(tmp_path):
+    (tmp_path / "evaluate").mkdir()
+    (tmp_path / "evaluate" / "worthiness.system.md").write_text((PACKAGED / "evaluate" / "worthiness.system.md").read_text())
+    packaged = PromptLibrary.load().charter("evaluate/worthiness", {})
+    copied = PromptLibrary.load(tmp_path).charter("evaluate/worthiness", {})
+    assert dict(packaged.sources) == {"evaluate/worthiness": "packaged", "shared/rejection": "packaged"}
+    assert dict(copied.sources)["evaluate/worthiness"] == str(tmp_path / "evaluate" / "worthiness.system.md")
+    assert packaged.fingerprint == copied.fingerprint and packaged == copied

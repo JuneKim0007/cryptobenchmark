@@ -47,10 +47,11 @@ src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
 src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
+src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
 src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask), project(kind, records), replay_problems: version count and replay equality
-src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; `active` pointer
+src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
 src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth
 src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
@@ -60,7 +61,7 @@ src/perfrepair/ai/runtime/gateway/dry_run.py : the dry-run gateway: no keys, ans
 src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default gateway; `unknown_gateway`
 src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; the one reader of `paths.prompts`; one library load per invocation, PromptError exits 2
-src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
+src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values; each prompt's origin, `packaged` or its override file
 src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
 src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep
 src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source

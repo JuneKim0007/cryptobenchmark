@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import ClassVar
 
@@ -54,6 +54,8 @@ class Charter:
     schema: dict
     correction: CorrectionPrompt  # unfilled: correct() fills {problems}
     inputs: str = ""
+    # each prompt's file, `packaged` or the override path: recorded in charter.json, never hashed
+    sources: tuple[tuple[str, str], ...] = field(default=(), compare=False)
 
     @property
     def prompts(self) -> tuple[str, ...]:
