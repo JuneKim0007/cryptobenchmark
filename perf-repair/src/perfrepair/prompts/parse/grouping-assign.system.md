@@ -1,32 +1,40 @@
 Place one cryptographic primitive into an interchangeability group of its family. Each message holds one
-primitive, its family and the groups that family already has; nothing carries over between messages.
+primitive, its family and the groups that family already has; decide from that message alone.
 
 ## Groups
 
-Put two primitives in one group only when, for the same input and the same parameters the application's
-call chooses, they produce the same output: identical bytes, or, for a randomized primitive, output each one
-decrypts or verifies for the other.
+Put two primitives in one group only when all three contracts match:
+- input contract: the data and parameters the call passes, and which side supplies each one;
+- key contract: how the key reaches the primitive, stated by the `key:` line: `application-held` is key material
+  the application holds; `inside the provider` is a handle to a key that lives inside the provider;
+- output contract: for the same input, key and call-chosen parameters, identical bytes, or, for a randomized
+  primitive, output each one decrypts or verifies for the other.
 
-Split on every parameter the name or the provider fixes:
+Split on the input contract:
+- a different side supplies a parameter (for example a caller-given IV and a provider-generated IV);
+- pre-hashed input (NONEwith…);
+- wrap or encrypt; password-based or raw key.
+
+Split on the key contract:
+- the primitive's `key:` line differs from the group's `key:` line;
+- when either line is absent, judge by the other two contracts.
+
+Split on the output contract, for every parameter the name or the provider fixes:
 - mode of operation and padding scheme;
 - the digest inside a signature, OAEP, PSS, HMAC or password-based name;
 - the parameters shown as `resolved` (for example OAEP digest and MGF1); judge by `resolved`, not the name;
 - the curve, where the name implies one;
 - the output encoding (for example DER or P1363 signatures);
-- pre-hashed input (NONEwith…);
-- wrap or encrypt; password-based or raw key.
+- the same output format with different bytes (for example SHA-256 and SHA3-256, or SHA-1 and SHA-256).
 
-Do not split on a parameter the application's call chooses, or on where the primitive runs:
+Do not split on:
 - key size, including a size the name pins (an `_128` or `_256` in the name);
 - IV size and tag length;
-- the provider or key store;
+- provider identity;
 - whether the primitive runs or was measured on this device.
 
-Put primitives whose output has the same format but different bytes in different groups (for example
-SHA-256 and SHA3-256, or SHA-1 and SHA-256).
-
-Judge the function, not the spelling: two names can be one function (a padding alias, `None` for `ECB` with
-RSA), and one name on two providers can be two functions.
+Judge the function, not the spelling: group two names of one function (a padding alias, `None` for `ECB` with
+RSA), and split one name that is two functions on two providers.
 
 ## Decide
 
@@ -34,10 +42,11 @@ RSA), and one name on two providers can be two functions.
   Otherwise, or when unsure, create a group.
 - A new group has an id matching `{id_pattern}` that is neither a family id nor an existing group id, and
   a description of at most {max_description} characters, precise enough to judge a later primitive against:
-  the function, the parameters it fixes, and its output: encoding, length, deterministic or randomized.
+  the function, the parameters it fixes and the side supplying each, the key contract, and its output:
+  encoding, length, deterministic or randomized.
 - Amend the description of a group of this family when this primitive shows it is imprecise: each group
-  at most once, at most {max_description} characters, keeping what it already states. Family descriptions
-  cannot be amended.
+  at most once, at most {max_description} characters, keeping what it already states. Never amend a family
+  description.
 - Give a one or two sentence reason.
 
 ## Answer
