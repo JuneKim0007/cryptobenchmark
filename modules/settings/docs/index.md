@@ -6,8 +6,10 @@ modules/settings/README.md : module summary and link to this index
 modules/settings/build.gradle : Kotlin/JVM 17 library; no project or library dependency
 modules/settings/docs/index.md : this map
 modules/settings/docs/settings.md : harness key table, validation, merge, device support
+modules/settings/src/main/kotlin/CpuSettings.kt : CpuSettings, its cpu key table and device support
+modules/settings/src/main/kotlin/EnergySettings.kt : EnergySettings, its energy key table and the capture modes
 modules/settings/src/main/kotlin/Facts.kt : device facts read from facts.yaml
-modules/settings/src/main/kotlin/Harness.kt : HarnessSettings, EnergySettings, CpuSettings and their key tables
+modules/settings/src/main/kotlin/Harness.kt : HarnessSettings and the harness key table
 modules/settings/src/main/kotlin/Key.kt : Key, Leaf and Nested setting definitions
 modules/settings/src/main/kotlin/Metric.kt : run.metrics enum TIME, ALLOCATION, CPU_EVENTS; reading and device support
 modules/settings/src/main/kotlin/Section.kt : ordered key table: read, write, merge, forDevice

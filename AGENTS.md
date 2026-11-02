@@ -29,7 +29,7 @@
 
 ## Workflow
 - module schema change: code → `-Dexamples.update=true` run → module doc
-- harness setting: `Key` in `modules/settings/src/main/kotlin/Harness.kt` → field on the typed class → `modules/settings/docs/settings.md`
+- harness setting: `Key` in `modules/settings/src/main/kotlin/Harness.kt` (`energy.*` in `EnergySettings.kt`, `cpu.*` in `CpuSettings.kt`) → field on the typed class → `modules/settings/docs/settings.md`
 - module file added: its line in `modules/<m>/docs/index.md`
 - guide change: `python3 scripts/docs_lint.py`
 
