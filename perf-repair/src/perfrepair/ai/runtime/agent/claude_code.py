@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -11,15 +12,21 @@ from .claude import DEFAULT_MODEL
 from .conversation import LifetimeGuarded
 from .reply import AgentRefused, AgentReply
 
-Runner = Callable[[list[str], str, Path], subprocess.CompletedProcess]
+Runner = Callable[[list[str], str, Path, dict[str, str]], subprocess.CompletedProcess]
+# The CLI bills an API key it finds before the logged-in subscription.
+WITHHELD_ENV = ("ANTHROPIC_API_KEY",)
 
 
 class ClaudeCodeError(RuntimeError):
     """The CLI failed for a reason that is not a refusal (not logged in, overloaded, budget)."""
 
 
-def _run(command: list[str], stdin: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(command, input=stdin, capture_output=True, text=True, cwd=cwd)
+def _run(command: list[str], stdin: str, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess:
+    return subprocess.run(command, input=stdin, capture_output=True, text=True, cwd=cwd, env=env)
+
+
+def child_env() -> dict[str, str]:
+    return {k: v for k, v in os.environ.items() if k not in WITHHELD_ENV}
 
 
 class ClaudeCodeSession(LifetimeGuarded):
@@ -37,7 +44,7 @@ class ClaudeCodeSession(LifetimeGuarded):
         if self.session_id:
             command += ["--resume", self.session_id]
         # The prompt goes on stdin: --tools takes a variable number of values and would swallow it.
-        done = o.runner(command, message.text, o.workdir)
+        done = o.runner(command, message.text, o.workdir, child_env())
         try:
             out = json.loads(done.stdout)
         except json.JSONDecodeError:

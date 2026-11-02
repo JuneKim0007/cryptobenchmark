@@ -12,8 +12,8 @@ class FakeCli:
     def __init__(self, outputs):
         self.outputs, self.calls = list(outputs), []
 
-    def __call__(self, command, stdin, cwd):
-        self.calls.append((command, stdin, cwd))
+    def __call__(self, command, stdin, cwd, env):
+        self.calls.append((command, stdin, cwd, env))
         out = self.outputs.pop(0)
         return subprocess.CompletedProcess(command, 0, out if isinstance(out, str) else json.dumps(out), "")
 
@@ -61,7 +61,7 @@ def test_refusal_and_cli_errors_are_told_apart(tmp_path):
 def test_system_text_is_a_flag_and_the_message_goes_on_stdin(tmp_path):
     cli = FakeCli([ok("s-1", {})])
     ClaudeCodeConversations(runner=cli, workdir=tmp_path).start(SystemPrompt("t", "SYS"), {}).ask(task("MSG"))
-    command, stdin, _ = cli.calls[0]
+    command, stdin, _, _ = cli.calls[0]
     assert command[command.index("--system-prompt") + 1] == "SYS" and stdin == "MSG"
 
 
@@ -71,3 +71,13 @@ def test_lifetime_misuse_never_reaches_the_cli(tmp_path):
     with pytest.raises(TypeError, match="lifetime_mismatch"):
         convo.ask(CorrectionPrompt("t", "x"))
     assert cli.calls == []
+
+
+def test_the_child_never_sees_the_api_key_and_runs_the_configured_binary(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    monkeypatch.setenv("KEEP_ME", "1")
+    cli = FakeCli([ok("s-1", {})])
+    convos = ClaudeCodeConversations(binary="/opt/claude", runner=cli, workdir=tmp_path)
+    convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
+    command, _, _, env = cli.calls[0]
+    assert command[0] == "/opt/claude" and "ANTHROPIC_API_KEY" not in env and env["KEEP_ME"] == "1"
