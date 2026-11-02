@@ -42,17 +42,17 @@
 | `aiGateway.claude.model` | a model id | `claude-opus-5-5` | warning | `--model`; `PERFREPAIR_MODEL` |
 | `aiGateway.claude.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | warning | `--effort`; `PERFREPAIR_EFFORT` |
 | `aiGateway.claude.binary` | a command | `claude` | warning | the CLI of `auth: subscription` |
-| `paths.results` | the results root | none | warning | every command's device folder when `--device-results` is unset: `<root>/<device.id>`, else its only device; a rebuild beside later stages fails their `built` digests instead of passing silently |
+| `paths.results` | the results root | none | warning | every command's device folder when `--device-results` is unset: `<root>/<device.id>`, else its only device; the guide without either calls probe_device() on the root (`docs/pipeline.md` Device stage); a rebuild beside later stages fails their `built` digests instead of passing silently |
 | `paths.prompts` | a folder | packaged prompts | warning | `--prompts` |
 | `device.id` | a folder under `paths.results` | its only device | error | the same; a fallback would read another device's numbers |
 | `device.screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | error | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
 | `device.screening.aiReview` | `true`, `false` | `false` | warning | `grouping build`: the model review of unknown items |
 | `device.grouping.turns`, `device.grouping.sessions` | positive integers | 3, 2 | warning | `grouping assign` |
 | `device.grouping.limit` | a positive integer | all items | warning | `grouping assign --limit` |
-| `device.benchmark.config` | a `global.yaml` | `pipeline.py`'s lookup | warning | `guide --config` |
+| `device.benchmark.config` | a `global.yaml` | `pipeline.py`'s lookup | warning | `guide --config`: the device stage and the device step |
 | `apps.mode` | `latency`, `battery` | `latency` | warning | `guide --mode` |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
-| `apps.measure` | `true`, `false` | `false` | warning | `guide --device` |
+| `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
 
 | role | file section | role default |
 |---|---|---|

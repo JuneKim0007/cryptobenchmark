@@ -13,8 +13,10 @@ from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
+from ..device.stage import probe_device
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..files import read_json
+from ..grouping.__main__ import main as grouping_main
 from ..run_dir import GroupingPaths
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
@@ -26,6 +28,7 @@ from ..screen.catalog import Catalog, CatalogMismatch, screening_catalog
 INBOUND = "python3 -m perfrepair.data_handler.inbound --device-results <device>"
 GROUPING = ("python3 -m perfrepair.grouping build --device-results <device>, then "
             "`grouping assign --device-results <device>` and `grouping report --device-results <device>`")
+NAMED = "or leave --device-results and device.id unset so the guide makes the device stage itself"
 
 
 class Stop(Exception):
@@ -36,7 +39,8 @@ class Stop(Exception):
 
 @dataclass
 class Guide:
-    device: Path
+    """device: the named device folder; with root instead, prerequisites makes it by probe_device() and sets it."""
+    device: Path | None
     app_root: Path
     mode: Mode
     conversations: Conversations
@@ -47,6 +51,9 @@ class Guide:
     settings: Loaded | None = None
     echo: Callable[[str], None] = print
     catalog: Catalog | None = None
+    root: Path | None = None
+    on_device: bool = False
+    grouping_args: tuple[str, ...] = ()
 
     @property
     def app_id(self) -> str:
@@ -63,19 +70,34 @@ def _exit(code: int, stop: str, what: str) -> None:
 
 
 def prerequisites(g: Guide) -> str:
-    if not (g.device / rd.MANIFEST).is_file():
-        raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
-    for path, how in ((g.device / rd.ROWS, INBOUND), (g.device / rd.MEASUREMENTS, INBOUND),
-                      (GroupingPaths(g.device).groups, GROUPING)):
-        if not path.is_file():
-            raise Stop("missing_device_stage", f"{path} absent; inbound and grouping are device-level stages, made once "
-                                               f"per device: {how}")
     # resolved and checked before any step runs, so a bad catalog stops the guide first
     g.catalog = screening_catalog(g.settings)
+    if g.root is not None:
+        g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo).folder
+    if not (g.device / rd.MANIFEST).is_file():
+        raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
+    for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):
+        if not path.is_file():
+            raise Stop("missing_device_stage", f"{path} absent; inbound is a device-level stage, made once per device: "
+                                               f"{INBOUND}, {NAMED}")
     problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.device)))
     if problems:
         raise CatalogMismatch(problems[0])
     return f"device results {g.device}, catalog {g.catalog.source}"
+
+
+def grouping(g: Guide) -> str:
+    """Assign is the guide's one device-level model step, run only while groups.json is missing (#76 L5 adds coverage)."""
+    groups = GroupingPaths(g.device).groups
+    if groups.is_file():
+        return "reused"
+    if g.root is None:
+        raise Stop("missing_device_stage", f"{groups} absent; grouping is a device-level stage, made once per device: "
+                                           f"{GROUPING}, {NAMED}")
+    for step in ("assign", "report"):
+        _exit(grouping_main([step, "--device-results", str(g.device), *g.grouping_args]), "grouping_failed",
+              f"grouping {step}")
+    return f"ran: no {groups.name}"
 
 
 def app(g: Guide) -> str:
@@ -129,6 +151,6 @@ def report(g: Guide) -> str:
     return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured"
 
 
-DRY = (("prerequisites", prerequisites), ("app", app), ("dossier", dossiers), ("replace", replacements),
+DRY = (("prerequisites", prerequisites), ("grouping", grouping), ("app", app), ("dossier", dossiers), ("replace", replacements),
        ("edit", edits), ("harness", harness))
 DEVICE = (("device", device), ("report", report))

@@ -12,7 +12,7 @@ from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
 from ..config.args import fill, load_settings, positive_int
-from ..config.device_results import add_device_results_arg, fill_device_results
+from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
 from ..inputs.check import check_one_of
 from ..inputs.table import APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, BENCHMARK_CONFIG
@@ -67,10 +67,17 @@ def main(argv: list[str] | None = None) -> int:
     return reported(lambda: _run(ap, a, settings))
 
 
+def _grouping_args(a: argparse.Namespace) -> tuple[str, ...]:
+    # a gateway named on the guide reaches every model step it runs; other keys resolve per role from the settings
+    return (*(("--agent", a.agent) if a.agent else ()),
+            *(("--perfrepair-config", str(a.perfrepair_config)) if a.perfrepair_config else ()))
+
+
 def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> int:
-    fill_device_results(ap, a, settings)
+    root = device_root(ap, a, settings)
     return run_steps(Guide(a.device_results, a.app.expanduser().resolve(), MODES[a.mode], spawn(a, settings, replace_cmd.DRY_RUN),
-                           load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings), a.device)
+                           load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
+                           on_device=bool(a.device), grouping_args=_grouping_args(a)), a.device)
 
 
 if __name__ == "__main__":

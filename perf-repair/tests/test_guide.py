@@ -72,7 +72,7 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     before = digests(APP)
     g, lines = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
-    assert statuses(lines) == ["guide prerequisites: ok", "guide app: ok", "guide dossier: ok", "guide replace: ok",
+    assert statuses(lines) == ["guide prerequisites: ok", "guide grouping: ok", "guide app: ok", "guide dossier: ok", "guide replace: ok",
                                "guide edit: ok", "guide harness: ok"]
     assert digests(APP) == before
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
@@ -184,6 +184,32 @@ def test_a_folder_of_several_project_roots_is_a_coded_stop(run, tmp_path):
     g, lines = guide(run, DRY_RUN, app=tmp_path / "mono")
     assert run_steps(g, device=False) == 1
     assert lines[-1].startswith("guide app: stop several_project_roots: ")
+
+
+def _from_root(tmp_path, capsys):
+    settings = tmp_path / "perfrepair.yaml"
+    if not settings.exists():
+        settings.write_text(f"paths: {{results: {tmp_path / 'results'}}}\n")
+        (tmp_path / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: []}\n")
+    code = top(["guide", "--app", str(APP), "--agent", "dry-run", "--perfrepair-config", str(settings),
+                "--config", str(tmp_path / "global.yaml")])
+    return code, [l for l in capsys.readouterr().out.splitlines() if l.startswith(("device ", "guide "))]
+
+
+def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(tmp_path, capsys, monkeypatch):
+    monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
+    code, first = _from_root(tmp_path, capsys)
+    assert code == 1 and first[0] == "device probe: ran: no manifest.yaml"
+    assert "guide grouping: ok: ran: no groups.json" in first
+    assert first[-1].startswith("guide dossier: stop no_options: ")
+    device = tmp_path / "results" / "fake-api36-00000000"
+    decided = sorted((device / "grouping" / "outbox").rglob("*.json"))
+    assert decided
+    code, again = _from_root(tmp_path, capsys)
+    assert code == 1 and again[:4] == [f"device {s}: reused" for s in ("probe", "benchmark", "inbound", "screen")]
+    assert "guide grouping: ok: reused" in again and again[-1] == first[-1]
+    assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 1
+    assert sorted((device / "grouping" / "outbox").rglob("*.json")) == decided
 
 
 @pytest.fixture(autouse=True)
