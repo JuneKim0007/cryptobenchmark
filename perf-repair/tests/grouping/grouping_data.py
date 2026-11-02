@@ -1,5 +1,5 @@
 from perfrepair.dto.grouping import Family
-from perfrepair.grouping.catalog.families import Families
+from perfrepair.catalog.families import Families
 
 FAMILIES = Families([
     Family("cipher.secret", "TypeC", "secret", "secret ciphers"),

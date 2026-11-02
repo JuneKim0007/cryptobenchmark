@@ -5,7 +5,7 @@ from ...dto.grouping_output import SCHEMA_VERSION, Finding
 from ...dto.decision import OutboxRecord
 from ...dto.grouping_state import Knowledge
 from ...dto.interop import PairResult, interop_section
-from ..catalog.families import Families
+from ...catalog.families import Families
 from .rules import common_key_sizes
 
 

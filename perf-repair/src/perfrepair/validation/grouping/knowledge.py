@@ -4,7 +4,7 @@ from collections import Counter
 
 from ...dto.grouping import Item
 from ...dto.grouping_state import Knowledge
-from ...grouping.catalog.families import Families
+from ...catalog.families import Families
 from ..parse.grouping_assign import SLUG, description_problems
 
 

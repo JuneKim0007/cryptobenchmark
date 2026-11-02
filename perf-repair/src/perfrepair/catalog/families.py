@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from ...dto.grouping import Family
+from ..dto.grouping import Family
 
 CATALOG = Path(__file__).with_name("families.yaml")
 SCHEMA_VERSION = 1

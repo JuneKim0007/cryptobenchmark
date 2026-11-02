@@ -4,7 +4,7 @@ import re
 
 from ...dto.grouping import Item
 from ...dto.grouping_state import Amendment, Answer, Knowledge
-from ...grouping.catalog.families import Families
+from ...catalog.families import Families
 from ..json_reply import parse_object
 
 SLUG = re.compile(r"^[a-z0-9][a-z0-9.-]{1,39}$")

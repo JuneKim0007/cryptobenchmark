@@ -24,9 +24,6 @@ RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 # (importer, imported) package pairs: reason; the #66 stage that removes it.
 ALLOWLIST: dict[tuple[str, str], str] = {
     ("validation/grouping", "grouping/paths"): "read_groups locates groups.json; B7 (S4b) run_dir",
-    ("validation/grouping", "grouping/catalog"): "gates read the family catalog; B6 (S4a) catalog/families.py",
-    ("validation/parse", "grouping/catalog"): "assign gate reads the family catalog; B6 (S4a)",
-    ("ai/parse/grouping_assign", "grouping/catalog"): "assign kind reads the family catalog; B6 (S4a)",
     ("ai/parse/grouping_assign", "grouping/paths"): "assign kind locates grouping files; B7 (S4b) run_dir",
     ("ai/review/grouping_review", "grouping/paths"): "supervisor locates grouping files; B7 (S4b) run_dir",
     ("ai/parse/grouping_assign", "grouping/state"): "assign kind projects cursor and knowledge; B8 (S5)",
@@ -36,8 +33,8 @@ ALLOWLIST: dict[tuple[str, str], str] = {
 
 # (importer, imported) package edges that close a cycle: reason; the #66 stage that removes it.
 CYCLE_ALLOWLIST: dict[tuple[str, str], str] = {
-    ("validation", "grouping"): "stage replay and the family gates; B1 (S6) check/run.py, B6 (S4a) catalog/families.py",
-    ("ai/parse", "grouping"): "assign kind reads families, paths, cursor; B6 (S4a), B7 (S4b), B8 (S5)",
+    ("validation", "grouping"): "read_groups locates groups.json; B7 (S4b) run_dir",
+    ("ai/parse", "grouping"): "assign kind reads paths, cursor; B7 (S4b), B8 (S5)",
 }
 
 

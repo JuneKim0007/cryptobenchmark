@@ -10,7 +10,7 @@ from ...runtime.prompt import PromptLibrary
 from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
 from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
-from ....grouping.catalog.families import Families
+from ....catalog.families import Families
 from ....grouping.paths import GroupingPaths
 from .render import render
 from .schema import SCHEMA

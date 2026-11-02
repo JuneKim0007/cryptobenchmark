@@ -7,7 +7,7 @@ from ...dto.grouping import items_document, profiles_document
 from ...files import read_document, write_json
 from ...validation import require
 from ...validation.grouping.items import validate_items
-from ..catalog.families import Families
+from ...catalog.families import Families
 from ..paths import GroupingPaths
 from .items import build
 

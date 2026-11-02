@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from ...catalog.names import Names
-from ..catalog.families import Families
+from ...catalog.families import Families
 
 SECRET, PAIR, UNKNOWN = "secret", "pair", "unknown"
 

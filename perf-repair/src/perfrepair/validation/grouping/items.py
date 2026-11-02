@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 
 from ...dto.grouping import Item, Profile
-from ...grouping.catalog.families import Families
+from ...catalog.families import Families
 
 
 def validate_items(items: list[Item], profiles: dict[int, Profile], families: Families) -> list[str]:
