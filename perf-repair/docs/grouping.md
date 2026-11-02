@@ -1,5 +1,15 @@
 # Grouping
 
+## Criterion
+
+| | rule |
+|---|---|
+| same group | for the same input and the same call-chosen parameters, the same output: identical bytes, or, for a randomized primitive, output each decrypts or verifies for the other; the interop check measures it per pair |
+| splits a group | a parameter the name or provider fixes: mode, padding, digest, `resolved` (OAEP digest, MGF1), curve, output encoding (DER/P1363), pre-hashed input, wrap or encrypt, password-based or raw key |
+| does not split | a parameter the call chooses (key size, IV size, tag length: dossier `pins`), the provider, the key store, whether it runs here |
+| never one group | the same output format with different bytes (SHA-256 / SHA3-256, SHA-1 / SHA-256): a substitute, not an equivalent (#56) |
+| boundary | the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared |
+
 ## Diagram
 
 ```mermaid

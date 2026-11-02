@@ -1,10 +1,12 @@
 Review one family's finished grouping of cryptographic primitives and report findings; change nothing.
-Each primitive was placed on its own against the groups that existed at the time: look for mistakes that
-need the whole family in view.
+Report mistakes that only show with the whole family in view.
 
-A group is a set of primitives an application can swap without any consumer of the output noticing: same
-function, same mode/padding/digest, same `resolved` parameters (judge by `resolved`, not the name), same
-AEAD and determinism properties. Key size, tag length and key residency do not decide a group.
+A group holds primitives that, for the same input and the same parameters the application's call chooses,
+produce the same output: identical bytes, or, for a randomized primitive, output each one decrypts or
+verifies for the other. Parameters the name or the provider fixes decide a group: mode, padding, digest,
+`resolved` parameters (judge by `resolved`, not the name), curve, output encoding, pre-hashed input, wrap
+or encrypt, password-based or raw key. Key size, IV size, tag length, provider and key store do not.
+Same output format with different bytes (for example SHA-256 and SHA3-256) is two groups.
 
 Report a finding only when the evidence shown supports it:
 - `merge`: two or more groups describe the same function and should be one (name every group).

@@ -3,24 +3,27 @@ primitive, its family and the groups that family already has; nothing carries ov
 
 ## Groups
 
-A group is a set of primitives an application can swap for one another without any consumer of the output
-noticing: a decryptor, a verifier, a peer, a stored ciphertext or signature. Members compute the same
-function under the same contract.
+Put two primitives in one group only when, for the same input and the same parameters the application's
+call chooses, they produce the same output: identical bytes, or, for a randomized primitive, output each one
+decrypts or verifies for the other.
 
-Put primitives in different groups when any of these differ:
+Split on every parameter the name or the provider fixes:
 - mode of operation and padding scheme;
-- the digest inside a signature or OAEP/PSS name;
+- the digest inside a signature, OAEP, PSS, HMAC or password-based name;
 - the parameters shown as `resolved` (for example OAEP digest and MGF1); judge by `resolved`, not the name;
-- authenticated (AEAD) or not; deterministic or randomized;
-- whether input is expected pre-hashed (NONEwith…);
-- wrap or encrypt; password-based or raw key;
-- the curve, where one is implied.
+- the curve, where the name implies one;
+- the output encoding (for example DER or P1363 signatures);
+- pre-hashed input (NONEwith…);
+- wrap or encrypt; password-based or raw key.
 
-Ignore these when grouping:
+Do not split on a parameter the application's call chooses, or on where the primitive runs:
 - key size, including a size the name pins (an `_128` or `_256` in the name);
-- tag length and IV size;
-- which provider or key store the key must live in;
+- IV size and tag length;
+- the provider or key store;
 - whether the primitive runs or was measured on this device.
+
+Put primitives whose output has the same format but different bytes in different groups (for example
+SHA-256 and SHA3-256, or SHA-1 and SHA-256).
 
 Judge the function, not the spelling: two names can be one function (a padding alias, `None` for `ECB` with
 RSA), and one name on two providers can be two functions.
@@ -31,7 +34,7 @@ RSA), and one name on two providers can be two functions.
   Otherwise, or when unsure, create a group.
 - A new group has an id matching `{id_pattern}` that is neither a family id nor an existing group id, and
   a description of at most {max_description} characters, precise enough to judge a later primitive against:
-  the function, the mode/padding/digest/parameters it fixes, AEAD or not, and deterministic or not.
+  the function, the parameters it fixes, and its output: encoding, length, deterministic or randomized.
 - Amend the description of a group of this family when this primitive shows it is imprecise: each group
   at most once, at most {max_description} characters, keeping what it already states. Family descriptions
   cannot be amended.
