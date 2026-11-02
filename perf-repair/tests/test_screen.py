@@ -42,6 +42,13 @@ def test_component_rules_deprecate_a_base_or_a_chaining_mode(name, expected):
     assert status("Cipher", name) == expected
 
 
+def test_a_verdict_records_the_canonical_key_it_was_screened_by():
+    verdict = HANDLER.verdict("Cipher", "AES_256/ECB/NoPadding", "P")
+    assert (verdict.status, verdict.canonical, verdict.keySize) == ("broken", "AES/ECB/NoPadding", 256)
+    assert validate_screen({1: replace(verdict, canonical=None)}, ITEMS[:1]) == [
+        "1: broken without the canonical name it was screened by"]
+
+
 def test_a_component_verdict_cites_its_rule():
     verdict = HANDLER.verdict("Cipher", "ARCFOUR/ECB/NoPadding", "P")
     assert verdict.status == "broken" and "rfc7465" in verdict.source
@@ -79,7 +86,8 @@ def test_a_platform_row_without_a_crypto_row_is_unknown_until_gated():
 @pytest.mark.parametrize("engine_type, name", [("Cipher", "PBEWithHmacSHA256AndAES_256"),
                                                ("MessageDigest", "SHAKE128-256"), ("KeyStore", "PKCS12")])
 def test_an_unlisted_name_is_unknown_without_a_source(engine_type, name):
-    assert HANDLER.verdict(engine_type, name, "P") == Verdict("unknown", "no screening row")
+    verdict = HANDLER.verdict(engine_type, name, "P")
+    assert (verdict.status, verdict.reason, verdict.source) == ("unknown", "no screening row", None)
 
 
 def test_a_name_conflict_is_unknown_with_its_code():
@@ -92,16 +100,16 @@ ITEMS = [Item(1, "MessageDigest", "MD5", "P", "f"), Item(2, "MessageDigest", "SH
 
 
 def test_the_validator_wants_one_verdict_per_item_from_the_status_set():
-    verdicts = {1: Verdict("weak", "r", "s"), 3: Verdict("broken", "r")}
+    verdicts = {1: Verdict("weak", "r", "s"), 3: Verdict("broken", "r", None, "MD5")}
     assert validate_screen(verdicts, ITEMS) == ["2: no verdict", "3: verdict for no item",
                                                 "1: status 'weak' is not one of ['broken', 'platform_deprecated', "
                                                 "'accepted', 'unknown']", "3: broken without a source"]
 
 
 def test_the_validator_refuses_another_schema_version():
-    doc = screen_document({1: Verdict("broken", "r", "s"), 2: Verdict("accepted", "r", "s")})
+    doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")})
     assert validate_screen_document(doc, ITEMS) == []
-    assert validate_screen_document({**doc, "schemaVersion": 2}, ITEMS)[0].startswith("screen.json does not parse")
+    assert validate_screen_document({**doc, "schemaVersion": 1}, ITEMS)[0].startswith("screen.json does not parse")
 
 
 @pytest.fixture

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 from ..catalog.names import Names, NamesError, fold
 from ..catalog.screening import DEPRECATED, PlatformRule, Screening
 from ..dto.screen import ACCEPTED, BROKEN, PLATFORM_DEPRECATED, UNKNOWN, Verdict
@@ -12,9 +14,13 @@ class ScreeningHandler:
 
     def verdict(self, engine_type: str, name: str, provider: str, target_sdk: int | None = None) -> Verdict:
         try:
-            canonical = self.names.canonical(engine_type, name).name
+            found = self.names.canonical(engine_type, name)
         except NamesError as e:
             return Verdict(UNKNOWN, str(e))
+        return replace(self._screen(engine_type, found.name, provider, target_sdk), canonical=found.name,
+                       keySize=found.keySize)
+
+    def _screen(self, engine_type: str, canonical: str, provider: str, target_sdk: int | None) -> Verdict:
         key = (engine_type, fold(canonical))
         crypto = self.screening.crypto.get(key)
         if crypto is not None and crypto.status == DEPRECATED:
