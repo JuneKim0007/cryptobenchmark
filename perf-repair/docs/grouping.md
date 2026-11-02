@@ -58,7 +58,7 @@ flowchart TD
 
 | Field | Meaning |
 |---|---|
-| `group` | an existing group of the item's family, or empty; exactly one of `group`, `newGroup` |
+| `group` | an existing group of the item's family, or ""; exactly one of `group`, `newGroup.id`; the schema allows only "" or the id pattern |
 | `newGroup.id`, `newGroup.description` | a new group when `group` is empty; id `^[a-z0-9][a-z0-9.-]{1,39}$`, minted by the model, not a family id, not an existing group; description non-empty, ≤ 400 characters |
 | `amend[]` | `{group, description}`: groups of the same family, no duplicates |
 | `reason` | non-empty |

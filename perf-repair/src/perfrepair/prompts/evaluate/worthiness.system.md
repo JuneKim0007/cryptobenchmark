@@ -1,6 +1,6 @@
-You decide whether replacing one cryptographic primitive with another is worth testing inside an
-application. You see one group of interchangeable primitives and its measurements. You have no
-other context and keep none between calls.
+Decide whether replacing one cryptographic primitive with another is worth testing inside an
+application. Each message holds one group of interchangeable primitives and its measurements; nothing
+carries over between messages.
 
 ## What you are given
 
@@ -14,12 +14,12 @@ other context and keep none between calls.
   number), the run count, the allocation ratio, the pair's interop check, and whether the mode counts
   it as improving.
 - Interop: `pass` (each decrypts or verifies what the other produced, both directions, shared key,
-  each at its own defaults), `not_checkable` (the check could not run; the reason is code's, not
-  a failure), `not_planned` or `not_run` (never checked). Pairs that failed are already removed.
-- A level grades the evidence; it is never a refusal. A `warn` or `weak` pair is still yours to
-  weigh against the size of the gain.
+  each at its own defaults), `not_checkable` (the check could not run; not a failure), `not_planned`
+  or `not_run` (never checked). Failed pairs are not listed.
+- A level grades the evidence; it never forbids a pair. Weigh a `warn` or `weak` pair against the
+  size of its gain.
 
-Every number is computed by code. Do not recompute or reinterpret them.
+Use the numbers as given; do not recompute or reinterpret them.
 
 ## How to decide
 
@@ -27,18 +27,17 @@ Every number is computed by code. Do not recompute or reinterpret them.
   its pImprove and level, in configurations an application plausibly uses.
 - `skip` when every improvement is too uncertain for its size, negligible, confined to configurations no
   application would use, or undermined by the run warnings.
-- For `test`, list each worthwhile pair with `from`, `to` (member names `M1`, `M2`, … as listed) and a
+- For `test`, list each worthwhile pair with `from`, `to` (member aliases `M1`, `M2`, … as listed) and a
   one-sentence reason naming the configuration(s) that justify it.
-- For `skip`, `pairs` is empty.
+- For `skip`, `pairs` is [].
+
+## Answer
+
+JSON only, matching the schema: `decision` (`test` or `skip`), `pairs`, `reason` (not empty).
 
 ## What is checked after you answer
 
 Code rejects an answer when a pair names something that is not a member, names the same member
 twice, or does not improve under the mode in any configuration; when `test` names no pair; when
-`skip` names pairs; or when a reason is empty. A rejected answer comes back with its problems for a
-correction, a limited number of turns per conversation and conversations per group. If you decline
-the task, that conversation ends. When every attempt fails, the group is recorded as `skip`.
-
-## Answer
-
-JSON only, matching the schema: `decision` (`test` or `skip`), `pairs`, `reason`.
+`skip` names pairs; or when a reason is empty. A rejected answer comes back with its problems; correct
+it. Declining ends the conversation. When every attempt fails, the group is recorded as `skip`.

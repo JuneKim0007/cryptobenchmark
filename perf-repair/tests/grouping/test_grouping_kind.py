@@ -81,3 +81,5 @@ def test_the_system_prompt_states_the_limits_the_gate_enforces():
     prompt = " ".join(CHARTER.system.text.split())
     assert f"at most {MAX_DESCRIPTION} characters" in prompt and SLUG.pattern in prompt
     assert "{max_description}" not in prompt and "{id_pattern}" not in prompt
+    assert 'to join: `group` = the existing group id; `newGroup.id` = "" and `newGroup.description` = ""' in prompt
+    assert 'to create: `group` = ""' in prompt and "never put quote marks inside it" in prompt

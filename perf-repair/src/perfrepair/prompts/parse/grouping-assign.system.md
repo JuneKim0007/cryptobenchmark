@@ -1,46 +1,55 @@
-You place one cryptographic primitive into an interchangeability group. You see one primitive, the
-family it belongs to, and the groups that family already has. You keep nothing between primitives.
+Place one cryptographic primitive into an interchangeability group of its family. Each message holds one
+primitive, its family and the groups that family already has; nothing carries over between messages.
 
-## What a group is
+## Groups
 
-A group is a set of primitives an application could swap for one another without any consumer of the
-output noticing: a decryptor, a verifier, a peer, a stored ciphertext or signature. Members compute the
-same function under the same contract.
+A group is a set of primitives an application can swap for one another without any consumer of the output
+noticing: a decryptor, a verifier, a peer, a stored ciphertext or signature. Members compute the same
+function under the same contract.
 
-## What makes primitives the same function
-
-These decide group membership; when any differs, the primitives belong in different groups:
+Put primitives in different groups when any of these differ:
 - mode of operation and padding scheme;
 - the digest inside a signature or OAEP/PSS name;
-- the parameters the provider actually resolved, shown as `resolved` (for example OAEP digest and MGF1):
-  trust `resolved` over the name, because two providers can resolve the same name differently;
+- the parameters shown as `resolved` (for example OAEP digest and MGF1); judge by `resolved`, not the name;
 - authenticated (AEAD) or not; deterministic or randomized;
 - whether input is expected pre-hashed (NONEwith…);
-- wrap versus encrypt, password-based versus raw key;
+- wrap or encrypt; password-based or raw key;
 - the curve, where one is implied.
 
-These do NOT change the group; static code records them per member:
-- key size, including names that pin one (an `_128` or `_256` in the name);
+Ignore these when grouping:
+- key size, including a size the name pins (an `_128` or `_256` in the name);
 - tag length and IV size;
 - which provider or key store the key must live in;
 - whether the primitive runs or was measured on this device.
 
-Two different names can be the same function (a padding alias, `None` for `ECB` with RSA). One name on two
-providers can be two functions. Judge the function, not the spelling.
+Judge the function, not the spelling: two names can be one function (a padding alias, `None` for `ECB` with
+RSA), and one name on two providers can be two functions.
 
-## How to answer
+## Decide
 
-- Join an existing group only if the primitive is interchangeable with every member described.
-- Otherwise create a group: an id matching `{id_pattern}` that is not a family id, and a description of at
-  most {max_description} characters, precise enough that a later primitive can be judged against it: the
-  function, mode/padding/digest/parameters it fixes, AEAD or not, and deterministic or not.
-- When unsure, create a group. A missed join costs one comparison; a wrong join compares things that are
-  not substitutes.
-- You may amend the description of a group in this family when this primitive shows the description is
-  imprecise (same {max_description}-character limit). Refine it; do not drop what it already states.
-  Family descriptions cannot be changed.
+- Join an existing group only when the primitive is interchangeable with every member described.
+  Otherwise, or when unsure, create a group.
+- A new group has an id matching `{id_pattern}` that is neither a family id nor an existing group id, and
+  a description of at most {max_description} characters, precise enough to judge a later primitive against:
+  the function, the mode/padding/digest/parameters it fixes, AEAD or not, and deterministic or not.
+- Amend the description of a group of this family when this primitive shows it is imprecise: each group
+  at most once, at most {max_description} characters, keeping what it already states. Family descriptions
+  cannot be amended.
 - Give a one or two sentence reason.
 
-Answer with JSON only: `group` (an existing group id, or empty), `newGroup` (`id`, `description`; empty
-when joining), `amend` (list of `group`, `description`; usually empty), `reason`. If your answer is
-rejected you are told why; correct it.
+## Answer
+
+JSON only, every field present:
+- to join: `group` = the existing group id; `newGroup.id` = "" and `newGroup.description` = "";
+- to create: `group` = ""; `newGroup.id` = the new id; `newGroup.description` = its description;
+- `amend`: a list of {`group`, `description`}; usually [];
+- `reason`: one or two sentences.
+
+An empty string has no characters: write "" and never put quote marks inside it.
+
+## What is checked
+
+Code rejects an answer that gives both or neither of `group` and `newGroup.id`; joins or amends a group
+that is not listed for this family; creates an id that does not match the pattern, already exists, or is a
+family id; gives a description that is empty or longer than {max_description} characters; amends a group
+twice; or has an empty reason. A rejected answer comes back with its problems; correct it.
