@@ -23,15 +23,12 @@ RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 
 # (importer, imported) package pairs: reason; the #66 stage that removes it.
 ALLOWLIST: dict[tuple[str, str], str] = {
-    ("ai/parse/grouping_assign", "grouping/state"): "assign kind projects cursor and knowledge; B8 (S5)",
     ("guide/steps", "app/__main__"): "guide calls the app command's main; no stage planned",
     ("guide/steps", "repair/__main__"): "guide calls the repair command's main; no stage planned",
 }
 
 # (importer, imported) package edges that close a cycle: reason; the #66 stage that removes it.
-CYCLE_ALLOWLIST: dict[tuple[str, str], str] = {
-    ("ai/parse", "grouping"): "assign kind projects cursor and knowledge; B8 (S5)",
-}
+CYCLE_ALLOWLIST: dict[tuple[str, str], str] = {}
 
 
 def _module(path: Path) -> list[str]:

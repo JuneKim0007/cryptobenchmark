@@ -29,6 +29,7 @@ src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; GroupingKind
 src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups, the item
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema
+src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided item) and knowledge
 src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
 src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family → supervisor.json
@@ -44,6 +45,4 @@ src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → checks.json, groups.json
 src/perfrepair/grouping/report/output.py : groups.json assembly
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping
-src/perfrepair/grouping/state/cursor.py : next undecided item, computed from the outbox
-src/perfrepair/grouping/state/knowledge.py : knowledge as a projection of the outbox
 ```

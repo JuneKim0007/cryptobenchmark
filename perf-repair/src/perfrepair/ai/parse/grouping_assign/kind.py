@@ -14,8 +14,7 @@ from ....catalog.families import Families
 from ....run_dir import GroupingPaths
 from .render import render
 from .schema import SCHEMA
-from ....grouping.state.cursor import cursor
-from ....grouping.state.knowledge import apply
+from .state import apply, cursor
 
 NAME = "parse/grouping-assign"
 

@@ -4,8 +4,7 @@ from grouping_data import FAMILIES
 from perfrepair.dto.grouping import Item
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.grouping_state import Amendment, Answer, Knowledge
-from perfrepair.grouping.state.cursor import cursor
-from perfrepair.grouping.state.knowledge import apply
+from perfrepair.ai.parse.grouping_assign.state import apply, cursor
 from perfrepair.validation.parse.grouping_assign import parse_answer, validate_answer
 from perfrepair.validation.grouping.knowledge import validate_knowledge
 
