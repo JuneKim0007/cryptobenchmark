@@ -10,7 +10,7 @@ from perfrepair.catalog.names import Names, fold
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.interop import interop_section
-from perfrepair.dto.screen import BROKEN, CODE_GROUPED, PLATFORM_DEPRECATED, STATUSES, lowers_status
+from perfrepair.dto.screen import BROKEN, CODE_GROUPED, NEVER_TARGET, PLATFORM_DEPRECATED, STATUSES, lowers_status
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.files import read_document
 from perfrepair.grouping.build.items import build
@@ -30,13 +30,13 @@ PACKAGED = ScreeningHandler(SCREENING, CATALOG)
 # a catalog change that moves these is deliberate: recompute, review, then pin
 EXPECTED = {
     "android36": {"items": 168, "broken": 49, "accepted": 99, "unknown": 20, "codeGroups": 40, "multiProvider": 9,
-                  "pairs": 25116, "refused": 7698},
+                  "pairs": 25116, "refused": 10842},
     "jdk17": {"items": 193, "broken": 38, "accepted": 123, "unknown": 32, "codeGroups": 38, "multiProvider": 0,
-              "pairs": 39084, "refused": 7110},
+              "pairs": 39084, "refused": 12300},
     "jdk21": {"items": 200, "broken": 38, "accepted": 123, "unknown": 39, "codeGroups": 38, "multiProvider": 0,
-              "pairs": 41316, "refused": 7362},
+              "pairs": 41316, "refused": 14124},
     "jdk25": {"items": 214, "broken": 38, "accepted": 123, "unknown": 53, "codeGroups": 38, "multiProvider": 0,
-              "pairs": 45984, "refused": 7590},
+              "pairs": 45984, "refused": 17040},
 }
 
 
@@ -117,7 +117,7 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
                 target, shown = verdicts[o.qualified], offered.get(i.qualified, {}).get(o.qualified)
                 pairs += 1
                 refused += lowers_status(current, target)
-                if target.status not in CODE_GROUPED:
+                if target.status not in NEVER_TARGET:
                     assert shown == target.status
                     continue
                 own = (target.canonical, target.keySize) == (current.canonical, current.keySize)
