@@ -8,7 +8,7 @@ from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.grouping.paths import GroupingPaths
+from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.evaluate.worthiness.command import worthiness

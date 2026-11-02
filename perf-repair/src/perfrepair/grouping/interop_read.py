@@ -8,7 +8,7 @@ from ..dto.interop import PairResult
 from ..files import read_yaml, write_text
 from ..validation import require
 from ..validation.grouping.interop import validate_results
-from .paths import GroupingPaths
+from ..run_dir import GroupingPaths
 
 
 def imported(paths: GroupingPaths) -> list[PairResult] | None:

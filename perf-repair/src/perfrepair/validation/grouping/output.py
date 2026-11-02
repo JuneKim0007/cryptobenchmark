@@ -5,7 +5,7 @@ from collections import Counter
 from ...dto.grouping import Item, read_items
 from ...dto.grouping_output import SCHEMA_VERSION
 from ...files import read_json
-from ...grouping.paths import GroupingPaths
+from ...run_dir import GroupingPaths
 from ..failure import require
 
 

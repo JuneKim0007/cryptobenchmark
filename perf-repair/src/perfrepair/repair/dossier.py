@@ -6,7 +6,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto.site import Scope
 from ..files import read_json, write_json
-from ..grouping.paths import GroupingPaths
+from ..run_dir import GroupingPaths
 from ..validation.grouping.output import read_groups
 from ..result.dossier import build_dossiers
 from ..validation import require, validate_measurements

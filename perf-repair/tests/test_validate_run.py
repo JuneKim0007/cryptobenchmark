@@ -2,7 +2,7 @@ import json
 
 from test_stages import run  # noqa: F401  (the stage fixture)
 
-from perfrepair.grouping.paths import GroupingPaths
+from perfrepair.run_dir import GroupingPaths
 from perfrepair.check.run import validate_run
 
 

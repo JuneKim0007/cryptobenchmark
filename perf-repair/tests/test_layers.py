@@ -23,9 +23,6 @@ RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 
 # (importer, imported) package pairs: reason; the #66 stage that removes it.
 ALLOWLIST: dict[tuple[str, str], str] = {
-    ("validation/grouping", "grouping/paths"): "read_groups locates groups.json; B7 (S4b) run_dir",
-    ("ai/parse/grouping_assign", "grouping/paths"): "assign kind locates grouping files; B7 (S4b) run_dir",
-    ("ai/review/grouping_review", "grouping/paths"): "supervisor locates grouping files; B7 (S4b) run_dir",
     ("ai/parse/grouping_assign", "grouping/state"): "assign kind projects cursor and knowledge; B8 (S5)",
     ("guide/steps", "app/__main__"): "guide calls the app command's main; no stage planned",
     ("guide/steps", "repair/__main__"): "guide calls the repair command's main; no stage planned",
@@ -33,8 +30,7 @@ ALLOWLIST: dict[tuple[str, str], str] = {
 
 # (importer, imported) package edges that close a cycle: reason; the #66 stage that removes it.
 CYCLE_ALLOWLIST: dict[tuple[str, str], str] = {
-    ("validation", "grouping"): "read_groups locates groups.json; B7 (S4b) run_dir",
-    ("ai/parse", "grouping"): "assign kind reads paths, cursor; B7 (S4b), B8 (S5)",
+    ("ai/parse", "grouping"): "assign kind projects cursor and knowledge; B8 (S5)",
 }
 
 

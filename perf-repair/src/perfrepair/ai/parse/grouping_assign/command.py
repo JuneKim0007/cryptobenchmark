@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import TaskPrompt
-from ....grouping.paths import GroupingPaths
+from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide

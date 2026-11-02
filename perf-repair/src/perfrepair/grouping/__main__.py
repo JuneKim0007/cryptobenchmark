@@ -17,7 +17,7 @@ from .build.stage import build_stage
 from .interop_plan import write_plan
 from .interop_read import import_results
 from ..ai.parse.grouping_assign import command as assign_cmd
-from .paths import GroupingPaths
+from ..run_dir import GroupingPaths
 from .report.checks import report
 from ..ai.review.grouping_review import command as review_cmd
 

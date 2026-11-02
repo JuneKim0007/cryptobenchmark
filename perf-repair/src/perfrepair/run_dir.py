@@ -13,6 +13,7 @@ REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.j
 MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
 # cryptobenchmark's --harness layout under its --results directory: docs/results.md `scoped/`
 SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
+GROUPING = "grouping"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
@@ -46,6 +47,25 @@ class AppPaths:
     scoped_benchmark = property(lambda self: self.root / MEASURED / SCOPED_BENCHMARK)
     report = property(lambda self: self.root / REPORT)
     report_md = property(lambda self: self.root / REPORT_MD)
+
+
+class GroupingPaths:
+
+    def __init__(self, run: Path):
+        self.root = Path(run) / GROUPING
+
+    items = property(lambda self: self.root / "items.json")
+    profiles = property(lambda self: self.root / "profiles.json")
+    cursor = property(lambda self: self.root / "cursor.json")
+    knowledge = property(lambda self: self.root / "knowledge.json")
+    journal = property(lambda self: self.root / "journal.jsonl")
+    errors = property(lambda self: self.root / "errors.jsonl")
+    checks = property(lambda self: self.root / "checks.json")
+    supervisor = property(lambda self: self.root / "supervisor.json")
+    supervisor_journal = property(lambda self: self.root / "supervisor.journal.jsonl")
+    groups = property(lambda self: self.root / "groups.json")
+    interop_plan = property(lambda self: self.root / "interop_plan.yaml")
+    interop = property(lambda self: self.root / "interop.yaml")
 
 
 def app_dirs(run: Path) -> list[Path]:

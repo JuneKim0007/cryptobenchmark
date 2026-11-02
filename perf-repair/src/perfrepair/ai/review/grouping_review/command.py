@@ -1,7 +1,7 @@
 """Stage: groups.json + checks.json → one supervisor review per family → supervisor.json."""
 from __future__ import annotations
 
-from ....grouping.paths import GroupingPaths
+from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.prompt import PromptLibrary
 from .run import charter, supervise

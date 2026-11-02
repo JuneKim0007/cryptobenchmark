@@ -8,7 +8,7 @@ from ..dto.interop import PlannedPair, plan_document
 from ..files import write_text
 from ..validation import require
 from ..validation.grouping.interop import validate_plan
-from .paths import GroupingPaths
+from ..run_dir import GroupingPaths
 from ..validation.grouping.output import read_groups
 
 

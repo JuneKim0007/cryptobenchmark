@@ -7,7 +7,7 @@ from ...runtime.agent import Conversations
 from ...runtime.engine.ask import Limits, ask
 from ...runtime.prompt import PromptLibrary
 from ....validation.review.grouping_review import parse_review
-from ....grouping.paths import GroupingPaths
+from ....run_dir import GroupingPaths
 from ....validation.grouping.output import read_groups
 from .render import render
 from .schema import SCHEMA

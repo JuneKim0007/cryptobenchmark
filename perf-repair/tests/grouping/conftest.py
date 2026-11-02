@@ -7,7 +7,7 @@ from perfrepair.dto.grouping import items_document, profiles_document
 from perfrepair.files import write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.ai.parse.grouping_assign.kind import charter
-from perfrepair.grouping.paths import GroupingPaths
+from perfrepair.run_dir import GroupingPaths
 
 from helpers import LIBRARY, QUIET  # noqa: F401  (re-exported for grouping tests)
 

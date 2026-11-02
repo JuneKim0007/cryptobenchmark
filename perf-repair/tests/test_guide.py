@@ -17,7 +17,7 @@ from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.dto.site import Dossier, required_risks
 from perfrepair.files import read_json
-from perfrepair.grouping.paths import GroupingPaths
+from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.guide.command import run_steps
 from perfrepair.guide.steps import Guide

@@ -13,7 +13,7 @@ from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..files import read_json
-from ..grouping.paths import GroupingPaths
+from ..run_dir import GroupingPaths
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
 from ..report.command import app_report

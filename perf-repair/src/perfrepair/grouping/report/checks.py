@@ -8,7 +8,7 @@ from ...validation import require
 from ...validation.grouping.output import validate_output
 from ...catalog.families import Families
 from ...ai.parse.grouping_assign.kind import GroupingKind
-from ..paths import GroupingPaths
+from ...run_dir import GroupingPaths
 from ..state.cursor import cursor
 from ..interop_read import imported
 from .output import assemble

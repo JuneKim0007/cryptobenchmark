@@ -12,7 +12,7 @@ from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.__main__ import main as grouping
-from perfrepair.grouping.paths import GroupingPaths
+from perfrepair.run_dir import GroupingPaths
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 DRY = ["--agent", "dry-run"]

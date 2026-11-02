@@ -41,7 +41,6 @@ src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measu
 src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profiles.json, validated before writing
 src/perfrepair/grouping/interop_plan.py : groups.json → interop_plan.yaml: every two runnable members of a group, once
 src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked against the plan and imported into grouping/
-src/perfrepair/grouping/paths.py : every file name under <run>/grouping/
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → checks.json, groups.json
 src/perfrepair/grouping/report/output.py : groups.json assembly
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping

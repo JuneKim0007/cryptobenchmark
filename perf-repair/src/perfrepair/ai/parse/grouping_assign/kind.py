@@ -11,7 +11,7 @@ from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_an
 from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....catalog.families import Families
-from ....grouping.paths import GroupingPaths
+from ....run_dir import GroupingPaths
 from .render import render
 from .schema import SCHEMA
 from ....grouping.state.cursor import cursor

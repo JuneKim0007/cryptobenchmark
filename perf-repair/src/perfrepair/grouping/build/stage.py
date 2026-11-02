@@ -8,7 +8,7 @@ from ...files import read_document, write_json
 from ...validation import require
 from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
-from ..paths import GroupingPaths
+from ...run_dir import GroupingPaths
 from .items import build
 
 INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
