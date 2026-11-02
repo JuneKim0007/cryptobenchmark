@@ -22,7 +22,7 @@ EXPECTED = {
 def contracts(runtime):
     probe = Probe(read_document(ROOT / runtime / "probe.yaml"))
     items, profiles = build(probe, probe.names(Names.load()), read_document(ROOT / runtime / "trial.yaml"),
-                            {}, {}, {}, Families.load())
+                            Families.load())
     return {i.qualified: profiles[i.id].keyContract for i in items}
 
 

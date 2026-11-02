@@ -16,7 +16,8 @@ from ...screen.stage import screen_items
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
 from .items import build
 
-INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
+INPUTS = ("probe", "trial")
+OPTIONAL = ("inventory", "prepared", "benchmark")
 
 
 def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None = None,
@@ -25,8 +26,8 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
     context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])
-    items, profiles = build(context.probe, context.names, context.trial, context.inventory, context.prepared,
-                            context.benchmark, context.families)
+    present = {k: getattr(context, k) for k in OPTIONAL if context.file(k) is not None}
+    items, profiles = build(context.probe, context.names, context.trial, context.families, **present)
     require("items", validate_items(items, profiles, context.families))
     verdicts = screen_items(context, items, profiles)
     require("screen", validate_screen(verdicts, items))

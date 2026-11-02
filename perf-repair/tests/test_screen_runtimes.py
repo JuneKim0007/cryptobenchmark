@@ -45,7 +45,7 @@ EXPECTED = {
 def load(runtime):
     probe = Probe(read_document(ROOT / runtime / "probe.yaml"))
     names = probe.names(CATALOG)
-    items, profiles = build(probe, names, read_document(ROOT / runtime / "trial.yaml"), {}, {}, {}, FAMILIES)
+    items, profiles = build(probe, names, read_document(ROOT / runtime / "trial.yaml"), FAMILIES)
     handler = ScreeningHandler(SCREENING, names)
     return items, {i.id: replace(handler.verdict(i.type, i.name, i.provider),
                                  providerHeld=profiles[i.id].keyContract == KEY_PROVIDER_HELD) for i in items}

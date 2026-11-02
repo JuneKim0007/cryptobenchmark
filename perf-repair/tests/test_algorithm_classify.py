@@ -200,8 +200,8 @@ def _fewer_items(monkeypatch):
     """Another manifest's build: the same items without the last one."""
     real = stage.build
 
-    def build(*args):
-        items, profiles = real(*args)
+    def build(*args, **kwargs):
+        items, profiles = real(*args, **kwargs)
         return items[:-1], {k: v for k, v in profiles.items() if k != items[-1].id}
     monkeypatch.setattr(stage, "build", build)
 

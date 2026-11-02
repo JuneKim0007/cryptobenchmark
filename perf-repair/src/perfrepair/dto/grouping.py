@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 SCHEMA_VERSION = 1
-PROFILES_SCHEMA_VERSION = 2
+# 3: measured and preparedKeySizes are null when the build had no benchmark or prepared.yaml
+PROFILES_SCHEMA_VERSION = 3
 SEPARATOR = "|"
 KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN = "app_held", "provider_held", "unknown"
 KEY_CONTRACTS = (KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN)
@@ -72,18 +73,19 @@ class Profile:
     keyAlgorithm: str | None = None
     keyProvider: str | None = None
     bareName: bool = False
-    measured: bool = False
-    preparedKeySizes: tuple[int, ...] = field(default_factory=tuple)
+    measured: bool | None = None
+    preparedKeySizes: tuple[int, ...] | None = None
     keyContract: str = KEY_UNKNOWN
 
     def to_json(self) -> dict:
         d = asdict(self)
-        d["preparedKeySizes"] = list(self.preparedKeySizes)
+        d["preparedKeySizes"] = None if self.preparedKeySizes is None else list(self.preparedKeySizes)
         return d
 
     @classmethod
     def from_json(cls, d: dict) -> "Profile":
-        return cls(**{**d, "preparedKeySizes": tuple(d.get("preparedKeySizes") or ())})
+        sizes = d.get("preparedKeySizes")
+        return cls(**{**d, "preparedKeySizes": None if sizes is None else tuple(sizes)})
 
 
 def items_document(items: list[Item]) -> dict:

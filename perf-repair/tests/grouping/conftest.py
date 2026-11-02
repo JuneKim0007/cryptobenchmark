@@ -16,7 +16,7 @@ CHARTER = charter(LIBRARY)
 
 @pytest.fixture
 def paths(tmp_path):
-    items, profiles = build(PROBE, NAMES, TRIAL, INVENTORY, PREPARED, BENCHMARK, FAMILIES)
+    items, profiles = build(PROBE, NAMES, TRIAL, FAMILIES, INVENTORY, PREPARED, BENCHMARK)
     p = GroupingPaths(tmp_path)
     p.root.mkdir()
     write_json(p.items, items_document(items))

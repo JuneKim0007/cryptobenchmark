@@ -6,7 +6,7 @@ from perfrepair.validation.grouping.items import validate_items
 
 
 def built():
-    return build(PROBE, NAMES, TRIAL, INVENTORY, PREPARED, BENCHMARK, FAMILIES)
+    return build(PROBE, NAMES, TRIAL, FAMILIES, INVENTORY, PREPARED, BENCHMARK)
 
 
 def by_name(items, profiles):
@@ -55,6 +55,32 @@ def test_validator_names_every_broken_contract():
     assert any("is for TypeC, not TypeD" in p for p in problems)
     assert any("carries group" in p for p in problems)
     assert any("3: no profile" in p for p in problems)
+
+
+def test_probe_and_trial_suffice_and_what_they_cannot_say_is_null():
+    items, profiles = build(PROBE, NAMES, TRIAL, FAMILIES)
+    full_items, full = built()
+    assert items == full_items
+    item, p = by_name(items, profiles)[("ALG-S/M1", "P1")]
+    assert (p.measured, p.preparedKeySizes, p.runs) == (None, None, full[item.id].runs)
+    assert read_profiles(profiles_document(profiles)) == profiles
+    assert profiles_document(profiles)["profiles"][str(item.id)]["measured"] is None
+
+
+def test_a_probe_only_device_folder_builds_and_reports_no_key_sizes(tmp_path):
+    import yaml
+    from helpers import with_results
+    from perfrepair.grouping.build.stage import build_stage
+    from perfrepair.grouping.report.rules import common_key_sizes
+    from perfrepair.screen.catalog import screening_catalog
+    folder = with_results(tmp_path)
+    doc = yaml.safe_load((folder / "manifest.yaml").read_text())
+    doc["files"] = {k: doc["files"][k] for k in ("probe", "trial")}
+    (folder / "manifest.yaml").write_text(yaml.safe_dump(doc))
+    paths = build_stage(folder / "manifest.yaml", folder, screening_catalog(None))
+    profiles = read_profiles(yaml.safe_load(paths.profiles.read_text()))
+    assert all(p.measured is None and p.preparedKeySizes is None for p in profiles.values())
+    assert common_key_sizes(list(profiles), profiles) == []
 
 
 def test_build_with_a_missing_input_is_a_one_line_error(tmp_path, capsys):
