@@ -48,4 +48,6 @@ def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespac
             parser.error(f"the following arguments are required: --device-results (or {PATHS_RESULTS.key} in perfrepair.yaml)")
         args.device_results = select_device(Path(root).expanduser(), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
+    if rd.device_folders(args.device_results) and not (args.device_results / rd.MANIFEST).is_file():
+        raise ValueError(rd.not_device_results(args.device_results))
     _warn_if_temp(args.device_results)

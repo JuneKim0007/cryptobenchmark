@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from ...files import read_yaml
-
 from pathlib import Path
 
-
+from ... import run_dir as rd
 from ...dto import BenchmarkManifest
+from ...files import read_yaml
 
 
 def read_manifest(path: Path) -> tuple[BenchmarkManifest, Path]:
     path = Path(path)
+    if not path.is_file():
+        raise ValueError(rd.not_device_results(path.parent))
     doc = read_yaml(path)
     return BenchmarkManifest.from_json(doc), path.parent.resolve()
 

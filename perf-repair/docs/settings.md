@@ -92,7 +92,7 @@
 | `invalid_yaml: <file>` | the file is not YAML, so no secret check is possible |
 | `missing_file: <file> (<origin>)` | the flag or `PERFREPAIR_CONFIG` names no file |
 | `missing_file: <input>: <value> (<source>)` | a set `device.screening.catalog` does not load |
-| `several_device_results`, `device_not_in_results`, `no_device_results` | `paths.results` does not name one device: [artifacts.md](artifacts.md#folders) |
+| `several_device_results`, `device_not_in_results`, `no_device_results`, `not_device_results` | `paths.results` does not name one device: [artifacts.md](artifacts.md#folders) |
 
 - A key no row knows is one warning, `unknown_key: <key>, known [...] (<file>)`, a key from before the sections (`grouping`, `guide`, `ai`, `screening`) included; a block's key is checked at spawn.
 - `secret_key`, `invalid_yaml` and a named file that is missing exit 2 through the command's argument parser, the first two ending with ` (<file>)`.

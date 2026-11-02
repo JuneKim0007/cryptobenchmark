@@ -20,6 +20,7 @@
 | `several_device_results: <root> holds a, b; set device.id or pass --device-results` | several devices and no `device.id` |
 | `device_not_in_results: <id>; <root> holds [...]` | `device.id` names no finished device under the root |
 | `no_device_results: <root> ...` | the root holds no finished device |
+| `not_device_results: <folder> has no manifest.yaml; pass <root>/<device id>` | `--device-results` names a root holding devices, or a command reads the manifest of a folder without one |
 
 ## Files
 

@@ -25,6 +25,10 @@ def device_folders(root: Path) -> list[str]:
     return sorted(p.name for p in root.iterdir() if (p / MANIFEST).is_file()) if root.is_dir() else []
 
 
+def not_device_results(folder: Path) -> str:
+    return f"not_device_results: {folder} has no {MANIFEST}; pass <root>/<device id>"
+
+
 def app_dir(device: Path, name: str) -> Path:
     """<device>/<name>/: one app's files; the name is a single path segment."""
     if not _APP_NAME.fullmatch(name):
