@@ -6,15 +6,24 @@ import sys
 from pathlib import Path
 
 from ..check.run import validate_run
+from ..config.args import add_config_arg, load_settings
+from ..log import log_to_stderr
+from ..screen.catalog import screening_catalog
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     parser = argparse.ArgumentParser(prog="python3 -m perfrepair.validation", description=__doc__.strip())
     parser.add_argument("run", type=Path, help="run directory")
-    run = parser.parse_args(argv).run
-    if not run.is_dir():
-        parser.error(f"not a directory: {run}")
-    report = validate_run(run)
+    add_config_arg(parser)
+    args = parser.parse_args(argv)
+    if not args.run.is_dir():
+        parser.error(f"not a directory: {args.run}")
+    try:
+        catalog = screening_catalog(load_settings(parser, args))
+    except ValueError as e:
+        parser.error(str(e))
+    report = validate_run(args.run, catalog)
     for artifact, problems in report.items():
         print(f"{artifact}: {'ok' if not problems else f'{len(problems)} problem(s)'}")
         for p in problems:

@@ -36,6 +36,7 @@ ai:
   worthiness: {}
   replace: {}
 
-screening:                 # checked but not read by any command yet
-  catalog:
-  unknown: model           # model | unverified
+screening:                 # grouping build, repair dossier, guide, validation
+  catalog:                 # a screening.yaml; empty = the packaged catalog (logged); a missing file is missing_file
+  aiReview: false          # true: grouping build asks screening.classify about the items no row decides
+  classify: {}             # role keys: backend, model, effort, claudeBinary

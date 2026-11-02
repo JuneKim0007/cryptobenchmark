@@ -11,7 +11,7 @@ from ..dto.site import Scope
 from ..files import read_json
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..run_dir import GroupingPaths
-from ..screen.handler import ScreeningHandler
+from ..screen.catalog import Catalog, screening_catalog
 from ..validation.grouping.output import read_groups
 from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
@@ -28,7 +28,7 @@ from ..validation.run_log import validate_run_log
 from ..validation.screen import validate_screen_document
 
 
-def validate_run(run: Path) -> dict[str, list[str]]:
+def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[str]]:
     run, out = Path(run), {}
     if not (run / rd.ROWS).is_file():
         return {rd.ROWS: [f"missing: {run / rd.ROWS}"]}
@@ -60,7 +60,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
         return out
     out |= validate_interop(groups, grouping.interop_plan, grouping.interop)
     screen = rd.load_screen(grouping)
-    out |= _dossiers(run, groups, screen)
+    out |= _dossiers(run, groups, screen, catalog)
     for mode in MODES.values():
         directory = rd.worthiness(run, mode.name)
         if (directory / rd.VERDICTS).exists():
@@ -77,8 +77,9 @@ def validate_run(run: Path) -> dict[str, list[str]]:
     return out
 
 
-def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None) -> dict[str, list[str]]:
-    out, handler = {}, ScreeningHandler.packaged()
+def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None,
+              catalog: Catalog | None) -> dict[str, list[str]]:
+    out, handler = {}, (catalog or screening_catalog(None)).handler()
     for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
         scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
         verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))

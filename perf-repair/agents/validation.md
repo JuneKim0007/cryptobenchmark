@@ -17,7 +17,7 @@
 
 ```
 src/perfrepair/check/run.py : stage replay: validate every artifact present in a run directory, rebuilding kinds from their outboxes
-src/perfrepair/validation/__main__.py : command: validate a run directory; exit 1 on any problem, 2 on bad usage
+src/perfrepair/validation/__main__.py : command: validate a run directory by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status; parse_dossiers: Dossiers and noOptions for the replace stage, by the same checks
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode

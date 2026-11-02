@@ -13,6 +13,7 @@ from ..ai.suggest.site_replace import command as replace_cmd
 from ..app.gate import GateError
 from ..config.args import fill, load_settings, require
 from ..data_handler.outbound.benchmark_runner import BenchmarkRunError
+from ..log import log_to_stderr
 from ..result.modes import MODES
 from ..validation import ValidationFailed
 from .steps import DEVICE, DRY, Guide, Stop
@@ -60,6 +61,7 @@ def run_steps(g: Guide, device: bool) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
@@ -71,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.mode not in MODES:
         ap.error(f"invalid: guide.mode {a.mode}, one of {sorted(MODES)}")
     g = Guide(a.run.expanduser(), a.app.expanduser(), a.name, a.results.expanduser(), MODES[a.mode],
-              conversations(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a), limit=a.limit, config=a.config)
+              conversations(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a), limit=a.limit, config=a.config, settings=settings)
     return run_steps(g, a.device)
 
 

@@ -13,12 +13,6 @@ class ScreeningHandler:
     def __init__(self, screening: Screening, names: Names):
         self.screening, self.names = screening, names
 
-    @classmethod
-    def packaged(cls) -> "ScreeningHandler":
-        # catalog names without the probe's aliases: app_verdicts reads canonical names screen.json recorded
-        names = Names.load()
-        return cls(Screening.load(names=names), names)
-
     def verdict(self, engine_type: str, name: str, provider: str, target_sdk: int | None = None) -> Verdict:
         try:
             found = self.names.canonical(engine_type, name)

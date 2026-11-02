@@ -4,7 +4,7 @@
   report  --run <dir> [--supervisor [--prompts DIR]] [--agent ...]   checks.json, groups.json [, supervisor.json]
   interop-plan --run <dir>                                    interop_plan.yaml from groups.json
   interop-read --run <dir> --results <interop.yaml>           interop.yaml imported; report rerun with its findings
-assign and report fill unset flags from perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
+build, assign and report fill unset values from perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,9 @@ from pathlib import Path
 from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
-from ..config.args import fill, load_settings, require
+from ..config.args import add_config_arg, fill, load_settings, require
+from ..log import log_to_stderr
+from ..screen.catalog import screening_catalog
 from .build.stage import build_stage
 from .interop_plan import write_plan
 from .interop_read import import_results
@@ -32,6 +34,7 @@ def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParse
     b = sub.add_parser("build")
     b.add_argument("--manifest", type=Path, required=True)
     b.add_argument("--run", type=Path, required=True)
+    add_config_arg(b)
     a = sub.add_parser("assign")
     a.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
     add_agent_args(a, role="grouping.assign")
@@ -75,8 +78,11 @@ def _model_step(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     ap, steps = _parser()
     args = ap.parse_args(argv)
+    if args.step == "build":
+        return _build(ap, args)
     if args.step in ("assign", "report"):
         _model_step(ap, steps[args.step], args)
         return 0
@@ -88,12 +94,20 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def _build(ap: argparse.ArgumentParser, args: argparse.Namespace) -> int:
+    settings = load_settings(ap, args)
+    try:
+        paths = build_stage(args.manifest, args.run, screening_catalog(settings))
+    except (FileNotFoundError, ValueError, ValidationFailed) as e:
+        print(f"error {e}", file=sys.stderr)
+        return 1
+    print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
+    return 0
+
+
 def _file_step(args: argparse.Namespace) -> None:
     paths = GroupingPaths(args.run)
-    if args.step == "build":
-        build_stage(args.manifest, args.run)
-        print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
-    elif args.step == "interop-plan":
+    if args.step == "interop-plan":
         print(f"{len(write_plan(paths))} pairs -> {paths.interop_plan}")
     else:
         results = import_results(paths, args.results)

@@ -10,7 +10,9 @@ import yaml
 from ..dto.site import Replacement, Scope, read_replacements
 from ..files import read_json, write_json, write_text
 from ..run_dir import AppPaths
-from ..screen.handler import ScreeningHandler
+from ..config.args import add_config_arg, load_settings
+from ..log import log_to_stderr
+from ..screen.catalog import screening_catalog
 from ..validation.repair import validate_edits, validate_harness
 from .dossier import dossier
 from .edit import edit_app, load_specs
@@ -20,6 +22,7 @@ from .test_set import build_test_set
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     ap = argparse.ArgumentParser(prog="perfrepair.repair")
     sub = ap.add_subparsers(dest="command", required=True)
     for name in ("dossier", "test-set", "edit", "harness"):
@@ -29,16 +32,26 @@ def main(argv: list[str] | None = None) -> int:
     for name in ("dossier", "edit"):
         sub.choices[name].add_argument("--source", type=Path, required=True,
                                        help="the app's root; only read, scope files are relative to it")
+    add_config_arg(sub.choices["dossier"])
     sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
     sub.choices["harness"].add_argument("--manifest", type=Path, required=True,
                                         help="the benchmark results' manifest.yaml; its effective.yaml gives the sizes")
     a = ap.parse_args(argv)
     if a.command == "dossier":
-        dossier(a.run, a.app, a.source, ScreeningHandler.packaged())
-        return 0
+        return _dossier(ap, a)
     if a.command == "test-set":
         return _test_set(a)
     return _edit(a) if a.command == "edit" else _harness(a)
+
+
+def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
+    try:
+        catalog = screening_catalog(load_settings(ap, a))
+    except ValueError as e:
+        print(f"error {e}", file=sys.stderr)
+        return 1
+    dossier(a.run, a.app, a.source, catalog.handler())
+    return 0
 
 
 def _test_set(a: argparse.Namespace) -> int:

@@ -76,10 +76,11 @@ def test_the_table_names_the_screening_catalog_with_its_packaged_file():
 def test_the_stderr_handler_is_attached_once_and_follows_a_replaced_stderr(capsys):
     logger = logging.getLogger("perfrepair")
     before = list(logger.handlers)
+    logger.handlers[:] = []
     try:
         log_to_stderr()
         log_to_stderr()
-        assert len(logger.handlers) == len(before) + 1
+        assert len(logger.handlers) == 1
         logging.getLogger("perfrepair.inputs").info("hello")
         assert capsys.readouterr().err == "hello\n"
         assert logger.handlers[-1].stream is sys.stderr

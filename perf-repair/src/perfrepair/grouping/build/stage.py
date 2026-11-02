@@ -10,14 +10,17 @@ from ...validation import require, validate_screen
 from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
 from ...run_dir import GroupingPaths
+from ...screen.catalog import Catalog, screening_catalog
 from ...screen.stage import screen_items
 from .items import build
 
 INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
 
 
-def build_stage(manifest_path: Path, run: Path, families: Families | None = None) -> GroupingPaths:
-    context = RunContext.load(manifest_path, families=families)
+def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None,
+                families: Families | None = None) -> GroupingPaths:
+    catalog = catalog or screening_catalog(None)
+    context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])
     items, profiles = build(context.probe, context.names, context.trial, context.inventory, context.prepared,

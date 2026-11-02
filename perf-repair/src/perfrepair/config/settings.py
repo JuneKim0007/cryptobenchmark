@@ -8,7 +8,6 @@ from typing import Any, Mapping
 
 BACKENDS = ("claude", "claude-code", "dry-run")
 EFFORTS = ("low", "medium", "high", "xhigh", "max")
-UNKNOWN = ("model", "unverified")
 DEFAULT_MODEL = "claude-opus-5-5"
 SECRET_KEY = re.compile(r"api[_-]?key|token|secret|password", re.I)
 SECRET_VALUE = re.compile(r"^sk-ant-")
@@ -113,11 +112,12 @@ class Ai:
 @dataclass(frozen=True)
 class Screening:
     catalog: Path | None = _path_field()
-    unknown: str | None = None
+    aiReview: bool | None = None
+    classify: Agent = field(default_factory=Agent)
 
     def __post_init__(self):
         _path("catalog", self.catalog)
-        _one_of("unknown", self.unknown, UNKNOWN)
+        _check("aiReview", self.aiReview, isinstance(self.aiReview, bool), "true or false")
 
 
 @dataclass(frozen=True)
@@ -138,7 +138,8 @@ class Settings:
 
 AGENT_DEFAULT = Agent("claude-code", DEFAULT_MODEL, "medium", "claude")
 ROLES = {"grouping.assign": "grouping.assign", "grouping.supervisor": "grouping.supervisor",
-         "guide": "guide.agent", "ai.worthiness": "ai.worthiness", "ai.replace": "ai.replace"}
+         "guide": "guide.agent", "ai.worthiness": "ai.worthiness", "ai.replace": "ai.replace",
+         "screening.classify": "screening.classify"}
 ROLE_DEFAULTS = {"grouping.supervisor": Agent(effort="high")}
 
 

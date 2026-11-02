@@ -19,11 +19,12 @@ def test_values_parse_into_sections_with_paths_relative_to_the_file(tmp_path):
                "paths": {"run": "runs/a", "prompts": "/abs/prompts"},
                "grouping": {"turns": 4, "supervisor": {"effort": "low"}},
                "guide": {"device": True, "agent": {"model": "m"}},
-               "screening": {"catalog": "cat.yaml", "unknown": "unverified"}}, tmp_path)
+               "screening": {"catalog": "cat.yaml", "aiReview": True, "classify": {"effort": "low"}}}, tmp_path)
     assert s.agent == Agent(backend="dry-run", claudeBinary="/opt/claude")
     assert s.paths.run == tmp_path / "runs/a" and s.paths.prompts == Path("/abs/prompts")
     assert s.grouping.turns == 4 and s.grouping.supervisor.effort == "low" and s.guide.agent.model == "m"
     assert s.screening.catalog == tmp_path / "cat.yaml" and s.get("guide.device") is True
+    assert s.screening.aiReview is True and s.get("screening.classify").effort == "low"
 
 
 def test_empty_file_and_null_values_are_unset(tmp_path):
@@ -36,7 +37,8 @@ def test_empty_file_and_null_values_are_unset(tmp_path):
      "unknown_keys: grouping.assign ['efort'], known ['backend', 'model', 'effort', 'claudeBinary']"),
     ({"agent": {"effort": "hgh"}}, "invalid: agent.effort hgh, one of ['low', 'medium', 'high', 'xhigh', 'max']"),
     ({"ai": {"replace": {"backend": "openai"}}}, "invalid: ai.replace.backend openai, one of ['claude', 'claude-code', 'dry-run']"),
-    ({"screening": {"unknown": "guess"}}, "invalid: screening.unknown guess, one of ['model', 'unverified']"),
+    ({"screening": {"aiReview": "yes"}}, "invalid: screening.aiReview yes, true or false"),
+    ({"screening": {"unknown": "model"}}, "unknown_keys: screening ['unknown'], known ['catalog', 'aiReview', 'classify']"),
     ({"grouping": {"turns": 0}}, "invalid: grouping.turns 0, a positive integer"),
     ({"guide": {"device": "yes"}}, "invalid: guide.device yes, true or false"),
     ({"paths": {"run": 3}}, "invalid: paths.run 3, a path"),

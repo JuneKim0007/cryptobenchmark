@@ -29,8 +29,20 @@
 - a run without `screen.json` asks every item, and dossiers and evidence apply no status rule.
 - don't lower the status: a `broken` or `platform_deprecated` target is allowed only with the current item's canonical name and key size and at no worse a status (`dto/screen.py` `lowers_status`); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
 - per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.
-- handler: `repair dossier`, the guide and `check` pass `ScreeningHandler.packaged()` (the packaged catalog); the dossier step takes it as a parameter, not from a RunContext, since it has no manifest.
+- handler: `grouping build`, `repair dossier`, the guide and `check` judge by the catalog `screen/catalog.py` `screening_catalog` resolves ([Settings](#settings)); the dossier step takes the handler as a parameter, not from a RunContext, since it has no manifest.
 - assign: the prompt does not ask the model to mark a group weak; screening decides it. Removing that clause changed the assign charter fingerprint, so a run assigned before it re-assigns once into a new outbox.
+
+## Settings
+
+| Case | Catalog | Log line (stderr) |
+|---|---|---|
+| no `perfrepair.yaml` | packaged | `screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off` |
+| `perfrepair.yaml` without `screening.catalog` | packaged | `screening.catalog: packaged catalog (screening.catalog unset in <file>); aiReview on\|off` |
+| `screening.catalog` names a file | that file, relative to `perfrepair.yaml` | none |
+| `screening.catalog` names no file | none: the step exits non-zero with `missing_file` | none |
+
+- A named catalog that does not load is never replaced by the packaged one: skipping screening would let a broken algorithm become a target.
+- The resolution is the `screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)
 

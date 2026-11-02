@@ -43,8 +43,8 @@
 | `guide.limit` | a positive integer | all scopes | `guide --limit` |
 | `guide.device` | `true`, `false` | `false` | `guide --device` |
 | `guide.config` | a `global.yaml` | `pipeline.py`'s lookup | `guide --config` |
-| `screening.catalog` | a file | none | no command yet |
-| `screening.unknown` | `model`, `unverified` | none | no command yet |
+| `screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
+| `screening.aiReview` | `true`, `false` | `false` | `grouping build`: the model review of unknown items |
 
 | role | file section | role default |
 |---|---|---|
@@ -53,6 +53,7 @@
 | `guide` | `guide.agent` | none |
 | `ai worthiness` | `ai.worthiness` | none |
 | `ai replace` | `ai.replace` | none |
+| `grouping build` classify | `screening.classify` | none |
 
 - A role section takes the agent keys: `backend`, `model`, `effort`, `claudeBinary`.
 

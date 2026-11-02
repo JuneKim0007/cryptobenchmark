@@ -25,7 +25,7 @@ RUNTIMES = sorted(p.name for p in ROOT.iterdir() if p.is_dir())
 TARGET_SDKS = (None, 24, 27, 28, 33, 36)
 CATALOG, FAMILIES = Names.load(), Families.load()
 SCREENING = Screening.load(names=CATALOG)
-PACKAGED = ScreeningHandler.packaged()
+PACKAGED = ScreeningHandler(SCREENING, CATALOG)
 
 # a catalog change that moves these is deliberate: recompute, review, then pin
 EXPECTED = {

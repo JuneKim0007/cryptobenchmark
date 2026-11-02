@@ -8,11 +8,12 @@ from pathlib import Path
 from helpers import QUIET, row, summary
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from perfrepair.catalog.screening import PlatformRule
+from perfrepair.catalog.screening import SCREENING, PlatformRule
 from perfrepair.dto.screen import Verdict
 from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.result.dossier import build_dossiers
+from perfrepair.screen.catalog import load_catalog
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.dossiers import validate_dossiers
 from perfrepair.check.run import validate_run
@@ -179,7 +180,7 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     app.mkdir(parents=True)
     for name in ("scopes.json", "app.json"):
         shutil.copy(DEMO / name, app / name)
-    doc = dossier(run, "demo", F / "app", ScreeningHandler.packaged(), **QUIET)
+    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING).handler(), **QUIET)
     [d] = doc["dossiers"]
     assert d["current"] == "Cipher|AES/GCM/NoPadding|Slow" and d["source"].startswith("    byte[] seal(")
     [option] = d["options"]
@@ -251,7 +252,7 @@ MIXED_SCREEN = {1: Verdict("accepted", "r", "S", "SHA-512"), 2: Verdict("accepte
                                                           (34, [], ["deprecated_only"])])
 def test_a_platform_deprecated_target_depends_on_the_apps_target_sdk(tmp_path, target_sdk, options, reasons):
     s = replace(scope(provider="P", algorithm="SHA-512"), engineType="MessageDigest")
-    verdicts = ScreeningHandler.packaged().app_verdicts(MIXED, MIXED_SCREEN, target_sdk)
+    verdicts = load_catalog(SCREENING).handler().app_verdicts(MIXED, MIXED_SCREEN, target_sdk)
     doc = build([s], tmp_path, groups=MIXED, rows=[], verdicts=verdicts)
     assert [(o["item"], o["screen"]) for d in doc["dossiers"] for o in d["options"]] == options
     assert [n["reason"] for n in doc["noOptions"]] == reasons
@@ -262,7 +263,7 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
     app = run / "apps" / "demo"
     app.mkdir(parents=True)
     shutil.copy(DEMO / "scopes.json", app / "scopes.json")
-    packaged = ScreeningHandler.packaged()
+    packaged = load_catalog(SCREENING).handler()
     rule = PlatformRule(28, None, "targetSdk", "test rule", "S")
     handler = ScreeningHandler(replace(packaged.screening, platform={("Fast", "Cipher", "AES/GCM/NOPADDING"): rule}),
                                packaged.names)

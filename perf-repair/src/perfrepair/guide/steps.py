@@ -18,7 +18,8 @@ from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
 from ..report.command import app_report
 from ..result.modes import Mode
-from ..screen.handler import ScreeningHandler
+from ..config.load import Loaded
+from ..screen.catalog import screening_catalog
 
 MANIFEST = "manifest.yaml"
 INBOUND = "python3 -m perfrepair.data_handler.inbound --manifest <results>/manifest.yaml -o <run>"
@@ -44,6 +45,7 @@ class Guide:
     limits: Limits = Limits()
     limit: int | None = None
     config: Path | None = None
+    settings: Loaded | None = None
     echo: Callable[[str], None] = print
 
     @property
@@ -75,7 +77,7 @@ def app(g: Guide) -> str:
 
 
 def dossiers(g: Guide) -> str:
-    doc = dossier(g.run, g.name, g.app_root, ScreeningHandler.packaged(), echo=lambda _: None)
+    doc = dossier(g.run, g.name, g.app_root, screening_catalog(g.settings).handler(), echo=lambda _: None)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         raise Stop("no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)})")
