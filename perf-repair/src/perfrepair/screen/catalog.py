@@ -64,8 +64,9 @@ def ai_review(loaded: Loaded | None) -> bool:
 
 def screening_catalog(loaded: Loaded | None) -> Catalog:
     """None stands for no perfrepair.yaml; a set catalog that does not load is missing_file, never the packaged one."""
-    where = f"screening.catalog unset in {loaded.file}" if loaded and loaded.file else "no perfrepair.yaml"
-    set_value = loaded.value("screening.catalog") if loaded else None
-    explicit = [Candidate(set_value, f"file {loaded.file} screening.catalog" if loaded else "settings")]
+    key = SCREENING_CATALOG.setting
+    where = f"{key} unset in {loaded.file}" if loaded and loaded.file else "no perfrepair.yaml"
+    set_value = loaded.value(key) if loaded else None
+    explicit = [Candidate(set_value, f"file {loaded.file} {key}" if loaded else "settings")]
     note = f"({where}); aiReview {'on' if ai_review(loaded) else 'off'}"
     return SCREENING_CATALOG.resolve(explicit, load_catalog, note).value

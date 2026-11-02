@@ -23,4 +23,3 @@ class Policy:
 
 
 SCREENING_CATALOG = Policy("screening.catalog", Need.DEFAULT, "screening.catalog", SCREENING, "packaged catalog")
-TABLE = {p.name: p for p in (SCREENING_CATALOG,)}

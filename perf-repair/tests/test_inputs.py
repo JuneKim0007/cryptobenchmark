@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from perfrepair.inputs.resolve import Candidate, InputError, Need, resolve
-from perfrepair.inputs.table import SCREENING_CATALOG, TABLE, Policy
+from perfrepair.inputs.table import SCREENING_CATALOG, Policy
 from perfrepair.log import log_to_stderr
 
 
@@ -68,8 +68,8 @@ def test_a_policy_appends_its_packaged_default(tmp_path, caplog):
     assert caplog.messages == ["y: packaged y (unset)"]
 
 
-def test_the_table_names_the_screening_catalog_with_its_packaged_file():
-    assert TABLE["screening.catalog"] is SCREENING_CATALOG
+def test_the_screening_catalog_row_names_its_setting_and_packaged_file():
+    assert SCREENING_CATALOG.setting == "screening.catalog"
     assert SCREENING_CATALOG.need is Need.DEFAULT and SCREENING_CATALOG.packaged.is_file()
 
 
