@@ -63,9 +63,9 @@ src/perfrepair/config/load.py : settings file lookup; layered resolution per key
 src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and role code defaults
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
-src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules
+src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
-src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: findings only
+src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: the three contracts; findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer
 src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace or keep a call site; like-for-like, risks (unverified interop is one), cite the metric
 ```

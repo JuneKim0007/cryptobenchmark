@@ -2,13 +2,27 @@
 
 ## Criterion
 
-| | rule |
-|---|---|
-| same group | for the same input and the same call-chosen parameters, the same output: identical bytes, or, for a randomized primitive, output each decrypts or verifies for the other; the interop check measures it per pair |
-| splits a group | a parameter the name or provider fixes: mode, padding, digest, `resolved` (OAEP digest, MGF1), curve, output encoding (DER/P1363), pre-hashed input, wrap or encrypt, password-based or raw key |
-| does not split | a parameter the call chooses (key size, IV size, tag length: dossier `pins`), the provider, the key store, whether it runs here |
-| never one group | the same output format with different bytes (SHA-256 / SHA3-256, SHA-1 / SHA-256): a substitute, not an equivalent (#56) |
-| boundary | the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared |
+Two primitives share a group only when all three contracts match, inside one family.
+
+| Contract | Covers | Splits a group | Evidence |
+|---|---|---|---|
+| input | the data and parameters the call passes, and which side supplies each one (caller-given IV, provider-generated IV) | a different side supplies a parameter; pre-hashed input; wrap or encrypt; password-based or raw key | name, attributes, `resolved` |
+| key | how the key reaches the primitive: key material the application holds, or a handle to a key that lives inside the provider (keystore, TEE, StrongBox) | `app_held` against `provider_held`; `unknown` decides nothing | `keyContract` of `profiles.json` |
+| output | for the same input, key and call-chosen parameters, identical bytes, or, for a randomized primitive, output each one decrypts or verifies for the other | a parameter the name or provider fixes: mode, padding, digest, `resolved` (OAEP digest, MGF1), curve, output encoding (DER/P1363); the same format with different bytes (SHA-256 / SHA3-256, SHA-1 / SHA-256: a substitute, not an equivalent, #56) | name, `resolved`; the interop check measures it per pair |
+
+- Boundary: the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared.
+- Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
+
+## Key contract
+
+| Probe attributes of the service | `keyContract` | Shown to the model |
+|---|---|---|
+| any `SupportedKeyFormats` value, or a `SupportedKeyClasses` value under a prefix of `catalog/key-contract.yaml` (`java.security.`, `javax.crypto.`) | `app_held` | `key: application-held` |
+| `SupportedKeyClasses` values, none under such a prefix | `provider_held` | `key: inside the provider` |
+| neither attribute | `unknown` | no line |
+
+- A provider registering a `KeyStore` is not evidence: a provider can register one and take raw keys.
+- The code-made group key does not hold the key contract, so a code-made group can get `key_contract_differs`.
 
 ## Diagram
 
@@ -36,7 +50,7 @@ flowchart TD
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
-| `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
+| `profiles.json` | build | schema 2: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out item ids (none: as before screening) |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
 | `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
@@ -44,8 +58,8 @@ flowchart TD
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
 | `checks.json` | report | static findings with severity; counts |
-| `groups.json` | report | schema 2: families, groups with members, runnable members, common key sizes, findings; items index with each item's `screen` status (null without screen.json); dropped; `interop` |
-| `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size |
+| `groups.json` | report | schema 3: families, groups with members, runnable members, common key sizes, findings; items index with each item's `keyContract` and `screen` status (null without screen.json); dropped; `interop` |
+| `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size; `notCheckable[]` `{id, group, a, b, reason}`, present when a pair crosses key contracts: never sent to the oracle, which reads only `pairs` |
 | `interop.yaml` | interop-read | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions |
 | `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings |
 | `supervisor.journal.jsonl` | report --supervisor | one line per review turn, with `charter` |
@@ -109,6 +123,7 @@ Turns, sessions and `--limit`: `docs/decisions.md`.
 | Kind | Severity |
 |---|---|
 | `resolved_parameters_differ` | error |
+| `key_contract_differs` | error |
 | `dropped` | error |
 | `no_common_key_size` | warning |
 | `no_runnable_member` | warning |
@@ -123,7 +138,7 @@ Turns, sessions and `--limit`: `docs/decisions.md`.
 | `groups.json` `interop.status` | `checked` after interop-read; `not_run` before |
 | `interop.pairs[]` | `{id, group, a, b, result, reason}`; `a`, `b` qualified names |
 | `fail` | the pair is out of evidence pairs and dossier options; finding `interop_failed` |
-| `not_checkable` | the pair stays; evidence and dossier carry the label; finding `interop_not_checkable` |
+| `not_checkable` | the pair stays; evidence and dossier carry the label; finding `interop_not_checkable`; from the oracle, or from the plan for a pair across key contracts, in the section once results are imported |
 | `pass` | the pair stays, labelled |
 | `not_planned` | checked run, pair absent from the plan (a member does not run) |
 | `not_run` | no interop.yaml imported |

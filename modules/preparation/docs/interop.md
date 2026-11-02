@@ -35,6 +35,7 @@ Schema `interop_plan` v1, written by perf-repair (`perf-repair/docs/grouping.md`
 | key | rule |
 |---|---|
 | `pairs[]` | `{id, group, a, b, keySize?, inputSize?}`; ids unique |
+| `notCheckable[]` | perf-repair's own record of pairs it holds back; this module does not read it |
 | `a`, `b` | `{type, algorithm, provider}`; same type |
 
 ## interop.yaml
