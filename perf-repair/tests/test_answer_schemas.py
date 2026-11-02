@@ -4,6 +4,7 @@ import re
 import pytest
 
 from perfrepair.ai.evaluate.worthiness.schema import SCHEMA as WORTHINESS
+from perfrepair.ai.parse.algorithm_classify.schema import SCHEMA as CLASSIFY
 from perfrepair.ai.parse.grouping_assign.schema import SCHEMA as ASSIGN
 from perfrepair.ai.review.grouping_review.schema import SCHEMA as REVIEW
 from perfrepair.ai.runtime.agent.claude import API_UNSUPPORTED, api_schema
@@ -13,7 +14,7 @@ from perfrepair.validation.answer_text import NOT_BLANK
 from perfrepair.validation.evaluate.worthiness import MEMBER_PREFIX
 from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG
 
-SCHEMAS = {"assign": ASSIGN, "worthiness": WORTHINESS, "review": REVIEW, "replace": REPLACE}
+SCHEMAS = {"assign": ASSIGN, "worthiness": WORTHINESS, "review": REVIEW, "replace": REPLACE, "classify": CLASSIFY}
 
 
 def nodes(node):
@@ -78,3 +79,8 @@ def test_a_property_named_like_a_keyword_survives():
     sent = api_schema({"type": "object", "properties": {"pattern": {"type": "string", "pattern": "x"}},
                        "required": ["pattern"], "additionalProperties": False})
     assert sent["properties"] == {"pattern": {"type": "string"}}
+
+
+def test_a_classify_reason_may_not_be_blank():
+    reason = CLASSIFY["properties"]["answers"]["items"]["properties"]["reason"]
+    assert reason["pattern"] == NOT_BLANK and not matches(reason, "  ") and matches(reason, "RFC 6151")
