@@ -6,7 +6,6 @@ import re
 from .lexer import Code
 
 PACKAGES = ("java.security", "javax.crypto")
-REASONS = ("other_qualifier", "local_declaration", "other_import", "not_imported")
 
 _IMPORT = re.compile(r"^[ \t]*import\s+([\w.]+?)(\.\*)?(?:\s+as\s+(\w+))?\s*;?[ \t]*$", re.M)
 _QUALIFIER = re.compile(r"([\w.]+?)\s*\.\s*$")

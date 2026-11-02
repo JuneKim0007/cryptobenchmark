@@ -23,10 +23,6 @@ class Prompt:
         if type(self) is Prompt:
             raise TypeError("Prompt is a base: build a SystemPrompt, TaskPrompt or CorrectionPrompt")
 
-    @property
-    def digest(self) -> str:
-        return hashlib.sha256(self.text.encode()).hexdigest()
-
 
 @dataclass(frozen=True)
 class SystemPrompt(Prompt):

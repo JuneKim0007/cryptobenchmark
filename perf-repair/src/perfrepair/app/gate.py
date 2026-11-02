@@ -9,7 +9,6 @@ from ..dto.language import NAMES, SOURCE_SUFFIXES
 from .roots import BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, project_roots
 from .sources import IGNORED_DIRS
 
-REASONS = ("not_a_directory", "not_readable", "not_android_project", "escapes_root", "too_large")
 PROJECT_FILES = SETTINGS_FILES + BUILD_FILES
 SOURCE_SET_DIRS = NAMES  # Gradle names a source set folder after its language
 MAX_FILES = 200_000
@@ -26,7 +25,6 @@ class GateError(Exception):
 class AppRoot:
     path: Path
     files: int
-    sourceBytes: int
     projectRoot: str = "."
 
 
@@ -87,4 +85,4 @@ def open_app(root: Path, max_files: int = MAX_FILES, max_source_bytes: int = MAX
             raise GateError("too_large", f"{root}: over {max_files} files or {max_source_bytes} source bytes")
     if not android:
         raise GateError("not_android_project", f"{root}: no {MANIFEST} and no src/*/java|kotlin source set")
-    return AppRoot(real, files, source_bytes)
+    return AppRoot(real, files)

@@ -145,8 +145,8 @@ def _stripped(masked: str, a: int, b: int) -> tuple[int, int]:
     return a, b
 
 
-def split_spans(masked: str, text: str, a: int, b: int, sep: str) -> list[tuple[int, int]]:
-    """Spans of text[a:b] split on `sep` outside brackets, trimmed of whitespace and comments via the masked copy."""
+def split_spans(masked: str, a: int, b: int, sep: str) -> list[tuple[int, int]]:
+    """Spans of [a:b] split on `sep` outside brackets, trimmed of whitespace and comments via the masked copy."""
     spans, depth, start = [], 0, a
     for k in range(a, b):
         ch = masked[k]
@@ -162,7 +162,7 @@ def split_spans(masked: str, text: str, a: int, b: int, sep: str) -> list[tuple[
 
 
 def split_top(masked: str, text: str, a: int, b: int, sep: str) -> list[str]:
-    return [text[s:e] for s, e in split_spans(masked, text, a, b, sep)]
+    return [text[s:e] for s, e in split_spans(masked, a, b, sep)]
 
 
 @dataclass(frozen=True)
@@ -206,7 +206,7 @@ class Code:
         close = matching(self.masked, open_paren)
         if close is None:
             return None
-        spans = split_spans(self.masked, self.text, open_paren + 1, close, ",")
+        spans = split_spans(self.masked, open_paren + 1, close, ",")
         return Arguments(open_paren, close, tuple((a, b) for a, b in spans if a < b))
 
     def arguments(self, open_paren: int) -> tuple[list[str], int] | None:

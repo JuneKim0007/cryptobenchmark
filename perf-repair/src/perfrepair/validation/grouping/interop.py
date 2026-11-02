@@ -60,7 +60,7 @@ def validate_section(groups: dict, imported: list[PairResult] | None) -> list[st
     return []
 
 
-def validate_interop(run: Path, groups: dict, plan_path: Path, results_path: Path) -> dict[str, list[str]]:
+def validate_interop(groups: dict, plan_path: Path, results_path: Path) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     imported = None
     if plan_path.exists():

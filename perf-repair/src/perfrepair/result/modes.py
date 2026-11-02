@@ -8,7 +8,6 @@ from ..dto import PairMetrics
 from ..files import read_yaml
 
 CRITERIA = Path(__file__).with_name("criteria.yaml")
-JUDGEMENTS = ("improves", "not_improving", "not_measured")
 
 
 @dataclass(frozen=True)
