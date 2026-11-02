@@ -37,6 +37,10 @@
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
+| `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/run.py`: rehashed to the folder's name |
+| `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/run.py`: rehashed to `supervisor.json` `charter` |
+| `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
+| `log/screening/ai.log`, `log/grouping/ai.log`, `log/bug.log` | the event sink, from the same events | people | none: `log/views.py` renders them |
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py`, before writing |
@@ -48,7 +52,8 @@
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).
-- A journal is append-only, one line per model turn, audit only; state is the projection of the outbox.
+- A journal is append-only, one line per model turn with its `durationMs`, audit only; state is the projection of the outbox.
+- `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path); an outbox from before it gets it on its next open.
 - `measurements.json` carries the run's `runtime` and `comparability` notes.
 - `check/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
 
