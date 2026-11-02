@@ -1,0 +1,17 @@
+from __future__ import annotations
+
+from functools import cache
+from pathlib import Path
+
+import yaml
+
+CATALOG = Path(__file__).with_name("key-contract.yaml")
+SCHEMA_VERSION = 1
+
+
+@cache
+def standard_key_interfaces() -> tuple[str, ...]:
+    doc = yaml.safe_load(CATALOG.read_text())
+    if doc.get("schemaVersion") != SCHEMA_VERSION:
+        raise ValueError(f"{CATALOG}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    return tuple(doc["standardKeyInterfaces"])

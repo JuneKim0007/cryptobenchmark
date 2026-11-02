@@ -3,7 +3,11 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 SCHEMA_VERSION = 1
+PROFILES_SCHEMA_VERSION = 2
 SEPARATOR = "|"
+KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN = "app_held", "provider_held", "unknown"
+KEY_CONTRACTS = (KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN)
+KEY_LABELS = {KEY_APP_HELD: "application-held", KEY_PROVIDER_HELD: "inside the provider"}
 
 
 def qualified(engine_type: str, name: str, provider: str) -> str:
@@ -70,6 +74,7 @@ class Profile:
     bareName: bool = False
     measured: bool = False
     preparedKeySizes: tuple[int, ...] = field(default_factory=tuple)
+    keyContract: str = KEY_UNKNOWN
 
     def to_json(self) -> dict:
         d = asdict(self)
@@ -86,7 +91,7 @@ def items_document(items: list[Item]) -> dict:
 
 
 def profiles_document(profiles: dict[int, Profile]) -> dict:
-    return {"schemaVersion": SCHEMA_VERSION, "profiles": {str(k): p.to_json() for k, p in sorted(profiles.items())}}
+    return {"schemaVersion": PROFILES_SCHEMA_VERSION, "profiles": {str(k): p.to_json() for k, p in sorted(profiles.items())}}
 
 
 def read_items(doc: dict) -> list[Item]:
@@ -96,6 +101,6 @@ def read_items(doc: dict) -> list[Item]:
 
 
 def read_profiles(doc: dict) -> dict[int, Profile]:
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"profiles schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    if doc.get("schemaVersion") != PROFILES_SCHEMA_VERSION:
+        raise ValueError(f"profiles schemaVersion {doc.get('schemaVersion')} is not {PROFILES_SCHEMA_VERSION}; rerun grouping build")
     return {int(k): Profile.from_json(v) for k, v in doc["profiles"].items()}

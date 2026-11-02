@@ -6,6 +6,7 @@ from ...catalog.names import Names
 from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import Item, Profile
 from ...catalog.families import Families
+from .key_contract import key_contract
 from .key_kind import Context, Evidence, key_kind
 
 
@@ -37,9 +38,8 @@ def build(probe: Probe, names: Names, trial: dict, inventory: dict, prepared: di
             continue
         run = s.get("defaultRun") or {}
         attrs = probe.attributes(*key)
-        kind, source = key_kind(Evidence(s["type"], kinds.get(key), run.get("keyAlgorithm"),
-                                         _as_list(attrs.get("SupportedKeyFormats")),
-                                         _as_list(attrs.get("SupportedKeyClasses"))), context)
+        formats, classes = _as_list(attrs.get("SupportedKeyFormats")), _as_list(attrs.get("SupportedKeyClasses"))
+        kind, source = key_kind(Evidence(s["type"], kinds.get(key), run.get("keyAlgorithm"), formats, classes), context)
         family = families.of(s["type"], kind) or families.of(s["type"], "unknown")
         if family is None:
             raise ValueError(f"{key}: no family for ({s['type']}, {kind}) in the catalog")
@@ -49,7 +49,8 @@ def build(probe: Probe, names: Names, trial: dict, inventory: dict, prepared: di
             runs=bool(inventoried.get("runs", run.get("works", False))),
             reason=inventoried.get("reason") or run.get("error"),
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
-            bareName=bool(run.get("bareName")), measured=key in measured, preparedKeySizes=tuple(sorted(sizes[key]))))
+            bareName=bool(run.get("bareName")), measured=key in measured, preparedKeySizes=tuple(sorted(sizes[key])),
+            keyContract=key_contract(formats, classes)))
 
     order = sorted(drafts, key=lambda k: (drafts[k][0], names.canonical(k[1], k[2]).key[0], k[0], k[2]))
     items, profiles = [], {}

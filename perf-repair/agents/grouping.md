@@ -43,8 +43,11 @@ src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review convers
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
+src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own
+src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles; ids in (family, name, provider) order
+src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown
 src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measured → engine type → key generator → declared → unknown
 src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profiles.json, screen.json (by the resolved catalog; classify first with a reviewer), validated, then written together with screen.json's `built` digests
 src/perfrepair/grouping/interop_plan.py : groups.json → interop_plan.yaml: every two runnable members of a group, once

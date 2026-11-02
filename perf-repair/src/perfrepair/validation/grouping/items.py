@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from ...dto.grouping import Item, Profile
+from ...dto.grouping import KEY_CONTRACTS, Item, Profile
 from ...catalog.families import Families
 
 
@@ -25,5 +25,7 @@ def validate_items(items: list[Item], profiles: dict[int, Profile], families: Fa
         if not (i.type and i.name and i.provider):
             problems.append(f"{i.id}: type, name or provider is empty")
     problems += [f"{n}: no profile" for n in ids if n not in profiles]
+    problems += [f"{n}: key contract {p.keyContract!r} is not one of {KEY_CONTRACTS}"
+                 for n, p in profiles.items() if p.keyContract not in KEY_CONTRACTS]
     problems += [f"{n}: profile for no item" for n in profiles if n not in set(ids)]
     return problems
