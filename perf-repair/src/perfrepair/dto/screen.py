@@ -8,6 +8,8 @@ SCHEMA_VERSION = 4
 BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN = "broken", "platform_deprecated", "accepted", "unknown"
 UNVERIFIED = "unverified"
 STATUSES = (BROKEN, PLATFORM_DEPRECATED, UNVERIFIED, ACCEPTED, UNKNOWN)
+# unverified and unknown tie: a model's accepted is not evidence, so a swap between them lowers nothing.
+RANK = {BROKEN: 0, PLATFORM_DEPRECATED: 1, UNVERIFIED: 2, UNKNOWN: 2, ACCEPTED: 3}
 CODE_GROUPED = (BROKEN, PLATFORM_DEPRECATED)
 NEVER_TARGET = (*CODE_GROUPED, UNVERIFIED, UNKNOWN)
 MODEL_SOURCE = "model:"
@@ -42,7 +44,7 @@ def lowers_status(current: Verdict | None, target: Verdict | None) -> bool:
     if target is None or target.status not in NEVER_TARGET:
         return False
     same = current is not None and target.canonical is not None and target.canonical == current.canonical
-    return not same or STATUSES.index(target.status) < STATUSES.index(current.status)
+    return not same or RANK[target.status] < RANK[current.status]
 
 
 def qualified_verdicts(groups: dict, screen: dict[int, Verdict] | None) -> dict[str, Verdict] | None:

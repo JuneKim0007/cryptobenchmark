@@ -12,7 +12,7 @@
 
 ## Precedence
 
-`broken` > `platform_deprecated` > `accepted` > `unknown`; the first that applies is the verdict. The model review only changes an `unknown` verdict ([Model review](#model-review)); `STATUSES` orders `unverified` between `platform_deprecated` and `accepted` for the don't-lower-the-status rule.
+`broken` > `platform_deprecated` > `accepted` > `unknown`; the first that applies is the verdict. The model review only changes an `unknown` verdict ([Model review](#model-review)); the don't-lower-the-status rule ranks `broken` < `platform_deprecated` < `unverified` = `unknown` < `accepted` (`dto/screen.py` `RANK`): a model's `accepted` is an opinion, not a citation, so a same-algorithm swap between `unverified` and `unknown` is allowed in both directions.
 
 ## Lookup
 

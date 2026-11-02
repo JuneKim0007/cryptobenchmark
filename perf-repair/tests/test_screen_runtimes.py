@@ -10,7 +10,7 @@ from perfrepair.catalog.names import Names, fold
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.interop import interop_section
-from perfrepair.dto.screen import BROKEN, CODE_GROUPED, NEVER_TARGET, PLATFORM_DEPRECATED, STATUSES, lowers_status
+from perfrepair.dto.screen import BROKEN, CODE_GROUPED, NEVER_TARGET, PLATFORM_DEPRECATED, RANK, STATUSES, lowers_status
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.files import read_document
 from perfrepair.grouping.build.items import build
@@ -121,7 +121,7 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
                     assert shown == target.status
                     continue
                 own = target.canonical == current.canonical
-                allowed = own and STATUSES.index(target.status) >= STATUSES.index(current.status)
+                allowed = own and RANK[target.status] >= RANK[current.status]
                 assert (shown is not None) == allowed, (sdk, i.qualified, o.qualified)
                 assert target.status != BROKEN or shown is None or own
     assert (pairs, refused) == (EXPECTED[runtime]["pairs"], EXPECTED[runtime]["refused"])

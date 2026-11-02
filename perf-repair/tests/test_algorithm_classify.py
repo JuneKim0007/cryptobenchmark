@@ -70,9 +70,17 @@ def test_trust_is_asymmetric_deprecated_is_broken_accepted_only_unverified_unsur
 def test_an_unverified_target_is_allowed_only_as_the_same_algorithm():
     current = Verdict("accepted", "r", "s", "Y")
     same, other = Verdict("unverified", "r", "model:x", "X"), Verdict("unverified", "r", "model:x", "Z")
-    assert lowers_status(current, other) and lowers_status(Verdict("unknown", "r", None, "X"), same)
+    assert lowers_status(current, other)
     assert not lowers_status(same, replace(same, reason="from another provider"))
     assert lowers_status(current, Verdict("unverified", "r", "model:x", "Y"))
+
+
+def test_unverified_and_unknown_rank_equal_under_accepted_for_the_same_algorithm():
+    unknown, unverified = Verdict("unknown", "r", None, "X"), Verdict("unverified", "r", "model:x", "X")
+    assert not lowers_status(unknown, unverified) and not lowers_status(unverified, unknown)
+    assert lowers_status(Verdict("accepted", "r", "s", "X"), unknown)
+    assert lowers_status(Verdict("accepted", "r", "s", "X"), unverified)
+    assert lowers_status(unknown, Verdict("broken", "r", "s", "X"))
 
 
 def test_the_app_gate_raises_an_unverified_verdict_to_platform_deprecated():
