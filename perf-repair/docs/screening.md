@@ -86,6 +86,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | Code | When |
 |---|---|
 | `screening_schema` | `schemaVersion` is not 1 |
+| `screening_yaml`, `screening_shape` | the file is not YAML; a section is not the mapping or list it must be (a configured `screening.catalog` can be any file) |
 | `screening_key_not_canonical` | a key is not the canonical spelling in `algorithm-names.yaml`, carries a key size, or a mode is not a catalog mode |
 | `screening_status` | a status outside `deprecated`, `accepted` |
 | `screening_source` | a source key absent from `sources`; `unsourced` is allowed |

@@ -57,6 +57,17 @@ def test_another_schema_version_is_refused(tmp_path):
         Screening.load(path, NAMES)
 
 
+@pytest.mark.parametrize("text, code", [("a: [\n", "screening_yaml: .* at line 2"),
+                                        ("schemaVersion: 1\ncrypto: 3\n", "screening_shape"),
+                                        ("- a\n", "screening_shape")])
+def test_a_catalog_that_is_not_the_catalog_shape_is_one_coded_error(tmp_path, text, code):
+    path = tmp_path / "s.yaml"
+    path.write_text(text)
+    with pytest.raises(ScreeningError, match=code) as e:
+        Screening.load(path, NAMES)
+    assert "\n" not in str(e.value)
+
+
 def test_a_component_only_deprecates_and_names_catalog_modes(tmp_path):
     with pytest.raises(ScreeningError) as e:
         load(tmp_path, components={"Cipher": {"base": {"DES": row(status="accepted")}, "mode": {"XYZ": row()}}})

@@ -56,7 +56,17 @@ class Screening:
 
     @classmethod
     def load(cls, path: Path = SCREENING, names: Names | None = None) -> "Screening":
-        return _Reader(yaml.safe_load(Path(path).read_text()), names or Names.load(), Path(path)).screening()
+        try:
+            doc = yaml.safe_load(Path(path).read_text())
+        except yaml.YAMLError as e:
+            mark = getattr(e, "problem_mark", None)
+            at = f" at line {mark.line + 1}" if mark else ""
+            raise ScreeningError(f"screening_yaml: {path}{at}: {getattr(e, 'problem', None) or e}") from None
+        try:
+            return _Reader(doc, names or Names.load(), Path(path)).screening()
+        except (AttributeError, TypeError) as e:
+            # a configured catalog can be any YAML; a section of the wrong shape is a coded error, not a traceback
+            raise ScreeningError(f"screening_shape: {path}: a section has the wrong shape ({e})") from None
 
     def component(self, engine_type: str, canonical: str, names: Names) -> Rule | None:
         rules = self.components.get(engine_type)
