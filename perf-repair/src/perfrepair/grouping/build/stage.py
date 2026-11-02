@@ -28,7 +28,7 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
     items, profiles = build(context.probe, context.names, context.trial, context.inventory, context.prepared,
                             context.benchmark, context.families)
     require("items", validate_items(items, profiles, context.families))
-    verdicts = screen_items(context, items)
+    verdicts = screen_items(context, items, profiles)
     require("screen", validate_screen(verdicts, items))
     paths = GroupingPaths(run)
     paths.root.mkdir(parents=True, exist_ok=True)

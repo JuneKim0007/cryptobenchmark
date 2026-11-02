@@ -13,7 +13,7 @@ def screened_out(verdict: Verdict | None) -> bool:
 
 
 def _key(item: Item, verdict: Verdict) -> tuple:
-    return item.family, verdict.status, verdict.canonical
+    return item.family, verdict.status, verdict.canonical, verdict.providerHeld
 
 
 def charter_inputs(verdicts: dict[int, Verdict] | None) -> str:
@@ -26,7 +26,8 @@ def code_group_id(item: Item, verdict: Verdict) -> str:
 
 
 def describe(verdict: Verdict) -> str:
-    return (f"Code-made group of one algorithm, no model decided it: {verdict.canonical} (any key size), "
+    keys = "keys inside the provider" if verdict.providerHeld else "keys the application holds"
+    return (f"Code-made group of one algorithm, no model decided it: {verdict.canonical} (any key size), {keys}, "
             f"screened {verdict.status}; its members are that algorithm from each provider.")
 
 

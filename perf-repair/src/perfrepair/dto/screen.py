@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass, replace
 
 from . import classify as answer
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN = "broken", "platform_deprecated", "accepted", "unknown"
 UNVERIFIED = "unverified"
 STATUSES = (BROKEN, PLATFORM_DEPRECATED, UNVERIFIED, ACCEPTED, UNKNOWN)
@@ -23,13 +23,15 @@ class Verdict:
     source: str | None = None
     canonical: str | None = None
     keySize: int | None = None
+    providerHeld: bool = False
 
     def to_json(self) -> dict:
         return asdict(self)
 
     @classmethod
     def from_json(cls, d: dict) -> "Verdict":
-        return cls(d["status"], d["reason"], d.get("source"), d.get("canonical"), d.get("keySize"))
+        return cls(d["status"], d["reason"], d.get("source"), d.get("canonical"), d.get("keySize"),
+                   bool(d.get("providerHeld")))
 
 
 def with_answer(verdict: Verdict, answer: str, reason: str, fingerprint: str) -> Verdict:

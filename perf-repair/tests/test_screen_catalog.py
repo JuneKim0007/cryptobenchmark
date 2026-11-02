@@ -97,7 +97,7 @@ def _other_catalog(tmp_path):
 
 def test_build_records_the_catalog_it_screened_by(run):  # noqa: F811
     doc = json.loads(GroupingPaths(run).screen.read_text())
-    assert doc["schemaVersion"] == 4 and doc["catalog"] == load_catalog(SCREENING).identity()
+    assert doc["schemaVersion"] == 5 and doc["catalog"] == load_catalog(SCREENING).identity()
 
 
 def test_the_dossier_step_refuses_a_catalog_screen_json_was_not_screened_by(run, tmp_path):  # noqa: F811
