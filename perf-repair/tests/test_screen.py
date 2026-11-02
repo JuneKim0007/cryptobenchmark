@@ -62,6 +62,11 @@ def test_platform_rows_are_per_provider():
     assert status("MessageDigest", "SHA-256", "AndroidOpenSSL", 36) == "accepted"
 
 
+def test_a_name_off_the_platform_list_stays_accepted_at_any_target_sdk():
+    assert status("KeyPairGenerator", "RSA", "BC", 36) == "accepted"
+    assert status("KeyPairGenerator", "EC", "BC", 36) == "platform_deprecated"
+
+
 def test_broken_outranks_platform_deprecated():
     assert status("MessageDigest", "MD5", "BC", 36) == "broken"
 

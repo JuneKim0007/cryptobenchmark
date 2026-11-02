@@ -1,6 +1,4 @@
-# Screening: what the sources say about an (engine type, canonical name). Unlisted = unknown.
-# Keys are canonical in algorithm-names.yaml; key size, curve, OAEP/MGF1 digest, KDF iterations and the
-# defaults of bare names are not part of a key (docs/screening.md). `source: unsourced` marks a row no fetched source backs.
+# Per (engine type, canonical name): what the sources say; unlisted is unknown. Limits of the key: docs/screening.md.
 schemaVersion: 1
 sources:
   R2: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf
@@ -21,8 +19,7 @@ sources:
   ORACLE: https://docs.oracle.com/en/java/javase/17/security/oracle-providers.html
   AOSP9: https://android.googlesource.com/platform/libcore/+/refs/tags/android-9.0.0_r1/ojluni/src/main/java/sun/security/jca/Providers.java
   AOSP12: https://android.googlesource.com/platform/libcore/+/refs/heads/android12-release/ojluni/src/main/java/sun/security/jca/Providers.java
-# A transformation is deprecated when its base or its mode is listed here. A mode the names catalog maps
-# another mode onto for that base (modeSynonyms) is nominal there and never matches.
+# A listed base or mode deprecates the transformation; a mode that modeSynonyms maps onto is nominal for that base.
 components:
   Cipher:
     base:
@@ -33,11 +30,8 @@ components:
       Blowfish: {status: deprecated, reason: 64-bit block, birthday-bound at ~32 GB independent of key length, source: SWEET32}
     mode:
       ECB: {status: deprecated, reason: ECB leaks plaintext structure; r3 draft disallows ECB for confidentiality; Android lint GetInstance flags ECB, source: LINTGI}
-# The platform BC provider: requesting a listed name throws for an app whose targetSdk >= deprecatedApi (a warning
-# below it). From removedApi the provider no longer registers the name. AOSP9's list (unchanged through android 11)
-# also names OIDs, aliases, AlgorithmParameters and CertificateFactory; the OIDs and aliases resolve to the names
-# below, the other two types are not item engine types, and Mac PBEWITHHMACSHA* stays out because Conscrypt aliases
-# it to HmacSHA* while SunJCE registers it as a separate service. AOSP12 keeps only KEYFACTORY.RSA.
+# AOSP DEPRECATED_ALGORITHMS throws at targetSdk >= deprecatedApi. Left out: OIDs, non-item types, Mac PBEWITHHMACSHA*
+# (Conscrypt aliases it to HmacSHA*), KeyPairGenerator RSA (off the AOSP12 list, still registered at API 36).
 platform:
   - provider: BC
     deprecatedApi: 28
@@ -50,7 +44,7 @@ platform:
       KeyAgreement: [ECDH]
       KeyFactory: [EC]
       KeyGenerator: [AES, DESede, HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512]
-      KeyPairGenerator: [EC, RSA]
+      KeyPairGenerator: [EC]
       Mac: [HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512]
       MessageDigest: [MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512]
       SecretKeyFactory: [DESede]
