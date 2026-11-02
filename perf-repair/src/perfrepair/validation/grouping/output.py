@@ -2,8 +2,11 @@ from __future__ import annotations
 
 from collections import Counter
 
-from ...dto.grouping import Item
+from ...dto.grouping import Item, read_items
 from ...dto.grouping_output import SCHEMA_VERSION
+from ...files import read_json
+from ...grouping.paths import GroupingPaths
+from ..failure import require
 
 
 def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
@@ -30,3 +33,9 @@ def validate_output(doc: dict, items: dict[int, Item]) -> list[str]:
             if m in items and entry and entry["qualified"] != items[m].qualified:
                 problems.append(f"item {m}: qualified name differs from items.json")
     return problems
+
+
+def read_groups(paths: GroupingPaths) -> dict:
+    document = read_json(paths.groups)
+    require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}))
+    return document

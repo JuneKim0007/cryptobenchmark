@@ -9,7 +9,7 @@ from ..dto.site import Scope
 from ..files import read_json
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..grouping.paths import GroupingPaths
-from ..grouping.report.checks import read_groups
+from ..validation.grouping.output import read_groups
 from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..result.evidence import build_evidence

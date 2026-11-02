@@ -7,7 +7,7 @@ from .... import run_dir as rd
 from ....dto import Verdicts
 from ....files import write_json
 from ....grouping.paths import GroupingPaths
-from ....grouping.report.checks import read_groups
+from ....validation.grouping.output import read_groups
 from ....result.evidence import build_evidence
 from ....result.modes import Mode
 from ....validation import require, validate_measurements

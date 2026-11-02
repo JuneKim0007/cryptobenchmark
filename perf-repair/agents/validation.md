@@ -25,7 +25,7 @@ src/perfrepair/validation/failure.py : ValidationFailed and require: the stage g
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
 src/perfrepair/validation/grouping/knowledge.py : knowledge: well-formed groups, members in one group of their family
-src/perfrepair/validation/grouping/output.py : groups.json: one group or dropped per item, consistent index
+src/perfrepair/validation/grouping/output.py : groups.json: one group or dropped per item, consistent index; read_groups reads it gated
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, ordered finite summaries, positive medians

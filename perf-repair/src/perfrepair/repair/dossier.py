@@ -7,7 +7,7 @@ from .. import run_dir as rd
 from ..dto.site import Scope
 from ..files import read_json, write_json
 from ..grouping.paths import GroupingPaths
-from ..grouping.report.checks import read_groups
+from ..validation.grouping.output import read_groups
 from ..result.dossier import build_dossiers
 from ..validation import require, validate_measurements
 from ..validation.dossiers import validate_dossiers

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from ...dto.grouping import read_items
 from ...dto.grouping_output import checks_document
-from ...files import read_json, write_json
+from ...files import write_json
 from ...ai.runtime.engine.kind import project
 from ...ai.runtime.engine.outbox import active_outbox
 from ...validation import require
@@ -29,10 +28,4 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
     document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop)
     require("groups.json", validate_output(document, kind.by_id))
     write_json(paths.groups, document)
-    return document
-
-
-def read_groups(paths: GroupingPaths) -> dict:
-    document = read_json(paths.groups)
-    require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}))
     return document

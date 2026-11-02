@@ -9,7 +9,7 @@ from ..files import write_text
 from ..validation import require
 from ..validation.grouping.interop import validate_plan
 from .paths import GroupingPaths
-from .report.checks import read_groups
+from ..validation.grouping.output import read_groups
 
 
 def plan(groups: dict) -> list[PlannedPair]:
