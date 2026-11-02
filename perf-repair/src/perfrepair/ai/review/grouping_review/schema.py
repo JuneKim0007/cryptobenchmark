@@ -1,4 +1,4 @@
-KINDS = ("merge", "split", "describe", "misplaced")
+from ....validation.review.grouping_review import KINDS
 
 SCHEMA = {
     "type": "object",

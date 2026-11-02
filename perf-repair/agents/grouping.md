@@ -32,7 +32,7 @@ src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema
 src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
 src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family → supervisor.json
-src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema
+src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/grouping/__main__.py : command: build | assign | report [--supervisor] | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measured → engine type → key generator → declared → unknown

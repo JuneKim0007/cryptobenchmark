@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from ...ai.review.grouping_review.schema import KINDS
 from ..json_reply import parse_object
+
+KINDS = ("merge", "split", "describe", "misplaced")
 
 
 def parse_review(text: str, groups: dict[str, list[int]]) -> tuple[list[dict] | None, list[str]]:

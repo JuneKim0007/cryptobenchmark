@@ -22,7 +22,6 @@ RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 
 # (importer, imported) package pairs: reason; the #66 stage that removes it.
 ALLOWLIST: dict[tuple[str, str], str] = {
-    ("validation/review", "ai/review/grouping_review"): "review gate reads the review KINDS; B4 (S2)",
     ("ai/review/grouping_review", "grouping/report"): "supervisor reads groups.json; B5 (S3) read_groups",
     ("validation/grouping", "grouping/catalog"): "gates read the family catalog; B6 (S4a) catalog/families.py",
     ("validation/parse", "grouping/catalog"): "assign gate reads the family catalog; B6 (S4a)",

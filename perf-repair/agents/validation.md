@@ -33,7 +33,7 @@ src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: 
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition
-src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: supervisor findings name only that family, arity per kind
+src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins; risks from scope and option
