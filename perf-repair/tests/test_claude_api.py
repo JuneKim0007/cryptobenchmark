@@ -5,6 +5,7 @@ from helpers import task
 
 from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
 from perfrepair.ai.runtime.agent import AgentRefused
+from perfrepair.ai.runtime.agent.reply import AgentFailed
 from perfrepair.ai.runtime.gateway.claude_api import ClaudeClient, ClaudeConversations
 
 
@@ -50,3 +51,15 @@ def test_only_run_lifetime_text_is_cached():
     messages = FakeMessages()
     ClaudeClient(client=SimpleNamespace(messages=messages)).request(task("PER-ITEM"), [{"role": "user", "content": "x"}], {})
     assert messages.kwargs["system"] == [{"type": "text", "text": "PER-ITEM"}]
+
+
+def test_an_api_error_is_one_coded_line():
+    anthropic = pytest.importorskip("anthropic")
+
+    class Failing:
+        def create(self, **_):
+            raise anthropic.APIConnectionError(request=None, message="no\nroute")
+
+    convo = ClaudeConversations(client=SimpleNamespace(messages=Failing())).start(SystemPrompt("t", "SYS"), {})
+    with pytest.raises(AgentFailed, match="claude_api_failed: no route"):
+        convo.ask(task("ITEM"))

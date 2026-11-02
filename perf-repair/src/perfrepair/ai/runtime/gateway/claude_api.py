@@ -28,22 +28,26 @@ class ClaudeClient:
             raise AgentFailed("claude_api_missing", "auth api needs the anthropic package: pip install -e .[api]") from None
         self.model, self.effort, self.max_tokens = model, effort, max_tokens
         self.client = client or anthropic.Anthropic()
+        self.api_error = anthropic.APIError
 
     def request(self, system: SystemPrompt, messages: list[dict], schema: dict) -> tuple[AgentReply, list]:
         block = {"type": "text", "text": system.text}
         # Only text that outlives one conversation repays a cache write.
         if system.lifetime is Lifetime.RUN:
             block["cache_control"] = {"type": "ephemeral"}
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=self.max_tokens,
-            system=[block],
-            messages=messages,
-            output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": api_schema(schema)}},
-            # On a policy decline the API re-runs the request on a fallback model inside the same call.
-            extra_headers={"anthropic-beta": "server-side-fallback-2026-07-01"},
-            extra_body={"fallbacks": "default"},
-        )
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                system=[block],
+                messages=messages,
+                output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": api_schema(schema)}},
+                # On a policy decline the API re-runs the request on a fallback model inside the same call.
+                extra_headers={"anthropic-beta": "server-side-fallback-2026-07-01"},
+                extra_body={"fallbacks": "default"},
+            )
+        except self.api_error as e:
+            raise AgentFailed("claude_api_failed", " ".join(str(e).split())[:300]) from None
         if response.stop_reason == "refusal":
             raise AgentRefused(getattr(response.stop_details, "explanation", None) or "refused")
         text = next((b.text for b in response.content if b.type == "text"), "")

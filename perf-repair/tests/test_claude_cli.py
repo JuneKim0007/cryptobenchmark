@@ -92,3 +92,9 @@ def test_a_multi_line_cli_failure_is_one_coded_line(tmp_path):
     with pytest.raises(ClaudeCliError) as e:
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     assert str(e.value) == "claude_cli_failed: claude -p exited 1: line one line two"
+
+
+def test_a_cli_failing_with_no_output_says_so(tmp_path):
+    convos = ClaudeCliConversations(runner=lambda c, *_: subprocess.CompletedProcess(c, 1, "", ""), workdir=tmp_path)
+    with pytest.raises(ClaudeCliError, match="claude -p exited 1: no output"):
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("MSG"))

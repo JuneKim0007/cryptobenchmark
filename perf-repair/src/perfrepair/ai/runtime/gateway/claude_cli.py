@@ -58,7 +58,7 @@ class ClaudeCliSession(LifetimeGuarded):
         try:
             out = json.loads(done.stdout)
         except json.JSONDecodeError:
-            raise ClaudeCliError(f"claude -p exited {done.returncode}: {(done.stderr or done.stdout).strip()[:300]}")
+            raise ClaudeCliError(f"claude -p exited {done.returncode}: {(done.stderr or done.stdout).strip()[:300] or 'no output'}")
         if out.get("stop_reason") == "refusal":
             raise AgentRefused(str(out.get("result") or "refused"))
         if out.get("is_error") or out.get("subtype") != "success":
