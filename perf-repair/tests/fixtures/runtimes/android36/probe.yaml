@@ -1,0 +1,1276 @@
+schemaVersion: 1
+runtime:
+  sdkInt: 36
+  javaVersion: '0'
+providers:
+- name: AndroidOpenSSL
+  services:
+  - type: Cipher
+    algorithm: AES/CBC/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/CBC/PKCS5Padding
+    aliases:
+    - AES/CBC/PKCS7Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/CTR/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/ECB/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/ECB/PKCS5Padding
+    aliases:
+    - AES/ECB/PKCS7Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/GCM-SIV/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/GCM/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.26
+    - 2.16.840.1.101.3.4.1.46
+    - 2.16.840.1.101.3.4.1.6
+    - GCM
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/CBC/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/CBC/PKCS5Padding
+    aliases:
+    - AES_128/CBC/PKCS7Padding
+    - PBEWithHmacSHA1AndAES_128
+    - PBEWithHmacSHA224AndAES_128
+    - PBEWithHmacSHA256AndAES_128
+    - PBEWithHmacSHA384AndAES_128
+    - PBEWithHmacSHA512AndAES_128
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/ECB/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/ECB/PKCS5Padding
+    aliases:
+    - AES_128/ECB/PKCS7Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/GCM-SIV/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/GCM/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/CBC/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/CBC/PKCS5Padding
+    aliases:
+    - AES_256/CBC/PKCS7Padding
+    - PBEWithHmacSHA1AndAES_256
+    - PBEWithHmacSHA224AndAES_256
+    - PBEWithHmacSHA256AndAES_256
+    - PBEWithHmacSHA384AndAES_256
+    - PBEWithHmacSHA512AndAES_256
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/ECB/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/ECB/PKCS5Padding
+    aliases:
+    - AES_256/ECB/PKCS7Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/GCM-SIV/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/GCM/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: ARC4
+    aliases:
+    - 1.2.840.113549.3.4
+    - ARCFOUR
+    - OID.1.2.840.113549.3.4
+    - RC4
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: ChaCha20
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: ChaCha20/Poly1305/NoPadding
+    aliases:
+    - ChaCha20-Poly1305
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: DESEDE/CBC/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: DESEDE/CBC/PKCS5Padding
+    aliases:
+    - DESEDE/CBC/PKCS7Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: RSA/ECB/NoPadding
+    aliases:
+    - RSA/None/NoPadding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPPadding
+    aliases:
+    - RSA/None/OAEPPadding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-1AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-1AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-224AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-224AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-256AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-384AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-384AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-512AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-512AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Cipher
+    algorithm: RSA/ECB/PKCS1Padding
+    aliases:
+    - RSA/None/PKCS1Padding
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: KeyAgreement
+    algorithm: ECDH
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.ECPrivateKey
+      SupportedKeyFormats:
+      - PKCS#8
+  - type: KeyAgreement
+    algorithm: XDH
+    aliases:
+    - X25519
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.XECPrivateKey
+      - com.android.org.conscrypt.OpenSSLX25519PrivateKey
+      SupportedKeyFormats:
+      - PKCS#8
+  - type: KeyGenerator
+    algorithm: AES
+  - type: KeyGenerator
+    algorithm: ARC4
+    aliases:
+    - 1.2.840.113549.3.4
+    - RC4
+  - type: KeyGenerator
+    algorithm: ChaCha20
+  - type: KeyGenerator
+    algorithm: DESEDE
+    aliases:
+    - TDEA
+  - type: KeyGenerator
+    algorithm: HmacMD5
+    aliases:
+    - 1.3.6.1.5.5.8.1.1
+    - HMAC-MD5
+    - HMAC/MD5
+  - type: KeyGenerator
+    algorithm: HmacSHA1
+    aliases:
+    - 1.2.840.113549.2.7
+    - 1.3.6.1.5.5.8.1.2
+    - HMAC-SHA1
+    - HMAC/SHA1
+  - type: KeyGenerator
+    algorithm: HmacSHA224
+    aliases:
+    - 1.2.840.113549.2.8
+    - HMAC-SHA224
+    - HMAC/SHA224
+  - type: KeyGenerator
+    algorithm: HmacSHA256
+    aliases:
+    - 1.2.840.113549.2.9
+    - 2.16.840.1.101.3.4.2.1
+    - HMAC-SHA256
+    - HMAC/SHA256
+  - type: KeyGenerator
+    algorithm: HmacSHA384
+    aliases:
+    - 1.2.840.113549.2.10
+    - HMAC-SHA384
+    - HMAC/SHA384
+  - type: KeyGenerator
+    algorithm: HmacSHA512
+    aliases:
+    - 1.2.840.113549.2.11
+    - HMAC-SHA512
+    - HMAC/SHA512
+  - type: KeyPairGenerator
+    algorithm: EC
+    aliases:
+    - 1.2.840.10045.2.1
+    - 1.3.133.16.840.63.0.2
+  - type: KeyPairGenerator
+    algorithm: RSA
+    aliases:
+    - 1.2.840.113549.1.1.1
+    - 1.2.840.113549.1.1.7
+    - 2.5.8.1.1
+  - type: KeyPairGenerator
+    algorithm: XDH
+    aliases:
+    - 1.3.101.110
+    - X25519
+  - type: Mac
+    algorithm: AESCMAC
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacMD5
+    aliases:
+    - 1.3.6.1.5.5.8.1.1
+    - HMAC-MD5
+    - HMAC/MD5
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA1
+    aliases:
+    - 1.2.840.113549.2.7
+    - 1.3.6.1.5.5.8.1.2
+    - HMAC-SHA1
+    - HMAC/SHA1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA224
+    aliases:
+    - 1.2.840.113549.2.8
+    - HMAC-SHA224
+    - HMAC/SHA224
+    - PBEWITHHMACSHA224
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA256
+    aliases:
+    - 1.2.840.113549.2.9
+    - 2.16.840.1.101.3.4.2.1
+    - HMAC-SHA256
+    - HMAC/SHA256
+    - PBEWITHHMACSHA256
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA384
+    aliases:
+    - 1.2.840.113549.2.10
+    - HMAC-SHA384
+    - HMAC/SHA384
+    - PBEWITHHMACSHA384
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA512
+    aliases:
+    - 1.2.840.113549.2.11
+    - HMAC-SHA512
+    - HMAC/SHA512
+    - PBEWITHHMACSHA512
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      SupportedKeyFormats:
+      - RAW
+  - type: MessageDigest
+    algorithm: MD5
+    aliases:
+    - 1.2.840.113549.2.5
+  - type: MessageDigest
+    algorithm: SHA-1
+    aliases:
+    - 1.3.14.3.2.26
+    - SHA
+    - SHA1
+  - type: MessageDigest
+    algorithm: SHA-224
+    aliases:
+    - 2.16.840.1.101.3.4.2.4
+    - SHA224
+  - type: MessageDigest
+    algorithm: SHA-256
+    aliases:
+    - 2.16.840.1.101.3.4.2.1
+    - SHA256
+  - type: MessageDigest
+    algorithm: SHA-384
+    aliases:
+    - 2.16.840.1.101.3.4.2.2
+    - SHA384
+  - type: MessageDigest
+    algorithm: SHA-512
+    aliases:
+    - 2.16.840.1.101.3.4.2.3
+    - SHA512
+  - type: Signature
+    algorithm: MD5withRSA
+    aliases:
+    - 1.2.840.113549.1.1.4
+    - 1.2.840.113549.2.5with1.2.840.113549.1.1.1
+    - MD5/RSA
+    - MD5withRSAEncryption
+    - OID.1.2.840.113549.1.1.4
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: NONEwithECDSA
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: NONEwithRSA
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLRSAPrivateKey
+      - java.security.interfaces.RSAPrivateKey
+      - com.android.org.conscrypt.OpenSSLRSAPublicKey
+      - java.security.interfaces.RSAPublicKey
+  - type: Signature
+    algorithm: SHA1withECDSA
+    aliases:
+    - 1.2.840.10045.4.1
+    - 1.3.14.3.2.26with1.2.840.10045.2.1
+    - ECDSA
+    - ECDSAwithSHA1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA1withRSA
+    aliases:
+    - 1.2.840.113549.1.1.5
+    - 1.3.14.3.2.26with1.2.840.113549.1.1.1
+    - 1.3.14.3.2.26with1.2.840.113549.1.1.5
+    - 1.3.14.3.2.29
+    - OID.1.2.840.113549.1.1.5
+    - OID.1.3.14.3.2.29
+    - SHA-1/RSA
+    - SHA1/RSA
+    - SHA1withRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA1withRSA/PSS
+    aliases:
+    - SHA1withRSAandMGF1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA224withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.1
+    - 2.16.840.1.101.3.4.2.4with1.2.840.10045.2.1
+    - OID.1.2.840.10045.4.3.1
+    - SHA224/ECDSA
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA224withRSA
+    aliases:
+    - 1.2.840.113549.1.1.14
+    - 2.16.840.1.101.3.4.2.4with1.2.840.113549.1.1.1
+    - 2.16.840.1.101.3.4.2.4with1.2.840.113549.1.1.14
+    - OID.1.2.840.113549.1.1.14
+    - SHA224/RSA
+    - SHA224withRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA224withRSA/PSS
+    aliases:
+    - SHA224withRSAandMGF1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA256withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.2
+    - 2.16.840.1.101.3.4.2.1with1.2.840.10045.2.1
+    - OID.1.2.840.10045.4.3.2
+    - SHA256/ECDSA
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA256withRSA
+    aliases:
+    - 1.2.840.113549.1.1.11
+    - 2.16.840.1.101.3.4.2.1with1.2.840.113549.1.1.1
+    - 2.16.840.1.101.3.4.2.1with1.2.840.113549.1.1.11
+    - OID.1.2.840.113549.1.1.11
+    - SHA256/RSA
+    - SHA256withRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA256withRSA/PSS
+    aliases:
+    - SHA256withRSAandMGF1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA384withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.3
+    - 2.16.840.1.101.3.4.2.2with1.2.840.10045.2.1
+    - OID.1.2.840.10045.4.3.3
+    - SHA384/ECDSA
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA384withRSA
+    aliases:
+    - 1.2.840.113549.1.1.12
+    - 2.16.840.1.101.3.4.2.2with1.2.840.113549.1.1.1
+    - OID.1.2.840.113549.1.1.12
+    - SHA384/RSA
+    - SHA384withRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA384withRSA/PSS
+    aliases:
+    - SHA384withRSAandMGF1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA512withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.4
+    - 2.16.840.1.101.3.4.2.3with1.2.840.10045.2.1
+    - OID.1.2.840.10045.4.3.4
+    - SHA512/ECDSA
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA512withRSA
+    aliases:
+    - 1.2.840.113549.1.1.13
+    - 2.16.840.1.101.3.4.2.3with1.2.840.113549.1.1.1
+    - OID.1.2.840.113549.1.1.13
+    - SHA512/RSA
+    - SHA512withRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: Signature
+    algorithm: SHA512withRSA/PSS
+    aliases:
+    - SHA512withRSAandMGF1
+    attributes:
+      SupportedKeyClasses:
+      - com.android.org.conscrypt.OpenSSLKeyHolder
+      - java.security.interfaces.RSAPrivateKey
+      - java.security.interfaces.ECPrivateKey
+      - java.security.interfaces.RSAPublicKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+- name: AndroidKeyStoreBCWorkaround
+  services:
+  - type: Cipher
+    algorithm: AES/CBC/NoPadding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Cipher
+    algorithm: AES/CBC/PKCS7Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Cipher
+    algorithm: AES/CTR/NoPadding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Cipher
+    algorithm: AES/ECB/NoPadding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Cipher
+    algorithm: AES/ECB/PKCS7Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Cipher
+    algorithm: AES/GCM/NoPadding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Cipher
+    algorithm: RSA/ECB/NoPadding
+    aliases:
+    - RSA/None/NoPadding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPPadding
+    aliases:
+    - RSA/None/OAEPPadding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-1AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-1AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-224AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-224AndMGF1Padding
+    - RSA/None/OAEPWithSHA-256AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-384AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-384AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/OAEPWithSHA-512AndMGF1Padding
+    aliases:
+    - RSA/None/OAEPWithSHA-512AndMGF1Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Cipher
+    algorithm: RSA/ECB/PKCS1Padding
+    aliases:
+    - RSA/None/PKCS1Padding
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Mac
+    algorithm: HmacSHA1
+    aliases:
+    - 1.2.840.113549.2.7
+    - HMAC-SHA1
+    - HMAC/SHA1
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Mac
+    algorithm: HmacSHA224
+    aliases:
+    - HMAC-SHA224
+    - HMAC/SHA224
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Mac
+    algorithm: HmacSHA256
+    aliases:
+    - 1.2.840.113549.2.9
+    - HMAC-SHA256
+    - HMAC/SHA256
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Mac
+    algorithm: HmacSHA384
+    aliases:
+    - 1.2.840.113549.2.10
+    - HMAC-SHA384
+    - HMAC/SHA384
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Mac
+    algorithm: HmacSHA512
+    aliases:
+    - 1.2.840.113549.2.11
+    - HMAC-SHA512
+    - HMAC/SHA512
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStoreSecretKey
+  - type: Signature
+    algorithm: Ed25519
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: MD5withRSA
+    aliases:
+    - 1.2.840.113549.1.1.4
+    - 1.2.840.113549.2.5with1.2.840.113549.1.1.1
+    - MD5/RSA
+    - MD5WithRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: NONEwithECDSA
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: NONEwithRSA
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA1withECDSA
+    aliases:
+    - 1.2.840.10045.4.1
+    - 1.3.14.3.2.26with1.2.840.10045.2.1
+    - ECDSA
+    - ECDSAwithSHA1
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA1withRSA
+    aliases:
+    - 1.2.840.113549.1.1.5
+    - 1.3.14.3.2.26with1.2.840.113549.1.1.1
+    - 1.3.14.3.2.26with1.2.840.113549.1.1.5
+    - 1.3.14.3.2.29
+    - SHA-1/RSA
+    - SHA1/RSA
+    - SHA1WithRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA1withRSA/PSS
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA224withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.1
+    - 2.16.840.1.101.3.4.2.4with1.2.840.10045.2.1
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA224withRSA
+    aliases:
+    - 2.16.840.1.101.3.4.2.4with1.2.840.113549.1.1.1
+    - 2.16.840.1.101.3.4.2.4with1.2.840.113549.1.1.11
+    - SHA224WithRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA224withRSA/PSS
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA256withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.2
+    - 2.16.840.1.101.3.4.2.1with1.2.840.10045.2.1
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA256withRSA
+    aliases:
+    - 1.2.840.113549.1.1.11
+    - 2.16.840.1.101.3.4.2.1with1.2.840.113549.1.1.1
+    - 2.16.840.1.101.3.4.2.1with1.2.840.113549.1.1.11
+    - SHA256WithRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA256withRSA/PSS
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA384withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.3
+    - 2.16.840.1.101.3.4.2.2with1.2.840.10045.2.1
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA384withRSA
+    aliases:
+    - 1.2.840.113549.1.1.12
+    - 2.16.840.1.101.3.4.2.2with1.2.840.113549.1.1.1
+    - SHA384WithRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA384withRSA/PSS
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA512withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.4
+    - 2.16.840.1.101.3.4.2.3with1.2.840.10045.2.1
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA512withRSA
+    aliases:
+    - 1.2.840.113549.1.1.13
+    - 2.16.840.1.101.3.4.2.3with1.2.840.113549.1.1.1
+    - SHA512WithRSAEncryption
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+  - type: Signature
+    algorithm: SHA512withRSA/PSS
+    attributes:
+      SupportedKeyClasses:
+      - android.security.keystore2.AndroidKeyStorePrivateKey
+- name: BC
+  services:
+  - type: Cipher
+    algorithm: AES
+    aliases:
+    - 2.16.840.1.101.3.4.2
+    - 2.16.840.1.101.3.4.22
+    - 2.16.840.1.101.3.4.42
+    attributes:
+      SupportedKeyClasses:
+      - javax.crypto.SecretKey
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AESWRAP
+    aliases:
+    - 2.16.840.1.101.3.4.1.25
+    - 2.16.840.1.101.3.4.1.45
+    - 2.16.840.1.101.3.4.1.5
+    - AESKW
+    - OID.2.16.840.1.101.3.4.1.25
+    - OID.2.16.840.1.101.3.4.1.45
+    - OID.2.16.840.1.101.3.4.1.5
+    attributes:
+      SupportedKeyClasses:
+      - javax.crypto.SecretKey
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: BLOWFISH
+  - type: Cipher
+    algorithm: DES
+  - type: Cipher
+    algorithm: DESEDE
+    aliases:
+    - TDEA
+  - type: Cipher
+    algorithm: DESEDEWRAP
+    aliases:
+    - 1.2.840.113549.1.9.16.3.6
+    - TDEAWRAP
+  - type: Cipher
+    algorithm: PBEWITHMD5AND128BITAES-CBC-OPENSSL
+  - type: Cipher
+    algorithm: PBEWITHMD5AND192BITAES-CBC-OPENSSL
+  - type: Cipher
+    algorithm: PBEWITHMD5AND256BITAES-CBC-OPENSSL
+  - type: Cipher
+    algorithm: PBEWITHMD5ANDDES
+    aliases:
+    - 1.2.840.113549.1.5.3
+    - OID.1.2.840.113549.1.5.3
+    - PBEWITHMD5ANDDES-CBC
+  - type: Cipher
+    algorithm: PBEWITHMD5ANDRC2
+    aliases:
+    - 1.2.840.113549.1.5.6
+    - OID.1.2.840.113549.1.5.6
+    - PBEWITHMD5ANDRC2-CBC
+  - type: Cipher
+    algorithm: PBEWITHSHA1ANDDES
+    aliases:
+    - 1.2.840.113549.1.5.10
+    - OID.1.2.840.113549.1.5.10
+    - PBEWITHSHA1ANDDES-CBC
+  - type: Cipher
+    algorithm: PBEWITHSHA1ANDRC2
+    aliases:
+    - 1.2.840.113549.1.5.11
+    - OID.1.2.840.113549.1.5.11
+    - PBEWITHSHA1ANDRC2-CBC
+    - PBEWITHSHAANDRC2-CBC
+  - type: Cipher
+    algorithm: PBEWITHSHA256AND128BITAES-CBC-BC
+    aliases:
+    - 1.3.6.1.4.1.22554.1.2.1.2.1.2
+    - OID.1.3.6.1.4.1.22554.1.2.1.2.1.2
+    - PBEWITHSHA-256AND128BITAES-BC
+    - PBEWITHSHA-256AND128BITAES-CBC-BC
+    - PBEWITHSHA256AND128BITAES-BC
+  - type: Cipher
+    algorithm: PBEWITHSHA256AND192BITAES-CBC-BC
+    aliases:
+    - 1.3.6.1.4.1.22554.1.2.1.2.1.22
+    - OID.1.3.6.1.4.1.22554.1.2.1.2.1.22
+    - PBEWITHSHA-256AND192BITAES-BC
+    - PBEWITHSHA-256AND192BITAES-CBC-BC
+    - PBEWITHSHA256AND192BITAES-BC
+  - type: Cipher
+    algorithm: PBEWITHSHA256AND256BITAES-CBC-BC
+    aliases:
+    - 1.3.6.1.4.1.22554.1.2.1.2.1.42
+    - OID.1.3.6.1.4.1.22554.1.2.1.2.1.42
+    - PBEWITHSHA-256AND256BITAES-BC
+    - PBEWITHSHA-256AND256BITAES-CBC-BC
+    - PBEWITHSHA256AND256BITAES-BC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND128BITAES-CBC-BC
+    aliases:
+    - 1.3.6.1.4.1.22554.1.1.2.1.2
+    - OID.1.3.6.1.4.1.22554.1.1.2.1.2
+    - PBEWITHSHA-1AND128BITAES-BC
+    - PBEWITHSHA-1AND128BITAES-CBC-BC
+    - PBEWITHSHA1AND128BITAES-BC
+    - PBEWITHSHA1AND128BITAES-CBC-BC
+    - PBEWITHSHAAND128BITAES-BC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND128BITRC2-CBC
+    aliases:
+    - 1.2.840.113549.1.12.1.5
+    - OID.1.2.840.113549.1.12.1.5
+    - PBEWITHSHA1AND128BITRC2-CBC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND128BITRC4
+    aliases:
+    - 1.2.840.113549.1.12.1.1
+    - OID.1.2.840.113549.1.12.1.1
+    - PBEWITHSHA1AND128BITRC4
+  - type: Cipher
+    algorithm: PBEWITHSHAAND192BITAES-CBC-BC
+    aliases:
+    - 1.3.6.1.4.1.22554.1.1.2.1.22
+    - OID.1.3.6.1.4.1.22554.1.1.2.1.22
+    - PBEWITHSHA-1AND192BITAES-BC
+    - PBEWITHSHA-1AND192BITAES-CBC-BC
+    - PBEWITHSHA1AND192BITAES-BC
+    - PBEWITHSHA1AND192BITAES-CBC-BC
+    - PBEWITHSHAAND192BITAES-BC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND2-KEYTRIPLEDES-CBC
+    aliases:
+    - 1.2.840.113549.1.12.1.4
+    - OID.1.2.840.113549.1.12.1.4
+    - PBEWITHSHA1AND2-KEYDESEDE-CBC
+    - PBEWITHSHA1AND2-KEYTRIPLEDES-CBC
+    - PBEWITHSHAAND2-KEYDESEDE-CBC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND256BITAES-CBC-BC
+    aliases:
+    - 1.3.6.1.4.1.22554.1.1.2.1.42
+    - OID.1.3.6.1.4.1.22554.1.1.2.1.42
+    - PBEWITHSHA-1AND256BITAES-BC
+    - PBEWITHSHA-1AND256BITAES-CBC-BC
+    - PBEWITHSHA1AND256BITAES-BC
+    - PBEWITHSHA1AND256BITAES-CBC-BC
+    - PBEWITHSHAAND256BITAES-BC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND3-KEYTRIPLEDES-CBC
+    aliases:
+    - 1.2.840.113549.1.12.1.3
+    - OID.1.2.840.113549.1.12.1.3
+    - PBEWITHSHA1AND3-KEYDESEDE-CBC
+    - PBEWITHSHA1AND3-KEYTRIPLEDES-CBC
+    - PBEWITHSHA1ANDDESEDE
+    - PBEWITHSHA1ANDDESEDE-CBC
+    - PBEWITHSHAAND3-KEYDESEDE-CBC
+    - PBEWithSHAAnd3KeyTripleDES
+  - type: Cipher
+    algorithm: PBEWITHSHAAND40BITRC2-CBC
+    aliases:
+    - 1.2.840.113549.1.12.1.6
+    - OID.1.2.840.113549.1.12.1.6
+    - PBEWITHSHA1AND40BITRC2-CBC
+  - type: Cipher
+    algorithm: PBEWITHSHAAND40BITRC4
+    aliases:
+    - 1.2.840.113549.1.12.1.2
+    - OID.1.2.840.113549.1.12.1.2
+    - PBEWITHSHA1AND40BITRC4
+  - type: Cipher
+    algorithm: PBEWITHSHAANDTWOFISH-CBC
+  - type: Cipher
+    algorithm: RSA
+    aliases:
+    - RSA//NOPADDING
+    - RSA//RAW
+    - RSA/RAW
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: KeyAgreement
+    algorithm: DH
+    aliases:
+    - DIFFIEHELLMAN
+    attributes:
+      SupportedKeyClasses:
+      - javax.crypto.interfaces.DHPublicKey
+      - javax.crypto.interfaces.DHPrivateKey
+      SupportedKeyFormats:
+      - PKCS#8
+      - X.509
+  - type: KeyGenerator
+    algorithm: ARC4
+    aliases:
+    - 1.2.840.113549.3.4
+    - RC4
+  - type: KeyGenerator
+    algorithm: BLOWFISH
+    aliases:
+    - 1.3.6.1.4.1.3029.1.1.2
+    - OID.1.3.6.1.4.1.3029.1.1.2
+  - type: KeyGenerator
+    algorithm: DES
+  - type: KeyPairGenerator
+    algorithm: DH
+    aliases:
+    - 1.2.840.10046.2.1
+    - 1.2.840.113549.1.3.1
+    - DIFFIEHELLMAN
+  - type: KeyPairGenerator
+    algorithm: DSA
+    aliases:
+    - 1.2.840.10040.4.1
+    - 1.2.840.10040.4.3
+    - 1.3.14.3.2.27
+  - type: KeyPairGenerator
+    algorithm: RSA
+    aliases:
+    - 1.2.840.113549.1.1.1
+    - 1.2.840.113549.1.1.7
+    - 2.5.8.1.1
+  - type: Mac
+    algorithm: PBEWITHHMACSHA
+    aliases:
+    - 1.3.14.3.2.26
+  - type: Mac
+    algorithm: PBEWITHHMACSHA1
+  - type: Signature
+    algorithm: NONEWITHDSA
+    aliases:
+    - RAWDSA
+  - type: Signature
+    algorithm: SHA1withDSA
+    aliases:
+    - 1.2.840.10040.4.1
+    - 1.2.840.10040.4.3
+    - 1.3.14.3.2.26with1.2.840.10040.4.1
+    - 1.3.14.3.2.26with1.2.840.10040.4.3
+    - 1.3.14.3.2.27
+    - DSA
+    - DSAWITHSHA1
+    - DSAWithSHA1
+    - DSAwithSHA1
+    - SHA/DSA
+    - SHA1WITHDSA
+    - SHA1WithDSA
+    - SHA1withDSA
+  - type: Signature
+    algorithm: SHA224WITHDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.1
+    - OID.2.16.840.1.101.3.4.3.1
+    - SHA224/DSA
+    - SHA224WithDSA
+    - SHA224withDSA
+  - type: Signature
+    algorithm: SHA256WITHDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.2
+    - OID.2.16.840.1.101.3.4.3.2
+    - SHA256/DSA
+    - SHA256WithDSA
+    - SHA256withDSA
+- name: AndroidKeyStore
+  services:
+  - type: KeyAgreement
+    algorithm: ECDH
+  - type: KeyAgreement
+    algorithm: XDH
+  - type: KeyGenerator
+    algorithm: AES
+  - type: KeyGenerator
+    algorithm: HmacSHA1
+  - type: KeyGenerator
+    algorithm: HmacSHA224
+  - type: KeyGenerator
+    algorithm: HmacSHA256
+  - type: KeyGenerator
+    algorithm: HmacSHA384
+  - type: KeyGenerator
+    algorithm: HmacSHA512
+  - type: KeyPairGenerator
+    algorithm: EC
+  - type: KeyPairGenerator
+    algorithm: ED25519
+  - type: KeyPairGenerator
+    algorithm: RSA
+  - type: KeyPairGenerator
+    algorithm: XDH

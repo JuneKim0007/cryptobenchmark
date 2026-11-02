@@ -1,0 +1,1629 @@
+schemaVersion: 2
+services:
+- provider: SUN
+  type: KeyPairGenerator
+  algorithm: DSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 2048
+- provider: SUN
+  type: MessageDigest
+  algorithm: MD2
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: MD5
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-1
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-224
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-256
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-384
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-512
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-512/224
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA-512/256
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA3-224
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA3-256
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA3-384
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: MessageDigest
+  algorithm: SHA3-512
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SUN
+  type: Signature
+  algorithm: HSS/LMS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HSS/LMS'
+- provider: SUN
+  type: Signature
+  algorithm: NONEwithDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'SignatureException: Data for RawDSA must be exactly 20 bytes long'
+- provider: SUN
+  type: Signature
+  algorithm: NONEwithDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'SignatureException: Data for RawDSA must be exactly 20 bytes long'
+- provider: SUN
+  type: Signature
+  algorithm: SHA1withDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: The security strength of SHA-1 digest algorithm is not sufficient for this key size'
+- provider: SUN
+  type: Signature
+  algorithm: SHA1withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: The security strength of SHA-1 digest algorithm is not sufficient for this key size'
+- provider: SUN
+  type: Signature
+  algorithm: SHA224withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA224withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA256withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA256withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-224withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-224withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-256withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-256withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-384withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-384withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-512withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA3-512withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA384withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA384withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA512withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SUN
+  type: Signature
+  algorithm: SHA512withDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: SUN
+    keySize: 2048
+- provider: SunRsaSign
+  type: KeyPairGenerator
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 3072
+- provider: SunRsaSign
+  type: KeyPairGenerator
+  algorithm: RSASSA-PSS
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: MD2withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: MD5withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: RSASSA-PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'SignatureException: Parameters required for RSASSA-PSS signatures'
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA1withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA224withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA256withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA3-224withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA3-256withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA3-384withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA3-512withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA384withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA512/224withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA512/256withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunRsaSign
+  type: Signature
+  algorithm: SHA512withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunEC
+  type: KeyAgreement
+  algorithm: ECDH
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: KeyAgreement
+  algorithm: X25519
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: X25519
+    keyProvider: SunEC
+- provider: SunEC
+  type: KeyAgreement
+  algorithm: X448
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: X448
+    keyProvider: SunEC
+- provider: SunEC
+  type: KeyAgreement
+  algorithm: XDH
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: XDH
+    keyProvider: SunEC
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: EC
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 384
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: Ed25519
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: Ed448
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: EdDSA
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: X25519
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: X448
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SunEC
+  type: KeyPairGenerator
+  algorithm: XDH
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: SunEC
+  type: Signature
+  algorithm: Ed25519
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: Ed25519
+    keyProvider: SunEC
+- provider: SunEC
+  type: Signature
+  algorithm: Ed448
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: Ed448
+    keyProvider: SunEC
+- provider: SunEC
+  type: Signature
+  algorithm: EdDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EdDSA
+    keyProvider: SunEC
+- provider: SunEC
+  type: Signature
+  algorithm: NONEwithECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: NONEwithECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA1withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA1withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA224withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA224withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA256withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA256withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-224withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-224withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-256withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-256withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-384withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-384withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-512withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA3-512withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA384withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA384withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA512withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunEC
+  type: Signature
+  algorithm: SHA512withECDSAinP1363Format
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: SunEC
+    keySize: 384
+- provider: SunJSSE
+  type: Signature
+  algorithm: MD5andSHA1withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=12 tagBits=128
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES/KW/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES/KW/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES/KWP/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: fixedValueBytes=4
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/CFB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: ivBytes=12 tagBits=128
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/KW/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/KW/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/KWP/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: fixedValueBytes=4
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_128/OFB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 128
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/CFB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: ivBytes=12 tagBits=128
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/KW/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/KW/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/KWP/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: fixedValueBytes=4
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_192/OFB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 192
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/CFB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=12 tagBits=128
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/KW/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/KW/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: fixedValueBytes=8
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/KWP/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: fixedValueBytes=4
+- provider: SunJCE
+  type: Cipher
+  algorithm: AES_256/OFB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=16
+- provider: SunJCE
+  type: Cipher
+  algorithm: ARCFOUR
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: ARCFOUR
+    keyProvider: SunJCE
+    keySize: 128
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: Blowfish
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: Blowfish
+    keyProvider: SunJCE
+    keySize: 128
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: ChaCha20
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: ChaCha20
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=12
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: ChaCha20-Poly1305
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: ChaCha20
+    keyProvider: SunJCE
+    keySize: 256
+    providerChose: ivBytes=12
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: DES
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DES
+    keyProvider: SunJCE
+    keySize: 64
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: DESede
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DESede
+    keyProvider: SunJCE
+    keySize: 192
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: DESedeWrap
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates DESedeWrap'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA1AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA1AndAES_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA1AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA1AndAES_256'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA224AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA224AndAES_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA224AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA224AndAES_256'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA256AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA256AndAES_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA256AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA256AndAES_256'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA384AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA384AndAES_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA384AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA384AndAES_256'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA512/224AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA512/224AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA512/256AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA512/256AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA512AndAES_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512AndAES_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithHmacSHA512AndAES_256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512AndAES_256'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithMD5AndDES
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithMD5AndDES'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithMD5AndTripleDES
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithMD5AndTripleDES'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithSHA1AndDESede
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithSHA1AndDESede'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithSHA1AndRC2_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithSHA1AndRC2_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithSHA1AndRC2_40
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithSHA1AndRC2_40'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithSHA1AndRC4_128
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithSHA1AndRC4_128'
+- provider: SunJCE
+  type: Cipher
+  algorithm: PBEWithSHA1AndRC4_40
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithSHA1AndRC4_40'
+- provider: SunJCE
+  type: Cipher
+  algorithm: RC2
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RC2
+    keyProvider: SunJCE
+    keySize: 128
+    bareName: true
+- provider: SunJCE
+  type: Cipher
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072
+    bareName: true
+- provider: SunJCE
+  type: KeyAgreement
+  algorithm: DiffieHellman
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DiffieHellman
+    keyProvider: SunJCE
+    keySize: 3072
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: AES
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: ARCFOUR
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: Blowfish
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: ChaCha20
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: DES
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 64
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: DESede
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 192
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacMD5
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 512
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA1
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 512
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA224
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 224
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA3-224
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 224
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA3-256
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA3-384
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 384
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA3-512
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 512
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA384
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 384
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA512
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 512
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA512/224
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 224
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: HmacSHA512/256
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: RC2
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: SunTls12Prf
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: TlsPrfGenerator must be initialized'
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: SunTlsKeyMaterial
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: TlsKeyMaterialGenerator must be initialized'
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: SunTlsMasterSecret
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: TlsMasterSecretGenerator must be initialized'
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: SunTlsPrf
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: TlsPrfGenerator must be initialized'
+- provider: SunJCE
+  type: KeyGenerator
+  algorithm: SunTlsRsaPremasterSecret
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: TlsRsaPremasterSecretGenerator must be initialized'
+- provider: SunJCE
+  type: KeyPairGenerator
+  algorithm: DiffieHellman
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 3072
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacMD5
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacMD5
+    keyProvider: SunJCE
+    keySize: 512
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA1
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA1'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA224
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA224'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA256'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA384
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA384'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA512
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA512'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA512/224
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA512/224'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacPBESHA512/256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates HmacPBESHA512/256'
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA1
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA1
+    keyProvider: SunJCE
+    keySize: 512
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA224
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA224
+    keyProvider: SunJCE
+    keySize: 224
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA256
+    keyProvider: SunJCE
+    keySize: 256
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA3-224
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA3-224
+    keyProvider: SunJCE
+    keySize: 224
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA3-256
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA3-256
+    keyProvider: SunJCE
+    keySize: 256
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA3-384
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA3-384
+    keyProvider: SunJCE
+    keySize: 384
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA3-512
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA3-512
+    keyProvider: SunJCE
+    keySize: 512
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA384
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA384
+    keyProvider: SunJCE
+    keySize: 384
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA512
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA512
+    keyProvider: SunJCE
+    keySize: 512
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA512/224
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA512/224
+    keyProvider: SunJCE
+    keySize: 224
+- provider: SunJCE
+  type: Mac
+  algorithm: HmacSHA512/256
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA512/256
+    keyProvider: SunJCE
+    keySize: 256
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA1
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA1'
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA224
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA224'
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA256'
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA384
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA384'
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA512
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512'
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA512/224
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512/224'
+- provider: SunJCE
+  type: Mac
+  algorithm: PBEWithHmacSHA512/256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWithHmacSHA512/256'
+- provider: SunJCE
+  type: Mac
+  algorithm: SslMacMD5
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates SslMacMD5'
+- provider: SunJCE
+  type: Mac
+  algorithm: SslMacSHA1
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates SslMacSHA1'
+- provider: SunJCE
+  type: Signature
+  algorithm: NONEwithRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 3072

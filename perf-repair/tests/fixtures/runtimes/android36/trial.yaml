@@ -1,0 +1,1348 @@
+schemaVersion: 2
+services:
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/CBC/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/CTR/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/ECB/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/GCM-SIV/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: GCM iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: GCM iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_128/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_128/CBC/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_128/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_128/ECB/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_128/GCM-SIV/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: GCM iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_128/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    providerChose: GCM iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_256/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_256/CBC/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+    providerChose: AES iv=16B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_256/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_256/ECB/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_256/GCM-SIV/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+    providerChose: GCM iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: AES_256/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+    providerChose: GCM iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: ARC4
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: ARC4
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    bareName: true
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: ChaCha20
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: ChaCha20
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+    providerChose: ChaCha20 iv=12B
+    bareName: true
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: ChaCha20/Poly1305/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: ChaCha20
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+    providerChose: ChaCha20 iv=12B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: DESEDE/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DESEDE
+    keyProvider: AndroidOpenSSL
+    keySize: 192
+    providerChose: DESede iv=8B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: DESEDE/CBC/PKCS5Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DESEDE
+    keyProvider: AndroidOpenSSL
+    keySize: 192
+    providerChose: DESede iv=8B
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/OAEPPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-1 mgf1=SHA-1
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-1AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-1 mgf1=SHA-1
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-224AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-224 mgf1=SHA-224
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-256 mgf1=SHA-256
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-384AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-384 mgf1=SHA-384
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-512AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-512 mgf1=SHA-512
+- provider: AndroidOpenSSL
+  type: Cipher
+  algorithm: RSA/ECB/PKCS1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: KeyAgreement
+  algorithm: ECDH
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: KeyAgreement
+  algorithm: XDH
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: XDH
+    keyProvider: AndroidOpenSSL
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: AES
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: ARC4
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: ChaCha20
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: DESEDE
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 192
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: HmacMD5
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: HmacSHA1
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 160
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: HmacSHA224
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 224
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: HmacSHA384
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 384
+- provider: AndroidOpenSSL
+  type: KeyGenerator
+  algorithm: HmacSHA512
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 512
+- provider: AndroidOpenSSL
+  type: KeyPairGenerator
+  algorithm: EC
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: KeyPairGenerator
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: KeyPairGenerator
+  algorithm: XDH
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: AESCMAC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates AESCMAC'
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: HmacMD5
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacMD5
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: HmacSHA1
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA1
+    keyProvider: AndroidOpenSSL
+    keySize: 160
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: HmacSHA224
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA224
+    keyProvider: AndroidOpenSSL
+    keySize: 224
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA256
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: HmacSHA384
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA384
+    keyProvider: AndroidOpenSSL
+    keySize: 384
+- provider: AndroidOpenSSL
+  type: Mac
+  algorithm: HmacSHA512
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: HmacSHA512
+    keyProvider: AndroidOpenSSL
+    keySize: 512
+- provider: AndroidOpenSSL
+  type: MessageDigest
+  algorithm: MD5
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: MessageDigest
+  algorithm: SHA-1
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: MessageDigest
+  algorithm: SHA-224
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: MessageDigest
+  algorithm: SHA-256
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: MessageDigest
+  algorithm: SHA-384
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: MessageDigest
+  algorithm: SHA-512
+  instantiates: true
+  defaultRun:
+    works: true
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: MD5withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: NONEwithECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: NONEwithRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA1withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA1withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA1withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA224withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA224withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA224withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA256withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA256withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA256withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA384withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA384withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA384withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA512withECDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: EC
+    keyProvider: AndroidOpenSSL
+    keySize: 256
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA512withRSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidOpenSSL
+  type: Signature
+  algorithm: SHA512withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: AES/CBC/NoPadding
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported key: javax.crypto.spec.SecretKeySpec'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: AES/CBC/PKCS7Padding
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported key: javax.crypto.spec.SecretKeySpec'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: AES/CTR/NoPadding
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported key: javax.crypto.spec.SecretKeySpec'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: AES/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported key: javax.crypto.spec.SecretKeySpec'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: AES/ECB/PKCS7Padding
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported key: javax.crypto.spec.SecretKeySpec'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported key: javax.crypto.spec.SecretKeySpec'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/NoPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/OAEPPadding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-1 mgf1=SHA-1
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-1AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-1 mgf1=SHA-1
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-224AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-224 mgf1=SHA-1
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-256 mgf1=SHA-1
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-384AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-384 mgf1=SHA-1
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-512AndMGF1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+    providerChose: OAEP digest=SHA-512 mgf1=SHA-1
+- provider: AndroidKeyStoreBCWorkaround
+  type: Cipher
+  algorithm: RSA/ECB/PKCS1Padding
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: AndroidOpenSSL
+    keySize: 2048
+- provider: AndroidKeyStoreBCWorkaround
+  type: Mac
+  algorithm: HmacSHA1
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Only Android KeyStore secret keys supported. Key: javax.crypto.spec.SecretKeySpec@9b4f8de3'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Mac
+  algorithm: HmacSHA224
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Only Android KeyStore secret keys supported. Key: javax.crypto.spec.SecretKeySpec@5882431'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Mac
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Only Android KeyStore secret keys supported. Key: javax.crypto.spec.SecretKeySpec@fa77ca23'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Mac
+  algorithm: HmacSHA384
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Only Android KeyStore secret keys supported. Key: javax.crypto.spec.SecretKeySpec@5884cd3'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Mac
+  algorithm: HmacSHA512
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Only Android KeyStore secret keys supported. Key: javax.crypto.spec.SecretKeySpec@fa77cc34'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: Ed25519
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: MD5withRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: NONEwithECDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLECPrivateKey{params={ECDSA-Parameters: (P-256)'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: NONEwithRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA1withECDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLECPrivateKey{params={ECDSA-Parameters: (P-256)'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA1withRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA1withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA224withECDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLECPrivateKey{params={ECDSA-Parameters: (P-256)'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA224withRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA224withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA256withECDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLECPrivateKey{params={ECDSA-Parameters: (P-256)'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA256withRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA256withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA384withECDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLECPrivateKey{params={ECDSA-Parameters: (P-256)'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA384withRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA384withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA512withECDSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLECPrivateKey{params={ECDSA-Parameters: (P-256)'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA512withRSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'InvalidKeyException: Unsupported private key type: OpenSSLRSAPrivateCrtKey{modulus=ccd923bb0838f3a7153acda715cdb4999bc1c196d44c90db4c9175cad6701a549737cd4b6baa2'
+- provider: AndroidKeyStoreBCWorkaround
+  type: Signature
+  algorithm: SHA512withRSA/PSS
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates RSA/PSS'
+- provider: BC
+  type: Cipher
+  algorithm: AES
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: AES
+    keyProvider: AndroidOpenSSL
+    keySize: 128
+    bareName: true
+- provider: BC
+  type: Cipher
+  algorithm: AESWRAP
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates AESWRAP'
+- provider: BC
+  type: Cipher
+  algorithm: BLOWFISH
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: BLOWFISH
+    keyProvider: BC
+    keySize: 128
+    bareName: true
+- provider: BC
+  type: Cipher
+  algorithm: DES
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DES
+    keyProvider: BC
+    keySize: 64
+    bareName: true
+- provider: BC
+  type: Cipher
+  algorithm: DESEDE
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DESEDE
+    keyProvider: AndroidOpenSSL
+    keySize: 192
+    bareName: true
+- provider: BC
+  type: Cipher
+  algorithm: DESEDEWRAP
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates DESEDEWRAP'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHMD5AND128BITAES-CBC-OPENSSL
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHMD5AND128BITAES-CBC-OPENSSL'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHMD5AND192BITAES-CBC-OPENSSL
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHMD5AND192BITAES-CBC-OPENSSL'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHMD5AND256BITAES-CBC-OPENSSL
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHMD5AND256BITAES-CBC-OPENSSL'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHMD5ANDDES
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHMD5ANDDES'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHMD5ANDRC2
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHMD5ANDRC2'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHA1ANDDES
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHA1ANDDES'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHA1ANDRC2
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHA1ANDRC2'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHA256AND128BITAES-CBC-BC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHA256AND128BITAES-CBC-BC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHA256AND192BITAES-CBC-BC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHA256AND192BITAES-CBC-BC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHA256AND256BITAES-CBC-BC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHA256AND256BITAES-CBC-BC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND128BITAES-CBC-BC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND128BITAES-CBC-BC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND128BITRC2-CBC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND128BITRC2-CBC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND128BITRC4
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND128BITRC4'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND192BITAES-CBC-BC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND192BITAES-CBC-BC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND2-KEYTRIPLEDES-CBC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND2-KEYTRIPLEDES-CBC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND256BITAES-CBC-BC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND256BITAES-CBC-BC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND3-KEYTRIPLEDES-CBC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND3-KEYTRIPLEDES-CBC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND40BITRC2-CBC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND40BITRC2-CBC'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAAND40BITRC4
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAAND40BITRC4'
+- provider: BC
+  type: Cipher
+  algorithm: PBEWITHSHAANDTWOFISH-CBC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHSHAANDTWOFISH-CBC'
+- provider: BC
+  type: Cipher
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: BC
+    keySize: 2048
+    bareName: true
+- provider: BC
+  type: KeyAgreement
+  algorithm: DH
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DH
+    keyProvider: BC
+    keySize: 2048
+- provider: BC
+  type: KeyGenerator
+  algorithm: ARC4
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: BC
+  type: KeyGenerator
+  algorithm: BLOWFISH
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 128
+- provider: BC
+  type: KeyGenerator
+  algorithm: DES
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 64
+- provider: BC
+  type: KeyPairGenerator
+  algorithm: DH
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 2048
+- provider: BC
+  type: KeyPairGenerator
+  algorithm: DSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 1024
+- provider: BC
+  type: KeyPairGenerator
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 2048
+- provider: BC
+  type: Mac
+  algorithm: PBEWITHHMACSHA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHHMACSHA'
+- provider: BC
+  type: Mac
+  algorithm: PBEWITHHMACSHA1
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'NoSuchAlgorithmException: no provider generates PBEWITHHMACSHA1'
+- provider: BC
+  type: Signature
+  algorithm: NONEWITHDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: BC
+    keySize: 1024
+- provider: BC
+  type: Signature
+  algorithm: SHA1withDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: BC
+    keySize: 1024
+- provider: BC
+  type: Signature
+  algorithm: SHA224WITHDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: BC
+    keySize: 1024
+- provider: BC
+  type: Signature
+  algorithm: SHA256WITHDSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: DSA
+    keyProvider: BC
+    keySize: 1024
+- provider: AndroidKeyStore
+  type: KeyAgreement
+  algorithm: ECDH
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyAgreement
+  algorithm: XDH
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyGenerator
+  algorithm: AES
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyGenerator
+  algorithm: HmacSHA1
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyGenerator
+  algorithm: HmacSHA224
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyGenerator
+  algorithm: HmacSHA256
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyGenerator
+  algorithm: HmacSHA384
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyGenerator
+  algorithm: HmacSHA512
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyPairGenerator
+  algorithm: EC
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyPairGenerator
+  algorithm: ED25519
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyPairGenerator
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'
+- provider: AndroidKeyStore
+  type: KeyPairGenerator
+  algorithm: XDH
+  instantiates: true
+  defaultRun:
+    works: false
+    error: 'IllegalStateException: Not initialized'

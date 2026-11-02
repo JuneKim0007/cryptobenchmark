@@ -1,0 +1,1413 @@
+schemaVersion: 1
+runtime:
+  sdkInt: 0
+  javaVersion: 25.0.3
+providers:
+- name: SUN
+  services:
+  - type: KeyPairGenerator
+    algorithm: DSA
+    aliases:
+    - 1.2.840.10040.4.1
+    - 1.3.14.3.2.12
+    - OID.1.2.840.10040.4.1
+  - type: KeyPairGenerator
+    algorithm: ML-DSA
+  - type: KeyPairGenerator
+    algorithm: ML-DSA-44
+    aliases:
+    - 2.16.840.1.101.3.4.3.17
+    - OID.2.16.840.1.101.3.4.3.17
+  - type: KeyPairGenerator
+    algorithm: ML-DSA-65
+    aliases:
+    - 2.16.840.1.101.3.4.3.18
+    - OID.2.16.840.1.101.3.4.3.18
+  - type: KeyPairGenerator
+    algorithm: ML-DSA-87
+    aliases:
+    - 2.16.840.1.101.3.4.3.19
+    - OID.2.16.840.1.101.3.4.3.19
+  - type: MessageDigest
+    algorithm: MD2
+    aliases:
+    - 1.2.840.113549.2.2
+    - OID.1.2.840.113549.2.2
+  - type: MessageDigest
+    algorithm: MD5
+    aliases:
+    - 1.2.840.113549.2.5
+    - OID.1.2.840.113549.2.5
+  - type: MessageDigest
+    algorithm: SHA-1
+    aliases:
+    - 1.3.14.3.2.26
+    - OID.1.3.14.3.2.26
+    - SHA
+    - SHA1
+  - type: MessageDigest
+    algorithm: SHA-224
+    aliases:
+    - 2.16.840.1.101.3.4.2.4
+    - OID.2.16.840.1.101.3.4.2.4
+    - SHA224
+  - type: MessageDigest
+    algorithm: SHA-256
+    aliases:
+    - 2.16.840.1.101.3.4.2.1
+    - OID.2.16.840.1.101.3.4.2.1
+    - SHA256
+  - type: MessageDigest
+    algorithm: SHA-384
+    aliases:
+    - 2.16.840.1.101.3.4.2.2
+    - OID.2.16.840.1.101.3.4.2.2
+    - SHA384
+  - type: MessageDigest
+    algorithm: SHA-512
+    aliases:
+    - 2.16.840.1.101.3.4.2.3
+    - OID.2.16.840.1.101.3.4.2.3
+    - SHA512
+  - type: MessageDigest
+    algorithm: SHA-512/224
+    aliases:
+    - 2.16.840.1.101.3.4.2.5
+    - OID.2.16.840.1.101.3.4.2.5
+    - SHA512/224
+  - type: MessageDigest
+    algorithm: SHA-512/256
+    aliases:
+    - 2.16.840.1.101.3.4.2.6
+    - OID.2.16.840.1.101.3.4.2.6
+    - SHA512/256
+  - type: MessageDigest
+    algorithm: SHA3-224
+    aliases:
+    - 2.16.840.1.101.3.4.2.7
+    - OID.2.16.840.1.101.3.4.2.7
+  - type: MessageDigest
+    algorithm: SHA3-256
+    aliases:
+    - 2.16.840.1.101.3.4.2.8
+    - OID.2.16.840.1.101.3.4.2.8
+  - type: MessageDigest
+    algorithm: SHA3-384
+    aliases:
+    - 2.16.840.1.101.3.4.2.9
+    - OID.2.16.840.1.101.3.4.2.9
+  - type: MessageDigest
+    algorithm: SHA3-512
+    aliases:
+    - 2.16.840.1.101.3.4.2.10
+    - OID.2.16.840.1.101.3.4.2.10
+  - type: MessageDigest
+    algorithm: SHAKE128-256
+    aliases:
+    - 2.16.840.1.101.3.4.2.11
+    - OID.2.16.840.1.101.3.4.2.11
+    - SHAKE128
+  - type: MessageDigest
+    algorithm: SHAKE256-512
+    aliases:
+    - 2.16.840.1.101.3.4.2.12
+    - OID.2.16.840.1.101.3.4.2.12
+    - SHAKE256
+  - type: Signature
+    algorithm: HSS/LMS
+    aliases:
+    - 1.2.840.113549.1.9.16.3.17
+    - OID.1.2.840.113549.1.9.16.3.17
+  - type: Signature
+    algorithm: ML-DSA
+  - type: Signature
+    algorithm: ML-DSA-44
+    aliases:
+    - 2.16.840.1.101.3.4.3.17
+    - OID.2.16.840.1.101.3.4.3.17
+  - type: Signature
+    algorithm: ML-DSA-65
+    aliases:
+    - 2.16.840.1.101.3.4.3.18
+    - OID.2.16.840.1.101.3.4.3.18
+  - type: Signature
+    algorithm: ML-DSA-87
+    aliases:
+    - 2.16.840.1.101.3.4.3.19
+    - OID.2.16.840.1.101.3.4.3.19
+  - type: Signature
+    algorithm: NONEwithDSA
+    aliases:
+    - RawDSA
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: NONEwithDSAinP1363Format
+  - type: Signature
+    algorithm: SHA1withDSA
+    aliases:
+    - 1.2.840.10040.4.3
+    - 1.3.14.3.2.13
+    - 1.3.14.3.2.27
+    - DSA
+    - DSAWithSHA1
+    - DSS
+    - OID.1.2.840.10040.4.3
+    - SHA-1/DSA
+    - SHA/DSA
+    - SHA1/DSA
+    - SHAwithDSA
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA1withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA224withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.1
+    - OID.2.16.840.1.101.3.4.3.1
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA224withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA256withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.2
+    - OID.2.16.840.1.101.3.4.3.2
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA256withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-224withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.5
+    - OID.2.16.840.1.101.3.4.3.5
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-224withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-256withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.6
+    - OID.2.16.840.1.101.3.4.3.6
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-256withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-384withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.7
+    - OID.2.16.840.1.101.3.4.3.7
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-384withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-512withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.8
+    - OID.2.16.840.1.101.3.4.3.8
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-512withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA384withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.3
+    - OID.2.16.840.1.101.3.4.3.3
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA384withDSAinP1363Format
+  - type: Signature
+    algorithm: SHA512withDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.4
+    - OID.2.16.840.1.101.3.4.3.4
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.DSAPublicKey
+      - java.security.interfaces.DSAPrivateKey
+  - type: Signature
+    algorithm: SHA512withDSAinP1363Format
+- name: SunRsaSign
+  services:
+  - type: KeyPairGenerator
+    algorithm: RSA
+    aliases:
+    - 1.2.840.113549.1.1
+    - 1.2.840.113549.1.1.1
+    - OID.1.2.840.113549.1.1
+  - type: KeyPairGenerator
+    algorithm: RSASSA-PSS
+    aliases:
+    - 1.2.840.113549.1.1.10
+    - OID.1.2.840.113549.1.1.10
+    - PSS
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: MD2withRSA
+    aliases:
+    - 1.2.840.113549.1.1.2
+    - OID.1.2.840.113549.1.1.2
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: MD5withRSA
+    aliases:
+    - 1.2.840.113549.1.1.4
+    - OID.1.2.840.113549.1.1.4
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: RSASSA-PSS
+    aliases:
+    - 1.2.840.113549.1.1.10
+    - OID.1.2.840.113549.1.1.10
+    - PSS
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA1withRSA
+    aliases:
+    - 1.2.840.113549.1.1.5
+    - 1.3.14.3.2.29
+    - OID.1.2.840.113549.1.1.5
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA224withRSA
+    aliases:
+    - 1.2.840.113549.1.1.14
+    - OID.1.2.840.113549.1.1.14
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA256withRSA
+    aliases:
+    - 1.2.840.113549.1.1.11
+    - OID.1.2.840.113549.1.1.11
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-224withRSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.13
+    - OID.2.16.840.1.101.3.4.3.13
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-256withRSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.14
+    - OID.2.16.840.1.101.3.4.3.14
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-384withRSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.15
+    - OID.2.16.840.1.101.3.4.3.15
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA3-512withRSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.16
+    - OID.2.16.840.1.101.3.4.3.16
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA384withRSA
+    aliases:
+    - 1.2.840.113549.1.1.12
+    - OID.1.2.840.113549.1.1.12
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA512/224withRSA
+    aliases:
+    - 1.2.840.113549.1.1.15
+    - OID.1.2.840.113549.1.1.15
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA512/256withRSA
+    aliases:
+    - 1.2.840.113549.1.1.16
+    - OID.1.2.840.113549.1.1.16
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+  - type: Signature
+    algorithm: SHA512withRSA
+    aliases:
+    - 1.2.840.113549.1.1.13
+    - OID.1.2.840.113549.1.1.13
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+- name: SunEC
+  services:
+  - type: KeyAgreement
+    algorithm: ECDH
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: KeyAgreement
+    algorithm: X25519
+    aliases:
+    - 1.3.101.110
+    - OID.1.3.101.110
+  - type: KeyAgreement
+    algorithm: X448
+    aliases:
+    - 1.3.101.111
+    - OID.1.3.101.111
+  - type: KeyAgreement
+    algorithm: XDH
+  - type: KeyPairGenerator
+    algorithm: EC
+    aliases:
+    - 1.2.840.10045.2.1
+    - EllipticCurve
+    - OID.1.2.840.10045.2.1
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: KeyPairGenerator
+    algorithm: Ed25519
+    aliases:
+    - 1.3.101.112
+    - OID.1.3.101.112
+  - type: KeyPairGenerator
+    algorithm: Ed448
+    aliases:
+    - 1.3.101.113
+    - OID.1.3.101.113
+  - type: KeyPairGenerator
+    algorithm: EdDSA
+  - type: KeyPairGenerator
+    algorithm: X25519
+    aliases:
+    - 1.3.101.110
+    - OID.1.3.101.110
+  - type: KeyPairGenerator
+    algorithm: X448
+    aliases:
+    - 1.3.101.111
+    - OID.1.3.101.111
+  - type: KeyPairGenerator
+    algorithm: XDH
+  - type: Signature
+    algorithm: Ed25519
+    aliases:
+    - 1.3.101.112
+    - OID.1.3.101.112
+  - type: Signature
+    algorithm: Ed448
+    aliases:
+    - 1.3.101.113
+    - OID.1.3.101.113
+  - type: Signature
+    algorithm: EdDSA
+  - type: Signature
+    algorithm: NONEwithECDSA
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: NONEwithECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA1withECDSA
+    aliases:
+    - 1.2.840.10045.4.1
+    - OID.1.2.840.10045.4.1
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA1withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA224withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.1
+    - OID.1.2.840.10045.4.3.1
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA224withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA256withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.2
+    - OID.1.2.840.10045.4.3.2
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA256withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-224withECDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.9
+    - OID.2.16.840.1.101.3.4.3.9
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA3-224withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-256withECDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.10
+    - OID.2.16.840.1.101.3.4.3.10
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA3-256withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-384withECDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.11
+    - OID.2.16.840.1.101.3.4.3.11
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA3-384withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA3-512withECDSA
+    aliases:
+    - 2.16.840.1.101.3.4.3.12
+    - OID.2.16.840.1.101.3.4.3.12
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA3-512withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA384withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.3
+    - OID.1.2.840.10045.4.3.3
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA384withECDSAinP1363Format
+  - type: Signature
+    algorithm: SHA512withECDSA
+    aliases:
+    - 1.2.840.10045.4.3.4
+    - OID.1.2.840.10045.4.3.4
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.ECPublicKey
+      - java.security.interfaces.ECPrivateKey
+  - type: Signature
+    algorithm: SHA512withECDSAinP1363Format
+- name: SunJSSE
+  services:
+  - type: Signature
+    algorithm: MD5andSHA1withRSA
+- name: SunJCE
+  services:
+  - type: Cipher
+    algorithm: AES
+    aliases:
+    - 2.16.840.1.101.3.4.1
+    - OID.2.16.840.1.101.3.4.1
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      - CBC
+      - PCBC
+      - CTR
+      - CTS
+      - CFB
+      - OFB
+      - CFB8
+      - CFB16
+      - CFB24
+      - CFB32
+      - CFB40
+      - CFB48
+      - CFB56
+      - CFB64
+      - OFB8
+      - OFB16
+      - OFB24
+      - OFB32
+      - OFB40
+      - OFB48
+      - OFB56
+      - OFB64
+      - CFB72
+      - CFB80
+      - CFB88
+      - CFB96
+      - CFB104
+      - CFB112
+      - CFB120
+      - CFB128
+      - OFB72
+      - OFB80
+      - OFB88
+      - OFB96
+      - OFB104
+      - OFB112
+      - OFB120
+      - OFB128
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS5PADDING
+      - ISO10126PADDING
+  - type: Cipher
+    algorithm: AES/GCM/NoPadding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - GCM
+  - type: Cipher
+    algorithm: AES/KW/NoPadding
+    aliases:
+    - AESWrap
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/KW/PKCS5Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES/KWP/NoPadding
+    aliases:
+    - AESWrapPad
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/CBC/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.2
+    - OID.2.16.840.1.101.3.4.1.2
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/CFB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.4
+    - OID.2.16.840.1.101.3.4.1.4
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/ECB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.1
+    - OID.2.16.840.1.101.3.4.1.1
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/GCM/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.6
+    - OID.2.16.840.1.101.3.4.1.6
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - GCM
+  - type: Cipher
+    algorithm: AES_128/KW/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.5
+    - AESWrap_128
+    - OID.2.16.840.1.101.3.4.1.5
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/KW/PKCS5Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/KWP/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.8
+    - AESWrapPad_128
+    - OID.2.16.840.1.101.3.4.1.8
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_128/OFB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.3
+    - OID.2.16.840.1.101.3.4.1.3
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/CBC/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.22
+    - OID.2.16.840.1.101.3.4.1.22
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/CFB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.24
+    - OID.2.16.840.1.101.3.4.1.24
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/ECB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.21
+    - OID.2.16.840.1.101.3.4.1.21
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/GCM/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.26
+    - OID.2.16.840.1.101.3.4.1.26
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - GCM
+  - type: Cipher
+    algorithm: AES_192/KW/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.25
+    - AESWrap_192
+    - OID.2.16.840.1.101.3.4.1.25
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/KW/PKCS5Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/KWP/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.28
+    - AESWrapPad_192
+    - OID.2.16.840.1.101.3.4.1.28
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_192/OFB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.23
+    - OID.2.16.840.1.101.3.4.1.23
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/CBC/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.42
+    - OID.2.16.840.1.101.3.4.1.42
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/CFB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.44
+    - OID.2.16.840.1.101.3.4.1.44
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/ECB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.41
+    - OID.2.16.840.1.101.3.4.1.41
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/GCM/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.46
+    - OID.2.16.840.1.101.3.4.1.46
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - GCM
+  - type: Cipher
+    algorithm: AES_256/KW/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.45
+    - AESWrap_256
+    - OID.2.16.840.1.101.3.4.1.45
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/KW/PKCS5Padding
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/KWP/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.48
+    - AESWrapPad_256
+    - OID.2.16.840.1.101.3.4.1.48
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: AES_256/OFB/NoPadding
+    aliases:
+    - 2.16.840.1.101.3.4.1.43
+    - OID.2.16.840.1.101.3.4.1.43
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: ARCFOUR
+    aliases:
+    - 1.2.840.113549.3.4
+    - OID.1.2.840.113549.3.4
+    - RC4
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      SupportedPaddings:
+      - NOPADDING
+  - type: Cipher
+    algorithm: Blowfish
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      - CBC
+      - PCBC
+      - CTR
+      - CTS
+      - CFB
+      - OFB
+      - CFB8
+      - CFB16
+      - CFB24
+      - CFB32
+      - CFB40
+      - CFB48
+      - CFB56
+      - CFB64
+      - OFB8
+      - OFB16
+      - OFB24
+      - OFB32
+      - OFB40
+      - OFB48
+      - OFB56
+      - OFB64
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS5PADDING
+      - ISO10126PADDING
+  - type: Cipher
+    algorithm: ChaCha20
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: ChaCha20-Poly1305
+    aliases:
+    - 1.2.840.113549.1.9.16.3.18
+    - OID.1.2.840.113549.1.9.16.3.18
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Cipher
+    algorithm: DES
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      - CBC
+      - PCBC
+      - CTR
+      - CTS
+      - CFB
+      - OFB
+      - CFB8
+      - CFB16
+      - CFB24
+      - CFB32
+      - CFB40
+      - CFB48
+      - CFB56
+      - CFB64
+      - OFB8
+      - OFB16
+      - OFB24
+      - OFB32
+      - OFB40
+      - OFB48
+      - OFB56
+      - OFB64
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS5PADDING
+      - ISO10126PADDING
+  - type: Cipher
+    algorithm: DESede
+    aliases:
+    - TripleDES
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      - CBC
+      - PCBC
+      - CTR
+      - CTS
+      - CFB
+      - OFB
+      - CFB8
+      - CFB16
+      - CFB24
+      - CFB32
+      - CFB40
+      - CFB48
+      - CFB56
+      - CFB64
+      - OFB8
+      - OFB16
+      - OFB24
+      - OFB32
+      - OFB40
+      - OFB48
+      - OFB56
+      - OFB64
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS5PADDING
+      - ISO10126PADDING
+  - type: Cipher
+    algorithm: DESedeWrap
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - CBC
+      SupportedPaddings:
+      - NOPADDING
+  - type: Cipher
+    algorithm: PBEWithHmacSHA1AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA1AndAES_256
+  - type: Cipher
+    algorithm: PBEWithHmacSHA224AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA224AndAES_256
+  - type: Cipher
+    algorithm: PBEWithHmacSHA256AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA256AndAES_256
+  - type: Cipher
+    algorithm: PBEWithHmacSHA384AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA384AndAES_256
+  - type: Cipher
+    algorithm: PBEWithHmacSHA512/224AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA512/224AndAES_256
+  - type: Cipher
+    algorithm: PBEWithHmacSHA512/256AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA512/256AndAES_256
+  - type: Cipher
+    algorithm: PBEWithHmacSHA512AndAES_128
+  - type: Cipher
+    algorithm: PBEWithHmacSHA512AndAES_256
+  - type: Cipher
+    algorithm: PBEWithMD5AndDES
+    aliases:
+    - 1.2.840.113549.1.5.3
+    - OID.1.2.840.113549.1.5.3
+    - PBE
+  - type: Cipher
+    algorithm: PBEWithMD5AndTripleDES
+  - type: Cipher
+    algorithm: PBEWithSHA1AndDESede
+    aliases:
+    - 1.2.840.113549.1.12.1.3
+    - OID.1.2.840.113549.1.12.1.3
+  - type: Cipher
+    algorithm: PBEWithSHA1AndRC2_128
+    aliases:
+    - 1.2.840.113549.1.12.1.5
+    - OID.1.2.840.113549.1.12.1.5
+  - type: Cipher
+    algorithm: PBEWithSHA1AndRC2_40
+    aliases:
+    - 1.2.840.113549.1.12.1.6
+    - OID.1.2.840.113549.1.12.1.6
+  - type: Cipher
+    algorithm: PBEWithSHA1AndRC4_128
+    aliases:
+    - 1.2.840.113549.1.12.1.1
+    - OID.1.2.840.113549.1.12.1.1
+  - type: Cipher
+    algorithm: PBEWithSHA1AndRC4_40
+    aliases:
+    - 1.2.840.113549.1.12.1.2
+    - OID.1.2.840.113549.1.12.1.2
+  - type: Cipher
+    algorithm: RC2
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+      SupportedModes:
+      - ECB
+      - CBC
+      - PCBC
+      - CTR
+      - CTS
+      - CFB
+      - OFB
+      - CFB8
+      - CFB16
+      - CFB24
+      - CFB32
+      - CFB40
+      - CFB48
+      - CFB56
+      - CFB64
+      - OFB8
+      - OFB16
+      - OFB24
+      - OFB32
+      - OFB40
+      - OFB48
+      - OFB56
+      - OFB64
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS5PADDING
+      - ISO10126PADDING
+  - type: Cipher
+    algorithm: RSA
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey
+      SupportedModes:
+      - ECB
+      SupportedPaddings:
+      - NOPADDING
+      - PKCS1PADDING
+      - OAEPPADDING
+      - OAEPWITHMD5ANDMGF1PADDING
+      - OAEPWITHSHA1ANDMGF1PADDING
+      - OAEPWITHSHA-1ANDMGF1PADDING
+      - OAEPWITHSHA-224ANDMGF1PADDING
+      - OAEPWITHSHA-256ANDMGF1PADDING
+      - OAEPWITHSHA-384ANDMGF1PADDING
+      - OAEPWITHSHA-512ANDMGF1PADDING
+      - OAEPWITHSHA-512/224ANDMGF1PADDING
+      - OAEPWITHSHA-512/256ANDMGF1PADDING
+  - type: KeyAgreement
+    algorithm: DiffieHellman
+    aliases:
+    - 1.2.840.113549.1.3.1
+    - DH
+    - OID.1.2.840.113549.1.3.1
+    attributes:
+      SupportedKeyClasses:
+      - javax.crypto.interfaces.DHPublicKey
+      - javax.crypto.interfaces.DHPrivateKey
+  - type: KeyGenerator
+    algorithm: AES
+    aliases:
+    - 2.16.840.1.101.3.4.1
+    - OID.2.16.840.1.101.3.4.1
+  - type: KeyGenerator
+    algorithm: ARCFOUR
+    aliases:
+    - 1.2.840.113549.3.4
+    - OID.1.2.840.113549.3.4
+    - RC4
+  - type: KeyGenerator
+    algorithm: Blowfish
+  - type: KeyGenerator
+    algorithm: ChaCha20
+  - type: KeyGenerator
+    algorithm: DES
+  - type: KeyGenerator
+    algorithm: DESede
+    aliases:
+    - TripleDES
+  - type: KeyGenerator
+    algorithm: HmacMD5
+  - type: KeyGenerator
+    algorithm: HmacSHA1
+    aliases:
+    - 1.2.840.113549.2.7
+    - OID.1.2.840.113549.2.7
+  - type: KeyGenerator
+    algorithm: HmacSHA224
+    aliases:
+    - 1.2.840.113549.2.8
+    - OID.1.2.840.113549.2.8
+  - type: KeyGenerator
+    algorithm: HmacSHA256
+    aliases:
+    - 1.2.840.113549.2.9
+    - OID.1.2.840.113549.2.9
+  - type: KeyGenerator
+    algorithm: HmacSHA3-224
+    aliases:
+    - 2.16.840.1.101.3.4.2.13
+    - OID.2.16.840.1.101.3.4.2.13
+  - type: KeyGenerator
+    algorithm: HmacSHA3-256
+    aliases:
+    - 2.16.840.1.101.3.4.2.14
+    - OID.2.16.840.1.101.3.4.2.14
+  - type: KeyGenerator
+    algorithm: HmacSHA3-384
+    aliases:
+    - 2.16.840.1.101.3.4.2.15
+    - OID.2.16.840.1.101.3.4.2.15
+  - type: KeyGenerator
+    algorithm: HmacSHA3-512
+    aliases:
+    - 2.16.840.1.101.3.4.2.16
+    - OID.2.16.840.1.101.3.4.2.16
+  - type: KeyGenerator
+    algorithm: HmacSHA384
+    aliases:
+    - 1.2.840.113549.2.10
+    - OID.1.2.840.113549.2.10
+  - type: KeyGenerator
+    algorithm: HmacSHA512
+    aliases:
+    - 1.2.840.113549.2.11
+    - OID.1.2.840.113549.2.11
+  - type: KeyGenerator
+    algorithm: HmacSHA512/224
+    aliases:
+    - 1.2.840.113549.2.12
+    - OID.1.2.840.113549.2.12
+  - type: KeyGenerator
+    algorithm: HmacSHA512/256
+    aliases:
+    - 1.2.840.113549.2.13
+    - OID.1.2.840.113549.2.13
+  - type: KeyGenerator
+    algorithm: RC2
+  - type: KeyGenerator
+    algorithm: SunTls12Prf
+  - type: KeyGenerator
+    algorithm: SunTlsKeyMaterial
+    aliases:
+    - SunTls12KeyMaterial
+  - type: KeyGenerator
+    algorithm: SunTlsMasterSecret
+    aliases:
+    - SunTls12MasterSecret
+    - SunTlsExtendedMasterSecret
+  - type: KeyGenerator
+    algorithm: SunTlsPrf
+  - type: KeyGenerator
+    algorithm: SunTlsRsaPremasterSecret
+    aliases:
+    - SunTls12RsaPremasterSecret
+  - type: KeyPairGenerator
+    algorithm: DiffieHellman
+    aliases:
+    - 1.2.840.113549.1.3.1
+    - DH
+    - OID.1.2.840.113549.1.3.1
+  - type: KeyPairGenerator
+    algorithm: ML-KEM
+  - type: KeyPairGenerator
+    algorithm: ML-KEM-1024
+    aliases:
+    - 2.16.840.1.101.3.4.4.3
+    - OID.2.16.840.1.101.3.4.4.3
+  - type: KeyPairGenerator
+    algorithm: ML-KEM-512
+    aliases:
+    - 2.16.840.1.101.3.4.4.1
+    - OID.2.16.840.1.101.3.4.4.1
+  - type: KeyPairGenerator
+    algorithm: ML-KEM-768
+    aliases:
+    - 2.16.840.1.101.3.4.4.2
+    - OID.2.16.840.1.101.3.4.4.2
+  - type: Mac
+    algorithm: HmacMD5
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA1
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA224
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA256
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA384
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA512
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA512/224
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacPBESHA512/256
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA1
+    aliases:
+    - 1.2.840.113549.2.7
+    - OID.1.2.840.113549.2.7
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA224
+    aliases:
+    - 1.2.840.113549.2.8
+    - OID.1.2.840.113549.2.8
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA256
+    aliases:
+    - 1.2.840.113549.2.9
+    - OID.1.2.840.113549.2.9
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA3-224
+    aliases:
+    - 2.16.840.1.101.3.4.2.13
+    - OID.2.16.840.1.101.3.4.2.13
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA3-256
+    aliases:
+    - 2.16.840.1.101.3.4.2.14
+    - OID.2.16.840.1.101.3.4.2.14
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA3-384
+    aliases:
+    - 2.16.840.1.101.3.4.2.15
+    - OID.2.16.840.1.101.3.4.2.15
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA3-512
+    aliases:
+    - 2.16.840.1.101.3.4.2.16
+    - OID.2.16.840.1.101.3.4.2.16
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA384
+    aliases:
+    - 1.2.840.113549.2.10
+    - OID.1.2.840.113549.2.10
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA512
+    aliases:
+    - 1.2.840.113549.2.11
+    - OID.1.2.840.113549.2.11
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA512/224
+    aliases:
+    - 1.2.840.113549.2.12
+    - OID.1.2.840.113549.2.12
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: HmacSHA512/256
+    aliases:
+    - 1.2.840.113549.2.13
+    - OID.1.2.840.113549.2.13
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA1
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA224
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA256
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA384
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA512
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA512/224
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: PBEWithHmacSHA512/256
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: SslMacMD5
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Mac
+    algorithm: SslMacSHA1
+    attributes:
+      SupportedKeyFormats:
+      - RAW
+  - type: Signature
+    algorithm: NONEwithRSA
+    attributes:
+      SupportedKeyClasses:
+      - java.security.interfaces.RSAPublicKey
+      - java.security.interfaces.RSAPrivateKey

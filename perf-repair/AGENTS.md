@@ -40,6 +40,6 @@ perfrepair.example.yaml : template for `perfrepair.yaml`: agent, per-role agents
 pyproject.toml : package, pyyaml dependency, optional `test` and `api` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
 tests/ : pytest suites, one per module or stage; `helpers.py` shared builders; `conftest.py` isolates every test from local settings
-tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py
+tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py; `runtimes/<runtime>/` probe and trial of JDK 17, 21, 25 and Android API 36, trimmed to what grouping build and screening read
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data
 ```
