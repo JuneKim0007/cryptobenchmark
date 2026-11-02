@@ -14,7 +14,7 @@
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - Commands with a model: `grouping build` with `screening.aiReview`, `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
 - Backend, model, effort and the `claude` binary per command: `docs/settings.md`; `--agent`, `--model`, `--effort` override.
-- `grouping report` defaults to effort `high`; `PERFREPAIR_EFFORT` does not change it.
+- `grouping assign` defaults to effort `low`, below every agent-wide layer; the other roles to `medium`.
 - `claude` backend: JSON schema output, server-side refusal fallback; the schema is sent without `maxLength`, `minLength` and `pattern`, which the Messages API refuses (400) or may find too complex; the gate still checks them. `claude-code` sends the whole schema.
 - Answer limits (lengths, id and alias patterns, enums) are each gate's constants, read by its `schema.py` and prompt values; they are part of the answer contract and the charter fingerprint, not settings.
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.

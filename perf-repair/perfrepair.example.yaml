@@ -1,15 +1,15 @@
 # Copy to perfrepair.yaml (git-ignored) or point --perfrepair-config / PERFREPAIR_CONFIG at a copy.
 # Every key is optional; a missing or null key falls through to the next layer:
-#   CLI flag > environment (PERFREPAIR_*) > this file > .env > code default.
-# A role key (grouping.assign, grouping.supervisor, guide.agent, ai.*, screening.classify) beats every agent.* layer,
-# environment included; only a CLI flag beats a role key.
+#   CLI flag > a role section here (grouping.assign, grouping.supervisor, guide.agent, ai.*, screening.classify)
+#   > environment (PERFREPAIR_*) > agent.* here > .env > the role's code default > the general code default.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
 
 agent:                     # every model-calling command
   backend: claude-code     # claude-code | claude | dry-run      (PERFREPAIR_AGENT)
   model: claude-opus-5-5   #                                     (PERFREPAIR_MODEL)
-  effort: medium           # low | medium | high | xhigh | max   (PERFREPAIR_EFFORT)
+  effort:                  # low | medium | high | xhigh | max   (PERFREPAIR_EFFORT); empty = assign low, others medium;
+                           # a value here raises every role, assign included
   claudeBinary: claude     # the `claude` CLI the claude-code backend runs
 
 paths:
@@ -22,8 +22,7 @@ grouping:
   sessions: 2
   limit:                   # items per `grouping assign` call; empty = all
   assign: {}               # role keys: backend, model, effort, claudeBinary
-  supervisor:
-    effort: high           # the code default for `grouping report --supervisor`
+  supervisor: {}
 
 guide:
   mode: latency            # latency | battery

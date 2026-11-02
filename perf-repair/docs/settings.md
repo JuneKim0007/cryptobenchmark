@@ -15,15 +15,18 @@
 
 ## Precedence
 
-| layer | agent keys | role keys | other keys |
-|---|---|---|---|
-| 1 | CLI flag | CLI flag | CLI flag |
-| 2 | `PERFREPAIR_*` in the environment | the role's key in `perfrepair.yaml` | `perfrepair.yaml` |
-| 3 | `agent.*` in `perfrepair.yaml` | the role's code default | code default |
-| 4 | `PERFREPAIR_*` in `.env` | the agent keys, layers 2 to 5 | |
-| 5 | code default | | |
+| layer | agent keys, per role | other keys |
+|---|---|---|
+| 1 | CLI flag | CLI flag |
+| 2 | the role's section in `perfrepair.yaml` | `perfrepair.yaml` |
+| 3 | `PERFREPAIR_*` in the environment | code default |
+| 4 | `agent.*` in `perfrepair.yaml` | |
+| 5 | `PERFREPAIR_*` in `.env` | |
+| 6 | the role's code default | |
+| 7 | the general code default | |
 
-- Role keys beat every agent layer; `PERFREPAIR_EFFORT` never lowers `grouping report --supervisor` below `high`; `--effort` or `grouping.supervisor.effort` does.
+- `agent.effort` or `PERFREPAIR_EFFORT` sets every role, assign included; `--effort` or the role's own `effort` sets one role.
+- Effort stays out of the charter fingerprint: changing it never rotates an outbox.
 - Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once at INFO on stderr: `setting <key>: <value> (<source>)` (`config/load.py`).
 
 ## Keys
@@ -48,8 +51,8 @@
 
 | role | file section | role default |
 |---|---|---|
-| `grouping assign` | `grouping.assign` | none |
-| `grouping report --supervisor` | `grouping.supervisor` | effort `high` |
+| `grouping assign` | `grouping.assign` | effort `low` |
+| `grouping report --supervisor` | `grouping.supervisor` | none |
 | `guide` | `guide.agent` | none |
 | `ai worthiness` | `ai.worthiness` | none |
 | `ai replace` | `ai.replace` | none |

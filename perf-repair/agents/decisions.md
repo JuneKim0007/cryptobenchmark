@@ -43,7 +43,7 @@ src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message l
 src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login, no ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN in the child; ClaudeCodeError `claude_cli_failed`, a CLI that cannot run included
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
 src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
-src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort per role → resolved agent settings → Conversations
+src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort per role, with each role's default in the help → resolved agent settings → Conversations
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
@@ -60,7 +60,7 @@ src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
 src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role; each value's source, logged once at INFO
-src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and defaults
+src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and role code defaults
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: interchangeability, identity vs capability, answer rules

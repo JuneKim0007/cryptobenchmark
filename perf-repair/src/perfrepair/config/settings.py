@@ -140,7 +140,7 @@ AGENT_DEFAULT = Agent("claude-code", DEFAULT_MODEL, "medium", "claude")
 ROLES = {"grouping.assign": "grouping.assign", "grouping.supervisor": "grouping.supervisor",
          "guide": "guide.agent", "ai.worthiness": "ai.worthiness", "ai.replace": "ai.replace",
          "screening.classify": "screening.classify"}
-ROLE_DEFAULTS = {"grouping.supervisor": Agent(effort="high")}
+ROLE_DEFAULTS = {"grouping.assign": Agent(effort="low")}
 
 
 def _join(path: str, key: Any) -> str:

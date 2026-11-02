@@ -73,15 +73,38 @@ def test_a_role_key_beats_agent_from_every_layer_and_other_keys_fall_back(tmp_pa
     assert loaded.agent("grouping.assign", {"effort": "medium"}).effort == "medium"
 
 
-def test_the_supervisor_keeps_high_when_the_environment_sets_an_effort(monkeypatch):
-    monkeypatch.setenv("PERFREPAIR_EFFORT", "low")
+def test_assign_defaults_low_and_the_supervisor_has_no_special_default():
+    defaults = load(None, {}, {})
+    assert defaults.agent("grouping.assign", {}).effort == "low"
+    assert defaults.sources["grouping.assign.effort"] == "default grouping.assign"
+    assert defaults.agent("grouping.supervisor", {}).effort == "medium" and defaults.agent("guide", {}).effort == "medium"
+
+
+@pytest.mark.parametrize("environ, dot, text, source", [
+    ({"PERFREPAIR_EFFORT": "max"}, {}, "", "env PERFREPAIR_EFFORT"),
+    ({}, {}, "agent: {effort: max}\n", "agent"),
+    ({}, {"PERFREPAIR_EFFORT": "max"}, "", ".env PERFREPAIR_EFFORT")])
+def test_every_agent_wide_layer_raises_every_role_including_assign(tmp_path, environ, dot, text, source):
+    loaded = load(write(tmp_path / "c.yaml", text), environ, dot)
+    assert loaded.agent("grouping.assign", {}).effort == loaded.agent("grouping.supervisor", {}).effort == "max"
+    assert loaded.sources["grouping.assign.effort"].endswith(source)
+
+
+def test_a_role_section_or_the_flag_sets_one_role_above_every_agent_wide_layer(tmp_path):
+    f = write(tmp_path / "c.yaml", "agent: {effort: max}\ngrouping: {assign: {effort: medium}}\n")
+    loaded = load(f, {"PERFREPAIR_EFFORT": "xhigh"}, {})
+    assert loaded.agent("grouping.assign", {}).effort == "medium"
+    assert loaded.agent("grouping.supervisor", {}).effort == "xhigh"
+    assert loaded.agent("grouping.assign", {"effort": "low"}).effort == "low"
+
+
+def test_the_flag_reaches_the_backend_and_the_help_names_the_role_default():
     ap = argparse.ArgumentParser()
-    add_agent_args(ap, role="grouping.supervisor")
-    args = ap.parse_args(["--agent", "claude-code"])
+    add_agent_args(ap, role="grouping.assign")
+    args = ap.parse_args(["--effort", "high", "--agent", "claude-code"])
     convos = conversations(args, load_settings(ap, args), DRY)
     assert isinstance(convos, ClaudeCodeConversations) and convos.effort == "high"
-    args = ap.parse_args(["--effort", "medium", "--agent", "claude-code"])
-    assert conversations(args, load_settings(ap, args), DRY).effort == "medium"
+    assert "$PERFREPAIR_EFFORT, agent.effort, else low" in " ".join(ap.format_help().split())
 
 
 def test_assign_takes_the_environment_effort_and_dotenv_fills_the_backend(tmp_path, monkeypatch):

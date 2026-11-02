@@ -8,6 +8,8 @@ from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.engine.decide import decide
+from perfrepair.ai.runtime.engine.outbox import active_fingerprint
+from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.ai.runtime.agent import ScriptedConversations
@@ -55,6 +57,14 @@ def test_all_stages_validate(run):
     assert [v.decision for v in latency.verdicts.values() if v.source == "llm"] == ["test"]
     assert {v.decision for v in battery.verdicts.values()} == {"not_comparable", "not_measured"}
     assert all(not problems for problems in validate_run(run).values())
+
+
+def test_changing_the_effort_keeps_the_assign_outbox(run):
+    root = GroupingPaths(run).root
+    assert grouping_main(["assign", "--run", str(run), "--agent", "dry-run", "--effort", "low"]) == 0
+    before = active_fingerprint(root)
+    assert grouping_main(["assign", "--run", str(run), "--agent", "dry-run", "--effort", "max"]) == 0
+    assert active_fingerprint(root) == before
 
 
 def test_a_hand_edited_grouping_is_caught(run):

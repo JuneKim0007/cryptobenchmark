@@ -54,16 +54,17 @@ class Loaded:
         return self._pick(key, ((cli, "cli"), (self.settings.get(key), f"file {self.file}"), (default, "default")))
 
     def agent(self, role: str, cli: Mapping[str, Any]) -> Agent:
-        """A role key (CLI, file or role default) beats every agent.* layer; env vars name agent.* only."""
+        """CLI > the role's file section > env > agent.* > .env > the role's code default > the general code default."""
         role_file, role_default = self.settings.get(ROLES[role]), ROLE_DEFAULTS.get(role, Agent())
         resolved = {}
         for f in fields(Agent):
             n = f.name
             resolved[n] = self._pick(f"{role}.{n}", (
                 (cli.get(n), "cli"), (getattr(role_file, n), f"file {self.file} {ROLES[role]}"),
-                (getattr(role_default, n), f"default {role}"), (getattr(self.environ, n), f"env {AGENT_ENV.get(n)}"),
+                (getattr(self.environ, n), f"env {AGENT_ENV.get(n)}"),
                 (getattr(self.settings.agent, n), f"file {self.file} agent"),
-                (getattr(self.dotenv, n), f".env {AGENT_ENV.get(n)}"), (getattr(AGENT_DEFAULT, n), "default")))
+                (getattr(self.dotenv, n), f".env {AGENT_ENV.get(n)}"),
+                (getattr(role_default, n), f"default {role}"), (getattr(AGENT_DEFAULT, n), "default")))
         return Agent(**resolved)
 
 

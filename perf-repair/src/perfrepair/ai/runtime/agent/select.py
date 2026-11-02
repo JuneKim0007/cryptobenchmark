@@ -10,11 +10,8 @@ from .conversation import ClaudeConversations
 
 
 def _default(role: str, name: str) -> str:
-    own = getattr(ROLE_DEFAULTS.get(role, Agent()), name)
-    if own is not None:
-        return f"default: {ROLES[role]}.{name} in perfrepair.yaml, else {own}"
-    return (f"default: {ROLES[role]}.{name} in perfrepair.yaml, ${AGENT_ENV[name]}, agent.{name}, "
-            f"else {getattr(AGENT_DEFAULT, name)}")
+    own = getattr(ROLE_DEFAULTS.get(role, Agent()), name) or getattr(AGENT_DEFAULT, name)
+    return f"default: {ROLES[role]}.{name} in perfrepair.yaml, ${AGENT_ENV[name]}, agent.{name}, else {own}"
 
 
 def add_agent_args(parser: argparse.ArgumentParser, role: str) -> None:
