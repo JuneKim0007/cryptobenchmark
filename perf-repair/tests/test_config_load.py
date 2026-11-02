@@ -5,10 +5,12 @@ import pytest
 from perfrepair.ai.runtime.agent import ClaudeCodeConversations
 from perfrepair.ai.runtime.agent.select import add_agent_args, conversations
 from perfrepair.config import dotenv, load as load_module
-from perfrepair.config.args import fill, load_settings
+from perfrepair.ai.__main__ import main as ai_main
+from perfrepair.config.args import fill, load_settings, positive_int
 from perfrepair.config.load import config_file, load
 from perfrepair.config.settings import Agent, ConfigError
 from perfrepair.grouping.__main__ import main as grouping_main
+from perfrepair.guide.command import parser as guide_parser
 
 DRY = object()
 
@@ -120,3 +122,21 @@ def test_a_command_without_run_and_without_paths_run_exits_2(capsys):
     with pytest.raises(SystemExit) as e:
         grouping_main(["assign", "--agent", "dry-run"])
     assert e.value.code == 2 and "--run (or paths.run in perfrepair.yaml)" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("command", ((grouping_main, ["assign", "--run", "r"]),
+                                     (ai_main, ["worthiness", "--run", "r", "--mode", "latency"])))
+@pytest.mark.parametrize("flag", ("--turns", "--sessions", "--limit"))
+@pytest.mark.parametrize("value", ("0", "-1", "x", "1.5"))
+def test_a_count_flag_takes_only_a_positive_integer(command, flag, value, capsys):
+    main, arguments = command
+    with pytest.raises(SystemExit) as e:
+        main([*arguments, f"{flag}={value}"])
+    assert e.value.code == 2 and "is not a positive integer" in capsys.readouterr().err
+
+
+def test_the_guide_limit_takes_only_a_positive_integer(capsys):
+    with pytest.raises(SystemExit):
+        guide_parser().parse_args(["--limit", "0"])
+    assert "is not a positive integer" in capsys.readouterr().err
+    assert positive_int("3") == 3

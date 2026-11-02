@@ -37,7 +37,7 @@ def _text(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, str) and value != "", "a non-empty string")
 
 
-def _positive(name: str, value: Any) -> None:
+def check_positive(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, int) and not isinstance(value, bool) and value > 0, "a positive integer")
 
 
@@ -84,7 +84,7 @@ class Grouping:
 
     def __post_init__(self):
         for name in ("turns", "sessions", "limit"):
-            _positive(name, getattr(self, name))
+            check_positive(name, getattr(self, name))
 
 
 @dataclass(frozen=True)
@@ -98,7 +98,7 @@ class Guide:
     def __post_init__(self):
         # Modes come from result/criteria.yaml, a higher layer; the guide command checks the name.
         _text("mode", self.mode)
-        _positive("limit", self.limit)
+        check_positive("limit", self.limit)
         _check("device", self.device, isinstance(self.device, bool), "true or false")
         _path("config", self.config)
 

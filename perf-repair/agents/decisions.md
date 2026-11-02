@@ -57,7 +57,7 @@ src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, c
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required; option alias (or empty) and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
 src/perfrepair/config/__init__.py : docstring only
-src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked
+src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
 src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role, with each value's source
 src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and defaults

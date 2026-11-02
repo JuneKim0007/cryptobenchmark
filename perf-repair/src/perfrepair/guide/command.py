@@ -10,7 +10,7 @@ from pathlib import Path
 from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
-from ..config.args import fill, load_settings, require
+from ..config.args import fill, load_settings, positive_int, require
 from ..failure import FAILURES
 from ..log import log_to_stderr
 from ..result.modes import MODES
@@ -33,7 +33,7 @@ def parser() -> argparse.ArgumentParser:
                          "default: guide.device")
     ap.add_argument("--config", type=Path, help="global.yaml for the device step; default: guide.config, "
                                                 "else pipeline.py's own lookup")
-    ap.add_argument("--limit", type=int, help="ask the model about at most this many scopes; default: guide.limit")
+    ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: guide.limit")
     add_agent_args(ap, role="guide")
     add_prompt_args(ap)
     return ap

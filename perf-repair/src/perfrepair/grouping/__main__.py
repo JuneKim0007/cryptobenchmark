@@ -15,7 +15,7 @@ from pathlib import Path
 from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
-from ..config.args import fill, load_settings, require
+from ..config.args import fill, load_settings, positive_int, require
 from ..failure import reported
 from ..log import log_to_stderr
 from ..screen.catalog import ai_review, screening_catalog
@@ -43,9 +43,9 @@ def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParse
     a.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
     add_agent_args(a, role="grouping.assign")
     add_prompt_args(a)
-    a.add_argument("--turns", type=int, help=f"default: grouping.turns, else {Limits.turns}")
-    a.add_argument("--sessions", type=int, help=f"default: grouping.sessions, else {Limits.sessions}")
-    a.add_argument("--limit", type=int, help="decide at most this many items in this call; the next call resumes; "
+    a.add_argument("--turns", type=positive_int, help=f"default: grouping.turns, else {Limits.turns}")
+    a.add_argument("--sessions", type=positive_int, help=f"default: grouping.sessions, else {Limits.sessions}")
+    a.add_argument("--limit", type=positive_int, help="decide at most this many items in this call; the next call resumes; "
                                              "default: grouping.limit, else all")
     r = sub.add_parser("report")
     r.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")

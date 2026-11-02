@@ -7,7 +7,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..config.args import fill, load_settings, require
+from ..config.args import fill, load_settings, positive_int, require
 from ..failure import reported
 from ..log import log_to_stderr
 from ..result.modes import MODES
@@ -21,9 +21,9 @@ from .runtime.prompt.args import add_prompt_args, load_prompts
 def _engine_args(p: argparse.ArgumentParser, role: str) -> None:
     add_agent_args(p, role=role)
     add_prompt_args(p)
-    p.add_argument("--turns", type=int, default=Limits.turns)
-    p.add_argument("--sessions", type=int, default=Limits.sessions)
-    p.add_argument("--limit", type=int)
+    p.add_argument("--turns", type=positive_int, default=Limits.turns)
+    p.add_argument("--sessions", type=positive_int, default=Limits.sessions)
+    p.add_argument("--limit", type=positive_int)
 
 
 def main(argv: list[str] | None = None) -> int:

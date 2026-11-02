@@ -8,7 +8,17 @@ from typing import Any, Mapping
 
 from .dotenv import load_env
 from .load import Loaded, load
-from .settings import ConfigError
+from .settings import ConfigError, Invalid, check_positive
+
+
+def positive_int(text: str) -> int:
+    """The argparse type of --turns, --sessions, --limit: the check their perfrepair.yaml keys get."""
+    try:
+        value = int(text)
+        check_positive("value", value)
+    except (ValueError, Invalid):
+        raise argparse.ArgumentTypeError(f"{text!r} is not a positive integer") from None
+    return value
 
 
 def add_config_arg(parser: argparse.ArgumentParser) -> None:
