@@ -72,8 +72,8 @@ An empty string has no characters: write "" and never put quote marks inside it.
 
 Code refuses an answer when the decision is not `replace` or `keep`; when `replace` names an
 alias that is not listed, an option whose pins are unknown, or no edit; when `keep` names an option
-or edits; when an edit kind is not one of the edit kinds listed, is given twice, or fills a field its
-kind does not use; when an edit's value is not the option's value for its field (a pin added, dropped
+or edits; when an edit kind is not one of the edit kinds listed, is given twice, fills a field its
+kind does not use, or names a parameter twice; when an edit's value is not the option's value for its field (a pin added, dropped
 or changed counts), or a kind is missing while EDIT KINDS says it is required; when a risk is not one
 of the five or is given twice; when a `replace` leaves out a risk the scope facts or the chosen option
 list; or when the reason is empty. A refused answer comes back with its problems; after the last attempt

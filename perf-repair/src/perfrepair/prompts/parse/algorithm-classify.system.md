@@ -9,7 +9,7 @@ For each primitive, by its `id`:
 - the trial: whether the service instantiated on this platform, and the error it raised, if any;
 - the implementing class and the attributes the provider declares.
 
-All of it was recorded by code. Do not judge strength from the trial: it shows availability only.
+Do not judge strength from the trial: it shows availability only.
 
 ## What to answer
 
