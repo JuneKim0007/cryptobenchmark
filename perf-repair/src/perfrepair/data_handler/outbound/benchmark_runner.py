@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from collections import deque
@@ -9,7 +10,8 @@ from pathlib import Path
 from typing import Callable
 
 PIPELINE = Path("scripts/pipeline.py")
-MANIFEST = "manifest.yaml"
+# the id is known only to the run, so the run says where its manifest went
+WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 LOG = "pipeline.log"
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
 PERF_REPAIR_ROOT = Path(__file__).resolve().parents[4]
@@ -41,8 +43,8 @@ def new_run_dir(root: Path | str) -> Path:
 
 
 def run_pipeline(config: Path | None, results: Path, stage: str = "configure", benchmark: Path | str | None = None,
-                 extra_args: list[str] | None = None, echo: Callable[[str], None] | None = print,
-                 tail: int = 40) -> Path:
+                 harness: Path | None = None, echo: Callable[[str], None] | None = print, tail: int = 40) -> Path:
+    """results: the root, or with harness the folder beside it that only holds the log; pipeline.py picks measured/ itself."""
     if stage not in STAGES:
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")
     root = benchmark_root(benchmark)
@@ -50,9 +52,10 @@ def run_pipeline(config: Path | None, results: Path, stage: str = "configure", b
     results.mkdir(parents=True, exist_ok=True)
     # config None: pipeline.py resolves global.yaml itself (--config, CRYPTOBENCH_CONFIG, then its defaults)
     chosen = ["--config", str(Path(config).resolve())] if config is not None else []
-    command = [sys.executable, str(root / PIPELINE), *chosen, "--results", str(results), *STAGES[stage],
-               *(extra_args or [])]
+    target = ["--harness", str(harness)] if harness else ["--results", str(results)]
+    command = [sys.executable, str(root / PIPELINE), *chosen, *target, *STAGES[stage]]
     last: deque[str] = deque(maxlen=tail)
+    manifest = None
     with open(results / LOG, "w") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
             env={**os.environ, "PYTHONUNBUFFERED": "1"}) as process:
@@ -60,13 +63,14 @@ def run_pipeline(config: Path | None, results: Path, stage: str = "configure", b
         for line in process.stdout:
             log.write(line)
             last.append(line.rstrip("\n"))
+            wrote = WROTE_MANIFEST.match(last[-1])
+            manifest = Path(wrote.group(1)) if wrote else manifest
             if echo:
                 echo(line.rstrip("\n"))
         code = process.wait()
     if code != 0:
         raise BenchmarkRunError(f"pipeline exited {code} ({stage}); full log {results / LOG}; last lines:\n"
                                 + "\n".join(last))
-    manifest = results / MANIFEST
-    if not manifest.is_file():
-        raise BenchmarkRunError(f"pipeline exited 0 but wrote no {manifest}; full log {results / LOG}")
+    if manifest is None or not manifest.is_file():
+        raise BenchmarkRunError(f"pipeline exited 0 but wrote no manifest; full log {results / LOG}")
     return manifest

@@ -17,11 +17,10 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 
 ## Usage
 
-One app from source to a measured report, after inbound and grouping have filled the run:
+One app from source to a measured report, after inbound and grouping have filled the device folder:
 
 ```
-python3 scripts/llm_guide.py --app <app root> --name <app> --run ~/capstone/runs/<date>-<name> \
-    --results <cryptobenchmark results> [--mode latency|battery] [--device]
+python3 scripts/llm_guide.py --app <app root> --device-results <results root>/<device id> [--mode latency|battery] [--device]
 ```
 
 `python3 -m perfrepair guide` takes the same arguments once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path. Without `--device` it ends at `harness.yaml`; `--device` needs an attached phone. Steps and stop codes: `docs/replacement.md`.

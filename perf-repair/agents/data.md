@@ -4,7 +4,7 @@
 - `docs/artifacts.md` : every artifact: producer, consumers, validator
 
 ## Rules
-- boundary: perf-repair reads cryptobenchmark only through `results/manifest.yaml` and the files it lists.
+- boundary: perf-repair reads cryptobenchmark only through `<device>/manifest.yaml` and the files it lists; that manifest must carry `deviceId`.
 - dto: no I/O; every file-level document carries `schemaVersion` and its reader refuses another.
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
@@ -58,5 +58,5 @@ src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's set
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); known_tree
 src/perfrepair/log.py : log_to_stderr: the one stderr handler a command attaches at start
-src/perfrepair/run_dir.py : run directory: artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of apps/<name>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir.py : device folder: finished devices of a root, app folders, artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 ```

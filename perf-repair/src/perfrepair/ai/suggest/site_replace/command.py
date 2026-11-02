@@ -1,4 +1,4 @@
-"""Stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → apps/<app>/replacements.json."""
+"""Stage: <app>/dossiers.json → SiteReplaceKind on the engine → <app>/replacements.json."""
 from __future__ import annotations
 
 from pathlib import Path

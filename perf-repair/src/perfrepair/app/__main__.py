@@ -1,4 +1,4 @@
-"""python3 -m perfrepair.app — an app's source → apps/<unit>/sites.json, app.json, scopes.json per project root, validated before writing."""
+"""python3 -m perfrepair.app — an app's source → <device>/<path id>/sites.json, app.json, scopes.json per project root, validated before writing."""
 from __future__ import annotations
 
 import argparse
@@ -7,9 +7,12 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..catalog.names import NamesError
+from ..config.args import add_config_arg
+from ..config.device_results import add_device_results_arg, fill_device_results
 from ..data_handler.inbound import RunContext
 from ..failure import reported
 from ..files import write_json
+from ..log import log_to_stderr
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
@@ -17,6 +20,7 @@ from .app_facts import app_facts
 from .dependencies import bundled, read_libraries
 from .detect import Detection, detect
 from .gate import AppRoot, GateError, open_apps
+from .path_id import path_id, unit_id
 from .sdk import sdk_levels
 from .sources import build_files
 
@@ -24,35 +28,34 @@ SCHEMA_VERSION = 1
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     ap = argparse.ArgumentParser(prog="perfrepair.app", description=__doc__)
-    ap.add_argument("--manifest", type=Path, required=True, help="a cryptobenchmark results/manifest.yaml")
-    ap.add_argument("--app", type=Path, required=True, help="the app's source folder; read only")
-    ap.add_argument("--run", type=Path, required=True, help="run directory to write into")
-    ap.add_argument("--name", required=True, help="the app's folder under <run>/apps/; with several project roots, "
-                                                "one <name>.<root dirs joined by '.'> each")
+    add_device_results_arg(ap)
+    add_config_arg(ap)
+    ap.add_argument("--app", type=Path, required=True, help="the app's source folder; read only; its path gives the app's id "
+                                                            "and, with several project roots, one <id>.<root dirs joined by '.'> each")
     a = ap.parse_args(argv)
     return reported(lambda: _app(ap, a))
 
 
 def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    try:
-        rd.app_dir(a.run, a.name)
-    except ValueError as e:
-        ap.error(str(e))
-    context = RunContext.load(a.manifest)
-    require(str(a.manifest), validate_manifest(context.manifest, context.base))
+    fill_device_results(ap, a)
+    manifest = a.device_results / rd.MANIFEST
+    context = RunContext.load(manifest)
+    require(str(manifest), validate_manifest(context.manifest, context.base))
     if context.file("probe") is None:
-        ap.error(f"{a.manifest}: no probe file; detection needs it for engine types and aliases")
+        ap.error(f"{manifest}: no probe file; detection needs it for engine types and aliases")
     try:
         apps = open_apps(a.app)
     except GateError as e:
         print(f"error {e}", file=sys.stderr)
         return 2
-    units = {a.name: apps[0]} if len(apps) == 1 else {unit_name(a.name, app.projectRoot): app for app in apps}
+    pid = path_id(a.app)
+    units = {pid: apps[0]} if len(apps) == 1 else {unit_id(pid, app.projectRoot): app for app in apps}
     if len(units) != len(apps):
         ap.error(f"{a.app}: project roots {[app.projectRoot for app in apps]} collide as unit names")
     try:
-        dirs = {name: rd.app_dir(a.run, name) for name in units}
+        dirs = {name: rd.app_dir(a.device_results, name) for name in units}
     except ValueError as e:
         ap.error(str(e))
     probe, names = context.probe, context.names
@@ -62,17 +65,13 @@ def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
         print(f"error {e}", file=sys.stderr)
         return 2
     for name, app in units.items():
-        write_unit(name, app, dirs[name], found[name])
+        write_unit(name, pid, app, dirs[name], found[name])
     return 0
 
 
-def unit_name(name: str, project_root: str) -> str:
-    return ".".join([name, *project_root.split("/")])
-
-
-def write_unit(name: str, app: AppRoot, out_dir: Path, found: Detection) -> None:
+def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detection) -> None:
     builds = build_files(app.path)
-    facts = app_facts(name, app.path, app.projectRoot, bundled(builds, read_libraries()), found.registers,
+    facts = app_facts(name, pid, app.path, app.projectRoot, bundled(builds, read_libraries()), found.registers,
                       sdk_levels(builds))
     scoping = build_scopes(name, app.path, found.sites)
     scopes = scoping.document(name)

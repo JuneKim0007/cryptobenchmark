@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import LIBRARY
+from helpers import with_results, LIBRARY
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -26,9 +26,10 @@ from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
 from perfrepair.validation.suggest.site_replace import required_kinds, takes
 from perfrepair.screen.catalog import screening_catalog
+from perfrepair.app.path_id import path_id
 
 F = Path(__file__).parent / "fixtures"
-APP, RESULTS, FAKE_ROOT = F / "app", F / "results", F / "guide"
+APP, RESULTS, FAKE_ROOT = F / "app", F / "results" / "test-api36-00000000", F / "guide"
 SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
 FIELD = {"set_provider": "provider", "set_algorithm": "algorithm"}
 
@@ -37,7 +38,7 @@ def first_option(run_dir, app_root=None):
     """A model that replaces each scope with its first option and states exactly the edits and risks the gate wants;
     with app_root, it also shifts the scope's file by a line, so the edit can no longer find the call."""
     def answer(task, *_):
-        doc = read_json(AppPaths(run_dir, "demo").dossiers)
+        doc = read_json(AppPaths(run_dir, path_id(app_root or APP)).dossiers)
         d = next(Dossier.from_json(x) for x in doc["dossiers"] if x["scope"]["id"] == task.item)
         o = d.options[0]
         edits = []
@@ -57,9 +58,9 @@ def first_option(run_dir, app_root=None):
     return answer
 
 
-def guide(run_dir, conversations, app=APP, results=RESULTS, config=None):
+def guide(run_dir, conversations, app=APP, config=None):
     lines = []
-    g = Guide(run_dir, app, "demo", results, MODES["latency"], conversations, LIBRARY, config=config, echo=lines.append)
+    g = Guide(run_dir, app, MODES["latency"], conversations, LIBRARY, config=config, echo=lines.append)
     return g, lines
 
 
@@ -119,24 +120,24 @@ def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
     assert not g.paths.report.exists()
 
 
-def test_results_without_a_manifest_stop_first(run, tmp_path):
-    g, lines = guide(run, DRY_RUN, results=tmp_path)
+def test_results_without_a_manifest_stop_first(tmp_path):
+    g, lines = guide(tmp_path, DRY_RUN)
     assert run_steps(g, device=False) == 1
     assert lines == [f"guide prerequisites: stop missing_results: {tmp_path / 'manifest.yaml'} absent; "
-                     "--results is a cryptobenchmark results directory"]
+                     "--device-results is a folder cryptobenchmark wrote"]
 
 
 def test_a_run_without_grouping_says_how_to_make_it(run):
     GroupingPaths(run).groups.unlink()
     g, lines = guide(run, DRY_RUN)
     assert run_steps(g, device=False) == 1
-    assert "stop missing_run_stage" in lines[-1] and "grouping assign --run <run>" in lines[-1]
+    assert "stop missing_device_stage" in lines[-1] and "grouping assign --device-results <device>" in lines[-1]
 
 
 def test_singleton_groups_leave_no_options(tmp_path):
     from perfrepair.data_handler.inbound.__main__ import main as inbound
     from perfrepair.grouping.build.stage import build_stage
-    assert inbound(["--manifest", str(RESULTS / "manifest.yaml"), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     build_stage(RESULTS / "manifest.yaml", tmp_path, screening_catalog(None))
     paths = GroupingPaths(tmp_path)
     decide(GroupingKind(paths), charter(LIBRARY), assign_cmd.DRY_RUN, paths.root, echo=lambda _: None)
@@ -164,21 +165,6 @@ def test_edits_that_cannot_find_their_call_stop_with_the_reasons(run, tmp_path):
 def test_the_top_level_command_names_its_commands(capsys):
     assert top([]) == 2
     assert "python3 -m perfrepair {guide}" in capsys.readouterr().err
-
-
-def test_a_bad_app_name_is_a_coded_stop(run):
-    lines = []
-    g = Guide(run, APP, "../x", RESULTS, MODES["latency"], DRY_RUN, LIBRARY, echo=lines.append)
-    assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide prerequisites: stop prerequisites_failed: app name '../x'")
-
-
-@pytest.fixture(autouse=True)
-def _scripts_off_path():
-    yield
-    if str(SCRIPTS) in sys.path:
-        sys.path.remove(str(SCRIPTS))
-
 
 
 def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_path):

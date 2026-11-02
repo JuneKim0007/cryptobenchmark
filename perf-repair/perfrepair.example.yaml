@@ -6,7 +6,7 @@
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
-# A bad value here warns and uses the default, except device.screening.catalog and aiGateway.use/auth, which stop the
+# A bad value here warns and uses the default, except device.id, device.screening.catalog and aiGateway.use/auth, which stop the
 # command; a key nothing reads warns. docs/settings.md lists every key.
 
 aiGateway:                 # shared: every model-calling command
@@ -19,8 +19,7 @@ aiGateway:                 # shared: every model-calling command
     binary:                # the CLI for auth subscription; empty = claude
 
 paths:                     # shared
-  run:                     # default --run of every grouping step, ai, guide; stays until the results layout removes --run
-  results:                 # default --results of guide
+  results:                 # the results root, <root>/<device id>/; every command's folder when --device-results is unset
   prompts:                 # default --prompts of every model-calling command
 
 device:                    # once per device
@@ -36,6 +35,7 @@ device:                    # once per device
     supervisor: {}
   benchmark:
     config:                # cryptobenchmark global.yaml for the guide's device step
+  id:                      # the folder under paths.results; needed when it holds several; a device not there is an error
   worthiness: {}           # role keys of `ai worthiness`
 
 apps:                      # per app: the guide, `ai replace`

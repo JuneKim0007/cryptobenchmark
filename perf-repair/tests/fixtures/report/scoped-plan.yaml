@@ -1,6 +1,6 @@
 schemaVersion: 1
 app: shop
-harness: /fixture/apps/shop/harness.yaml
+harness: /fixture/shop/harness.yaml
 seed: 7
 scopes:
 - id: a00000000001

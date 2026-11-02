@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import LIBRARY, QUIET
+from helpers import with_results, LIBRARY, QUIET
 
 from perfrepair.ai.parse.algorithm_classify.command import DRY_RUN, Reviewer
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
@@ -24,7 +24,7 @@ from perfrepair.validation import ValidationFailed
 from perfrepair.validation.grouping.output import read_groups
 from perfrepair.validation.parse.algorithm_classify import check_reply
 
-F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 PACKAGED = load_catalog(SCREENING)
 
 
@@ -110,7 +110,7 @@ def classifier(task, *_):
 
 @pytest.fixture
 def reviewed(tmp_path):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     scripted = ScriptedConversations(classifier)
     paths = build_stage(F, tmp_path, _undecided(PACKAGED), Reviewer(scripted, LIBRARY), **QUIET)
     return paths, scripted
@@ -165,7 +165,7 @@ def test_a_rebuild_resumes_the_outbox_and_another_unknown_set_rotates_it(reviewe
 
 
 def test_the_dry_run_answers_unsure_so_no_verdict_changes(tmp_path):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     plain = read_screen(json.loads(build_stage(F, tmp_path, _undecided(PACKAGED), **QUIET).screen.read_text()))
     paths = build_stage(F, tmp_path, _undecided(PACKAGED), Reviewer(DRY_RUN, LIBRARY), **QUIET)
     assert read_screen(json.loads(paths.screen.read_text())) == plain
@@ -173,7 +173,7 @@ def test_the_dry_run_answers_unsure_so_no_verdict_changes(tmp_path):
 
 
 def test_a_batch_whose_every_answer_is_refused_stays_unknown(tmp_path):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     wrong = ScriptedConversations(lambda *_: {"answers": [{"id": 99, "answer": "accepted", "reason": "r"}]})
     paths = build_stage(F, tmp_path, _undecided(PACKAGED), Reviewer(wrong, LIBRARY), **QUIET)
     verdicts = read_screen(json.loads(paths.screen.read_text()))
@@ -187,12 +187,12 @@ def test_the_command_reviews_only_with_ai_review_on(tmp_path, capsys):
     config = tmp_path / "perfrepair.yaml"
     config.write_text("device: {screening: {aiReview: true}}\n")
     run = tmp_path / "run"
-    assert grouping_main(["build", "--manifest", str(F), "--run", str(run), "--perfrepair-config", str(config),
+    assert grouping_main(["build", "--device-results", str(with_results(run)), "--perfrepair-config", str(config),
                           "--agent", "dry-run"]) == 0
     assert "aiReview on" in capsys.readouterr().err
     doc = json.loads(GroupingPaths(run).screen.read_text())
     assert "review" in doc and GroupingPaths(run).classified.is_file()
-    assert grouping_main(["build", "--manifest", str(F), "--run", str(tmp_path / "off")]) == 0
+    assert grouping_main(["build", "--device-results", str(with_results(tmp_path / "off"))]) == 0
     assert "review" not in json.loads(GroupingPaths(tmp_path / "off").screen.read_text())
 
 
@@ -207,7 +207,7 @@ def _fewer_items(monkeypatch):
 
 
 def test_a_build_that_fails_in_classify_leaves_the_previous_build_whole(tmp_path, monkeypatch):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     paths = build_stage(F, tmp_path, PACKAGED, **QUIET)
     before = {p.name: p.read_bytes() for p in (paths.items, paths.profiles, paths.screen)}
     _fewer_items(monkeypatch)
@@ -221,7 +221,7 @@ def test_a_build_that_fails_in_classify_leaves_the_previous_build_whole(tmp_path
 
 
 def test_screen_json_beside_another_builds_items_is_refused_by_assign_and_read_groups(tmp_path, monkeypatch):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     old = build_stage(F, tmp_path, PACKAGED, **QUIET).screen.read_bytes()
     _fewer_items(monkeypatch)
     paths = build_stage(F, tmp_path, PACKAGED, **QUIET)

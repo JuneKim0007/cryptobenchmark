@@ -1,7 +1,7 @@
 # Docs
 
 ```
-docs/artifacts.md : run directory artifacts: producer, consumers, validator; manifest fields; run log statuses
+docs/artifacts.md : device folder artifacts: producer, consumers, validator; manifest fields; run log statuses
 docs/decisions.md : the engine's retry and model defaults; the worthiness decision: input, answer, gate, fallback; static triage
 docs/grouping.md : grouping stage: files, answer contract, gates, families, findings
 docs/limits.md : what the measurements and the app scan cannot answer

@@ -1,10 +1,20 @@
+import shutil
 from pathlib import Path
 
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
 
+FIXTURE_DEVICE = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000"
 LIBRARY = PromptLibrary.load()
+
+
+def with_results(folder):
+    """folder as a device folder: the recorded benchmark results copied in, since perf-repair writes beside them."""
+    shutil.copytree(FIXTURE_DEVICE, folder, dirs_exist_ok=True)
+    return folder
+
+
 SYSTEM = SystemPrompt("test", "SYS")
 
 

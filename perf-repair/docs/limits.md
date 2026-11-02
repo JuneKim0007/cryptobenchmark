@@ -14,4 +14,4 @@
 | default provider resolution | `docs/repair.md` limits |
 | the scope step infers no key or input size, so `harness.yaml` inputs are the run's configured sizes (`from: run`), one size per scope, not the sizes the app passes | `report.json` `inputs` |
 | a current and option with no configured size in common get a null input; a function taking bytes, text or a key is then `not_compilable` (`missing_input`) and reported primitive-only | `report.json` `compile` |
-| interchangeability is per capture: a `groups.json` belongs to the run directory built from one manifest | `grouping/groups.json` |
+| interchangeability is per capture: a `groups.json` belongs to the device folder it was built in, from one manifest | `grouping/groups.json` |

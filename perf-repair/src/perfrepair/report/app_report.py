@@ -1,4 +1,4 @@
-"""apps/<app>/: every step's file → report.json: a row per scope and the app's funnel. A step whose file is absent
+"""<device>/<app>/: every step's file → report.json: a row per scope and the app's funnel. A step whose file is absent
 is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 

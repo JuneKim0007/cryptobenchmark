@@ -77,7 +77,7 @@ def validate_report(doc: dict, app: str) -> list[str]:
 
 
 def validate_summary(doc: dict, reports: list[dict]) -> list[str]:
-    """`reports`: the run's apps/<app>/report.json documents."""
+    """`reports`: the device's <app>/report.json documents."""
     problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
     by_app = {r["app"]: r["funnel"] for r in reports}
     if doc.get("apps") != sorted(by_app) or doc.get("byApp") != by_app:

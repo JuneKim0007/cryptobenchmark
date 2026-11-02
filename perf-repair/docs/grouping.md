@@ -40,7 +40,7 @@ flowchart TD
     A -- no item left --> X[report: checks.json, groups.json] --> S[supervisor.json, optional]
 ```
 
-## Files (`<run>/grouping/`)
+## Files (`<device>/grouping/`)
 
 | File | Written by | Holds |
 |---|---|---|

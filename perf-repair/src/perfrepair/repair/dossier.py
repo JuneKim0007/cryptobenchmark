@@ -1,4 +1,4 @@
-"""The dossier step: scopes + groups + measurements → apps/<app>/dossiers.json, validated before writing."""
+"""The dossier step: scopes + groups + measurements → <app>/dossiers.json, validated before writing."""
 from __future__ import annotations
 
 from pathlib import Path

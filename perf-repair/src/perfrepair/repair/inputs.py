@@ -24,7 +24,7 @@ def _entries(effective: dict, item: str) -> list[dict]:
     entries = [e or {} for key, e in by_name.items() if key.split("@")[0].lower() == name.lower()]
     if not entries:
         raise ValueError(f"item_not_configured: {item} has no providers.{provider}.{engine_type}.{name} entry "
-                         f"in effective.yaml; --results is not the run the groups were built from")
+                         f"in effective.yaml; the results are not the run the groups were built from")
     return entries
 
 

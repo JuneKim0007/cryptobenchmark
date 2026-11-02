@@ -1,14 +1,16 @@
-"""python3 -m perfrepair.data_handler.inbound — a results manifest → rows, measurements, run log; apps: perfrepair.app."""
+"""python3 -m perfrepair.data_handler.inbound — a device's manifest → rows, measurements, run log beside it."""
 from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from ... import run_dir as rd
+from ...config.args import add_config_arg
+from ...config.device_results import add_device_results_arg, fill_device_results
 from ...dto import Measurements
 from ...failure import reported
 from ...files import write_json
+from ...log import log_to_stderr
 from ...validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
 from . import (
     build_run_log,
@@ -23,19 +25,22 @@ SCHEMA_VERSION = 1
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     ap = argparse.ArgumentParser(prog="perfrepair.data_handler.inbound", description=__doc__)
-    ap.add_argument("--manifest", type=Path, required=True, help="a cryptobenchmark results/manifest.yaml")
-    ap.add_argument("-o", "--out", type=Path, required=True, help="run directory to write into")
+    add_device_results_arg(ap)
+    add_config_arg(ap)
     a = ap.parse_args(argv)
     return reported(lambda: _inbound(ap, a))
 
 
 def _inbound(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
-    manifest, base = read_manifest(a.manifest)
-    require(str(a.manifest), validate_manifest(manifest, base))
+    fill_device_results(ap, a)
+    path = a.device_results / rd.MANIFEST
+    manifest, base = read_manifest(path)
+    require(str(path), validate_manifest(manifest, base))
     benchmark = manifest_file(manifest, base, "benchmark")
     if benchmark is None:
-        ap.error(f"{a.manifest}: no benchmark file; the run measured nothing")
+        ap.error(f"{path}: no benchmark file; the run measured nothing")
     prepared = read_prepared(manifest_file(manifest, base, "prepared"))
     processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
     rows, measurements = read_results(benchmark, prepared, processes)
@@ -47,12 +52,11 @@ def _inbound(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     require(rd.MEASUREMENTS, validate_measurements(summaries, rows))
     require(rd.RUN_LOG, validate_run_log(log, rows))
 
-    a.out.mkdir(parents=True, exist_ok=True)
-    write_json(a.out / rd.ROWS, {"schemaVersion": SCHEMA_VERSION, "rows": [r.to_json() for r in rows]})
-    write_json(a.out / rd.MEASUREMENTS, summaries.to_json())
-    write_json(a.out / rd.RUN_LOG, log.to_json())
+    write_json(a.device_results / rd.ROWS, {"schemaVersion": SCHEMA_VERSION, "rows": [r.to_json() for r in rows]})
+    write_json(a.device_results / rd.MEASUREMENTS, summaries.to_json())
+    write_json(a.device_results / rd.RUN_LOG, log.to_json())
 
-    print(f"{a.out}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records")
+    print(f"{a.device_results}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records")
     for note in notes:
         print(f"  warning {note}")
 

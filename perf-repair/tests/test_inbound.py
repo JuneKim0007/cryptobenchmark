@@ -21,9 +21,10 @@ from perfrepair.data_handler.inbound.run_log import (
     split_case_id,
 )
 from perfrepair.dto import RunLog
+from helpers import with_results
 
 F = Path(__file__).parent / "fixtures"
-MANIFEST = F / "results" / "manifest.yaml"
+MANIFEST = F / "results" / "test-api36-00000000" / "manifest.yaml"
 
 
 @pytest.fixture
@@ -58,10 +59,16 @@ def test_manifest_paths_resolve_against_its_own_directory(run):
 
 def test_manifest_listing_a_missing_file_is_an_error(tmp_path):
     (tmp_path / "manifest.yaml").write_text(
-        "schemaVersion: 1\nmode: host\nruntime: {}\nproviders: []\nfiles: {benchmark: benchmark/benchmark.json}\n")
+        "schemaVersion: 1\nmode: host\ndeviceId: d\nruntime: {}\nproviders: []\nfiles: {benchmark: benchmark/benchmark.json}\n")
     manifest, base = read_manifest(tmp_path / "manifest.yaml")
     with pytest.raises(FileNotFoundError):
         manifest_file(manifest, base, "benchmark")
+
+
+def test_a_manifest_from_before_device_ids_is_one_coded_line(tmp_path):
+    (tmp_path / "manifest.yaml").write_text("schemaVersion: 1\nmode: host\nfiles: {}\n")
+    with pytest.raises(ValueError, match=r"^manifest_without_device_id; rerun the benchmark$"):
+        read_manifest(tmp_path / "manifest.yaml")
 
 
 def test_manifest_refuses_other_schema_versions(tmp_path):
@@ -189,7 +196,7 @@ def test_run_context_reads_each_piece_on_first_use_and_takes_injected_ones():
 
 
 def test_command_writes_the_run_directory(tmp_path, capsys):
-    assert main(["--manifest", str(MANIFEST), "-o", str(tmp_path)]) == 0
+    assert main(["--device-results", str(with_results(tmp_path))]) == 0
     docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log")}
     assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 3, "run_log": 1}
     assert len(docs["rows"]["rows"]) == 3

@@ -11,9 +11,11 @@ from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
-from ..config.args import fill, fill_run, load_settings, positive_int, require
+from ..config.args import fill, load_settings, positive_int
+from ..config.device_results import add_device_results_arg, fill_device_results
+from ..config.load import Loaded
 from ..inputs.check import check_one_of
-from ..inputs.table import APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, BENCHMARK_CONFIG, PATHS_RESULTS
+from ..inputs.table import APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, BENCHMARK_CONFIG
 from ..failure import FAILURES, reported
 from ..log import log_to_stderr
 from ..result.modes import MODES
@@ -23,13 +25,8 @@ from .steps import DEVICE, DRY, Guide, Stop
 def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="perfrepair guide", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--app", type=Path, required=True, help="the app's source root; only read")
-    ap.add_argument("--name", required=True, help="the app's folder under <run>/apps/")
-    ap.add_argument("--run", type=Path,
-                    help="run directory with rows.json, measurements.json and grouping/groups.json, "
-                         "e.g. ~/capstone/runs/<date>-<name>; default: paths.run")
-    ap.add_argument("--results", type=Path,
-                    help="the cryptobenchmark results directory of the run; default: paths.results")
+    ap.add_argument("--app", type=Path, required=True, help="the app's source root; only read; its path gives the app's id")
+    add_device_results_arg(ap)
     ap.add_argument("--mode", choices=sorted(MODES), help="default: apps.mode, else latency")
     ap.add_argument("--device", action="store_true", default=None,
                     help="also measure the harness on the attached phone (cryptobenchmark pipeline.py), then report; "
@@ -55,7 +52,7 @@ def run_steps(g: Guide, device: bool) -> int:
         g.echo(f"guide {name}: ok: {detail}")
     if not device:
         g.echo(f"guide: dry run ends at the harness; measure with --device, or run "
-               f"`python3 scripts/pipeline.py --device --harness {g.paths.harness} --results {g.paths.measured}`")
+               f"`python3 scripts/pipeline.py --device --harness {g.paths.harness}`")
     return 0
 
 
@@ -64,15 +61,16 @@ def main(argv: list[str] | None = None) -> int:
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
-    fill_run(ap, settings, a)
-    fill(settings, a, {"results": PATHS_RESULTS, "device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT})
-    require(ap, a, "results", PATHS_RESULTS)
+    fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT})
     # modes come from result/criteria.yaml, a layer above the rows
     a.mode = settings.read(APPS_MODE, a.mode, lambda name, value: check_one_of(name, value, tuple(sorted(MODES))))
-    return reported(lambda: run_steps(
-        Guide(a.run.expanduser(), a.app.expanduser(), a.name, a.results.expanduser(), MODES[a.mode],
-              spawn(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings),
-        a.device))
+    return reported(lambda: _run(ap, a, settings))
+
+
+def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> int:
+    fill_device_results(ap, a, settings)
+    return run_steps(Guide(a.device_results, a.app.expanduser().resolve(), MODES[a.mode], spawn(a, settings, replace_cmd.DRY_RUN),
+                           load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings), a.device)
 
 
 if __name__ == "__main__":

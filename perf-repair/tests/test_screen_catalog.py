@@ -18,9 +18,10 @@ from perfrepair.repair.dossier import dossier
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import CatalogMismatch, ai_review, load_catalog, screening_catalog
 from perfrepair.validation.__main__ import main as validation_main
+from helpers import with_results
 
-F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
-DEMO = Path(__file__).parent / "fixtures" / "apps" / "demo"
+F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
+DEMO = Path(__file__).parent / "fixtures" / "app_results" / "demo"
 PACKAGED_LINE = "device.screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off"
 
 
@@ -71,20 +72,20 @@ def test_every_step_that_screens_exits_non_zero_on_a_missing_catalog(tmp_path, c
     run = tmp_path / "run"
     run.mkdir()
     if command == "build":
-        code = grouping_main(["build", "--manifest", str(F), "--run", str(run), "--perfrepair-config", config])
+        code = grouping_main(["build", "--device-results", str(with_results(run)), "--perfrepair-config", config])
     elif command == "dossier":
-        code = repair_main(["dossier", "--run", str(run), "--app", "a", "--source", str(tmp_path),
+        code = repair_main(["dossier", "--device-results", str(run), "--app", str(tmp_path),
                             "--perfrepair-config", config])
     else:
         with pytest.raises(SystemExit) as e:
-            validation_main([str(run), "--perfrepair-config", config])
+            validation_main(["--device-results", str(run), "--perfrepair-config", config])
         code = e.value.code
     assert code != 0 and "missing_file: device.screening.catalog" in capsys.readouterr().err
     assert not (run / "grouping").exists()
 
 
 def test_build_logs_the_packaged_catalog_without_perfrepair_yaml(tmp_path, capsys):
-    assert grouping_main(["build", "--manifest", str(F), "--run", str(tmp_path)]) == 0
+    assert grouping_main(["build", "--device-results", str(with_results(tmp_path))]) == 0
     assert capsys.readouterr().err.splitlines() == [PACKAGED_LINE]
     assert json.loads((tmp_path / "grouping" / "screen.json").read_text())["verdicts"]
 
@@ -101,7 +102,7 @@ def test_build_records_the_catalog_it_screened_by(run):  # noqa: F811
 
 
 def test_the_dossier_step_refuses_a_catalog_screen_json_was_not_screened_by(run, tmp_path):  # noqa: F811
-    app = run / "apps" / "demo"
+    app = run / "demo"
     app.mkdir(parents=True)
     for name in ("scopes.json", "app.json"):
         shutil.copy(DEMO / name, app / name)

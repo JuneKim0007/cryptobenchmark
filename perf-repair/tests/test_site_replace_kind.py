@@ -25,8 +25,9 @@ NONE = dossier(file="src/Lone.kt").key
 
 
 def run_dir(tmp_path, *dossiers, no_options=()):
-    app = tmp_path / "apps" / APP
+    app = tmp_path / APP
     app.mkdir(parents=True)
+    (app / "app.json").write_text(json.dumps({"root": str(tmp_path.resolve())}))
     (app / "dossiers.json").write_text(json.dumps(doc(*dossiers, no_options=no_options)))
     return tmp_path, app
 
@@ -171,7 +172,7 @@ def test_a_hand_edited_replacement_dropping_the_options_interop_risk_is_caught(t
 
 def test_the_cli_dry_run_keeps_every_site(tmp_path, capsys):
     run, app = run_dir(tmp_path, A, B)
-    assert main(["replace", "--run", str(run), "--app", APP, "--agent", "dry-run"]) == 0
+    assert main(["replace", "--device-results", str(run), "--app", str(run), "--agent", "dry-run"]) == 0
     out = read_json(app / "replacements.json")
     assert {r["decision"] for r in out["replacements"]} == {"keep"}
     assert "2 sites, 2 asked" in capsys.readouterr().out

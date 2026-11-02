@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Mapping
 
 from ..inputs.check import Invalid, check_positive
-from ..inputs.table import PATHS_RUN, Row
+from ..inputs.table import Row
 from .dotenv import load_env
 from .load import Loaded, load
 from .settings import ConfigError
@@ -45,7 +45,3 @@ def require(parser: argparse.ArgumentParser, args: argparse.Namespace, dest: str
     if getattr(args, dest) is None:
         parser.error(f"the following arguments are required: --{dest} (or {row.key} in perfrepair.yaml)")
 
-
-def fill_run(parser: argparse.ArgumentParser, loaded: Loaded, args: argparse.Namespace) -> None:
-    fill(loaded, args, {"run": PATHS_RUN})
-    require(parser, args, "run", PATHS_RUN)

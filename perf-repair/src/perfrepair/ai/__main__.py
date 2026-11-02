@@ -1,5 +1,5 @@
-"""python3 -m perfrepair.ai worthiness --run <dir> --mode latency|battery — after grouping;
-   python3 -m perfrepair.ai replace --run <dir> --app <name> — after dossiers. Both take [--agent ...] [--prompts DIR]
+"""python3 -m perfrepair.ai worthiness --device-results <dir> --mode latency|battery — after grouping;
+   python3 -m perfrepair.ai replace --device-results <dir> --app <source> — after dossiers. Both take [--agent ...] [--prompts DIR]
    and read perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
 from __future__ import annotations
 
@@ -7,7 +7,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..config.args import fill_run, load_settings, positive_int
+from ..app.path_id import app_id
+from ..config.args import load_settings, positive_int
+from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..inputs.table import APPS_REPLACE, WORTHINESS, RoleRow
 from ..log import log_to_stderr
@@ -33,12 +35,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="perfrepair.ai", description=__doc__)
     sub = ap.add_subparsers(dest="stage", required=True)
     p = sub.add_parser("worthiness")
-    p.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
+    add_device_results_arg(p)
     p.add_argument("--mode", required=True, choices=sorted(MODES))
     _engine_args(p, WORTHINESS)
     p = sub.add_parser("replace")
-    p.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
-    p.add_argument("--app", required=True)
+    add_device_results_arg(p)
+    p.add_argument("--app", type=Path, required=True, help="the app's source folder; its path gives the app's id")
     _engine_args(p, APPS_REPLACE)
     a = ap.parse_args(argv)
     return reported(lambda: _stage(ap, a))
@@ -46,13 +48,13 @@ def main(argv: list[str] | None = None) -> int:
 
 def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     settings = load_settings(ap, a)
-    fill_run(ap, settings, a)
+    fill_device_results(ap, a, settings)
     library = load_prompts(ap, a, settings)
     limits = Limits(a.turns, a.sessions)
     if a.stage == "worthiness":
-        worthiness_cmd.worthiness(a.run, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
+        worthiness_cmd.worthiness(a.device_results, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
     else:
-        replace_cmd.replace(a.run, a.app, spawn(a, settings, replace_cmd.DRY_RUN), library, limits, a.limit)
+        replace_cmd.replace(a.device_results, app_id(a.device_results, a.app), spawn(a, settings, replace_cmd.DRY_RUN), library, limits, a.limit)
 
 
 if __name__ == "__main__":

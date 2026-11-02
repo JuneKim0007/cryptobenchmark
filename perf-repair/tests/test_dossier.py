@@ -19,7 +19,7 @@ from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures"
-DEMO = F / "apps" / "demo"
+DEMO = F / "app_results" / "demo"
 PARAMS = {"mode": "GCM", "tagBits": 128, "ivBytes": 12}
 GROUPS = {"groups": [{"id": "g", "members": [1, 2, 3, 4]}, {"id": "lone", "members": [5]}],
           "items": {"1": {"qualified": "TypeA|ALG-A|P1", "group": "g", "runs": True},
@@ -176,7 +176,7 @@ def test_an_option_without_interop_does_not_parse(tmp_path):
 
 
 def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
-    app = run / "apps" / "demo"
+    app = run / "demo"
     app.mkdir(parents=True)
     for name in ("scopes.json", "app.json"):
         shutil.copy(DEMO / name, app / name)
@@ -187,7 +187,7 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     time = next(e for e in option["estimates"] if e["metric"] == "timeNs")
     assert option["item"] == "Cipher|AES/GCM/NoPadding|Fast" and time["ratio"] < 0.4 and time["pImprove"] == 1.0
     assert {n["reason"] for n in doc["noOptions"]} == {"unresolved", "no_alternative"}
-    assert validate_run(run, screening_catalog(None))["apps/demo/dossiers.json"] == []
+    assert validate_run(run, screening_catalog(None))["demo/dossiers.json"] == []
 
 
 def test_an_unknown_key_size_takes_every_measured_key_size_so_pins_are_known(tmp_path):
@@ -260,7 +260,7 @@ def test_a_platform_deprecated_target_depends_on_the_apps_target_sdk(tmp_path, t
 
 
 def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given(run):  # noqa: F811
-    app = run / "apps" / "demo"
+    app = run / "demo"
     app.mkdir(parents=True)
     shutil.copy(DEMO / "scopes.json", app / "scopes.json")
     packaged = load_catalog(SCREENING)

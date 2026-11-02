@@ -1,4 +1,4 @@
-"""Every apps/<app>/report.json of a run → apps/summary.json: the funnel summed, and per metric the apps improved,
+"""Every <app>/report.json of a device → summary.json: the funnel summed, and per metric the apps improved,
 unchanged or worse by the median of their measured scopes' ratios."""
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def change(ratio: float | None, improving: float) -> str:
 
 def build_summary(reports: list[dict]) -> dict:
     if not reports:
-        raise ValueError("no_reports: no apps/<app>/report.json in the run; run `python3 -m perfrepair.report app` first")
+        raise ValueError("no_reports: no <app>/report.json in the device folder; run `python3 -m perfrepair.report app` first")
     modes = sorted({r["mode"] for r in reports})
     if len(modes) != 1:
         raise ValueError(f"mixed_modes: the app reports were built in modes {modes}; rebuild them in one mode")

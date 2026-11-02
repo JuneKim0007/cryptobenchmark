@@ -80,7 +80,7 @@ def test_runner_passes_stage_and_returns_manifest(bench_root, tmp_path, stage, f
     config = write_run_config(tmp_path, bench_root)
     seen = []
     manifest = run_pipeline(config, tmp_path / "benchmark", stage, bench_root, echo=seen.append)
-    assert manifest == (tmp_path / "benchmark" / "manifest.yaml").resolve()
+    assert manifest == (tmp_path / "benchmark" / "fake-device" / "manifest.yaml").resolve()
     argv = json.loads((tmp_path / "benchmark" / "argv.json").read_text())["argv"]
     assert argv[argv.index("--config") + 1] == str(config.resolve())
     assert ("--bench" in argv, "--device" in argv) == (flag == "--bench", flag == "--device")

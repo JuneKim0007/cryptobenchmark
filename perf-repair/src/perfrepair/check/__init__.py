@@ -1,1 +1,1 @@
-"""Stage replay: every artifact of a run directory against its inputs and outbox."""
+"""Stage replay: every artifact of a device folder against its inputs and outbox."""

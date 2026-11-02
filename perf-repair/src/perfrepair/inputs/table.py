@@ -61,7 +61,6 @@ AI_GATEWAY_USE = Row("aiGateway.use", check_text, invalid=OnInvalid.ERROR, chain
 AI_GATEWAY_AUTH = Row("aiGateway.<gateway>.auth", invalid=OnInvalid.ERROR, chain=GATEWAY_CHAIN)
 AI_GATEWAY_KEY = Row("aiGateway.<gateway>.<key>", chain=GATEWAY_CHAIN)
 
-PATHS_RUN = _path("paths.run")
 PATHS_RESULTS = _path("paths.results")
 PATHS_PROMPTS = _path("paths.prompts")
 
@@ -75,6 +74,8 @@ GROUPING_LIMIT = Row("device.grouping.limit", check_positive)
 GROUPING_ASSIGN = RoleRow("device.grouping.assign", {"effort": "low"})
 GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
 BENCHMARK_CONFIG = _path("device.benchmark.config")
+# a bad id must not fall through to another device's numbers
+DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
 WORTHINESS = RoleRow("device.worthiness")
 
 APPS_MODE = Row("apps.mode", check_text, default="latency")

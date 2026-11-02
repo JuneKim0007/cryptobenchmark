@@ -11,6 +11,7 @@ from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
 from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
+from ..app.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..files import read_json
 from ..run_dir import GroupingPaths
@@ -21,10 +22,9 @@ from ..result.modes import Mode
 from ..config.load import Loaded
 from ..screen.catalog import Catalog, CatalogMismatch, screening_catalog
 
-MANIFEST = "manifest.yaml"
-INBOUND = "python3 -m perfrepair.data_handler.inbound --manifest <results>/manifest.yaml -o <run>"
-GROUPING = ("python3 -m perfrepair.grouping build --manifest <results>/manifest.yaml --run <run>, then "
-            "`grouping assign --run <run>` and `grouping report --run <run>`")
+INBOUND = "python3 -m perfrepair.data_handler.inbound --device-results <device>"
+GROUPING = ("python3 -m perfrepair.grouping build --device-results <device>, then "
+            "`grouping assign --device-results <device>` and `grouping report --device-results <device>`")
 
 
 class Stop(Exception):
@@ -35,10 +35,8 @@ class Stop(Exception):
 
 @dataclass
 class Guide:
-    run: Path
+    device: Path
     app_root: Path
-    name: str
-    results: Path
     mode: Mode
     conversations: Conversations
     library: PromptLibrary
@@ -50,8 +48,12 @@ class Guide:
     catalog: Catalog | None = None
 
     @property
+    def app_id(self) -> str:
+        return path_id(self.app_root)
+
+    @property
     def paths(self) -> rd.AppPaths:
-        return rd.AppPaths(self.run, self.name)
+        return rd.AppPaths(self.device, self.app_id)
 
 
 def _exit(code: int, stop: str, what: str) -> None:
@@ -60,30 +62,30 @@ def _exit(code: int, stop: str, what: str) -> None:
 
 
 def prerequisites(g: Guide) -> str:
-    rd.app_dir(g.run, g.name)
-    if not (g.results / MANIFEST).is_file():
-        raise Stop("missing_results", f"{g.results / MANIFEST} absent; --results is a cryptobenchmark results directory")
-    for path, how in ((g.run / rd.ROWS, INBOUND), (g.run / rd.MEASUREMENTS, INBOUND),
-                      (GroupingPaths(g.run).groups, GROUPING)):
+    if not (g.device / rd.MANIFEST).is_file():
+        raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
+    for path, how in ((g.device / rd.ROWS, INBOUND), (g.device / rd.MEASUREMENTS, INBOUND),
+                      (GroupingPaths(g.device).groups, GROUPING)):
         if not path.is_file():
-            raise Stop("missing_run_stage", f"{path} absent; inbound and grouping are run-level stages, made once "
-                                            f"per run: {how}")
+            raise Stop("missing_device_stage", f"{path} absent; inbound and grouping are device-level stages, made once "
+                                               f"per device: {how}")
     # resolved and checked before any step runs, so a bad catalog stops the guide first
     g.catalog = screening_catalog(g.settings)
-    problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.run)))
+    problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.device)))
     if problems:
         raise CatalogMismatch(problems[0])
-    return f"run {g.run}, results {g.results}, catalog {g.catalog.source}"
+    return f"device results {g.device}, catalog {g.catalog.source}"
 
 
 def app(g: Guide) -> str:
-    _exit(app_main(["--manifest", str(g.results / MANIFEST), "--app", str(g.app_root), "--run", str(g.run),
-                    "--name", g.name]), "app_failed", "perfrepair.app")
+    _exit(app_main(["--device-results", str(g.device), "--app", str(g.app_root)]), "app_failed", "perfrepair.app")
+    if not g.paths.scopes.is_file():
+        raise Stop("several_project_roots", f"{g.app_root} holds several; pass one of them as --app")
     return f"{len(read_json(g.paths.scopes)['scopes'])} scopes"
 
 
 def dossiers(g: Guide) -> str:
-    doc = dossier(g.run, g.name, g.app_root, g.catalog, echo=lambda _: None)
+    doc = dossier(g.device, g.app_id, g.app_root, g.catalog, echo=lambda _: None)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         raise Stop("no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)})")
@@ -91,7 +93,7 @@ def dossiers(g: Guide) -> str:
 
 
 def replacements(g: Guide) -> str:
-    state = replace(g.run, g.name, g.conversations, g.library, g.limits, g.limit, echo=g.echo)
+    state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo)
     chosen = sum(r.decision == "replace" for r in state.replacements.values())
     if not chosen:
         raise Stop("no_replacement", f"every one of {len(state.replacements)} scopes is kept")
@@ -99,7 +101,7 @@ def replacements(g: Guide) -> str:
 
 
 def edits(g: Guide) -> str:
-    _exit(repair_main(["edit", "--run", str(g.run), "--app", g.name, "--source", str(g.app_root)]),
+    _exit(repair_main(["edit", "--device-results", str(g.device), "--app", str(g.app_root)]),
           "edit_invalid", "repair edit")
     rows = read_json(g.paths.edits)["edits"]
     applied = sum(e["status"] == "applied" for e in rows)
@@ -110,19 +112,18 @@ def edits(g: Guide) -> str:
 
 
 def harness(g: Guide) -> str:
-    _exit(repair_main(["harness", "--run", str(g.run), "--app", g.name, "--manifest", str(g.results / MANIFEST)]),
+    _exit(repair_main(["harness", "--device-results", str(g.device), "--app", str(g.app_root)]),
           "harness_invalid", "repair harness")
     return str(g.paths.harness)
 
 
 def device(g: Guide) -> str:
-    manifest = run_pipeline(g.config, g.paths.measured, "device", extra_args=["--harness", str(g.paths.harness)],
-                            echo=g.echo)
+    manifest = run_pipeline(g.config, g.paths.root, "device", harness=g.paths.harness, echo=g.echo)
     return str(manifest)
 
 
 def report(g: Guide) -> str:
-    doc = app_report(g.run, g.name, g.mode, echo=lambda _: None)
+    doc = app_report(g.device, g.app_id, g.mode, echo=lambda _: None)
     return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured"
 
 

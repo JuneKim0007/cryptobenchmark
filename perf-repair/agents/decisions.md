@@ -61,13 +61,14 @@ src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default ga
 src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; the one reader of `paths.prompts`; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
-src/perfrepair/ai/suggest/site_replace/command.py : stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
+src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
 src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep
 src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required; option alias (or empty) and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
 src/perfrepair/config/__init__.py : docstring only
-src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled from their rows, required ones checked; fill_run, the one reader of `paths.run`; positive_int, the argparse type of --turns, --sessions, --limit
+src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled from their rows, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
+src/perfrepair/config/device_results.py : the device folder of a command: --device-results, else paths.results with device.id or its only device, their one reader; the temporary-folder warning
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
 src/perfrepair/config/load.py : settings file lookup; read a row, or a role's key, by its chain; each value's source, logged once (INFO from a file or the environment, else DEBUG)
 src/perfrepair/config/settings.py : reads perfrepair.yaml: secret_key anywhere, unknown_key warnings from the rows' keys, a section's shape; raw values and aiGateway blocks

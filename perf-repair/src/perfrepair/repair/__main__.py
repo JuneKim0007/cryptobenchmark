@@ -7,10 +7,13 @@ from pathlib import Path
 
 import yaml
 
+from ..app.path_id import absolute, app_id
 from ..dto.site import Replacement, Scope, read_replacements
 from ..files import read_json, write_json, write_text
+from .. import run_dir as rd
 from ..run_dir import AppPaths
 from ..config.args import add_config_arg, load_settings
+from ..config.device_results import add_device_results_arg, fill_device_results
 from ..log import log_to_stderr
 from ..failure import reported
 from ..screen.catalog import screening_catalog
@@ -28,29 +31,27 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="command", required=True)
     for name in ("dossier", "test-set", "edit", "harness"):
         p = sub.add_parser(name)
-        p.add_argument("--run", type=Path, required=True)
-        p.add_argument("--app", required=True, help="folder under <run>/apps/")
-    for name in ("dossier", "edit"):
-        sub.choices[name].add_argument("--source", type=Path, required=True,
-                                       help="the app's root; only read, scope files are relative to it")
-    add_config_arg(sub.choices["dossier"])
+        add_device_results_arg(p)
+        add_config_arg(p)
+        p.add_argument("--app", type=Path, required=True,
+                       help="the app's source root, only read; its path gives the app's id, scope files are relative to it")
     sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
-    sub.choices["harness"].add_argument("--manifest", type=Path, required=True,
-                                        help="the benchmark results' manifest.yaml; its effective.yaml gives the sizes")
     a = ap.parse_args(argv)
-    if a.command == "dossier":
-        return reported(lambda: _dossier(ap, a))
-    if a.command == "test-set":
-        return reported(lambda: _test_set(a))
-    return reported(lambda: _edit(a) if a.command == "edit" else _harness(a))
+    return reported(lambda: STEPS[a.command](ap, _located(ap, a)))
+
+
+def _located(ap: argparse.ArgumentParser, a: argparse.Namespace) -> argparse.Namespace:
+    fill_device_results(ap, a)
+    a.source, a.app = absolute(a.app), app_id(a.device_results, a.app)
+    return a
 
 
 def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
-    dossier(a.run, a.app, a.source, screening_catalog(load_settings(ap, a)))
+    dossier(a.device_results, a.app, a.source, screening_catalog(load_settings(ap, a)))
 
 
-def _test_set(a: argparse.Namespace) -> int:
-    doc = build_test_set(read_json(AppPaths(a.run, a.app).dossiers), a.app)
+def _test_set(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
+    doc = build_test_set(read_json(AppPaths(a.device_results, a.app).dossiers), a.app)
     write_text(a.out, yaml.safe_dump(doc, sort_keys=False))
     print(f"{a.out}: {len(doc['include'])} primitives")
     return 0
@@ -68,8 +69,8 @@ def _report(path: Path, problems: list[str]) -> int:
     return 1
 
 
-def _edit(a: argparse.Namespace) -> int:
-    paths = AppPaths(a.run, a.app)
+def _edit(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
+    paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
     doc = edit_app(scopes, list(replacements.values()), a.source, paths, load_specs())
     problems = validate_edits(doc, a.app, set(scopes))
@@ -81,18 +82,21 @@ def _edit(a: argparse.Namespace) -> int:
     return 0
 
 
-def _harness(a: argparse.Namespace) -> int:
-    paths = AppPaths(a.run, a.app)
+def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
+    paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
     edits = read_json(paths.edits)
     currents = {d["scope"]["id"]: d["current"] for d in read_json(paths.dossiers)["dossiers"]}
-    doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.manifest))
+    doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.device_results / rd.MANIFEST))
     problems = validate_harness(doc, a.app, paths.root, edits)
     if problems:
         return _report(paths.harness, problems)
     write_text(paths.harness, yaml.safe_dump(doc, sort_keys=False))
     print(f"{paths.harness}: {len(doc['scopes'])} scopes")
     return 0
+
+
+STEPS = {"dossier": _dossier, "test-set": _test_set, "edit": _edit, "harness": _harness}
 
 
 if __name__ == "__main__":

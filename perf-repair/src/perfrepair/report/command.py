@@ -1,4 +1,4 @@
-"""Stage: report.json and report.md of one app, summary.json and summary.md across a run's apps, validated
+"""Stage: report.json and report.md of one app, summary.json and summary.md across a device's apps, validated
 before writing."""
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ from .markdown import report_markdown, summary_markdown
 from .summary import build_summary
 
 
-def app_report(run: Path, app: str, mode: Mode, echo=print) -> dict:
-    paths = rd.AppPaths(run, app)
+def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
+    paths = rd.AppPaths(device, app)
     doc = build_report(paths, mode)
     require(rd.REPORT, validate_report(doc, app))
     write_json(paths.report, doc)
@@ -26,12 +26,12 @@ def app_report(run: Path, app: str, mode: Mode, echo=print) -> dict:
     return doc
 
 
-def run_summary(run: Path, echo=print) -> dict:
-    reports = [read_json(d / rd.REPORT) for d in rd.app_dirs(run) if (d / rd.REPORT).is_file()]
+def device_summary(device: Path, echo=print) -> dict:
+    reports = [read_json(d / rd.REPORT) for d in rd.app_dirs(device) if (d / rd.REPORT).is_file()]
     doc = build_summary(reports)
     require(rd.SUMMARY, validate_summary(doc, reports))
-    root = Path(run) / rd.APPS
-    write_json(root / rd.SUMMARY, doc)
-    write_text(root / rd.SUMMARY_MD, summary_markdown(doc))
-    echo(f"{root / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured")
+    device = Path(device)
+    write_json(device / rd.SUMMARY, doc)
+    write_text(device / rd.SUMMARY_MD, summary_markdown(doc))
+    echo(f"{device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured")
     return doc

@@ -58,13 +58,13 @@
 
 | field | site-replace |
 |---|---|
-| item | one `Dossier` of `apps/<app>/dossiers.json` with at least one option |
+| item | one `Dossier` of `<app>/dossiers.json` with at least one option |
 | message | site, sinks and key source, the risks code derives from them, current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates (ratio, pImprove, n, configuration), edit kinds, function source between digest markers |
 | answer | `decision` replace\|keep, `option` alias or "", `edits` [{kind, provider, algorithm, parameters [{name, value}]}], `risks`, `reason` |
 | ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
 | no option | static `keep`, source `static`, never asked |
 | dropped item | `keep` with reason `dropped: …`, source `fallback` |
-| state | `apps/<app>/replacements.json`: `{schemaVersion: 2, app, replacements, sources}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, and the edit step refuses another version; outbox under `apps/<app>/replace/` |
+| state | `<app>/replacements.json`: `{schemaVersion: 2, app, replacements, sources}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, and the edit step refuses another version; outbox under `<app>/replace/` |
 
 ## Site replace gate
 

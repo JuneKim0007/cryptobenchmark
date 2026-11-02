@@ -1,13 +1,13 @@
 # Repair
 
-Command: `python3 -m perfrepair.repair <step> --run <run> --app <app>`; every step reads and writes under `<run>/apps/<app>/`.
+Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <src>`; every step reads and writes under `<device>/<app>/`; `<src>` is only read and gives `<app>` (`docs/artifacts.md`).
 
 | Step | Flags | Input | Output |
 |---|---|---|---|
-| dossier | `--source <app root>` | `scopes.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
+| dossier | | `scopes.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
 | test-set | `-o` | `dossiers.json` | YAML test set at `-o`: each scope's current item and every option, once each |
-| edit | `--source <app root>` | `scopes.json`, `replacements.json`, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
-| harness | `--manifest <results>/manifest.yaml` | `scopes.json`, `replacements.json`, `edits.json`, `dossiers.json`, `original/`, `patched/`, the manifest's `effective.yaml` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
+| edit | | `scopes.json`, `replacements.json`, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
+| harness | | `scopes.json`, `replacements.json`, `edits.json`, `dossiers.json`, `original/`, `patched/`, the manifest's `effective.yaml` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
 
 - test-set refuses a `dossiers.json` of another app, and one with no scope that has an option.
 - A per-app benchmark run on the test set measures only what the app uses and its swap candidates.
@@ -77,7 +77,7 @@ scopes:
 | item `inputSize`s | the entry's `inputSizes`, else `run.inputSizes` (preparation's rule) |
 | item `keySize`s | the entry's `keySizes`; none when the provider chose the size (`providerDefaults: [keySize]` records no value) |
 | chosen size | the largest size configured for both `current` and `option`, so before and after run at a size the benchmark measured for each, and the largest because it spreads the function's per-call setup over the most data; none shared is null, which the harness reports `missing_input` |
-| `item_not_configured` | `current` or `option` has no entry: `--manifest` is not the run the groups came from; the step fails |
+| `item_not_configured` | `current` or `option` has no entry: the device folder's manifest is not the run the groups came from; the step fails |
 | `missing_effective` | the manifest has no `files.effective`; the step fails |
 
 ## Limits

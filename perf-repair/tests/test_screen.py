@@ -9,14 +9,14 @@ from perfrepair.catalog.screening import Screening
 from perfrepair.check.run import validate_run
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.dto.grouping import Item, read_items
-from helpers import CATALOG
+from helpers import with_results, CATALOG
 from perfrepair.dto.screen import Verdict, lowers_status, read_screen, screen_document
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.screen import validate_screen, validate_screen_document
 from perfrepair.screen.catalog import screening_catalog
 
-F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 NAMES = Names.load()
 HANDLER = ScreeningHandler(Screening.load(names=NAMES), NAMES)
 
@@ -137,7 +137,7 @@ def test_the_validator_refuses_verdicts_built_from_other_items_or_profiles():
 
 @pytest.fixture
 def built(tmp_path):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     return build_stage(F, tmp_path, screening_catalog(None))
 
 

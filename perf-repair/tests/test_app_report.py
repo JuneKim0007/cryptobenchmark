@@ -10,7 +10,7 @@ from helpers import QUIET
 
 from perfrepair.files import read_json, write_json, write_text
 from perfrepair.report.__main__ import main
-from perfrepair.report.command import app_report, run_summary
+from perfrepair.report.command import app_report, device_summary
 from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
 from perfrepair.validation.report import validate_report, validate_summary
@@ -28,6 +28,7 @@ def _scope(sid, line):
 def make_app(run, name="shop", after_scale=1.0, measured=True):
     paths = AppPaths(run, name)
     paths.root.mkdir(parents=True)
+    write_json(paths.facts, {"root": str((run / f"{name}-source").resolve())})
     scopes = [_scope(s, i) for i, s in enumerate((A, B, C, D, E), 1)]
     write_json(paths.sites, {"sites": [{}] * 6})
     write_json(paths.scopes, {"scopes": scopes})
@@ -134,13 +135,13 @@ def test_the_summary_counts_apps_per_metric_and_sums_the_funnel(tmp_path):
     make_app(tmp_path, "slow", after_scale=1.5)
     for name in ("shop", "slow"):
         app_report(tmp_path, name, MODES["latency"], **QUIET)
-    doc = run_summary(tmp_path, **QUIET)
+    doc = device_summary(tmp_path, **QUIET)
     time = doc["metrics"]["timeNs"]
     assert time["apps"] == {"improved": ["shop"], "unchanged": [], "worse": ["slow"], "notMeasured": []}
     assert time["medianChange"] == pytest.approx(0.0)
     assert doc["metrics"]["allocationCount"]["apps"]["unchanged"] == ["shop", "slow"]
     assert doc["funnel"]["sites"] == 12 and doc["funnel"]["measured"] == 2
-    text = (tmp_path / "apps" / "summary.md").read_text()
+    text = (tmp_path / "summary.md").read_text()
     assert "| timeNs (ns/op) | 1 | 0 | 1 | 0 | +0.0% |" in text
     reports = [read_json(AppPaths(tmp_path, n).report) for n in ("shop", "slow")]
     assert validate_summary(doc, reports) == []
@@ -152,10 +153,10 @@ def test_the_summary_refuses_mixed_modes_and_an_empty_run(tmp_path):
     app_report(tmp_path, "shop", MODES["latency"], **QUIET)
     app_report(tmp_path, "slow", MODES["battery"], **QUIET)
     with pytest.raises(ValueError, match="mixed_modes"):
-        run_summary(tmp_path, **QUIET)
-    assert main(["summary", "--run", str(tmp_path / "empty")]) == 1
+        device_summary(tmp_path, **QUIET)
+    assert main(["summary", "--device-results", str(tmp_path / "empty")]) == 1
 
 
 def test_the_command_writes_both_files(tmp_path, app):
-    assert main(["app", "--run", str(tmp_path), "--app", "shop", "--mode", "battery"]) == 0
+    assert main(["app", "--device-results", str(tmp_path), "--app", str(tmp_path / "shop-source"), "--mode", "battery"]) == 0
     assert read_json(app.report)["mode"] == "battery" and app.report_md.is_file()

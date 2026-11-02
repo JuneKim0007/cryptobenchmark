@@ -21,7 +21,7 @@ def _typed(where: str, d: dict, types: dict, optional: dict) -> list[str]:
 
 def validate_app_facts(doc: dict) -> list[str]:
     out = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
-    out += _typed(rd.APP, doc, {"app": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
+    out += _typed(rd.APP, doc, {"app": str, "pathId": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
                   {"minSdk": int, "targetSdk": int})
     for i, b in enumerate(doc.get("bundled") or []):
         out += _typed(f"bundled[{i}]", b, {"artifact": str}, {"providerName": str})
@@ -73,5 +73,5 @@ def validate_app_dir(directory: Path) -> dict[str, list[str]]:
     for name, check in ((rd.APP, validate_app_facts), (rd.SCOPES, validate_scopes)):
         path = Path(directory) / name
         if path.exists():
-            out[f"{rd.APPS}/{Path(directory).name}/{name}"] = check(read_json(path))
+            out[f"{Path(directory).name}/{name}"] = check(read_json(path))
     return out

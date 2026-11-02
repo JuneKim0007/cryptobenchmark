@@ -2,7 +2,7 @@
 
 ## Route
 - code style for any code: naming, comments, generality → `agents/code.md`
-- dto, files, run directory, benchmark in/out: manifest, results, run log, app sites → `agents/data.md`
+- dto, files, device folder, benchmark in/out: manifest, results, run log, app sites → `agents/data.md`
 - grouping primitives into interchangeable groups: families, items, gates, supervisor → `agents/grouping.md`
 - model decisions: decision kinds, prompts, agents, settings (`perfrepair.yaml`, `.env`), the engine loop, retry → `agents/decisions.md`
 - static tools: evidence, modes, triage → `agents/static-tools.md`

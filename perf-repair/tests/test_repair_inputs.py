@@ -6,7 +6,7 @@ from perfrepair.files import write_text
 from perfrepair.repair.inputs import configured, read_effective, scope_inputs
 from repair_fixture import JAVA, scope
 
-RESULTS = Path(__file__).parent / "fixtures" / "results"
+RESULTS = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000"
 A, B = "Cipher|AES/GCM/NoPadding|P", "Cipher|AES/GCM/NoPadding|Q"
 EFFECTIVE = {"run": {"inputSizes": [64, 1024, 16384]}, "providers": {
     "P": {"Cipher": {"AES/GCM/NoPadding": {"keySizes": [128, 256]},
@@ -45,6 +45,6 @@ def test_an_item_the_run_did_not_configure_is_a_coded_error():
 
 def test_effective_yaml_is_found_through_the_manifest(tmp_path):
     assert read_effective(RESULTS / "manifest.yaml")["run"]["inputSizes"] == [64, 1024]
-    write_text(tmp_path / "manifest.yaml", "schemaVersion: 1\nmode: device\nfiles: {}\n")
+    write_text(tmp_path / "manifest.yaml", "schemaVersion: 1\nmode: device\ndeviceId: d\nfiles: {}\n")
     with pytest.raises(ValueError, match="missing_effective"):
         read_effective(tmp_path / "manifest.yaml")

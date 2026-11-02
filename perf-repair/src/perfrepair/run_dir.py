@@ -7,30 +7,37 @@ from .dto import Measurements, PrimitiveRow, RunLog
 from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
 from .files import read_json, sha256_file
 
+MANIFEST = "manifest.yaml"
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
-APPS, APP, SCOPES, DOSSIERS = "apps", "app.json", "scopes.json", "dossiers.json"
+APP, SCOPES, DOSSIERS = "app.json", "scopes.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
-# cryptobenchmark's --harness layout under its --results directory: docs/results.md `scoped/`
+# cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`
 SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
 GROUPING = "grouping"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
-def app_dir(run: Path, name: str) -> Path:
-    """apps/<name>/: one app's files; the name is a single path segment."""
+def device_folders(root: Path) -> list[str]:
+    """The finished devices of a results root: a folder without a manifest is a run that did not end."""
+    root = Path(root)
+    return sorted(p.name for p in root.iterdir() if (p / MANIFEST).is_file()) if root.is_dir() else []
+
+
+def app_dir(device: Path, name: str) -> Path:
+    """<device>/<name>/: one app's files; the name is a single path segment."""
     if not _APP_NAME.fullmatch(name):
         raise ValueError(f"app name {name!r}: letters, digits, '.', '_' or '-', not starting with a symbol")
-    return Path(run) / APPS / name
+    return Path(device) / name
 
 
 class AppPaths:
-    """Files of one app under `<run>/apps/<app>/`; `original/` and `patched/` hold only the files an edit changed."""
+    """Files of one app under `<device>/<app>/`; `original/` and `patched/` hold only the files an edit changed."""
 
-    def __init__(self, run: Path, app: str):
+    def __init__(self, device: Path, app: str):
         self.app = app
-        self.root = app_dir(run, app)
+        self.root = app_dir(device, app)
 
     sites = property(lambda self: self.root / SITES)
     facts = property(lambda self: self.root / APP)
@@ -52,8 +59,8 @@ class AppPaths:
 
 class GroupingPaths:
 
-    def __init__(self, run: Path):
-        self.root = Path(run) / GROUPING
+    def __init__(self, device: Path):
+        self.root = Path(device) / GROUPING
 
     items = property(lambda self: self.root / "items.json")
     profiles = property(lambda self: self.root / "profiles.json")
@@ -74,25 +81,26 @@ class GroupingPaths:
     registry_candidates = property(lambda self: self.root / "registry-candidates.yaml")
 
 
-def app_dirs(run: Path) -> list[Path]:
-    root = Path(run) / APPS
-    return sorted(p for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
+def app_dirs(device: Path) -> list[Path]:
+    """Device-level folders sit beside the apps, so an app's folder is the one holding app.json."""
+    device = Path(device)
+    return sorted(p for p in device.iterdir() if (p / APP).is_file()) if device.is_dir() else []
 
 
-def worthiness(run: Path, mode: str) -> Path:
-    return Path(run) / f"worthiness-{mode}"
+def worthiness(device: Path, mode: str) -> Path:
+    return Path(device) / f"worthiness-{mode}"
 
 
-def load_rows(run: Path) -> list[PrimitiveRow]:
-    return [PrimitiveRow.from_json(r) for r in read_json(Path(run) / ROWS)["rows"]]
+def load_rows(device: Path) -> list[PrimitiveRow]:
+    return [PrimitiveRow.from_json(r) for r in read_json(Path(device) / ROWS)["rows"]]
 
 
-def load_measurements(run: Path) -> Measurements:
-    return Measurements.from_json(read_json(Path(run) / MEASUREMENTS))
+def load_measurements(device: Path) -> Measurements:
+    return Measurements.from_json(read_json(Path(device) / MEASUREMENTS))
 
 
-def load_run_log(run: Path) -> RunLog:
-    return RunLog.from_json(read_json(Path(run) / RUN_LOG))
+def load_run_log(device: Path) -> RunLog:
+    return RunLog.from_json(read_json(Path(device) / RUN_LOG))
 
 
 def built(paths: GroupingPaths) -> dict:

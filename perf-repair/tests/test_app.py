@@ -19,10 +19,12 @@ from perfrepair.data_handler.inbound import RunContext
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
 from perfrepair.source.lexer import Code, literal
+from perfrepair.app.path_id import path_id
+from helpers import with_results
 
 F = Path(__file__).parent / "fixtures"
 APP = F / "app"
-MANIFEST = F / "results" / "manifest.yaml"
+MANIFEST = F / "results" / "test-api36-00000000" / "manifest.yaml"
 
 
 @pytest.fixture
@@ -124,10 +126,11 @@ def test_command_writes_one_unit_per_root(tmp_path, capsys):
         _android(src / rel)
         (src / rel / "src" / "main" / "java" / "A.java").write_text(
             "import javax.crypto.Cipher;\nclass A { void f() { Cipher.getInstance(\"AES\"); } }\n")
-    assert main(["--manifest", str(MANIFEST), "--app", str(src), "--run", str(tmp_path / "run"), "--name", "x"]) == 0
+    assert main(["--app", str(src), "--device-results", str(with_results(tmp_path / "run"))]) == 0
     assert len(capsys.readouterr().out.strip().splitlines()) == 2
-    for unit, rel in (("x.android", "android"), ("x.android_donation", "android_donation")):
-        out = tmp_path / "run" / "apps" / unit
+    for rel in ("android", "android_donation"):
+        unit = f"{path_id(src)}.{rel}"
+        out = tmp_path / "run" / unit
         assert json.loads((out / "app.json").read_text())["projectRoot"] == rel
         assert json.loads((out / "scopes.json").read_text())["app"] == unit
 
@@ -269,19 +272,18 @@ def test_a_site_carries_its_canonical_name_and_key_size(run):
 
 
 def test_command_writes_the_app_folder(tmp_path, capsys):
-    assert main(["--manifest", str(MANIFEST), "--app", str(APP), "--run", str(tmp_path), "--name", "demo"]) == 0
-    out = tmp_path / "apps" / "demo"
+    assert main(["--app", str(APP), "--device-results", str(with_results(tmp_path))]) == 0
+    out = tmp_path / path_id(APP)
     docs = {n: json.loads((out / f"{n}.json").read_text()) for n in ("sites", "app", "scopes")}
+    assert docs["app"]["pathId"] == out.name and docs["app"]["root"] == str(APP.resolve())
     assert len(docs["sites"]["sites"]) == 12 and len(docs["scopes"]["scopes"]) == 11
     assert docs["app"]["projectRoot"] == "." and docs["app"]["minSdk"] == 24 and docs["app"]["registers"][0]["expr"] == "new BundledProvider()"
     assert "1 dropped by import" in capsys.readouterr().out
 
 
-def test_command_refuses_a_gate_failure_and_a_path_name(tmp_path, capsys):
-    assert main(["--manifest", str(MANIFEST), "--app", str(tmp_path), "--run", str(tmp_path), "--name", "x"]) == 2
+def test_command_refuses_a_gate_failure(tmp_path, capsys):
+    assert main(["--app", str(tmp_path), "--device-results", str(with_results(tmp_path))]) == 2
     assert "not_android_project" in capsys.readouterr().err
-    with pytest.raises(SystemExit):
-        main(["--manifest", str(MANIFEST), "--app", str(APP), "--run", str(tmp_path), "--name", "../x"])
 
 
 def test_an_argument_next_to_a_comment_is_still_a_literal(run):

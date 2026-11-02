@@ -32,7 +32,7 @@
 
 ## Keys
 
-- Sections: `aiGateway` and `paths` are shared, `device` is once per device, `apps` is per app; `paths.run` stays until the results layout removes `--run`.
+- Sections: `aiGateway` and `paths` are shared, `device` is once per device, `apps` is per app.
 - Every key is a row in `inputs/table.py`: its chain, check, default and `OnInvalid`. A setting ships only with the code that reads it; `tests/test_settings_rows.py` fails on a row without exactly one reader and on an example key with no row.
 
 | key | values | default | on a bad value | used by |
@@ -42,9 +42,9 @@
 | `aiGateway.claude.model` | a model id | `claude-opus-5-5` | warning | `--model`; `PERFREPAIR_MODEL` |
 | `aiGateway.claude.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | warning | `--effort`; `PERFREPAIR_EFFORT` |
 | `aiGateway.claude.binary` | a command | `claude` | warning | the CLI of `auth: subscription` |
-| `paths.run` | a folder | none | warning | `--run` of every `grouping` step, `ai`, `guide`: one run directory for the whole chain, and a rebuild beside later stages fails their `built` digests instead of passing silently |
-| `paths.results` | a folder | none | warning | `--results` of `guide` |
+| `paths.results` | the results root | none | warning | every command's device folder when `--device-results` is unset: `<root>/<device.id>`, else its only device; a rebuild beside later stages fails their `built` digests instead of passing silently |
 | `paths.prompts` | a folder | packaged prompts | warning | `--prompts` |
+| `device.id` | a folder under `paths.results` | its only device | error | the same; a fallback would read another device's numbers |
 | `device.screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | error | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
 | `device.screening.aiReview` | `true`, `false` | `false` | warning | `grouping build`: the model review of unknown items |
 | `device.grouping.turns`, `device.grouping.sessions` | positive integers | 3, 2 | warning | `grouping assign` |
@@ -92,6 +92,7 @@
 | `invalid_yaml: <file>` | the file is not YAML, so no secret check is possible |
 | `missing_file: <file> (<origin>)` | the flag or `PERFREPAIR_CONFIG` names no file |
 | `missing_file: <input>: <value> (<source>)` | a set `device.screening.catalog` does not load |
+| `several_device_results`, `device_not_in_results`, `no_device_results` | `paths.results` does not name one device: [artifacts.md](artifacts.md#folders) |
 
 - A key no row knows is one warning, `unknown_key: <key>, known [...] (<file>)`, a key from before the sections (`grouping`, `guide`, `ai`, `screening`) included; a block's key is checked at spawn.
 - `secret_key`, `invalid_yaml` and a named file that is missing exit 2 through the command's argument parser, the first two ending with ` (<file>)`.

@@ -1,12 +1,12 @@
-"""python3 -m perfrepair.validation <run dir> — validate every artifact; exit 1 on any problem."""
+"""python3 -m perfrepair.validation --device-results <dir> — validate every artifact; exit 1 on any problem."""
 from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from ..check.run import validate_run
 from ..config.args import add_config_arg, load_settings
+from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..log import log_to_stderr
 from ..screen.catalog import screening_catalog
@@ -15,16 +15,18 @@ from ..screen.catalog import screening_catalog
 def main(argv: list[str] | None = None) -> int:
     log_to_stderr()
     parser = argparse.ArgumentParser(prog="python3 -m perfrepair.validation", description=__doc__.strip())
-    parser.add_argument("run", type=Path, help="run directory")
+    add_device_results_arg(parser)
     add_config_arg(parser)
     args = parser.parse_args(argv)
-    if not args.run.is_dir():
-        parser.error(f"not a directory: {args.run}")
+    settings = load_settings(parser, args)
     try:
-        catalog = screening_catalog(load_settings(parser, args))
+        fill_device_results(parser, args, settings)
+        catalog = screening_catalog(settings)
     except ValueError as e:
         parser.error(str(e))
-    return reported(lambda: _print(validate_run(args.run, catalog)))
+    if not args.device_results.is_dir():
+        parser.error(f"not a directory: {args.device_results}")
+    return reported(lambda: _print(validate_run(args.device_results, catalog)))
 
 
 def _print(report: dict[str, list[str]]) -> int:

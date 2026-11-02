@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import SYSTEM, task
+from helpers import with_results, SYSTEM, task
 
 from perfrepair.ai.__main__ import main as ai
 from perfrepair.ai.runtime.agent import AgentFailed, ScriptedConversations
@@ -25,7 +25,7 @@ from perfrepair.grouping.__main__ import main as grouping
 from perfrepair.guide.command import main as guide
 
 DRY = ScriptedConversations(lambda *_: {})
-F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
 
 
@@ -207,17 +207,17 @@ def _help():
 @pytest.fixture
 def run(tmp_path):
     run = tmp_path / "run"
-    assert inbound(["--manifest", str(F), "-o", str(run)]) == 0
-    assert grouping(["build", "--manifest", str(F), "--run", str(run)]) == 0
+    assert inbound(["--device-results", str(with_results(run))]) == 0
+    assert grouping(["build", "--device-results", str(with_results(run))]) == 0
     return run
 
 
 @pytest.mark.parametrize("command, argv", [
-    (grouping, ["assign", "--run", "{run}"]),
-    (grouping, ["report", "--run", "{run}", "--supervisor"]),
-    (ai, ["worthiness", "--run", "{run}", "--mode", "latency"]),
-    (ai, ["replace", "--run", "{run}", "--app", "x"]),
-    (guide, ["--app", "{run}", "--name", "x", "--run", "{run}", "--results", "{run}"]),
+    (grouping, ["assign", "--device-results", "{run}"]),
+    (grouping, ["report", "--device-results", "{run}", "--supervisor"]),
+    (ai, ["worthiness", "--device-results", "{run}", "--mode", "latency"]),
+    (ai, ["replace", "--device-results", "{run}", "--app", "x"]),
+    (guide, ["--app", "{run}", "--device-results", "{run}"]),
 ])
 def test_every_model_command_refuses_a_missing_secret_before_any_work(run, tmp_path, capsys, command, argv):
     before = sorted(p for p in run.rglob("*"))
@@ -232,9 +232,9 @@ def test_every_model_command_refuses_a_missing_secret_before_any_work(run, tmp_p
 
 def test_build_with_ai_review_refuses_before_any_work(tmp_path, capsys):
     run, config = tmp_path / "run", tmp_path / "c.yaml"
-    assert inbound(["--manifest", str(F), "-o", str(run)]) == 0
+    assert inbound(["--device-results", str(with_results(run))]) == 0
     config.write_text("device: {screening: {aiReview: true}}\naiGateway: {use: nope}\n")
     capsys.readouterr()
-    assert grouping(["build", "--manifest", str(F), "--run", str(run), "--perfrepair-config", str(config)]) == 1
+    assert grouping(["build", "--device-results", str(with_results(run)), "--perfrepair-config", str(config)]) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith("error unknown_gateway: nope ")
     assert not (run / "grouping").exists()

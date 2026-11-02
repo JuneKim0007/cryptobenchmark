@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
-from helpers import LIBRARY, QUIET
+from helpers import with_results, LIBRARY, QUIET
 
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.build.stage import build_stage
@@ -19,7 +19,7 @@ from perfrepair.validation import ValidationFailed
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
 
-F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 
 
 def same_name(task, *_):
@@ -41,7 +41,7 @@ def first_improving_pair(task, *_):
 
 @pytest.fixture
 def run(tmp_path):
-    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     build_stage(F, tmp_path, screening_catalog(None))
     paths = GroupingPaths(tmp_path)
     decide(GroupingKind(paths), charter(LIBRARY), ScriptedConversations(same_name), paths.root, **QUIET)
@@ -62,9 +62,9 @@ def test_all_stages_validate(run):
 
 def test_changing_the_effort_keeps_the_assign_outbox(run):
     root = GroupingPaths(run).root
-    assert grouping_main(["assign", "--run", str(run), "--agent", "dry-run", "--effort", "low"]) == 0
+    assert grouping_main(["assign", "--device-results", str(run), "--agent", "dry-run", "--effort", "low"]) == 0
     before = active_fingerprint(root)
-    assert grouping_main(["assign", "--run", str(run), "--agent", "dry-run", "--effort", "max"]) == 0
+    assert grouping_main(["assign", "--device-results", str(run), "--agent", "dry-run", "--effort", "max"]) == 0
     assert active_fingerprint(root) == before
 
 
@@ -81,4 +81,4 @@ def test_a_hand_edited_grouping_is_caught(run):
 def test_a_run_without_rows_is_a_reported_problem(tmp_path):
     from perfrepair.validation.__main__ import main
     assert validate_run(tmp_path, screening_catalog(None)) == {"rows.json": [f"missing: {tmp_path / 'rows.json'}"]}
-    assert main([str(tmp_path)]) == 1
+    assert main(["--device-results", str(tmp_path)]) == 1

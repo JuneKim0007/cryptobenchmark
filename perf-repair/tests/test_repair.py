@@ -31,9 +31,10 @@ def test_a_test_set_refuses_another_app_or_nothing_to_measure():
 def test_the_test_set_command_reads_the_app_dossiers(tmp_path):
     paths = AppPaths(tmp_path, APP)
     paths.root.mkdir(parents=True)
+    write_json(paths.facts, {"root": str(tmp_path.resolve())})
     write_json(paths.dossiers, doc(dossier(options=(Option("R1", f"TypeA|{ALG}|P2", {}, "pass"),))))
     out = tmp_path / "set.yaml"
-    assert main(["test-set", "--run", str(tmp_path), "--app", APP, "-o", str(out)]) == 0
+    assert main(["test-set", "--device-results", str(tmp_path), "--app", str(tmp_path), "-o", str(out)]) == 0
     assert [i["provider"] for i in yaml.safe_load(out.read_text())["include"]] == ["P1", "P2"]
 
 

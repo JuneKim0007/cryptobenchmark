@@ -11,9 +11,12 @@ from perfrepair.source.lexer import Code
 from perfrepair.validation.app import validate_app_facts, validate_scopes
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
+from helpers import with_results
+from perfrepair.app.path_id import path_id
 
 F = Path(__file__).parent / "fixtures"
-MANIFEST = F / "results" / "manifest.yaml"
+MANIFEST = F / "results" / "test-api36-00000000" / "manifest.yaml"
+DEMO = path_id(F / "app")
 
 
 def _fn(text: str, language, needle: str = "getInstance"):
@@ -28,8 +31,8 @@ def _span(code, fn):
 
 @pytest.fixture
 def scopes(tmp_path):
-    assert main(["--manifest", str(MANIFEST), "--app", str(F / "app"), "--run", str(tmp_path), "--name", "demo"]) == 0
-    return tmp_path, json.loads((tmp_path / "apps" / "demo" / "scopes.json").read_text())
+    assert main(["--app", str(F / "app"), "--device-results", str(with_results(tmp_path))]) == 0
+    return tmp_path, json.loads((tmp_path / DEMO / "scopes.json").read_text())
 
 
 def test_java_method_span_includes_annotations_and_skips_control_blocks():
@@ -106,9 +109,9 @@ def test_fixture_scopes(scopes):
 def test_scopes_are_byte_identical_across_runs(scopes, tmp_path_factory):
     run, _ = scopes
     again = tmp_path_factory.mktemp("again")
-    assert main(["--manifest", str(MANIFEST), "--app", str(F / "app"), "--run", str(again), "--name", "demo"]) == 0
+    assert main(["--app", str(F / "app"), "--device-results", str(with_results(again))]) == 0
     for name in ("sites.json", "app.json", "scopes.json"):
-        assert (run / "apps/demo" / name).read_bytes() == (again / "apps/demo" / name).read_bytes()
+        assert (run / DEMO / name).read_bytes() == (again / DEMO / name).read_bytes()
 
 
 def test_validators_catch_a_tampered_scope_and_app(scopes):
@@ -119,16 +122,16 @@ def test_validators_catch_a_tampered_scope_and_app(scopes):
     problems = validate_scopes(doc)
     assert any("id is not scope_id" in p for p in problems) and any("outside" in p for p in problems)
     assert any("sinks" in p for p in problems)
-    assert validate_app_facts({"schemaVersion": 1, "app": "a", "root": "r", "projectRoot": ".", "bundled": [{"artifact": 1}],
+    assert validate_app_facts({"schemaVersion": 1, "app": "a", "pathId": "a", "root": "r", "projectRoot": ".", "bundled": [{"artifact": 1}],
                                "registers": [], "minSdk": "24", "targetSdk": None}) == [
         "app.json: minSdk is not int or null", "bundled[0]: artifact is not str"]
-    assert validate_app_facts({"schemaVersion": 1, "app": "a", "root": "r", "bundled": [], "registers": []}) == [
+    assert validate_app_facts({"schemaVersion": 1, "app": "a", "pathId": "a", "root": "r", "bundled": [], "registers": []}) == [
         "app.json: projectRoot is not str"]
 
 
 def test_validate_run_reads_app_folders(scopes):
     from perfrepair.data_handler.inbound.__main__ import main as inbound
     run, _ = scopes
-    assert inbound(["--manifest", str(MANIFEST), "-o", str(run)]) == 0
+    assert inbound(["--device-results", str(with_results(run))]) == 0
     result = validate_run(run, screening_catalog(None))
-    assert result["apps/demo/scopes.json"] == [] and result["apps/demo/app.json"] == []
+    assert result[f"{DEMO}/scopes.json"] == [] and result[f"{DEMO}/app.json"] == []

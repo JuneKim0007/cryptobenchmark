@@ -1,6 +1,7 @@
 schemaVersion: 1
 mode: device
 config: config/global.yaml
+deviceId: test-api36-00000000
 runtime: {model: test, cpuLocked: 'false', thermalThrottleSleepSeconds: '0'}
 providers:
 - {name: Fast, precedence: 1, serviceCount: 2}

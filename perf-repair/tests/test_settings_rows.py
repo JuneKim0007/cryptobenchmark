@@ -20,7 +20,7 @@ from perfrepair.result.modes import MODES
 
 SRC = Path(table.__file__).parents[1]
 EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
-ERROR_ROWS = {"aiGateway.use", "aiGateway.<gateway>.auth", "device.screening.catalog"}
+ERROR_ROWS = {"aiGateway.use", "aiGateway.<gateway>.auth", "device.screening.catalog", "device.id"}
 
 
 def row_names():
@@ -64,7 +64,7 @@ def test_every_row_has_exactly_one_reader(name):
 
 
 def test_the_reader_check_sees_a_parsed_but_unused_setting():
-    assert readers("NOT_A_ROW") == [] and row_of("device.id") is None
+    assert readers("NOT_A_ROW") == [] and row_of("device.unread") is None
 
 
 def test_every_example_key_is_a_row_some_command_reads():
@@ -151,7 +151,6 @@ def write(tmp_path, text):
     (table.APPS_LIMIT, "apps: {limit: x}\n", None),
     (table.APPS_MEASURE, "apps: {measure: 'yes'}\n", False),
     (table.SCREENING_AI_REVIEW, "device: {screening: {aiReview: 'yes'}}\n", False),
-    (table.PATHS_RUN, "paths: {run: 3}\n", None),
     (table.PATHS_RESULTS, "paths: {results: 3}\n", None),
     (table.PATHS_PROMPTS, "paths: {prompts: ''}\n", None),
     (table.BENCHMARK_CONFIG, "device: {benchmark: {config: []}}\n", None),
@@ -165,24 +164,24 @@ def test_a_bad_file_value_warns_once_and_reads_the_default(tmp_path, caplog, key
 
 def test_a_bad_mode_in_the_file_warns_and_a_bad_flag_is_argparse(tmp_path, capsys):
     config = write(tmp_path, "apps: {mode: fast}\n")
-    code = guide(["--app", str(tmp_path), "--name", "x", "--run", str(tmp_path), "--results", str(tmp_path), "--agent", "dry-run",
+    code = guide(["--app", str(tmp_path), "--device-results", str(tmp_path), "--agent", "dry-run",
                   "--perfrepair-config", str(config)])
     err = capsys.readouterr().err
     assert code == 1 and "invalid: apps.mode fast, one of ['battery', 'latency']; using the default latency" in err
     with pytest.raises(SystemExit) as e:
-        guide(["--app", "a", "--name", "x", "--mode", "fast"])
+        guide(["--app", "a", "--mode", "fast"])
     assert e.value.code == 2
 
 
 def test_a_catalog_that_is_no_path_stops_the_step(tmp_path, capsys):
     config = write(tmp_path, "device: {screening: {catalog: 3}}\n")
-    assert grouping(["build", "--manifest", "m", "--run", str(tmp_path), "--perfrepair-config", str(config)]) == 1
+    assert grouping(["build", "--device-results", str(tmp_path), "--perfrepair-config", str(config)]) == 1
     assert capsys.readouterr().err.splitlines()[-1] == f"error invalid: device.screening.catalog 3, a path (file {config})"
 
 
 def test_a_malformed_setting_warns_and_the_command_proceeds(tmp_path, capsys):
-    config = write(tmp_path, "paths: {run: r}\ndevice: {grouping: {turns: abc}}\n")
-    assert grouping(["assign", "--agent", "dry-run", "--perfrepair-config", str(config)]) == 1
+    config = write(tmp_path, "paths: {results: r}\ndevice: {grouping: {turns: abc}}\n")
+    assert grouping(["assign", "--device-results", str(tmp_path), "--agent", "dry-run", "--perfrepair-config", str(config)]) == 1
     err = capsys.readouterr().err
     assert f"invalid: device.grouping.turns abc, a positive integer; using the default 3 (file {config})" in err
     assert "error " in err.splitlines()[-1] and "invalid" not in err.splitlines()[-1]

@@ -5,14 +5,14 @@ import yaml
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config")
-parser.add_argument("--results", required=True)
 parser.add_argument("--device", action="store_true")
 parser.add_argument("--harness", required=True)
 options = parser.parse_args()
 if os.environ.get("FAKE_EXIT"):
     print("no_scope_compiled: every scope is not_compilable", file=sys.stderr)
     sys.exit(int(os.environ["FAKE_EXIT"]))
-scoped = pathlib.Path(options.results) / "scoped"
+measured = pathlib.Path(options.harness).resolve().parent / "measured"
+scoped = measured / "scoped"
 scoped.mkdir(parents=True, exist_ok=True)
 harness = yaml.safe_load(pathlib.Path(options.harness).read_text())
 records, cases = [], []
@@ -28,4 +28,5 @@ for s in harness["scopes"]:
                                   "allocationCount": {"iterations": 1, "runs": [4, 4, 4]}}})
 (scoped / "scoped-plan.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "app": harness["app"], "scopes": records}))
 (scoped / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": cases}))
-(pathlib.Path(options.results) / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")
+(measured / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")
+print(f"wrote:     {measured / 'manifest.yaml'}")

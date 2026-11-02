@@ -11,13 +11,13 @@
 
 ## Workflow
 - add a validator: `validation/<artifact>.py` → `check/run.py` → export in `validation/__init__.py` → row in `docs/artifacts.md`
-- check a run: `python3 -m perfrepair.validation <run dir>`
+- check a device folder: `python3 -m perfrepair.validation --device-results <device>`
 
 ## File structure
 
 ```
-src/perfrepair/check/run.py : stage replay: validate every artifact present in a run directory (a malformed rows, measurements or run log file is its problem), rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
-src/perfrepair/validation/__main__.py : command: validate a run directory by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
+src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder (a malformed rows, measurements or run log file is its problem), rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
+src/perfrepair/validation/__main__.py : command: validate a device folder by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
 src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
 src/perfrepair/validation/classified.py : classify/classified.json: answers only for batched ids, ids in one batch, allowed values, a reason each

@@ -35,7 +35,9 @@ class BenchmarkManifest:
             raise ValueError(f"manifest schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
         if doc.get("mode") not in MODES:
             raise ValueError(f"manifest mode {doc.get('mode')!r} is not one of {MODES}")
+        if not doc.get("deviceId"):
+            raise ValueError("manifest_without_device_id; rerun the benchmark")
         return cls(doc["mode"], doc.get("config", ""), doc.get("runtime") or {},
                    [ProviderEntry(p["name"], int(p["precedence"]), int(p.get("serviceCount", 0)))
                     for p in doc.get("providers") or []],
-                   doc.get("files") or {}, doc.get("counts") or {}, doc.get("deviceId", ""))
+                   doc.get("files") or {}, doc.get("counts") or {}, doc["deviceId"])

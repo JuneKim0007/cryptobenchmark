@@ -6,34 +6,35 @@ From an app's source to a measured before/after of each call site the model chos
 
 | step | who | reads | writes |
 |---|---|---|---|
-| detect | static | app root, the run's probe | `apps/<app>/sites.json` |
-| scope | static | sites, app source | `apps/<app>/scopes.json` (`Scope` per site: function span, sinks, key source) |
-| dossier | static | scopes, app.json `targetSdk`, `grouping/groups.json` (with its `interop` section), `grouping/screen.json`, `measurements.json` | `apps/<app>/dossiers.json` (`Dossier`: function source, current item, `Option`s with interop status and `Estimate`s) |
-| replace | model | one `Dossier` per conversation | `apps/<app>/replace/` outbox, `replacements.json` (`Replacement`) |
-| edit | static | replacements, app source | `apps/<app>/patched/` (a copy; the app is never edited), `edits.json` |
-| harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `apps/<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
-| measure | device | `harness.yaml` | `apps/<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
-| report | static | every file above | `apps/<app>/report.json`, `report.md`; `apps/summary.json`, `summary.md` across apps |
+| detect | static | app root, the run's probe | `<app>/sites.json` |
+| scope | static | sites, app source | `<app>/scopes.json` (`Scope` per site: function span, sinks, key source) |
+| dossier | static | scopes, app.json `targetSdk`, `grouping/groups.json` (with its `interop` section), `grouping/screen.json`, `measurements.json` | `<app>/dossiers.json` (`Dossier`: function source, current item, `Option`s with interop status and `Estimate`s) |
+| replace | model | one `Dossier` per conversation | `<app>/replace/` outbox, `replacements.json` (`Replacement`) |
+| edit | static | replacements, app source | `<app>/patched/` (a copy; the app is never edited), `edits.json` |
+| harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
+| measure | device | `harness.yaml` | `<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
+| report | static | every file above | `<app>/report.json`, `report.md`; `summary.json`, `summary.md` across apps |
 
 ## Guide
 
 ```
-python3 -m perfrepair guide --app <root> --name <app> --run <run> --results <benchmark results> \
+python3 -m perfrepair guide --app <root> --device-results <device> \
     [--mode latency|battery] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--device [--config <global.yaml>]]
 python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
 ```
 
 - `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
 - `--mode`, `--limit` and `--device` default to `apps.mode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
-- `--run` and `--results` are required unless `paths.run` and `paths.results` are set (`docs/settings.md`); keep runs under `~/capstone/runs/<date>-<name>`. It must already hold `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): run-level stages, made once per run, never per app.
-- Steps in order: prerequisites, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml> --results <run>/apps/<app>/measured`, an attached phone), then report. Without `--device` the guide ends at the harness and prints the device command.
+- `--device-results` is required unless `paths.results` is set (`docs/settings.md`); keep results under `~/capstone/runs/<date>-<name>`. The folder must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): device-level stages, made once per device, never per app.
+- Steps in order: prerequisites, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml>`, an attached phone; it writes `measured/` beside the harness), then report. Without `--device` the guide ends at the harness and prints the device command.
 - Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>` and the guide exits 1.
 
 | stop code | step | when |
 |---|---|---|
-| `missing_results` | prerequisites | no `manifest.yaml` under `--results` |
-| `missing_run_stage` | prerequisites | `rows.json`, `measurements.json` or `grouping/groups.json` absent; the line names the commands |
+| `missing_results` | prerequisites | no `manifest.yaml` in the device folder |
+| `missing_device_stage` | prerequisites | `rows.json`, `measurements.json` or `grouping/groups.json` absent; the line names the commands |
 | `app_failed` | app | `perfrepair.app` exits non-zero |
+| `several_project_roots` | app | `--app` holds several project roots; pass one of them |
 | `no_options` | dossier | no scope has an option; the line lists the `noOptions` reasons |
 | `no_replacement` | replace | every scope is kept |
 | `edit_invalid`, `no_edit_applied` | edit | edits.json fails its validator; every edit is rejected, with the reasons |
@@ -42,7 +43,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 ## Report
 
-`python3 -m perfrepair.report app --run <run> --app <app> [--mode latency|battery]`, then `python3 -m perfrepair.report summary --run <run>`. A step whose file is absent is `not_run`; `sites.json` and `scopes.json` are required.
+`python3 -m perfrepair.report app --device-results <device> --app <src> [--mode latency|battery]`, then `python3 -m perfrepair.report summary --device-results <device>`. A step whose file is absent is `not_run`; `sites.json` and `scopes.json` are required.
 
 | report.json row field | value |
 |---|---|
@@ -62,7 +63,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 ## Contracts
 
-- The app gate finds the outermost Android project roots under `--app`, down to 4 levels: a folder with `settings.gradle(.kts)`, or with `build.gradle(.kts)` beside an Android source set (at `--app` itself, any build file); build, .gradle, .git, .idea and node_modules are skipped and symlinks are not followed. One root keeps `--name`; several become units `<name>.<root dirs joined by '.'>`. `app.json` `projectRoot` is the root relative to `--app`, and site files are relative to it, so later `--source` is `<app>/<projectRoot>`.
+- The app gate finds the outermost Android project roots under `--app`, down to 4 levels: a folder with `settings.gradle(.kts)`, or with `build.gradle(.kts)` beside an Android source set (at `--app` itself, any build file); build, .gradle, .git, .idea and node_modules are skipped and symlinks are not followed. One root is `<path id>`; several become units `<path id>.<root dirs joined by '.'>`. `app.json` `projectRoot` is the root relative to `--app`, and site files are relative to it, so a later `--app`, that project root, reads them.
 - A scope's `id` is `scope_id(app, file, function, line, call)`, so rerunning detection and scoping on the same source gives the same ids, and every later step refers to a scope only by id.
 - An `Option` is a member of the site's group that is available in the app's process, from the platform or bundled by the app. Its `pins` are the parameters that make the swap like-for-like (IV length, tag length, OAEP digests); `null` means unknown (no configuration measured on both sides), and the gate refuses a `replace` to it. A benchmark row without `parameters` is the coded error `missing_parameters`.
 - An `Option`'s `interop` is `pair_status(groups, current, item)`: `pass`, `not_checkable`, `not_planned` or `not_run`; required, no default. A pair whose interop check failed is never an option; a scope that loses every option that way is in `noOptions` with `interop_failed`. A groups.json without an `interop` section is refused. The validator refuses a status outside that set, `fail`, or one that differs from groups.json.

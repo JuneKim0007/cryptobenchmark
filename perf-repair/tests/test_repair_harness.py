@@ -11,8 +11,9 @@ from perfrepair.run_dir import AppPaths
 from perfrepair.source import language
 from perfrepair.validation.repair import validate_edits, validate_harness
 from repair_fixture import APP, JAVA, KOTLIN, ROOT, digests, pins, provider, replace, scope
+from helpers import with_results
 
-MANIFEST = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+MANIFEST = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 CURRENT, FAST = "Cipher|AES/GCM/NoPadding|Slow", "Cipher|AES/GCM/NoPadding|Fast"
 
 LITERAL = scope(JAVA, "byte[] literal(byte[] in)", 'Cipher.getInstance("AES/GCM/NoPadding", "Slow")', inputSize=1024, keySize=256)
@@ -25,6 +26,8 @@ SCOPES = [LITERAL, NESTED, TWICE, TEMPLATE]
 def setup_run(tmp_path):
     paths = AppPaths(tmp_path, APP)
     paths.root.mkdir(parents=True)
+    with_results(tmp_path)
+    write_json(paths.facts, {"root": str(ROOT.resolve())})
     write_json(paths.scopes, {"schemaVersion": 1, "app": APP, "scopes": [s.to_json() for s in SCOPES]})
     write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
         replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
@@ -35,8 +38,8 @@ def setup_run(tmp_path):
 
 def commands(tmp_path):
     paths = setup_run(tmp_path)
-    assert main(["edit", "--run", str(tmp_path), "--app", APP, "--source", str(ROOT)]) == 0
-    assert main(["harness", "--run", str(tmp_path), "--app", APP, "--manifest", str(MANIFEST)]) == 0
+    assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
+    assert main(["harness", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
     return paths
 
 
@@ -99,7 +102,7 @@ def test_an_unknown_edit_kind_is_rejected(tmp_path):
     paths = setup_run(tmp_path)
     write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
         replace(LITERAL, Edit("rename_class")).to_json()]})
-    assert main(["edit", "--run", str(tmp_path), "--app", APP, "--source", str(ROOT)]) == 0
+    assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
     assert read_json(paths.edits)["edits"][0]["reason"] == "unsupported_kind"
 
 

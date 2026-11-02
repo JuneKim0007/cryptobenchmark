@@ -45,9 +45,9 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
         out |= validate_app_dir(directory)
         if (directory / rd.REPORT).is_file():
             reports.append(read_json(directory / rd.REPORT))
-            out[f"{rd.APPS}/{directory.name}/{rd.REPORT}"] = validate_report(reports[-1], directory.name)
-    if (run / rd.APPS / rd.SUMMARY).is_file():
-        out[f"{rd.APPS}/{rd.SUMMARY}"] = validate_summary(read_json(run / rd.APPS / rd.SUMMARY), reports)
+            out[f"{directory.name}/{rd.REPORT}"] = validate_report(reports[-1], directory.name)
+    if (run / rd.SUMMARY).is_file():
+        out[rd.SUMMARY] = validate_summary(read_json(run / rd.SUMMARY), reports)
     grouping = GroupingPaths(run)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
@@ -99,7 +99,7 @@ def _parsed(load, run: Path):
 
 def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalog: Catalog) -> dict[str, list[str]]:
     out, handler = {}, catalog.handler()
-    for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
+    for directory in sorted(run.glob(f"*/{rd.DOSSIERS}")):
         scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
         verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))
         out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups, verdicts)
