@@ -15,7 +15,8 @@
 - static first: an item code can settle (triage) never reaches the model.
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
 - journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
-- settings: a key in `perfrepair.yaml` maps to an existing flag or constructor argument; a role default lives in `ROLE_DEFAULTS`, never in a command.
+- settings: a key in `perfrepair.yaml` is a row in `inputs/table.py` with exactly one reader, and ships only with the code that reads it; a role default lives in its `RoleRow`, never in a command.
+- settings: `OnInvalid.ERROR` only where a fallback is unsafe; a bad flag always errors.
 - settings: secrets stay in the environment or `.env`; the child of `auth: subscription` never receives `ANTHROPIC_API_KEY`.
 - gateway: provider differences (schema stripping, child environment, CLI flags, effort levels) stay inside its modules under `ai/runtime/gateway/`; the engine and `Conversations` name no provider.
 - gateway: a setting ships with the code that reads it; no block or stub for a provider without a gateway.
@@ -57,8 +58,8 @@ src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -
 src/perfrepair/ai/runtime/gateway/contract.py : Gateway: what one provider declares: name, settings class, spawn, secret, choices
 src/perfrepair/ai/runtime/gateway/dry_run.py : the dry-run gateway: no keys, answers with the role's stand-in
 src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default gateway; `unknown_gateway`
-src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → checked block and resolved values → secret check → Conversations with their AgentIdentity
-src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
+src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity
+src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; the one reader of `paths.prompts`; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
 src/perfrepair/ai/suggest/site_replace/command.py : stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
 src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep
@@ -66,10 +67,10 @@ src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, c
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required; option alias (or empty) and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
 src/perfrepair/config/__init__.py : docstring only
-src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
+src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled from their rows, required ones checked; fill_run, the one reader of `paths.run`; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
-src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role and gateway; each value's source, logged once (INFO from a file or the environment, else DEBUG)
-src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; raw aiGateway blocks; role sections and role code defaults
+src/perfrepair/config/load.py : settings file lookup; read a row, or a role's key, by its chain; each value's source, logged once (INFO from a file or the environment, else DEBUG)
+src/perfrepair/config/settings.py : reads perfrepair.yaml: secret_key anywhere, unknown_key warnings from the rows' keys, a section's shape; raw values and aiGateway blocks
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules

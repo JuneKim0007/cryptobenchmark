@@ -11,7 +11,7 @@
 - names: every algorithm-name comparison goes through `catalog/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.
 - names: a spelling goes in `catalog/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
 - names: a probe alias the catalog or another provider contradicts is `name_conflict` where it is used, never a pick.
-- inputs: an input with a fallback is chosen by `inputs/resolve.py` from its `inputs/table.py` row; library code logs, only a `__main__` attaches a handler.
+- inputs: every setting is chosen by `inputs/resolve.py` from its `inputs/table.py` row; library code logs, only a `__main__` attaches a handler.
 - screening: a row in `catalog/screening.yaml` cites a fetched source or says `source: unsourced`; its key is the canonical name.
 
 ## Workflow
@@ -54,8 +54,9 @@ src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estim
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write; several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
-src/perfrepair/inputs/resolve.py : resolve(): one input from its chain of candidates; Need, Resolved, InputError (`missing_file`, `missing_input`); a found default and a skipped optional input logged
-src/perfrepair/inputs/table.py : the input policies, one row each (name, Need, setting, packaged default); today only `screening.catalog`
+src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
+src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
+src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); known_tree
 src/perfrepair/log.py : log_to_stderr: the one stderr handler a command attaches at start
 src/perfrepair/run_dir.py : run directory: artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of apps/<name>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 ```

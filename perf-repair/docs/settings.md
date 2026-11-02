@@ -32,70 +32,85 @@
 
 ## Keys
 
-| key | values | default | used by |
-|---|---|---|---|
-| `aiGateway.use` | a registered gateway: `claude`, `dry-run` | `claude` | `--agent` of every model-calling command; `PERFREPAIR_AGENT` |
-| `aiGateway.claude.auth` | `subscription` (the logged-in CLI), `api` (`ANTHROPIC_API_KEY`) | `subscription` | `--auth`; `PERFREPAIR_AUTH` |
-| `aiGateway.claude.model` | a model id | `claude-opus-5-5` | `--model`; `PERFREPAIR_MODEL` |
-| `aiGateway.claude.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | `--effort`; `PERFREPAIR_EFFORT` |
-| `aiGateway.claude.binary` | a command | `claude` | the CLI of `auth: subscription` |
-| `paths.run` | a folder | none | `--run` of every `grouping` step, `ai`, `guide`: one run directory for the whole chain, and a rebuild beside later stages fails their `built` digests instead of passing silently |
-| `paths.results` | a folder | none | `--results` of `guide` |
-| `paths.prompts` | a folder | packaged prompts | `--prompts` |
-| `grouping.turns`, `grouping.sessions` | positive integers | 3, 2 | `grouping assign` |
-| `grouping.limit` | a positive integer | all items | `grouping assign --limit` |
-| `guide.mode` | `latency`, `battery` | `latency` | `guide --mode` |
-| `guide.limit` | a positive integer | all scopes | `guide --limit` |
-| `guide.device` | `true`, `false` | `false` | `guide --device` |
-| `guide.config` | a `global.yaml` | `pipeline.py`'s lookup | `guide --config` |
-| `screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
-| `screening.aiReview` | `true`, `false` | `false` | `grouping build`: the model review of unknown items |
+- Sections: `aiGateway` and `paths` are shared, `device` is once per device, `apps` is per app; `paths.run` stays until the results layout removes `--run`.
+- Every key is a row in `inputs/table.py`: its chain, check, default and `OnInvalid`. A setting ships only with the code that reads it; `tests/test_settings_rows.py` fails on a row without exactly one reader and on an example key with no row.
+
+| key | values | default | on a bad value | used by |
+|---|---|---|---|---|
+| `aiGateway.use` | a registered gateway: `claude`, `dry-run` | `claude` | error | `--agent` of every model-calling command; `PERFREPAIR_AGENT` |
+| `aiGateway.claude.auth` | `subscription` (the logged-in CLI), `api` (`ANTHROPIC_API_KEY`) | `subscription` | error | `--auth`; `PERFREPAIR_AUTH` |
+| `aiGateway.claude.model` | a model id | `claude-opus-5-5` | warning | `--model`; `PERFREPAIR_MODEL` |
+| `aiGateway.claude.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | warning | `--effort`; `PERFREPAIR_EFFORT` |
+| `aiGateway.claude.binary` | a command | `claude` | warning | the CLI of `auth: subscription` |
+| `paths.run` | a folder | none | warning | `--run` of every `grouping` step, `ai`, `guide`: one run directory for the whole chain, and a rebuild beside later stages fails their `built` digests instead of passing silently |
+| `paths.results` | a folder | none | warning | `--results` of `guide` |
+| `paths.prompts` | a folder | packaged prompts | warning | `--prompts` |
+| `device.screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | error | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
+| `device.screening.aiReview` | `true`, `false` | `false` | warning | `grouping build`: the model review of unknown items |
+| `device.grouping.turns`, `device.grouping.sessions` | positive integers | 3, 2 | warning | `grouping assign` |
+| `device.grouping.limit` | a positive integer | all items | warning | `grouping assign --limit` |
+| `device.benchmark.config` | a `global.yaml` | `pipeline.py`'s lookup | warning | `guide --config` |
+| `apps.mode` | `latency`, `battery` | `latency` | warning | `guide --mode` |
+| `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
+| `apps.measure` | `true`, `false` | `false` | warning | `guide --device` |
 
 | role | file section | role default |
 |---|---|---|
-| `grouping assign` | `grouping.assign` | effort `low` |
-| `grouping report --supervisor` | `grouping.supervisor` | none |
-| `guide` | `guide.agent` | none |
-| `ai worthiness` | `ai.worthiness` | none |
-| `ai replace` | `ai.replace` | none |
-| `grouping build` classify (with `screening.aiReview`) | `screening.classify` | none |
+| `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none |
+| `grouping assign` | `device.grouping.assign` | effort `low` |
+| `grouping report --supervisor` | `device.grouping.supervisor` | none |
+| `ai worthiness` | `device.worthiness` | none |
+| `guide` | `apps.agent` | none |
+| `ai replace` | `apps.replace` | none |
 
-- A role section takes the keys `gateway`, `model`, `effort`.
-- `auth` and `binary` belong to the gateway's block; a role section refuses them.
+- A role section takes the keys `gateway`, `model`, `effort`. Its `gateway` is an error when bad; `model` and `effort` warn.
+- `auth` and `binary` belong to the gateway's block; in a role section they are unknown keys, warned about and never read.
 - The `dry-run` gateway has no keys and ignores `--auth`, `--model`, `--effort`; each role answers with its own stand-in.
+
+## Bad values
+
+| value comes from | row policy | result |
+|---|---|---|
+| a CLI flag | any | error: the user typed it now; `--turns`, `--mode`, `--agent` at argparse (exit 2), `--effort`, `--auth`, `--model` at spawn (exit 1) |
+| the file, the environment or `.env` | `OnInvalid.USE_DEFAULT` | one warning, then the default; the command proceeds |
+| the file, the environment or `.env` | `OnInvalid.ERROR` | error: a fallback is unsafe, it could allow broken algorithms or reach the wrong provider or account |
+
+- The warning: `invalid: <key> <value>, <expected>; using the default <default> (<source>)`, or `; ignored (<source>)` when the row has no default.
+- The default is the row's: the role's code default, then the general one; lower layers are skipped, so a bad role `effort` never picks up a dearer `PERFREPAIR_EFFORT`.
+- One exception: a bad value in a gateway's block counts as unset at that layer, so a valid `.env` value below it still applies.
+- A check runs when a command reads the row. A command that reads no row of a section says nothing about its values; a role's values and a gateway's block are read only by a model-calling command.
+- A section that is not a mapping: an error when it holds an `OnInvalid.ERROR` row, else a warning `invalid: <section> <value>, a mapping; ignored`.
 
 ## Errors
 
 | code | when |
 |---|---|
-| `unknown_keys: <path> [...], known [...]` | a key the section does not define, `agent`, `backend` and `claudeBinary` included |
 | `unknown_gateway: <name> (<where>), known [...]` | a name or a block under `aiGateway` no registered gateway owns |
 | `missing_secret: <VAR>: gateway <name> ...` | the gateway's secret is in neither the environment nor `.env` |
-| `invalid: <path> <value>, <expected>` | a value outside its set or type; env values name the variable |
-| `secret_key: <path>` | a key that names an API key, token, secret or password, or a value shaped like an Anthropic key |
-| `invalid_yaml: <file>` | the file is not YAML |
+| `invalid: <key> <value>, <expected> (<source>)` | a bad flag, or a bad value of an `OnInvalid.ERROR` row |
+| `secret_key: <path>` | a key that names an API key, token, secret or password, or a value shaped like an Anthropic key; anywhere in the file, lists and unknown keys included |
+| `invalid_yaml: <file>` | the file is not YAML, so no secret check is possible |
 | `missing_file: <file> (<origin>)` | the flag or `PERFREPAIR_CONFIG` names no file |
+| `missing_file: <input>: <value> (<source>)` | a set `device.screening.catalog` does not load |
 
-- The file's sections other than the gateway blocks are checked at load: an error exits 2 through the command's argument parser and ends with ` (<file>)`.
-- A gateway's block is checked at spawn, against that gateway's settings class, every block on each spawn; `unknown_gateway`, `missing_secret` and the block's `unknown_keys` and `invalid` print one `error ...` line and exit 1 before the command does any work.
-- An `invalid` from a resolved value names the role's key and ends with the value's source: `invalid: grouping.assign.effort hgh, one of [...] (env PERFREPAIR_EFFORT)`.
-- A command that calls no model reads no gateway block.
+- A key no row knows is one warning, `unknown_key: <key>, known [...] (<file>)`, a key from before the sections (`grouping`, `guide`, `ai`, `screening`) included; a block's key is checked at spawn.
+- `secret_key`, `invalid_yaml` and a named file that is missing exit 2 through the command's argument parser, the first two ending with ` (<file>)`.
+- A gateway's block is checked at spawn, against that gateway's settings class, every block on each spawn; errors at spawn print one `error ...` line and exit 1 before the command does any work.
+- Each error and warning from a resolved value names the role's key and ends with the value's source: `invalid: device.grouping.assign.effort hgh, one of [...]; using the default low (env PERFREPAIR_EFFORT)`.
 
 ## Inputs
 
-An input with a fallback is resolved by `inputs/resolve.py` from its row in `inputs/table.py`: a chain of candidates (flag, environment, setting, packaged default) and a `Need`.
+An input that loads a file, `device.screening.catalog`, also has a `Need` and a packaged default; `inputs/resolve.py` resolves it from its row.
 
 | Case | Result |
 |---|---|
 | a value set explicitly (flag, environment, setting) loads | used; not logged |
 | a value set explicitly does not load | error `missing_file: <input>: <value> (<source>)`; never a fallback |
-| unset | the next candidate |
 | the packaged default loads | used; one log line `<input>: <source> <note>`, code `default` |
-| nothing found, `REQUIRED` or `DEFAULT` | error `missing_input` |
-| nothing found, `OPTIONAL` | the null value; one log line, code `not_found` |
+| nothing found | `REQUIRED`, `DEFAULT`: error `missing_input`; `OPTIONAL`: the null value, one log line, code `not_found` |
 
 - Log records go through the standard `logging` module (logger `perfrepair.inputs`) with `extra` `code`, `input`, `source`; each command's `__main__` attaches one stderr handler (`log.py`), nothing does at import.
-- Rows: `screening.catalog` ([screening.md](screening.md)).
+- `PERFREPAIR_CONFIG` and `--perfrepair-config` name the file, so they sit outside the rows.
 
 ## Gateways
 
@@ -107,8 +122,9 @@ aiGateway:
     model: claude-opus-5-5
     effort: medium
     binary: claude
-grouping:
-  assign: {effort: low}
+device:
+  grouping:
+    assign: {effort: low}
 ```
 
 | gateway | keys | secret | reaches |
@@ -118,6 +134,7 @@ grouping:
 | `dry-run` | none | none | no model |
 
 - `--agent claude` names the gateway, and without `auth` it runs the logged-in CLI, never the API key: billing follows `auth`, and only `auth: api` or `--auth api` reaches the Messages API.
+- `aiGateway.use: nope` is `unknown_gateway`, one error line at spawn.
 - `claude-code` is no gateway name: `--agent claude-code` is a usage error and `PERFREPAIR_AGENT=claude-code` is `unknown_gateway`.
 - A CLI that cannot be started or answers with an error is `claude_cli_failed`, one error line from the command.
 - `auth: subscription` runs its CLI without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment.

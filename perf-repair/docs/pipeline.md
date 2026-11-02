@@ -29,7 +29,7 @@ flowchart LR
 | outbound | `data_handler.outbound` (library) | base `global.yaml`, `config/testsets/all.yaml` default test set | `generated_perf_repair.yaml`, benchmark `results/` | no |
 | inbound | `python3 -m perfrepair.data_handler.inbound --manifest <m> -o <run>` | `manifest.yaml` and its files | `rows.json`, `measurements.json`, `run_log.json` | no |
 | app | `python3 -m perfrepair.app --manifest <m> --app <src> --run <run> --name <app>` | the manifest's probe, the app tree | `apps/<app>/sites.json`, `app.json`, `scopes.json` | no |
-| grouping build | `python3 -m perfrepair.grouping build --manifest <m> --run <run>` | `manifest.yaml` and its files | `grouping/items.json`, `profiles.json`, `screen.json`; with `screening.aiReview` `grouping/classify/`, `registry-candidates.yaml` | with `screening.aiReview`: one conversation per batch of 10 unknown items |
+| grouping build | `python3 -m perfrepair.grouping build --manifest <m> --run <run>` | `manifest.yaml` and its files | `grouping/items.json`, `profiles.json`, `screen.json`; with `device.screening.aiReview` `grouping/classify/`, `registry-candidates.yaml` | with `device.screening.aiReview`: one conversation per batch of 10 unknown items |
 | grouping assign | `python3 -m perfrepair.grouping assign --run <run>` | `grouping/` | `grouping/` (`docs/grouping.md`) | one conversation per item, up to turns × sessions |
 | grouping report | `python3 -m perfrepair.grouping report --run <run> [--supervisor]` | `grouping/` | `checks.json`, `groups.json`; supervisor files | supervisor: one conversation per family |
 | grouping interop-plan | `python3 -m perfrepair.grouping interop-plan --run <run>` | `grouping/groups.json` | `grouping/interop_plan.yaml` | no |
@@ -42,10 +42,10 @@ flowchart LR
 | guide | `python3 -m perfrepair guide --app <src> --name <app> --run <run> --results <results> [--device]` | the run, the app tree | app, dossier, replace, edit, harness; with `--device` measured and report | the replace step |
 | validate | `python3 -m perfrepair.validation <run>` | every artifact present | nothing | no |
 
-- `grouping build` (with `screening.aiReview`), `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
+- `grouping build` (with `device.screening.aiReview`), `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
 - Inbound, app, grouping build and repair dossier, edit and harness validate before they write.
 - A command that cannot read an input, is refused by a gate, is refused at spawn or loses its model CLI prints one `error ...` line (a refused gate adds its `- problem` lines) and exits 1, never a traceback (`failure.py`); bad usage exits 2. A CLI that cannot run or fails is `claude_cli_failed`; the guide stops with `<step>_failed`.
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts (and, for assign, the same screened-out items) resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own.
 - `--prompts DIR`: `docs/decisions.md`.
-- `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `screening.catalog` from it (`docs/screening.md` Settings).
+- `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`; a bad value there warns and uses the default, a bad flag errors: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `device.screening.catalog` from it (`docs/screening.md` Settings).
 - The guide runs one app; inbound and grouping are run-level and must exist first. Steps, stop codes and the report: `docs/replacement.md`.

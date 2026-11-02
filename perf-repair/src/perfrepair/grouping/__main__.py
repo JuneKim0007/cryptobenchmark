@@ -1,6 +1,6 @@
 """python3 -m perfrepair.grouping {build,assign,report} — the grouping stage, one step per command.
   build   --manifest <results>/manifest.yaml --run <dir>   items.json, profiles.json, screen.json;
-          with screening.aiReview [--agent ...] [--prompts DIR] the classify model reviews the unknown items first
+          with device.screening.aiReview [--agent ...] [--prompts DIR] the classify model reviews the unknown items first
   assign  --run <dir> [--agent ...] [--prompts DIR] [--turns 3] [--sessions 2] [--limit N]
   report  --run <dir> [--supervisor [--prompts DIR]] [--agent ...]   checks.json, groups.json [, supervisor.json]
   interop-plan --run <dir>                                    interop_plan.yaml from groups.json

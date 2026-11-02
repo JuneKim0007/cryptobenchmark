@@ -6,9 +6,9 @@
 |---|---|
 | `broken` | a `crypto` row says `deprecated`, or a `components` rule matches the transformation |
 | `platform_deprecated` | a `platform` row for the item's provider applies and the app's targetSdk is at or above its `deprecatedApi` |
-| `unverified` | only with `screening.aiReview`: the classify model answered `accepted` for an unknown item; a source, never a target, until a person confirms it |
+| `unverified` | only with `device.screening.aiReview`: the classify model answered `accepted` for an unknown item; a source, never a target, until a person confirms it |
 | `accepted` | a `crypto` row says `accepted` and nothing above applies |
-| `unknown` | no row applies, or the name is a `name_conflict`; asked by assign; a target only as the same algorithm (with `screening.aiReview` the classify role tries to identify it first) |
+| `unknown` | no row applies, or the name is a `name_conflict`; asked by assign; a target only as the same algorithm (with `device.screening.aiReview` the classify role tries to identify it first) |
 
 ## Precedence
 
@@ -37,18 +37,18 @@
 
 | Case | Catalog | Log line (stderr) |
 |---|---|---|
-| no `perfrepair.yaml` | packaged | `screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off` |
-| `perfrepair.yaml` without `screening.catalog` | packaged | `screening.catalog: packaged catalog (screening.catalog unset in <file>); aiReview on\|off` |
-| `screening.catalog` names a file | that file, relative to `perfrepair.yaml` | none |
-| `screening.catalog` names no file | none: the step exits non-zero with `missing_file` | none |
+| no `perfrepair.yaml` | packaged | `device.screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off` |
+| `perfrepair.yaml` without `device.screening.catalog` | packaged | `device.screening.catalog: packaged catalog (device.screening.catalog unset in <file>); aiReview on\|off` |
+| `device.screening.catalog` names a file | that file, relative to `perfrepair.yaml` | none |
+| `device.screening.catalog` names no file | none: the step exits non-zero with `missing_file` | none |
 
 - Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide (at its prerequisites step, before any other step runs) and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`, so a run is never judged by two catalogs. Same content under another path passes.
-- A named catalog that does not load is never replaced by the packaged one: skipping screening would let a broken algorithm become a target.
-- The resolution is the `screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
+- A named catalog that does not load, or is no path (`invalid`), is never replaced by the packaged one: skipping screening would let a broken algorithm become a target. The row is `OnInvalid.ERROR`.
+- The resolution is the `device.screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
 
 ## Model review
 
-With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/parse/algorithm_classify/`, settings role `screening.classify`) about the items no catalog row decides, after the static screen and before `screen.json` is written. Off (the default), the build makes no model call.
+With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/parse/algorithm_classify/`, settings role `device.screening.classify`) about the items no catalog row decides, after the static screen and before `screen.json` is written. Off (the default), the build makes no model call.
 
 | Rule | Value |
 |---|---|
@@ -68,7 +68,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | `unsure` | unchanged `unknown` | none |
 
 - `screen.json` then carries `review: {fingerprint}`; its validator refuses a `model:` source without a `review`, or one that is not `model:<review fingerprint>`, so no verdict is sourced by a model run screen.json does not name; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
-- Confirming: a person turns a `registry-candidates.yaml` row (`id`, `type`, `name`, `canonical`, `provider`, `reason`, `fingerprint`) into a sourced `crypto` row of the configured `screening.catalog`; the next build screens it `accepted` statically and the model no longer sees it.
+- Confirming: a person turns a `registry-candidates.yaml` row (`id`, `type`, `name`, `canonical`, `provider`, `reason`, `fingerprint`) into a sourced `crypto` row of the configured `device.screening.catalog`; the next build screens it `accepted` statically and the model no longer sees it.
 - Not yet: JDK legacy and disabled algorithm properties as evidence (a probe addition), citations checked by code.
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)
@@ -86,7 +86,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | Code | When |
 |---|---|
 | `screening_schema` | `schemaVersion` is not 1 |
-| `screening_yaml`, `screening_shape` | the file is not YAML; a section is not the mapping or list it must be (a configured `screening.catalog` can be any file) |
+| `screening_yaml`, `screening_shape` | the file is not YAML; a section is not the mapping or list it must be (a configured `device.screening.catalog` can be any file) |
 | `screening_key_not_canonical` | a key is not the canonical spelling in `algorithm-names.yaml`, carries a key size, or a mode is not a catalog mode |
 | `screening_status` | a status outside `deprecated`, `accepted` |
 | `screening_source` | a source key absent from `sources`; `unsourced` is allowed |

@@ -21,7 +21,7 @@ INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
 
 def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None = None,
                 families: Families | None = None, echo=print) -> GroupingPaths:
-    """reviewer: given only with screening.aiReview; it classifies the unknown items before screen.json is written."""
+    """reviewer: given only with device.screening.aiReview; it classifies the unknown items before screen.json is written."""
     context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])

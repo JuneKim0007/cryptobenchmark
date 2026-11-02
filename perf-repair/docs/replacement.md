@@ -24,6 +24,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 ```
 
 - `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
+- `--mode`, `--limit` and `--device` default to `apps.mode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--run` and `--results` are required unless `paths.run` and `paths.results` are set (`docs/settings.md`); keep runs under `~/capstone/runs/<date>-<name>`. It must already hold `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): run-level stages, made once per run, never per app.
 - Steps in order: prerequisites, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml> --results <run>/apps/<app>/measured`, an attached phone), then report. Without `--device` the guide ends at the harness and prints the device command.
 - Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>` and the guide exits 1.

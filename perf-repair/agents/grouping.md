@@ -11,7 +11,7 @@
 - criterion: input, key and output contracts inside one family; `docs/grouping.md` Criterion.
 - capabilities: key size, tag length and availability are static; never group identity.
 - key contract: derived in `grouping/build/key_contract.py` from probe attributes; never from a provider name or a registered `KeyStore`; no attribute is `unknown`, never a guess.
-- classify: with `screening.aiReview` the build asks the classify model about unknown items only, before screen.json is written; `docs/screening.md` Model review.
+- classify: with `device.screening.aiReview` the build asks the classify model about unknown items only, before screen.json is written; `docs/screening.md` Model review.
 - code-made: a screened-out item is grouped by code (`screen/groups.py`), never asked; `docs/grouping.md` Code-made groups.
 - items: ids `1..n` per run; `items.json` is never edited after build; the agent sees `{id, type, name, provider, resolved, key}` and its family's groups with their key lines only.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
@@ -29,7 +29,7 @@
 ## File structure
 
 ```
-src/perfrepair/ai/parse/algorithm_classify/command.py : step of grouping build with screening.aiReview: batches.json, ClassifyKind on the engine, registry-candidates.yaml, reviewed verdicts; Reviewer; its dry run (unsure)
+src/perfrepair/ai/parse/algorithm_classify/command.py : step of grouping build with device.screening.aiReview: batches.json, ClassifyKind on the engine, registry-candidates.yaml, reviewed verdicts; Reviewer; its dry run (unsure)
 src/perfrepair/ai/parse/algorithm_classify/kind.py : ClassifyKind on the engine: one batch of unknown items per decision; the whole evidence as charter inputs; gate C, apply, validate
 src/perfrepair/ai/parse/algorithm_classify/render.py : one batch's message: per id the engine type, name, canonical, provider, family, trial, className, attributes
 src/perfrepair/ai/parse/algorithm_classify/schema.py : the answer's JSON schema: answers of id, answer, reason

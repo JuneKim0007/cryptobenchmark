@@ -6,7 +6,7 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 ## Setup
 
 - Python 3.10+, `pyyaml`; `pip install -e .[test]` for tests.
-- Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the gateway, auth, model, effort per command and default paths; `.env` (from `.env.example`) still works and holds `ANTHROPIC_API_KEY`. Precedence: `docs/settings.md`.
+- Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the gateway, auth, model, effort per command, default paths, and the `device` and `apps` settings; `.env` (from `.env.example`) still works and holds `ANTHROPIC_API_KEY`. Precedence: `docs/settings.md`.
 - `make check` runs docs-lint and the tests.
 
 | gateway (`--agent`), auth (`--auth`) | needs |

@@ -36,7 +36,7 @@ Makefile : test, docs-lint, check
 README.md : what perf-repair is, setup
 agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
-perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, per-role keys, paths, grouping, guide, screening
+perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths, device, apps
 pyproject.toml : package, pyyaml dependency, optional `test` and `api` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
 tests/ : pytest suites, one per module or stage; `helpers.py` shared builders; `conftest.py` isolates every test from local settings

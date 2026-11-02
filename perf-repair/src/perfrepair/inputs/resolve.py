@@ -53,6 +53,16 @@ def unknown_key(where: str, known: Iterable[Any], origin: str) -> None:
                 extra={"code": "unknown_key", "input": where, "source": origin})
 
 
+def _bad_value(name: str, c: Candidate, expected: str, candidates: list[Candidate], on_invalid: OnInvalid) -> Candidate | None:
+    if on_invalid is OnInvalid.ERROR or c.source == CLI or not c.explicit:
+        raise InputError("invalid", f"{name} {c.value}, {expected} ({c.source})") from None
+    default = next((d for d in candidates if not d.explicit and d.value is not None), None)
+    using = f"using the default {default.value}" if default else "ignored"
+    LOG.warning(f"invalid: {name} {c.value}, {expected}; {using} ({c.source})",
+                extra={"code": "invalid", "input": name, "source": c.source})
+    return default
+
+
 def choose(name: str, candidates: Iterable[Candidate], check: Callable[[str, Any], None],
            on_invalid: OnInvalid) -> Candidate | None:
     """The first set candidate. A bad flag or an ERROR row raises; a bad file or environment value warns and takes the default."""
@@ -63,13 +73,7 @@ def choose(name: str, candidates: Iterable[Candidate], check: Callable[[str, Any
         try:
             check(name, c.value)
         except Invalid as e:
-            if on_invalid is OnInvalid.ERROR or c.source == CLI or not c.explicit:
-                raise InputError("invalid", f"{name} {c.value}, {e.expected} ({c.source})") from None
-            default = next((d for d in candidates if not d.explicit and d.value is not None), None)
-            using = f"using the default {default.value}" if default else "ignored"
-            LOG.warning(f"invalid: {name} {c.value}, {e.expected}; {using} ({c.source})",
-                        extra={"code": "invalid", "input": name, "source": c.source})
-            return default
+            return _bad_value(name, c, e.expected, candidates, on_invalid)
         return c
     return None
 
