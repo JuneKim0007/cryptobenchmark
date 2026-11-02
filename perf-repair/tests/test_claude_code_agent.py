@@ -73,11 +73,13 @@ def test_lifetime_misuse_never_reaches_the_cli(tmp_path):
     assert cli.calls == []
 
 
-def test_the_child_never_sees_the_api_key_and_runs_the_configured_binary(tmp_path, monkeypatch):
+def test_the_child_never_sees_the_credentials_and_runs_the_configured_binary(tmp_path, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "token-test")
     monkeypatch.setenv("KEEP_ME", "1")
     cli = FakeCli([ok("s-1", {})])
     convos = ClaudeCodeConversations(binary="/opt/claude", runner=cli, workdir=tmp_path)
     convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     command, _, _, env = cli.calls[0]
-    assert command[0] == "/opt/claude" and "ANTHROPIC_API_KEY" not in env and env["KEEP_ME"] == "1"
+    assert command[0] == "/opt/claude" and env["KEEP_ME"] == "1"
+    assert "ANTHROPIC_API_KEY" not in env and "ANTHROPIC_AUTH_TOKEN" not in env
