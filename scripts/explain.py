@@ -10,6 +10,7 @@ import sys
 import yaml
 
 import effective_view
+import results_layout
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SECTIONS = ("run", "policy", "analysis")
@@ -48,9 +49,10 @@ def explain(global_file, effective_file):
 def main():
     parser = argparse.ArgumentParser(description="show each resolved setting and where it came from")
     parser.add_argument("--config", default=str(ROOT / "config/global.yaml"), help="the global file the run used")
-    parser.add_argument("--results", default=str(ROOT / "results"), help="output root (default: results/)")
+    parser.add_argument("--results", default=str(ROOT / "results"), help="results root (default: results/)")
+    parser.add_argument("--device-id", help="the folder under the results root; needed when it holds several")
     options = parser.parse_args()
-    effective = pathlib.Path(options.results) / "configuration" / "effective.yaml"
+    effective = results_layout.device_folder(options.results, options.device_id) / "configuration" / "effective.yaml"
     for path in (pathlib.Path(options.config), effective):
         if not path.is_file():
             sys.exit(f"missing_file: {path}")

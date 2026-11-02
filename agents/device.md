@@ -15,7 +15,7 @@
 - discovery: `--device` probes the attached device; never combine it with `--discovery reuse`.
 - suppress-errors: pass `--suppress-errors EMULATOR,UNLOCKED` only on an emulator or a device with unlocked clocks.
 - suppress-errors: never compare numbers from a suppressed run with a locked device's.
-- clocks: read `cpuLocked` in `results/manifest.yaml` before comparing two device runs.
+- clocks: read `cpuLocked` in `results/<device_id>/manifest.yaml` before comparing two device runs.
 - pinning: request a core through `harness.cpu` (`core: <index>|big`, `required`) in `config/`, never in code.
 - pinning: a pinned run needs `libaffinity.so` in the installed release APK; check `pinning` in `discovery/facts.yaml`.
 - pinning: report a pinned run as pinned, never as core-isolated; pinning restricts the measuring thread only.

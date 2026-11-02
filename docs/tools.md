@@ -9,12 +9,13 @@
 |---|---|---|
 | `ProbeKt` (default) | `tools/jca-contract/gradlew -p tools/jca-contract run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
 | `ConfigureKt` | `... run -PmainClass=ConfigureKt --args="<probe> <trial> <configuration dir> [<global.yaml>] [--facts=<facts.yaml>]"` | inventory, effective |
+| `RuntimeFieldsKt` | `... run -PmainClass=RuntimeFieldsKt` | prints this JVM's runtime fields that the device id uses, as YAML |
 | `examples.ParametersKt` | no args, or one spec class | lists `AlgorithmParameterSpec` classes in `java.security.spec` and `javax.crypto.spec`; with a class, prints a parameters YAML block |
 | `examples.ReportKt` | `<type> <algorithm> <provider>`, default `Cipher AES SunJCE` | who serves the type and algorithm on this JVM |
 | `examples.TreeKt` | none | markdown tree for Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator, KeyAgreement; source of `modules/environment/discovery/docs/tree.md` |
 
 - Main class comes from `-PmainClass`, default `ProbeKt`.
-- Both entries fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
+- `ProbeKt` and `ConfigureKt` fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
 - `ConfigureKt`: fewer than 3 paths exits 2; a missing input prints `error: missing_file`, exits 1; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
 - Compiles discovery, settings and config sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes` (test classpath only).
 - `./gradlew test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
@@ -58,10 +59,10 @@ python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml
 ### charts.py
 
 ```
-python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.yaml> <results dir>
+python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.yaml> <device folder>
 ```
 
-- Output folder: `analysis.dir`, else `<results dir>/chart/<run-id>` (`adhoc` without a run id).
+- Output folder: `analysis.dir`, else `<device folder>/chart/<run-id>` (`adhoc` without a run id).
 - Writes `summary.md`, `chart-data.json`, `manifest.yaml`.
 - Writes `<group id>-<group>/iqr-bars_<operation>_input-<size>.png` per chart group, operation and input size when `analysis.charts` names `iqrBars`.
 - Writes `<metric>-bars_*.png` and `chart-data-<metric>.json` per count metric; an explicit `analysis.charts` without `countBars` turns them off.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One command for a live run: warms the build, then runs the whole pipeline into results/demo.
+# One command for a live run: warms the build, then runs the whole pipeline into results/demo/<device_id>.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -38,12 +38,13 @@ if [ "$warm_only" = yes ]; then
 fi
 
 banner "run"
-if [ "$discovery" = overwrite ]; then rm -rf "$results"; fi
 python3 "$root/scripts/pipeline.py" --config "$config" --results "$results" --discovery "$discovery" --bench --stream
 
 banner "result"
-head -12 "$results/analysis/summary.md"
+# newest manifest: the folder this run just finished; the root may hold other devices
+device="$(dirname "$(ls -t "$results"/*/manifest.yaml | head -1)")"
+head -12 "$device/analysis/summary.md"
 echo "..."
 echo
-echo "$(( $(wc -l < "$results/analysis/summary.md") - 2 )) cases in $results/analysis/summary.md"
-ls "$results/analysis"
+echo "$(( $(wc -l < "$device/analysis/summary.md") - 2 )) cases in $device/analysis/summary.md"
+ls "$device/analysis"

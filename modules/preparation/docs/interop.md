@@ -9,7 +9,7 @@ flowchart LR
     G[perf-repair groups.json] -- interop-plan --> P[interop_plan.yaml]
     P -- pipeline.py --bench --interop --> H[InteropKt on the host JVM]
     P -- pipeline.py --device --interop --> D[InteropCheck on the device]
-    H --> R[results/interop/interop.yaml]
+    H --> R[results/device_id/interop/interop.yaml]
     D --> R
     R -- interop-read --> X[perf-repair grouping/interop.yaml, groups.json interop]
 ```

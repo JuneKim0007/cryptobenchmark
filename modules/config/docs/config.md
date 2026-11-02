@@ -38,7 +38,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
 | `analysis` | `charts` | `[iqrBars, throughput, latency, stability]` | names from that list, no duplicates; `[]` draws none; another name fails `invalid: analysis.charts` |
-| | `dir` | unset: `results/chart/<run-id>` | non-blank; `<run-id>` in it is replaced by the run id |
+| | `dir` | unset: `<device folder>/chart/<run-id>` | non-blank; `<run-id>` in it is replaced by the run id |
 | | `statistic.headline` | `auto` | `auto`, `median`, `mean`; the statistic that leads in the chart summary |
 | | `statistic.meanUpToCovPercent` | `5` | `> 0`; `auto` leads with the mean at or below this CoV, else the median; also the stability limit |
 | `providers` | `bundled` | `[]` | list of `{artifact, create, alias?}`; no duplicate artifact or alias |

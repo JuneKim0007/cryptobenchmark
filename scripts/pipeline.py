@@ -2,10 +2,10 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
 
-import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, scope_generate, scope_results
+import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
-from device_id import DeviceIdError, device_id
+from device_id import DeviceIdError, capture_id, device_id
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
 from scope_harness import HarnessError
@@ -71,7 +71,16 @@ def manifest(results, mode, configuration, files):
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
     }
-    path = results / "manifest.yaml"
+    path = results / results_layout.MANIFEST
+    path.write_text(yaml.safe_dump(document, sort_keys=False))
+    print(f"wrote:     {path}")
+
+
+def add_to_manifest(results, added):
+    import yaml
+    path = results / results_layout.MANIFEST
+    document = yaml.safe_load(path.read_text())
+    document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
     path.write_text(yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")
 
@@ -99,7 +108,7 @@ def measure_on_device(device, session, options, captures, metrics, into, prepara
 def parse_options():
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
-    parser.add_argument("--results", default=str(ROOT / "results"), help="output root (default: results/)")
+    parser.add_argument("--results", help="results root; the run writes <results>/<device_id>/ (default: <repo>/results)")
     parser.add_argument("--discovery", choices=["overwrite", "keep", "reuse"], default="overwrite",
                         help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device")
     mode = parser.add_mutually_exclusive_group()
@@ -119,6 +128,8 @@ def parse_options():
     options = parser.parse_args()
     if options.harness and not options.device:
         fail("--harness: scopes are measured only on a --device run")
+    if options.harness and options.results:
+        fail("--results: a --harness run writes measured/ beside its harness.yaml")
     if options.device and options.discovery == "reuse":
         fail("--discovery reuse: a device run probes the device it measures")
     if options.suppress_errors and not options.device:
@@ -162,10 +173,44 @@ def discover(options, configuration, device, results):
         bundled.check_effective(effective, shipped)
     summary(effective)
     elapsed("discover and configure", started)
+    return located(results)
+
+
+def located(results):
+    discovery, configured = results / "discovery", results / "configuration"
     capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
+    effective = configured / "effective.yaml"
     files = {key: path for key, path in (("probe", capture), ("trial", trial), ("inventory", configured / "inventory.yaml"),
                                          ("effective", effective), ("report", configured / "report.yaml")) if path and path.is_file()}
     return discovery, effective, capture, trial, files
+
+
+def seed_reuse(options, root, stage):
+    """--discovery reuse names no folder until the JVM's id is known; ProbeKt --reuse still decides whether the capture fits."""
+    import yaml
+    lines = gradle_runner.run("jca-contract", "", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")
+    existing = root / device_id(yaml.safe_load("\n".join(lines))) / results_layout.DISCOVERY
+    if existing.is_dir():
+        results_layout.merge_folder(existing, stage / results_layout.DISCOVERY)
+
+
+def discover_staged(options, configuration, device, root, stage):
+    if options.discovery == "reuse":
+        seed_reuse(options, root, stage)
+    found = discover(options, configuration, device, stage)
+    if not found[2]:
+        fail(f"missing_file: {stage}/discovery/probe_<utc>.yaml (the probe wrote none)")
+    return found
+
+
+def device_discover(options, configuration, device, root):
+    """A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends."""
+    with results_layout.staged(root) as stage:
+        capture = discover_staged(options, configuration, device, root, stage)[2]
+        results = root / capture_id(capture)
+        results_layout.publish(stage, results, options.discovery)
+    print(f"results:   {results}")
+    return results, located(results)
 
 
 def energy_preflight(options, session, discovery, files):
@@ -238,8 +283,19 @@ class ScopedRun:
     ran: bool
 
 
+def require_harness_device(harness, capture):
+    """A harness belongs to one device's folder; another device's numbers there would read as that device's."""
+    import yaml
+    built_for = harness.parent.parent / results_layout.MANIFEST
+    if built_for.is_file():
+        wanted, attached = (yaml.safe_load(built_for.read_text()) or {}).get("deviceId"), capture_id(capture)
+        if wanted != attached:
+            fail(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
+
+
 def measure_scopes(options, configuration, device, results, scoped):
     discovery, effective, capture, trial, files = discover(options, configuration, device, results)
+    require_harness_device(pathlib.Path(options.harness).resolve(), capture)
     document = effective_view.read(effective)["document"]
     run_capture = energy_stage.capture(document.get("run"))
     if run_capture == "dry":
@@ -293,25 +349,37 @@ def harness_run(options, configuration, device, results):
     manifest(results, "device", configuration, run.files)
 
 
-def interop_run(options, configuration, device, results):
+def interop_run(options, configuration, device, root):
     plan = pathlib.Path(options.interop)
     if not (options.bench or device) or options.harness:
         fail("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")
     if not plan.is_file():
         fail(f"missing_file: {plan} (--interop)")
-    discovery, effective, capture, trial, files = discover(options, configuration, device, results)
-    staged = interop_stage.stage_plan(plan, results / "interop")
-    out = staged.parent / interop_stage.RESULT
-    started = time.monotonic()
-    if device:
-        interop_stage.on_device(device, effective, capture, trial, staged, out)
+    mode = "device" if device else "host"
+    with results_layout.staged(root) as stage:
+        _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage)
+        staged_plan = interop_stage.stage_plan(plan, stage / results_layout.INTEROP)
+        out = staged_plan.parent / interop_stage.RESULT
+        started = time.monotonic()
+        if device:
+            interop_stage.on_device(device, effective, capture, trial, staged_plan, out)
+        else:
+            interop_stage.on_host(capture, trial, staged_plan, out, options.stacktrace, options.stream)
+        elapsed("interop check", started)
+        interop_stage.summary(out)
+        results = root / capture_id(capture)
+        finished = (results / results_layout.MANIFEST).is_file()
+        if finished:
+            results_layout.publish_interop(stage, results)
+        else:
+            results_layout.publish(stage, results, options.discovery)
+    interop = results / results_layout.INTEROP
+    print(f"wrote:     {interop / interop_stage.RESULT}")
+    added = {"interopPlan": interop / interop_stage.PLAN, "interop": interop / interop_stage.RESULT}
+    if finished:
+        add_to_manifest(results, added)
     else:
-        interop_stage.on_host(capture, trial, staged, out, options.stacktrace, options.stream)
-    elapsed("interop check", started)
-    interop_stage.summary(out)
-    print(f"wrote:     {out}")
-    files.update(interopPlan=staged, interop=out)
-    manifest(results, "device" if device else "host", configuration, files)
+        manifest(results, mode, configuration, located(results)[-1] | added)
 
 
 def main():
@@ -321,13 +389,15 @@ def main():
     device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
-    results = pathlib.Path(options.results).resolve()
-    if options.interop:
-        return interop_run(options, configuration, device, results)
     if options.harness:
-        harness_run(options, configuration, device, results)
-        return
-    discovery, effective, capture, trial, files = discover(options, configuration, device, results)
+        measured = pathlib.Path(options.harness).resolve().parent / "measured"
+        results_layout.warn_if_temp(measured)
+        return harness_run(options, configuration, device, measured)
+    root = pathlib.Path(options.results or ROOT / "results").expanduser().resolve()
+    results_layout.warn_if_temp(root)
+    if options.interop:
+        return interop_run(options, configuration, device, root)
+    results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, root)
     mode = "device" if device else "host"
     if not (options.bench or device):
         manifest(results, mode, configuration, files)

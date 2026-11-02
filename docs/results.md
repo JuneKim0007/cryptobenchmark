@@ -3,7 +3,32 @@
 - `results/` is gitignored.
 - `manifest.yaml` is written last by every run.
 
+## Device folder
+
+```
+<results root>/<device_id>/
+  discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ interop/ manifest.yaml
+  rows.json measurements.json run_log.json worthiness-<mode>/ grouping/ summary.json summary.md
+  <path_id>/ sites.json app.json ... harness.yaml measured/ report.json report.md
+```
+
+perf-repair writes the second and third lines: [artifacts.md](../perf-repair/docs/artifacts.md).
+
+| rule | value |
+|---|---|
+| `--results` | the root, default `<repo>/results` |
+| folder name | `deviceId` of the manifest below, from the probe |
+| staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
+| a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one and its partial files for debugging |
+| `--discovery` | `overwrite` replaces `discovery/`; `keep` and `reuse` add to it |
+| `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
+| `--harness` | writes `measured/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
+| a killed process | `.staging-*` stays behind; nothing reads it, delete it |
+| root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
+
 ## Layout
+
+Paths relative to the device folder.
 
 | path | files | when |
 |---|---|---|
@@ -34,7 +59,7 @@
 | `deviceId` | from the probe's runtime: `<model>-api<sdk>-<hash>` on Android, `host-<os>-<arch>-jdk<major>-<hash>` on a host; hash = first 8 hex of sha256 over the build fingerprint (host: `java.vendor`, `java.runtime.version`); bundled providers and serials are not in it; a probe without these fields stops with `device_id_fields_missing` |
 | `runtime` | `benchmark.json` runtime if measured, else the probe runtime; `cpuLocked` added when clocks exist |
 | `providers` | `name`, `precedence`, `serviceCount`, sorted by precedence |
-| `files` | stage outputs, paths relative to `results/` |
+| `files` | stage outputs, paths relative to the device folder |
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 
 - `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`, `scoped`; `--interop` adds `interopPlan`, `interop`.

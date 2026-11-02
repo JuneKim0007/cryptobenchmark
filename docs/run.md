@@ -24,8 +24,8 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | flag | default | effect |
 |---|---|---|
 | `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/global.yaml` | the `global.yaml` to run |
-| `--results DIR` | `<repo>/results` | output root |
-| `--discovery` | `overwrite` | `overwrite` clears `discovery/` first; `keep` adds a new capture; `reuse` keeps this device's capture |
+| `--results DIR` | `<repo>/results` | results root; the run writes `<DIR>/<device_id>/` ([results.md](results.md#device-folder)) |
+| `--discovery` | `overwrite` | `overwrite` clears `discovery/` first; `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
 | `--bench` | off | also prepare, measure and analyse on the JVM via quick-bench |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--suppress-errors ERRORS` | `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable |
@@ -43,11 +43,12 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--suppress-errors` or `--energy-accept-unresponsive` without `--device` | fails |
 | energy capture other than `none` without `--device` | fails |
 | `--harness` without `--device` | fails |
+| `--harness` with `--results` | fails: `measured/` goes beside `harness.yaml` |
 | `--interop` without `--bench` or `--device`, or with `--harness` | fails |
-| neither `--bench` nor `--device` | discover and configure only, then manifest |
+| neither `--bench` nor `--device` | discover and configure only, then a manifest that replaces the device's last one |
 | any failure | prints `error: <message>`, exits 1 |
 
-- Host discovery runs `ProbeKt`; `--discovery reuse` adds `--reuse`.
+- Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`.
 - Device discovery runs `ConfigureKt` with `--facts`.
 - `run.processRepetitions` ([config.md](../modules/config/docs/config.md)) above 1: runs merged with `MergeRunsKt`.
 - Tool commands: [tools.md](tools.md). Output: [results.md](results.md).
@@ -56,25 +57,26 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 ## scripts/explain.py
 
 ```
-python3 scripts/explain.py [--config PATH] [--results DIR]
+python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 ```
 
-- Prints the run id, each `run`, `policy` and `analysis` key of `<results>/configuration/effective.yaml` with its value and source: the global file when written there, else `default`.
+- Prints the run id, each `run`, `policy` and `analysis` key of `<results>/<device_id>/configuration/effective.yaml` with its value and source: the global file when written there, else `default`.
 - Ends with the entry count and the test set.
+- A root with several device folders needs `--device-id`, else `several_device_results`.
 
 ## scripts/demo.sh
 
 | flag | effect |
 |---|---|
-| none | `config/global-quick.yaml` (11 test-set entries, about 30 s), `results/demo`, `--discovery overwrite` |
+| none | `config/global-quick.yaml` (11 test-set entries, about 30 s), `results/demo/<device_id>`, `--discovery overwrite` |
 | `--warm` | compile both tools, exit |
 | `--fast` | `config/global-demo.yaml`: `testsets/smoke.yaml` (3 entries), `inputSizes [1024]`, about 8 s |
 | `--reuse` | `--discovery reuse` |
 | `--config FILE` | another `global.yaml` |
-| `--results DIR` | another output root |
+| `--results DIR` | another results root |
 | `-h`, `--help` | usage |
 
-- Runs `pipeline.py --bench --stream`, then prints the head of `results/demo/analysis/summary.md`.
+- Runs `pipeline.py --bench --stream`, then prints the head of `results/demo/<device_id>/analysis/summary.md`.
 
 ## Device run
 

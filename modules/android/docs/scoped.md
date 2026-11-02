@@ -15,12 +15,14 @@ flowchart LR
 ## Run
 
 ```
-python3 scripts/pipeline.py --device --harness <harness.yaml> --results <dir>
+python3 scripts/pipeline.py --device --harness <harness.yaml>
 ```
 
 | step | rule |
 |---|---|
-| generate | `results/<dir>/scoped/scoped-plan.yaml`; sources in package `io.github.junekim0007.cryptobench.scoped` under `src/androidTest/java/`, git-ignored |
+| output | `measured/` beside `harness.yaml`; `--results` is refused |
+| device | a `manifest.yaml` one folder above the harness's names the device it was built for; another attached device stops with `harness_other_device` |
+| generate | `measured/scoped/scoped-plan.yaml`; sources in package `io.github.junekim0007.cryptobench.scoped` under `src/androidTest/java/`, git-ignored |
 | compile | all scopes in one Gradle compile; on failure, each scope alone, then the passing set together |
 | no scope compiled | fails `no_scope_compiled` |
 | a compile error outside the generated folder | fails `harness_build_failed` |

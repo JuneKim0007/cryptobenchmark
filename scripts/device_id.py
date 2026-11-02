@@ -1,6 +1,8 @@
 """The device id, derived from a capture's runtime block: one build gives one id, and no serial enters it."""
 import hashlib, re
 
+import yaml
+
 
 class DeviceIdError(Exception):
     pass
@@ -43,3 +45,7 @@ def device_id(runtime):
     os_name, arch, version, vendor, runtime_version = fields(runtime, "osName", "osArch", "javaVersion", "javaVendor",
                                                              "javaRuntimeVersion")
     return f"host-{slug(os_name)}-{slug(arch)}-jdk{java_major(version)}-{digest(vendor, runtime_version)}"
+
+
+def capture_id(capture):
+    return device_id((yaml.safe_load(capture.read_text()) or {}).get("runtime") or {})

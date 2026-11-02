@@ -29,7 +29,10 @@ def run(project, arguments, stacktrace, stream=False, main_class=None):
     wrapper = ROOT / "tools/jca-contract/gradlew"
     if not wrapper.is_file():
         fail(f"missing_file: {wrapper}")
-    command = [str(wrapper), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q", f"--args={arguments}"]
+    command = [str(wrapper), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q"]
+    # Gradle refuses an empty --args
+    if arguments:
+        command.append(f"--args={arguments}")
     if main_class:
         command.append(f"-PmainClass={main_class}")
     if stream:

@@ -11,7 +11,7 @@ Tools that back a review with numbers. They are installed outside the repo, so n
 - dead code: a tool's hit is a candidate; grep the symbol (code, tests, YAML keys, CLI registration, reflection) before deleting.
 - proof: a refactor diffs the dry-run outputs before and after (`diff -r`) and reports the result.
 - runs: write run outputs under `~/capstone/runs/<date>-<name>/`, never `/tmp`.
-- end to end: a change to config, catalogs, discovery or the pipeline also runs `python3 scripts/pipeline.py --bench --config config/global-demo.yaml --results ~/capstone/runs/<date>-<name>` to exit 0; unit suites alone missed a JDK-specific name clash once.
+- end to end: a change to config, catalogs, discovery or the pipeline also runs `python3 scripts/pipeline.py --bench --config config/global-demo.yaml --results ~/capstone/runs/<date>-<name>/results` to exit 0; the run lands in `results/<device_id>/`; unit suites alone missed a JDK-specific name clash once.
 
 ## Commands
 | Question | Command | Flag when |

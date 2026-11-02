@@ -15,7 +15,7 @@ flowchart LR
 |---|---|
 | [docs/run.md](docs/run.md) | prerequisites, `scripts/pipeline.py` flags, `scripts/demo.sh`, device runs |
 | [docs/architecture.md](docs/architecture.md) | modules, dependencies, stage files |
-| [docs/results.md](docs/results.md) | `results/` layout and `manifest.yaml` |
+| [docs/results.md](docs/results.md) | `results/<device_id>/` layout and `manifest.yaml` |
 | [docs/cryptography/index.md](docs/cryptography/index.md) | configured primitives and providers |
 | [docs/index.md](docs/index.md) | every cross-module doc |
 | [perf-repair/README.md](perf-repair/README.md) | crypto replacements worth testing in an app |
