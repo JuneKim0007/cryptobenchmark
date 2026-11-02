@@ -18,7 +18,11 @@ WITHHELD_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
 
 
 class ClaudeCodeError(RuntimeError):
-    """The CLI failed for a reason that is not a refusal (not logged in, overloaded, budget)."""
+    """The CLI failed for a reason that is not a refusal (not found, not logged in, overloaded, budget)."""
+    code = "claude_cli_failed"
+
+    def __init__(self, detail: str):
+        super().__init__(f"{self.code}: {detail}")
 
 
 def _run(command: list[str], stdin: str, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess:
@@ -44,7 +48,10 @@ class ClaudeCodeSession(LifetimeGuarded):
         if self.session_id:
             command += ["--resume", self.session_id]
         # The prompt goes on stdin: --tools takes a variable number of values and would swallow it.
-        done = o.runner(command, message.text, o.workdir, child_env())
+        try:
+            done = o.runner(command, message.text, o.workdir, child_env())
+        except OSError as e:
+            raise ClaudeCodeError(f"cannot run {o.binary}: {e}") from e
         try:
             out = json.loads(done.stdout)
         except json.JSONDecodeError:

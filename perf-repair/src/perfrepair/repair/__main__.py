@@ -12,9 +12,8 @@ from ..files import read_json, write_json, write_text
 from ..run_dir import AppPaths
 from ..config.args import add_config_arg, load_settings
 from ..log import log_to_stderr
-from ..catalog.screening import ScreeningError
-from ..inputs.resolve import InputError
-from ..screen.catalog import CatalogMismatch, screening_catalog
+from ..failure import reported
+from ..screen.catalog import screening_catalog
 from ..validation.repair import validate_edits, validate_harness
 from .dossier import dossier
 from .edit import edit_app, load_specs
@@ -40,19 +39,14 @@ def main(argv: list[str] | None = None) -> int:
                                         help="the benchmark results' manifest.yaml; its effective.yaml gives the sizes")
     a = ap.parse_args(argv)
     if a.command == "dossier":
-        return _dossier(ap, a)
+        return reported(lambda: _dossier(ap, a))
     if a.command == "test-set":
-        return _test_set(a)
-    return _edit(a) if a.command == "edit" else _harness(a)
+        return reported(lambda: _test_set(a))
+    return reported(lambda: _edit(a) if a.command == "edit" else _harness(a))
 
 
-def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    try:
-        dossier(a.run, a.app, a.source, screening_catalog(load_settings(ap, a)))
-    except (InputError, CatalogMismatch, ScreeningError) as e:
-        print(f"error {e}", file=sys.stderr)
-        return 1
-    return 0
+def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
+    dossier(a.run, a.app, a.source, screening_catalog(load_settings(ap, a)))
 
 
 def _test_set(a: argparse.Namespace) -> int:

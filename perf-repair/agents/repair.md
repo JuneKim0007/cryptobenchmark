@@ -20,6 +20,7 @@
 
 ```
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
+src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and exit 1; the guide's step failures
 src/perfrepair/guide/command.py : guide arguments, the step loop, one status line per step, the dry-run ending
 src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites, app, dossier, replace, edit, harness, device, report; Stop codes
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--run --app`; dossier takes `--perfrepair-config` for the screening catalog

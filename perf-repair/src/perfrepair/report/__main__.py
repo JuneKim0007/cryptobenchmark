@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from ..result.modes import MODES
-from ..validation import ValidationFailed
+from ..failure import reported
 from .command import app_report, run_summary
 
 
@@ -20,15 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--mode", choices=sorted(MODES), default="latency")
     sub.add_parser("summary").add_argument("--run", type=Path, required=True)
     a = ap.parse_args(argv)
-    try:
-        if a.step == "app":
-            app_report(a.run, a.app, MODES[a.mode])
-        else:
-            run_summary(a.run)
-    except (FileNotFoundError, ValueError, ValidationFailed) as e:
-        print(f"error {e}", file=sys.stderr)
-        return 1
-    return 0
+    return reported(lambda: app_report(a.run, a.app, MODES[a.mode]) if a.step == "app" else run_summary(a.run))
 
 
 if __name__ == "__main__":

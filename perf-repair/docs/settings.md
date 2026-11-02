@@ -87,5 +87,6 @@ An input with a fallback is resolved by `inputs/resolve.py` from its row in `inp
 
 ## Backend environment
 
+- A `claude-code` CLI that cannot be started or answers with an error is `claude_cli_failed`, one error line from the command.
 - The `claude-code` backend runs its CLI without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment; it uses the CLI's logged-in subscription.
 - The `claude` backend reads `ANTHROPIC_API_KEY` from the environment or `.env`.

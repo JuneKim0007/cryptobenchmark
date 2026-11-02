@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 
 from ..config.args import fill, load_settings, require
+from ..failure import reported
+from ..log import log_to_stderr
 from ..result.modes import MODES
 from .runtime.agent.select import add_agent_args, conversations
 from .evaluate.worthiness import command as worthiness_cmd
@@ -25,6 +27,7 @@ def _engine_args(p: argparse.ArgumentParser, role: str) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    log_to_stderr()
     ap = argparse.ArgumentParser(prog="perfrepair.ai", description=__doc__)
     sub = ap.add_subparsers(dest="stage", required=True)
     p = sub.add_parser("worthiness")
@@ -36,6 +39,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--app", required=True)
     _engine_args(p, "ai.replace")
     a = ap.parse_args(argv)
+    return reported(lambda: _stage(ap, a))
+
+
+def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     settings = load_settings(ap, a)
     fill(settings, a, {"run": ("paths.run", None), "prompts": ("paths.prompts", None)})
     require(ap, a, "run", "paths.run")
@@ -45,7 +52,6 @@ def main(argv: list[str] | None = None) -> int:
         worthiness_cmd.worthiness(a.run, MODES[a.mode], conversations(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
     else:
         replace_cmd.replace(a.run, a.app, conversations(a, settings, replace_cmd.DRY_RUN), library, limits, a.limit)
-    return 0
 
 
 if __name__ == "__main__":

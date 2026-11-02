@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ... import run_dir as rd
 from ...dto import Measurements
+from ...failure import reported
 from ...files import write_json
 from ...validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
 from . import (
@@ -26,7 +27,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--manifest", type=Path, required=True, help="a cryptobenchmark results/manifest.yaml")
     ap.add_argument("-o", "--out", type=Path, required=True, help="run directory to write into")
     a = ap.parse_args(argv)
+    return reported(lambda: _inbound(ap, a))
 
+
+def _inbound(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     manifest, base = read_manifest(a.manifest)
     require(str(a.manifest), validate_manifest(manifest, base))
     benchmark = manifest_file(manifest, base, "benchmark")
@@ -51,7 +55,6 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{a.out}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records")
     for note in notes:
         print(f"  warning {note}")
-    return 0
 
 
 if __name__ == "__main__":

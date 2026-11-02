@@ -16,6 +16,7 @@ from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..config.args import fill, load_settings, require
+from ..failure import reported
 from ..log import log_to_stderr
 from ..screen.catalog import ai_review, screening_catalog
 from .build.stage import build_stage
@@ -27,7 +28,6 @@ from ..ai.parse.grouping_assign import command as assign_cmd
 from ..run_dir import GroupingPaths
 from .report.checks import report
 from ..ai.review.grouping_review import command as review_cmd
-from ..validation import ValidationFailed
 
 
 def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParser]]:
@@ -86,31 +86,20 @@ def main(argv: list[str] | None = None) -> int:
     ap, steps = _parser()
     args = ap.parse_args(argv)
     if args.step == "build":
-        return _build(ap, args)
+        return reported(lambda: _build(ap, args))
     if args.step in ("assign", "report"):
-        _model_step(ap, steps[args.step], args)
-        return 0
-    try:
-        _file_step(args)
-    except (FileNotFoundError, ValueError, ValidationFailed) as e:
-        print(f"error {e}", file=sys.stderr)
-        return 1
-    return 0
+        return reported(lambda: _model_step(ap, steps[args.step], args))
+    return reported(lambda: _file_step(args))
 
 
-def _build(ap: argparse.ArgumentParser, args: argparse.Namespace) -> int:
+def _build(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     settings = load_settings(ap, args)
     reviewer = None
     if ai_review(settings):
         fill(settings, args, {"prompts": ("paths.prompts", None)})
         reviewer = Reviewer(conversations(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args))
-    try:
-        paths = build_stage(args.manifest, args.run, screening_catalog(settings), reviewer)
-    except (FileNotFoundError, ValueError, ValidationFailed) as e:
-        print(f"error {e}", file=sys.stderr)
-        return 1
+    paths = build_stage(args.manifest, args.run, screening_catalog(settings), reviewer)
     print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
-    return 0
 
 
 def _file_step(args: argparse.Namespace) -> None:

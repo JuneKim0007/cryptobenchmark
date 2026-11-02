@@ -8,6 +8,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..catalog.names import NamesError
 from ..data_handler.inbound import RunContext
+from ..failure import reported
 from ..files import write_json
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
@@ -30,7 +31,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--name", required=True, help="the app's folder under <run>/apps/; with several project roots, "
                                                 "one <name>.<root dirs joined by '.'> each")
     a = ap.parse_args(argv)
+    return reported(lambda: _app(ap, a))
 
+
+def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     try:
         rd.app_dir(a.run, a.name)
     except ValueError as e:

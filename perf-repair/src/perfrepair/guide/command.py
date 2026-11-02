@@ -10,15 +10,11 @@ from pathlib import Path
 from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
-from ..app.gate import GateError
 from ..config.args import fill, load_settings, require
-from ..data_handler.outbound.benchmark_runner import BenchmarkRunError
+from ..failure import FAILURES
 from ..log import log_to_stderr
 from ..result.modes import MODES
-from ..validation import ValidationFailed
 from .steps import DEVICE, DRY, Guide, Stop
-
-FAILURES = (ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError)
 
 
 def parser() -> argparse.ArgumentParser:

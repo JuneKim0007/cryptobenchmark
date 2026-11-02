@@ -35,12 +35,15 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
     run, out = Path(run), {}
     if not (run / rd.ROWS).is_file():
         return {rd.ROWS: [f"missing: {run / rd.ROWS}"]}
-    rows = rd.load_rows(run)
+    rows = _parsed(rd.load_rows, run)
+    if isinstance(rows, str):
+        return {rd.ROWS: [rows]}
     out[rd.ROWS] = validate_rows(rows)
-    if (run / rd.MEASUREMENTS).exists():
-        out[rd.MEASUREMENTS] = validate_measurements(rd.load_measurements(run), rows)
-    if (run / rd.RUN_LOG).exists():
-        out[rd.RUN_LOG] = validate_run_log(rd.load_run_log(run), rows)
+    for name, load, check in ((rd.MEASUREMENTS, rd.load_measurements, validate_measurements),
+                              (rd.RUN_LOG, rd.load_run_log, validate_run_log)):
+        if (run / name).exists():
+            doc = _parsed(load, run)
+            out[name] = [doc] if isinstance(doc, str) else check(doc, rows)
     reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)
@@ -79,6 +82,14 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
             saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
             out[directory.name] = kind.validate(saved, records)
     return out
+
+
+def _parsed(load, run: Path):
+    """The loaded document, or the problem a malformed file is."""
+    try:
+        return load(run)
+    except (KeyError, TypeError, ValueError) as e:
+        return f"does not parse: {type(e).__name__} {e}"
 
 
 def _resolved(catalog: Catalog | None) -> Catalog:
