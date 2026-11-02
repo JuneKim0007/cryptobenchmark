@@ -14,7 +14,6 @@ from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.screen.catalog import load_catalog
-from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.dossiers import validate_dossiers
 from perfrepair.check.run import validate_run
 
@@ -180,7 +179,7 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     app.mkdir(parents=True)
     for name in ("scopes.json", "app.json"):
         shutil.copy(DEMO / name, app / name)
-    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING).handler(), **QUIET)
+    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING), **QUIET)
     [d] = doc["dossiers"]
     assert d["current"] == "Cipher|AES/GCM/NoPadding|Slow" and d["source"].startswith("    byte[] seal(")
     [option] = d["options"]
@@ -263,10 +262,10 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
     app = run / "apps" / "demo"
     app.mkdir(parents=True)
     shutil.copy(DEMO / "scopes.json", app / "scopes.json")
-    packaged = load_catalog(SCREENING).handler()
+    packaged = load_catalog(SCREENING)
     rule = PlatformRule(28, None, "targetSdk", "test rule", "S")
-    handler = ScreeningHandler(replace(packaged.screening, platform={("Fast", "Cipher", "AES/GCM/NOPADDING"): rule}),
-                               packaged.names)
+    handler = replace(packaged, screening=replace(packaged.screening,
+                                                  platform={("Fast", "Cipher", "AES/GCM/NOPADDING"): rule}))
     facts = json.loads((DEMO / "app.json").read_text())
     for target_sdk, extra in ((27, set()), (28, {"deprecated_only"})):
         (app / "app.json").write_text(json.dumps({**facts, "targetSdk": target_sdk}))

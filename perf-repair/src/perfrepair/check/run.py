@@ -47,9 +47,10 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
     if (run / rd.APPS / rd.SUMMARY).is_file():
         out[f"{rd.APPS}/{rd.SUMMARY}"] = validate_summary(read_json(run / rd.APPS / rd.SUMMARY), reports)
     grouping = GroupingPaths(run)
+    catalog = catalog or screening_catalog(None)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
-        out |= _screen(grouping)
+        out |= _screen(grouping, catalog)
     if not grouping.groups.exists():
         return out
     try:
@@ -77,9 +78,8 @@ def validate_run(run: Path, catalog: Catalog | None = None) -> dict[str, list[st
     return out
 
 
-def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None,
-              catalog: Catalog | None) -> dict[str, list[str]]:
-    out, handler = {}, (catalog or screening_catalog(None)).handler()
+def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalog: Catalog) -> dict[str, list[str]]:
+    out, handler = {}, catalog.handler()
     for directory in sorted((run / rd.APPS).glob(f"*/{rd.DOSSIERS}")):
         scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
         verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))
@@ -101,8 +101,9 @@ def _grouping(grouping: GroupingPaths) -> list[str]:
     return GroupingKind(grouping).validate(saved, records)
 
 
-def _screen(grouping: GroupingPaths) -> dict[str, list[str]]:
+def _screen(grouping: GroupingPaths, catalog: Catalog) -> dict[str, list[str]]:
     if not grouping.screen.exists():
         return {}
-    items = read_items(read_json(grouping.items))
-    return {"grouping/screen.json": validate_screen_document(read_json(grouping.screen), items)}
+    items, doc = read_items(read_json(grouping.items)), read_json(grouping.screen)
+    problems = validate_screen_document(doc, items)
+    return {"grouping/screen.json": problems or catalog.mismatch(rd.load_screen_catalog(grouping))}

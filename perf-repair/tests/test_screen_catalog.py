@@ -6,15 +6,21 @@ from pathlib import Path
 
 import pytest
 
+from test_stages import run  # noqa: F401  the recorded run, grouped
+
 from perfrepair.catalog.screening import SCREENING
+from perfrepair.check.run import validate_run
 from perfrepair.config.load import load
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.inputs.resolve import InputError
 from perfrepair.repair.__main__ import main as repair_main
-from perfrepair.screen.catalog import ai_review, screening_catalog
+from perfrepair.repair.dossier import dossier
+from perfrepair.run_dir import GroupingPaths
+from perfrepair.screen.catalog import CatalogMismatch, ai_review, load_catalog, screening_catalog
 from perfrepair.validation.__main__ import main as validation_main
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+DEMO = Path(__file__).parent / "fixtures" / "apps" / "demo"
 PACKAGED_LINE = "screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off"
 
 
@@ -77,3 +83,38 @@ def test_build_logs_the_packaged_catalog_without_perfrepair_yaml(tmp_path, capsy
     assert grouping_main(["build", "--manifest", str(F), "--run", str(tmp_path)]) == 0
     assert capsys.readouterr().err.splitlines() == [PACKAGED_LINE]
     assert json.loads((tmp_path / "grouping" / "screen.json").read_text())["verdicts"]
+
+
+def _other_catalog(tmp_path):
+    other = tmp_path / "other.yaml"
+    other.write_text(SCREENING.read_text() + "\n# a person's edit\n")
+    return load_catalog(other)
+
+
+def test_build_records_the_catalog_it_screened_by(run):  # noqa: F811
+    doc = json.loads(GroupingPaths(run).screen.read_text())
+    assert doc["schemaVersion"] == 3 and doc["catalog"] == load_catalog(SCREENING).identity()
+
+
+def test_the_dossier_step_refuses_a_catalog_screen_json_was_not_screened_by(run, tmp_path):  # noqa: F811
+    app = run / "apps" / "demo"
+    app.mkdir(parents=True)
+    for name in ("scopes.json", "app.json"):
+        shutil.copy(DEMO / name, app / name)
+    with pytest.raises(CatalogMismatch, match=r"^screening_catalog_mismatch: screen.json was screened by packaged"):
+        dossier(run, "demo", F.parents[1] / "app", _other_catalog(tmp_path), echo=lambda _: None)
+    assert not (app / "dossiers.json").exists()
+
+
+def test_check_reports_the_mismatch_and_the_same_catalog_passes(run, tmp_path):  # noqa: F811
+    assert validate_run(run, load_catalog(SCREENING))["grouping/screen.json"] == []
+    [problem] = validate_run(run, _other_catalog(tmp_path))["grouping/screen.json"]
+    assert problem.startswith("screening_catalog_mismatch: ")
+
+
+def test_a_screen_json_with_a_malformed_catalog_identity_is_refused(run):  # noqa: F811
+    path = GroupingPaths(run).screen
+    doc = json.loads(path.read_text())
+    path.write_text(json.dumps({**doc, "catalog": {"source": "packaged", "sha256": "x"}}))
+    assert validate_run(run, load_catalog(SCREENING))["grouping/screen.json"] == [
+        "catalog {'source': 'packaged', 'sha256': 'x'} is not {source, sha256}"]

@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from ..dto.grouping import Item
-from ..dto.screen import CODE_GROUPED, STATUSES, UNKNOWN, Verdict, read_screen
+import re
+
+from ..dto.screen import CODE_GROUPED, STATUSES, UNKNOWN, Verdict, read_screen, read_screen_catalog
+
+SHA256 = re.compile(r"[0-9a-f]{64}")
 
 
 def _verdict_problems(n: int, v: Verdict) -> list[str]:
@@ -19,9 +23,15 @@ def validate_screen(verdicts: dict[int, Verdict], items: list[Item]) -> list[str
     return problems + [p for n, v in sorted(verdicts.items()) for p in _verdict_problems(n, v)]
 
 
+def _catalog_problems(catalog) -> list[str]:
+    ok = isinstance(catalog, dict) and isinstance(catalog.get("source"), str) and catalog["source"] != "" \
+        and isinstance(catalog.get("sha256"), str) and SHA256.fullmatch(catalog["sha256"])
+    return [] if ok else [f"catalog {catalog!r} is not {{source, sha256}}"]
+
+
 def validate_screen_document(doc: dict, items: list[Item]) -> list[str]:
     try:
-        verdicts = read_screen(doc)
+        verdicts, catalog = read_screen(doc), read_screen_catalog(doc)
     except (KeyError, TypeError, ValueError) as e:
         return [f"screen.json does not parse: {e}"]
-    return validate_screen(verdicts, items)
+    return _catalog_problems(catalog) + validate_screen(verdicts, items)

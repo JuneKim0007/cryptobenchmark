@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN = "broken", "platform_deprecated", "accepted", "unknown"
 STATUSES = (BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN)
 CODE_GROUPED = (BROKEN, PLATFORM_DEPRECATED)
@@ -40,12 +40,22 @@ def qualified_verdicts(groups: dict, screen: dict[int, Verdict] | None) -> dict[
     return {e["qualified"]: screen[int(k)] for k, e in groups["items"].items()}
 
 
-def screen_document(verdicts: dict[int, Verdict]) -> dict:
-    return {"schemaVersion": SCHEMA_VERSION, "verdicts": {str(k): v.to_json() for k, v in sorted(verdicts.items())}}
+def screen_document(verdicts: dict[int, Verdict], catalog: dict) -> dict:
+    """catalog: {source, sha256} of the screening catalog the verdicts came from."""
+    return {"schemaVersion": SCHEMA_VERSION, "catalog": catalog,
+            "verdicts": {str(k): v.to_json() for k, v in sorted(verdicts.items())}}
+
+
+def _checked(doc: dict) -> dict:
+    if doc.get("schemaVersion") != SCHEMA_VERSION:
+        raise ValueError(f"screen schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    return doc
 
 
 def read_screen(doc: dict) -> dict[int, Verdict]:
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"screen schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
-    return {int(k): Verdict.from_json(v) for k, v in doc["verdicts"].items()}
+    return {int(k): Verdict.from_json(v) for k, v in _checked(doc)["verdicts"].items()}
+
+
+def read_screen_catalog(doc: dict) -> dict:
+    return _checked(doc)["catalog"]
 

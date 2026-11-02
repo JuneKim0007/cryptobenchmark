@@ -15,6 +15,10 @@ from .handler import ScreeningHandler
 PACKAGED = "packaged"
 
 
+class CatalogMismatch(ValueError):
+    pass
+
+
 @dataclass(frozen=True)
 class Catalog:
     path: Path
@@ -31,6 +35,19 @@ class Catalog:
 
     def handler(self) -> ScreeningHandler:
         return ScreeningHandler(self.screening, self.names)
+
+    def mismatch(self, recorded: dict | None) -> list[str]:
+        """A run is judged by one catalog: the one screen.json recorded; none recorded means no screening ran."""
+        if recorded is None or recorded.get("sha256") == self.sha256:
+            return []
+        return [f"screening_catalog_mismatch: screen.json was screened by {recorded.get('source')} "
+                f"(sha256 {str(recorded.get('sha256'))[:12]}), this step resolved {self.source} (sha256 {self.sha256[:12]}); "
+                f"rerun grouping build or set screening.catalog to the catalog screen.json names"]
+
+    def require_same(self, recorded: dict | None) -> None:
+        problems = self.mismatch(recorded)
+        if problems:
+            raise CatalogMismatch(problems[0])
 
 
 def load_catalog(path: Path, names: Names | None = None) -> Catalog:

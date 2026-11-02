@@ -36,3 +36,6 @@ def summary(median, spread=1.0, n=50):
 
 
 QUIET = {"echo": lambda _: None}
+
+
+CATALOG = {"source": "packaged", "sha256": "0" * 64}

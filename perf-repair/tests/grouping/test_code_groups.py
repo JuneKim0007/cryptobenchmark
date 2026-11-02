@@ -10,6 +10,7 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
 from perfrepair.dto.grouping_state import Group, code_made
+from helpers import CATALOG
 from perfrepair.dto.screen import Verdict, screen_document
 from perfrepair.files import write_json
 from perfrepair.grouping.interop_plan import plan
@@ -24,7 +25,7 @@ BROKEN = {3: "ALG-S/M1", 4: "ALG-S/M1", 6: "H1"}
 def screen(paths, broken=BROKEN):
     verdicts = {n: Verdict("broken", "r", "s", broken[n]) if n in broken else Verdict("accepted", "r", "s", f"A{n}")
                 for n in range(1, 7)}
-    write_json(paths.screen, screen_document(verdicts))
+    write_json(paths.screen, screen_document(verdicts, CATALOG))
 
 
 def assign(paths):
@@ -145,6 +146,6 @@ def test_a_status_change_that_asks_the_same_items_keeps_the_outbox(paths):
     old = active_fingerprint(paths.root)
     verdicts = {n: Verdict("broken", "r", "s", BROKEN[n]) if n in BROKEN else Verdict("unknown", "other reason", None, f"A{n}")
                 for n in range(1, 7)}
-    write_json(paths.screen, screen_document(verdicts))
+    write_json(paths.screen, screen_document(verdicts, CATALOG))
     _, agent = assign(paths)
     assert active_fingerprint(paths.root) == old and agent.started == 0

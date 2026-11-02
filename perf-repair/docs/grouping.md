@@ -22,7 +22,7 @@ flowchart TD
 | File | Written by | Holds |
 |---|---|---|
 | `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
-| `screen.json` | build | schema 2, per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
+| `screen.json` | build | schema 3: `catalog` `{source, sha256}` the verdicts came from; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
 | `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out items with their code keys (none: as before screening) |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |

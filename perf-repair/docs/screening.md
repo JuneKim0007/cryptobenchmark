@@ -21,7 +21,7 @@
 - nominal mode: a mode the names catalog maps another mode onto for a base (`modeSynonyms`) never matches that base; `RSA/ECB/*` is not ECB.
 - platform: applies only with a targetSdk; `screen/stage.py` passes none, so `grouping/screen.json` never says `platform_deprecated`.
 - future: rows from the SP 800-131A r3 draft are recorded beside the key and never change a verdict.
-- recorded key: each verdict in `screen.json` (schema 2) carries the `canonical` name and `keySize` it was looked up by; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs one.
+- recorded key: each verdict in `screen.json` (schema 3) carries the `canonical` name and `keySize` it was looked up by; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs one.
 
 ## Use
 
@@ -41,6 +41,7 @@
 | `screening.catalog` names a file | that file, relative to `perfrepair.yaml` | none |
 | `screening.catalog` names no file | none: the step exits non-zero with `missing_file` | none |
 
+- Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide's dossier step and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`, so a run is never judged by two catalogs. Same content under another path passes.
 - A named catalog that does not load is never replaced by the packaged one: skipping screening would let a broken algorithm become a target.
 - The resolution is the `screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
 

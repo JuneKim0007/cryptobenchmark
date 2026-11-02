@@ -9,6 +9,7 @@ from perfrepair.catalog.screening import Screening
 from perfrepair.check.run import validate_run
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.dto.grouping import Item, read_items
+from helpers import CATALOG
 from perfrepair.dto.screen import Verdict, lowers_status, read_screen, screen_document
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.screen.handler import ScreeningHandler
@@ -107,7 +108,7 @@ def test_the_validator_wants_one_verdict_per_item_from_the_status_set():
 
 
 def test_the_validator_refuses_another_schema_version():
-    doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")})
+    doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")}, CATALOG)
     assert validate_screen_document(doc, ITEMS) == []
     assert validate_screen_document({**doc, "schemaVersion": 1}, ITEMS)[0].startswith("screen.json does not parse")
 

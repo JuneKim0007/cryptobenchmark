@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 from .dto import Measurements, PrimitiveRow, RunLog
-from .dto.screen import Verdict, read_screen
+from .dto.screen import Verdict, read_screen, read_screen_catalog
 from .files import read_json
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
@@ -93,3 +93,7 @@ def load_run_log(run: Path) -> RunLog:
 
 def load_screen(paths: GroupingPaths) -> dict[int, Verdict] | None:
     return read_screen(read_json(paths.screen)) if paths.screen.exists() else None
+
+
+def load_screen_catalog(paths: GroupingPaths) -> dict | None:
+    return read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None

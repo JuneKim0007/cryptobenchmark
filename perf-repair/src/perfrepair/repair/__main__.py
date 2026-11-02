@@ -12,7 +12,9 @@ from ..files import read_json, write_json, write_text
 from ..run_dir import AppPaths
 from ..config.args import add_config_arg, load_settings
 from ..log import log_to_stderr
-from ..screen.catalog import screening_catalog
+from ..catalog.screening import ScreeningError
+from ..inputs.resolve import InputError
+from ..screen.catalog import CatalogMismatch, screening_catalog
 from ..validation.repair import validate_edits, validate_harness
 from .dossier import dossier
 from .edit import edit_app, load_specs
@@ -46,11 +48,10 @@ def main(argv: list[str] | None = None) -> int:
 
 def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     try:
-        catalog = screening_catalog(load_settings(ap, a))
-    except ValueError as e:
+        dossier(a.run, a.app, a.source, screening_catalog(load_settings(ap, a)))
+    except (InputError, CatalogMismatch, ScreeningError) as e:
         print(f"error {e}", file=sys.stderr)
         return 1
-    dossier(a.run, a.app, a.source, catalog.handler())
     return 0
 
 

@@ -32,5 +32,5 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None,
     paths.root.mkdir(parents=True, exist_ok=True)
     write_json(paths.items, items_document(items))
     write_json(paths.profiles, profiles_document(profiles))
-    write_json(paths.screen, screen_document(verdicts))
+    write_json(paths.screen, screen_document(verdicts, catalog.identity()))
     return paths
