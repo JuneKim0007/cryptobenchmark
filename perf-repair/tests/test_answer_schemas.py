@@ -14,6 +14,8 @@ from perfrepair.validation.answer_text import NOT_BLANK
 from perfrepair.validation.evaluate.worthiness import MEMBER_PREFIX
 from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG
 
+# What the role schemas may send the Messages API; a new keyword is checked against the API before it joins this.
+API_KEYWORDS = {"type", "properties", "required", "additionalProperties", "items", "enum"}
 SCHEMAS = {"assign": ASSIGN, "worthiness": WORTHINESS, "review": REVIEW, "replace": REPLACE, "classify": CLASSIFY}
 
 
@@ -73,6 +75,12 @@ def test_the_api_schema_drops_what_the_messages_api_refuses_and_keeps_the_rest(n
     assert not any(k in n for n in nodes(sent) for k in API_UNSUPPORTED)
     assert [n.get("enum") for n in nodes(sent)] == [n.get("enum") for n in nodes(schema)]
     assert [sorted(n.get("properties", {})) for n in nodes(sent)] == [sorted(n.get("properties", {})) for n in nodes(schema)]
+
+
+@pytest.mark.parametrize("name", SCHEMAS)
+def test_a_role_schema_sends_only_allowed_keywords(name):
+    for node in nodes(api_schema(SCHEMAS[name])):
+        assert set(node) <= API_KEYWORDS, sorted(set(node) - API_KEYWORDS)
 
 
 def test_a_property_named_like_a_keyword_survives():
