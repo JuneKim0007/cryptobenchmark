@@ -1,6 +1,7 @@
 import os
+from pathlib import Path
 
-from perfrepair.env import load_env
+from perfrepair.ai.runtime.agent.env import ROOT, load_env
 
 
 def test_env_file_fills_only_unset_keys(tmp_path, monkeypatch):
@@ -13,3 +14,7 @@ def test_env_file_fills_only_unset_keys(tmp_path, monkeypatch):
     load_env(f)
     assert os.environ["PERFREPAIR_AGENT"] == "claude" and os.environ["PERFREPAIR_MODEL"] == "m"
     assert "ANTHROPIC_API_KEY" not in os.environ and os.environ["PERFREPAIR_EFFORT"] == "low"
+
+
+def test_env_root_is_the_perf_repair_folder():
+    assert ROOT == Path(__file__).resolve().parents[1] and (ROOT / ".env.example").is_file()

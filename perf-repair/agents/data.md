@@ -43,7 +43,6 @@ src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step sta
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status); NO_OPTION_REASONS, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
-src/perfrepair/env.py : .env loader: fills unset environment keys
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write
 src/perfrepair/run_dir.py : run directory: artifact names and loaders; AppPaths, the only definition of apps/<name>/ paths, cryptobenchmark's `measured/scoped/` files included
 ```

@@ -39,6 +39,7 @@ src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs
 src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output, server-side refusal fallback
 src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
+src/perfrepair/ai/runtime/agent/env.py : .env loader: fills unset environment keys
 src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
 src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort arguments → Conversations
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations

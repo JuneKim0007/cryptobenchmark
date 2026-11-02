@@ -11,7 +11,7 @@ LAYERS = [
     ("result",),
     ("app", "scope"),
     ("validation",),
-    ("ai/runtime", "env"),
+    ("ai/runtime",),
     ("ai", "ai/evaluate", "ai/parse", "ai/review", "ai/suggest"),
     ("grouping", "repair", "command"),
     ("report",),
