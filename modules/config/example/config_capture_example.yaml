@@ -14,6 +14,11 @@ runtime:
   release: ''
   javaVersion: 17.0.11
   defaultKeySizeProperty: ''
+  fingerprint: ''
+  javaVendor: Eclipse Adoptium
+  javaRuntimeVersion: 17.0.11+9
+  osName: Linux
+  osArch: x86_64
 providers:
 - name: SUN
   version: '17'

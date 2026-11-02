@@ -58,6 +58,20 @@ class CaptureDocumentTest {
     }
 
     @Test
+    fun theBuildIdentityIsReadOnAJvmAndOptionalInAnOlderCapture() {
+        val runtime = DeviceRuntimeReader.read()
+        assertEquals("", runtime.fingerprint)
+        assertEquals(System.getProperty("java.vendor"), runtime.javaVendor)
+        assertEquals(System.getProperty("java.runtime.version"), runtime.javaRuntimeVersion)
+        assertEquals(System.getProperty("os.name"), runtime.osName)
+        assertEquals(System.getProperty("os.arch"), runtime.osArch)
+        val document = LinkedHashMap(CaptureDocument.of(capture.copy(runtime = runtime.copy(fingerprint = "a/b/c:17/X/1:user/release-keys"))))
+        assertEquals("a/b/c:17/X/1:user/release-keys", CaptureDocument.parse(document).runtime.fingerprint)
+        document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.FINGERPRINT) }
+        assertEquals("", CaptureDocument.parse(document).runtime.fingerprint)
+    }
+
+    @Test
     fun aBundledProviderRoundTripsWithItsOriginAndArtifact() {
         val bundled = capture.copy(providers = capture.providers.take(1).map { it.copy(origin = ProviderOrigin.BUNDLED, artifact = "g:n:1") })
         val document = CaptureDocument.of(bundled)

@@ -12,9 +12,16 @@ object DeviceRuntimeReader {
         hardware = buildField("android.os.Build", "HARDWARE"),
         sdkInt = sdkInt(),
         release = buildField("android.os.Build\$VERSION", "RELEASE"),
-        javaVersion = System.getProperty("java.version") ?: "",
-        defaultKeySizeProperty = System.getProperty(DEFAULT_KEY_SIZE_PROPERTY) ?: "",
+        javaVersion = property("java.version"),
+        defaultKeySizeProperty = property(DEFAULT_KEY_SIZE_PROPERTY),
+        fingerprint = buildField("android.os.Build", "FINGERPRINT"),
+        javaVendor = property("java.vendor"),
+        javaRuntimeVersion = property("java.runtime.version"),
+        osName = property("os.name"),
+        osArch = property("os.arch"),
     )
+
+    private fun property(name: String): String = System.getProperty(name) ?: ""
 
     private fun buildField(className: String, name: String): String = try {
         Class.forName(className).getField(name).get(null).toString()

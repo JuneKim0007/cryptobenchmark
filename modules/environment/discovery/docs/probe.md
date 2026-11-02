@@ -63,7 +63,9 @@ Errors are `BundledProviderException` with a `code`. The capture stays `schemaVe
 
 ## Runtime
 
-`DeviceRuntimeReader.read()` reads `android.os.Build` `MODEL`, `MANUFACTURER`, `HARDWARE` and `Build$VERSION` `RELEASE`, `SDK_INT` reflectively (`""` and `0` on a JVM), `java.version`, and `jdk.security.defaultKeySize`.
+`DeviceRuntimeReader.read()` reads `android.os.Build` `MODEL`, `MANUFACTURER`, `HARDWARE`, `FINGERPRINT` and `Build$VERSION` `RELEASE`, `SDK_INT` reflectively (`""` and `0` on a JVM), `java.version`, `java.vendor`, `java.runtime.version`, `os.name`, `os.arch`, and `jdk.security.defaultKeySize`.
+
+An older capture without the identity fields still parses, but its `runtime` differs from the current one, so `reusable` re-probes.
 
 ## Trial
 

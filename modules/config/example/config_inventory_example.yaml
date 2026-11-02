@@ -3,7 +3,8 @@ generatedFrom:
   capture: config_capture_example.yaml
   trial: config_trial_example.yaml
   device: {model: '', manufacturer: '', hardware: '', sdkInt: 0, release: '', javaVersion: 17.0.11,
-    defaultKeySizeProperty: ''}
+    defaultKeySizeProperty: '', fingerprint: '', javaVendor: Eclipse Adoptium, javaRuntimeVersion: 17.0.11+9,
+    osName: Linux, osArch: x86_64}
 providers:
   SUN:
     MessageDigest:

@@ -47,6 +47,13 @@ class ReuseTest {
     }
 
     @Test
+    fun anOtherBuildOrACaptureWithoutTheBuildIdentityIsNotReused() {
+        written(FIRST)
+        assertNull(discovery.reusable(RUNTIME.copy(fingerprint = "a/b/c:17/X/1:user/release-keys")))
+        assertNull(discovery.reusable(RUNTIME.copy(javaVendor = "Other", javaRuntimeVersion = "17.0.1+1")))
+    }
+
+    @Test
     fun theNewestCaptureWins() {
         written(FIRST)
         val newest = written(FIRST + 1_000)

@@ -30,6 +30,11 @@ Top-level keys, in this order.
 | `release` | string | Android version |
 | `javaVersion` | string | `java.version` |
 | `defaultKeySizeProperty` | string | system property `jdk.security.defaultKeySize`; `''` when unset; optional on read (absent = `''`) |
+| `fingerprint` | string | `Build.FINGERPRINT`; `''` on a JVM; optional on read (absent = `''`) |
+| `javaVendor` | string | `java.vendor`; optional on read (absent = `''`) |
+| `javaRuntimeVersion` | string | `java.runtime.version`; optional on read (absent = `''`) |
+| `osName` | string | `os.name`; optional on read (absent = `''`) |
+| `osArch` | string | `os.arch`; optional on read (absent = `''`) |
 
 All other runtime fields are required on read.
 

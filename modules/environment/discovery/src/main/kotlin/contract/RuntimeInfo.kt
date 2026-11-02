@@ -8,4 +8,9 @@ data class RuntimeInfo(
     val release: String = "",
     val javaVersion: String = "",
     val defaultKeySizeProperty: String = "",
+    val fingerprint: String = "",
+    val javaVendor: String = "",
+    val javaRuntimeVersion: String = "",
+    val osName: String = "",
+    val osArch: String = "",
 )

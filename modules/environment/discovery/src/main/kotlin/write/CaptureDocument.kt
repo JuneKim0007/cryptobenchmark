@@ -30,6 +30,11 @@ object CaptureDocument {
     private const val RELEASE = "release"
     private const val JAVA_VERSION = "javaVersion"
     internal const val DEFAULT_KEY_SIZE_PROPERTY = "defaultKeySizeProperty"
+    internal const val FINGERPRINT = "fingerprint"
+    private const val JAVA_VENDOR = "javaVendor"
+    private const val JAVA_RUNTIME_VERSION = "javaRuntimeVersion"
+    private const val OS_NAME = "osName"
+    private const val OS_ARCH = "osArch"
 
     private const val NAME = "name"
     private const val VERSION = "version"
@@ -77,6 +82,11 @@ object CaptureDocument {
         RELEASE to runtime.release,
         JAVA_VERSION to runtime.javaVersion,
         DEFAULT_KEY_SIZE_PROPERTY to runtime.defaultKeySizeProperty,
+        FINGERPRINT to runtime.fingerprint,
+        JAVA_VENDOR to runtime.javaVendor,
+        JAVA_RUNTIME_VERSION to runtime.javaRuntimeVersion,
+        OS_NAME to runtime.osName,
+        OS_ARCH to runtime.osArch,
     )
 
     private fun runtimeEntry(document: Map<String, Any>): RuntimeInfo = RuntimeInfo(
@@ -87,6 +97,11 @@ object CaptureDocument {
         release = string(document, RELEASE),
         javaVersion = string(document, JAVA_VERSION),
         defaultKeySizeProperty = optionalString(document, DEFAULT_KEY_SIZE_PROPERTY),
+        fingerprint = optionalString(document, FINGERPRINT),
+        javaVendor = optionalString(document, JAVA_VENDOR),
+        javaRuntimeVersion = optionalString(document, JAVA_RUNTIME_VERSION),
+        osName = optionalString(document, OS_NAME),
+        osArch = optionalString(document, OS_ARCH),
     )
 
     private fun providerDocument(provider: ProviderEntry): Map<String, Any> {

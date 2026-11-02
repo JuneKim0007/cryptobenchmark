@@ -26,7 +26,14 @@ fun main(arguments: Array<String>) {
         harness.measure(prepared).also { System.err.println("  ${prepared.case.id}: median ${it.medianNanos} ns/op") }
     }
     val written = BenchmarkJson(outputDirectory).write(
-        mapOf("javaVersion" to capture.runtime.javaVersion, "defaultKeySizeProperty" to capture.runtime.defaultKeySizeProperty),
+        mapOf(
+            "javaVersion" to capture.runtime.javaVersion,
+            "defaultKeySizeProperty" to capture.runtime.defaultKeySizeProperty,
+            "javaVendor" to capture.runtime.javaVendor,
+            "javaRuntimeVersion" to capture.runtime.javaRuntimeVersion,
+            "osName" to capture.runtime.osName,
+            "osArch" to capture.runtime.osArch,
+        ),
         measurements.map { it.row() },
     )
     println(written.path)
