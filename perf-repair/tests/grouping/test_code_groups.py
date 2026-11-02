@@ -150,3 +150,14 @@ def test_a_status_change_that_asks_the_same_items_keeps_the_outbox(paths):
     write_json(paths.screen, screen_document(verdicts, CATALOG, built(paths)))
     _, agent = assign(paths)
     assert active_fingerprint(paths.root) == old and agent.started == 0
+
+
+def test_a_code_key_change_keeps_the_outbox_and_regroups_without_asking(paths):
+    screen(paths)
+    assign(paths)
+    old = active_fingerprint(paths.root)
+    screen(paths, {**BROKEN, 4: "ALG-S/M2"})
+    reported = [g["members"] for g in report(paths, FAMILIES)["groups"] if code_made(g["id"])]
+    knowledge, agent = assign(paths)
+    assert active_fingerprint(paths.root) == old and agent.started == 0
+    assert sorted(code_groups_of(knowledge).values()) == sorted(reported) == [[3], [4], [6]]

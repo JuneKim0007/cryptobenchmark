@@ -33,7 +33,7 @@ src/perfrepair/ai/parse/algorithm_classify/render.py : one batch's message: per 
 src/perfrepair/ai/parse/algorithm_classify/schema.py : the answer's JSON schema: answers of id, answer, reason
 src/perfrepair/ai/parse/algorithm_classify/state.py : Classified (the outbox's projection), reviewed (answers onto verdicts), candidates (registry-candidates.yaml)
 src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; GroupingKind on the engine, its dry run
-src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: pending (not screened out), code-made groups seeded in empty, screen statuses as charter inputs, admit (gate B), check (gate C), apply, validate (gates A, D), projections
+src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: pending (not screened out), code-made groups seeded in empty, the screened-out ids as charter inputs, admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups, the item
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge

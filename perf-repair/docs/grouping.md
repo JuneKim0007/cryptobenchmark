@@ -37,7 +37,7 @@ flowchart TD
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
 | `profiles.json` | build | per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes |
-| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out items with their code keys (none: as before screening) |
+| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out item ids (none: as before screening) |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
 | `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
 | `cursor.json` | assign | `next` pending id, `decided` and `dropped` counts, `knowledgeVersion` |
@@ -59,10 +59,10 @@ flowchart TD
 | build write | everything, the classify review included, is computed first; then screen.json, profiles.json and items.json are staged as temp files and renamed in that order: a failure before the renames leaves the previous build whole, a partial rename fails screen.json's `built` digests, and screen.json first means its absence never follows a new items.json |
 | key | family, status and the canonical name `screen.json` recorded (key size is the call's, as in model groups); one group per key across providers |
 | id | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision |
-| description | fixed: code-made group of one algorithm, its canonical name, key size and status |
+| description | fixed: code-made group of one algorithm: its canonical name, any key size, and status |
 | model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |
 | groups.json | a screened-out item is in exactly one code-made group and never in a model group; a code-made group is exactly the one its key implies |
-| screen change | the screened-out items and their code keys join the charter fingerprint: a change in which items are code-grouped starts a new outbox (a change among asked items' statuses does not), a reverted one resumes its old outbox; `report` on a stale outbox fails with `rerun assign` |
+| screen change | only the screened-out item ids join the charter fingerprint, the pending set being all the model is asked about: a change in which items are code-grouped starts a new outbox, a reverted one resumes its old outbox, and `report` on a stale outbox fails with `rerun assign`; a change of a code key, or among asked items' statuses, keeps the outbox and asks nothing, because gate A and `report` recompute the code-made groups from screen.json (`knowledge.json` catches up on the next assign) |
 | resolved parameters | not in the key; a group whose members resolved differently gets `resolved_parameters_differ` |
 
 ## Answer contract

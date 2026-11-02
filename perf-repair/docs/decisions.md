@@ -19,7 +19,7 @@
 - Answer limits (lengths, id and alias patterns, enums) are each gate's constants, read by its `schema.py` and prompt values; they are part of the answer contract and the charter fingerprint, not settings.
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.
 - A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items.
-- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are the screen's statuses, classify's the whole batched evidence, the other kinds have none and keep their fingerprints.
+- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are the screened-out item ids, classify's the whole batched evidence, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
 ## Worthiness
