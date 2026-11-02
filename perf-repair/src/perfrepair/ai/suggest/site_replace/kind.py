@@ -8,7 +8,7 @@ from ....dto.prompt import Charter, TaskPrompt
 from ....dto.site import Dossier, Replacement
 from ....files import write_json
 from ....validation.dossiers import check_dossier
-from ....validation.suggest.dossier import parse_dossiers
+from ....validation.dossiers import parse_dossiers
 from ....validation.suggest.site_replace import check_reply
 from ....validation.replacements import validate_replacements
 from ...runtime.engine.kind import replay_problems

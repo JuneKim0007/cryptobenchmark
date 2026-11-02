@@ -131,3 +131,23 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict) -> list[str]
         problems += [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
                      for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
     return problems
+
+
+def parse_dossiers(doc: dict, app: str) -> tuple[list[Dossier], dict[str, str], list[str]]:
+    """The dossiers, each noOptions scope with its reason code, and every problem found."""
+    problems = check_header(doc)
+    if problems:
+        return [], {}, problems
+    if doc["app"] != app:
+        return [], {}, [f"dossiers are for app {doc['app']!r}, not {app!r}"]
+    problems = check_no_options(doc)
+    dossiers = []
+    for raw in doc["dossiers"]:
+        d, found = check_dossier(raw, app)
+        problems += found
+        if d is not None:
+            dossiers.append(d)
+    none = {n["scope"]: n["reason"] for n in doc["noOptions"] if isinstance(n, dict) and "scope" in n}
+    keys = Counter([d.key for d in dossiers] + [n.get("scope") for n in doc["noOptions"] if isinstance(n, dict)])
+    problems += [f"{k}: scope appears more than once" for k, n in sorted(keys.items(), key=str) if n > 1]
+    return dossiers, none, problems
