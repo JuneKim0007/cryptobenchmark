@@ -70,5 +70,5 @@
 
 ## Backend environment
 
-- The `claude-code` backend runs its CLI without `ANTHROPIC_API_KEY` in the child environment; it uses the CLI's logged-in subscription.
+- The `claude-code` backend runs its CLI without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment; it uses the CLI's logged-in subscription.
 - The `claude` backend reads `ANTHROPIC_API_KEY` from the environment or `.env`.

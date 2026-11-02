@@ -14,7 +14,7 @@ from .reply import AgentRefused, AgentReply
 
 Runner = Callable[[list[str], str, Path, dict[str, str]], subprocess.CompletedProcess]
 # The CLI bills an API key it finds before the logged-in subscription.
-WITHHELD_ENV = ("ANTHROPIC_API_KEY",)
+WITHHELD_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
 
 
 class ClaudeCodeError(RuntimeError):
