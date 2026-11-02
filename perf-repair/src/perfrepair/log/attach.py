@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-import os
+import secrets
 import sys
 import time
 from contextlib import contextmanager
@@ -17,11 +17,11 @@ from .stderr import Stderr, stderr_handler
 
 ROOT = "perfrepair"
 SINK = EventSink()
-_depth = 0
+_depth, _opened = 0, time.monotonic()
 
 
 def _run_id() -> str:
-    return f"{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}-{os.getpid()}"
+    return f"{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}-{secrets.token_hex(3)}"
 
 
 def attach(device_results: Path | None = None) -> None:
@@ -34,8 +34,12 @@ def attach(device_results: Path | None = None) -> None:
     # DEBUG reaches events.jsonl only; stderr keeps INFO
     logger.setLevel(logging.DEBUG)
     # a command another command calls in-process joins the caller's run
+    global _opened
     if _depth == 0 and device_results is None:
+        _opened = time.monotonic()
         SINK.open(_run_id())
+        command = _command()
+        emit("run", command, RUN_START, detail=" ".join([command, *sys.argv[1:]]))
     if device_results is not None:
         SINK.bind(Path(device_results))
 
@@ -58,12 +62,9 @@ class Run:
 
 @contextmanager
 def command_run():
-    """The outermost command of a process emits run_start and run_end, then lets the folder go."""
+    """The outermost command of a process emits run_end, then lets the folder go; attach() emitted its run_start."""
     global _depth
-    outer, run, started = _depth == 0, Run(), time.monotonic()
-    command = _command()
-    if outer:
-        emit("run", command, RUN_START, detail=" ".join([command, *sys.argv[1:]]))
+    outer, run = _depth == 0, Run()
     _depth += 1
     try:
         yield run
@@ -73,5 +74,5 @@ def command_run():
     finally:
         _depth -= 1
         if outer:
-            emit("run", command, RUN_END, outcome=run.outcome, durationMs=elapsed_ms(started))
+            emit("run", _command(), RUN_END, outcome=run.outcome, durationMs=elapsed_ms(_opened))
             SINK.close()

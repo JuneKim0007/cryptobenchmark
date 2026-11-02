@@ -7,6 +7,7 @@ from .. import run_dir as rd
 from ..data_handler.inbound import build_run_log, comparability, manifest_file, read_manifest, read_prepared, read_results
 from ..dto import Measurements
 from ..files import write_json
+from ..log import step
 from ..validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
 
 SCHEMA_VERSION = 1
@@ -14,6 +15,14 @@ SCHEMA_VERSION = 1
 
 def write_inbound(device: Path) -> list[str]:
     """The lines to print: a count, then each comparability warning."""
+    with step("inbound", "inbound") as s:
+        lines, counts = _write_inbound(device)
+        s.count(**counts)
+        s.wrote(*(Path(device) / name for name in (rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG)))
+    return lines
+
+
+def _write_inbound(device: Path) -> tuple[list[str], dict]:
     path = Path(device) / rd.MANIFEST
     manifest, base = read_manifest(path)
     require(str(path), validate_manifest(manifest, base))
@@ -35,4 +44,5 @@ def write_inbound(device: Path) -> list[str]:
     write_json(Path(device) / rd.MEASUREMENTS, summaries.to_json())
     write_json(Path(device) / rd.RUN_LOG, log.to_json())
     return [f"{device}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records",
-            *(f"  warning {note}" for note in notes)]
+            *(f"  warning {note}" for note in notes)], {"rows": len(rows), "logEntries": len(log.entries),
+                                                        "records": raw, "warnings": len(notes)}

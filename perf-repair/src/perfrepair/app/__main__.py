@@ -13,7 +13,7 @@ from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
-from ..log import attach
+from ..log import attach, step
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
@@ -61,7 +61,7 @@ def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     try:
         # the packaged catalog, not the probe: a site of an engine type the device lacks is still found
         engine_types = Names.load().engine_types
-        found = {name: detect(app, engine_types, primitives.resolve) for name, app in units.items()}
+        found = {name: _detected(name, app, engine_types, primitives) for name, app in units.items()}
     except NamesError as e:
         print(f"error {e}", file=sys.stderr)
         return 2
@@ -70,20 +70,31 @@ def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     return 0
 
 
+def _detected(name: str, app: AppRoot, engine_types, primitives: Primitives) -> Detection:
+    with step("app", "detect", app=name) as s:
+        found = detect(app, engine_types, primitives.resolve)
+        s.count(sites=len(found.sites), files=found.files, testFiles=found.testFiles, dropped=len(found.dropped),
+                folded=found.folded, resolution=dict(Counter(site["resolution"] for site in found.sites)))
+    return found
+
+
 def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detection) -> None:
     builds = build_files(app.path)
     facts = app_facts(name, pid, app.path, app.projectRoot, bundled(builds, read_libraries()), found.registers,
                       sdk_levels(builds))
-    scoping = build_scopes(name, app.path, found.sites)
-    scopes = scoping.document(name)
-    require(rd.APP, validate_app_facts(facts))
-    require(rd.SCOPES, validate_scopes(scopes))
+    with step("app", "scope", app=name) as s:
+        scoping = build_scopes(name, app.path, found.sites)
+        scopes = scoping.document(name)
+        require(rd.APP, validate_app_facts(facts))
+        require(rd.SCOPES, validate_scopes(scopes))
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-    write_json(out_dir / rd.SITES, {"schemaVersion": SCHEMA_VERSION, "app": name, "root": str(app.path),
-                                    "sites": found.sites, "dropped": found.dropped})
-    write_json(out_dir / rd.APP, facts)
-    write_json(out_dir / rd.SCOPES, scopes)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        write_json(out_dir / rd.SITES, {"schemaVersion": SCHEMA_VERSION, "app": name, "root": str(app.path),
+                                        "sites": found.sites, "dropped": found.dropped})
+        write_json(out_dir / rd.APP, facts)
+        write_json(out_dir / rd.SCOPES, scopes)
+        s.count(scopes=len(scoping.scopes), unscoped=len(scoping.unscoped))
+        s.wrote(out_dir / rd.SITES, out_dir / rd.APP, out_dir / rd.SCOPES)
     print(f"{out_dir}: {len(found.sites)} sites in {found.files} files ({found.testFiles} test files not scanned), "
           f"{len(found.dropped)} dropped by import, {found.folded} folded from constants, "
           f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function")

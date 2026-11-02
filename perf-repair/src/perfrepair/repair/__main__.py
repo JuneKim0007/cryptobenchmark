@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 
 import yaml
@@ -14,7 +15,7 @@ from .. import run_dir as rd
 from ..run_dir import AppPaths
 from ..config.args import add_config_arg, load_settings
 from ..config.device_results import add_device_results_arg, fill_device_results
-from ..log import attach
+from ..log import attach, step
 from ..failure import reported
 from ..screen.catalog import screening_catalog
 from ..validation.repair import validate_edits, validate_harness
@@ -73,12 +74,17 @@ def _report(path: Path, problems: list[str]) -> int:
 def _edit(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
-    doc = edit_app(scopes, list(replacements.values()), a.source, paths, load_specs())
-    problems = validate_edits(doc, a.app, set(scopes))
-    if problems:
-        return _report(paths.edits, problems)
-    write_json(paths.edits, doc)
-    applied = sum(e["status"] == "applied" for e in doc["edits"])
+    with step("repair", "edit", app=a.app) as s:
+        doc = edit_app(scopes, list(replacements.values()), a.source, paths, load_specs())
+        problems = validate_edits(doc, a.app, set(scopes))
+        if problems:
+            s.outcome = "invalid"
+            return _report(paths.edits, problems)
+        write_json(paths.edits, doc)
+        applied = sum(e["status"] == "applied" for e in doc["edits"])
+        s.count(replacements=len(doc["edits"]), applied=applied,
+                rejected=dict(Counter(e["reason"] for e in doc["edits"] if e["status"] != "applied")))
+        s.wrote(paths.edits)
     print(f"{paths.edits}: {applied} of {len(doc['edits'])} replacements applied")
     return 0
 
@@ -88,11 +94,15 @@ def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     scopes, replacements = _load(paths)
     edits = read_json(paths.edits)
     currents = {d["scope"]["id"]: d["current"] for d in read_json(paths.dossiers)["dossiers"]}
-    doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.device_results / rd.MANIFEST))
-    problems = validate_harness(doc, a.app, paths.root, edits)
-    if problems:
-        return _report(paths.harness, problems)
-    write_text(paths.harness, yaml.safe_dump(doc, sort_keys=False))
+    with step("repair", "harness", app=a.app) as s:
+        doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.device_results / rd.MANIFEST))
+        problems = validate_harness(doc, a.app, paths.root, edits)
+        if problems:
+            s.outcome = "invalid"
+            return _report(paths.harness, problems)
+        write_text(paths.harness, yaml.safe_dump(doc, sort_keys=False))
+        s.count(scopes=len(doc["scopes"]))
+        s.wrote(paths.harness)
     print(f"{paths.harness}: {len(doc['scopes'])} scopes")
     return 0
 

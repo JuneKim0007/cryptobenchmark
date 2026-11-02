@@ -1,11 +1,13 @@
 """The dossier step: scopes + groups + measurements → <app>/dossiers.json, validated before writing."""
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 
 from .. import run_dir as rd
 from ..dto.site import Scope
 from ..files import read_json, write_json
+from ..log import step
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
@@ -24,8 +26,12 @@ def dossier(run: Path, app: str, source: Path, catalog: Catalog, echo=print) -> 
     scopes = [Scope.from_json(s) for s in read_json(paths.scopes)["scopes"]]
     facts = read_json(paths.facts)
     verdicts = catalog.handler().app_verdicts(groups, rd.load_screen(grouping), facts.get("targetSdk"))
-    doc = build_dossiers(app, scopes, facts, groups, rows, measurements.byRow, source, verdicts)
-    require(rd.DOSSIERS, validate_dossiers(doc, scopes, groups, verdicts))
-    write_json(paths.dossiers, doc)
+    with step("repair", "dossier", app=app) as s:
+        doc = build_dossiers(app, scopes, facts, groups, rows, measurements.byRow, source, verdicts)
+        require(rd.DOSSIERS, validate_dossiers(doc, scopes, groups, verdicts))
+        write_json(paths.dossiers, doc)
+        s.count(scopes=len(scopes), dossiers=len(doc["dossiers"]), options=sum(len(d["options"]) for d in doc["dossiers"]),
+                noOptions=dict(Counter(n["reason"] for n in doc["noOptions"])))
+        s.wrote(paths.dossiers)
     echo(f"{app}: {len(doc['dossiers'])} dossiers, {len(doc['noOptions'])} scopes without options")
     return doc

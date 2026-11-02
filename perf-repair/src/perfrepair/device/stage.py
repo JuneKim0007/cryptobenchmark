@@ -1,6 +1,7 @@
 """probe_device(): the device's folder made current, each stage reused or rerun by its input digests (device/plan.py)."""
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -10,8 +11,10 @@ from ..catalog.names import CATALOG
 from ..data_handler.inbound import read_manifest
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
 from ..dto.device import DeviceRecord, runtime_summary
+from ..dto.event import END
 from ..files import sha256_file
 from ..grouping.build.stage import build_stage
+from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from .inbound import write_inbound
@@ -48,15 +51,27 @@ def _measure(root: Path, folder: Path, config: Path | None, on_device: bool, ste
         raise ValueError(f"device_id_changed: --identify named {folder.name}, the probe wrote {manifest.parent.name}")
 
 
+@contextmanager
+def _ran(stage: str, reason: str):
+    with step("device", stage, detail=reason) as s:
+        s.outcome, s.detail = "ran", reason
+        yield
+
+
 def _run(root: Path, folder: Path, steps: dict, catalog: Catalog, config: Path | None, on_device: bool, echo,
          benchmark) -> None:
     if steps["benchmark"]:
-        _measure(root, folder, config, on_device, steps, echo, benchmark)
+        with _ran("benchmark", steps["benchmark"]):
+            _measure(root, folder, config, on_device, steps, echo, benchmark)
+        if steps["probe"]:
+            emit("device", "probe", END, outcome="ran", detail=steps["probe"], data={"ranWith": "benchmark"})
     if steps["inbound"]:
-        for line in write_inbound(folder):
-            echo(line)
+        with _ran("inbound", steps["inbound"]):
+            for line in write_inbound(folder):
+                echo(line)
     if steps["screen"]:
-        build_stage(folder / rd.MANIFEST, folder, catalog, echo=echo)
+        with _ran("screen", steps["screen"]):
+            build_stage(folder / rd.MANIFEST, folder, catalog, echo=echo)
 
 
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
@@ -68,6 +83,9 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
     steps = plan(seen(folder), current)
     if on_device and steps["benchmark"] and not steps["probe"]:
         steps["probe"] = DEVICE_PROBES
+    for stage in STAGES:
+        if not steps[stage]:
+            emit("device", stage, END, outcome="reused")
     if any(steps.values()):
         # a record exists only while every stage it vouches for is whole, so an interrupted run reruns them
         (folder / rd.DEVICE).unlink(missing_ok=True)

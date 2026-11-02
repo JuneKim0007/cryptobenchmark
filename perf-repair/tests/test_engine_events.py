@@ -64,7 +64,7 @@ def test_each_decision_sums_its_turns_and_names_its_outbox_record(tmp_path):
 
 def test_a_step_starts_with_what_is_pending_and_ends_with_counts(tmp_path):
     (tmp_path / "role").mkdir()
-    first = _events(tmp_path, limit=2)
+    first = [e for e in _events(tmp_path, limit=2) if e.stage == "grouping"]
     start, end = first[0], first[-1]
     assert (start.event, start.outcome, start.data["pending"]) == ("start", "opened", 2)
     assert end.event == "end" and end.data["counts"] == {"decided": 2, "dropped": 0, "committed": 2, "left": 1}

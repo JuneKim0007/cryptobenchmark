@@ -53,7 +53,7 @@ def test_records_before_the_folder_is_known_are_kept_in_order(tmp_path, logger):
     failure.reported(body)
     lines = _lines(tmp_path / rd.EVENTS)
     assert [e["detail"] for e in lines if e["event"] == "log"] == ["setting a: 1 (default)", "after"]
-    assert lines[0]["outcome"] == "debug" and lines[0]["stage"] == "config"
+    assert lines[0]["event"] == "run_start" and lines[1]["outcome"] == "debug" and lines[1]["stage"] == "config"
 
 
 def test_a_missing_folder_is_never_created(tmp_path, logger):
