@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from perfrepair.inputs.resolve import Candidate, InputError, Need, resolve
-from perfrepair.inputs.table import SCREENING_CATALOG, Policy
+from perfrepair.inputs.table import SCREENING_CATALOG, Row
 from perfrepair.log import log_to_stderr
 
 
@@ -63,13 +63,13 @@ def test_nothing_found_for_an_optional_input_is_the_null_value_and_logged(caplog
 def test_a_policy_appends_its_packaged_default(tmp_path, caplog):
     (tmp_path / "p").write_text("P")
     caplog.set_level(logging.INFO, "perfrepair")
-    policy = Policy("y", Need.DEFAULT, "y", tmp_path / "p", "packaged y")
+    policy = Row("y", need=Need.DEFAULT, packaged=tmp_path / "p", label="packaged y")
     assert policy.resolve([Candidate(None, "file")], read, note="(unset)").value == "P"
     assert caplog.messages == ["y: packaged y (unset)"]
 
 
 def test_the_screening_catalog_row_names_its_setting_and_packaged_file():
-    assert SCREENING_CATALOG.setting == "screening.catalog"
+    assert SCREENING_CATALOG.key == "device.screening.catalog"
     assert SCREENING_CATALOG.need is Need.DEFAULT and SCREENING_CATALOG.packaged.is_file()
 
 

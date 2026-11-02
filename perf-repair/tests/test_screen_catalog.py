@@ -21,7 +21,7 @@ from perfrepair.validation.__main__ import main as validation_main
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 DEMO = Path(__file__).parent / "fixtures" / "apps" / "demo"
-PACKAGED_LINE = "screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off"
+PACKAGED_LINE = "device.screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off"
 
 
 def settings(tmp_path, text):
@@ -45,29 +45,29 @@ def test_no_perfrepair_yaml_is_the_packaged_catalog_logged_in_one_line(caplog):
 
 def test_a_file_without_the_key_says_so_and_names_ai_review(tmp_path, caplog):
     caplog.set_level(logging.INFO, "perfrepair")
-    path = settings(tmp_path, "screening: {aiReview: true}\n")
+    path = settings(tmp_path, "device: {screening: {aiReview: true}}\n")
     loaded = load(path, {}, {})
     assert screening_catalog(loaded).path == SCREENING and ai_review(loaded) is True
-    assert catalog_lines(caplog) == [f"screening.catalog: packaged catalog (screening.catalog unset in {path.resolve()}); "
+    assert catalog_lines(caplog) == [f"device.screening.catalog: packaged catalog (device.screening.catalog unset in {path.resolve()}); "
                                f"aiReview on"]
 
 
 def test_a_configured_catalog_is_used_without_a_log_line(tmp_path, caplog):
     caplog.set_level(logging.INFO, "perfrepair")
     shutil.copy(SCREENING, tmp_path / "mine.yaml")
-    catalog = screening_catalog(load(settings(tmp_path, "screening: {catalog: mine.yaml}\n"), {}, {}))
+    catalog = screening_catalog(load(settings(tmp_path, "device: {screening: {catalog: mine.yaml}}\n"), {}, {}))
     assert catalog.source == str(tmp_path / "mine.yaml") and catalog.sha256 == screening_catalog(None).sha256
     assert catalog_lines(caplog) == [PACKAGED_LINE]
 
 
 def test_a_configured_catalog_that_does_not_exist_is_missing_file_never_the_packaged_one(tmp_path):
-    with pytest.raises(InputError, match=r"^missing_file: screening.catalog: .*nope.yaml \(file .* screening.catalog\)"):
-        screening_catalog(load(settings(tmp_path, "screening: {catalog: nope.yaml}\n"), {}, {}))
+    with pytest.raises(InputError, match=r"^missing_file: device.screening.catalog: .*nope.yaml \(file .* device.screening.catalog\)"):
+        screening_catalog(load(settings(tmp_path, "device: {screening: {catalog: nope.yaml}}\n"), {}, {}))
 
 
 @pytest.mark.parametrize("command", ["build", "dossier", "validation"])
 def test_every_step_that_screens_exits_non_zero_on_a_missing_catalog(tmp_path, capsys, command):
-    config = str(settings(tmp_path, "screening: {catalog: nope.yaml}\n"))
+    config = str(settings(tmp_path, "device: {screening: {catalog: nope.yaml}}\n"))
     run = tmp_path / "run"
     run.mkdir()
     if command == "build":
@@ -79,7 +79,7 @@ def test_every_step_that_screens_exits_non_zero_on_a_missing_catalog(tmp_path, c
         with pytest.raises(SystemExit) as e:
             validation_main([str(run), "--perfrepair-config", config])
         code = e.value.code
-    assert code != 0 and "missing_file: screening.catalog" in capsys.readouterr().err
+    assert code != 0 and "missing_file: device.screening.catalog" in capsys.readouterr().err
     assert not (run / "grouping").exists()
 
 

@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 from ....dto.prompt import Charter, TaskPrompt
+from ....inputs.table import DEFAULT_SESSIONS, DEFAULT_TURNS
 from ..agent import AgentRefused, Conversations
 
 Check = Callable[[str], tuple[dict | None, list[str]]]
@@ -12,8 +13,8 @@ Check = Callable[[str], tuple[dict | None, list[str]]]
 
 @dataclass(frozen=True)
 class Limits:
-    turns: int = 3
-    sessions: int = 2
+    turns: int = DEFAULT_TURNS
+    sessions: int = DEFAULT_SESSIONS
 
 
 @dataclass(frozen=True)

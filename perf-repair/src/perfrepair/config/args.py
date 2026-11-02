@@ -4,11 +4,13 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Mapping
 
+from ..inputs.check import Invalid, check_positive
+from ..inputs.table import PATHS_RUN, Row
 from .dotenv import load_env
 from .load import Loaded, load
-from .settings import ConfigError, Invalid, check_positive
+from .settings import ConfigError
 
 
 def positive_int(text: str) -> int:
@@ -33,12 +35,17 @@ def load_settings(parser: argparse.ArgumentParser, args: argparse.Namespace) -> 
         parser.error(str(e))
 
 
-def fill(loaded: Loaded, args: argparse.Namespace, values: Mapping[str, tuple[str, Any]]) -> None:
-    """values: argument dest → (settings key, code default)."""
-    for dest, (key, default) in values.items():
-        setattr(args, dest, loaded.value(key, getattr(args, dest), default))
+def fill(loaded: Loaded, args: argparse.Namespace, rows: Mapping[str, Row]) -> None:
+    """rows: argument dest → its row."""
+    for dest, row in rows.items():
+        setattr(args, dest, loaded.read(row, getattr(args, dest)))
 
 
-def require(parser: argparse.ArgumentParser, args: argparse.Namespace, dest: str, key: str) -> None:
+def require(parser: argparse.ArgumentParser, args: argparse.Namespace, dest: str, row: Row) -> None:
     if getattr(args, dest) is None:
-        parser.error(f"the following arguments are required: --{dest} (or {key} in perfrepair.yaml)")
+        parser.error(f"the following arguments are required: --{dest} (or {row.key} in perfrepair.yaml)")
+
+
+def fill_run(parser: argparse.ArgumentParser, loaded: Loaded, args: argparse.Namespace) -> None:
+    fill(loaded, args, {"run": PATHS_RUN})
+    require(parser, args, "run", PATHS_RUN)

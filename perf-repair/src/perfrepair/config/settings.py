@@ -1,166 +1,42 @@
-"""perfrepair.yaml's sections as checked values; parse refuses unknown keys, invalid values and secrets."""
+"""Reads perfrepair.yaml: refuses a secret anywhere, warns about keys no row knows, holds the raw values for the rows."""
 from __future__ import annotations
 
+import logging
 import re
-from dataclasses import MISSING, dataclass, field, fields
-from pathlib import Path
+from dataclasses import dataclass, field
 from typing import Any, Mapping
 
+from ..inputs.resolve import OnInvalid, unknown_key
+from ..inputs.table import known_tree
+
+LOG = logging.getLogger(__name__)
 SECRET_KEY = re.compile(r"api[_-]?key|token|secret|password", re.I)
 SECRET_VALUE = re.compile(r"^sk-ant-")
+USE = "use"
 
 
 class ConfigError(ValueError):
     pass
 
 
-class Invalid(ValueError):
-
-    def __init__(self, name: str, value: Any, expected: str):
-        super().__init__(name)
-        self.name, self.value, self.expected = name, value, expected
-
-
-def _check(name: str, value: Any, ok: bool, expected: str) -> None:
-    if value is not None and not ok:
-        raise Invalid(name, value, expected)
-
-
-def check_one_of(name: str, value: Any, choices: tuple[str, ...]) -> None:
-    _check(name, value, value in choices, f"one of {list(choices)}")
-
-
-def check_text(name: str, value: Any) -> None:
-    _check(name, value, isinstance(value, str) and value != "", "a non-empty string")
-
-
-def check_positive(name: str, value: Any) -> None:
-    _check(name, value, isinstance(value, int) and not isinstance(value, bool) and value > 0, "a positive integer")
-
-
-def _path(name: str, value: Any) -> None:
-    _check(name, value, isinstance(value, Path), "a path")
-
-
-def _path_field():
-    return field(default=None, metadata={"path": True})
-
-
-@dataclass(frozen=True)
-class Role:
-    gateway: str | None = None
-    model: str | None = None
-    effort: str | None = None
-
-    def __post_init__(self):
-        # The gateway's name and its effort levels are the gateway's to check, at spawn.
-        for f in fields(self):
-            check_text(f.name, getattr(self, f.name))
-
-
-@dataclass(frozen=True)
-class Paths:
-    run: Path | None = _path_field()
-    results: Path | None = _path_field()
-    prompts: Path | None = _path_field()
-
-    def __post_init__(self):
-        for f in fields(self):
-            _path(f.name, getattr(self, f.name))
-
-
-@dataclass(frozen=True)
-class Grouping:
-    turns: int | None = None
-    sessions: int | None = None
-    limit: int | None = None
-    assign: Role = field(default_factory=Role)
-    supervisor: Role = field(default_factory=Role)
-
-    def __post_init__(self):
-        for name in ("turns", "sessions", "limit"):
-            check_positive(name, getattr(self, name))
-
-
-@dataclass(frozen=True)
-class Guide:
-    mode: str | None = None
-    limit: int | None = None
-    device: bool | None = None
-    config: Path | None = _path_field()
-    agent: Role = field(default_factory=Role)
-
-    def __post_init__(self):
-        # Modes come from result/criteria.yaml, a higher layer; the guide command checks the name.
-        check_text("mode", self.mode)
-        check_positive("limit", self.limit)
-        _check("device", self.device, isinstance(self.device, bool), "true or false")
-        _path("config", self.config)
-
-
-@dataclass(frozen=True)
-class Ai:
-    worthiness: Role = field(default_factory=Role)
-    replace: Role = field(default_factory=Role)
-
-
-@dataclass(frozen=True)
-class Screening:
-    catalog: Path | None = _path_field()
-    aiReview: bool | None = None
-    classify: Role = field(default_factory=Role)
-
-    def __post_init__(self):
-        _path("catalog", self.catalog)
-        _check("aiReview", self.aiReview, isinstance(self.aiReview, bool), "true or false")
-
-
-@dataclass(frozen=True)
-class AiGateway:
-    use: str | None = None
-    # name -> raw keys; config sits below ai/, so the gateway checks its block at spawn
-    blocks: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
-
-    def __post_init__(self):
-        check_text("use", self.use)
-
-
-def _parse_gateways(raw: Any, path: str) -> AiGateway:
-    _refuse_secrets(raw, path)
-    if not isinstance(raw, Mapping):
-        raise ConfigError(f"invalid: {path} {raw}, a mapping")
-    blocks = {}
-    for name, block in raw.items():
-        if name != "use" and block is not None:
-            if not isinstance(block, Mapping):
-                raise ConfigError(f"invalid: {_join(path, name)} {block}, a mapping")
-            blocks[str(name)] = {k: v for k, v in block.items() if v is not None}
-    try:
-        return AiGateway(raw.get("use"), blocks)
-    except Invalid as e:
-        raise _invalid(path, e) from None
-
-
 @dataclass(frozen=True)
 class Settings:
-    aiGateway: AiGateway = field(default_factory=AiGateway, metadata={"parse": _parse_gateways})
-    paths: Paths = field(default_factory=Paths)
-    grouping: Grouping = field(default_factory=Grouping)
-    guide: Guide = field(default_factory=Guide)
-    ai: Ai = field(default_factory=Ai)
-    screening: Screening = field(default_factory=Screening)
+    raw: Mapping[str, Any] = field(default_factory=dict)
 
     def get(self, key: str) -> Any:
-        value: Any = self
+        value: Any = self.raw
         for part in key.split("."):
-            value = getattr(value, part)
+            value = value.get(part) if isinstance(value, Mapping) else None
         return value
 
-
-ROLES = {"grouping.assign": "grouping.assign", "grouping.supervisor": "grouping.supervisor",
-         "guide": "guide.agent", "ai.worthiness": "ai.worthiness", "ai.replace": "ai.replace",
-         "screening.classify": "screening.classify"}
-ROLE_DEFAULTS = {"grouping.assign": Role(effort="low")}
+    @property
+    def blocks(self) -> dict[str, dict[str, Any]]:
+        """name -> a gateway's raw keys; config sits below ai/, so the gateway checks its block at spawn."""
+        gateways = self.raw.get("aiGateway")
+        if not isinstance(gateways, Mapping):
+            return {}
+        return {str(name): {k: v for k, v in block.items() if v is not None}
+                for name, block in gateways.items() if name != USE and isinstance(block, Mapping)}
 
 
 def _join(path: str, key: Any) -> str:
@@ -171,10 +47,6 @@ def _secret(where: str) -> ConfigError:
     return ConfigError(f"secret_key: {where}: keep secrets in the environment or .env")
 
 
-def _invalid(path: str, e: Invalid) -> ConfigError:
-    return ConfigError(f"invalid: {_join(path, e.name)} {e.value}, {e.expected}")
-
-
 def _refuse_secrets(raw: Any, path: str) -> None:
     if isinstance(raw, str) and SECRET_VALUE.search(raw):
         raise _secret(path)
@@ -183,42 +55,42 @@ def _refuse_secrets(raw: Any, path: str) -> None:
             if SECRET_KEY.search(str(key)):
                 raise _secret(_join(path, key))
             _refuse_secrets(value, _join(path, key))
+    if isinstance(raw, (list, tuple)):
+        for i, value in enumerate(raw):
+            _refuse_secrets(value, f"{path}[{i}]")
 
 
-def _check_keys(cls: type, raw: Any, path: str) -> None:
+def _holds_error_row(node: Any) -> bool:
+    if isinstance(node, Mapping):
+        return any(_holds_error_row(child) for child in node.values())
+    return node is OnInvalid.ERROR
+
+
+def _not_a_section(raw: Any, node: Mapping, path: str, origin: str) -> None:
+    where = path or "<root>"
+    if _holds_error_row(node):
+        raise ConfigError(f"invalid: {where} {raw}, a mapping")
+    LOG.warning(f"invalid: {where} {raw}, a mapping; ignored ({origin})")
+
+
+def _read_section(raw: Any, node: Mapping, path: str, origin: str) -> None:
     if not isinstance(raw, Mapping):
-        raise ConfigError(f"invalid: {path or '<root>'} {raw}, a mapping")
-    for key in raw:
-        if SECRET_KEY.search(str(key)):
-            raise _secret(_join(path, key))
-    names = [f.name for f in fields(cls)]
-    unknown = sorted(str(k) for k in raw if k not in names)
-    if unknown:
-        raise ConfigError(f"unknown_keys: {path or '<root>'} {unknown}, known {names}")
+        _not_a_section(raw, node, path, origin)
+        return
+    any_key = next((k for k in node if k.startswith("<")), None)
+    for key, value in raw.items():
+        where = _join(path, key)
+        if key not in node and any_key is None:
+            unknown_key(where, node, origin)
+            continue
+        child = node.get(key, node.get(any_key))
+        if isinstance(child, Mapping) and value is not None:
+            _read_section(value, child, where, origin)
 
 
-def _value(f, value: Any, where: str, base: Path) -> Any:
-    if isinstance(value, str) and SECRET_VALUE.search(value):
-        raise _secret(where)
-    if "parse" in f.metadata:
-        return f.metadata["parse"](value, where)
-    if f.default_factory is not MISSING:
-        return _section(f.default_factory, value, where, base)
-    if f.metadata.get("path") and isinstance(value, str) and value:
-        return base / Path(value).expanduser()
-    return value
-
-
-def _section(cls: type, raw: Any, path: str, base: Path):
-    _check_keys(cls, raw, path)
-    values = {f.name: _value(f, raw[f.name], _join(path, f.name), base)
-              for f in fields(cls) if raw.get(f.name) is not None}
-    try:
-        return cls(**values)
-    except Invalid as e:
-        raise _invalid(path, e) from None
-
-
-def parse(document: Any, base: Path) -> Settings:
-    """Relative paths resolve against `base`, the config file's folder."""
-    return _section(Settings, {} if document is None else document, "", base)
+def parse(document: Any, origin: str) -> Settings:
+    """origin: what a warning names as the file."""
+    document = {} if document is None else document
+    _refuse_secrets(document, "<root>" if isinstance(document, str) else "")
+    _read_section(document, known_tree(), "", origin)
+    return Settings(document)

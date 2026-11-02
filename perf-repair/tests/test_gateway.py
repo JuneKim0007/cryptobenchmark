@@ -18,7 +18,8 @@ from perfrepair.ai.runtime.gateway.contract import Gateway
 from perfrepair.ai.runtime.gateway.spawn import spawn
 from perfrepair.config import dotenv
 from perfrepair.config.args import load_settings
-from perfrepair.config.settings import ConfigError, Invalid, check_one_of
+from perfrepair.inputs.check import Invalid, check_one_of
+from perfrepair.inputs.table import APPS_AGENT, GROUPING_ASSIGN
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.__main__ import main as grouping
 from perfrepair.guide.command import main as guide
@@ -28,7 +29,7 @@ F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
 
 
-def spawned(tmp_path, text="", argv=(), role="grouping.assign"):
+def spawned(tmp_path, text="", argv=(), role=GROUPING_ASSIGN):
     ap = argparse.ArgumentParser()
     add_agent_args(ap, role=role)
     config = tmp_path / "c.yaml"
@@ -37,8 +38,8 @@ def spawned(tmp_path, text="", argv=(), role="grouping.assign"):
     return spawn(args, load_settings(ap, args), DRY)
 
 
-def error(tmp_path, text="", argv=(), role="grouping.assign"):
-    with pytest.raises(ConfigError) as e:
+def error(tmp_path, text="", argv=(), role=GROUPING_ASSIGN):
+    with pytest.raises(ValueError) as e:
         spawned(tmp_path, text, argv, role)
     assert "\n" not in str(e.value)
     return str(e.value)
@@ -49,18 +50,18 @@ def test_the_default_is_claude_by_subscription_and_assign_at_low(tmp_path):
     assert isinstance(convos.conversations, ClaudeCliConversations)
     assert (convos.conversations.model, convos.conversations.effort, convos.conversations.binary) == ("claude-opus-5-5", "low", "claude")
     assert (convos.identity.gateway, convos.identity.model, convos.identity.effort) == ("claude", "claude-opus-5-5", "low")
-    assert spawned(tmp_path, role="guide").identity.effort == "medium"
+    assert spawned(tmp_path, role=APPS_AGENT).identity.effort == "medium"
 
 
 def test_the_flags_reach_the_gateway_and_the_help_names_the_role_default(tmp_path):
     convos = spawned(tmp_path, argv=["--effort", "high", "--agent", "claude", "--model", "m"])
     assert isinstance(convos.conversations, ClaudeCliConversations) and (convos.conversations.effort, convos.conversations.model) == ("high", "m")
     ap = argparse.ArgumentParser()
-    add_agent_args(ap, role="grouping.assign")
+    add_agent_args(ap, role=GROUPING_ASSIGN)
     text = " ".join(ap.format_help().split())
     assert "$PERFREPAIR_EFFORT, aiGateway.<use>.effort, else low; claude: low, medium, high, xhigh, max" in text
     assert "$PERFREPAIR_AUTH, aiGateway.<use>.auth, else subscription; claude: subscription, api" in text
-    assert "grouping.assign.auth" not in text and "{claude,dry-run}" in text
+    assert "device.grouping.assign.auth" not in text and "{claude,dry-run}" in text
 
 
 def test_the_binary_comes_from_the_block(tmp_path):
@@ -68,9 +69,9 @@ def test_the_binary_comes_from_the_block(tmp_path):
 
 
 def test_a_role_can_take_its_own_gateway_and_dry_run_answers_are_the_roles(tmp_path):
-    text = "aiGateway: {use: claude}\ngrouping: {assign: {gateway: dry-run}}\n"
+    text = "aiGateway: {use: claude}\ndevice: {grouping: {assign: {gateway: dry-run}}}\n"
     assert spawned(tmp_path, text).conversations is DRY
-    assert isinstance(spawned(tmp_path, text, role="guide").conversations, ClaudeCliConversations)
+    assert isinstance(spawned(tmp_path, text, role=APPS_AGENT).conversations, ClaudeCliConversations)
     assert spawned(tmp_path, text).identity.gateway == "dry-run" and spawned(tmp_path, text).identity.model is None
 
 
@@ -111,23 +112,44 @@ def test_a_missing_sdk_is_one_coded_line(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("text, environ, message", [
     ("aiGateway: {use: gemini}\n", {}, "unknown_gateway: gemini (file {f} aiGateway.use), known ['claude', 'dry-run']"),
-    ("grouping: {assign: {gateway: gemini}}\n", {}, "unknown_gateway: gemini (file {f} grouping.assign), known ['claude', 'dry-run']"),
+    ("device: {grouping: {assign: {gateway: gemini}}}\n", {}, "unknown_gateway: gemini (file {f} device.grouping.assign), known ['claude', 'dry-run']"),
     ("", {"PERFREPAIR_AGENT": "claude-code"}, "unknown_gateway: claude-code (env PERFREPAIR_AGENT), known ['claude', 'dry-run']"),
     ("aiGateway: {gemini: {model: m}}\n", {}, "unknown_gateway: gemini (aiGateway.gemini), known ['claude', 'dry-run']"),
-    ("aiGateway: {claude: {effrt: low}}\n", {}, "unknown_keys: aiGateway.claude ['effrt'], known ['auth', 'model', 'effort', 'binary'] ({f})"),
-    ("aiGateway: {dry-run: {model: m}}\n", {}, "unknown_keys: aiGateway.dry-run ['model'], known [] ({f})"),
-    ("aiGateway: {claude: {effort: hgh}}\n", {}, "invalid: aiGateway.claude.effort hgh, one of ['low', 'medium', 'high', 'xhigh', 'max'] ({f})"),
-    ("aiGateway: {claude: {auth: oauth}}\n", {}, "invalid: aiGateway.claude.auth oauth, one of ['subscription', 'api'] ({f})"),
-    ("aiGateway: {claude: {binary: 3}}\n", {}, "invalid: aiGateway.claude.binary 3, a non-empty string ({f})"),
-    ("aiGateway: {use: dry-run, claude: {effort: hgh}}\n", {}, "invalid: aiGateway.claude.effort hgh, one of ['low', 'medium', 'high', 'xhigh', 'max'] ({f})"),
-    ("grouping: {assign: {effort: hgh}}\n", {}, "invalid: grouping.assign.effort hgh, one of ['low', 'medium', 'high', 'xhigh', 'max'] (file {f} grouping.assign)"),
-    ("", {"PERFREPAIR_EFFORT": "hgh"}, "invalid: grouping.assign.effort hgh, one of ['low', 'medium', 'high', 'xhigh', 'max'] (env PERFREPAIR_EFFORT)"),
-    ("", {"PERFREPAIR_AUTH": "x"}, "invalid: grouping.assign.auth x, one of ['subscription', 'api'] (env PERFREPAIR_AUTH)"),
+    ("aiGateway: {claude: {auth: oauth}}\n", {}, "invalid: aiGateway.claude.auth oauth, one of ['subscription', 'api'] (file {f})"),
+    ("aiGateway: {use: dry-run, claude: {auth: oauth}}\n", {}, "invalid: aiGateway.claude.auth oauth, one of ['subscription', 'api'] (file {f})"),
+    ("aiGateway: {use: 3}\n", {}, "invalid: device.grouping.assign.gateway 3, a non-empty string (file {f} aiGateway.use)"),
+    ("", {"PERFREPAIR_AUTH": "x"}, "invalid: device.grouping.assign.auth x, one of ['subscription', 'api'] (env PERFREPAIR_AUTH)"),
 ])
 def test_every_settings_error_at_spawn_is_one_coded_line(tmp_path, monkeypatch, text, environ, message):
     for key, value in environ.items():
         monkeypatch.setenv(key, value)
     assert error(tmp_path, text) == message.replace("{f}", str(tmp_path / "c.yaml"))
+
+
+EFFORTS = "one of ['low', 'medium', 'high', 'xhigh', 'max']"
+
+
+@pytest.mark.parametrize("text, environ, line, effort", [
+    ("aiGateway: {claude: {effrt: low}}\n", {}, "unknown_key: aiGateway.claude.effrt, known ['auth', 'model', 'effort', 'binary'] (file {f})", "low"),
+    ("aiGateway: {dry-run: {model: m}}\n", {}, "unknown_key: aiGateway.dry-run.model, known [] (file {f})", "low"),
+    ("aiGateway: {claude: {effort: hgh}}\n", {}, f"invalid: aiGateway.claude.effort hgh, {EFFORTS}; ignored (file {{f}})", "low"),
+    ("aiGateway: {use: dry-run, claude: {effort: hgh}}\n", {}, f"invalid: aiGateway.claude.effort hgh, {EFFORTS}; ignored (file {{f}})", None),
+    ("aiGateway: {claude: {binary: 3}}\n", {}, "invalid: aiGateway.claude.binary 3, a non-empty string; ignored (file {f})", "low"),
+    ("device: {grouping: {assign: {effort: hgh}}}\n", {}, f"invalid: device.grouping.assign.effort hgh, {EFFORTS}; using the default low (file {{f}} device.grouping.assign)", "low"),
+    ("", {"PERFREPAIR_EFFORT": "hgh"}, f"invalid: device.grouping.assign.effort hgh, {EFFORTS}; using the default low (env PERFREPAIR_EFFORT)", "low"),
+])
+def test_a_bad_gateway_key_from_the_file_or_env_warns_once_and_spawns(tmp_path, monkeypatch, caplog, text, environ, line, effort):
+    for key, value in environ.items():
+        monkeypatch.setenv(key, value)
+    convos = spawned(tmp_path, text)
+    warned = [r.getMessage() for r in caplog.records if r.levelname == "WARNING"]
+    assert warned == [line.replace("{f}", str(tmp_path / "c.yaml"))] and convos.identity.effort == effort
+
+
+def test_a_bad_flag_for_a_gateway_key_is_an_error_not_a_fallback(tmp_path):
+    assert error(tmp_path, argv=["--effort", "hgh"]).startswith("invalid: device.grouping.assign.effort hgh, ")
+    assert error(tmp_path, argv=["--effort", "hgh"]).endswith("(cli)")
+    assert error(tmp_path, argv=["--auth", "x"]).endswith("(cli)")
 
 
 def test_dry_run_ignores_the_keys_it_does_not_have(tmp_path):
@@ -164,21 +186,21 @@ FAKE = Gateway("fake", FakeSettings, lambda values, _dry: FakeConversations(valu
 def test_a_new_provider_is_one_registry_row_and_a_yaml_block(tmp_path, monkeypatch):
     monkeypatch.setitem(registry.GATEWAYS, "fake", FAKE)
     monkeypatch.setenv("FAKE_SECRET", "x")
-    text = "aiGateway:\n  use: fake\n  fake: {colour: blue}\ngrouping:\n  assign: {effort: huge}\n"
+    text = "aiGateway:\n  use: fake\n  fake: {colour: blue}\ndevice:\n  grouping:\n    assign: {effort: huge}\n"
     convos = spawned(tmp_path, text)
     assert convos.conversations.values == FakeSettings("blue", "huge")
     assert json.loads(convos.start(SYSTEM, {}).ask(task("x")).text) == {"colour": "blue"}
     assert (convos.identity.gateway, convos.identity.model, convos.identity.effort) == ("fake", None, "huge")
     assert "{claude,dry-run,fake}" in _help()
-    assert error(tmp_path, "aiGateway: {use: fake, fake: {colour: green}}\n").startswith("invalid: aiGateway.fake.colour green")
-    assert error(tmp_path, "aiGateway: {use: claude, fake: {effort: bad}}\n").startswith("invalid: aiGateway.fake.effort bad")
+    assert spawned(tmp_path, "aiGateway: {use: fake, fake: {colour: green}}\n", role=APPS_AGENT).conversations.values.colour == "red"
+    assert spawned(tmp_path, "aiGateway: {use: claude, fake: {effort: bad}}\n").identity.gateway == "claude"
     monkeypatch.delenv("FAKE_SECRET")
     assert error(tmp_path, text).startswith("missing_secret: FAKE_SECRET: gateway fake")
 
 
 def _help():
     ap = argparse.ArgumentParser()
-    add_agent_args(ap, role="guide")
+    add_agent_args(ap, role=APPS_AGENT)
     return ap.format_help()
 
 
@@ -211,7 +233,7 @@ def test_every_model_command_refuses_a_missing_secret_before_any_work(run, tmp_p
 def test_build_with_ai_review_refuses_before_any_work(tmp_path, capsys):
     run, config = tmp_path / "run", tmp_path / "c.yaml"
     assert inbound(["--manifest", str(F), "-o", str(run)]) == 0
-    config.write_text("screening: {aiReview: true}\naiGateway: {use: nope}\n")
+    config.write_text("device: {screening: {aiReview: true}}\naiGateway: {use: nope}\n")
     capsys.readouterr()
     assert grouping(["build", "--manifest", str(F), "--run", str(run), "--perfrepair-config", str(config)]) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith("error unknown_gateway: nope ")

@@ -63,5 +63,5 @@ def test_build_with_a_missing_input_is_a_one_line_error(tmp_path, capsys):
     manifest.write_text("schemaVersion: 1\nfiles: {}\n")
     assert main(["build", "--manifest", str(manifest), "--run", str(tmp_path / "run")]) == 1
     log, error = capsys.readouterr().err.splitlines()
-    assert log == "screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off"
+    assert log == "device.screening.catalog: packaged catalog (no perfrepair.yaml); aiReview off"
     assert error.startswith("error ") and "Traceback" not in error

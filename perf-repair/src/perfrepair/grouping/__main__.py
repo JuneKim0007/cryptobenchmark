@@ -16,7 +16,9 @@ from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
-from ..config.args import add_config_arg, fill, load_settings, positive_int, require
+from ..config.args import add_config_arg, fill, fill_run, load_settings, positive_int
+from ..inputs.table import (GROUPING_ASSIGN, GROUPING_LIMIT, GROUPING_SESSIONS, GROUPING_SUPERVISOR, GROUPING_TURNS,
+                            SCREENING_CLASSIFY)
 from ..config.load import Loaded
 from ..failure import reported
 from ..log import log_to_stderr
@@ -43,20 +45,20 @@ def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParse
     b = sub.add_parser("build")
     b.add_argument("--manifest", type=Path, required=True)
     b.add_argument("--run", type=Path, help=RUN_HELP)
-    add_agent_args(b, role="screening.classify")
+    add_agent_args(b, role=SCREENING_CLASSIFY)
     add_prompt_args(b)
     a = sub.add_parser("assign")
     a.add_argument("--run", type=Path, help=RUN_HELP)
-    add_agent_args(a, role="grouping.assign")
+    add_agent_args(a, role=GROUPING_ASSIGN)
     add_prompt_args(a)
-    a.add_argument("--turns", type=positive_int, help=f"default: grouping.turns, else {Limits.turns}")
-    a.add_argument("--sessions", type=positive_int, help=f"default: grouping.sessions, else {Limits.sessions}")
+    a.add_argument("--turns", type=positive_int, help=f"default: device.grouping.turns, else {Limits.turns}")
+    a.add_argument("--sessions", type=positive_int, help=f"default: device.grouping.sessions, else {Limits.sessions}")
     a.add_argument("--limit", type=positive_int, help="decide at most this many items in this call; the next call resumes; "
-                                             "default: grouping.limit, else all")
+                                             "default: device.grouping.limit, else all")
     r = sub.add_parser("report")
     r.add_argument("--run", type=Path, help=RUN_HELP)
     r.add_argument("--supervisor", action="store_true", help="also review each family with a supervisor agent (findings only)")
-    add_agent_args(r, role="grouping.supervisor")
+    add_agent_args(r, role=GROUPING_SUPERVISOR)
     add_prompt_args(r)
     ip = sub.add_parser("interop-plan")
     ip.add_argument("--run", type=Path, help=RUN_HELP)
@@ -72,13 +74,10 @@ def _model_step(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args
     if args.step == "report" and args.prompts is not None and not args.supervisor:
         step.error("--prompts only applies with --supervisor; report alone calls no model")
     settings = _with_run(ap, args)
-    if args.step == "assign" or args.supervisor:
-        fill(settings, args, {"prompts": ("paths.prompts", None)})
-    library = load_prompts(ap, args)
+    library = load_prompts(ap, args, settings) if args.step == "assign" or args.supervisor else None
     paths = GroupingPaths(args.run)
     if args.step == "assign":
-        fill(settings, args, {"turns": ("grouping.turns", Limits.turns), "sessions": ("grouping.sessions", Limits.sessions),
-                              "limit": ("grouping.limit", None)})
+        fill(settings, args, {"turns": GROUPING_TURNS, "sessions": GROUPING_SESSIONS, "limit": GROUPING_LIMIT})
         assign_cmd.assign(paths, spawn(args, settings, assign_cmd.DRY_RUN), library,
                           Limits(args.turns, args.sessions), args.limit)
         return
@@ -103,8 +102,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _with_run(ap: argparse.ArgumentParser, args: argparse.Namespace) -> Loaded:
     settings = load_settings(ap, args)
-    fill(settings, args, {"run": ("paths.run", None)})
-    require(ap, args, "run", "paths.run")
+    fill_run(ap, settings, args)
     return settings
 
 
@@ -112,10 +110,9 @@ def _build(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args: arg
     settings = _with_run(ap, args)
     reviewer = None
     if ai_review(settings):
-        fill(settings, args, {"prompts": ("paths.prompts", None)})
-        reviewer = Reviewer(spawn(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args))
+        reviewer = Reviewer(spawn(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args, settings))
     elif given := [f"--{name}" for name in BUILD_MODEL_FLAGS if getattr(args, name) is not None]:
-        step.error(f"{', '.join(given)} only apply with screening.aiReview; build alone calls no model")
+        step.error(f"{', '.join(given)} only apply with device.screening.aiReview; build alone calls no model")
     paths = build_stage(args.manifest, args.run, screening_catalog(settings), reviewer)
     print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
 

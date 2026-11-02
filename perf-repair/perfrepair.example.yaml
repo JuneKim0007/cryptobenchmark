@@ -1,12 +1,15 @@
 # Copy to perfrepair.yaml (git-ignored) or point --perfrepair-config / PERFREPAIR_CONFIG at a copy.
 # Every key is optional; a missing or null key falls through to the next layer:
-#   CLI flag > a role section here (grouping.assign, grouping.supervisor, guide.agent, ai.*, screening.classify)
-#   > environment (PERFREPAIR_*) > the gateway's block here > .env > the role's code default > the general code default.
+#   CLI flag > a role section here (device.grouping.assign, device.grouping.supervisor, device.screening.classify,
+#   device.worthiness, apps.agent, apps.replace) > environment (PERFREPAIR_*) > the gateway's block here > .env
+#   > the role's code default > the general code default.
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
+# A bad value here warns and uses the default, except device.screening.catalog and aiGateway.use/auth, which stop the
+# command; a key nothing reads warns. docs/settings.md lists every key.
 
-aiGateway:                 # every model-calling command
+aiGateway:                 # shared: every model-calling command
   use:                     # claude | dry-run; empty = claude           (PERFREPAIR_AGENT)
   claude:                  # keys of the claude gateway; empty = the code default
     auth:                  # subscription (the logged-in CLI) | api (ANTHROPIC_API_KEY); empty = subscription   (PERFREPAIR_AUTH)
@@ -15,30 +18,29 @@ aiGateway:                 # every model-calling command
                            # a value here raises every role, assign included
     binary:                # the CLI for auth subscription; empty = claude
 
-paths:
-  run:                     # default --run of every grouping step, ai, guide
+paths:                     # shared
+  run:                     # default --run of every grouping step, ai, guide; stays until the results layout removes --run
   results:                 # default --results of guide
   prompts:                 # default --prompts of every model-calling command
 
-grouping:
-  turns:                   # empty = the code default
-  sessions:                # empty = the code default
-  limit:                   # items per `grouping assign` call; empty = all
-  assign: {}               # role keys: gateway, model, effort; effort here sets this role only
-  supervisor: {}
+device:                    # once per device
+  screening:               # grouping build, repair dossier, guide, validation
+    catalog:               # a screening.yaml; empty = the packaged catalog (logged); a missing file is missing_file
+    aiReview: false        # true: grouping build asks screening's classify role about the items no row decides
+    classify: {}           # role keys: gateway, model, effort
+  grouping:                # grouping assign, grouping report --supervisor
+    turns:                 # empty = the code default
+    sessions:              # empty = the code default
+    limit:                 # items per `grouping assign` call; empty = all
+    assign: {}             # role keys: gateway, model, effort; effort here sets this role only
+    supervisor: {}
+  benchmark:
+    config:                # cryptobenchmark global.yaml for the guide's device step
+  worthiness: {}           # role keys of `ai worthiness`
 
-guide:
+apps:                      # per app: the guide, `ai replace`
   mode: latency            # latency | battery
-  limit:
-  device: false
-  config:                  # cryptobenchmark global.yaml for the device step
-  agent: {}
-
-ai:
-  worthiness: {}
-  replace: {}
-
-screening:                 # grouping build, repair dossier, guide, validation
-  catalog:                 # a screening.yaml; empty = the packaged catalog (logged); a missing file is missing_file
-  aiReview: false          # true: grouping build asks screening.classify about the items no row decides
-  classify: {}             # role keys: gateway, model, effort
+  limit:                   # scopes the guide asks the model about; empty = all
+  measure: false           # true: the guide also measures the harness on the attached phone
+  agent: {}                # role keys of the guide
+  replace: {}              # role keys of `ai replace`

@@ -4,13 +4,15 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 import yaml
 
 from ..files import read_yaml
+from ..inputs.resolve import CLI, Candidate, choose
+from ..inputs.table import ROLE_KEYS, Layer, RoleRow, Row
 from .dotenv import ROOT
-from .settings import ROLE_DEFAULTS, ROLES, ConfigError, Role, Settings, parse
+from .settings import ConfigError, Settings, parse
 
 LOG = logging.getLogger(__name__)
 DEFAULT_FILE = ROOT / "perfrepair.yaml"
@@ -38,36 +40,43 @@ class Loaded:
     environ: Mapping[str, str | None]
     dotenv: Mapping[str, str | None]
     sources: dict[str, str] = field(default_factory=dict)
+    chosen: dict[tuple[str, Any], Any] = field(default_factory=dict)
 
-    def _pick(self, key: str, candidates) -> Any:
-        value, source = next(((v, s) for v, s in candidates if v is not None), (None, "default"))
-        if key not in self.sources:
-            # shown: what a file or the environment chose; the rest stays in the log
-            quiet = source == "cli" or source.startswith("default")
-            LOG.log(logging.DEBUG if quiet else logging.INFO, "setting %s: %s (%s)", key, value, source)
+    def _pick(self, key: str, row: Row, layers: Mapping[Layer, Candidate], check: Callable[[str, Any], None], cli: Any) -> Any:
+        if (key, cli) in self.chosen:
+            return self.chosen[key, cli]
+        picked = choose(key, [layers[layer] for layer in row.chain], check, row.invalid)
+        value, source = (picked.value, picked.source) if picked else (None, "default")
+        # shown: what a file or the environment chose; the rest stays in the log
+        quiet = source == CLI or source.startswith("default")
+        LOG.log(logging.DEBUG if quiet else logging.INFO, "setting %s: %s (%s)", key, value, source)
         self.sources[key] = source
+        self.chosen[key, cli] = value
         return value
 
-    def value(self, key: str, cli: Any = None, default: Any = None) -> Any:
-        return self._pick(key, ((cli, "cli"), (self.settings.get(key), f"file {self.file}"), (default, "default")))
+    def _file_value(self, row: Row) -> Any:
+        value = self.settings.get(row.key)
+        if row.path and isinstance(value, str) and value:
+            return self.file.parent / Path(value).expanduser()
+        return value
 
-    def _gateway_key(self, role: str, key: str, cli: Any, block: Any, section: str, default: Any) -> Any:
-        """CLI > the role's file section > env > the gateway block > .env > the role's code default > the general code default."""
-        role_file, role_default = self.settings.get(ROLES[role]), ROLE_DEFAULTS.get(role, Role())
-        return self._pick(f"{role}.{key}", (
-            (cli, "cli"), (getattr(role_file, key, None), f"file {self.file} {ROLES[role]}"),
-            (self.environ.get(key), f"env {GATEWAY_ENV.get(key)}"), (block, f"file {self.file} {section}"),
-            (self.dotenv.get(key), f".env {GATEWAY_ENV.get(key)}"),
-            (getattr(role_default, key, None), f"default {role}"), (default, "default")))
+    def read(self, row: Row, cli: Any = None, check: Callable[[str, Any], None] | None = None) -> Any:
+        """check: a row whose choices live in a higher layer gets them from its reader."""
+        return self._pick(row.key, row, {
+            Layer.CLI: Candidate(cli, CLI), Layer.FILE: Candidate(self._file_value(row), f"file {self.file}"),
+            Layer.DEFAULT: Candidate(row.default, "default", explicit=False)}, check or row.check, cli)
 
-    def gateway_name(self, role: str, cli: str | None, default: str) -> str:
-        return self._gateway_key(role, "gateway", cli, self.settings.aiGateway.use, "aiGateway.use", default)
-
-    def gateway_values(self, role: str, name: str, defaults: Mapping[str, Any], cli: Mapping[str, Any]) -> dict[str, Any]:
-        """defaults: the gateway's keys and code defaults; config does not know a gateway's keys otherwise."""
-        block = self.settings.aiGateway.blocks.get(name, {})
-        return {key: self._gateway_key(role, key, cli.get(key), block.get(key), f"aiGateway.{name}", default)
-                for key, default in defaults.items()}
+    def role_value(self, role: RoleRow, key: str, row: Row, cli: Any, block: tuple[Any, str], default: Any,
+                   check: Callable[[str, Any], None]) -> Any:
+        """block: the gateway-wide value in the file and where it sits; only a role's own keys read its section."""
+        role_file = self.settings.get(f"{role.key}.{key}") if key in ROLE_KEYS else None
+        return self._pick(f"{role.key}.{key}", row, {
+            Layer.CLI: Candidate(cli, CLI), Layer.ROLE: Candidate(role_file, f"file {self.file} {role.key}"),
+            Layer.ENV: Candidate(self.environ.get(key), f"env {GATEWAY_ENV.get(key)}"),
+            Layer.BLOCK: Candidate(block[0], f"file {self.file} {block[1]}"),
+            Layer.DOTENV: Candidate(self.dotenv.get(key), f".env {GATEWAY_ENV.get(key)}"),
+            Layer.ROLE_DEFAULT: Candidate(role.defaults.get(key), f"default {role.key}", explicit=False),
+            Layer.DEFAULT: Candidate(default, "default", explicit=False)}, check, cli)
 
 
 def _one_line(e: yaml.YAMLError) -> str:
@@ -79,7 +88,7 @@ def _one_line(e: yaml.YAMLError) -> str:
 def load(argument: Path | None, environ: Mapping[str, str], dotenv: Mapping[str, str]) -> Loaded:
     path = config_file(argument, environ)
     try:
-        settings = parse(read_yaml(path), path.parent) if path else Settings()
+        settings = parse(read_yaml(path), str(path)) if path else Settings()
     except yaml.YAMLError as e:
         raise ConfigError(f"invalid_yaml: {path}: {_one_line(e)}") from None
     except ConfigError as e:

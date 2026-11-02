@@ -7,8 +7,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..config.args import fill, load_settings, positive_int, require
+from ..config.args import fill_run, load_settings, positive_int
 from ..failure import reported
+from ..inputs.table import APPS_REPLACE, WORTHINESS, RoleRow
 from ..log import log_to_stderr
 from ..result.modes import MODES
 from .runtime.gateway.args import add_agent_args
@@ -19,7 +20,7 @@ from .runtime.engine.ask import Limits
 from .runtime.prompt.args import add_prompt_args, load_prompts
 
 
-def _engine_args(p: argparse.ArgumentParser, role: str) -> None:
+def _engine_args(p: argparse.ArgumentParser, role: RoleRow) -> None:
     add_agent_args(p, role=role)
     add_prompt_args(p)
     p.add_argument("--turns", type=positive_int, default=Limits.turns)
@@ -34,20 +35,19 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("worthiness")
     p.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
     p.add_argument("--mode", required=True, choices=sorted(MODES))
-    _engine_args(p, "ai.worthiness")
+    _engine_args(p, WORTHINESS)
     p = sub.add_parser("replace")
     p.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
     p.add_argument("--app", required=True)
-    _engine_args(p, "ai.replace")
+    _engine_args(p, APPS_REPLACE)
     a = ap.parse_args(argv)
     return reported(lambda: _stage(ap, a))
 
 
 def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     settings = load_settings(ap, a)
-    fill(settings, a, {"run": ("paths.run", None), "prompts": ("paths.prompts", None)})
-    require(ap, a, "run", "paths.run")
-    library = load_prompts(ap, a)
+    fill_run(ap, settings, a)
+    library = load_prompts(ap, a, settings)
     limits = Limits(a.turns, a.sessions)
     if a.stage == "worthiness":
         worthiness_cmd.worthiness(a.run, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)

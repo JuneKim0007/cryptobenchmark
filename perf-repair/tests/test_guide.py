@@ -184,7 +184,7 @@ def _scripts_off_path():
 def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_path):
     from perfrepair.config.load import load
     settings = tmp_path / "perfrepair.yaml"
-    settings.write_text(f"screening:\n  catalog: {tmp_path / 'absent.yaml'}\n")
+    settings.write_text(f"device:\n  screening:\n    catalog: {tmp_path / 'absent.yaml'}\n")
     g, lines = guide(run, DRY_RUN)
     g.settings = load(settings, {}, {})
     assert run_steps(g, device=False) == 1

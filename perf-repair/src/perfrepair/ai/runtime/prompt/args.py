@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from ....config.load import Loaded
+from ....inputs.table import PATHS_PROMPTS
 from .library import PromptError, PromptLibrary
 
 
@@ -13,8 +15,8 @@ def add_prompt_args(parser: argparse.ArgumentParser) -> None:
                              "(e.g. DIR/review/grouping-review.system.md); a file matching no prompt is an error")
 
 
-def load_prompts(parser: argparse.ArgumentParser, args: argparse.Namespace) -> PromptLibrary:
+def load_prompts(parser: argparse.ArgumentParser, args: argparse.Namespace, settings: Loaded) -> PromptLibrary:
     try:
-        return PromptLibrary.load(args.prompts)
+        return PromptLibrary.load(settings.read(PATHS_PROMPTS, args.prompts))
     except PromptError as e:
         parser.error(str(e))

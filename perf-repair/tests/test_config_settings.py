@@ -1,66 +1,76 @@
-from pathlib import Path
+import logging
 
 import pytest
-import yaml
 
-from perfrepair.config.settings import AiGateway, ConfigError, Role, Settings, parse
+from perfrepair.config.settings import ConfigError, Settings, parse
 
-EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
-
-
-def test_the_example_file_parses_and_names_every_section(tmp_path):
-    document = yaml.safe_load(EXAMPLE.read_text())
-    assert set(document) == {"aiGateway", "paths", "grouping", "guide", "ai", "screening"}
-    assert isinstance(parse(document, tmp_path), Settings)
+ROOT_KEYS = "['aiGateway', 'paths', 'device', 'apps']"
+ROLE_KEYS = "['gateway', 'model', 'effort']"
 
 
-def test_values_parse_into_sections_with_paths_relative_to_the_file(tmp_path):
+def warnings(caplog):
+    return [r.getMessage() for r in caplog.records if r.levelno == logging.WARNING]
+
+
+def test_the_parser_holds_raw_values_for_the_rows():
     s = parse({"aiGateway": {"use": "dry-run", "claude": {"binary": "/opt/claude", "model": None}},
-               "paths": {"run": "runs/a", "prompts": "/abs/prompts"},
-               "grouping": {"turns": 4, "supervisor": {"effort": "low"}},
-               "guide": {"device": True, "agent": {"model": "m"}},
-               "screening": {"catalog": "cat.yaml", "aiReview": True, "classify": {"effort": "low"}}}, tmp_path)
-    assert s.aiGateway == AiGateway("dry-run", {"claude": {"binary": "/opt/claude"}})
-    assert s.grouping.assign == Role()
-    assert s.paths.run == tmp_path / "runs/a" and s.paths.prompts == Path("/abs/prompts")
-    assert s.grouping.turns == 4 and s.grouping.supervisor.effort == "low" and s.guide.agent.model == "m"
-    assert s.screening.catalog == tmp_path / "cat.yaml" and s.get("guide.device") is True
-    assert s.screening.aiReview is True and s.get("screening.classify").effort == "low"
+               "device": {"grouping": {"turns": "abc"}}}, "c.yaml")
+    assert s.get("aiGateway.use") == "dry-run" and s.get("device.grouping.turns") == "abc"
+    assert s.blocks == {"claude": {"binary": "/opt/claude"}}
+    assert s.get("device.grouping.assign.effort") is None and s.get("device.grouping.turns.x") is None
 
 
-def test_empty_file_and_null_values_are_unset(tmp_path):
-    assert parse(None, tmp_path) == Settings() == parse({"aiGateway": None, "grouping": {"limit": None}}, tmp_path)
+def test_empty_file_and_null_values_are_unset():
+    assert parse(None, "c.yaml") == Settings()
+    assert parse({"aiGateway": None, "device": {"grouping": None}}, "c.yaml").get("device.grouping.limit") is None
+
+
+@pytest.mark.parametrize("document, line", [
+    ({"agnt": {}}, f"unknown_key: agnt, known {ROOT_KEYS} (c.yaml)"),
+    ({"grouping": {"turns": 3}}, f"unknown_key: grouping, known {ROOT_KEYS} (c.yaml)"),
+    ({"guide": {"mode": "latency"}}, f"unknown_key: guide, known {ROOT_KEYS} (c.yaml)"),
+    ({"device": {"id": "x"}}, "unknown_key: device.id, known ['screening', 'grouping', 'benchmark', 'worthiness'] (c.yaml)"),
+    ({"device": {"grouping": {"assign": {"efort": "low"}}}}, f"unknown_key: device.grouping.assign.efort, known {ROLE_KEYS} (c.yaml)"),
+    ({"apps": {"agent": {"auth": "api"}}}, f"unknown_key: apps.agent.auth, known {ROLE_KEYS} (c.yaml)"),
+    ({"apps": {"targets": []}}, "unknown_key: apps.targets, known ['mode', 'limit', 'measure', 'agent', 'replace'] (c.yaml)"),
+])
+def test_an_unknown_key_is_one_warning_naming_the_known_keys(document, line, caplog):
+    parse(document, "c.yaml")
+    assert warnings(caplog) == [line]
+
+
+def test_a_section_that_is_not_a_mapping_warns_when_nothing_unsafe_sits_in_it(caplog):
+    assert parse({"paths": 3}, "c.yaml").get("paths.run") is None
+    assert warnings(caplog) == ["invalid: paths 3, a mapping; ignored (c.yaml)"]
 
 
 @pytest.mark.parametrize("document, message", [
-    ({"agnt": {}}, "unknown_keys: <root> ['agnt'], known ['aiGateway', 'paths', 'grouping', 'guide', 'ai', 'screening']"),
-    ({"agent": {"backend": "claude-code"}}, "unknown_keys: <root> ['agent'], known ['aiGateway', 'paths', 'grouping', 'guide', 'ai', 'screening']"),
-    ({"backend": "claude"}, "unknown_keys: <root> ['backend'], known ['aiGateway', 'paths', 'grouping', 'guide', 'ai', 'screening']"),
-    ({"grouping": {"assign": {"efort": "low"}}},
-     "unknown_keys: grouping.assign ['efort'], known ['gateway', 'model', 'effort']"),
-    ({"guide": {"agent": {"claudeBinary": "x"}}}, "unknown_keys: guide.agent ['claudeBinary'], known ['gateway', 'model', 'effort']"),
-    ({"ai": {"replace": {"binary": "x"}}}, "unknown_keys: ai.replace ['binary'], known ['gateway', 'model', 'effort']"),
-    ({"ai": {"replace": {"gateway": 3}}}, "invalid: ai.replace.gateway 3, a non-empty string"),
-    ({"aiGateway": {"use": 3}}, "invalid: aiGateway.use 3, a non-empty string"),
-    ({"aiGateway": {"claude": "x"}}, "invalid: aiGateway.claude x, a mapping"),
-    ({"screening": {"aiReview": "yes"}}, "invalid: screening.aiReview yes, true or false"),
-    ({"screening": {"unknown": "model"}}, "unknown_keys: screening ['unknown'], known ['catalog', 'aiReview', 'classify']"),
-    ({"grouping": {"turns": 0}}, "invalid: grouping.turns 0, a positive integer"),
-    ({"guide": {"device": "yes"}}, "invalid: guide.device yes, true or false"),
-    ({"paths": {"run": 3}}, "invalid: paths.run 3, a path"),
     ({"aiGateway": "claude"}, "invalid: aiGateway claude, a mapping"),
+    ({"aiGateway": {"claude": "x"}}, "invalid: aiGateway.claude x, a mapping"),
+    ({"device": {"screening": 3}}, "invalid: device.screening 3, a mapping"),
+    ({"apps": {"agent": "dry-run"}}, "invalid: apps.agent dry-run, a mapping"),
+    (["a"], "invalid: <root> ['a'], a mapping"),
 ])
-def test_unknown_keys_and_invalid_values_are_refused_with_their_path(tmp_path, document, message):
+def test_a_section_holding_an_error_row_must_be_a_mapping(document, message):
     with pytest.raises(ConfigError) as e:
-        parse(document, tmp_path)
+        parse(document, "c.yaml")
     assert str(e.value) == message
 
 
-@pytest.mark.parametrize("document", [
-    {"aiGateway": {"apiKey": "x"}}, {"aiGateway": {"claude": {"apiKey": "x"}}}, {"aiGateway": {"someone": {"token": "x"}}},
-    {"ANTHROPIC_API_KEY": "x"}, {"guide": {"agent": {"auth_token": "x"}}},
-    {"aiGateway": {"claude": {"model": "sk-ant-abc"}}}, {"aiGateway": {"use": "sk-ant-abc"}}, {"grouping": {"assign": {"model": "sk-ant-abc"}}},
+@pytest.mark.parametrize("document, where", [
+    ({"aiGateway": {"apiKey": "x"}}, "aiGateway.apiKey"),
+    ({"aiGateway": {"claude": {"apiKey": "x"}}}, "aiGateway.claude.apiKey"),
+    ({"aiGateway": {"someone": {"token": "x"}}}, "aiGateway.someone.token"),
+    ({"ANTHROPIC_API_KEY": "x"}, "ANTHROPIC_API_KEY"),
+    ({"apps": {"agent": {"auth_token": "x"}}}, "apps.agent.auth_token"),
+    ({"aiGateway": {"claude": {"model": "sk-ant-abc"}}}, "aiGateway.claude.model"),
+    ({"aiGateway": {"use": "sk-ant-abc"}}, "aiGateway.use"),
+    ({"device": {"grouping": {"assign": {"model": "sk-ant-abc"}}}}, "device.grouping.assign.model"),
+    ({"nowhere": {"deep": [{"password": "x"}]}}, "nowhere.deep[0].password"),
+    ({"nowhere": ["sk-ant-abc"]}, "nowhere[0]"),
 ])
-def test_anything_that_looks_like_a_secret_is_refused(tmp_path, document):
-    with pytest.raises(ConfigError, match="^secret_key: .*keep secrets in the environment or .env"):
-        parse(document, tmp_path)
+def test_a_secret_is_refused_anywhere_even_under_an_unknown_key(document, where, caplog):
+    with pytest.raises(ConfigError) as e:
+        parse(document, "c.yaml")
+    assert str(e.value) == f"secret_key: {where}: keep secrets in the environment or .env"
+    assert warnings(caplog) == []

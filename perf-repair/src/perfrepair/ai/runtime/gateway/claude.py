@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ....config.settings import check_one_of, check_text
+from ....inputs.check import check_one_of, check_text
 from ..agent.conversation import Conversations
 from .claude_api import DEFAULT_MODEL, ClaudeConversations
 from .claude_cli import ClaudeCliConversations

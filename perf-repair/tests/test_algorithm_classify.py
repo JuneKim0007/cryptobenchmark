@@ -185,7 +185,7 @@ def test_a_batch_whose_every_answer_is_refused_stays_unknown(tmp_path):
 
 def test_the_command_reviews_only_with_ai_review_on(tmp_path, capsys):
     config = tmp_path / "perfrepair.yaml"
-    config.write_text("screening: {aiReview: true}\n")
+    config.write_text("device: {screening: {aiReview: true}}\n")
     run = tmp_path / "run"
     assert grouping_main(["build", "--manifest", str(F), "--run", str(run), "--perfrepair-config", str(config),
                           "--agent", "dry-run"]) == 0

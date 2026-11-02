@@ -11,7 +11,9 @@ from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
-from ..config.args import fill, load_settings, positive_int, require
+from ..config.args import fill, fill_run, load_settings, positive_int, require
+from ..inputs.check import check_one_of
+from ..inputs.table import APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, BENCHMARK_CONFIG, PATHS_RESULTS
 from ..failure import FAILURES, reported
 from ..log import log_to_stderr
 from ..result.modes import MODES
@@ -28,14 +30,14 @@ def parser() -> argparse.ArgumentParser:
                          "e.g. ~/capstone/runs/<date>-<name>; default: paths.run")
     ap.add_argument("--results", type=Path,
                     help="the cryptobenchmark results directory of the run; default: paths.results")
-    ap.add_argument("--mode", choices=sorted(MODES), help="default: guide.mode, else latency")
+    ap.add_argument("--mode", choices=sorted(MODES), help="default: apps.mode, else latency")
     ap.add_argument("--device", action="store_true", default=None,
                     help="also measure the harness on the attached phone (cryptobenchmark pipeline.py), then report; "
-                         "default: guide.device")
-    ap.add_argument("--config", type=Path, help="global.yaml for the device step; default: guide.config, "
+                         "default: apps.measure")
+    ap.add_argument("--config", type=Path, help="global.yaml for the device step; default: device.benchmark.config, "
                                                 "else pipeline.py's own lookup")
-    ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: guide.limit")
-    add_agent_args(ap, role="guide")
+    ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: apps.limit")
+    add_agent_args(ap, role=APPS_AGENT)
     add_prompt_args(ap)
     return ap
 
@@ -62,16 +64,14 @@ def main(argv: list[str] | None = None) -> int:
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
-    fill(settings, a, {"run": ("paths.run", None), "results": ("paths.results", None), "prompts": ("paths.prompts", None),
-                       "mode": ("guide.mode", "latency"), "device": ("guide.device", False),
-                       "config": ("guide.config", None), "limit": ("guide.limit", None)})
-    require(ap, a, "run", "paths.run")
-    require(ap, a, "results", "paths.results")
-    if a.mode not in MODES:
-        ap.error(f"invalid: guide.mode {a.mode}, one of {sorted(MODES)}")
+    fill_run(ap, settings, a)
+    fill(settings, a, {"results": PATHS_RESULTS, "device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT})
+    require(ap, a, "results", PATHS_RESULTS)
+    # modes come from result/criteria.yaml, a layer above the rows
+    a.mode = settings.read(APPS_MODE, a.mode, lambda name, value: check_one_of(name, value, tuple(sorted(MODES))))
     return reported(lambda: run_steps(
         Guide(a.run.expanduser(), a.app.expanduser(), a.name, a.results.expanduser(), MODES[a.mode],
-              spawn(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a), limit=a.limit, config=a.config, settings=settings),
+              spawn(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings),
         a.device))
 
 
