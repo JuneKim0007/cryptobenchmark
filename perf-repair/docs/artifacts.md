@@ -27,7 +27,7 @@
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).
 - A journal is append-only, one line per model turn, audit only; state is the projection of the outbox.
 - `measurements.json` carries the run's `runtime` and `comparability` notes.
-- `validation/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
+- `check/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
 
 ## `manifest.yaml` (cryptobenchmark)
 

@@ -9,7 +9,7 @@ from perfrepair.dto.language import JAVA, KOTLIN
 from perfrepair.scope.extract import enclosing, functions
 from perfrepair.scope.facts import key_source, read_patterns, sinks
 from perfrepair.validation.app import validate_app_facts, validate_scopes
-from perfrepair.validation.run import validate_run
+from perfrepair.check.run import validate_run
 
 F = Path(__file__).parent / "fixtures"
 MANIFEST = F / "results" / "manifest.yaml"

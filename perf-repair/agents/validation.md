@@ -10,12 +10,13 @@
 - purity: validators read and compare; they never repair.
 
 ## Workflow
-- add a validator: `validation/<artifact>.py` → `validation/run.py` → export in `validation/__init__.py` → row in `docs/artifacts.md`
+- add a validator: `validation/<artifact>.py` → `check/run.py` → export in `validation/__init__.py` → row in `docs/artifacts.md`
 - check a run: `python3 -m perfrepair.validation <run dir>`
 
 ## File structure
 
 ```
+src/perfrepair/check/run.py : stage replay: validate every artifact present in a run directory, rebuilding kinds from their outboxes
 src/perfrepair/validation/__main__.py : command: validate a run directory; exit 1 on any problem, 2 on bad usage
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status
@@ -33,7 +34,6 @@ src/perfrepair/validation/measurements.py : measurements: known rows, ordered fi
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
-src/perfrepair/validation/run.py : validate every artifact present in a run directory
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/suggest/dossier.py : dossiers.json into Dossiers and noOptions for the replace stage, by the checks of validation/dossiers.py
 src/perfrepair/validation/suggest/replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins; risks from scope and option

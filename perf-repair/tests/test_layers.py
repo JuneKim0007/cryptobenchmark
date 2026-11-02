@@ -22,11 +22,6 @@ RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 
 # (importer, imported) package pairs: reason; the #66 stage that removes it.
 ALLOWLIST: dict[tuple[str, str], str] = {
-    ("validation/run", "ai/runtime/engine"): "stage replay reads the outbox; B1 (S6) check/run.py",
-    ("validation/run", "ai/parse/grouping_assign"): "stage replay rebuilds GroupingKind; B1 (S6) check/run.py",
-    ("validation/run", "ai/evaluate/worthiness"): "stage replay rebuilds WorthinessKind; B1 (S6) check/run.py",
-    ("validation/run", "grouping/paths"): "stage replay locates grouping files; B1 (S6) check/run.py",
-    ("validation/run", "grouping/report"): "stage replay reads groups.json; B1 (S6) check/run.py",
     ("validation/grouping", "ai/review/grouping_review"): "supervision gate reads the review KINDS; B4 (S2)",
     ("ai/review/grouping_review", "grouping/report"): "supervisor reads groups.json; B5 (S3) read_groups",
     ("validation/grouping", "grouping/catalog"): "gates read the family catalog; B6 (S4a) catalog/families.py",

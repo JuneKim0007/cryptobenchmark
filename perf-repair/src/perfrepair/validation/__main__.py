@@ -4,7 +4,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from .run import validate_run
+from ..check.run import validate_run
 
 
 def main(argv: list[str] | None = None) -> int:

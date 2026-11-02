@@ -8,7 +8,7 @@
 - static tools: evidence, modes, triage → `agents/static-tools.md`
 - app source: detect call sites, libraries, scopes (function, sinks, key source) → `agents/app.md`
 - repair: app call sites, replacements, edits, harness, before/after → `agents/repair.md`
-- validation: artifact validators, outbox projection, the stage gate → `agents/validation.md`
+- validation: artifact validators, outbox projection, the stage gate, stage replay (`check/`) → `agents/validation.md`
 - docs, guides and file maps: writing or changing any .md → `../agents/docs/writing.md`
 - facts: pipeline, artifacts, decisions, grouping, modes, repair, limits → `docs/index.md`
 

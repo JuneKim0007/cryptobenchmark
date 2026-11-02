@@ -14,7 +14,7 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.evaluate.worthiness.command import worthiness
 from perfrepair.result.modes import MODES
 from perfrepair.validation import ValidationFailed
-from perfrepair.validation.run import validate_run
+from perfrepair.check.run import validate_run
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
 

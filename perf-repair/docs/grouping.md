@@ -101,4 +101,4 @@ Turns, sessions and `--limit`: `docs/decisions.md`.
 - A dossier option labelled anything but `pass` makes a `replace` to it declare `unverified_interop`.
 
 - `dto/interop.py` `failed_pairs(groups)` and `pair_status(groups, a, b)` read the section; a groups.json without it is refused.
-- `validation/run.py` checks plan, results, the section and every `dossiers.json` option against failed pairs.
+- `check/run.py` checks plan, results, the section and every `dossiers.json` option against failed pairs.
