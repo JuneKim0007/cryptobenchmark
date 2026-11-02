@@ -6,7 +6,7 @@ from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.grouping_state import Amendment, Answer, Knowledge
 from perfrepair.grouping.state.cursor import cursor
 from perfrepair.grouping.state.knowledge import apply
-from perfrepair.validation.grouping.answer import parse_answer, validate_answer
+from perfrepair.validation.parse.grouping_assign import parse_answer, validate_answer
 from perfrepair.validation.grouping.knowledge import validate_knowledge
 
 ITEMS = [Item(1, "TypeC", "A/M1", "P1", "cipher.secret"), Item(2, "TypeC", "A/M1", "P2", "cipher.secret"),

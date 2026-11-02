@@ -24,7 +24,7 @@ from perfrepair.guide.steps import Guide
 from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
-from perfrepair.validation.suggest.replace import required_kinds, takes
+from perfrepair.validation.suggest.site_replace import required_kinds, takes
 
 F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results", F / "guide"

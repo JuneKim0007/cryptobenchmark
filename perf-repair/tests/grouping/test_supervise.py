@@ -11,7 +11,7 @@ from perfrepair.grouping.report.checks import report
 from perfrepair.ai.review.grouping_review.run import charter as supervisor_charter, supervise
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.prompt import PromptLibrary
-from perfrepair.validation.grouping.supervision import parse_review
+from perfrepair.validation.review.grouping_review import parse_review
 
 
 def finished(paths):

@@ -4,7 +4,7 @@ import pytest
 from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, scope
 
 from perfrepair.dto.site import Option, Replacement, required_risks
-from perfrepair.validation.suggest.replace import check_reply
+from perfrepair.validation.suggest.site_replace import check_reply
 
 D = dossier()
 

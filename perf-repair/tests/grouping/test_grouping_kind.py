@@ -11,7 +11,7 @@ from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.validation import ValidationFailed
-from perfrepair.validation.grouping.answer import MAX_DESCRIPTION, SLUG
+from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG
 
 
 def group(paths, agent, limits=Limits(), limit=None):

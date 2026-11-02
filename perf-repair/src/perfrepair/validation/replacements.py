@@ -1,8 +1,8 @@
 """replacements: each one names a known scope, a well-formed decision, and edits that apply its option exactly."""
 from __future__ import annotations
 
-from ...dto.site import DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
-from .replace import required_kinds, takes
+from ..dto.site import DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
+from .suggest.site_replace import required_kinds, takes
 
 SOURCES = ("llm", "fallback", "static")
 

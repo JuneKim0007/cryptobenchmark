@@ -22,21 +22,21 @@ src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract val
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
-src/perfrepair/validation/grouping/answer.py : gate C: an agent answer against its item and the knowledge
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
 src/perfrepair/validation/grouping/knowledge.py : knowledge: well-formed groups, members in one group of their family
 src/perfrepair/validation/grouping/output.py : groups.json: one group or dropped per item, consistent index
-src/perfrepair/validation/grouping/supervision.py : supervisor findings: name only that family, arity per kind
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, ordered finite summaries, positive medians
+src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item and the knowledge
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS
+src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition
+src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/suggest/dossier.py : dossiers.json into Dossiers and noOptions for the replace stage, by the checks of validation/dossiers.py
-src/perfrepair/validation/suggest/replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins; risks from scope and option
-src/perfrepair/validation/suggest/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply
-src/perfrepair/validation/worthiness.py : verdicts: known groups, static equal triage, pairs are members
+src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins; risks from scope and option
+src/perfrepair/validation/verdicts.py : verdicts: known groups, static equal triage, pairs are members
 ```
