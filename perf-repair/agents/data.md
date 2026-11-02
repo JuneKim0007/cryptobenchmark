@@ -73,7 +73,7 @@ src/perfrepair/log/progress.py : Progress: the line watch prints per event; a ru
 src/perfrepair/log/read.py : events.jsonl read whole or followed, whole lines only; `events_unreadable`
 src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
-src/perfrepair/log/summary.py : summarize(): one run per stage and per app folder: span, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost
+src/perfrepair/log/summary.py : summarize(): one run per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost
 src/perfrepair/log/summary_text.py : the summary as text lines
 src/perfrepair/log/views.py : the views screening/ai.log, grouping/ai.log, bug.log, each a function of one event; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
