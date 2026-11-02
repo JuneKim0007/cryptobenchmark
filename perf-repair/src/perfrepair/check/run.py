@@ -105,14 +105,18 @@ def _grouping(grouping: GroupingPaths) -> list[str]:
         saved = Knowledge.from_json(read_json(grouping.knowledge))
     except (KeyError, TypeError, ValueError) as e:
         return [f"{grouping.knowledge.name} does not parse: {e}"]
-    return GroupingKind(grouping).validate(saved, records)
+    try:
+        kind = GroupingKind(grouping)
+    except ValidationFailed as e:
+        return e.problems
+    return kind.validate(saved, records)
 
 
 def _screen(grouping: GroupingPaths, catalog: Catalog) -> dict[str, list[str]]:
     if not grouping.screen.exists():
         return {}
     items, doc = read_items(read_json(grouping.items)), read_json(grouping.screen)
-    problems = validate_screen_document(doc, items)
+    problems = validate_screen_document(doc, items, rd.built(grouping))
     if problems:
         return {"grouping/screen.json": problems}
     return {"grouping/screen.json": catalog.mismatch(rd.load_screen_catalog(grouping))} | _classify(grouping)

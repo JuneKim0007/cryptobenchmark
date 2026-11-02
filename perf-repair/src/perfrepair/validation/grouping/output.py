@@ -7,8 +7,9 @@ from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
 from ...dto.grouping_state import Group
 from ...dto.screen import Verdict
 from ...files import read_json
-from ...run_dir import GroupingPaths, load_screen
+from ...run_dir import GroupingPaths
 from ..failure import require
+from ..screen import read_checked_screen
 from .code_groups import validate_code_groups
 
 
@@ -50,6 +51,6 @@ def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdic
 
 def read_groups(paths: GroupingPaths) -> dict:
     document = read_json(paths.groups)
-    screen = load_screen(paths)
+    screen = read_checked_screen(paths)
     require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}, screen))
     return document

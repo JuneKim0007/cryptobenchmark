@@ -97,6 +97,7 @@ def test_a_name_conflict_is_unknown_with_its_code():
     assert verdict.status == "unknown" and verdict.reason.startswith("name_conflict:")
 
 
+BUILT = {"items": "a" * 64, "profiles": "b" * 64}
 ITEMS = [Item(1, "MessageDigest", "MD5", "P", "f"), Item(2, "MessageDigest", "SHA-256", "P", "f")]
 
 
@@ -108,9 +109,18 @@ def test_the_validator_wants_one_verdict_per_item_from_the_status_set():
 
 
 def test_the_validator_refuses_another_schema_version():
-    doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")}, CATALOG)
-    assert validate_screen_document(doc, ITEMS) == []
-    assert validate_screen_document({**doc, "schemaVersion": 1}, ITEMS)[0].startswith("screen.json does not parse")
+    doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")}, CATALOG,
+                          BUILT)
+    assert validate_screen_document(doc, ITEMS, BUILT) == []
+    assert validate_screen_document({**doc, "schemaVersion": 1}, ITEMS, BUILT)[0].startswith("screen.json does not parse")
+
+
+def test_the_validator_refuses_verdicts_built_from_other_items_or_profiles():
+    doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")}, CATALOG,
+                          BUILT)
+    assert validate_screen_document(doc, ITEMS, {**BUILT, "items": "c" * 64}) == [
+        "built from another items.json (sha256 aaaaaaaaaaaa), this run's is cccccccccccc; rerun grouping build"]
+    assert validate_screen_document(doc, ITEMS, {**BUILT, "profiles": None})[0].startswith("built from another profiles")
 
 
 @pytest.fixture

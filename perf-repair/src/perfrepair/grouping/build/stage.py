@@ -5,7 +5,7 @@ from pathlib import Path
 from ...data_handler.inbound import RunContext
 from ...dto.grouping import items_document, profiles_document
 from ...dto.screen import screen_document
-from ...files import write_json
+from ...files import json_text, sha256_text, write_texts
 from ...validation import require, validate_screen
 from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
@@ -33,11 +33,13 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None, 
     require("screen", validate_screen(verdicts, items))
     paths = GroupingPaths(run)
     paths.root.mkdir(parents=True, exist_ok=True)
-    write_json(paths.items, items_document(items))
-    write_json(paths.profiles, profiles_document(profiles))
     review = None
     if reviewer is not None:
         verdicts, review = classify(paths, batches(unknown_evidence(context, items, verdicts)), verdicts, reviewer, echo)
         require("screen", validate_screen(verdicts, items))
-    write_json(paths.screen, screen_document(verdicts, catalog.identity(), review))
+    items_text, profiles_text = json_text(items_document(items)), json_text(profiles_document(profiles))
+    built = {"items": sha256_text(items_text), "profiles": sha256_text(profiles_text)}
+    # screen.json first: its absence reads as "built without screening"; any later partial rename fails its digests
+    write_texts([(paths.screen, json_text(screen_document(verdicts, catalog.identity(), built, review))),
+                 (paths.profiles, profiles_text), (paths.items, items_text)])
     return paths

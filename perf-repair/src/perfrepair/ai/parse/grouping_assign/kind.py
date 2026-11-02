@@ -12,8 +12,9 @@ from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_an
 from ....validation.grouping.code_groups import validate_code_groups
 from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
+from ....validation.screen import read_checked_screen
 from ....catalog.families import Families
-from ....run_dir import GroupingPaths, load_screen
+from ....run_dir import GroupingPaths
 from ....screen.groups import charter_inputs, code_groups, screened_out
 from .render import render
 from .schema import SCHEMA
@@ -37,7 +38,7 @@ class GroupingKind:
         self._items = read_items(raw)
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
-        self.screen: dict[int, Verdict] | None = load_screen(paths)
+        self.screen: dict[int, Verdict] | None = read_checked_screen(paths)
 
     @property
     def inputs(self) -> str:

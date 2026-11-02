@@ -3,9 +3,12 @@ from __future__ import annotations
 import re
 
 from ..dto.classify import Answer
-from ..dto.grouping import Item
+from .. import run_dir as rd
+from ..dto.grouping import Item, read_items
 from ..dto.screen import (MODEL_SOURCE, MODEL_STATUS, NEVER_TARGET, STATUSES, UNKNOWN, UNVERIFIED, Verdict, read_screen,
-                          read_screen_catalog)
+                          read_screen_built, read_screen_catalog)
+from ..files import read_json
+from .failure import require
 
 SHA256 = re.compile(r"[0-9a-f]{64}")
 
@@ -32,12 +35,34 @@ def _catalog_problems(catalog) -> list[str]:
     return [] if ok else [f"catalog {catalog!r} is not {{source, sha256}}"]
 
 
-def validate_screen_document(doc: dict, items: list[Item]) -> list[str]:
+def _built_problems(recorded, built: dict) -> list[str]:
+    if not isinstance(recorded, dict):
+        return [f"built {recorded!r} is not {{items, profiles}}"]
+    return [f"built from another {name}.json (sha256 {str(recorded.get(name))[:12]}), this run's is "
+            f"{str(built.get(name))[:12]}; rerun grouping build" for name in ("items", "profiles")
+            if recorded.get(name) != built.get(name) or built.get(name) is None]
+
+
+def validate_screen_document(doc: dict, items: list[Item], built: dict) -> list[str]:
+    """built: the digests of this run's items.json and profiles.json (run_dir.built); another build's verdicts are refused."""
     try:
-        verdicts, catalog = read_screen(doc), read_screen_catalog(doc)
+        verdicts, catalog, recorded = read_screen(doc), read_screen_catalog(doc), read_screen_built(doc)
     except (KeyError, TypeError, ValueError) as e:
         return [f"screen.json does not parse: {e}"]
-    return _catalog_problems(catalog) + validate_screen(verdicts, items)
+    problems = _built_problems(recorded, built)
+    return problems + _catalog_problems(catalog) + ([] if problems else validate_screen(verdicts, items))
+
+
+def read_checked_screen(paths: rd.GroupingPaths) -> dict[int, Verdict] | None:
+    """screen.json's verdicts, refused unless valid and built with this run's items and profiles; None without it."""
+    if not paths.screen.exists():
+        return None
+    try:
+        doc, items = read_json(paths.screen), read_items(read_json(paths.items))
+    except (OSError, KeyError, TypeError, ValueError) as e:
+        require("grouping/screen.json", [f"does not read: {e}"])
+    require("grouping/screen.json", validate_screen_document(doc, items, rd.built(paths)))
+    return read_screen(doc)
 
 
 def validate_model_verdicts(verdicts: dict[int, Verdict], answers: dict[int, Answer], fingerprint: str) -> list[str]:

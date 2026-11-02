@@ -15,10 +15,13 @@ from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.dto.classify import Batch, Evidence
 from perfrepair.dto.screen import UNKNOWN, Verdict, lowers_status, read_screen, with_answer
 from perfrepair.grouping.__main__ import main as grouping_main
+from perfrepair.grouping.build import stage
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import load_catalog
 from perfrepair.screen.evidence import batches
+from perfrepair.validation import ValidationFailed
+from perfrepair.validation.grouping.output import read_groups
 from perfrepair.validation.parse.algorithm_classify import check_reply
 
 F = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
@@ -183,3 +186,41 @@ def test_the_command_reviews_only_with_ai_review_on(tmp_path, capsys):
     assert "review" in doc and GroupingPaths(run).classified.is_file()
     assert grouping_main(["build", "--manifest", str(F), "--run", str(tmp_path / "off")]) == 0
     assert "review" not in json.loads(GroupingPaths(tmp_path / "off").screen.read_text())
+
+
+def _fewer_items(monkeypatch):
+    """Another manifest's build: the same items without the last one."""
+    real = stage.build
+
+    def build(*args):
+        items, profiles = real(*args)
+        return items[:-1], {k: v for k, v in profiles.items() if k != items[-1].id}
+    monkeypatch.setattr(stage, "build", build)
+
+
+def test_a_build_that_fails_in_classify_leaves_the_previous_build_whole(tmp_path, monkeypatch):
+    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    paths = build_stage(F, tmp_path, PACKAGED, **QUIET)
+    before = {p.name: p.read_bytes() for p in (paths.items, paths.profiles, paths.screen)}
+    _fewer_items(monkeypatch)
+
+    def lost(*_):
+        raise RuntimeError("connection lost")
+    with pytest.raises(RuntimeError):
+        build_stage(F, tmp_path, _undecided(PACKAGED), Reviewer(ScriptedConversations(lost), LIBRARY), **QUIET)
+    assert {p.name: p.read_bytes() for p in (paths.items, paths.profiles, paths.screen)} == before
+    assert len(GroupingKind(paths).items()) == 4
+
+
+def test_screen_json_beside_another_builds_items_is_refused_by_assign_and_read_groups(tmp_path, monkeypatch):
+    assert inbound(["--manifest", str(F), "-o", str(tmp_path)]) == 0
+    old = build_stage(F, tmp_path, PACKAGED, **QUIET).screen.read_bytes()
+    _fewer_items(monkeypatch)
+    paths = build_stage(F, tmp_path, PACKAGED, **QUIET)
+    paths.screen.write_bytes(old)
+    with pytest.raises(ValidationFailed, match="built from another items.json"):
+        GroupingKind(paths)
+    paths.groups.write_text("{}")
+    with pytest.raises(ValidationFailed, match="built from another items.json"):
+        read_groups(paths)
+    assert "built from another items.json" in validate_run(tmp_path, PACKAGED)["grouping/screen.json"][0]

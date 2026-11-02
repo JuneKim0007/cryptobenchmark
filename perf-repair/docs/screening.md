@@ -22,7 +22,7 @@
 - nominal mode: a mode the names catalog maps another mode onto for a base (`modeSynonyms`) never matches that base; `RSA/ECB/*` is not ECB.
 - platform: applies only with a targetSdk; `screen/stage.py` passes none, so `grouping/screen.json` never says `platform_deprecated`.
 - future: rows from the SP 800-131A r3 draft are recorded beside the key and never change a verdict.
-- recorded key: each verdict in `screen.json` (schema 3) carries the `canonical` name and `keySize` it was looked up by; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs one.
+- recorded key: each verdict in `screen.json` (schema 4) carries the `canonical` name and `keySize` it was looked up by; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs one.
 
 ## Use
 

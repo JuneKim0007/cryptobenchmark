@@ -32,7 +32,7 @@ flowchart TD
 | File | Written by | Holds |
 |---|---|---|
 | `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
-| `screen.json` | build | schema 3: `catalog` `{source, sha256}` the verdicts came from; `review` `{fingerprint}` only after a model review; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
+| `screen.json` | build | schema 4: `catalog` `{source, sha256}` the verdicts came from; `built` `{items, profiles}`: sha256 of the `items.json` and `profiles.json` written with it, so a screen.json beside another build's items is refused (`validation/screen.py` `read_checked_screen`, used by assign, report and every `read_groups`); `review` `{fingerprint}` only after a model review; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
@@ -56,6 +56,7 @@ flowchart TD
 |---|---|
 | pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json); only these reach the model |
 | no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
+| build write | everything, the classify review included, is computed first; then screen.json, profiles.json and items.json are staged as temp files and renamed in that order: a failure before the renames leaves the previous build whole, a partial rename fails screen.json's `built` digests, and screen.json first means its absence never follows a new items.json |
 | key | family, status and the canonical name `screen.json` recorded (key size is the call's, as in model groups); one group per key across providers |
 | id | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision |
 | description | fixed: code-made group of one algorithm, its canonical name, key size and status |

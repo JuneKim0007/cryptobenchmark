@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass, replace
 
 from . import classify as answer
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN = "broken", "platform_deprecated", "accepted", "unknown"
 UNVERIFIED = "unverified"
 STATUSES = (BROKEN, PLATFORM_DEPRECATED, UNVERIFIED, ACCEPTED, UNKNOWN)
@@ -52,9 +52,10 @@ def qualified_verdicts(groups: dict, screen: dict[int, Verdict] | None) -> dict[
     return {e["qualified"]: screen[int(k)] for k, e in groups["items"].items()}
 
 
-def screen_document(verdicts: dict[int, Verdict], catalog: dict, review: str | None = None) -> dict:
-    """catalog: {source, sha256} of the screening catalog; review: the classify outbox fingerprint, only when it ran."""
-    doc = {"schemaVersion": SCHEMA_VERSION, "catalog": catalog}
+def screen_document(verdicts: dict[int, Verdict], catalog: dict, built: dict, review: str | None = None) -> dict:
+    """catalog: {source, sha256} of the screening catalog; built: {items, profiles} sha256 of the files these verdicts
+    screen; review: the classify outbox fingerprint, only when it ran."""
+    doc = {"schemaVersion": SCHEMA_VERSION, "catalog": catalog, "built": built}
     if review is not None:
         doc["review"] = {"fingerprint": review}
     return {**doc, "verdicts": {str(k): v.to_json() for k, v in sorted(verdicts.items())}}
@@ -72,6 +73,10 @@ def read_screen(doc: dict) -> dict[int, Verdict]:
 
 def read_screen_catalog(doc: dict) -> dict:
     return _checked(doc)["catalog"]
+
+
+def read_screen_built(doc: dict) -> dict:
+    return _checked(doc)["built"]
 
 
 def read_screen_review(doc: dict) -> str | None:

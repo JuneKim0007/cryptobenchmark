@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .dto import Measurements, PrimitiveRow, RunLog
 from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
-from .files import read_json
+from .files import read_json, sha256_file
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
@@ -93,6 +93,11 @@ def load_measurements(run: Path) -> Measurements:
 
 def load_run_log(run: Path) -> RunLog:
     return RunLog.from_json(read_json(Path(run) / RUN_LOG))
+
+
+def built(paths: GroupingPaths) -> dict:
+    """The digests screen.json binds its verdicts to: items.json and profiles.json as they are on disk."""
+    return {"items": sha256_file(paths.items), "profiles": sha256_file(paths.profiles)}
 
 
 def load_screen(paths: GroupingPaths) -> dict[int, Verdict] | None:
