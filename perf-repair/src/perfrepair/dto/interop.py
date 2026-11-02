@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from .grouping import parse_qualified, qualified
 
 SCHEMA_VERSION = 1
-RESULTS = ("pass", "fail", "not_checkable")
+NOT_CHECKABLE = "not_checkable"
+RESULTS = ("pass", "fail", NOT_CHECKABLE)
 NOT_RUN = "not_run"
 NOT_PLANNED = "not_planned"
 STATUSES = ("checked", NOT_RUN)
@@ -64,8 +65,17 @@ class PairResult:
         return cls(int(d["id"]), d["group"], member_name(d["a"]), member_name(d["b"]), d["result"], d.get("reason") or "")
 
 
-def plan_document(pairs: list[PlannedPair]) -> dict:
-    return {"schemaVersion": SCHEMA_VERSION, "pairs": [p.to_json() for p in pairs]}
+def plan_document(pairs: list[PlannedPair], not_checkable: tuple[PairResult, ...] = ()) -> dict:
+    document = {"schemaVersion": SCHEMA_VERSION, "pairs": [p.to_json() for p in pairs]}
+    if not_checkable:
+        document["notCheckable"] = [{"id": r.id, "group": r.group, "a": member(r.a), "b": member(r.b), "reason": r.reason}
+                                    for r in not_checkable]
+    return document
+
+
+def not_checkable_results(plan: dict) -> list[PairResult]:
+    """Pairs the plan holds back from the oracle; their result is known without running them."""
+    return [PairResult.from_interop({**d, "result": NOT_CHECKABLE}) for d in plan.get("notCheckable") or []]
 
 
 def interop_section(results: list[PairResult] | None) -> dict:

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ...dto.interop import RESULTS, SCHEMA_VERSION, PairResult, PlannedPair, interop_section
+from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
+from ...dto.interop import RESULTS, SCHEMA_VERSION, PairResult, PlannedPair, interop_section, not_checkable_results
 from ...files import read_yaml
 
 
@@ -13,8 +14,13 @@ def _members(groups: dict) -> dict[str, set[str]]:
 def validate_plan(plan: dict, groups: dict) -> list[str]:
     if plan.get("schemaVersion") != SCHEMA_VERSION:
         return [f"interop_plan.yaml schemaVersion {plan.get('schemaVersion')} is not {SCHEMA_VERSION}"]
-    members, problems, seen = _members(groups), [], set()
-    for p in map(PlannedPair.from_json, plan["pairs"]):
+    planned = list(map(PlannedPair.from_json, plan["pairs"]))
+    return _pair_problems([*planned, *not_checkable_results(plan)], _members(groups)) + _across_problems(planned, groups)
+
+
+def _pair_problems(pairs: list, members: dict[str, set[str]]) -> list[str]:
+    problems, seen = [], set()
+    for p in pairs:
         if p.id in seen:
             problems.append(f"pair {p.id}: id repeats")
         seen.add(p.id)
@@ -23,6 +29,12 @@ def validate_plan(plan: dict, groups: dict) -> list[str]:
         if not {p.a, p.b} <= members.get(p.group, set()):
             problems.append(f"pair {p.id}: {p.a} and {p.b} are not both members of group {p.group!r}")
     return problems
+
+
+def _across_problems(planned: list[PlannedPair], groups: dict) -> list[str]:
+    contract = {e["qualified"]: e.get("keyContract") for e in groups["items"].values()}
+    return [f"pair {p.id}: {p.a} and {p.b} are planned across key contracts" for p in planned
+            if {contract.get(p.a), contract.get(p.b)} == {KEY_APP_HELD, KEY_PROVIDER_HELD}]
 
 
 def _expected(directions: dict) -> str:
@@ -69,7 +81,7 @@ def validate_interop(groups: dict, plan_path: Path, results_path: Path) -> dict[
         if results_path.exists():
             results = read_yaml(results_path)
             out["grouping/interop.yaml"] = validate_results(results, plan)
-            imported = [PairResult.from_interop(r) for r in results.get("pairs") or []]
+            imported = [PairResult.from_interop(r) for r in results.get("pairs") or []] + not_checkable_results(plan)
     elif results_path.exists():
         out["grouping/interop.yaml"] = ["interop.yaml without the interop_plan.yaml it answers"]
     out["grouping/groups.json interop"] = validate_section(groups, imported)

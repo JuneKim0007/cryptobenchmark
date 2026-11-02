@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from ..dto.interop import PairResult
+from ..dto.interop import PairResult, not_checkable_results
 from ..files import read_yaml, write_text
 from ..validation import require
 from ..validation.grouping.interop import validate_results
@@ -16,8 +16,9 @@ def imported(paths: GroupingPaths) -> list[PairResult] | None:
     if not paths.interop.exists():
         return None
     results = read_yaml(paths.interop)
-    require("grouping/interop.yaml", validate_results(results, _plan(paths)))
-    return [PairResult.from_interop(r) for r in results["pairs"]]
+    plan = _plan(paths)
+    require("grouping/interop.yaml", validate_results(results, plan))
+    return [PairResult.from_interop(r) for r in results["pairs"]] + not_checkable_results(plan)
 
 
 def import_results(paths: GroupingPaths, source: Path) -> list[PairResult]:
