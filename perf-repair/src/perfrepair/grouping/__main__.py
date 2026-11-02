@@ -1,5 +1,5 @@
 """python3 -m perfrepair.grouping {build,assign,report} — the grouping stage, one step per command.
-  build   --manifest <results>/manifest.yaml --run <dir>     items.json, profiles.json
+  build   --manifest <results>/manifest.yaml --run <dir>     items.json, profiles.json, screen.json
   assign  --run <dir> [--agent ...] [--prompts DIR] [--turns 3] [--sessions 2] [--limit N]
   report  --run <dir> [--supervisor [--prompts DIR]] [--agent ...]   checks.json, groups.json [, supervisor.json]
   interop-plan --run <dir>                                    interop_plan.yaml from groups.json
@@ -92,7 +92,7 @@ def _file_step(args: argparse.Namespace) -> None:
     paths = GroupingPaths(args.run)
     if args.step == "build":
         build_stage(args.manifest, args.run)
-        print(f"wrote {paths.items} and {paths.profiles}")
+        print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
     elif args.step == "interop-plan":
         print(f"{len(write_plan(paths))} pairs -> {paths.interop_plan}")
     else:
