@@ -10,14 +10,15 @@
 
 - A rejected answer gets a correction turn (`prompts/shared/rejection.turn.md`) in the same session, listing its problems.
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
-- `--prompts DIR` on `grouping build` (with `screening.aiReview`; off, build refuses it and `--agent`, `--model`, `--effort` since it calls no model), `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
+- `--prompts DIR` on `grouping build` (with `screening.aiReview`; off, build refuses it and `--agent`, `--auth`, `--model`, `--effort` since it calls no model), `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - Commands with a model: `grouping build` with `screening.aiReview`, `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
-- Backend, model, effort and the `claude` binary per command: `docs/settings.md`; `--agent`, `--model`, `--effort` override.
-- `grouping assign` defaults to effort `low`, below every agent-wide layer; the other roles to `medium`.
-- `claude` backend: JSON schema output, server-side refusal fallback; the schema is sent without `maxLength`, `minLength` and `pattern`, which the Messages API refuses (400) or may find too complex; the gate still checks them. `claude-code` sends the whole schema.
+- Gateway, auth, model and effort per command: `docs/settings.md`; `--agent`, `--auth`, `--model`, `--effort` override.
+- `grouping assign` defaults to effort `low`, below every gateway-wide layer; the other roles to `medium`.
+- `claude` gateway with `auth: api`: JSON schema output, server-side refusal fallback; the schema is sent without `maxLength`, `minLength` and `pattern`, which the Messages API refuses (400) or may find too complex; the gate still checks them. `auth: subscription` sends the whole schema.
 - Answer limits (lengths, id and alias patterns, enums) are each gate's constants, read by its `schema.py` and prompt values; they are part of the answer contract and the charter fingerprint, not settings.
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.
+- A record holds `gateway`, `model`, `effort` (schema 2; schema 1 records read back without them). A resume with items left to ask, whose values differ from an earlier record's, logs one line: `mixed_agents: outbox <fingerprint> holds answers from <gateway>/<model>/<effort>, now asking <gateway>/<model>/<effort>`; the answers stay in one outbox.
 - A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items.
 - The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are the screened-out item ids, classify's the whole batched evidence, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.

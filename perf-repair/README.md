@@ -6,13 +6,13 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 ## Setup
 
 - Python 3.10+, `pyyaml`; `pip install -e .[test]` for tests.
-- Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the backend, model, effort per command and default paths; `.env` (from `.env.example`) still works and holds `ANTHROPIC_API_KEY`. Precedence: `docs/settings.md`.
+- Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the gateway, auth, model, effort per command and default paths; `.env` (from `.env.example`) still works and holds `ANTHROPIC_API_KEY`. Precedence: `docs/settings.md`.
 - `make check` runs docs-lint and the tests.
 
-| backend (`--agent`) | needs |
+| gateway (`--agent`), auth (`--auth`) | needs |
 |---|---|
-| `claude-code` (default) | the logged-in `claude` CLI; `ANTHROPIC_API_KEY` is withheld from it |
-| `claude` | `ANTHROPIC_API_KEY`, `pip install -e .[api]` |
+| `claude`, `subscription` (default) | the logged-in `claude` CLI; `ANTHROPIC_API_KEY` is withheld from it |
+| `claude`, `api` | `ANTHROPIC_API_KEY`, `pip install -e .[api]` |
 | `dry-run` | nothing; no model is called |
 
 ## Usage

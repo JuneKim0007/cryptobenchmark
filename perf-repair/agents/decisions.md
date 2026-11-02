@@ -16,7 +16,10 @@
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
 - journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
 - settings: a key in `perfrepair.yaml` maps to an existing flag or constructor argument; a role default lives in `ROLE_DEFAULTS`, never in a command.
-- settings: secrets stay in the environment or `.env`; the claude-code child never receives `ANTHROPIC_API_KEY`.
+- settings: secrets stay in the environment or `.env`; the child of `auth: subscription` never receives `ANTHROPIC_API_KEY`.
+- gateway: provider differences (schema stripping, child environment, CLI flags, effort levels) stay inside its modules under `ai/runtime/gateway/`; the engine and `Conversations` name no provider.
+- gateway: a setting ships with the code that reads it; no block or stub for a provider without a gateway.
+- gateway: every model command calls `gateway/spawn.py` before its work.
 - prompts: read only through `PromptLibrary`; a changed prompt changes the charter fingerprint and starts a new outbox.
 
 ## Workflow
@@ -30,6 +33,7 @@
   - prompt file under `prompts/<role-kind>/` and its `prompts.yaml` entry
   - CLI subcommand → map lines → `docs/decisions.md`
 - change a prompt: its gate and `docs/decisions.md` in the same change
+- add a provider: `ai/runtime/gateway/<name>.py` with a `Gateway` (settings dataclass, secret, spawn) → its row in `registry.py` → map line → `docs/settings.md`
 
 ## File structure
 
@@ -39,16 +43,21 @@ src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurem
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; triage statics, apply, dropped → fallback skip
 src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables
 src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required; member aliases and non-blank reasons as patterns
-src/perfrepair/ai/runtime/agent/claude.py : Messages API client: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
-src/perfrepair/ai/runtime/agent/claude_code.py : Claude Code headless (`claude -p`) as Agent and Conversations: isolated sessions, --resume, existing login, no ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN in the child; ClaudeCodeError `claude_cli_failed`, a CLI that cannot run included
-src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: multi-turn agents; Claude and scripted
-src/perfrepair/ai/runtime/agent/reply.py : Agent protocol, AgentReply, AgentRefused
-src/perfrepair/ai/runtime/agent/select.py : --agent, --model, --effort per role, with each role's default in the help → resolved agent settings → Conversations
+src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
+src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations
-src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit
+src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append and read; audit only
 src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask), project(kind, records), replay_problems: version count and replay equality
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; `active` pointer
+src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
+src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth
+src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
+src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -p`) transport: isolated sessions, --resume, existing login, no ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN in the child; ClaudeCliError `claude_cli_failed`, a CLI that cannot run included
+src/perfrepair/ai/runtime/gateway/contract.py : Gateway: what one provider declares: name, settings class, spawn, secret, choices
+src/perfrepair/ai/runtime/gateway/dry_run.py : the dry-run gateway: no keys, answers with the role's stand-in
+src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default gateway; `unknown_gateway`
+src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → checked block and resolved values → secret check → Conversations with their AgentIdentity
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values
 src/perfrepair/ai/suggest/site_replace/command.py : stage: apps/<app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
@@ -59,8 +68,8 @@ src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement 
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
-src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role; each value's source, logged once (INFO from a file or the environment, else DEBUG)
-src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; role sections and role code defaults
+src/perfrepair/config/load.py : settings file lookup; layered resolution per key and per role and gateway; each value's source, logged once (INFO from a file or the environment, else DEBUG)
+src/perfrepair/config/settings.py : perfrepair.yaml sections as frozen dataclasses: unknown_keys, invalid, secret_key; raw aiGateway blocks; role sections and role code defaults
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules

@@ -19,7 +19,7 @@ From an app's source to a measured before/after of each call site the model chos
 
 ```
 python3 -m perfrepair guide --app <root> --name <app> --run <run> --results <benchmark results> \
-    [--mode latency|battery] [--agent ...] [--prompts DIR] [--limit N] [--device [--config <global.yaml>]]
+    [--mode latency|battery] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--device [--config <global.yaml>]]
 python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
 ```
 

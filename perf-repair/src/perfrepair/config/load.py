@@ -1,4 +1,4 @@
-"""Finds perfrepair.yaml and resolves each value: CLI > environment > file > .env > code default, recording its source."""
+"""Finds perfrepair.yaml and resolves each value by its layer (docs/settings.md), recording its source."""
 from __future__ import annotations
 
 import logging

@@ -38,7 +38,7 @@ src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnab
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`; returns the manifest path
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
-src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind
+src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind and the AgentIdentity (gateway, model, effort) that answered it
 src/perfrepair/dto/grouping.py : Family, Item, Profile; key contract values and labels; items.json and profiles.json (schema 2) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only); the `code_` id prefix
