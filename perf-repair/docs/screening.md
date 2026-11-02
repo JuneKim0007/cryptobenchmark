@@ -30,6 +30,7 @@
 - don't lower the status: a `broken` or `platform_deprecated` target is allowed only with the current item's canonical name and key size and at no worse a status (`dto/screen.py` `lowers_status`); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
 - per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.
 - handler: `repair dossier`, the guide and `check` pass `ScreeningHandler.packaged()` (the packaged catalog); the dossier step takes it as a parameter, not from a RunContext, since it has no manifest.
+- assign: the prompt does not ask the model to mark a group weak; screening decides it. Removing that clause changed the assign charter fingerprint, so a run assigned before it re-assigns once into a new outbox.
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)
 

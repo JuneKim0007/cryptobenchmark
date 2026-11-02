@@ -33,8 +33,7 @@ providers can be two functions. Judge the function, not the spelling.
 - Join an existing group only if the primitive is interchangeable with every member described.
 - Otherwise create a group: an id matching `{id_pattern}` that is not a family id, and a description of at
   most {max_description} characters, precise enough that a later primitive can be judged against it: the
-  function, mode/padding/digest/parameters it fixes, AEAD or not, deterministic or not, and that it is
-  weak if it is (MD5, SHA-1 for signatures, DES, RC4, Blowfish, 1024-bit keys).
+  function, mode/padding/digest/parameters it fixes, AEAD or not, and deterministic or not.
 - When unsure, create a group. A missed join costs one comparison; a wrong join compares things that are
   not substitutes.
 - You may amend the description of a group in this family when this primitive shows the description is
