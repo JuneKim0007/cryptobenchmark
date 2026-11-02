@@ -115,6 +115,17 @@ def test_the_validator_refuses_another_schema_version():
     assert validate_screen_document({**doc, "schemaVersion": 1}, ITEMS, BUILT)[0].startswith("screen.json does not parse")
 
 
+def test_a_model_sourced_verdict_needs_the_review_screen_json_records():
+    verdicts = {1: Verdict("broken", "withdrawn", "model:" + "f" * 12, "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")}
+    unreviewed = screen_document(verdicts, CATALOG, BUILT)
+    assert validate_screen_document(unreviewed, ITEMS, BUILT) == [
+        "1: broken from model:ffffffffffff, but screen.json records no review"]
+    other = screen_document(verdicts, CATALOG, BUILT, "e" * 12)
+    assert validate_screen_document(other, ITEMS, BUILT) == [
+        "1: broken from model:ffffffffffff, but screen.json was reviewed under eeeeeeeeeeee"]
+    assert validate_screen_document(screen_document(verdicts, CATALOG, BUILT, "f" * 12), ITEMS, BUILT) == []
+
+
 def test_the_validator_refuses_verdicts_built_from_other_items_or_profiles():
     doc = screen_document({1: Verdict("broken", "r", "s", "MD5"), 2: Verdict("accepted", "r", "s", "SHA-256")}, CATALOG,
                           BUILT)

@@ -36,7 +36,7 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog | None = None, 
     review = None
     if reviewer is not None:
         verdicts, review = classify(paths, batches(unknown_evidence(context, items, verdicts)), verdicts, reviewer, echo)
-        require("screen", validate_screen(verdicts, items))
+        require("screen", validate_screen(verdicts, items, review))
     items_text, profiles_text = json_text(items_document(items)), json_text(profiles_document(profiles))
     built = {"items": sha256_text(items_text), "profiles": sha256_text(profiles_text)}
     # screen.json first: its absence reads as "built without screening"; any later partial rename fails its digests

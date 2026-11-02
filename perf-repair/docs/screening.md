@@ -67,7 +67,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | `accepted` | `unverified`, `source: model:<fingerprint>` | asked by assign; a source, never a target (except as the same algorithm); a row in `grouping/registry-candidates.yaml` |
 | `unsure` | unchanged `unknown` | none |
 
-- `screen.json` then carries `review: {fingerprint}`; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
+- `screen.json` then carries `review: {fingerprint}`; its validator refuses a `model:` source without a `review`, or one that is not `model:<review fingerprint>`, so no verdict is sourced by a model run screen.json does not name; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
 - Confirming: a person turns a `registry-candidates.yaml` row (`id`, `type`, `name`, `canonical`, `provider`, `reason`, `fingerprint`) into a sourced `crypto` row of the configured `screening.catalog`; the next build screens it `accepted` statically and the model no longer sees it.
 - Not yet: JDK legacy and disabled algorithm properties as evidence (a probe addition), citations checked by code.
 

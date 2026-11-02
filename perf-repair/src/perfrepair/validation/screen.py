@@ -6,15 +6,27 @@ from ..dto.classify import Answer
 from .. import run_dir as rd
 from ..dto.grouping import Item, read_items
 from ..dto.screen import (MODEL_SOURCE, MODEL_STATUS, NEVER_TARGET, STATUSES, UNKNOWN, UNVERIFIED, Verdict, read_screen,
-                          read_screen_built, read_screen_catalog)
+                          read_screen_built, read_screen_catalog, read_screen_review)
 from ..files import read_json
 from .failure import require
 
 SHA256 = re.compile(r"[0-9a-f]{64}")
 
 
-def _verdict_problems(n: int, v: Verdict) -> list[str]:
-    checks = ((v.status not in STATUSES, f"status {v.status!r} is not one of {list(STATUSES)}"),
+def _model_source_problem(v: Verdict, review: str | None) -> str:
+    if not (v.source or "").startswith(MODEL_SOURCE):
+        return ""
+    if review is None:
+        return f"{v.status} from {v.source}, but screen.json records no review"
+    if v.source != MODEL_SOURCE + review:
+        return f"{v.status} from {v.source}, but screen.json was reviewed under {review}"
+    return ""
+
+
+def _verdict_problems(n: int, v: Verdict, review: str | None) -> list[str]:
+    model = _model_source_problem(v, review)
+    checks = ((bool(model), model),
+              (v.status not in STATUSES, f"status {v.status!r} is not one of {list(STATUSES)}"),
               (not v.reason, "no reason"),
               (v.status != UNKNOWN and not v.source, f"{v.status} without a source"),
               (v.status in NEVER_TARGET and not v.canonical, f"{v.status} without the canonical name it was screened by"),
@@ -22,11 +34,12 @@ def _verdict_problems(n: int, v: Verdict) -> list[str]:
     return [f"{n}: {text}" for failed, text in checks if failed]
 
 
-def validate_screen(verdicts: dict[int, Verdict], items: list[Item]) -> list[str]:
+def validate_screen(verdicts: dict[int, Verdict], items: list[Item], review: str | None = None) -> list[str]:
+    """review: the classify outbox fingerprint; a model-sourced verdict must name exactly it."""
     ids = {i.id for i in items}
     problems = [f"{n}: no verdict" for n in sorted(ids - set(verdicts))]
     problems += [f"{n}: verdict for no item" for n in sorted(set(verdicts) - ids)]
-    return problems + [p for n, v in sorted(verdicts.items()) for p in _verdict_problems(n, v)]
+    return problems + [p for n, v in sorted(verdicts.items()) for p in _verdict_problems(n, v, review)]
 
 
 def _catalog_problems(catalog) -> list[str]:
@@ -47,10 +60,11 @@ def validate_screen_document(doc: dict, items: list[Item], built: dict) -> list[
     """built: the digests of this run's items.json and profiles.json (run_dir.built); another build's verdicts are refused."""
     try:
         verdicts, catalog, recorded = read_screen(doc), read_screen_catalog(doc), read_screen_built(doc)
+        review = read_screen_review(doc)
     except (KeyError, TypeError, ValueError) as e:
         return [f"screen.json does not parse: {e}"]
     problems = _built_problems(recorded, built)
-    return problems + _catalog_problems(catalog) + ([] if problems else validate_screen(verdicts, items))
+    return problems + _catalog_problems(catalog) + ([] if problems else validate_screen(verdicts, items, review))
 
 
 def read_checked_screen(paths: rd.GroupingPaths) -> dict[int, Verdict] | None:
