@@ -65,3 +65,9 @@ def test_a_hand_edited_grouping_is_caught(run):
     assert validate_run(run)["grouping/groups.json"]
     with pytest.raises(ValidationFailed):
         worthiness(run, MODES["latency"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
+
+
+def test_a_run_without_rows_is_a_reported_problem(tmp_path):
+    from perfrepair.validation.__main__ import main
+    assert validate_run(tmp_path) == {"rows.json": [f"missing: {tmp_path / 'rows.json'}"]}
+    assert main([str(tmp_path)]) == 1

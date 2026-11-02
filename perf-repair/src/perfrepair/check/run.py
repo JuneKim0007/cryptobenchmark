@@ -26,6 +26,8 @@ from ..validation.run_log import validate_run_log
 
 def validate_run(run: Path) -> dict[str, list[str]]:
     run, out = Path(run), {}
+    if not (run / rd.ROWS).is_file():
+        return {rd.ROWS: [f"missing: {run / rd.ROWS}"]}
     rows = rd.load_rows(run)
     out[rd.ROWS] = validate_rows(rows)
     if (run / rd.MEASUREMENTS).exists():
