@@ -18,7 +18,7 @@
 python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--stacktrace] [--stream] [--harness HARNESS_YAML]
-                            [--interop PLAN_YAML]
+                            [--interop PLAN_YAML] [--probe] [--identify]
 ```
 
 | flag | default | effect |
@@ -28,6 +28,8 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--discovery` | `overwrite` | `overwrite` clears `discovery/` first; `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
 | `--bench` | off | also prepare, measure and analyse on the JVM via quick-bench |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
+| `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
+| `--identify` | off | one line `identity:  {deviceId, mode, config, inputs}` (JSON) and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
 | `--suppress-errors ERRORS` | `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable |
 | `--energy-python PYTHON` | `sys.executable` | interpreter with `tools/energy/requirements.txt` installed |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
@@ -45,7 +47,8 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--harness` without `--device` | fails |
 | `--harness` with `--results` | fails: `measured/` goes beside `harness.yaml` |
 | `--interop` without `--bench` or `--device`, or with `--harness` | fails |
-| neither `--bench` nor `--device` | discover and configure only, then a manifest that replaces the device's last one |
+| `--probe` or `--identify` with `--bench`, `--harness` or `--interop` | fails |
+| `--probe`, or neither `--bench` nor `--device` | discover and configure only, then a manifest that replaces the device's last one |
 | any failure | prints `error: <message>`, exits 1 |
 
 - Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`.

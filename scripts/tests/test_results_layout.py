@@ -58,6 +58,7 @@ def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_m
     write(target / "configuration/effective.yaml", "old")
     stage = stage_with(tmp_path)
     write(stage / "interop/interop.yaml")
+    (target / "g.yaml").write_text("schemaVersion: 1\n")
     pipeline.manifest(target, "host", target / "g.yaml", {"probe": probe})
     layout.publish_interop(stage, target)
     pipeline.add_to_manifest(target, {"interop": target / "interop/interop.yaml"})

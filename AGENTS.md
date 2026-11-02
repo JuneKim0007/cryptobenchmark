@@ -56,7 +56,7 @@ perf-repair/ : cryptobenchmark results to crypto replacements worth testing in a
 scripts/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
-scripts/device.py : adb steps of a --device run: install, probe, push, AOT compile, measure, pull
+scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, measure, pull
 scripts/device_id.py : device id from a capture's runtime block
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
@@ -68,9 +68,10 @@ scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
-scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml
+scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
 scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, device selection, the temporary-folder warning
+scripts/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set, for the manifest and --identify
 scripts/scope_compile.py : compiles the android test sources with Gradle; the compiler's error lines
 scripts/scope_dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
 scripts/scope_generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure

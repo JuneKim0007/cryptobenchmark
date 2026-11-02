@@ -87,6 +87,12 @@ class Device:
         self.files, self.media = directories(int(sdk))
         self.data = f"{self.media}/{PACKAGE}-benchmarkData.json"
 
+    def identity(self):
+        """The runtime fields device_id reads, by getprop: Build.MODEL and Build.FINGERPRINT read these properties."""
+        return {"sdkInt": int(self.shell("getprop ro.build.version.sdk").strip()),
+                "model": self.shell("getprop ro.product.model").strip(),
+                "fingerprint": self.shell("getprop ro.build.fingerprint").strip()}
+
     def install(self, properties=()):
         command = [str(self.root / "gradlew"), "-p", str(self.root), *properties, ":android:installRelease", ":android:installReleaseAndroidTest"]
         if self.stream:

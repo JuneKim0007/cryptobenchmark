@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
 
-import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, scope_generate, scope_results
+import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, run_inputs, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from device_id import DeviceIdError, capture_id, device_id
@@ -63,6 +63,7 @@ def manifest(results, mode, configuration, files):
         "mode": mode,
         "config": str(configuration),
         "deviceId": device_id(probe.get("runtime") or {}),
+        "inputs": run_inputs.digests(configuration),
         "runtime": runtime(measured, probe, files),
         "providers": [{"name": p["name"], "precedence": p["precedence"], "serviceCount": len(p.get("services") or [])}
                       for p in sorted(probe.get("providers") or [], key=lambda p: p["precedence"])],
@@ -114,6 +115,10 @@ def parse_options():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--bench", action="store_true", help="also prepare, measure and analyse (quick-bench, JVM)")
     mode.add_argument("--device", action="store_true", help="probe, prepare and measure on the attached device (adb, ANDROID_HOME)")
+    parser.add_argument("--probe", action="store_true",
+                        help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
+    parser.add_argument("--identify", action="store_true",
+                        help="print the device id and the digests of this run's inputs as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default="", metavar="ERRORS",
                         help="androidx.benchmark errors to suppress on --device, e.g. EMULATOR,UNLOCKED; the numbers are then not comparable")
     parser.add_argument("--energy-python", default=sys.executable, metavar="PYTHON",
@@ -126,6 +131,8 @@ def parse_options():
                         help="with --device: measure perf-repair's scopes, original and patched, instead of the plan's cases")
     parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
     options = parser.parse_args()
+    if (options.probe or options.identify) and (options.bench or options.harness or options.interop):
+        fail("--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop")
     if options.harness and not options.device:
         fail("--harness: scopes are measured only on a --device run")
     if options.device and options.discovery == "reuse":
@@ -185,9 +192,7 @@ def located(results):
 
 def seed_reuse(options, root, stage):
     """--discovery reuse names no folder until the JVM's id is known; ProbeKt --reuse still decides whether the capture fits."""
-    import yaml
-    lines = gradle_runner.run("jca-contract", "", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")
-    existing = root / device_id(yaml.safe_load("\n".join(lines))) / results_layout.DISCOVERY
+    existing = root / device_id(host_runtime(options)) / results_layout.DISCOVERY
     if existing.is_dir():
         results_layout.merge_folder(existing, stage / results_layout.DISCOVERY)
 
@@ -388,6 +393,19 @@ def measured_folder(options):
     return measured
 
 
+def host_runtime(options):
+    import yaml
+    return yaml.safe_load("\n".join(gradle_runner.run("jca-contract", "", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")))
+
+
+def identify(options, configuration, device):
+    """The device id before any probe: getprop on a device, the JVM's fields on a host; the probe's capture gives the same."""
+    runtime = device.identity() if device else host_runtime(options)
+    identity = {"deviceId": device_id(runtime), "mode": "device" if device else "host", "config": str(configuration),
+                "inputs": run_inputs.digests(configuration)}
+    print(f"identity:  {json.dumps(identity, sort_keys=True)}")
+
+
 def results_root(options):
     return pathlib.Path(options.results or ROOT / "results").expanduser().resolve()
 
@@ -399,6 +417,8 @@ def main():
     device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
+    if options.identify:
+        return identify(options, configuration, device)
     if options.harness:
         return harness_run(options, configuration, device, measured_folder(options))
     root = results_root(options)
@@ -407,7 +427,7 @@ def main():
         return interop_run(options, configuration, device, root)
     results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, root)
     mode = "device" if device else "host"
-    if not (options.bench or device):
+    if options.probe or not (options.bench or device):
         manifest(results, mode, configuration, files)
         return
 

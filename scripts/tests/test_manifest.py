@@ -9,6 +9,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device_id import DeviceIdError, device_id  # noqa: E402
 from pipeline import manifest  # noqa: E402
+import run_inputs  # noqa: E402
 
 RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}
 PROBE = {"schemaVersion": 1, "runtime": RUNTIME, "providers": [
@@ -38,6 +39,7 @@ def layout(results, measured):
 
 
 def written(results, mode, files):
+    (results / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n")
     manifest(results, mode, results / "global.yaml", files)
     return yaml.safe_load((results / "manifest.yaml").read_text())
 
@@ -50,6 +52,7 @@ def test_configure_only_lists_no_stage_that_did_not_run():
         assert list(document["files"]) == ["probe", "trial", "inventory", "effective"]
         assert document["runtime"] == RUNTIME
         assert document["counts"] == {}
+        assert document["inputs"] == run_inputs.digests(results / "global.yaml") and set(document["inputs"]) == {"bundled", "config"}
 
 
 def test_providers_in_precedence_order_with_service_counts():
