@@ -26,6 +26,16 @@ class EnergyRunTest {
     private val timed = CaseRun { null }
 
     @Test
+    fun everyCaptureSettingMapsToItsMode() {
+        assertEquals(Energy.Capture.NONE, Energy.of(EnergySettings()).capture)
+        assertEquals(Energy.Capture.NONE, Energy.of(EnergySettings(capture = "none")).capture)
+        assertEquals(Energy.Capture.MEASURED, Energy.of(EnergySettings(capture = "measured")).capture)
+        assertEquals(Energy.Capture.DRY, Energy.of(EnergySettings(capture = "dry")).capture)
+        assertEquals(EnergySettings.CAPTURES.size, EnergySettings.CAPTURES.map { Energy.Capture.of(it) }.toSet().size)
+        assertEquals("invalid: energy.capture wet", assertThrows(IllegalArgumentException::class.java) { Energy.Capture.of("wet") }.message)
+    }
+
+    @Test
     fun withoutEnergyTheTimedRunIsUntouched() {
         assertSame(timed, CaseRuns.timed("c", Energy.NONE, timed))
     }
