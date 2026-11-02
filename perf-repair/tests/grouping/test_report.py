@@ -11,6 +11,7 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check, common_key_sizes
+from perfrepair.grouping.resolved import function_parameters
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.validation import ValidationFailed
 from perfrepair.validation.grouping.output import validate_output
@@ -36,6 +37,16 @@ def test_rules_report_what_static_data_proves():
     assert kinds == {("resolved_parameters_differ", "oaep"), ("no_common_key_size", "sym"),
                      ("no_runnable_member", "h"), ("singleton", "h")}
     assert common_key_sizes([1, 2], PROFILES) == [2048]
+
+
+def test_two_spellings_of_one_digest_are_not_resolved_parameters_differing():
+    items = {1: Item(1, "TypeC", "R/OAEP", "P1", "cipher.pair", "digest=SHA1 mgf1=SHA-1 labelBytes=0"),
+             2: Item(2, "TypeC", "R/OAEP", "P2", "cipher.pair", "digest=sha-1 mgf1=SHA1 iv=16B")}
+    assert function_parameters(items[1].resolved) == function_parameters(items[2].resolved) == (
+        ("digest", "SHA-1"), ("mgf1", "SHA-1"))
+    k = Knowledge(2, {"oaep": Group("cipher.pair", "x", [1, 2])}, [])
+    assert "resolved_parameters_differ" not in {f.kind for f in check(k, items, PROFILES)}
+    assert function_parameters("digest=NOT-CATALOGUED") == (("digest", "NOT-CATALOGUED"),)
 
 
 def test_a_dropped_item_is_an_error_finding():

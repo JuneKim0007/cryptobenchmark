@@ -52,4 +52,5 @@ src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → checks.json, groups.json
 src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping
+src/perfrepair/grouping/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
 ```

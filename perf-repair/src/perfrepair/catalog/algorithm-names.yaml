@@ -206,6 +206,8 @@ transformations:
                OAEPWithSHA-1AndMGF1Padding, OAEPWithSHA-224AndMGF1Padding, OAEPWithSHA-256AndMGF1Padding,
                OAEPWithSHA-384AndMGF1Padding, OAEPWithSHA-512AndMGF1Padding,
                OAEPWithSHA-512/224AndMGF1Padding, OAEPWithSHA-512/256AndMGF1Padding]
+    # OAEPWithSHA1AndMGF1Padding stays uncatalogued: a JDK 25 provider registers it beside the hyphen spelling,
+    # so an alias makes config's duplicate_name refuse that provider's inventory.
     # PKCS#7 padding equals PKCS#5 padding for these block ciphers (RFC 5652 6.3); Conscrypt aliases them.
     paddingSynonyms:
       AES: {PKCS7Padding: PKCS5Padding}

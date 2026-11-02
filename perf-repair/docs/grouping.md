@@ -63,7 +63,7 @@ flowchart TD
 | model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |
 | groups.json | a screened-out item is in exactly one code-made group and never in a model group; a code-made group is exactly the one its key implies |
 | screen change | only the screened-out item ids join the charter fingerprint, the pending set being all the model is asked about: a change in which items are code-grouped starts a new outbox, a reverted one resumes its old outbox, and `report` on a stale outbox fails with `rerun assign`; a change of a code key, or among asked items' statuses, keeps the outbox and asks nothing, because gate A and `report` recompute the code-made groups from screen.json (`knowledge.json` catches up on the next assign) |
-| resolved parameters | not in the key; a group whose members resolved differently gets `resolved_parameters_differ` |
+| resolved parameters | not in the key; a group whose members resolved a different digest or MGF1, compared by canonical digest name (`SHA1` is `SHA-1`), gets `resolved_parameters_differ` |
 
 ## Answer contract
 
