@@ -21,7 +21,7 @@ def test_android_shape():
 
 
 def test_host_shape():
-    assert re.fullmatch(r"host-mac-os-x-jdk25-[0-9a-f]{8}", device_id(HOST))
+    assert re.fullmatch(r"host-mac-os-x-aarch64-jdk25-[0-9a-f]{8}", device_id(HOST))
 
 
 # Real blocks and ids from discovery runs (~/capstone/runs/2026-11-02-l1); an id changing here orphans results.
@@ -30,8 +30,8 @@ def test_host_shape():
       "defaultKeySizeProperty": "", "fingerprint": "google/sdk_gphone_arm64/emulator_arm64:11/RSR1.240422.006/12134477:userdebug/dev-keys",
       "javaVendor": "The Android Project", "javaRuntimeVersion": "0.9", "osName": "Linux", "osArch": "aarch64"},
      "sdk-gphone-arm64-api30-841c21cf"),
-    (HOST, "host-mac-os-x-jdk25-598f8c72"),
-    (dict(HOST, javaVersion="17.0.20.1", javaRuntimeVersion="17.0.20.1+1"), "host-mac-os-x-jdk17-98b06548"),
+    (HOST, "host-mac-os-x-aarch64-jdk25-598f8c72"),
+    (dict(HOST, javaVersion="17.0.20.1", javaRuntimeVersion="17.0.20.1+1"), "host-mac-os-x-aarch64-jdk17-98b06548"),
 ])
 def test_ids_of_real_runtime_blocks(runtime, expected):
     assert device_id(runtime) == expected
@@ -48,7 +48,7 @@ def test_host_hash_covers_vendor_and_runtime_version():
 
 def test_only_the_build_identity_is_hashed():
     assert device_id(ANDROID) == device_id(dict(ANDROID, hardware="other", manufacturer="other", javaVersion="1"))
-    assert device_id(HOST) == device_id(dict(HOST, osArch="x86_64"))
+    assert device_id(HOST) != device_id(dict(HOST, osArch="x86_64"))
 
 
 def test_an_existing_android_capture_is_refused():
@@ -58,10 +58,10 @@ def test_an_existing_android_capture_is_refused():
 
 
 @pytest.mark.parametrize("runtime, missing", [
-    (OLD_HOST, "osName, javaVendor, javaRuntimeVersion"),
+    (OLD_HOST, "osName, osArch, javaVendor, javaRuntimeVersion"),
     ({k: v for k, v in ANDROID.items() if k != "fingerprint"}, "fingerprint"),
     (dict(ANDROID, model=""), "model"),
-    ({}, "osName, javaVersion, javaVendor, javaRuntimeVersion"),
+    ({}, "osName, osArch, javaVersion, javaVendor, javaRuntimeVersion"),
 ])
 def test_absent_fields_are_refused_never_invented(runtime, missing):
     with pytest.raises(DeviceIdError, match=f"device_id_fields_missing: runtime lacks {missing};"):

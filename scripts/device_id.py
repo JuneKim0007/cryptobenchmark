@@ -40,5 +40,6 @@ def device_id(runtime):
     if int(sdk) > 0:
         model, fingerprint = fields(runtime, "model", "fingerprint")
         return f"{slug(model)}-api{sdk}-{digest(fingerprint)}"
-    os_name, version, vendor, runtime_version = fields(runtime, "osName", "javaVersion", "javaVendor", "javaRuntimeVersion")
-    return f"host-{slug(os_name)}-jdk{java_major(version)}-{digest(vendor, runtime_version)}"
+    os_name, arch, version, vendor, runtime_version = fields(runtime, "osName", "osArch", "javaVersion", "javaVendor",
+                                                             "javaRuntimeVersion")
+    return f"host-{slug(os_name)}-{slug(arch)}-jdk{java_major(version)}-{digest(vendor, runtime_version)}"

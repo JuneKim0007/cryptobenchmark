@@ -31,7 +31,7 @@
 | `schemaVersion` | 1 |
 | `mode` | `host` or `device` |
 | `config` | path of the `global.yaml` used |
-| `deviceId` | from the probe's runtime: `<model>-api<sdk>-<hash>` on Android, `host-<os>-jdk<major>-<hash>` on a host; hash = first 8 hex of sha256 over the build fingerprint (host: `java.vendor`, `java.runtime.version`); bundled providers and serials are not in it; a probe without these fields stops with `device_id_fields_missing` |
+| `deviceId` | from the probe's runtime: `<model>-api<sdk>-<hash>` on Android, `host-<os>-<arch>-jdk<major>-<hash>` on a host; hash = first 8 hex of sha256 over the build fingerprint (host: `java.vendor`, `java.runtime.version`); bundled providers and serials are not in it; a probe without these fields stops with `device_id_fields_missing` |
 | `runtime` | `benchmark.json` runtime if measured, else the probe runtime; `cpuLocked` added when clocks exist |
 | `providers` | `name`, `precedence`, `serviceCount`, sorted by precedence |
 | `files` | stage outputs, paths relative to `results/` |
