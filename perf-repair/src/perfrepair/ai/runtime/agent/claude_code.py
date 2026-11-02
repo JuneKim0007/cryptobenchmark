@@ -39,6 +39,13 @@ class ClaudeCodeSession(LifetimeGuarded):
         super().__init__(system)
         self.owner, self.schema, self.session_id = owner, schema, None
 
+    def _ran(self, command: list[str], text: str) -> subprocess.CompletedProcess:
+        o = self.owner
+        try:
+            return o.runner(command, text, o.workdir, child_env())
+        except OSError as e:
+            raise ClaudeCodeError(f"cannot run {o.binary}: {e}") from e
+
     def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
         o = self.owner
         command = [o.binary, "-p", "--output-format", "json", "--model", o.model, "--effort", o.effort,
@@ -48,10 +55,7 @@ class ClaudeCodeSession(LifetimeGuarded):
         if self.session_id:
             command += ["--resume", self.session_id]
         # The prompt goes on stdin: --tools takes a variable number of values and would swallow it.
-        try:
-            done = o.runner(command, message.text, o.workdir, child_env())
-        except OSError as e:
-            raise ClaudeCodeError(f"cannot run {o.binary}: {e}") from e
+        done = self._ran(command, message.text)
         try:
             out = json.loads(done.stdout)
         except json.JSONDecodeError:

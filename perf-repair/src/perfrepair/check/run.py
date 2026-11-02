@@ -39,11 +39,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     if isinstance(rows, str):
         return {rd.ROWS: [rows]}
     out[rd.ROWS] = validate_rows(rows)
-    for name, load, check in ((rd.MEASUREMENTS, rd.load_measurements, validate_measurements),
-                              (rd.RUN_LOG, rd.load_run_log, validate_run_log)):
-        if (run / name).exists():
-            doc = _parsed(load, run)
-            out[name] = [doc] if isinstance(doc, str) else check(doc, rows)
+    out |= _beside_rows(run, rows)
     reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)
@@ -80,6 +76,16 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
                 continue
             saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
             out[directory.name] = kind.validate(saved, records)
+    return out
+
+
+def _beside_rows(run: Path, rows) -> dict[str, list[str]]:
+    out = {}
+    for name, load, check in ((rd.MEASUREMENTS, rd.load_measurements, validate_measurements),
+                              (rd.RUN_LOG, rd.load_run_log, validate_run_log)):
+        if (run / name).exists():
+            doc = _parsed(load, run)
+            out[name] = [doc] if isinstance(doc, str) else check(doc, rows)
     return out
 
 
