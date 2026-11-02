@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 
 SCHEMA_VERSION = 1
 # 3: measured and preparedKeySizes are null when the build had no benchmark or prepared.yaml

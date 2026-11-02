@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Callable
 
 from ...catalog.names import Names
 from ...data_handler.inbound.probe import Probe
@@ -19,18 +20,30 @@ def _as_list(value) -> tuple[str, ...]:
     return tuple(value) if isinstance(value, list) else ((value,) if value else ())
 
 
-def build(probe: Probe, names: Names, trial: dict, families: Families, inventory: dict | None = None,
-          prepared: dict | None = None, benchmark: dict | None = None) -> tuple[list[Item], dict[int, Profile]]:
-    """Probe and trial suffice; without prepared or benchmark the fields they give are null, never false."""
-    runs = _runs(inventory or {})
-    context = Context(families, names, probe.generator_kind(names))
+def _prepared(prepared: dict | None) -> tuple[dict, dict | None]:
+    """Each case's key kind, and its key sizes; sizes None without prepared.yaml, so an absent size never reads as none."""
     kinds, sizes = {}, defaultdict(set)
     for c in (prepared or {}).get("cases") or []:
         key = (c["provider"], c["type"], c["algorithm"])
         kinds.setdefault(key, (c.get("key") or {}).get("kind"))
         if c.get("keySize"):
             sizes[key].add(c["keySize"])
-    measured = None if benchmark is None else {(c["provider"], c["type"], c["algorithm"]) for c in benchmark.get("cases") or []}
+    return kinds, None if prepared is None else sizes
+
+
+def _measured(benchmark: dict | None) -> Callable[[tuple], bool | None]:
+    if benchmark is None:
+        return lambda _: None
+    cases = {(c["provider"], c["type"], c["algorithm"]) for c in benchmark.get("cases") or []}
+    return lambda key: key in cases
+
+
+def build(probe: Probe, names: Names, trial: dict, families: Families, inventory: dict | None = None,
+          prepared: dict | None = None, benchmark: dict | None = None) -> tuple[list[Item], dict[int, Profile]]:
+    """Probe and trial suffice; without prepared or benchmark the fields they give are null, never false."""
+    runs = _runs(inventory or {})
+    context = Context(families, names, probe.generator_kind(names))
+    (kinds, sizes), measured = _prepared(prepared), _measured(benchmark)
 
     drafts = {}
     for s in trial["services"]:
@@ -50,8 +63,8 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
             runs=bool(inventoried.get("runs", run.get("works", False))),
             reason=inventoried.get("reason") or run.get("error"),
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
-            bareName=bool(run.get("bareName")), measured=None if measured is None else key in measured,
-            preparedKeySizes=None if prepared is None else tuple(sorted(sizes[key])),
+            bareName=bool(run.get("bareName")), measured=measured(key),
+            preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])),
             keyContract=key_contract(formats, classes)))
 
     order = sorted(drafts, key=lambda k: (drafts[k][0], names.canonical(k[1], k[2]).key[0], k[0], k[2]))

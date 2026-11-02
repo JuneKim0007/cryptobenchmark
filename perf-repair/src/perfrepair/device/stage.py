@@ -48,6 +48,17 @@ def _measure(root: Path, folder: Path, config: Path | None, on_device: bool, ste
         raise ValueError(f"device_id_changed: --identify named {folder.name}, the probe wrote {manifest.parent.name}")
 
 
+def _run(root: Path, folder: Path, steps: dict, catalog: Catalog, config: Path | None, on_device: bool, echo,
+         benchmark) -> None:
+    if steps["benchmark"]:
+        _measure(root, folder, config, on_device, steps, echo, benchmark)
+    if steps["inbound"]:
+        for line in write_inbound(folder):
+            echo(line)
+    if steps["screen"]:
+        build_stage(folder / rd.MANIFEST, folder, catalog, echo=echo)
+
+
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None) -> DeviceStage:
     """No model call: grouping assign stays with its caller."""
@@ -60,13 +71,7 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
     if any(steps.values()):
         # a record exists only while every stage it vouches for is whole, so an interrupted run reruns them
         (folder / rd.DEVICE).unlink(missing_ok=True)
-    if steps["benchmark"]:
-        _measure(Path(root), folder, config, on_device, steps, echo, benchmark)
-    if steps["inbound"]:
-        for line in write_inbound(folder):
-            echo(line)
-    if steps["screen"]:
-        build_stage(folder / rd.MANIFEST, folder, catalog, echo=echo)
+        _run(Path(root), folder, steps, catalog, config, on_device, echo, benchmark)
     manifest, _ = read_manifest(folder / rd.MANIFEST)
     rd.write_device_record(folder, DeviceRecord(identity["deviceId"], identity["mode"], runtime_summary(manifest.runtime),
                                                 current, sha256_file(folder / rd.MANIFEST)))

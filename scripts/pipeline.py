@@ -131,17 +131,21 @@ def parse_options():
                         help="with --device: measure perf-repair's scopes, original and patched, instead of the plan's cases")
     parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
     options = parser.parse_args()
-    if (options.probe or options.identify) and (options.bench or options.harness or options.interop):
-        fail("--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop")
-    if options.harness and not options.device:
-        fail("--harness: scopes are measured only on a --device run")
-    if options.device and options.discovery == "reuse":
-        fail("--discovery reuse: a device run probes the device it measures")
-    if options.suppress_errors and not options.device:
-        fail("--suppress-errors: only a --device run reaches androidx.benchmark")
-    if options.energy_accept_unresponsive and not options.device:
-        fail("--energy-accept-unresponsive: only a --device run captures energy")
+    for refused, message in REFUSED:
+        if refused(options):
+            fail(message)
     return options
+
+
+REFUSED = (
+    (lambda o: (o.probe or o.identify) and (o.bench or o.harness or o.interop),
+     "--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop"),
+    (lambda o: o.harness and not o.device, "--harness: scopes are measured only on a --device run"),
+    (lambda o: o.device and o.discovery == "reuse", "--discovery reuse: a device run probes the device it measures"),
+    (lambda o: o.suppress_errors and not o.device, "--suppress-errors: only a --device run reaches androidx.benchmark"),
+    (lambda o: o.energy_accept_unresponsive and not o.device,
+     "--energy-accept-unresponsive: only a --device run captures energy"),
+)
 
 
 def discover(options, configuration, device, results):
@@ -426,11 +430,12 @@ def main():
     if options.interop:
         return interop_run(options, configuration, device, root)
     results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, root)
-    mode = "device" if device else "host"
-    if options.probe or not (options.bench or device):
-        manifest(results, mode, configuration, files)
-        return
+    if not options.probe and (options.bench or device):
+        measure_cases(options, device, results, discovery, effective, capture, trial, files)
+    manifest(results, "device" if device else "host", configuration, files)
 
+
+def measure_cases(options, device, results, discovery, effective, capture, trial, files):
     benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
@@ -465,7 +470,6 @@ def main():
     collapse(files, preparation, repetitions)
     if timed:
         analyse(results, files, effective, preparation, benchmark, written, repetitions)
-    manifest(results, mode, configuration, files)
 
 if __name__ == "__main__":
     try:

@@ -74,6 +74,12 @@ def _targets(current: str, others: list[str], usable: list[str], failed: set,
     return interoperable, None if interoperable else "interop_failed"
 
 
+def _unresolved(s: Scope) -> str | None:
+    if s.resolution == NOT_ON_DEVICE:
+        return NOT_ON_DEVICE
+    return None if s.resolution in RESOLVED and s.algorithm is not None and s.provider is not None else "unresolved"
+
+
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
                    measurements: dict[str, dict[str, Summary | None]], source_root: Path,
                    verdicts: dict[str, Verdict] | None) -> dict:
@@ -93,11 +99,8 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
 
     dossiers, none = [], []
     for s in scopes:
-        if s.resolution == NOT_ON_DEVICE:
-            none.append({"scope": s.id, "reason": NOT_ON_DEVICE})
-            continue
-        if s.resolution not in RESOLVED or s.algorithm is None or s.provider is None:
-            none.append({"scope": s.id, "reason": "unresolved"})
+        if unresolved := _unresolved(s):
+            none.append({"scope": s.id, "reason": unresolved})
             continue
         current = qualified(s.engineType, s.algorithm, s.provider)
         key = by_qualified.get(current)
