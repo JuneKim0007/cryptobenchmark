@@ -6,6 +6,7 @@ from ...dto.grouping import Item, Profile
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Knowledge
 from ...dto.interop import PairResult
+from ..resolved import function_parameters
 
 Rule = Callable[[Knowledge, dict[int, Item], dict[int, Profile]], list[Finding]]
 
@@ -13,8 +14,10 @@ Rule = Callable[[Knowledge, dict[int, Item], dict[int, Profile]], list[Finding]]
 def resolved_parameters_differ(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
     out = []
     for gid, g in sorted(k.groups.items()):
-        resolved = {items[m].resolved for m in g.members if items[m].resolved}
-        if len(resolved) > 1:
+        fixed = {function_parameters(items[m].resolved) for m in g.members}
+        fixed.discard(())
+        resolved = {items[m].resolved for m in g.members if function_parameters(items[m].resolved) in fixed}
+        if len(fixed) > 1:
             out.append(Finding("resolved_parameters_differ", "error", gid, tuple(g.members),
                                "members resolved different parameters: " + " | ".join(sorted(resolved))))
     return out

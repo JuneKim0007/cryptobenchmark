@@ -29,14 +29,14 @@ PACKAGED = ScreeningHandler(SCREENING, CATALOG)
 
 # a catalog change that moves these is deliberate: recompute, review, then pin
 EXPECTED = {
-    "android36": {"items": 168, "broken": 49, "accepted": 99, "unknown": 20, "codeGroups": 40, "multiProvider": 9,
-                  "pairs": 25116, "refused": 10842},
-    "jdk17": {"items": 193, "broken": 38, "accepted": 123, "unknown": 32, "codeGroups": 38, "multiProvider": 0,
-              "pairs": 39084, "refused": 12300},
-    "jdk21": {"items": 200, "broken": 38, "accepted": 123, "unknown": 39, "codeGroups": 38, "multiProvider": 0,
-              "pairs": 41316, "refused": 14124},
-    "jdk25": {"items": 214, "broken": 38, "accepted": 123, "unknown": 53, "codeGroups": 38, "multiProvider": 0,
-              "pairs": 45984, "refused": 17040},
+    "android36": {"items": 168, "broken": 49, "accepted": 99, "unknown": 20, "codeGroups": 36, "multiProvider": 9,
+                  "pairs": 25116, "refused": 10686},
+    "jdk17": {"items": 193, "broken": 38, "accepted": 123, "unknown": 32, "codeGroups": 36, "multiProvider": 0,
+              "pairs": 39084, "refused": 12264},
+    "jdk21": {"items": 200, "broken": 38, "accepted": 123, "unknown": 39, "codeGroups": 36, "multiProvider": 0,
+              "pairs": 41316, "refused": 14088},
+    "jdk25": {"items": 214, "broken": 38, "accepted": 123, "unknown": 53, "codeGroups": 36, "multiProvider": 0,
+              "pairs": 45984, "refused": 17004},
 }
 
 
@@ -76,7 +76,7 @@ def test_every_screened_out_item_is_in_exactly_the_code_group_its_key_implies(ru
     out = {i.id for i in items if verdicts[i.id].status in CODE_GROUPED}
     assert set(placed) == out and set(placed.values()) == {1}
     for gid, g in groups.items():
-        keys = {(by_id[m].family, verdicts[m].status, verdicts[m].canonical, verdicts[m].keySize) for m in g.members}
+        keys = {(by_id[m].family, verdicts[m].status, verdicts[m].canonical) for m in g.members}
         assert len(keys) == 1 and all(code_group_id(by_id[m], verdicts[m]) == gid for m in g.members)
     multi = [g for g in groups.values() if len({by_id[m].provider for m in g.members}) > 1]
     assert (len(groups), len(multi)) == (EXPECTED[runtime]["codeGroups"], EXPECTED[runtime]["multiProvider"])
@@ -120,7 +120,7 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
                 if target.status not in NEVER_TARGET:
                     assert shown == target.status
                     continue
-                own = (target.canonical, target.keySize) == (current.canonical, current.keySize)
+                own = target.canonical == current.canonical
                 allowed = own and STATUSES.index(target.status) >= STATUSES.index(current.status)
                 assert (shown is not None) == allowed, (sdk, i.qualified, o.qualified)
                 assert target.status != BROKEN or shown is None or own
@@ -169,10 +169,9 @@ def test_code_group_ids_are_the_same_across_runtimes_for_the_same_key():
         for i in items:
             v = verdicts[i.id]
             if v.status in CODE_GROUPED:
-                ids.setdefault((i.family, v.status, v.canonical, v.keySize), set()).add(code_group_id(i, v))
+                ids.setdefault((i.family, v.status, v.canonical), set()).add(code_group_id(i, v))
     assert all(len(found) == 1 for found in ids.values())
     assert len({next(iter(found)) for found in ids.values()}) == len(ids)
-    shared = [k for k in ids if all(any((i.family, verdicts[i.id].status, verdicts[i.id].canonical,
-                                         verdicts[i.id].keySize) == k for i in items)
+    shared = [k for k in ids if all(any((i.family, verdicts[i.id].status, verdicts[i.id].canonical) == k for i in items)
                                     for items, verdicts in map(loaded, RUNTIMES))]
     assert shared

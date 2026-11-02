@@ -13,12 +13,12 @@ def screened_out(verdict: Verdict | None) -> bool:
 
 
 def _key(item: Item, verdict: Verdict) -> tuple:
-    return item.family, verdict.status, verdict.canonical, verdict.keySize
+    return item.family, verdict.status, verdict.canonical
 
 
 def charter_inputs(verdicts: dict[int, Verdict] | None) -> str:
     """Only what changes what assign asks: each screened-out item and its code key; none hashes as before."""
-    return "\n".join(f"{k} {v.status} {v.canonical} {v.keySize}" for k, v in sorted((verdicts or {}).items())
+    return "\n".join(f"{k} {v.status} {v.canonical}" for k, v in sorted((verdicts or {}).items())
                      if screened_out(v))
 
 
@@ -27,8 +27,7 @@ def code_group_id(item: Item, verdict: Verdict) -> str:
 
 
 def describe(verdict: Verdict) -> str:
-    size = f", {verdict.keySize}-bit key" if verdict.keySize else ""
-    return (f"Code-made group of one algorithm, no model decided it: {verdict.canonical}{size}, "
+    return (f"Code-made group of one algorithm, no model decided it: {verdict.canonical} (any key size), "
             f"screened {verdict.status}; its members are that algorithm from each provider.")
 
 

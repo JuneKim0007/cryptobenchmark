@@ -41,8 +41,7 @@ def lowers_status(current: Verdict | None, target: Verdict | None) -> bool:
     """A never-target status is allowed only as the current item's own algorithm, never at a worse status."""
     if target is None or target.status not in NEVER_TARGET:
         return False
-    same = current is not None and target.canonical is not None and (target.canonical, target.keySize) == (
-        current.canonical, current.keySize)
+    same = current is not None and target.canonical is not None and target.canonical == current.canonical
     return not same or STATUSES.index(target.status) < STATUSES.index(current.status)
 
 

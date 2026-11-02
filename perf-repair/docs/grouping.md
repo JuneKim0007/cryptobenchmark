@@ -56,7 +56,7 @@ flowchart TD
 |---|---|
 | pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json); only these reach the model |
 | no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
-| key | family, status, and the canonical name and key size `screen.json` recorded; one group per key across providers |
+| key | family, status and the canonical name `screen.json` recorded (key size is the call's, as in model groups); one group per key across providers |
 | id | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision |
 | description | fixed: code-made group of one algorithm, its canonical name, key size and status |
 | model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |

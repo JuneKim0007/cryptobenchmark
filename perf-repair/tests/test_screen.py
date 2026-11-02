@@ -140,7 +140,7 @@ PLATFORM = replace(A, status="platform_deprecated")
 
 
 @pytest.mark.parametrize("current, target, lowers", [
-    (A, A, False), (A, B, True), (B, B, False), (B, replace(B, keySize=128), True), (None, B, True), (B, None, False),
+    (A, A, False), (A, B, True), (B, B, False), (B, replace(B, keySize=128), False), (None, B, True), (B, None, False),
     (A, PLATFORM, True), (PLATFORM, PLATFORM, False), (PLATFORM, A, False)])
 def test_a_screened_out_target_never_lowers_the_status(current, target, lowers):
     assert lowers_status(current, target) is lowers
