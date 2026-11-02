@@ -8,6 +8,7 @@ from .. import run_dir as rd
 from ..catalog.names import Names
 from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
+from ..dto.site import NOT_ON_DEVICE
 from .find.scan import Site
 
 
@@ -21,15 +22,16 @@ def default_provider(probe: Probe, providers: list[ProviderEntry], engine_type: 
 
 
 def resolve(site: Site, probe: Probe, names: Names, providers: list[ProviderEntry]) -> dict:
+    """missing: the provider, or the name no provider registers, that a not_on_device site needs; never dropped."""
     alg = site.algorithm.literal
     canonical = names.canonical(site.engineType, alg) if alg is not None else None
-    on_device = {p.name for p in providers}
+    on_device, missing = {p.name for p in providers}, None
     if site.provider is not None:
         name = site.provider.literal
         if name is None:
             provider, alg, resolution = None, None, "unresolved_provider"
         elif name not in on_device:
-            provider, alg, resolution = name, canonical and canonical.name, "provider_not_on_device"
+            provider, alg, resolution, missing = name, canonical and canonical.name, NOT_ON_DEVICE, name
         elif alg is None:
             provider, resolution = name, "unresolved_algorithm"
         else:
@@ -38,9 +40,10 @@ def resolve(site: Site, probe: Probe, names: Names, providers: list[ProviderEntr
         provider, resolution = None, "unresolved_algorithm"
     else:
         hit = default_provider(probe, providers, site.engineType, alg)
-        provider, alg, resolution = (hit[0], hit[1], "default") if hit else (None, canonical.name, "not_registered")
+        provider, alg, resolution = (hit[0], hit[1], "default") if hit else (None, canonical.name, NOT_ON_DEVICE)
+        missing = None if hit else f"{site.engineType} {canonical.name}"
     return site.to_json() | {"resolvedProvider": provider, "resolvedAlgorithm": alg, "resolution": resolution,
-                             "canonicalAlgorithm": canonical and canonical.name,
+                             "missing": missing, "canonicalAlgorithm": canonical and canonical.name,
                              "canonicalKeySize": canonical and canonical.keySize}
 
 

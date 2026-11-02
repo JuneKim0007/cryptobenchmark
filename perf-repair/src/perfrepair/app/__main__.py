@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.names import NamesError
+from ..catalog.names import Names, NamesError
 from ..config.args import add_config_arg
+from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
@@ -56,7 +58,8 @@ def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     except ValueError as e:
         ap.error(str(e))
     try:
-        engine_types = primitives.context.probe.index.engine_types
+        # the packaged catalog, not the probe: a site of an engine type the device lacks is still found
+        engine_types = Names.load().engine_types
         found = {name: detect(app, engine_types, primitives.resolve) for name, app in units.items()}
     except NamesError as e:
         print(f"error {e}", file=sys.stderr)
@@ -83,6 +86,8 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
     print(f"{out_dir}: {len(found.sites)} sites in {found.files} files ({found.testFiles} test files not scanned), "
           f"{len(found.dropped)} dropped by import, {found.folded} folded from constants, "
           f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function")
+    for missing, n in sorted(Counter(s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE).items()):
+        print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_STEP}")
 
 if __name__ == "__main__":
     sys.exit(main())

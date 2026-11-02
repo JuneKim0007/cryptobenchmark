@@ -73,6 +73,10 @@ class Names:
                              for t, v in (doc.get("transformations") or {}).items()},
             key_formats=_folded({f: [] for f in doc.get("keyFormats") or []}))
 
+    @property
+    def engine_types(self) -> set[str]:
+        return set(self.names) | set(self.sized) | set(self.transformations)
+
     def catalogued(self, engine_type: str, name: str) -> Canonical:
         single = self._single(engine_type, name)
         if single.known or engine_type not in self.transformations or "/" not in name:

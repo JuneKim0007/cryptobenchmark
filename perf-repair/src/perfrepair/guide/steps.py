@@ -13,6 +13,7 @@ from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
+from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..files import read_json
 from ..run_dir import GroupingPaths
 from ..repair.__main__ import main as repair_main
@@ -88,7 +89,8 @@ def dossiers(g: Guide) -> str:
     doc = dossier(g.device, g.app_id, g.app_root, g.catalog, echo=lambda _: None)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
-        raise Stop("no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)})")
+        step = f"; {NOT_ON_DEVICE}: {NOT_ON_DEVICE_STEP}" if NOT_ON_DEVICE in reasons else ""
+        raise Stop("no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)}){step}")
     return f"{len(doc['dossiers'])} with options, {len(doc['noOptions'])} without"
 
 

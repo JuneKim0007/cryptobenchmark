@@ -144,7 +144,8 @@ def test_singleton_groups_leave_no_options(tmp_path):
     report(paths)
     g, lines = guide(tmp_path, DRY_RUN)
     assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide dossier: stop no_options: none of 11 scopes has an option")
+    assert lines[-1].startswith("guide dossier: stop no_options: none of 12 scopes has an option")
+    assert lines[-1].endswith("; not_on_device: add it to providers.bundled in global.yaml and rerun the device stage")
 
 
 def test_a_model_that_keeps_everything_stops_before_the_edit(run):

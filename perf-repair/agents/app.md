@@ -7,6 +7,7 @@
 ## Rules
 - static: detect and scope read the app tree and never edit it; no model call.
 - data: crypto libraries live in `app/facts/libraries.yaml`, sink and key-source patterns in `scope/patterns.yaml`, never in code.
+- detect: engine types come from the packaged names catalog, never the probe, and no site is filtered by registered names; a site the device cannot serve resolves `not_on_device` with `missing` and the next step.
 - drop: a site that is not the platform class is recorded in `sites.json` `dropped` with its reason; one without an enclosing function in `scopes.json` `unscoped`.
 - parser: a bracket-matching lexer over comment- and string-masked text, no grammar dependency, so ids do not depend on what is installed.
 - roots: one project root keeps the given name; several are units `<name>.<root dirs joined by '.'>`, each scanned from its root.

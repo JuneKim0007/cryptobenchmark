@@ -15,8 +15,10 @@ KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unkn
 DECISIONS = ("replace", "keep")
 OPTION_PREFIX = "R"
 METRICS = ("timeNs", "allocationCount", "energyJ")
+NOT_ON_DEVICE = "not_on_device"
+NOT_ON_DEVICE_STEP = "add it to providers.bundled in global.yaml and rerun the device stage"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing
-NO_OPTION_REASONS = ("unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
+NO_OPTION_REASONS = (NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
                      "interop_failed")
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare

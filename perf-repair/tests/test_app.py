@@ -127,7 +127,7 @@ def test_command_writes_one_unit_per_root(tmp_path, capsys):
         (src / rel / "src" / "main" / "java" / "A.java").write_text(
             "import javax.crypto.Cipher;\nclass A { void f() { Cipher.getInstance(\"AES\"); } }\n")
     assert main(["--app", str(src), "--device-results", str(with_results(tmp_path / "run"))]) == 0
-    assert len(capsys.readouterr().out.strip().splitlines()) == 2
+    assert len([l for l in capsys.readouterr().out.splitlines() if not l.startswith("not_on_device")]) == 2
     for rel in ("android", "android_donation"):
         unit = f"{path_id(src)}.{rel}"
         out = tmp_path / "run" / unit
@@ -247,7 +247,7 @@ def test_resolution_per_site(run):
     assert [(s["line"], s["resolvedProvider"], s["resolvedAlgorithm"], s["resolution"]) for s in crypto] == [
         (12, "Slow", "AES/GCM/NoPadding", "explicit"), (17, "Fast", "SHA-256", "default"),
         (21, "Fast", "AES/GCM/NoPadding", "explicit"), (25, None, None, "unresolved_provider"),
-        (31, "Bundled", "AES/GCM/NoPadding", "provider_not_on_device")]
+        (31, "Bundled", "AES/GCM/NoPadding", "not_on_device")]
 
 
 def test_default_resolution_follows_manifest_precedence(run):
@@ -266,7 +266,7 @@ def test_a_site_carries_its_canonical_name_and_key_size(run):
     [digest, cipher] = _sites('Object d = MessageDigest.getInstance("sha"); Object c = Cipher.getInstance("AES_256/GCM/PKCS7Padding");',
                               probe)
     assert {k: resolve(digest, probe, names, manifest.providers)[k] for k in ("resolvedAlgorithm", "resolution", "canonicalAlgorithm")} \
-        == {"resolvedAlgorithm": "SHA-1", "resolution": "not_registered", "canonicalAlgorithm": "SHA-1"}
+        == {"resolvedAlgorithm": "SHA-1", "resolution": "not_on_device", "canonicalAlgorithm": "SHA-1"}
     resolved = resolve(cipher, probe, names, manifest.providers)
     assert (resolved["canonicalAlgorithm"], resolved["canonicalKeySize"]) == ("AES/GCM/PKCS5Padding", 256)
 
@@ -276,9 +276,18 @@ def test_command_writes_the_app_folder(tmp_path, capsys):
     out = tmp_path / path_id(APP)
     docs = {n: json.loads((out / f"{n}.json").read_text()) for n in ("sites", "app", "scopes")}
     assert docs["app"]["pathId"] == out.name and docs["app"]["root"] == str(APP.resolve())
-    assert len(docs["sites"]["sites"]) == 12 and len(docs["scopes"]["scopes"]) == 11
+    assert len(docs["sites"]["sites"]) == 13 and len(docs["scopes"]["scopes"]) == 12
     assert docs["app"]["projectRoot"] == "." and docs["app"]["minSdk"] == 24 and docs["app"]["registers"][0]["expr"] == "new BundledProvider()"
     assert "1 dropped by import" in capsys.readouterr().out
+
+
+def test_an_engine_type_the_probe_lacks_is_still_found_and_says_what_to_do(tmp_path, capsys):
+    assert main(["--app", str(APP), "--device-results", str(with_results(tmp_path))]) == 0
+    sites = json.loads((tmp_path / path_id(APP) / "sites.json").read_text())["sites"]
+    [vault] = [s for s in sites if s["engineType"] == "KeyStore"]
+    assert (vault["resolution"], vault["missing"], vault["resolvedProvider"]) == ("not_on_device", "KeyStore AndroidKeyStore", None)
+    assert ("not_on_device: KeyStore AndroidKeyStore (1 sites); add it to providers.bundled in global.yaml and rerun "
+            "the device stage") in capsys.readouterr().out.splitlines()
 
 
 def test_command_refuses_a_gate_failure(tmp_path, capsys):

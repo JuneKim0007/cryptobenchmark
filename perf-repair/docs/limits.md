@@ -3,7 +3,7 @@
 | Limit | Where it shows |
 |---|---|
 | numbers are device-specific | `measurements.json` `comparability` notes |
-| providers seen are those the device registers; a provider bundled in an app is `provider_not_on_device` | `sites.json` resolution |
+| providers seen are those the device registers; a site naming a provider the device lacks, or a name no provider registers, is `not_on_device` with `missing` set, kept and never measured; the next step: add it to `providers.bundled` in global.yaml and rerun the device stage | `sites.json` resolution, `perfrepair.app` and guide lines |
 | a project root deeper than 4 levels under the app folder is not found; one with neither settings nor a build file beside a source set is not a root | `perfrepair.app` `not_android_project` |
 | app scan reads `.java` and `.kt` source files only; compiled dependencies and `libs/*.jar` are not scanned | `sites.json`, `app.json` `bundled` |
 | a constant folds only within its file; a Kotlin import alias of the class is not followed | `sites.json` |

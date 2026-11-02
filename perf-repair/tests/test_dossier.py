@@ -105,11 +105,11 @@ def test_a_pins_value_that_is_neither_an_object_nor_null_is_caught(tmp_path):
 
 def test_scopes_without_options_say_why(tmp_path):
     scopes = [scope(provider=None, resolution="unresolved_provider"), scope(provider="P9", line=1),
-              scope(algorithm="ALG-L", line=3)]
+              scope(algorithm="ALG-L", line=3), scope(provider="Elsewhere", line=5, resolution="not_on_device")]
     doc = build(scopes, tmp_path)
     assert doc["dossiers"] == [] and doc["noOptions"] == [
         {"scope": scopes[0].id, "reason": "unresolved"}, {"scope": scopes[1].id, "reason": "not_grouped"},
-        {"scope": scopes[2].id, "reason": "no_alternative"}]
+        {"scope": scopes[2].id, "reason": "no_alternative"}, {"scope": scopes[3].id, "reason": "not_on_device"}]
     assert validate_dossiers(doc, scopes, GROUPS, None) == []
 
 

@@ -8,7 +8,7 @@ from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
-from ..dto.site import METRICS, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
+from ..dto.site import METRICS, NOT_ON_DEVICE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
 from .estimate import compare
 
 RESOLVED = ("default", "explicit")
@@ -93,6 +93,9 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
 
     dossiers, none = [], []
     for s in scopes:
+        if s.resolution == NOT_ON_DEVICE:
+            none.append({"scope": s.id, "reason": NOT_ON_DEVICE})
+            continue
         if s.resolution not in RESOLVED or s.algorithm is None or s.provider is None:
             none.append({"scope": s.id, "reason": "unresolved"})
             continue
