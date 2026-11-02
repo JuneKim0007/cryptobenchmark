@@ -96,6 +96,12 @@ def test_runner_failure_carries_the_tail(bench_root, tmp_path, monkeypatch):
     assert "line 0" not in message
 
 
+def test_identify_without_an_identity_line_is_one_coded_error(bench_root, tmp_path):
+    from perfrepair.data_handler.outbound.benchmark_runner import identify
+    with pytest.raises(BenchmarkRunError, match=r"^identify_failed: pipeline --identify exited 2; last lines:"):
+        identify(tmp_path / "c.yaml", False, benchmark=bench_root)
+
+
 def test_runner_fails_when_no_manifest(bench_root, tmp_path, monkeypatch):
     monkeypatch.setenv("FAKE_NO_MANIFEST", "1")
     with pytest.raises(BenchmarkRunError, match="wrote no"):

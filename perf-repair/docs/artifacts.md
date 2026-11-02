@@ -26,7 +26,8 @@
 
 | Artifact | Producer | Consumers | Validator |
 |---|---|---|---|
-| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build | `validation/manifest.py` |
+| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`) | `validation/manifest.py` |
+| `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; unreadable counts as absent |
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |

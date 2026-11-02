@@ -48,4 +48,25 @@ flowchart LR
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts (and, for assign, the same screened-out items) resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own.
 - `--prompts DIR`: `docs/decisions.md`.
 - `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`; a bad value there warns and uses the default, a bad flag errors: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `device.screening.catalog` from it (`docs/screening.md` Settings).
-- The guide runs one app; inbound and grouping are run-level and must exist first. Steps, stop codes and the report: `docs/replacement.md`.
+- The guide runs one app; without `--device-results` it calls probe_device() first, which makes the device folder current (below); grouping assign and report run from the guide only when `grouping/groups.json` is missing. Steps, stop codes and the report: `docs/replacement.md`.
+
+## Device stage
+
+`device/stage.py` `probe_device(root, catalog, config, on_device)`: `pipeline.py --identify` names the device (`getprop` on a phone, `RuntimeFieldsKt` on a host: the id the probe gives, without probing), then each stage is reused or rerun. It calls no model.
+
+| input | digest kept in | probe | benchmark | inbound | screen (grouping build) |
+|---|---|---|---|---|---|
+| `providers.bundled` | manifest `inputs.bundled`, device.yaml | reruns | reruns | reruns | reruns |
+| `global.yaml` without that list, with its test set | manifest `inputs.config`, device.yaml | reruns | reruns | reruns | reruns |
+| names catalog (`catalog/algorithm-names.yaml`) | device.yaml `inputs.names` | kept | kept | kept | reruns |
+| screening catalog (`device.screening.catalog`) | device.yaml `inputs.screening` | kept | kept | kept | reruns |
+| the manifest itself | device.yaml `manifest` (sha256) | | | reruns | reruns |
+
+- A stage also runs when its output is missing: no manifest (probe), no `files.benchmark` (benchmark), no `rows.json` (inbound), no `grouping/screen.json` (screen); and when a stage it reads from reruns.
+- Probe and benchmark are one `pipeline.py --bench` (`--device` on a phone); on a host a kept probe is passed `--discovery reuse`; a phone always probes again, logged `ran: a device benchmark probes the device it measures`.
+- Without device.yaml (or unreadable), inbound and screen rerun; probe and benchmark are judged by the manifest's `inputs`, so a `pipeline.py --probe` run is kept. A fresh root runs everything.
+- `device.yaml` is removed before the first stage runs and written after the last, so an interrupted call leaves no record and the next call reruns what the record would have vouched for; a failed pipeline run leaves no manifest ([results.md](../../docs/results.md)).
+- The device id is the build fingerprint only, so adding a bundled provider keeps the folder; the digests, not the id, trigger the rerun.
+- Each stage prints `device <stage>: reused` or `device <stage>: ran: <reason>`; a probe writing another folder than `--identify` named is `device_id_changed`.
+- With `device.screening.aiReview` on, probe_device builds without the review; run `grouping build` for it.
+- Known gap until #76 L5: after a rerun that changes the items, an existing `groups.json` is kept and new primitives stay `not_grouped`.

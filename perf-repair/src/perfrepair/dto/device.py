@@ -1,0 +1,34 @@
+"""device.yaml: what the device stage last finished with; its digests, not the device id, decide a rerun."""
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+
+SCHEMA_VERSION = 1
+INPUTS = ("bundled", "config", "names", "screening")
+RUNTIME_KEYS = ("model", "manufacturer", "sdkInt", "release", "osName", "osArch", "javaVersion", "javaVendor",
+                "javaRuntimeVersion")
+
+
+@dataclass(frozen=True)
+class DeviceRecord:
+    deviceId: str
+    mode: str
+    runtime: dict
+    inputs: dict[str, str]
+    manifest: str
+
+    def to_json(self) -> dict:
+        return {"schemaVersion": SCHEMA_VERSION, **asdict(self)}
+
+    @classmethod
+    def from_json(cls, doc: dict) -> "DeviceRecord":
+        if doc.get("schemaVersion") != SCHEMA_VERSION:
+            raise ValueError(f"device.yaml schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        missing = sorted(set(INPUTS) - set(doc.get("inputs") or {}))
+        if missing or not doc.get("manifest"):
+            raise ValueError(f"device.yaml lacks {', '.join(missing) or 'manifest'}")
+        return cls(str(doc["deviceId"]), str(doc["mode"]), doc.get("runtime") or {}, dict(doc["inputs"]), doc["manifest"])
+
+
+def runtime_summary(runtime: dict) -> dict:
+    return {k: runtime[k] for k in RUNTIME_KEYS if runtime.get(k) not in (None, "")}

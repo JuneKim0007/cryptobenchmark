@@ -22,12 +22,14 @@ class BenchmarkManifest:
     files: dict[str, str | list[str]]
     counts: dict[str, int] = field(default_factory=dict)
     deviceId: str = ""
+    # digests of providers.bundled and global.yaml the run used; empty from a pipeline before they were recorded
+    inputs: dict[str, str] = field(default_factory=dict)
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "mode": self.mode, "config": self.config, "deviceId": self.deviceId,
                 "runtime": self.runtime,
                 "providers": [vars(p) for p in self.providers],
-                "files": self.files, "counts": self.counts}
+                "files": self.files, "counts": self.counts, "inputs": self.inputs}
 
     @classmethod
     def from_json(cls, doc: dict) -> "BenchmarkManifest":
@@ -40,4 +42,5 @@ class BenchmarkManifest:
         return cls(doc["mode"], doc.get("config", ""), doc.get("runtime") or {},
                    [ProviderEntry(p["name"], int(p["precedence"]), int(p.get("serviceCount", 0)))
                     for p in doc.get("providers") or []],
-                   doc.get("files") or {}, doc.get("counts") or {}, doc["deviceId"])
+                   doc.get("files") or {}, doc.get("counts") or {}, doc["deviceId"],
+                   doc.get("inputs") or {})

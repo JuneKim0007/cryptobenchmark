@@ -3,11 +3,14 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .dto import Measurements, PrimitiveRow, RunLog
-from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
-from .files import read_json, sha256_file
+import yaml
 
-MANIFEST = "manifest.yaml"
+from .dto import Measurements, PrimitiveRow, RunLog
+from .dto.device import DeviceRecord
+from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
+from .files import read_json, read_yaml, sha256_file, write_text
+
+MANIFEST, DEVICE = "manifest.yaml", "device.yaml"
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, DOSSIERS = "app.json", "scopes.json", "dossiers.json"
@@ -123,3 +126,18 @@ def load_screen_catalog(paths: GroupingPaths) -> dict | None:
 def load_screen_review(paths: GroupingPaths) -> str | None:
     """The classify outbox fingerprint screen.json was reviewed under; None when no review ran."""
     return read_screen_review(read_json(paths.screen)) if paths.screen.exists() else None
+
+
+def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
+    """The record, or None and why: absent, or unreadable; either means every stage it would vouch for reruns."""
+    path = Path(device) / DEVICE
+    if not path.is_file():
+        return None, f"no {DEVICE}"
+    try:
+        return DeviceRecord.from_json(read_yaml(path)), None
+    except (ValueError, KeyError, TypeError, yaml.YAMLError) as e:
+        return None, f"{DEVICE} unreadable ({e})"
+
+
+def write_device_record(device: Path, record: DeviceRecord) -> Path:
+    return write_text(Path(device) / DEVICE, yaml.safe_dump(record.to_json(), sort_keys=False))

@@ -16,6 +16,7 @@ LAYERS = [
     ("ai/runtime",),
     ("ai", "ai/evaluate", "ai/parse", "ai/review", "ai/suggest"),
     ("grouping", "repair", "command"),
+    ("device",),
     ("report", "failure"),
     ("guide", "check"),
     ("__main__",),

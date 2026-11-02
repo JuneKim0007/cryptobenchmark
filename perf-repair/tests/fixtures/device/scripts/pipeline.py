@@ -1,0 +1,49 @@
+"""A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log.
+The device folder is the recorded test-api36 results; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
+import argparse, hashlib, json, os, pathlib, shutil, sys
+
+import yaml
+
+RECORDED = pathlib.Path(__file__).resolve().parents[2] / "results" / "test-api36-00000000"
+DEVICE_ID = os.environ.get("FAKE_DEVICE_ID", "fake-api36-00000000")
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--config", required=True)
+parser.add_argument("--results")
+parser.add_argument("--discovery")
+for flag in ("--bench", "--device", "--probe", "--identify"):
+    parser.add_argument(flag, action="store_true")
+options = parser.parse_args()
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+document = yaml.safe_load(pathlib.Path(options.config).read_text()) or {}
+shipped = (document.get("providers") or {}).pop("bundled", None) or []
+inputs = {"bundled": digest(shipped), "config": digest(document)}
+if options.identify:
+    print("identity:  " + json.dumps({"deviceId": DEVICE_ID, "mode": "device" if options.device else "host",
+                                      "config": options.config, "inputs": inputs}))
+    sys.exit(0)
+
+root = pathlib.Path(options.results)
+with open(root / "runs.log", "a") as log:
+    log.write(" ".join(sys.argv[1:]) + "\n")
+folder = root / DEVICE_ID
+(folder / "manifest.yaml").unlink(missing_ok=True)
+if os.environ.get("FAKE_INTERRUPT"):
+    print("error: interrupted", file=sys.stderr)
+    sys.exit(1)
+for item in RECORDED.iterdir():
+    if item.name != "manifest.yaml":
+        target = folder / item.name
+        shutil.copytree(item, target, dirs_exist_ok=True) if item.is_dir() else shutil.copy(item, target)
+manifest = yaml.safe_load((RECORDED / "manifest.yaml").read_text())
+manifest.update(deviceId=DEVICE_ID, mode="device" if options.device else "host", config=options.config, inputs=inputs)
+if options.probe:
+    manifest["files"] = {k: manifest["files"][k] for k in ("probe", "trial", "inventory", "effective")}
+    manifest["counts"] = {}
+(folder / "manifest.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False))
+print(f"wrote:     {folder / 'manifest.yaml'}")

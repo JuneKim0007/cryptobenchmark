@@ -5,6 +5,7 @@
 
 ## Rules
 - boundary: perf-repair reads cryptobenchmark only through `<device>/manifest.yaml` and the files it lists; that manifest must carry `deviceId`.
+- device stage: `device/` reruns a stage only when an input digest changed or its output is missing (`docs/pipeline.md` Device stage); `device.yaml` is written last and removed before any stage runs, so it never vouches for a half-made folder; `device/` never imports `app/`.
 - dto: no I/O; every file-level document carries `schemaVersion` and its reader refuses another.
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
@@ -24,7 +25,7 @@ src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per e
 src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, key formats, name_conflict
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component, platform and future rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
-src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, validated before writing
+src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, through device/inbound.py
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
 src/perfrepair/data_handler/inbound/probe/__init__.py : exports only `Probe`; the `_` modules are private to the package (`tests/test_layers.py`)
@@ -35,10 +36,15 @@ src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: de
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and Summaries with runs per process; comparability notes
 src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, screening, probe and benchmark documents on first use; tests inject any piece
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
-src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`; returns the manifest path
+src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
+src/perfrepair/device/__init__.py : docstring only
+src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
+src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml; upstream reruns carry down
+src/perfrepair/device/stage.py : probe_device(): identify, plan, run the needed stages (pipeline, inbound, grouping build), write device.yaml last; `device <stage>: reused` or `ran: <reason>`
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind and the AgentIdentity (gateway, model, effort) that answered it
+src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256)
 src/perfrepair/dto/grouping.py : Family, Item, Profile; key contract values and labels; items.json and profiles.json (schema 2) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only); the `code_` id prefix
@@ -58,5 +64,5 @@ src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's set
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); known_tree
 src/perfrepair/log.py : log_to_stderr: the one stderr handler a command attaches at start
-src/perfrepair/run_dir.py : device folder: finished devices of a root, app folders, artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir.py : device folder: finished devices of a root, not_device_results, app folders, device.yaml read and write, artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 ```
