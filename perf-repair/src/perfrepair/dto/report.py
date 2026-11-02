@@ -1,7 +1,8 @@
 """Vocabulary of report.json and summary.json: step statuses, reported metrics, funnel stages."""
 from __future__ import annotations
 
-SCHEMA_VERSION = 1
+# 2: a row carries the harness `inputs` and their source
+SCHEMA_VERSION = 2
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")
 EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")

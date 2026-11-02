@@ -101,7 +101,8 @@ def edits(g: Guide) -> str:
 
 
 def harness(g: Guide) -> str:
-    _exit(repair_main(["harness", "--run", str(g.run), "--app", g.name]), "harness_invalid", "repair harness")
+    _exit(repair_main(["harness", "--run", str(g.run), "--app", g.name, "--manifest", str(g.results / MANIFEST)]),
+          "harness_invalid", "repair harness")
     return str(g.paths.harness)
 
 

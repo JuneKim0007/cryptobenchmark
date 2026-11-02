@@ -120,7 +120,9 @@ def test_the_validator_refuses_an_invented_number(tmp_path):
     bad = json.loads(json.dumps(doc))
     rows(bad)[B]["metrics"][0] = {**rows(bad)[A]["metrics"][0]}
     rows(bad)[A]["metrics"][0]["ratio"] = 0.5
+    rows(bad)[C]["inputs"] = {"inputSize": 1024, "keySize": None, "from": "guess"}
     problems = validate_report(bad, "shop")
+    assert any("inputs {'inputSize': 1024, 'keySize': None, 'from': 'guess'}" in p for p in problems)
     assert any("measured although interop is skipped" in p for p in problems)
     assert any("ratio 0.5 is not after ÷ before" in p for p in problems)
     bad = json.loads(json.dumps(doc))

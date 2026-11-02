@@ -35,7 +35,7 @@ def prepared(plan, measured, effective, out):
         for case in record["cases"]:
             entry = {"id": case, "type": "Scope", "algorithm": record["function"], "provider": plan["app"],
                      "operation": case.rsplit(":", 1)[1], "key": {"kind": "none"}, "harness": harness}
-            entry.update({k: v for k, v in record["inputs"].items() if v is not None})
+            entry.update({k: record["inputs"][k] for k in ("inputSize", "keySize") if record["inputs"].get(k) is not None})
             cases.append(entry)
     document = {"schemaVersion": 1, "run": {"seed": plan["seed"], "harness": harness}, "cases": cases}
     out.write_text(yaml.safe_dump(document, sort_keys=False))

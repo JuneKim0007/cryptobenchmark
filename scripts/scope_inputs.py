@@ -37,8 +37,8 @@ def expression(parameter, scope):
         raise InputError(f"unsupported_parameter: {parameter.name}: {parameter.type}")
     if found == "key":
         if scope.key_size is None:
-            raise InputError(f"missing_input: keySize for {parameter.name}")
+            raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
         return f'ScopeInputs.secretKey("{key_algorithm(scope.option)}", {scope.key_size}, {SEED + 1})'
     if scope.input_size is None:
-        raise InputError(f"missing_input: inputSize for {parameter.name}")
+        raise InputError(f"missing_input: inputSize for {parameter.name}, none from {scope.input_source}")
     return f"ScopeInputs.{found}({scope.input_size}, {SEED})"

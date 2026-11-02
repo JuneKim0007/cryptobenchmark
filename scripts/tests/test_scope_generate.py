@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import scope_generate, scope_wrapper  # noqa: E402
+import scope_generate, scope_harness, scope_wrapper  # noqa: E402
 
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures/scoped"
 GENERATED = pathlib.PurePosixPath(scope_wrapper.FOLDER)
@@ -88,3 +88,25 @@ def test_the_current_item_rides_next_to_the_option_into_the_plan(tmp_path):
     plan, _ = run(tmp_path)
     first = plan["scopes"][0]
     assert (first["current"], first["option"]) == ("Cipher|AES/GCM/NoPadding|BC", "Cipher|AES/GCM/NoPadding|AndroidOpenSSL")
+
+
+def harness_with(tmp_path, inputs):
+    for source in FIXTURES.iterdir():
+        (tmp_path / source.name).write_text(source.read_text())
+    text = (FIXTURES / "harness.yaml").read_text().replace("inputs: {inputSize: 1024, keySize: 256, from: run}", inputs, 1)
+    (tmp_path / "harness.yaml").write_text(text)
+    return tmp_path / "harness.yaml"
+
+
+def test_a_null_run_size_is_missing_input_naming_its_source(tmp_path):
+    path = harness_with(tmp_path, "inputs: {inputSize: null, keySize: 256, from: run}")
+    plan, _ = scope_generate.generate(path, tmp_path / "root", tmp_path / "out", compiler=lambda _: [])
+    first = yaml.safe_load(plan.read_text())["scopes"][0]
+    assert (first["status"], first["reason"]) == ("not_compilable", "missing_input: inputSize for plain, none from run")
+    assert first["inputs"] == {"inputSize": None, "keySize": 256, "from": "run"}
+
+
+def test_inputs_without_a_source_are_refused(tmp_path):
+    path = harness_with(tmp_path, "inputs: {inputSize: 1024, keySize: 256}")
+    with pytest.raises(scope_harness.HarnessError, match="inputs.from None"):
+        scope_harness.read(path)

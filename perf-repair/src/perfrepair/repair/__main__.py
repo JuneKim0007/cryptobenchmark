@@ -14,6 +14,7 @@ from ..validation.repair import validate_edits, validate_harness
 from .dossier import dossier
 from .edit import edit_app, load_specs
 from .harness import harness
+from .inputs import read_effective
 from .test_set import build_test_set
 
 
@@ -28,6 +29,8 @@ def main(argv: list[str] | None = None) -> int:
         sub.choices[name].add_argument("--source", type=Path, required=True,
                                        help="the app's root; only read, scope files are relative to it")
     sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
+    sub.choices["harness"].add_argument("--manifest", type=Path, required=True,
+                                        help="the benchmark results' manifest.yaml; its effective.yaml gives the sizes")
     a = ap.parse_args(argv)
     if a.command == "dossier":
         dossier(a.run, a.app, a.source)
@@ -74,7 +77,7 @@ def _harness(a: argparse.Namespace) -> int:
     scopes, replacements = _load(paths)
     edits = read_json(paths.edits)
     currents = {d["scope"]["id"]: d["current"] for d in read_json(paths.dossiers)["dossiers"]}
-    doc = harness(paths, scopes, replacements, edits, currents)
+    doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.manifest))
     problems = validate_harness(doc, a.app, paths.root, edits)
     if problems:
         return _report(paths.harness, problems)

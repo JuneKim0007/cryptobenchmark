@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import yaml
 
@@ -9,6 +11,9 @@ from perfrepair.repair.dependencies import dependencies, load
 from perfrepair.run_dir import AppPaths
 from perfrepair.validation.repair import validate_edits, validate_harness
 from repair_fixture import APP, JAVA, KOTLIN, ROOT, digests, pins, provider, replace, scope
+
+MANIFEST = Path(__file__).parent / "fixtures" / "results" / "manifest.yaml"
+CURRENT, FAST = "Cipher|AES/GCM/NoPadding|Slow", "Cipher|AES/GCM/NoPadding|Fast"
 
 LITERAL = scope(JAVA, "byte[] literal(byte[] in)", 'Cipher.getInstance("AES/GCM/NoPadding", "Slow")', inputSize=1024, keySize=256)
 NESTED = scope(JAVA, "byte[] nested(byte[] in)", 'Cipher.getInstance(name(prefix("AES"), "GCM"), "Slow")')
@@ -22,16 +27,16 @@ def setup_run(tmp_path):
     paths.root.mkdir(parents=True)
     write_json(paths.scopes, {"schemaVersion": 1, "app": APP, "scopes": [s.to_json() for s in SCOPES]})
     write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
-        replace(LITERAL, provider("Fast")).to_json(), replace(NESTED, provider("Fast")).to_json(),
-        replace(TWICE, pins(tagBits=128)).to_json(), replace(TEMPLATE, provider("Fast"), option="9").to_json()]})
-    write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s.id}, "current": "1"} for s in SCOPES]})
+        replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
+        replace(TWICE, pins(tagBits=128), option=FAST).to_json(), replace(TEMPLATE, provider("Fast"), option=FAST).to_json()]})
+    write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES]})
     return paths
 
 
 def commands(tmp_path):
     paths = setup_run(tmp_path)
     assert main(["edit", "--run", str(tmp_path), "--app", APP, "--source", str(ROOT)]) == 0
-    assert main(["harness", "--run", str(tmp_path), "--app", APP]) == 0
+    assert main(["harness", "--run", str(tmp_path), "--app", APP, "--manifest", str(MANIFEST)]) == 0
     return paths
 
 
@@ -50,15 +55,16 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
         "before": f"harness/{LITERAL.id}/before.java", "after": f"harness/{LITERAL.id}/after.java",
         "imports": ["import java.security.Security;", "import javax.crypto.Cipher;", "import javax.crypto.SecretKey;",
                     "import javax.crypto.spec.GCMParameterSpec;"],
-        "inputs": {"inputSize": 1024, "keySize": 256}, "current": "1", "option": "7",
+        "inputs": {"inputSize": 1024, "keySize": 256, "from": "app"}, "current": CURRENT, "option": FAST,
         "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"]}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
     kotlin = next(s for s in doc["scopes"] if s["id"] == TEMPLATE.id)
-    assert (kotlin["language"], kotlin["option"], kotlin["dependencies"]) == ("kotlin", "9", ["secret"])
+    assert (kotlin["language"], kotlin["option"], kotlin["dependencies"]) == ("kotlin", FAST, ["secret"])
     nested = next(s for s in doc["scopes"] if s["id"] == NESTED.id)
     assert nested["dependencies"] == ["key", "name", "prefix"]
+    assert nested["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
 
 
 def test_both_steps_are_deterministic(tmp_path):

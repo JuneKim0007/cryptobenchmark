@@ -1,0 +1,19 @@
+schemaVersion: 1
+run:
+  inputSizes: [64, 1024]
+  phases: [WARM]
+  metrics: [TIME, ALLOCATION]
+  processRepetitions: 1
+  seed: 0
+policy: {onFailure: skip}
+providers:
+  Fast:
+    Cipher:
+      AES/GCM/NoPadding: {keySizes: [128, 256]}
+    MessageDigest:
+      SHA-256: {}
+  Slow:
+    Cipher:
+      AES/GCM/NoPadding: {keySizes: [128], inputSizes: [1024]}
+    MessageDigest:
+      SHA-256: {}

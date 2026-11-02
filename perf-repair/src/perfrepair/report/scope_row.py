@@ -62,7 +62,8 @@ def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
 
 
 def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, source: str | None, edit: dict | None,
-              has_edits: bool, measured: Measured, mode: Mode) -> dict:
+              has_edits: bool, measured: Measured, mode: Mode, inputs: dict | None) -> dict:
+    """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness."""
     decision = _decision(replacement, source)
     edited = _edit(edit, decision, has_edits)
     record = measured.plan.get(scope["id"])
@@ -83,7 +84,7 @@ def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, sourc
         metrics = metric_rows(before, after)
     chosen = next((o for o in (dossier or {}).get("options") or [] if o["item"] == option), None)
     return {"scope": scope["id"], "file": scope["file"], "line": scope["line"], "function": scope["function"],
-            "current": current, "option": option, "decision": decision, "edit": edited, "compile": compiled,
+            "current": current, "option": option, "inputs": inputs, "decision": decision, "edit": edited, "compile": compiled,
             "interop": interop, "metrics": metrics,
             "verdict": _verdict(mode, current, option, metrics) if option else "not_measured",
             "primitive": chosen["estimates"] if chosen else []}

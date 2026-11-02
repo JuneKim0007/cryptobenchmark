@@ -9,6 +9,7 @@ files:
   probe: discovery/probe_20260101T000000Z.yaml
   trial: discovery/trial_20260101T000000Z.yaml
   inventory: configuration/inventory.yaml
+  effective: configuration/effective.yaml
   prepared: preparation/prepared.yaml
   skipped: preparation/skipped.yaml
   benchmark: benchmark/benchmark.json

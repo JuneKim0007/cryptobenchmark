@@ -7,7 +7,7 @@ Command: `python3 -m perfrepair.repair <step> --run <run> --app <app>`; every st
 | dossier | `--source <app root>` | `scopes.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
 | test-set | `-o` | `dossiers.json` | YAML test set at `-o`: each scope's current item and every option, once each |
 | edit | `--source <app root>` | `scopes.json`, `replacements.json`, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
-| harness | none | `scopes.json`, `replacements.json`, `edits.json`, `original/`, `patched/` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
+| harness | `--manifest <results>/manifest.yaml` | `scopes.json`, `replacements.json`, `edits.json`, `dossiers.json`, `original/`, `patched/`, the manifest's `effective.yaml` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
 
 - test-set refuses a `dossiers.json` of another app, and one with no scope that has an option.
 - A per-app benchmark run on the test set measures only what the app uses and its swap candidates.
@@ -47,7 +47,7 @@ Command: `python3 -m perfrepair.repair <step> --run <run> --app <app>`; every st
 ## harness.yaml
 
 ```yaml
-schemaVersion: 1
+schemaVersion: 2
 app: <name>
 scopes:
   - id: <scope id>
@@ -56,7 +56,7 @@ scopes:
     before: harness/<scope id>/before.java
     after: harness/<scope id>/after.java
     imports: [<the file's import lines>]
-    inputs: {inputSize: <bytes or null>, keySize: <bits or null>}
+    inputs: {inputSize: <bytes or null>, keySize: <bits or null>, from: app|run}
     current: <the dossier's current item>
     option: <the chosen item>
     metrics: [timeNs, allocationCount, energyJ]
@@ -68,6 +68,17 @@ scopes:
 - `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
 - `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim.
 - `dependencies` is the union over both functions: identifiers not declared in the function, not after another receiver's `.`, not a keyword, not imported, and not in `repair/names.yaml`.
+- `inputs` is one entry per scope, never one per size; `from` says where its sizes came from:
+
+| `inputs` | rule |
+|---|---|
+| `from: app` | the scope's `inputSize` or `keySize` is set: both are taken from the scope as they are; the run is not read |
+| `from: run` | otherwise; an item's sizes are the union over its `providers.<p>.<type>.<name>` and `<name>@<group>` entries of `effective.yaml`, the name matched case-insensitively |
+| item `inputSize`s | the entry's `inputSizes`, else `run.inputSizes` (preparation's rule) |
+| item `keySize`s | the entry's `keySizes`; none when the provider chose the size (`providerDefaults: [keySize]` records no value) |
+| chosen size | the largest size configured for both `current` and `option`, so before and after run at a size the benchmark measured for each, and the largest because it spreads the function's per-call setup over the most data; none shared is null, which the harness reports `missing_input` |
+| `item_not_configured` | `current` or `option` has no entry: `--manifest` is not the run the groups came from; the step fails |
+| `missing_effective` | the manifest has no `files.effective`; the step fails |
 
 ## Limits
 

@@ -6,8 +6,9 @@ import math
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
                           MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS)
 from ..result.confidence import level
+from .repair import valid_inputs
 
-ROW_KEYS = ("scope", "file", "line", "function", "current", "option", "decision", "edit", "compile", "interop",
+ROW_KEYS = ("scope", "file", "line", "function", "current", "option", "inputs", "decision", "edit", "compile", "interop",
             "metrics", "verdict", "primitive")
 MEASURED_KEYS = {"metric", "unit", "measured", "before", "after", "ratio", "pImprove", "level", "n"}
 
@@ -44,6 +45,8 @@ def _row(where: str, r: dict) -> list[str]:
         problems += _metric(f"{where}.{m.get('metric')}", m)
     if any(m.get("measured") for m in r["metrics"]) and r["interop"].get("status") not in MEASURABLE:
         problems.append(f"{where}: measured although interop is {r['interop'].get('status')}")
+    if r["inputs"] is not None and not valid_inputs(r["inputs"]):
+        problems.append(f"{where}: inputs {r['inputs']}")
     if r["verdict"] not in VERDICTS:
         problems.append(f"{where}: verdict {r['verdict']!r}")
     return problems
