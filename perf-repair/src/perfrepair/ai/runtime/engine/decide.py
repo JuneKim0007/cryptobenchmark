@@ -1,21 +1,31 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
-from ....dto.decision import OutboxRecord
+from ....dto.decision import AgentIdentity, OutboxRecord
 from ....dto.prompt import Charter
 from ....validation import require
 from . import journal
 from ..agent import Conversations
 from .ask import Limits, ask
 from .kind import DecisionKind, project
-from .outbox import activate
+from .outbox import Outbox, activate
+
+LOG = logging.getLogger(__name__)
 
 
 def _errors(kind: DecisionKind, records: list[OutboxRecord], by_key: dict) -> str:
     return "".join(json.dumps({"item": r.item, "label": kind.label(by_key[r.item]), "seq": r.seq,
                                "problems": list(r.problems)}) + "\n" for r in records if r.outcome == "dropped")
+
+
+def _warn_if_mixed(outbox: Outbox, records: list[OutboxRecord], now: AgentIdentity, pending: list) -> None:
+    earlier = sorted({str(r.agent) for r in records if r.agent not in (now, AgentIdentity())})
+    asked = {r.item for r in records}
+    if earlier and now != AgentIdentity() and any(i.key not in asked for i in pending):
+        LOG.warning("mixed_agents: outbox %s holds answers from %s, now asking %s", outbox.fingerprint, ", ".join(earlier), now)
 
 
 def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, root: Path, limits: Limits = Limits(),
@@ -28,6 +38,8 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
     if replaced is not None:
         echo(f"charter changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "
              f"({len(replaced.records())} records kept in {replaced.fingerprint}, {len(records)} resumed)")
+    agent = getattr(conversations, "identity", AgentIdentity())
+    _warn_if_mixed(outbox, records, agent, pending)
     state = project(kind, records)
     decided = 0
     while True:
@@ -44,7 +56,7 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
                     lambda turn: journal.append(root / "journal.jsonl", {"charter": outbox.fingerprint, "item": item.key, **turn.to_json()}))
         accepted = asked.decision is not None
         record = OutboxRecord(len(records) + 1, item.key, "decided" if accepted else "dropped", asked.last.session,
-                              asked.last.turn, asked.decision, () if accepted else tuple(asked.problems))
+                              asked.last.turn, asked.decision, () if accepted else tuple(asked.problems), agent)
         committed = outbox.append(record)
         require(f"{kind.name} record {record.seq}", [] if committed == record else ["reads back different"])
         kind.apply(state, item, committed)

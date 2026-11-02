@@ -1,12 +1,14 @@
 import hashlib
 import json
+import logging
 from dataclasses import replace
 
 import pytest
 from helpers import label_charter
 from test_engine import LabelKind, label_of
 
-from perfrepair.dto.decision import OutboxRecord
+from perfrepair.ai.runtime.gateway.spawn import Spawned
+from perfrepair.dto.decision import AgentIdentity, OutboxRecord
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import NoOutbox, OutboxError, active_fingerprint, active_outbox
@@ -138,3 +140,57 @@ def test_run_inputs_join_the_fingerprint_and_none_keep_it():
     with_inputs = replace(V1, inputs="1 broken")
     assert with_inputs.fingerprint != V1.fingerprint == replace(V1, inputs="").fingerprint
     assert replace(V1, inputs="1 accepted").fingerprint != with_inputs.fingerprint
+
+
+OPUS = AgentIdentity("claude", "opus", "low")
+HAIKU = AgentIdentity("claude", "haiku", "low")
+
+
+def spawned(identity):
+    return Spawned(ScriptedConversations(lambda m, *_: {"label": label_of(m)}), identity)
+
+
+def records(root):
+    return active_outbox(root).records()
+
+
+def test_each_record_carries_the_gateway_model_and_effort_that_answered_it(tmp_path):
+    decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
+    first = records(tmp_path)[0]
+    assert first.agent == OPUS
+    on_disk = json.loads(active_outbox(tmp_path).path(1).read_text())
+    assert on_disk["schemaVersion"] == 2 and (on_disk["gateway"], on_disk["model"], on_disk["effort"]) == ("claude", "opus", "low")
+
+
+def test_a_resume_with_other_values_logs_one_line_naming_both_and_keeps_the_outbox(tmp_path, caplog):
+    decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
+    before = active_fingerprint(tmp_path)
+    with caplog.at_level(logging.WARNING, logger="perfrepair"):
+        decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, limit=1, echo=lambda _: None)
+    assert active_fingerprint(tmp_path) == before
+    assert [r.agent for r in records(tmp_path)] == [OPUS, HAIKU]
+    assert caplog.messages == [f"mixed_agents: outbox {before} holds answers from claude/opus/low, now asking claude/haiku/low"]
+
+
+def test_a_resume_with_the_same_values_or_nothing_left_to_ask_is_silent(tmp_path, caplog):
+    with caplog.at_level(logging.WARNING, logger="perfrepair"):
+        decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
+        decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, echo=lambda _: None)
+        decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, echo=lambda _: None)
+    assert caplog.messages == []
+
+
+def test_old_records_without_the_fields_stay_readable_and_do_not_warn(tmp_path, caplog):
+    decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
+    path = active_outbox(tmp_path).path(1)
+    old = {k: v for k, v in json.loads(path.read_text()).items() if k not in ("gateway", "model", "effort")}
+    path.write_text(json.dumps({**old, "schemaVersion": 1}))
+    assert records(tmp_path)[0].agent == AgentIdentity()
+    with caplog.at_level(logging.WARNING, logger="perfrepair"):
+        decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, echo=lambda _: None)
+    assert caplog.messages == [] and records(tmp_path)[-1].agent == HAIKU
+
+
+def test_an_unknown_record_version_is_refused():
+    with pytest.raises(ValueError, match="schemaVersion 3 is not one of"):
+        OutboxRecord.from_json({"schemaVersion": 3, "outcome": "dropped", "seq": 1})

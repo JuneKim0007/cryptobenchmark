@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+# version 1 records carry no gateway, model or effort
+READABLE_VERSIONS = (1, SCHEMA_VERSION)
 OUTCOMES = ("decided", "dropped")
 
 
@@ -25,18 +27,21 @@ class OutboxRecord:
     turn: int
     decision: dict | None = None
     problems: tuple[str, ...] = ()
+    agent: AgentIdentity = AgentIdentity()
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "seq": self.seq, "item": self.item, "outcome": self.outcome,
-                "session": self.session, "turn": self.turn, "decision": self.decision, "problems": list(self.problems)}
+                "session": self.session, "turn": self.turn, "decision": self.decision, "problems": list(self.problems),
+                "gateway": self.agent.gateway, "model": self.agent.model, "effort": self.agent.effort}
 
     @classmethod
     def from_json(cls, d: dict) -> "OutboxRecord":
-        if d.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"outbox record schemaVersion {d.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        if d.get("schemaVersion") not in READABLE_VERSIONS:
+            raise ValueError(f"outbox record schemaVersion {d.get('schemaVersion')} is not one of {READABLE_VERSIONS}")
         if d.get("outcome") not in OUTCOMES:
             raise ValueError(f"outbox record {d.get('seq')}: outcome {d.get('outcome')!r} is not one of {OUTCOMES}")
         if (d["outcome"] == "decided") != (d.get("decision") is not None):
             raise ValueError(f"outbox record {d.get('seq')}: a decided record carries a decision, a dropped one none")
         return cls(int(d["seq"]), str(d["item"]), d["outcome"], int(d["session"]), int(d["turn"]),
-                   d.get("decision"), tuple(d.get("problems") or ()))
+                   d.get("decision"), tuple(d.get("problems") or ()),
+                   AgentIdentity(d.get("gateway"), d.get("model"), d.get("effort")))
