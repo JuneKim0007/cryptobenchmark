@@ -1,4 +1,4 @@
-"""Composition root: the manifest read once; catalog, probe and benchmark documents built on first use."""
+"""Composition root: the manifest read once; catalogs, probe and benchmark documents built on first use."""
 from __future__ import annotations
 
 from functools import cached_property
@@ -6,12 +6,13 @@ from pathlib import Path
 
 from ...catalog.families import Families
 from ...catalog.names import Names
+from ...catalog.screening import Screening
 from ...dto import BenchmarkManifest
 from ...files import read_document
 from .manifest import manifest_file, read_manifest
 from .probe import Probe
 
-PIECES = ("catalog", "names", "families", "probe", "trial", "inventory", "prepared", "benchmark")
+PIECES = ("catalog", "names", "families", "screening", "probe", "trial", "inventory", "prepared", "benchmark")
 
 
 class RunContext:
@@ -49,6 +50,10 @@ class RunContext:
     @cached_property
     def families(self) -> Families:
         return Families.load()
+
+    @cached_property
+    def screening(self) -> Screening:
+        return Screening.load(names=self.catalog)
 
     @cached_property
     def probe(self) -> Probe:

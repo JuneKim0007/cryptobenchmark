@@ -74,7 +74,7 @@ def test_a_typo_file_exits_2_before_any_work(run, tmp_path, capsys, command):
         grouping([*command, "--run", str(run), *DRY, "--prompts", str(typo)])
     assert exit_.value.code == 2
     assert "error: prompt_unknown" in capsys.readouterr().err
-    assert sorted(p.name for p in GroupingPaths(run).root.iterdir()) == ["items.json", "profiles.json"]
+    assert sorted(p.name for p in GroupingPaths(run).root.iterdir()) == ["items.json", "profiles.json", "screen.json"]
 
 
 def test_worthiness_rejects_a_missing_prompts_folder(run, tmp_path, capsys):

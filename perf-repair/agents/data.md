@@ -32,7 +32,7 @@ src/perfrepair/data_handler/inbound/probe/_names.py : the probe's aliases merged
 src/perfrepair/data_handler/inbound/probe/_probe.py : Probe: the probe file parsed once; index, names, attributes and generator-kind views built on first use
 src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: declared attributes, the key kind a generator makes
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and Summaries with runs per process; comparability notes
-src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, probe and benchmark documents on first use; tests inject any piece
+src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, screening, probe and benchmark documents on first use; tests inject any piece
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`; returns the manifest path
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
@@ -47,6 +47,7 @@ src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no n
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
+src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, accepted, unknown; reason, source); screen.json document
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status); NO_OPTION_REASONS, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/worthiness.py : MemberStats, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : JSON and YAML read; atomic JSON write

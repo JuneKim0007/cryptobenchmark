@@ -183,8 +183,9 @@ def test_run_context_reads_each_piece_on_first_use_and_takes_injected_ones():
     assert context.probe is context.probe and context.probe.index.engine_types == {"Cipher", "MessageDigest", "Mac"}
     assert context.names.probe == context.probe.names(context.catalog).probe
     assert context.trial["schemaVersion"] == 2
+    assert ("Cipher", "DES") in context.screening.crypto
     with pytest.raises(TypeError, match="unknown pieces"):
-        RunContext.load(MANIFEST, screening=object())
+        RunContext.load(MANIFEST, verdicts=object())
 
 
 def test_command_writes_the_run_directory(tmp_path, capsys):

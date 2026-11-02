@@ -56,6 +56,7 @@ class GroupingPaths:
 
     items = property(lambda self: self.root / "items.json")
     profiles = property(lambda self: self.root / "profiles.json")
+    screen = property(lambda self: self.root / "screen.json")
     cursor = property(lambda self: self.root / "cursor.json")
     knowledge = property(lambda self: self.root / "knowledge.json")
     journal = property(lambda self: self.root / "journal.jsonl")

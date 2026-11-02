@@ -4,11 +4,13 @@ from pathlib import Path
 
 from ...data_handler.inbound import RunContext
 from ...dto.grouping import items_document, profiles_document
+from ...dto.screen import screen_document
 from ...files import write_json
-from ...validation import require
+from ...validation import require, validate_screen
 from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
 from ...run_dir import GroupingPaths
+from ...screen.stage import screen_items
 from .items import build
 
 INPUTS = ("probe", "trial", "inventory", "prepared", "benchmark")
@@ -21,8 +23,11 @@ def build_stage(manifest_path: Path, run: Path, families: Families | None = None
     items, profiles = build(context.probe, context.names, context.trial, context.inventory, context.prepared,
                             context.benchmark, context.families)
     require("items", validate_items(items, profiles, context.families))
+    verdicts = screen_items(context, items)
+    require("screen", validate_screen(verdicts, items))
     paths = GroupingPaths(run)
     paths.root.mkdir(parents=True, exist_ok=True)
     write_json(paths.items, items_document(items))
     write_json(paths.profiles, profiles_document(profiles))
+    write_json(paths.screen, screen_document(verdicts))
     return paths

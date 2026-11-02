@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..dto import Verdicts
+from ..dto.grouping import read_items
 from ..dto.grouping_state import Knowledge
 from ..dto.site import Scope
 from ..files import read_json
@@ -22,6 +23,7 @@ from ..validation.measurements import validate_measurements
 from ..validation.report import validate_report, validate_summary
 from ..validation.rows import validate_rows
 from ..validation.run_log import validate_run_log
+from ..validation.screen import validate_screen_document
 
 
 def validate_run(run: Path) -> dict[str, list[str]]:
@@ -45,6 +47,7 @@ def validate_run(run: Path) -> dict[str, list[str]]:
     grouping = GroupingPaths(run)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
+        out |= _screen(grouping)
     if not grouping.groups.exists():
         return out
     try:
@@ -85,3 +88,10 @@ def _grouping(grouping: GroupingPaths) -> list[str]:
     except (KeyError, TypeError, ValueError) as e:
         return [f"{grouping.knowledge.name} does not parse: {e}"]
     return GroupingKind(grouping).validate(saved, records)
+
+
+def _screen(grouping: GroupingPaths) -> dict[str, list[str]]:
+    if not grouping.screen.exists():
+        return {}
+    items = read_items(read_json(grouping.items))
+    return {"grouping/screen.json": validate_screen_document(read_json(grouping.screen), items)}

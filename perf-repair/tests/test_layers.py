@@ -11,7 +11,7 @@ LAYERS = [
     ("config",),
     ("data_handler",),
     ("result",),
-    ("app", "scope", "source"),
+    ("app", "scope", "screen", "source"),
     ("validation",),
     ("ai/runtime",),
     ("ai", "ai/evaluate", "ai/parse", "ai/review", "ai/suggest"),
