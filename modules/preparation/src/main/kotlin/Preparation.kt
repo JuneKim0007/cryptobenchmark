@@ -15,7 +15,7 @@ import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
-import io.github.junekim0007.cryptobench.preparation.primitive.PrimitiveReader
+import io.github.junekim0007.cryptobench.preparation.inbound.PrimitiveReader
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import java.io.File

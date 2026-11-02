@@ -20,12 +20,14 @@ modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (
 modules/preparation/src/main/kotlin/device/ServiceName.kt : uppercase-folded (type, algorithm) lookup key
 modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v2) into TrialledDevice
 modules/preparation/src/main/kotlin/device/dto/ : capture and trial DTOs as preparation reads them
+modules/preparation/src/main/kotlin/engine/EngineTypeName.kt : uppercase fold for engine type names
 modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry with TYPE_DEFAULT fallback
 modules/preparation/src/main/kotlin/global/GlobalReader.kt : reads run and policy sections into GlobalSettings
 modules/preparation/src/main/kotlin/global/GlobalSettings.kt : validated run-wide settings
 modules/preparation/src/main/kotlin/global/OnFailure.kt : enum STOP, SKIP
 modules/preparation/src/main/kotlin/inbound/InboundDocument.kt : effective.yaml split into run, policy, providers sections
 modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yaml (schema config v1)
+modules/preparation/src/main/kotlin/inbound/PrimitiveReader.kt : providers section to selections
 modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
 modules/preparation/src/main/kotlin/input/InputBytes.kt : seeded input bytes (java.util.Random(seed))
 modules/preparation/src/main/kotlin/input/OperationInput.kt : sealed case input: None, Message, Ciphertext, SignedMessage
@@ -40,7 +42,6 @@ modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyReci
 modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable
 modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's axes, validated
 modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
-modules/preparation/src/main/kotlin/measurement/EngineTypeName.kt : uppercase fold for engine type names
 modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
 modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM, COLD
 modules/preparation/src/main/kotlin/operation/AgreeKeyDefinition.kt : AGREE_KEY definition
@@ -78,7 +79,6 @@ modules/preparation/src/main/kotlin/prepare/ChartGroup.kt : which cases a chart 
 modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input, resolvedParameters; its chart group
 modules/preparation/src/main/kotlin/prepare/PreparedRun.kt : prepared cases, skips, processRepetitions
 modules/preparation/src/main/kotlin/prepare/StoppedOnFailureException.kt : thrown under onFailure stop
-modules/preparation/src/main/kotlin/primitive/PrimitiveReader.kt : providers section to selections
 modules/preparation/src/main/kotlin/record/PreparedDocument.kt : prepared.yaml document shape
 modules/preparation/src/main/kotlin/record/PreparedFile.kt : writes prepared.yaml
 modules/preparation/src/main/kotlin/report/Skip.kt : one skipped item (stage, provider, type, name, reason)

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.key.plan
 
-import io.github.junekim0007.cryptobench.preparation.measurement.EngineTypeName
+import io.github.junekim0007.cryptobench.preparation.engine.EngineTypeName
 
 internal object KeyAlgorithmName {
 

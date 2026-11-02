@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.preparation.engine
 
-import io.github.junekim0007.cryptobench.preparation.measurement.EngineTypeName
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 
 class EngineTypes private constructor(
