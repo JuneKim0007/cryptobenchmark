@@ -51,7 +51,7 @@ def test_a_malformed_rows_json_is_a_reported_problem(tmp_path, capsys):
 
 def _claude_missing(tmp_path) -> Path:
     config = tmp_path / "perfrepair.yaml"
-    config.write_text(f"agent: {{backend: claude-code, claudeBinary: {tmp_path / 'no-claude'}}}\n")
+    config.write_text(f"aiGateway: {{use: claude, claude: {{auth: subscription, binary: {tmp_path / 'no-claude'}}}}}\n")
     return config
 
 

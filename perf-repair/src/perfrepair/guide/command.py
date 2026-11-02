@@ -7,11 +7,12 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..ai.runtime.agent.select import add_agent_args, conversations
+from ..ai.runtime.gateway.args import add_agent_args
+from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
 from ..config.args import fill, load_settings, positive_int, require
-from ..failure import FAILURES
+from ..failure import FAILURES, reported
 from ..log import log_to_stderr
 from ..result.modes import MODES
 from .steps import DEVICE, DRY, Guide, Stop
@@ -68,9 +69,10 @@ def main(argv: list[str] | None = None) -> int:
     require(ap, a, "results", "paths.results")
     if a.mode not in MODES:
         ap.error(f"invalid: guide.mode {a.mode}, one of {sorted(MODES)}")
-    g = Guide(a.run.expanduser(), a.app.expanduser(), a.name, a.results.expanduser(), MODES[a.mode],
-              conversations(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a), limit=a.limit, config=a.config, settings=settings)
-    return run_steps(g, a.device)
+    return reported(lambda: run_steps(
+        Guide(a.run.expanduser(), a.app.expanduser(), a.name, a.results.expanduser(), MODES[a.mode],
+              spawn(a, settings, replace_cmd.DRY_RUN), load_prompts(ap, a), limit=a.limit, config=a.config, settings=settings),
+        a.device))
 
 
 if __name__ == "__main__":

@@ -12,8 +12,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.engine.ask import Limits
+from ..ai.runtime.gateway.args import add_agent_args
+from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..config.args import add_config_arg, fill, load_settings, positive_int, require
 from ..config.load import Loaded
@@ -32,7 +33,7 @@ from ..ai.review.grouping_review import command as review_cmd
 
 
 RUN_HELP = "default: paths.run in perfrepair.yaml"
-BUILD_MODEL_FLAGS = ("agent", "model", "effort", "prompts")
+BUILD_MODEL_FLAGS = ("agent", "auth", "model", "effort", "prompts")
 
 
 def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParser]]:
@@ -78,13 +79,15 @@ def _model_step(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args
     if args.step == "assign":
         fill(settings, args, {"turns": ("grouping.turns", Limits.turns), "sessions": ("grouping.sessions", Limits.sessions),
                               "limit": ("grouping.limit", None)})
-        assign_cmd.assign(paths, conversations(args, settings, assign_cmd.DRY_RUN), library,
+        assign_cmd.assign(paths, spawn(args, settings, assign_cmd.DRY_RUN), library,
                           Limits(args.turns, args.sessions), args.limit)
         return
+    # the spawn's errors come before the report's work
+    supervisor = spawn(args, settings, review_cmd.DRY_RUN) if args.supervisor else None
     document = report(paths)
     print(f"{len(document['groups'])} groups, {len(document['dropped'])} dropped -> {paths.groups}")
-    if args.supervisor:
-        review_cmd.review(paths, conversations(args, settings, review_cmd.DRY_RUN), library)
+    if supervisor:
+        review_cmd.review(paths, supervisor, library)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -110,7 +113,7 @@ def _build(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args: arg
     reviewer = None
     if ai_review(settings):
         fill(settings, args, {"prompts": ("paths.prompts", None)})
-        reviewer = Reviewer(conversations(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args))
+        reviewer = Reviewer(spawn(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args))
     elif given := [f"--{name}" for name in BUILD_MODEL_FLAGS if getattr(args, name) is not None]:
         step.error(f"{', '.join(given)} only apply with screening.aiReview; build alone calls no model")
     paths = build_stage(args.manifest, args.run, screening_catalog(settings), reviewer)

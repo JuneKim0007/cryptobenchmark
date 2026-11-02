@@ -6,9 +6,6 @@ from dataclasses import MISSING, dataclass, field, fields
 from pathlib import Path
 from typing import Any, Mapping
 
-BACKENDS = ("claude", "claude-code", "dry-run")
-EFFORTS = ("low", "medium", "high", "xhigh", "max")
-DEFAULT_MODEL = "claude-opus-5-5"
 SECRET_KEY = re.compile(r"api[_-]?key|token|secret|password", re.I)
 SECRET_VALUE = re.compile(r"^sk-ant-")
 
@@ -29,11 +26,11 @@ def _check(name: str, value: Any, ok: bool, expected: str) -> None:
         raise Invalid(name, value, expected)
 
 
-def _one_of(name: str, value: Any, choices: tuple[str, ...]) -> None:
+def check_one_of(name: str, value: Any, choices: tuple[str, ...]) -> None:
     _check(name, value, value in choices, f"one of {list(choices)}")
 
 
-def _text(name: str, value: Any) -> None:
+def check_text(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, str) and value != "", "a non-empty string")
 
 
@@ -50,17 +47,15 @@ def _path_field():
 
 
 @dataclass(frozen=True)
-class Agent:
-    backend: str | None = None
+class Role:
+    gateway: str | None = None
     model: str | None = None
     effort: str | None = None
-    claudeBinary: str | None = None
 
     def __post_init__(self):
-        _one_of("backend", self.backend, BACKENDS)
-        _text("model", self.model)
-        _one_of("effort", self.effort, EFFORTS)
-        _text("claudeBinary", self.claudeBinary)
+        # The gateway's name and its effort levels are the gateway's to check, at spawn.
+        for f in fields(self):
+            check_text(f.name, getattr(self, f.name))
 
 
 @dataclass(frozen=True)
@@ -79,8 +74,8 @@ class Grouping:
     turns: int | None = None
     sessions: int | None = None
     limit: int | None = None
-    assign: Agent = field(default_factory=Agent)
-    supervisor: Agent = field(default_factory=Agent)
+    assign: Role = field(default_factory=Role)
+    supervisor: Role = field(default_factory=Role)
 
     def __post_init__(self):
         for name in ("turns", "sessions", "limit"):
@@ -93,11 +88,11 @@ class Guide:
     limit: int | None = None
     device: bool | None = None
     config: Path | None = _path_field()
-    agent: Agent = field(default_factory=Agent)
+    agent: Role = field(default_factory=Role)
 
     def __post_init__(self):
         # Modes come from result/criteria.yaml, a higher layer; the guide command checks the name.
-        _text("mode", self.mode)
+        check_text("mode", self.mode)
         check_positive("limit", self.limit)
         _check("device", self.device, isinstance(self.device, bool), "true or false")
         _path("config", self.config)
@@ -105,15 +100,15 @@ class Guide:
 
 @dataclass(frozen=True)
 class Ai:
-    worthiness: Agent = field(default_factory=Agent)
-    replace: Agent = field(default_factory=Agent)
+    worthiness: Role = field(default_factory=Role)
+    replace: Role = field(default_factory=Role)
 
 
 @dataclass(frozen=True)
 class Screening:
     catalog: Path | None = _path_field()
     aiReview: bool | None = None
-    classify: Agent = field(default_factory=Agent)
+    classify: Role = field(default_factory=Role)
 
     def __post_init__(self):
         _path("catalog", self.catalog)
@@ -121,8 +116,34 @@ class Screening:
 
 
 @dataclass(frozen=True)
+class AiGateway:
+    use: str | None = None
+    # name -> raw keys; config sits below ai/, so the gateway checks its block at spawn
+    blocks: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
+
+    def __post_init__(self):
+        check_text("use", self.use)
+
+
+def _parse_gateways(raw: Any, path: str) -> AiGateway:
+    _refuse_secrets(raw, path)
+    if not isinstance(raw, Mapping):
+        raise ConfigError(f"invalid: {path} {raw}, a mapping")
+    blocks = {}
+    for name, block in raw.items():
+        if name != "use" and block is not None:
+            if not isinstance(block, Mapping):
+                raise ConfigError(f"invalid: {_join(path, name)} {block}, a mapping")
+            blocks[str(name)] = {k: v for k, v in block.items() if v is not None}
+    try:
+        return AiGateway(raw.get("use"), blocks)
+    except Invalid as e:
+        raise _invalid(path, e) from None
+
+
+@dataclass(frozen=True)
 class Settings:
-    agent: Agent = field(default_factory=Agent)
+    aiGateway: AiGateway = field(default_factory=AiGateway, metadata={"parse": _parse_gateways})
     paths: Paths = field(default_factory=Paths)
     grouping: Grouping = field(default_factory=Grouping)
     guide: Guide = field(default_factory=Guide)
@@ -136,11 +157,10 @@ class Settings:
         return value
 
 
-AGENT_DEFAULT = Agent("claude-code", DEFAULT_MODEL, "medium", "claude")
 ROLES = {"grouping.assign": "grouping.assign", "grouping.supervisor": "grouping.supervisor",
          "guide": "guide.agent", "ai.worthiness": "ai.worthiness", "ai.replace": "ai.replace",
          "screening.classify": "screening.classify"}
-ROLE_DEFAULTS = {"grouping.assign": Agent(effort="low")}
+ROLE_DEFAULTS = {"grouping.assign": Role(effort="low")}
 
 
 def _join(path: str, key: Any) -> str:
@@ -149,6 +169,20 @@ def _join(path: str, key: Any) -> str:
 
 def _secret(where: str) -> ConfigError:
     return ConfigError(f"secret_key: {where}: keep secrets in the environment or .env")
+
+
+def _invalid(path: str, e: Invalid) -> ConfigError:
+    return ConfigError(f"invalid: {_join(path, e.name)} {e.value}, {e.expected}")
+
+
+def _refuse_secrets(raw: Any, path: str) -> None:
+    if isinstance(raw, str) and SECRET_VALUE.search(raw):
+        raise _secret(path)
+    if isinstance(raw, Mapping):
+        for key, value in raw.items():
+            if SECRET_KEY.search(str(key)):
+                raise _secret(_join(path, key))
+            _refuse_secrets(value, _join(path, key))
 
 
 def _check_keys(cls: type, raw: Any, path: str) -> None:
@@ -166,6 +200,8 @@ def _check_keys(cls: type, raw: Any, path: str) -> None:
 def _value(f, value: Any, where: str, base: Path) -> Any:
     if isinstance(value, str) and SECRET_VALUE.search(value):
         raise _secret(where)
+    if "parse" in f.metadata:
+        return f.metadata["parse"](value, where)
     if f.default_factory is not MISSING:
         return _section(f.default_factory, value, where, base)
     if f.metadata.get("path") and isinstance(value, str) and value:
@@ -180,7 +216,7 @@ def _section(cls: type, raw: Any, path: str, base: Path):
     try:
         return cls(**values)
     except Invalid as e:
-        raise ConfigError(f"invalid: {_join(path, e.name)} {e.value}, {e.expected}") from None
+        raise _invalid(path, e) from None
 
 
 def parse(document: Any, base: Path) -> Settings:

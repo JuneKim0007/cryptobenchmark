@@ -7,6 +7,16 @@ OUTCOMES = ("decided", "dropped")
 
 
 @dataclass(frozen=True)
+class AgentIdentity:
+    gateway: str | None = None
+    model: str | None = None
+    effort: str | None = None
+
+    def __str__(self) -> str:
+        return f"{self.gateway}/{self.model}/{self.effort}"
+
+
+@dataclass(frozen=True)
 class OutboxRecord:
     seq: int
     item: str

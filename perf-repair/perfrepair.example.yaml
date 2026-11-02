@@ -1,16 +1,19 @@
 # Copy to perfrepair.yaml (git-ignored) or point --perfrepair-config / PERFREPAIR_CONFIG at a copy.
 # Every key is optional; a missing or null key falls through to the next layer:
 #   CLI flag > a role section here (grouping.assign, grouping.supervisor, guide.agent, ai.*, screening.classify)
-#   > environment (PERFREPAIR_*) > agent.* here > .env > the role's code default > the general code default.
+#   > environment (PERFREPAIR_*) > the gateway's block here > .env > the role's code default > the general code default.
+# aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
 
-agent:                     # every model-calling command
-  backend: claude-code     # claude-code | claude | dry-run      (PERFREPAIR_AGENT)
-  model: claude-opus-5-5   #                                     (PERFREPAIR_MODEL)
-  effort:                  # low | medium | high | xhigh | max   (PERFREPAIR_EFFORT); empty = assign low, others medium;
+aiGateway:                 # every model-calling command
+  use:                     # claude | dry-run; empty = claude           (PERFREPAIR_AGENT)
+  claude:                  # keys of the claude gateway; empty = the code default
+    auth:                  # subscription (the logged-in CLI) | api (ANTHROPIC_API_KEY); empty = subscription   (PERFREPAIR_AUTH)
+    model:                 # empty = claude-opus-5-5                    (PERFREPAIR_MODEL)
+    effort:                # low | medium | high | xhigh | max          (PERFREPAIR_EFFORT); empty = assign low, others medium;
                            # a value here raises every role, assign included
-  claudeBinary: claude     # the `claude` CLI the claude-code backend runs
+    binary:                # the CLI for auth subscription; empty = claude
 
 paths:
   run:                     # default --run of every grouping step, ai, guide
@@ -21,7 +24,7 @@ grouping:
   turns:                   # empty = the code default
   sessions:                # empty = the code default
   limit:                   # items per `grouping assign` call; empty = all
-  assign: {}               # role keys: backend, model, effort, claudeBinary
+  assign: {}               # role keys: gateway, model, effort; effort here sets this role only
   supervisor: {}
 
 guide:
@@ -38,4 +41,4 @@ ai:
 screening:                 # grouping build, repair dossier, guide, validation
   catalog:                 # a screening.yaml; empty = the packaged catalog (logged); a missing file is missing_file
   aiReview: false          # true: grouping build asks screening.classify about the items no row decides
-  classify: {}             # role keys: backend, model, effort, claudeBinary
+  classify: {}             # role keys: gateway, model, effort

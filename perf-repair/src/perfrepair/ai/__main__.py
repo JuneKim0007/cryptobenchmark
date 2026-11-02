@@ -11,7 +11,8 @@ from ..config.args import fill, load_settings, positive_int, require
 from ..failure import reported
 from ..log import log_to_stderr
 from ..result.modes import MODES
-from .runtime.agent.select import add_agent_args, conversations
+from .runtime.gateway.args import add_agent_args
+from .runtime.gateway.spawn import spawn
 from .evaluate.worthiness import command as worthiness_cmd
 from .suggest.site_replace import command as replace_cmd
 from .runtime.engine.ask import Limits
@@ -49,9 +50,9 @@ def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     library = load_prompts(ap, a)
     limits = Limits(a.turns, a.sessions)
     if a.stage == "worthiness":
-        worthiness_cmd.worthiness(a.run, MODES[a.mode], conversations(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
+        worthiness_cmd.worthiness(a.run, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
     else:
-        replace_cmd.replace(a.run, a.app, conversations(a, settings, replace_cmd.DRY_RUN), library, limits, a.limit)
+        replace_cmd.replace(a.run, a.app, spawn(a, settings, replace_cmd.DRY_RUN), library, limits, a.limit)
 
 
 if __name__ == "__main__":
