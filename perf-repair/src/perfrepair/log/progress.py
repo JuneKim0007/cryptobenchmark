@@ -57,6 +57,9 @@ class Progress:
     def feed(self, e: Event) -> list[Line]:
         if e.kind == "model":
             return self._model(e)
+        if e.event == RUN_START:
+            # a step a killed run left open never ends; the next run starts its counters afresh
+            self.counters.clear()
         text = TEXTS[e.event](e) if e.event in TEXTS else None
         return [] if text is None else [Line(text)]
 

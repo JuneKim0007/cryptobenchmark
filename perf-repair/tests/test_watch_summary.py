@@ -107,6 +107,19 @@ def test_a_summary_without_events_is_one_error_line(tmp_path, capsys):
     assert capsys.readouterr().err.startswith("error missing_file: ")
 
 
+def test_a_run_start_drops_a_counter_a_killed_run_left_open():
+    from perfrepair.log.progress import Progress
+    progress = Progress()
+
+    def ev(event, kind="model", **kw):
+        return Event("2026-11-03T00:00:00.000Z", "r", "grouping", "review", event, kind, **kw)
+
+    progress.feed(ev("start", data={"pending": 2}))
+    progress.feed(ev("decision", outcome="reviewed"))
+    progress.feed(ev("run_start", kind="static"))
+    assert progress.feed(ev("decision", outcome="reviewed"))[0].text.startswith("grouping review 1/1 ")
+
+
 def test_an_event_line_round_trips():
     e = Event("2026-11-03T00:00:00.000Z", "r", "grouping", "assign", "turn", "model", data={"session": 1})
     assert Event.from_json(json.loads(json.dumps(e.to_json()))) == e

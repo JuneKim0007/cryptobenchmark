@@ -37,6 +37,20 @@ def test_a_sound_grouping_reviews_clean_and_the_grouping_is_untouched(paths):
     assert json.loads(paths.supervisor.read_text()) == out
 
 
+def test_the_review_is_one_model_step_with_a_turn_and_a_decision_per_family(paths, tmp_path):
+    from perfrepair.log import attach
+    from perfrepair.log.read import read_events
+    finished(paths)
+    attach()
+    attach(tmp_path)
+    out = review(paths, lambda *_: {"findings": []})
+    events = [e for e in read_events(tmp_path / "log" / "events.jsonl") if e.step == "review"]
+    assert events[0].event == "start" and events[0].data["pending"] == len(out["families"])
+    assert [e.item for e in events if e.event == "decision"] == sorted(out["families"])
+    assert events[-1].event == "end" and events[-1].data["counts"] == {"reviewed": len(out["families"])}
+    assert all(e.ref.split(":")[0].endswith("supervisor.journal.jsonl") for e in events if e.event == "turn")
+
+
 def test_supervisor_json_records_an_override_source_and_its_own_charter(paths, tmp_path):
     finished(paths)
     packaged = review(paths, lambda *_: {"findings": []})
