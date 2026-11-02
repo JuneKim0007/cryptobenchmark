@@ -11,7 +11,7 @@ From an app's source to a measured before/after of each call site the model chos
 | dossier | static | scopes, `grouping/groups.json` (with its `interop` section), `measurements.json` | `apps/<app>/dossiers.json` (`Dossier`: function source, current item, `Option`s with interop status and `Estimate`s) |
 | replace | model | one `Dossier` per conversation | `apps/<app>/replace/` outbox, `replacements.json` (`Replacement`) |
 | edit | static | replacements, app source | `apps/<app>/patched/` (a copy; the app is never edited), `edits.json` |
-| harness | static | scopes, dossiers, the original and patched function | `apps/<app>/harness.yaml` for cryptobenchmark |
+| harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `apps/<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
 | measure | device | `harness.yaml` | `apps/<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
 | report | static | every file above | `apps/<app>/report.json`, `report.md`; `apps/summary.json`, `summary.md` across apps |
 
@@ -45,6 +45,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 | report.json row field | value |
 |---|---|
+| `inputs` | the scope's harness.yaml `inputs`: `inputSize`, `keySize`, `from` (`app` or `run`); null when the scope is not in the harness |
 | `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static` |
 | `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
 | `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `skipped`; `not_run` (no device run) |
@@ -68,4 +69,4 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 - An `Estimate` is graded, never a gate: `pImprove` is the probability the option is better on that metric. Below 0.95 the report says `warn` with the number; it is `null` when either side has fewer than two runs, rendered `n/a (n<2)`.
 - `noOptions` reasons are `NO_OPTION_REASONS`: `unresolved`, `not_grouped`, `no_alternative`, `none_available`, `interop_failed`. A scope in `noOptions` is never asked: `replacements.json` holds a static `keep` for it whose reason is its code, so it covers every scope.
 - The model picks one option or `keep`, and expresses the change only as `Edit`s of a kind in `EDIT_KINDS`. Static code renders and applies them. A replacement whose edits do not apply (`edit: rejected`), do not compile in the harness (`compile: primitive_only`), or fail the interop check (`interop: interop_failed`; data from before the swap must still decrypt after it) is reported with the reason, and is never measured.
-- `harness.yaml` names each scope's original and patched function source, its inputs, and its `current` and `option` items. cryptobenchmark compiles both into the benchmark app and measures them like any other case.
+- `harness.yaml` names each scope's original and patched function source, its inputs, and its `current` and `option` items. Inputs are the app's static sizes (`from: app`), else the largest sizes the run configured for both items (`from: run`); a parameter type the harness cannot build stays `unsupported_parameter`, never a made-up value. cryptobenchmark compiles both into the benchmark app and measures them like any other case.

@@ -85,6 +85,12 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     records = yaml.safe_load(plan.read_text())["scopes"]
     assert {r["id"] for r in records} == {s["id"] for s in harness["scopes"]}
     assert all(r["current"] for r in records)
+    assert all(r["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"} for r in records)
+    by_function = {}
+    for r in records:
+        by_function.setdefault(r["function"], []).append((r["status"], r.get("reason")))
+    assert by_function["seal"] == [("compiled", None)] * 2
+    assert by_function["send"] == [("not_compilable", "unsupported_parameter: s: Socket")]
 
 
 def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeypatch):
@@ -98,6 +104,8 @@ def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeyp
     time = measured[0]["metrics"][0]
     assert (time["metric"], time["before"], time["after"], time["ratio"]) == ("timeNs", 1000, 800, 0.8)
     assert measured[0]["verdict"] == "improves"
+    assert measured[0]["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
+    assert "- inputs: input 1024 B, key 128 bits, from run" in g.paths.report_md.read_text()
     assert all(not problems for problems in validate_run(run).values())
 
 

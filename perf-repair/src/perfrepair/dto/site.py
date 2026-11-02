@@ -7,6 +7,9 @@ from dataclasses import asdict, dataclass, fields
 SCHEMA_VERSION = 1
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm
 REPLACEMENTS_SCHEMA_VERSION = 2
+# 2: inputs carry `from`, the source of their sizes
+HARNESS_SCHEMA_VERSION = 2
+INPUT_SOURCES = ("app", "run")
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")

@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 app: broken
 scopes:
   - id: 3d4e5f607182
@@ -7,7 +7,7 @@ scopes:
     before: context.kt
     after: context.kt
     imports: [import android.content.Context]
-    inputs: {inputSize: 64, keySize: null}
+    inputs: {inputSize: 64, keySize: null, from: run}
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
     metrics: [timeNs]
     dependencies: [Context]
@@ -17,7 +17,7 @@ scopes:
     before: helper.kt
     after: helper.kt
     imports: []
-    inputs: {inputSize: 64, keySize: null}
+    inputs: {inputSize: 64, keySize: null, from: run}
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
     metrics: [timeNs]
     dependencies: [cipherFor, KEY_ALIAS]
@@ -27,7 +27,7 @@ scopes:
     before: mistyped.java
     after: mistyped.java
     imports: []
-    inputs: {inputSize: 64, keySize: null}
+    inputs: {inputSize: 64, keySize: null, from: run}
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
     metrics: [timeNs]
     dependencies: []
@@ -37,7 +37,7 @@ scopes:
     before: digest_before.kt
     after: digest_after.kt
     imports: [import java.security.MessageDigest]
-    inputs: {inputSize: 1024, keySize: null}
+    inputs: {inputSize: 1024, keySize: null, from: run}
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
     metrics: [timeNs]
     dependencies: [MessageDigest]

@@ -67,7 +67,8 @@ def compile_each(root, scopes, candidates, compiler, records):
 def record_of(scope):
     return {"id": scope.id, "function": scope.function, "language": scope.language, "current": scope.current,
             "option": scope.option,
-            "inputs": {"inputSize": scope.input_size, "keySize": scope.key_size}, "metrics": list(scope.metrics),
+            "inputs": {"inputSize": scope.input_size, "keySize": scope.key_size, "from": scope.input_source},
+            "metrics": list(scope.metrics),
             "status": "compiled"}
 
 

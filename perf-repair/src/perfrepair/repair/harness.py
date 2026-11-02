@@ -4,11 +4,12 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from ..dto.site import METRICS, SCHEMA_VERSION, Replacement, Scope
+from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, Replacement, Scope
 from ..files import write_text
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
+from .inputs import scope_inputs
 
 
 def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
@@ -19,7 +20,7 @@ def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
 
 
 def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
-            currents: dict[str, str]) -> dict:
+            currents: dict[str, str], effective: dict) -> dict:
     """Paths in the document are relative to harness.yaml's folder; `currents` is each dossier's current item."""
     shutil.rmtree(out.extracts, ignore_errors=True)
     entries = []
@@ -40,10 +41,10 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "before": _extract(out, scope, "before", original),
             "after": _extract(out, scope, "after", patched),
             "imports": imports,
-            "inputs": {"inputSize": scope.inputSize, "keySize": scope.keySize},
+            "inputs": scope_inputs(scope, currents[scope.id], replacements[scope.id].option, effective),
             "current": currents[scope.id],
             "option": replacements[scope.id].option,
             "metrics": list(METRICS),
             "dependencies": sorted(uses),
         })
-    return {"schemaVersion": SCHEMA_VERSION, "app": out.app, "scopes": entries}
+    return {"schemaVersion": HARNESS_SCHEMA_VERSION, "app": out.app, "scopes": entries}

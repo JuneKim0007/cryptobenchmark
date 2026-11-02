@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..dto.language import NAMES
-from ..dto.site import METRICS, SCHEMA_VERSION
+from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, SCHEMA_VERSION
 
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
                 "algorithm_not_literal", "no_init", "ambiguous_init", "missing_parameter",
@@ -14,9 +14,9 @@ HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inp
                 "metrics", "dependencies")
 
 
-def _header(doc: dict, app: str, key: str) -> list[str]:
+def _header(doc: dict, app: str, key: str, version: int = SCHEMA_VERSION) -> list[str]:
     problems = []
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
+    if doc.get("schemaVersion") != version:
         problems.append(f"schemaVersion is {doc.get('schemaVersion')!r}")
     if doc.get("app") != app:
         problems.append(f"app is {doc.get('app')!r}, not {app!r}")
@@ -50,9 +50,14 @@ def _size(value) -> bool:
     return value is None or (type(value) is int and value > 0)
 
 
+def valid_inputs(inputs) -> bool:
+    return (isinstance(inputs, dict) and set(inputs) == {"inputSize", "keySize", "from"}
+            and inputs["from"] in INPUT_SOURCES and _size(inputs["inputSize"]) and _size(inputs["keySize"]))
+
+
 def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
     """`base` is harness.yaml's folder; the scopes are exactly the applied edits."""
-    problems = _header(doc, app, "scopes")
+    problems = _header(doc, app, "scopes", HARNESS_SCHEMA_VERSION)
     applied = sorted(e["scope"] for e in edits.get("edits") or [] if e.get("status") == "applied")
     scopes = doc.get("scopes") or []
     if [s.get("id") for s in scopes] != applied:
@@ -71,7 +76,7 @@ def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
             problems.append(f"{where}: before and after are the same")
         if not all(isinstance(i, str) and i.startswith("import ") for i in s["imports"]):
             problems.append(f"{where}: an import is not an import line")
-        if set(s["inputs"]) != {"inputSize", "keySize"} or not all(map(_size, s["inputs"].values())):
+        if not valid_inputs(s["inputs"]):
             problems.append(f"{where}: inputs {s['inputs']}")
         if not isinstance(s["option"], str) or not isinstance(s["current"], str) or s["current"] == s["option"]:
             problems.append(f"{where}: current {s['current']!r} and option {s['option']!r} are not two items")

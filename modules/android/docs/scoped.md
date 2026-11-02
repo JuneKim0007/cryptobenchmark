@@ -50,12 +50,14 @@ python3 scripts/pipeline.py --device --harness <harness.yaml> --results <dir>
 | `suspend_function`, `operator_function`, `infix_function`, `extension_function`, `generic_function`, `vararg_parameter` | unsupported shape |
 | `signature_changed` | before and after differ in name, parameters or return type |
 | `unsupported_parameter: <name>: <type>` | a parameter outside the input table, `Context` included |
-| `missing_input: inputSize` or `keySize` | the input the parameter needs is null |
+| `missing_input: inputSize` or `keySize`, `none from <app\|run>` | the input the parameter needs is null in `harness.yaml` |
 | `no_key_algorithm` | a key parameter and an `option` not in `Type\|name\|provider` form |
 | `unsatisfied_dependencies` with `identifiers` | a dependency not imported, not language-provided, not stubbed |
 | `compile_error` with `compilerErrors` | Gradle rejects the scope compiled alone |
 
 ## Inputs
+
+`harness.yaml` `schemaVersion: 2`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
 
 | parameter type | value |
 |---|---|

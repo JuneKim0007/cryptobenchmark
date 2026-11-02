@@ -36,7 +36,7 @@ flowchart LR
 | interop check | cryptobenchmark `pipeline.py --bench\|--device --interop <plan>` | the plan, the capture | `<results>/interop/interop.yaml` | no |
 | grouping interop-read | `python3 -m perfrepair.grouping interop-read --run <run> --results <interop.yaml>` | `interop.yaml`, `grouping/` | `grouping/interop.yaml`; reruns report | no |
 | worthiness | `python3 -m perfrepair.ai worthiness --run <run> --mode latency\|battery` | `rows.json`, `measurements.json`, `grouping/groups.json` | `worthiness-<mode>/` (evidence.json, outbox/, verdicts.json, journal.jsonl, errors.jsonl) | one per group with an improving pair |
-| repair | `python3 -m perfrepair.repair dossier\|test-set\|edit\|harness --run <run> --app <app>` | `docs/repair.md` | `apps/<app>/`; test-set at `-o` | no |
+| repair | `python3 -m perfrepair.repair dossier\|test-set\|edit\|harness --run <run> --app <app>`; harness adds `--manifest <results>/manifest.yaml` | `docs/repair.md` | `apps/<app>/`; test-set at `-o` | no |
 | device | cryptobenchmark `pipeline.py --device --harness <run>/apps/<app>/harness.yaml --results <run>/apps/<app>/measured` | `harness.yaml`, the phone | `apps/<app>/measured/` | no |
 | report | `python3 -m perfrepair.report app --run <run> --app <app> [--mode]` ; `report summary --run <run>` | `apps/<app>/` | `report.json`, `report.md`; `apps/summary.json`, `summary.md` | no |
 | guide | `python3 -m perfrepair guide --app <src> --name <app> --run <run> --results <results> [--device]` | the run, the app tree | app, dossier, replace, edit, harness; with `--device` measured and report | the replace step |

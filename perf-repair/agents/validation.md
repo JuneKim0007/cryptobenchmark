@@ -30,7 +30,7 @@ src/perfrepair/validation/grouping/supervision.py : supervisor findings: name on
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, ordered finite summaries, positive medians
-src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS
+src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run.py : validate every artifact present in a run directory

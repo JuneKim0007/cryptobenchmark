@@ -18,6 +18,12 @@ def _step(s: dict) -> str:
     return s["status"] + (f": {s['reason']}" if s.get("reason") else "")
 
 
+def _inputs(i: dict | None) -> str:
+    if i is None:
+        return "n/a (not in harness.yaml)"
+    return f"input {i['inputSize'] or 'none'} B, key {i['keySize'] or 'none'} bits, from {i['from']}"
+
+
 def _funnel(f: dict) -> list[str]:
     return ["| " + " | ".join(FUNNEL) + " |", "|" + "---|" * len(FUNNEL), "| " + " | ".join(str(f[k]) for k in FUNNEL) + " |"]
 
@@ -44,6 +50,7 @@ def report_markdown(doc: dict) -> str:
         d = s["decision"]
         out += ["", f"### {s['file']}:{s['line']} `{s['function']}` ({s['scope']})", "",
                 f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
+                f"- inputs: {_inputs(s['inputs'])}",
                 f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}",
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}",
                 f"- interop: {_step(s['interop'])}" + (f" (check {s['interop']['check']})" if s["interop"].get("check") else ""),

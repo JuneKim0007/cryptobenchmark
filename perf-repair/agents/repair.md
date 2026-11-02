@@ -39,7 +39,8 @@ src/perfrepair/repair/edit/reject.py : the coded rejection an edit raises
 src/perfrepair/repair/edit/specs.py : specs.yaml loaded: spec choice by pinned fields, field rendering
 src/perfrepair/repair/edit/specs.yaml : JCA parameter specs: constructor arguments, field types, defaults, render templates
 src/perfrepair/repair/edit/splice.py : exact-span replacement that keeps line numbers; unified diff
-src/perfrepair/repair/harness.py : harness.yaml: each applied scope's original and patched function, imports, current and option item, dependencies
+src/perfrepair/repair/harness.py : harness.yaml: each applied scope's original and patched function, imports, inputs, current and option item, dependencies
+src/perfrepair/repair/inputs.py : a scope's harness inputs: the app's static sizes, else the run's effective.yaml sizes both items share; their source
 src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names per language
 src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option
 src/perfrepair/report/__main__.py : command: `app --run --app [--mode]` | `summary --run`
