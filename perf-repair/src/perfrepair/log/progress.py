@@ -25,6 +25,7 @@ class Counter:
 class Line:
     text: str
     transient: bool = False  # a counter a terminal may overwrite in place
+    minor: bool = False  # a turn's update: a terminal shows it, a log file keeps one line per decision
 
 
 def _ts(ts: str) -> datetime:
@@ -77,7 +78,8 @@ class Progress:
             line = self._line(key, e, final=True)
             del self.counters[key]
             return [line]
-        return [self._line(key, e)]
+        line = self._line(key, e)
+        return [Line(line.text, line.transient, minor=e.event == TURN)]
 
     def _line(self, key: tuple, e: Event, final: bool = False) -> Line:
         c = self.counters[key]

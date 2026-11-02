@@ -47,16 +47,16 @@ def _step(g: Guide, name: str, step) -> bool:
     try:
         detail = step(g)
     except Stop as e:
-        outcome, line = "stop", f"stop {e.code}: {e.detail}"
+        outcome, detail = "stop", f"{e.code}: {e.detail}"
     except FAILURES as e:
-        outcome, line = "stop", f"stop {name}_failed: {e}"
+        outcome, detail = "stop", f"{name}_failed: {e}"
     else:
-        outcome, line = "ok", f"ok: {detail}"
+        outcome = "ok"
     # prerequisites names the device folder when probe_device made it
     if g.device is not None:
         attach(g.device)
-    emit("guide", name, END, app=g.app_id, outcome=outcome, durationMs=elapsed_ms(started), detail=line)
-    g.echo(f"guide {name}: {line}")
+    emit("guide", name, END, app=g.app_id, outcome=outcome, durationMs=elapsed_ms(started), detail=detail)
+    g.echo(f"guide {name}: {outcome}" + (f": {detail}" if outcome == "ok" else f" {detail}"))
     return outcome == "ok"
 
 

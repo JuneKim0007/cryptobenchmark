@@ -8,6 +8,7 @@ from datetime import datetime
 from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, TURN, Event
 
 TOP = 5
+WRAPPERS = ("guide",)
 _TURN_PREFIX = re.compile(r"^s\d+t\d+: ")
 
 
@@ -59,7 +60,8 @@ def _of(events: list[Event], name: str) -> list[Event]:
 def block(events: list[Event]) -> dict:
     """The numbers of one group of events; a turn is one model call."""
     turns, decisions = _of(events, TURN), _of(events, DECISION)
-    return {"durationMs": _span_ms(events), "steps": _steps(events),
+    # steps of one stage do not nest, so their ends add up; a stage's steps nest in another's (guide, device)
+    return {"durationMs": sum(e.durationMs or 0 for e in _of(events, END)), "steps": _steps(events),
             "items": len({(e.step, e.item) for e in decisions}),
             "decisions": dict(Counter(e.outcome for e in decisions)),
             "modelCalls": len(turns), "rejections": sum(e.outcome != "accepted" for e in turns),
@@ -90,8 +92,10 @@ def summarize(events: list[Event], run: str | None = None) -> dict:
     of_run = [e for e in events if e.run == chosen]
     # plain log records (settings, warnings) belong to no stage's numbers
     staged = [e for e in of_run if e.stage != "run" and e.event != LOG]
-    return {"run": chosen, **_bounds(of_run), "total": block(of_run), "stages": _grouped(staged, lambda e: e.stage),
-            "apps": _grouped(staged, lambda e: e.app)}
+    total = {**block(of_run), "durationMs": _bounds(of_run)["durationMs"]}
+    # the guide's steps wrap the app's own, so an app's numbers leave them out
+    return {"run": chosen, **_bounds(of_run), "total": total, "stages": _grouped(staged, lambda e: e.stage),
+            "apps": _grouped([e for e in staged if e.stage not in WRAPPERS], lambda e: e.app)}
 
 
 def _bounds(of_run: list[Event]) -> dict:
