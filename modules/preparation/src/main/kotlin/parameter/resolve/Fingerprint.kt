@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.preparation.record
+package io.github.junekim0007.cryptobench.preparation.parameter.resolve
 
 import java.security.MessageDigest
 

@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
+import io.github.junekim0007.cryptobench.preparation.parameter.resolve.Fingerprint
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
