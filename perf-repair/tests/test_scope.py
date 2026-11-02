@@ -4,10 +4,10 @@ from pathlib import Path
 import pytest
 
 from perfrepair.app.__main__ import main
-from perfrepair.app.lexer import Code
-from perfrepair.dto.language import JAVA, KOTLIN
 from perfrepair.scope.extract import enclosing, functions
 from perfrepair.scope.facts import key_source, read_patterns, sinks
+from perfrepair.source.language import JAVA, KOTLIN
+from perfrepair.source.lexer import Code
 from perfrepair.validation.app import validate_app_facts, validate_scopes
 from perfrepair.validation.run import validate_run
 

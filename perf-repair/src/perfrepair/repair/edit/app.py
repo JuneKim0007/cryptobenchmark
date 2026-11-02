@@ -4,10 +4,10 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from ...app.lexer import Code
 from ...dto.site import SCHEMA_VERSION, Replacement, Scope
 from ...files import write_text
 from ...run_dir import AppPaths
+from ...source.lexer import Code
 from .plan import language, plan
 from .reject import Rejected
 from .specs import Table

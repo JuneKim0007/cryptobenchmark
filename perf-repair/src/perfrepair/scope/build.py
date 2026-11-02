@@ -4,9 +4,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..app.lexer import Code
-from ..dto.language import of_file
 from ..dto.site import SCHEMA_VERSION, Scope, scope_id
+from ..source.language import of_file
+from ..source.lexer import Code
 from .extract import enclosing, functions
 from .facts import key_source, read_patterns, sinks
 

@@ -6,11 +6,11 @@ from dataclasses import dataclass, field, replace
 from ..catalog.names import Names
 from ..data_handler.inbound.probe_index import ProbeIndex
 from ..dto import ProviderEntry
+from ..source.lexer import Code
 from .constants import Constants
 from .dependencies import Registration, registrations
 from .gate import AppRoot
 from .imports import import_reason
-from .lexer import Code
 from .resolve import resolve
 from .scan import Argument, Site, call_pattern, provider_inner, scan
 from .sources import TEST, source_files

@@ -1,8 +1,8 @@
 """Whole lines of a source file: a function's line range and its import lines."""
 from __future__ import annotations
 
-from ...app.lexer import line_starts, mask
-from ...dto.language import Language
+from ...source.language import Language
+from ...source.lexer import line_starts, mask
 
 
 def function_lines(text: str, start: int, end: int) -> str:

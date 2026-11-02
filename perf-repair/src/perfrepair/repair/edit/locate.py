@@ -4,8 +4,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from ...app.lexer import Arguments, Code
 from ...dto.site import Scope
+from ...source.lexer import Arguments, Code
 from .reject import Rejected
 
 

@@ -7,9 +7,9 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..app.lexer import mask
-from ..dto.language import Language
 from ..files import read_yaml
+from ..source.language import Language
+from ..source.lexer import mask
 
 TABLE = Path(__file__).with_name("names.yaml")
 _TOKEN = re.compile(r"[A-Za-z_]\w*|->|==|!=|<=|>=|\S")

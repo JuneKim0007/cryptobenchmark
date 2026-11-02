@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ...dto.language import Language
+from ...source.language import Language
 
 
 def string_literal(value: str, language: Language) -> str:

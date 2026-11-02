@@ -1,8 +1,8 @@
 """set_algorithm: the call's literal algorithm argument rewritten to `edit.algorithm`."""
 from __future__ import annotations
 
-from ...app.lexer import Code
 from ...dto.site import Edit
+from ...source.lexer import Code
 from .literal import string_literal
 from .locate import Located
 from .reject import Rejected

@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from ..dto.language import NAMES
+from ..source.language import NAMES
 from .sources import IGNORED_DIRS
 
 SETTINGS_FILES = ("settings.gradle", "settings.gradle.kts")

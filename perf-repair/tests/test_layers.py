@@ -9,7 +9,7 @@ LAYERS = [
     ("files", "run_dir"),
     ("data_handler",),
     ("result",),
-    ("app", "scope"),
+    ("app", "scope", "source"),
     ("validation",),
     ("ai/runtime",),
     ("ai", "ai/evaluate", "ai/parse", "ai/review", "ai/suggest"),

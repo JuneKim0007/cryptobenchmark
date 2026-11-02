@@ -5,7 +5,7 @@ import bisect
 import re
 from dataclasses import dataclass, field
 
-from ..dto.language import Language
+from .language import Language
 
 OPEN, CLOSE = "([{", ")]}"
 CODE, LITERAL, COMMENT = "c", "s", "m"

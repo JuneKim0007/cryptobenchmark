@@ -10,8 +10,6 @@ from perfrepair.app.dependencies import bundled, read_libraries, registrations
 from perfrepair.app.detect import detect
 from perfrepair.app.gate import GateError, open_app, open_apps
 from perfrepair.app.imports import import_reason
-from perfrepair.app.lexer import Code, literal
-from perfrepair.dto.language import JAVA, KOTLIN
 from perfrepair.app.resolve import resolve
 from perfrepair.app.roots import project_roots
 from perfrepair.app.scan import call_pattern, scan
@@ -22,6 +20,8 @@ from perfrepair.catalog.probe_names import with_probe
 from perfrepair.data_handler.inbound import manifest_file, read_manifest, read_probe_index
 from perfrepair.files import read_yaml
 from perfrepair.dto import ProviderEntry
+from perfrepair.source.language import JAVA, KOTLIN
+from perfrepair.source.lexer import Code, literal
 
 F = Path(__file__).parent / "fixtures"
 APP = F / "app"
