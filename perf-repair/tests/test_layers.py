@@ -172,3 +172,37 @@ def test_a_crossing_is_caught():
                        (["device", "stage"], ["app", "facts", "path_id"]), (["app", "facts", "gate"], ["app", "find", "sources"])]) \
         == [("app/detect", "data_handler/inbound"), ("app/find/scan", "data_handler/inbound/probe"),
             ("device/stage", "app/facts/path_id")]
+
+
+# (attribute call, the modules allowed to make it): agents start one way, prompts load one way.
+AGENT_ENTRY = {
+    "start": ("ai/runtime/engine/ask", "ai/runtime/gateway/spawn"),
+    "charter": ("kind", "ai/review/grouping_review/run", "ai/runtime/prompt/library", "ai/runtime/engine"),
+}
+BACKENDS = {"ClaudeConversations", "ClaudeCliConversations", "ClaudeClient"}
+
+
+def _calls():
+    for path in sorted(ROOT.rglob("*.py")):
+        module = "/".join(_module(path))
+        for node in ast.walk(ast.parse(path.read_text())):
+            if isinstance(node, ast.Call):
+                name = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
+                target = getattr(getattr(node.func, "value", None), "id", "")
+                yield module, name, target
+
+
+def test_conversations_start_only_in_the_engine_and_charters_come_from_a_role():
+    wrong = [(m, n) for m, n, t in _calls() if n == "start" and t in ("conversations", "self.conversations")
+             and m not in AGENT_ENTRY["start"]]
+    wrong += [(m, n) for m, n, t in _calls() if n == "charter" and t == "library"
+              and not (m.endswith("/kind") or m in AGENT_ENTRY["charter"])]
+    assert wrong == []
+
+
+def test_a_real_backend_is_built_only_by_its_gateway():
+    assert [(m, n) for m, n, _ in _calls() if n in BACKENDS and not m.startswith("ai/runtime/gateway/")] == []
+
+
+def test_prompts_load_only_through_the_prompt_args():
+    assert [m for m, n, t in _calls() if n == "load" and t == "PromptLibrary" and m != "ai/runtime/prompt/args"] == []

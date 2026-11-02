@@ -13,6 +13,8 @@
 - gate: every answer passes the kind's `check` before `apply`.
 - retry: a rejected answer gets a correction turn in the same session (`--turns`); a refusal ends the session; the next session re-sends the task (`--sessions`); then the item is committed as `dropped`.
 - static first: an item code can settle (triage) never reaches the model.
+- spawn: an agent starts one way: the role's kind builds its charter from `PromptLibrary`, `ai/runtime/gateway/spawn` gives the conversations, `ai/runtime/engine` opens one fresh conversation per item with the kind's rendered knowledge; `tests/test_layers.py` refuses any other path.
+- log: a stage reports through `log/emit.py` (`step`, `emit`), never its own format.
 - select, never aggregate: code reads, joins and stores the data (scopes, benchmark rows, groups, dossiers); a model chooses among the stored options by alias for one item and never reads raw benchmark data or computes a number.
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
 - journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
