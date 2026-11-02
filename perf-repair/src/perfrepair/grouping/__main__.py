@@ -1,11 +1,11 @@
 """python3 -m perfrepair.grouping {build,assign,report} — the grouping stage, one step per command.
-  build   --manifest <results>/manifest.yaml --run <dir> [--agent ...]   items.json, profiles.json, screen.json;
-          with screening.aiReview the classify model reviews the unknown items first
+  build   --manifest <results>/manifest.yaml --run <dir>   items.json, profiles.json, screen.json;
+          with screening.aiReview [--agent ...] [--prompts DIR] the classify model reviews the unknown items first
   assign  --run <dir> [--agent ...] [--prompts DIR] [--turns 3] [--sessions 2] [--limit N]
   report  --run <dir> [--supervisor [--prompts DIR]] [--agent ...]   checks.json, groups.json [, supervisor.json]
   interop-plan --run <dir>                                    interop_plan.yaml from groups.json
   interop-read --run <dir> --results <interop.yaml>           interop.yaml imported; report rerun with its findings
-build, assign and report fill unset values from perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
+Every step fills unset values from perfrepair.yaml (--perfrepair-config FILE), --run from paths.run; see docs/settings.md."""
 from __future__ import annotations
 
 import argparse
@@ -15,7 +15,8 @@ from pathlib import Path
 from ..ai.runtime.agent.select import add_agent_args, conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
-from ..config.args import fill, load_settings, positive_int, require
+from ..config.args import add_config_arg, fill, load_settings, positive_int, require
+from ..config.load import Loaded
 from ..failure import reported
 from ..log import log_to_stderr
 from ..screen.catalog import ai_review, screening_catalog
@@ -30,17 +31,21 @@ from .report.checks import report
 from ..ai.review.grouping_review import command as review_cmd
 
 
+RUN_HELP = "default: paths.run in perfrepair.yaml"
+BUILD_MODEL_FLAGS = ("agent", "model", "effort", "prompts")
+
+
 def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParser]]:
     ap = argparse.ArgumentParser(prog="perfrepair.grouping", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="step", required=True)
     b = sub.add_parser("build")
     b.add_argument("--manifest", type=Path, required=True)
-    b.add_argument("--run", type=Path, required=True)
+    b.add_argument("--run", type=Path, help=RUN_HELP)
     add_agent_args(b, role="screening.classify")
     add_prompt_args(b)
     a = sub.add_parser("assign")
-    a.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
+    a.add_argument("--run", type=Path, help=RUN_HELP)
     add_agent_args(a, role="grouping.assign")
     add_prompt_args(a)
     a.add_argument("--turns", type=positive_int, help=f"default: grouping.turns, else {Limits.turns}")
@@ -48,13 +53,16 @@ def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParse
     a.add_argument("--limit", type=positive_int, help="decide at most this many items in this call; the next call resumes; "
                                              "default: grouping.limit, else all")
     r = sub.add_parser("report")
-    r.add_argument("--run", type=Path, help="default: paths.run in perfrepair.yaml")
+    r.add_argument("--run", type=Path, help=RUN_HELP)
     r.add_argument("--supervisor", action="store_true", help="also review each family with a supervisor agent (findings only)")
     add_agent_args(r, role="grouping.supervisor")
     add_prompt_args(r)
-    sub.add_parser("interop-plan").add_argument("--run", type=Path, required=True)
+    ip = sub.add_parser("interop-plan")
+    ip.add_argument("--run", type=Path, help=RUN_HELP)
+    add_config_arg(ip)
     ir = sub.add_parser("interop-read")
-    ir.add_argument("--run", type=Path, required=True)
+    ir.add_argument("--run", type=Path, help=RUN_HELP)
+    add_config_arg(ir)
     ir.add_argument("--results", type=Path, required=True, help="cryptobenchmark's <results>/interop/interop.yaml")
     return ap, sub.choices
 
@@ -62,9 +70,7 @@ def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParse
 def _model_step(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     if args.step == "report" and args.prompts is not None and not args.supervisor:
         step.error("--prompts only applies with --supervisor; report alone calls no model")
-    settings = load_settings(ap, args)
-    fill(settings, args, {"run": ("paths.run", None)})
-    require(ap, args, "run", "paths.run")
+    settings = _with_run(ap, args)
     if args.step == "assign" or args.supervisor:
         fill(settings, args, {"prompts": ("paths.prompts", None)})
     library = load_prompts(ap, args)
@@ -86,23 +92,33 @@ def main(argv: list[str] | None = None) -> int:
     ap, steps = _parser()
     args = ap.parse_args(argv)
     if args.step == "build":
-        return reported(lambda: _build(ap, args))
+        return reported(lambda: _build(ap, steps["build"], args))
     if args.step in ("assign", "report"):
         return reported(lambda: _model_step(ap, steps[args.step], args))
-    return reported(lambda: _file_step(args))
+    return reported(lambda: _file_step(ap, args))
 
 
-def _build(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+def _with_run(ap: argparse.ArgumentParser, args: argparse.Namespace) -> Loaded:
     settings = load_settings(ap, args)
+    fill(settings, args, {"run": ("paths.run", None)})
+    require(ap, args, "run", "paths.run")
+    return settings
+
+
+def _build(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    settings = _with_run(ap, args)
     reviewer = None
     if ai_review(settings):
         fill(settings, args, {"prompts": ("paths.prompts", None)})
         reviewer = Reviewer(conversations(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args))
+    elif given := [f"--{name}" for name in BUILD_MODEL_FLAGS if getattr(args, name) is not None]:
+        step.error(f"{', '.join(given)} only apply with screening.aiReview; build alone calls no model")
     paths = build_stage(args.manifest, args.run, screening_catalog(settings), reviewer)
     print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
 
 
-def _file_step(args: argparse.Namespace) -> None:
+def _file_step(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    _with_run(ap, args)
     paths = GroupingPaths(args.run)
     if args.step == "interop-plan":
         print(f"{len(write_plan(paths))} pairs -> {paths.interop_plan}")

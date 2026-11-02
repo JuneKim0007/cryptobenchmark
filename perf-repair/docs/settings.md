@@ -37,7 +37,7 @@
 | `agent.model` | a model id | `claude-opus-5-5` | `--model` |
 | `agent.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | `--effort` |
 | `agent.claudeBinary` | a command | `claude` | the `claude-code` backend's CLI |
-| `paths.run` | a folder | none | `--run` of `grouping assign`, `grouping report`, `ai`, `guide` |
+| `paths.run` | a folder | none | `--run` of every `grouping` step, `ai`, `guide`: one run directory for the whole chain, and a rebuild beside later stages fails their `built` digests instead of passing silently |
 | `paths.results` | a folder | none | `--results` of `guide` |
 | `paths.prompts` | a folder | packaged prompts | `--prompts` |
 | `grouping.turns`, `grouping.sessions` | positive integers | 3, 2 | `grouping assign` |

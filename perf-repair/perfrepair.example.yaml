@@ -13,7 +13,7 @@ agent:                     # every model-calling command
   claudeBinary: claude     # the `claude` CLI the claude-code backend runs
 
 paths:
-  run:                     # default --run of grouping assign/report, ai, guide
+  run:                     # default --run of every grouping step, ai, guide
   results:                 # default --results of guide
   prompts:                 # default --prompts of every model-calling command
 

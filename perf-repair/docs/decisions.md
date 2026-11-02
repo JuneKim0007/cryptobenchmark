@@ -10,7 +10,7 @@
 
 - A rejected answer gets a correction turn (`prompts/shared/rejection.turn.md`) in the same session, listing its problems.
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
-- `--prompts DIR` on `grouping build` (read with `screening.aiReview`), `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
+- `--prompts DIR` on `grouping build` (with `screening.aiReview`; off, build refuses it and `--agent`, `--model`, `--effort` since it calls no model), `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - Commands with a model: `grouping build` with `screening.aiReview`, `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`.
 - Backend, model, effort and the `claude` binary per command: `docs/settings.md`; `--agent`, `--model`, `--effort` override.

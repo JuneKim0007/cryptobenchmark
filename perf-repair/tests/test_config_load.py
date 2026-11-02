@@ -98,6 +98,22 @@ def test_a_role_section_or_the_flag_sets_one_role_above_every_agent_wide_layer(t
     assert loaded.agent("grouping.assign", {"effort": "low"}).effort == "low"
 
 
+@pytest.mark.parametrize("flag", (["--agent", "dry-run"], ["--model", "m"], ["--effort", "low"], ["--prompts", "p"]))
+def test_build_refuses_a_model_flag_when_it_calls_no_model(tmp_path, capsys, flag):
+    with pytest.raises(SystemExit) as e:
+        grouping_main(["build", "--manifest", "m", "--run", str(tmp_path), *flag])
+    assert e.value.code == 2 and f"{flag[0]} only apply with screening.aiReview" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("step", (["build", "--manifest", "m"], ["interop-plan"], ["interop-read", "--results", "r"]))
+def test_every_grouping_step_takes_the_run_from_the_settings_file(tmp_path, capsys, step):
+    with pytest.raises(SystemExit) as e:
+        grouping_main(step)
+    assert e.value.code == 2 and "--run (or paths.run in perfrepair.yaml)" in capsys.readouterr().err
+    f = write(tmp_path / "c.yaml", "paths: {run: there}\n")
+    assert grouping_main([*step, "--perfrepair-config", str(f)]) == 1
+
+
 def test_the_flag_reaches_the_backend_and_the_help_names_the_role_default():
     ap = argparse.ArgumentParser()
     add_agent_args(ap, role="grouping.assign")
