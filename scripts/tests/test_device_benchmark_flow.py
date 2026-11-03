@@ -23,7 +23,7 @@ def layout(tmp_path, run):
     (results / "configuration").mkdir(parents=True)
     (results / "discovery").mkdir()
     effective = results / "configuration/effective.yaml"
-    effective.write_text(yaml.safe_dump({"run": {"metrics": ["TIME"], **run}, "providers": {}}, sort_keys=False))
+    effective.write_text(yaml.safe_dump({"run": {"metrics": ["TIME"], "warmup": {"iterations": 0}, **run}, "providers": {}}, sort_keys=False))
     capture, trial = results / "discovery/probe_1.yaml", results / "discovery/trial_1.yaml"
     capture.write_text("{}")
     trial.write_text("{}")
@@ -142,3 +142,24 @@ def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_pat
 def test_one_process_for_every_case_gives_each_case_the_process_reading_noted(tmp_path, monkeypatch):
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "run"}, thermal=DUMP)
     assert json.loads((results / "benchmark/thermal.json").read_text())["cases"]["a"]["note"] == "scope: run"
+
+
+def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch, capsys):
+    run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"name": "b*"}]},
+           "passes": {"timing": {"samples": 3}}}
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, run, cases=("a", "b"))
+    log = steps(phone)
+    warm = log.index("instrument CryptoBenchmark b")
+    assert log[warm - 3:warm + 2] == ["list CryptoBenchmark", "pull prepared.yaml", "pull skipped.yaml", "instrument CryptoBenchmark b", "clear"]
+    assert phone.arguments[0][-6:] == ("-e", "cryptobench.pass", "warmup", "-e", "cryptobench.samples", "10")
+    assert sum(1 for args in phone.arguments if "warmup" in args) == 1 and problems == []
+    names = [b["name"] for b in json.loads((results / "benchmark/timing/benchmarkData.json").read_text())["benchmarks"]]
+    assert names == ["measure[a]", "measure[b]"]
+    assert "warm-up:   1 cases x 10 samples in" in capsys.readouterr().out
+
+
+def test_a_failed_warm_up_warns_and_the_run_goes_on(tmp_path, monkeypatch, capsys):
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5}},
+                                                cases=("a", "b"), crash=("a,b",))
+    assert "WARM-UP FAILED, measuring anyway" in capsys.readouterr().out and problems == []
+    assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2

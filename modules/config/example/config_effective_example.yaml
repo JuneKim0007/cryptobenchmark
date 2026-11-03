@@ -16,6 +16,9 @@ run:
   isolation: case
   seed: 42
   scopedRepetitions: 3
+  warmup:
+    iterations: 10
+    jobs: []
 policy: {onFailure: skip}
 analysis:
   statistic: {headline: auto, meanUpToCovPercent: 5.0}

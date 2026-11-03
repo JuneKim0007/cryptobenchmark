@@ -3,6 +3,9 @@ package io.github.junekim0007.cryptobench.config.global
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
+import io.github.junekim0007.cryptobench.config.global.dto.Warmup
+import io.github.junekim0007.cryptobench.config.testset.RuleDocument
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
@@ -24,6 +27,9 @@ object RunDocument {
     private const val SCOPED_REPETITIONS = "scopedRepetitions"
     private const val PASSES = "passes"
     private const val THROTTLE_SLEEP = "thermalThrottleSleepSeconds"
+    private const val WARMUP = "warmup"
+    private const val ITERATIONS = "iterations"
+    private const val JOBS = "jobs"
     private const val SAMPLES = "samples"
     private const val HARNESS = "harness"
 
@@ -37,11 +43,12 @@ object RunDocument {
         SCOPED_REPETITIONS to run.scopedRepetitions,
     ).apply {
         run.thermalThrottleSleepSeconds?.let { put(THROTTLE_SLEEP, it) }
+        put(WARMUP, linkedMapOf<String, Any>(ITERATIONS to run.warmup.iterations, JOBS to run.warmup.jobs.map { RuleDocument.of(it) }))
         if (run.passes.isNotEmpty()) put(PASSES, run.passes.associateTo(LinkedHashMap()) { it.name to mapOf(SAMPLES to it.samples) })
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, ISOLATION, SEED, SCOPED_REPETITIONS, PASSES, THROTTLE_SLEEP, HARNESS), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, ISOLATION, SEED, SCOPED_REPETITIONS, PASSES, THROTTLE_SLEEP, WARMUP, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
@@ -52,9 +59,15 @@ object RunDocument {
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
             scopedRepetitions = optionalNumber(document, SCOPED_REPETITIONS)?.toInt() ?: defaults.scopedRepetitions,
             thermalThrottleSleepSeconds = optionalNumber(document, THROTTLE_SLEEP)?.toInt(),
+            warmup = optionalSection(document, WARMUP)?.let { warmup(it, "$path.$WARMUP") } ?: defaults.warmup,
             passes = optionalSection(document, PASSES)?.let { passes(it, "$path.$PASSES") } ?: defaults.passes,
             harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )
+    }
+
+    private fun warmup(document: Map<String, Any>, path: String): Warmup {
+        expectKeys(document, listOf(ITERATIONS, JOBS), path)
+        return Warmup(optionalNumber(document, ITERATIONS)?.toInt() ?: Warmup.ITERATIONS, RuleDocument.parseList(optionalSections(document, JOBS), "$path.$JOBS"))
     }
 
     private fun passes(document: Map<String, Any>, path: String): List<MeasurePass> = document.keys.map { name ->

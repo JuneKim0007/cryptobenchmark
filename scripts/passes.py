@@ -71,7 +71,7 @@ def run_all(chosen, repetitions, root, measure_one, options):
             gradle_runner.run("quick-bench", " ".join(map(str, [into, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
         results[one] = (into / "benchmark.json", written)
         print(f"pass:      {one.label}: {repetitions} process{'es' if repetitions > 1 else ''}, {duration(time.monotonic() - started)} on the device")
-    if len(chosen) == 1:
+    if chosen[0].name is None:
         return results[chosen[0]][1]
     return merged(results, root, repetitions, options)
 

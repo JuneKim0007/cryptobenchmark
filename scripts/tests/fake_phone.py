@@ -51,7 +51,7 @@ class Phone(device_module.Device):
         if remote != self.data:
             self.log.append(f"pull {pathlib.Path(remote).name}")
         if remote.endswith("prepared.yaml"):
-            pathlib.Path(local).write_text("cases:\n" + "".join(f"- {{id: {c}}}\n" for c in self.cases))
+            pathlib.Path(local).write_text("cases:\n" + "".join(f"- {{id: {c}, type: T, algorithm: {c}, provider: P}}\n" for c in self.cases))
         elif remote.endswith("skipped.yaml"):
             pathlib.Path(local).write_text("skipped: []\n")
         elif remote.endswith(device_module.SCOPED_INTEROP):
@@ -90,7 +90,7 @@ class Phone(device_module.Device):
         self.arguments.append(arguments)
         wanted = named.split(",") if named else list(self.cases)
         self.ran.append((test_class, named))
-        if named in self.crash:
+        if named in self.crash or (named and "," in named and named in self.crash):
             return CRASHED
         if named in self.hang:
             raise timeouts.expired(step, ["adb", "shell", "am", "instrument"])

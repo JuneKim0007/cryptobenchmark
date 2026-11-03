@@ -52,6 +52,17 @@ class GlobalDocumentTest {
     }
 
     @Test
+    fun theWarmupDefaultsToTenIterationsOfThePlansFirstCasesAndZeroTurnsItOff() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(io.github.junekim0007.cryptobench.config.global.dto.Warmup(10, emptyList()), run("").warmup)
+        val chosen = run("run: {warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}}\n").warmup
+        assertEquals(0, chosen.iterations)
+        assertEquals("SHA-256", chosen.jobs.single().name)
+        val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {warmup: {iterations: -1}}\n") }
+        assertEquals("negative: run.warmup.iterations -1", refused.message)
+    }
+
+    @Test
     fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
         fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
         assertEquals(3, run("").scopedRepetitions)

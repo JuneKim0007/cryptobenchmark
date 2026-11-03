@@ -46,6 +46,21 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 - Cached values: AOSP's `ThermalManagerService` fills `Cached temperatures` only from the HAL's `onTemperatureChanged` callbacks, which a HAL sends when a sensor's severity changes; between changes the cached value can be minutes old. The `Current temperatures from HAL` section asks the HAL at dump time. Whether the Pixel's Android 17 dump to an unrooted shell carries that section is not yet confirmed on the phone; when it does not, every reading is noted `source: cached` and is a lower bound on how stale the temperature is.
 
+## Warm-up
+
+`run.warmup` ([config.md](../modules/config/docs/config.md)): one process before the first pass of a session, on any device path, the benchmark and the before/after run alike.
+
+| rule | value |
+|---|---|
+| what it is | a pre-flight check that the app, the providers and the timed loop run on this device; not temperature stabilisation, and no number of it is kept |
+| cases | `jobs`: test-set rules `{provider?, type?, name?}` against the planned cases (`name` a glob on the algorithm, case-insensitive); `[]` the plan's first 3 |
+| samples | `iterations` (10) per case, as `-e cryptobench.pass warmup`: no energy capture |
+| output | deleted on the device right after; never pulled, never converted, never in `benchmark.json` |
+| printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; hottest <c> C before, <c> C after` |
+| failure | `warning: WARM-UP FAILED, measuring anyway: <reason>`; the app is force-stopped and the session goes on |
+| off | `iterations: 0` |
+| cost | one process: about 2 s of start, the plan's preparation, and about 1 s per case at 10 samples |
+
 ## One process per case
 
 `run.isolation` ([config.md](../modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.

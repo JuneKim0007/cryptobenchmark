@@ -17,6 +17,7 @@ data class RunSettings(
     val passes: List<MeasurePass> = emptyList(),
     // androidx.benchmark.thermalThrottle.sleepDurationSeconds on the device; null keeps Jetpack's default
     val thermalThrottleSleepSeconds: Int? = null,
+    val warmup: Warmup = Warmup(),
     val harness: HarnessSettings = HarnessSettings(),
 ) {
 

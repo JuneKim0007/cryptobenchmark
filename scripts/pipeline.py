@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_hook, timeouts
+import bundled, capture_files, case_isolation, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_hook, timeouts, warmup
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError, measure_arguments
 from device_id import DeviceIdError, capture_id, device_id
@@ -354,6 +354,9 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
         prepared = scope_results.prepared(record, measured, effective, scoped / "prepared.yaml")
         run = Measuring(device, session, source, options, discovery, files, problems, effective_view.throttle_sleep(document))
         cases = tuple(case for scope in measured for case in scope["cases"])
+        import yaml
+        arguments = measure_arguments(options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
+        warmup.run(device, "ScopedBenchmark", arguments, list(cases), yaml.safe_load(prepared.read_text())["cases"], document)
         scoped_passes(run, document, {run_capture}, prepared, cases, scoped)
     elapsed("interop check and measure", started)
     return files, problems
@@ -509,8 +512,22 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     energy = any(one.captures(captures) - {"none"} for one in chosen)
     push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
     isolation = effective_view.isolation(document)
+    warm_up(run, document, preparation)
     measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
+
+
+def warm_up(run, document, preparation):
+    """Before the first pass: the device lists its plan once, and the warm-up picks from it."""
+    import yaml
+    if warmup.settings(document)[0] == 0:
+        print("warm-up:   off (run.warmup.iterations 0)")
+        return
+    arguments = measure_arguments(run.options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
+    planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
+    run.device.pull_plan(preparation)
+    cases = (yaml.safe_load((preparation / "prepared.yaml").read_text()) or {}).get("cases") or []
+    warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document)
 
 
 def host_cases(options, document, capture, trial, effective, benchmark, preparation, files):
