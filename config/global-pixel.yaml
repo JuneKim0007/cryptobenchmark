@@ -1,0 +1,12 @@
+# The Pixel measurement: global.yaml with 400 samples per case and energy captured.
+schemaVersion: 1
+
+selection:
+  testSet: testsets/scope.yaml
+
+run:
+  inputSizes: [64, 1024, 16384]
+  seed: 0
+  harness:
+    iterations: 400
+    energy: {capture: measured}
