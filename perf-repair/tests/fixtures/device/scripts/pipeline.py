@@ -1,7 +1,7 @@
 """A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log
 and its selection.exclude one in excluded.log.
 The device folder is the recorded test-api36 results, each providers.bundled entry adding a provider named by its alias
-or `create`, of the same primitives and MD5; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
+or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
 import argparse, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -57,6 +57,20 @@ for n, entry in enumerate(shipped):
                                "services": services})
     trial["services"] += [{"provider": name, "type": t, "algorithm": a, "instantiates": True,
                            "defaultRun": {"works": True, "inputSize": 1024}} for t, a in ADDED]
+bench_path = folder / "benchmark" / "benchmark.json"
+bench = json.loads(bench_path.read_text())
+for entry in shipped:
+    name = entry.get("alias") or entry["create"]
+    bench["cases"] += [{**c, "id": f"{c['id']}_{name}", "provider": name} for c in list(bench["cases"])
+                       if (c["type"], c["algorithm"]) in ADDED and c["provider"] == "Fast"]
+bench_path.write_text(json.dumps(bench))
+prepared_path = folder / "preparation" / "prepared.yaml"
+prepared = yaml.safe_load(prepared_path.read_text())
+for entry in shipped:
+    name = entry.get("alias") or entry["create"]
+    prepared["cases"] += [{**c, "id": f"{c['id']}_{name}", "provider": name} for c in list(prepared["cases"])
+                          if (c["type"], c["algorithm"]) in ADDED and c["provider"] == "Fast"]
+prepared_path.write_text(yaml.safe_dump(prepared, sort_keys=False))
 probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))
 trial_path.write_text(yaml.safe_dump(trial, sort_keys=False))
 manifest.update(deviceId=DEVICE_ID, mode="device" if options.device else "host", config=options.config, inputs=inputs)

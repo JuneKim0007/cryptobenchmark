@@ -438,14 +438,14 @@ def test_a_shipped_provider_the_app_inserts_first_is_what_a_default_site_is_on_a
                                                                 "call": "insertProviderAt", "position": "1"}]},
                                BundledCatalog({"g:lib": BundledRow("g:lib", "Lib", "x.Lib#make", "S", alias="P2")}))
     assert providers == SiteProviders({"Lib": "P2"}, "P2")
-    s = scope(resolution="default")
-    doc = build_dossiers("app", [s], {"bundled": []}, GROUPS, ROWS, M, _source(tmp_path), None, PerfMode(), None,
+    s, faster = scope(resolution="default"), {**M, "c64": M["o64"], "o64": M["c64"]}
+    doc = build_dossiers("app", [s], {"bundled": []}, GROUPS, ROWS, faster, _source(tmp_path), None, TIMING, None,
                          {"P1", "P2", "P3"}, providers)
     d = doc["dossiers"][0]
     assert d["current"] == "TypeA|ALG-A|P2" and "TypeA|ALG-A|P1" in [o["item"] for o in d["options"]]
     assert all("resolved_by_order" in o["needsReview"] for o in d["options"])
     named = replace(s, provider="Lib", resolution="not_on_device")
-    doc = build_dossiers("app", [named], {"bundled": []}, GROUPS, ROWS, M, tmp_path, None, PerfMode(), None,
+    doc = build_dossiers("app", [named], {"bundled": []}, GROUPS, ROWS, faster, tmp_path, None, TIMING, None,
                          {"P1", "P2", "P3"}, SiteProviders({"Lib": "P2"}))
     assert doc["dossiers"][0]["current"] == "TypeA|ALG-A|P2"
     assert all("resolved_by_order" not in o["needsReview"] for o in doc["dossiers"][0]["options"])
