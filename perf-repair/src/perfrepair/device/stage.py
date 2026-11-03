@@ -166,9 +166,9 @@ def _drop_record(folder: Path, steps: dict) -> None:
 
 def _whole(r: Run, before: Seen, current: dict, refresh: bool) -> Pass:
     bundled_config(r.config, r.folder, [])
-    scoped = (before.record.benchmark or before.record.bundled) if before.record else {}
-    steps = plan(before, current, refresh, {"benchmark": FILTER_OFF} if scoped else None)
-    return Pass(steps, steps, r)
+    steps = plan(before, current, refresh, {"benchmark": FILTER_OFF} if before.scoped else None)
+    todo = _with_device_probe(steps, steps, r.on_device)
+    return Pass(todo, todo, r)
 
 
 def _keep(used: frozenset[str], before: Seen, todo: dict) -> frozenset[str] | None:
@@ -198,20 +198,23 @@ def _scoped(r: Run, before: Seen, current: dict, refresh: bool, detect: Callable
     used = write_used(r.folder, apps)
     manifest, _ = read_manifest(r.folder / rd.MANIFEST)
     lack = lacking(used.names, before.record, mapped_inputs(manifest.inputs, before.record).get("config"), current["config"])
-    changed = APPLIED_CHANGED if applied != (before.record.bundled.get("applied") if before.record else None) else None
+    changed = APPLIED_CHANGED if applied != before.applied else None
     forced = lack or changed
     todo = _left(plan(before, current, refresh, {"benchmark": forced} if forced else None))
     keep = _keep(used.names, before, todo)
     config = _measured_set(r, keep, base) if keep else base
     reported = {s: steps[s] if s in ("probe", "screen") and steps[s] else todo[s] for s in STAGES}
-    return Pass(reported, todo, replace(r, config=config, probed=True), keep, apps,
-                before.record.benchmark if before.record else {}, applied)
+    return Pass(reported, todo, replace(r, config=config, probed=True), keep, apps, before.kept, applied)
+
+
+def _with_device_probe(steps: dict, todo: dict, on_device: bool) -> dict:
+    if on_device and todo["benchmark"] and not steps["probe"]:
+        return {**steps, "probe": DEVICE_PROBES}
+    return steps
 
 
 def _reused(done: Pass, on_device: bool) -> dict:
-    steps = done.steps
-    if on_device and done.todo["benchmark"] and not steps["probe"]:
-        steps["probe"] = DEVICE_PROBES
+    steps = _with_device_probe(done.steps, done.todo, on_device)
     for stage in STAGES:
         if not steps[stage]:
             emit("device", stage, END, outcome="reused", detail=REUSED)

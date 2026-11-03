@@ -32,6 +32,18 @@ class Seen:
     # the digests primitives.tsv would be made from now
     made_from: dict[str, str | None]
 
+    @property
+    def scoped(self) -> dict:
+        return (self.record.benchmark or self.record.bundled) if self.record else {}
+
+    @property
+    def kept(self) -> dict:
+        return self.record.benchmark if self.record else {}
+
+    @property
+    def applied(self) -> str | None:
+        return self.record.bundled.get("applied") if self.record else None
+
 
 def _changed(stage: str, recorded: dict, current: dict) -> str | None:
     changed = [LABELS[k] for k in READS[stage] if recorded.get(k) != current[k]]
