@@ -324,7 +324,7 @@ def test_a_member_without_options_stays_and_the_others_are_still_asked(tmp_path)
     assert validate_dossiers(doc, [has, lacks], GROUPS, None) == []
 
 
-def test_an_inverse_link_carries_the_interop_of_every_two_items_its_sides_can_end_on(tmp_path):
+def test_an_inverse_link_carries_the_interop_of_every_two_items_a_replace_can_leave_its_sides_on(tmp_path):
     has, lacks = _with_and_without()
     unit = _unit(has.id, lacks.id, kind="inverse")
     [entry] = by_unit(build([has, lacks], tmp_path), [unit], [has, lacks], GROUPS)["units"]
@@ -332,9 +332,7 @@ def test_an_inverse_link_carries_the_interop_of_every_two_items_its_sides_can_en
                               {"a": "TypeA|ALG-NONE|P1", "b": "TypeA|alg-a-alias|P3", "status": "not_planned"}]
     same = scope(line=40)
     [entry] = by_unit(build([has, same], tmp_path), [_unit(has.id, same.id, kind="inverse")], [has, same], GROUPS)["units"]
-    assert {(p["a"], p["b"], p["status"]) for p in entry["pairs"]} >= {
-        ("TypeA|ALG-A|P1", "TypeA|ALG-A|P2", "pass"), ("TypeA|ALG-A|P1", "TypeA|alg-a-alias|P3", "not_checkable"),
-        ("TypeA|ALG-A|P2", "TypeA|alg-a-alias|P3", "not_planned")}
+    assert entry["pairs"] == [{"a": "TypeA|ALG-A|P2", "b": "TypeA|alg-a-alias|P3", "status": "not_planned"}]
 
 
 def _held_contract():

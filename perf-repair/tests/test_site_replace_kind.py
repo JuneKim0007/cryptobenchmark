@@ -58,7 +58,7 @@ def test_render_lists_the_members_that_stay_and_each_inverse_pairs_interop():
     text = SiteReplaceKind(APP, doc(A, no_options=[(lone.key, "no_alternative")], units=[u]), ".").render(u, None).text
     for part in ("UNIT of 2 members: S1, S2", "STAYS (no option; these members keep what they use)",
                  "  S2: current TypeA|ALG-A/MODE-X|P1 | reason no_alternative", "    S1 R1 with S2 current: interop pass",
-                 "    S1 R2 with S2 current: interop not_planned"):
+                 "    every other choice: interop not_planned"):
         assert part in text, part
     assert "MEMBER S2" not in text and "MEMBER S1" in text
 

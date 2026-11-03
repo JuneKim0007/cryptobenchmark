@@ -23,18 +23,18 @@ def provider_held(s: Scope, contracts: dict[str, str | None]) -> bool:
 
 
 def _ends(member: str, dossiers: dict[str, dict], scopes: dict[str, Scope]) -> list[str | None]:
-    """The items a member can end on, its current first."""
+    """The items a member ends on in a replace: one of its options, or its current when it stays."""
     d = dossiers.get(member)
-    return [d["current"], *(o["item"] for o in d["options"])] if d else [current_item(scopes[member])]
+    return [o["item"] for o in d["options"]] if d else [current_item(scopes[member])]
 
 
 def pairs(u: Unit, dossiers: dict[str, dict], scopes: dict[str, Scope], groups: dict) -> tuple[PairInterop, ...]:
-    """Every two items an inverse link's sides can end on, differing and not both current, with their interop status."""
+    """Every two differing items an inverse link's sides can end on in a replace, with their interop status."""
     found = {}
-    for link in (k for k in u.links if k.kind == INVERSE):
+    for link in (k for k in u.links if k.kind == INVERSE and (k.a in dossiers or k.b in dossiers)):
         a, b = _ends(link.a, dossiers, scopes), _ends(link.b, dossiers, scopes)
         for x, y in product(a, b):
-            if x != y and None not in (x, y) and (x, y) != (a[0], b[0]):
+            if x != y and None not in (x, y):
                 key = tuple(sorted((x, y)))
                 found[key] = PairInterop(*key, pair_status(groups, *key))
     return tuple(found[k] for k in sorted(found))

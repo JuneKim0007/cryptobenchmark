@@ -4,6 +4,7 @@ edit kinds once."""
 from __future__ import annotations
 
 import hashlib
+from collections import Counter
 
 from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
@@ -94,13 +95,20 @@ def _ends(u: UnitDossiers, member: str) -> list[tuple[str, str | None]]:
     d = next((d for d in u.dossiers if d.key == member), None)
     if d is None:
         return [("current", next(s.current for s in u.stays if s.scope == member))]
-    return [("current", d.current), *((o.alias, o.item) for o in d.options)]
+    return [(o.alias, o.item) for o in d.options]
 
 
 def _pairs(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[str]:
-    a, b = _ends(u, k.a), _ends(u, k.b)
-    return [f"    {alias[k.a]} {x} with {alias[k.b]} {y}: interop {u.interop(i, j)}" for x, i in a for y, j in b
-            if i != j and (x, y) != ("current", "current")]
+    """The interop of each two items a replace leaves the sides on; the commonest status once, as every other choice."""
+    if not any(d.key in (k.a, k.b) for d in u.dossiers):
+        return []
+    found = [(f"{alias[k.a]} {x} with {alias[k.b]} {y}", u.interop(i, j))
+             for x, i in _ends(u, k.a) for y, j in _ends(u, k.b) if i != j]
+    if not found:
+        return []
+    common = Counter(s for _, s in found).most_common(1)[0][0]
+    rest = [f"    {choice}: interop {s}" for choice, s in found if s != common]
+    return rest + [f"    {'every other choice' if rest else 'every choice'}: interop {common}"]
 
 
 def _links(u: UnitDossiers) -> list[str]:
