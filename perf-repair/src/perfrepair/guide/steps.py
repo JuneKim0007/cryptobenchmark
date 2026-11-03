@@ -119,7 +119,7 @@ def prerequisites(g: Guide) -> str:
     if g.root is not None:
         detect = (lambda folder: detect_targets(g, folder)) if g.filter_by_apps else None
         g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
-                                detect=detect, perf=g.mode.perf).folder
+                                detect=detect, perf=g.mode.perf, named=lambda folder: setattr(g, "device", folder)).folder
     if not (g.device / rd.MANIFEST).is_file():
         raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):

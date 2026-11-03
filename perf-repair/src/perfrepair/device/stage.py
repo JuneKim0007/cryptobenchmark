@@ -214,13 +214,15 @@ def _record(folder: Path, identity: dict, current: dict, done: Pass) -> None:
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
                  refresh: bool = False, detect: Callable[[Path], list[str]] | None = None,
-                 perf: PerfMode = PerfMode()) -> DeviceStage:
+                 perf: PerfMode = PerfMode(), named: Callable[[Path], None] = lambda _: None) -> DeviceStage:
     """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv. detect: the target apps'
     folders found on the probe (device.filterByApps); with it the benchmark measures their used set only. perf: the run
-    config must measure what it selects, checked before any device run."""
+    config must measure what it selects, checked before any device run. named: told the folder once known, so a failed
+    first run still reports into it."""
     identity = identify(config, on_device, benchmark)
     check_measures(Path(identity["config"]), perf)
     folder = Path(root) / identity["deviceId"]
+    named(folder)
     current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": catalog.sha256}
     before = seen(folder)
     r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark)

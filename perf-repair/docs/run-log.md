@@ -47,7 +47,8 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | finding | emitted by | outcome, item |
 |---|---|---|
 | a provider the app names that the device lacks | `perfrepair.app` detect | `not_on_device`, the provider; detail: sites, the next step |
-| an energy case its `energy.json` marks invalid | `device/energy.py`, after each device run | the first reason (`short_window`, `window_uncovered`, ...), the case id; ref: the `energy.json` |
+| an energy case its `energy.json` files mark invalid, one line across process files | `device/energy.py`, after each device run | the first reason (`short_window`, `window_uncovered`, ...), the case id; ref: the `energy.json` |
+| energy files that cannot be read | `device/energy.py` | `energy_unreadable`, the manifest; the run stands |
 | a failed `pipeline.py` call | `benchmark_runner.py` | `pipeline_failed`, the stage; detail: exit, last error line; ref: `pipeline/<run id>.log:<line>` of the call |
 | a selected metric the run config does not measure | `device/measures.py` | `perf_mode_unmeasured`, the metric |
 

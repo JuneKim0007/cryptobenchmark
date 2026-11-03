@@ -2,6 +2,7 @@
 import logging
 
 import pytest
+from test_guide import F, _from_root
 from test_guide_targets import FAKE_ROOT, base  # noqa: F401  the guide over fake apps
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -104,3 +105,16 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
         "; last error: no_scope_compiled: every scope is not_compilable"]
     lines = (base.run_dir / transcript).read_text().splitlines()
     assert lines[at - 1] == f"# device app {pb}" and lines[0] == f"# device app {pa}"
+
+
+def test_a_first_run_whose_pipeline_fails_still_reports_it_in_the_device_folder(tmp_path, capsys, logger, monkeypatch):
+    monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
+    monkeypatch.setenv("FAKE_INTERRUPT", "1")
+    code, _ = _from_root(tmp_path, capsys)
+    device = tmp_path / "results" / "fake-api36-00000000"
+    status = (device / rd.STATUS_LOG).read_text().splitlines()
+    assert code == 1 and not (device / rd.MANIFEST).exists()
+    assert [line.split()[0] for line in status] == ["run", "pipeline_failed", "failed", "prerequisites_failed", "end"]
+    transcript = f"{rd.PIPELINE_LOGS}/{status[0].split()[1]}.log"
+    assert status[1] == f"pipeline_failed configure: exit 1; error: interrupted; see {transcript}:1"
+    assert (device / transcript).is_file()

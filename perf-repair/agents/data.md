@@ -42,7 +42,7 @@ src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark 
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
 src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items (in used.json when present), not used ones, whether the saved files are current; noRerun's reader
-src/perfrepair/device/energy.py : after a device run: one `finding` event per invalid energy case, keyed by its first reason
+src/perfrepair/device/energy.py : after a device run: one `finding` event per invalid energy case across its process files, keyed by its first reason; `energy_unreadable` when the files cannot be read
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/device/measures.py : the run config's measurements (run.metrics, run-level energy capture) against the perfMode: a selected run.metrics switch missing stops (perf_mode_unmeasured), run-level energy missing is a `perf_mode_unmeasured` finding, unselected measurements are logged
 src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; a forced reason (the used set); base_inputs: a used-set manifest's config digest mapped back to the base; --refresh reruns primitives
