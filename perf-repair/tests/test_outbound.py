@@ -1,11 +1,16 @@
 import json
 import shutil
+import time
 from pathlib import Path
 
 import pytest
 import yaml
 
+from helpers import captured_events
+
 from perfrepair import run_dir as rd
+from perfrepair.config.load import load
+from perfrepair.config.stops import install_stops
 from perfrepair.stop import Halt
 from perfrepair.data_handler.outbound import benchmark_runner
 from perfrepair.data_handler.outbound import (GENERATED_NAME, BenchmarkRunError, benchmark_root, new_run_dir,
@@ -132,3 +137,23 @@ def test_benchmark_root_lookup(bench_root, tmp_path, monkeypatch):
         benchmark_root(tmp_path / "nowhere")
     with pytest.raises(ValueError):
         run_pipeline(tmp_path / "c.yaml", tmp_path / "out", "measure", bench_root, device=tmp_path)
+
+
+def test_the_child_never_sees_the_model_secrets(bench_root, tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    monkeypatch.setenv("KEEP_ME", "1")
+    run_pipeline(tmp_path / "c.yaml", tmp_path / "out", benchmark=bench_root, echo=None, device=tmp_path)
+    env = json.loads((tmp_path / "out" / "argv.json").read_text())["env"]
+    assert "KEEP_ME" in env and "ANTHROPIC_API_KEY" not in env
+
+
+def test_a_hung_pipeline_is_killed_with_its_children_as_one_coded_stop(bench_root, tmp_path, monkeypatch):
+    (tmp_path / "perfrepair.yaml").write_text("timeouts: {pipeline: 1}\n")
+    install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
+    monkeypatch.setenv("FAKE_HANG", "1")
+    started = time.monotonic()
+    with captured_events() as events, pytest.raises(Halt) as e:
+        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", "device", benchmark=bench_root, echo=None, device=tmp_path)
+    assert time.monotonic() - started < 20 and e.value.code == "pipeline_timeout"
+    [event] = [ev for ev in events if ev.data.get("code") == "pipeline_timeout"]
+    assert event.item == "device" and event.data["seconds"] == 1 and "ran past 1s" in event.detail

@@ -59,9 +59,9 @@ src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for look
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer; carry: another outbox's records into a charter's
 src/perfrepair/ai/runtime/engine/refresh.py : --refresh run inputs (`refresh <token>`) and the active outbox's kept ones
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
-src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth
+src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth, the CLI with timeouts.claude
 src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
-src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -p`) transport: isolated sessions, --resume, existing login, no ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN in the child; ClaudeCliError `claude_cli_failed`, a CLI that cannot run included
+src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -p`) transport: isolated sessions, --resume, existing login, the child's environment from child_env; ClaudeCliError `claude_cli_failed`, a CLI that cannot run included; a call past its timeout killed with its children, `claude_cli_timeout`
 src/perfrepair/ai/runtime/gateway/contract.py : Gateway: what one provider declares: name, settings class, spawn, secret, choices
 src/perfrepair/ai/runtime/gateway/dry_run.py : the dry-run gateway: no keys, answers with the role's stand-in
 src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default gateway; `unknown_gateway`
@@ -82,6 +82,7 @@ src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer;
 src/perfrepair/config/load.py : settings file lookup; read a row, or a role's key, by its chain; each value's source, logged once (INFO from a file or the environment, else DEBUG)
 src/perfrepair/config/settings.py : reads perfrepair.yaml: secret_key anywhere, unknown_key warnings from the rows' keys, a section's shape; raw values and aiGateway blocks
 src/perfrepair/config/stops.py : the one reader of stops.<code> (STOP_ROWS), read when the code fires: unset the default, bad one warning and the default, a fixed code set one stop_fixed warning (once per load); install_stops installs the run's settings and this reader
+src/perfrepair/config/timeouts.py : the one reader of timeouts.claude and timeouts.pipeline, from the run's settings when a child starts; the row default without settings
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules

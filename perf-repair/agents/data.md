@@ -28,6 +28,9 @@ src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: ever
 src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component, platform and future rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
+src/perfrepair/child/__init__.py : docstring only
+src/perfrepair/child/deadline.py : Deadline: kills a child's process group (started in its own session) when its seconds pass, `expired` set, or when its caller fails
+src/perfrepair/child/env.py : child_env: the environment of every child process, ANTHROPIC_API_KEY and ANTHROPIC_AUTH_TOKEN withheld
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, through device/inbound.py
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/energy.py : the invalid energy cases of each energy.json a manifest's files.energy lists (a path or one per process)
@@ -41,7 +44,7 @@ src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: de
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and a Summary per registry metric with runs per process; the cases with no runs of a required metric, apart; comparability notes
 src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, screening, probe and benchmark documents on first use; tests inject any piece
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
-src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; the transcript appended to <device>/log/pipeline/<run id>.log; a failed run is one `pipeline_failed` through terminate (exit, last error line, the call's transcript line; the tail in the Halt); identify: `--identify`'s device id and input digests
+src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; the transcript appended to <device>/log/pipeline/<run id>.log; a failed run is one `pipeline_failed` through terminate (exit, last error line, the call's transcript line; the tail in the Halt); a call past timeouts.pipeline killed with its children, one `pipeline_timeout`; the child's environment from child_env; identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
 src/perfrepair/device/bundled.py : the bundled step after the targets' detect: missing set, suggestions, bundled-suggestions.yaml validated before writing, its events, bundled_missing through terminate; the entries to apply

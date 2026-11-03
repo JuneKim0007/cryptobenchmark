@@ -31,7 +31,7 @@
 
 ## Keys
 
-- Sections: `aiGateway` and `paths` are shared, `device` is once per device, `apps` is per app, `stops` per code ([stops.md](stops.md)).
+- Sections: `aiGateway`, `paths` and `timeouts` are shared, `device` is once per device, `apps` is per app, `stops` per code ([stops.md](stops.md)).
 - Every key is a row in `inputs/table.py`: its chain, check, default and `OnInvalid`. A setting ships only with the code that reads it; `tests/test_settings_rows.py` fails on a row without exactly one reader and on an example key with no row.
 
 | key | values | default | on a bad value | used by |
@@ -59,6 +59,7 @@
 | `apps.benchmarkConfig` | a `global.yaml` | `device.benchmark.config` | warning | the guide's per-app device step (`guide/steps.py` device): its harness run only; the device stage keeps `device.benchmark.config`, so a lighter app config reruns no device benchmark |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
 | `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
+| `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.no_required_metric` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires; `device.bundled.onMissing` is `stops.bundled_missing` while that is unset |
 
 | role | file section | role default |
@@ -142,9 +143,8 @@ device:
 | `dry-run` | none | none | no model |
 
 - `--agent claude` names the gateway, and without `auth` it runs the logged-in CLI, never the API key: billing follows `auth`, and only `auth: api` or `--auth api` reaches the Messages API.
-- `aiGateway.use: nope` is `unknown_gateway`, one error line at spawn.
-- `claude-code` is no gateway name: `--agent claude-code` is a usage error and `PERFREPAIR_AGENT=claude-code` is `unknown_gateway`.
-- A CLI that cannot be started or answers with an error is `claude_cli_failed`, one error line from the command; `auth: subscription` runs it without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment.
+- `aiGateway.use: nope` is `unknown_gateway`, one error line at spawn; `claude-code` is no gateway name: `--agent claude-code` is a usage error and `PERFREPAIR_AGENT=claude-code` is `unknown_gateway`.
+- A CLI that cannot be started or answers with an error is `claude_cli_failed`, one error line from the command; `auth: subscription` runs it, and every `pipeline.py` call runs, without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment (`child/env.py`).
 - `auth: api` without the `anthropic` package is `claude_api_missing`.
 - A secret in `perfrepair.yaml` is `secret_key`, in any block, a block no gateway owns included.
 - Each outbox record holds the `gateway`, `model` and `effort` that answered it; a resume whose values differ from earlier records logs one `mixed_agents` line naming both (`docs/decisions.md`).

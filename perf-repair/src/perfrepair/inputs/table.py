@@ -102,6 +102,10 @@ APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
 
+# seconds before a hung child is killed; a device benchmark call runs for hours, a model call for minutes
+TIMEOUT_CLAUDE = Row("timeouts.claude", check_positive, default=3600)
+TIMEOUT_PIPELINE = Row("timeouts.pipeline", check_positive, default=86400)
+
 # stops.<code>: an overridable code's action; a bad value warns and keeps the code's default
 STOP_ROWS = {c.code: Row(f"stops.{c.code}", partial(check_one_of, choices=c.allowed), default=c.action) for c in OVERRIDABLE}
 # a fixed code is known, so setting it warns where it fires instead of as an unknown key

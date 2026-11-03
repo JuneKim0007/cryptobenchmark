@@ -10,6 +10,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+from ...child.deadline import Deadline
+from ...child.env import child_env
+from ...config.timeouts import pipeline_seconds
 from ...log import run_id
 from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
@@ -56,11 +59,15 @@ def identify(config: Path | None, on_device: bool, benchmark: Path | str | None 
     """pipeline.py --identify: deviceId, mode, config and input digests, before any probe; nothing is written."""
     root = benchmark_root(benchmark)
     command = [sys.executable, str(root / PIPELINE), *_chosen(config), "--identify", *(["--device"] if on_device else [])]
-    done = subprocess.run(command, cwd=root, capture_output=True, text=True)
-    lines = (done.stdout + done.stderr).splitlines()
+    seconds = pipeline_seconds()
+    with subprocess.Popen(command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                          env=child_env(), start_new_session=True) as process, Deadline(process, seconds) as deadline:
+        lines = process.communicate()[0].splitlines()
+    if deadline.expired:
+        _timed_out("identify", seconds, None, None)
     found = [m.group(1) for m in map(IDENTITY.match, lines) if m]
-    if done.returncode != 0 or not found:
-        raise BenchmarkRunError(f"identify_failed: pipeline --identify exited {done.returncode}; last lines:\n"
+    if process.returncode != 0 or not found:
+        raise BenchmarkRunError(f"identify_failed: pipeline --identify exited {process.returncode}; last lines:\n"
                                 + "\n".join(lines[-10:]))
     return json.loads(found[-1])
 
@@ -87,6 +94,11 @@ def _failed(stage: str, code: int, last: list[str], ref: str, app: str | None) -
               trace=f"; full log {ref}; last lines:\n" + "\n".join(last))
 
 
+def _timed_out(stage: str, seconds: int, ref: str | None, app: str | None) -> None:
+    terminate("pipeline_timeout", f"pipeline ran past {seconds}s ({stage}); killed with its children",
+              stage="device", step="pipeline", item=stage, app=app, ref=ref, data={"seconds": seconds, "stage": stage})
+
+
 def run_pipeline(config: Path | None, results: Path | None, stage: str = "configure",
                  benchmark: Path | str | None = None, harness: Path | None = None,
                  echo: Callable[[str], None] | None = print, tail: int = 40, extra: tuple[str, ...] = (),
@@ -103,9 +115,10 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
     ref = f"{log_path}:{_lines(log_path) + 1}"
     last: deque[str] = deque(maxlen=tail)
     manifest = None
+    seconds = pipeline_seconds()
     with open(log_path, "a") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
-            env={**os.environ, "PYTHONUNBUFFERED": "1"}) as process:
+            env=child_env(PYTHONUNBUFFERED="1"), start_new_session=True) as process, Deadline(process, seconds) as deadline:
         log.write(f"# {stage}" + (f" app {app}" if app else "") + "\n$ " + " ".join(command) + "\n")
         for line in process.stdout:
             log.write(line)
@@ -115,6 +128,8 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
             if echo:
                 echo(line.rstrip("\n"))
         code = process.wait()
+    if deadline.expired:
+        _timed_out(stage, seconds, ref, app)
     if code != 0:
         _failed(stage, code, list(last), ref, app)
     if manifest is None or not manifest.is_file():

@@ -240,3 +240,8 @@ def test_build_with_ai_review_refuses_before_any_work(tmp_path, capsys):
     assert grouping(["build", "--device-results", str(with_results(run)), "--perfrepair-config", str(config)]) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith("error unknown_gateway: nope ")
     assert not (run / "grouping").exists()
+
+
+def test_the_cli_gets_timeouts_claude_or_its_generous_default(tmp_path):
+    assert spawned(tmp_path, "aiGateway: {use: claude}\n").conversations.timeout == 3600
+    assert spawned(tmp_path, "aiGateway: {use: claude}\ntimeouts: {claude: 7}\n").conversations.timeout == 7

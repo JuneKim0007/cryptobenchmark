@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ....config.timeouts import claude_seconds
 from ....inputs.check import check_one_of, check_text
 from ..agent.conversation import Conversations
 from .claude_api import DEFAULT_MODEL, ClaudeConversations
@@ -34,7 +35,7 @@ def _secret(values: ClaudeSettings) -> str | None:
 def _spawn(values: ClaudeSettings, _dry_run: Conversations) -> Conversations:
     if values.auth == "api":
         return ClaudeConversations(values.model, values.effort)
-    return ClaudeCliConversations(values.model, values.effort, binary=values.binary)
+    return ClaudeCliConversations(values.model, values.effort, binary=values.binary, timeout=claude_seconds())
 
 
 GATEWAY = Gateway("claude", ClaudeSettings, _spawn, _secret, {"auth": AUTHS, "effort": EFFORTS})

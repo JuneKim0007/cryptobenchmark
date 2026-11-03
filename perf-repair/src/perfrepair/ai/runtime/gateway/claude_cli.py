@@ -1,20 +1,19 @@
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import tempfile
 from pathlib import Path
 from typing import Callable
 
+from ....child.deadline import Deadline
+from ....child.env import child_env
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
 from ..agent.conversation import LifetimeGuarded
 from ..agent.reply import AgentFailed, AgentRefused, AgentReply
 from .claude_api import DEFAULT_MODEL
 
-Runner = Callable[[list[str], str, Path, dict[str, str]], subprocess.CompletedProcess]
-# The CLI bills an API key it finds before the logged-in subscription.
-WITHHELD_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
+Runner = Callable[[list[str], str, Path, dict[str, str], "int | None"], subprocess.CompletedProcess]
 
 
 class ClaudeCliError(AgentFailed):
@@ -24,12 +23,13 @@ class ClaudeCliError(AgentFailed):
         super().__init__("claude_cli_failed", detail)
 
 
-def _run(command: list[str], stdin: str, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess:
-    return subprocess.run(command, input=stdin, capture_output=True, text=True, cwd=cwd, env=env)
-
-
-def child_env() -> dict[str, str]:
-    return {k: v for k, v in os.environ.items() if k not in WITHHELD_ENV}
+def _run(command: list[str], stdin: str, cwd: Path, env: dict[str, str], timeout: int | None) -> subprocess.CompletedProcess:
+    with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                          cwd=cwd, env=env, start_new_session=True) as process, Deadline(process, timeout) as deadline:
+        out, err = process.communicate(stdin)
+    if deadline.expired:
+        raise subprocess.TimeoutExpired(command, timeout)
+    return subprocess.CompletedProcess(command, process.returncode, out, err)
 
 
 def _raise_unless_answered(returncode: int, out: dict) -> None:
@@ -49,7 +49,9 @@ class ClaudeCliSession(LifetimeGuarded):
     def _ran(self, command: list[str], text: str) -> subprocess.CompletedProcess:
         o = self.owner
         try:
-            return o.runner(command, text, o.workdir, child_env())
+            return o.runner(command, text, o.workdir, child_env(), o.timeout)
+        except subprocess.TimeoutExpired:
+            raise AgentFailed("claude_cli_timeout", f"{o.binary} -p ran past {o.timeout}s (timeouts.claude); killed") from None
         except OSError as e:
             raise ClaudeCliError(f"cannot run {o.binary}: {e}") from e
 
@@ -83,8 +85,8 @@ class ClaudeCliSession(LifetimeGuarded):
 class ClaudeCliConversations:
 
     def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", binary: str = "claude",
-                 runner: Runner = _run, workdir: Path | None = None):
-        self.model, self.effort, self.binary, self.runner = model, effort, binary, runner
+                 runner: Runner = _run, workdir: Path | None = None, timeout: int | None = None):
+        self.model, self.effort, self.binary, self.runner, self.timeout = model, effort, binary, runner, timeout
         self.workdir = Path(workdir) if workdir else Path(tempfile.mkdtemp(prefix="perfrepair-agent-"))
         self.no_mcp = self.workdir / ".no-mcp.json"
         self.no_mcp.write_text(json.dumps({"mcpServers": {}}))

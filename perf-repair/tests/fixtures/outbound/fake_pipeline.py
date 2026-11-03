@@ -8,9 +8,15 @@ parser.add_argument("--device", action="store_true")
 options = parser.parse_args()
 root = pathlib.Path(options.results)
 root.mkdir(parents=True, exist_ok=True)
-(root / "argv.json").write_text(json.dumps({"argv": sys.argv[1:], "cwd": os.getcwd()}))
+(root / "argv.json").write_text(json.dumps({"argv": sys.argv[1:], "cwd": os.getcwd(), "env": sorted(os.environ)}))
 for n in range(60):
     print(f"line {n}")
+if os.environ.get("FAKE_HANG"):
+    # a grandchild holding the output pipe, as gradle or adb would
+    import subprocess, time
+    subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+    sys.stdout.flush()
+    time.sleep(60)
 code = int(os.environ.get("FAKE_EXIT", "0"))
 if code:
     print("error: fake failure", file=sys.stderr)

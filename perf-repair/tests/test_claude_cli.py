@@ -5,7 +5,7 @@ import pytest
 from helpers import task
 
 from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
-from perfrepair.ai.runtime.agent import AgentRefused
+from perfrepair.ai.runtime.agent import AgentFailed, AgentRefused
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliConversations, ClaudeCliError
 
 
@@ -13,7 +13,7 @@ class FakeCli:
     def __init__(self, outputs):
         self.outputs, self.calls = list(outputs), []
 
-    def __call__(self, command, stdin, cwd, env):
+    def __call__(self, command, stdin, cwd, env, timeout):
         self.calls.append((command, stdin, cwd, env))
         out = self.outputs.pop(0)
         return subprocess.CompletedProcess(command, 0, out if isinstance(out, str) else json.dumps(out), "")
@@ -113,3 +113,13 @@ def test_a_cli_failing_with_no_output_says_so(tmp_path):
     convos = ClaudeCliConversations(runner=lambda c, *_: subprocess.CompletedProcess(c, 1, "", ""), workdir=tmp_path)
     with pytest.raises(ClaudeCliError, match="claude -p exited 1: no output"):
         convos.start(SystemPrompt("t", "S"), {}).ask(task("MSG"))
+
+
+def test_a_hung_cli_is_killed_at_its_timeout_as_one_coded_failure(tmp_path):
+    hung = tmp_path / "claude"
+    hung.write_text("#!/bin/sh\nsleep 60\n")
+    hung.chmod(0o755)
+    convos = ClaudeCliConversations(binary=str(hung), workdir=tmp_path, timeout=1)
+    with pytest.raises(AgentFailed) as e:
+        convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
+    assert e.value.code == "claude_cli_timeout" and "ran past 1s (timeouts.claude)" in str(e.value)

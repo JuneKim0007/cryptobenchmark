@@ -4,7 +4,7 @@ import pytest
 
 from perfrepair.config.settings import ConfigError, Settings, parse
 
-ROOT_KEYS = "['aiGateway', 'paths', 'device', 'apps', 'stops']"
+ROOT_KEYS = "['aiGateway', 'paths', 'device', 'apps', 'timeouts', 'stops']"
 ROLE_KEYS = "['gateway', 'model', 'effort']"
 
 
