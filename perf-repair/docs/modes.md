@@ -25,7 +25,14 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 
 - A pair is judged `improves`, `not_improving` or `not_measured`.
 - `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` decides on the metrics measured and names the rest.
-- A group or option without data for a selected metric is the static reason `no_evidence: <metric>`, logged; never a proxy and never `no_improvement`.
+- A selected metric without data is the static reason `no_evidence: <metric>`, logged; never a proxy and never `no_improvement`. Levels:
+
+| Where | Unit judged | Without the metric |
+|---|---|---|
+| worthiness | a pair | the pair is `not_measured`; a group with no improving pair and such a pair is the static verdict `not_measured`, `no_evidence: <metric>`; the triage log counts them |
+| dossier | an option | the option is dropped (a choice the model cannot weigh by the selection); a scope left none is `noOptions` `no_evidence: <metric>`, a static keep; the dossier step counts `noEvidence` |
+
+- Why per option, not per scope: one option measured on every selected metric is still a fair choice; dropping the whole scope for another option's gap would hide it.
 - Energy is never compared across kinds (`energy_kinds_differ`).
 - Energy measurement: [docs/energy.md](../../docs/energy.md).
 
