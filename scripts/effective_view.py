@@ -51,6 +51,12 @@ def case_cooldown(document):
     return (document.get("run") or {}).get("caseCooldownSeconds") or 0
 
 
+def thermal_gate(document):
+    """run.thermalGate as :config validated it, or None when absent or enabled false."""
+    gate = (document.get("run") or {}).get("thermalGate")
+    return gate if gate and gate.get("enabled", True) else None
+
+
 def scoped_repetitions(document):
     repetitions = (document.get("run") or {}).get("scopedRepetitions", SCOPED_REPETITIONS)
     if not isinstance(repetitions, int) or repetitions < 1:

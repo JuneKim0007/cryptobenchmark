@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, case_isolation, clocks, cooldown_hook, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_hook, timeouts, warmup
+import bundled, capture_files, case_isolation, clocks, cooldown_hook, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_gate, thermal_hook, timeouts, warmup
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError, measure_arguments
 from device_id import DeviceIdError, capture_id, device_id
@@ -106,6 +106,7 @@ class Measuring:
     problems: list
     throttle_sleep: int | None = None
     cooldown: int = 0
+    gate: object = None
 
 
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
@@ -139,9 +140,10 @@ def convert(run, arguments):
 
 
 def timed_hooks(run, one, isolation):
-    """The cool-down goes first, so a case's start temperature and clocks are read after it."""
+    """The cool-down, then the gate, so a case's start temperature and clocks are read after both."""
     per_case = isolation == effective_view.CASE_ISOLATION
-    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), session_hooks.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
+    gate = [thermal_gate.Gate(run.gate, run.device, one.label, per_case, run.problems)] if run.gate else []
+    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), *gate, session_hooks.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
 
 
 def thermal_flag(process):
@@ -375,6 +377,7 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
 
 
 def scoped_passes(run, document, captures, prepared, cases, scoped):
+    run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
     chosen, repetitions, isolation = passes.read(document, captures), effective_view.scoped_repetitions(document), effective_view.isolation(document)
     measure_one = lambda one, folder, written: measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written)
     written = passes.run_all(chosen, repetitions, scoped, measure_one, run.options)
@@ -525,6 +528,7 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
     isolation = effective_view.isolation(document)
     warm_up(run, document, preparation)
+    run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
     measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
 
@@ -546,6 +550,8 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     repetitions, written = effective_view.process_repetitions(document), []
     if (document.get("run") or {}).get("passes"):
         print("warning: run.passes: only a --device run measures in passes; this run measures once per process")
+    if effective_view.thermal_gate(document):
+        print("warning: thermal_gate_off: run.thermalGate: only a --device run reads temperatures; this run measures without the gate")
     for repetition in range(1, repetitions + 1):
         into = benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
         if repetitions > 1:
