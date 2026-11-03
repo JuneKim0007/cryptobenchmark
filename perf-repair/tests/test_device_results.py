@@ -5,8 +5,9 @@ from pathlib import Path
 import pytest
 
 from perfrepair.app.facts.path_id import app_id, path_id, unit_id
-from perfrepair.config.args import add_config_arg
-from perfrepair.config.device_results import _warn_if_temp, add_device_results_arg, fill_device_results, select_device
+from perfrepair.config.args import add_config_arg, load_settings
+from perfrepair.config.device_results import (_warn_if_temp, add_device_results_arg, device_root, fill_device_results,
+                                              select_device)
 from perfrepair.grouping.__main__ import main as grouping
 from perfrepair.inputs.resolve import InputError
 from perfrepair.run_dir import app_dirs, device_folders
@@ -18,13 +19,17 @@ def device(root, name):
     return root / name
 
 
-def filled(tmp_path, settings, flag=None):
+def parsed(tmp_path, settings, flag=None):
     config = tmp_path / "c.yaml"
     config.write_text(settings)
     parser = argparse.ArgumentParser()
     add_device_results_arg(parser)
     add_config_arg(parser)
-    args = parser.parse_args(["--perfrepair-config", str(config), *(["--device-results", str(flag)] if flag else [])])
+    return parser, parser.parse_args(["--perfrepair-config", str(config), *(["--device-results", str(flag)] if flag else [])])
+
+
+def filled(tmp_path, settings, flag=None):
+    parser, args = parsed(tmp_path, settings, flag)
     fill_device_results(parser, args)
     return args.device_results
 
@@ -76,6 +81,16 @@ def test_a_bad_device_id_stops_instead_of_using_the_only_device(tmp_path):
     device(tmp_path / "results", "a")
     with pytest.raises(InputError, match=r"^invalid: device.id 3, "):
         filled(tmp_path, "paths: {results: results}\ndevice: {id: 3}\n")
+
+
+@pytest.mark.parametrize("command", [fill_device_results, lambda parser, args: device_root(parser, args, load_settings(parser, args))],
+                         ids=["fill_device_results", "device_root"])
+def test_neither_the_flag_nor_paths_results_is_a_usage_error_naming_both(tmp_path, capsys, command):
+    parser, args = parsed(tmp_path, "")
+    with pytest.raises(SystemExit):
+        command(parser, args)
+    assert capsys.readouterr().err.splitlines()[-1].endswith(
+        "error: the following arguments are required: --device-results (or paths.results in perfrepair.yaml)")
 
 
 def test_a_root_given_as_the_device_folder_is_one_coded_line(tmp_path):
