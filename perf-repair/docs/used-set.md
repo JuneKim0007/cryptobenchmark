@@ -33,10 +33,10 @@ A target can ship a JCA provider the device does not register. Measuring without
 | step | rule |
 |---|---|
 | missing | a provider a target's `app.json` `bundled` names, or a target's site resolved `not_on_device` to, neither among the probe's own providers (`origin` not `bundled`) nor shipped by a group:name in the base `providers.bundled` |
-| version | per app its build files' pin (a literal coordinate, a Gradle map, a version catalog entry; several in one app: the newest); apps that differ: the newest, each app's pin kept in `missing[].coordinates[].pins`; a variable or a range is no pin |
+| version | per app its build files' pin (a literal coordinate, a Gradle map, a version catalog entry; several in one app: the newest); apps that differ: the newest not in the row's `badVersions`, each app's pin kept in `missing[].coordinates[].pins`; a variable or a range is no pin |
 | `onMissing` | `warn`: one event and line `device bundled_missing: warn`, the run goes on; `stop`: the same event with outcome `stop`, the guide stops `bundled_missing`, listing provider, coordinates and apps, before the benchmark; the probe has run, since detect resolves against it. A stopped run resumes: a kept probe is reused |
 | `fromApps` | `off`: no file, the catalog's verdicts are not logged; `suggest`: `bundled-suggestions.yaml`; `apply`: the same, and its matched rows are built in |
-| matched | a catalog row of the coordinate's group:name for that provider, unblocked, at a pinned version |
+| matched | a catalog row of the coordinate's group:name for that provider, unblocked, at a pinned version not in its `badVersions`; every pin bad: blocked |
 | blocked | the row's `blocked` reason; listed, never applied; the provider stays missing |
 | unmatched | `no_catalog_row`, `no_coordinates` (a site names it, no build file ships it), `no_pinned_version`, `name_taken` (two rows register one name: the first wins); stays missing |
 | apply | `bundled-global.yaml`: the base and the entries, the base's first; the measured set's config is made from it; the per-app harness builds them too, or a candidate from an applied provider would not exist there |

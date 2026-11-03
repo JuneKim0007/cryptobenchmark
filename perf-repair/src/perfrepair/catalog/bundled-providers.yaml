@@ -1,5 +1,6 @@
 # Per Gradle group:name an app ships: how cryptobenchmark builds it into the harness (providers.bundled). The version is
-# never here: it is the app's own pin. blocked: a known harness or device failure, listed and never applied.
+# never here: it is the app's own pin. blocked: a known harness or device failure, listed and never applied. badVersions:
+# pins that fail on a device, never built.
 schemaVersion: 1
 sources:
   CONSCRYPT: https://github.com/google/conscrypt
@@ -12,6 +13,7 @@ providers:
     provider: Conscrypt
     create: org.conscrypt.Conscrypt#newProvider
     alias: BundledConscrypt
+    badVersions: ['2.5.3']
     notes: '2.5.3 Mac HmacSHA256 aborted the harness with a native bad_alloc on Pixel 10, Android 17 (seen 2026-11-03, I83)'
     source: CONSCRYPT
   - artifact: org.bouncycastle:bcprov-jdk18on

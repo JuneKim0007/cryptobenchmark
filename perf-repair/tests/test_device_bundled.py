@@ -134,3 +134,19 @@ def test_the_harness_builds_what_the_device_stage_applied(tmp_path):
     app_folder = tmp_path / "app"
     lighter = yaml.safe_load(harness_config(device, base, app_folder).read_text())
     assert [e["artifact"] for e in lighter["providers"]["bundled"]] == ["g:own:1", "g:aaa:1"]
+
+
+def _pinned(*pins):
+    row = BundledRow("g:p", "P", "C", "S", alias="BundledP", badVersions=("2.0",))
+    missing = [MissingProvider("P", tuple(a for a, _ in pins), (Coordinate("g:p", tuple(pins)),), 0)]
+    return suggest(missing, BundledCatalog({"g:p": row}), True)
+
+
+def test_a_known_bad_pin_is_never_built_when_another_pin_exists():
+    out = _pinned(("a", "1.0"), ("b", "2.0"))
+    assert out.matched[0].version == "1.0" and out.matched[0].entry["artifact"] == "g:p:1.0"
+
+
+def test_every_pin_bad_is_blocked():
+    out = _pinned(("b", "2.0"))
+    assert not out.matched and "known bad" in out.blocked[0].reason

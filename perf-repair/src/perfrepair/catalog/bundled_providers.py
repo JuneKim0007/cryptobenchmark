@@ -11,7 +11,7 @@ import yaml
 BUNDLED_PROVIDERS = Path(__file__).with_name("bundled-providers.yaml")
 SCHEMA_VERSION = 1
 REQUIRED = ("artifact", "provider", "create", "source")
-OPTIONAL = ("alias", "minSdk", "notes", "blocked")
+OPTIONAL = ("alias", "minSdk", "notes", "blocked", "badVersions")
 # the forms config's BundledProvider accepts; the version is the app's pin, never the catalog's
 _ARTIFACT = re.compile(r"^[\w.\-]+:[\w.\-]+$")
 _CREATE = re.compile(r"^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+(#[A-Za-z_$][\w$]*)?$")
@@ -34,6 +34,8 @@ class BundledRow:
     minSdk: int | None = None
     notes: str | None = None
     blocked: str | None = None
+    # versions that fail on a device: a pin here is never built
+    badVersions: tuple[str, ...] = ()
 
     def entry(self, version: str) -> dict:
         """The providers.bundled entry at the app's pinned version."""
@@ -67,6 +69,9 @@ def _value_problems(where: str, row: dict, sources: dict) -> list[str]:
     if row.get("minSdk") is not None and not (isinstance(row["minSdk"], int) and row["minSdk"] > 0):
         out.append(f"{where}: minSdk {row['minSdk']!r} is not a positive integer")
     out += [f"{where}: {k} is blank" for k in ("notes", "blocked") if k in row and not (isinstance(row[k], str) and row[k].strip())]
+    bad = row.get("badVersions")
+    if bad is not None and not (isinstance(bad, list) and bad and all(isinstance(v, str) and v for v in bad)):
+        out.append(f"{where}: badVersions {bad!r} is not a list of versions")
     if row.get("source") and row["source"] not in sources:
         out.append(f"{where}: source {row['source']!r} is not in sources")
     return out
