@@ -311,3 +311,13 @@ def test_one_expression_end_with_the_continuations_as_a_parameter():
     assert code.text[8:code.expression_end(8, (), ())] == '"x" +'
     java = Code.of('String a = "x"\n  + "y"; int b;', JAVA)
     assert java.text[10:java.expression_end(10, (), ())] == ' "x"\n  + "y"'
+
+
+def test_a_name_providers_disagree_on_is_kept_as_name_conflict_not_a_stop(run):
+    from dataclasses import replace as with_fields
+    manifest, probe, names = run
+    cipher = next(s for s in detect(open_app(APP), probe.index.engine_types, lambda s: s).sites
+                  if s.engineType == "Cipher" and s.algorithm.literal)
+    conflicted = with_fields(names, conflicts={("Cipher", cipher.algorithm.literal.upper()): "P says one, Q another"})
+    site = resolve(cipher, probe, conflicted, manifest.providers)
+    assert site["resolution"] == "name_conflict" and site["resolvedProvider"] is None

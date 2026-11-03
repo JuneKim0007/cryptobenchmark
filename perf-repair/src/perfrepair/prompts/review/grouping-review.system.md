@@ -11,7 +11,8 @@ Judge a group by three contracts; its members must match on all three:
   primitive, output each one decrypts or verifies for the other (mode, padding, digest, `resolved` parameters,
   curve and output encoding each decide a group; judge by `resolved`, not the name).
 
-Do not report a difference in key size, IV size, tag length, provider identity, or whether a member runs here.
+Do not report a difference in key size (except the derived key length of a password-based name), IV size, tag
+length, provider identity, or whether a member runs here.
 Report the same output format with different bytes (for example SHA-256 and SHA3-256) as two groups.
 
 Report a finding only when the evidence shown supports it:

@@ -91,9 +91,10 @@ def test_password_based_splits_from_raw_and_pkcs12_from_the_other_kdf():
     assert sig("Mac", "HmacPBESHA256").identity != sig("Mac", "PBEWithHmacSHA256").identity
 
 
-def test_a_size_the_pbe_name_pins_does_not_split():
-    assert sig("Cipher", "PBEWITHMD5AND128BITAES-CBC-OPENSSL") == sig("Cipher", "PBEWITHMD5AND256BITAES-CBC-OPENSSL")
-    assert sig("Cipher", "PBEWithHmacSHA256AndAES_128") == sig("Cipher", "PBEWithHmacSHA256AndAES_256")
+def test_a_derived_key_length_the_pbe_name_fixes_splits_but_a_call_key_size_does_not():
+    assert sig("Cipher", "PBEWITHMD5AND128BITAES-CBC-OPENSSL") != sig("Cipher", "PBEWITHMD5AND256BITAES-CBC-OPENSSL")
+    assert sig("Cipher", "PBEWithHmacSHA256AndAES_128") != sig("Cipher", "PBEWithHmacSHA256AndAES_256")
+    assert sig("Cipher", "AES_128/GCM/NoPadding") == sig("Cipher", "AES_256/GCM/NoPadding")
     assert status(sig("Cipher", "PBEWithHmacSHA256AndAES_128"), "kdf") == CONVENTION
 
 

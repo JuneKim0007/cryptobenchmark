@@ -5,10 +5,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.names import Names
+from ..catalog.names import Names, NamesError
 from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
 from ..dto.site import NOT_ON_DEVICE
+
+NAME_CONFLICT = "name_conflict"
 from .find.scan import Site
 
 
@@ -24,7 +26,12 @@ def default_provider(probe: Probe, providers: list[ProviderEntry], engine_type: 
 def resolve(site: Site, probe: Probe, names: Names, providers: list[ProviderEntry]) -> dict:
     """missing: the provider, or the name no provider registers, that a not_on_device site needs; never dropped."""
     alg = site.algorithm.literal
-    canonical = names.canonical(site.engineType, alg) if alg is not None else None
+    try:
+        canonical = names.canonical(site.engineType, alg) if alg is not None else None
+    except NamesError:
+        # providers mean two functions by this spelling: kept and logged, never a stop
+        return site.to_json() | {"resolvedProvider": None, "resolvedAlgorithm": alg, "resolution": NAME_CONFLICT,
+                                 "missing": None, "canonicalAlgorithm": None, "canonicalKeySize": None}
     on_device, missing = {p.name for p in providers}, None
     if site.provider is not None:
         name = site.provider.literal

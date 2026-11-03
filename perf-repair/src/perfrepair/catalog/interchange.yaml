@@ -5,14 +5,21 @@ digestComponents: [digest, mgf1]
 notSplitting: [key size, IV size, tag length, provider]
 engines:
   Cipher:
-    splits: [base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, key]
+    splits: [base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, derivedBits, key]
     key: assumed
     defaults: {wrap: 'false', passwordBased: 'false'}
     rules:
-      - match: 'PBEWithHmac(?P<digest>.+)And(?P<base>[A-Z0-9]+)_\d+'
-        set: {base: $base, digest: $digest, passwordBased: 'true'}
+      # a password-based name fixes the derived key length inside the provider: it splits, unlike a key the call passes
+      - match: 'PBEWithHmac(?P<digest>.+)And(?P<base>[A-Z0-9]+)_(?P<bits>\d+)'
+        set: {base: $base, digest: $digest, passwordBased: 'true', derivedBits: $bits}
         convention: {kdf: provider convention}
-      - match: 'PBEWith(?P<digest>MD5|SHA-?1?|SHA256)And(?:\d+BIT)?(?P<base>[A-Z0-9-]+?)(?:_\d+)?'
+      - match: 'PBEWith(?P<digest>MD5|SHA-?1?|SHA256)And(?P<bits>\d+)BIT(?P<base>[A-Z0-9-]+?)'
+        set: {base: $base, digest: $digest, passwordBased: 'true', derivedBits: $bits}
+        convention: {kdf: provider convention}
+      - match: 'PBEWith(?P<digest>MD5|SHA-?1?|SHA256)And(?P<base>[A-Z0-9-]+?)_(?P<bits>\d+)'
+        set: {base: $base, digest: $digest, passwordBased: 'true', derivedBits: $bits}
+        convention: {kdf: provider convention}
+      - match: 'PBEWith(?P<digest>MD5|SHA-?1?|SHA256)And(?P<base>[A-Z0-9-]+?)'
         set: {base: $base, digest: $digest, passwordBased: 'true'}
         convention: {kdf: provider convention}
       - match: '(?P<base>ARCFOUR|ChaCha20)'

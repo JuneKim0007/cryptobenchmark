@@ -28,7 +28,8 @@ Split on the output contract, for every parameter the name or the provider fixes
 - the same output format with different bytes (for example SHA-256 and SHA3-256, or SHA-1 and SHA-256).
 
 Do not split on:
-- key size, including a size the name pins (an `_128` or `_256` in the name);
+- key size, including a size the name pins (an `_128` or `_256` in the name), except the derived key length of a
+  password-based name, which splits;
 - IV size and tag length;
 - provider identity;
 - whether the primitive runs or was measured on this device.
