@@ -37,7 +37,7 @@ cases:
 - {type: Cipher, name: AES/CBC, canonical: AES/CBC, keySize: null, known: false}
 - {type: Cipher, name: aes, canonical: AES, keySize: null, known: true}
 - {type: Mac, name: HMAC/SHA1, canonical: HmacSHA1, keySize: null, known: true}
-- {type: Cipher, name: PBEWithHmacSHA256AndAES_256, canonical: PBEWithHmacSHA256AndAES_256, keySize: null, known: false}
+- {type: Cipher, name: PBEWithHmacSHA256AndAES_256, canonical: PBEWithHmacSHA256AndAES_256, keySize: null, known: true}
 - {type: Cipher, name: AESWrap, canonical: AES/KW/NoPadding, keySize: null, known: true}
 - {type: Cipher, name: aes/kw/nopadding, canonical: AES/KW/NoPadding, keySize: null, known: true}
 - {type: Cipher, name: AES_256/KW/NoPadding, canonical: AES/KW/NoPadding, keySize: 256, known: true}
@@ -46,3 +46,18 @@ cases:
 - {type: Signature, name: sha3-256withecdsainp1363format, canonical: SHA3-256withECDSAinP1363Format, keySize: null, known: true}
 - {type: KeyAgreement, name: x448, canonical: X448, keySize: null, known: true}
 - {type: Mac, name: HMACSHA3-256, canonical: HmacSHA3-256, keySize: null, known: true}
+- {type: MessageDigest, name: shake128-256, canonical: SHAKE128-256, keySize: null, known: true}
+- {type: Mac, name: PBEWITHHMACSHA256, canonical: PBEWithHmacSHA256, keySize: null, known: true}
+- {type: Mac, name: PBEWITHHMACSHA, canonical: PBEWITHHMACSHA, keySize: null, known: true}
+- {type: Mac, name: HmacPBESHA512/256, canonical: HmacPBESHA512/256, keySize: null, known: true}
+- {type: Cipher, name: pbewithhmacsha512/224andaes_256, canonical: PBEWithHmacSHA512/224AndAES_256, keySize: null, known: true}
+- {type: Cipher, name: PBEWITHMD5AND128BITAES-CBC-OPENSSL, canonical: PBEWITHMD5AND128BITAES-CBC-OPENSSL, keySize: null, known: true}
+- {type: Cipher, name: PBEWITHSHA256AND256BITAES-CBC-BC, canonical: PBEWITHSHA256AND256BITAES-CBC-BC, keySize: null, known: true}
+- {type: Cipher, name: PBEWITHSHAANDTWOFISH-CBC, canonical: PBEWITHSHAANDTWOFISH-CBC, keySize: null, known: true}
+- {type: Signature, name: NONEWITHECDSAINP1363FORMAT, canonical: NONEwithECDSAinP1363Format, keySize: null, known: true}
+- {type: Signature, name: NONEwithDSAinP1363Format, canonical: NONEwithDSAinP1363Format, keySize: null, known: true}
+- {type: Signature, name: hss/lms, canonical: HSS/LMS, keySize: null, known: true}
+- {type: Signature, name: ML-DSA-65, canonical: ML-DSA-65, keySize: null, known: true}
+- {type: KeyPairGenerator, name: ml-kem-768, canonical: ML-KEM-768, keySize: null, known: true}
+- {type: KeyPairGenerator, name: ML-DSA, canonical: ML-DSA, keySize: null, known: true}
+- {type: KeyGenerator, name: SunTls12Prf, canonical: SunTls12Prf, keySize: null, known: true}

@@ -1,3 +1,4 @@
+import pytest
 from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
 from perfrepair.dto.grouping import Item, items_document, profiles_document, read_items, read_profiles
@@ -81,6 +82,22 @@ def test_a_probe_only_device_folder_builds_and_reports_no_key_sizes(tmp_path):
     profiles = read_profiles(yaml.safe_load(paths.profiles.read_text()))
     assert all(p.measured is None and p.preparedKeySizes is None for p in profiles.values())
     assert common_key_sizes(list(profiles), profiles) == []
+
+
+def test_a_name_two_providers_mean_differently_is_built_not_stopped():
+    from perfrepair.catalog.families import Families
+    from perfrepair.catalog.names import Names, NamesError
+    from perfrepair.data_handler.inbound.probe import Probe
+    probe = Probe({"providers": [
+        {"name": "P1", "services": [{"type": "Mac", "algorithm": "HmacSHA256", "aliases": ["PBEWITHHMACSHA256"]}]},
+        {"name": "P2", "services": [{"type": "Mac", "algorithm": "PBEWITHHMACSHA256"}]}]})
+    names = probe.names(Names.load())
+    trial = {"services": [{"provider": "P2", "type": "Mac", "algorithm": "PBEWITHHMACSHA256", "instantiates": True},
+                          {"provider": "P1", "type": "Mac", "algorithm": "HmacSHA256", "instantiates": True}]}
+    with pytest.raises(NamesError, match="name_conflict"):
+        names.canonical("Mac", "PBEWITHHMACSHA256")
+    items, _ = build(probe, names, trial, Families.load())
+    assert [i.name for i in items] == ["HmacSHA256", "PBEWITHHMACSHA256"]
 
 
 def test_build_with_a_missing_input_is_a_one_line_error(tmp_path, capsys):

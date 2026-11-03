@@ -31,7 +31,7 @@ components:
     mode:
       ECB: {status: deprecated, reason: ECB leaks plaintext structure; r3 draft disallows ECB for confidentiality; Android lint GetInstance flags ECB, source: LINTGI}
 # AOSP DEPRECATED_ALGORITHMS throws at targetSdk >= deprecatedApi. Left out: OIDs, non-item types, Mac PBEWITHHMACSHA*
-# (Conscrypt aliases it to HmacSHA*), KeyPairGenerator RSA (off the AOSP12 list, still registered at API 36).
+# (Conscrypt aliases it to HmacSHA*, BC registers it password-based: a name_conflict), KeyPairGenerator RSA (off the AOSP12 list, still registered at API 36).
 platform:
   - provider: BC
     deprecatedApi: 28
@@ -233,6 +233,8 @@ crypto:
 # SP 800-131A r3 is a draft: recorded for review, never enforced.
 future:
   MessageDigest:
+    SHAKE128-256: {note: 'R3 Table 13: SHAKE acceptable as specified in approved applications', source: R3}
+    SHAKE256-512: {note: 'R3 Table 13: SHAKE acceptable as specified in approved applications', source: R3}
     SHA-1: {note: 'R3: deprecated through 2030, disallowed after', source: R3}
     SHA-224: {note: 'R3: deprecated through 2030', source: R3}
     SHA-512/224: {note: 'R3: deprecated through 2030', source: R3}
@@ -243,6 +245,11 @@ future:
     HmacSHA512/224: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
     HmacSHA3-224: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
   Signature:
+    ML-DSA: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-DSA-44: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-DSA-65: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-DSA-87: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    HSS/LMS: {note: 'R3: parameter sets in SP 800-208 acceptable', source: R3}
     SHA224withRSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
     SHA224withECDSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
     SHA224withDSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
@@ -271,4 +278,12 @@ future:
     AES/ECB/NoPadding: {note: R3 (draft) makes it NIST-sourced, source: R3}
     AES/ECB/PKCS5Padding: {note: R3 (draft) makes it NIST-sourced, source: R3}
   KeyPairGenerator:
+    ML-DSA: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-DSA-44: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-DSA-65: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-DSA-87: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
+    ML-KEM: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
+    ML-KEM-512: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
+    ML-KEM-768: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
+    ML-KEM-1024: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
     DSA: {note: 'R3: DSA signature generation disallowed', source: R3}
