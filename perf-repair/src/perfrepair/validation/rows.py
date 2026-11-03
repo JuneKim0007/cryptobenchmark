@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 
 from ..dto import PrimitiveRow
+from ..dto.pattern import VARIANTS
 
 IDENTITY = ("rowId", "type", "algorithm", "provider", "operation")
 
@@ -14,4 +15,5 @@ def validate_rows(rows: list[PrimitiveRow]) -> list[str]:
         problems += [f"{r.rowId}: {f} {getattr(r, f)!r} is not a positive integer"
                      for f in ("keySize", "inputSize")
                      if getattr(r, f) is not None and (not isinstance(getattr(r, f), int) or getattr(r, f) <= 0)]
+        problems += [] if r.variant in VARIANTS else [f"{r.rowId}: variant {r.variant!r} is not one of {VARIANTS}"]
     return problems

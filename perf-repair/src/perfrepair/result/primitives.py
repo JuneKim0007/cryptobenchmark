@@ -10,7 +10,7 @@ from ..dto.primitives import PrimitiveLine, PrimitivesTable, column, rounded
 from ..dto.screen import Verdict
 from ..stop.halt import Coded
 
-WORK_FIELDS = ("type", "algorithm", "provider", "operation", "keySize", "phase")
+WORK_FIELDS = ("type", "algorithm", "provider", "operation", "keySize", "phase", "variant")
 Cells = dict[int | None, dict[str, Summary]]
 
 

@@ -48,6 +48,7 @@ class Configuration:
     keySize: int | None
     inputSize: int | None
     phase: str | None
+    variant: str
     members: tuple[MemberStats, ...]
     pairs: tuple[PairMetrics, ...]
 

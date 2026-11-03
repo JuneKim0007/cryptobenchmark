@@ -7,6 +7,7 @@ import yaml
 
 from .dto import Measurements, PrimitiveRow, RunLog
 from .dto.device import DeviceRecord
+from .dto.primitive import ROWS_SCHEMA_VERSION
 from .dto.site import DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SITES_SCHEMA_VERSION
 from .dto.used import UsedSet
 from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
@@ -149,7 +150,10 @@ def worthiness_modes(device: Path) -> list[str]:
 
 
 def load_rows(device: Path) -> list[PrimitiveRow]:
-    return [PrimitiveRow.from_json(r) for r in read_json(Path(device) / ROWS)["rows"]]
+    doc = read_json(Path(device) / ROWS)
+    if doc.get("schemaVersion") != ROWS_SCHEMA_VERSION:
+        raise ValueError(f"rows schemaVersion {doc.get('schemaVersion')} is not {ROWS_SCHEMA_VERSION}")
+    return [PrimitiveRow.from_json(r) for r in doc["rows"]]
 
 
 def load_measurements(device: Path) -> Measurements:

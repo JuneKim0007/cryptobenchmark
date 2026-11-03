@@ -387,7 +387,7 @@ def test_same_function_source_is_shown_once_in_a_unit():
 
 def _table():
     def line(provider, ns, op="OP1", key=128):
-        return PrimitiveLine("TypeA", "ALG-A/MODE-X", provider, op, key, "WARM", "accepted",
+        return PrimitiveLine("TypeA", "ALG-A/MODE-X", provider, op, key, "WARM", "notFixed", "accepted",
                              {"timeNs@64": ns, "timeNs@-": None, "energyJ@64": 0.5}, {"timeNs": 40, "energyJ": 1},
                              {"timeNs": 0.01, "energyJ": 0.2})
     lines = (line("P1", 662.0), line("P2", 400.0), line("P2", 1.0, op="OP2"), line("P3", 500.0, key=256), line("P9", 1.0))

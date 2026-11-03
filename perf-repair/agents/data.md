@@ -77,8 +77,8 @@ src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/metrics.py : the metric registry, the only metric list: benchmark.json name, unit, lowerIsBetter, energy kinds, perfMode keys, required, positive, the run.metrics or energy capture that measures it
 src/perfrepair/dto/pattern.py : the two divergence categories (fixed, notFixed), the benchmark variants and the legacy one, each pattern reason with its category and rule words
 src/perfrepair/dto/perf_mode.py : PerfMode: `generic`/`all` (every key, overall rule) or a list of keys parsed and named; the union across apps; the selected registry metrics, the required ones, the views timeNs is shown as; the no_evidence reason
-src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
-src/perfrepair/dto/primitives.py : PrimitiveLine, PrimitivesTable: primitives.tsv (schema 2) as text both ways; a median column per (metric, input size), n and cv per metric; 4 significant digits
+src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration and its benchmark variant, no numbers; rows.json schema
+src/perfrepair/dto/primitives.py : PrimitiveLine, PrimitivesTable: primitives.tsv (schema 3, a variant column) as text both ways; a median column per (metric, input size), n and cv per metric; 4 significant digits
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds; each prompt's source, never hashed
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, has_views (the time metric throughput selects), funnel stages, the members a unit left staying, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses

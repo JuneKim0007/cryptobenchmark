@@ -100,6 +100,29 @@ def test_measurements_are_keyed_by_row_and_kept_apart_from_rows(results):
     assert "allocationCount" not in measurements["g_slow"]
 
 
+def test_a_case_carries_its_variant_and_one_without_is_the_legacy_notfixed(tmp_path, run, prepared):
+    doc = json.loads(run[2]("benchmark").read_text())
+    doc["cases"][0]["variant"] = "fixed"
+    path = tmp_path / "benchmark.json"
+    path.write_text(json.dumps(doc))
+    rows = read_results(path, prepared)[0]
+    assert {r.rowId: r.variant for r in rows} == {"g_fast": "fixed", "g_slow": "notFixed", "d_fast": "notFixed"}
+
+
+def test_the_rows_validator_refuses_a_variant_outside_the_two():
+    from dataclasses import replace
+    from helpers import row
+    from perfrepair.validation.rows import validate_rows
+    assert validate_rows([replace(row("a", "P1"), variant="warm")]) == ["a: variant 'warm' is not one of ('fixed', 'notFixed')"]
+
+
+def test_rows_of_an_older_schema_are_unreadable_so_the_device_stage_reruns_inbound(tmp_path):
+    from perfrepair import run_dir as rd
+    (tmp_path / rd.ROWS).write_text(json.dumps({"schemaVersion": 1, "rows": []}))
+    with pytest.raises(ValueError, match="rows schemaVersion 1 is not 2"):
+        rd.load_rows(tmp_path)
+
+
 def test_comparability_from_runtime_and_process_count(run):
     notes = comparability(run[0].runtime, 1)
     assert any(n.startswith("cpu_not_locked") for n in notes)
@@ -233,7 +256,7 @@ def test_run_context_reads_each_piece_on_first_use_and_takes_injected_ones():
 def test_command_writes_the_run_directory(tmp_path, capsys):
     assert main(["--device-results", str(with_results(tmp_path))]) == 0
     docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log")}
-    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 4, "run_log": 1}
+    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 2, "measurements": 4, "run_log": 1}
     assert len(docs["rows"]["rows"]) == 3
     assert docs["measurements"]["measurements"]["g_fast"]["timeNs"]["median"] == 100
     assert not (tmp_path / "sites.json").exists()

@@ -26,7 +26,8 @@ from ...runtime.prompt import PromptLibrary
 
 DRY_RUN = ScriptedConversations(lambda *_: {"decision": "skip", "pairs": [], "reason": "dry run: no model was called"})
 # 2: members carry every registry metric, pairs a comparison per metric; 3: only the perfMode's metrics, no time fields
-EVIDENCE_SCHEMA_VERSION = 3
+# 4: a configuration per benchmark variant
+EVIDENCE_SCHEMA_VERSION = 4
 
 
 def worthiness(run_path: Path, mode: Mode, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),

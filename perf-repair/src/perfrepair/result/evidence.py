@@ -12,7 +12,8 @@ from ..dto.screen import Verdict, lowers_status
 from .confidence import level
 from .estimate import compare
 
-WORK_FIELDS = ("operation", "keySize", "inputSize", "phase")
+# one configuration per benchmark variant: a fixed and a notFixed row are never paired
+WORK_FIELDS = ("operation", "keySize", "inputSize", "phase", "variant")
 
 
 def _compare(metric: Metric, a: Summary, b: Summary) -> MetricComparison:

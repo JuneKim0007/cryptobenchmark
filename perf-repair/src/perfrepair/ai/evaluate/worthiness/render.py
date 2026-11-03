@@ -72,7 +72,7 @@ def _pair(p: PairMetrics, shown: list[Shown], short: dict[str, str], mode: Mode)
 def _configuration(c: Configuration, short: dict[str, str], mode: Mode, units: DisplayUnits) -> list[str]:
     shown = [_shown(m, mode, units, c.inputSize) for m in METRICS if any(m.name in s.metrics for s in c.members)]
     member_head, pair_head = _heads(shown, units)
-    lines = ["", f"CONFIGURATION {c.operation} key {c.keySize} input {c.inputSize} {c.phase}", member_head]
+    lines = ["", f"CONFIGURATION {c.operation} key {c.keySize} input {c.inputSize} {c.phase} {c.variant}", member_head]
     lines += [f"  {short[s.itemId]} | " + " | ".join(_stats(x, s.metrics.get(x.metric.name)) for x in shown) for s in c.members]
     return lines + [pair_head] + [_pair(p, shown, short, mode) for p in c.pairs]
 

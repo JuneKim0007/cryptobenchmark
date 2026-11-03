@@ -47,11 +47,11 @@ def test_a_deprecated_primitive_keeps_its_line_and_status():
 def test_the_text_form_reads_back_equal_and_is_compact(tmp_path):
     text = TABLE.to_tsv()
     lines = text.splitlines()
-    assert lines[0] == "#schemaVersion\t2"
-    assert lines[1].split("\t")[:7] == ["type", "algorithm", "provider", "operation", "keySize", "phase", "status"]
+    assert lines[0] == "#schemaVersion\t3"
+    assert lines[1].split("\t")[:8] == ["type", "algorithm", "provider", "operation", "keySize", "phase", "variant", "status"]
     assert lines[1].split("\t")[-6:] == ["timeNs.n", "allocationCount.n", "energyJ.n", "timeNs.cv", "allocationCount.cv",
                                           "energyJ.cv"]
-    assert "TypeA\tALG-A\tP1\tGEN\t-\tWARM\taccepted\t-\t-\t123500\t-\t-\t7\t-\t-\t0.01\t-\t-" in lines
+    assert "TypeA\tALG-A\tP1\tGEN\t-\tWARM\tnotFixed\taccepted\t-\t-\t123500\t-\t-\t7\t-\t-\t0.01\t-\t-" in lines
     assert "1.235e-05" in text
     write_text(tmp_path / "primitives.tsv", text)
     assert read_primitives(tmp_path) == TABLE
@@ -59,7 +59,7 @@ def test_the_text_form_reads_back_equal_and_is_compact(tmp_path):
 
 def test_another_schema_is_refused():
     with pytest.raises(ValueError, match="schemaVersion"):
-        PrimitivesTable.from_tsv(TABLE.to_tsv().replace("#schemaVersion\t2", "#schemaVersion\t1"))
+        PrimitivesTable.from_tsv(TABLE.to_tsv().replace("#schemaVersion\t3", "#schemaVersion\t2"))
 
 
 def test_the_validator_accepts_the_table_and_names_an_edited_line():
@@ -74,3 +74,10 @@ def test_the_validator_accepts_the_table_and_names_an_edited_line():
 def test_a_row_without_a_screen_verdict_is_refused():
     with pytest.raises(ValueError, match="primitive_not_screened"):
         build_table(ROWS, M, {k: v for k, v in STATUS.items() if "ALG-D" not in k})
+
+
+def test_each_variant_of_one_primitive_is_its_own_line():
+    rows = [row("f", "P1", variant="fixed"), row("n", "P1")]
+    table = build_table(rows, {"f": {"timeNs": summary(10)}, "n": {"timeNs": summary(90)}}, {"TypeA|ALG-A|P1": "accepted"})
+    assert {(x.variant, x.medians["timeNs@64"]) for x in table.lines} == {("fixed", 10), ("notFixed", 90)}
+    assert PrimitivesTable.from_tsv(table.to_tsv()) == table

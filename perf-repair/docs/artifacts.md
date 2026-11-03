@@ -28,7 +28,7 @@
 |---|---|---|---|
 | `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the report and both renders (absent: ms, MB/s) | `validation/manifest.py` |
 | `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark: the generated config's digest, the measured set's digest and items; `bundled`, with `device.bundled.fromApps: apply`: the applied entries' digest and the manifest's `bundled` and `config` digests they produced; unreadable counts as absent |
-| `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
+| `rows.json` | inbound | worthiness, validation | `validation/rows.py`: schema 2, every row's `variant` `fixed` or `notFixed` (a benchmark case without one is the legacy `notFixed`) |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |
@@ -76,8 +76,8 @@ One stored, compact view of the benchmark results: on the API 30 emulator run, 4
 
 | part | holds |
 |---|---|
-| first line | `#schemaVersion<TAB>2`; the reader refuses another |
-| key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest |
+| first line | `#schemaVersion<TAB>3`; the reader refuses another |
+| key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `variant`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest, `variant` (`fixed`, `notFixed`, schema 3) the two benchmark variants of one primitive, never mixed |
 | `status` | the item's run-level `grouping/screen.json` status (no targetSdk); deprecated lines stay with their status, a site's current call needs its own line |
 | `<metric>@<input size>` | the median, per registry metric (`dto/metrics.py`) with runs and per input size it was measured at, `@-` without an input size; `-` where that size was not measured |
 | `<metric>.n` | the fewest runs among that metric's cells: one energy window beside fifty timings is `energyJ.n` 1, `timeNs.n` 50; schema 1 had one `n`, the fewest over every metric |

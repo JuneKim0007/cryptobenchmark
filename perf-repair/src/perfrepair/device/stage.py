@@ -67,10 +67,11 @@ def _inbound(folder: Path) -> str | None:
     missing = [f for f in (rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG) if not (folder / f).is_file()]
     if missing:
         return f"{missing[0]} missing"
-    try:
-        rd.load_measurements(folder)
-    except (ValueError, KeyError, TypeError) as e:
-        return f"{rd.MEASUREMENTS} unreadable ({e})"
+    for name, load in ((rd.ROWS, rd.load_rows), (rd.MEASUREMENTS, rd.load_measurements)):
+        try:
+            load(folder)
+        except (ValueError, KeyError, TypeError) as e:
+            return f"{name} unreadable ({e})"
     return None
 
 

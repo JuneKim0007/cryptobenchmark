@@ -11,6 +11,7 @@ from pathlib import Path
 
 from ...dto import PrimitiveRow, Summary
 from ...dto.metrics import METRICS
+from ...dto.pattern import LEGACY_VARIANT
 from .bootstrap import median_interval
 
 Measurements = dict[str, dict[str, Summary]]
@@ -86,7 +87,7 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
             operation=c["operation"], keySize=c.get("keySize"), inputSize=c.get("inputSize"),
             phase=plan.get("phase"),
             keyKind=(plan.get("key") or {}).get("kind") or c.get("keyKind"),
-            parameters=c.get("parameters"),
+            parameters=c.get("parameters"), variant=c.get("variant") or LEGACY_VARIANT,
         ))
         measurements[c["id"]] = summaries
     return rows, measurements, lacking

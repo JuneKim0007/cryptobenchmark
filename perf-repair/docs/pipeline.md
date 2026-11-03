@@ -81,7 +81,7 @@ Before any stage it checks the config `--identify` names against the perfMode (`
 | `rows.json`, `measurements.json`, `grouping/screen.json` | device.yaml `primitives` | kept | kept | kept | kept | reruns |
 
 - primitives writes `primitives.tsv` ([artifacts.md](artifacts.md) `primitives.tsv`), no model; `guide --refresh` reruns it alone; a device.yaml without `primitives` reruns only it.
-- An unreadable `measurements.json`, an older schema included, reruns inbound.
+- An unreadable `rows.json` or `measurements.json`, an older schema included, reruns inbound.
 
 - A stage also runs when its output is missing: no manifest (probe), no `files.benchmark` (benchmark), no `rows.json` (inbound), no `grouping/screen.json` (screen), no `primitives.tsv` (primitives); and when a stage it reads from reruns.
 - Probe and benchmark are one `pipeline.py --bench` (`--device` on a phone); on a host a kept probe is passed `--discovery reuse`; a phone always probes again, logged `ran: a device benchmark probes the device it measures`.

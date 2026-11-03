@@ -42,7 +42,7 @@ src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; consistent_units
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement, selected as the mode says), funnel recount, app partition
 src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
-src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
+src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes, a known variant
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
 src/perfrepair/validation/suggest/site_performance.py : the replacement gate's performance part: a listed perfMode's strict rule, generic's named deciding metrics and accepted losses over the code labels; recommend's change line and needs; concerns' length

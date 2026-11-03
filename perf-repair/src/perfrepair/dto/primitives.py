@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-SCHEMA_VERSION = 2
+# 3: a variant column; a line per variant, never mixed
+SCHEMA_VERSION = 3
 SCHEMA_LINE = f"#schemaVersion\t{SCHEMA_VERSION}"
-KEY = ("type", "algorithm", "provider", "operation", "keySize", "phase", "status")
+KEY = ("type", "algorithm", "provider", "operation", "keySize", "phase", "variant", "status")
 ABSENT = "-"
 SIGNIFICANT = 4
 
@@ -65,6 +66,7 @@ class PrimitiveLine:
     operation: str
     keySize: int | None
     phase: str | None
+    variant: str
     status: str
     medians: dict[str, float | None]
     # runs per metric: one energy window is not fifty timings
@@ -107,9 +109,10 @@ class PrimitivesTable:
             cells = raw.split("\t")
             if len(cells) != len(names):
                 raise ValueError(f"primitives.tsv line {number}: {len(cells)} cells, the header has {len(names)}")
-            kind, algorithm, provider, operation, key_size, phase, status = (None if c == ABSENT else c for c in cells[:len(KEY)])
+            kind, algorithm, provider, operation, key_size, phase, variant, status = (
+                None if c == ABSENT else c for c in cells[:len(KEY)])
             lines.append(PrimitiveLine(kind, algorithm, provider, operation, None if key_size is None else int(key_size),
-                                       phase, status, dict(zip(columns, map(_number, cells[len(KEY):n_at]))),
+                                       phase, variant, status, dict(zip(columns, map(_number, cells[len(KEY):n_at]))),
                                        dict(zip(metrics, map(_count, cells[n_at:cv_at]))),
                                        dict(zip(metrics, map(_number, cells[cv_at:])))))
         return cls(columns, metrics, tuple(lines))

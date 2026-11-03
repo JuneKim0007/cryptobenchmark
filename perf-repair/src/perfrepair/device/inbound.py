@@ -7,13 +7,12 @@ from .. import run_dir as rd
 from ..data_handler.inbound import build_run_log, comparability, manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.inbound.results import ended_throttled, thermal_of
 from ..dto import Measurements
+from ..dto.primitive import ROWS_SCHEMA_VERSION
 from ..files import read_json, write_json
 from ..log import step
 from ..validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
 from ..stop import terminate
 from ..stop.halt import Coded
-
-SCHEMA_VERSION = 1
 
 
 def write_inbound(device: Path) -> list[str]:
@@ -52,7 +51,7 @@ def _write_inbound(device: Path) -> tuple[list[str], dict]:
     require(rd.MEASUREMENTS, validate_measurements(summaries, rows))
     require(rd.RUN_LOG, validate_run_log(log, rows))
 
-    write_json(Path(device) / rd.ROWS, {"schemaVersion": SCHEMA_VERSION, "rows": [r.to_json() for r in rows]})
+    write_json(Path(device) / rd.ROWS, {"schemaVersion": ROWS_SCHEMA_VERSION, "rows": [r.to_json() for r in rows]})
     write_json(Path(device) / rd.MEASUREMENTS, summaries.to_json())
     write_json(Path(device) / rd.RUN_LOG, log.to_json())
     return [f"{device}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records",

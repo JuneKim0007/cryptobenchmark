@@ -35,6 +35,16 @@ def test_pairs_only_within_one_configuration():
     assert by["timeNs"].pImprove == 1.0 and by["timeNs"].level == "ok"
 
 
+def test_a_fixed_and_a_notfixed_row_are_never_paired_and_the_render_names_the_variant():
+    rows = [row("f1", "P1", variant="fixed"), row("n2", "P2")]
+    m = {"f1": {"timeNs": summary(10)}, "n2": {"timeNs": summary(100)}}
+    g = {e.groupId: e for e in build_evidence(GROUPS, rows, m, None, GENERIC.perf)}["g-a"]
+    assert [(c.variant, len(c.members), len(c.pairs)) for c in g.configurations] == [("fixed", 1, 0), ("notFixed", 1, 0)]
+    both = [row("f1", "P1", variant="fixed"), row("f2", "P2", variant="fixed")]
+    g = {e.groupId: e for e in build_evidence(GROUPS, both, {"f1": m["f1"], "f2": m["n2"]}, None, GENERIC.perf)}["g-a"]
+    assert "CONFIGURATION OP1 key 128 input 64 WARM fixed" in render(g, GENERIC, [])
+
+
 def test_one_selected_metric_improving_is_enough_unless_another_worsens():
     p = next(p for c in EVIDENCE["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
     assert LATENCY.improves(p) and not LATENCY_ALLOC.improves(p) and not GENERIC.improves(p)

@@ -57,8 +57,8 @@ def label_charter(schema):
 
 
 def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_size=128, input_size=64,
-        operation="OP1"):
-    return PrimitiveRow(rid, type_, algorithm, provider, operation, key_size, input_size, "WARM", key_kind)
+        operation="OP1", variant="notFixed"):
+    return PrimitiveRow(rid, type_, algorithm, provider, operation, key_size, input_size, "WARM", key_kind, variant=variant)
 
 
 def summary(median, spread=1.0, n=50):
