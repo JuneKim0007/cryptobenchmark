@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import re
 
-from ...dto.grouping import Item
-from ...dto.grouping_state import Amendment, Answer, Knowledge
+from ...dto.grouping import Item, Profile
+from ...dto.grouping_state import Amendment, Answer, Group, Knowledge
 from ...catalog.families import Families
 from ..json_reply import parse_object
 
@@ -41,7 +41,23 @@ def description_problems(where: str, text: str) -> list[str]:
     return []
 
 
-def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Families) -> list[str]:
+def _signature_problems(group: str, item: Item, family_groups: dict[str, Group], profiles: dict[int, Profile] | None) -> list[str]:
+    """A join across a component both sides know; a member without a signature decides nothing."""
+    profiles = profiles or {}
+    mine = profiles[item.id].signature if item.id in profiles else None
+    if mine is None or group not in family_groups:
+        return []
+    problems = []
+    for member in family_groups[group].members:
+        theirs = profiles[member].signature if member in profiles else None
+        problems += [f"group {group!r}: member {member} has {name}={theirs.known()[name]}, this item has "
+                     f"{name}={mine.known()[name]}; create another group"
+                     for name in (mine.differing(theirs) if theirs else [])]
+    return problems
+
+
+def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Families,
+                    profiles: dict[int, Profile] | None = None) -> list[str]:
     problems = []
     if bool(a.group) == bool(a.newGroupId):
         problems.append("give exactly one of group (join) or newGroup.id (create)")
@@ -49,6 +65,7 @@ def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Famil
     if a.group and a.group not in family_groups:
         problems.append(f"group {a.group!r} is not a group of family {item.family} "
                         f"(its groups: {sorted(family_groups) or 'none yet'})")
+    problems += _signature_problems(a.group, item, family_groups, profiles)
     if a.newGroupId:
         if not SLUG.match(a.newGroupId):
             problems.append(f"newGroup.id {a.newGroupId!r} must match {SLUG.pattern}")

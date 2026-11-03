@@ -33,12 +33,18 @@ Do not split on:
 - provider identity;
 - whether the primitive runs or was measured on this device.
 
+A `signature:` line states what code read for the primitive or for every member of a group:
+- `x=not known`: nothing recorded fixes x, and the name's usual default does not; judge x by what the message shows;
+- `x=… (assumed)`: a provider's convention, recorded for no provider; a reason to doubt it is a reason to split;
+- no line, or `name=not known`: code recognises no function for the name; judge by the name and the other lines.
+
 Judge the function, not the spelling: group two names of one function (a padding alias, `None` for `ECB` with
 RSA), and split one name that is two functions on two providers.
 
 ## Decide
 
-- Join an existing group only when the primitive is interchangeable with every member described.
+- Join an existing group only when the primitive is interchangeable with every member described, and only
+  when the two `signature:` lines give no different value for one component.
   Otherwise, or when unsure, create a group.
 - A new group has an id matching `{id_pattern}` that is neither a family id nor an existing group id, and
   a description of at most {max_description} characters, precise enough to judge a later primitive against:
@@ -64,4 +70,5 @@ An empty string has no characters: write "" and never put quote marks inside it.
 Code rejects an answer that gives both or neither of `group` and `newGroup.id`; joins or amends a group
 that is not listed for this family; creates an id that does not match the pattern, already exists, or is a
 family id; gives a description that is empty or longer than {max_description} characters; amends a group
-twice; or has an empty reason. A rejected answer comes back with its problems; correct it.
+twice; joins a group whose `signature:` gives another value for a component this primitive's `signature:` or `key:` line
+gives; or has an empty reason. A rejected answer comes back with its problems; correct it.
