@@ -1,7 +1,8 @@
 """A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log
 and its selection.exclude one in excluded.log.
 The device folder is the recorded test-api36 results, each providers.bundled entry adding a provider named by its alias
-or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
+or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=1 fails after the old manifest is gone;
+FAKE_VARIANTS=1 writes every case twice, `<id>_fixed` (Fast's runs times FIXED_SCALE) and `<id>_notFixed`, as the benchmark does."""
 import argparse, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -63,6 +64,26 @@ for entry in shipped:
     name = entry.get("alias") or entry["create"]
     bench["cases"] += [{**c, "id": f"{c['id']}_{name}", "provider": name} for c in list(bench["cases"])
                        if (c["type"], c["algorithm"]) in ADDED and c["provider"] == "Fast"]
+FIXED_SCALE = 4
+PER_CALL = {"fixed": "initAndOperation", "notFixed": "getInstanceInitAndOperation"}
+
+
+def scaled(case):
+    metrics = {k: {**v, "runs": [r * FIXED_SCALE for r in v["runs"]]} if k == "timeNs" and case["provider"] == "Fast" else v
+               for k, v in case["metrics"].items()}
+    return {**case, "metrics": metrics}
+
+
+def both(case, variant):
+    """The key right after keyKind, as the benchmark writes it."""
+    keyed = list({**case, "id": f"{case['id']}_{variant}"}.items())
+    at = [k for k, _ in keyed].index("keyKind") + 1
+    out = dict(keyed[:at] + [("variant", variant)] + keyed[at:])
+    return scaled(out) if variant == "fixed" else out
+
+
+if os.environ.get("FAKE_VARIANTS"):
+    bench["cases"] = [both(c, v) for c in bench["cases"] for v in ("fixed", "notFixed")]
 bench_path.write_text(json.dumps(bench))
 prepared_path = folder / "preparation" / "prepared.yaml"
 prepared = yaml.safe_load(prepared_path.read_text())
@@ -70,6 +91,9 @@ for entry in shipped:
     name = entry.get("alias") or entry["create"]
     prepared["cases"] += [{**c, "id": f"{c['id']}_{name}", "provider": name} for c in list(prepared["cases"])
                           if (c["type"], c["algorithm"]) in ADDED and c["provider"] == "Fast"]
+if os.environ.get("FAKE_VARIANTS"):
+    prepared["cases"] = [{**c, "id": f"{c['id']}_{v}", "variant": v, "perCall": PER_CALL[v]}
+                         for c in prepared["cases"] for v in ("fixed", "notFixed")]
 prepared_path.write_text(yaml.safe_dump(prepared, sort_keys=False))
 probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))
 trial_path.write_text(yaml.safe_dump(trial, sort_keys=False))
