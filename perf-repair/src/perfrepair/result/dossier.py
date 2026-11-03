@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from ..dto import PrimitiveRow, Summary
-from ..dto.grouping import parse_qualified, qualified
+from ..dto.grouping import provider_of, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
@@ -104,10 +104,10 @@ class Joined:
         return bool(entry and entry.get("runs"))
 
     def _usable(self, q: str) -> bool:
-        return self._runs(q) and parse_qualified(q)[2] in self.available
+        return self._runs(q) and provider_of(q) in self.available
 
     def _foreign(self, q: str) -> bool:
-        return parse_qualified(q)[2] not in self.available
+        return provider_of(q) not in self.available
 
     def _measured_here(self, q: str) -> bool:
         return self._runs(q) and bool(self.measured.get(q))
@@ -121,7 +121,7 @@ class Joined:
         if self.family is None:
             return []
         members = [foreign_member(s, q) for q in others or () if self._foreign(q) and self._measured_here(q)]
-        return members + self.family.classed(s, current, set(others or ()), lambda q: parse_qualified(q)[2], self._measured_here,
+        return members + self.family.classed(s, current, set(others or ()), self._measured_here,
                                              lambda q: self._lowers(current, q), self._foreign)
 
     def _drop_in(self, current: str, others: list[str] | None) -> tuple[list[str], str | None]:
@@ -174,7 +174,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
     if bare:
         raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
     if available is None:
-        available = {parse_qualified(v["qualified"])[2] for v in groups["items"].values()}
+        available = {provider_of(v["qualified"]) for v in groups["items"].values()}
         available |= {b["providerName"] for b in app_doc.get("bundled") or []}
     measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
     for r in rows:

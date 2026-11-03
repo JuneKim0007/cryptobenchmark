@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from ..catalog.names import fold
 from ..catalog.types import Types
 from ..dto.change import DROP_IN, Change, admits
+from ..dto.grouping import provider_of
 from ..dto.site import Scope
 from ..dto.types import TypeRow
 from .change import Candidate, classify
@@ -34,7 +35,7 @@ class Family:
         return sorted(q for q, f in self.family_of.items() if f == family and q != current and q not in group
                       and (mine is None or self.canonical_of.get(q) is None or fold(self.canonical_of[q]) != fold(mine)))
 
-    def classed(self, s: Scope, current: str, group: set[str], provider_of, measured, lowers, foreign) -> list[Change]:
+    def classed(self, s: Scope, current: str, group: set[str], measured, lowers, foreign) -> list[Change]:
         """measured, lowers, foreign (item): the run's facts the type catalog does not hold."""
         mine = self.row(current)
         return [classify(self.types, s, mine, Candidate(q, self.row(q), measured(q), provider_of(q) in self.bundled,

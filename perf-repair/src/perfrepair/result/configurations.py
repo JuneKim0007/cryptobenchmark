@@ -1,32 +1,43 @@
 """The configurations an option is estimated at: those nearest the scope, the pins they show, and per metric the estimate."""
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from ..dto import PrimitiveRow, Summary
 from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME
 from ..dto.site import Estimate, NoEstimate, Scope, reason_code
 from .estimate import compare
 
-Config = tuple  # (operation, keySize, inputSize, phase)
+class Config(NamedTuple):
+    operation: str
+    keySize: int | None
+    inputSize: int | None
+    phase: str
 
 
 def config_of(r: PrimitiveRow) -> Config:
-    return r.operation, r.keySize, r.inputSize, r.phase
+    return Config(r.operation, r.keySize, r.inputSize, r.phase)
 
 
 def label(c: Config) -> str:
-    return f"{c[0]} key {c[1]} input {c[2]} {c[3]}"
+    return f"{c.operation} key {c.keySize} input {c.inputSize} {c.phase}"
+
+
+def _order(c: Config) -> str:
+    return str(tuple(c))
 
 
 def nearest(scope: Scope, current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow],
             operations: tuple[str, ...] = ()) -> list[Config]:
     """Configurations both measured at the scope's key size and the closest input size; every size when unknown.
     operations: only these, when given."""
-    shared = [c for c in current if c in option and scope.keySize in (None, c[1]) and (not operations or c[0] in operations)]
+    shared = [c for c in current if c in option and scope.keySize in (None, c.keySize)
+              and (not operations or c.operation in operations)]
     if scope.inputSize is None or not shared:
-        return sorted(shared, key=str)
-    gap = min(abs((c[2] or 0) - scope.inputSize) for c in shared)
-    return sorted((c for c in shared if abs((c[2] or 0) - scope.inputSize) == gap), key=str)
+        return sorted(shared, key=_order)
+    gap = min(abs((c.inputSize or 0) - scope.inputSize) for c in shared)
+    return sorted((c for c in shared if abs((c.inputSize or 0) - scope.inputSize) == gap), key=_order)
 
 
 def operations(scope: Scope) -> tuple[str, ...]:
