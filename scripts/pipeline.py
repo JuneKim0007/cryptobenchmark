@@ -54,6 +54,10 @@ def units(files):
     return {"units": found} if found else {}
 
 
+def survived(problems):
+    return {"problems": list(problems)} if problems else {}
+
+
 def manifest(results, mode, configuration, files, problems=()):
     import yaml
     def load(key):
@@ -75,7 +79,7 @@ def manifest(results, mode, configuration, files, problems=()):
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
-    } | units(files) | energy_stage.estimated_mark(files.get("energy")) | ({"problems": list(problems)} if problems else {})
+    } | units(files) | energy_stage.estimated_mark(files.get("energy")) | survived(problems)
     path = results / results_layout.MANIFEST
     results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")
@@ -103,15 +107,20 @@ def measure_on_device(device, session, source, options, captures, metrics, into,
             if "measured" in captures:
                 energy_stage.guarded(problems, lambda: print(f"traces:    {session.pull_traces(traces)} pulled"))
         if "dry" in captures:
-            print("measure:   EnergyDryBenchmark inside a host trace session")
-            dry = lambda: session.dry_pass(ROOT / "tools/energy/energy.pbtx", traces / "dry.pftrace", into / DRY_CALLS, preparation)
-            energy_stage.guarded(problems, dry) if timed else dry()
+            dry_pass(session, into, preparation, problems, guarded=bool(timed))
     if captures - {"none"}:
         energy_stage.guarded(problems, lambda: source.joules(captures, discovery / "energy.yaml", preparation, data, traces,
                                                              into / DRY_CALLS, joules))
     if timed:
         joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
         gradle_runner.run("quick-bench", f"{data} {preparation / 'prepared.yaml'} {into}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
+
+
+def dry_pass(session, into, preparation, problems, guarded):
+    """Beside a timed run its failure costs only energy; alone it is the whole measurement."""
+    print("measure:   EnergyDryBenchmark inside a host trace session")
+    step = lambda: session.dry_pass(ROOT / "tools/energy/energy.pbtx", into / "traces/dry.pftrace", into / DRY_CALLS, preparation)
+    energy_stage.guarded(problems, step) if guarded else step()
 
 
 def parse_options():
