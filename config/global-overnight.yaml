@@ -1,0 +1,24 @@
+# The Pixel overnight run: timing, energy and allocation each in its own pass; device time per case in modules/config/docs/config.md.
+schemaVersion: 1
+
+selection:
+  testSet: testsets/scope.yaml
+
+run:
+  inputSizes: [64, 1024, 16384]
+  metrics: [TIME, ALLOCATION]
+  seed: 0
+  isolation: case
+  # two processes per pass: energy is one value per process, and a median interval needs two
+  processRepetitions: 2
+  scopedRepetitions: 3
+  caseCooldownSeconds: 0
+  warmup: {iterations: 10}
+  passes:
+    timing: {samples: 300}
+    energy: {samples: 100}
+    allocation: {samples: 100}
+  harness:
+    energy: {capture: measured}
+    # unrooted: own-thread affinity needs no root; a refused pin is a warning and the case runs unpinned
+    cpu: {core: big, required: false}

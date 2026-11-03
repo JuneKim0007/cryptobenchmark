@@ -9,6 +9,7 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | `config/global.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, seed 0 | harness `iterations: 100`; every other key takes its default |
 | `config/global.reference.yaml` | `testsets/scope.yaml` | every key with its default and whether it is required | read by no stage; `CommittedConfigTest` parses it |
 | `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}`; analysis charts `[iqrBars, stability]` |
+| `config/global-overnight.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, metrics `[TIME, ALLOCATION]`, isolation `case`, processRepetitions 2, scopedRepetitions 3, warm-up 10, passes timing 300 / energy 100 / allocation 100 | harness energy `measured`, cpu `{core: big, required: false}`; device time below |
 | `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
 | `config/global-energy.yaml` | `testsets/energy-smoke.yaml` | inputSizes `[1024]`, seed 42 | harness `iterations: 20`, energy `{capture: measured, windowSeconds: 3, warmupSeconds: 1, cooldownSeconds: 1}` |
 
@@ -19,6 +20,16 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | `testsets/quick.yaml` | 11 includes, one per primitive; AES 128/256 with the same variant and `fresh(n)` IV rules as scope; RSA/* keySizes `[2048]`, inputSizes `[32]`; harness iterations 5; ChaCha20 `ChaCha20ParameterSpec [fresh(12), 1]` |
 | `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`, GCM 128 + `fresh(12)`; HmacSHA256 |
 | `testsets/energy-smoke.yaml` | the smoke staples; AES-GCM override adds `harness.energy.capture: dry` |
+
+`global-overnight.yaml` device time, from the per-pass estimates in [device-session.md](../../../docs/device-session.md#passes) (Pixel 10, about 0.11 s a sample):
+
+| part | per case | why |
+|---|---|---|
+| one process of the three passes | timing 38 s + energy 20 s + allocation 15 to 30 s + 3 process starts of 1 to 2 s + temperature and clocks about 1 s = 80 to 95 s | |
+| `processRepetitions: 2` | 160 to 190 s | `energyJ` is one value per process; perf-repair's median interval and pImprove need two runs, so energy needs two processes; timing and allocation pay it too |
+| benchmark, 190 cases | 8.5 to 10 h, plus heat pauses (31% of the last full session) | runs once per device, then only for used-set items it lacks |
+| before/after, per scope | 2 sides x 3 repetitions x 80 to 95 s = 8 to 9.5 min | ABBA over `scopedRepetitions: 3`; energy n = 3 per side |
+| 50 apps, one scope each | 7 to 8 h, plus heat pauses | two scopes an app doubles it |
 
 Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 

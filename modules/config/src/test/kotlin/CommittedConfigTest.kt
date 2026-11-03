@@ -21,6 +21,9 @@ class CommittedConfigTest {
         assumeTrue("no config/ above ${File("").absolutePath}", root != null)
         val files = YamlFiles()
         val committed = files.at(File(root, "config/global.yaml"), GlobalDocument).read()
+        File(root, "config").listFiles { file -> file.name.startsWith("global") && file.name.endsWith(".yaml") }!!.forEach { file ->
+            files.at(file, GlobalDocument).read()
+        }
         File(root, "config/testsets").listFiles { file -> file.name.endsWith(".yaml") }!!.forEach { file ->
             files.at(file, TestSetDocument).read()
         }
