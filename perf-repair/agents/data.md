@@ -109,7 +109,7 @@ src/perfrepair/run_dir.py : device folder: finished devices of a root, worthines
 src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
 src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, a `<code>: <detail>` ValueError keeping `.code`; code_of, the code a failure carries as `.code` or its message's first word
-src/perfrepair/stop/policy.py : the stops reader the first settings load of a run installs; a code's action, its default without one
+src/perfrepair/stop/policy.py : the stops reader the settings layer installs; a code's action, its default without one
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next, then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130

@@ -76,11 +76,12 @@ src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, memb
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope; the stale scopes
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command, which installs the stops reader; unset flags filled from their rows, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
+src/perfrepair/config/current.py : the run's settings: the first command of a run that loads them installs them, an in-process command keeps its caller's; read when a code fires or a child starts
 src/perfrepair/config/device_results.py : the device folder of a command: --device-results, else paths.results with device.id or its only device, their one reader; device_root (the root the guide hands to probe_device); not_device_results; the temporary-folder warning
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys
 src/perfrepair/config/load.py : settings file lookup; read a row, or a role's key, by its chain; each value's source, logged once (INFO from a file or the environment, else DEBUG)
 src/perfrepair/config/settings.py : reads perfrepair.yaml: secret_key anywhere, unknown_key warnings from the rows' keys, a section's shape; raw values and aiGateway blocks
-src/perfrepair/config/stops.py : the one reader of stops.<code> (STOP_ROWS), read when the code fires: unset the default, bad one warning and the default, a fixed code set one stop_fixed warning; install_stops
+src/perfrepair/config/stops.py : the one reader of stops.<code> (STOP_ROWS), read when the code fires: unset the default, bad one warning and the default, a fixed code set one stop_fixed warning (once per load); install_stops installs the run's settings and this reader
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules
