@@ -59,6 +59,7 @@ src/perfrepair/device/selection.py : with device.filterByApps: what the last ben
 src/perfrepair/device/stage.py : probe_device(): identify, the perfMode's measurement check, plan, run the needed stages (pipeline, inbound, grouping build, primitives), write device.yaml last; with detect: probe and screen first, the targets' detect, used.json, the benchmark of the measured set only; `device <stage>: reused` or `ran: <reason>`
 src/perfrepair/device/used.py : the used step: each app's sites.json → the items its sites resolve to, their groups' members, an ungrouped one's candidates → used.json, validated before writing; clear_used
 src/perfrepair/dto/bundled.py : device.bundled's values, BundledPolicy; MissingProvider, Coordinate, Suggestion, Suggestions: bundled-suggestions.yaml (schema 1); applied_entries, entries_digest
+src/perfrepair/dto/change.py : PairDiff (input, key, output, reach), Change (class, diff, reject reasons); CHANGES in rank order, REJECT_REASONS, admits(maxChange, class)
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one

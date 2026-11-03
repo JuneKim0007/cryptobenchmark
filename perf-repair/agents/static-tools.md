@@ -13,6 +13,7 @@
 ## File structure
 
 ```
+src/perfrepair/result/change.py : a scope's current item against one candidate of its family: pair diff, floor, lost properties, nonce origin, availability at minSdk, measured, screening → change class or every reject reason
 src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, the one verdict rule
 src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements + the app's screen verdicts → Dossiers with options, pins, interop and screen status, estimates of the perfMode's metrics only; targets that lower the status, failed pairs and options without a required metric dropped; noOptions with reasons (no_evidence: <metric>)
