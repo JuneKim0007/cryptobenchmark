@@ -19,7 +19,7 @@ from ..grouping.build.stage import build_stage
 from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
-from ..dto.perf_mode import PerfMode
+from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from .energy import report_invalid
 from .bundled import check_bundled
 from .bundled_config import bundled_config
@@ -234,7 +234,7 @@ def _record(folder: Path, identity: dict, current: dict, done: Pass) -> None:
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
                  refresh: bool = False, detect: Callable[[Path], list[str]] | None = None,
-                 perf: PerfMode = PerfMode(), bundled: BundledPolicy = BundledPolicy(),
+                 perf: PerfMode = GENERIC_MODE, bundled: BundledPolicy = BundledPolicy(),
                  named: Callable[[Path], None] = lambda _: None) -> DeviceStage:
     """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv. detect: the target apps'
     folders found on the probe (device.filterByApps); with it the benchmark measures their used set only, after the

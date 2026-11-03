@@ -10,11 +10,12 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | `throughput` | `timeNs` | MB/s by default (`analysis.units.throughput`); MB/s and MiB/s only where an input size exists |
 | `memAlloc` | `allocationCount` | allocations/op |
 | `energy` | `energyJ` | J/op, with its kind |
-| `generic` | every metric | every unit above |
+| `generic`, `all` | every key above: `ALL_KEYS` beside the registry, a metric added there included | every unit above |
 
-- `apps.perfMode` (`guide --perf-mode`), and `--perf-mode` on `ai worthiness` and `report app`: `generic` or a list of keys; the CLI takes them comma-joined (`energy,latency,throughput`).
+- `apps.perfMode` (`guide --perf-mode`), and `--perf-mode` on `ai worthiness` and `report app`: `generic`, `all` or a list of keys; the CLI takes them comma-joined (`energy,latency,throughput`).
 - Selection = the registry metrics whose `selects` hold a chosen key (`dto/perf_mode.py`). Latency and throughput are one metric: one estimate, one ratio, shown in each selected unit, never two pieces of evidence.
-- A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`); `worthiness-<name>/` holds its verdicts.
+- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: only the decision rule differs from a hand-written list naming every key. Measures check, passes, labels, render and report see the list.
+- A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`), or is `generic`; `worthiness-<name>/` holds its verdicts.
 - Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another. The report still shows people every measured metric, marking the selected ones.
 
 ## Verdict
@@ -24,7 +25,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | any perfMode | at least one selected metric's ratio `to ÷ from` ≤ `improvingRatio` (0.97), and none ≥ 1 ÷ `improvingRatio` (1.031) |
 
 - A pair is judged `improves`, `not_improving` or `not_measured`.
-- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` decides on the metrics measured and names the rest.
+- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). Every perfMode needs every selected metric; `generic` selects them all, so a metric the run lacks costs the option.
 - A selected metric without data is the static reason `no_evidence: <metric>`, logged; never a proxy and never `no_improvement`. Levels:
 
 | Where | Unit judged | Without the metric |

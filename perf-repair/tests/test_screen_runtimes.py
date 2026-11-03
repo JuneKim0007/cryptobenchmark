@@ -6,13 +6,14 @@ from pathlib import Path
 
 import pytest
 
+from helpers import ANY_EVIDENCE
 from perfrepair.catalog.families import Families
 from perfrepair.catalog.names import Names, fold
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.interop import interop_section
 from perfrepair.dto.grouping import KEY_PROVIDER_HELD
-from perfrepair.dto.perf_mode import PerfMode
+from helpers import ANY_EVIDENCE
 from perfrepair.dto.screen import BROKEN, CODE_GROUPED, NEVER_TARGET, PLATFORM_DEPRECATED, RANK, STATUSES, lowers_status
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.files import read_document
@@ -108,7 +109,7 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
     sizes, pairs, refused = Counter(i.family for i in items), 0, 0
     for sdk in TARGET_SDKS:
         verdicts = PACKAGED.app_verdicts(groups, screen, sdk)
-        doc = build_dossiers("app", scopes, {"bundled": []}, groups, [], {}, tmp_path, verdicts, PerfMode())
+        doc = build_dossiers("app", scopes, {"bundled": []}, groups, [], {}, tmp_path, verdicts, ANY_EVIDENCE)
         assert validate_dossiers(doc, scopes, groups, verdicts) == []
         offered = {d["current"]: {o["item"]: o["screen"] for o in d["options"]} for d in doc["dossiers"]}
         alone = {s.id for s, i in zip(scopes, items) if sizes[i.family] == 1}

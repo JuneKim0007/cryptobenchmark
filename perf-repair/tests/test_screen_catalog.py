@@ -19,7 +19,7 @@ from perfrepair.repair.dossier import dossier
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import CatalogMismatch, ai_review, load_catalog, screening_catalog
 from perfrepair.validation.__main__ import main as validation_main
-from helpers import with_results
+from helpers import TIMING, with_results
 
 F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 DEMO = Path(__file__).parent / "fixtures" / "app_results" / "demo"
@@ -108,7 +108,7 @@ def test_the_dossier_step_refuses_a_catalog_screen_json_was_not_screened_by(run,
     for name in ("scopes.json", "app.json"):
         shutil.copy(DEMO / name, app / name)
     with pytest.raises(CatalogMismatch, match=r"^screening_catalog_mismatch: screen.json was screened by packaged"):
-        dossier(run, "demo", F.parents[1] / "app", _other_catalog(tmp_path), PerfMode(), echo=lambda _: None)
+        dossier(run, "demo", F.parents[1] / "app", _other_catalog(tmp_path), TIMING, echo=lambda _: None)
     assert not (app / "dossiers.json").exists()
 
 

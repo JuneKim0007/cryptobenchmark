@@ -7,7 +7,7 @@ from .... import run_dir as rd
 from ....dto.change import DROP_IN
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
-from ....dto.perf_mode import PerfMode
+from ....dto.perf_mode import GENERIC_MODE, PerfMode
 from ....dto.primitives import PrimitivesTable
 from ....dto.site import Replacement
 from ....dto.unit import UnitDossiers
@@ -55,7 +55,7 @@ class SiteReplaceKind:
         self.app, self.doc, self.directory, self.table, self.display = app, doc, Path(directory), table, units
         self.warnings = tuple(warnings)
         self.units, self.no_options, self.problems = parse_dossiers(doc, app)
-        self.perf = perf_of(doc) or PerfMode()
+        self.perf = perf_of(doc) or GENERIC_MODE
         self.max_change = doc.get("maxChange", DROP_IN)
 
     def items(self) -> list[UnitDossiers]:

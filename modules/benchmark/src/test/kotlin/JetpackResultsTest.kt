@@ -23,6 +23,14 @@ class JetpackResultsTest {
     private val digest = converted.rows.single { it.algorithm == "SHA-256" }
 
     @Test
+    fun convertingAgainWithAllocationRecoversWhatAndroidxAlreadyMeasured() {
+        val timeOnly = plan().replace(Regex("metrics: \\[[^]]*]"), "metrics: [TIME]")
+        val again = JetpackResults.convert(data(), timeOnly, metrics = listOf("TIME", "ALLOCATION"))
+        assertEquals(setOf(MetricSamples.TIME, MetricSamples.ALLOCATIONS), again.rows.single { it.algorithm == "SHA-256" }.metrics.keys)
+        JetpackResults.convert(data(), timeOnly).rows.forEach { row -> assertEquals(setOf(MetricSamples.TIME), row.metrics.keys) }
+    }
+
+    @Test
     fun theResolvedParametersComeFromThePlan() {
         assertEquals(emptyMap<String, Any>(), digest.parameters)
         assertEquals(mapOf("mode" to "GCM", "padding" to "NoPadding", "ivBytes" to 12, "tagBits" to 128, "keyBits" to 128),

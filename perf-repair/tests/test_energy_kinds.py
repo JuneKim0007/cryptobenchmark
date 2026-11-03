@@ -2,7 +2,7 @@
 import json
 from dataclasses import replace
 
-from helpers import summary
+from helpers import ANY_EVIDENCE, summary
 from site_replace_data import item
 from test_dossier import ROWS, build, scope
 
@@ -50,7 +50,7 @@ def energy(c, o):
 
 def only_option(tmp_path, c, o):
     rows = [r for r in ROWS if r.rowId in ("c64", "o64")]
-    document = build([scope()], tmp_path, rows=rows, measurements=energy(c, o))
+    document = build([scope()], tmp_path, rows=rows, measurements=energy(c, o), perf=ANY_EVIDENCE)
     return document, next(x for x in document["dossiers"][0]["options"] if x["item"] == "TypeA|ALG-A|P2")
 
 
@@ -75,17 +75,17 @@ def test_sides_of_different_kinds_have_no_energy_estimate_and_say_why(tmp_path):
     assert [e["metric"] for e in option["estimates"]] == ["timeNs"]
     assert [(n["metric"], n["reason"]) for n in option["noEstimates"]] == [("energyJ", "energy_kinds_differ")]
     assert Dossier.from_json(document["dossiers"][0]).to_json() == document["dossiers"][0]
-    assert check_dossier(document["dossiers"][0], "app", PerfMode())[1] == []
+    assert check_dossier(document["dossiers"][0], "app", PerfMode(("latency", "energy")))[1] == []
 
 
 def test_a_zero_median_current_has_no_estimate_and_the_dossier_and_render_say_why(tmp_path):
     rows = [r for r in ROWS if r.rowId in ("c64", "o64")]
     zero = {"c64": {"timeNs": summary(100), "allocationCount": summary(0, spread=0)},
             "o64": {"timeNs": summary(80), "allocationCount": summary(3)}}
-    document = build([scope()], tmp_path, rows=rows, measurements=zero)
+    document = build([scope()], tmp_path, rows=rows, measurements=zero, perf=ANY_EVIDENCE)
     option = next(x for x in document["dossiers"][0]["options"] if x["item"] == "TypeA|ALG-A|P2")
     assert [(n["metric"], n["reason"]) for n in option["noEstimates"]] == [("allocationCount", "zero_median")]
-    assert check_dossier(document["dossiers"][0], "app", PerfMode())[1] == []
+    assert check_dossier(document["dossiers"][0], "app", PerfMode(("latency", "memAlloc")))[1] == []
     assert "no estimate: allocationCount at OP1 key 128 input 64 WARM: zero_median" in render(
         item(Dossier.from_json(document["dossiers"][0])))
 
@@ -96,7 +96,7 @@ def case(kind, runs=(0.5, 0.6)):
 
 
 def energy_row(before, after):
-    return metric_rows(before, after, PerfMode(), DisplayUnits())[2]
+    return metric_rows(before, after, PerfMode(("latency", "energy")), DisplayUnits())[2]
 
 
 def test_the_report_labels_an_estimate_and_validates_it():

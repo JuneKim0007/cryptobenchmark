@@ -13,7 +13,20 @@ from perfrepair.result.modes import mode_of
 
 FIXTURE_DEVICE = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000"
 LIBRARY = PromptLibrary.load()
-GENERIC = mode_of(PerfMode())
+GENERIC = mode_of(PerfMode(overall=True))
+# what most fixtures measure; generic needs every metric
+TIMING = PerfMode(("latency", "throughput"))
+
+
+class AnyEvidence(PerfMode):
+    """Every metric given and none required: a fixture about something else than missing evidence."""
+
+    @property
+    def required(self):
+        return ()
+
+
+ANY_EVIDENCE = AnyEvidence()
 LATENCY = mode_of(PerfMode(("latency",)))
 LATENCY_ALLOC = mode_of(PerfMode(("latency", "memAlloc")))
 

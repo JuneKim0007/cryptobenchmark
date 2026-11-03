@@ -261,6 +261,7 @@ def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, c
     global_yaml = tmp_path / "global.yaml"
     global_yaml.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n")
     text.update(paths={"results": str(results)}, device={"benchmark": {"config": str(global_yaml)}})
+    text["apps"]["perfMode"] = ["latency", "throughput"]
     config.write_text(yaml.safe_dump(text))
     args = ["--agent", "dry-run", "--perfrepair-config", str(config)]
     assert guide_main(args) == 1

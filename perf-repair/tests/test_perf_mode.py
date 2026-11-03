@@ -1,13 +1,26 @@
 import pytest
 
 from perfrepair.dto.metrics import ALLOCATIONS, ENERGY, METRICS, TIME
-from perfrepair.dto.perf_mode import GENERIC, KEYS, PerfMode
+from perfrepair.dto.perf_mode import ALL, GENERIC, KEYS, PerfMode
 
 
-def test_generic_selects_every_registry_metric_and_requires_none():
-    g = PerfMode.parse(GENERIC)
-    assert g.generic and g.metrics == METRICS and g.required == () and g.to_json() == GENERIC
+@pytest.mark.parametrize("spelling", [GENERIC, ALL])
+def test_generic_is_the_plain_list_of_every_key_with_only_the_rule_differing(spelling):
+    g = PerfMode.parse(spelling)
+    listed = PerfMode.parse(list(KEYS))
+    assert g.overall and not listed.overall and g.keys == listed.keys == KEYS
+    assert g.metrics == listed.metrics == METRICS and g.required == listed.required == METRICS
+    assert g.to_json() == GENERIC and PerfMode.parse(g.to_json()) == g and listed.to_json() == list(KEYS)
     assert g.views(TIME) == ("latency", "throughput")
+
+
+def test_a_future_metric_in_the_registry_joins_every_key():
+    assert KEYS == tuple(k for m in METRICS for k in m.selects)
+
+
+def test_the_union_of_several_apps_is_a_plain_list():
+    both = PerfMode.union([PerfMode.parse(["energy"]), PerfMode.parse(["latency"])])
+    assert both.keys == ("latency", "energy") and not both.overall
 
 
 def test_selection_is_the_registry_metrics_whose_selects_match():

@@ -406,7 +406,7 @@ def test_the_render_shows_the_current_and_option_lines_in_the_display_units_of_t
 def test_a_changed_primitives_line_marks_the_decision_stale_but_a_unit_change_does_not():
     table = _table()
     moved = PrimitivesTable(table.columns, table.metrics, (dataclasses.replace(table.lines[0], medians={"timeNs@64": 1.0}),) + table.lines[1:])
-    u, perf = item(A), PerfMode()
+    u, perf = item(A), PerfMode(overall=True)
     assert evidence(u, perf, table) != evidence(u, perf, moved)
     shown = [SiteReplaceKind(APP, doc(A), ".", table, units).render(u, None).text for units in (DisplayUnits(), DisplayUnits("ns"))]
     assert shown[0] != shown[1] and SiteReplaceKind(APP, doc(A), ".", table, DisplayUnits("ns")).evidence_digest(u) == evidence(u, perf, table)
@@ -417,7 +417,7 @@ def test_the_run_warnings_reach_the_render_and_its_evidence():
     text = warned.render(item(A), warned.empty()).text
     assert text.startswith("RUN WARNINGS:\n  - cpu_not_locked: clocks float\n\nUNIT of 1 member")
     plain = SiteReplaceKind(APP, doc(A), ".")
-    assert warned.evidence_digest(item(A)) != plain.evidence_digest(item(A)) == evidence(item(A), PerfMode())
+    assert warned.evidence_digest(item(A)) != plain.evidence_digest(item(A)) == evidence(item(A), PerfMode(overall=True))
 
 
 def test_a_site_of_unknown_input_size_is_not_said_to_have_a_nearest_configuration():

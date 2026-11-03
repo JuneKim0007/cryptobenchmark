@@ -54,8 +54,7 @@ def _extra(config: Path, perf: PerfMode, on: set[str]) -> None:
 
 
 def check_measures(config: Path, perf: PerfMode) -> None:
-    """generic measures what the config says and decides on what was measured, so it checks nothing."""
-    if perf.generic or not Path(config).is_file():
+    if not Path(config).is_file():
         return
     on = switched_on(read_yaml(config) or {})
     _missing(config, perf, on)

@@ -26,7 +26,7 @@ def positive_int(text: str) -> int:
 
 
 def perf_mode(text: str) -> str:
-    """The argparse type of --perf-mode: `generic`, or keys joined by `,` (energy,latency,throughput)."""
+    """The argparse type of --perf-mode: `generic` or `all`, or keys joined by `,` (energy,latency,throughput)."""
     try:
         PerfMode.parse(text)
     except ValueError as e:

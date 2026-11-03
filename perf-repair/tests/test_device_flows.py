@@ -38,7 +38,8 @@ class Flow:
         path = self.tmp / "perfrepair.yaml"
         document = {"paths": {"results": str(self.root)}, "device": {"benchmark": {"config": str(self.global_yaml)},
                                                                      "grouping": self.grouping, "filterByApps": self.filter,
-                                                                     "bundled": self.bundled}}
+                                                                     "bundled": self.bundled},
+                    "apps": {"perfMode": ["latency", "throughput"]}}
         path.write_text(text if text is not None else yaml.safe_dump(document))
         return path
 
@@ -228,7 +229,7 @@ def scoped(flow):
 def run_targets(flow, *roots):
     path = flow.settings()
     document = yaml.safe_load(path.read_text())
-    document["apps"] = {"targets": [str(r) for r in roots]}
+    document["apps"] = {"targets": [str(r) for r in roots], "perfMode": ["latency", "throughput"]}
     path.write_text(yaml.safe_dump(document))
     guide(["--agent", "dry-run", "--perfrepair-config", str(path)])
     return [line for line in flow.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]

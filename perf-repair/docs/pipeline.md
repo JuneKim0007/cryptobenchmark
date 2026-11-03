@@ -67,7 +67,7 @@ Before any stage it checks the config `--identify` names against the perfMode (`
 | `energy` | `run.harness.energy.capture: measured` (on a device) | `perf_mode_maybe_unmeasured`, a warning: a test set may capture energy per case; a case without it is `no_evidence: energyJ` |
 | not `memAlloc` or not `energy` | that switch off | logged `perf_mode_extra`: device time no decision reads |
 
-- `generic` checks nothing: it decides on what was measured and names the rest.
+- `generic` is checked like the list of every key it expands to: a config without `ALLOCATION` stops, one without energy capture warns. An existing run that lacks it: [run.md](../../docs/run.md#recover-a-metric-without-a-device).
 - The config is never rewritten: the trial runs and the real run read the same file, and a perfMode change reruns no measurement by itself. Turning a switch on or off changes `inputs.config`, so the next device stage reruns probe and benchmark.
 - Checked where the guide makes the device folder (`paths.results` set, no `--device-results` or `device.id`); a named device folder is taken as measured.
 

@@ -3,7 +3,7 @@ import json
 from dataclasses import replace
 
 import pytest
-from helpers import row, summary
+from helpers import TIMING, row, summary
 
 from perfrepair.ai.suggest.site_replace.render import render
 from perfrepair.catalog.types import Types
@@ -48,7 +48,7 @@ def family(top, min_sdk=21) -> Family:
 
 def build(tmp_path, top, sinks=("return",)):
     (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
-    return build_dossiers("app", [scope(sinks)], {"bundled": []}, GROUPS, ROWS, M, tmp_path, None, PerfMode(), family(top))
+    return build_dossiers("app", [scope(sinks)], {"bundled": []}, GROUPS, ROWS, M, tmp_path, None, TIMING, family(top))
 
 
 def test_drop_in_offers_no_other_class_and_keeps_it_as_a_recommendation(tmp_path):
@@ -80,7 +80,7 @@ def test_persisted_output_stays_a_recommendation_until_migration(tmp_path):
 
 def test_without_a_family_nothing_is_classed(tmp_path):
     (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
-    doc = build_dossiers("app", [scope()], {"bundled": []}, GROUPS, ROWS, M, tmp_path, None, PerfMode())
+    doc = build_dossiers("app", [scope()], {"bundled": []}, GROUPS, ROWS, M, tmp_path, None, TIMING)
     assert doc["notOffered"] == [] and doc["maxChange"] == "drop-in"
 
 
@@ -90,7 +90,7 @@ def test_a_drop_in_option_writes_no_change_so_its_dossier_is_unchanged():
 
 def test_the_validator_refuses_an_option_above_max_change(tmp_path):
     raw = build(tmp_path, "migration", ("persist",))["dossiers"][0]
-    problems = check_dossier(raw, "app", PerfMode(), "local-edit")[1]
+    problems = check_dossier(raw, "app", TIMING, "local-edit")[1]
     assert any("above maxChange local-edit" in p for p in problems)
 
 
@@ -180,7 +180,7 @@ H_M = {"a": {"timeNs": summary(100)}, "h": {"timeNs": summary(80)}}
 def _harness(tmp_path, top, available):
     (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
     f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top)
-    return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, H_M, tmp_path, None, PerfMode(), f, available)
+    return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, H_M, tmp_path, None, TIMING, f, available)
 
 
 def test_a_harness_only_provider_the_app_does_not_ship_is_no_drop_in(tmp_path):
@@ -248,7 +248,7 @@ def _slow(tmp_path, top="drop-in"):
     (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
     f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top)
     slow = {"a": {"timeNs": summary(100)}, "h": {"timeNs": summary(2000)}}
-    return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, slow, tmp_path, None, PerfMode(), f, {"P1", "HARNESS"})
+    return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, slow, tmp_path, None, TIMING, f, {"P1", "HARNESS"})
 
 
 def test_a_twenty_times_slower_candidate_is_rejected_no_gain_and_the_scope_says_so(tmp_path):
@@ -260,4 +260,4 @@ def test_a_twenty_times_slower_candidate_is_rejected_no_gain_and_the_scope_says_
 
 def test_the_validator_refuses_a_no_gain_option():
     d = Dossier(scope(), "src", A, (Option("R1", H, {}, "pass", (_estimate(20.0, 0.0),)),))
-    assert any("no_gain" in p for p in check_dossier(d.to_json(), "app", PerfMode())[1])
+    assert any("no_gain" in p for p in check_dossier(d.to_json(), "app", TIMING)[1])

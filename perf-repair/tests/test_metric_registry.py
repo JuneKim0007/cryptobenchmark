@@ -31,7 +31,7 @@ def chain(tmp_path):
     groups = {"groups": [{"id": "g", "family": "f", "description": "G", "members": [1, 2]}],
               "items": {"1": {"qualified": "TypeA|ALG-A|P1"}, "2": {"qualified": "TypeA|ALG-A|P2"}},
               "interop": {"status": "not_run", "pairs": []}}
-    return rows, document, build_evidence(groups, rows, document.byRow, None, PerfMode())
+    return rows, document, build_evidence(groups, rows, document.byRow, None, PerfMode(overall=True))
 
 
 @pytest.mark.parametrize("metric", NAMES)

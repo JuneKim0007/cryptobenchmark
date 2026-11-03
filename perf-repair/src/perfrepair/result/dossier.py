@@ -11,7 +11,7 @@ from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
-from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier, Option, Scope
+from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, ZERO_MEDIAN, Dossier, Option, Scope
 from ..dto.shipped import shipped, shipped_names
 from ..dto.change import DROP_IN, NO_GAIN, REJECTED, Change, PairDiff
 from .candidates import Family
@@ -42,9 +42,14 @@ def _targets(current: str, others: list[str], usable: list[str], failed: set,
     return interoperable, None if interoperable else "interop_failed"
 
 
+def _weighable(o: Option) -> set[str]:
+    # a zero median was measured: the option shows why it has no ratio, while another kind of energy is no evidence
+    return {e.metric for e in o.estimates} | {n.metric for n in o.noEstimates if n.reason == ZERO_MEDIAN}
+
+
 def _missing(options: list[Option], perf: PerfMode) -> dict[str, tuple[str, ...]]:
-    """Per option, the required metrics it has no estimate of; generic requires none."""
-    return {o.alias: tuple(m.name for m in perf.required if m.name not in {e.metric for e in o.estimates}) for o in options}
+    """Per option, the required metrics it has no estimate of."""
+    return {o.alias: tuple(m.name for m in perf.required if m.name not in _weighable(o)) for o in options}
 
 
 def _evidenced(options: list[Option], perf: PerfMode) -> tuple[list[Option], str | None]:

@@ -16,7 +16,7 @@ from perfrepair.screen.catalog import load_catalog, screening_catalog
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
 from perfrepair.stop import Halt
-from helpers import captured_events
+from helpers import TIMING, captured_events
 
 FAKE = Path(__file__).parent / "fixtures" / "device"
 ALL_RAN = ["probe", "benchmark", "inbound", "screen", "primitives"]
@@ -31,7 +31,7 @@ def setup(tmp_path):
 
 def device(root, config, catalog=None, on_device=False, refresh=False):
     lines = []
-    done = probe_device(root, catalog or screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE,
+    done = probe_device(root, catalog or screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE, perf=TIMING,
                         refresh=refresh)
     return done, [line for line in lines if line.startswith("device ")]
 
@@ -189,7 +189,7 @@ def test_on_a_device_only_a_whole_run_reports_the_probe_as_ran_with_the_benchmar
     from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline
     run_pipeline(config, root, "device", benchmark=FAKE, echo=None, extra=("--probe",), device=root)
     with captured_events() as events:
-        probe_device(root, screening_catalog(None), config, True, echo=lambda _: None, benchmark=FAKE, detect=detect)
+        probe_device(root, screening_catalog(None), config, True, echo=lambda _: None, benchmark=FAKE, detect=detect, perf=TIMING)
     assert [(e.outcome, e.detail) for e in events
             if (e.step, e.event, e.data.get("ranWith")) == ("probe", END, "benchmark")] == ran_with
 
@@ -242,6 +242,13 @@ def test_a_selected_metric_the_config_cannot_measure_stops_before_any_device_run
     with pytest.raises(Halt, match="perf_mode_unmeasured: perfMode latency\\+memAlloc selects allocationCount"):
         probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
                      perf=PerfMode.parse(["latency", "memAlloc"]))
+    assert runs(root) == []
+
+
+def test_generic_is_checked_like_a_list_so_missing_allocation_stops(setup):
+    root, config = setup
+    with pytest.raises(Halt, match="perf_mode_unmeasured: perfMode generic selects allocationCount"):
+        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE, perf=PerfMode.parse("generic"))
     assert runs(root) == []
 
 

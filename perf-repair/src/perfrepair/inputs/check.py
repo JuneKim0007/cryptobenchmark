@@ -6,7 +6,7 @@ from typing import Any, Mapping
 
 from ..dto.bundled import FROM_APPS
 from ..dto.change import CHANGES
-from ..dto.perf_mode import GENERIC, KEYS, PerfMode
+from ..dto.perf_mode import ALL, GENERIC, KEYS, PerfMode
 
 
 class Invalid(ValueError):
@@ -66,7 +66,7 @@ def check_perf_mode(name: str, value: Any) -> None:
         ok = value is None or bool(PerfMode.parse(value))
     except ValueError:
         ok = False
-    _check(name, value, ok, f"{GENERIC} or a list of {list(KEYS)}")
+    _check(name, value, ok, f"{GENERIC}, {ALL} or a list of {list(KEYS)}")
 
 
 def check_max_change(name: str, value: Any) -> None:

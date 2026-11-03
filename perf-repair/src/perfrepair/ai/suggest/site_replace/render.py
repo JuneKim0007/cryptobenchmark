@@ -11,7 +11,7 @@ from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
 from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
                          required_risks)
-from ....dto.perf_mode import PerfMode
+from ....dto.perf_mode import GENERIC_MODE, PerfMode
 from ....dto.primitives import PrimitivesTable
 from ....dto.unit import INVERSE, Link, UnitDossiers
 from ....dto.units import DisplayUnits
@@ -158,7 +158,7 @@ def _links(u: UnitDossiers) -> list[str]:
     return ["LINKS"] + (lines or ["  none: this unit has one member"])
 
 
-def render(u: UnitDossiers, perf: PerfMode = PerfMode(), table: PrimitivesTable | None = None,
+def render(u: UnitDossiers, perf: PerfMode = GENERIC_MODE, table: PrimitivesTable | None = None,
            units: DisplayUnits = DisplayUnits(), warnings: tuple[str, ...] = ()) -> str:
     """table: primitives.tsv; without one (a folder before it) the members show their estimates only; warnings: the
     run's comparability warnings from measurements.json."""

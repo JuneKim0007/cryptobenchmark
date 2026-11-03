@@ -231,7 +231,7 @@ def _from_root(tmp_path, capsys):
     if not settings.exists():
         settings.write_text(f"paths: {{results: {tmp_path / 'results'}}}\n")
         (tmp_path / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: []}\n")
-    code = top(["guide", "--app", str(APP), "--agent", "dry-run", "--perfrepair-config", str(settings),
+    code = top(["guide", "--app", str(APP), "--agent", "dry-run", "--perf-mode", "latency,throughput", "--perfrepair-config", str(settings),
                 "--config", str(tmp_path / "global.yaml")])
     return code, [l for l in capsys.readouterr().out.splitlines() if l.startswith(("device ", "guide "))]
 

@@ -5,7 +5,7 @@ import pytest
 from dataclasses import replace
 from pathlib import Path
 
-from helpers import QUIET, row, summary
+from helpers import ANY_EVIDENCE, TIMING, QUIET, row, summary
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.catalog.screening import SCREENING, PlatformRule
@@ -52,7 +52,8 @@ def scope(provider="P1", algorithm="ALG-A", resolution="explicit", input_size=10
                  "f", 1, 3, "TypeA", algorithm, provider, resolution, key_size, input_size)
 
 
-def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M, groups=GROUPS, verdicts=None, perf=PerfMode()):
+def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M, groups=GROUPS, verdicts=None, perf=None):
+    perf = perf or (TIMING if rows else ANY_EVIDENCE)
     (tmp_path / "A.java").write_text("void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}\nvoid g() {}\n")
     return build_dossiers("app", scopes, app_doc or {"bundled": []}, groups, rows, measurements, tmp_path, verdicts, perf)
 
@@ -63,7 +64,7 @@ def failing(*results):
 
 
 def test_options_are_the_runnable_other_members_with_estimates_at_the_nearest_size(tmp_path):
-    doc = build([scope()], tmp_path)
+    doc = build([scope()], tmp_path, perf=ANY_EVIDENCE)
     [d] = [Dossier.from_json(x) for x in doc["dossiers"]]
     assert d.current == "TypeA|ALG-A|P1" and d.source == "void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}"
     assert [(o.alias, o.item) for o in d.options] == [("R1", "TypeA|ALG-A|P2"), ("R2", "TypeA|alg-a-alias|P3")]
@@ -88,7 +89,7 @@ def test_a_row_without_parameters_is_a_coded_error(tmp_path):
 
 def test_no_shared_configuration_gives_unknown_pins_that_survive_the_round_trip(tmp_path):
     s = scope(key_size=256)
-    doc = build([s], tmp_path)
+    doc = build([s], tmp_path, perf=ANY_EVIDENCE)
     assert [o["pins"] for o in doc["dossiers"][0]["options"]] == [None, None]
     d = Dossier.from_json(json.loads(json.dumps(doc["dossiers"][0])))
     assert [o.pins for o in d.options] == [None, None] and d.to_json() == doc["dossiers"][0]
@@ -207,7 +208,7 @@ def test_a_scopes_json_of_another_schema_is_refused_never_read_with_defaults(run
         shutil.copy(DEMO / name, app / name)
     (app / "scopes.json").write_text((app / "scopes.json").read_text().replace('"schemaVersion": 4', '"schemaVersion": 3'))
     with pytest.raises(ValueError, match=r"^schema_version: .*scopes.json schemaVersion 3 is not 4; rerun"):
-        dossier(run, "demo", F / "app", load_catalog(SCREENING), PerfMode(), **QUIET)
+        dossier(run, "demo", F / "app", load_catalog(SCREENING), TIMING, **QUIET)
 
 
 def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
@@ -215,7 +216,7 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     app.mkdir(parents=True)
     for name in ("scopes.json", "app.json", "units.json"):
         shutil.copy(DEMO / name, app / name)
-    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING), PerfMode(), **QUIET)
+    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING), TIMING, **QUIET)
     [d] = doc["dossiers"]
     assert d["current"] == "Cipher|AES/GCM/NoPadding|Slow" and d["source"].startswith("    byte[] seal(")
     [option] = d["options"]
@@ -306,7 +307,7 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
     facts = json.loads((DEMO / "app.json").read_text())
     for target_sdk, extra in ((27, set()), (28, {"deprecated_only"})):
         (app / "app.json").write_text(json.dumps({**facts, "targetSdk": target_sdk}))
-        doc = dossier(run, "demo", F / "app", handler, PerfMode(), **QUIET)
+        doc = dossier(run, "demo", F / "app", handler, TIMING, **QUIET)
         assert {n["reason"] for n in doc["noOptions"]} == {"unresolved", "no_alternative"} | extra
         assert len(doc["dossiers"]) == (0 if extra else 1)
 

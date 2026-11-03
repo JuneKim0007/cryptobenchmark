@@ -36,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
                                              "default: every apps.targets entry")
     add_device_results_arg(ap)
     ap.add_argument("--perf-mode", type=perf_mode, metavar="KEYS",
-                    help="the metrics the model is given: generic (all), or a comma list of latency, throughput, memAlloc, "
+                    help="the metrics the model is given: generic or all (every metric, overall judgement), or a comma list of latency, throughput, memAlloc, "
                          "energy; default: apps.perfMode, else generic")
     ap.add_argument("--device", action="store_true", default=None,
                     help="also measure the harness on the attached phone (cryptobenchmark pipeline.py), then report; "

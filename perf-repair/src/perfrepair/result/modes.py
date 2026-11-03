@@ -40,7 +40,7 @@ class Mode:
         return [by[m.name] for m in self.perf.metrics if m.name in by and by[m.name].ratio is not None]
 
     def missing(self, pair: PairMetrics) -> tuple[str, ...]:
-        """The required metrics this pair has no ratio for; generic requires none."""
+        """The required metrics this pair has no ratio for."""
         given = {c.metric for c in self._given(pair)}
         return tuple(m.name for m in self.perf.required if m.name not in given)
 

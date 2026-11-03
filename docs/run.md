@@ -126,6 +126,20 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 - `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
 - Energy: the rails pre-flight runs once per run, before the plan is pushed, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedBenchmark`, `InteropCheck` and `DeviceProbe` stay one process each.
 
+### Recover a metric without a device
+
+Androidx always runs its allocation phase, so `benchmarkData.json` holds `allocationCount` for every case even when `run.metrics` was `[TIME]`. Converting it again reports it; nothing runs on the device:
+
+```
+D=results/<device_id>
+tools/jca-contract/gradlew -p tools/quick-bench run -q -PmainClass=ConvertKt \
+  --args="$D/benchmark/benchmarkData.json $D/preparation/prepared.yaml $D/benchmark $D/benchmark/energy.json --metrics=TIME,ALLOCATION"
+```
+
+- Leave `energy.json` out when the run captured no energy.
+- With `run.processRepetitions` above 1: once per `process-N/`, then `MergeRunsKt`.
+- Then rerun `python3 -m perfrepair.data_handler.inbound --device-results "$D"`; its digests see the new `benchmark.json`.
+
 ## Device facts
 
 | fact | rule |

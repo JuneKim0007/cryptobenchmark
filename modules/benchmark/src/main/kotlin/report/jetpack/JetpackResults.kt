@@ -14,7 +14,8 @@ object JetpackResults {
     // dropped: one coded line per benchmark that gave no row: not_in_plan, no_metrics, not_converted
     class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val dropped: List<String>, val notApplied: List<String> = emptyList())
 
-    fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap()): Converted {
+    // metrics: a set the run reports instead of each case's own; benchmarkData.json holds every metric androidx measured
+    fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap(), metrics: List<String>? = null): Converted {
         val data = CaseDocument.load(benchmarkDataText)
         val prepared = CaseDocument.load(preparedText)
         val cases = CaseDocument.sections(prepared["cases"]).associateBy { case -> case["id"].toString() }
@@ -29,14 +30,14 @@ object JetpackResults {
                 continue
             }
             try {
-                val metrics = metricsOf(benchmark, requestedOf(id, case))
-                if (metrics.isEmpty()) {
+                val samples = metricsOf(benchmark, requestedOf(id, case, metrics))
+                if (samples.isEmpty()) {
                     dropped += "no_metrics: $id"
                     continue
                 }
-                energy[id]?.let { metrics[MetricSamples.ENERGY] = it }
-                rows += CaseDocument.row(case, metrics, resolvedParametersOf(id, case))
-                notApplied += RunCountAudit.findings(id, CaseDocument.requestedIterations(case), metrics)
+                energy[id]?.let { samples[MetricSamples.ENERGY] = it }
+                rows += CaseDocument.row(case, samples, resolvedParametersOf(id, case))
+                notApplied += RunCountAudit.findings(id, CaseDocument.requestedIterations(case), samples)
             } catch (unusable: RuntimeException) {
                 dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
             }
@@ -57,8 +58,8 @@ object JetpackResults {
         return metrics
     }
 
-    private fun requestedOf(id: String, case: Map<String, Any>): List<String> {
-        val names = (case["metrics"] as? List<*>)?.map { it.toString() } ?: throw IllegalArgumentException("missing_field: metrics for $id")
+    private fun requestedOf(id: String, case: Map<String, Any>, metrics: List<String>?): List<String> {
+        val names = metrics ?: (case["metrics"] as? List<*>)?.map { it.toString() } ?: throw IllegalArgumentException("missing_field: metrics for $id")
         return Metric.read(names, "prepared.yaml $id metrics").flatMap(MetricKeys::of)
     }
 

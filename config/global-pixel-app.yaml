@@ -6,6 +6,7 @@ selection:
 
 run:
   inputSizes: [64, 1024, 16384]
+  metrics: [TIME, ALLOCATION]
   seed: 0
   harness:
     iterations: 100

@@ -28,3 +28,5 @@ ENERGY = Metric("energyJ", "J/op", True, (MEASURED, ESTIMATED), ("energy",), req
 METRICS = (TIME, ALLOCATIONS, ENERGY)
 NAMES = tuple(m.name for m in METRICS)
 BY_NAME = {m.name: m for m in METRICS}
+# every perfMode key in registry order: what `generic` and `all` expand to, a new metric included
+ALL_KEYS = tuple(k for m in METRICS for k in m.selects)
