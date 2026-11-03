@@ -25,7 +25,6 @@ src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header,
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
 src/perfrepair/validation/events.py : log/events.jsonl: every line JSON, schema 1, every field with its type, a known kind; a partial last line
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
-src/perfrepair/validation/gaps.py : gaps.json: closed lists, unique ids, cited lines inside the file, each gap an open requirement of its scope
 src/perfrepair/validation/grouping/code_groups.py : code-made groups equal the ones screen.json and the signatures imply; no item grouped by code in a model group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json

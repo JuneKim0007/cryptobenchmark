@@ -48,12 +48,11 @@ src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify mode
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256)
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names, kinds, each field's types
-src/perfrepair/dto/gaps.py : gaps.json: ScopeGaps, Gap, Candidate, Statement, Body, Answer; the gap and candidate id prefixes, how a line was reached, a use gap's origins
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only; retired: memberless groups a record still names); the `code_` id prefix
 src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml with its notCheckable pairs, the groups.json interop section, failed_pairs, pair_status, PAIR_STATUSES
-src/perfrepair/dto/lifecycle.py : Lifecycle, Step, Requirement, Completion: a primitive object from creation to last use; statuses, reasons, bindings, roles, origins, the open ones
+src/perfrepair/dto/lifecycle.py : Lifecycle, Step, Requirement, Settled: a primitive object from creation to last use; statuses, reasons, bindings, roles, origins, the open ones
 src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers

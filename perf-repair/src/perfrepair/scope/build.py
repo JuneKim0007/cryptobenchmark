@@ -5,17 +5,15 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..dto.gaps import GAPS_SCHEMA_VERSION, ScopeGaps
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import SCOPES_SCHEMA_VERSION, Scope, scope_id
 from ..source.language import of_file
 from ..source.lexer import Code
-from .complete import fill
 from .engines import read_engines
 from .extract import enclosing, functions
-from .facts import completed_key_source, key_source, key_source_view, read_patterns, sinks
-from .lifecycle.gaps import Found, Where, gaps_of
+from .facts import key_source, key_source_view, read_patterns, settled_key_source, sinks
 from .lifecycle.read import Reading, read_site
+from .lifecycle.settle import settle
 from .syntax.parser import ParserMissing, parse
 
 NO_FUNCTION, CALL_MOVED = "no_enclosing_function", "call_not_on_line"
@@ -26,15 +24,6 @@ class Scoping:
     scopes: list[Scope] = field(default_factory=list)
     unscoped: list[dict] = field(default_factory=list)
     lines: dict[str, int] = field(default_factory=dict)
-    gaps: list[ScopeGaps] = field(default_factory=list)
-
-    def gap_counts(self) -> dict[str, int]:
-        rows = [g for e in self.gaps for g in e.gaps]
-        return {"scopes": len(self.gaps), "asked": sum(bool(e.offered) for e in self.gaps), "gaps": len(rows),
-                "offered": sum(bool(g.candidates) for g in rows)}
-
-    def gaps_document(self, app: str) -> dict:
-        return {"schemaVersion": GAPS_SCHEMA_VERSION, "app": app, "scopes": [e.to_json() for e in self.gaps]}
 
     def statuses(self) -> dict[str, int]:
         return dict(sorted(Counter(s.lifecycle.status for s in self.scopes if s.lifecycle is not None).items()))
@@ -74,12 +63,6 @@ class _Trees:
         return read_site(self.trees[file], site, read_engines())
 
 
-def _settled(reading: Reading, found: Found, out: Scoping) -> Lifecycle:
-    if found.gaps is not None:
-        out.gaps.append(found.gaps)
-    return fill(reading.lifecycle, found.settled)
-
-
 def build_scopes(app: str, root: Path, sites: list[dict]) -> Scoping:
     out, patterns, parsed, trees = Scoping(), read_patterns(), {}, _Trees()
     for s in sorted(sites, key=lambda s: (s["file"], s["line"], s["call"])):
@@ -95,14 +78,12 @@ def build_scopes(app: str, root: Path, sites: list[dict]) -> Scoping:
                                  "reason": CALL_MOVED if offset is None else NO_FUNCTION})
             continue
         sid = scope_id(app, s["file"], fn.name, s["line"], s["call"])
-        reading = trees.reading(s["file"], code, s)
-        found = gaps_of(reading, read_engines(), Where(sid, s["file"], fn.name, s["line"], code.text.splitlines()))
-        lifecycle = _settled(reading, found, out)
+        lifecycle = settle(trees.reading(s["file"], code, s), read_engines())
         out.scopes.append(Scope(
             id=sid, app=app, file=s["file"], line=s["line"],
             call=s["call"], function=fn.name, start=code.line(fn.start), end=code.line(fn.end - 1),
             engineType=s["engineType"], algorithm=s["resolvedAlgorithm"], provider=s["resolvedProvider"],
             resolution=s["resolution"], sinks=sinks(code, fn, patterns),
-            keySource=completed_key_source(lifecycle, key_source_view(lifecycle, key_source(code, fn, patterns))),
+            keySource=settled_key_source(lifecycle, key_source_view(lifecycle, key_source(code, fn, patterns))),
             lifecycle=lifecycle))
     return out

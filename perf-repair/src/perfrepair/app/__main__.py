@@ -17,7 +17,6 @@ from ..log import attach, step
 from ..scope.build import build_scopes
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
-from ..validation.gaps import validate_gaps
 from .facts.app_facts import app_facts
 from .facts.dependencies import bundled, read_libraries
 from .detect import Detection, detect
@@ -88,18 +87,14 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
         scopes = scoping.document(name)
         require(rd.APP, validate_app_facts(facts))
         require(rd.SCOPES, validate_scopes(scopes, scoping.lines))
-        gaps = scoping.gaps_document(name)
-        require(rd.GAPS, validate_gaps(gaps, scopes, scoping.lines))
 
         out_dir.mkdir(parents=True, exist_ok=True)
         write_json(out_dir / rd.SITES, {"schemaVersion": SCHEMA_VERSION, "app": name, "root": str(app.path),
                                         "sites": found.sites, "dropped": found.dropped})
         write_json(out_dir / rd.APP, facts)
         write_json(out_dir / rd.SCOPES, scopes)
-        write_json(out_dir / rd.GAPS, gaps)
-        s.count(scopes=len(scoping.scopes), unscoped=len(scoping.unscoped), lifecycle=scoping.statuses(),
-                gaps=scoping.gap_counts())
-        s.wrote(out_dir / rd.SITES, out_dir / rd.APP, out_dir / rd.SCOPES, out_dir / rd.GAPS)
+        s.count(scopes=len(scoping.scopes), unscoped=len(scoping.unscoped), lifecycle=scoping.statuses())
+        s.wrote(out_dir / rd.SITES, out_dir / rd.APP, out_dir / rd.SCOPES)
     print(f"{out_dir}: {len(found.sites)} sites in {found.files} files ({found.testFiles} test files not scanned), "
           f"{len(found.dropped)} dropped by import, {found.folded} folded from constants, "
           f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function; lifecycle "

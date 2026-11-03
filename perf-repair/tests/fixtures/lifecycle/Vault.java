@@ -81,19 +81,6 @@ class Vault {
         return m.doFinal(new byte[] {1});
     }
 
-    private Mac lost() throws Exception {
-        Mac m = Mac.getInstance("ALG-B"); // site: lost_use
-        m.init(store.getKey("e", null));
-        return m;
-    }
-
-    void holds() throws Exception {
-        keep(lost());
-    }
-
-    void keep(Mac m) {
-    }
-
     private static final int SIZE = 16;
 
     byte[] sized(Key k) throws Exception {
@@ -113,5 +100,37 @@ class Vault {
         Mac m = Mac.getInstance("ALG-B"); // site: branch
         m.init(flag ? held : opaque());
         return m.doFinal(new byte[] {1});
+    }
+
+    byte[] closedPaths() throws Exception {
+        Mac m = Mac.getInstance("ALG-B"); // site: closed_paths
+        m.init(chosen());
+        return m.doFinal(new byte[] {1});
+    }
+
+    private Key chosen() throws Exception {
+        if (store == null) return loaded();
+        return store.getKey("g", null);
+    }
+
+    private Key plenty;
+    void p1() throws Exception { plenty = store.getKey("1", null); }
+    void p2() throws Exception { plenty = store.getKey("2", null); }
+    void p3() throws Exception { plenty = store.getKey("3", null); }
+    void p4() throws Exception { plenty = store.getKey("4", null); }
+    void p5() throws Exception { plenty = store.getKey("5", null); }
+    void p6() throws Exception { plenty = store.getKey("6", null); }
+    void p7() throws Exception { plenty = store.getKey("7", null); }
+    void p8() throws Exception { plenty = store.getKey("8", null); }
+    void p9() throws Exception { plenty = store.getKey("9", null); }
+
+    byte[] cutPath() throws Exception {
+        Mac m = Mac.getInstance("ALG-B"); // site: cut_path
+        m.init(helperOfPlenty());
+        return m.doFinal(new byte[] {1});
+    }
+
+    private Key helperOfPlenty() {
+        return plenty;
     }
 }

@@ -19,10 +19,8 @@ from .status import Found, status
 
 @dataclass(frozen=True)
 class Reading:
-    """The lifecycle, and what it was read from: the factory call, its binding, each requirement's argument."""
+    """The lifecycle, and each requirement's argument it was read from."""
     lifecycle: Lifecycle
-    created: Node | None = None
-    binding: Binding | None = None
     values: dict[Requirement, Node] = field(default_factory=dict)
 
 
@@ -133,4 +131,4 @@ def read_site(root: Node, site: dict, engines: Engines) -> Reading:
     calls = same.calls + reach.calls
     values = _requirements(engine, calls, engines)
     return Reading(Lifecycle(state, reasons, b.kind, _steps(engine, same.calls, reach, consumed), tuple(values),
-                             _operations(engine, calls)), created, b, values)
+                             _operations(engine, calls)), values)

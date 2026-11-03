@@ -25,7 +25,6 @@ from ..validation.dossiers import validate_dossiers
 from ..validation.events import validate_events
 from ..validation.app import validate_app_dir
 from ..validation.failure import ValidationFailed
-from ..validation.gaps import validate_gaps
 from ..validation.grouping.interop import validate_interop
 from ..validation.measurements import validate_measurements
 from ..validation.report import validate_report, validate_summary
@@ -46,7 +45,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     out |= _charters(run) | _events(run)
     reports = []
     for directory in rd.app_dirs(run):
-        out |= validate_app_dir(directory) | _completion(directory)
+        out |= validate_app_dir(directory)
         if (directory / rd.REPORT).is_file():
             reports.append(read_json(directory / rd.REPORT))
             out[f"{directory.name}/{rd.REPORT}"] = validate_report(reports[-1], directory.name)
@@ -81,13 +80,6 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
             saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
             out[directory.name] = kind.validate(saved, records)
     return out
-
-
-def _completion(directory: Path) -> dict[str, list[str]]:
-    if not (directory / rd.GAPS).is_file():
-        return {}
-    where, gaps, scopes = f"{directory.name}/{rd.GAPS}", read_json(directory / rd.GAPS), read_json(directory / rd.SCOPES)
-    return {where: validate_gaps(gaps, scopes)}
 
 
 def _beside_rows(run: Path, rows) -> dict[str, list[str]]:

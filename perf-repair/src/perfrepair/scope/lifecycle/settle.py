@@ -1,12 +1,11 @@
-"""The lines code can reach for one open value: a field's writes, a parameter's in-class call arguments, a same-class
-call's returned values, an expression's parts; read on from each open one, within a budget it never widens."""
+"""Code settlement: an open requirement whose every path, inside its class, closes to one origin is stored and never asked.
+A path follows field writes, in-class call arguments, returned values and a branch's operands; a budget never widens it."""
 from __future__ import annotations
 
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
-from ...dto.gaps import CALLER_ARGUMENT, FIELD_WRITE, PART, RETURNED
-from ...dto.lifecycle import OPEN_ORIGINS
+from ...dto.lifecycle import OPEN_ORIGINS, Lifecycle, Requirement, Settled
 from ..engines import Engines
 from ..syntax import grammar as g
 from ..syntax.calls import as_call
@@ -16,34 +15,20 @@ from ..syntax.node import Node
 from ..syntax.usage import unwrapped
 from .depth1 import same_class_calls
 from .origins import Source, origin, written_values
+from .read import Reading
 
-# per gap: methods read past the site's, hops from the value, lines offered; past one it is recorded, never widened
+# per requirement: methods read past the site's, hops from the value, values read; past one it stays open
 REACH_METHODS, REACH_HOPS, REACH_LINES = 12, 3, 8
 _VALUE_KINDS = (g.IDENTIFIER, g.MEMBER, g.CALL, g.NEW, g.LITERAL)
 
 
-@dataclass(frozen=True)
-class Line:
-    how: str
-    line: int
-    reads: str
-    node: Node | None = None
-
-
 @dataclass
-class Reached:
-    """lines: in the order reached; open_ends: an open reading nothing further closes; over_budget: reading stopped early."""
-    lines: list[Line] = field(default_factory=list)
-    open_ends: bool = False
-    over_budget: bool = False
-
-    @property
-    def settled(self) -> Line | None:
-        """Every closed line reads one origin, and no path stayed open or was cut."""
-        closed = {x.reads for x in self.lines if x.reads not in OPEN_ORIGINS}
-        if len(closed) == 1 and not self.open_ends and not self.over_budget:
-            return next(x for x in self.lines if x.reads in closed)
-        return None
+class _Walk:
+    """read: values read past the requirement's own argument; closed: those closing; unsettled: a path stayed open or was cut."""
+    read: int = 0
+    closed: list[Source] = field(default_factory=list)
+    unsettled: bool = False
+    methods: set[int] = field(default_factory=set)
 
 
 def _field_values(src: Source, at: Node) -> list[Node]:
@@ -93,14 +78,14 @@ def _parts(e: Node | None) -> list[Node]:
     return out
 
 
-def _next_values(src: Source, at: Node) -> list[tuple[str, Node]]:
+def _next_values(src: Source, at: Node) -> list[Node]:
     if src.origin == "field":
-        return [(FIELD_WRITE, v) for v in _field_values(src, at)]
+        return _field_values(src, at)
     if src.origin == "parameter":
-        return [(CALLER_ARGUMENT, v) for v in _caller_values(src, at)]
+        return _caller_values(src, at)
     if src.origin == "same_class_call":
-        return [(RETURNED, v) for v in _called_values(src)]
-    return [(PART, v) for v in _parts(src.node)] if src.origin == "unknown" else []
+        return _called_values(src)
+    return _parts(src.node) if src.origin == "unknown" else []
 
 
 def _outside_writers(src: Source, at: Node) -> bool:
@@ -111,37 +96,40 @@ def _outside_writers(src: Source, at: Node) -> bool:
     return held is not None and not is_private(field_owner(held.node))
 
 
-def _line(how: str, value: Node, src: Source) -> Line:
-    # a closed reading names where the value is made; an open one where this path hands it on
-    return Line(how, value.line if src.origin in OPEN_ORIGINS else src.line, src.origin, value)
-
-
-def _follow(src: Source, node: Node, hops: int, out: Reached, methods: set[int]) -> list[tuple[str, Node, int]]:
-    """The next values to read from an open one; a path that ends open or over budget is recorded on `out`."""
+def _follow(src: Source, node: Node, hops: int, walk: _Walk) -> list[tuple[Node, int]]:
     following = _next_values(src, node)
-    out.open_ends = out.open_ends or _outside_writers(src, node) or not following
-    methods |= {id(enclosing_method(v)) for _, v in following}
-    if following and (hops >= REACH_HOPS or len(methods) > REACH_METHODS):
-        out.over_budget = True
-        return []
-    return [(h, v, hops + 1) for h, v in following]
+    walk.methods |= {id(enclosing_method(v)) for v in following}
+    cut = following and (hops >= REACH_HOPS or len(walk.methods) > REACH_METHODS)
+    if cut or not following or _outside_writers(src, node):
+        walk.unsettled = True
+    return [(v, hops + 1) for v in following]
 
 
-def reach(value: Node, engines: Engines) -> Reached:
-    """Breadth first from the requirement's own argument, so the nearest lines are the ones a budget keeps."""
-    out, seen, methods = Reached(), set(), set()
-    queue = deque([("", value, 0)])
-    while queue:
-        how, node, hops = queue.popleft()
+def _closing_source(value: Node, engines: Engines) -> Source | None:
+    """Breadth first from the requirement's own argument; the first closing value is the line stored."""
+    walk, seen = _Walk(), set()
+    queue = deque([(value, 0)])
+    while queue and not walk.unsettled:
+        node, hops = queue.popleft()
         if id(node) in seen:
             continue
         seen.add(id(node))
         src = origin(node, engines)
-        if how and len(out.lines) >= REACH_LINES:
-            out.over_budget = True
-            break
-        if how:
-            out.lines.append(_line(how, node, src))
+        walk.read += 1 if hops else 0
+        walk.unsettled = walk.read > REACH_LINES
         if src.origin in OPEN_ORIGINS:
-            queue.extend(_follow(src, node, hops, out, methods))
-    return out
+            queue.extend(_follow(src, node, hops, walk))
+        elif hops:
+            walk.closed.append(src)
+    one = len({s.origin for s in walk.closed}) == 1 and not walk.unsettled
+    return walk.closed[0] if one else None
+
+
+def _settled(r: Requirement, value: Node, engines: Engines) -> Requirement:
+    src = _closing_source(value, engines)
+    return replace(r, settled=Settled(src.origin, src.line)) if src is not None else r
+
+
+def settle(reading: Reading, engines: Engines) -> Lifecycle:
+    lc = reading.lifecycle
+    return replace(lc, requirements=tuple(_settled(r, reading.values[r], engines) if r.open else r for r in lc.requirements))

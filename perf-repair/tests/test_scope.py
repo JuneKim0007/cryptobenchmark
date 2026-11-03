@@ -142,7 +142,7 @@ def test_validate_run_reads_app_folders(scopes):
 GOOD_LIFECYCLE = {"status": "partially_bounded", "reasons": ["field"], "binding": "field",
                   "steps": [{"role": "use", "call": "f", "line": 4, "where": "depth1"}],
                   "requirements": [{"name": "key", "origin": "field", "line": 2, "at": 4, "depth1": ["generated"]}],
-                  "operations": ["OP1"], "use": None}
+                  "operations": ["OP1"]}
 
 
 @pytest.mark.parametrize("change, problem", [

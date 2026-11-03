@@ -1,19 +1,17 @@
 """app.json and scopes.json: shape, contract values, ids recomputed from their parts."""
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..dto.lifecycle import (BINDINGS, CODE_SOURCE, MODEL_PREFIX, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
+from ..dto.lifecycle import (BINDINGS, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
                              PARTIALLY_BOUNDED, REQUIREMENTS, ROLES, STATUSES, UNSUPPORTED, UNSUPPORTED_REASONS, WHERE)
 from ..dto.site import KEY_SOURCES, SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SINKS, Scope, scope_id
 from ..files import read_json
 
 _SCOPE_TYPES = {"id": str, "app": str, "file": str, "line": int, "call": str, "function": str, "start": int,
                 "end": int, "engineType": str, "resolution": str, "sinks": list, "keySource": str}
-_LIFECYCLE_KEYS = {"status", "reasons", "binding", "steps", "requirements", "operations", "use"}
-_MODEL_SOURCE = re.compile(re.escape(MODEL_PREFIX) + r"[0-9a-f]{12}")
+_LIFECYCLE_KEYS = {"status", "reasons", "binding", "steps", "requirements", "operations"}
 _STATUS_REASONS = {UNSUPPORTED: UNSUPPORTED_REASONS, PARTIALLY_BOUNDED: PARTIAL_REASONS}
 _OPTIONAL = {"algorithm": str, "provider": str, "keySize": int, "inputSize": int}
 
@@ -45,24 +43,19 @@ def _in_file(n, lines: int | None) -> bool:
     return isinstance(n, int) and n >= 1 and (lines is None or n <= lines)
 
 
-def _completion_problems(where: str, done, lines: int | None) -> list[str]:
-    if done is None:
-        return []
-    if not isinstance(done, dict) or not {"origin", "line", "file", "source"} <= set(done):
-        return [f"{where}: completion is not a completion object"]
-    out = [] if done["origin"] in ORIGINS else [f"{where}: completed origin {done['origin']!r} is not one of {ORIGINS}"]
-    if done["source"] != CODE_SOURCE and not _MODEL_SOURCE.fullmatch(str(done["source"])):
-        out.append(f"{where}: completion source {done['source']!r} is neither {CODE_SOURCE} nor {MODEL_PREFIX}<fingerprint>")
-    return out + [f"{where}: completion cites line {n!r}, not a line of the file" for n in [done["line"]] if not _in_file(n, lines)]
+def _settled_problems(where: str, r: dict, lines: int | None) -> list[str]:
+    done, where = r["settled"], f"{where} requirement {r.get('name')}"
+    if not isinstance(done, dict) or set(done) != {"origin", "line"}:
+        return [f"{where}: settled is not {{origin, line}}"]
+    out = [] if done["origin"] in ORIGINS and done["origin"] not in OPEN_ORIGINS else [
+        f"{where}: settled origin {done['origin']!r} is not a closed origin"]
+    out += [] if _in_file(done["line"], lines) else [f"{where}: settled cites line {done['line']!r}, not a line of the file"]
+    return out + ([] if r.get("origin") in OPEN_ORIGINS else [f"{where}: settled over the closed origin {r.get('origin')!r}"])
 
 
-def _completions(where: str, lc: dict, lines: int | None) -> list[str]:
-    out = _completion_problems(f"{where} use", lc["use"], lines)
-    for r in (r for r in lc["requirements"] if isinstance(r, dict) and r.get("completed") is not None):
-        out += _completion_problems(f"{where} requirement {r.get('name')}", r["completed"], lines)
-        if r.get("origin") not in OPEN_ORIGINS:
-            out.append(f"{where} requirement {r.get('name')}: completion over the closed origin {r.get('origin')!r}")
-    return out
+def _settlements(where: str, lc: dict, lines: int | None) -> list[str]:
+    return [p for r in lc["requirements"] if isinstance(r, dict) and r.get("settled") is not None
+            for p in _settled_problems(where, r, lines)]
 
 
 def _lifecycle_values(where: str, lc: dict) -> list[str]:
@@ -92,7 +85,7 @@ def lifecycle_problems(where: str, lc, lines: int | None = None) -> list[str]:
     """Closed-list values, and with the file's line count, every cited line inside the file."""
     if not isinstance(lc, dict) or not _LIFECYCLE_KEYS <= set(lc):
         return [f"{where}: lifecycle is not a lifecycle object"]
-    return _lifecycle_values(where, lc) + _cited_lines(where, lc, lines) + _completions(where, lc, lines)
+    return _lifecycle_values(where, lc) + _cited_lines(where, lc, lines) + _settlements(where, lc, lines)
 
 
 def scope_problems(where: str, s, app: str | None, lines: int | None = None) -> list[str]:
