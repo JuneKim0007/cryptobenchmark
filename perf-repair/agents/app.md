@@ -26,7 +26,7 @@
 
 ```
 src/perfrepair/app/__init__.py : docstring only
-src/perfrepair/app/__main__.py : command: app source → <device>/<path id>/sites.json, app.json, scopes.json, units.json per project root, validated before writing
+src/perfrepair/app/__main__.py : command: app source → <device>/<path id>/sites.json, app.json, scopes.json, units.json per project root, validated before writing; then one not_on_device per missing provider through terminate
 src/perfrepair/app/detect.py : the detect step: non-test sources → import-checked, constant-folded sites, each resolved by the given resolver
 src/perfrepair/app/facts/__init__.py : docstring only
 src/perfrepair/app/facts/app_facts.py : the app.json document: project root, bundled, registers, SDK levels

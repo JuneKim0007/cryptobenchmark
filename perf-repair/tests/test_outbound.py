@@ -6,6 +6,7 @@ import pytest
 import yaml
 
 from perfrepair import run_dir as rd
+from perfrepair.stop import Halt
 from perfrepair.data_handler.outbound import benchmark_runner
 from perfrepair.data_handler.outbound import (GENERATED_NAME, BenchmarkRunError, benchmark_root, new_run_dir,
                                               run_pipeline, write_run_config)
@@ -97,14 +98,14 @@ def test_a_run_keeps_every_pipeline_call_in_its_own_transcript(bench_root, tmp_p
     run_pipeline(config, tmp_path / "benchmark", "configure", bench_root, echo=None, device=tmp_path / "d")
     first = (tmp_path / "d" / rd.PIPELINE_LOGS / "r1.log").read_text().count("\n")
     monkeypatch.setenv("FAKE_EXIT", "3")
-    with pytest.raises(BenchmarkRunError, match=rf"full log {tmp_path / 'd' / rd.PIPELINE_LOGS / 'r1.log'}:{first + 1};"):
+    with pytest.raises(Halt, match=rf"full log {tmp_path / 'd' / rd.PIPELINE_LOGS / 'r1.log'}:{first + 1};"):
         run_pipeline(config, tmp_path / "benchmark", "bench", bench_root, echo=None, device=tmp_path / "d")
     assert (tmp_path / "d" / rd.PIPELINE_LOGS / "r1.log").read_text().splitlines()[first] == "# bench"
 
 
 def test_runner_failure_carries_the_tail(bench_root, tmp_path, monkeypatch):
     monkeypatch.setenv("FAKE_EXIT", "3")
-    with pytest.raises(BenchmarkRunError) as e:
+    with pytest.raises(Halt) as e:
         run_pipeline(tmp_path / "c.yaml", tmp_path / "out", benchmark=bench_root, echo=None, tail=5,
                      device=tmp_path)
     message = str(e.value)

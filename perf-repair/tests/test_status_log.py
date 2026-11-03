@@ -59,6 +59,14 @@ def test_each_line_kind_starts_with_its_code_word():
         "end r1: exit 1 (1.5s)"]
 
 
+def test_an_end_whose_halt_terminate_reported_has_no_line_of_its_own():
+    reported = {"code": "pipeline_failed", "reported": True}
+    assert [status_line(e) for e in (
+        ev("device", "probe", END, outcome="failed", detail="Halt: pipeline_failed: x", data=reported),
+        ev("guide", "prerequisites", END, outcome="stop", detail="pipeline_failed: x", data=reported),
+        ev("guide", "target", END, app="a", outcome="stop", detail="pipeline_failed: x", data=reported))] == [None] * 3
+
+
 def test_a_finding_names_its_code_item_app_and_where_to_look():
     e = ev("device", "pipeline", FINDING, item="device", outcome="pipeline_failed", detail="exit 3; error: x",
            ref="log/pipeline/r1.log")
@@ -97,13 +105,12 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     assert last[1:-1] == [
         "reused device grouping: every item decided, saved files current",
         *(m.format(pa) for m in missing),
-        f"short_window {case} app {pa}: energy_invalid: short_window; see {pa}/measured/scoped/energy.json",
+        f"energy_invalid {case} app {pa}: warn: short_window; see {pa}/measured/scoped/energy.json; "
+        f"next: {CODES['energy_invalid'].next}",
         f"ok app {pa}",
         *(m.format(pb) for m in missing),
-        f"pipeline_failed device app {pb}: exit 1; error: no_scope_compiled: every scope is not_compilable; "
-        f"see {transcript}:{at}",
-        f"device_failed app {pb} at device: pipeline exited 1 (device); full log {base.run_dir / transcript}:{at}"
-        "; last error: no_scope_compiled: every scope is not_compilable; next: " + CODES["device_failed"].next]
+        f"pipeline_failed device app {pb}: pipeline exited 1 (device); error: no_scope_compiled: every scope is "
+        f"not_compilable; see {transcript}:{at}; next: {CODES['pipeline_failed'].next}"]
     lines = (base.run_dir / transcript).read_text().splitlines()
     assert lines[at - 1] == f"# device app {pb}" and lines[0] == f"# device app {pa}"
 
@@ -115,7 +122,9 @@ def test_a_first_run_whose_pipeline_fails_still_reports_it_in_the_device_folder(
     device = tmp_path / "results" / "fake-api36-00000000"
     status = (device / rd.STATUS_LOG).read_text().splitlines()
     assert code == 1 and not (device / rd.MANIFEST).exists()
-    assert [line.split()[0] for line in status] == ["run", "pipeline_failed", "failed", "prerequisites_failed", "end"]
+    # one line for the failure: no `failed device probe`, no `prerequisites_failed` after it
+    assert [line.split()[0] for line in status] == ["run", "pipeline_failed", "end"]
     transcript = f"{rd.PIPELINE_LOGS}/{status[0].split()[1]}.log"
-    assert status[1] == f"pipeline_failed configure: exit 1; error: interrupted; see {transcript}:1"
+    assert status[1] == (f"pipeline_failed configure: pipeline exited 1 (configure); error: interrupted; see {transcript}:1; "
+                         f"next: {CODES['pipeline_failed'].next}")
     assert (device / transcript).is_file()

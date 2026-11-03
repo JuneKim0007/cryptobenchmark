@@ -39,7 +39,8 @@ def test_a_case_invalid_in_several_processes_is_one_finding(tmp_path, caplog):
     with caplog.at_level(logging.INFO, logger="perfrepair.event"):
         assert report_invalid(tmp_path / "manifest.yaml") == 1
     found = _findings(caplog)
-    assert [(f["item"], f["outcome"]) for f in found] == [("c", "short_window")] and found[0]["data"]["processes"] == 2
+    assert [(f["item"], f["data"]["code"], f["detail"]) for f in found] == [("c", "energy_invalid", "short_window")]
+    assert found[0]["outcome"] == "warn" and found[0]["data"]["processes"] == 2
 
 
 def test_an_unreadable_energy_file_is_a_finding_and_no_failure(tmp_path, caplog):
@@ -47,4 +48,4 @@ def test_an_unreadable_energy_file_is_a_finding_and_no_failure(tmp_path, caplog)
     (tmp_path / "manifest.yaml").write_text("files:\n  energy: energy.json\n")
     with caplog.at_level(logging.INFO, logger="perfrepair.event"):
         assert report_invalid(tmp_path / "manifest.yaml") == 0
-    assert [f["outcome"] for f in _findings(caplog)] == ["energy_unreadable"]
+    assert [(f["outcome"], f["data"]["code"]) for f in _findings(caplog)] == [("warn", "energy_unreadable")]

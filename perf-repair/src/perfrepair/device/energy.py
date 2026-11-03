@@ -1,4 +1,4 @@
-"""After a device run: one finding per energy case its energy.json files mark invalid, keyed by the first reason."""
+"""After a device run: one energy_invalid per energy case its energy.json files mark invalid, its reasons as the detail."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,10 +6,7 @@ from pathlib import Path
 import yaml
 
 from ..data_handler.inbound.energy import InvalidCase, invalid_cases
-from ..dto.event import FINDING
-from ..log import emit
-
-ENERGY_INVALID, ENERGY_UNREADABLE = "energy_invalid", "energy_unreadable"
+from ..stop import terminate
 
 
 def _per_case(found: list[InvalidCase]) -> dict[str, list[InvalidCase]]:
@@ -24,11 +21,10 @@ def report_invalid(manifest: Path, app: str | None = None) -> int:
     try:
         cases = _per_case(invalid_cases(manifest))
     except (OSError, ValueError, AttributeError, yaml.YAMLError) as e:
-        emit("device", "energy", FINDING, item=str(manifest), app=app, outcome=ENERGY_UNREADABLE, detail=f"{type(e).__name__}: {e}")
+        terminate("energy_unreadable", f"{type(e).__name__}: {e}", stage="device", step="energy", item=str(manifest), app=app)
         return 0
     for case, rows in cases.items():
         reasons = list(dict.fromkeys(r for c in rows for r in c.reasons))
-        emit("device", "energy", FINDING, item=case, app=app, outcome=reasons[0] if reasons else ENERGY_INVALID,
-             ref=str(rows[0].file), detail=f"{ENERGY_INVALID}: {', '.join(reasons) or 'no reason given'}",
-             data={"reasons": reasons, "processes": len(rows)})
+        terminate("energy_invalid", ", ".join(reasons) or "no reason given", stage="device", step="energy", item=case,
+                  app=app, ref=str(rows[0].file), data={"reasons": reasons, "processes": len(rows)})
     return len(cases)

@@ -10,15 +10,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from ...dto.event import FINDING
-from ...log import emit, run_id
+from ...log import run_id
+from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
 
 PIPELINE = Path("scripts/pipeline.py")
 # the id is known only to the run, so the run says where its manifest went
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
-PIPELINE_FAILED = "pipeline_failed"
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
 PERF_REPAIR_ROOT = Path(__file__).resolve().parents[4]
 
@@ -81,9 +80,11 @@ def _lines(path: Path) -> int:
 
 
 def _failed(stage: str, code: int, last: list[str], ref: str, app: str | None) -> None:
+    """The one line of a failed call: its exit and last error line here, its tail only in the Halt's message."""
     errors = [line for line in last if line.lstrip().startswith("error")] or [line for line in last if line.strip()]
-    emit("device", "pipeline", FINDING, item=stage, app=app, outcome=PIPELINE_FAILED, ref=ref,
-         detail=f"exit {code}" + (f"; {errors[-1].strip()}" if errors else ""), data={"exit": code, "stage": stage})
+    terminate("pipeline_failed", f"pipeline exited {code} ({stage})" + (f"; {errors[-1].strip()}" if errors else ""),
+              stage="device", step="pipeline", item=stage, app=app, ref=ref, data={"exit": code, "stage": stage},
+              trace=f"; full log {ref}; last lines:\n" + "\n".join(last))
 
 
 def run_pipeline(config: Path | None, results: Path | None, stage: str = "configure",
@@ -116,7 +117,6 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
         code = process.wait()
     if code != 0:
         _failed(stage, code, list(last), ref, app)
-        raise BenchmarkRunError(f"pipeline exited {code} ({stage}); full log {ref}; last lines:\n" + "\n".join(last))
     if manifest is None or not manifest.is_file():
         raise BenchmarkRunError(f"pipeline exited 0 but wrote no manifest; full log {ref}")
     return manifest

@@ -7,7 +7,6 @@ import yaml
 from perfrepair import run_dir as rd
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
-from perfrepair.data_handler.outbound import BenchmarkRunError
 from perfrepair.device import stage as device_stage
 from perfrepair.device.measures import switched_on
 from perfrepair.device.stage import probe_device
@@ -179,7 +178,7 @@ def test_an_interrupted_benchmark_leaves_no_record_and_the_next_call_runs_it_all
     first, _ = device(root, config)
     config.write_text(config.read_text().replace("bundled: []", "bundled: [{artifact: 'g:a:1', create: X}]"))
     monkeypatch.setenv("FAKE_INTERRUPT", "1")
-    with pytest.raises(BenchmarkRunError):
+    with pytest.raises(Halt, match="^pipeline_failed: "):
         device(root, config)
     assert not (first.folder / rd.DEVICE).exists() and not (first.folder / rd.MANIFEST).exists()
     monkeypatch.delenv("FAKE_INTERRUPT")

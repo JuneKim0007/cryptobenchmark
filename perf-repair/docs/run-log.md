@@ -38,22 +38,24 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | event | line |
 |---|---|
 | `run_start`, `run_end` | `run <run id> <ts>: <command>`; `end <run id>: <exit> (<s>)` |
-| guide `target` end | `<code> app <app>[ at <step>]: <detail>`; the code is the stop code (`no_options`, `target_missing`, `device_failed`), else `ok`, `reused`, `not_run` |
-| guide stop with no app | `<code> guide <step>: <detail>` (`missing_device_stage`, `prerequisites_failed`) |
-| device stage end | `ran` or `reused device <stage>: <reason>`; `failed device <stage>: <error>` |
-| `finding` | `<outcome> <item>[ app <app>]: <detail>[; see <ref>]` |
+| `finding` from `terminate` ([stops.md](stops.md)) | `<code> <subject>: [<action>: ]<detail>[; see <ref>]; next: <next step>`; the subject is the item (and `app <app>`), else `app <app> at <step>` or `guide <step>` for the guide, else `<stage> <step>`; the action is shown when it is `warn` or `skip` |
+| guide `target` end | `ok`, `reused` or `not_run app <app>[: <detail>]`; a stopped app has its `terminate` or `bug` line only |
+| device stage end | `ran` or `reused device <stage>: <reason>`; `failed device <stage>: <error>` for a failure no `terminate` reported |
 | `error`, `bug` | `<code> error: <detail>`; `bug <stage> <step>: <type>: <message>; traceback in log/bug.log` |
 
-| finding | emitted by | outcome, item |
+| code | emitted by | item, detail |
 |---|---|---|
-| a provider the app names that the device lacks | `perfrepair.app` detect | `not_on_device`, the provider; detail: sites, the next step |
-| an energy case its `energy.json` files mark invalid, one line across process files | `device/energy.py`, after each device run | the first reason (`short_window`, `window_uncovered`, ...), the case id; ref: the `energy.json` |
-| energy files that cannot be read | `device/energy.py` | `energy_unreadable`, the manifest; the run stands |
-| a failed `pipeline.py` call | `benchmark_runner.py` | `pipeline_failed`, the stage; detail: exit, last error line; ref: `pipeline/<run id>.log:<line>` of the call |
-| a selected metric the run config does not measure | `device/measures.py` | `perf_mode_unmeasured`, the metric |
+| `not_on_device` | `perfrepair.app`, after its files are written | the provider; its sites |
+| `energy_invalid` | `device/energy.py`, after each device run | the case id; its reasons across process files (`short_window`, `window_uncovered`, ...); ref: the `energy.json` |
+| `energy_unreadable` | `device/energy.py` | the manifest; the run stands |
+| `pipeline_failed` | `benchmark_runner.py` | the stage; exit and last error line; ref: `pipeline/<run id>.log:<line>` of the call; the device step, the guide step and the app's target add no line |
+| `perf_mode_unmeasured`, `perf_mode_maybe_unmeasured` | `device/measures.py` | the metrics |
+| `bundled_missing` | `device/bundled.py` | each provider with its coordinates and apps |
+| a guide stop (`no_options`, `missing_device_stage`, `<step>_failed`, ...) | `guide/steps.py`, `guide/run.py` | `<step>_failed` carries the inner code in `data.inner` and first in its detail |
 
-- A code is the detail's first word holding an underscore, or one word before a colon; a step's end carries its stop code in `data.code` and `data.step`.
-- A failed step's line adds the last `error` line of its detail.
+- The code is `data.code`; an event written before it has its detail's first word holding an underscore, or one word before a colon.
+- A step that ends in a `Halt` records `data.code` and `data.reported`; its own line is left out.
+- A line adds the last `error` line of its detail.
 
 ## Event fields
 
@@ -74,6 +76,6 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 - Records logged before the device folder is known are kept and written, in order, once it is; a command that never names an existing folder writes nothing.
 - Each line is one append of a whole line; a reader takes only lines ending in a newline, and the validator reports a partial last line.
 - The stderr lines are the same as without the log: event records stay off stderr, and setting lines at DEBUG reach only `events.jsonl`.
-- A coded error is one `error` event and `error <code>: ...` on stderr; any other exception is a `bug` event, `error bug: <type>: <message>; traceback in <device>/log/bug.log`, exit 1; before the folder is known the traceback goes to stderr.
+- A `Halt` is its `terminate` finding and `error <code>: ...` on stderr; another coded error is one `error` event with `data.code` and the same stderr line, none when its command runs inside another; any other exception is a `bug` event, `error bug: <type>: <message>; traceback in <device>/log/bug.log`, exit 1; before the folder is known the traceback goes to stderr.
 - `watch` prints one line per finished step, a finding's status line, and a counter per model step, `grouping assign 37/176 · 2 rejected · $0.0040 · 41s`, rewritten in place on a terminal with each turn, one line per decision elsewhere; it exits 0 when the last line it read is a `run_end`, 130 on Ctrl-C; without `--from-start` it starts at the file's end; with it, every run in the file replays, each `run_start` resetting the counters.
 - `log summary` takes every run of the folder unless `--run` names one or `--last` asks for the newest: a line per run (a run with no end is `running` if newest, else `unfinished`), the total, then per stage and per app folder its time (the sum of its step ends, plus the turns of a model step a killed run left open; an app folder leaves out the guide's steps), each static step's runs and time, items and decisions, model calls, rejections and their top problems, the slowest items, tokens and cost; last `status:`, the status lines of the runs shown (`status` in `--json`).

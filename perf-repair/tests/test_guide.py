@@ -139,7 +139,7 @@ def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
     monkeypatch.setenv("FAKE_EXIT", "3")
     g, lines = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=True) == 1
-    assert lines[-1].startswith("guide device: stop device_failed: pipeline exited 3")
+    assert lines[-1].startswith("guide device: stop pipeline_failed: pipeline exited 3")
     assert not g.paths.report.exists()
 
 
