@@ -24,3 +24,19 @@ flowchart LR
 - A changed set reruns the whole measured set, not only the new items: one session per comparison, since a group's members are compared with each other and the manifest holds one `benchmark.json`; cross-session drift (thermal state, frequency governor) would sit inside a ratio. The measured set is the apps' items, a small part of the device, so the rerun costs that part.
 - A first run makes two pipeline runs (probe, then benchmark); later runs with the same targets make none.
 - Logged: `device used` (`deviceItems`, `apps`, `sites`, `matched`, `used`, per `via`), `device selection` (`deviceItems`, `measured`, `excluded`), `device grouping` (`items` asked of, `asked`, `notUsed`).
+- Each excluded item the base selection never held is one `exclude_matches_nothing` warning in `effective.yaml`: harmless, and the price of not repeating cryptobenchmark's include matching here.
+
+## Evidence
+
+API 30 emulator capture, grouping rebuilt at profiles schema 4, the apps' `sites.json` resolved on that device, grouping from empty:
+
+| targets | used set (site, group, candidate) | runnable | asked of 46 askable | notUsed | cases of the 100 the base run measured |
+|---|---|---|---|---|---|
+| none: filter off | 275 | 155 | 46 | 0 | 100 |
+| threema | 18 (5, 13, 0) | 14 | 0 | 46 | 36 |
+| threema, deltachat, DankChat | 41 (11, 24, 6) | 30 | 8 | 38 | 70 |
+| 42 apps with JCA sites (43 folders) | 62 (18, 32, 12) | 44 | 16 | 30 | 72 |
+
+- Dry-run grouping in that order on one folder: 0, then 8, then 16 model calls in total; each new set asked only what it added; the 43-folder set was then 56 items, since an item with a record brings its group, not its candidates.
+- The base run there was `testsets/quick.yaml` (20 items); against a full-device test set the measured items fall from 155 runnable to 14, 30 and 44.
+- Host check (`config/global-demo.yaml`, the demo app): used set 6 of 214 items, 208 exclude rules, the 3 smoke cases measured; the second run reused every stage and made no pipeline run.
