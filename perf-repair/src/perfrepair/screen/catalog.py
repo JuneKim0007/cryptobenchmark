@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..catalog.names import Names
+from ..stop.halt import Coded
 from ..catalog.screening import SCREENING, Screening
 from ..config.load import Loaded
 from ..inputs.resolve import Candidate
@@ -15,7 +16,7 @@ from .handler import ScreeningHandler
 PACKAGED = "packaged"
 
 
-class CatalogMismatch(ValueError):
+class CatalogMismatch(Coded):
     pass
 
 

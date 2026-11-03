@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 
 from ....dto.decision import OutboxRecord
+from ....stop.halt import Coded
 from ....dto.prompt import Charter
 from ....files import TEMP_SUFFIX, read_json, write_json, write_text
 from ....run_dir import CHARTER
@@ -14,7 +15,7 @@ RECORDS = "[0-9]*.json"
 FINGERPRINT = re.compile(r"[0-9a-f]{12}")
 
 
-class OutboxError(ValueError):
+class OutboxError(Coded):
     pass
 
 

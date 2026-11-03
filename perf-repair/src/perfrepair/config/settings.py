@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Mapping
 
 from ..inputs.resolve import OnInvalid, unknown_key
+from ..stop.halt import Coded
 from ..inputs.table import known_tree
 
 LOG = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ SECRET_VALUE = re.compile(r"^sk-ant-")
 USE = "use"
 
 
-class ConfigError(ValueError):
+class ConfigError(Coded):
     pass
 
 

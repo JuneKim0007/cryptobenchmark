@@ -8,6 +8,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..files import write_json
 from .sheet import GROUPING, choice, read_sheet, stages
+from ..stop.halt import Coded
 
 OK, WRONG = "ok", "wrong"
 ACCEPTED = "accepted"
@@ -22,7 +23,7 @@ def _share(right: int, judged: int) -> dict:
 def _verdicts(sheet: list[dict]) -> list[dict]:
     bad = sorted({r["verdict"] for r in sheet} - {"", OK, WRONG})
     if bad:
-        raise ValueError(f"review_verdict: {bad} in the sheet; a verdict is {OK}, {WRONG} or empty")
+        raise Coded(f"review_verdict: {bad} in the sheet; a verdict is {OK}, {WRONG} or empty")
     return [r for r in sheet if r["verdict"]]
 
 

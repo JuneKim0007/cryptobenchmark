@@ -8,6 +8,7 @@ from ..dto.grouping import Item, qualified
 from ..dto.metrics import METRICS
 from ..dto.primitives import PrimitiveLine, PrimitivesTable, column, rounded
 from ..dto.screen import Verdict
+from ..stop.halt import Coded
 
 WORK_FIELDS = ("type", "algorithm", "provider", "operation", "keySize", "phase")
 Cells = dict[int | None, dict[str, Summary]]
@@ -37,10 +38,10 @@ def _grouped(rows: list[PrimitiveRow], measurements: dict[str, dict[str, Summary
     for r in rows:
         name = qualified(r.type, r.algorithm, r.provider)
         if name not in status_of:
-            raise ValueError(f"primitive_not_screened: {name} has no screen.json verdict; rerun grouping build")
+            raise Coded(f"primitive_not_screened: {name} has no screen.json verdict; rerun grouping build")
         key = (*(getattr(r, f) for f in WORK_FIELDS), status_of[name])
         if r.inputSize in grouped[key]:
-            raise ValueError(f"primitive_line_collision: {r.rowId} repeats {key} at input size {r.inputSize}")
+            raise Coded(f"primitive_line_collision: {r.rowId} repeats {key} at input size {r.inputSize}")
         grouped[key][r.inputSize] = measurements.get(r.rowId) or {}
     return grouped
 

@@ -4,11 +4,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from ....dto.charter import charter_document, read_charter
+from ....stop.halt import Coded
 from ....dto.prompt import Charter
 from ....files import read_json, write_json
 
 
-class CharterMismatch(ValueError):
+class CharterMismatch(Coded):
     pass
 
 

@@ -29,6 +29,7 @@ from .primitives import inputs as primitive_inputs, write_primitives
 from .plan import STAGES, Seen, mapped_inputs, plan
 from .selection import FILTER_OFF, exclusions, lacking, measured, section, write_config
 from .used import write_used
+from ..stop.halt import Coded
 
 # a device run installs and probes before it measures, so its probe is never the one already there
 DEVICE_PROBES = "a device benchmark probes the device it measures"
@@ -84,7 +85,7 @@ def seen(folder: Path) -> Seen:
 
 def _same_folder(manifest: Path, folder: Path) -> None:
     if manifest.parent.resolve() != folder.resolve():
-        raise ValueError(f"device_id_changed: --identify named {folder.name}, the probe wrote {manifest.parent.name}")
+        raise Coded(f"device_id_changed: --identify named {folder.name}, the probe wrote {manifest.parent.name}")
 
 
 def _measure(r: Run, steps: dict) -> None:

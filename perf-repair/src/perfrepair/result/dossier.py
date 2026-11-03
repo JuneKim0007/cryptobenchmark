@@ -19,6 +19,7 @@ from .candidates import Family
 from .change import foreign_member, reach
 from .estimate import compare
 from .gain import no_gain
+from ..stop.halt import Coded
 
 RESOLVED = ("default", "explicit")
 
@@ -234,7 +235,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
     available: the providers in the app's process; None, without a probe: every probed one and what the app ships."""
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
-        raise ValueError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
+        raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
     if available is None:
         available = {parse_qualified(v["qualified"])[2] for v in groups["items"].values()}
         available |= {b["providerName"] for b in app_doc.get("bundled") or []}

@@ -7,13 +7,14 @@ from ..data_handler.inbound.manifest import manifest_file, read_manifest
 from ..dto.grouping import parse_qualified
 from ..dto.site import Scope
 from ..files import read_yaml
+from ..stop.halt import Coded
 
 
 def read_effective(manifest: Path) -> dict:
     found, base = read_manifest(manifest)
     path = manifest_file(found, base, "effective")
     if path is None:
-        raise ValueError(f"missing_effective: {manifest} lists no files.effective; the run's sizes are unknown")
+        raise Coded(f"missing_effective: {manifest} lists no files.effective; the run's sizes are unknown")
     return read_yaml(path)
 
 
@@ -23,7 +24,7 @@ def _entries(effective: dict, item: str) -> list[dict]:
     by_name = effective["providers"].get(provider, {}).get(engine_type, {})
     entries = [e or {} for key, e in by_name.items() if key.split("@")[0].lower() == name.lower()]
     if not entries:
-        raise ValueError(f"item_not_configured: {item} has no providers.{provider}.{engine_type}.{name} entry "
+        raise Coded(f"item_not_configured: {item} has no providers.{provider}.{engine_type}.{name} entry "
                          f"in effective.yaml; the results are not the run the groups were built from")
     return entries
 

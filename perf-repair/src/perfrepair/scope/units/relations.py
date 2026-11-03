@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ...dto.site import Scope
 from ...files import read_yaml
+from ...stop.halt import Coded
 
 RELATIONS = Path(__file__).with_name("relations.yaml")
 SUPPORTED_SCHEMA = 1
@@ -31,6 +32,6 @@ class Relations:
 def read_relations() -> Relations:
     raw = read_yaml(RELATIONS)
     if raw.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise ValueError(f"relations_schema: {RELATIONS} schemaVersion {raw.get('schemaVersion')}, supported {SUPPORTED_SCHEMA}")
+        raise Coded(f"relations_schema: {RELATIONS} schemaVersion {raw.get('schemaVersion')}, supported {SUPPORTED_SCHEMA}")
     return Relations(dict(raw["inverses"]), {k: dict(v) for k, v in raw["steps"].items()},
                      {k: frozenset(v) for k, v in raw["producers"].items()})

@@ -9,6 +9,7 @@ from ..dto import Measurements
 from ..files import write_json
 from ..log import step
 from ..validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
+from ..stop.halt import Coded
 
 SCHEMA_VERSION = 1
 
@@ -28,7 +29,7 @@ def _write_inbound(device: Path) -> tuple[list[str], dict]:
     require(str(path), validate_manifest(manifest, base))
     benchmark = manifest_file(manifest, base, "benchmark")
     if benchmark is None:
-        raise ValueError(f"no_benchmark: {path}: the run measured nothing; run the benchmark")
+        raise Coded(f"no_benchmark: {path}: the run measured nothing; run the benchmark")
     prepared = read_prepared(manifest_file(manifest, base, "prepared"))
     processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
     rows, measurements = read_results(benchmark, prepared, processes)

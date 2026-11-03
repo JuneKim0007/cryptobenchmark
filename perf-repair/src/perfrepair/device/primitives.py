@@ -11,6 +11,7 @@ from ..log import step
 from ..result.primitives import build_table, statuses
 from ..run_dir import GroupingPaths
 from ..validation import require, validate_measurements, validate_primitives
+from ..stop.halt import Coded
 
 
 def inputs(device: Path) -> dict[str, str | None]:
@@ -24,7 +25,7 @@ def status_of(device: Path) -> dict[str, str]:
     grouping = GroupingPaths(device)
     screen = rd.load_screen(grouping)
     if screen is None:
-        raise ValueError(f"no_screen: {grouping.screen} absent; the primitives table takes each status from it")
+        raise Coded(f"no_screen: {grouping.screen} absent; the primitives table takes each status from it")
     return statuses(read_items(read_json(grouping.items)), screen)
 
 

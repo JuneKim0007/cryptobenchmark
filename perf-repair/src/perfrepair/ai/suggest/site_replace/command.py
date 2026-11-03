@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .... import run_dir as rd
 from ....data_handler.inbound.manifest import display_units
+from ....stop.halt import Coded
 from ....data_handler.inbound.primitives import read_primitives
 from ....dto.event import LOG
 from ....files import read_json
@@ -25,7 +26,7 @@ from .state import Replacements
 DRY_RUN = ScriptedConversations(lambda *_: {"decision": "keep", "members": [], "reason": "dry run: no model was called"})
 
 
-class DossierChanged(ValueError):
+class DossierChanged(Coded):
     pass
 
 

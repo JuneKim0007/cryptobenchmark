@@ -18,7 +18,7 @@ MAX_SOURCE_BYTES = 256 * 2**20
 class GateError(Exception):
     def __init__(self, reason: str, detail: str):
         super().__init__(f"{reason}: {detail}")
-        self.reason = reason
+        self.reason = self.code = reason
 
 
 @dataclass(frozen=True)

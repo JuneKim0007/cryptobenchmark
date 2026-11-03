@@ -12,6 +12,7 @@ from ..dto.site import NOT_ON_DEVICE
 
 NAME_CONFLICT = "name_conflict"
 from .find.scan import Site
+from ..stop.halt import Coded
 
 
 def default_provider(probe: Probe, providers: list[ProviderEntry], engine_type: str,
@@ -62,7 +63,7 @@ class Primitives:
     def load(cls, device: Path) -> "Primitives":
         context = RunContext.load(Path(device) / rd.MANIFEST)
         if context.file("probe") is None:
-            raise ValueError(f"missing_probe: {context.path}: no probe file; resolving a site needs the device's providers")
+            raise Coded(f"missing_probe: {context.path}: no probe file; resolving a site needs the device's providers")
         return cls(context)
 
     @property

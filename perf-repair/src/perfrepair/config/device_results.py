@@ -11,6 +11,7 @@ from .. import run_dir as rd
 from ..inputs.table import DEVICE_ID, PATHS_RESULTS
 from .args import load_settings
 from .load import Loaded
+from ..stop.halt import Coded
 
 LOG = logging.getLogger(__name__)
 TEMP_ROOTS = ("/tmp", "/var/tmp", "/var/folders")
@@ -24,11 +25,11 @@ def add_device_results_arg(parser: argparse.ArgumentParser) -> None:
 def select_device(root: Path, wanted: str | None) -> Path:
     found = rd.device_folders(root)
     if wanted and wanted not in found:
-        raise ValueError(f"device_not_in_results: {wanted}; {root} holds {found}")
+        raise Coded(f"device_not_in_results: {wanted}; {root} holds {found}")
     if not found:
-        raise ValueError(f"no_device_results: {root} holds no <device id>/{rd.MANIFEST}; run the benchmark")
+        raise Coded(f"no_device_results: {root} holds no <device id>/{rd.MANIFEST}; run the benchmark")
     if not wanted and len(found) > 1:
-        raise ValueError(f"several_device_results: {root} holds {', '.join(found)}; set device.id or pass --device-results")
+        raise Coded(f"several_device_results: {root} holds {', '.join(found)}; set device.id or pass --device-results")
     return root / (wanted or found[0])
 
 
@@ -62,5 +63,5 @@ def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespac
         args.device_results = select_device(Path(root).expanduser(), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
     if rd.device_folders(args.device_results) and not (args.device_results / rd.MANIFEST).is_file():
-        raise ValueError(rd.not_device_results(args.device_results))
+        raise Coded(rd.not_device_results(args.device_results))
     _warn_if_temp(args.device_results)

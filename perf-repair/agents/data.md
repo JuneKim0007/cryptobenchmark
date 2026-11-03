@@ -108,7 +108,7 @@ src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines
 src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/), not_device_results, app folders, device.yaml read and write, load_used (None without used.json), artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
-src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; code_of, the code a failure carries as `.code` or its message's first word
+src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, a `<code>: <detail>` ValueError keeping `.code`; code_of, the code a failure carries as `.code` or its message's first word
 src/perfrepair/stop/policy.py : the stops reader the first settings load of a run installs; a code's action, its default without one
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next, then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only

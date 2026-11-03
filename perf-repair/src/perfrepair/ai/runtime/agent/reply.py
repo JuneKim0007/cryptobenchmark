@@ -23,3 +23,4 @@ class AgentFailed(RuntimeError):
 
     def __init__(self, code: str, detail: str):
         super().__init__(f"{code}: {' '.join(detail.split())}")
+        self.code = code

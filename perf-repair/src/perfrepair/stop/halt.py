@@ -13,6 +13,14 @@ class Halt(Exception):
         super().__init__(f"{code}: {detail}")
 
 
+class Coded(ValueError):
+    """A coded failure raised where no terminate decides it: `<code>: <detail>`, the code kept as `.code`."""
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.code = code_in(message)
+
+
 def code_in(text: str) -> str | None:
     found = CODE.match((text or "").strip())
     return (found.group(1) or found.group(2)) if found else None

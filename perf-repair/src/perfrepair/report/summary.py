@@ -10,6 +10,7 @@ from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION
 from ..dto.perf_mode import PerfMode
 from ..result.modes import mode_of
 from .recommendations import summed
+from ..stop.halt import Coded
 
 
 def app_ratio(report: dict, metric: str) -> float | None:
@@ -33,10 +34,10 @@ def change(ratio: float | None, improving: float) -> str:
 
 def build_summary(reports: list[dict]) -> dict:
     if not reports:
-        raise ValueError("no_reports: no <app>/report.json in the device folder; run `python3 -m perfrepair.report app` first")
+        raise Coded("no_reports: no <app>/report.json in the device folder; run `python3 -m perfrepair.report app` first")
     modes = sorted({r["mode"] for r in reports})
     if len(modes) != 1:
-        raise ValueError(f"mixed_modes: the app reports were built in modes {modes}; rebuild them in one mode")
+        raise Coded(f"mixed_modes: the app reports were built in modes {modes}; rebuild them in one mode")
     mode = mode_of(PerfMode.parse(modes[0]))
     improving = mode.improvingRatio
     by_app = {r["app"]: r["funnel"] for r in reports}

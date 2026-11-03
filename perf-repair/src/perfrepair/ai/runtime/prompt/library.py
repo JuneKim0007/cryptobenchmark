@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt, fill
+from ....stop.halt import Coded
 from ....files import read_yaml
 
 PACKAGED = Path(__file__).resolve().parents[3] / "prompts"
@@ -12,7 +13,7 @@ CORRECTION = "shared/rejection"
 SCHEMA_VERSION = 1
 
 
-class PromptError(ValueError):
+class PromptError(Coded):
     pass
 
 
