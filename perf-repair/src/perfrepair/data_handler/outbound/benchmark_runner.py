@@ -11,13 +11,13 @@ from pathlib import Path
 from typing import Callable
 
 from ...dto.event import FINDING
-from ...log import emit
+from ...log import emit, run_id
+from ...run_dir import PIPELINE_LOGS
 
 PIPELINE = Path("scripts/pipeline.py")
 # the id is known only to the run, so the run says where its manifest went
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
-LOG = "pipeline.log"
 PIPELINE_FAILED = "pipeline_failed"
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
 PERF_REPAIR_ROOT = Path(__file__).resolve().parents[4]
@@ -66,30 +66,46 @@ def identify(config: Path | None, on_device: bool, benchmark: Path | str | None 
     return json.loads(found[-1])
 
 
-def _failed(stage: str, code: int, last: list[str], transcript: Path, app: str | None) -> None:
+def transcript(device: Path) -> Path:
+    """<device>/log/pipeline/<run id>.log: every pipeline call of one run appends to it."""
+    path = Path(device).resolve() / PIPELINE_LOGS / f"{run_id()}.log"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _lines(path: Path) -> int:
+    if not path.is_file():
+        return 0
+    with open(path) as f:
+        return sum(1 for _ in f)
+
+
+def _failed(stage: str, code: int, last: list[str], ref: str, app: str | None) -> None:
     errors = [line for line in last if line.lstrip().startswith("error")] or [line for line in last if line.strip()]
-    emit("device", "pipeline", FINDING, item=stage, app=app, outcome=PIPELINE_FAILED, ref=str(transcript),
+    emit("device", "pipeline", FINDING, item=stage, app=app, outcome=PIPELINE_FAILED, ref=ref,
          detail=f"exit {code}" + (f"; {errors[-1].strip()}" if errors else ""), data={"exit": code, "stage": stage})
 
 
-def run_pipeline(config: Path | None, results: Path, stage: str = "configure", benchmark: Path | str | None = None,
-                 harness: Path | None = None, echo: Callable[[str], None] | None = print, tail: int = 40,
-                 extra: tuple[str, ...] = (), app: str | None = None) -> Path:
-    """results: the root, or with harness the folder beside it that only holds the log; pipeline.py picks measured/ itself."""
+def run_pipeline(config: Path | None, results: Path | None, stage: str = "configure",
+                 benchmark: Path | str | None = None, harness: Path | None = None,
+                 echo: Callable[[str], None] | None = print, tail: int = 40, extra: tuple[str, ...] = (),
+                 app: str | None = None, *, device: Path) -> Path:
+    """results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/
+    keeps the transcript."""
     if stage not in STAGES:
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")
     root = benchmark_root(benchmark)
-    results = Path(results).resolve()
-    results.mkdir(parents=True, exist_ok=True)
-    chosen = _chosen(config)
-    target = ["--harness", str(harness)] if harness else ["--results", str(results)]
-    command = [sys.executable, str(root / PIPELINE), *chosen, *target, *STAGES[stage], *extra]
+    target = ["--harness", str(harness)] if harness else ["--results", str(Path(results).resolve())]
+    command = [sys.executable, str(root / PIPELINE), *_chosen(config), *target, *STAGES[stage], *extra]
+    log_path = transcript(device)
+    # the call's first line, so a reference lands on this call among the run's others
+    ref = f"{log_path}:{_lines(log_path) + 1}"
     last: deque[str] = deque(maxlen=tail)
     manifest = None
-    with open(results / LOG, "w") as log, subprocess.Popen(
+    with open(log_path, "a") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
             env={**os.environ, "PYTHONUNBUFFERED": "1"}) as process:
-        log.write("$ " + " ".join(command) + "\n")
+        log.write(f"# {stage}" + (f" app {app}" if app else "") + "\n$ " + " ".join(command) + "\n")
         for line in process.stdout:
             log.write(line)
             last.append(line.rstrip("\n"))
@@ -99,9 +115,8 @@ def run_pipeline(config: Path | None, results: Path, stage: str = "configure", b
                 echo(line.rstrip("\n"))
         code = process.wait()
     if code != 0:
-        _failed(stage, code, list(last), results / LOG, app)
-        raise BenchmarkRunError(f"pipeline exited {code} ({stage}); full log {results / LOG}; last lines:\n"
-                                + "\n".join(last))
+        _failed(stage, code, list(last), ref, app)
+        raise BenchmarkRunError(f"pipeline exited {code} ({stage}); full log {ref}; last lines:\n" + "\n".join(last))
     if manifest is None or not manifest.is_file():
-        raise BenchmarkRunError(f"pipeline exited 0 but wrote no manifest; full log {results / LOG}")
+        raise BenchmarkRunError(f"pipeline exited 0 but wrote no manifest; full log {ref}")
     return manifest

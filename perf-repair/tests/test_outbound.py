@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from perfrepair import run_dir as rd
+from perfrepair.data_handler.outbound import benchmark_runner
 from perfrepair.data_handler.outbound import (GENERATED_NAME, BenchmarkRunError, benchmark_root, new_run_dir,
                                               run_pipeline, write_run_config)
 
@@ -79,18 +81,32 @@ def test_new_run_dir_never_reuses(tmp_path):
 def test_runner_passes_stage_and_returns_manifest(bench_root, tmp_path, stage, flag):
     config = write_run_config(tmp_path, bench_root)
     seen = []
-    manifest = run_pipeline(config, tmp_path / "benchmark", stage, bench_root, echo=seen.append)
+    manifest = run_pipeline(config, tmp_path / "benchmark", stage, bench_root, echo=seen.append, device=tmp_path / "d")
     assert manifest == (tmp_path / "benchmark" / "fake-device" / "manifest.yaml").resolve()
     argv = json.loads((tmp_path / "benchmark" / "argv.json").read_text())["argv"]
     assert argv[argv.index("--config") + 1] == str(config.resolve())
     assert ("--bench" in argv, "--device" in argv) == (flag == "--bench", flag == "--device")
-    assert seen[0] == "line 0" and (tmp_path / "benchmark" / "pipeline.log").is_file()
+    logs = list((tmp_path / "d" / rd.PIPELINE_LOGS).iterdir())
+    assert seen[0] == "line 0" and len(logs) == 1 and logs[0].read_text().startswith(f"# {stage}\n$ ")
+    assert not (tmp_path / "benchmark" / "pipeline.log").exists()
+
+
+def test_a_run_keeps_every_pipeline_call_in_its_own_transcript(bench_root, tmp_path, monkeypatch):
+    config = write_run_config(tmp_path, bench_root)
+    monkeypatch.setattr(benchmark_runner, "run_id", lambda: "r1")
+    run_pipeline(config, tmp_path / "benchmark", "configure", bench_root, echo=None, device=tmp_path / "d")
+    first = (tmp_path / "d" / rd.PIPELINE_LOGS / "r1.log").read_text().count("\n")
+    monkeypatch.setenv("FAKE_EXIT", "3")
+    with pytest.raises(BenchmarkRunError, match=rf"full log {tmp_path / 'd' / rd.PIPELINE_LOGS / 'r1.log'}:{first + 1};"):
+        run_pipeline(config, tmp_path / "benchmark", "bench", bench_root, echo=None, device=tmp_path / "d")
+    assert (tmp_path / "d" / rd.PIPELINE_LOGS / "r1.log").read_text().splitlines()[first] == "# bench"
 
 
 def test_runner_failure_carries_the_tail(bench_root, tmp_path, monkeypatch):
     monkeypatch.setenv("FAKE_EXIT", "3")
     with pytest.raises(BenchmarkRunError) as e:
-        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", benchmark=bench_root, echo=None, tail=5)
+        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", benchmark=bench_root, echo=None, tail=5,
+                     device=tmp_path)
     message = str(e.value)
     assert "exited 3" in message and "error: fake failure" in message
     assert "line 0" not in message
@@ -105,7 +121,7 @@ def test_identify_without_an_identity_line_is_one_coded_error(bench_root, tmp_pa
 def test_runner_fails_when_no_manifest(bench_root, tmp_path, monkeypatch):
     monkeypatch.setenv("FAKE_NO_MANIFEST", "1")
     with pytest.raises(BenchmarkRunError, match="wrote no"):
-        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", benchmark=bench_root, echo=None)
+        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", benchmark=bench_root, echo=None, device=tmp_path)
 
 
 def test_benchmark_root_lookup(bench_root, tmp_path, monkeypatch):
@@ -114,4 +130,4 @@ def test_benchmark_root_lookup(bench_root, tmp_path, monkeypatch):
     with pytest.raises(BenchmarkRunError, match="CRYPTOBENCH_ROOT"):
         benchmark_root(tmp_path / "nowhere")
     with pytest.raises(ValueError):
-        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", "measure", bench_root)
+        run_pipeline(tmp_path / "c.yaml", tmp_path / "out", "measure", bench_root, device=tmp_path)

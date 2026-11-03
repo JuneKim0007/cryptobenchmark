@@ -9,7 +9,7 @@ def _device_step(monkeypatch, app_config):
     seen = []
     monkeypatch.setattr(steps, "run_pipeline", lambda config, *a, **k: seen.append(config) or Path("m.yaml"))
     monkeypatch.setattr(steps, "report_invalid", lambda manifest, app: 0)
-    g = SimpleNamespace(config=Path("device.yaml"), app_config=app_config, echo=print, app_id="a",
+    g = SimpleNamespace(config=Path("device.yaml"), app_config=app_config, echo=print, app_id="a", device=Path("d"),
                         paths=SimpleNamespace(root=Path("r"), harness=Path("h.yaml")))
     steps.device(g)
     return seen[0]

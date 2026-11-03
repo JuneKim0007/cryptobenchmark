@@ -44,6 +44,11 @@ def attach(device_results: Path | None = None) -> None:
         SINK.bind(Path(device_results))
 
 
+def run_id() -> str:
+    """The attached run's id; a call outside any command run gets one of its own."""
+    return SINK.run or _run_id()
+
+
 def bug_log() -> Path | None:
     return SINK.path(BUG_LOG)
 

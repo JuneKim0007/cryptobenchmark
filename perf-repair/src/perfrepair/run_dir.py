@@ -27,6 +27,8 @@ GROUPING = "grouping"
 # the run log: events.jsonl is the record; the .log files are views of it
 LOG, EVENTS = "log", "log/events.jsonl"
 STATUS_LOG, BUG_LOG = "log/status.log", "log/bug.log"
+# cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
+PIPELINE_LOGS = "log/pipeline"
 # one file per model stage; the grouping supervisor's turns apart from the assign role's
 AI_SCREENING_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/grouping.log"
 AI_SUPERVISOR_LOG, AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/supervisor.log", "log/ai/worthiness.log", "log/ai/replace.log"

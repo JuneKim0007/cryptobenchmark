@@ -220,8 +220,8 @@ def harness(g: Guide) -> str:
 
 
 def device(g: Guide) -> str:
-    manifest = run_pipeline(g.app_config or g.config, g.paths.root, "device", harness=g.paths.harness, echo=g.echo,
-                            app=g.app_id)
+    manifest = run_pipeline(g.app_config or g.config, None, "device", harness=g.paths.harness, echo=g.echo,
+                            app=g.app_id, device=g.device)
     invalid = report_invalid(manifest, g.app_id)
     return str(manifest) + (f", {invalid} energy cases invalid" if invalid else "")
 

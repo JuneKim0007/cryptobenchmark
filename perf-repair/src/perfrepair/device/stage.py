@@ -86,7 +86,7 @@ def _measure(r: Run, steps: dict) -> None:
     fresh = steps["probe"] and not r.probed
     reuse = () if r.on_device or fresh else ("--discovery", "reuse")
     manifest = run_pipeline(r.config, r.root, "device" if r.on_device else "bench", benchmark=r.benchmark, echo=r.echo,
-                            extra=reuse)
+                            extra=reuse, device=r.folder)
     _same_folder(manifest, r.folder)
     report_invalid(manifest)
 
@@ -120,7 +120,7 @@ def _probed(r: Run, steps: dict) -> None:
     if steps["probe"]:
         with _ran("probe", steps["probe"]):
             _same_folder(run_pipeline(r.config, r.root, "device" if r.on_device else "configure", benchmark=r.benchmark,
-                                      echo=r.echo, extra=("--probe",)), r.folder)
+                                      echo=r.echo, extra=("--probe",), device=r.folder), r.folder)
     if steps["screen"]:
         with _ran("screen", steps["screen"]):
             build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)

@@ -84,6 +84,8 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     assert status == render(read_events(base.run_dir / rd.EVENTS))[rd.STATUS_LOG]
     last = status[max(n for n, line in enumerate(status) if line.startswith("run ")):]
     pa, pb = path_id(a), path_id(b)
+    transcript = f"{rd.PIPELINE_LOGS}/{last[0].split()[1]}.log"
+    at = (base.run_dir / transcript).read_text().splitlines().index(f"# device app {pb}") + 1
     case = read_json(AppPaths(base.run_dir, pa).scoped_benchmark)["cases"][1]["id"]
     missing = [f"not_on_device {name} app {{}}: 1 sites; {NOT_ON_DEVICE_STEP}" for name in ("Bundled", "KeyStore AndroidKeyStore")]
     assert last[0].startswith("run ") and last[-1].startswith("end ") and ": exit 1 (" in last[-1]
@@ -94,6 +96,8 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
         f"ok app {pa}",
         *(m.format(pb) for m in missing),
         f"pipeline_failed device app {pb}: exit 1; error: no_scope_compiled: every scope is not_compilable; "
-        f"see {pb}/pipeline.log",
-        f"device_failed app {pb} at device: pipeline exited 1 (device); full log {base.run_dir / pb / 'pipeline.log'}"
+        f"see {transcript}:{at}",
+        f"device_failed app {pb} at device: pipeline exited 1 (device); full log {base.run_dir / transcript}:{at}"
         "; last error: no_scope_compiled: every scope is not_compilable"]
+    lines = (base.run_dir / transcript).read_text().splitlines()
+    assert lines[at - 1] == f"# device app {pb}" and lines[0] == f"# device app {pa}"

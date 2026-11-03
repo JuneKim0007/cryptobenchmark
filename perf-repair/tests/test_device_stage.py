@@ -155,7 +155,7 @@ def test_measurements_of_an_older_schema_rerun_inbound_without_a_device_run(setu
 def test_a_probe_only_run_is_kept_and_the_benchmark_reuses_its_capture(setup, monkeypatch):
     root, config = setup
     from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline
-    run_pipeline(config, root, "configure", benchmark=FAKE, echo=None, extra=("--probe",))
+    run_pipeline(config, root, "configure", benchmark=FAKE, echo=None, extra=("--probe",), device=root)
     done, lines = device(root, config)
     assert lines[:2] == ["device probe: reused", "device benchmark: ran: the manifest lists no benchmark"]
     assert runs(root)[-1].endswith("--bench --discovery reuse")
@@ -164,7 +164,7 @@ def test_a_probe_only_run_is_kept_and_the_benchmark_reuses_its_capture(setup, mo
 def test_on_a_device_the_benchmark_run_probes_again_and_says_so(setup):
     root, config = setup
     from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline
-    run_pipeline(config, root, "device", benchmark=FAKE, echo=None, extra=("--probe",))
+    run_pipeline(config, root, "device", benchmark=FAKE, echo=None, extra=("--probe",), device=root)
     done, lines = device(root, config, on_device=True)
     assert lines[0] == "device probe: ran: a device benchmark probes the device it measures"
     assert "--discovery" not in runs(root)[-1] and runs(root)[-1].endswith("--device")
