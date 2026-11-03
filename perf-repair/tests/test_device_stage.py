@@ -90,6 +90,16 @@ def test_a_deleted_device_yaml_keeps_the_measured_run_and_redoes_the_rest(setup)
     assert lines[2] == "device inbound: ran: no device.yaml"
 
 
+def test_measurements_of_an_older_schema_rerun_inbound_without_a_device_run(setup):
+    root, config = setup
+    first, _ = device(root, config)
+    path = first.folder / rd.MEASUREMENTS
+    path.write_text(path.read_text().replace('"schemaVersion": 4', '"schemaVersion": 3'))
+    done, lines = device(root, config)
+    assert done.ran == ["inbound"] and len(runs(root)) == 1
+    assert lines[2] == "device inbound: ran: measurements.json unreadable (measurements schemaVersion 3 is not 4)"
+
+
 def test_a_probe_only_run_is_kept_and_the_benchmark_reuses_its_capture(setup, monkeypatch):
     root, config = setup
     from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline

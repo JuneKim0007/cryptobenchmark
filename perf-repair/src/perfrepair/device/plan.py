@@ -16,12 +16,12 @@ AFTER = {"probe": (), "benchmark": ("probe",), "inbound": ("benchmark",), "scree
 
 @dataclass(frozen=True)
 class Seen:
-    """What the device folder holds now; record_problem says why record is None."""
+    """What the device folder holds now; record_problem says why record is None, inbound why its files are unusable."""
     manifest: BenchmarkManifest | None
     manifest_sha: str | None
     record: DeviceRecord | None
     record_problem: str | None
-    rows: bool
+    inbound: str | None
     grouping: bool
 
 
@@ -49,7 +49,7 @@ def _record(seen: Seen) -> str | None:
 
 
 def _inbound(seen: Seen, current: dict) -> str | None:
-    return "rows.json missing" if not seen.rows else _record(seen)
+    return seen.inbound or _record(seen)
 
 
 def _screen(seen: Seen, current: dict) -> str | None:

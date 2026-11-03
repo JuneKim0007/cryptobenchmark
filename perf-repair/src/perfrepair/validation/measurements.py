@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 
 from ..dto import Measurements, PrimitiveRow, Summary
-from ..dto.measurement import ENERGY, ESTIMATED, MEASURED
+from ..dto.metrics import BY_NAME, METRICS, Metric
 
 
 def _summary(where: str, s: Summary) -> list[str]:
@@ -20,21 +20,26 @@ def _summary(where: str, s: Summary) -> list[str]:
     return problems
 
 
+def _metric(where: str, metric: Metric, s: Summary) -> list[str]:
+    problems = _summary(where, s)
+    if metric.positive and isinstance(s.median, (int, float)) and s.median <= 0:
+        problems.append(f"{where}: median {s.median} is not positive")
+    if metric.kinds and s.kind not in metric.kinds:
+        problems.append(f"{where}: kind {s.kind!r} is not {' or '.join(metric.kinds)}")
+    if not metric.kinds and s.kind is not None:
+        problems.append(f"{where}: kind {s.kind!r} on a metric without kinds")
+    return problems
+
+
 def validate_measurements(m: Measurements, rows: list[PrimitiveRow]) -> list[str]:
     known = {r.rowId for r in rows}
     problems = [f"{rid}: no such row" for rid in sorted(set(m.byRow) - known)]
-    for rid, metrics in sorted(m.byRow.items()):
-        t = metrics.get("timeNs")
-        if t is None:
-            problems.append(f"{rid}: timeNs missing")
-            continue
-        problems += _summary(f"{rid}.timeNs", t)
-        if t.median <= 0:
-            problems.append(f"{rid}.timeNs: median {t.median} is not positive")
-        if (a := metrics.get("allocations")) is not None:
-            problems += _summary(f"{rid}.allocations", a)
-        if (e := metrics.get(ENERGY)) is not None:
-            problems += _summary(f"{rid}.{ENERGY}", e)
-            if e.kind not in (MEASURED, ESTIMATED):
-                problems.append(f"{rid}.{ENERGY}: kind {e.kind!r} is not {MEASURED} or {ESTIMATED}")
+    for rid, summaries in sorted(m.byRow.items()):
+        problems += [f"{rid}.{name}: not a registry metric" for name in sorted(set(summaries) - set(BY_NAME))]
+        for metric in METRICS:
+            s = summaries.get(metric.name)
+            if s is None:
+                problems += [f"{rid}: {metric.name} missing"] if metric.required else []
+                continue
+            problems += _metric(f"{rid}.{metric.name}", metric, s)
     return problems

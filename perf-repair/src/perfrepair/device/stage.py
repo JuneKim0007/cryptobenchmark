@@ -34,12 +34,23 @@ class DeviceStage:
         return [s for s, reason in self.steps.items() if reason]
 
 
+def _inbound(folder: Path) -> str | None:
+    missing = [f for f in (rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG) if not (folder / f).is_file()]
+    if missing:
+        return f"{missing[0]} missing"
+    try:
+        rd.load_measurements(folder)
+    except (ValueError, KeyError, TypeError) as e:
+        return f"{rd.MEASUREMENTS} unreadable ({e})"
+    return None
+
+
 def seen(folder: Path) -> Seen:
     manifest = read_manifest(folder / rd.MANIFEST)[0] if (folder / rd.MANIFEST).is_file() else None
     record, problem = rd.load_device_record(folder)
     grouping = GroupingPaths(folder)
     return Seen(manifest, sha256_file(folder / rd.MANIFEST), record, problem,
-                rows=all((folder / f).is_file() for f in (rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG)),
+                inbound=_inbound(folder),
                 grouping=all(p.is_file() for p in (grouping.items, grouping.profiles, grouping.screen)))
 
 

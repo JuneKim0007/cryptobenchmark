@@ -17,7 +17,7 @@ src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_run
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, modes
 src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements + the app's screen verdicts → Dossiers with options, pins, interop and screen status, estimates; targets that lower the status and failed pairs dropped; noOptions with reasons
 src/perfrepair/result/estimate.py : pImprove of one Summary against another by the process- and block-aware bootstrap
-src/perfrepair/result/evidence.py : groups.json + rows + measurements + run-level screen verdicts → GroupEvidence: configurations, members, ordered pair metrics with pImprove; a pair whose target lowers the status left out
+src/perfrepair/result/evidence.py : groups.json + rows + measurements + run-level screen verdicts → GroupEvidence: configurations, members, ordered pair metrics with a ratio and pImprove per registry metric (never across energy kinds); a pair whose target lowers the status left out
 src/perfrepair/result/modes.py : Mode loaded from criteria.yaml: judges a pair improves, not_improving or not_measured
 src/perfrepair/result/triage.py : not_comparable, not_measured and no_improvement verdicts; every group with an improving pair asked
 src/perfrepair/screen/__init__.py : the screening package

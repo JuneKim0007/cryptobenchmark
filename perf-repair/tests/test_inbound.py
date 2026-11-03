@@ -95,8 +95,8 @@ def test_measurements_are_keyed_by_row_and_kept_apart_from_rows(results):
     rows, measurements = results
     assert set(measurements) == {r.rowId for r in rows}
     assert measurements["g_fast"]["timeNs"].median == 100
-    assert measurements["g_fast"]["allocations"].median == 3
-    assert measurements["g_slow"]["allocations"] is None
+    assert measurements["g_fast"]["allocationCount"].median == 3
+    assert "allocationCount" not in measurements["g_slow"]
 
 
 def test_comparability_from_runtime_and_process_count(run):
@@ -198,7 +198,7 @@ def test_run_context_reads_each_piece_on_first_use_and_takes_injected_ones():
 def test_command_writes_the_run_directory(tmp_path, capsys):
     assert main(["--device-results", str(with_results(tmp_path))]) == 0
     docs = {n: json.loads((tmp_path / f"{n}.json").read_text()) for n in ("rows", "measurements", "run_log")}
-    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 3, "run_log": 1}
+    assert {n: d["schemaVersion"] for n, d in docs.items()} == {"rows": 1, "measurements": 4, "run_log": 1}
     assert len(docs["rows"]["rows"]) == 3
     assert docs["measurements"]["measurements"]["g_fast"]["timeNs"]["median"] == 100
     assert not (tmp_path / "sites.json").exists()
@@ -208,5 +208,5 @@ def test_command_writes_the_run_directory(tmp_path, capsys):
 
 def test_measurements_document_round_trips(tmp_path):
     from perfrepair.dto import Measurements, Summary
-    m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5, 1, 3), "allocations": None}})
+    m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5, 1, 3)}})
     assert Measurements.from_json(json.loads(json.dumps(m.to_json()))) == m

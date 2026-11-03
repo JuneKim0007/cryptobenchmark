@@ -20,7 +20,8 @@ from ...runtime.engine.events import Where
 from ...runtime.prompt import PromptLibrary
 
 DRY_RUN = ScriptedConversations(lambda *_: {"decision": "skip", "pairs": [], "reason": "dry run: no model was called"})
-EVIDENCE_SCHEMA_VERSION = 1
+# 2: members carry every registry metric, pairs a comparison per metric
+EVIDENCE_SCHEMA_VERSION = 2
 
 
 def worthiness(run_path: Path, mode: Mode, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),

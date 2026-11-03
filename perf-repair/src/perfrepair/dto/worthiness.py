@@ -17,8 +17,19 @@ class MemberStats:
     itemId: str
     provider: str
     algorithm: str
-    timeNs: Summary | None
-    allocations: float | None
+    # registry name → summary; a metric this row has no runs of is absent
+    metrics: dict[str, Summary]
+
+
+@dataclass(frozen=True)
+class MetricComparison:
+    """One metric of a pair, oriented so a ratio below 1 is better; reason when the sides are not comparable."""
+    metric: str
+    ratio: float | None
+    pImprove: float | None
+    level: str
+    n: int
+    reason: str | None = None
 
 
 @dataclass(frozen=True)
@@ -31,6 +42,8 @@ class PairMetrics:
     n: int
     allocationRatio: float | None
     interop: str
+    # every registry metric both sides measured; the fields above are the time and allocation ones the modes judge
+    metrics: tuple[MetricComparison, ...] = ()
 
 
 @dataclass(frozen=True)

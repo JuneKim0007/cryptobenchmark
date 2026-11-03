@@ -5,8 +5,8 @@ from dataclasses import asdict, dataclass, field
 from .metrics import ESTIMATED, MEASURED
 
 __all__ = ["ESTIMATED", "MEASURED", "Measurements", "SCHEMA_VERSION", "Summary"]
-SCHEMA_VERSION = 3
-ENERGY = "energyJ"
+# 4: every metric under its benchmark.json name (allocations became allocationCount); one without runs is absent
+SCHEMA_VERSION = 4
 
 
 @dataclass(frozen=True)
@@ -35,11 +35,11 @@ class Summary:
 class Measurements:
     runtime: dict
     comparability: list[str]
-    byRow: dict[str, dict[str, Summary | None]] = field(default_factory=dict)
+    byRow: dict[str, dict[str, Summary]] = field(default_factory=dict)
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "runtime": self.runtime, "comparability": self.comparability,
-                "measurements": {rid: {k: (s.to_json() if s else None) for k, s in m.items()}
+                "measurements": {rid: {k: s.to_json() for k, s in m.items()}
                                  for rid, m in self.byRow.items()}}
 
     @classmethod
@@ -47,5 +47,5 @@ class Measurements:
         if doc.get("schemaVersion") != SCHEMA_VERSION:
             raise ValueError(f"measurements schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
         return cls(doc.get("runtime") or {}, list(doc.get("comparability") or []),
-                   {rid: {k: (Summary.from_json(s) if s else None) for k, s in m.items()}
+                   {rid: {k: Summary.from_json(s) for k, s in m.items()}
                     for rid, m in (doc.get("measurements") or {}).items()})

@@ -54,7 +54,7 @@ def test_render_and_verdict_carry_the_graded_confidence():
 
 
 def test_battery_gate_names_missing_allocations_as_unmeasured():
-    unknown = {**M, "a2": {"timeNs": summary(100), "allocations": None}}
+    unknown = {**M, "a2": {"timeNs": summary(100)}}
     evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, unknown, None)}
     kind = WorthinessKind(MODES["battery"], [], list(evidence.values()), ".")
     _, problems = kind.check(evidence["g-a"], reply(pairs=[{"from": P1, "to": P2, "reason": "x"}]), Verdicts("battery"))

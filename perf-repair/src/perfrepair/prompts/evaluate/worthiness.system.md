@@ -6,13 +6,14 @@ carries over between messages.
 
 - The mode: the improvement criterion. Judge only by it.
 - Run warnings: conditions under which these numbers were taken that limit how far they transfer.
-- Per configuration (operation, key size, input size, phase): each member's median time per
-  operation, its 95% bootstrap interval, interquartile range, coefficient of variation, sample count
-  and allocations per operation; and every ordered pair "from -> to" with time ratio (to ÷ from;
-  below 1 is faster), pImprove (the probability that `to`'s median is lower) with its confidence
-  level (`ok` at 95% or more, `warn` from 80%, `weak` below, `too_few_runs` when there is no
-  number), the run count, the allocation ratio, the pair's interop check, and whether the mode counts
-  it as improving.
+- Per configuration (operation, key size, input size, phase), for each metric measured there (time,
+  allocations and energy per operation, each with its unit; energy with its kind, measured or
+  estimated): each member's median, its 95% bootstrap interval, interquartile range, coefficient of
+  variation and sample count; and every ordered pair "from -> to" with, per metric, its ratio (to ÷
+  from; below 1 is better), pImprove (the probability that `to` is better) with its confidence level
+  (`ok` at 95% or more, `warn` from 80%, `weak` below, `too_few_runs` when there is no number) and
+  the run count; then the pair's interop check and whether the mode counts it as improving. Energy of
+  different kinds is never compared: its ratio reads `energy_kinds_differ`.
 - Interop: `pass` (each decrypts or verifies what the other produced, both directions, shared key,
   each at its own defaults), `not_checkable` (the check could not run; not a failure), `not_planned`
   or `not_run` (never checked). Failed pairs are not listed.

@@ -1,6 +1,9 @@
+from dataclasses import replace
+
 import pytest
 from helpers import row, summary
 
+from perfrepair.ai.evaluate.worthiness.render import render
 from perfrepair.dto.screen import Verdict
 from perfrepair.result.evidence import build_evidence
 from perfrepair.result.modes import MODES
@@ -13,11 +16,11 @@ GROUPS = {"groups": [{"id": "g-a", "family": "f", "description": "A", "members":
                      {"id": "g-s", "family": "f", "description": "S", "members": [3]},
                      {"id": "g-u", "family": "f", "description": "U", "members": [4, 5]}],
           "items": {str(k): {"qualified": v} for k, v in QUALIFIED.items()}, "interop": {"status": "not_run", "pairs": []}}
-M = {"a1": {"timeNs": summary(200), "allocations": summary(10)},
-     "a2": {"timeNs": summary(100), "allocations": summary(30)},
-     "a1b": {"timeNs": summary(900), "allocations": None},
-     "s1": {"timeNs": summary(50), "allocations": None},
-     "u1": {"timeNs": summary(100), "allocations": None}, "u2": {"timeNs": summary(100), "allocations": None}}
+M = {"a1": {"timeNs": summary(200), "allocationCount": summary(10)},
+     "a2": {"timeNs": summary(100), "allocationCount": summary(30)},
+     "a1b": {"timeNs": summary(900)},
+     "s1": {"timeNs": summary(50)},
+     "u1": {"timeNs": summary(100)}, "u2": {"timeNs": summary(100)}}
 EVIDENCE = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M, None)}
 
 
@@ -49,28 +52,28 @@ def _decided(measurements, mode="latency"):
 
 
 def test_a_gain_below_the_minimum_effect_is_not_an_improvement():
-    close = {**M, "a1": {"timeNs": summary(100), "allocations": summary(30)},
-             "a2": {"timeNs": summary(99), "allocations": summary(30)}}
+    close = {**M, "a1": {"timeNs": summary(100), "allocationCount": summary(30)},
+             "a2": {"timeNs": summary(99), "allocationCount": summary(30)}}
     assert MODES["latency"].improvingRatio == 0.97
     assert _decided(close)[1]["g-a"] == "no_improvement"
 
 
 def test_a_gain_inside_the_spread_is_asked_with_its_level_not_refused():
-    noisy = {**M, "a1": {"timeNs": summary(100, spread=40.0), "allocations": None},
-             "a2": {"timeNs": summary(95, spread=40.0), "allocations": None}}
+    noisy = {**M, "a1": {"timeNs": summary(100, spread=40.0)},
+             "a2": {"timeNs": summary(95, spread=40.0)}}
     ask, _ = _decided(noisy)
     p = next(p for c in ask["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
     assert 0.5 < p.pImprove < 0.95 and p.level in ("warn", "weak")
 
 
 def test_missing_allocations_are_not_measured_never_no_improvement():
-    unknown = {**M, "a2": {"timeNs": summary(100), "allocations": None}}
+    unknown = {**M, "a2": {"timeNs": summary(100)}}
     assert _decided(unknown, "battery")[1]["g-a"] == "not_measured"
     assert _decided(unknown, "latency")[0]["g-a"]
 
 
 def test_a_single_run_has_no_confidence():
-    single = {**M, "a1": {"timeNs": summary(200, n=1), "allocations": None}}
+    single = {**M, "a1": {"timeNs": summary(200, n=1)}}
     ask, _ = _decided(single)
     p = next(p for c in ask["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
     assert p.pImprove is None and p.level == "too_few_runs" and p.n == 1
@@ -104,3 +107,31 @@ def test_a_pair_whose_target_lowers_the_status_is_left_out_one_direction_only():
     evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M, verdicts)}
     assert [(p.fromItem, p.toItem) for c in evidence["g-a"].configurations for p in c.pairs] == [
         (QUALIFIED[2], QUALIFIED[1])]
+
+
+def _energy(kind_from, kind_to):
+    m = {**M, "a1": {**M["a1"], "energyJ": replace(summary(4), kind=kind_from)},
+         "a2": {**M["a2"], "energyJ": replace(summary(2), kind=kind_to)}}
+    g = {e.groupId: e for e in build_evidence(GROUPS, ROWS, m, None)}["g-a"]
+    return g, next(p for c in g.configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
+
+
+def test_worthiness_sees_energy_when_measured_on_both_sides():
+    g, p = _energy("measured", "measured")
+    joules = {c.metric: c for c in p.metrics}["energyJ"]
+    assert joules.ratio == pytest.approx(0.5) and joules.pImprove == 1.0 and joules.reason is None
+    text = render(g, MODES["latency"], [])
+    assert "energyJ median J/op" in text and "| measured" in text and "0.500 | 100% (ok)" in text
+
+
+def test_energy_of_different_kinds_is_never_compared():
+    g, p = _energy("measured", "estimated")
+    joules = {c.metric: c for c in p.metrics}["energyJ"]
+    assert joules.ratio is None and joules.pImprove is None
+    assert joules.reason == "energy_kinds_differ: measured from, estimated to"
+    assert "energy_kinds_differ: measured from, estimated to | - | -" in render(g, MODES["latency"], [])
+
+
+def test_a_metric_one_side_lacks_is_no_comparison():
+    p = next(p for c in EVIDENCE["g-a"].configurations for p in c.pairs if p.toItem == "TypeA|ALG-A|P2")
+    assert [c.metric for c in p.metrics] == ["timeNs", "allocationCount"]

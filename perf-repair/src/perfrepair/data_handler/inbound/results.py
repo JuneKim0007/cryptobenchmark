@@ -10,10 +10,10 @@ from pathlib import Path
 
 
 from ...dto import PrimitiveRow, Summary
-from ...dto.measurement import ENERGY, MEASURED
+from ...dto.metrics import METRICS
 from .bootstrap import median_interval
 
-Measurements = dict[str, dict[str, Summary | None]]
+Measurements = dict[str, dict[str, Summary]]
 
 
 def summarise(processes: list[list[float]]) -> Summary:
@@ -47,10 +47,15 @@ def _processes(case: dict, metric: str, per_process: list[dict[str, dict]]) -> l
     return parts
 
 
-def _energy(case: dict, per_process: list[dict[str, dict]]) -> dict[str, Summary]:
-    """{} without runs. A benchmark.json without a kind predates estimates: rails were the only source."""
-    runs = _processes(case, ENERGY, per_process)
-    return {ENERGY: replace(summarise(runs), kind=case["metrics"][ENERGY].get("kind", MEASURED))} if runs else {}
+def _summaries(case: dict, per_process: list[dict[str, dict]]) -> dict[str, Summary]:
+    """Every registry metric with runs; one without is absent. A kind-less block predates its kinds: the first one."""
+    out = {}
+    for metric in METRICS:
+        runs = _processes(case, metric.name, per_process)
+        if runs:
+            kind = case["metrics"][metric.name].get("kind", metric.kinds[0]) if metric.kinds else None
+            out[metric.name] = replace(summarise(runs), kind=kind)
+    return out
 
 
 def read_prepared(prepared_yaml: Path | None) -> dict[str, dict]:
@@ -69,8 +74,8 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
     rows: list[PrimitiveRow] = []
     measurements: Measurements = {}
     for c in doc.get("cases") or []:
-        time_runs = _processes(c, "timeNs", per_process)
-        if not time_runs:
+        summaries = _summaries(c, per_process)
+        if any(m.required and m.name not in summaries for m in METRICS):
             continue
         plan = prepared.get(c["id"]) or {}
         rows.append(PrimitiveRow(
@@ -80,10 +85,7 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
             keyKind=(plan.get("key") or {}).get("kind") or c.get("keyKind"),
             parameters=c.get("parameters"),
         ))
-        alloc_runs = _processes(c, "allocationCount", per_process)
-        measurements[c["id"]] = {"timeNs": summarise(time_runs),
-                                 "allocations": summarise(alloc_runs) if alloc_runs else None,
-                                 **_energy(c, per_process)}
+        measurements[c["id"]] = summaries
     return rows, measurements
 
 
