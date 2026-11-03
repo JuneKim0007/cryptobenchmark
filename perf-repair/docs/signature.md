@@ -29,3 +29,6 @@
 - A generator stays asked: no attribute says whether the key it makes stays inside the provider, and on the API 30 capture the model split 8 generators on exactly that.
 - A model answer joins no group across a component both sides know (gate C).
 - A model never joins a code-made group: an asked item whose function a code-made group has stays in its own model group, a false split and no false join.
+- Evidence, API 30 capture: of Haiku's 98 model groups, code makes 69 exactly and leaves the 29 others asked with no known component differing; neither side joins what the other split. The rules were written after that run, so this is consistency, not an independent test.
+- Asked items, before → after: JDK 17 155 → 28, JDK 21 162 → 28, JDK 25 176 → 36, Android 36 119 → 23, API 30 196 → 46; what stays is generators (`key: asked`), OAEP without `resolved` and `name_conflict` names.
+- Open: names that pin a password-derived key length (`_128`/`_256`, `128BIT`) share a group, as the prompts say key size does not split; for one password the bytes differ.
