@@ -10,6 +10,7 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -52,5 +53,13 @@ class HostHarnessTest {
         val case = digest(HarnessSettings()).case
         assertEquals(30.0, CaseMeasurement(case, "none", 1, listOf(10.0, 50.0, 20.0, 40.0)).medianNanos, 0.0)
         assertEquals(20.0, CaseMeasurement(case, "none", 1, listOf(10.0, 50.0, 20.0)).medianNanos, 0.0)
+    }
+
+    @Test
+    fun theHostMeasuresBothVariantsAsTwoRows() {
+        val fixed = digest(HarnessSettings())
+        val rows = Variant.entries.map { variant -> quick.measure(fixed.copy(case = fixed.case.copy(variant = variant))).row() }
+        assertEquals(listOf("fixed", "notFixed"), rows.map { it.variant })
+        assertEquals(2, rows.map { it.id }.toSet().size)
     }
 }
