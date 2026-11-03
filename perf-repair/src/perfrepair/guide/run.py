@@ -9,7 +9,8 @@ from ..dto.event import END
 from ..failure import FAILURES
 from ..log import attach, emit
 from ..log.emit import elapsed_ms
-from .steps import APP_DRY, APP_MEASURED, Guide, Stop
+from ..stop import Halt, code_of, halt_of
+from .steps import APP_DRY, APP_MEASURED, Guide
 
 
 @dataclass(frozen=True)
@@ -21,20 +22,28 @@ class Stopped:
     halts: bool = False
 
 
+def _failed(g: Guide, name: str, e: Exception) -> Stopped:
+    """Any other coded failure is `<step>_failed`, its own code kept as the inner one."""
+    h = halt_of(f"{name}_failed", str(e), stage="guide", step=name, app=g.app_id, inner=code_of(e))
+    return Stopped(name, h.code, h.detail, isinstance(e, AgentFailed))
+
+
 def run_step(g: Guide, name: str, step) -> Stopped | None:
     started, stopped, detail = time.monotonic(), None, ""
+    g.step = name
     try:
         detail = step(g)
-    except Stop as e:
+    except Halt as e:
         stopped = Stopped(name, e.code, e.detail)
     except FAILURES as e:
-        stopped = Stopped(name, f"{name}_failed", str(e), isinstance(e, AgentFailed))
+        stopped = _failed(g, name, e)
     # prerequisites names the device folder when probe_device made it
     if g.device is not None:
         attach(g.device)
     outcome = "stop" if stopped else "ok"
     detail = f"{stopped.code}: {stopped.detail}" if stopped else detail
-    emit("guide", name, END, app=g.app_id, outcome=outcome, durationMs=elapsed_ms(started), detail=detail)
+    emit("guide", name, END, app=g.app_id, outcome=outcome, durationMs=elapsed_ms(started), detail=detail,
+         data={"code": stopped.code, "reported": True} if stopped else {})
     g.echo(f"guide {name}: {outcome}" + (f" {detail}" if stopped else f": {detail}"))
     return stopped
 
@@ -54,4 +63,3 @@ def run_app(g: Guide, device: bool) -> Stopped | None:
         g.echo(f"guide: dry run ends at the harness; measure with --device, or run "
                f"`python3 scripts/pipeline.py --device --harness {g.paths.harness}`")
     return stopped
-

@@ -18,6 +18,7 @@ from perfrepair.log.attach import SINK
 from perfrepair.log.read import read_events
 from perfrepair.log.status import code_of, status_line
 from perfrepair.log.views import render
+from perfrepair.stop import CODES
 
 
 def ev(stage, step, event, **kw):
@@ -102,7 +103,7 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
         f"pipeline_failed device app {pb}: exit 1; error: no_scope_compiled: every scope is not_compilable; "
         f"see {transcript}:{at}",
         f"device_failed app {pb} at device: pipeline exited 1 (device); full log {base.run_dir / transcript}:{at}"
-        "; last error: no_scope_compiled: every scope is not_compilable"]
+        "; last error: no_scope_compiled: every scope is not_compilable; next: " + CODES["device_failed"].next]
     lines = (base.run_dir / transcript).read_text().splitlines()
     assert lines[at - 1] == f"# device app {pb}" and lines[0] == f"# device app {pa}"
 

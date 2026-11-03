@@ -7,6 +7,7 @@ from pathlib import Path
 from ..dto.event import END
 from ..failure import record_bug
 from ..log import emit
+from ..stop import halt_of
 from . import finished
 from .run import Stopped, run_app, run_sequence, run_step
 from .steps import DEVICE_LEVEL, Guide, summary
@@ -44,10 +45,16 @@ def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
     return AppResult(g.app_id, OK)
 
 
+def _missing(g: Guide, root: Path) -> AppResult:
+    h = halt_of("target_missing", f"{root} is no folder; its earlier results stay", stage="guide", step="target",
+                app=g.app_id)
+    return AppResult(g.app_id, STOP, str(h), code=h.code)
+
+
 def _one(base: Guide, root: Path, device: bool, reuse: bool) -> AppResult:
     g = replace(base, app_root=root)
     if not root.is_dir():
-        return AppResult(g.app_id, STOP, f"target_missing: {root} is no folder; its earlier results stay", code="target_missing")
+        return _missing(g, root)
     try:
         return _attempt(g, device, reuse)
     except Exception as e:
@@ -70,8 +77,9 @@ def run_targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> in
         result = _not_run(base, root, halted) if halted else _one(base, root, device, reuse)
         results.append(result)
         halted = halted or (result if result.halts else None)
+        # a stopped app's line is the one its terminate or bug event wrote
         emit("guide", "target", END, app=result.app, outcome=result.status, detail=result.detail,
-             data={k: v for k, v in (("code", result.code), ("step", result.step)) if v})
+             data={k: v for k, v in (("code", result.code), ("step", result.step), ("reported", result.status == STOP)) if v})
     run_step(base, "summary", summary)
     for result in results:
         base.echo(result.line)

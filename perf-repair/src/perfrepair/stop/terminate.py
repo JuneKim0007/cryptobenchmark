@@ -18,3 +18,14 @@ def terminate(code: str, detail: str, *, stage: str, step: str, item: str | None
     if chosen == STOP:
         raise Halt(code, detail + trace, c.next, c.exit, inner)
     return chosen
+
+
+def halt_of(code: str, detail: str, **where) -> Halt:
+    """A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it."""
+    if not CODES[code].fixed or CODES[code].action != STOP:
+        raise ValueError(f"{code} is not a fixed stop")
+    try:
+        terminate(code, detail, **where)
+    except Halt as h:
+        return h
+    raise ValueError(f"{code} did not stop")
