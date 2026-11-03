@@ -76,6 +76,7 @@
 | `dry` | host Perfetto session around `EnergyDryBenchmark` from `tools/energy/energy.pbtx` |
 
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
+- Large traces: Jetpack's own trace config, fixed in androidx 1.5.0, records memory counters; an allocating call floods it (seen: AES/GCM encrypt traces of 38 to 125 MB, 5.66M `mem.rss.anon` samples, rails lost as `window_uncovered`). Chosen: keep `measured` (`dry` is refused with `--harness` and with `run.passes`) and shorten the window with the energy pass's `samples` (100, a third of a 300-sample trace); a case above 32 MiB is flagged `traceLarge`, a lost window is `window_uncovered` with no number, never a wrong one; `traces:    <case>: <n> on the device` per case settles a missing trace. Every cipher call now includes `init`, so CBC and CTR allocate per call as GCM did; whether 100 samples keep their traces whole only a phone shows.
 - Rails are counter tracks named `power.%`, cumulative µJ; window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`.
 - `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a Pixel 10 trace can open with BOOTTIME alone); exactly one timed phase per case is required.
 
@@ -115,7 +116,6 @@
 - A case without a window keeps `operations` and holds its reason in `notMeasured`; `joules`, `joulesPerOperation`, `windowSeconds` are null, `clockOffsetNs` is null when no trace was read.
 - One case's problem is that case's reason; `energy.py` exits 0 and writes every other case.
 - An energy step that fails as a whole (trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `error: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
-
 - `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
 - `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
 - An `energy.json` of another `schemaVersion` is `unsupported` and joins nothing.
