@@ -37,9 +37,9 @@ README.md : what perf-repair is, setup
 agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
 perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths, device, apps
-pyproject.toml : package, pyyaml dependency, optional `test` and `api` extras, pytest settings
+pyproject.toml : package, pyyaml dependency, optional `test`, `api` and pinned `scope` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
 tests/ : pytest suites, one per module or stage; `helpers.py` shared builders; `conftest.py` isolates every test from local settings
-tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py; `runtimes/<runtime>/` probe and trial of JDK 17, 21, 25 and Android API 36, trimmed to what grouping build and screening read
+tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py; `lifecycle/` own-written Java and Kotlin sources, one site per binding kind and status; `runtimes/<runtime>/` probe and trial of JDK 17, 21, 25 and Android API 36, trimmed to what grouping build and screening read
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data
 ```

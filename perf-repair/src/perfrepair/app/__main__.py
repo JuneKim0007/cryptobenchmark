@@ -86,18 +86,21 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
         scoping = build_scopes(name, app.path, found.sites)
         scopes = scoping.document(name)
         require(rd.APP, validate_app_facts(facts))
-        require(rd.SCOPES, validate_scopes(scopes))
+        require(rd.SCOPES, validate_scopes(scopes, scoping.lines))
 
         out_dir.mkdir(parents=True, exist_ok=True)
         write_json(out_dir / rd.SITES, {"schemaVersion": SCHEMA_VERSION, "app": name, "root": str(app.path),
                                         "sites": found.sites, "dropped": found.dropped})
         write_json(out_dir / rd.APP, facts)
         write_json(out_dir / rd.SCOPES, scopes)
-        s.count(scopes=len(scoping.scopes), unscoped=len(scoping.unscoped))
+        s.count(scopes=len(scoping.scopes), unscoped=len(scoping.unscoped), lifecycle=scoping.statuses())
         s.wrote(out_dir / rd.SITES, out_dir / rd.APP, out_dir / rd.SCOPES)
     print(f"{out_dir}: {len(found.sites)} sites in {found.files} files ({found.testFiles} test files not scanned), "
           f"{len(found.dropped)} dropped by import, {found.folded} folded from constants, "
-          f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function")
+          f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function; lifecycle "
+          + (", ".join(f"{k} {n}" for k, n in scoping.statuses().items()) or "none"))
+    if any(s.lifecycle is not None and "parser_missing" in s.lifecycle.reasons for s in scoping.scopes):
+        print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'perf-repair[scope]'")
     for missing, n in sorted(Counter(s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE).items()):
         print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_STEP}")
 

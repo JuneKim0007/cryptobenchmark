@@ -1,14 +1,19 @@
 """The scope step: resolved sites → a Scope per site inside a named function, and the sites that have none."""
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..dto.site import SCHEMA_VERSION, Scope, scope_id
+from ..dto.lifecycle import Lifecycle
+from ..dto.site import SCOPES_SCHEMA_VERSION, Scope, scope_id
 from ..source.language import of_file
 from ..source.lexer import Code
+from .engines import read_engines
 from .extract import enclosing, functions
-from .facts import key_source, read_patterns, sinks
+from .facts import key_source, key_source_view, read_patterns, sinks
+from .lifecycle.read import lifecycle_of
+from .syntax.parser import ParserMissing, parse
 
 NO_FUNCTION, CALL_MOVED = "no_enclosing_function", "call_not_on_line"
 
@@ -17,9 +22,13 @@ NO_FUNCTION, CALL_MOVED = "no_enclosing_function", "call_not_on_line"
 class Scoping:
     scopes: list[Scope] = field(default_factory=list)
     unscoped: list[dict] = field(default_factory=list)
+    lines: dict[str, int] = field(default_factory=dict)
+
+    def statuses(self) -> dict[str, int]:
+        return dict(sorted(Counter(s.lifecycle.status for s in self.scopes if s.lifecycle is not None).items()))
 
     def document(self, app: str) -> dict:
-        return {"schemaVersion": SCHEMA_VERSION, "app": app, "scopes": [s.to_json() for s in self.scopes],
+        return {"schemaVersion": SCOPES_SCHEMA_VERSION, "app": app, "scopes": [s.to_json() for s in self.scopes],
                 "unscoped": self.unscoped}
 
 
@@ -35,12 +44,31 @@ def _language(file: str):
     return language
 
 
+class _Trees:
+    """One syntax tree per file; a missing parser is recorded once and every lifecycle says so."""
+
+    def __init__(self):
+        self.trees, self.missing = {}, False
+
+    def lifecycle(self, file: str, code: Code, site: dict) -> Lifecycle:
+        if self.missing:
+            return Lifecycle.unsupported("parser_missing")
+        if file not in self.trees:
+            try:
+                self.trees[file] = parse(code.text, code.language)
+            except ParserMissing:
+                self.missing = True
+                return Lifecycle.unsupported("parser_missing")
+        return lifecycle_of(self.trees[file], site, read_engines())
+
+
 def build_scopes(app: str, root: Path, sites: list[dict]) -> Scoping:
-    out, patterns, parsed = Scoping(), read_patterns(), {}
+    out, patterns, parsed, trees = Scoping(), read_patterns(), {}, _Trees()
     for s in sorted(sites, key=lambda s: (s["file"], s["line"], s["call"])):
         if s["file"] not in parsed:
             code = Code.of((Path(root) / s["file"]).read_text(errors="replace"), _language(s["file"]))
             parsed[s["file"]] = (code, functions(code))
+            out.lines[s["file"]] = len(code.starts)
         code, fns = parsed[s["file"]]
         offset = _offset(code, s["line"], s["call"])
         fn = enclosing(fns, offset) if offset is not None else None
@@ -48,9 +76,11 @@ def build_scopes(app: str, root: Path, sites: list[dict]) -> Scoping:
             out.unscoped.append({"file": s["file"], "line": s["line"], "call": s["call"],
                                  "reason": CALL_MOVED if offset is None else NO_FUNCTION})
             continue
+        lifecycle = trees.lifecycle(s["file"], code, s)
         out.scopes.append(Scope(
             id=scope_id(app, s["file"], fn.name, s["line"], s["call"]), app=app, file=s["file"], line=s["line"],
             call=s["call"], function=fn.name, start=code.line(fn.start), end=code.line(fn.end - 1),
             engineType=s["engineType"], algorithm=s["resolvedAlgorithm"], provider=s["resolvedProvider"],
-            resolution=s["resolution"], sinks=sinks(code, fn, patterns), keySource=key_source(code, fn, patterns)))
+            resolution=s["resolution"], sinks=sinks(code, fn, patterns),
+            keySource=key_source_view(lifecycle, key_source(code, fn, patterns)), lifecycle=lifecycle))
     return out

@@ -4,7 +4,11 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, fields
 
+from .lifecycle import Lifecycle
+
 SCHEMA_VERSION = 1
+# 2: each scope carries its lifecycle
+SCOPES_SCHEMA_VERSION = 2
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
 REPLACEMENTS_SCHEMA_VERSION = 3
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe
@@ -19,8 +23,9 @@ OPTION_PREFIX = "R"
 METRICS = ("timeNs", "allocationCount", "energyJ")
 NOT_ON_DEVICE = "not_on_device"
 NOT_ON_DEVICE_STEP = "add it to providers.bundled in global.yaml and rerun the device stage"
+NO_REAL_USE = "no_real_use"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing
-NO_OPTION_REASONS = (NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
+NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
                      "interop_failed")
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
@@ -59,13 +64,16 @@ class Scope:
     inputSize: int | None = None
     sinks: tuple[str, ...] = ("unknown",)
     keySource: str = "unknown"
+    lifecycle: Lifecycle | None = None
 
     def to_json(self) -> dict:
-        return asdict(self) | {"sinks": list(self.sinks)}
+        return asdict(self) | {"sinks": list(self.sinks),
+                               "lifecycle": self.lifecycle.to_json() if self.lifecycle is not None else None}
 
     @classmethod
     def from_json(cls, d: dict) -> "Scope":
-        return cls(**{**d, "sinks": tuple(d.get("sinks") or ("unknown",))})
+        lifecycle = Lifecycle.from_json(d["lifecycle"]) if d.get("lifecycle") is not None else None
+        return cls(**{**d, "sinks": tuple(d.get("sinks") or ("unknown",)), "lifecycle": lifecycle})
 
 
 def required_risks(scope: Scope, option: "Option | None" = None) -> dict[str, list[str]]:

@@ -5,7 +5,9 @@ import pytest
 
 from perfrepair.app.__main__ import main
 from perfrepair.scope.extract import enclosing, functions
-from perfrepair.scope.facts import key_source, read_patterns, sinks
+from perfrepair.dto.lifecycle import Lifecycle, Requirement
+from perfrepair.scope.engines import read_engines
+from perfrepair.scope.facts import key_source, key_source_view, read_patterns, sinks
 from perfrepair.source.language import JAVA, KOTLIN
 from perfrepair.source.lexer import Code
 from perfrepair.validation.app import validate_app_facts, validate_scopes
@@ -135,3 +137,55 @@ def test_validate_run_reads_app_folders(scopes):
     assert inbound(["--device-results", str(with_results(run))]) == 0
     result = validate_run(run, screening_catalog(None))
     assert result[f"{DEMO}/scopes.json"] == [] and result[f"{DEMO}/app.json"] == []
+
+
+GOOD_LIFECYCLE = {"status": "partially_bounded", "reasons": ["field"], "binding": "field",
+                  "steps": [{"role": "use", "call": "f", "line": 4, "where": "depth1"}],
+                  "requirements": [{"name": "key", "origin": "field", "line": 2, "at": 4, "depth1": ["generated"]}],
+                  "operations": ["OP1"]}
+
+
+@pytest.mark.parametrize("change, problem", [
+    ({"status": "done"}, "status 'done'"),
+    ({"status": "bounded"}, "reason 'field' is not one of () for bounded"),
+    ({"reasons": []}, "partially_bounded without a reason"),
+    ({"binding": "somewhere"}, "binding 'somewhere'"),
+    ({"steps": [{"role": "read", "call": "f", "line": 4, "where": "same"}]}, "role 'read'"),
+    ({"requirements": [{"name": "key", "origin": "guess", "line": 2, "at": 4, "depth1": []}]}, "origin 'guess'"),
+    ({"steps": [{"role": "use", "call": "f", "line": 99, "where": "same"}]}, "cites line 99"),
+])
+def test_a_lifecycle_outside_its_closed_lists_or_its_file_is_refused(scopes, change, problem):
+    _, doc = scopes
+    s = doc["scopes"][0]
+    s["lifecycle"] = {**GOOD_LIFECYCLE, **change}
+    assert any(problem in p for p in validate_scopes(doc, {s["file"]: 40}))
+    s["lifecycle"] = GOOD_LIFECYCLE
+    assert validate_scopes(doc, {s["file"]: 40}) == []
+
+
+def test_scopes_without_a_lifecycle_or_of_the_old_schema_are_refused(scopes):
+    _, doc = scopes
+    doc["scopes"][0]["lifecycle"] = None
+    assert any("no lifecycle" in p for p in validate_scopes(doc))
+    assert validate_scopes({**doc, "schemaVersion": 1})[0] == "schemaVersion 1"
+
+
+def test_the_engine_table_loads_and_a_bad_one_is_refused(tmp_path):
+    engines = read_engines()
+    assert engines.factory and all(e.terminal for e in engines.engines.values())
+    bad = tmp_path / "engines.yaml"
+    bad.write_text("schemaVersion: 1\nfactory: make\nengines:\n  E:\n    terminal: [go]\n    requirements: {stop: {0: key}}\n"
+                   "    operations: {call: {walk: OP}}\norigins: {guessed: [x]}\nspecs: {}\naccessors: []\ndecoders: []\n")
+    with pytest.raises(ValueError) as e:
+        read_engines(bad)
+    assert all(p in str(e.value) for p in ("requirement call stop", "outside its lifecycle", "origin guessed"))
+
+
+def test_the_key_source_view_prefers_the_key_origin_and_falls_back_to_the_patterns():
+    def lc(origin, depth1=()):
+        return Lifecycle("bounded", binding="local", requirements=(Requirement("key", origin, 1, 2, depth1),))
+    assert key_source_view(lc("keystore"), "unknown") == "keystore"
+    assert key_source_view(lc("field", ("generated",)), "unknown") == "generated"
+    assert key_source_view(lc("parameter", ("keystore",)), "parameter") == "keystore"
+    assert key_source_view(lc("other_call"), "derived") == "derived"
+    assert key_source_view(None, "literal") == "literal"

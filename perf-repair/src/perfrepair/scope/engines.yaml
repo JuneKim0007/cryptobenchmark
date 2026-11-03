@@ -1,0 +1,103 @@
+# Per engine type: the calls of a primitive object's lifecycle; origins: the calls that say where a value comes from.
+# configuration: one of them must precede a use; terminal: the uses; consumers: calls that take the object and use it.
+# requirements: per call, argument index → the value it needs; operations: the benchmark operation the steps perform.
+schemaVersion: 1
+factory: getInstance
+engines:
+  MessageDigest:
+    terminal: [digest]
+    optional: [update, reset]
+    requirements: {digest: {0: input}, update: {0: input}}
+    operations: {call: {digest: DIGEST}}
+    consumers: [DigestInputStream, DigestOutputStream]
+  Cipher:
+    configuration: [init]
+    terminal: [doFinal, update, wrap, unwrap]
+    optional: [updateAAD]
+    requirements: {init: {1: key, 2: parameters}, doFinal: {0: input}, update: {0: input}}
+    operations: {argument: {call: init, index: 0, values: {ENCRYPT_MODE: ENCRYPT, DECRYPT_MODE: DECRYPT, "1": ENCRYPT, "2": DECRYPT}}}
+    consumers: [CipherInputStream, CipherOutputStream, CryptoObject, SealedObject, seal]
+  Mac:
+    configuration: [init]
+    terminal: [doFinal]
+    optional: [update, reset]
+    requirements: {init: {0: key, 1: parameters}, doFinal: {0: input}, update: {0: input}}
+    operations: {call: {doFinal: COMPUTE_MAC}}
+    consumers: [CryptoObject]
+  Signature:
+    configuration: [initSign, initVerify]
+    terminal: [sign, verify]
+    optional: [update, setParameter]
+    requirements: {initSign: {0: key}, initVerify: {0: key}, update: {0: input}, verify: {0: input}}
+    operations: {call: {initSign: SIGN, initVerify: VERIFY}}
+    consumers: [CryptoObject]
+  KeyGenerator:
+    terminal: [generateKey]
+    optional: [init]
+    requirements: {init: {0: parameters}}
+    operations: {call: {generateKey: GENERATE_KEY}}
+  KeyPairGenerator:
+    terminal: [generateKeyPair, genKeyPair]
+    optional: [initialize]
+    requirements: {initialize: {0: parameters}}
+    operations: {call: {generateKeyPair: GENERATE_KEY_PAIR, genKeyPair: GENERATE_KEY_PAIR}}
+  KeyFactory:
+    terminal: [generatePublic, generatePrivate, translateKey, getKeySpec]
+    requirements: {generatePublic: {0: input}, generatePrivate: {0: input}}
+  SecretKeyFactory:
+    terminal: [generateSecret, translateKey, getKeySpec]
+    requirements: {generateSecret: {0: input}}
+  KeyAgreement:
+    configuration: [init]
+    terminal: [generateSecret]
+    optional: [doPhase]
+    requirements: {init: {0: key}, doPhase: {0: input}}
+    operations: {call: {generateSecret: AGREE_KEY}}
+  KeyStore:
+    configuration: [load]
+    terminal: [getKey, getEntry, getCertificate, getCertificateChain, containsAlias, aliases, setEntry, setKeyEntry,
+               setCertificateEntry, deleteEntry, store, size, isKeyEntry, isCertificateEntry]
+    requirements: {load: {0: input}}
+    consumers: [init]
+  SecureRandom:
+    terminal: [nextBytes, nextInt, nextLong, nextDouble, nextFloat, nextBoolean, nextGaussian, generateSeed, ints,
+               longs, doubles]
+    optional: [setSeed]
+    consumers: [init, initialize, initSign, BigInteger, RSAKeyGenParameterSpec, probablePrime, shuffle]
+  AlgorithmParameters:
+    configuration: [init]
+    terminal: [getParameterSpec, getEncoded]
+    requirements: {init: {0: parameters}}
+  CertificateFactory:
+    terminal: [generateCertificate, generateCertificates, generateCRL, generateCRLs, generateCertPath]
+    requirements: {generateCertificate: {0: input}, generateCertificates: {0: input}}
+  TrustManagerFactory:
+    configuration: [init]
+    terminal: [getTrustManagers]
+    requirements: {init: {0: key}}
+  KeyManagerFactory:
+    configuration: [init]
+    terminal: [getKeyManagers]
+    requirements: {init: {0: key}}
+  SSLContext:
+    configuration: [init]
+    terminal: [getSocketFactory, createSSLEngine, getServerSocketFactory]
+    requirements: {init: {0: key}}
+origins:
+  generated: [generateKey, generateKeyPair, genKeyPair]
+  literal: [byteArrayOf, charArrayOf, intArrayOf, arrayOf]
+  derived: [generateSecret, deriveKey, hkdf, pbkdf2, deriveSecret]
+  keystore: [getKey, getEntry, getCertificate, getCertificateChain, getPrivateKey, getSecretKey, getPublicKey,
+             getSecretKeyEntry, getPrivateKeyEntry, getTrustedCertificate]
+  decoded: [generatePublic, generatePrivate, translateKey, generateCertificate]
+  storage: [getString, getStringSet, readBytes, readAllBytes, readText, readFile, getBlob, openFileInput, loadKey,
+            getSharedPreferences, readLine, readUTF, decodeFromString]
+# constructors that carry a value: argument index of the value
+specs: {SecretKeySpec: 0, IvParameterSpec: 0, GCMParameterSpec: 1, X509EncodedKeySpec: 0, PKCS8EncodedKeySpec: 0,
+        PBEKeySpec: 0, DESKeySpec: 0, PBEParameterSpec: 0, RC2ParameterSpec: 0, RSAPublicKeySpec: 0,
+        RSAPrivateKeySpec: 0, ECPublicKeySpec: 0, ECPrivateKeySpec: 0}
+# accessors: the value is their receiver's; decoders: their first argument's
+accessors: [getPublic, getPrivate, public, private, publicKey, privateKey, secretKey, certificate, getEncoded, encoded,
+            toByteArray, getBytes, clone, copyOf, copyOfRange, getIV, iv, toCharArray]
+decoders: [decode, decodeBase64, hexStringToByteArray, hexToBytes, hexToByteArray, fromHex, decodeHex, parseHex,
+           base64Decode, digest, copyOf, copyOfRange, getBytes, toByteArray, wrap]

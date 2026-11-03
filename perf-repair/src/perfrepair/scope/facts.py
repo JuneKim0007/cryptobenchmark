@@ -1,4 +1,5 @@
-"""A function's sinks and key source, from the data patterns in patterns.yaml matched against its masked body."""
+"""A function's sinks and key source as views: patterns.yaml matched against its masked body; the key source from the
+lifecycle's key requirement when it knows one."""
 from __future__ import annotations
 
 import re
@@ -6,6 +7,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from ..dto.lifecycle import Lifecycle
 from ..dto.site import KEY_SOURCES, SINKS
 from ..files import read_yaml
 from ..source.lexer import Code
@@ -57,3 +59,16 @@ def key_source(code: Code, fn: Function, patterns: Patterns) -> str:
         if parsed and params & {a.strip() for a in parsed[0]}:
             return "parameter"
     return "unknown"
+
+
+def key_source_view(lifecycle: Lifecycle | None, regex: str) -> str:
+    """The key requirement's origin when the lifecycle knows it, one method away for a field or private parameter;
+    else the pattern reading."""
+    key = lifecycle.origin_of("key") if lifecycle is not None else None
+    if key is None:
+        return regex
+    depth1 = key.depth1[0] if len(key.depth1) == 1 else None
+    for candidate in (key.origin, depth1):
+        if candidate in KEY_SOURCES and candidate != "unknown" and not (candidate == "parameter" and depth1):
+            return candidate
+    return regex

@@ -10,7 +10,8 @@
 | a name outside `catalog/algorithm-names.yaml` and the probe's aliases keeps its spelling, `known` false; config's reader uses the file alone, not the probe | `sites.json` `canonicalAlgorithm` |
 | a probe alias that contradicts the catalog or another provider (e.g. one provider's `RSA/None/OAEPWithSHA-224AndMGF1Padding` → SHA-256) stops the app step that meets it with `name_conflict`; grouping build screens the item `unknown` and asks it | `perfrepair.app`, grouping build |
 | a function is found by bracket matching, not a grammar; a call in a field initializer or init block has none | `scopes.json` `unscoped` |
-| sinks and key source are pattern matches over the whole function body, not data flow | `scopes.json` |
+| sinks are pattern matches over the whole function body, not data flow; the key source is too when the lifecycle has no key origin | `scopes.json` |
+| the lifecycle follows the object in its method and one method away inside its class only; DI, factories in other classes and callers elsewhere end `partially_bounded`; without the `scope` extra it is `unsupported` | `scopes.json` `lifecycle` |
 | default provider resolution | `docs/repair.md` limits |
 | the scope step infers no key or input size, so `harness.yaml` inputs are the run's configured sizes (`from: run`), one size per scope, not the sizes the app passes | `report.json` `inputs` |
 | a current and option with no configured size in common get a null input; a function taking bytes, text or a key is then `not_compilable` (`missing_input`) and reported primitive-only | `report.json` `compile` |

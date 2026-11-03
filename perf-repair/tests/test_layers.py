@@ -206,3 +206,7 @@ def test_a_real_backend_is_built_only_by_its_gateway():
 
 def test_prompts_load_only_through_the_prompt_args():
     assert [m for m, n, t in _calls() if n == "load" and t == "PromptLibrary" and m != "ai/runtime/prompt/args"] == []
+
+
+def test_scope_imports_no_model_repair_or_device_code():
+    assert sorted({"/".join(t[:2]) for h, t in _imports() if h[:1] == ["scope"] and t[:1] in (["ai"], ["repair"], ["device"])}) == []

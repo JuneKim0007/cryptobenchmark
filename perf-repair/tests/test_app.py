@@ -127,7 +127,7 @@ def test_command_writes_one_unit_per_root(tmp_path, capsys):
         (src / rel / "src" / "main" / "java" / "A.java").write_text(
             "import javax.crypto.Cipher;\nclass A { void f() { Cipher.getInstance(\"AES\"); } }\n")
     assert main(["--app", str(src), "--device-results", str(with_results(tmp_path / "run"))]) == 0
-    assert len([l for l in capsys.readouterr().out.splitlines() if not l.startswith("not_on_device")]) == 2
+    assert len([l for l in capsys.readouterr().out.splitlines() if not l.startswith(("not_on_device", "lifecycle unsupported"))]) == 2
     for rel in ("android", "android_donation"):
         unit = f"{path_id(src)}.{rel}"
         out = tmp_path / "run" / unit
