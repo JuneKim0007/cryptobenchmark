@@ -96,6 +96,7 @@ def test_the_gate_accepts_one_answer_per_offered_gap_in_gap_order():
     (reply(("G1", "C1", "storage"), ("G1", "C1", "storage"), ("G2", "unknown", "unknown")), "answered twice"),
     (reply(("G3", "unknown", "unknown"), ("G1", "C1", "storage"), ("G2", "unknown", "unknown")), "gap 'G3' is not one of"),
     (reply(("G1", "C1", "storage"), ("G2", "C3", "storage")), "code reads C3 as literal"),
+    (reply(("G1", "C2", "field"), ("G2", "unknown", "unknown")), "open origin 'field' differs"),
 ])
 def test_the_gate_refuses(text, problem):
     decision, problems = check_reply(text, ENTRY)

@@ -82,8 +82,8 @@ def _called_values(src: Source) -> list[Node]:
 
 
 def _parts(e: Node | None) -> list[Node]:
-    # only branches and joins carry their operands' value: an array's size or an index does not
-    if e is None or e.kind != g.FLOW:
+    # only a branch hands on one operand's value: a join, an array's size or an index does not
+    if e is None or e.kind != g.FLOW or e.type in g.JOINS:
         return []
     out = []
     for c in e.children:

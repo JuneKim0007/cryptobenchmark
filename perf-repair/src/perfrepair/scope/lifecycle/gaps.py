@@ -73,7 +73,7 @@ def _asked(reading: Reading, engines: Engines, where: Where, found: Found) -> li
             else:
                 asked.append((r.key, reached))
     if _LOST_USE in reading.lifecycle.reasons:
-        asked.append(((USE_GAP, UNKNOWN_ORIGIN, where.line, where.line), use_lines(reading.created, reading.binding)))
+        asked.append(((USE_GAP, UNKNOWN_ORIGIN, where.line, where.line), use_lines(reading.created, reading.binding, {s.line for s in reading.lifecycle.steps})))
     return asked
 
 

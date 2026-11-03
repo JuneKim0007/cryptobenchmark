@@ -49,6 +49,8 @@ _TYPES = {
 }
 _KIND = {t: kind for kind, types in _TYPES.items() for t in types}
 
+# operands joined into one value: none of them alone supplies it
+JOINS = frozenset(("binary_expression",))
 COMMENTS = frozenset(("line_comment", "block_comment", "multiline_comment", "comment"))
 PRIMARY_CONSTRUCTOR, CLASS_PARAMETER = "primary_constructor", "class_parameter"
 COMPANION = "companion_object"

@@ -103,6 +103,12 @@ class Vault {
         return c.doFinal(new byte[] {1});
     }
 
+    byte[] join(String a) throws Exception {
+        Mac m = Mac.getInstance("ALG-B"); // site: join
+        m.init(store.getKey("f", null));
+        return m.doFinal(("c-" + a).getBytes());
+    }
+
     byte[] branch(boolean flag) throws Exception {
         Mac m = Mac.getInstance("ALG-B"); // site: branch
         m.init(flag ? held : opaque());

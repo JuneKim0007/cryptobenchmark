@@ -10,6 +10,15 @@ def _origins(gap: Gap) -> tuple[str, ...]:
     return USE_ORIGINS if gap.name == USE_GAP else ORIGINS
 
 
+def _reading_problem(n: int, choice: str, origin: str, reads: str) -> list[str]:
+    """A closed reading stands; an open origin is structure code already read, so it can only repeat that reading."""
+    if origin == reads or (reads == UNKNOWN_ORIGIN and origin not in OPEN_ORIGINS):
+        return []
+    if reads not in OPEN_ORIGINS:
+        return [f"answers[{n}]: code reads {choice} as {reads}; origin {origin!r} differs from it"]
+    return [] if origin not in OPEN_ORIGINS else [f"answers[{n}]: code reads {choice} as {reads}; open origin {origin!r} differs from it"]
+
+
 def _choice_problems(n: int, a: dict, gap: Gap) -> list[str]:
     choice, origin = a.get("choice"), a.get("origin")
     if origin not in _origins(gap):
@@ -21,10 +30,7 @@ def _choice_problems(n: int, a: dict, gap: Gap) -> list[str]:
         return [f"answers[{n}]: choice {choice!r} is not offered to {gap.id}: {[*offered, UNKNOWN_CHOICE]}"]
     if origin == UNKNOWN_ORIGIN:
         return [f"answers[{n}]: a chosen line takes an origin other than unknown; answer choice unknown instead"]
-    reads = offered[choice].reads
-    if reads not in OPEN_ORIGINS and origin != reads:
-        return [f"answers[{n}]: code reads {choice} as {reads}; origin {origin!r} differs from it"]
-    return []
+    return _reading_problem(n, choice, origin, offered[choice].reads) if gap.name != USE_GAP else []
 
 
 def _answer_problems(n: int, a, offered: dict[str, Gap], seen: set[str]) -> list[str]:

@@ -77,6 +77,7 @@
 | an origin | off `ORIGINS`, or off `USE_ORIGINS` for a `use` gap |
 | a pairing | `unknown` choice with another origin; a chosen line with origin `unknown` |
 | a closed reading | a chosen line whose `code reads` value is closed, with another origin |
+| an open origin | a chosen line of a requirement gap with `parameter`, `field`, `same_class_call` or `other_call` other than its `code reads` value |
 
 ## Site replace
 

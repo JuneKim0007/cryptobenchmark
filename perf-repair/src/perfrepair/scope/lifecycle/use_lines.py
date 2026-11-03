@@ -33,9 +33,10 @@ def _callers(created: Node) -> list[Node]:
     return out
 
 
-def use_lines(created: Node, b: Binding) -> Reached:
+def use_lines(created: Node, b: Binding, known: set[int]) -> Reached:
+    """known: the lines of the object's steps; a configuration code already read is not its lost use."""
     rows = [(OBJECT_REFERENCE, n) for n in _references(b.name, created)] if b.name else []
     rows += [(HELPER_CALLER, n) for n in _callers(created)]
-    unique = {n.line: (how, n) for how, n in reversed(rows)}
+    unique = {n.line: (how, n) for how, n in reversed(rows) if n.line not in known}
     lines = [Line(how, line, _UNREAD, n) for line, (how, n) in sorted(unique.items())]
     return Reached(lines[:REACH_LINES], True, len(lines) > REACH_LINES)
