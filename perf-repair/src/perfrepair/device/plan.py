@@ -37,12 +37,20 @@ def _changed(stage: str, recorded: dict, current: dict) -> str | None:
     return f"{', '.join(changed)} changed" if changed else None
 
 
+def base_inputs(seen: Seen) -> dict:
+    """A used-set benchmark's manifest carries its generated config's digest; device.yaml maps it back to the base."""
+    inputs, scoped = dict(seen.manifest.inputs), seen.record.benchmark if seen.record else {}
+    if scoped and inputs.get("config") == scoped.get("config"):
+        inputs["config"] = seen.record.inputs["config"]
+    return inputs
+
+
 def _probe(seen: Seen, current: dict) -> str | None:
     if seen.manifest is None:
         return "no manifest.yaml"
     if not seen.manifest.inputs:
         return "the manifest records no inputs"
-    return _changed("probe", seen.manifest.inputs, current)
+    return _changed("probe", base_inputs(seen), current)
 
 
 def _benchmark(seen: Seen, current: dict) -> str | None:
@@ -78,12 +86,13 @@ def _primitives(seen: Seen, current: dict) -> str | None:
 CHECKS = {"probe": _probe, "benchmark": _benchmark, "inbound": _inbound, "screen": _screen, "primitives": _primitives}
 
 
-def plan(seen: Seen, current: dict, refresh: bool = False) -> dict[str, str | None]:
-    """Per stage in order: None to reuse it, else the reason it runs; refresh reruns the static table, never a device run."""
+def plan(seen: Seen, current: dict, refresh: bool = False, forced: dict[str, str] | None = None) -> dict[str, str | None]:
+    """Per stage in order: None to reuse it, else the reason it runs; refresh reruns the static table, never a device run;
+    forced: a reason a stage reruns that no digest holds (the used set)."""
     out: dict[str, str | None] = {}
     for stage in STAGES:
         upstream = next((f"{before} reruns" for before in AFTER[stage] if out[before]), None)
-        out[stage] = upstream or CHECKS[stage](seen, current)
+        out[stage] = upstream or (forced or {}).get(stage) or CHECKS[stage](seen, current)
     if refresh and not out["primitives"]:
         out["primitives"] = REFRESH
     return out

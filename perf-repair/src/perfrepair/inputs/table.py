@@ -77,6 +77,8 @@ GROUPING_NO_RERUN = Row("device.grouping.noRerun", check_bool, default=True)
 GROUPING_ASSIGN = RoleRow("device.grouping.assign", {"effort": "low"})
 GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
 BENCHMARK_CONFIG = _path("device.benchmark.config")
+# off is a full-device run: more device time and model calls, never a wrong result
+FILTER_BY_APPS = Row("device.filterByApps", check_bool, default=True)
 # a bad id must not fall through to another device's numbers
 DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
 WORTHINESS = RoleRow("device.worthiness")

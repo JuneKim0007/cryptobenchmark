@@ -89,9 +89,13 @@ Before any stage it checks the config `--identify` names against the perfMode (`
 - Each stage prints `device <stage>: reused` or `device <stage>: ran: <reason>`; a probe writing another folder than `--identify` named is `device_id_changed`.
 - With `device.screening.aiReview` on, probe_device builds without the review; run `grouping build` for it.
 
+## Used set
+
+With `device.filterByApps` the device stage probes, detects the targets and measures only their used set: [used-set.md](used-set.md).
+
 ## Grouping knowledge
 
-`device/coverage.py`, on every guide run, never stored: pending is every non-screened-out item with no record in the active outbox (a `dropped` record counts: it was asked; `noRerun: false` asks it again).
+`device/coverage.py`, on every guide run, never stored: pending is every non-screened-out item in `used.json` (every one without it) with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts: it was asked; `noRerun: false` asks it again).
 
 | found | `device.grouping.noRerun` | model calls | `guide grouping:` |
 |---|---|---|---|

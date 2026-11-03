@@ -1,4 +1,5 @@
-"""A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log.
+"""A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log
+and its selection.exclude one in excluded.log.
 The device folder is the recorded test-api36 results, each providers.bundled `create` adding a provider of the same
 primitives and MD5; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
 import argparse, hashlib, json, os, pathlib, shutil, sys
@@ -32,6 +33,9 @@ if options.identify:
 root = pathlib.Path(options.results)
 with open(root / "runs.log", "a") as log:
     log.write(" ".join(sys.argv[1:]) + "\n")
+excluded = sorted(f"{r['type']}|{r['name']}|{r['provider']}" for r in (document.get("selection") or {}).get("exclude") or [])
+with open(root / "excluded.log", "a") as log:
+    log.write(json.dumps(excluded) + "\n")
 folder = root / DEVICE_ID
 (folder / "manifest.yaml").unlink(missing_ok=True)
 if os.environ.get("FAKE_INTERRUPT"):

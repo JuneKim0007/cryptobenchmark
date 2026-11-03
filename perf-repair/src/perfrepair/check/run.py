@@ -37,6 +37,7 @@ from ..validation.report import validate_report, validate_summary
 from ..validation.rows import validate_rows
 from ..validation.run_log import validate_run_log
 from ..validation.screen import validate_model_verdicts, validate_screen_document
+from ..validation.used import validate_used
 
 
 def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
@@ -60,7 +61,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     grouping = GroupingPaths(run)
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
-        out |= _screen(grouping, catalog)
+        out |= _screen(grouping, catalog) | _used(run, grouping)
     out |= _primitives(run, rows)
     if not grouping.groups.exists():
         return out
@@ -114,6 +115,16 @@ def _primitives(run: Path, rows) -> dict[str, list[str]]:
     except (KeyError, TypeError, ValueError) as e:
         return {rd.PRIMITIVES: [f"does not read: {type(e).__name__} {e}"]}
     return {rd.PRIMITIVES: validate_primitives(table, rows, measurements, made_from)}
+
+
+def _used(run: Path, grouping: GroupingPaths) -> dict[str, list[str]]:
+    if not (run / rd.USED).is_file():
+        return {}
+    try:
+        used = rd.load_used(run)
+    except (KeyError, TypeError, ValueError) as e:
+        return {rd.USED: [f"does not read: {type(e).__name__} {e}"]}
+    return {rd.USED: validate_used(used, {i.qualified for i in read_items(read_json(grouping.items))})}
 
 
 def _charters(run: Path) -> dict[str, list[str]]:

@@ -18,6 +18,8 @@ class DeviceRecord:
     manifest: str
     # the digests primitives.tsv was made from; a record without them reruns only that stage
     primitives: dict[str, str | None] = field(default_factory=dict)
+    # with device.filterByApps: the generated config's digest, the measured set's digest and its items; empty = the base
+    benchmark: dict = field(default_factory=dict)
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, **asdict(self)}
@@ -30,7 +32,7 @@ class DeviceRecord:
         if missing or not doc.get("manifest"):
             raise ValueError(f"device.yaml lacks {', '.join(missing) or 'manifest'}")
         return cls(str(doc["deviceId"]), str(doc["mode"]), doc.get("runtime") or {}, dict(doc["inputs"]), doc["manifest"],
-                   dict(doc.get("primitives") or {}))
+                   dict(doc.get("primitives") or {}), dict(doc.get("benchmark") or {}))
 
 
 def runtime_summary(runtime: dict) -> dict:

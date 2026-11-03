@@ -19,14 +19,7 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
     problems = []
     if doc.get("schemaVersion") != GROUPS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {GROUPS_SCHEMA_VERSION}")
-    placed = Counter(m for g in doc["groups"] for m in g["members"])
-    dropped, unused = {d["item"] for d in doc["dropped"]}, set(doc.get("notUsed") or ())
-    problems += [f"item {m}: in {n} groups" for m, n in placed.items() if n > 1]
-    problems += [f"item {m}: grouped and dropped" for m in dropped if m in placed]
-    problems += [f"item {m}: notUsed and {'grouped' if m in placed else 'dropped'}" for m in unused & (set(placed) | dropped)]
-    problems += [f"item {i}: neither grouped nor dropped" for i in items
-                 if i not in placed and i not in dropped and i not in unused]
-    problems += [f"item {m}: not in items.json" for m in set(placed) | dropped | unused if m not in items]
+    problems += _placement(doc, items)
     if "interop" not in doc:
         problems.append("no interop section; rerun grouping report")
     if set(doc["items"]) != {str(i) for i in items}:
@@ -42,6 +35,18 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
             if m in items and entry and entry["qualified"] != items[m].qualified:
                 problems.append(f"item {m}: qualified name differs from items.json")
     return problems
+
+
+def _placement(doc: dict, items: dict[int, Item]) -> list[str]:
+    """Each item in one group, dropped, or with used.json in notUsed; nothing else."""
+    placed = Counter(m for g in doc["groups"] for m in g["members"])
+    dropped, unused = {d["item"] for d in doc["dropped"]}, set(doc.get("notUsed") or ())
+    problems = [f"item {m}: in {n} groups" for m, n in placed.items() if n > 1]
+    problems += [f"item {m}: grouped and dropped" for m in dropped if m in placed]
+    problems += [f"item {m}: notUsed and grouped or dropped" for m in unused & (set(placed) | dropped)]
+    accounted = set(placed) | dropped | unused
+    problems += [f"item {i}: neither grouped nor dropped" for i in items if i not in accounted]
+    return problems + [f"item {m}: not in items.json" for m in accounted if m not in items]
 
 
 def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None,

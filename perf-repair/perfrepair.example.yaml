@@ -36,6 +36,7 @@ device:                    # once per device
     supervisor: {}
   benchmark:
     config:                # cryptobenchmark global.yaml for the guide's device step
+  filterByApps: true       # guide: group and measure only the items the target apps use and their options; false = every item
   id:                      # the folder under paths.results; needed when it holds several; a device not there is an error
   worthiness: {}           # role keys of `ai worthiness`
 

@@ -5,7 +5,7 @@
 
 ## Rules
 - boundary: perf-repair reads cryptobenchmark only through `<device>/manifest.yaml` and the files it lists; that manifest must carry `deviceId`.
-- device stage: `device/` reruns a stage only when an input digest changed or its output is missing (`docs/pipeline.md` Device stage); `device.yaml` is written last and removed before any stage runs, so it never vouches for a half-made folder; `device/` never imports `app/`.
+- device stage: `device/` reruns a stage only when an input digest changed, its output is missing or the used set lacks rows (`docs/pipeline.md` Device stage, `docs/used-set.md`); `device.yaml` is written last and removed before any stage runs, so it never vouches for a half-made folder; `device/` never imports `app/`.
 - dto: no I/O; every file-level document carries `schemaVersion` and its reader refuses another.
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
@@ -40,17 +40,18 @@ src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnab
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
-src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items, whether the saved files are current; noRerun's reader
+src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items (in used.json when present), not used ones, whether the saved files are current; noRerun's reader
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/device/measures.py : the run config's measurements (run.metrics, run-level energy capture) against the perfMode: a selected run.metrics switch missing stops (perf_mode_unmeasured), run-level energy missing and unselected measurements are logged
-src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; --refresh reruns primitives
+src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; a forced reason (the used set); base_inputs: a used-set manifest's config digest mapped back to the base; --refresh reruns primitives
 src/perfrepair/device/primitives.py : the primitives stage: rows, measurements, screen.json → primitives.tsv, validated as it reads back; its input digests; status_of (screen.json by qualified name)
-src/perfrepair/device/stage.py : probe_device(): identify, the perfMode's measurement check, plan, run the needed stages (pipeline, inbound, grouping build, primitives), write device.yaml last; `device <stage>: reused` or `ran: <reason>`
+src/perfrepair/device/selection.py : with device.filterByApps: what the last benchmark measured, why the used set reruns it, the exclude rules and used-global.yaml, device.yaml's benchmark section
+src/perfrepair/device/stage.py : probe_device(): identify, the perfMode's measurement check, plan, run the needed stages (pipeline, inbound, grouping build, primitives), write device.yaml last; with detect: probe and screen first, the targets' detect, used.json, the benchmark of the measured set only; `device <stage>: reused` or `ran: <reason>`
 src/perfrepair/device/used.py : the used step: each app's sites.json → the items its sites resolve to, their groups' members, an ungrouped one's candidates → used.json, validated before writing; clear_used
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
-src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests)
+src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests, the used-set benchmark: generated config digest, measured set digest and items)
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names, kinds, each field's types
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json

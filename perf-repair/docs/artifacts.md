@@ -27,7 +27,7 @@
 | Artifact | Producer | Consumers | Validator |
 |---|---|---|---|
 | `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the report and both renders (absent: ms, MB/s) | `validation/manifest.py` |
-| `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; unreadable counts as absent |
+| `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark: the generated config's digest, the measured set's digest and items; unreadable counts as absent |
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |

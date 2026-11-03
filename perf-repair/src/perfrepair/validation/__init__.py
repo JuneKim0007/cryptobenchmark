@@ -5,6 +5,7 @@ from .primitives import validate_primitives
 from .rows import validate_rows
 from .run_log import validate_run_log
 from .screen import validate_screen
+from .used import validate_used
 
 __all__ = ["ValidationFailed", "require", "validate_manifest", "validate_measurements", "validate_primitives",
-           "validate_rows", "validate_run_log", "validate_screen"]
+           "validate_rows", "validate_run_log", "validate_screen", "validate_used"]

@@ -266,7 +266,8 @@ def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, c
     assert guide_main(args) == 1
     out = capsys.readouterr().out
     assert len(app_lines(out.splitlines())) == 2 and f"app {path_id(tmp_path / 'rel')}:" in out
-    assert len((results / "runs.log").read_text().splitlines()) == 1
+    # a probe, then the benchmark: neither folder is a project, so the base selection
+    assert len((results / "runs.log").read_text().splitlines()) == 2
     assert guide_main(["--app", str(absolute), *args]) == 1
     out = capsys.readouterr().out
     assert [line.split(":")[0] for line in app_lines(out.splitlines())] == [f"app {path_id(absolute)}"]

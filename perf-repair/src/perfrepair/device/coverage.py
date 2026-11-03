@@ -15,11 +15,13 @@ from ..run_dir import GroupingPaths
 
 @dataclass(frozen=True)
 class Coverage:
-    """pending: non-screened-out items with no record, a dropped one being decided; current: the saved files are what the
-    outbox and today's items make."""
+    """pending: non-screened-out items in used.json with no record, a dropped one being decided; current: the saved files
+    are what the outbox and today's items make."""
     asked: int
     pending: tuple[str, ...]
     current: bool
+    # askable items outside used.json with no record; None without used.json
+    not_used: int | None = None
 
 
 def _current(paths: GroupingPaths) -> bool:
@@ -28,10 +30,12 @@ def _current(paths: GroupingPaths) -> bool:
 
 def coverage(paths: GroupingPaths) -> Coverage:
     kind = GroupingKind(paths)
-    done = {r.item for r in active_outbox(paths.root).records()}
+    records = active_outbox(paths.root).records()
+    done = {r.item for r in records}
     asked = kind.pending()
     pending = tuple(kind.label(i) for i in asked if i.key not in done)
-    return Coverage(len(asked), pending, not pending and _current(paths))
+    not_used = None if kind.scope is None else len(kind.not_used(records))
+    return Coverage(len(asked), pending, not pending and _current(paths), not_used)
 
 
 def no_rerun(settings: Loaded | None) -> bool:

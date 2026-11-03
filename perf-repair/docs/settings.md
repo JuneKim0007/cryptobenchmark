@@ -51,6 +51,7 @@
 | `device.grouping.limit` | a positive integer | all items | warning | `grouping assign --limit` |
 | `device.grouping.noRerun` | `true`, `false` | `true` | warning | the guide's grouping step (`device/coverage.py`): `true` asks only items with no decision, `false` asks every item into a new outbox, one more each run. Coverage is computed each run, so knowledge that is missing is asked under either |
 | `device.benchmark.config` | a `global.yaml` | `pipeline.py`'s lookup | warning | `guide --config`: the device stage and the device step |
+| `device.filterByApps` | `true`, `false` | `true` | warning | the guide (`guide/steps.py` prerequisites): `true` detects the targets on the probe, writes `used.json` and has the device stage measure, and grouping ask, only the items they use and their options; `false` removes `used.json`, every item is asked and the base selection measured ([used-set.md](used-set.md)) |
 | `apps.targets` | a list of paths or `{path: ...}`, relative to the file | none | warning | `guide` without `--app`: every entry, in order; `--app` runs one |
 | `apps.perfMode` | `generic`, or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers, the replace render and the report's selected marks carry, and what the device step measures |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |

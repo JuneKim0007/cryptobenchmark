@@ -1,4 +1,5 @@
 """#78's flows across runs on the fake pipeline and the dry-run gateway: what reruns, how many device runs and model calls."""
+import json
 import logging
 import shutil
 from pathlib import Path
@@ -30,11 +31,12 @@ class Flow:
         self.paths = GroupingPaths(self.device)
         self.global_yaml.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n")
         self.grouping = {"noRerun": True}
+        self.filter = False
 
     def settings(self, text=None):
         path = self.tmp / "perfrepair.yaml"
         document = {"paths": {"results": str(self.root)}, "device": {"benchmark": {"config": str(self.global_yaml)},
-                                                                     "grouping": self.grouping}}
+                                                                     "grouping": self.grouping, "filterByApps": self.filter}}
         path.write_text(text if text is not None else yaml.safe_dump(document))
         return path
 
@@ -193,3 +195,89 @@ def test_a_deleted_device_yaml_redoes_the_static_stages_and_still_asks_nothing(f
     flow.run()
     (flow.device / rd.DEVICE).unlink()
     assert "guide grouping: ok: reused" in flow.run() and flow.calls() == OLD_ITEMS
+
+
+SHA = "MessageDigest|SHA-256|Fast"
+HMAC = "Mac|HmacSHA256|Slow"
+GCM_FAST, GCM_SLOW = "Cipher|AES/GCM/NoPadding|Fast", "Cipher|AES/GCM/NoPadding|Slow"
+CALLS = {SHA: 'java.security.MessageDigest.getInstance("SHA-256")', HMAC: 'javax.crypto.Mac.getInstance("HmacSHA256")'}
+
+
+def target(flow, name, *items):
+    """The demo app's build files around one class calling only these items."""
+    root = flow.tmp / "apps" / name
+    shutil.copytree(APP, root, ignore=shutil.ignore_patterns("java", "kotlin"))
+    body = "\n".join(f"    Object m{n}() throws Exception {{ return {CALLS[q]}; }}" for n, q in enumerate(items))
+    (root / "src/main/java/demo").mkdir(parents=True)
+    (root / "src/main/java/demo/Uses.java").write_text(f"package demo;\n\nclass Uses {{\n{body}\n}}\n")
+    return root
+
+
+@pytest.fixture
+def scoped(flow):
+    flow.filter = True
+    flow.sha, flow.hmac = target(flow, "sha", SHA), target(flow, "hmac", HMAC)
+    return flow
+
+
+def run_targets(flow, *roots):
+    path = flow.settings()
+    document = yaml.safe_load(path.read_text())
+    document["apps"] = {"targets": [str(r) for r in roots]}
+    path.write_text(yaml.safe_dump(document))
+    guide(["--agent", "dry-run", "--perfrepair-config", str(path)])
+    return [line for line in flow.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
+
+
+def excluded(flow):
+    return json.loads((flow.root / "excluded.log").read_text().splitlines()[-1])
+
+
+def used(flow):
+    return {u["item"]: u["via"] for u in read_json(flow.device / rd.USED)["items"]}
+
+
+def test_filter_a_first_target_groups_and_measures_only_what_it_uses(scoped):
+    lines = run_targets(scoped, scoped.sha)
+    assert used(scoped) == {SHA: "site"} and scoped.calls() == 1 and scoped.device_runs() == 2
+    assert "guide grouping: ok: ran: 1 of 1 items asked, 3 not used by the targets" in lines
+    assert excluded(scoped) == sorted([HMAC, GCM_FAST, GCM_SLOW])
+    assert len(read_json(scoped.paths.groups)["notUsed"]) == 3 and scoped.problems() == {}
+
+
+def test_filter_nothing_changed_is_no_call_and_no_device_run(scoped):
+    run_targets(scoped, scoped.sha)
+    lines = run_targets(scoped, scoped.sha)
+    assert "guide grouping: ok: reused" in lines and scoped.calls() == 1 and scoped.device_runs() == 2
+    assert "device benchmark: reused" in lines
+
+
+def test_filter_a_new_target_asks_only_its_new_items_and_measures_what_is_missing(scoped):
+    run_targets(scoped, scoped.sha)
+    lines = run_targets(scoped, scoped.sha, scoped.hmac)
+    assert scoped.calls() == 2 and scoped.device_runs() == 3
+    assert "device benchmark: ran: 1 used items not measured" in lines
+    assert "guide grouping: ok: ran: 1 of 2 items asked, 2 not used by the targets" in lines
+    assert excluded(scoped) == sorted([GCM_FAST, GCM_SLOW]) and scoped.problems() == {}
+
+
+def test_filter_a_target_removed_keeps_its_groups_and_rows_and_asks_nothing(scoped):
+    run_targets(scoped, scoped.sha, scoped.hmac)
+    kept = _group_by_name(scoped.paths)[SHA]
+    lines = run_targets(scoped, scoped.hmac)
+    assert scoped.calls() == 2 and scoped.device_runs() == 2 and "device benchmark: reused" in lines
+    assert used(scoped) == {HMAC: "site"} and _group_by_name(scoped.paths)[SHA] == kept
+    assert SHA in {f"{r['type']}|{r['algorithm']}|{r['provider']}" for r in read_json(scoped.device / rd.ROWS)["rows"]}
+    record, _ = rd.load_device_record(scoped.device)
+    assert set(record.benchmark["items"]) == {SHA, HMAC} and scoped.problems() == {}
+
+
+def test_filter_off_asks_and_measures_every_item(scoped):
+    run_targets(scoped, scoped.sha)
+    scoped.filter = False
+    lines = run_targets(scoped, scoped.sha)
+    assert scoped.calls() == OLD_ITEMS and scoped.device_runs() == 3 and excluded(scoped) == []
+    assert "device benchmark: ran: device.filterByApps off: the last benchmark measured the apps' items only" in lines
+    assert not (scoped.device / rd.USED).exists() and "notUsed" not in read_json(scoped.paths.groups)
+    record, _ = rd.load_device_record(scoped.device)
+    assert record.benchmark == {} and scoped.problems() == {}

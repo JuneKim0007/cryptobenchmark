@@ -1,7 +1,7 @@
 """The guide's steps for one app, in order; each returns its status detail or raises Stop with a coded reason."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace as with_fields
 from pathlib import Path
 from typing import Callable
 
@@ -17,8 +17,10 @@ from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.coverage import Coverage, coverage, no_rerun
 from ..device.stage import probe_device
+from ..device.used import clear_used, write_used
 from ..dto.event import END
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
+from ..failure import FAILURES
 from ..files import read_json
 from ..grouping.__main__ import main as grouping_main
 from ..log import emit, step
@@ -61,6 +63,11 @@ class Guide:
     on_device: bool = False
     grouping_args: tuple[str, ...] = ()
     refresh: bool = False
+    targets: tuple[Path, ...] = ()
+    # the command sets it from device.filterByApps
+    filter_by_apps: bool = False
+    # app ids whose app step ran before the benchmark, shared by every app's copy
+    detected: set = field(default_factory=set)
 
     @property
     def app_id(self) -> str | None:
@@ -76,12 +83,40 @@ def _exit(code: int, stop: str, what: str) -> None:
         raise Stop(stop, f"{what} exited {code}; its own lines above say why")
 
 
+def detect_targets(g: Guide, device: Path) -> list[str]:
+    """Each target's app step on the probe, before the benchmark; one that fails stops later at its own app step."""
+    g.device, found = device, []
+    for root in g.targets:
+        one = with_fields(g, app_root=root)
+        try:
+            detail = app(one) if root.is_dir() else None
+        except (Stop, *FAILURES) as e:
+            emit("guide", "detect", END, app=one.app_id, outcome="stop", detail=str(e))
+            continue
+        if detail is not None:
+            g.detected.add(one.app_id)
+            found.append(one.app_id)
+            emit("guide", "detect", END, app=one.app_id, outcome="ok", detail=detail)
+    return found
+
+
+def _used(g: Guide) -> str:
+    if not g.filter_by_apps:
+        clear_used(g.device)
+        return ""
+    if g.root is None and not GroupingPaths(g.device).items.is_file():
+        return ""
+    used = write_used(g.device, detect_targets(g, g.device)) if g.root is None else rd.load_used(g.device)
+    return f", used set {len(used.items)} of {used.deviceItems} items for {len(used.apps)} app folders"
+
+
 def prerequisites(g: Guide) -> str:
     # resolved and checked before any step runs, so a bad catalog stops the guide first
     g.catalog = screening_catalog(g.settings)
     if g.root is not None:
+        detect = (lambda folder: detect_targets(g, folder)) if g.filter_by_apps else None
         g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
-                                perf=g.mode.perf).folder
+                                detect=detect, perf=g.mode.perf).folder
     if not (g.device / rd.MANIFEST).is_file():
         raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):
@@ -91,7 +126,7 @@ def prerequisites(g: Guide) -> str:
     problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.device)))
     if problems:
         raise CatalogMismatch(problems[0])
-    return f"device results {g.device}, catalog {g.catalog.source}"
+    return f"device results {g.device}, catalog {g.catalog.source}" + _used(g)
 
 
 def _no_decision(what: str) -> Stop:
@@ -105,10 +140,17 @@ def _regroup(g: Guide, seen: Coverage, every: bool) -> str:
                   "grouping_failed", "grouping assign")
         _exit(grouping_main(["report", "--device-results", str(g.device), *g.grouping_args]), "grouping_failed", "grouping report")
         s.outcome = "ran"
-        s.count(items=seen.asked, asked=seen.asked if every else len(seen.pending))
+        s.count(items=seen.asked, asked=seen.asked if every else len(seen.pending), **_not_used(seen))
+    unused = "" if seen.not_used is None else f", {seen.not_used} not used by the targets"
     if every:
-        return f"ran: device.grouping.noRerun false, all {seen.asked} items asked again"
-    return f"ran: {len(seen.pending)} of {seen.asked} items asked" if seen.pending else "rebuilt from the kept decisions, no item asked"
+        return f"ran: device.grouping.noRerun false, all {seen.asked} items asked again{unused}"
+    if seen.pending:
+        return f"ran: {len(seen.pending)} of {seen.asked} items asked{unused}"
+    return f"rebuilt from the kept decisions, no item asked{unused}"
+
+
+def _not_used(seen: Coverage) -> dict:
+    return {} if seen.not_used is None else {"notUsed": seen.not_used}
 
 
 def grouping(g: Guide) -> str:
@@ -119,7 +161,7 @@ def grouping(g: Guide) -> str:
     rekey(paths, g.library)
     seen, every = coverage(paths), not no_rerun(g.settings)
     if seen.current and not every:
-        emit("device", "grouping", END, outcome="reused", data={"counts": {"items": seen.asked}})
+        emit("device", "grouping", END, outcome="reused", data={"counts": {"items": seen.asked, **_not_used(seen)}})
         return "reused"
     if seen.pending and g.root is None and not every:
         raise _no_decision(f"{len(seen.pending)} of {seen.asked} items have no decision")
@@ -127,9 +169,10 @@ def grouping(g: Guide) -> str:
 
 
 def app(g: Guide) -> str:
-    # raises the gate's reason here: the command would only print it, and a run of many apps needs it in the app's line
-    open_apps(g.app_root)
-    _exit(app_main(["--device-results", str(g.device), "--app", str(g.app_root)]), "app_failed", "perfrepair.app")
+    if g.app_id not in g.detected:
+        # raises the gate's reason here: the command would only print it, and a run of many apps needs it in the app's line
+        open_apps(g.app_root)
+        _exit(app_main(["--device-results", str(g.device), "--app", str(g.app_root)]), "app_failed", "perfrepair.app")
     if not g.paths.scopes.is_file():
         raise Stop("several_project_roots", f"{g.app_root} holds several; pass one of them as --app")
     return f"{len(read_json(g.paths.scopes)['scopes'])} scopes"

@@ -22,12 +22,13 @@ def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_
     events = read_events(device / rd.EVENTS)
     assert events[0].event == "run_start" and events[-1].event == "run_end" and events[-1].outcome == "exit 1"
     assert [(e.step, e.outcome, e.detail) for e in _ends(events, "device")] == [
-        ("benchmark", "ran", "probe reruns"), ("probe", "ran", "no manifest.yaml"),
-        ("inbound", "ran", "benchmark reruns"), ("screen", "ran", "probe reruns"),
-        ("primitives", "ran", "inbound reruns"), ("grouping", "ran", "")]
+        ("probe", "ran", "no manifest.yaml"), ("screen", "ran", "probe reruns"), ("used", "ok", ""),
+        ("selection", "ok", ""), ("benchmark", "ran", "probe reruns"), ("inbound", "ran", "benchmark reruns"),
+        ("screen", "ran", "probe reruns"), ("primitives", "ran", "inbound reruns"), ("used", "ok", ""),
+        ("grouping", "ran", "")]
     _from_root(tmp_path, capsys)
     again = [e for e in read_events(device / rd.EVENTS) if e.run != events[0].run]
-    assert [(e.step, e.outcome) for e in _ends(again, "device")] == [(s, "reused") for s in
+    assert [(e.step, e.outcome) for e in _ends(again, "device")] == [("used", "ok")] + [(s, "reused") for s in
                                                                     ("probe", "benchmark", "inbound", "screen", "primitives",
                                                                      "grouping")]
 
@@ -40,7 +41,8 @@ def test_inbound_build_screen_assign_report_app_and_dossier_end_with_counts(tmp_
     events = read_events(device / rd.EVENTS)
     inbound = _ends(events, "inbound")[0]
     assert set(inbound.data["counts"]) == {"rows", "logEntries", "records", "warnings"}
-    build = _ends(events, "grouping", "build")[0]
+    # the last build: the first ran on the probe alone, before the benchmark
+    build = _ends(events, "grouping", "build")[-1]
     assert set(build.data["counts"]) == {"items", "verdicts", "codeGrouped", "signatureGrouped"}
     assert build.data["files"] == {f"grouping/{n}": sha256_file(device / "grouping" / n)
                                    for n in ("screen.json", "profiles.json", "items.json")}

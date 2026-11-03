@@ -29,7 +29,7 @@ def test_empty_file_and_null_values_are_unset():
     ({"agnt": {}}, f"unknown_key: agnt, known {ROOT_KEYS} (c.yaml)"),
     ({"grouping": {"turns": 3}}, f"unknown_key: grouping, known {ROOT_KEYS} (c.yaml)"),
     ({"guide": {"mode": "latency"}}, f"unknown_key: guide, known {ROOT_KEYS} (c.yaml)"),
-    ({"device": {"name": "x"}}, "unknown_key: device.name, known ['screening', 'grouping', 'benchmark', 'id', 'worthiness'] (c.yaml)"),
+    ({"device": {"name": "x"}}, "unknown_key: device.name, known ['screening', 'grouping', 'benchmark', 'filterByApps', 'id', 'worthiness'] (c.yaml)"),
     ({"device": {"grouping": {"assign": {"efort": "low"}}}}, f"unknown_key: device.grouping.assign.efort, known {ROLE_KEYS} (c.yaml)"),
     ({"apps": {"agent": {"auth": "api"}}}, f"unknown_key: apps.agent.auth, known {ROLE_KEYS} (c.yaml)"),
     ({"apps": {"names": []}}, "unknown_key: apps.names, known ['targets', 'perfMode', 'limit', 'measure', 'agent', 'replace'] (c.yaml)"),

@@ -250,7 +250,8 @@ def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(
     code, again = _from_root(tmp_path, capsys)
     assert code == 1 and again[:4] == [f"device {s}: reused" for s in ("probe", "benchmark", "inbound", "screen")]
     assert "guide grouping: ok: reused" in again and [l for l in again if " stop " in l] == stops
-    assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 1
+    # device.filterByApps: a probe, then the benchmark of the used set
+    assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 2
     assert sorted((device / "grouping" / "outbox").rglob("*.json")) == decided
 
 

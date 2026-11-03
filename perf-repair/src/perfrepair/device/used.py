@@ -41,12 +41,15 @@ class _Reach:
         sa, sb = self.kind.profiles[a.id].signature, self.kind.profiles[b.id].signature
         return a.family == b.family and (sa is None or sb is None or not sa.differing(sb))
 
-    def of(self, item: Item) -> list[tuple[int, str]]:
-        out = [(m, GROUP) for m in self._members(item.id) if m != item.id]
+    def _candidates(self, item: Item) -> list[int]:
         if item.id not in self.askable or item.key in self.done:
-            return out
-        fits = [i for i in self.kind.askable() if i.id != item.id and self._fits(item, i)]
-        return out + [(m, CANDIDATE) for i in fits for m in [i.id, *self._members(i.id)] if m != item.id]
+            return []
+        fits = [i for i in self.kind.askable() if self._fits(item, i)]
+        return [m for i in fits for m in (i.id, *self._members(i.id))]
+
+    def of(self, item: Item) -> list[tuple[int, str]]:
+        reached = [(m, GROUP) for m in self._members(item.id)] + [(m, CANDIDATE) for m in self._candidates(item)]
+        return [(m, how) for m, how in reached if m != item.id]
 
 
 def used_set(device: Path, apps: list[str], kind: GroupingKind | None = None) -> UsedSet:
