@@ -288,7 +288,7 @@ def test_filter_off_asks_and_measures_every_item(scoped):
     assert record.benchmark == {} and scoped.problems() == {}
 
 
-CONSCRYPT = "org.conscrypt:conscrypt-android:2.5.3"
+CONSCRYPT = "org.conscrypt:conscrypt-android:2.5.2"
 WARNED = "device bundled_missing: warn: BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-"
 
 

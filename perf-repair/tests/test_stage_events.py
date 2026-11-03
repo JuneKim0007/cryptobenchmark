@@ -1,3 +1,4 @@
+import re
 """Each static step's start and end events with its counts and file digests, on the guide's two fixture chains."""
 import pytest
 from test_guide import APP, F, FAKE_ROOT, _from_root, first_option, guide, run_steps
@@ -15,8 +16,9 @@ def _ends(events, stage, step=None):
     return [e for e in events if e.stage == stage and e.event == "end" and step in (None, e.step)]
 
 
-WARNED = ("BC (org.bouncycastle:bcprov-jdk18on:1.78; apps app-0f9b286c); Bundled (no coordinates in the build files; "
-          "apps app-0f9b286c); add them to providers.bundled in global.yaml, or set device.bundled.fromApps")
+APP_ID = re.compile(r"app-[0-9a-f]{8}")
+WARNED = ("BC (org.bouncycastle:bcprov-jdk18on:1.78; apps <app>); Bundled (no coordinates in the build files; "
+          "apps <app>); add them to providers.bundled in global.yaml, or set device.bundled.fromApps")
 
 
 def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_path, capsys, monkeypatch):
@@ -25,7 +27,8 @@ def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_
     device = tmp_path / "results" / "fake-api36-00000000"
     events = read_events(device / rd.EVENTS)
     assert events[0].event == "run_start" and events[-1].event == "run_end" and events[-1].outcome == "exit 1"
-    assert [(e.step, e.outcome, e.detail) for e in _ends(events, "device")] == [
+    # the app id hashes the test's temporary path
+    assert [(e.step, e.outcome, APP_ID.sub("<app>", e.detail or "")) for e in _ends(events, "device")] == [
         ("probe", "ran", "no manifest.yaml"), ("screen", "ran", "probe reruns"), ("bundled.missing", "ok", ""),
         ("bundled", "ok", ""), ("bundled_missing", "warn", WARNED), ("used", "ok", ""),
         ("selection", "ok", ""), ("benchmark", "ran", "probe reruns"), ("inbound", "ran", "benchmark reruns"),
