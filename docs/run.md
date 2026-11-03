@@ -111,6 +111,16 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 | pull | whole plan directory into `discovery/` |
 
 
+### Device session
+
+`scripts/measure_session.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
+
+| step | what runs |
+|---|---|
+| session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt` |
+| process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files and `cpu-pins.yaml`; convert with `ConvertKt` |
+| hooks | around the session, each process and each case: the clock state and the energy window (`scripts/session_hooks.py`) |
+
 ### One process per case
 
 `run.isolation` ([config.md](../modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.

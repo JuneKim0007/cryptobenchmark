@@ -55,10 +55,10 @@ modules/settings/ : harness key table shared by config, preparation and benchmar
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 scripts/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
 scripts/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
-scripts/case_isolation.py : run.isolation case: CryptoBenchmark in one instrumentation process per case; a crashed case is one case_failed line
+scripts/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
-scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, measure, pull
+scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument, clear, pull, scope check
 scripts/device_id.py : device id from a capture's runtime block
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
@@ -70,6 +70,7 @@ scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
+scripts/measure_session.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks
 scripts/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
 scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
@@ -85,6 +86,7 @@ scripts/scope_languages.py : per-language row for scope sources: parser, suffix,
 scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
 scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
+scripts/session_hooks.py : session hooks every device run uses: clocks around a process; the energy window, traces, dry pass and joules
 scripts/tests/ : pytest and standalone tests for scripts/
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 settings.gradle : Gradle projects and their directories under modules/

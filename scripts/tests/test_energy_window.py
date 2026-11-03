@@ -1,66 +1,54 @@
-"""pipeline.measure_on_device around a source: the window spans the device run, joules comes after it."""
-import contextlib, pathlib, sys, types
+"""The energy hook around a device process: the window spans the device run, joules comes after it, a failed energy step costs only energy."""
+import pathlib, sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import pipeline  # noqa: E402
+import energy_stage, measure_session, session_hooks  # noqa: E402
+from device import DeviceError  # noqa: E402
+from fake_phone import Energy, Phone  # noqa: E402
 
-OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False)
 
+class Session:
 
-class Recorder:
-
-    def __init__(self, failing=()):
-        self.calls, self.failing = [], failing
-
-    def window(self, _folder):
-        @contextlib.contextmanager
-        def around():
-            self.calls.append("open")
-            yield
-            self.calls.append("close")
-        return around()
-
-    def joules(self, *_paths):
-        self.calls.append("joules")
-        if "joules" in self.failing:
-            raise pipeline.energy_stage.EnergyError("tools/energy/energy.py: boom")
-
-    def measure(self, *_arguments):
-        self.calls.append("measure")
-        return []
+    def __init__(self, phone, failing):
+        self.phone, self.failing = phone, failing
 
     def pull_traces(self, _traces):
-        self.calls.append("pull")
+        self.phone.log.append("pull traces")
         if "pull" in self.failing:
-            raise pipeline.DeviceError("adb pull x: device offline")
+            raise DeviceError("adb pull x: device offline")
         return 0
 
-    def dry_pass(self, *_arguments):
-        self.calls.append("dry")
+
+class FailingEnergy(Energy):
+
+    def joules(self, *_paths):
+        super().joules()
+        raise energy_stage.EnergyError("tools/energy/energy.py: boom")
 
 
-def run(tmp_path, monkeypatch, captures, failing=(), problems=None, converted=None):
-    monkeypatch.setattr(pipeline.clocks, "read", lambda _device: {})
-    monkeypatch.setattr(pipeline.clocks, "write", lambda *_arguments: None)
-    monkeypatch.setattr(pipeline.gradle_runner, "run", lambda *arguments, **_options: (converted if converted is not None else []).append(arguments[1]))
-    recorder = Recorder(failing)
-    pipeline.measure_on_device(recorder, recorder, recorder, OPTIONS, captures, [], tmp_path, tmp_path, tmp_path,
-                               [] if problems is None else problems)
-    return recorder.calls
+def run(tmp_path, captures, failing=(), problems=None, timed=True):
+    phone = Phone(tmp_path, cases=("a",))
+    source = (FailingEnergy if "joules" in failing else Energy)(phone)
+    dry = lambda _into, guarded: phone.log.append(f"dry guarded={guarded}")
+    hook = session_hooks.EnergyCapture(source, Session(phone, failing), captures, tmp_path, tmp_path, [] if problems is None else problems, dry, timed)
+    plan = measure_session.Plan("CryptoBenchmark", (), cases=("a",), timed=timed)
+    measure_session.run_session(phone, plan, 1, "case", [hook], lambda _r: tmp_path / "b", [] if problems is None else problems)
+    return [line for line in phone.log if line in ("window open", "window close", "joules", "pull traces") or line.startswith(("dry", "instrument"))]
 
 
-def test_measured_and_dry_run_inside_the_window_and_joules_after_it(tmp_path, monkeypatch):
-    assert run(tmp_path, monkeypatch, {"measured", "dry"}) == ["open", "measure", "pull", "dry", "close", "joules"]
+def test_measured_and_dry_run_inside_the_window_and_joules_after_it(tmp_path):
+    assert run(tmp_path, {"measured", "dry"}) == ["window open", "instrument CryptoBenchmark a", "pull traces", "dry guarded=True",
+                                                  "window close", "joules"]
 
 
-def test_no_capture_opens_no_window_whatever_the_source(tmp_path, monkeypatch):
-    assert run(tmp_path, monkeypatch, {"none"}) == ["measure"]
+def test_a_dry_only_run_measures_nothing_timed_and_its_dry_pass_is_the_measurement(tmp_path):
+    assert run(tmp_path, {"dry"}, timed=False) == ["window open", "dry guarded=False", "window close", "joules"]
 
 
-def test_a_failed_energy_step_is_one_recorded_line_and_timing_is_still_converted(tmp_path, monkeypatch, capsys):
-    problems, converted = [], []
-    calls = run(tmp_path, monkeypatch, {"measured"}, failing=("pull", "joules"), problems=problems, converted=converted)
-    assert calls == ["open", "measure", "pull", "close", "joules"]
+def test_a_failed_energy_step_is_one_recorded_line(tmp_path, capsys):
+    problems = []
+    calls = run(tmp_path, {"measured"}, failing=("pull", "joules"), problems=problems)
+    assert calls == ["window open", "instrument CryptoBenchmark a", "pull traces", "window close", "joules"]
     assert problems == ["energy_failed: adb pull x: device offline", "energy_failed: tools/energy/energy.py: boom"]
     assert capsys.readouterr().err.count("error: energy_failed: ") == 2
-    assert len(converted) == 1 and "energy.json" not in converted[0]

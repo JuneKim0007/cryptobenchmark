@@ -1,9 +1,9 @@
-"""isolation: case: CryptoBenchmark in one instrumentation process per case, so a case that kills its process loses only itself."""
+"""isolation: case: one instrumentation process per case, so a case that kills its process loses only itself."""
 import json, re
 
 import timeouts
 
-CASE_ARGUMENT = "case"   # DevicePlan.CASE_ARGUMENT
+CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT
 LISTED = re.compile(r"^INSTRUMENTATION_STATUS: test=measure\[(.+)\]\s*$", re.M)
 PASSED = re.compile(r"^OK \(1 test\)", re.M)
 
@@ -40,21 +40,3 @@ def measure_case(device, test_class, arguments, case, pulled):
     document = json.loads(pulled.read_text())
     pulled.unlink()
     return document, None
-
-
-def measure_each(device, test_class, arguments, data):
-    """Every planned case in its own process; returns the failure lines. No case measured at all is the run's failure."""
-    planned = listed(device.instrument(test_class, *arguments, "-e", "log", "true"))
-    print(f"measure:   one process per case ({len(planned)} cases, isolation: case)")
-    documents, failures = [], []
-    for case in planned:
-        document, failure = measure_case(device, test_class, arguments, case, data.parent / f".{case}.json")
-        if document is not None:
-            documents.append(document)
-        if failure:
-            print(failure)
-            failures.append(failure)
-    if not documents:
-        return None, failures
-    data.write_text(json.dumps(merged(documents), indent=1))
-    return data, failures

@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench
 
-import androidx.test.platform.app.InstrumentationRegistry
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.check.Refusal
@@ -10,11 +9,7 @@ import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledInstaller
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviders
-import io.github.junekim0007.cryptobench.discovery.bundled.ProviderFactory
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.report.Skip
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
@@ -23,15 +18,11 @@ object DevicePlan {
 
     private const val EFFECTIVE = "effective.yaml"
     private const val STAGE = "benchmark"
-    const val CASE_ARGUMENT = "case"
 
     val cases: List<PreparedCase> by lazy { prepare() }
 
     // isolation: case names one case per instrumentation process; without the argument every timed case runs
-    val timedCases: List<PreparedCase> get() {
-        val named = InstrumentationRegistry.getArguments().getString(CASE_ARGUMENT)
-        return cases.filter { captureOf(it) != Energy.Capture.DRY && (named == null || it.case.id == named) }
-    }
+    val timedCases: List<PreparedCase> get() = CaseFilter.of(cases.filter { captureOf(it) != Energy.Capture.DRY }) { it.case.id }
 
     val dryCases: List<PreparedCase> get() = cases.filter { captureOf(it) == Energy.Capture.DRY }
 
@@ -42,8 +33,7 @@ object DevicePlan {
     private fun prepare(): List<PreparedCase> {
         val effective = File(directory, EFFECTIVE)
         check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
-        val bundled = BundledProviders.read(YamlCodec().load(effective.readText()))
-        BundledInstaller(ProviderFactory(InstrumentationRegistry.getInstrumentation().targetContext.classLoader)).install(bundled)
+        Bundled.installFrom(effective)
         val capture = newest("probe")
         val run = Preparation(
             DiscoveryCapability(capture, paired("trial", capture)),

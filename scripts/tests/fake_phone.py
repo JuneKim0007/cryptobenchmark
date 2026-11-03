@@ -85,8 +85,10 @@ class Phone(device_module.Device):
             return "".join(f"INSTRUMENTATION_STATUS: test=measure[{c}]\n" for c in self.cases) + "OK (0 tests)\n"
         named = arguments[arguments.index(case_isolation.CASE_ARGUMENT) + 1] if case_isolation.CASE_ARGUMENT in arguments else None
         self.log.append(f"instrument {test_class}" + (f" {named}" if named else ""))
+        if test_class == "ScopedInterop":
+            return "OK (1 test)\n"
         self.arguments.append(arguments)
-        wanted = [named] if named else list(self.cases)
+        wanted = named.split(",") if named else list(self.cases)
         self.ran.append((test_class, named))
         if named in self.crash:
             return CRASHED

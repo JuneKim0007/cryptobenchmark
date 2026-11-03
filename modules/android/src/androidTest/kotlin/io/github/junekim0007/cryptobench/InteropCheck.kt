@@ -1,11 +1,6 @@
 package io.github.junekim0007.cryptobench
 
-import androidx.test.platform.app.InstrumentationRegistry
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledInstaller
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviders
-import io.github.junekim0007.cryptobench.discovery.bundled.ProviderFactory
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.interop.InteropRun
 import io.github.junekim0007.cryptobench.preparation.interop.plan.InteropPlanFile
@@ -21,8 +16,7 @@ class InteropCheck {
         val directory = DevicePlan.directory
         val effective = File(directory, "effective.yaml")
         check(effective.isFile) { "missing_file: ${effective.absolutePath}" }
-        val bundled = BundledProviders.read(YamlCodec().load(effective.readText()))
-        BundledInstaller(ProviderFactory(InstrumentationRegistry.getInstrumentation().targetContext.classLoader)).install(bundled)
+        Bundled.installFrom(effective)
         val capture = newest(directory, "probe")
         InteropRun.run(DiscoveryCapability(capture, ProbeDirectory(directory).named("trial", capture)), File(directory, InteropPlanFile.NAME), capture,
                        File(directory, InteropFile.NAME))

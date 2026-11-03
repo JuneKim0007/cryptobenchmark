@@ -8,8 +8,8 @@ Before/after measurement of app functions from perf-repair's `harness.yaml`. Run
 flowchart LR
     H[harness.yaml] --> G[scope_generate.py: checks, wrappers, compile] --> P[scoped-plan.yaml]
     G --> I[install, probe, configure, push]
-    I --> S[ScopedBenchmark: interop check, then measure] --> V[scoped-interop.yaml]
-    S --> D[benchmarkData.json] --> C[ConvertKt] --> B[scoped/benchmark.json]
+    I --> K[ScopedInterop: one process] --> V[scoped-interop.yaml]
+    V --> S[ScopedBenchmark: the device session, per case] --> D[benchmarkData.json per process] --> C[ConvertKt, MergeRunsKt] --> B[scoped/benchmark.json]
 ```
 
 ## Run
@@ -30,7 +30,11 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | settings | `run.harness` of the pushed `effective.yaml`; provider and entry overrides do not apply |
 | energy capture | `none` and `measured`; `dry` fails `not_supported` |
 | cleanup | generated sources are removed after the run, on success and on failure |
-| normal runs | unchanged; `ScopedBenchmark` runs only by class name |
+| normal runs | unchanged; `ScopedBenchmark` and `ScopedInterop` run only by class name |
+| interop check | `ScopedInterop`, one process before any case: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |
+| measuring | the device session of `docs/run.md#device-session`, as for the benchmark: `run.isolation`, a case's failure is one `case_failed` line, timeouts, force-stop, pin warnings, repetitions merged by `MergeRunsKt` |
+| case selection | the host names the measured cases with `-e case <id>`, or one ordered comma list when one process runs them all; `ScopedBenchmark` measures nothing else |
+| bundled providers | every `ScopedInterop` and `ScopedBenchmark` process installs `effective.yaml`'s `bundledProviders` first |
 
 `python3 scripts/scope_generate.py <harness.yaml> <out>` runs generate and compile alone and leaves the sources in place.
 
