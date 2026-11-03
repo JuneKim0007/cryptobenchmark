@@ -91,6 +91,13 @@ class Names:
         found = self.catalogued(engine_type, name)
         return found if found.known else self.probe.get((engine_type, fold(name)), found)
 
+    def key_or_spelling(self, engine_type: str, name: str) -> tuple[str, int | None]:
+        """A name_conflict keys by its own spelling: an item to ask, never a stop."""
+        try:
+            return self.canonical(engine_type, name).key
+        except NamesError:
+            return fold(name), None
+
     def key_format(self, name: str) -> Canonical:
         hit = self.key_formats.get(fold(name))
         return Canonical(hit) if hit else Canonical(name, None, False)

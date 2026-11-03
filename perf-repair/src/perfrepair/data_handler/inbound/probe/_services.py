@@ -19,7 +19,7 @@ def class_names_of(doc: dict) -> dict[tuple, str | None]:
 
 
 def generator_kind(doc: dict, names: Names) -> Callable[[str], str | None]:
-    keys = {(s["type"], names.canonical(s["type"], s["algorithm"]).key)
+    keys = {(s["type"], names.key_or_spelling(s["type"], s["algorithm"]))
             for p in doc["providers"] for s in p.get("services") or [] if s["type"] in GENERATOR_KINDS}
     return lambda name: next((kind for engine, kind in GENERATOR_KINDS.items()
-                              if (engine, names.canonical(engine, name).key) in keys), None)
+                              if (engine, names.key_or_spelling(engine, name)) in keys), None)

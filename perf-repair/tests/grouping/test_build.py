@@ -100,6 +100,25 @@ def test_a_name_two_providers_mean_differently_is_built_not_stopped():
     assert [i.name for i in items] == ["HmacSHA256", "PBEWITHHMACSHA256"]
 
 
+def test_a_generator_service_whose_name_is_a_conflict_is_built_not_stopped():
+    from perfrepair.catalog.families import Families
+    from perfrepair.catalog.names import Names
+    from perfrepair.data_handler.inbound.probe import Probe
+    probe = Probe({"providers": [
+        {"name": "P1", "services": [{"type": "KeyGenerator", "algorithm": "HmacSHA256", "aliases": ["FAKEKEY"]},
+                                    {"type": "Mac", "algorithm": "HmacSHA256"}]},
+        {"name": "P2", "services": [{"type": "KeyGenerator", "algorithm": "HmacSHA512", "aliases": ["FAKEKEY"]}]},
+        {"name": "P3", "services": [{"type": "KeyGenerator", "algorithm": "FAKEKEY"}]}]})
+    names = probe.names(Names.load())
+    assert ("KeyGenerator", "FAKEKEY") in names.conflicts
+    trial = {"services": [{"provider": "P3", "type": "KeyGenerator", "algorithm": "FAKEKEY", "instantiates": True},
+                          {"provider": "P1", "type": "Mac", "algorithm": "HmacSHA256", "instantiates": True,
+                           "keyAlgorithm": "FAKEKEY"}]}
+    items, profiles = build(probe, names, trial, Families.load())
+    assert sorted(i.name for i in items) == ["FAKEKEY", "HmacSHA256"]
+    assert not next(profiles[i.id] for i in items if i.name == "FAKEKEY").signature.decided
+
+
 def test_build_with_a_missing_input_is_a_one_line_error(tmp_path, capsys):
     from perfrepair.grouping.__main__ import main
     manifest = tmp_path / "manifest.yaml"

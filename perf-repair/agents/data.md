@@ -22,7 +22,7 @@
 
 ```
 src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
-src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, key formats, name_conflict
+src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component, platform and future rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, through device/inbound.py

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Callable
 
-from ...catalog.names import Names, NamesError, fold
+from ...catalog.names import Names
 from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import Item, Profile
 from ...catalog.families import Families
@@ -39,14 +39,6 @@ def _measured(benchmark: dict | None) -> Callable[[tuple], bool | None]:
     return lambda key: key in cases
 
 
-def _sort_name(names: Names, engine_type: str, name: str) -> str:
-    """A name_conflict is an item to ask, not a stop; it sorts by its own spelling."""
-    try:
-        return names.canonical(engine_type, name).key[0]
-    except NamesError:
-        return fold(name)
-
-
 def build(probe: Probe, names: Names, trial: dict, families: Families, inventory: dict | None = None,
           prepared: dict | None = None, benchmark: dict | None = None) -> tuple[list[Item], dict[int, Profile]]:
     """Probe and trial suffice; without prepared or benchmark the fields they give are null, never false."""
@@ -77,7 +69,7 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
             preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])),
             keyContract=contract, signature=signature(s["type"], s["algorithm"], run.get("providerChose"), contract, names)))
 
-    order = sorted(drafts, key=lambda k: (drafts[k][0], _sort_name(names, k[1], k[2]), k[0], k[2]))
+    order = sorted(drafts, key=lambda k: (drafts[k][0], names.key_or_spelling(k[1], k[2])[0], k[0], k[2]))
     items, profiles = [], {}
     for n, (provider, engine, name) in enumerate(order, 1):
         family, resolved, profile = drafts[(provider, engine, name)]
