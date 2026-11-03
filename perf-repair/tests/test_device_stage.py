@@ -6,13 +6,14 @@ import yaml
 
 from perfrepair import run_dir as rd
 from perfrepair.catalog.screening import SCREENING
+from perfrepair.check.run import validate_run
 from perfrepair.data_handler.outbound import BenchmarkRunError
 from perfrepair.device import stage as device_stage
 from perfrepair.device.stage import probe_device
 from perfrepair.screen.catalog import load_catalog, screening_catalog
 
 FAKE = Path(__file__).parent / "fixtures" / "device"
-ALL_RAN = ["probe", "benchmark", "inbound", "screen"]
+ALL_RAN = ["probe", "benchmark", "inbound", "screen", "primitives"]
 
 
 @pytest.fixture
@@ -22,9 +23,10 @@ def setup(tmp_path):
     return tmp_path / "results", config
 
 
-def device(root, config, catalog=None, on_device=False):
+def device(root, config, catalog=None, on_device=False, refresh=False):
     lines = []
-    done = probe_device(root, catalog or screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE)
+    done = probe_device(root, catalog or screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE,
+                        refresh=refresh)
     return done, [line for line in lines if line.startswith("device ")]
 
 
@@ -37,7 +39,8 @@ def test_a_fresh_root_runs_every_stage_once_and_records_it(setup):
     root, config = setup
     done, lines = device(root, config)
     assert done.ran == ALL_RAN and len(runs(root)) == 1
-    assert lines[0] == "device probe: ran: no manifest.yaml" and lines[-1] == "device screen: ran: probe reruns"
+    assert lines[0] == "device probe: ran: no manifest.yaml" and lines[-2] == "device screen: ran: probe reruns"
+    assert lines[-1] == "device primitives: ran: inbound reruns"
     record, problem = rd.load_device_record(done.folder)
     assert problem is None and record.deviceId == done.folder.name == "fake-api36-00000000"
     assert set(record.inputs) == {"bundled", "config", "names", "screening"} and record.runtime == {"model": "test"}
@@ -51,6 +54,53 @@ def test_nothing_changed_reuses_everything_with_no_device_run(setup):
     assert done.ran == [] and len(runs(root)) == 1
     assert lines == [f"device {s}: reused" for s in ALL_RAN]
     assert (done.folder / "grouping" / "items.json").stat().st_mtime_ns == before
+
+
+def test_the_primitives_table_is_written_and_recorded_with_its_input_digests(setup):
+    root, config = setup
+    done, _ = device(root, config)
+    record, _ = rd.load_device_record(done.folder)
+    assert (done.folder / rd.PRIMITIVES).read_text().startswith("#schemaVersion\t1\ntype\talgorithm\t")
+    assert set(record.primitives) == {"rows", "measurements", "screen"} and all(record.primitives.values())
+
+
+def test_a_hand_edited_measurements_json_rebuilds_only_the_table(setup):
+    root, config = setup
+    first, _ = device(root, config)
+    path = first.folder / rd.MEASUREMENTS
+    path.write_text(path.read_text().replace('"comparability": [', '"comparability": ["edited", ', 1))
+    done, lines = device(root, config)
+    assert done.ran == ["primitives"] and lines[-1] == "device primitives: ran: measurements.json changed"
+
+
+def test_refresh_rebuilds_only_the_table_and_a_record_without_its_digests_does_too(setup):
+    root, config = setup
+    first, _ = device(root, config)
+    done, lines = device(root, config, refresh=True)
+    assert done.ran == ["primitives"] and lines[-1] == "device primitives: ran: --refresh" and len(runs(root)) == 1
+    record = yaml.safe_load((first.folder / rd.DEVICE).read_text())
+    del record["primitives"]
+    (first.folder / rd.DEVICE).write_text(yaml.safe_dump(record))
+    done, lines = device(root, config)
+    assert done.ran == ["primitives"] and lines[-1] == "device primitives: ran: device.yaml records no primitives.tsv inputs"
+
+
+def test_the_folder_validator_checks_the_table_against_its_inputs(setup):
+    root, config = setup
+    first, _ = device(root, config)
+    assert validate_run(first.folder, screening_catalog(None))[rd.PRIMITIVES] == []
+    path = first.folder / rd.PRIMITIVES
+    lines = path.read_text().splitlines()
+    path.write_text("\n".join(lines[:-1]) + "\n")
+    assert validate_run(first.folder, screening_catalog(None))[rd.PRIMITIVES][0].endswith(": missing")
+
+
+def test_a_deleted_table_is_rebuilt_alone(setup):
+    root, config = setup
+    first, _ = device(root, config)
+    (first.folder / rd.PRIMITIVES).unlink()
+    done, lines = device(root, config)
+    assert done.ran == ["primitives"] and lines[-1] == "device primitives: ran: primitives.tsv missing"
 
 
 def test_a_provider_added_to_bundled_reruns_the_device_stage_under_the_same_id(setup):
@@ -76,8 +126,8 @@ def test_an_edited_screening_catalog_rescreens_only(setup, tmp_path):
     edited = tmp_path / "screening.yaml"
     edited.write_text(Path(SCREENING).read_text() + "\n# edited\n")
     done, lines = device(root, config, load_catalog(edited))
-    assert done.ran == ["screen"] and len(runs(root)) == 1
-    assert lines[-1] == "device screen: ran: the screening catalog changed"
+    assert done.ran == ["screen", "primitives"] and len(runs(root)) == 1
+    assert lines[-2] == "device screen: ran: the screening catalog changed"
     assert yaml.safe_load((done.folder / "device.yaml").read_text())["inputs"]["screening"] == load_catalog(edited).sha256
 
 
@@ -86,7 +136,7 @@ def test_a_deleted_device_yaml_keeps_the_measured_run_and_redoes_the_rest(setup)
     first, _ = device(root, config)
     (first.folder / rd.DEVICE).unlink()
     done, lines = device(root, config)
-    assert done.ran == ["inbound", "screen"] and len(runs(root)) == 1
+    assert done.ran == ["inbound", "screen", "primitives"] and len(runs(root)) == 1
     assert lines[2] == "device inbound: ran: no device.yaml"
 
 
@@ -96,7 +146,7 @@ def test_measurements_of_an_older_schema_rerun_inbound_without_a_device_run(setu
     path = first.folder / rd.MEASUREMENTS
     path.write_text(path.read_text().replace('"schemaVersion": 4', '"schemaVersion": 3'))
     done, lines = device(root, config)
-    assert done.ran == ["inbound"] and len(runs(root)) == 1
+    assert done.ran == ["inbound", "primitives"] and len(runs(root)) == 1
     assert lines[2] == "device inbound: ran: measurements.json unreadable (measurements schemaVersion 3 is not 4)"
 
 
@@ -144,7 +194,7 @@ def test_an_interrupted_grouping_build_leaves_no_record_claiming_it(setup, monke
     assert not (first.folder / rd.DEVICE).exists()
     monkeypatch.undo()
     done, lines = device(root, config)
-    assert done.ran == ["inbound", "screen"] and lines[2] == "device inbound: ran: no device.yaml"
+    assert done.ran == ["inbound", "screen", "primitives"] and lines[2] == "device inbound: ran: no device.yaml"
 
 
 def test_a_probe_that_names_another_device_stops(setup, monkeypatch):

@@ -9,6 +9,8 @@ from ..dto.screen import Verdict, qualified_verdicts
 from ..dto.grouping_state import Knowledge
 from ..dto.site import Scope
 from ..dto.classify import read_batches
+from ..data_handler.inbound.primitives import read_primitives
+from ..device.primitives import status_of
 from ..files import read_json, read_yaml
 from ..ai.parse.algorithm_classify.kind import ClassifyKind
 from ..ai.parse.algorithm_classify.state import Classified, candidates
@@ -27,6 +29,7 @@ from ..validation.app import validate_app_dir
 from ..validation.failure import ValidationFailed
 from ..validation.grouping.interop import validate_interop
 from ..validation.measurements import validate_measurements
+from ..validation.primitives import validate_primitives
 from ..validation.report import validate_report, validate_summary
 from ..validation.rows import validate_rows
 from ..validation.run_log import validate_run_log
@@ -55,6 +58,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     if grouping.items.exists():
         out["grouping"] = _grouping(grouping)
         out |= _screen(grouping, catalog)
+    out |= _primitives(run, rows)
     if not grouping.groups.exists():
         return out
     try:
@@ -90,6 +94,17 @@ def _beside_rows(run: Path, rows) -> dict[str, list[str]]:
             doc = _parsed(load, run)
             out[name] = [doc] if isinstance(doc, str) else check(doc, rows)
     return out
+
+
+def _primitives(run: Path, rows) -> dict[str, list[str]]:
+    if not (run / rd.PRIMITIVES).is_file():
+        return {}
+    try:
+        table, measurements = read_primitives(run), rd.load_measurements(run)
+        made_from = status_of(run)
+    except (KeyError, TypeError, ValueError) as e:
+        return {rd.PRIMITIVES: [f"does not read: {type(e).__name__} {e}"]}
+    return {rd.PRIMITIVES: validate_primitives(table, rows, measurements, made_from)}
 
 
 def _charters(run: Path) -> dict[str, list[str]]:

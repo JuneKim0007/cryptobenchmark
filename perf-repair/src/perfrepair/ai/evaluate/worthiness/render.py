@@ -1,7 +1,7 @@
 """What the worthiness decision sees for one group: mode, run warnings, aliased members, per-configuration tables."""
 from __future__ import annotations
 
-from ....dto import Configuration, GroupEvidence, MetricComparison, Summary
+from ....dto import Configuration, GroupEvidence, MetricComparison, PairMetrics, Summary
 from ....dto.metrics import METRICS, Metric
 from ....result.confidence import describe
 from ....result.modes import Mode
@@ -32,19 +32,25 @@ def _ratio(c: MetricComparison | None) -> str:
     return f"{_num(c.ratio, '{:.3f}')} | {describe(c.pImprove)} | {c.n}"
 
 
+def _heads(shown: list[Metric]) -> tuple[str, str]:
+    members = " | ".join(f"{m.name} median {m.unit} | 95% interval (bootstrap) | p25 | p75 | cv | n"
+                         + (" | kind" if m.kinds else "") for m in shown)
+    pairs = " | ".join(f"{m.name} ratio | pImprove (confidence) | n" for m in shown)
+    return f"  member | {members}", f"  pair from -> to | {pairs} | interop | improves"
+
+
+def _pair(p: PairMetrics, shown: list[Metric], short: dict[str, str], mode: Mode) -> str:
+    by = {x.metric: x for x in p.metrics}
+    cells = " | ".join(_ratio(by.get(m.name)) for m in shown)
+    return f"  {short[p.fromItem]} -> {short[p.toItem]} | {cells} | {p.interop} | {mode.improves(p)}"
+
+
 def _configuration(c: Configuration, short: dict[str, str], mode: Mode) -> list[str]:
     shown = [m for m in METRICS if any(m.name in s.metrics for s in c.members)]
-    head = " | ".join(f"{m.name} median {m.unit} | 95% interval (bootstrap) | p25 | p75 | cv | n"
-                      + (" | kind" if m.kinds else "") for m in shown)
-    lines = ["", f"CONFIGURATION {c.operation} key {c.keySize} input {c.inputSize} {c.phase}", f"  member | {head}"]
+    member_head, pair_head = _heads(shown)
+    lines = ["", f"CONFIGURATION {c.operation} key {c.keySize} input {c.inputSize} {c.phase}", member_head]
     lines += [f"  {short[s.itemId]} | " + " | ".join(_stats(m, s.metrics.get(m.name)) for m in shown) for s in c.members]
-    lines.append("  pair from -> to | " + " | ".join(f"{m.name} ratio | pImprove (confidence) | n" for m in shown)
-                 + " | interop | improves")
-    for p in c.pairs:
-        by = {x.metric: x for x in p.metrics}
-        lines.append(f"  {short[p.fromItem]} -> {short[p.toItem]} | " + " | ".join(_ratio(by.get(m.name)) for m in shown)
-                     + f" | {p.interop} | {mode.improves(p)}")
-    return lines
+    return lines + [pair_head] + [_pair(p, shown, short, mode) for p in c.pairs]
 
 
 def render(e: GroupEvidence, mode: Mode, comparability: list[str]) -> str:

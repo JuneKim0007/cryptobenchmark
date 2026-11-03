@@ -38,25 +38,33 @@ def _kept(a: str, b: str, failed: set, verdicts: dict[str, Verdict]) -> bool:
     return a != b and frozenset((a, b)) not in failed and not lowers_status(verdicts.get(a), verdicts.get(b))
 
 
-def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict],
-                   verdicts: dict[str, Verdict] | None) -> list[GroupEvidence]:
-    """verdicts: the run-level screen verdicts by qualified name; a pair whose target lowers the status is left out."""
-    v = verdicts or {}
+def _measured(s: MemberStats) -> bool:
+    return all(m.name in s.metrics for m in METRICS if m.required)
+
+
+def _configurations(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict]
+                    ) -> dict[str, dict[tuple, list[MemberStats]]]:
     member_of = {groups["items"][str(m)]["qualified"]: g["id"] for g in groups["groups"] for m in g["members"]}
     configs: dict[str, dict[tuple, list[MemberStats]]] = defaultdict(lambda: defaultdict(list))
     for r in rows:
         name = qualified(r.type, r.algorithm, r.provider)
-        if name not in member_of:
-            continue
-        configs[member_of[name]][tuple(getattr(r, f) for f in WORK_FIELDS)].append(MemberStats(
-            r.rowId, name, r.provider, r.algorithm, dict(measurements.get(r.rowId) or {})))
+        if name in member_of:
+            configs[member_of[name]][tuple(getattr(r, f) for f in WORK_FIELDS)].append(MemberStats(
+                r.rowId, name, r.provider, r.algorithm, dict(measurements.get(r.rowId) or {})))
+    return configs
 
+
+def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict],
+                   verdicts: dict[str, Verdict] | None) -> list[GroupEvidence]:
+    """verdicts: the run-level screen verdicts by qualified name; a pair whose target lowers the status is left out."""
+    v = verdicts or {}
+    configs = _configurations(groups, rows, measurements)
     out, failed = [], failed_pairs(groups)
     for g in sorted(groups["groups"], key=lambda g: g["id"]):
         cs = []
         for key, members in sorted(configs[g["id"]].items(), key=lambda kv: str(kv[0])):
             members = sorted(members, key=lambda s: s.itemId)
-            measured = [s for s in members if all(m.name in s.metrics for m in METRICS if m.required)]
+            measured = [s for s in members if _measured(s)]
             pairs = tuple(_pair(a, b, pair_status(groups, a.itemId, b.itemId)) for a, b in permutations(measured, 2)
                           if _kept(a.itemId, b.itemId, failed, v))
             cs.append(Configuration(*key, tuple(members), pairs))

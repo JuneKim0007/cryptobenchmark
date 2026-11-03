@@ -56,15 +56,19 @@ flowchart LR
 
 `device/stage.py` `probe_device(root, catalog, config, on_device)`: `pipeline.py --identify` names the device (`getprop` on a phone, `RuntimeFieldsKt` on a host: the id the probe gives, without probing), then each stage is reused or rerun. It calls no model.
 
-| input | digest kept in | probe | benchmark | inbound | screen (grouping build) |
-|---|---|---|---|---|---|
-| `providers.bundled` | manifest `inputs.bundled`, device.yaml | reruns | reruns | reruns | reruns |
-| `global.yaml` without that list, with its test set | manifest `inputs.config`, device.yaml | reruns | reruns | reruns | reruns |
-| names catalog (`catalog/algorithm-names.yaml`) | device.yaml `inputs.names` | kept | kept | kept | reruns |
-| screening catalog (`device.screening.catalog`) | device.yaml `inputs.screening` | kept | kept | kept | reruns |
-| the manifest itself | device.yaml `manifest` (sha256) | | | reruns | reruns |
+| input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
+|---|---|---|---|---|---|---|
+| `providers.bundled` | manifest `inputs.bundled`, device.yaml | reruns | reruns | reruns | reruns | reruns |
+| `global.yaml` without that list, with its test set | manifest `inputs.config`, device.yaml | reruns | reruns | reruns | reruns | reruns |
+| names catalog (`catalog/algorithm-names.yaml`) | device.yaml `inputs.names` | kept | kept | kept | reruns | reruns |
+| screening catalog (`device.screening.catalog`) | device.yaml `inputs.screening` | kept | kept | kept | reruns | reruns |
+| the manifest itself | device.yaml `manifest` (sha256) | | | reruns | reruns | reruns |
+| `rows.json`, `measurements.json`, `grouping/screen.json` | device.yaml `primitives` | kept | kept | kept | kept | reruns |
 
-- A stage also runs when its output is missing: no manifest (probe), no `files.benchmark` (benchmark), no `rows.json` (inbound), no `grouping/screen.json` (screen); and when a stage it reads from reruns.
+- primitives writes `primitives.tsv` ([artifacts.md](artifacts.md) `primitives.tsv`), no model; `guide --refresh` reruns it alone; a device.yaml without `primitives` reruns only it.
+- An unreadable `measurements.json`, an older schema included, reruns inbound.
+
+- A stage also runs when its output is missing: no manifest (probe), no `files.benchmark` (benchmark), no `rows.json` (inbound), no `grouping/screen.json` (screen), no `primitives.tsv` (primitives); and when a stage it reads from reruns.
 - Probe and benchmark are one `pipeline.py --bench` (`--device` on a phone); on a host a kept probe is passed `--discovery reuse`; a phone always probes again, logged `ran: a device benchmark probes the device it measures`.
 - Without device.yaml (or unreadable), inbound and screen rerun; probe and benchmark are judged by the manifest's `inputs`, so a `pipeline.py --probe` run is kept. A fresh root runs everything.
 - `device.yaml` is removed before the first stage runs and written after the last, so an interrupted call leaves no record and the next call reruns what the record would have vouched for; a failed pipeline run leaves no manifest ([results.md](../../docs/results.md)).

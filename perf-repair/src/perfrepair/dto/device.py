@@ -1,7 +1,7 @@
 """device.yaml: what the device stage last finished with; its digests, not the device id, decide a rerun."""
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 SCHEMA_VERSION = 1
 INPUTS = ("bundled", "config", "names", "screening")
@@ -16,6 +16,8 @@ class DeviceRecord:
     runtime: dict
     inputs: dict[str, str]
     manifest: str
+    # the digests primitives.tsv was made from; a record without them reruns only that stage
+    primitives: dict[str, str | None] = field(default_factory=dict)
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, **asdict(self)}
@@ -27,7 +29,8 @@ class DeviceRecord:
         missing = sorted(set(INPUTS) - set(doc.get("inputs") or {}))
         if missing or not doc.get("manifest"):
             raise ValueError(f"device.yaml lacks {', '.join(missing) or 'manifest'}")
-        return cls(str(doc["deviceId"]), str(doc["mode"]), doc.get("runtime") or {}, dict(doc["inputs"]), doc["manifest"])
+        return cls(str(doc["deviceId"]), str(doc["mode"]), doc.get("runtime") or {}, dict(doc["inputs"]), doc["manifest"],
+                   dict(doc.get("primitives") or {}))
 
 
 def runtime_summary(runtime: dict) -> dict:

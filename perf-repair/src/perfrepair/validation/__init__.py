@@ -1,9 +1,10 @@
 from .failure import ValidationFailed, require
 from .manifest import validate_manifest
 from .measurements import validate_measurements
+from .primitives import validate_primitives
 from .rows import validate_rows
 from .run_log import validate_run_log
 from .screen import validate_screen
 
-__all__ = ["ValidationFailed", "require", "validate_manifest", "validate_measurements", "validate_rows",
-           "validate_run_log", "validate_screen"]
+__all__ = ["ValidationFailed", "require", "validate_manifest", "validate_measurements", "validate_primitives",
+           "validate_rows", "validate_run_log", "validate_screen"]

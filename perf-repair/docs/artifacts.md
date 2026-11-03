@@ -31,6 +31,7 @@
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
+| `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |
 | `<app>/sites.json` | `perfrepair.app` | scope | none |
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
 | `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 4, every scope's lifecycle in its closed lists, cited lines inside the file |
@@ -58,6 +59,22 @@
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.
 - An older `measurements.json` is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).
 - `check/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
+
+## `primitives.tsv`
+
+One stored, compact view of the benchmark results: on the API 30 emulator run, 4.0 KB for 40 lines against 84.4 KB of `rows.json` and `measurements.json` (100 rows, `timeNs` only).
+
+| part | holds |
+|---|---|
+| first line | `#schemaVersion<TAB>1`; the reader refuses another |
+| key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest |
+| `status` | the item's run-level `grouping/screen.json` status (no targetSdk); deprecated lines stay with their status, a site's current call needs its own line |
+| `<metric>@<input size>` | the median, per registry metric (`dto/metrics.py`) with runs and per input size it was measured at, `@-` without an input size; `-` where that size was not measured |
+| `n` | the fewest runs among the line's cells |
+| `<metric>.cv` | the largest coefficient of variation among that metric's cells |
+
+- Numbers carry 4 significant digits: the table is for reading; `measurements.json` keeps the runs, and pImprove is computed from it, never from the table.
+- Device stage: rebuilt when `rows.json`, `measurements.json` or `grouping/screen.json` differ from the digests `device.yaml` `primitives` recorded, when inbound or screen rerun, when it is missing, and with `guide --refresh`; else reused ([pipeline.md](pipeline.md) Device stage).
 
 ## `manifest.yaml` (cryptobenchmark)
 

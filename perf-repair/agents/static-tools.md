@@ -19,6 +19,7 @@ src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements + t
 src/perfrepair/result/estimate.py : pImprove of one Summary against another by the process- and block-aware bootstrap
 src/perfrepair/result/evidence.py : groups.json + rows + measurements + run-level screen verdicts → GroupEvidence: configurations, members, ordered pair metrics with a ratio and pImprove per registry metric (never across energy kinds); a pair whose target lowers the status left out
 src/perfrepair/result/modes.py : Mode loaded from criteria.yaml: judges a pair improves, not_improving or not_measured
+src/perfrepair/result/primitives.py : rows + measurements + run-level screen statuses → the primitives table: one line per (type, algorithm, provider, operation, keySize, phase, status), deprecated ones kept
 src/perfrepair/result/triage.py : not_comparable, not_measured and no_improvement verdicts; every group with an improving pair asked
 src/perfrepair/screen/__init__.py : the screening package
 src/perfrepair/screen/catalog.py : screening_catalog: the catalog every screening step judges by, resolved from `device.screening.catalog` or the packaged file (logged); Catalog (path, sha256, identity, handler, mismatch: `screening_catalog_mismatch`); ai_review

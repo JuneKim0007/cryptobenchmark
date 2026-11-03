@@ -12,6 +12,7 @@ from .files import read_json, read_yaml, sha256_file, write_text
 
 MANIFEST, DEVICE = "manifest.yaml", "device.yaml"
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
+PRIMITIVES = "primitives.tsv"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, DOSSIERS = "app.json", "scopes.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"

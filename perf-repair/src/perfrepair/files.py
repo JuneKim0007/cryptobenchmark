@@ -10,8 +10,12 @@ import yaml
 TEMP_SUFFIX = ".tmp"
 
 
+def read_text(path: Path) -> str:
+    return Path(path).read_text()
+
+
 def read_json(path: Path) -> dict:
-    return json.loads(Path(path).read_text())
+    return json.loads(read_text(path))
 
 
 def read_yaml(path: Path) -> dict:

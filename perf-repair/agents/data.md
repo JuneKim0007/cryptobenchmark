@@ -28,6 +28,7 @@ src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) 
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, through device/inbound.py
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
+src/perfrepair/data_handler/inbound/primitives.py : read_primitives: the reader of primitives.tsv
 src/perfrepair/data_handler/inbound/probe/__init__.py : exports only `Probe`; the `_` modules are private to the package (`tests/test_layers.py`)
 src/perfrepair/data_handler/inbound/probe/_index.py : probe → engine types and the name each provider registers for a spelling
 src/perfrepair/data_handler/inbound/probe/_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
@@ -41,12 +42,13 @@ src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repai
 src/perfrepair/device/__init__.py : docstring only
 src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items, whether the saved files are current; noRerun's reader
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
-src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml; upstream reruns carry down
-src/perfrepair/device/stage.py : probe_device(): identify, plan, run the needed stages (pipeline, inbound, grouping build), write device.yaml last; `device <stage>: reused` or `ran: <reason>`
+src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; --refresh reruns primitives
+src/perfrepair/device/primitives.py : the primitives stage: rows, measurements, screen.json → primitives.tsv, validated as it reads back; its input digests; status_of (screen.json by qualified name)
+src/perfrepair/device/stage.py : probe_device(): identify, plan, run the needed stages (pipeline, inbound, grouping build, primitives), write device.yaml last; `device <stage>: reused` or `ran: <reason>`
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
-src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256)
+src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests)
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names, kinds, each field's types
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
@@ -57,6 +59,7 @@ src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract w
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/metrics.py : the metric registry, the only metric list: benchmark.json name, unit, lowerIsBetter, energy kinds, perfMode keys, required, positive
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
+src/perfrepair/dto/primitives.py : PrimitiveLine, PrimitivesTable: primitives.tsv (schema 1) as text both ways; a median column per (metric, input size), n, cv per metric; 4 significant digits
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds; each prompt's source, never hashed
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
@@ -64,7 +67,7 @@ src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified,
 src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per metric), MetricComparison, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
-src/perfrepair/files.py : JSON and YAML read; atomic JSON write; one-line append; several files staged then renamed in order; sha256 of a text or file
+src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append; several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged

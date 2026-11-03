@@ -16,7 +16,7 @@
 ## File structure
 
 ```
-src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder (each outbox's charter.json rehashed to its folder name, supervisor.charter.json, events.jsonl) (a malformed rows, measurements or run log file is its problem), rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
+src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder (each outbox's charter.json rehashed to its folder name, supervisor.charter.json, events.jsonl) (a malformed rows, measurements or run log file is its problem); primitives.tsv against rows, measurements and screen.json, rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
 src/perfrepair/validation/__main__.py : command: validate a device folder by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
 src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
@@ -35,6 +35,7 @@ src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted 
 src/perfrepair/validation/measurements.py : measurements: known rows, registry metrics only, required ones present, ordered finite summaries, positive medians and kinds as the registry says
 src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
 src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures
+src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry metric columns, screen statuses, n, and equal line for line to what rows, measurements and screen.json make
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition

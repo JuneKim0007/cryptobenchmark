@@ -6,12 +6,16 @@ from dataclasses import dataclass
 from ..dto import BenchmarkManifest
 from ..dto.device import DeviceRecord
 
-STAGES = ("probe", "benchmark", "inbound", "screen")
+STAGES = ("probe", "benchmark", "inbound", "screen", "primitives")
 LABELS = {"bundled": "providers.bundled", "config": "global.yaml", "names": "the names catalog",
-          "screening": "the screening catalog"}
+          "screening": "the screening catalog", "rows": "rows.json", "measurements": "measurements.json",
+          "screen": "grouping/screen.json"}
 # a stage reruns when an input it reads changed, or a stage it reads from reruns
-READS = {"probe": ("bundled", "config"), "benchmark": (), "inbound": (), "screen": ("names", "screening")}
-AFTER = {"probe": (), "benchmark": ("probe",), "inbound": ("benchmark",), "screen": ("probe", "benchmark")}
+READS = {"probe": ("bundled", "config"), "benchmark": (), "inbound": (), "screen": ("names", "screening"),
+         "primitives": ("rows", "measurements", "screen")}
+AFTER = {"probe": (), "benchmark": ("probe",), "inbound": ("benchmark",), "screen": ("probe", "benchmark"),
+         "primitives": ("inbound", "screen")}
+REFRESH = "--refresh"
 
 
 @dataclass(frozen=True)
@@ -23,6 +27,9 @@ class Seen:
     record_problem: str | None
     inbound: str | None
     grouping: bool
+    primitives: bool
+    # the digests primitives.tsv would be made from now
+    made_from: dict[str, str | None]
 
 
 def _changed(stage: str, recorded: dict, current: dict) -> str | None:
@@ -58,13 +65,25 @@ def _screen(seen: Seen, current: dict) -> str | None:
     return _record(seen) or _changed("screen", seen.record.inputs, current)
 
 
-CHECKS = {"probe": _probe, "benchmark": _benchmark, "inbound": _inbound, "screen": _screen}
+def _primitives(seen: Seen, current: dict) -> str | None:
+    if not seen.primitives:
+        return "primitives.tsv missing"
+    if problem := _record(seen):
+        return problem
+    if not seen.record.primitives:
+        return "device.yaml records no primitives.tsv inputs"
+    return _changed("primitives", seen.record.primitives, seen.made_from)
 
 
-def plan(seen: Seen, current: dict) -> dict[str, str | None]:
-    """Per stage in order: None to reuse it, else the reason it runs."""
+CHECKS = {"probe": _probe, "benchmark": _benchmark, "inbound": _inbound, "screen": _screen, "primitives": _primitives}
+
+
+def plan(seen: Seen, current: dict, refresh: bool = False) -> dict[str, str | None]:
+    """Per stage in order: None to reuse it, else the reason it runs; refresh reruns the static table, never a device run."""
     out: dict[str, str | None] = {}
     for stage in STAGES:
         upstream = next((f"{before} reruns" for before in AFTER[stage] if out[before]), None)
         out[stage] = upstream or CHECKS[stage](seen, current)
+    if refresh and not out["primitives"]:
+        out["primitives"] = REFRESH
     return out

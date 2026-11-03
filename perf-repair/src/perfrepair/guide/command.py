@@ -39,8 +39,9 @@ def parser() -> argparse.ArgumentParser:
                                                 "else pipeline.py's own lookup")
     ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: apps.limit")
     ap.add_argument("--refresh", action="store_true",
-                    help="ask again the scopes whose dossier changed since their replace decision; default: the app stops "
-                         "with dossier_changed and its report flags them stale")
+                    help="ask again the scopes whose dossier changed since their replace decision, and rebuild the "
+                         "device's primitives.tsv; default: the app stops with dossier_changed and its report flags "
+                         "them stale")
     add_agent_args(ap, role=APPS_AGENT)
     add_prompt_args(ap)
     return ap

@@ -18,6 +18,7 @@ from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from .inbound import write_inbound
+from .primitives import inputs as primitive_inputs, write_primitives
 from .plan import STAGES, Seen, plan
 
 # a device run installs and probes before it measures, so its probe is never the one already there
@@ -51,7 +52,8 @@ def seen(folder: Path) -> Seen:
     grouping = GroupingPaths(folder)
     return Seen(manifest, sha256_file(folder / rd.MANIFEST), record, problem,
                 inbound=_inbound(folder),
-                grouping=all(p.is_file() for p in (grouping.items, grouping.profiles, grouping.screen)))
+                grouping=all(p.is_file() for p in (grouping.items, grouping.profiles, grouping.screen)),
+                primitives=(folder / rd.PRIMITIVES).is_file(), made_from=primitive_inputs(folder))
 
 
 def _measure(root: Path, folder: Path, config: Path | None, on_device: bool, steps: dict, echo, benchmark) -> None:
@@ -83,15 +85,19 @@ def _run(root: Path, folder: Path, steps: dict, catalog: Catalog, config: Path |
     if steps["screen"]:
         with _ran("screen", steps["screen"]):
             build_stage(folder / rd.MANIFEST, folder, catalog, echo=echo)
+    if steps["primitives"]:
+        with _ran("primitives", steps["primitives"]):
+            echo(write_primitives(folder))
 
 
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
-                 echo: Callable[[str], None] = print, benchmark: Path | str | None = None) -> DeviceStage:
-    """No model call: grouping assign stays with its caller."""
+                 echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
+                 refresh: bool = False) -> DeviceStage:
+    """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv."""
     identity = identify(config, on_device, benchmark)
     folder = Path(root) / identity["deviceId"]
     current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": catalog.sha256}
-    steps = plan(seen(folder), current)
+    steps = plan(seen(folder), current, refresh)
     if on_device and steps["benchmark"] and not steps["probe"]:
         steps["probe"] = DEVICE_PROBES
     for stage in STAGES:
@@ -103,7 +109,7 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
         _run(Path(root), folder, steps, catalog, config, on_device, echo, benchmark)
     manifest, _ = read_manifest(folder / rd.MANIFEST)
     rd.write_device_record(folder, DeviceRecord(identity["deviceId"], identity["mode"], runtime_summary(manifest.runtime),
-                                                current, sha256_file(folder / rd.MANIFEST)))
+                                                current, sha256_file(folder / rd.MANIFEST), primitive_inputs(folder)))
     for stage in STAGES:
         echo(f"device {stage}: " + (f"ran: {steps[stage]}" if steps[stage] else "reused"))
     return DeviceStage(folder, steps)
