@@ -9,7 +9,8 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..catalog.names import Names, NamesError
 from ..config.args import add_config_arg, load_settings
-from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP, SITES_SCHEMA_VERSION
+from ..dto.shipped import shipped_names
+from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_ABSENT, NOT_ON_DEVICE_STEP, SITES_SCHEMA_VERSION
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
@@ -106,7 +107,12 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
         print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'perf-repair[scope]'")
     _write_units(name, app, out_dir, scoping)
     # after every file is written, so a stop leaves a whole app folder
+    named = {s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE and s.get("resolvedProvider")}
     for missing, n in sorted(Counter(s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE).items()):
+        # a name no provider here registers can come only from a provider the app ships
+        if missing not in named and not shipped_names(facts):
+            print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_ABSENT}")
+            continue
         print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_STEP}")
         terminate("not_on_device", f"{n} sites", stage="app", step="detect", app=name, item=missing, data={"sites": n})
 

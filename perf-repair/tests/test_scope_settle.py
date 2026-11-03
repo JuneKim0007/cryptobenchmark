@@ -123,3 +123,12 @@ def test_the_scopes_validator_refuses_a_settled_of_another_shape():
     doc = {"schemaVersion": 4, "app": APP, "unscoped": [], "scopes": [{**scope(lifecycle()).to_json(),
                                                                        "lifecycle": {**lifecycle().to_json(), "requirements": [row]}}]}
     assert any("settled is not {origin, line}" in p for p in validate_scopes(doc, {FILE: 40}))
+
+
+def test_a_public_key_from_an_app_wrapper_is_the_wrappers_not_a_key_stores():
+    text = ("class Fp { Store store;\n void f() {\n byte[] k = this.store.getPublicKey();\n"
+            " MessageDigest md = MessageDigest.getInstance(\"H\");\n md.update(k);\n md.digest();\n }\n}\n")
+    s = {"file": "Fp.java", "line": 4, "call": 'MessageDigest.getInstance("H")', "engineType": "MessageDigest",
+         "resolvedAlgorithm": None, "resolvedProvider": None, "resolution": "resolved"}
+    lc = read_site(parse(text, of_file("Fp.java")), s, read_engines())
+    assert lc.lifecycle.origin_of("input").origin == "field"

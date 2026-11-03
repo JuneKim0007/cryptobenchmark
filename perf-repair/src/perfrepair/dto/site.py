@@ -37,6 +37,7 @@ OPTION_PREFIX = "R"
 METRICS = NAMES
 NOT_ON_DEVICE = "not_on_device"
 NOT_ON_DEVICE_STEP = "add it to providers.bundled in global.yaml and rerun the device stage"
+NOT_ON_DEVICE_ABSENT = "absent on this device: no provider here registers it and the app ships no provider for it"
 NO_REAL_USE = "no_real_use"
 ENERGY_KINDS_DIFFER = "energy_kinds_differ"
 ZERO_MEDIAN = "zero_median"

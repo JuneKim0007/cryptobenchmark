@@ -87,7 +87,7 @@ origins:
   generated: [generateKey, generateKeyPair, genKeyPair]
   literal: [byteArrayOf, charArrayOf, intArrayOf, arrayOf]
   derived: [generateSecret, deriveKey, hkdf, pbkdf2, deriveSecret]
-  keystore: [getKey, getEntry, getCertificate, getCertificateChain, getPrivateKey, getSecretKey, getPublicKey,
+  keystore: [getKey, getEntry, getCertificate, getCertificateChain, getPrivateKey, getSecretKey,
              getSecretKeyEntry, getPrivateKeyEntry, getTrustedCertificate]
   decoded: [generatePublic, generatePrivate, translateKey, generateCertificate]
   storage: [getString, getStringSet, readBytes, readAllBytes, readText, readFile, getBlob, openFileInput, loadKey,
@@ -96,8 +96,9 @@ origins:
 specs: {SecretKeySpec: 0, IvParameterSpec: 0, GCMParameterSpec: 1, X509EncodedKeySpec: 0, PKCS8EncodedKeySpec: 0,
         PBEKeySpec: 0, DESKeySpec: 0, PBEParameterSpec: 0, RC2ParameterSpec: 0, RSAPublicKeySpec: 0,
         RSAPrivateKeySpec: 0, ECPublicKeySpec: 0, ECPrivateKeySpec: 0}
-# accessors: the value is their receiver's; decoders: their first argument's
-accessors: [getPublic, getPrivate, public, private, publicKey, privateKey, secretKey, certificate, getEncoded, encoded,
+# accessors: the value is their receiver's (a certificate's or an app wrapper's public key is not a key store's);
+# decoders: their first argument's
+accessors: [getPublic, getPrivate, getPublicKey, public, private, publicKey, privateKey, secretKey, certificate, getEncoded, encoded,
             toByteArray, getBytes, clone, copyOf, copyOfRange, getIV, iv, toCharArray]
 decoders: [decode, decodeBase64, hexStringToByteArray, hexToBytes, hexToByteArray, fromHex, decodeHex, parseHex,
            base64Decode, digest, copyOf, copyOfRange, getBytes, toByteArray, wrap]

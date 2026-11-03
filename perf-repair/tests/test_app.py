@@ -1,4 +1,5 @@
 import json
+import shutil
 import os
 from pathlib import Path
 
@@ -210,9 +211,28 @@ def test_constants_fold_java_and_kotlin():
     assert java.fold("T") == "AES/GCM/NoPadding" and java.fold("inst") is None and java.fold("A.T") == java.fold("T")
     kotlin = Constants(Code.of('const val A = "x"\nval B = A + "y"\nobject O { val C = "z" }\n'
                                'class K { val D = "w"\n fun f() { val E = "v" } }\n'
-                               'val T = "$A"\n', KOTLIN))
+                               'val T = "$A/${B}"\n', KOTLIN))
     assert (kotlin.fold("B"), kotlin.fold("O.C"), kotlin.fold("D"), kotlin.fold("E"), kotlin.fold("T")) == \
-        ("xy", "z", None, None, None)
+        ("xy", "z", None, None, "x/xy")
+
+
+def test_a_name_two_types_declare_folds_under_the_type_named_or_the_sites_own():
+    text = ('object Sha { const val ALG = "H-512" }\nobject Aes { const val ALG = KeyProperties.KEY_ALGORITHM_AES }\n'
+            'class Use { fun f() = Get.getInstance(Aes.ALG) }\n')
+    c = Constants(Code.of(text, KOTLIN))
+    assert (c.fold("Sha.ALG"), c.fold("Aes.ALG"), c.fold("ALG")) == ("H-512", "AES", None)
+    assert c.fold("ALG", at=text.index("Sha {") + 6) == "H-512"
+
+
+def test_a_local_assigned_once_in_the_sites_function_folds_and_one_reassigned_does_not():
+    text = ('class A { void f() { String alg = "H1"; Get.getInstance(alg); }\n'
+            ' void g() { String t = KeyStore.getDefaultType(); t = x; Get.getInstance(t); }\n'
+            ' void h() { Get.getInstance(alg); } }')
+    c = Constants(Code.of(text, JAVA))
+    at = [i for i in range(len(text)) if text.startswith("Get.", i)]
+    assert [c.fold(e, at=a) for e, a in zip(("alg", "t", "alg"), at)] == ["H1", None, None]
+    assert c.fold("KeyStore.getDefaultType()") == "BKS"
+    assert c.fold('"A/ECB/" + android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_OAEP') == "A/ECB/OAEPPadding"
 
 
 def test_a_name_declared_twice_is_not_folded():
@@ -363,3 +383,14 @@ def test_a_registration_records_its_call_and_position():
                    "Security.addProvider(new P()); } }", JAVA)
     found = [(r.expr, r.call, r.position) for r in registrations(code, "A.java")]
     assert found == [("Lib.make()", "insertProviderAt", "1"), ("new P()", "addProvider", None)]
+
+
+def test_a_name_no_provider_registers_in_an_app_shipping_none_is_absent_not_a_bundled_step(tmp_path, capsys):
+    root = tmp_path / "app"
+    shutil.copytree(APP, root)
+    build = root / "build.gradle"
+    build.write_text("\n".join(l for l in build.read_text().splitlines() if "bcprov" not in l) + "\n")
+    assert main(["--device-results", str(with_results(tmp_path)), "--app", str(root)]) == 0
+    out = [l for l in capsys.readouterr().out.splitlines() if l.startswith("not_on_device: KeyStore")]
+    assert out == ["not_on_device: KeyStore AndroidKeyStore (1 sites); absent on this device: no provider here registers it "
+                   "and the app ships no provider for it"]

@@ -3,10 +3,10 @@
 | Limit | Where it shows |
 |---|---|
 | numbers are device-specific | `measurements.json` `comparability` notes |
-| providers seen are those the device registers; a site naming a provider the device lacks, or a name no provider registers, is `not_on_device` with `missing` set, kept and never measured; the next step: add it to `providers.bundled` in global.yaml and rerun the device stage | `sites.json` resolution, `perfrepair.app` and guide lines |
+| providers seen are those the device registers; a site naming a provider the device lacks, or a name no provider registers, is `not_on_device` with `missing` set, kept and never measured; the next step: add it to `providers.bundled` in global.yaml and rerun the device stage, said only for a named provider or when the app ships a provider; a name no provider here registers in an app that ships none reads `absent on this device` and raises no `not_on_device` finding | `sites.json` resolution, `perfrepair.app` and guide lines |
 | a project root deeper than 4 levels under the app folder is not found; one with neither settings nor a build file beside a source set is not a root | `perfrepair.app` `not_android_project` |
 | app scan reads `.java` and `.kt` source files only; compiled dependencies and `libs/*.jar` are not scanned | `sites.json`, `app.json` `bundled` |
-| a constant folds only within its file; a Kotlin import alias of the class is not followed | `sites.json` |
+| a constant folds only within its file: a member constant under the type that declares it (`Owner.NAME`, or the site's own type when two declare the name), a local assigned once in the site's function, a Kotlin `$name` template, and the platform constants of `catalog/sdk-constants.yaml` (`KeyProperties.*`, `KeyStore.getDefaultType()`); another file's constant, a parameter or a computed value stays unresolved; a Kotlin import alias of the class is not followed | `sites.json` |
 | a name outside `catalog/algorithm-names.yaml` and the probe's aliases keeps its spelling, `known` false; config's reader uses the file alone, not the probe | `sites.json` `canonicalAlgorithm` |
 | a probe alias that contradicts the catalog or another provider (e.g. one provider's `RSA/None/OAEPWithSHA-224AndMGF1Padding` → SHA-256) stops the app step that meets it with `name_conflict`; grouping build screens the item `unknown` and asks it | `perfrepair.app`, grouping build |
 | a function is found by bracket matching, not a grammar; a call in a field initializer or init block has none | `scopes.json` `unscoped` |

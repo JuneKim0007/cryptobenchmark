@@ -1,0 +1,33 @@
+# Platform constants an app passes as an algorithm or type name, by the expression it writes; the value the platform
+# returns. KEYPROPERTIES: android.security.keystore.KeyProperties field values; KEYSTORE: Android's keystore.type.
+schemaVersion: 1
+sources:
+  KEYPROPERTIES: https://developer.android.com/reference/android/security/keystore/KeyProperties
+  KEYSTORE: https://developer.android.com/reference/java/security/KeyStore#getDefaultType()
+constants:
+  KeyProperties.KEY_ALGORITHM_AES: {value: AES, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_RSA: {value: RSA, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_EC: {value: EC, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_3DES: {value: DESede, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_XDH: {value: XDH, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_HMAC_SHA1: {value: HmacSHA1, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_HMAC_SHA224: {value: HmacSHA224, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_HMAC_SHA256: {value: HmacSHA256, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_HMAC_SHA384: {value: HmacSHA384, source: KEYPROPERTIES}
+  KeyProperties.KEY_ALGORITHM_HMAC_SHA512: {value: HmacSHA512, source: KEYPROPERTIES}
+  KeyProperties.BLOCK_MODE_CBC: {value: CBC, source: KEYPROPERTIES}
+  KeyProperties.BLOCK_MODE_CTR: {value: CTR, source: KEYPROPERTIES}
+  KeyProperties.BLOCK_MODE_ECB: {value: ECB, source: KEYPROPERTIES}
+  KeyProperties.BLOCK_MODE_GCM: {value: GCM, source: KEYPROPERTIES}
+  KeyProperties.ENCRYPTION_PADDING_NONE: {value: NoPadding, source: KEYPROPERTIES}
+  KeyProperties.ENCRYPTION_PADDING_PKCS7: {value: PKCS7Padding, source: KEYPROPERTIES}
+  KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1: {value: PKCS1Padding, source: KEYPROPERTIES}
+  KeyProperties.ENCRYPTION_PADDING_RSA_OAEP: {value: OAEPPadding, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_NONE: {value: NONE, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_MD5: {value: MD5, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_SHA1: {value: SHA-1, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_SHA224: {value: SHA-224, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_SHA256: {value: SHA-256, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_SHA384: {value: SHA-384, source: KEYPROPERTIES}
+  KeyProperties.DIGEST_SHA512: {value: SHA-512, source: KEYPROPERTIES}
+  KeyStore.getDefaultType(): {value: BKS, source: KEYSTORE}

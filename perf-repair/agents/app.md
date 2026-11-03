@@ -39,12 +39,14 @@ src/perfrepair/app/facts/roots.py : outermost Android project roots under a fold
 src/perfrepair/app/facts/sdk.py : minSdk and targetSdk of the application module
 src/perfrepair/app/facts/versions.py : per group:name the pinned version the build files hold: a literal coordinate, a Gradle map, a version catalog entry; newest wins; a variable or a range is none
 src/perfrepair/app/find/__init__.py : docstring only
-src/perfrepair/app/find/constants.py : same-file string constants folded: const val, top-level or object val, static final String, '+'
+src/perfrepair/app/find/constants.py : same-file string constants folded: const val, top-level or object val, static final String under their declaring type, a local assigned once in the site's function, Kotlin templates, '+', platform constants from catalog/sdk-constants.yaml
 src/perfrepair/app/find/ignored.yaml : folders no app step enters: tooling, and stale source copies counted when skipped
 src/perfrepair/app/find/imports.py : whether a type name is the java.security / javax.crypto class
 src/perfrepair/app/find/scan.py : getInstance calls in one file, across lines; Site and Argument
 src/perfrepair/app/find/sources.py : source files tagged main, test or generated; build files; ignored folders from ignored.yaml
 src/perfrepair/app/resolve.py : the only meeting of a site and the device: Primitives (probe, names, providers from the manifest); a site's provider and canonical algorithm, explicit or by manifest precedence
+src/perfrepair/catalog/sdk-constants.yaml : data: platform constants an app passes as a name (KeyProperties fields, KeyStore.getDefaultType()) and their values, sourced
+src/perfrepair/catalog/sdk_constants.py : reader of sdk-constants.yaml: every row a value and a listed source
 src/perfrepair/scope/__init__.py : docstring only
 src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per site with its lifecycle and settled requirements, and the unscoped; counts per lifecycle status
 src/perfrepair/scope/engines.py : engines.yaml read and checked once: Engine (configuration, terminal, optional, requirements, operations, consumers), the origin tables

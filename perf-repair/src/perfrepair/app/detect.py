@@ -24,17 +24,17 @@ class Detection:
     skippedCopies: int = 0
 
 
-def _fold(arg: Argument | None, constants: Constants, provider: bool) -> Argument | None:
+def _fold(arg: Argument | None, constants: Constants, provider: bool, at: int) -> Argument | None:
     if arg is None or arg.literal is not None:
         return arg
     expr = provider_inner(arg.expr) if provider and provider_inner(arg.expr) is not None else arg.expr
-    value = constants.fold(expr)
+    value = constants.fold(expr, at=at)
     return arg if value is None else Argument(arg.expr, value, folded=True)
 
 
 def fold(site: Site, constants: Constants) -> Site:
-    return replace(site, algorithm=_fold(site.algorithm, constants, False),
-                   provider=_fold(site.provider, constants, True))
+    return replace(site, algorithm=_fold(site.algorithm, constants, False, site.offset),
+                   provider=_fold(site.provider, constants, True, site.offset))
 
 
 def detect(app: AppRoot, engine_types: set[str], resolve: Callable[[Site], dict]) -> Detection:
