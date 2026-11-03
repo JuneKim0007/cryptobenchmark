@@ -83,6 +83,7 @@ def test_dotenv_fills_the_gateway_below_the_file(tmp_path, monkeypatch):
 
 
 def test_auth_api_needs_its_secret_before_any_work_and_withholds_nothing_from_its_client(tmp_path, monkeypatch):
+    pytest.importorskip("anthropic")
     assert error(tmp_path, "aiGateway: {claude: {auth: api}}\n") == \
         "missing_secret: ANTHROPIC_API_KEY: gateway claude needs it in the environment or .env"
     assert error(tmp_path, argv=["--auth", "api"]).startswith("missing_secret")
@@ -94,6 +95,7 @@ def test_auth_api_needs_its_secret_before_any_work_and_withholds_nothing_from_it
 
 
 def test_a_dotenv_secret_is_enough(tmp_path, monkeypatch):
+    pytest.importorskip("anthropic")
     (tmp_path / ".env").write_text("ANTHROPIC_API_KEY=x\n")
     monkeypatch.setattr(dotenv, "ENV_FILE", tmp_path / ".env")
     assert isinstance(spawned(tmp_path, argv=["--auth", "api"]).conversations, ClaudeConversations)
