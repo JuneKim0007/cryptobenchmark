@@ -1,6 +1,7 @@
 """The configurations an option is estimated at: those nearest the scope, the pins they show, and per metric the estimate."""
 from __future__ import annotations
 
+import re
 from typing import NamedTuple
 
 from ..dto import PrimitiveRow, Summary
@@ -8,6 +9,10 @@ from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME
 from ..dto.site import Estimate, NoEstimate, Scope, reason_code
 from .estimate import compare
+
+ESTIMATED_SUFFIX = ", estimated"
+LABEL = re.compile(rf"^(?P<op>\S+) key (?P<key>\S+) input (?P<input>\S+) (?P<phase>\S+)(?P<estimated>{ESTIMATED_SUFFIX})?$")
+
 
 class Config(NamedTuple):
     operation: str
@@ -22,6 +27,11 @@ def config_of(r: PrimitiveRow) -> Config:
 
 def label(c: Config) -> str:
     return f"{c.operation} key {c.keySize} input {c.inputSize} {c.phase}"
+
+
+def parse_label(text: str) -> re.Match | None:
+    """label()'s fields back from a stored configuration; `estimated` when the side's energy is estimated."""
+    return LABEL.match(text)
 
 
 def _order(c: Config) -> str:
@@ -63,7 +73,7 @@ def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: d
 
 def _shown(c: Config, kind: str | None) -> str:
     # the words reach the decision through the configuration it is already shown
-    return f"{label(c)}, estimated" if kind == ESTIMATED else label(c)
+    return f"{label(c)}{ESTIMATED_SUFFIX}" if kind == ESTIMATED else label(c)
 
 
 def estimates(*sides) -> tuple[tuple[Estimate, ...], tuple[NoEstimate, ...]]:

@@ -15,10 +15,9 @@ from ....dto.perf_mode import PerfMode
 from ....dto.primitives import PrimitivesTable
 from ....dto.unit import INVERSE, Link, UnitDossiers
 from ....dto.units import DisplayUnits
+from ....result.configurations import parse_label
 from .rows import render_lines
 
-# result/configurations.py label(), with `, estimated` when a side's energy is estimated
-CONFIGURATION = re.compile(r"^(?P<op>\S+) key (?P<key>\S+) input (?P<input>\S+) (?P<phase>\S+)(?P<estimated>, estimated)?$")
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
 TOO_FEW_RUNS = "n/a (n<2)"
 
@@ -86,7 +85,7 @@ def _option(s: Scope, o: Option) -> list[str]:
 def _names(estimates) -> dict[str, str]:
     """Each configuration as `@<input size>`, with the operation, key and phase only where they differ; the MEASURED
     lines carry them."""
-    parsed = {e.configuration: CONFIGURATION.match(e.configuration) for e in estimates}
+    parsed = {e.configuration: parse_label(e.configuration) for e in estimates}
     if not all(parsed.values()):
         return {c: f" at {c}:" for c in parsed}
     varies = [f for f in ("op", "key", "phase") if len({m[f] for m in parsed.values()}) > 1]
