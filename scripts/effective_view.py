@@ -5,6 +5,10 @@ import yaml
 
 from failure import fail
 
+CASE_ISOLATION = "case"
+ISOLATIONS = (CASE_ISOLATION, "run")
+DEFAULT_ISOLATION = CASE_ISOLATION
+
 
 def read(effective_file):
     effective = pathlib.Path(effective_file)
@@ -31,9 +35,9 @@ def metrics(document):
 
 
 def isolation(document):
-    chosen = (document.get("run") or {}).get("isolation", "case")
-    if chosen not in ("case", "run"):
-        fail(f"invalid: run.isolation {chosen}, expected one of [case, run]")
+    chosen = (document.get("run") or {}).get("isolation", DEFAULT_ISOLATION)
+    if chosen not in ISOLATIONS:
+        fail(f"invalid: run.isolation {chosen}, expected one of [{', '.join(ISOLATIONS)}]")
     return chosen
 
 

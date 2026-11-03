@@ -94,7 +94,7 @@ def add_to_manifest(results, added):
     print(f"wrote:     {path}")
 
 
-def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems, isolation="case"):
+def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems, isolation=effective_view.DEFAULT_ISOLATION):
     data, traces, joules = into / "benchmarkData.json", into / "traces", into / "energy.json"
     joules.unlink(missing_ok=True)
     timed = captures - {"dry"}
