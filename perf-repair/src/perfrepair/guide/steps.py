@@ -25,6 +25,7 @@ from ..dto.change import DROP_IN
 from ..dto.event import END
 from ..dto.perf_mode import PerfMode
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
+from .index import write_index
 from ..failure import FAILURES, last_failure
 from ..grouping.__main__ import main as grouping_main
 from ..log import emit, step
@@ -265,6 +266,7 @@ def report(g: Guide) -> str:
 def summary(g: Guide) -> str:
     # the accuracy sheet covers every decision this run made, also when no app reached its report
     write_sheet(g.device)
+    write_index(g.device)
     if not any((d / rd.REPORT).is_file() for d in rd.app_dirs(g.device)):
         return "no app has a report yet"
     doc = device_summary(g.device, echo=lambda _: None)

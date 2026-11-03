@@ -29,6 +29,7 @@ SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.jso
 GROUPING = "grouping"
 # the run log: events.jsonl is the record; the .log files are views of it
 LOG, EVENTS = "log", "log/events.jsonl"
+APPS_INDEX = "apps-index.tsv"
 STATUS_LOG, BUG_LOG = "log/status.log", "log/bug.log"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
