@@ -1,26 +1,34 @@
-"""events.jsonl read whole, or followed: only whole lines, so a line being written is read on the next poll."""
+"""events.jsonl read whole, or followed: only whole lines, so a line being written is read on the next poll; a line a
+crash cut short is skipped (files.read_jsonl)."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from ..dto.event import Event
+from ..files import CUT, jsonl_value, read_jsonl
 
 
-def parse(line: str, number: int) -> Event:
+def _event(value, number: int) -> Event:
     try:
-        return Event.from_json(json.loads(line))
+        return Event.from_json(value)
     except (TypeError, ValueError) as e:
         raise ValueError(f"events_unreadable: line {number}: {e}") from None
 
 
+def parse(line: str, number: int) -> Event | None:
+    try:
+        value = jsonl_value(line)
+    except ValueError as e:
+        raise ValueError(f"events_unreadable: line {number}: {e}") from None
+    return None if value is CUT else _event(value, number)
+
+
 def read_events(path: Path) -> list[Event]:
-    path = Path(path)
-    if not path.is_file():
-        return []
-    text = path.read_text()
-    whole = text[:text.rfind("\n") + 1]
-    return [parse(line, n) for n, line in enumerate(whole.splitlines(), 1)]
+    found = read_jsonl(path)
+    if found.bad:
+        number, error = found.bad[0]
+        raise ValueError(f"events_unreadable: line {number}: {error}")
+    return [_event(value, n) for n, value in found.records]
 
 
 class Follower:
@@ -45,5 +53,7 @@ class Follower:
         out = []
         for raw in whole.decode().splitlines():
             self.line += 1
-            out.append(parse(raw, self.line))
+            event = parse(raw, self.line)
+            if event is not None:
+                out.append(event)
         return out

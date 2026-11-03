@@ -25,7 +25,7 @@ src/perfrepair/validation/classified.py : classify/classified.json: answers only
 src/perfrepair/validation/dossier_units.py : dossiers.json against units.json: every unit with a member with options asked, with its stays and pairs; `provider_held_key` exactly where a member's key contract is provider-held
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header with its perfMode, noOptions codes, estimates of selected metrics only, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status; parse_dossiers: units with their Dossiers and noOptions for the replace stage, by the same checks
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
-src/perfrepair/validation/events.py : log/events.jsonl: every line JSON, schema 1, every field with its type, a known kind; a partial last line
+src/perfrepair/validation/events.py : log/events.jsonl through read_jsonl: every whole line JSON (a cut one skipped), schema 1, every field with its type, a known kind; a partial last line
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
 src/perfrepair/validation/grouping/code_groups.py : code-made groups equal the ones screen.json and the signatures imply; no item grouped by code in a model group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options

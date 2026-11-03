@@ -54,7 +54,7 @@ src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversa
 src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator; a recorded charter's inputs
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`; start, turn, decision and end events
 src/perfrepair/ai/runtime/engine/events.py : Where (stage, step, app); TurnEvents: each model turn and decision as an event with tokens, cost, latency and its journal line or outbox record
-src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append, line count and read; audit only
+src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append (append_repaired after a cut line), line count and read through read_jsonl; audit only
 src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, optional gone and evidence_digest), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer; carry: another outbox's records into a charter's
 src/perfrepair/ai/runtime/engine/refresh.py : --refresh run inputs (`refresh <token>`) and the active outbox's kept ones

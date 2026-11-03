@@ -111,6 +111,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `types_strength` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `relations_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `events_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable events.jsonl aside |
+| `journal_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable journal.jsonl aside; the outbox, not the journal, holds the decisions |
 | `item_not_configured` | `stop` | fixed: the input is unusable | 1 | rerun the device stage with the item in the run config |
 | `manifest_without_device_id` | `stop` | fixed: the input is unusable | 1 | rerun the benchmark |
 | `missing_effective` | `stop` | fixed: the input is unusable | 1 | rerun the device stage |

@@ -1,13 +1,18 @@
+"""journal.jsonl: append, line count and read; audit only. A line a crash cut short keeps its own line number, so every
+ref after it still points at its turn."""
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from ....files import append_line
+from ....files import append_line, read_jsonl
+from ....stop import terminate
 
 
 def append(path: Path, entry: dict) -> None:
-    append_line(path, json.dumps(entry))
+    if append_line(path, json.dumps(entry)):
+        terminate("append_repaired", "the file ended mid-line; a newline went before the next turn", stage="run",
+                  step="journal", item=str(path))
 
 
 def count(path: Path) -> int:
@@ -16,5 +21,7 @@ def count(path: Path) -> int:
 
 
 def read(path: Path) -> list[dict]:
-    path = Path(path)
-    return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+    found = read_jsonl(path)
+    if found.bad:
+        raise ValueError(f"journal_unreadable: {path} line {found.bad[0][0]}: {found.bad[0][1]}")
+    return [value for _, value in found.records]

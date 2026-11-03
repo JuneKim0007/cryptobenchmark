@@ -130,6 +130,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("types_strength", FIX_CATALOG),
     _fixed("relations_schema", FIX_CATALOG),
     _fixed("events_unreadable", "move the unreadable events.jsonl aside"),
+    _fixed("journal_unreadable", "move the unreadable journal.jsonl aside; the outbox, not the journal, holds the decisions"),
     _fixed("item_not_configured", "rerun the device stage with the item in the run config"),
     _fixed("manifest_without_device_id", "rerun the benchmark"),
     _fixed("missing_effective", "rerun the device stage"),

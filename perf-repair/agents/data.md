@@ -87,7 +87,7 @@ src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (laten
 src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group or candidate; names_digest
 src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of several
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per selected metric), MetricComparison, PairMetrics (a comparison per selected metric), Configuration, GroupEvidence, Pair, Verdict, Verdicts
-src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append; several files staged then renamed in order; sha256 of a text or file
+src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
@@ -97,8 +97,8 @@ src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] 
 src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id; nested(), current_run()
 src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed start and end with counts and the digests of the files written; a step ended by a Halt records its code and `reported`
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
-src/perfrepair/log/read.py : events.jsonl read whole or followed, whole lines only; `events_unreadable`
-src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order
+src/perfrepair/log/read.py : events.jsonl through read_jsonl, read whole or followed, whole lines only; `events_unreadable`
+src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, terminate's findings, errors, bugs), each starting with its code word, data.code before the detail's first word; a line already written by terminate is not repeated; code_of and line, the one parser and formatter
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
 src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines

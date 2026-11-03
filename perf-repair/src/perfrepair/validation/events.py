@@ -1,10 +1,11 @@
-"""log/events.jsonl: every line JSON, schema 1, every field present with its type, a known kind."""
+"""log/events.jsonl: every line JSON, schema 1, every field present with its type, a known kind; a line a crash cut
+short is skipped, as every reader does (files.read_jsonl)."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from ..dto.event import FIELDS, KINDS, SCHEMA_VERSION
+from ..files import read_jsonl
 
 
 def _field_problems(doc: dict) -> list[str]:
@@ -16,11 +17,7 @@ def _field_problems(doc: dict) -> list[str]:
     return out
 
 
-def line_problems(line: str) -> list[str]:
-    try:
-        doc = json.loads(line)
-    except ValueError as e:
-        return [f"does not parse: {e}"]
+def doc_problems(doc) -> list[str]:
     if not isinstance(doc, dict):
         return ["not an object"]
     if doc.get("schemaVersion") != SCHEMA_VERSION:
@@ -30,9 +27,9 @@ def line_problems(line: str) -> list[str]:
 
 
 def validate_events(path: Path) -> list[str]:
-    text = Path(path).read_text()
-    lines = text.splitlines()
-    out = [f"line {n}: {p}" for n, line in enumerate(lines, 1) for p in line_problems(line)]
-    if text and not text.endswith("\n"):
-        out.append(f"line {len(lines)}: partial, its writer stopped mid-line")
-    return out
+    found = read_jsonl(path)
+    out = [f"line {n}: does not parse: {e}" for n, e in found.bad]
+    out += [f"line {n}: {p}" for n, doc in found.records for p in doc_problems(doc)]
+    if found.partial:
+        out.append(f"line {len(found.records) + len(found.cut) + len(found.bad) + 1}: partial, its writer stopped mid-line")
+    return sorted(out, key=lambda p: int(p.split(":", 1)[0].split()[1]))
