@@ -15,7 +15,7 @@
 ```
 src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, the one verdict rule
-src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements + the app's screen verdicts → Dossiers with options, pins, interop and screen status, estimates; targets that lower the status and failed pairs dropped; noOptions with reasons
+src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements + the app's screen verdicts → Dossiers with options, pins, interop and screen status, estimates of the perfMode's metrics only; targets that lower the status, failed pairs and options without a required metric dropped; noOptions with reasons (no_evidence: <metric>)
 src/perfrepair/result/estimate.py : pImprove of one Summary against another by the process- and block-aware bootstrap
 src/perfrepair/result/evidence.py : groups.json + rows + measurements + run-level screen verdicts → GroupEvidence: configurations, members, ordered pair metrics with a ratio and pImprove per selected metric, only the perfMode's metrics kept (never across energy kinds); a pair whose target lowers the status left out
 src/perfrepair/result/modes.py : Mode: a perfMode with criteria.yaml's rule; judges a pair improves, not_improving or not_measured over its selected metrics; the missing required metrics; the deciding one

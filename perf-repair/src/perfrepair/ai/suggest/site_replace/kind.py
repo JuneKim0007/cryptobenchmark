@@ -9,8 +9,8 @@ from ....dto.prompt import Charter, TaskPrompt
 from ....dto.site import Replacement
 from ....dto.unit import UnitDossiers
 from ....files import json_text, sha256_text, write_json
-from ....validation.dossiers import check_dossier
-from ....validation.dossiers import parse_dossiers
+from ....dto.perf_mode import PerfMode
+from ....validation.dossiers import check_dossier, parse_dossiers, perf_of
 from ....validation.suggest.site_replace import check_reply
 from ....validation.replacements import consistent_units, validate_replacements
 from ...runtime.engine.kind import replay_problems
@@ -32,8 +32,9 @@ class Gone:
     key: str
 
 
-def evidence(u: UnitDossiers) -> str:
-    return sha256_text(json_text({"unit": u.entry(), "dossiers": [d.to_json() for d in u.dossiers]}))
+def evidence(u: UnitDossiers, perf: PerfMode) -> str:
+    """The selection is evidence too: a changed perfMode marks the unit's decision stale."""
+    return sha256_text(json_text({"unit": u.entry(), "dossiers": [d.to_json() for d in u.dossiers], "perfMode": perf.to_json()}))
 
 
 class SiteReplaceKind:
@@ -42,6 +43,7 @@ class SiteReplaceKind:
     def __init__(self, app: str, doc: dict, directory: Path):
         self.app, self.doc, self.directory = app, doc, Path(directory)
         self.units, self.no_options, self.problems = parse_dossiers(doc, app)
+        self.perf = perf_of(doc) or PerfMode()
 
     def items(self) -> list[UnitDossiers]:
         return self.units
@@ -53,7 +55,7 @@ class SiteReplaceKind:
         return Gone(key)
 
     def evidence_digest(self, u: UnitDossiers) -> str:
-        return evidence(u)
+        return evidence(u, self.perf)
 
     def empty(self) -> Replacements:
         state = Replacements(self.app)
@@ -65,7 +67,7 @@ class SiteReplaceKind:
         raws = {(r.get("scope") or {}).get("id"): r for r in self.doc.get("dossiers") or []}
         problems = []
         for d in u.dossiers:
-            popped, found = check_dossier(raws.get(d.key), self.app)
+            popped, found = check_dossier(raws.get(d.key), self.app, self.perf)
             problems += found + ([f"{d.key}: differs from the dossier the run was built with"] if popped != d else [])
         return problems
 
@@ -86,7 +88,7 @@ class SiteReplaceKind:
         if isinstance(u, Gone):
             return
         # a record without evidence predates it and cannot be shown to match
-        mark = state.stale.add if record.evidence != evidence(u) else state.stale.discard
+        mark = state.stale.add if record.evidence != evidence(u, self.perf) else state.stale.discard
         for d in u.dossiers:
             mark(d.key)
         if record.outcome == "decided":

@@ -29,7 +29,7 @@ src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (pro
 src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app, the exit rule
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--device-results --app`; `--perfrepair-config` fills the folder and the screening catalog
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens; a numeric literal is one token
-src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk → <app>/dossiers.json, validated before writing
+src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk, under the app's perfMode → <app>/dossiers.json, validated before writing; counts no_evidence scopes
 src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
 src/perfrepair/repair/edit/alone.py : units applied in one function: a copy of the file per unit with only its splices

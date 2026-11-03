@@ -46,7 +46,7 @@
 | `log/screening/ai.log`, `log/grouping/ai.log`, `log/bug.log` | the event sink, from the same events | people | none: `log/views.py` renders them |
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
-| `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py` and `validation/dossier_units.py`, before writing: schema 2, `units` the units asked |
+| `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py` and `validation/dossier_units.py`, before writing: schema 3, `units` the units asked, `perfMode` the selection its estimates hold |
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | `<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |

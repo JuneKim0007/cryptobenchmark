@@ -11,6 +11,7 @@ from test_stages import run  # noqa: F401  the recorded run, grouped
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
 from perfrepair.config.load import load
+from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.inputs.resolve import InputError
 from perfrepair.repair.__main__ import main as repair_main
@@ -107,7 +108,7 @@ def test_the_dossier_step_refuses_a_catalog_screen_json_was_not_screened_by(run,
     for name in ("scopes.json", "app.json"):
         shutil.copy(DEMO / name, app / name)
     with pytest.raises(CatalogMismatch, match=r"^screening_catalog_mismatch: screen.json was screened by packaged"):
-        dossier(run, "demo", F.parents[1] / "app", _other_catalog(tmp_path), echo=lambda _: None)
+        dossier(run, "demo", F.parents[1] / "app", _other_catalog(tmp_path), PerfMode(), echo=lambda _: None)
     assert not (app / "dossiers.json").exists()
 
 

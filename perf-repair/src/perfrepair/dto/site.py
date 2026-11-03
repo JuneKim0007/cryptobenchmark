@@ -6,10 +6,11 @@ from dataclasses import asdict, dataclass, fields
 
 from .lifecycle import Lifecycle
 from .metrics import NAMES
+from .perf_mode import NO_EVIDENCE
 
 SCHEMA_VERSION = 1
-# 2: `units`, the units asked, each member with a dossier
-DOSSIERS_SCHEMA_VERSION = 2
+# 2: `units`, the units asked, each member with a dossier; 3: `perfMode`, estimates of its metrics only
+DOSSIERS_SCHEMA_VERSION = 3
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
 SCOPES_SCHEMA_VERSION = 4
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
@@ -32,7 +33,7 @@ NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER,)
 PROVIDER_HELD_KEY = "provider_held_key"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing; the last is its unit's
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
-                     "interop_failed", PROVIDER_HELD_KEY)
+                     "interop_failed", NO_EVIDENCE, PROVIDER_HELD_KEY)
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
 DERIVED_RISKS = (
@@ -48,6 +49,11 @@ DERIVED_RISKS = (
     ("interop", "not_planned", "unverified_interop", "the pair was not in the interop plan"),
     ("interop", "not_run", "unverified_interop", "no interop check has run"),
 )
+
+
+def reason_code(reason: str) -> str:
+    """A noOptions reason's code; `no_evidence` names its metrics after a colon."""
+    return reason.split(":", 1)[0]
 
 
 def scope_id(app: str, file: str, function: str, line: int, call: str) -> str:

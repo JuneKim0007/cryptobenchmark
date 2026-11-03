@@ -10,6 +10,7 @@ from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.catalog.screening import SCREENING, PlatformRule
 from perfrepair.dto.lifecycle import Lifecycle
+from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.screen import Verdict
 from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
@@ -51,9 +52,9 @@ def scope(provider="P1", algorithm="ALG-A", resolution="explicit", input_size=10
                  "f", 1, 3, "TypeA", algorithm, provider, resolution, key_size, input_size)
 
 
-def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M, groups=GROUPS, verdicts=None):
+def build(scopes, tmp_path, app_doc=None, rows=ROWS, measurements=M, groups=GROUPS, verdicts=None, perf=PerfMode()):
     (tmp_path / "A.java").write_text("void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}\nvoid g() {}\n")
-    return build_dossiers("app", scopes, app_doc or {"bundled": []}, groups, rows, measurements, tmp_path, verdicts)
+    return build_dossiers("app", scopes, app_doc or {"bundled": []}, groups, rows, measurements, tmp_path, verdicts, perf)
 
 
 def failing(*results):
@@ -118,10 +119,28 @@ def test_scopes_without_options_say_why(tmp_path):
     assert validate_dossiers(doc, scopes, GROUPS, None) == []
 
 
+def test_only_the_selected_metrics_are_estimated_and_an_option_without_one_is_dropped(tmp_path):
+    perf = PerfMode.parse(["memAlloc"])
+    doc = build([scope()], tmp_path, perf=perf)
+    [d] = doc["dossiers"]
+    assert doc["perfMode"] == ["memAlloc"]
+    assert [(o["alias"], o["item"]) for o in d["options"]] == [("R1", "TypeA|ALG-A|P2")]
+    assert [e["metric"] for e in d["options"][0]["estimates"]] == ["allocationCount"]
+    assert validate_dossiers(doc, [scope()], GROUPS, None) == []
+    d["options"][0]["estimates"].append({**d["options"][0]["estimates"][0], "metric": "timeNs"})
+    assert any("not one of the perfMode's" in p for p in validate_dossiers(doc, [scope()], GROUPS, None))
+
+
+def test_a_selected_metric_no_option_has_is_a_static_no_evidence_never_a_proxy(tmp_path):
+    doc = build([scope()], tmp_path, perf=PerfMode.parse(["energy", "latency"]))
+    assert doc["dossiers"] == [] and doc["noOptions"] == [{"scope": scope().id, "reason": "no_evidence: energyJ"}]
+    assert validate_dossiers(doc, [scope()], GROUPS, None) == []
+
+
 def test_the_builder_is_deterministic_and_validates(tmp_path):
     first, second = build([scope()], tmp_path), build([scope()], tmp_path)
     assert json.dumps(first) == json.dumps(second)
-    assert set(first) == {"schemaVersion", "app", "dossiers", "noOptions", "units"}
+    assert set(first) == {"schemaVersion", "app", "perfMode", "dossiers", "noOptions", "units"}
     assert validate_dossiers(first, [scope()], GROUPS, None) == []
 
 
@@ -185,7 +204,7 @@ def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     app.mkdir(parents=True)
     for name in ("scopes.json", "app.json", "units.json"):
         shutil.copy(DEMO / name, app / name)
-    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING), **QUIET)
+    doc = dossier(run, "demo", F / "app", load_catalog(SCREENING), PerfMode(), **QUIET)
     [d] = doc["dossiers"]
     assert d["current"] == "Cipher|AES/GCM/NoPadding|Slow" and d["source"].startswith("    byte[] seal(")
     [option] = d["options"]
@@ -276,7 +295,7 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
     facts = json.loads((DEMO / "app.json").read_text())
     for target_sdk, extra in ((27, set()), (28, {"deprecated_only"})):
         (app / "app.json").write_text(json.dumps({**facts, "targetSdk": target_sdk}))
-        doc = dossier(run, "demo", F / "app", handler, **QUIET)
+        doc = dossier(run, "demo", F / "app", handler, PerfMode(), **QUIET)
         assert {n["reason"] for n in doc["noOptions"]} == {"unresolved", "no_alternative"} | extra
         assert len(doc["dossiers"]) == (0 if extra else 1)
 

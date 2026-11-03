@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from ..dto import GroupEvidence, Verdict
+from ..dto.perf_mode import no_evidence
 from .modes import Mode
-
-NO_EVIDENCE = "no_evidence"
 
 
 def _missing(e: GroupEvidence, mode: Mode) -> list[str]:
@@ -21,9 +20,9 @@ def triage(evidence: list[GroupEvidence], mode: Mode) -> tuple[list[GroupEvidenc
         elif "improves" in judged:
             ask.append(e)
         elif "not_measured" in judged:
-            missing = ", ".join(_missing(e, mode)) or "every selected metric"
             decided.append(Verdict(e.groupId, mode.name, "not_measured",
-                                   f"{NO_EVIDENCE}: {missing}; a pair has no data for it under {mode.name}", "static"))
+                                   f"{no_evidence(_missing(e, mode) or mode.perf.names)}; a pair has no data for it under {mode.name}",
+                                   "static"))
         else:
             decided.append(Verdict(e.groupId, mode.name, "no_improvement",
                                    f"no replacement improves under {mode.name}: {mode.rule}", "static"))

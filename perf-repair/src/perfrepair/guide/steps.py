@@ -135,7 +135,7 @@ def app(g: Guide) -> str:
 
 
 def dossiers(g: Guide) -> str:
-    doc = dossier(g.device, g.app_id, g.app_root, g.catalog, echo=lambda _: None)
+    doc = dossier(g.device, g.app_id, g.app_root, g.catalog, g.mode.perf, echo=lambda _: None)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         step = f"; {NOT_ON_DEVICE}: {NOT_ON_DEVICE_STEP}" if NOT_ON_DEVICE in reasons else ""

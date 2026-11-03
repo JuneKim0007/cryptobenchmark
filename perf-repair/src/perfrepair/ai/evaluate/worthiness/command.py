@@ -7,10 +7,10 @@ from pathlib import Path
 from .... import run_dir as rd
 from ....dto import Verdicts
 from ....dto.event import LOG
+from ....dto.perf_mode import NO_EVIDENCE
 from ....dto.screen import qualified_verdicts
 from ....files import write_json
 from ....log import emit
-from ....result.triage import NO_EVIDENCE
 from ....run_dir import GroupingPaths
 from ....validation.grouping.output import read_groups
 from ....result.evidence import build_evidence

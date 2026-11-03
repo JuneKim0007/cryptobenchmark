@@ -218,6 +218,14 @@ def test_a_changed_dossier_is_flagged_stale_and_not_asked_again_by_default(tmp_p
     assert f"error dossier_changed: 1 decisions were made on an earlier dossier ({A.key})" in capsys.readouterr().err
 
 
+def test_a_changed_perf_mode_marks_every_decision_stale(tmp_path):
+    run, app = run_dir(tmp_path, A, B)
+    replace(run, APP, ScriptedConversations(lambda m, *_: by_file(m)), LIBRARY, **QUIET)
+    (app / "dossiers.json").write_text(json.dumps({**doc(A, B), "perfMode": ["latency", "throughput", "memAlloc", "energy"]}))
+    again = ScriptedConversations(lambda m, *_: by_file(m))
+    assert replace(run, APP, again, LIBRARY, **QUIET).stale == {A.key, B.key} and again.started == 0
+
+
 def test_refresh_asks_only_the_changed_scope_into_a_new_outbox(tmp_path):
     run, app = run_dir(tmp_path, A, B)
     replace(run, APP, ScriptedConversations(lambda m, *_: by_file(m)), LIBRARY, **QUIET)

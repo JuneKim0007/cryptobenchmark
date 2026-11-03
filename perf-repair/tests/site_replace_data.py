@@ -46,7 +46,7 @@ def item(d: Dossier) -> UnitDossiers:
 
 def doc(*dossiers: Dossier, app=APP, no_options=(), units=None) -> dict:
     grouped = units if units is not None else [solo(d) for d in dossiers]
-    return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers],
+    return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "perfMode": "generic", "dossiers": [d.to_json() for d in dossiers],
             "noOptions": [{"scope": s, "reason": r} for s, r in no_options], "units": [u.entry() if isinstance(u, UnitDossiers) else unit_entry(u, (), ()) for u in grouped]}
 
 

@@ -9,6 +9,7 @@ from test_dossier import ROWS, build, scope
 from perfrepair.data_handler.inbound.results import read_results
 from perfrepair.ai.suggest.site_replace.render import render
 from perfrepair.dto.measurement import Measurements
+from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.site import Dossier
 from perfrepair.report.markdown import _metric_lines
 from perfrepair.report.metrics import metric_rows
@@ -73,7 +74,7 @@ def test_sides_of_different_kinds_have_no_energy_estimate_and_say_why(tmp_path):
     assert [e["metric"] for e in option["estimates"]] == ["timeNs"]
     assert [(n["metric"], n["reason"]) for n in option["noEstimates"]] == [("energyJ", "energy_kinds_differ")]
     assert Dossier.from_json(document["dossiers"][0]).to_json() == document["dossiers"][0]
-    assert check_dossier(document["dossiers"][0], "app")[1] == []
+    assert check_dossier(document["dossiers"][0], "app", PerfMode())[1] == []
 
 
 def case(kind, runs=(0.5, 0.6)):

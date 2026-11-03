@@ -8,6 +8,12 @@ from .metrics import METRICS, Metric
 GENERIC = "generic"
 KEYS = tuple(k for m in METRICS for k in m.selects)
 SEPARATOR = "+"
+# a selected metric without data: the reason code, never a proxy
+NO_EVIDENCE = "no_evidence"
+
+
+def no_evidence(names) -> str:
+    return f"{NO_EVIDENCE}: {', '.join(names)}"
 
 
 @dataclass(frozen=True)

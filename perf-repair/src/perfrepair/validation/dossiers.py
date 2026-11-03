@@ -8,12 +8,13 @@ from ..dto.grouping import parse_qualified
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
-from ..dto.site import (DOSSIERS_SCHEMA_VERSION, METRICS, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX,
-                        Dossier, Scope)
+from ..dto.perf_mode import PerfMode
+from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX,
+                        Dossier, Scope, reason_code)
 from ..dto.unit import PairInterop, Stay, Unit, UnitDossiers
 from .app import scope_problems
 
-KEYS = {"schemaVersion", "app", "dossiers", "noOptions", "units"}
+KEYS = {"schemaVersion", "app", "perfMode", "dossiers", "noOptions", "units"}
 
 
 def _id(raw) -> str | None:
@@ -40,7 +41,16 @@ def check_header(doc) -> list[str]:
     if doc.get("schemaVersion") != DOSSIERS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {DOSSIERS_SCHEMA_VERSION}")
     problems += [f"{k} is not a list" for k in ("dossiers", "noOptions", "units") if not isinstance(doc.get(k), list)]
+    if perf_of(doc) is None:
+        problems.append(f"perfMode {doc.get('perfMode')!r} does not parse")
     return problems + ([] if isinstance(doc.get("app"), str) else ["app is not a string"])
+
+
+def perf_of(doc: dict) -> PerfMode | None:
+    try:
+        return PerfMode.parse(doc.get("perfMode"))
+    except (ValueError, AttributeError):
+        return None
 
 
 def check_no_options(doc: dict) -> list[str]:
@@ -48,18 +58,18 @@ def check_no_options(doc: dict) -> list[str]:
     for i, n in enumerate(doc.get("noOptions") or []):
         if not isinstance(n, dict) or set(n) != {"scope", "reason"} or not isinstance(n["scope"], str):
             problems.append(f"noOptions[{i}]: is not a {{scope, reason}} object")
-        elif n["reason"] not in NO_OPTION_REASONS:
+        elif not isinstance(n["reason"], str) or reason_code(n["reason"]) not in NO_OPTION_REASONS:
             problems.append(f"noOptions {n['scope']}: reason {n['reason']!r} is not one of {NO_OPTION_REASONS}")
     return problems
 
 
-def _estimates(where: str, d: Dossier) -> list[str]:
+def _estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str]:
     problems = []
     for o in d.options:
         for e in o.estimates:
             at = f"{where} {o.alias} {e.metric}"
-            if e.metric not in METRICS:
-                problems.append(f"{at}: metric is not one of {METRICS}")
+            if e.metric not in selected:
+                problems.append(f"{at}: metric is not one of the perfMode's {selected}")
             if not (_number(e.ratio) and e.ratio > 0):
                 problems.append(f"{at}: ratio {e.ratio!r} is not a positive number")
             p, n = e.pImprove, e.n
@@ -69,16 +79,18 @@ def _estimates(where: str, d: Dossier) -> list[str]:
                 problems.append(f"{at}: pImprove {p!r} with n {n}; only fewer than two runs leave it empty")
             if p is not None and not (_number(p) and 0 <= p <= 1):
                 problems.append(f"{at}: pImprove {p!r} is not a probability")
-    return problems + _no_estimates(where, d)
+    return problems + _no_estimates(where, d, selected)
 
 
-def _no_estimates(where: str, d: Dossier) -> list[str]:
-    return [f"{where} {o.alias} {n.metric}: no-estimate reason {n.reason!r} is not one of {NO_ESTIMATE_REASONS}"
-            for o in d.options for n in o.noEstimates if n.reason not in NO_ESTIMATE_REASONS]
+def _no_estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str]:
+    return [f"{where} {o.alias} {n.metric}: no-estimate reason {n.reason!r} is not one of {NO_ESTIMATE_REASONS}, or the "
+            f"metric is not selected" for o in d.options for n in o.noEstimates
+            if n.reason not in NO_ESTIMATE_REASONS or n.metric not in selected]
 
 
-def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
-    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels and estimates."""
+def check_dossier(raw, app: str | None, perf: PerfMode) -> tuple[Dossier | None, list[str]]:
+    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels and estimates of
+    perf's metrics only."""
     where = f"dossier {_id(raw)}"
     if not isinstance(raw, dict):
         return None, [f"{where}: is not an object"]
@@ -103,7 +115,7 @@ def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
         problems.append(f"{where}: an option repeats the current item or another option")
     problems += [f"{where} {o.alias}: screen {o.screen!r} is neither one of {STATUSES} nor null"
                  for o in d.options if o.screen is not None and o.screen not in STATUSES]
-    return d, problems + _labels(where, d) + _estimates(where, d)
+    return d, problems + _labels(where, d) + _estimates(where, d, perf.names)
 
 
 def _labels(where: str, d: Dossier) -> list[str]:
@@ -141,7 +153,7 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     """dossiers.json against scopes.json, groups.json and the app's screen verdicts (None without screen.json): every
     scope once, options from the current item's group labelled with the pair's interop status and the app's status."""
     problems = check_header(doc)
-    if not isinstance(doc, dict):
+    if not isinstance(doc, dict) or (perf := perf_of(doc)) is None:
         return problems
     if "interop" not in groups:
         return problems + ["groups.json has no interop section; rerun grouping report"]
@@ -155,7 +167,7 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     problems += [f"scope {s}: neither a dossier nor in noOptions" for s in sorted(set(by_id) - set(seen))]
     problems += _unused_reasons(doc, scopes)
     for raw in doc.get("dossiers") or []:
-        d, found = check_dossier(raw, doc.get("app"))
+        d, found = check_dossier(raw, doc.get("app"), perf)
         problems += found
         if d is None:
             continue
@@ -222,10 +234,10 @@ def parse_dossiers(doc: dict, app: str) -> tuple[list[UnitDossiers], dict[str, s
         return [], {}, problems
     if doc["app"] != app:
         return [], {}, [f"dossiers are for app {doc['app']!r}, not {app!r}"]
-    problems = check_no_options(doc)
+    problems, perf = check_no_options(doc), perf_of(doc)
     dossiers = []
     for raw in doc["dossiers"]:
-        d, found = check_dossier(raw, app)
+        d, found = check_dossier(raw, app, perf)
         problems += found
         if d is not None:
             dossiers.append(d)
