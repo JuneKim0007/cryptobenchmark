@@ -8,7 +8,7 @@ from ..dto.grouping import parse_qualified
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
-from ..dto.site import METRICS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Scope
+from ..dto.site import METRICS, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Scope
 from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "dossiers", "noOptions"}
@@ -67,6 +67,8 @@ def _estimates(where: str, d: Dossier) -> list[str]:
                 problems.append(f"{at}: pImprove {p!r} with n {n}; only fewer than two runs leave it empty")
             if p is not None and not (_number(p) and 0 <= p <= 1):
                 problems.append(f"{at}: pImprove {p!r} is not a probability")
+        problems += [f"{where} {o.alias} {n.metric}: no-estimate reason {n.reason!r} is not one of {NO_ESTIMATE_REASONS}"
+                     for n in o.noEstimates if n.reason not in NO_ESTIMATE_REASONS]
     return problems
 
 

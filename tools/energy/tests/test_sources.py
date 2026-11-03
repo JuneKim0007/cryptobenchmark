@@ -19,7 +19,9 @@ GOLDEN = rails_run.FIXTURES / "rails_energy.json"
 def test_rails_preflight_and_energy_write_the_recorded_bytes(tmp_path, monkeypatch):
     rails_run.install_fake_trace(monkeypatch)
     assert rails_run.run_preflight(tmp_path) == (rails_run.FIXTURES / "rails_preflight.yaml").read_text()
-    assert rails_run.run_energy(tmp_path) == GOLDEN.read_text()
+    document = json.loads(rails_run.run_energy(tmp_path))
+    assert (document.pop("schemaVersion"), document.pop("source"), document.pop("kind")) == (2, "rails", "measured")
+    assert json.dumps({"schemaVersion": 1} | document, indent=1) == GOLDEN.read_text()
 
 
 def test_rails_calls_its_tools_with_the_arguments_it_always_had(tmp_path, monkeypatch):

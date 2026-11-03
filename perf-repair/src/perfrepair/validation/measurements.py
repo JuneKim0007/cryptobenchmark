@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 
 from ..dto import Measurements, PrimitiveRow, Summary
+from ..dto.measurement import ENERGY, ESTIMATED, MEASURED
 
 
 def _summary(where: str, s: Summary) -> list[str]:
@@ -32,4 +33,8 @@ def validate_measurements(m: Measurements, rows: list[PrimitiveRow]) -> list[str
             problems.append(f"{rid}.timeNs: median {t.median} is not positive")
         if (a := metrics.get("allocations")) is not None:
             problems += _summary(f"{rid}.allocations", a)
+        if (e := metrics.get(ENERGY)) is not None:
+            problems += _summary(f"{rid}.{ENERGY}", e)
+            if e.kind not in (MEASURED, ESTIMATED):
+                problems.append(f"{rid}.{ENERGY}: kind {e.kind!r} is not {MEASURED} or {ESTIMATED}")
     return problems

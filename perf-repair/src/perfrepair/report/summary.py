@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import statistics
 
+from ..dto.measurement import ESTIMATED
 from ..dto.report import CHANGES, FUNNEL, REPORTED, SCHEMA_VERSION
 from ..result.modes import MODES
 
@@ -12,6 +13,12 @@ def app_ratio(report: dict, metric: str) -> float | None:
     ratios = [m["ratio"] for s in report["scopes"] for m in s["metrics"]
               if m["metric"] == metric and m["measured"] and m["ratio"] is not None]
     return statistics.median(ratios) if ratios else None
+
+
+def _estimated_in(reports: list[dict], metric: str) -> dict:
+    apps = sorted(r["app"] for r in reports for s in r["scopes"] for m in s["metrics"]
+                  if m["metric"] == metric and m.get("kind") == ESTIMATED)
+    return {"estimatedIn": sorted(set(apps))} if apps else {}
 
 
 def change(ratio: float | None, improving: float) -> str:
@@ -36,6 +43,7 @@ def build_summary(reports: list[dict]) -> dict:
         metrics[metric] = {"unit": unit, "ratios": ratios,
                            "apps": {c: sorted(a for a, v in ratios.items() if change(v, improving) == c)
                                     for c in CHANGES},
-                           "medianChange": statistics.median(measured) - 1 if measured else None}
+                           "medianChange": statistics.median(measured) - 1 if measured else None,
+                           **_estimated_in(reports, metric)}
     return {"schemaVersion": SCHEMA_VERSION, "mode": modes[0], "improvingRatio": improving, "apps": sorted(by_app),
             "funnel": {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}, "byApp": by_app, "metrics": metrics}

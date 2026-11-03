@@ -17,7 +17,7 @@ def _metric(where: str, m: dict) -> list[str]:
     if m.get("measured") is False:
         ok = set(m) == {"metric", "unit", "measured", "reason"} and isinstance(m["reason"], str) and m["reason"]
         return [] if ok else [f"{where}: an unmeasured metric has exactly a non-empty reason and no numbers"]
-    extra = {"throughput"} if m.get("metric") == "timeNs" else set()
+    extra = {"throughput"} if m.get("metric") == "timeNs" else set(m) & {"kind"}
     if set(m) != MEASURED_KEYS | extra:
         return [f"{where}: keys {sorted(m)}"]
     problems = []

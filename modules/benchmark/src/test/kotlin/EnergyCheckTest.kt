@@ -4,7 +4,10 @@ import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
+import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
+import io.github.junekim0007.cryptobench.benchmark.report.Merge
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
+import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
@@ -15,7 +18,10 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class EnergyCheckTest {
 
@@ -63,12 +69,35 @@ class EnergyCheckTest {
     }
 
     @Test
+    fun anEnergyFileWithoutItsSchemaOrKindIsRefused() {
+        fun failure(text: String) = assertThrows(IllegalArgumentException::class.java) { EnergyWindows.measured(text) }.message
+        assertEquals("unsupported: energy.json schemaVersion 1", failure("""{"schemaVersion": 1, "cases": {}}"""))
+        assertEquals("missing_field: energy.json kind", failure("""{"schemaVersion": 2, "source": "rails", "cases": {}}"""))
+    }
+
+    @Test
+    fun sourceAndKindSurviveTheFileAndAMergeOfProcesses() {
+        val energy = MetricSamples(listOf(1.5), 10, source = "manafa", kind = "estimated")
+        fun row(samples: MetricSamples) = ResultRow("c", "T", "A", "P", "OP", null, null, null,
+                                                    mapOf(MetricSamples.TIME to MetricSamples(listOf(9.0), 1), MetricSamples.ENERGY to samples), emptyMap())
+        val text = BenchmarkJson(File(".")).text(emptyMap(), listOf(row(energy)))
+        assertTrue(text, text.contains(""""energyJ": {"iterations": 10, "runs": [1.5], "source": "manafa", "kind": "estimated"}"""))
+        val merged = Merge.merge(listOf(text, text)).rows.single().metrics.getValue(MetricSamples.ENERGY)
+        assertEquals(listOf(1.5, 1.5), merged.runs)
+        assertEquals("manafa" to "estimated", merged.source to merged.kind)
+        val measured = energy.copy(source = "rails", kind = "measured")
+        val other = BenchmarkJson(File(".")).text(emptyMap(), listOf(row(measured)))
+        val refused = assertThrows(IllegalArgumentException::class.java) { Merge.merge(listOf(text, other)) }
+        assertEquals("energy_kinds_differ: estimated and measured", refused.message)
+    }
+
+    @Test
     fun onlyMeasuredCasesBecomeAnEnergyMetric() {
-        val text = """{"schemaVersion": 1, "cases": {
+        val text = """{"schemaVersion": 2, "source": "manafa", "kind": "estimated", "cases": {
             "m": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 40000},
             "x": {"capture": "measured", "valid": false, "invalid": ["short_window"], "joulesPerOperation": -1, "operations": 9},
             "d": {"capture": "dry", "valid": true, "joulesPerOperation": 1.0e-6, "operations": 9}}}"""
-        assertEquals(mapOf("m" to MetricSamples(listOf(2.5e-6), 40000)), EnergyWindows.measured(text))
+        assertEquals(mapOf("m" to MetricSamples(listOf(2.5e-6), 40000, source = "manafa", kind = "estimated")), EnergyWindows.measured(text))
         assertEquals(mapOf("x" to listOf("short_window")), EnergyWindows.invalid(text))
     }
 }

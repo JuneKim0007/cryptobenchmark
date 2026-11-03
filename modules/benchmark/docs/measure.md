@@ -70,7 +70,7 @@ Harness settings as plain values, no androidx type.
 
 | rule | value |
 |---|---|
-| metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` |
+| metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` (with `source` and `kind`) |
 | reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `tools/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
 | `timeNs` | required in every row |
 | `keyKind` | `secret`, `pair`, `none` |

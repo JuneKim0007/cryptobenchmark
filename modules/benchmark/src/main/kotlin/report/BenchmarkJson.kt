@@ -33,7 +33,10 @@ class BenchmarkJson(private val directory: File) {
     }
 
     private fun metricBlock(metric: String, samples: MetricSamples): String =
-        "\"$metric\": {\"iterations\": ${samples.iterations}, \"runs\": [${samples.runs.joinToString(", ")}]${reported(samples.reported)}}"
+        "\"$metric\": {\"iterations\": ${samples.iterations}, \"runs\": [${samples.runs.joinToString(", ")}]${reported(samples.reported)}${origin(samples)}}"
+
+    private fun origin(samples: MetricSamples): String =
+        if (samples.kind == null) "" else ", \"source\": \"${samples.source}\", \"kind\": \"${samples.kind}\""
 
     private fun reported(stats: ReportedStats?): String =
         if (stats == null) "" else ", \"reported\": {\"minimum\": ${stats.minimum}, \"maximum\": ${stats.maximum}, \"median\": ${stats.median}, \"coefficientOfVariation\": ${stats.coefficientOfVariation}}"

@@ -1,6 +1,7 @@
 """report.json and summary.json rendered as Markdown; numbers come only from the document."""
 from __future__ import annotations
 
+from ..dto.measurement import ESTIMATED
 from ..dto.report import CHANGES, FUNNEL
 
 NOT_MEASURED = "not measured"
@@ -39,7 +40,8 @@ def _metric_lines(m: dict) -> list[str]:
     if not m["measured"]:
         return [f"| {m['metric']} ({m['unit']}) | {NOT_MEASURED}: {m['reason']} | | | |"]
     ratio = "n/a (zero before)" if m["ratio"] is None else f"{m['ratio']:.3f}"
-    lines = [f"| {m['metric']} ({m['unit']}) | {_num(m['before'])} → {_num(m['after'])} | {ratio} | {_p(m)} | {m['n']} |"]
+    estimated = ", estimated" if m.get("kind") == ESTIMATED else ""
+    lines = [f"| {m['metric']} ({m['unit']}{estimated}) | {_num(m['before'])} → {_num(m['after'])} | {ratio} | {_p(m)} | {m['n']} |"]
     t = m.get("throughput")
     if t:
         ops = t["opsPerSecond"]
@@ -83,5 +85,6 @@ def summary_markdown(doc: dict) -> str:
     out += ["", "## Metrics", "", "| metric | " + " | ".join(CHANGES) + " | median change |", "|---|" + "---|" * (len(CHANGES) + 1)]
     for metric, m in doc["metrics"].items():
         change = NOT_MEASURED if m["medianChange"] is None else f"{m['medianChange']:+.1%}"
-        out.append(f"| {metric} ({m['unit']}) | " + " | ".join(str(len(m["apps"][c])) for c in CHANGES) + f" | {change} |")
+        estimated = f", estimated in {', '.join(m['estimatedIn'])}" if m.get("estimatedIn") else ""
+        out.append(f"| {metric} ({m['unit']}{estimated}) | " + " | ".join(str(len(m["apps"][c])) for c in CHANGES) + f" | {change} |")
     return "\n".join(out) + "\n"

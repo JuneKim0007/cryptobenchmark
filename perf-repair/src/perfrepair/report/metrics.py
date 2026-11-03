@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from ..data_handler.inbound.results import summarise
+from ..dto.measurement import ESTIMATED, MEASURED
 from ..dto.report import REPORTED
+from ..dto.site import ENERGY_KINDS_DIFFER
 from ..result.confidence import level
 from ..result.estimate import p_improve
 
@@ -18,6 +20,10 @@ def _runs(case: dict, metric: str) -> list[float] | None:
     return block["runs"] if block and block.get("runs") else None
 
 
+def _kind(case: dict, metric: str) -> str:
+    return ((case.get("metrics") or {}).get(metric) or {}).get("kind", MEASURED)
+
+
 def _throughput(before: float, after: float, input_size: int | None) -> dict:
     ops = {"before": NS_PER_SECOND / before, "after": NS_PER_SECOND / after}
     mb = None if input_size is None else {k: v * input_size / BYTES_PER_MB for k, v in ops.items()}
@@ -30,6 +36,9 @@ def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
     if missing:
         return {"metric": metric, "unit": unit, "measured": False,
                 "reason": f"absent: no {metric} runs for {' and '.join(missing)} in benchmark.json"}
+    kinds = _kind(before_case, metric), _kind(after_case, metric)
+    if kinds[0] != kinds[1]:
+        return {"metric": metric, "unit": unit, "measured": False, "reason": f"{ENERGY_KINDS_DIFFER}: {kinds[0]} before, {kinds[1]} after"}
     before, after = summarise([runs["before"]]), summarise([runs["after"]])
     p = p_improve(before.processes, after.processes)
     # a zero median before (no allocations) has no ratio; pImprove still compares the runs
@@ -39,7 +48,7 @@ def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
     if metric == "timeNs":
         positive = before.median > 0 and after.median > 0
         row["throughput"] = _throughput(before.median, after.median, before_case.get("inputSize")) if positive else None
-    return row
+    return row | ({"kind": ESTIMATED} if kinds[0] == ESTIMATED else {})
 
 
 def metric_rows(before_case: dict, after_case: dict) -> list[dict]:

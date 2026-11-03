@@ -5,6 +5,8 @@ import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 
 object EnergyWindows {
 
+    private const val SCHEMA_VERSION = 2
+
     fun invalid(energyText: String): Map<String, List<String>> {
         val cases = CaseDocument.optionalSection(CaseDocument.load(energyText)["cases"]) ?: return emptyMap()
         return cases.mapValues { (_, value) -> CaseDocument.section(value) }
@@ -14,7 +16,9 @@ object EnergyWindows {
 
     fun measured(energyText: String): Map<String, MetricSamples> {
         val document = CaseDocument.load(energyText)
-        require(document["schemaVersion"] == 1) { "unsupported: energy.json schemaVersion ${document["schemaVersion"]}" }
+        require(document["schemaVersion"] == SCHEMA_VERSION) { "unsupported: energy.json schemaVersion ${document["schemaVersion"]}" }
+        val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: energy.json source")
+        val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: energy.json kind")
         val cases = CaseDocument.optionalSection(document["cases"]) ?: return emptyMap()
         return cases.mapNotNull { (id, value) ->
             val case = CaseDocument.section(value)
@@ -24,7 +28,7 @@ object EnergyWindows {
             val operations = (case["operations"] as? Number)?.toLong()
                 ?: throw IllegalArgumentException("missing_field: energy.json $id.operations")
             require(operations in 1..Int.MAX_VALUE) { "out_of_range: energy.json $id.operations $operations" }
-            id to MetricSamples(listOf(perOperation), operations.toInt())
+            id to MetricSamples(listOf(perOperation), operations.toInt(), source = source, kind = kind)
         }.toMap()
     }
 }

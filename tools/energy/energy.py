@@ -8,7 +8,10 @@ from capture import capture  # noqa: E402
 from rails import counters  # noqa: E402
 
 MIN_POLLS = 20
-SCHEMA_VERSION = 1
+# 2: source and kind
+SCHEMA_VERSION = 2
+SOURCE = "rails"
+KIND = "measured"
 
 
 def window(rail_samples, start, end, idle_uj_per_ns, operations):
@@ -127,7 +130,7 @@ def main(argv=None):
     capability = yaml.safe_load(pathlib.Path(a.capability).read_text())
     idle = capability["idleMicrojoules"] / (capability["windowSeconds"] * 1e9)
     cases = {c: judge(r, capability["railsResponsive"]) for c, r in read_cases(a, idle, Trace).items()}
-    document = {"schemaVersion": SCHEMA_VERSION, "railsResponsive": capability["railsResponsive"], "cases": cases}
+    document = {"schemaVersion": SCHEMA_VERSION, "source": SOURCE, "kind": KIND, "railsResponsive": capability["railsResponsive"], "cases": cases}
     pathlib.Path(a.out).write_text(json.dumps(document, indent=1))
     report_cases(cases)
     return 0

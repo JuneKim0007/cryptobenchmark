@@ -83,7 +83,7 @@
 
 ## Outputs
 
-`benchmark/energy.json`: top level `schemaVersion` 1, `railsResponsive`, `cases`.
+`benchmark/energy.json`: top level `schemaVersion` 2, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive`, manafa adds `powerProfile`.
 
 | case field | value |
 |---|---|
@@ -101,7 +101,9 @@
 | `net_not_positive` | `netJoules` ≤ 0 |
 | `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured) |
 
-- `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`).
+- `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
+- `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
+- An `energy.json` of another `schemaVersion` fails with `unsupported`.
 - Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason).
 
 ## Files

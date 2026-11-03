@@ -57,7 +57,7 @@
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 3 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process).
 - A journal is append-only, one line per model turn with its `durationMs`, audit only; state is the projection of the outbox.
 - `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path); an outbox from before it gets it on its next open.
-- `measurements.json` carries the run's `runtime` and `comparability` notes.
+- `measurements.json` carries the run's `runtime` and `comparability` notes; a case with `energyJ` runs has an `energyJ` summary with its `kind`.
 - `check/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
 
 ## `manifest.yaml` (cryptobenchmark)

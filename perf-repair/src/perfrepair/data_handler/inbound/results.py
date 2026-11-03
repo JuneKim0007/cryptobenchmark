@@ -5,10 +5,12 @@ from ...files import read_yaml
 import json
 import math
 import statistics
+from dataclasses import replace
 from pathlib import Path
 
 
 from ...dto import PrimitiveRow, Summary
+from ...dto.measurement import ENERGY, MEASURED
 from .bootstrap import median_interval
 
 Measurements = dict[str, dict[str, Summary | None]]
@@ -45,6 +47,12 @@ def _processes(case: dict, metric: str, per_process: list[dict[str, dict]]) -> l
     return parts
 
 
+def _energy(case: dict, per_process: list[dict[str, dict]]) -> dict[str, Summary]:
+    """{} without runs. A benchmark.json without a kind predates estimates: rails were the only source."""
+    runs = _processes(case, ENERGY, per_process)
+    return {ENERGY: replace(summarise(runs), kind=case["metrics"][ENERGY].get("kind", MEASURED))} if runs else {}
+
+
 def read_prepared(prepared_yaml: Path | None) -> dict[str, dict]:
     if prepared_yaml is None:
         return {}
@@ -74,7 +82,8 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
         ))
         alloc_runs = _processes(c, "allocationCount", per_process)
         measurements[c["id"]] = {"timeNs": summarise(time_runs),
-                                 "allocations": summarise(alloc_runs) if alloc_runs else None}
+                                 "allocations": summarise(alloc_runs) if alloc_runs else None,
+                                 **_energy(c, per_process)}
     return rows, measurements
 
 

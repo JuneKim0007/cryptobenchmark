@@ -24,6 +24,8 @@ METRICS = ("timeNs", "allocationCount", "energyJ")
 NOT_ON_DEVICE = "not_on_device"
 NOT_ON_DEVICE_STEP = "add it to providers.bundled in global.yaml and rerun the device stage"
 NO_REAL_USE = "no_real_use"
+ENERGY_KINDS_DIFFER = "energy_kinds_differ"
+NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER,)
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
                      "interop_failed")
@@ -96,12 +98,24 @@ def pin_text(value) -> str:
 @dataclass(frozen=True)
 class Estimate:
     """One metric of one option against the site's current choice, at the nearest measured configuration;
-    pImprove is None when either side has fewer than two runs."""
+    pImprove is None when either side has fewer than two runs; kind: an energy estimate's measured or estimated."""
     metric: str
     ratio: float
     pImprove: float | None
     n: int
     configuration: str
+    kind: str | None = None
+
+    def to_json(self) -> dict:
+        return {k: v for k, v in asdict(self).items() if k != "kind" or v is not None}
+
+
+@dataclass(frozen=True)
+class NoEstimate:
+    """A metric both sides have that still gives no estimate."""
+    metric: str
+    configuration: str
+    reason: str
 
 
 @dataclass(frozen=True)
@@ -114,15 +128,17 @@ class Option:
     interop: str
     estimates: tuple[Estimate, ...] = ()
     screen: str | None = None
+    noEstimates: tuple[NoEstimate, ...] = ()
 
     def to_json(self) -> dict:
+        missing = {"noEstimates": [asdict(n) for n in self.noEstimates]} if self.noEstimates else {}
         return {"alias": self.alias, "item": self.item, "pins": self.pins, "interop": self.interop,
-                "screen": self.screen, "estimates": [asdict(e) for e in self.estimates]}
+                "screen": self.screen, "estimates": [e.to_json() for e in self.estimates]} | missing
 
     @classmethod
     def from_json(cls, d: dict) -> "Option":
         return cls(d["alias"], d["item"], d["pins"], d["interop"], tuple(Estimate(**e) for e in d.get("estimates") or ()),
-                   d["screen"])
+                   d["screen"], tuple(NoEstimate(**n) for n in d.get("noEstimates") or ()))
 
 
 @dataclass(frozen=True)
