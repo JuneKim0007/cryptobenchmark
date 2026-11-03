@@ -50,9 +50,13 @@ def run(project, arguments, stacktrace, stream=False, main_class=None, notices=N
         if stacktrace:
             print("\n".join(output), file=sys.stderr)
         fail(failure_message(output))
-    for line in output:
-        if line.startswith(PASSED_ON):
-            print(line)
-            if notices is not None:
-                notices.append(line)
+    pass_on(output, notices)
     return result.stdout.strip().splitlines()
+
+
+def pass_on(output, notices):
+    passed = [line for line in output if line.startswith(PASSED_ON)]
+    for line in passed:
+        print(line)
+    if notices is not None:
+        notices.extend(passed)

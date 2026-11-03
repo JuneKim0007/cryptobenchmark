@@ -43,9 +43,7 @@ def read(document, captures):
         return [Pass(None, None, tuple(metrics))]
     if "dry" in captures:
         fail("not_supported: energy.capture dry with run.passes; the energy pass measures `measured` cases and its samples set the window")
-    if ENERGY in configured and "measured" not in captures:
-        print("warning: run.passes.energy: no case sets harness.energy.capture measured; the energy pass is skipped")
-        configured = {name: value for name, value in configured.items() if name != ENERGY}
+    configured = without_idle_energy(configured, captures)
 
     def metrics_of(name):
         if name == ENERGY:
@@ -54,6 +52,13 @@ def read(document, captures):
             return ("TIME", "ALLOCATION")
         return tuple(m for m in metrics if not (m == "ALLOCATION" and ALLOCATION in configured))
     return [Pass(name, int(value["samples"]), metrics_of(name)) for name, value in configured.items()]
+
+
+def without_idle_energy(configured, captures):
+    if ENERGY not in configured or "measured" in captures:
+        return configured
+    print("warning: run.passes.energy: no case sets harness.energy.capture measured; the energy pass is skipped")
+    return {name: value for name, value in configured.items() if name != ENERGY}
 
 
 def duration(seconds):

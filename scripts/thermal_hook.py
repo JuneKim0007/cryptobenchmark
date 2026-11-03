@@ -60,11 +60,16 @@ class Thermal(Hooks):
                       [s for paused in self.paused.values() for s in paused.values()]))
 
 
-def summary(label, records, paused):
+def hottest(records):
     starts = [max(r["start"].values()) for r in records if r["start"]]
     ends = [max(r["end"].values()) for r in records if r["end"]]
+    if starts and ends:
+        return f"hottest {max(starts):.1f} C at a case start, {max(ends):.1f} C at an end"
+    return "temperature unavailable: " + next((r["note"] for r in records if r.get("note")), "no case measured")
+
+
+def summary(label, records, paused):
     throttled = sum(1 for r in records if (r["endStatus"] or 0) > 0)
-    heat = (f"hottest {max(starts):.1f} C at a case start, {max(ends):.1f} C at an end" if starts and ends
-            else "temperature unavailable: " + next((r["note"] for r in records if r.get("note")), "no case measured"))
+    heat = hottest(records)
     return (f"thermal:   {label}: {heat}; {sum(1 for s in paused if s)} pauses, {sum(paused)} s paused; "
             f"{throttled} case{'' if throttled == 1 else 's'} ended throttled (status > 0)")

@@ -90,7 +90,7 @@ class Phone(device_module.Device):
         self.arguments.append(arguments)
         wanted = named.split(",") if named else list(self.cases)
         self.ran.append((test_class, named))
-        if named in self.crash or (named and "," in named and named in self.crash):
+        if named in self.crash:
             return CRASHED
         if named in self.hang:
             raise timeouts.expired(step, ["adb", "shell", "am", "instrument"])
@@ -124,42 +124,53 @@ class Energy:
             paths[-1].write_text("{}")
 
 
+def fake_convert(phone, arguments, words, notices):
+    phone.log.append("convert")
+    if notices is not None:
+        notices.extend(phone.notices)
+    data, into = pathlib.Path(words[0]), pathlib.Path(words[2])
+    names = [b["name"][8:-1] for b in json.loads(data.read_text())["benchmarks"]]
+    into.mkdir(parents=True, exist_ok=True)
+    phone.converted.append(arguments)
+    metric = {"ALLOCATION": "allocationCount"}.get(arguments.split("--metrics=TIME,")[-1].split()[0], None) if "--metrics=TIME," in arguments else None
+    extra = {"energyJ": {"runs": [2.0]}} if len(words) > 3 and words[3].endswith("energy.json") else {metric: {"runs": [3.0]}} if metric else {}
+    (into / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": [{"id": n, "metrics": {"timeNs": {"runs": [1.0]}, **extra}} for n in names]}))
+
+
+def fake_merge_passes(phone, words):
+    phone.log.append("merge passes")
+    out, base = pathlib.Path(words[0]), json.loads(pathlib.Path(words[1]).read_text())
+    for owned in words[2:]:
+        key, path = owned.split("=", 1)
+        cases = {c["id"]: c for c in json.loads(pathlib.Path(path).read_text())["cases"]}
+        for case in base["cases"]:
+            case["metrics"].pop(key, None)
+            case["metrics"].update({key: cases[case["id"]]["metrics"][key]} if key in cases.get(case["id"], {}).get("metrics", {}) else {})
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "benchmark.json").write_text(json.dumps(base))
+
+
+def fake_merge_runs(phone, words):
+    phone.log.append("merge")
+    out, cases = pathlib.Path(words[0]), {}
+    for path in words[1:]:
+        for case in json.loads(pathlib.Path(path).read_text())["cases"]:
+            kept = cases.setdefault(case["id"], {"id": case["id"], "metrics": {}})
+            for metric, block in case["metrics"].items():
+                kept["metrics"].setdefault(metric, {"runs": []})["runs"] += block["runs"]
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": list(cases.values())}))
+
+
 def fake_tools(monkeypatch, phone):
-    """ConvertKt and MergeRunsKt: the same files as the real tools, from the fake data."""
+    """ConvertKt, MergePassesKt and MergeRunsKt: the same files as the real tools, from the fake data."""
     def run(_project, arguments, _stacktrace, _stream=False, main_class=None, notices=None):
         words = arguments.split()
         if main_class == "ConvertKt":
-            phone.log.append("convert")
-            if notices is not None:
-                notices.extend(phone.notices)
-            data, into = pathlib.Path(words[0]), pathlib.Path(words[2])
-            names = [b["name"][8:-1] for b in json.loads(data.read_text())["benchmarks"]]
-            into.mkdir(parents=True, exist_ok=True)
-            phone.converted.append(arguments)
-            metric = {"ALLOCATION": "allocationCount"}.get(arguments.split("--metrics=TIME,")[-1].split()[0], None) if "--metrics=TIME," in arguments else None
-            extra = {"energyJ": {"runs": [2.0]}} if len(words) > 3 and words[3].endswith("energy.json") else {metric: {"runs": [3.0]}} if metric else {}
-            (into / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": [{"id": n, "metrics": {"timeNs": {"runs": [1.0]}, **extra}} for n in names]}))
+            fake_convert(phone, arguments, words, notices)
         elif main_class == "MergePassesKt":
-            phone.log.append("merge passes")
-            out, base = pathlib.Path(words[0]), json.loads(pathlib.Path(words[1]).read_text())
-            for owned in words[2:]:
-                key, path = owned.split("=", 1)
-                cases = {c["id"]: c for c in json.loads(pathlib.Path(path).read_text())["cases"]}
-                for case in base["cases"]:
-                    case["metrics"].pop(key, None)
-                    case["metrics"].update({key: cases[case["id"]]["metrics"][key]} if key in cases.get(case["id"], {}).get("metrics", {}) else {})
-            out.mkdir(parents=True, exist_ok=True)
-            (out / "benchmark.json").write_text(json.dumps(base))
+            fake_merge_passes(phone, words)
         elif main_class == "MergeRunsKt":
-            phone.log.append("merge")
-            out = pathlib.Path(words[0])
-            cases = {}
-            for path in words[1:]:
-                for case in json.loads(pathlib.Path(path).read_text())["cases"]:
-                    kept = cases.setdefault(case["id"], {"id": case["id"], "metrics": {}})
-                    for metric, block in case["metrics"].items():
-                        kept["metrics"].setdefault(metric, {"runs": []})["runs"] += block["runs"]
-            out.mkdir(parents=True, exist_ok=True)
-            (out / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": list(cases.values())}))
+            fake_merge_runs(phone, words)
         return []
     monkeypatch.setattr(gradle_runner, "run", run)
