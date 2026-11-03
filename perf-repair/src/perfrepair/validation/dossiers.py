@@ -5,7 +5,9 @@ import math
 from collections import Counter
 
 from ..dto.grouping import parse_qualified
-from ..dto.change import CHANGES, CLASSES, DROP_IN, NEEDS_REVIEW, REACHES, REJECT_REASONS, REJECTED, admits, output_changes
+from ..dto.change import (CHANGES, CLASSES, DROP_IN, NEEDS_REVIEW, PROVIDER_PATH, REACHES, REJECT_REASONS, REJECTED, TRACKS,
+                          admits, output_changes)
+from ..dto.grouping import provider_of
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
@@ -98,6 +100,9 @@ def _review(where: str, d: Dossier) -> list[str]:
     problems = [f"{where} {o.alias}: reach {o.reach!r} is not one of {REACHES}" for o in d.options if o.reach not in REACHES]
     problems += [f"{where} {o.alias}: outputChanges {o.outputChanges!r} does not follow its pair diff" for o in d.options
                  if o.outputChanges is not output_changes(o.diff)]
+    problems += [f"{where} {o.alias}: track {o.track!r} is not one of {TRACKS}" for o in d.options if o.track not in TRACKS]
+    problems += [f"{where} {o.alias}: a provider_path is a drop-in from another provider" for o in d.options
+                 if o.track == PROVIDER_PATH and (o.change != DROP_IN or provider_of(o.item) == provider_of(d.current))]
     return problems + [f"{where} {o.alias}: needsReview {list(o.needsReview)} is not a list of {NEEDS_REVIEW}"
                        for o in d.options if not set(o.needsReview) <= set(NEEDS_REVIEW)]
 

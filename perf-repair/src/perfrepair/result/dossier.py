@@ -14,14 +14,17 @@ from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, ZERO_MEDIAN, Dossier, Option, Scope
 from ..dto.shipped import shipped, shipped_names
-from ..dto.change import DROP_IN, NO_GAIN, REJECTED, SAME_ENGINE, Change, PairDiff, output_changes
+from ..dto.change import (DROP_IN, NO_GAIN, PROVIDER_PATH, RECOMMENDATION, REJECTED, SAME_ENGINE, Change, PairDiff,
+                          output_changes)
 from .candidates import Family
 from .change import foreign_member, needs_review, reach
 from .configurations import Config, config_of, estimates, nearest, operations, pins
 from .gain import no_gain
+from .provider_path import SiteProviders
 from ..stop.halt import Coded
 
 RESOLVED = ("default", "explicit")
+BY_ORDER = "resolved_by_order"
 
 
 def function_source(root: Path, scope: Scope) -> str:
@@ -62,12 +65,14 @@ def _evidenced(options: list[Option], perf: PerfMode) -> tuple[list[Option], str
     return [replace(o, alias=f"{OPTION_PREFIX}{n}") for n, o in enumerate(kept, 1)], None
 
 
-def _unresolved(s: Scope) -> str | None:
+def _unresolved(s: Scope, named: bool = False) -> str | None:
+    """named: the site names a provider the app ships, which the run measures under another name."""
     if s.lifecycle is not None and s.lifecycle.status == NO_REAL_USE_STATUS:
         return NO_REAL_USE
-    if s.resolution == NOT_ON_DEVICE:
+    if s.resolution == NOT_ON_DEVICE and not named:
         return NOT_ON_DEVICE
-    return None if s.resolution in RESOLVED and s.algorithm is not None and s.provider is not None else "unresolved"
+    resolved = s.resolution in RESOLVED or named
+    return None if resolved and s.algorithm is not None and s.provider is not None else "unresolved"
 
 
 @dataclass(frozen=True)
@@ -83,7 +88,14 @@ class Joined:
     available: set[str]
     family: Family | None = None
 
-    def option(self, s: Scope, current: str, n: int, q: str, change: Change | None = None) -> Option:
+    def _track(self, current: str, q: str, change: Change | None) -> str:
+        """Both providers real for the app, one canonical name, the group's output: a swap of provider only."""
+        moved = provider_of(q) != provider_of(current) and {provider_of(q), provider_of(current)} <= self.available
+        mine, theirs = self._canonical(current), self._canonical(q)
+        same = None not in (mine, theirs) and fold(mine) == fold(theirs)
+        return PROVIDER_PATH if change is None and moved and same else RECOMMENDATION
+
+    def option(self, s: Scope, current: str, n: int, q: str, change: Change | None = None, by_order: bool = False) -> Option:
         mine, theirs = self.measured[current], self.measured[q]
         configs = nearest(s, mine, theirs)
         # no configuration measured on both sides: the pins are unknown, never guessed
@@ -97,7 +109,8 @@ class Joined:
         rows = (self.family.row(current), self.family.row(q)) if self.family else (None, None)
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), found,
                       None if self.verdicts is None else self.verdicts[q].status, absent, **classed,
-                      outputChanges=output_changes(d), reach=reach(s), needsReview=needs_review(s, d, *rows))
+                      outputChanges=output_changes(d), reach=reach(s),
+                      needsReview=needs_review(s, d, *rows) + (BY_ORDER,) * by_order, track=self._track(current, q, change))
 
     def others(self, current: str) -> list[str] | None:
         """The other members of the current item's group; None when it is in none."""
@@ -155,10 +168,10 @@ class Joined:
         lost = [o for o in built if no_gain(o.estimates)]
         return [o for o in built if o not in lost], [Change(o.item, REJECTED, o.diff or PairDiff.same(reach(s)), (NO_GAIN,)) for o in lost]
 
-    def options(self, s: Scope) -> tuple[str, list[Option], str | None, list[Change]]:
-        """The scope's current item, options and the candidates not offered, or the reason of the first filter that
-        leaves no option: the drop-in reason when no other class is offered either."""
-        current = qualified(s.engineType, s.algorithm, s.provider)
+    def options(self, s: Scope, on: str | None = None, by_order: bool = False) -> tuple[str, list[Option], str | None, list[Change]]:
+        """The scope's current item on provider `on` (the scope's own when None), options and the candidates not offered,
+        or the reason of the first filter that leaves no option: the drop-in reason when no other class is offered either."""
+        current = qualified(s.engineType, s.algorithm, on or s.provider)
         others = self.others(current)
         alias = [q for q in others or () if self.same_engine(current, q)]
         targets, reason = self._drop_in(current, None if others is None else [q for q in others if q not in alias])
@@ -166,8 +179,8 @@ class Joined:
         kept += [Change(q, REJECTED, PairDiff.same(reach(s)), (SAME_ENGINE,)) for q in alias]
         if not targets and not offered:
             return current, [], reason, kept
-        built = [self.option(s, current, n, q) for n, q in enumerate(targets, 1)]
-        built += [self.option(s, current, n, c.item, c) for n, c in enumerate(offered, len(built) + 1)]
+        built = [self.option(s, current, n, q, by_order=by_order) for n, q in enumerate(targets, 1)]
+        built += [self.option(s, current, n, c.item, c, by_order) for n, c in enumerate(offered, len(built) + 1)]
         gained, lost = self._gained(s, built)
         if not gained:
             return current, [], NO_GAIN, kept + lost
@@ -199,17 +212,21 @@ def _probed_or_shipped(groups: dict, app_doc: dict) -> set[str]:
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
                    measurements: dict[str, dict[str, Summary | None]], source_root: Path,
                    verdicts: dict[str, Verdict] | None, perf: PerfMode, family: Family | None = None,
-                   available: set[str] | None = None) -> dict:
+                   available: set[str] | None = None, providers: SiteProviders | None = None) -> dict:
     """verdicts: each item's screen verdict for this app by qualified name; None without screen.json.
     perf: only its metrics are estimated, and an option without one it requires is dropped.
     family: the type catalog's candidates beyond the group up to its maxChange; None offers drop-ins only.
-    available: the providers in the app's process; None, without a probe: every probed one and what the app ships."""
+    available: the providers in the app's process; None, without a probe: every probed one and what the app ships.
+    providers: the provider each site is on for this app; None: the scope's own, by order when its resolution is default."""
     if available is None:
         available = _probed_or_shipped(groups, app_doc)
     joined = Joined(groups, _measured(rows), measurements, verdicts, perf, available, family)
     dossiers, none, kept = [], [], []
+    items = {v["qualified"] for v in groups["items"].values()}
     for s in scopes:
-        current, options, reason, others = (None, [], _unresolved(s), []) if _unresolved(s) else joined.options(s)
+        on, by_order = providers.on(s, items) if providers else (s.provider, s.resolution == "default")
+        unresolved = _unresolved(s, on != s.provider)
+        current, options, reason, others = (None, [], unresolved, []) if unresolved else joined.options(s, on, by_order)
         kept += [{"scope": s.id, **c.to_json()} for c in others]
         if reason is not None:
             none.append({"scope": s.id, "reason": reason})

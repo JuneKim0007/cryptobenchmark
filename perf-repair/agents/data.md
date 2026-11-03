@@ -24,7 +24,7 @@
 ```
 src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
 src/perfrepair/catalog/bundled-providers.yaml : data: per Gradle group:name an app ships, the provider it registers, create, alias, minSdk, notes, a known blocker, and its source
-src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: every row's forms, keys and source checked, every problem at once; a row's providers.bundled entry at the app's pinned version
+src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: every row's forms, keys and source checked, every problem at once; a row's providers.bundled entry at the app's pinned version; whether an app's registration expression builds the row's provider
 src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component, platform and future rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes

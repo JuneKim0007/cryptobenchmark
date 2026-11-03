@@ -13,7 +13,7 @@
 | sinks are pattern matches over the whole function body, not data flow; the key source is too when the lifecycle has no key origin; a field written with `this.`, or a name the function neither declares nor takes (`assignment`, `declaration` in `scope/patterns.yaml`), adds `unknown`; a write through another object (`a.b = x`) or an app wrapper is not seen | `scopes.json` |
 | settlement stays in the outermost class of the site's file: a key from another class's call, or a public method's parameter, stays open | `scopes.json`: a requirement with no `settled` |
 | the lifecycle follows the object in its method and one method away inside its class only; DI, factories in other classes and callers elsewhere end `partially_bounded`; without the `scope` extra it is `unsupported` | `scopes.json` `lifecycle` |
-| default provider resolution | `docs/repair.md` limits |
+| default provider resolution, and an app's own provider registration ahead of the device's | `docs/repair.md` limits; options `resolved_by_order` |
 | the scope step infers no key or input size, so `harness.yaml` inputs are the run's configured sizes (`from: run`), one size per scope, not the sizes the app passes | `report.json` `inputs` |
 | a current and option with no configured size in common get a null input; a function taking bytes, text or a key is then `not_compilable` (`missing_input`) and reported primitive-only | `report.json` `compile` |
 | interchangeability is per capture: a `groups.json` belongs to the device folder it was built in, from one manifest | `grouping/groups.json` |

@@ -30,6 +30,11 @@ NEEDS_REVIEW = (*REACH_REVIEW.values(), FIELD_BOUND, "output_length_changes", "k
                 "parameter_changes", "adds_dependency", "resolved_by_order")
 
 
+# provider_path: the same canonical name from another provider the app has; the only kind a swap can be applied as
+PROVIDER_PATH, RECOMMENDATION = "provider_path", "recommendation"
+TRACKS = (PROVIDER_PATH, RECOMMENDATION)
+
+
 def output_changes(diff: "PairDiff | None") -> bool:
     return diff is not None and diff.output != SAME
 

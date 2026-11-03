@@ -82,8 +82,21 @@ flowchart TD
 
 ## Availability
 
+- The same rule is the provider path's: a provider the harness bundled is the app's own only when the app ships its library.
 - A provider is in the app's process when the probe's `origin` is not `bundled`, the app's `app.json` `bundled` names it, or the probe's `artifact` group:name is one the app ships.
 - A capture without `origin` reads as all platform.
+
+## Two tracks
+
+The deliverable is a recommendation study and, apart from it, the provider path; an option's `track` says which.
+
+| `track` | Holds when | Means |
+|---|---|---|
+| `provider_path` | a drop-in, the same canonical name, from another provider, and both the provider the site is on and the one offered are in the app's process (Availability) | the same output from another implementation the app already has; the only track a swap is applied as |
+| `recommendation` | any other option | a swap and what would have to change; deliberately loose, never claimed as an app improvement |
+
+- The provider a site is on (`result/provider_path.py`): the one it names; a name the app ships and the harness measures under its alias (`app.json` `bundled`, the probe's `artifact`) is that alias's item; a `default` site in an app that inserts a provider it ships at position 1 (`registers` `call`, `position`, matched to `catalog/bundled-providers.yaml` `create`) is on that provider's item when it registers the name, so the platform member is its provider path back; any `default` site's options carry `resolved_by_order`.
+- A same-canonical member from the current item's own provider is `same_engine`, never an option.
 
 ## Review facts
 
@@ -104,6 +117,7 @@ Every option carries three fields code computes; the model is not asked for them
 | `key_size_unknown` | the current item takes a key and the scope's key size is unknown |
 | `parameter_changes` | the diff's `input` is not `same` |
 | `adds_dependency` | the candidate's provider is the harness's, not the app's (any output) |
+| `resolved_by_order` | the site's provider is the default order's (any output, any track) |
 
 - A recommendation stays a recommendation: `return` and `local` reach stay `local-edit`, offered up to `apps.maxChange`, deliberately loose; `needsReview` says what a person checks before it means anything for the app.
 

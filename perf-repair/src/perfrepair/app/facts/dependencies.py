@@ -17,7 +17,7 @@ SUPPORTED_SCHEMA = 1
 
 _COORDINATE = re.compile(r"""["']([\w.\-]+):([\w.\-]+)(?::[^"'\s]*)?["']""")
 _MAP = re.compile(r"""group\s*[:=]\s*["']([\w.\-]+)["']\s*,\s*name\s*[:=]\s*["']([\w.\-]+)["']""")
-_REGISTER = re.compile(rf"\b{REGISTRY}\s*\.\s*(?:addProvider|insertProviderAt)\s*\(")
+_REGISTER = re.compile(rf"\b{REGISTRY}\s*\.\s*(addProvider|insertProviderAt)\s*\(")
 
 
 @dataclass(frozen=True)
@@ -39,6 +39,9 @@ class Registration:
     file: str
     line: int
     expr: str
+    call: str | None = None
+    # the position argument's text; None for a call that takes none
+    position: str | None = None
 
     def to_json(self) -> dict:
         return asdict(self)
@@ -85,5 +88,6 @@ def registrations(code: Code, rel: str) -> list[Registration]:
             continue
         parsed = code.arguments(m.end() - 1)
         if parsed and parsed[0]:
-            out.append(Registration(rel, code.line(m.start()), " ".join(parsed[0][0].split())))
+            args = [" ".join(a.split()) for a in parsed[0]]
+            out.append(Registration(rel, code.line(m.start()), args[0], m.group(1), args[1] if len(args) > 1 else None))
     return out

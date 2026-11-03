@@ -31,7 +31,7 @@ def validate_app_facts(doc: dict) -> list[str]:
     for i, b in enumerate(doc.get("bundled") or []):
         out += _typed(f"bundled[{i}]", b, {"artifact": str}, {"providerName": str, "version": str})
     for i, r in enumerate(doc.get("registers") or []):
-        out += _typed(f"registers[{i}]", r, {"file": str, "line": int, "expr": str}, {})
+        out += _typed(f"registers[{i}]", r, {"file": str, "line": int, "expr": str}, {"call": str, "position": str})
     return out
 
 

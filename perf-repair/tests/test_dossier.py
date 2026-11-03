@@ -11,7 +11,9 @@ from test_stages import run  # noqa: F401  the recorded run, grouped
 from perfrepair.catalog.screening import SCREENING, PlatformRule
 from perfrepair.dto.lifecycle import Lifecycle
 from perfrepair.dto.perf_mode import PerfMode
+from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.dto.screen import Verdict
+from perfrepair.result.provider_path import SiteProviders, site_providers
 from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.dto.site import PROVIDER_HELD_KEY
@@ -417,3 +419,46 @@ def test_another_spelling_of_the_current_engine_is_not_offered_and_says_same_eng
     assert [o["item"] for d in doc["dossiers"] for o in d["options"]] == ["TypeA|alg-a-alias|P3"]
     assert [(n["item"], n["reasons"]) for n in doc["notOffered"]] == [("TypeA|ALG_128-A|P1", ["same_engine"])]
     assert validate_dossiers(doc, [scope()], groups, verdicts) == []
+
+
+def test_a_member_from_another_provider_of_the_same_name_is_the_provider_path_and_by_order_says_so(tmp_path):
+    verdicts = {v["qualified"]: Verdict("accepted", "r", canonical=v["qualified"].split("|")[1].upper())
+                for v in GROUPS["items"].values()}
+    doc = build([scope(resolution="default")], tmp_path, verdicts=verdicts)
+    tracks = {o["item"]: (o["track"], o["needsReview"]) for o in doc["dossiers"][0]["options"]}
+    assert tracks["TypeA|ALG-A|P2"] == ("provider_path", ["resolved_by_order"])
+    assert tracks["TypeA|alg-a-alias|P3"][0] == "recommendation"
+    named = build([scope()], tmp_path, verdicts=verdicts)["dossiers"][0]["options"][0]
+    assert (named["track"], named["needsReview"]) == ("provider_path", [])
+
+
+def test_a_shipped_provider_the_app_inserts_first_is_what_a_default_site_is_on_and_the_platform_its_path(tmp_path):
+    providers = site_providers({"P2": "g:lib"}, {"bundled": [{"artifact": "g:lib", "providerName": "Lib"}],
+                                                 "registers": [{"file": "A.kt", "line": 1, "expr": "Lib.make()",
+                                                                "call": "insertProviderAt", "position": "1"}]},
+                               BundledCatalog({"g:lib": BundledRow("g:lib", "Lib", "x.Lib#make", "S", alias="P2")}))
+    assert providers == SiteProviders({"Lib": "P2"}, "P2")
+    s = scope(resolution="default")
+    doc = build_dossiers("app", [s], {"bundled": []}, GROUPS, ROWS, M, _source(tmp_path), None, PerfMode(), None,
+                         {"P1", "P2", "P3"}, providers)
+    d = doc["dossiers"][0]
+    assert d["current"] == "TypeA|ALG-A|P2" and "TypeA|ALG-A|P1" in [o["item"] for o in d["options"]]
+    assert all("resolved_by_order" in o["needsReview"] for o in d["options"])
+    named = replace(s, provider="Lib", resolution="not_on_device")
+    doc = build_dossiers("app", [named], {"bundled": []}, GROUPS, ROWS, M, tmp_path, None, PerfMode(), None,
+                         {"P1", "P2", "P3"}, SiteProviders({"Lib": "P2"}))
+    assert doc["dossiers"][0]["current"] == "TypeA|ALG-A|P2"
+    assert all("resolved_by_order" not in o["needsReview"] for o in doc["dossiers"][0]["options"])
+
+
+def test_an_added_provider_or_one_at_another_position_moves_no_default_site():
+    catalog = BundledCatalog({"g:lib": BundledRow("g:lib", "Lib", "x.Lib", "S", alias="P2")})
+    for call, position in (("addProvider", None), ("insertProviderAt", "3")):
+        app = {"bundled": [{"artifact": "g:lib", "providerName": "Lib"}],
+               "registers": [{"file": "A.kt", "line": 1, "expr": "new Lib()", "call": call, "position": position}]}
+        assert site_providers({"P2": "g:lib"}, app, catalog).first is None
+
+
+def _source(tmp_path):
+    (tmp_path / "A.java").write_text("void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}\nvoid g() {}\n")
+    return tmp_path

@@ -12,6 +12,7 @@ from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
 from perfrepair.grouping import signature
+from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import screening_catalog
@@ -376,6 +377,28 @@ def test_bundled_apply_measures_only_the_algorithms_the_sites_name_and_groups_th
     assert used(scoped)["MessageDigest|SHA-256|BundledConscrypt"] == "group"
     assert {"MessageDigest|MD5|BundledConscrypt", "Cipher|AES/GCM/NoPadding|BundledConscrypt"} <= set(excluded(scoped))
     assert "MessageDigest|SHA-256|BundledConscrypt" not in excluded(scoped)
+
+
+def _sha_options(flow, root):
+    doc = read_json(rd.AppPaths(flow.device, path_id(root)).dossiers)
+    [d] = [d for d in doc["dossiers"] if d["current"].startswith("MessageDigest|SHA-256|")]
+    return d["current"], {o["item"]: (o["track"], o["needsReview"]) for o in d["options"]}
+
+
+@pytest.mark.parametrize("registers, current, offered", [
+    (False, "MessageDigest|SHA-256|Fast", "MessageDigest|SHA-256|BundledConscrypt"),
+    (True, "MessageDigest|SHA-256|BundledConscrypt", "MessageDigest|SHA-256|Fast")])
+def test_a_shipped_provider_is_a_provider_path_in_both_directions(scoped, monkeypatch, registers, current, offered):
+    monkeypatch.setattr(signature, "interchange", INTERCHANGE)
+    scoped.bundled = {"fromApps": "apply"}
+    root = target(scoped, "tls", SHA, ships=CONSCRYPT)
+    if registers:
+        (root / "src/main/java/demo/Boot.java").write_text(
+            "package demo;\n\nimport java.security.Security;\nimport org.conscrypt.Conscrypt;\n\nclass Boot {\n"
+            "    void boot() { Security.insertProviderAt(Conscrypt.newProvider(), 1); }\n}\n")
+    run_targets(scoped, root)
+    on, options = _sha_options(scoped, root)
+    assert on == current and options[offered] == ("provider_path", ["resolved_by_order"])
 
 
 @pytest.mark.parametrize("value", ["always", 1])

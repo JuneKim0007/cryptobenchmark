@@ -86,7 +86,8 @@ def test_without_a_family_nothing_is_classed(tmp_path):
 
 def test_a_drop_in_option_writes_no_change_and_its_output_stays():
     written = Option("R1", B, {}, "pass").to_json()
-    assert set(written) == {"alias", "item", "pins", "interop", "screen", "estimates", "outputChanges", "reach", "needsReview"}
+    assert set(written) == {"alias", "item", "pins", "interop", "screen", "estimates", "track", "outputChanges", "reach",
+                            "needsReview"}
     assert (written["outputChanges"], written["needsReview"]) == (False, [])
 
 

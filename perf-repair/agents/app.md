@@ -30,7 +30,7 @@ src/perfrepair/app/__main__.py : command: app source → <device>/<path id>/site
 src/perfrepair/app/detect.py : the detect step: non-test sources → import-checked, constant-folded sites, each resolved by the given resolver
 src/perfrepair/app/facts/__init__.py : docstring only
 src/perfrepair/app/facts/app_facts.py : the app.json document: project root, bundled, registers, SDK levels
-src/perfrepair/app/facts/dependencies.py : declared crypto libraries from Gradle and the version catalog; Security provider registrations
+src/perfrepair/app/facts/dependencies.py : declared crypto libraries from Gradle and the version catalog; Security provider registrations with their call and position
 src/perfrepair/app/facts/gate.py : app gate: directory, readable, project roots found, per root Android project, no escaping symlink, size caps; coded reasons
 src/perfrepair/app/facts/libraries.yaml : artifact group and name prefix → JCA provider name
 src/perfrepair/app/facts/path_id.py : the app's id from its absolute path; a multi-root unit's id; the folder for --app

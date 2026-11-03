@@ -37,6 +37,12 @@ class BundledRow:
     # versions that fail on a device: a pin here is never built
     badVersions: tuple[str, ...] = ()
 
+    def registered_by(self, expr: str) -> bool:
+        """An app's Security registration expression builds this row's provider: `Class.factory(` or `Class(`."""
+        cls, _, factory = self.create.partition("#")
+        made = f"{cls.rsplit('.', 1)[-1]}.{factory}(" if factory else f"{cls.rsplit('.', 1)[-1]}("
+        return made in "".join(expr.split())
+
     def entry(self, version: str) -> dict:
         """The providers.bundled entry at the app's pinned version."""
         return {"artifact": f"{self.artifact}:{version}", "create": self.create,

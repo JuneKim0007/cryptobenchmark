@@ -96,5 +96,6 @@ scopes:
 | argument split | generic angle brackets are not counted, so `f(Map<A, B>)` reads as two arguments |
 | pin with an app-supplied IV | rejected; the IV length cannot be changed without changing the app's data flow |
 | default provider | the first by precedence that registers the name; a Cipher transformation also matches like JCA: `A/M`, `A//P`, then `A`, within the service's `SupportedModes` and `SupportedPaddings` |
+| app-registered provider | `Security.insertProviderAt(<a shipped provider's create>, 1)` puts it ahead of the device for a `default` site, whose current item becomes its harness alias's; `addProvider` or another position moves nothing; every `default` site's option says `resolved_by_order`: static order is a candidate, the runtime check of #61 is the proof |
 | provider rejecting the key at `init` | not skipped |
 | Cipher transformation served only through its base service | not resolved |

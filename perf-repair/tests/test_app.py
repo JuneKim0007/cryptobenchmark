@@ -356,3 +356,10 @@ def test_a_name_providers_disagree_on_is_kept_as_name_conflict_not_a_stop(run):
     conflicted = with_fields(names, conflicts={("Cipher", cipher.algorithm.literal.upper()): "P says one, Q another"})
     site = resolve(cipher, probe, conflicted, manifest.providers)
     assert site["resolution"] == "name_conflict" and site["resolvedProvider"] is None
+
+
+def test_a_registration_records_its_call_and_position():
+    code = Code.of("import java.security.Security;\nclass A { void f() { Security.insertProviderAt(Lib.make(), 1); "
+                   "Security.addProvider(new P()); } }", JAVA)
+    found = [(r.expr, r.call, r.position) for r in registrations(code, "A.java")]
+    assert found == [("Lib.make()", "insertProviderAt", "1"), ("new P()", "addProvider", None)]
