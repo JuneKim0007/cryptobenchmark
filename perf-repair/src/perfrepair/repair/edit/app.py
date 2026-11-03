@@ -9,7 +9,7 @@ from pathlib import Path
 
 from ...dto.site import EDITS_SCHEMA_VERSION, Replacement, Scope
 from ...dto.unit import Unit, units_by_scope
-from ...files import write_text
+from ...files import write_text_making_parents
 from ...run_dir import AppPaths
 from ...source.lexer import Code
 from .alone import write_alone
@@ -31,11 +31,6 @@ def _source_file(root: Path, file: str) -> Path:
 def read_source(path: Path) -> str:
     with path.open(encoding="utf-8", newline="") as f:
         return f.read()
-
-
-def _write(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    write_text(path, text)
 
 
 def _refused(replacements: list[Replacement], scopes: dict[str, Scope], app: str) -> None:
@@ -117,7 +112,7 @@ def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Pa
     for directory in (out.original, out.patched):
         shutil.rmtree(directory, ignore_errors=True)
     for file, splices in sorted(run.accepted.items()):
-        _write(out.original / file, run.sources[file].text)
-        _write(out.patched / file, apply(run.sources[file].text, splices))
+        write_text_making_parents(out.original / file, run.sources[file].text)
+        write_text_making_parents(out.patched / file, apply(run.sources[file].text, splices))
     write_alone(run.by_unit, units, scopes, {file: code.text for file, code in run.sources.items()}, out)
     return {"schemaVersion": EDITS_SCHEMA_VERSION, "app": out.app, "edits": sorted(rows, key=lambda row: row["scope"])}

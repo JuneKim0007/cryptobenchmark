@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from ...dto.site import Scope
 from ...dto.unit import Unit
-from ...files import write_text
+from ...files import write_text_making_parents
 from ...run_dir import AppPaths
 from .splice import Splice, apply
 
@@ -27,6 +27,4 @@ def write_alone(applied: dict[str, dict[str, list[Splice]]], units: list[Unit], 
     by_id = {u.id: u for u in units}
     for uid in sorted(_sharing(applied, by_id, scopes)):
         for file, splices in applied[uid].items():
-            path = out.alone(uid) / file
-            path.parent.mkdir(parents=True, exist_ok=True)
-            write_text(path, apply(text_of[file], splices))
+            write_text_making_parents(out.alone(uid) / file, apply(text_of[file], splices))

@@ -120,6 +120,11 @@ def write_texts(texts: list[tuple[Path, str]]) -> None:
         os.replace(tmp, path)
 
 
+def write_text_making_parents(path: Path, text: str) -> Path:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    return write_text(path, text)
+
+
 def write_text(path: Path, text: str, durable: bool = False, exclusive: bool = False) -> Path:
     path = Path(path)
     if exclusive and path.exists():

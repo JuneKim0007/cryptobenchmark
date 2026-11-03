@@ -6,7 +6,7 @@ from pathlib import Path
 
 from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Replacement, Scope
 from ..dto.unit import Unit, units_by_scope
-from ..files import write_text
+from ..files import write_text_making_parents
 from ..source.lexer import Code
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
@@ -19,8 +19,7 @@ from .operation import has_operation
 
 def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
     path = out.extracts / scope.id / f"{side}{Path(scope.file).suffix}"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    write_text(path, function_lines(text, scope.start, scope.end))
+    write_text_making_parents(path, function_lines(text, scope.start, scope.end))
     return str(path.relative_to(out.root))
 
 

@@ -90,7 +90,7 @@ src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (laten
 src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group or candidate; names_digest
 src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of several
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per selected metric), MetricComparison, PairMetrics (a comparison per selected metric), Configuration, GroupEvidence, Pair, Verdict, Verdicts
-src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
+src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; a text write that makes its parent folders; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
