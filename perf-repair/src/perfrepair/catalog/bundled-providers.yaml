@@ -1,0 +1,35 @@
+# Per Gradle group:name an app ships: how cryptobenchmark builds it into the harness (providers.bundled). The version is
+# never here: it is the app's own pin. blocked: a known harness or device failure, listed and never applied.
+schemaVersion: 1
+sources:
+  CONSCRYPT: https://github.com/google/conscrypt
+  BC: https://www.bouncycastle.org/documentation/documentation-java/
+  APIE: https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html
+  SPONGY: https://rtyley.github.io/spongycastle/
+  I83: https://github.com/JuneKim0007/cryptobenchmark/issues/83
+providers:
+  - artifact: org.conscrypt:conscrypt-android
+    provider: Conscrypt
+    create: org.conscrypt.Conscrypt#newProvider
+    alias: BundledConscrypt
+    notes: '2.5.3 Mac HmacSHA256 aborted the harness with a native bad_alloc on Pixel 10, Android 17 (seen 2026-11-03, I83)'
+    source: CONSCRYPT
+  - artifact: org.bouncycastle:bcprov-jdk18on
+    provider: BC
+    create: org.bouncycastle.jce.provider.BouncyCastleProvider
+    alias: BundledBC
+    notes: Android registers a platform BC (APIE), so the bundled copy needs its own name
+    blocked: 'harness duplicate_name: the provider registers Cipher.AES and the alias RIJNDAEL for it; to be fixed in the harness (I83)'
+    source: BC
+  - artifact: org.bouncycastle:bcprov-jdk15on
+    provider: BC
+    create: org.bouncycastle.jce.provider.BouncyCastleProvider
+    alias: BundledBC
+    notes: Android registers a platform BC (APIE), so the bundled copy needs its own name
+    blocked: 'harness duplicate_name: the provider registers Cipher.AES and the alias RIJNDAEL for it; to be fixed in the harness (I83)'
+    source: BC
+  - artifact: com.madgag.spongycastle:prov
+    provider: SC
+    create: org.spongycastle.jce.provider.BouncyCastleProvider
+    notes: BouncyCastle repackaged under org.spongycastle, registered as SC, so no alias is needed on Android
+    source: SPONGY
