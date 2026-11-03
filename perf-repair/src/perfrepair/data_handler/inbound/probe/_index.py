@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ....catalog.names import fold
+from ._services import services
 
 SUPPORTED_SCHEMA = 1
 
@@ -51,10 +52,9 @@ def _attribute(service: dict, key: str) -> frozenset[str] | None:
 def index_of(doc: dict, source: str) -> ProbeIndex:
     if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
         raise ValueError(f"{source}: probe schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
-    services: dict[tuple[str, str, str], Service] = {}
-    for p in doc.get("providers") or []:
-        for s in p.get("services") or []:
-            service = Service(s["algorithm"], _attribute(s, "SupportedModes"), _attribute(s, "SupportedPaddings"))
-            for n in [s["algorithm"], *(s.get("aliases") or [])]:
-                services.setdefault((p["name"], s["type"], fold(str(n))), service)
-    return ProbeIndex(services)
+    by_name: dict[tuple[str, str, str], Service] = {}
+    for p, s in services(doc):
+        service = Service(s["algorithm"], _attribute(s, "SupportedModes"), _attribute(s, "SupportedPaddings"))
+        for n in [s["algorithm"], *(s.get("aliases") or [])]:
+            by_name.setdefault((p["name"], s["type"], fold(str(n))), service)
+    return ProbeIndex(by_name)

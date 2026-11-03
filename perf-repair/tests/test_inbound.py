@@ -208,6 +208,15 @@ def test_a_generator_service_gives_the_key_kind_it_makes():
     assert (kind("ks-alias"), kind("KP"), kind("other")) == ("secret", "pair", None)
 
 
+def test_a_probe_without_providers_is_empty_in_every_view():
+    from perfrepair.catalog.names import Names
+    probe, base = Probe({"schemaVersion": 1}), Names.load()
+    names = probe.names(base)
+    assert (probe.index.services, names.probe, names.conflicts) == ({}, {}, {})
+    assert (probe.attributes("P", "Mac", "M1"), probe.class_name("P", "Mac", "M1")) == ({}, None)
+    assert probe.generator_kind(names)("KS") is None
+
+
 def test_run_context_reads_each_piece_on_first_use_and_takes_injected_ones():
     families = object()
     context = RunContext.load(MANIFEST, families=families)
