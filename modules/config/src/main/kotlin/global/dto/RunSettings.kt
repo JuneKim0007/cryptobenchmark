@@ -7,6 +7,8 @@ data class RunSettings(
     val inputSizes: List<Int> = listOf(1024),
     val phases: List<String> = listOf("WARM"),
     val metrics: List<String> = listOf("TIME"),
+    // each measured item once per variant: fixed keeps the setup the API lets a call keep, notFixed makes it every call
+    val variants: List<String> = VARIANTS,
     val processRepetitions: Int = 1,
     // case: one device process per measured case, so a case that kills its process loses only itself
     val isolation: String = CASE,
@@ -29,6 +31,9 @@ data class RunSettings(
         require(inputSizes.isNotEmpty() && inputSizes.all { it > 0 }) { "invalid: inputSizes $inputSizes" }
         require(phases.isNotEmpty() && phases.none { it.isBlank() }) { "invalid: phases $phases" }
         Metric.read(metrics, "run.metrics")
+        require(variants.isNotEmpty() && variants.all { it in VARIANTS } && variants.distinct().size == variants.size) {
+            "invalid: run.variants $variants, expected distinct values of $VARIANTS"
+        }
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
         require(scopedRepetitions >= 1) { "not_positive: scopedRepetitions $scopedRepetitions" }
         require(passes.map { it.name }.toSet().size == passes.size) { "duplicate: run.passes ${passes.map { it.name }}" }
@@ -46,5 +51,6 @@ data class RunSettings(
     companion object {
         const val CASE = "case"
         val ISOLATIONS = listOf(CASE, "run")
+        val VARIANTS = listOf("fixed", "notFixed")
     }
 }

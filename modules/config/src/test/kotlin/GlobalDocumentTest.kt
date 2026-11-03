@@ -93,6 +93,17 @@ class GlobalDocumentTest {
     }
 
     @Test
+    fun variantsDefaultToBothAndRefuseAnUnknownOrRepeatedOne() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(listOf("fixed", "notFixed"), run("").variants)
+        assertEquals(listOf("notFixed"), io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("run: {variants: [notFixed]}\n"))["variants"])
+        for (bad in listOf("[]", "[fixed, fixed]", "[cold]")) {
+            val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {variants: $bad}\n") }
+            assertEquals(true, refused.message!!.startsWith("invalid: run.variants"))
+        }
+    }
+
+    @Test
     fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
         fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
         assertEquals(3, run("").scopedRepetitions)

@@ -10,6 +10,7 @@ run:                             # optional — every key below falls back to it
   inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call; one case per size (types that take no input ignore it)
   phases: [WARM]                 # optional, default [WARM] — WARM | COLD
   metrics: [TIME]                # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS (rooted device); what benchmark.json reports, the device always runs its allocation phase
+  variants: [fixed, notFixed]    # optional, default [fixed, notFixed] — each measured item once per variant: fixed keeps the setup the API lets a call keep (catalog in modules/preparation/docs/operations.md), notFixed makes getInstance + init every call; key generation has one variant
   processRepetitions: 1          # optional, default 1 — independent process runs
   isolation: case                # optional, default case — --device: case starts one process per measured case, so a crash loses that case only; run measures every case in one process
   seed: 0                        # optional, default 0 — seeds the input bytes

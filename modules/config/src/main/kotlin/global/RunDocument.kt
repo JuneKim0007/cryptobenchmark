@@ -21,6 +21,7 @@ object RunDocument {
     private const val INPUT_SIZES = "inputSizes"
     private const val PHASES = "phases"
     private const val METRICS = "metrics"
+    private const val VARIANTS = "variants"
     private const val PROCESS_REPETITIONS = "processRepetitions"
     private const val ISOLATION = "isolation"
     private const val SEED = "seed"
@@ -39,6 +40,7 @@ object RunDocument {
         INPUT_SIZES to run.inputSizes,
         PHASES to run.phases,
         METRICS to run.metrics,
+        VARIANTS to run.variants,
         PROCESS_REPETITIONS to run.processRepetitions,
         ISOLATION to run.isolation,
         SEED to run.seed,
@@ -52,12 +54,13 @@ object RunDocument {
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, ISOLATION, SEED, SCOPED_REPETITIONS, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, HARNESS), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, ISOLATION, SEED, SCOPED_REPETITIONS, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
             phases = optional(document, PHASES, defaults.phases, ::strings),
             metrics = optional(document, METRICS, defaults.metrics, ::strings),
+            variants = optional(document, VARIANTS, defaults.variants, ::strings),
             processRepetitions = optionalNumber(document, PROCESS_REPETITIONS)?.toInt() ?: defaults.processRepetitions,
             isolation = optionalString(document, ISOLATION).ifEmpty { defaults.isolation },
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
