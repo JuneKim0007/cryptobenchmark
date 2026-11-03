@@ -111,31 +111,4 @@ With `device.filterByApps` the device stage probes, detects the targets and meas
 
 ## Run log
 
-Every command appends to `<device>/log/`; nothing in it is read back by a stage.
-
-| file | holds |
-|---|---|
-| `events.jsonl` | one JSON line per event, every field on every line (`dto/event.py`, schema 1) |
-| `screening/ai.log` | the classify role's model events, one line each, problems indented |
-| `grouping/ai.log` | the assign and review roles' model events |
-| `bug.log` | each exception that is not a coded error, with its traceback |
-
-| field | holds |
-|---|---|
-| `ts`, `run` | UTC time to the millisecond; the id of the command's run, shared by commands it calls in-process |
-| `stage`, `step`, `item`, `app` | where: `device`, `inbound`, `grouping`, `screening`, `app`, `repair`, `replace`, `worthiness`, `report`, `guide`, `run`, or a logger's package for a log record |
-| `kind`, `event` | `static` or `model`; `start`, `end`, `turn`, `decision`, `run_start`, `run_end`, `error`, `bug`, `log` |
-| `outcome`, `durationMs`, `detail` | `ok`, `ran`, `reused`, `failed`, `accepted`, `rejected`, `refused`, `decided`, `dropped`, a log level, a run's exit; time; a reason or message |
-| `tokens`, `costUsd` | a turn's usage from the reply: `input`, `output`, `cacheRead`, `cacheWrite`; the CLI's `total_cost_usd`, null from the API and dry-run gateways |
-| `ref` | `<role dir>/journal.jsonl:<line>` for a turn, the outbox record for a decision, relative to the device folder |
-| `data` | `counts` and `files` (path → sha256) of a step's end; `session`, `turn`, `problems`, `outbox` of a model event; a start's `pending` and outbox `opened`, `resumed` or `rotated` |
-
-- A static step emits `start` and `end`; a model step emits `start`, a `turn` per model call, a `decision` per committed item, `end`.
-- No prompt or reply text is in an event; the journal line and the outbox record hold it.
-- Records logged before the device folder is known are kept and written, in order, once it is; a command that never names an existing folder writes nothing.
-- Each line is one append of a whole line; a reader takes only lines ending in a newline, and the validator reports a partial last line.
-- The views are rendered from each event as it is written; `log/views.py` `render()` recomputes them from `events.jsonl`.
-- The stderr lines are the same as without the log: event records stay off stderr, and setting lines at DEBUG reach only `events.jsonl`.
-- A coded error is one `error` event and `error <code>: ...` on stderr; any other exception is a `bug` event, `error bug: <type>: <message>; traceback in <device>/log/bug.log`, exit 1; before the folder is known the traceback goes to stderr.
-- `watch` prints one line per finished step and a counter per model step, `grouping assign 37/176 · 2 rejected · $0.0040 · 41s`, rewritten in place on a terminal with each turn, one line per decision elsewhere; it exits 0 when the last line it read is a `run_end`, 130 on Ctrl-C; without `--from-start` it starts at the file's end; with it, every run in the file replays, each `run_start` resetting the counters.
-- `log summary` takes every run of the folder unless `--run` names one or `--last` asks for the newest: a line per run (a run with no end is `running` if newest, else `unfinished`), the total, then per stage and per app folder its time (the sum of its step ends, plus the turns of a model step a killed run left open; an app folder leaves out the guide's steps), each static step's runs and time, items and decisions, model calls, rejections and their top problems, the slowest items, tokens and cost.
+`<device>/log/`: events, the status, model and bug views, pipeline transcripts: [run-log.md](run-log.md).

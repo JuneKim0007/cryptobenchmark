@@ -38,13 +38,13 @@ src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: de
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and a Summary per registry metric with runs per process; comparability notes
 src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, screening, probe and benchmark documents on first use; tests inject any piece
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
-src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; a failed run is one `pipeline_failed` finding (exit, last error line, transcript); identify: `--identify`'s device id and input digests
+src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; the transcript appended to <device>/log/pipeline/<run id>.log; a failed run is one `pipeline_failed` finding (exit, last error line, the call's transcript line); identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
 src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items (in used.json when present), not used ones, whether the saved files are current; noRerun's reader
 src/perfrepair/device/energy.py : after a device run: one `finding` event per invalid energy case, keyed by its first reason
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
-src/perfrepair/device/measures.py : the run config's measurements (run.metrics, run-level energy capture) against the perfMode: a selected run.metrics switch missing stops (perf_mode_unmeasured), run-level energy missing and unselected measurements are logged
+src/perfrepair/device/measures.py : the run config's measurements (run.metrics, run-level energy capture) against the perfMode: a selected run.metrics switch missing stops (perf_mode_unmeasured), run-level energy missing is a `perf_mode_unmeasured` finding, unselected measurements are logged
 src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; a forced reason (the used set); base_inputs: a used-set manifest's config digest mapped back to the base; --refresh reruns primitives
 src/perfrepair/device/primitives.py : the primitives stage: rows, measurements, screen.json → primitives.tsv, validated as it reads back; its input digests; status_of (screen.json by qualified name)
 src/perfrepair/device/selection.py : with device.filterByApps: what the last benchmark measured, why the used set reruns it, the exclude rules and used-global.yaml, device.yaml's benchmark section
@@ -81,20 +81,20 @@ src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); known_tree
-src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, emit, step
-src/perfrepair/log/__main__.py : command: `summary <device> [--run ID] [--json]`, one run of events.jsonl
-src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command
+src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, emit, run_id, step
+src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] [--json]`, the runs of events.jsonl, status lines last
+src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id
 src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed start and end with counts and the digests of the files written
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
 src/perfrepair/log/read.py : events.jsonl read whole or followed, whole lines only; `events_unreadable`
 src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order
 src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, findings, errors, bugs), each starting with its code word; code_of and line, the one parser and formatter
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
-src/perfrepair/log/summary.py : summarize(): one run per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost
-src/perfrepair/log/summary_text.py : the summary as text lines
-src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage>.log per model stage (AI_LOGS: screening, grouping, supervisor, worthiness, replace), bug.log, status.log; render() recomputes them
+src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines
+src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last
+src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage>.log per model stage (AI_LOGS: screening, classify, grouping, supervisor, worthiness, replace), bug.log, status.log; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
-src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/), not_device_results, app folders, device.yaml read and write, load_used (None without used.json), artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/), not_device_results, app folders, device.yaml read and write, load_used (None without used.json), artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130
 ```

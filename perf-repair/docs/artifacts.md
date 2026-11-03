@@ -45,7 +45,8 @@
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/run.py`: rehashed to the folder's name |
 | `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/run.py`: rehashed to `supervisor.json` `charter` |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
-| `log/screening/ai.log`, `log/grouping/ai.log`, `log/bug.log` | the event sink, from the same events | people | none: `log/views.py` renders them |
+| `log/status.log`, `log/ai/<stage>.log`, `log/bug.log` | the event sink, from the same events | people, log summary (status) | none: `log/views.py` renders them; [run-log.md](run-log.md) |
+| `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py` and `validation/dossier_units.py`, before writing: schema 3, `units` the units asked, `perfMode` the selection its estimates hold |
