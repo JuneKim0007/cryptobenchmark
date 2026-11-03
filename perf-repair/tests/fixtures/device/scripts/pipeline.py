@@ -53,6 +53,7 @@ for n, entry in enumerate(shipped):
     name = entry.get("alias") or entry["create"]
     services = [{"type": t, "algorithm": a, "className": f"{name}.{i}"} for i, (t, a) in enumerate(ADDED)]
     probe["providers"].append({"name": name, "version": "1", "precedence": 3 + n, "origin": "bundled", "usable": True,
+                               "artifact": entry["artifact"],
                                "services": services})
     trial["services"] += [{"provider": name, "type": t, "algorithm": a, "instantiates": True,
                            "defaultRun": {"works": True, "inputSize": 1024}} for t, a in ADDED]

@@ -8,6 +8,7 @@ from .. import run_dir as rd
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.kind import project
 from ..ai.runtime.engine.outbox import active_outbox
+from ..data_handler.inbound import RunContext
 from ..dto.grouping import Item, qualified
 from ..dto.grouping_state import Knowledge
 from ..dto.used import CANDIDATE, GROUP, SITE, VIA, AppUse, UsedItem, UsedSet
@@ -16,6 +17,7 @@ from ..log import step
 from ..run_dir import AppPaths, GroupingPaths
 from ..validation import require
 from ..validation.used import validate_used
+from .selection import bundled_named
 
 
 def _site_items(device: Path, app: str, by_name: dict[str, Item]) -> tuple[list[Item], AppUse]:
@@ -52,6 +54,11 @@ class _Reach:
         return [(m, how) for m, how in reached if m != item.id]
 
 
+def _harness_providers(device: Path) -> frozenset[str]:
+    manifest = Path(device) / rd.MANIFEST
+    return frozenset(RunContext.load(manifest).probe.harness_artifacts()) if manifest.is_file() else frozenset()
+
+
 def used_set(device: Path, apps: list[str], kind: GroupingKind | None = None) -> UsedSet:
     paths = GroupingPaths(device)
     kind = kind or GroupingKind(paths)
@@ -60,11 +67,16 @@ def used_set(device: Path, apps: list[str], kind: GroupingKind | None = None) ->
     by_name = {i.qualified: i for i in kind.items()}
     via: dict[int, str] = {}
     needed: dict[int, set[str]] = {}
-    uses = {}
+    uses, found_by_app = {}, {}
     for app in apps:
-        found, uses[app] = _site_items(device, app, by_name)
+        found_by_app[app], uses[app] = _site_items(device, app, by_name)
+    harness = _harness_providers(device)
+    named = bundled_named(kind.items(), kind.screen, harness, [i for found in found_by_app.values() for i in found])
+    for app, found in found_by_app.items():
         reached = [(i.id, SITE) for i in found] + [r for i in found for r in reach.of(i)]
         for n, how in reached:
+            if kind.by_id[n].provider in harness and kind.by_id[n].qualified not in named:
+                continue
             needed.setdefault(n, set()).add(app)
             via[n] = min(via.get(n, how), how, key=VIA.index)
     items = tuple(UsedItem(kind.by_id[n].qualified, via[n], tuple(sorted(needed[n]))) for n in sorted(needed))

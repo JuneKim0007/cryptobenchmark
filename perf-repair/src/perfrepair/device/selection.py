@@ -36,6 +36,18 @@ def _canonical(item: Item, verdict: Verdict | None) -> tuple:
     return item.provider, item.type, name, verdict.keySize if verdict else None
 
 
+def algorithm_of(item: Item, verdict: Verdict | None) -> tuple:
+    return _canonical(item, verdict)[1:]
+
+
+def bundled_named(items: list[Item], verdicts: dict[int, Verdict] | None, harness: frozenset[str],
+                  sites: list[Item]) -> frozenset[str]:
+    """A harness-bundled provider's items a site names the algorithm of; its others are a dependency no site asks about."""
+    v = verdicts or {}
+    named = {algorithm_of(i, v.get(i.id)) for i in sites}
+    return frozenset(i.qualified for i in items if i.provider in harness and algorithm_of(i, v.get(i.id)) in named)
+
+
 def exclusions(items: list[Item], verdicts: dict[int, Verdict] | None, keep: frozenset[str]) -> list[dict]:
     """An exclude rule matches every spelling of a canonical name, so one a kept item shares is never excluded."""
     kept = {_canonical(i, (verdicts or {}).get(i.id)) for i in items if i.qualified in keep}

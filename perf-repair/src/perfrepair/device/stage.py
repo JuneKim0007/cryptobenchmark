@@ -8,7 +8,7 @@ from typing import Callable
 
 from .. import run_dir as rd
 from ..catalog.names import CATALOG
-from ..data_handler.inbound import read_manifest
+from ..data_handler.inbound import RunContext, read_manifest
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
 from ..dto.bundled import BundledPolicy, entries_digest
 from ..dto.device import DeviceRecord, runtime_summary
@@ -22,7 +22,7 @@ from ..screen.catalog import Catalog
 from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from .energy import report_invalid
 from .bundled import check_bundled
-from .bundled_config import bundled_config
+from .bundled_config import bundled_config, configured
 from .inbound import write_inbound
 from .measures import check_measures
 from .primitives import inputs as primitive_inputs, unusable, write_primitives
@@ -36,6 +36,7 @@ DEVICE_PROBES = "a device benchmark probes the device it measures"
 REUSED = "its inputs match device.yaml"
 NO_ITEM = "no target app reaches a device item: the base selection is measured"
 APPLIED_CHANGED = "the providers.bundled entries device.bundled.fromApps applies changed"
+BUNDLED_UNPROBED = "the probe does not hold the providers.bundled this run measures"
 
 
 @dataclass(frozen=True)
@@ -133,6 +134,16 @@ def _probed(r: Run, steps: dict) -> None:
             build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)
 
 
+def _probe_current(r: Run, steps: dict, base: Path) -> dict:
+    """The bundled step chooses providers after the first probe; items and groups must hold them before the used set."""
+    harness = RunContext.load(r.folder / rd.MANIFEST).probe.harness_artifacts()
+    if set(harness.values()) == set(configured(base)):
+        return steps
+    (r.folder / rd.DEVICE).unlink(missing_ok=True)
+    _probed(replace(r, config=base), {"probe": BUNDLED_UNPROBED, "screen": BUNDLED_UNPROBED})
+    return {**steps, "probe": steps["probe"] or BUNDLED_UNPROBED, "screen": steps["screen"] or BUNDLED_UNPROBED}
+
+
 def _measured_set(r: Run, keep: frozenset[str], base: Path) -> Path:
     with step("device", "selection") as s:
         paths = GroupingPaths(r.folder)
@@ -195,6 +206,7 @@ def _scoped(r: Run, before: Seen, current: dict, refresh: bool, detect: Callable
     entries = check_bundled(r.folder, apps, r.config, r.bundled, r.echo)
     applied = entries_digest(entries)
     base = bundled_config(r.config, r.folder, entries)
+    steps = _probe_current(r, steps, base)
     used = write_used(r.folder, apps)
     manifest, _ = read_manifest(r.folder / rd.MANIFEST)
     lack = lacking(used.names, before.record, mapped_inputs(manifest.inputs, before.record).get("config"), current["config"])

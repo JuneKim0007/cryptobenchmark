@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 
 from perfrepair import run_dir as rd
-from perfrepair.device.selection import UNKNOWN, exclusions, lacking, section, write_config
+from perfrepair.device.selection import UNKNOWN, bundled_named, exclusions, lacking, section, write_config
 from perfrepair.dto.device import DeviceRecord
 from perfrepair.dto.grouping import Item
 from perfrepair.dto.screen import Verdict
@@ -21,6 +21,12 @@ def record(items=None):
 def test_an_excluded_spelling_of_a_kept_canonical_name_stays_and_other_providers_go():
     rules = exclusions(ITEMS, VERDICTS, frozenset({"TypeD|H-1|P1"}))
     assert rules == [{"provider": "P1", "type": "TypeD", "name": "H2"}, {"provider": "P2", "type": "TypeD", "name": "H1"}]
+
+
+def test_a_bundled_item_counts_as_named_only_when_a_site_names_its_algorithm():
+    named = bundled_named(ITEMS, VERDICTS, frozenset({"P2", "P1"}), [ITEMS[0]])
+    assert named == {"TypeD|H-1|P1", "TypeD|H1|P1", "TypeD|H1|P2"}
+    assert bundled_named(ITEMS, VERDICTS, frozenset({"P2"}), [ITEMS[2]]) == frozenset()
 
 
 def test_a_set_that_only_shrank_lacks_nothing_and_one_that_grew_names_how_many():

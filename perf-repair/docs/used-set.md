@@ -5,7 +5,7 @@ With `device.filterByApps` (default `true`) the guide hands probe_device the tar
 ```mermaid
 flowchart LR
     P[pipeline.py --probe] --> S[screen: items, signatures, code-made groups] --> D[app step per target, static]
-    D --> K[bundled: missing, suggestions, warn or stop] --> U[used.json] --> X[used-global.yaml: base + selection.exclude] --> B[pipeline.py --bench / --device]
+    D --> K[bundled: missing, suggestions, warn or stop] --> Q[probe and screen again when the probe lacks what is applied] --> U[used.json] --> X[used-global.yaml: base + selection.exclude] --> B[pipeline.py --bench / --device]
     B --> I[inbound] --> S2[screen] --> U2[used.json again] --> T[primitives] --> G[guide grouping: pending in used.json only]
 ```
 
@@ -40,11 +40,13 @@ A target can ship a JCA provider the device does not register. Measuring without
 | blocked | the row's `blocked` reason; listed, never applied; the provider stays missing |
 | unmatched | `no_catalog_row`, `no_coordinates` (a site names it, no build file ships it), `no_pinned_version`, `name_taken` (two rows register one name: the first wins); stays missing |
 | apply | `bundled-global.yaml`: the base and the entries, the base's first; the measured set's config is made from it; the per-app harness builds them too, or a candidate from an applied provider would not exist there |
+| second probe | when the probe's bundled artifacts are not the config's (`the probe does not hold the providers.bundled this run measures`), probe and screen run again on that config before the used set, so `grouping/items.json` holds the provider's items and the code-made groups cross providers; one more pipeline run, never a model call |
+| used set | a harness-bundled provider's item enters `used.json`, so stays measured, only when a site resolves to its type, canonical name and key size; a group or candidate reach alone does not bring it |
 | rerun | device.yaml `bundled.applied` holds the entries' digest; a different set reruns the benchmark on today's probe (`the providers.bundled entries device.bundled.fromApps applies changed`). `bundled.bundled` and `bundled.config` map the manifest's digests back to the base's, as `benchmark.config` does, so the base `global.yaml` still judges the probe and an unchanged set runs nothing |
 
 - With `device.filterByApps` only: without it nothing is detected before the benchmark, so the step does not run, and any applied set is dropped with a benchmark on the base. `--device-results` names a finished folder, so it does not run there either.
 - Logged: `device bundled` (`missing`, `matched`, `blocked`, `unmatched`, `applied`), one `device bundled.<kind>` per non-empty kind with `data.items` (only `missing` with `off`), `device bundled_missing` with `data {code, items}`.
-- An applied provider measures under its alias: a site naming the provider's own name still resolves `not_on_device`, and its items enter the used set only through a group.
+- An applied provider measures under its alias: a site naming the provider's own name still resolves `not_on_device`, and its items enter the used set only through a group whose algorithm another site names.
 
 ## Evidence
 

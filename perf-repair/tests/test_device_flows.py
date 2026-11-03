@@ -11,6 +11,7 @@ from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
+from perfrepair.grouping import signature
 from perfrepair.guide.command import main as guide
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import screening_catalog
@@ -20,6 +21,7 @@ APP = F / "app"
 FOLDER = "fake-api36-00000000"
 BUNDLED_FIRST = "bundled: [{artifact: 'g:a:1', create: Aaa}]"
 OLD_ITEMS = 4
+INTERCHANGE = signature.interchange
 pytestmark = pytest.mark.usefixtures("asked_by_model")
 
 
@@ -342,10 +344,11 @@ def test_bundled_apply_builds_the_matched_row_in_and_a_second_run_reuses_it(scop
     assert applied(scoped) == [{"artifact": CONSCRYPT, "create": "org.conscrypt.Conscrypt#newProvider",
                                 "alias": "BundledConscrypt"}]
     # the blocked BC is listed, never built in, so it is still missing
-    assert any(line.startswith("device bundled_missing: warn: BC ") for line in lines) and scoped.device_runs() == 2
+    # three runs: the first probe finds the apps, the second holds the applied provider, then the benchmark
+    assert any(line.startswith("device bundled_missing: warn: BC ") for line in lines) and scoped.device_runs() == 3
     assert suggestions(scoped)["counts"]["applied"] == 1 and scoped.problems() == {}
     again = run_targets(scoped, tls)
-    assert scoped.device_runs() == 2 and "device probe: reused" in again and "device benchmark: reused" in again
+    assert scoped.device_runs() == 3 and "device probe: reused" in again and "device benchmark: reused" in again
 
 
 def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
@@ -354,10 +357,25 @@ def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
     run_targets(scoped, tls)
     scoped.bundled = {}
     lines = run_targets(scoped, tls)
-    assert scoped.device_runs() == 3 and applied(scoped) == []
+    # the kept probe still holds the provider: probed again without it, then measured
+    assert scoped.device_runs() == 5 and applied(scoped) == []
     assert "device benchmark: ran: the providers.bundled entries device.bundled.fromApps applies changed" in lines
     record, _ = rd.load_device_record(scoped.device)
     assert record.bundled == {} and not (scoped.device / rd.BUNDLED_CONFIG).exists()
+
+
+def test_bundled_apply_measures_only_the_algorithms_the_sites_name_and_groups_them_with_the_platform(scoped, monkeypatch):
+    monkeypatch.setattr(signature, "interchange", INTERCHANGE)
+    scoped.bundled = {"fromApps": "apply"}
+    run_targets(scoped, target(scoped, "tls", SHA, ships=CONSCRYPT))
+    groups = read_json(scoped.paths.groups)
+    names = {k: v["qualified"] for k, v in groups["items"].items()}
+    members = [{names[str(m)] for m in g["members"]} for g in groups["groups"]]
+    sha = next(m for m in members if "MessageDigest|SHA-256|BundledConscrypt" in m)
+    assert {q.rsplit("|", 1)[1] for q in sha} - {"BundledConscrypt"}
+    assert used(scoped)["MessageDigest|SHA-256|BundledConscrypt"] == "group"
+    assert {"MessageDigest|MD5|BundledConscrypt", "Cipher|AES/GCM/NoPadding|BundledConscrypt"} <= set(excluded(scoped))
+    assert "MessageDigest|SHA-256|BundledConscrypt" not in excluded(scoped)
 
 
 @pytest.mark.parametrize("value", ["always", 1])
