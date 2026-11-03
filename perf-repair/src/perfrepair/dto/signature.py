@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 KNOWN, CONVENTION, UNKNOWN = "known", "convention", "unknown"
+KEY_MATERIAL, EXPORTABLE, NON_EXPORTABLE = "keyMaterial", "exportable", "non_exportable"
+# a wrong join moves a key out of its provider, so an unrecorded side never joins a recorded one
+NEVER_ASSUMED = (KEY_MATERIAL,)
 
 
 @dataclass(frozen=True)
@@ -34,9 +37,13 @@ class Signature:
         return {c.name: c.value for c in self.components if c.status == KNOWN}
 
     def differing(self, other: "Signature") -> list[str]:
-        """Components both know and disagree on; an unknown or assumed one decides nothing."""
+        """Components both know and disagree on; an unknown or assumed one decides nothing, except NEVER_ASSUMED."""
         mine, theirs = self.known(), other.known()
-        return sorted(n for n in mine.keys() & theirs.keys() if mine[n] != theirs[n])
+        known = sorted(n for n in mine.keys() & theirs.keys() if mine[n] != theirs[n])
+        return known + [n for n in NEVER_ASSUMED if n in self.names() & other.names() and (n in mine) != (n in theirs)]
+
+    def names(self) -> set[str]:
+        return {c.name for c in self.components}
 
     def to_json(self) -> dict:
         return {"components": [{"name": c.name, "value": c.value, "status": c.status} for c in self.components]}

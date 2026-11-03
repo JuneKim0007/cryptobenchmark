@@ -67,7 +67,8 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
             bareName=bool(run.get("bareName")), measured=measured(key),
             preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])),
-            keyContract=contract, signature=signature(s["type"], s["algorithm"], run.get("providerChose"), contract, names)))
+            keyContract=contract, signature=signature(s["type"], s["algorithm"], run.get("providerChose"), contract, names,
+                                                      key_material=run.get("keyMaterial"))))
 
     order = sorted(drafts, key=lambda k: (drafts[k][0], names.key_or_spelling(k[1], k[2])[0], k[0], k[2]))
     items, profiles = [], {}

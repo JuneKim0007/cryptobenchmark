@@ -18,7 +18,7 @@ class TrialDocumentTest {
         services = listOf(
             ServiceTrialEntry(
                 provider = "SunJCE", type = "Cipher", algorithm = "AES", outcome = TrialOutcome.SUCCESS,
-                defaultRun = DefaultRunOutcome(works = true, keyAlgorithm = "AES", keyProvider = "SunJCE", keySize = 256, inputSize = 1024, bareName = true),
+                defaultRun = DefaultRunOutcome(works = true, keyAlgorithm = "AES", keyProvider = "SunJCE", keySize = 256, inputSize = 1024, bareName = true, keyMaterial = "exportable"),
                 transformations = listOf(
                     TransformationTrialEntry("AES/CTR/NoPadding", TrialOutcome.SUCCESS, DefaultRunOutcome(works = true, providerChose = "ivBytes=16")),
                     TransformationTrialEntry("AES/CBC/NoPadding", TrialOutcome.SUCCESS, DefaultRunOutcome(works = false, inputSize = 32, error = "IllegalBlockSizeException: x")),

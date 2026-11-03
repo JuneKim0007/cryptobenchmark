@@ -121,4 +121,5 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 | `inputSize` | int | bytes passed, `>= 0`; absent for KeyAgreement and generators |
 | `providerChose` | string | what the provider filled in, e.g. `ivBytes=12 tagBits=128`; format in [probe.md](probe.md) |
 | `bareName` | bool | `true` when the name has no `/` |
+| `keyMaterial` | string | a generator's key, or a pair's private key: `exportable` (`getEncoded()` returned bytes) or `non_exportable` (null); absent for other types and a generator that did not run |
 | `error` | string | present exactly when `works` is false |

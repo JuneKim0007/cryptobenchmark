@@ -10,11 +10,12 @@ internal class GeneratorCall(private val pair: Boolean) : DefaultCall {
     override val takesInput: Boolean = false
 
     override fun call(provider: Provider, algorithm: String, input: ByteArray, keys: DefaultKeys): DefaultRunOutcome {
-        val key = if (pair) {
-            KeyPairGenerator.getInstance(algorithm, provider).generateKeyPair().public
+        val (key, secret) = if (pair) {
+            KeyPairGenerator.getInstance(algorithm, provider).generateKeyPair().let { it.public to it.private }
         } else {
-            KeyGenerator.getInstance(algorithm, provider).generateKey()
+            KeyGenerator.getInstance(algorithm, provider).generateKey().let { it to it }
         }
-        return DefaultRunOutcome(works = true, keySize = KeyBits.of(key))
+        val material = if (secret.encoded == null) DefaultRunOutcome.NON_EXPORTABLE else DefaultRunOutcome.EXPORTABLE
+        return DefaultRunOutcome(works = true, keySize = KeyBits.of(key), keyMaterial = material)
     }
 }

@@ -8,6 +8,7 @@ data class DefaultRunOutcome(
     val inputSize: Int? = null,
     val providerChose: String = "",
     val bareName: Boolean = false,
+    val keyMaterial: String = "",
     val error: String = "",
 ) {
 
@@ -15,9 +16,14 @@ data class DefaultRunOutcome(
         require(works == error.isEmpty()) { "an outcome carries an error exactly when it fails" }
         require(keySize == null || keySize > 0) { "not_positive: keySize $keySize" }
         require(inputSize == null || inputSize >= 0) { "negative: inputSize $inputSize" }
+        require(keyMaterial in KEY_MATERIALS) { "unknown_key_material: $keyMaterial" }
     }
 
     companion object {
+
+        const val EXPORTABLE = "exportable"
+        const val NON_EXPORTABLE = "non_exportable"
+        private val KEY_MATERIALS = setOf("", EXPORTABLE, NON_EXPORTABLE)
 
         fun failure(throwable: Throwable): DefaultRunOutcome =
             DefaultRunOutcome(works = false, error = throwable.javaClass.simpleName + ": " + throwable.message.orEmpty())

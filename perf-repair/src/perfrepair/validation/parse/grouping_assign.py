@@ -4,6 +4,7 @@ import re
 
 from ...dto.grouping import Item, Profile
 from ...dto.grouping_state import Amendment, Answer, Group, Knowledge
+from ...dto.signature import UNKNOWN
 from ...catalog.families import Families
 from ..json_reply import parse_object
 
@@ -50,8 +51,8 @@ def _signature_problems(group: str, item: Item, family_groups: dict[str, Group],
     problems = []
     for member in family_groups[group].members:
         theirs = profiles[member].signature if member in profiles else None
-        problems += [f"group {group!r}: member {member} has {name}={theirs.known()[name]}, this item has "
-                     f"{name}={mine.known()[name]}; create another group"
+        problems += [f"group {group!r}: member {member} has {name}={theirs.known().get(name, UNKNOWN)}, this item has "
+                     f"{name}={mine.known().get(name, UNKNOWN)}; create another group"
                      for name in (mine.differing(theirs) if theirs else [])]
     return problems
 

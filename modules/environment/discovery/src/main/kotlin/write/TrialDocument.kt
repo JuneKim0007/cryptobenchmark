@@ -38,6 +38,7 @@ object TrialDocument {
     private const val INPUT_SIZE = "inputSize"
     private const val PROVIDER_CHOSE = "providerChose"
     private const val BARE_NAME = "bareName"
+    private const val KEY_MATERIAL = "keyMaterial"
 
     fun of(report: TrialReport): Map<String, Any> = linkedMapOf<String, Any>(
         SCHEMA_VERSION to report.schemaVersion,
@@ -105,6 +106,7 @@ object TrialDocument {
         run.inputSize?.let { document[INPUT_SIZE] = it }
         if (run.providerChose.isNotEmpty()) document[PROVIDER_CHOSE] = run.providerChose
         if (run.bareName) document[BARE_NAME] = true
+        if (run.keyMaterial.isNotEmpty()) document[KEY_MATERIAL] = run.keyMaterial
         if (!run.works) document[ERROR] = run.error
         return document
     }
@@ -117,6 +119,7 @@ object TrialDocument {
         inputSize = optionalNumber(document, INPUT_SIZE)?.toInt(),
         providerChose = optionalString(document, PROVIDER_CHOSE),
         bareName = optionalBoolean(document, BARE_NAME),
+        keyMaterial = optionalString(document, KEY_MATERIAL),
         error = optionalString(document, ERROR),
     )
 

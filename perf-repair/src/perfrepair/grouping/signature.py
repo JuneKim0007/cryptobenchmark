@@ -5,11 +5,12 @@ from string import Template
 
 from ..catalog.interchange import KEY_ASKED, KEY_NONE, Engine, Interchange, Rule, interchange
 from ..catalog.names import Names, NamesError, fold
-from ..dto.grouping import KEY_APP_HELD, KEY_UNKNOWN
-from ..dto.signature import CONVENTION, UNKNOWN, Component, Signature
+from ..dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
+from ..dto.signature import CONVENTION, EXPORTABLE, KEY_MATERIAL, NON_EXPORTABLE, UNKNOWN, Component, Signature
 from .resolved import digest_name, function_parameters
 
 NAME, KEY = "name", "key"
+MATERIAL_OF_CONTRACT = {KEY_APP_HELD: EXPORTABLE, KEY_PROVIDER_HELD: NON_EXPORTABLE}
 
 
 def _key(engine: Engine, contract: str) -> list[Component]:
@@ -44,8 +45,16 @@ def _components(rule: Rule, groups: dict[str, str], engine: Engine, resolved: st
         + [Component(c, None, UNKNOWN) for c in missing]
 
 
+def _key_material(engine: Engine, recorded: str | None, contract: str) -> list[Component]:
+    """Only an engine whose call makes a key has it: the trial's record, else what the key contract means, else unknown."""
+    if KEY_MATERIAL not in engine.splits:
+        return []
+    value = recorded or MATERIAL_OF_CONTRACT.get(contract)
+    return [Component(KEY_MATERIAL, value) if value else Component(KEY_MATERIAL, None, UNKNOWN)]
+
+
 def signature(engine_type: str, name: str, resolved: str | None, contract: str, names: Names,
-              table: Interchange | None = None) -> Signature:
+              table: Interchange | None = None, key_material: str | None = None) -> Signature:
     table = table or interchange()
     engine = table.engines.get(engine_type)
     if engine is None:
@@ -53,4 +62,5 @@ def signature(engine_type: str, name: str, resolved: str | None, contract: str, 
     canonical = _canonical(names, engine_type, name)
     found = engine.rule_of(canonical) if canonical is not None else None
     parts = _components(*found, engine, resolved, table) if found else [Component(NAME, None, UNKNOWN)]
-    return Signature(tuple(sorted(parts + _key(engine, contract), key=lambda c: c.name)))
+    parts += _key(engine, contract) + _key_material(engine, key_material, contract)
+    return Signature(tuple(sorted(parts, key=lambda c: c.name)))

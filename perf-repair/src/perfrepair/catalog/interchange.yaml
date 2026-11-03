@@ -112,14 +112,14 @@ engines:
         set: {algorithm: XDH, curve: $curve}
   # A generator's output is what its consumer defines, and no attribute says whether the key stays inside the provider.
   KeyGenerator:
-    splits: [function, consumer, key]
+    splits: [function, consumer, key, keyMaterial]
     key: asked
     rules:
       - match: '(?P<function>.+)'
         set: {function: $function}
         convention: {consumer: consumer-defined}
   KeyPairGenerator:
-    splits: [function, consumer, key]
+    splits: [function, consumer, key, keyMaterial]
     key: asked
     rules:
       - match: '(?P<function>.+)'

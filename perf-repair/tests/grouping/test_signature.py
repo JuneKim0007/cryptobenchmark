@@ -16,17 +16,18 @@ from perfrepair.catalog.names import CATALOG, Names
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.device.coverage import coverage
-from perfrepair.dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, items_document, profiles_document
+from perfrepair.dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, Item, Profile, items_document, profiles_document
 from perfrepair.dto.grouping_state import Group, code_made
-from perfrepair.dto.screen import screen_document
-from perfrepair.dto.signature import CONVENTION, UNKNOWN
+from perfrepair.dto.screen import Verdict, screen_document
+from perfrepair.dto.signature import CONVENTION, EXPORTABLE, KEY_MATERIAL, NON_EXPORTABLE, UNKNOWN
 from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.signature import signature
 from perfrepair.run_dir import GroupingPaths, built
-from perfrepair.screen.groups import code_groups, grouped_by_code, screened_out, signature_group_id
+from perfrepair.screen.groups import code_group_id, code_groups, grouped_by_code, screened_out, signature_group_id
 from perfrepair.screen.handler import ScreeningHandler
+from perfrepair.validation.parse.grouping_assign import _signature_problems
 from perfrepair.validation.grouping.output import validate_output
 from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION
 
@@ -104,6 +105,24 @@ def test_a_missing_key_contract_is_assumed_where_the_comparison_supports_it_and_
     assert not sig("KeyGenerator", "AES", contract=KEY_UNKNOWN).decided
     assert sig("KeyGenerator", "AES").decided and sig("KeyGenerator", "AES").assumed == ("consumer",)
     assert "key" not in {c.name for c in sig("MessageDigest", "SHA-256").components}
+
+
+def test_key_material_comes_from_the_trial_else_the_key_contract_else_is_unknown():
+    material = lambda s: next(c for c in s.components if c.name == KEY_MATERIAL)
+    assert material(signature("KeyGenerator", "AES", None, KEY_UNKNOWN, NAMES, key_material=EXPORTABLE)).value == EXPORTABLE
+    assert material(sig("KeyGenerator", "AES", contract=KEY_PROVIDER_HELD)).value == NON_EXPORTABLE
+    assert material(sig("KeyGenerator", "AES")).value == EXPORTABLE
+    assert material(sig("KeyGenerator", "AES", contract=KEY_UNKNOWN)).status == UNKNOWN
+    assert KEY_MATERIAL not in {c.name for c in sig("Mac", "HmacSHA256").components}
+
+
+def test_an_unrecorded_key_material_never_joins_a_recorded_one_and_two_unrecorded_may_join():
+    made, unrecorded = (signature("KeyGenerator", "AES", None, KEY_UNKNOWN, NAMES, key_material=EXPORTABLE),
+                        signature("KeyGenerator", "AES", None, KEY_UNKNOWN, NAMES))
+    assert made.differing(unrecorded) == [KEY_MATERIAL] and unrecorded.differing(made) == [KEY_MATERIAL]
+    assert unrecorded.differing(unrecorded) == []
+    held = signature("KeyGenerator", "AES", None, KEY_UNKNOWN, NAMES, key_material=NON_EXPORTABLE)
+    assert made.differing(held) == [KEY_MATERIAL]
 
 
 def test_an_unknown_name_and_a_conflict_are_unknown():
@@ -295,3 +314,27 @@ def test_the_message_shows_the_signature_and_says_what_is_not_known(chain):
     text = render(item, FAMILIES.by_id[item.family], kind.empty(), kind.by_id, kind.profiles)
     assert "signature: base=RSA, digest=not known, mgf1=not known, mode=ECB, padding=OAEP" in text
     assert "key: inside the provider" in text
+
+
+def test_gate_c_splits_a_generator_that_ran_from_one_that_did_not_as_on_the_recorded_device():
+    service = lambda provider, run: {"provider": provider, "type": "KeyGenerator", "algorithm": "AES", "instantiates": True, "defaultRun": run}
+    trial = {"services": [service("P1", {"works": False, "error": "IllegalStateException: Not initialized"}),
+                          service("P2", {"works": True, "keySize": 128, "keyMaterial": EXPORTABLE})]}
+    probe = Probe({"providers": [{"name": p, "services": [{"type": "KeyGenerator", "algorithm": "AES"}]} for p in ("P1", "P2")]})
+    items, profiles = build(probe, probe.names(NAMES), trial, FAMILIES)
+    by_provider = {i.provider: i for i in items}
+    assert profiles[by_provider["P2"].id].signature.known()[KEY_MATERIAL] == EXPORTABLE
+    group = Group("f", "d", [by_provider["P2"].id])
+    problems = _signature_problems("g", by_provider["P1"], {"g": group}, profiles)
+    assert len(problems) == 1 and "keyMaterial=exportable" in problems[0] and "this item has keyMaterial=unknown" in problems[0]
+
+
+def test_a_screened_out_generator_keeps_key_materials_apart_and_other_groups_keep_their_id():
+    made, unrecorded = (signature("KeyGenerator", "AES", None, KEY_UNKNOWN, NAMES, key_material=EXPORTABLE),
+                        signature("KeyGenerator", "AES", None, KEY_UNKNOWN, NAMES))
+    item, verdict = Item(1, "KeyGenerator", "AES", "P1", "f"), Verdict("broken", "r", canonical="AES")
+    ids = [code_group_id(item, verdict, Profile(signature=s, keyKind="none", keyKindFrom="x", instantiates=True, runs=True))
+           for s in (made, unrecorded, made)]
+    assert ids[0] == ids[2] != ids[1]
+    mac = Profile(signature=sig("Mac", "HmacSHA256"), keyKind="none", keyKindFrom="x", instantiates=True, runs=True)
+    assert code_group_id(item, verdict, mac) == code_group_id(item, verdict)

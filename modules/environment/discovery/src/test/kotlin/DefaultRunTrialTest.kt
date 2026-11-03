@@ -64,6 +64,15 @@ class DefaultRunTrialTest {
     }
 
     @Test
+    fun generatorsRecordWhetherTheirKeyLeavesTheProvider() {
+        listOf(
+            service("SunJCE", "KeyGenerator", "AES"),
+            service("SunRsaSign", "KeyPairGenerator", "RSA"),
+        ).forEach { assertEquals("exportable", it!!.keyMaterial) }
+        assertEquals("", service("SunJCE", "Mac", "HmacSHA256")!!.keyMaterial)
+    }
+
+    @Test
     fun instantiatesButDoesNotRun() {
         listOf(
             service("SunJCE", "KeyGenerator", "SunTlsPrf"),

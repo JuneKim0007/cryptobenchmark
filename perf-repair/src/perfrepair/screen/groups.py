@@ -6,7 +6,7 @@ import json
 from ..dto.grouping import Item, Profile
 from ..dto.grouping_state import CODE_PREFIX, Group
 from ..dto.screen import CODE_GROUPED, Verdict
-from ..dto.signature import UNKNOWN, Signature
+from ..dto.signature import KEY_MATERIAL, UNKNOWN, Signature
 
 
 def screened_out(verdict: Verdict | None) -> bool:
@@ -24,12 +24,17 @@ def grouped_by_code(item: int, verdicts: dict[int, Verdict] | None, profiles: di
     return verdict is not None and (screened_out(verdict) or decided_signature(profiles.get(item)) is not None)
 
 
-def _key(item: Item, verdict: Verdict) -> tuple:
-    return item.family, verdict.status, verdict.canonical, verdict.providerHeld
+def _key(item: Item, verdict: Verdict, profile: Profile | None) -> tuple:
+    key = (item.family, verdict.status, verdict.canonical, verdict.providerHeld)
+    signature = profile.signature if profile else None
+    # only an item with key material adds it, so no other screened-out group changes its id
+    if signature is None or KEY_MATERIAL not in signature.names():
+        return key
+    return (*key, signature.known().get(KEY_MATERIAL))
 
 
-def code_group_id(item: Item, verdict: Verdict) -> str:
-    return CODE_PREFIX + hashlib.sha256(json.dumps(_key(item, verdict)).encode()).hexdigest()[:10]
+def code_group_id(item: Item, verdict: Verdict, profile: Profile | None = None) -> str:
+    return CODE_PREFIX + hashlib.sha256(json.dumps(_key(item, verdict, profile)).encode()).hexdigest()[:10]
 
 
 def signature_group_id(item: Item, signature: Signature) -> str:
@@ -54,7 +59,7 @@ def code_groups(items: list[Item], verdicts: dict[int, Verdict] | None, profiles
     for i in items:
         v, signature = (verdicts or {}).get(i.id), decided_signature(profiles.get(i.id))
         if screened_out(v):
-            groups.setdefault(code_group_id(i, v), Group(i.family, describe(v))).members.append(i.id)
+            groups.setdefault(code_group_id(i, v, profiles.get(i.id)), Group(i.family, describe(v))).members.append(i.id)
         elif v is not None and signature is not None:
             groups.setdefault(signature_group_id(i, signature), Group(i.family, describe_signature(signature))).members.append(i.id)
     return groups
