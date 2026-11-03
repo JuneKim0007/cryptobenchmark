@@ -54,6 +54,7 @@ modules/preparation/ : effective.yaml to prepared cases, each called once; prepa
 modules/settings/ : harness key table shared by config, preparation and benchmark
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 scripts/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
+scripts/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
 scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, measure, pull

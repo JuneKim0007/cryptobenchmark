@@ -24,7 +24,7 @@ class InteropCheck {
         val bundled = BundledProviders.read(YamlCodec().load(effective.readText()))
         BundledInstaller(ProviderFactory(InstrumentationRegistry.getInstrumentation().targetContext.classLoader)).install(bundled)
         val capture = newest(directory, "probe")
-        InteropRun.run(DiscoveryCapability(capture, newest(directory, "trial")), File(directory, InteropPlanFile.NAME), capture,
+        InteropRun.run(DiscoveryCapability(capture, ProbeDirectory(directory).named("trial", capture)), File(directory, InteropPlanFile.NAME), capture,
                        File(directory, InteropFile.NAME))
     }
 

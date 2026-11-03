@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, contextlib, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
 
-import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, run_inputs, scope_generate, scope_results
+import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, run_inputs, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from device_id import DeviceIdError, capture_id, device_id
@@ -36,10 +36,6 @@ def summary(effective):
     for skip in view["skipped"]:
         print(f"skipped: {skip.get('provider', '*')} {skip.get('type', '*')} {skip.get('name', '*')}: {skip['reason']}")
     print(f"effective: {effective_view.entry_count(view['document'])} entries, {len(view['skipped'])} skipped")
-
-
-def newest(directory, pattern):
-    return max(directory.glob(pattern), key=lambda p: p.name, default=None)
 
 
 def runtime(measured, probe, files):
@@ -174,17 +170,16 @@ def discover(options, configuration, device, results):
         started = time.monotonic()
         device.install(bundled.gradle_properties(shipped))
         elapsed("build and install", started)
-        started = time.monotonic()
+        started, before = time.monotonic(), capture_files.stamped(discovery)
         device.probe(discovery, bundled.instrumentation_arguments(shipped))
-        capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
-        if not capture or not trial:
-            fail(f"missing_file: {discovery}/probe_<utc>.yaml, trial_<utc>.yaml (DeviceProbe wrote none)")
+        capture, trial = capture_files.added(discovery, before)
         known = facts.gather(device, discovery, capture)
         written = gradle_runner.run("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
         started = time.monotonic()
         written = gradle_runner.run("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream)
+        capture, trial = capture_files.printed(written, discovery)
     for path in written:
         print(f"wrote:     {path}")
     effective = configured / "effective.yaml"
@@ -194,12 +189,13 @@ def discover(options, configuration, device, results):
         bundled.check_effective(effective, shipped)
     summary(effective)
     elapsed("discover and configure", started)
-    return located(results)
+    return located(results, capture.name)
 
 
-def located(results):
+def located(results, capture_name):
+    """By the name discover() returned: after a publish into a kept discovery/ the folder holds older captures too."""
     discovery, configured = results / "discovery", results / "configuration"
-    capture, trial = newest(discovery, "probe_2*.yaml"), newest(discovery, "trial_*.yaml")
+    capture, trial = capture_files.pair(discovery / capture_name)
     effective = configured / "effective.yaml"
     files = {key: path for key, path in (("probe", capture), ("trial", trial), ("inventory", configured / "inventory.yaml"),
                                          ("effective", effective), ("report", configured / "report.yaml")) if path and path.is_file()}
@@ -216,10 +212,7 @@ def seed_reuse(options, root, stage):
 def discover_staged(options, configuration, device, root, stage):
     if options.discovery == "reuse":
         seed_reuse(options, root, stage)
-    found = discover(options, configuration, device, stage)
-    if not found[2]:
-        fail(f"missing_file: {stage}/discovery/probe_<utc>.yaml (the probe wrote none)")
-    return found
+    return discover(options, configuration, device, stage)
 
 
 def device_discover(options, configuration, device, root):
@@ -229,7 +222,7 @@ def device_discover(options, configuration, device, root):
         results = root / capture_id(capture)
         results_layout.publish(stage, results, options.discovery)
     print(f"results:   {results}")
-    return results, located(results)
+    return results, located(results, capture.name)
 
 
 def energy_preflight(options, source, session, discovery, files):
@@ -404,7 +397,7 @@ def interop_run(options, configuration, device, root):
     if finished:
         add_to_manifest(results, added)
     else:
-        manifest(results, mode, configuration, located(results)[-1] | added)
+        manifest(results, mode, configuration, located(results, capture.name)[-1] | added)
 
 
 def measured_folder(options):
