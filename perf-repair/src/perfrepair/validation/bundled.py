@@ -38,21 +38,24 @@ def _not_used(where: str, s: dict, kind: str) -> list[str]:
     return out
 
 
+def _row(kind: str, where: str, s, from_apps) -> list[str]:
+    if not isinstance(s, dict):
+        return [f"{where}: not a mapping"]
+    return _common(where, s) + (_matched(where, s, from_apps) if kind == "matched" else _not_used(where, s, kind))
+
+
+def _counts(doc: dict, lists: dict) -> list[str]:
+    counts = doc.get("counts") or {}
+    applied = sum(1 for s in lists["matched"] if isinstance(s, dict) and s.get("applied"))
+    expected = {**{k: len(v) for k, v in lists.items()}, "applied": applied}
+    return [f"counts.{k} {counts.get(k)}, the file lists {n}" for k, n in expected.items() if counts.get(k) != n]
+
+
 def validate_suggestions(doc: dict) -> list[str]:
     if not isinstance(doc, dict) or doc.get("schemaVersion") != SCHEMA_VERSION:
         return [f"schemaVersion is not {SCHEMA_VERSION}"]
-    from_apps, counts = doc.get("fromApps"), doc.get("counts") or {}
+    from_apps = doc.get("fromApps")
     out = [] if from_apps in FROM_APPS and from_apps != OFF else [f"fromApps {from_apps!r} writes no suggestions"]
     lists = {k: doc.get(k) if isinstance(doc.get(k), list) else [] for k in (*KINDS, "missing")}
-    for kind in KINDS:
-        for i, s in enumerate(lists[kind]):
-            where = f"{kind}[{i}]"
-            if not isinstance(s, dict):
-                out.append(f"{where}: not a mapping")
-                continue
-            out += _common(where, s)
-            out += _matched(where, s, from_apps) if kind == "matched" else _not_used(where, s, kind)
-    applied = sum(1 for s in lists["matched"] if isinstance(s, dict) and s.get("applied"))
-    expected = {**{k: len(v) for k, v in lists.items()}, "applied": applied}
-    out += [f"counts.{k} {counts.get(k)}, the file lists {n}" for k, n in expected.items() if counts.get(k) != n]
-    return out
+    out += [p for kind in KINDS for i, s in enumerate(lists[kind]) for p in _row(kind, f"{kind}[{i}]", s, from_apps)]
+    return out + _counts(doc, lists)
