@@ -7,6 +7,7 @@ import yaml
 
 CATALOG = Path(__file__).with_name("algorithm-names.yaml")
 SCHEMA_VERSION = 1
+NAME_CONFLICT = "name_conflict"
 
 
 def fold(name: str) -> str:
@@ -86,7 +87,7 @@ class Names:
     def canonical(self, engine_type: str, name: str) -> Canonical:
         conflict = self.conflicts.get((engine_type, fold(name)))
         if conflict is not None:
-            raise NamesError(f"name_conflict: {engine_type} {name}: {conflict}")
+            raise NamesError(f"{NAME_CONFLICT}: {engine_type} {name}: {conflict}")
         found = self.catalogued(engine_type, name)
         return found if found.known else self.probe.get((engine_type, fold(name)), found)
 

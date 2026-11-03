@@ -15,6 +15,7 @@ from perfrepair.grouping.build.stage import build_stage
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.screen import validate_screen, validate_screen_document
 from perfrepair.screen.catalog import screening_catalog
+from perfrepair.validation.screen import _verdict_problems
 
 F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 NAMES = Names.load()
@@ -96,6 +97,8 @@ def test_a_name_conflict_is_unknown_with_its_code():
     names = replace(NAMES, conflicts={("MessageDigest", "MD5"): "P says MD5, Q says MD4"})
     verdict = ScreeningHandler(HANDLER.screening, names).verdict("MessageDigest", "md5", "P")
     assert verdict.status == "unknown" and verdict.reason.startswith("name_conflict:")
+    assert _verdict_problems(1, verdict, None) == []
+    assert _verdict_problems(1, replace(verdict, reason="no screening row"), None) == ["1: unknown without the canonical name it was screened by"]
 
 
 BUILT = {"items": "a" * 64, "profiles": "b" * 64}

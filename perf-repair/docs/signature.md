@@ -8,6 +8,14 @@
 | `convention` | a provider's habit nothing recorded confirms: PSS MGF1 and salt, PBE KDF, curve by key (EdDSA, XDH, ML-DSA), a missing key contract on a Cipher, Signature, Mac or KeyAgreement (`key: assumed`), a generator's consumer | grouped by code; the group of two or more gets `convention_assumed` |
 | `unknown` | nothing recorded fixes it, never the name's default: an uncatalogued name, a `name_conflict`, OAEP digest or MGF1 without `resolved`, a bare name's mode and padding, RSASSA-PSS parameters set at init, a generator's key contract (`key: asked`) | asked |
 
+| Rule key (`interchange.yaml`) | Reads |
+|---|---|
+| `set` | a component from the name; `$group` is a group of `match` |
+| `resolved` | from the trial; missing with no `set` value is `unknown` |
+| `convention`, `unknown` | as the statuses above |
+| engine `defaults` | what no rule contradicts |
+| engine `key` | `none` no key; `assumed`, `asked`: what a missing key contract means |
+
 | Engine type | Splits |
 |---|---|
 | Cipher | base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, key |

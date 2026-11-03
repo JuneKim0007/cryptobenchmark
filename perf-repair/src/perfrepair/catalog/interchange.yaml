@@ -1,10 +1,5 @@
-# Which components split an interchangeability group, per engine type; docs/grouping.md Signature.
+# What splits an interchangeability group per engine type; keys and statuses: docs/signature.md.
 # A rule reads a catalogued canonical name, first full match wins, case-insensitive; no match is an unknown name.
-#   set: read from the name; defaults: what no rule contradicts; resolved: read only from the trial's resolved, missing is unknown
-#   convention: a provider's habit nothing recorded confirms: grouped by code with a convention_assumed finding
-#   unknown: the name does not fix it and nothing recorded does: the item is asked
-# key: none, the engine takes no key; assumed, a missing key contract groups with application-held, by convention;
-#      asked, a missing key contract asks the item.
 schemaVersion: 1
 digestComponents: [digest, mgf1]
 notSplitting: [key size, IV size, tag length, provider]

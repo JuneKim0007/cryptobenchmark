@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 
+from ..catalog.names import NAME_CONFLICT
 from ..dto.classify import Answer
 from .. import run_dir as rd
 from ..dto.grouping import Item, read_items
@@ -29,7 +30,8 @@ def _verdict_problems(n: int, v: Verdict, review: str | None) -> list[str]:
               (v.status not in STATUSES, f"status {v.status!r} is not one of {list(STATUSES)}"),
               (not v.reason, "no reason"),
               (v.status != UNKNOWN and not v.source, f"{v.status} without a source"),
-              (v.status in NEVER_TARGET and not v.canonical, f"{v.status} without the canonical name it was screened by"),
+              (v.status in NEVER_TARGET and not v.canonical and not v.reason.startswith(NAME_CONFLICT),
+               f"{v.status} without the canonical name it was screened by"),
               (v.status == UNVERIFIED and not (v.source or "").startswith(MODEL_SOURCE), "unverified without a model source"))
     return [f"{n}: {text}" for failed, text in checks if failed]
 
