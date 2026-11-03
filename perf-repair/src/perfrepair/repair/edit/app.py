@@ -11,6 +11,7 @@ from ...dto.unit import Unit, units_by_scope
 from ...files import write_text
 from ...run_dir import AppPaths
 from ...source.lexer import Code
+from .alone import write_alone
 from .plan import language, plan
 from .reject import Rejected
 from .specs import Table
@@ -55,6 +56,7 @@ class _Run:
     table: Table
     sources: dict[str, Code] = field(default_factory=dict)
     accepted: dict[str, list[Splice]] = field(default_factory=dict)
+    by_unit: dict[str, dict[str, list[Splice]]] = field(default_factory=dict)
 
     def _splices(self, r: Replacement, planned: dict[str, list[Splice]]) -> list[Splice]:
         scope = self.scopes[r.scope]
@@ -68,7 +70,7 @@ class _Run:
         apply(source.text, self.accepted.get(scope.file, []) + planned[scope.file] + splices)
         return splices
 
-    def unit(self, members: list[Replacement]) -> list[dict]:
+    def unit(self, uid: str, members: list[Replacement]) -> list[dict]:
         """Every member applied, or none: one rejection rejects the unit, and the other rows name it."""
         planned: dict[str, list[Splice]] = defaultdict(list)
         own, rejected = {}, {}
@@ -82,6 +84,7 @@ class _Run:
             return [_rejected(r.scope, rejected) for r in members]
         for file, splices in planned.items():
             self.accepted.setdefault(file, []).extend(splices)
+        self.by_unit[uid] = dict(planned)
         return [self._applied(r.scope, own[r.scope]) for r in members]
 
     def _applied(self, scope_id: str, splices: list[Splice]) -> dict:
@@ -109,10 +112,11 @@ def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Pa
             raise ValueError(f"{r.scope}: scope in no unit of units.json")
         grouped[of_unit[r.scope].id].append(r)
     run = _Run(scopes, root, table)
-    rows = [row for uid in sorted(grouped, key=lambda uid: grouped[uid][0].scope) for row in run.unit(grouped[uid])]
+    rows = [row for uid in sorted(grouped, key=lambda uid: grouped[uid][0].scope) for row in run.unit(uid, grouped[uid])]
     for directory in (out.original, out.patched):
         shutil.rmtree(directory, ignore_errors=True)
     for file, splices in sorted(run.accepted.items()):
         _write(out.original / file, run.sources[file].text)
         _write(out.patched / file, apply(run.sources[file].text, splices))
+    write_alone(run.by_unit, units, scopes, {file: code.text for file, code in run.sources.items()}, out)
     return {"schemaVersion": SCHEMA_VERSION, "app": out.app, "edits": sorted(rows, key=lambda row: row["scope"])}

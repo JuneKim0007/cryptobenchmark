@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Replacement, Scope
-from ..dto.unit import Unit
+from ..dto.unit import Unit, units_by_scope
 from ..files import write_text
 from ..source.lexer import Code
 from .dependencies import dependencies, load
@@ -30,12 +30,13 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
     shutil.rmtree(out.extracts, ignore_errors=True)
     entries = []
     applied = sorted((e for e in edits["edits"] if e["status"] == "applied"), key=lambda e: e["scope"])
-    inverses = inverse_partners(units, {e["scope"] for e in applied})
+    inverses, of_unit = inverse_partners(units, {e["scope"] for e in applied}), units_by_scope(units)
     for row in applied:
         scope = scopes[row["scope"]]
         lang = language(scope.file)
         original = read_source(out.original / scope.file)
-        patched = read_source(out.patched / scope.file)
+        alone = out.alone(of_unit[scope.id].id) / scope.file
+        patched = read_source(alone if alone.is_file() else out.patched / scope.file)
         imports = import_lines(original, lang)
         names = load(lang.name)
         functions = [function_lines(text, scope.start, scope.end) for text in (original, patched)]

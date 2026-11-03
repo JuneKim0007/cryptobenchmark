@@ -47,7 +47,7 @@
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py` and `validation/dossier_units.py`, before writing: schema 2, `units` the units asked |
-| `<app>/edits.json`, `original/`, `patched/` | repair edit | repair harness | `validation/repair.py`, before writing |
+| `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | `<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
 | `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py`, before writing |

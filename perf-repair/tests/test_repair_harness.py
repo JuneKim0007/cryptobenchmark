@@ -3,11 +3,14 @@ from pathlib import Path
 import pytest
 import yaml
 
-from perfrepair.dto.site import Edit, read_replacements
+from perfrepair.dto.site import Edit, Scope, read_replacements, scope_id
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
 from perfrepair.dto.unit import Link, Unit, unit_id
+from perfrepair.repair.edit import edit_app, load_specs
+from perfrepair.repair.harness import harness
+from perfrepair.repair.inputs import read_effective
 from perfrepair.repair.inverses import inverse_partners
 from perfrepair.run_dir import AppPaths
 from perfrepair.source import language
@@ -130,4 +133,56 @@ def test_the_validator_refuses_an_inverse_partner_not_applied(tmp_path):
     doc = yaml.safe_load(paths.harness.read_text())
     doc["scopes"][0]["inverse"] = {"partner": "gone", "role": "produce"}
     assert any("applied partner" in p for p in validate_harness(doc, APP, paths.root, edits))
+
+
+TWO = """class V {
+    byte[] f(byte[] in) throws Exception {
+        Cipher a = Cipher.getInstance("AES/GCM/NoPadding", "Slow");
+        Cipher b = Cipher.getInstance("AES/GCM/NoPadding", "Slow");
+        return a.doFinal(b.doFinal(in));
+    }
+}
+"""
+
+
+def _in_two(line):
+    call = 'Cipher.getInstance("AES/GCM/NoPadding", "Slow")'
+    return Scope(scope_id(APP, "V.java", "f", line, call), APP, "V.java", line, call, "f", 2, 6, "Cipher", "AES/GCM/NoPadding",
+                 "Slow", "explicit", 128, 1024)
+
+
+def test_two_units_in_one_function_are_each_measured_swapped_alone(tmp_path):
+    root = tmp_path / "src"
+    root.mkdir()
+    (root / "V.java").write_text(TWO)
+    a, b = _in_two(3), _in_two(4)
+    units = [Unit(unit_id(APP, [s.id]), (s.id,)) for s in (a, b)]
+    paths, scopes = AppPaths(tmp_path, APP), {s.id: s for s in (a, b)}
+    chosen = {s.id: replace(s, provider("Fast"), option=FAST) for s in (a, b)}
+    edits = edit_app(scopes, list(chosen.values()), root, paths, load_specs(), units)
+    assert {e["status"] for e in edits["edits"]} == {"applied"}
+    doc = harness(paths, scopes, chosen, edits, {s.id: CURRENT for s in (a, b)}, read_effective(MANIFEST), units)
+    afters = {e["id"]: (paths.root / e["after"]).read_text() for e in doc["scopes"]}
+    assert afters[a.id].count('"Fast"') == 1 and afters[b.id].count('"Fast"') == 1 and afters[a.id] != afters[b.id]
+    assert (paths.patched / "V.java").read_text().count('"Fast"') == 2
+    assert all((paths.alone(u.id) / "V.java").is_file() for u in units)
+    assert validate_harness(doc, APP, paths.root, edits) == []
+
+
+def test_a_rerun_with_one_unit_left_drops_the_alone_copies(tmp_path):
+    root = tmp_path / "src"
+    root.mkdir()
+    (root / "V.java").write_text(TWO)
+    a, b = _in_two(3), _in_two(4)
+    units = [Unit(unit_id(APP, [s.id]), (s.id,)) for s in (a, b)]
+    paths, scopes = AppPaths(tmp_path, APP), {s.id: s for s in (a, b)}
+    edit_app(scopes, [replace(a, provider("Fast")), replace(b, provider("Fast"))], root, paths, load_specs(), units)
+    assert paths.alone_root.exists()
+    edit_app(scopes, [replace(a, provider("Fast"))], root, paths, load_specs(), units)
+    assert not paths.alone_root.exists()
+
+
+def test_a_unit_alone_in_its_function_has_no_copy(tmp_path):
+    paths = commands(tmp_path)
+    assert not paths.alone_root.exists()
 

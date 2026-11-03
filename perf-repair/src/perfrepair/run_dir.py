@@ -62,6 +62,7 @@ class AppPaths:
     edits = property(lambda self: self.root / EDITS)
     original = property(lambda self: self.root / "original")
     patched = property(lambda self: self.root / "patched")
+    alone_root = property(lambda self: self.root / "patched-alone")
     harness = property(lambda self: self.root / HARNESS)
     extracts = property(lambda self: self.root / "harness")
     measured = property(lambda self: self.root / MEASURED)
@@ -70,6 +71,10 @@ class AppPaths:
     report = property(lambda self: self.root / REPORT)
     report_md = property(lambda self: self.root / REPORT_MD)
     finished = property(lambda self: self.root / FINISHED)
+
+    def alone(self, unit: str) -> Path:
+        """Files with only this unit's edits, for a unit applied in a function another applied unit shares."""
+        return self.alone_root / unit
 
 
 class GroupingPaths:

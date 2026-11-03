@@ -70,7 +70,7 @@ scopes:
 - `inverse` is the scope's partner by an `inverse` link of `units.json`, both sides applied; cryptobenchmark's round trip takes it, never a name.
 - `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
 - `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
-- `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim.
+- `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim. When two units applied edits in one function, `after` comes from `patched-alone/<unit>/`, that unit's edits only: the function is measured as original, A swapped only, B swapped only, never with both, so no change is counted twice.
 - `imports` keeps a line whose simple name or alias a function's text uses (Kotlin: in any position, since an extension reads as a member; an operator or delegate convention name always); a header annotation's import is dropped with the annotation; a wildcard stays only while a dependency is unresolved.
 - `notMeasurable: no_operation`: the function only creates, configures or hands back its primitive (`repair/operation.py`, setup names in `repair/setup_calls.yaml`); cryptobenchmark records it and never generates it, so no number describes a factory. A form the check cannot read counts as an operation.
 - `dependencies` is the union over both functions: identifiers not declared in the function, not after another receiver's `.`, not a keyword, not imported, and not in `repair/names.yaml`.
