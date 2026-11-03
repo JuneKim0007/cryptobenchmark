@@ -1,3 +1,4 @@
+import dataclasses
 import json
 from pathlib import Path
 
@@ -10,10 +11,13 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.suggest.site_replace.command import replace
-from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, charter
+from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, charter, evidence
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA
+from perfrepair.dto.perf_mode import PerfMode
+from perfrepair.dto.primitives import PrimitiveLine, PrimitivesTable
 from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Estimate, Option
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
+from perfrepair.dto.units import DisplayUnits
 from perfrepair.files import read_json
 from perfrepair.validation import ValidationFailed
 
@@ -378,3 +382,30 @@ def test_same_function_source_is_shown_once_in_a_unit():
     text = SiteReplaceKind(APP, doc(A, same, units=[u.unit]), ".").render(u, None).text
     assert "FUNCTION SOURCE: as S1" in text and text.count(" BEGIN") == 1
 
+
+
+def _table():
+    def line(provider, ns, op="OP1", key=128):
+        return PrimitiveLine("TypeA", "ALG-A/MODE-X", provider, op, key, "WARM", "accepted",
+                             {"timeNs@64": ns, "timeNs@-": None, "energyJ@64": 0.5}, 40, {"timeNs": 0.01, "energyJ": 0.2})
+    lines = (line("P1", 662.0), line("P2", 400.0), line("P2", 1.0, op="OP2"), line("P3", 500.0, key=256), line("P9", 1.0))
+    return PrimitivesTable(("timeNs@64", "timeNs@-", "energyJ@64"), ("timeNs", "energyJ"), lines)
+
+
+def test_the_render_shows_the_current_and_option_lines_in_the_display_units_of_the_selected_metrics_only():
+    kind = SiteReplaceKind(APP, {**doc(A), "perfMode": ["latency", "throughput"]}, ".", _table(), DisplayUnits())
+    text = kind.render(item(A), kind.empty()).text
+    measured = text.split("MEASURED", 1)[1].split("FUNCTION SOURCE", 1)[0]
+    assert "latency ms/op, throughput MB/s" in measured and "latency@64 | throughput@64 | n | timeNs cv" in measured
+    assert "  current | OP1 | 128 | WARM | accepted | 0.000662 | 96.68 | 40 | 0.010" in measured
+    assert "  R1 | OP1 | 128 | WARM | accepted | 0.0004 | 160 | 40 | 0.010" in measured
+    assert "OP2" not in measured and "P9" not in measured and "R2" not in measured and "energyJ" not in measured
+
+
+def test_a_changed_primitives_line_marks_the_decision_stale_but_a_unit_change_does_not():
+    table = _table()
+    moved = PrimitivesTable(table.columns, table.metrics, (dataclasses.replace(table.lines[0], medians={"timeNs@64": 1.0}),) + table.lines[1:])
+    u, perf = item(A), PerfMode()
+    assert evidence(u, perf, table) != evidence(u, perf, moved)
+    shown = [SiteReplaceKind(APP, doc(A), ".", table, units).render(u, None).text for units in (DisplayUnits(), DisplayUnits("ns"))]
+    assert shown[0] != shown[1] and SiteReplaceKind(APP, doc(A), ".", table, DisplayUnits("ns")).evidence_digest(u) == evidence(u, perf, table)

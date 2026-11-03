@@ -26,12 +26,16 @@ process; nothing carries over between messages.
   (the parameters that keep the swap like-for-like) and, per metric given, an estimate: `ratio` (option
   ÷ current; below 1 is less time, fewer allocations or less energy), `pImprove` (the probability
   the option is better on that metric), `n` (samples) and the measured configuration nearest to
-  this site. A `pImprove` of `n/a (n<2)` means too few runs to judge: no evidence either way.
+  this site, written `<metric>@<input size>`. A `pImprove` of `n/a (n<2)` means too few runs to judge:
+  no evidence either way.
   Pins of `unknown` mean no configuration was measured on both sides; never choose such an option.
   Each option's `interop` is the check that data produced by the current implementation is read
   back by the option and the reverse: `pass`, or `not_checkable`, `not_planned` or `not_run`, which
   mean interchangeability is unverified: a risk to weigh and declare (`unverified_interop`), not an
   automatic `keep`. Failed pairs are not listed.
+- MEASURED: the measured lines of the current implementation and of each option at this site's key size
+  and operations: per input size, the median of each metric given in the units its heading names, the
+  run count and the variation. They show scale; the estimates above are the comparison to decide on.
 - FUNCTION SOURCE: the function's lines, between a BEGIN and an END marker line; `as S1` when it is the
   function already shown for that member.
 - Once, after the members: EDIT KINDS, the only edits allowed, and what each does.

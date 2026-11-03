@@ -5,7 +5,11 @@ from dataclasses import replace as replace_record
 from pathlib import Path
 
 from .... import run_dir as rd
+from ....data_handler.inbound.manifest import display_units
+from ....data_handler.inbound.primitives import read_primitives
+from ....dto.event import LOG
 from ....files import read_json
+from ....log import emit
 from ....validation import require
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
@@ -54,7 +58,10 @@ def replace(run_path: Path, app: str, conversations: Conversations, library: Pro
             limit: int | None = None, echo=print, refresh: bool = False) -> Replacements:
     """refresh: the scopes whose dossier changed since their decision are asked again; by default they stay, flagged stale."""
     paths = rd.AppPaths(run_path, app)
-    kind = SiteReplaceKind(app, read_json(paths.dossiers), paths.root)
+    table = read_primitives(run_path) if (Path(run_path) / rd.PRIMITIVES).is_file() else None
+    if table is None:
+        emit("replace", "site-replace", LOG, app=app, detail=f"no {rd.PRIMITIVES}: the members show their estimates only")
+    kind = SiteReplaceKind(app, read_json(paths.dossiers), paths.root, table, display_units(run_path))
     require(str(paths.dossiers), kind.problems)
     inputs = _refreshed(kind, paths.replace, library, echo) if refresh else kept_inputs(paths.replace)
     state = decide(kind, charter(library, inputs), conversations, paths.replace, limits, limit, echo,

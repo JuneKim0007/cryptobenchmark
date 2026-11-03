@@ -61,7 +61,7 @@ def test_two_estimated_sides_give_a_labelled_estimate(tmp_path):
     assert "noEstimates" not in option
     assert all("kind" not in e for e in option["estimates"] if e["metric"] == "timeNs")
     text = render(item(Dossier.from_json(document["dossiers"][0])))
-    assert "energyJ | 0.500" in text and ", estimated" in text
+    assert "energyJ@64 (estimated) 0.500" in text
 
 
 def test_two_measured_sides_are_unlabelled(tmp_path):
