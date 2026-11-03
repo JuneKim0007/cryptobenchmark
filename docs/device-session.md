@@ -28,6 +28,18 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 - Each pass prints `pass:      <name> pass: <n> processes, <time> on the device`; the run's device time is their sum, plus thermal sleeps (31% of the last full Pixel session).
 - `capture: dry` with `run.passes` stops with `not_supported`; an energy pass with no `measured` case is skipped with a warning; `--bench` warns and measures once per process.
 
+## Variants
+
+`run.variants` ([operations.md](../modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `scripts/variant_order.py` orders the benchmark's cases, never the before/after run's (`alternating`, by scope pair).
+
+| rule | value |
+|---|---|
+| order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two) |
+| item | the case id without its last part `_fixed` or `_notFixed` |
+| process | `isolation: case`: each variant in its own process, so heap and JIT state never pass between them; `isolation: run` runs both in one process, in plan order |
+| same inputs | both from the same seed and key recipe; setup, inputs and buffers before the timer |
+| cost | about 2x the device cases of an item that has two variants; key generation has one |
+
 ## Temperature
 
 `scripts/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `scripts/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.

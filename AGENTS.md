@@ -94,6 +94,7 @@ scripts/thermal.py : device temperatures from dumpsys thermalservice: sensors by
 scripts/thermal_gate.py : run.thermalGate session hook: the idle baseline once after the warm-up, then a wait before each case process while the device is hotter, one line per pass
 scripts/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
+scripts/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 scripts/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session; its output never pulled
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK

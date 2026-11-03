@@ -82,6 +82,8 @@ Beside `metrics` and `parameters` ([measure.md](../modules/benchmark/docs/measur
 | `thermalNote` | present when a reading is missing (its reason), cached (`source: cached`) or the process's (`scope: run`) |
 | `gate` | `{waitedSeconds: <s>, target: <C>, timedOut: <bool>}`: the host's wait before the case ([device-session.md](device-session.md#thermal-gate)); `waitedSeconds` 0 when it started at once; with `isolation: run` the process's wait on every case; merged processes add `waitedSeconds`, `timedOut` if any did, the first `target`; the merged file keeps the timing pass's, each pass's own under `benchmark/<pass>/`; absent when no gate ran |
 
+Every case (host and device) also carries `variant` ([measure.md](../modules/benchmark/docs/measure.md#benchmarkjson)): one key after `keyKind`, `"variant": "fixed"` or `"variant": "notFixed"`; `null` only in a before/after file under `scoped/`. A reader (perf-repair's side) groups by the case id without its last part `_<variant>` for the item, and never mixes the two values: `fixed` is the call with the setup the API lets a caller keep, kept (`prepared.yaml` `perCall` names exactly what it still redoes: `operation` or `initAndOperation`), `notFixed` is `getInstance` + init + operation per call. Key generation rows are `fixed` only.
+
 A reader of `gate` (perf-repair's side): `timedOut: true` means the case started hotter than its target, and the manifest's `problems` carries the same case as `thermal_gate_timeout: <id>: ...`, a warning, not a lost case; `waitedSeconds` is host time outside the timed loop and never part of a metric.
 
 ## clocks.yaml

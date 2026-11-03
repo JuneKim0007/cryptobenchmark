@@ -175,3 +175,10 @@ def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, mon
     assert slept == [20, 5]
     measured(tmp_path / "off", monkeypatch, {"isolation": "case"})
     assert slept == [20, 5]
+
+
+def test_variants_run_interleaved_per_item_each_in_its_own_process(tmp_path, monkeypatch):
+    cases = ("m_fixed", "m_notFixed", "c_fixed", "c_notFixed")
+    phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 2}, cases=cases)
+    run = [line.split()[-1] for line in steps(phone) if line.startswith("instrument CryptoBenchmark ")]
+    assert run == ["m_fixed", "m_notFixed", "c_fixed", "c_notFixed", "m_notFixed", "m_fixed", "c_notFixed", "c_fixed"]
