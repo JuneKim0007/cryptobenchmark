@@ -74,18 +74,20 @@ class BenchmarkJsonRoundTripTest {
     }
 
     @Test
-    fun processesThatResolvedDifferentParametersDoNotMerge() {
-        val other = text(listOf(withParameters("a", gcm + ("ivBytes" to 16))))
-        val refused = assertThrows(IllegalArgumentException::class.java) { Merge.merge(listOf(text(listOf(withParameters("a", gcm))), other)) }
-        assertTrue(refused.message, refused.message!!.startsWith("different_parameters: a"))
+    fun processesThatResolvedDifferentParametersDropThatCaseAndTheOthersMerge() {
+        val other = text(listOf(withParameters("a", gcm + ("ivBytes" to 16)), withParameters("b", gcm)))
+        val merged = Merge.merge(listOf(text(listOf(withParameters("a", gcm), withParameters("b", gcm))), other, other))
+        assertEquals(listOf("b"), merged.rows.map { it.id })
+        assertEquals(1, merged.dropped.size)
+        assertTrue(merged.dropped.single(), merged.dropped.single().startsWith("not_merged: a: different_parameters: a"))
     }
 
     @Test
-    fun aFileWithoutParametersOrMetricsIsRefused() {
+    fun aProcessEntryWithoutParametersOrMetricsIsDroppedAndTheOtherProcessesKeepTheCase() {
         val written = text(listOf(row("a", both)))
-        fun refused(text: String) = assertThrows(IllegalArgumentException::class.java) { Merge.merge(listOf(text)) }.message
-        assertEquals("missing_field: parameters for a", refused(written.replace(", \"parameters\": {}", "")))
-        assertEquals("missing_field: metrics for a", refused(written.replace(Regex(",\\n     \"metrics\": \\{.*\\}\\}"), "}")))
+        fun dropped(text: String) = Merge.merge(listOf(text, written)).let { it.dropped.single() to it.rows.single().time?.runs?.size }
+        assertEquals("not_merged: a: process 1: missing_field: parameters for a" to 3, dropped(written.replace(", \"parameters\": {}", "")))
+        assertEquals("not_merged: a: process 1: missing_field: metrics for a" to 3, dropped(written.replace(Regex(",\\n     \"metrics\": \\{.*\\}\\}"), "}")))
     }
 
     @Test

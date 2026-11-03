@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
+import io.github.junekim0007.cryptobench.benchmark.RefusedPlanException
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -12,6 +13,19 @@ class PlanCheck(
     private val installedProviders: () -> Set<String> = { Security.getProviders().mapTo(LinkedHashSet()) { it.name } },
     private val energyCapability: () -> EnergyCapability? = { null },
 ) {
+
+    class Checked(val runnable: List<PreparedCase>, val refused: List<Pair<PreparedCase, Refusal>>)
+
+    // A refused case is left out with its reason; a run-wide refusal, or no case left, refuses the plan.
+    fun runnable(run: PreparedRun): Checked {
+        val refusals = check(run)
+        val refused = refusals.mapTo(HashSet()) { it.caseId }
+        val runnable = run.cases.filterNot { it.case.id in refused }
+        if ("" in refused || runnable.isEmpty()) {
+            throw RefusedPlanException(refusals)
+        }
+        return Checked(runnable, refusals.map { refusal -> run.cases.first { it.case.id == refusal.caseId } to refusal })
+    }
 
     fun check(run: PreparedRun): List<Refusal> {
         val refusals = mutableListOf<Refusal>()

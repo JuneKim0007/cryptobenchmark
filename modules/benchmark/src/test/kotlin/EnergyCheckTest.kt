@@ -70,7 +70,7 @@ class EnergyCheckTest {
 
     @Test
     fun anEnergyFileWithoutItsSchemaOrKindIsRefused() {
-        fun failure(text: String) = assertThrows(IllegalArgumentException::class.java) { EnergyWindows.measured(text) }.message
+        fun failure(text: String) = assertThrows(IllegalArgumentException::class.java) { EnergyWindows.read(text) }.message
         assertEquals("unsupported: energy.json schemaVersion 1", failure("""{"schemaVersion": 1, "cases": {}}"""))
         assertEquals("missing_field: energy.json kind", failure("""{"schemaVersion": 2, "source": "rails", "cases": {}}"""))
     }
@@ -87,8 +87,9 @@ class EnergyCheckTest {
         assertEquals("manafa" to "estimated", merged.source to merged.kind)
         val measured = energy.copy(source = "rails", kind = "measured")
         val other = BenchmarkJson(File(".")).text(emptyMap(), listOf(row(measured)))
-        val refused = assertThrows(IllegalArgumentException::class.java) { Merge.merge(listOf(text, other)) }
-        assertEquals("energy_kinds_differ: estimated and measured", refused.message)
+        val refused = Merge.merge(listOf(text, other))
+        assertEquals(listOf("not_merged: c: energy_kinds_differ: estimated and measured"), refused.dropped)
+        assertEquals(emptyList<String>(), refused.rows.map { it.id })
     }
 
     @Test
@@ -97,7 +98,21 @@ class EnergyCheckTest {
             "m": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 40000},
             "x": {"capture": "measured", "valid": false, "invalid": ["short_window"], "joulesPerOperation": -1, "operations": 9},
             "d": {"capture": "dry", "valid": true, "joulesPerOperation": 1.0e-6, "operations": 9}}}"""
-        assertEquals(mapOf("m" to MetricSamples(listOf(2.5e-6), 40000, source = "manafa", kind = "estimated")), EnergyWindows.measured(text))
-        assertEquals(mapOf("x" to listOf("short_window")), EnergyWindows.invalid(text))
+        val read = EnergyWindows.read(text)
+        assertEquals(mapOf("m" to MetricSamples(listOf(2.5e-6), 40000, source = "manafa", kind = "estimated")), read.samples)
+        assertEquals(mapOf("x" to listOf("short_window")), read.notJoined)
+    }
+
+    @Test
+    fun aValidCaseWithoutANumberIsNotJoinedAndTheOthersAre() {
+        val text = """{"schemaVersion": 2, "source": "rails", "kind": "measured", "cases": {
+            "m": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 4},
+            "none": {"capture": "measured", "valid": true, "joulesPerOperation": null, "operations": 0},
+            "zero": {"capture": "measured", "valid": true, "joulesPerOperation": 1.0, "operations": 0},
+            "empty": {"capture": "measured", "valid": false, "invalid": []}}}"""
+        val read = EnergyWindows.read(text)
+        assertEquals(setOf("m"), read.samples.keys)
+        assertEquals(mapOf("none" to listOf("missing_field: joulesPerOperation"), "zero" to listOf("out_of_range: operations 0"),
+                           "empty" to listOf("unjudged")), read.notJoined)
     }
 }

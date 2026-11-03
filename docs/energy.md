@@ -66,7 +66,7 @@
 | `no_power_rails` | `railsPresent` false |
 | `rails_unresponsive: idle <x> uJ, busy <y> uJ over <s> s` | `railsResponsive` false and not `acceptUnresponsive` |
 
-- Any refusal throws `RefusedPlanException` on the device.
+- On the device the refused cases are left out and listed in `skipped.yaml`; every case refused throws `RefusedPlanException`.
 - A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
 
 ## Traces
@@ -118,9 +118,10 @@
 
 - `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
 - `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
-- An `energy.json` of another `schemaVersion` fails with `unsupported`.
+- An `energy.json` of another `schemaVersion` is `unsupported` and joins nothing.
 - An estimated run: `manifest.yaml` top-level `energy`, a closing line in `analysis/summary.md`, `(estimated)` on its `energyJ` chart.
-- Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason).
+- Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason; `missing_field: joulesPerOperation`, `out_of_range: operations <n>` for a valid case without a usable number).
+- An `energy.json` `ConvertKt` cannot read prints `energy_not_joined: <file>: <message>`; the timing converts without energy.
 
 ## Files
 

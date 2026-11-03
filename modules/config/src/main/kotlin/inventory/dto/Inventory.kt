@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 data class Inventory(
     val generatedFrom: InventorySource,
     val providers: Map<String, Map<String, Map<String, InventoryEntry>>>,
+    val warnings: List<String> = emptyList(),
 ) {
 
     init {

@@ -43,7 +43,7 @@ modules/config/src/main/kotlin/global/dto/Selection.kt : testSet and global excl
 modules/config/src/main/kotlin/inventory/InventoryBuilder.kt : capture x trial to inventory
 modules/config/src/main/kotlin/inventory/InventoryDocument.kt : inventory.yaml schema
 modules/config/src/main/kotlin/inventory/InventorySourceDocument.kt : capture, trial, device block shared by both generated files
-modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model; rejects two spellings of one canonical name
+modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model with its build warnings; rejects two spellings of one canonical name
 modules/config/src/main/kotlin/inventory/dto/InventoryEntry.kt : one observed primitive
 modules/config/src/main/kotlin/inventory/dto/InventorySource.kt : inventory provenance
 modules/config/src/main/kotlin/names/AlgorithmNames.kt : algorithm-names.yaml reader: canonical name and key size, rule name match, identifier fold

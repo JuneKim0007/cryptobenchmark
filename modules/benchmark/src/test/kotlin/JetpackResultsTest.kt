@@ -7,7 +7,6 @@ import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
 import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.File
 
@@ -31,12 +30,12 @@ class JetpackResultsTest {
     }
 
     @Test
-    fun aPlanWithoutResolvedParametersIsRefused() {
-        val old = File(example, "benchmark_prepared_example.yaml").readText().replace(Regex("  resolvedParameters: .*\n"), "")
-        val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
-            JetpackResults.convert(File(example, "benchmark_jetpack_example.json").readText(), old)
-        }
-        assertEquals("missing_field: resolvedParameters for MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM; prepared.yaml predates schemaVersion 2", refused.message)
+    fun aPlanCaseWithoutResolvedParametersIsDroppedWithItsReason() {
+        val old = File(example, "benchmark_prepared_example.yaml").readText().replaceFirst(Regex("  resolvedParameters: .*\n"), "")
+        val converted = JetpackResults.convert(File(example, "benchmark_jetpack_example.json").readText(), old)
+        assertEquals("not_converted: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM: missing_field: resolvedParameters for " +
+            "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM; prepared.yaml predates schemaVersion 2", converted.dropped.first())
+        assertEquals(1, converted.rows.size)
     }
 
     @Test
@@ -70,10 +69,13 @@ class JetpackResultsTest {
     }
 
     @Test
-    fun aMetricThePlanAskedForButAndroidxDidNotWriteFailsTheConversion() {
+    fun aMetricThePlanAskedForButAndroidxDidNotWriteDropsThatCaseOnly() {
         val both = plan().replace("metrics: [TIME]", "metrics: [TIME, ALLOCATION]")
-        val refused = assertThrows(IllegalArgumentException::class.java) { JetpackResults.convert(data(), both) }
-        assertEquals("missing_field: metrics.allocationCount for Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4; androidx wrote [timeNs]", refused.message)
+        val converted = JetpackResults.convert(data(), both)
+        assertEquals(listOf("not_converted: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4: missing_field: " +
+            "metrics.allocationCount for Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4; androidx wrote [timeNs]"),
+            converted.dropped.filter { it.startsWith("not_converted") })
+        assertEquals(listOf("SHA-256"), converted.rows.map { it.algorithm })
     }
 
     @Test
@@ -91,17 +93,17 @@ class JetpackResultsTest {
         val nothing = JetpackResults.convert(NO_METRICS, File(example, "benchmark_prepared_example.yaml").readText())
         assertEquals(
             listOf(
-                "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM",
-                "Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4",
+                "no_metrics: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM",
+                "no_metrics: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4",
             ),
-            nothing.missing,
+            nothing.dropped,
         )
         assertEquals(emptyList<String>(), nothing.rows.map { it.id })
     }
 
     @Test
     fun aMeasurementWithNoCaseIsReported() {
-        assertEquals(listOf("Cipher_ChaCha20_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM"), converted.missing)
+        assertEquals(listOf("not_in_plan: Cipher_ChaCha20_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM"), converted.dropped)
         assertEquals(2, converted.rows.size)
     }
 

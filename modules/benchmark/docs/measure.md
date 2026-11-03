@@ -32,6 +32,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 |---|---|
 | default `onRefusal` | throws `RefusedPlanException` `refused_plan: ...`; nothing is measured |
 | non-throwing `onRefusal` | refused case ids are filtered out; the rest are measured |
+| `runnable(run)` | refused cases left out with their refusal; a run-wide refusal or no case left throws `RefusedPlanException`; the device plan's rule |
 | `Refusal.toString` | `<caseId>: <reason>`; bare reason when run-wide |
 
 ## What one sample is
@@ -89,22 +90,27 @@ Harness settings as plain values, no androidx type.
 | `reported` | dropped |
 | partial presence | a case or metric present in only some processes survives |
 | `runtime` keys | first value wins |
-| `parameters` | must be equal across processes, else `different_parameters: <id>: <a> and <b>` |
+| `parameters` | must be equal across processes, else the case is left out: `not_merged: <id>: different_parameters: <id>: <a> and <b>`; energy of different kinds or sources the same |
+| a process entry without `metrics` or `parameters` | that entry is left out: `not_merged: <id>: process <n>: missing_field: ...`; the other processes keep the case |
+| no case left | `MergeRunsKt` stops with `nothing_merged` |
 
 ## Jetpack conversion
 
 | rule | value |
 |---|---|
 | join key | text inside `[...]` of `benchmarks[].name` = case id in `prepared.yaml` |
-| no plan case or no metrics | `missing`; `ConvertKt` prints `no_case_in_the_plan: <id>` |
+| no plan case | `dropped` line `not_in_plan: <id>` |
+| no metrics | `dropped` line `no_metrics: <id>` |
+| any other problem with one case | `dropped` line `not_converted: <id>: <message>`; the other cases convert |
+| no row at all | `ConvertKt` stops with `nothing_converted` |
 | carried metrics | the `prepared.yaml` case's `metrics`, as `MetricKeys.of`; others androidx wrote are dropped; the only place `run.metrics` filters device rows |
 | ALLOCATION not requested | androidx still runs its allocation phase and writes `allocationCount`; it is not reported |
-| a requested metric absent | `missing_field: metrics.<key> for <id>; androidx wrote [..]` |
-| case without `metrics` | `missing_field: metrics for <id>` |
+| a requested metric absent | `not_converted: <id>: missing_field: metrics.<key> for <id>; androidx wrote [..]` |
+| case without `metrics` | `not_converted: <id>: missing_field: metrics for <id>` |
 | `timeNs.iterations`, CPU event `iterations` | `repeatIterations`, default 1 |
 | `allocationCount.iterations` | 1 |
 | case shape | algorithm, provider, operation, sizes, `keyKind` from the `prepared.yaml` case |
-| `parameters` | the case's `resolvedParameters`; absent: `missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |
+| `parameters` | the case's `resolvedParameters`; absent: `not_converted: <id>: missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |
 | androidx.benchmark | 1.5.0 |
 
 | `runtime` key | Jetpack source |

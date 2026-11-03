@@ -11,32 +11,37 @@ object JetpackResults {
 
     private const val RESOLVED_PARAMETERS = "resolvedParameters"
 
-    class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val missing: List<String>, val notApplied: List<String> = emptyList())
+    // dropped: one coded line per benchmark that gave no row: not_in_plan, no_metrics, not_converted
+    class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val dropped: List<String>, val notApplied: List<String> = emptyList())
 
     fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap()): Converted {
         val data = CaseDocument.load(benchmarkDataText)
         val prepared = CaseDocument.load(preparedText)
         val cases = CaseDocument.sections(prepared["cases"]).associateBy { case -> case["id"].toString() }
         val rows = mutableListOf<ResultRow>()
-        val missing = mutableListOf<String>()
+        val dropped = mutableListOf<String>()
         val notApplied = mutableListOf<String>()
         for (benchmark in CaseDocument.sections(data["benchmarks"])) {
             val id = caseIdOf(benchmark)
             val case = cases[id]
             if (case == null) {
-                missing += id
+                dropped += "not_in_plan: $id"
                 continue
             }
-            val metrics = metricsOf(benchmark, requestedOf(id, case))
-            if (metrics.isEmpty()) {
-                missing += id
-                continue
+            try {
+                val metrics = metricsOf(benchmark, requestedOf(id, case))
+                if (metrics.isEmpty()) {
+                    dropped += "no_metrics: $id"
+                    continue
+                }
+                energy[id]?.let { metrics[MetricSamples.ENERGY] = it }
+                rows += CaseDocument.row(case, metrics, resolvedParametersOf(id, case))
+                notApplied += RunCountAudit.findings(id, CaseDocument.requestedIterations(case), metrics)
+            } catch (unusable: RuntimeException) {
+                dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
             }
-            energy[id]?.let { metrics[MetricSamples.ENERGY] = it }
-            rows += CaseDocument.row(case, metrics, resolvedParametersOf(id, case))
-            notApplied += RunCountAudit.findings(id, CaseDocument.requestedIterations(case), metrics)
         }
-        return Converted(runtime(data), rows, missing, notApplied)
+        return Converted(runtime(data), rows, dropped, notApplied)
     }
 
     private fun metricsOf(benchmark: Map<String, Any>, requested: List<String>): MutableMap<String, MetricSamples> {

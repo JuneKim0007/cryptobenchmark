@@ -69,7 +69,7 @@ class EffectiveBuilder {
             policy = global.policy,
             providers = providers,
             skipped = skipped + entrySkips,
-            warnings = warnings + runUnsupported.map { it.toString() } + entryWarnings,
+            warnings = inventory.warnings + warnings + runUnsupported.map { it.toString() } + entryWarnings,
             analysis = global.analysis,
             bundledProviders = global.providers.bundled,
         )

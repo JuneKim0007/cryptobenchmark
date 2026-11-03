@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.boolean
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalBoolean
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
@@ -16,6 +17,7 @@ object InventoryDocument : DocumentHandler<Inventory> {
 
     private const val GENERATED_FROM = "generatedFrom"
     private const val PROVIDERS = "providers"
+    private const val WARNINGS = "warnings"
     private const val RUNS = "runs"
     private const val KEY_SIZES = "keySizes"
     private const val INPUT_SIZES = "inputSizes"
@@ -25,14 +27,15 @@ object InventoryDocument : DocumentHandler<Inventory> {
     private const val BARE_NAME = "bareName"
     private const val REASON = "reason"
 
-    override fun of(value: Inventory): Map<String, Any> = linkedMapOf(
+    override fun of(value: Inventory): Map<String, Any> = linkedMapOf<String, Any>(
         GENERATED_FROM to InventorySourceDocument.of(value.generatedFrom),
         PROVIDERS to ProviderTree.of(value.providers, ::entry),
-    )
+    ).apply { if (value.warnings.isNotEmpty()) put(WARNINGS, value.warnings) }
 
     override fun parse(document: Map<String, Any>): Inventory = Inventory(
         generatedFrom = InventorySourceDocument.parse(section(document, GENERATED_FROM)),
         providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS, ::entryOf),
+        warnings = optionalStrings(document, WARNINGS),
     )
 
     private fun entry(entry: InventoryEntry): Map<String, Any> = LinkedHashMap<String, Any>().apply {

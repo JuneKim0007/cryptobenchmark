@@ -65,6 +65,22 @@ class PlanCheckTest {
     }
 
     @Test
+    fun oneRefusedCaseIsLeftOutWithItsReasonAndTheOthersRun() {
+        val checked = PlanCheck(HostHarness.METRICS, installed).runnable(run(case(provider = "BC"), case(), case(algorithm = "SHA-512")))
+        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM", "MessageDigest_SHA-512_DIGEST_SUN_i1024_WARM"),
+            checked.runnable.map { it.case.id })
+        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_BC_i1024_WARM" to "provider_not_installed: BC, installed [SUN, SunJCE]"),
+            checked.refused.map { (prepared, refusal) -> prepared.case.id to refusal.reason })
+    }
+
+    @Test
+    fun noRunnableCaseOrARunWideRefusalStillRefusesThePlan() {
+        val check = PlanCheck(HostHarness.METRICS, installed)
+        org.junit.Assert.assertThrows(RefusedPlanException::class.java) { check.runnable(run(case(provider = "BC"))) }
+        org.junit.Assert.assertThrows(RefusedPlanException::class.java) { check.runnable(run(case(), processRepetitions = 0)) }
+    }
+
+    @Test
     fun anEmptyPlanIsRefusedBeforeAnyTimerStarts() {
         assertEquals(listOf("nothing_to_measure"), PlanCheck(HostHarness.METRICS, installed).check(run()).map { it.toString() })
     }

@@ -28,7 +28,9 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 | `inputSizes` | recorded only when the run's input size differs from the trial's `defaultRunInputSize` |
 | `reason` | trial error, else `failed` |
 | `generatedFrom` | `capture`, `trial` file names; `device` = the capture's `runtime` block |
-| duplicate | two names with one canonical name and key size in one provider and type: `duplicate_name` |
+| duplicate | two names with one canonical name and key size in one provider and type (a provider registering a second spelling as its own service): the first in trial order is kept, the other left out with the warning `duplicate_name: <provider>.<type> <kept> and <left out> are one name; <left out> left out` |
+| `warnings` | what the build left out; omitted when empty; `effective` puts them first in `report.yaml` `warnings` |
+| refused | an `inventory.yaml` that still holds two spellings of one name: `duplicate_name` |
 | pairing | capture and trial `capturedAtMillis` differ: `mismatched_trial: capture <a>, trial <b>` |
 
 ## Build order
@@ -90,7 +92,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | key | holds |
 |---|---|
 | `runId` | as in `effective.yaml` |
-| `warnings` | `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, then run-level and entry-level `not_supported:` |
+| `warnings` | the inventory's `warnings`, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, then run-level and entry-level `not_supported:` |
 | `skipped` | `{stage, provider?, type?, name?, reason}`; preparation writes the same shape with stage `preparation` |
 
 ## Errors and writes

@@ -46,9 +46,9 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 
 | step | rule |
 |---|---|
-| inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` and `trial_*` via discovery's `ProbeDirectory`; none: `missing_file: <dir>/<prefix>_<stamp>.yaml` |
+| inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` via discovery's `ProbeDirectory`, its `trial_*` by the same stamp; none: `missing_file: ...` |
 | prepare | `Preparation` writes `skipped.yaml` and `prepared.yaml` into the device directory |
-| check | `PlanCheck` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory; any refusal throws `RefusedPlanException` |
+| check | `PlanCheck.runnable` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory: a refused case is left out and added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` |
 | timed cases | `harness.energy.capture` other than `dry` |
 | dry cases | `harness.energy.capture` = `dry` |
 

@@ -6,7 +6,8 @@ import sys
 from failure import fail
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "no_case_in_the_plan:", "energy_not_joined:")
+PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
+             "not_converted:", "not_merged:", "energy_not_joined:")
 NOISE = ("FAILURE:", "BUILD FAILED", "* Try:", "* Get more help", "* What went wrong", "> Process 'command", "Run with --", "* Exception is:")
 
 

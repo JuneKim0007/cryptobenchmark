@@ -107,6 +107,13 @@ class EffectiveBuilderTest {
         )
     }
 
+    @Test
+    fun whatTheInventoryLeftOutIsWarnedAboutFirst() {
+        val noted = inventory.copy(warnings = listOf("duplicate_name: P.Cipher A and B are one name; B left out"))
+        assertEquals(listOf("duplicate_name: P.Cipher A and B are one name; B left out"),
+            EffectiveBuilder().build(global, testSet, noted, names).warnings)
+    }
+
     /** A group is the same device entry measured again under another name, so it is one entry per group. */
     @Test
     fun anIncludeGroupMakesItsOwnEntry() {

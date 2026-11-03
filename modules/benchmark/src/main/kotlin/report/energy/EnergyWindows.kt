@@ -7,28 +7,37 @@ object EnergyWindows {
 
     private const val SCHEMA_VERSION = 2
 
-    fun invalid(energyText: String): Map<String, List<String>> {
-        val cases = CaseDocument.optionalSection(CaseDocument.load(energyText)["cases"]) ?: return emptyMap()
-        return cases.mapValues { (_, value) -> CaseDocument.section(value) }
-            .filter { (_, case) -> case["capture"] == "measured" && case["valid"] != true }
-            .mapValues { (_, case) -> (case["invalid"] as? List<*>)?.map { it.toString() } ?: listOf("unjudged") }
-    }
+    class Read(val samples: Map<String, MetricSamples>, val notJoined: Map<String, List<String>>)
 
-    fun measured(energyText: String): Map<String, MetricSamples> {
+    fun read(energyText: String): Read {
         val document = CaseDocument.load(energyText)
         require(document["schemaVersion"] == SCHEMA_VERSION) { "unsupported: energy.json schemaVersion ${document["schemaVersion"]}" }
         val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: energy.json source")
         val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: energy.json kind")
-        val cases = CaseDocument.optionalSection(document["cases"]) ?: return emptyMap()
-        return cases.mapNotNull { (id, value) ->
+        val samples = LinkedHashMap<String, MetricSamples>()
+        val notJoined = LinkedHashMap<String, List<String>>()
+        for ((id, value) in CaseDocument.optionalSection(document["cases"]).orEmpty()) {
             val case = CaseDocument.section(value)
-            if (case["capture"] != "measured" || case["valid"] != true) return@mapNotNull null
-            val perOperation = (case["joulesPerOperation"] as? Number)?.toDouble()
-                ?: throw IllegalArgumentException("missing_field: energy.json $id.joulesPerOperation")
-            val operations = (case["operations"] as? Number)?.toLong()
-                ?: throw IllegalArgumentException("missing_field: energy.json $id.operations")
-            require(operations in 1..Int.MAX_VALUE) { "out_of_range: energy.json $id.operations $operations" }
-            id to MetricSamples(listOf(perOperation), operations.toInt(), source = source, kind = kind)
-        }.toMap()
+            if (case["capture"] != "measured") continue
+            if (case["valid"] != true) {
+                notJoined[id] = (case["invalid"] as? List<*>)?.map { it.toString() }?.ifEmpty { null } ?: listOf("unjudged")
+                continue
+            }
+            val problem = problem(case)
+            if (problem != null) {
+                notJoined[id] = listOf(problem)
+                continue
+            }
+            val operations = (case["operations"] as Number).toInt()
+            samples[id] = MetricSamples(listOf((case["joulesPerOperation"] as Number).toDouble()), operations, source = source, kind = kind)
+        }
+        return Read(samples, notJoined)
+    }
+
+    private fun problem(case: Map<String, Any>): String? {
+        val perOperation = (case["joulesPerOperation"] as? Number)?.toDouble() ?: return "missing_field: joulesPerOperation"
+        if (!perOperation.isFinite()) return "not_finite: joulesPerOperation $perOperation"
+        val operations = (case["operations"] as? Number)?.toLong() ?: return "missing_field: operations"
+        return if (operations in 1..Int.MAX_VALUE) null else "out_of_range: operations $operations"
     }
 }
