@@ -90,9 +90,12 @@ def halt(g: Guide, code: str, detail: str, inner: str | None = None) -> None:
 
 
 def _exit(g: Guide, code: int, stop: str, what: str) -> None:
-    """A command run in-process wrote no error event: its coded failure is the inner code of this one line."""
+    """A command run in-process wrote no error event: its coded failure is the inner code of this one line; its Halt
+    already has its line and goes on as it is."""
     if code != 0:
         inner = last_failure()
+        if inner and inner.halt:
+            raise inner.halt
         said = f": {inner.detail}" if inner and inner.detail else "; its own lines above say why"
         halt(g, stop, f"{what} exited {code}" + said, inner.code if inner else None)
 

@@ -8,14 +8,14 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..catalog.names import Names, NamesError
-from ..config.args import add_config_arg
+from ..config.args import add_config_arg, load_settings
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
-from ..dto.event import FINDING
-from ..log import attach, emit, step
+from ..log import attach, step
 from ..scope.build import Scoping, build_scopes
+from ..stop import terminate
 from ..scope.units.build import build_units, unit_counts, units_document
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
@@ -44,7 +44,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    fill_device_results(ap, a)
+    # loaded even with --device-results: stops.not_on_device is read when the code fires
+    fill_device_results(ap, a, load_settings(ap, a))
     attach(a.device_results)
     primitives = Primitives.load(a.device_results)
     require(str(primitives.context.path), validate_manifest(primitives.context.manifest, primitives.context.base))
@@ -104,11 +105,11 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
           + (", ".join(f"{k} {n}" for k, n in scoping.statuses().items()) or "none"))
     if any(s.lifecycle is not None and "parser_missing" in s.lifecycle.reasons for s in scoping.scopes):
         print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'perf-repair[scope]'")
+    _write_units(name, app, out_dir, scoping)
+    # after every file is written, so a stop leaves a whole app folder
     for missing, n in sorted(Counter(s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE).items()):
         print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_STEP}")
-        emit("app", "detect", FINDING, app=name, item=missing, outcome=NOT_ON_DEVICE,
-             detail=f"{n} sites; {NOT_ON_DEVICE_STEP}", data={"sites": n})
-    _write_units(name, app, out_dir, scoping)
+        terminate("not_on_device", f"{n} sites", stage="app", step="detect", app=name, item=missing, data={"sites": n})
 
 
 def _write_units(name: str, app: AppRoot, out_dir: Path, scoping: Scoping) -> None:

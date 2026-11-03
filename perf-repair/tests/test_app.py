@@ -307,6 +307,16 @@ def test_an_engine_type_the_probe_lacks_is_still_found_and_says_what_to_do(tmp_p
             "the device stage") in capsys.readouterr().out.splitlines()
 
 
+def test_stops_not_on_device_stop_ends_the_command_after_the_app_folder_is_written(tmp_path, capsys):
+    settings = tmp_path / "perfrepair.yaml"
+    settings.write_text("stops: {not_on_device: stop}\n")
+    device = with_results(tmp_path / "d")
+    assert main(["--app", str(APP), "--device-results", str(device), "--perfrepair-config", str(settings)]) == 1
+    err = capsys.readouterr().err.splitlines()
+    assert [line for line in err if line.startswith("error ")] == ["error not_on_device: 1 sites"]
+    assert (device / path_id(APP) / "scopes.json").is_file()
+
+
 def test_command_refuses_a_gate_failure(tmp_path, capsys):
     assert main(["--app", str(tmp_path), "--device-results", str(with_results(tmp_path))]) == 2
     assert "not_android_project" in capsys.readouterr().err

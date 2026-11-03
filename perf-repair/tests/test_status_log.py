@@ -92,7 +92,7 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     transcript = f"{rd.PIPELINE_LOGS}/{last[0].split()[1]}.log"
     at = (base.run_dir / transcript).read_text().splitlines().index(f"# device app {pb}") + 1
     case = read_json(AppPaths(base.run_dir, pa).scoped_benchmark)["cases"][1]["id"]
-    missing = [f"not_on_device {name} app {{}}: 1 sites; {NOT_ON_DEVICE_STEP}" for name in ("Bundled", "KeyStore AndroidKeyStore")]
+    missing = [f"not_on_device {name} app {{}}: warn: 1 sites; next: {NOT_ON_DEVICE_STEP}" for name in ("Bundled", "KeyStore AndroidKeyStore")]
     assert last[0].startswith("run ") and last[-1].startswith("end ") and ": exit 1 (" in last[-1]
     assert last[1:-1] == [
         "reused device grouping: every item decided, saved files current",

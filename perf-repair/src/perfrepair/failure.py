@@ -24,6 +24,7 @@ FAILURES = (Halt, ValidationFailed, ValueError, OSError, GateError, BenchmarkRun
 class Failed:
     code: str | None
     detail: str
+    halt: Halt | None = None
 
 
 _last: Failed | None = None
@@ -54,7 +55,7 @@ def _failed(e: Exception) -> int:
     if not isinstance(e, Halt) and not nested():
         emit("run", "error", ERROR, outcome="error", detail=str(e), data={"code": code} if code else {})
     print(f"error {e}", file=sys.stderr)
-    _last = Failed(code, e.detail if isinstance(e, Halt) else str(e))
+    _last = Failed(code, e.detail, e) if isinstance(e, Halt) else Failed(code, str(e))
     return e.exit if isinstance(e, Halt) else CODES[code].exit if code in CODES else 1
 
 
