@@ -11,7 +11,7 @@ SCHEMA_VERSION = 7
 THERMAL_MISMATCH, THERMAL_THROTTLED = "thermal_mismatch", "thermal_throttled_at_end"
 THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static")
-DECISION_STATUSES = ("replace", "keep", "not_run")
+DECISION_STATUSES = ("replace", "keep", "recommend", "not_run")
 EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")
 COMPILE_STATUSES = ("compiled", "primitive_only", "not_measurable", "skipped", "not_run")
 INTEROP_STATUSES = ("passed", "unchecked", "not_comparable", "interop_failed", "call_failed", "skipped", "not_run")
@@ -20,7 +20,7 @@ VERDICTS = ("improves", "not_improving", "not_measured")
 # (benchmark.json metric key, unit per operation)
 REPORTED = tuple((m.name, m.unit) for m in METRICS)
 # measuredUnchecked: of measured, those with no interop check; not a stage
-FUNNEL = ("sites", "scopes", "units", "withOptions", "replace", "unitsReplace", "applied", "compiled", "interopPassed", "measured",
+FUNNEL = ("sites", "scopes", "units", "withOptions", "recommend", "replace", "unitsReplace", "applied", "compiled", "interopPassed", "measured",
           "measuredUnchecked")
 CHANGES = ("improved", "unchanged", "worse", "notMeasured")
 

@@ -7,7 +7,7 @@ from ..agent.reply import AgentFailed, AgentRefused, AgentReply
 DEFAULT_MODEL = "claude-opus-5-5"
 MAX_TOKENS = 16000
 # The Messages API answers 400 to string length limits, and to a {n,m} it finds too complex; the gate checks both.
-API_UNSUPPORTED = ("maxLength", "minLength", "pattern")
+API_UNSUPPORTED = ("maxLength", "minLength", "pattern", "maxItems")
 
 
 def api_schema(node: dict) -> dict:

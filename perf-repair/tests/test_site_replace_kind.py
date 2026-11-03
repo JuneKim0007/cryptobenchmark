@@ -15,7 +15,7 @@ from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, chart
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.primitives import PrimitiveLine, PrimitivesTable
-from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Estimate, Option
+from perfrepair.dto.site import DECISIONS, EDIT_KINDS, REPLACEMENTS_SCHEMA_VERSION, RISKS, Estimate, Option
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.dto.units import DisplayUnits
 from perfrepair.files import read_json
@@ -96,10 +96,11 @@ def test_end_to_end_command_writes_replacements_with_static_and_model_sources(tm
     agent = ScriptedConversations(lambda m, *_: by_file(m))
     state = replace(run, APP, agent, LIBRARY, **QUIET)
     out = read_json(app / "replacements.json")
-    assert out["schemaVersion"] == 3 and out["app"] == APP and agent.started == 2 and out["stale"] == []
+    assert out["schemaVersion"] == REPLACEMENTS_SCHEMA_VERSION and out["app"] == APP and agent.started == 2 and out["stale"] == []
     decisions = {r["scope"]: r for r in out["replacements"]}
     assert decisions[A.key]["decision"] == "replace" and decisions[A.key]["option"] == "TypeA|ALG-A/MODE-X|P2"
-    assert decisions[B.key]["decision"] == "keep" and decisions[NONE] == {"scope": NONE, "decision": "keep", "option": None, "edits": [], "risks": [], "reason": "none_available"}
+    assert decisions[B.key]["decision"] == "keep" and decisions[NONE] == {"scope": NONE, "decision": "keep", "option": None, "edits": [], "risks": [], "reason": "none_available",
+                                                                           "deciding": [], "accepted": [], "needs": [], "concerns": []}
     assert out["sources"] == {NONE: "static", A.key: "llm", B.key: "llm"}
     assert state.version == 2 and (app / "replace" / "journal.jsonl").exists()
 
@@ -180,7 +181,7 @@ def test_a_hand_edited_replacement_missing_a_required_kind_is_caught(tmp_path):
 def test_a_hand_edited_replacement_dropping_the_options_interop_risk_is_caught(tmp_path):
     run, app = run_dir(tmp_path, A)
     r3 = answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")],
-                risks=("persisted_data", "key_compatibility", "unverified_interop"))
+                risks=("persisted_data", "key_compatibility", "unverified_interop"), deciding=("energyJ",))
     replace(run, APP, ScriptedConversations(lambda *_: r3), LIBRARY, **QUIET)
     record = active_outbox(app / "replace").path(1)
     edited = read_json(record)
@@ -254,7 +255,7 @@ def test_a_scope_that_left_the_dossiers_replays_without_its_row(tmp_path):
     assert list(state.replacements) == [B.key] and state.version == 2 and not state.stale
 
 
-C = dossier(file="src/Pair.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass"),), sinks=("local",),
+C = dossier(file="src/Pair.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass", (Estimate("timeNs", 0.8, 0.99, 40, "OP1 key 128 input 1024"),)),), sinks=("local",),
             key_source="derived")
 PAIR = linked(A, C)
 
@@ -272,7 +273,7 @@ def run_dir_units(tmp_path, dossiers, units):
 
 
 # P2 and P3 have no interop result, so the inverse pair declares it on both sides
-PAIR_REPLACE = {"decision": "replace", "reason": "timeNs ratio 0.62, pImprove 0.99",
+PAIR_REPLACE = {"decision": "replace", "reason": "timeNs ratio 0.62, pImprove 0.99", "deciding": ["timeNs"],
                 "members": [member(risks=("persisted_data", "key_compatibility", "unverified_interop")),
                             member("S2", edits=[edit("set_provider", "P3")], risks=("unverified_interop",))]}
 
@@ -415,7 +416,7 @@ def test_a_changed_primitives_line_marks_the_decision_stale_but_a_unit_change_do
 def test_the_run_warnings_reach_the_render_and_its_evidence():
     warned = SiteReplaceKind(APP, doc(A), ".", warnings=("cpu_not_locked: clocks float",))
     text = warned.render(item(A), warned.empty()).text
-    assert text.startswith("RUN WARNINGS:\n  - cpu_not_locked: clocks float\n\nUNIT of 1 member")
+    assert text.startswith("RUN WARNINGS:\n  - cpu_not_locked: clocks float\n\nPERFMODE generic | rule overall")
     plain = SiteReplaceKind(APP, doc(A), ".")
     assert warned.evidence_digest(item(A)) != plain.evidence_digest(item(A)) == evidence(item(A), PerfMode(overall=True))
 

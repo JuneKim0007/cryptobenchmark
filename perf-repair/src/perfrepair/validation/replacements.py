@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ..dto.unit import UnitDossiers
-from ..dto.site import DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
+from ..dto.site import RECOMMEND, DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
 from .suggest.site_replace import required_kinds, takes
 
 SOURCES = ("llm", "fallback", "static")
@@ -56,6 +56,8 @@ def validate_replacements(replacements: dict[str, Replacement], sources: dict[st
             f"{k}: filed under {k} but names scope {r.scope}" if r.scope != k else "",
             f"{k}: decision {r.decision!r} is not one of {DECISIONS}" if r.decision not in DECISIONS else "",
             f"{k}: keep carries an option or edits" if r.decision == "keep" and (r.option or r.edits) else "",
+            f"{k}: a recommend names an option, its needs and no edit" if r.decision == RECOMMEND and (not r.option or r.edits or not r.needs) else "",
+            f"{k}: needs belong to a recommend" if r.decision != RECOMMEND and r.needs else "",
             f"{k}: risks {list(r.risks)} outside {RISKS}" if set(r.risks) - set(RISKS) else "",
             f"{k}: reason is empty" if not r.reason.strip() else "",
             f"{k}: a fallback is not a keep" if sources.get(k) == "fallback" and r.decision != "keep" else "",

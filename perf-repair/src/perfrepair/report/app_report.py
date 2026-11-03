@@ -25,6 +25,7 @@ def _measured(row: dict) -> bool:
 def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
     units = unit_counts(rows)
     return {"sites": sites, "scopes": len(rows), "units": units["units"], "withOptions": with_options,
+            "recommend": sum(r["decision"]["decision"] == "recommend" for r in rows),
             "replace": sum(r["decision"]["decision"] == "replace" for r in rows), "unitsReplace": units["unitsReplace"],
             "applied": sum(r["edit"]["status"] == "applied" for r in rows),
             "compiled": sum(r["compile"]["status"] == "compiled" for r in rows),

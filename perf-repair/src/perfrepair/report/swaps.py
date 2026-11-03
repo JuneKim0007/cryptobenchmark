@@ -32,15 +32,19 @@ def swaps(reports: list[dict]) -> list[dict]:
         for s in r["scopes"]:
             if s["decision"]["decision"] == "replace" and s["current"] and s["option"]:
                 chosen[(s["current"], s["option"])].append((r["app"], s))
-    return [{"current": current, "option": option, "apps": sorted({app for app, _ in rows}),
-             "labels": {k: sum(s["label"] == k for _, s in rows) for k in LABELS if any(s["label"] == k for _, s in rows)},
-             "metrics": _row_metrics(rows)}
-            for (current, option), rows in sorted(chosen.items())]
+    return [_swap(current, option, rows) for (current, option), rows in sorted(chosen.items())]
+
+
+def _swap(current: str, option: str, rows: list[tuple[str, dict]]) -> dict:
+    found = [s["label"] for _, s in rows]
+    return {"current": current, "option": option, "apps": sorted({app for app, _ in rows}),
+            "labels": {k: found.count(k) for k in LABELS if k in found}, "metrics": _row_metrics(rows)}
 
 
 def label_counts(reports: list[dict]) -> dict:
     """The replace decisions by the label their measurement earned: a trade-off shipped is one the decision accepted."""
     rows = [s for r in reports for s in r["scopes"] if s["decision"]["decision"] == "replace"]
     found = {k: sum(s["label"] == k for s in rows) for k in LABELS}
-    return {"improves": found["improves"], "tradeOffAccepted": found[L_TRADE_OFF], "worse": found["worse"],
+    recommended = sum(s["decision"]["decision"] == "recommend" for r in reports for s in r["scopes"])
+    return {"recommend": recommended, "improves": found["improves"], "tradeOffAccepted": found[L_TRADE_OFF], "worse": found["worse"],
             "unchanged": found["unchanged"], "notMeasured": found[L_NOT_MEASURED]}

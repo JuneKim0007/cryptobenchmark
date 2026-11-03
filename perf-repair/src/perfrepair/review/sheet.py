@@ -12,8 +12,9 @@ from ..dto.decision import OutboxRecord
 from ..dto.grouping import read_items, read_profiles
 from ..dto.site import Dossier
 from ..files import read_json
+from ..result.gain import option_label
 
-COLUMNS = ("kind", "app", "item", "model", "facts", "pick", "reason", "verdict", "note")
+COLUMNS = ("kind", "app", "item", "model", "facts", "pick", "reason", "concerns", "verdict", "note")
 GROUPING, REPLACE, CLASSIFY, WORTHY = "grouping", "replace", "classify", "worthiness"
 KEY = ("kind", "app", "item", "pick")
 FREE_TEXT = ("reason", "description")
@@ -51,13 +52,14 @@ def _item_facts(grouping: rd.GroupingPaths) -> dict[str, dict]:
 
 
 def _scope_facts(paths: rd.AppPaths) -> dict[str, tuple[dict, dict]]:
-    """Per scope its facts and its options' class by item."""
+    """Per scope its facts and, by item, its options' class and code label."""
     out = {}
     for raw in _optional(paths.dossiers).get("dossiers") or []:
         d = Dossier.from_json(raw)
         s = d.scope
         out[d.key] = ({"current": d.current, "sinks": list(s.sinks), "keySource": s.keySource,
-                       "options": [o.item for o in d.options]}, {o.item: o.change for o in d.options})
+                       "options": [o.item for o in d.options]},
+                      {o.item: {"change": o.change, "label": option_label(o.estimates)} for o in d.options})
     return out
 
 
@@ -70,9 +72,9 @@ def _grouping_pick(decision: dict) -> str:
     return decision.get("group") or (decision.get("newGroup") or {}).get("id") or ""
 
 
-def _row(stage: Stage, r: OutboxRecord, item: str, facts: dict, pick: str, reason: str) -> dict:
+def _row(stage: Stage, r: OutboxRecord, item: str, facts: dict, pick: str, reason: str, concerns=()) -> dict:
     return {"kind": stage.kind, "app": stage.app, "item": item, "model": r.agent.model or "", "facts": json.dumps(facts, sort_keys=True),
-            "pick": pick, "reason": reason, "verdict": "", "note": ""}
+            "pick": pick, "reason": reason, "concerns": "; ".join(concerns), "verdict": "", "note": ""}
 
 
 def _replace_rows(stage: Stage, r: OutboxRecord, scopes: dict[str, tuple[dict, dict]]) -> list[dict]:
@@ -81,9 +83,9 @@ def _replace_rows(stage: Stage, r: OutboxRecord, scopes: dict[str, tuple[dict, d
     for one in (r.decision.get("replacements") or [r.decision]):
         facts, classes = scopes.get(one["scope"], ({}, {}))
         option = one.get("option")
-        chosen = {"change": classes[option]} if option in classes else {}
+        chosen = classes.get(option, {})
         rows.append(_row(stage, r, one["scope"], {**facts, **chosen}, f"{one['decision']} {option}" if option else one["decision"],
-                         one.get("reason") or ""))
+                         one.get("reason") or "", one.get("concerns") or ()))
     return rows
 
 
@@ -106,6 +108,16 @@ def rows(device: Path) -> list[dict]:
     return out
 
 
+def risk(row: dict) -> int:
+    """Riskiest first: a recommend or a trade-off chosen, then a replace, a keep, then every other kind."""
+    if row["kind"] != REPLACE:
+        return 3
+    pick = row["pick"].split(" ", 1)[0]
+    if pick == "recommend" or (pick == "replace" and json.loads(row["facts"]).get("label") == "trade_off"):
+        return 0
+    return 1 if pick == "replace" else 2
+
+
 def read_sheet(path: Path) -> list[dict]:
     if not path.is_file():
         return []
@@ -122,7 +134,7 @@ def write_sheet(device: Path) -> list[dict]:
     path = rd.review_sheet(device)
     filled = {_key(r): r for r in read_sheet(path)}
     built = [{**r, "verdict": filled[_key(r)]["verdict"], "note": filled[_key(r)]["note"]} if _key(r) in filled else r
-             for r in rows(device)]
+             for r in sorted(rows(device), key=risk)]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(f, COLUMNS, delimiter="\t", lineterminator="\n")

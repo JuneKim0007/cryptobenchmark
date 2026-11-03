@@ -115,15 +115,21 @@ def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) ->
     return problems
 
 
+def _status(r: dict) -> tuple:
+    return (r["decision"]["decision"], r["edit"]["status"], r["compile"]["status"], r["interop"]["status"],
+            any(m["measured"] for m in r["metrics"]))
+
+
 def _recount(f: dict, rows: list[dict]) -> dict:
-    statuses = [(r["decision"]["decision"], r["edit"]["status"], r["compile"]["status"], r["interop"]["status"],
-                 any(m["measured"] for m in r["metrics"])) for r in rows]
+    statuses = [_status(r) for r in rows]
     units = unit_counts(rows)
+
+    def count(at: int, value) -> int:
+        return sum(s[at] == value for s in statuses)
     return {"sites": f["sites"], "scopes": len(rows), "units": units["units"], "withOptions": f["withOptions"],
-            "replace": sum(s[0] == "replace" for s in statuses), "unitsReplace": units["unitsReplace"], "applied": sum(s[1] == "applied" for s in statuses),
-            "compiled": sum(s[2] == "compiled" for s in statuses),
-            "interopPassed": sum(s[3] == "passed" for s in statuses), "measured": sum(s[4] for s in statuses),
-            "measuredUnchecked": sum(s[4] and s[3] == "unchecked" for s in statuses)}
+            "recommend": count(0, "recommend"), "replace": count(0, "replace"), "unitsReplace": units["unitsReplace"],
+            "applied": count(1, "applied"), "compiled": count(2, "compiled"), "interopPassed": count(3, "passed"),
+            "measured": count(4, True), "measuredUnchecked": sum(s[4] and s[3] == "unchecked" for s in statuses)}
 
 
 def _stayed(rows: list[dict]) -> list[str]:

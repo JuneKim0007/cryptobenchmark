@@ -101,13 +101,16 @@ def test_the_validator_refuses_a_recommendation_within_max_change(tmp_path):
 
 
 def _reply(option="R1"):
-    return json.dumps({"decision": "replace", "reason": "r", "members": [{"member": "S1", "option": option, "risks": ["unverified_interop", "key_compatibility"],
+    return json.dumps({"decision": "replace", "reason": "r", "deciding": ["timeNs"], "members": [{"member": "S1", "option": option, "risks": ["unverified_interop", "key_compatibility"],
                        "edits": [{"kind": "set_algorithm", "provider": "", "algorithm": "STRONG", "parameters": []}]}]})
 
 
 def _unit(change="local-edit") -> UnitDossiers:
-    d = Dossier(scope(("local",)), "src", A, (Option("R1", B, {}, "not_planned", change=change, diff=PairDiff("same", "same", "bytes", "local")),))
+    d = Dossier(scope(("local",)), "src", A, (Option("R1", B, {}, "not_planned", (FASTER,), change=change, diff=PairDiff("same", "same", "bytes", "local")),))
     return UnitDossiers(Unit(unit_id("app", [d.key]), (d.key,)), (d,))
+
+
+FASTER = Estimate("timeNs", 0.6, 0.99, 50, "OP key 1 input 1 p")
 
 
 def test_gate_c_takes_a_pick_within_max_change():
@@ -141,8 +144,8 @@ def test_the_report_validator_refuses_a_recommendation_within_max_change():
 
 def _pair(a_item, b_item):
     diff = PairDiff("same", "same", "bytes", "local")
-    a = Dossier(replace(scope(("local",)), id="a"), "src", A, (Option("R1", B, {}, "not_planned", change="local-edit", diff=diff),))
-    b = Dossier(replace(scope(("local",)), id="b"), "src", A, (Option("R1", B, {}, "not_planned", change="local-edit", diff=diff),))
+    a = Dossier(replace(scope(("local",)), id="a"), "src", A, (Option("R1", B, {}, "not_planned", (FASTER,), change="local-edit", diff=diff),))
+    b = Dossier(replace(scope(("local",)), id="b"), "src", A, (Option("R1", B, {}, "not_planned", (FASTER,), change="local-edit", diff=diff),))
     unit = UnitDossiers(Unit("u", ("a", "b"), (Link("inverse", "a", "b", (1,), (2,), "key"),)), (a, b))
     member = lambda m: {"member": m, "option": "R1", "risks": ["unverified_interop", "key_compatibility"],
                         "edits": [{"kind": "set_algorithm", "provider": "", "algorithm": "STRONG", "parameters": []}]}
@@ -151,10 +154,10 @@ def _pair(a_item, b_item):
 
 def test_inverse_sides_above_drop_in_must_end_on_one_item():
     unit, member = _pair(B, B)
-    both = json.dumps({"decision": "replace", "reason": "r", "members": [member("S1"), member("S2")]})
+    both = json.dumps({"decision": "replace", "reason": "r", "deciding": ["timeNs"], "members": [member("S1"), member("S2")]})
     assert check_reply(both, unit, "local-edit")[1] == []
     lone = UnitDossiers(replace(unit.unit), (unit.dossiers[0],), (Stay("b", A, "no_alternative"),))
-    one = json.dumps({"decision": "replace", "reason": "r", "members": [member("S1")]})
+    one = json.dumps({"decision": "replace", "reason": "r", "deciding": ["timeNs"], "members": [member("S1")]})
     assert any("must end both on one item" in p for p in check_reply(one, lone, "local-edit")[1])
 
 

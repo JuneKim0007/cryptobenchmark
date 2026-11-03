@@ -19,7 +19,8 @@ DOSSIERS_SCHEMA_VERSION = 4
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
 SCOPES_SCHEMA_VERSION = 4
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
-REPLACEMENTS_SCHEMA_VERSION = 3
+# 4: recommend with needs; deciding, accepted and concerns on every row
+REPLACEMENTS_SCHEMA_VERSION = 4
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe; 4: inverse, the interop partner by link
 HARNESS_SCHEMA_VERSION = 4
 NO_OPERATION = "no_operation"
@@ -27,7 +28,10 @@ NOT_MEASURABLE_REASONS = (NO_OPERATION,)
 INPUT_SOURCES = ("app", "run")
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "storage", "literal", "parameter", "unknown")
-DECISIONS = ("replace", "keep")
+DECISIONS = ("replace", "keep", "recommend")
+RECOMMEND = "recommend"
+# what an answer's concerns may hold; their content is never gated
+MAX_CONCERNS, MAX_CONCERN_LENGTH = 5, 300
 OPTION_PREFIX = "R"
 METRICS = NAMES
 NOT_ON_DEVICE = "not_on_device"
@@ -230,15 +234,22 @@ class Replacement:
     edits: tuple[Edit, ...]
     risks: tuple[str, ...]
     reason: str
+    # the metrics the model named as deciding and the losses it accepted; a recommend's needs; anything it found odd
+    deciding: tuple[str, ...] = ()
+    accepted: tuple[str, ...] = ()
+    needs: tuple[str, ...] = ()
+    concerns: tuple[str, ...] = ()
 
     def to_json(self) -> dict:
         return {"scope": self.scope, "decision": self.decision, "option": self.option,
-                "edits": [asdict(e) for e in self.edits], "risks": list(self.risks), "reason": self.reason}
+                "edits": [asdict(e) for e in self.edits], "risks": list(self.risks), "reason": self.reason,
+                "deciding": list(self.deciding), "accepted": list(self.accepted), "needs": list(self.needs),
+                "concerns": list(self.concerns)}
 
     @classmethod
     def from_json(cls, d: dict) -> "Replacement":
         return cls(d["scope"], d["decision"], d.get("option"), tuple(Edit(**e) for e in d.get("edits") or ()),
-                   tuple(d.get("risks") or ()), d["reason"])
+                   tuple(d.get("risks") or ()), d["reason"], *(tuple(d.get(k) or ()) for k in ("deciding", "accepted", "needs", "concerns")))
 
 
 def read_replacements(doc: dict) -> dict[str, Replacement]:

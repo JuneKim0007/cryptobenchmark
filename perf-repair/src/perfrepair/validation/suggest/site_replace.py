@@ -5,10 +5,12 @@ from __future__ import annotations
 
 from ...dto.change import DROP_IN, SAME, admits
 from ...dto.grouping import algorithm_of, provider_of
-from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Edit, Option,
+from ...dto.perf_mode import GENERIC_MODE, PerfMode
+from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RECOMMEND, RISKS, Dossier, Edit, Option,
                          Replacement, Scope, pin_text, required_risks)
 from ...dto.unit import INVERSE, Link, UnitDossiers
 from ..json_reply import parse_object
+from .site_performance import concerns_of, metric_fields, performance, recommendable
 
 
 def _text(d: dict, field: str) -> str | None:
@@ -114,7 +116,7 @@ def _risks(risks: list, scope: Scope, option: Option | None, decision: str) -> l
     problems = [f"risk {r!r} is not one of {RISKS}" for r in risks if r not in RISKS]
     problems += [f"risk {r!r} given more than once" for r in sorted({r for r in risks if isinstance(r, str)
                                                                        and risks.count(r) > 1})]
-    if decision == "replace":
+    if decision in ("replace", RECOMMEND):
         problems += [f"risks must include {r}: {' and '.join(words)}"
                      for r, words in required_risks(scope, option).items() if r not in risks]
     return problems
@@ -132,23 +134,48 @@ def _chosen(chosen: str | None, by_alias: dict[str, Option], max_change: str, fo
     return None
 
 
-def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, problems: list[str],
-                    max_change: str = DROP_IN) -> dict | None:
-    """One member's option, edits and risks against its own dossier; its problems name the member."""
-    found: list[str] = []
-    chosen, edits, risks = _text(raw, "option"), raw.get("edits"), raw.get("risks")
+def _recommend_member(raw: dict, alias: str, dossier: Dossier, found: list[str]) -> Option | None:
+    """Any change class can be recommended: nothing is applied."""
     by_alias = {o.alias: o for o in dossier.options}
-    found += ["edits is not a list"] * (not isinstance(edits, list)) + ["risks is not a list"] * (not isinstance(risks, list))
-    edits, risks = edits if isinstance(edits, list) else [], risks if isinstance(risks, list) else []
-    option = _chosen(chosen, by_alias, max_change, found)
+    chosen = _text(raw, "option")
+    option = by_alias.get(chosen)
+    if option is None:
+        found.append(f"option {chosen!r} is not one of {', '.join(by_alias) or '(none)'}")
+    found += ["a recommend applies no edit; edits is []"] if raw.get("edits") else []
+    found += [p.removeprefix(f"{alias}: ") for p in recommendable(alias, option, raw.get("needs"))]
+    return option
+
+
+def _applied(raw: dict, dossier: Dossier, edits: list, max_change: str, found: list[str]) -> tuple[Option | None, list[Edit]]:
+    option = _chosen(_text(raw, "option"), {o.alias: o for o in dossier.options}, max_change, found)
     if not edits:
         found.append("replace names no edit")
-    resolved = _edits(edits, option, dossier.current, found)
-    found += _risks(risks, dossier.scope, option, "replace")
+    return option, _edits(edits, option, dossier.current, found)
+
+
+def _lists(raw: dict, found: list[str]) -> tuple[list, list]:
+    edits, risks = raw.get("edits"), raw.get("risks")
+    found += ["edits is not a list"] * (not isinstance(edits, list)) + ["risks is not a list"] * (not isinstance(risks, list))
+    return edits if isinstance(edits, list) else [], risks if isinstance(risks, list) else []
+
+
+def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, problems: list[str],
+                    max_change: str = DROP_IN, decision: str = "replace", picked: list | None = None) -> dict | None:
+    """One member's option, edits and risks against its own dossier; its problems name the member."""
+    found: list[str] = []
+    edits, risks = _lists(raw, found)
+    if decision == RECOMMEND:
+        option, resolved = _recommend_member(raw, alias, dossier, found), []
+    else:
+        option, resolved = _applied(raw, dossier, edits, max_change, found)
+    found += _risks(risks, dossier.scope, option, decision)
     problems += [f"{alias}: {p}" for p in found]
     if found:
         return None
-    return Replacement(dossier.key, "replace", option.item, tuple(resolved), tuple(risks), reason).to_json()
+    if picked is not None:
+        picked.append((alias, option))
+    needs = tuple(n.strip() for n in raw.get("needs") or ()) if decision == RECOMMEND else ()
+    return Replacement(dossier.key, decision, option.item, tuple(resolved), tuple(risks), reason, needs=needs).to_json()
 
 
 def _staying(given: list, unit: UnitDossiers) -> list[str]:
@@ -163,15 +190,17 @@ def _named(given: list, unit: UnitDossiers) -> list[str]:
     return problems + [f"replace covers every member with options: {a} is missing" for a in aliased if a not in given]
 
 
-def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str], max_change: str) -> list[dict]:
+def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str], max_change: str, decision: str = "replace",
+             picked: list | None = None) -> list[dict]:
     aliased = unit.aliased()
     given = [m.get("member") if isinstance(m, dict) else None for m in raw]
     problems += _named(given, unit)
     rows = []
     for alias, m in zip(given, raw):
         if alias in aliased and given.count(alias) == 1:
-            rows.append(_replace_member(m, alias, aliased[alias], reason, problems, max_change))
-    problems += [] if problems else _inverse(unit, rows)
+            rows.append(_replace_member(m, alias, aliased[alias], reason, problems, max_change, decision, picked))
+    # a recommend is never applied, so the sides of its links stay where they are
+    problems += [] if problems or decision == RECOMMEND else _inverse(unit, rows)
     return rows
 
 
@@ -213,8 +242,14 @@ def _interop_of_ends(k: Link, unit: UnitDossiers, ends: dict[str, str | None], r
             for m in swapped if "unverified_interop" not in replaced[m]["risks"]]
 
 
-def check_reply(text: str, unit: UnitDossiers, max_change: str = DROP_IN) -> tuple[dict | None, list[str]]:
-    """max_change: the dossiers' own; an option above it is refused even when listed."""
+def _with_fields(rows: list[dict], deciding: list[str], accepted: list[str], concerns: list[str]) -> list[dict]:
+    return [{**r, "deciding": deciding, "accepted": accepted, "concerns": concerns} for r in rows]
+
+
+def check_reply(text: str, unit: UnitDossiers, max_change: str = DROP_IN,
+                perf: PerfMode = GENERIC_MODE) -> tuple[dict | None, list[str]]:
+    """max_change: the dossiers' own; an option above it is refused even when listed. perf: the dossiers' perfMode,
+    whose rule a replace's picks must meet."""
     d, problems = parse_object(text)
     if d is None:
         return None, problems
@@ -225,13 +260,18 @@ def check_reply(text: str, unit: UnitDossiers, max_change: str = DROP_IN) -> tup
         "reason is empty" if not reason else "",
     ) if p]
     members = members if isinstance(members, list) else []
-    rows: list = []
+    deciding, accepted, named = metric_fields(d)
+    concerns, long = concerns_of(d)
+    problems += named + long
+    rows, picked = [], []
     if decision == "keep" and members:
         problems.append("keep names members; a keep covers every member with options and has none")
-    if decision == "replace":
-        rows = _members(members, unit, reason, problems, max_change)
+    if decision in ("replace", RECOMMEND):
+        rows = _members(members, unit, reason, problems, max_change, decision, picked)
+    if decision == "replace" and not problems:
+        problems += performance(perf, picked, deciding, accepted)
     if problems:
         return None, problems
     if decision == "keep":
         rows = [Replacement(d.key, "keep", None, (), (), reason).to_json() for d in unit.dossiers]
-    return {"replacements": rows}, []
+    return {"replacements": _with_fields(rows, deciding, accepted, concerns)}, []

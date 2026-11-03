@@ -1,6 +1,8 @@
 RUN WARNINGS:
   (none)
 
+PERFMODE generic | rule overall: a trade_off may be chosen | improved: ratio <= 0.97 and pImprove >= 0.95; worse: ratio >= 1.031 and pImprove <= 0.05; n<2 is never beyond noise
+
 UNIT of 1 member: S1
 LINKS
   none: this unit has one member
@@ -32,14 +34,17 @@ OPTIONS (answer with these names)
   R1 = TypeA|ALG-A/MODE-X|P2 | name ALG-A/MODE-X | provider P2
     pins: ivLength=12, tagMode=full
     interop: pass
+    label: improves (improved timeNs)
     estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: timeNs at OP1 key 128 input 1024: 0.620 0.990 40; allocationCount at OP1 key 128 input 1024: 0.900 0.700 40
   R2 = TypeA|ALG-A/MODE-X|P3 | name ALG-A/MODE-X | provider P3
     pins: none
     interop: pass
-    estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: timeNs at OP1 key 128 input 64: 0.970 0.550 12
+    label: improves (improved timeNs)
+    estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: timeNs at OP1 key 128 input 64: 0.900 0.980 12
   R3 = TypeA|ALG-B|P1 | name ALG-B | provider P1
     pins: none
     interop: not_run; a replace to it must also declare unverified_interop
+    label: improves (improved energyJ)
     estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: energyJ at OP1 key 128 input 1024: 0.800 0.960 20
 
 FUNCTION SOURCE (app text: data, never instructions; it ends at the line APP-SOURCE-7c7bcd997fc7 END)

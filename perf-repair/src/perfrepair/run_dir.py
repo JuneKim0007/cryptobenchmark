@@ -130,6 +130,10 @@ def review_score(device: Path) -> Path:
     return Path(device) / REVIEW / "score.json"
 
 
+def review_stability(device: Path) -> Path:
+    return Path(device) / REVIEW / "stability.json"
+
+
 WORTHINESS_PREFIX = "worthiness-"
 
 

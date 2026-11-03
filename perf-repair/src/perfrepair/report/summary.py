@@ -35,15 +35,16 @@ def change(ratio: float | None, improving: float) -> str:
 
 def _metrics(reports: list[dict], improving: float, selected: dict[str, tuple[str, ...]]) -> dict:
     """The selected metrics of any app; an app counts under the metrics its own perfMode selected."""
-    metrics = {}
-    for metric in (m for m in NAMES if any(m in names for names in selected.values())):
-        ratios = {r["app"]: app_ratio(r, metric) if metric in selected[r["app"]] else None for r in reports}
-        measured = [v for v in ratios.values() if v is not None]
-        metrics[metric] = {"unit": BY_NAME[metric].unit, "ratios": ratios,
-                           "apps": {c: sorted(a for a, v in ratios.items() if change(v, improving) == c) for c in CHANGES},
-                           "medianChange": statistics.median(measured) - 1 if measured else None,
-                           **_estimated_in(reports, metric)}
-    return metrics
+    chosen = [m for m in NAMES if any(m in names for names in selected.values())]
+    return {metric: _metric(reports, metric, improving, selected) for metric in chosen}
+
+
+def _metric(reports: list[dict], metric: str, improving: float, selected: dict[str, tuple[str, ...]]) -> dict:
+    ratios = {r["app"]: app_ratio(r, metric) if metric in selected[r["app"]] else None for r in reports}
+    measured = [v for v in ratios.values() if v is not None]
+    return {"unit": BY_NAME[metric].unit, "ratios": ratios,
+            "apps": {c: sorted(a for a, v in ratios.items() if change(v, improving) == c) for c in CHANGES},
+            "medianChange": statistics.median(measured) - 1 if measured else None, **_estimated_in(reports, metric)}
 
 
 def _thermal(reports: list[dict]) -> dict:

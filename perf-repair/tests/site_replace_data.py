@@ -25,7 +25,7 @@ def dossier(options=None, **kw) -> Dossier:
             Option("R1", "TypeA|ALG-A/MODE-X|P2", {"ivLength": 12, "tagMode": "full"}, "pass",
                    (Estimate("timeNs", 0.62, 0.99, 40, "OP1 key 128 input 1024"),
                     Estimate("allocationCount", 0.9, 0.7, 40, "OP1 key 128 input 1024"))),
-            Option("R2", "TypeA|ALG-A/MODE-X|P3", {}, "pass", (Estimate("timeNs", 0.97, 0.55, 12, "OP1 key 128 input 64"),)),
+            Option("R2", "TypeA|ALG-A/MODE-X|P3", {}, "pass", (Estimate("timeNs", 0.9, 0.98, 12, "OP1 key 128 input 64"),)),
             Option("R3", "TypeA|ALG-B|P1", {}, "not_run", (Estimate("energyJ", 0.8, 0.96, 20, "OP1 key 128 input 1024"),)),
         )
     return Dossier(scope(**kw), SOURCE, "TypeA|ALG-A/MODE-X|P1", options)
@@ -60,12 +60,16 @@ PINS = (("ivLength", "12"), ("tagMode", "full"))
 GOOD_EDITS = [edit("set_provider", "P2"), edit("pin_parameters", parameters=PINS)]
 
 
-def member(alias="S1", option="R1", edits=None, risks=("persisted_data", "key_compatibility")):
-    return {"member": alias, "option": option, "edits": GOOD_EDITS if edits is None else edits, "risks": list(risks)}
+def member(alias="S1", option="R1", edits=None, risks=("persisted_data", "key_compatibility"), needs=()):
+    return {"member": alias, "option": option, "edits": GOOD_EDITS if edits is None else edits, "risks": list(risks),
+            "needs": list(needs)}
 
 
-def answer(decision="replace", option="R1", edits=None, risks=("persisted_data", "key_compatibility"), reason="timeNs ratio 0.62, pImprove 0.99"):
-    return {"decision": decision, "members": [member("S1", option, edits, risks)], "reason": reason}
+def answer(decision="replace", option="R1", edits=None, risks=("persisted_data", "key_compatibility"), reason="timeNs ratio 0.62, pImprove 0.99",
+           deciding=("timeNs",), accepted=(), concerns=()):
+    return {"decision": decision, "members": [member("S1", option, edits, risks)], "deciding": list(deciding),
+            "accepted": list(accepted), "concerns": list(concerns), "reason": reason}
 
 
-KEEP = {"decision": "keep", "members": [], "reason": "timeNs ratio 0.97 with pImprove 0.55 is too uncertain"}
+KEEP = {"decision": "keep", "members": [], "deciding": [], "accepted": [], "concerns": [],
+        "reason": "timeNs ratio 0.97 with pImprove 0.55 is too uncertain"}

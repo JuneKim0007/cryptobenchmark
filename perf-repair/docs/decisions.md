@@ -61,11 +61,11 @@
 |---|---|
 | item | one unit of `<app>/dossiers.json` `units`: its `Link`s, the `Dossier` of each member with options (at least one), the members that stay (`stays`: current and reason) and the inverse pairs' interop (`pairs`); a unit of one is the common case |
 | message | the run warnings (`measurements.json` comparability, as worthiness sees them; in the evidence digest when there are any), the unit's members `S1..Sn` and links with their lines, under each inverse link the interop of the items a replace would leave its sides on, per choice, the commonest status once as `every other choice`; the members that stay, with current and reason; then per member with options (a function already shown is `as S1`): site, sinks and key source, the risks code derives from them, the lifecycle (status and reasons, binding, operations, each step's line, `one method away` outside the function) and its requirements (name, origin, line, the taking step's line, origins one method away), current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates of the selected metrics only (ratio, pImprove, n, per `<metric>@<input size>`, at the nearest input size or, when the site's is unknown, every measured one and said so, the operation, key and phase only where they differ; only the lifecycle's operations when it knows them), then MEASURED: the `primitives.tsv` lines of the current item and each option at the scope's key size and operations, the selected metrics' columns with a value, time as latency and, when selected, throughput in the manifest's display units, n and cv per metric (estimates only when the device folder has no `primitives.tsv`, logged), edit kinds, function source between digest markers |
-| answer | `decision` replace\|keep for every member with options, `members` [{member, option, edits [{kind, provider, algorithm, parameters [{name, value}]}], risks}] (one per member with options for replace, [] for keep), `reason` naming the deciding metrics |
+| answer | `decision` replace\|keep\|recommend for every member with options, `members` [{member, option, edits [{kind, provider, algorithm, parameters [{name, value}]}], risks, needs}] (one per member with options for replace and recommend, [] for keep), `deciding` and `accepted` (metric names), `concerns` (at most 5 short strings, stored, logged per scope as `concerns: …` and carried by the review sheet and report rows; never gated on content), `reason` naming the deciding metrics |
 | ids minted by | code: member aliases in unit order; dossier: option aliases per member; the gate resolves them to item ids and the option's typed pins |
 | no option | static `keep`, source `static`, never asked; a `no_real_use` lifecycle is one, reason `no_real_use`; an option without an estimate of a metric a listed perfMode selects is dropped, and a scope left none is `no_evidence: <metric>`; such a member stays on what it uses while the unit's others are asked; a unit with a member whose item's key contract is `provider_held` is never asked, its members with options under `provider_held_key` |
 | dropped item | every member with options `keep` with reason `dropped: …`, source `fallback` |
-| state | `<app>/replacements.json`: `{schemaVersion: 3, app, replacements, sources, stale}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, version 3 added `stale`; the edit step refuses another version; outbox under `<app>/replace/` |
+| state | `<app>/replacements.json`: `{schemaVersion: 4, app, replacements, sources, stale}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, version 3 added `stale`, version 4 `recommend` with `needs` and `deciding`, `accepted`, `concerns` on every row; a recommend is never edited; the edit step refuses another version; outbox under `<app>/replace/` |
 | evidence | each record, keyed by unit id, carries `evidence`, the sha256 of its unit's entry (links, stays, pairs) and every member's dossier JSON (scope facts, source, current, options with pins, interop and estimates), the dossiers' `perfMode` and the stored numbers of the `primitives.tsv` lines shown (never the display units, so a unit change marks nothing stale); every member with options of a unit whose latest record's digest differs from today's, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
 | `--refresh` | the stale units are asked again into a new outbox (inputs `refresh <token>`) that carries every other record; the old outbox stays; later runs read the token from the active charter and stay in it; a prompt change carries nothing |
 | gone | a record whose unit is not asked any more replays to no row (`gone`), never a KeyError; a unit whose members changed has a new id and is asked; a scope moved to `noOptions` gets its static keep |
@@ -75,6 +75,10 @@
 
 - The members with options are decided together: `replace` gives each exactly once, each a listed alias of its own options and at least one edit, and names no member that stays; `keep` names no members; `reason` is not empty. Per-member problems name the member. `validate` refuses a state where those members differ in decision or some have no row.
 - An inverse link whose sides end on two items after the answer: `fail` refuses it; any status but `pass` needs `unverified_interop` on each swapped side (`S1: risks must include unverified_interop: its inverse S2 ends on …`).
+- The message's PERFMODE line gives the rule and the thresholds of the code labels (`result/gain.py`, [modes.md](modes.md#labels)); each option shows its `label` and the metrics improved and worse. `validation/suggest/site_performance.py`:
+  - listed perfMode (`strict`): every chosen option passes the verdict's rule (a selected metric at or below `improvingRatio`, none at or above its inverse); `accepted` must be [];
+  - `generic` (`overall`): every chosen option improves a metric beyond noise; `deciding` is not empty and each named metric improved for every chosen option; every metric worse for a chosen option is in `accepted`. A trade-off is allowed only this way.
+- `recommend`: every member with options names an option with a `change` line, `needs` at least one line, and `edits` []; the risks its scope implies are declared; it is never edited, and the report counts it apart (`funnel.recommend`, `labels.recommend`), never as an improvement. An option above `maxChange` is not in the dossier, so at the default `drop-in` no option has a `change` line and recommend cannot be chosen: those candidates are the report's recommendations.
 - A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side whose output differs is refused whatever its interop says.
 - Edit kinds come from `EDIT_KIND_TABLE` (`dto/site.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
@@ -83,6 +87,13 @@
 - `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
 - Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`, `unverified_interop`.
 - A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore, literal or storage → `key_compatibility`, and unknown or parameter too (where the key comes from is not visible here: scoping stays local, a default-provider call may pick a key store's provider at `init`, and the harness uses a synthetic key, so the swap stays allowed and the risk is declared and reported) (the key source is the lifecycle's key origin when it knows one); the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
+
+## Prompt override
+
+- `paths.prompts` (or `--prompts DIR`) points at a folder holding `suggest/site-replace.system.md`: it replaces the packaged prompt for `ai replace`, the guide and `review stability`.
+- A changed prompt is a new charter: its fingerprint opens its own outbox under `<app>/replace/outbox/`, so every unit is asked again there; the packaged outbox stays untouched.
+- Removing the override resumes the packaged outbox and its records; nothing is asked again (`tests/test_site_replace_rule.py`).
+- The packaged prompt rotated with recommend, concerns, the labels and the security floor: decisions made on the earlier prompt stay in their outbox and are not carried.
 
 ## Static triage (no model call)
 
@@ -96,14 +107,17 @@
 
 ## Accuracy sheet
 
-`python3 -m perfrepair.review sheet|score <device>`.
+`python3 -m perfrepair.review sheet|score <device>`; `python3 -m perfrepair.review stability <device> --sample N --asks K [--agent ...] [--prompts DIR]` asks N units drawn with a fixed seed across the apps K times each on their unchanged message, gated as usual, commits nothing and writes `review/stability.json` (per unit the picks, free text left out, and `stable`).
+
+- Rows are sorted riskiest first: a `recommend` or a replace whose option's code label is `trade_off`, then other replaces, keeps, then the other kinds.
 
 | `review/decisions.tsv` column | Holds |
 |---|---|
 | `kind`, `app`, `item` | grouping, classify, worthiness (`app` the mode) or replace (`item` the scope) |
 | `model` | the record's model |
-| `facts` | JSON of what code knows: an item's family and known signature; a scope's current, sinks, key source, options, the pick's change class |
+| `facts` | JSON of what code knows: an item's family and known signature; a scope's current, sinks, key source, options, the pick's change class and code label |
 | `pick`, `reason` | the answer; `(dropped)` with its problems |
+| `concerns` | the answer's concerns, `; `-joined |
 | `verdict`, `note` | empty until a person fills them: `ok` or `wrong`; kept across rebuilds while `kind`, `app`, `item` and `pick` stay equal |
 
 | `review/score.json` | Counts |

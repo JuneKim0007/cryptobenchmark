@@ -3,7 +3,7 @@ import json
 import pytest
 from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, item, linked, member, scope
 
-from perfrepair.dto.site import Option, Replacement, required_risks
+from perfrepair.dto.site import Estimate, Option, Replacement, required_risks
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.validation.suggest.site_replace import check_reply
 
@@ -87,7 +87,7 @@ def test_messages_never_name_an_item_id_the_model_was_not_asked_for():
 
 def test_set_algorithm_resolves_to_the_option_name():
     decision, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")],
-                                      risks=("persisted_data", "key_compatibility", "unverified_interop")))
+                                      risks=("persisted_data", "key_compatibility", "unverified_interop"), deciding=("energyJ",)))
     assert problems == [] and decision["replacements"][0]["edits"] == [
         {"kind": "set_algorithm", "provider": None, "algorithm": "ALG-B", "parameters": None}]
 
@@ -130,13 +130,13 @@ def test_required_risks_add_the_options_interop(status, risks):
     assert set(required_risks(s, Option("R1", "TypeA|ALG-B|P1", {}, status))) == risks
 
 
-SECOND = dossier(file="src/Other.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass"),),
+SECOND = dossier(file="src/Other.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass", (Estimate("timeNs", 0.8, 0.99, 40, "OP1 key 128 input 1024"),)),),
                  sinks=("local",), key_source="derived")
 PAIR = UnitDossiers(linked(D, SECOND), (D, SECOND), pairs=(PairInterop("TypeA|ALG-A/MODE-X|P2", "TypeA|ALG-A/MODE-X|P3", "pass"),))
 
 
 def both(first=None, second=None):
-    return {"decision": "replace", "reason": "timeNs ratio 0.62, pImprove 0.99",
+    return {"decision": "replace", "reason": "timeNs ratio 0.62, pImprove 0.99", "deciding": ["timeNs"],
             "members": [first or member(), second or member("S2", edits=[edit("set_provider", "P3")], risks=())]}
 
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Edit, Scope, read_replacements, scope_id
+from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Edit, Scope, read_replacements, scope_id, REPLACEMENTS_SCHEMA_VERSION
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
@@ -34,7 +34,7 @@ def setup_run(tmp_path):
     with_results(tmp_path)
     write_json(paths.facts, {"root": str(ROOT.resolve())})
     write_json(paths.scopes, {"schemaVersion": SCOPES_SCHEMA_VERSION, "app": APP, "scopes": [s.to_json() for s in SCOPES]})
-    write_json(paths.replacements, {"schemaVersion": 3, "app": APP, "replacements": [
+    write_json(paths.replacements, {"schemaVersion": REPLACEMENTS_SCHEMA_VERSION, "app": APP, "replacements": [
         replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
         replace(TWICE, pins(tagBits=128), option=FAST).to_json(), replace(TEMPLATE, provider("Fast"), option=FAST).to_json()]})
     write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [{"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES]})
@@ -108,14 +108,14 @@ def test_validators_refuse_broken_documents(tmp_path):
 
 def test_an_unknown_edit_kind_is_rejected(tmp_path):
     paths = setup_run(tmp_path)
-    write_json(paths.replacements, {"schemaVersion": 3, "app": APP, "replacements": [
+    write_json(paths.replacements, {"schemaVersion": REPLACEMENTS_SCHEMA_VERSION, "app": APP, "replacements": [
         replace(LITERAL, Edit("rename_class")).to_json()]})
     assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
     assert read_json(paths.edits)["edits"][0]["reason"] == "unsupported_kind"
 
 
 def test_a_replacements_file_of_another_version_is_refused():
-    with pytest.raises(ValueError, match="replacements schemaVersion 1 is not 3"):
+    with pytest.raises(ValueError, match=f"replacements schemaVersion 1 is not {REPLACEMENTS_SCHEMA_VERSION}"):
         read_replacements({"schemaVersion": 1, "app": APP, "replacements": []})
 
 

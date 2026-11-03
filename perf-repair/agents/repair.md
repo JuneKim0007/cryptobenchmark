@@ -62,11 +62,12 @@ src/perfrepair/report/measured.py : cryptobenchmark's scoped-plan.yaml and scope
 src/perfrepair/report/metrics.py : before and after cases → per metric, each marked selected or not: medians, ratio, pImprove, level through compare(); the time metric's latency and throughput views in the display units
 src/perfrepair/report/recommendations.py : dossiers.json's notOffered → recommendations above maxChange, never applied, and reject counts; their sum for the summary
 src/perfrepair/report/scope_row.py : one scope's decision, edit, compile, interop, metrics, verdict, label and thermal
-src/perfrepair/report/swaps.py : the rows of every app → one view per chosen swap across its apps, and the replace decisions per label
 src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, apps improved, unchanged, worse per selected metric
+src/perfrepair/report/swaps.py : the rows of every app → one view per chosen swap across its apps, and the replace decisions per label
 src/perfrepair/report/thermal.py : a before/after pair's `thermal` blocks and sleeps, their start gap and labels
 src/perfrepair/review/__init__.py : docstring only
-src/perfrepair/review/__main__.py : command: `sheet|score <device>`
+src/perfrepair/review/__main__.py : command: `sheet|score <device>`, `stability <device> --sample N --asks K`
 src/perfrepair/review/score.py : the sheet's verdicts and the journals' turns → grouping precision, pick accuracy, stability across asks of one message, gate rejections per 100 calls; review/score.json
 src/perfrepair/review/sheet.py : one row per model decision from the active outboxes with its code facts, pick, reason, empty verdict and note: review/decisions.tsv; a rebuild keeps what a person filled
+src/perfrepair/review/stability.py : N sampled replace units asked K times each, no commit → review/stability.json
 ```

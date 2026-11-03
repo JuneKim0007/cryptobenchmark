@@ -62,7 +62,8 @@ def device(tmp_path):
 
 def test_a_row_per_decision_with_code_facts_pick_reason_and_empty_verdict(device):
     rows = {(r["kind"], r["item"]): r for r in write_sheet(device)}
-    assert list(rows) == [("grouping", ITEM.key), ("grouping", "other"), ("replace", SCOPE.id)]
+    # riskiest first: a replace before any other kind
+    assert list(rows) == [("replace", SCOPE.id), ("grouping", ITEM.key), ("grouping", "other")]
     group = rows[("grouping", ITEM.key)]
     assert (group["pick"], group["reason"], group["verdict"], group["note"]) == ("g1", "same", "", "")
     assert json.loads(group["facts"]) == {"family": "fam", "signature": {"function": "ALG"}}
@@ -128,3 +129,25 @@ def test_a_verdict_outside_the_vocabulary_is_refused(device):
 def test_the_command_writes_the_sheet_and_prints_the_score(device, capsys):
     assert main(["score", str(device)]) == 0
     assert json.loads(capsys.readouterr().out)["decisions"] == 3 and rd.review_sheet(device).is_file()
+
+
+def test_stability_asks_each_sampled_unit_k_times_and_commits_nothing(tmp_path):
+    from helpers import LIBRARY
+    from site_replace_data import APP, KEEP, doc, dossier
+    from perfrepair.ai.runtime.agent import ScriptedConversations
+    from perfrepair.review.stability import stability
+    app = tmp_path / APP
+    app.mkdir()
+    (app / "app.json").write_text(json.dumps({"root": str(tmp_path)}))
+    (app / "dossiers.json").write_text(json.dumps(doc(dossier())))
+    asked = ScriptedConversations(lambda *_: KEEP)
+    out = stability(tmp_path, asked, LIBRARY, sample=5, asks=3)
+    assert out["sample"] == 1 and out["stable"] == 1 and asked.started == 3 and not (app / "replace").exists()
+
+
+def test_the_sheet_puts_the_riskiest_decisions_first():
+    from perfrepair.review.sheet import risk
+    rows = [{"kind": "grouping", "pick": "g"}, {"kind": "replace", "pick": "keep", "facts": "{}"},
+            {"kind": "replace", "pick": "replace X", "facts": "{}"}, {"kind": "replace", "pick": "recommend Y", "facts": "{}"},
+            {"kind": "replace", "pick": "replace Z", "facts": '{"label": "trade_off"}'}]
+    assert [r["pick"] for r in sorted(rows, key=risk)] == ["recommend Y", "replace Z", "replace X", "keep", "g"]

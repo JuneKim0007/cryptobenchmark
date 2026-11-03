@@ -9,6 +9,7 @@ from ....data_handler.inbound.manifest import display_units
 from ....stop.halt import Coded
 from ....data_handler.inbound.primitives import read_primitives
 from ....dto.event import LOG
+from ....inputs.table import APPS_REPLACE
 from ....log import emit
 from ....validation import require
 from ...runtime.agent import Conversations, ScriptedConversations
@@ -22,7 +23,10 @@ from ...runtime.prompt import PromptLibrary
 from .kind import SiteReplaceKind, charter
 from .state import Replacements
 
-DRY_RUN = ScriptedConversations(lambda *_: {"decision": "keep", "members": [], "reason": "dry run: no model was called"})
+# the role every replace command asks under: ai replace and review stability
+ROLE = APPS_REPLACE
+DRY_RUN = ScriptedConversations(lambda *_: {"decision": "keep", "members": [], "deciding": [], "accepted": [],
+                                                 "concerns": [], "reason": "dry run: no model was called"})
 
 
 class DossierChanged(Coded):
@@ -68,6 +72,9 @@ def replace(run_path: Path, app: str, conversations: Conversations, library: Pro
     inputs = _refreshed(kind, paths.replace, library, echo) if refresh else kept_inputs(paths.replace)
     state = decide(kind, charter(library, inputs), conversations, paths.replace, limits, limit, echo,
                    Where("replace", "site-replace", app))
+    for scope, r in state.replacements.items():
+        if r.concerns:
+            emit("replace", "site-replace", LOG, app=app, item=scope, detail="concerns: " + "; ".join(r.concerns))
     counts: dict[str, int] = {}
     for scope, r in state.replacements.items():
         key = f"{r.decision} ({state.sources[scope]})"

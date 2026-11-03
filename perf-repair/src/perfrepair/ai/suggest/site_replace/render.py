@@ -16,6 +16,7 @@ from ....dto.primitives import PrimitivesTable
 from ....dto.unit import INVERSE, Link, UnitDossiers
 from ....dto.units import DisplayUnits
 from ....result.configurations import parse_label
+from ....result.gain import IMPROVED, IMPROVING_RATIO, NOISE, WORSE, WORSE_RATIO, by_change, option_label
 from .rows import render_lines
 
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
@@ -75,11 +76,31 @@ def _option(s: Scope, o: Option) -> list[str]:
     if not o.estimates:
         return lines + ["    estimates: none measured", *absent]
     named = _names(o.estimates)
+    lines += _review(o)
     cells = [f"{e.metric}{named[e.configuration]} {e.ratio:.3f} "
              f"{TOO_FEW_RUNS if e.pImprove is None else f'{e.pImprove:.3f}'} {e.n}" for e in o.estimates]
     # with no input size nothing is nearest: result/configurations.py nearest() keeps every measured size
     where = "every measured input size (this site's is unknown)" if s.inputSize is None else "the configurations nearest this site"
     return lines + [f"    estimates (ratio option ÷ current, pImprove, n), {where}: " + "; ".join(cells), *absent]
+
+
+def _review(o: Option) -> list[str]:
+    # needsReview: result/change.py's list, once it carries one
+    needs = getattr(o, "needsReview", ())
+    return [_label(o)] + ([f"    needs review: {', '.join(needs)}"] if needs else [])
+
+
+def _label(o: Option) -> str:
+    better, worse = by_change(o.estimates, IMPROVED), by_change(o.estimates, WORSE)
+    said = [f"improved {', '.join(better)}"] * bool(better) + [f"worse {', '.join(worse)}"] * bool(worse)
+    return f"    label: {option_label(o.estimates)}" + (f" ({'; '.join(said)})" if said else "")
+
+
+def rule_line(perf: PerfMode) -> str:
+    """The code-computed thresholds every label above was given by."""
+    rule = "overall: a trade_off may be chosen" if perf.overall else "strict: a selected metric improves and none worsens"
+    return (f"PERFMODE {perf.name} | rule {rule} | improved: ratio <= {IMPROVING_RATIO} and pImprove >= {1 - NOISE:.2f}; "
+            f"worse: ratio >= {WORSE_RATIO:.3f} and pImprove <= {NOISE:.2f}; n<2 is never beyond noise")
 
 
 def _names(estimates) -> dict[str, str]:
@@ -164,7 +185,7 @@ def render(u: UnitDossiers, perf: PerfMode = GENERIC_MODE, table: PrimitivesTabl
     run's comparability warnings from measurements.json."""
     aliased, stayed = u.aliased(), u.stayed()
     members = ", ".join(u.aliases().values())
-    lines = ["RUN WARNINGS:", *([f"  - {w}" for w in warnings] or ["  (none)"]), ""]
+    lines = ["RUN WARNINGS:", *([f"  - {w}" for w in warnings] or ["  (none)"]), "", rule_line(perf), ""]
     lines += [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *_links(u), ""]
     if stayed:
         lines += ["STAYS (no option; these members keep what they use)"]

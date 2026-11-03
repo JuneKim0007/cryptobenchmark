@@ -59,6 +59,7 @@
 | `summary.json`, `summary.md` | report summary | people | `validation/report.py`, before writing |
 | `review/decisions.tsv` | the guide's summary step, `perfrepair.review` | people, `review score` | none: a verdict is `ok`, `wrong` or empty, checked by `score` |
 | `review/score.json` | `perfrepair.review score` | people | none |
+| `review/stability.json` | `perfrepair.review stability` | people | none |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 4 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process; 4 keys every metric by its benchmark.json name, `allocations` became `allocationCount`), `worthiness-<mode>/evidence.json` at 3 (2: a member's summary per metric, a pair's comparison per metric; 3: only the perfMode's metrics), `<app>/dossiers.json` at 4 and `report.json`, `summary.json` at 6 (`selected` per metric row; summary metrics are the selected ones; `maxChange`, `recommendations`, `rejected`).

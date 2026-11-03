@@ -53,8 +53,10 @@ def _label(metrics: list[dict]) -> str:
 
 def _decision(replacement: dict | None, source: str | None, stale: bool) -> dict:
     if replacement is None:
-        return {"decision": "not_run", "reason": "no replacements.json row (not asked yet)", "source": None, "stale": False}
-    return {"decision": replacement["decision"], "reason": replacement["reason"], "source": source, "stale": stale}
+        return {"decision": "not_run", "reason": "no replacements.json row (not asked yet)", "source": None, "stale": False,
+                "needs": [], "concerns": []}
+    return {"decision": replacement["decision"], "reason": replacement["reason"], "source": source, "stale": stale,
+            "needs": list(replacement.get("needs") or ()), "concerns": list(replacement.get("concerns") or ())}
 
 
 def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:

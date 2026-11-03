@@ -69,7 +69,8 @@ def rows(doc):
 def test_a_measured_scope_reports_before_after_per_metric(tmp_path):
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
     a = rows(doc)[A]
-    assert a["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "stale": False}
+    assert a["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "stale": False,
+                             "needs": [], "concerns": []}
     assert (a["current"], a["option"], a["edit"]["status"], a["compile"]["status"]) == (CURRENT, OPTION, "applied",
                                                                                         "compiled")
     assert a["interop"] == {"status": "passed", "reason": None, "check": "same_output"}
@@ -100,7 +101,7 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
                        D: "not replaced: keep (no_alternative)", E: "rejected: call_moved"}
     assert all(set(m) == {"metric", "unit", "selected", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
     assert [m["selected"] for m in r[B]["metrics"]] == [True, False, False]
-    assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "replace": 4, "unitsReplace": 3, "applied": 3, "compiled": 2,
+    assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "recommend": 0, "replace": 4, "unitsReplace": 3, "applied": 3, "compiled": 2,
                              "interopPassed": 1, "measured": 1, "measuredUnchecked": 0}
 
 

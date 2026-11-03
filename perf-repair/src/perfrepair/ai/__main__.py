@@ -11,7 +11,7 @@ from ..app.facts.path_id import app_id
 from ..config.args import load_settings, perf_mode, positive_int
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
-from ..inputs.table import APPS_REPLACE, WORTHINESS, RoleRow
+from ..inputs.table import WORTHINESS, RoleRow
 from ..log import attach
 from ..dto.perf_mode import PerfMode
 from ..result.modes import mode_of
@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("replace")
     add_device_results_arg(p)
     p.add_argument("--app", type=Path, required=True, help="the app's source folder; its path gives the app's id")
-    _engine_args(p, APPS_REPLACE)
+    _engine_args(p, replace_cmd.ROLE)
     p.add_argument("--refresh", action="store_true",
                    help="ask again the scopes whose dossier changed since their decision, into a new outbox; the old one stays; "
                         "default: they stay, flagged stale, and the command exits with dossier_changed")

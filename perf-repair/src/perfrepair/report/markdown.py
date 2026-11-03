@@ -119,6 +119,19 @@ def report_markdown(doc: dict) -> str:
     return "\n".join(out) + "\n"
 
 
+def _apps_and_labels(doc: dict) -> list[str]:
+    t = doc["thermal"]
+    return ["", "## Apps", "", *(f"- {app}: {n['project']}, {n['source'] or 'n/a'}, {doc['modes'][app]}" for app, n in doc["named"].items()),
+            "", "## Decisions by measured label", "", ", ".join(f"{k} {v}" for k, v in doc["labels"].items()) + ".",
+            "", f"Thermal: {t[THERMAL_MISMATCH]} pairs {THERMAL_MISMATCH}, {t[THERMAL_THROTTLED]} pairs {THERMAL_THROTTLED}."]
+
+
+def _metric_row(metric: str, m: dict) -> str:
+    change = NOT_MEASURED if m["medianChange"] is None else f"{m['medianChange']:+.1%}"
+    estimated = f", estimated in {', '.join(m['estimatedIn'])}" if m.get("estimatedIn") else ""
+    return f"| {metric} ({m['unit']}{estimated}) | " + " | ".join(str(len(m["apps"][c])) for c in CHANGES) + f" | {change} |"
+
+
 def summary_markdown(doc: dict) -> str:
     modes = ", ".join(sorted(set(doc["modes"].values())))
     out = [f"# Replacement summary: {len(doc['apps'])} apps", "",
@@ -127,14 +140,9 @@ def summary_markdown(doc: dict) -> str:
            "## Funnel", "", "| app | " + " | ".join(FUNNEL) + " |", "|---|" + "---|" * len(FUNNEL)]
     rows = [*doc["byApp"].items(), ("all", doc["funnel"])]
     out += [f"| {app} | " + " | ".join(str(f[k]) for k in FUNNEL) + " |" for app, f in rows]
-    out += ["", "## Apps", "", *(f"- {app}: {n['project']}, {n['source'] or 'n/a'}, {doc['modes'][app]}" for app, n in doc["named"].items())]
-    out += ["", "## Decisions by measured label", "", ", ".join(f"{k} {v}" for k, v in doc["labels"].items()) + ".",
-            "", f"Thermal: {doc['thermal'][THERMAL_MISMATCH]} pairs {THERMAL_MISMATCH}, {doc['thermal'][THERMAL_THROTTLED]} pairs {THERMAL_THROTTLED}."]
+    out += _apps_and_labels(doc)
     out += ["", "## Metrics", "", "| metric | " + " | ".join(CHANGES) + " | median change |", "|---|" + "---|" * (len(CHANGES) + 1)]
-    for metric, m in doc["metrics"].items():
-        change = NOT_MEASURED if m["medianChange"] is None else f"{m['medianChange']:+.1%}"
-        estimated = f", estimated in {', '.join(m['estimatedIn'])}" if m.get("estimatedIn") else ""
-        out.append(f"| {metric} ({m['unit']}{estimated}) | " + " | ".join(str(len(m["apps"][c])) for c in CHANGES) + f" | {change} |")
+    out += [_metric_row(metric, m) for metric, m in doc["metrics"].items()]
     if doc["swaps"]:
         out += ["", "## Swaps", "", *(line for s in doc["swaps"] for line in _swap(s))]
     if doc.get("recommendations") or doc.get("rejected"):
