@@ -15,3 +15,8 @@ def category_mismatch(metrics: list[dict], estimates: list[dict]) -> list[str]:
         if estimated and m["change"] not in estimated:
             out.append(m["metric"])
     return out
+
+
+def checkable(scope: dict) -> bool:
+    """A fixed scope's function is its setup, so its before/after is not the per-call path the category estimates."""
+    return scope.get("pattern") != "fixed"

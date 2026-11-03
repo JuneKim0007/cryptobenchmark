@@ -7,7 +7,7 @@ from ..dto.report import MEASURABLE, case_id
 from ..dto.units import DisplayUnits
 from ..result.gain import label_of
 from ..result.modes import Mode
-from ..result.category import category_mismatch
+from ..result.category import category_mismatch, checkable
 from .measured import Measured
 from .metrics import metric_rows, unmeasured
 from .thermal import thermal_row
@@ -99,4 +99,5 @@ def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, sourc
             "verdict": _verdict(mode, current, option, metrics) if option else "not_measured",
             "label": _label(metrics), "thermal": thermal_row(before, after),
             "deciding": list((replacement or {}).get("deciding") or ()), "accepted": list((replacement or {}).get("accepted") or ()),
-            "primitive": primitive, "categoryMismatch": category_mismatch(metrics, primitive)}
+            "primitive": primitive, "categoryMismatch": category_mismatch(metrics, primitive) if checkable(scope) else [],
+            "truthCheck": "per_call" if checkable(scope) else "not_applicable: the before/after times the setup function of a fixed scope"}

@@ -14,12 +14,12 @@ from ..dto.units import DisplayUnits
 from ..result.confidence import level
 from ..result.gain import change_of, label_of, noise_of
 from ..dto.pattern import PATTERN_REASONS, PATTERNS, pattern_of_reason
-from ..result.category import category_mismatch
+from ..result.category import category_mismatch, checkable
 from .repair import valid_inputs
 
 ROW_KEYS = ("scope", "file", "line", "function", "pattern", "patternReason", "current", "option", "inputs", "decision", "edit",
             "compile", "interop", "metrics", "verdict", "label", "thermal", "deciding", "accepted", "primitive",
-            "categoryMismatch", "unit", "sharedFunction", "stayed")
+            "categoryMismatch", "truthCheck", "unit", "sharedFunction", "stayed")
 MEASURED_KEYS = {"metric", "unit", "selected", "measured", "before", "after", "ratio", "pImprove", "level", "n", "noise", "change"}
 
 
@@ -99,7 +99,8 @@ def _pattern(where: str, r: dict) -> list[str]:
         return [f"{where}: pattern {r['pattern']!r} / patternReason {r['patternReason']!r}"]
     out = [] if r["pattern"] == pattern_of_reason(r["patternReason"]) else [
         f"{where}: pattern {r['pattern']} is not its reason {r['patternReason']}'s"]
-    return out + ([] if r["categoryMismatch"] == category_mismatch(r["metrics"], r["primitive"]) else [
+    expected = category_mismatch(r["metrics"], r["primitive"]) if checkable(r) else []
+    return out + ([] if r["categoryMismatch"] == expected else [
         f"{where}: categoryMismatch {r['categoryMismatch']} is not the rule's over its metrics and estimates"])
 
 
