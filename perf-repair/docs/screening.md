@@ -26,7 +26,7 @@
 
 ## Use
 
-- grouping: `broken` and `platform_deprecated` items are grouped by code on the recorded key and never asked; `groups.json` carries each item's status as `screen` ([grouping.md](grouping.md) Code-made groups).
+- grouping: `broken` and `platform_deprecated` items are grouped by code on the recorded key and never asked, whatever their signature says; `groups.json` carries each item's status as `screen` ([grouping.md](grouping.md) Code-made groups).
 - a run without `screen.json` asks every item, and dossiers and evidence apply no status rule.
 - don't lower the status: a `broken`, `platform_deprecated`, `unverified` or `unknown` target (`NEVER_TARGET`; only a cited `accepted` row may be a different algorithm) is allowed only with the current item's canonical name (any key size: the dossier's pins match it) and at no worse a status (`dto/screen.py` `lowers_status`); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
 - per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.

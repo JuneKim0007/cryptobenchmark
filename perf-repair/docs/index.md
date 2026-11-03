@@ -11,4 +11,5 @@ docs/repair.md : call sites to before/after: steps, inputs, outputs, limits
 docs/replacement.md : app source to measured before/after per replaced call site: flow, files, contracts
 docs/screening.md : screening statuses, precedence, lookup, catalog settings and identity, the model review of unknown items, the screening.yaml sections, loader codes, sources policy, limits
 docs/settings.md : perfrepair.yaml and .env: lookup, precedence, keys, roles, errors
+docs/signature.md : what code reads per item, per engine type; known, convention, unknown; which items it groups
 ```

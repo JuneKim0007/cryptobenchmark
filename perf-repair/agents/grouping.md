@@ -2,6 +2,7 @@
 
 ## Calls
 - `docs/grouping.md` : files, answer contract, gates, families, findings
+- `docs/signature.md` : the signature's components and what each status does to an item
 - `agents/decisions.md` : agents, conversations and retry of the engine loop
 - `agents/validation.md` : the validators the gates run
 
@@ -12,8 +13,9 @@
 - capabilities: key size, tag length and availability are static; never group identity.
 - key contract: derived in `grouping/build/key_contract.py` from probe attributes; never from a provider name or a registered `KeyStore`; no attribute is `unknown`, never a guess.
 - classify: with `device.screening.aiReview` the build asks the classify model about unknown items only, before screen.json is written; `docs/screening.md` Model review.
-- code-made: a screened-out item is grouped by code (`screen/groups.py`), never asked; `docs/grouping.md` Code-made groups.
-- items: ids `1..n` per run; `items.json` is never edited after build; the agent sees `{id, type, name, provider, resolved, key}` and its family's groups with their key lines only.
+- code-made: a screened-out item or one with a decided signature is grouped by code (`screen/groups.py`), never asked; `docs/grouping.md` Code-made groups.
+- signature: what splits a group is data in `catalog/interchange.yaml`, derived in `grouping/signature.py`; missing evidence is `unknown`, never the name's default; a rule moved to `convention` needs a real run's groups that support it.
+- items: ids `1..n` per run; `items.json` is never edited after build; the agent sees `{id, type, name, provider, resolved, signature, key}` and its family's groups with their signature and key lines only.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
 - gates: A before every pop, B after it, C on every answer, D after every write; a failed gate stops the stage.
 - families: a new family is a catalog entry, not code; descriptions in the catalog are immutable to agents.
@@ -35,9 +37,9 @@ src/perfrepair/ai/parse/algorithm_classify/render.py : one batch's message: per 
 src/perfrepair/ai/parse/algorithm_classify/schema.py : the answer's JSON schema: answers of id, answer, reason
 src/perfrepair/ai/parse/algorithm_classify/state.py : Classified (the outbox's projection), reviewed (answers onto verdicts), candidates (registry-candidates.yaml)
 src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; rekey, refresh; GroupingKind on the engine, its dry run
-src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: pending (not screened out), code-made groups seeded in empty, a refresh token as charter inputs, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
+src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: pending (not grouped by code), code-made groups seeded in empty, a refresh token as charter inputs, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/rekey.py : one move of an outbox whose records name positions to one naming Item.key, when its old charter still hashes to its name
-src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups with their key lines, the item with its key line
+src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups with their signature and key lines, the item with its signature and key line
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
 src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
@@ -46,6 +48,8 @@ src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review convers
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
+src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
+src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, and what a missing key contract means
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own
 src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
@@ -59,4 +63,5 @@ src/perfrepair/grouping/report/checks.py : stage: finished grouping → knowledg
 src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping
 src/perfrepair/grouping/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
+src/perfrepair/grouping/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 ```

@@ -13,6 +13,8 @@ Two primitives share a group only when all three contracts match, inside one fam
 - Boundary: the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared.
 - Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
 
+Signature: [signature.md](signature.md): what code reads per item, and which items it groups instead of asking.
+
 ## Key contract
 
 | Probe attributes of the service | `keyContract` | Shown to the model |
@@ -49,7 +51,7 @@ flowchart TD
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
-| `profiles.json` | build | schema 3: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract; build needs only the manifest's probe and trial: `runs`, `reason` and the default-run fields come from the trial (inventory's `runs` when present, itself the trial's), `measured` is null without a benchmark and `preparedKeySizes` null without `prepared.yaml`, never false or empty, so a group's `keySizes` is `[]` and `no_common_key_size` stays silent until a benchmark exists |
+| `profiles.json` | build | schema 4: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract, signature `{components: [{name, value, status}]}`; a schema 3 folder is refused, rerun `grouping build`; build needs only the manifest's probe and trial: `runs`, `reason` and the default-run fields come from the trial (inventory's `runs` when present, itself the trial's), `measured` is null without a benchmark and `preparedKeySizes` null without `prepared.yaml`, never false or empty, so a group's `keySizes` is `[]` and `no_common_key_size` stays silent until a benchmark exists |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem, and the gateway, model and effort that answered; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter, with `refresh <token>` as its inputs after `assign --refresh`; `item` is `Item.key`, `<family>\|<type>\|<name>\|<provider>`, never the id |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`); `assign --refresh` makes a new one active, every item asked, and later runs read its token from the active charter and stay in it |
 | `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
@@ -67,7 +69,7 @@ flowchart TD
 
 | Rule | Value |
 |---|---|
-| pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json); only these reach the model |
+| pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json), and whose signature has an `unknown` component; only these reach the model |
 | no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
 | build write | everything, the classify review included, is computed first; then screen.json, profiles.json and items.json are staged as temp files and renamed in that order: a failure before the renames leaves the previous build whole, a partial rename fails screen.json's `built` digests, and screen.json first means its absence never follows a new items.json |
 | key | family, status, the canonical name `screen.json` recorded, and whether the key lives inside the provider (`providerHeld`: key contract `provider_held`; `unknown` and `app_held` share a group); key size is the call's, as in model groups; one group per key across providers |
@@ -92,18 +94,14 @@ flowchart TD
 
 ## Gates
 
-- The outbox is checked contiguous when the stage reads it.
+- The outbox is checked contiguous when the stage reads it. Turns, sessions and `--limit`: `docs/decisions.md`.
 
 | Gate | When | Checks |
 |---|---|---|
 | A | before every pop | items and profiles valid; knowledge equals the projection of the outbox; code-made groups equal the ones screen.json implies |
 | B | after pop | item parses whole, carries no group, family and profile exist |
-| C | every answer | the answer contract above; `group` and `amend` name model-made groups only; the item has no outbox record yet |
+| C | every answer | the answer contract above; `group` and `amend` name model-made groups only; a `group` no member of which knows another value for a component the item knows (a `signature:` line, the key); the item has no outbox record yet |
 | D | after write | the record reads back equal; new knowledge validates |
-
-## Retry
-
-Turns, sessions and `--limit`: `docs/decisions.md`.
 
 ## Families (`catalog/families.yaml`)
 
@@ -125,6 +123,7 @@ Turns, sessions and `--limit`: `docs/decisions.md`.
 |---|---|
 | `resolved_parameters_differ` | error |
 | `key_contract_differs` | error |
+| `convention_assumed` | warning |
 | `dropped` | error |
 | `no_common_key_size` | warning |
 | `no_runnable_member` | warning |

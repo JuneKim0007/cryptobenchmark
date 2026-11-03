@@ -4,7 +4,7 @@ from typing import Callable
 
 from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Item, Profile
 from ...dto.grouping_output import Finding
-from ...dto.grouping_state import Knowledge
+from ...dto.grouping_state import Knowledge, code_made
 from ...dto.interop import PairResult
 from ..resolved import function_parameters
 
@@ -28,6 +28,18 @@ def key_contract_differs(k: Knowledge, items: dict[int, Item], profiles: dict[in
                     "members hold application-held keys and keys inside the provider: not interchangeable")
             for gid, g in sorted(k.groups.items())
             if {KEY_APP_HELD, KEY_PROVIDER_HELD} <= {profiles[m].keyContract for m in g.members}]
+
+
+def _assumed(members: list[int], profiles: dict[int, Profile]) -> list[str]:
+    return sorted({a for m in members if profiles[m].signature for a in profiles[m].signature.assumed})
+
+
+def convention_assumed(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
+    """A code-made group of two or more whose join rests on what no member's data confirms; interop measures it."""
+    return [Finding("convention_assumed", "warning", gid, tuple(g.members),
+                    f"grouped by provider convention, not recorded data: {', '.join(_assumed(g.members, profiles))}")
+            for gid, g in sorted(k.groups.items())
+            if code_made(gid) and len(g.members) > 1 and _assumed(g.members, profiles)]
 
 
 def common_key_sizes(members: list[int], profiles: dict[int, Profile]) -> list[int]:
@@ -60,7 +72,7 @@ def dropped(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) 
             for m in sorted(k.dropped)]
 
 
-RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, no_common_key_size, no_runnable_member, singleton, dropped)
+RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, convention_assumed, no_common_key_size, no_runnable_member, singleton, dropped)
 
 
 def check(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
