@@ -387,7 +387,8 @@ def test_same_function_source_is_shown_once_in_a_unit():
 def _table():
     def line(provider, ns, op="OP1", key=128):
         return PrimitiveLine("TypeA", "ALG-A/MODE-X", provider, op, key, "WARM", "accepted",
-                             {"timeNs@64": ns, "timeNs@-": None, "energyJ@64": 0.5}, 40, {"timeNs": 0.01, "energyJ": 0.2})
+                             {"timeNs@64": ns, "timeNs@-": None, "energyJ@64": 0.5}, {"timeNs": 40, "energyJ": 1},
+                             {"timeNs": 0.01, "energyJ": 0.2})
     lines = (line("P1", 662.0), line("P2", 400.0), line("P2", 1.0, op="OP2"), line("P3", 500.0, key=256), line("P9", 1.0))
     return PrimitivesTable(("timeNs@64", "timeNs@-", "energyJ@64"), ("timeNs", "energyJ"), lines)
 
@@ -396,7 +397,7 @@ def test_the_render_shows_the_current_and_option_lines_in_the_display_units_of_t
     kind = SiteReplaceKind(APP, {**doc(A), "perfMode": ["latency", "throughput"]}, ".", _table(), DisplayUnits())
     text = kind.render(item(A), kind.empty()).text
     measured = text.split("MEASURED", 1)[1].split("FUNCTION SOURCE", 1)[0]
-    assert "latency ms/op, throughput MB/s" in measured and "latency@64 | throughput@64 | n | timeNs cv" in measured
+    assert "latency ms/op, throughput MB/s" in measured and "latency@64 | throughput@64 | timeNs n | timeNs cv" in measured
     assert "  current | OP1 | 128 | WARM | accepted | 0.000662 | 96.68 | 40 | 0.010" in measured
     assert "  R1 | OP1 | 128 | WARM | accepted | 0.0004 | 160 | 40 | 0.010" in measured
     assert "OP2" not in measured and "P9" not in measured and "R2" not in measured and "energyJ" not in measured

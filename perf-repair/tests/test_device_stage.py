@@ -65,7 +65,7 @@ def test_the_primitives_table_is_written_and_recorded_with_its_input_digests(set
     root, config = setup
     done, _ = device(root, config)
     record, _ = rd.load_device_record(done.folder)
-    assert (done.folder / rd.PRIMITIVES).read_text().startswith("#schemaVersion\t1\ntype\talgorithm\t")
+    assert (done.folder / rd.PRIMITIVES).read_text().startswith("#schemaVersion\t2\ntype\talgorithm\t")
     assert set(record.primitives) == {"rows", "measurements", "screen"} and all(record.primitives.values())
 
 
@@ -106,6 +106,15 @@ def test_a_deleted_table_is_rebuilt_alone(setup):
     (first.folder / rd.PRIMITIVES).unlink()
     done, lines = device(root, config)
     assert done.ran == ["primitives"] and lines[-1] == "device primitives: ran: primitives.tsv missing"
+
+
+def test_a_table_in_an_older_schema_is_rebuilt_alone(setup):
+    root, config = setup
+    first, _ = device(root, config)
+    path = first.folder / rd.PRIMITIVES
+    path.write_text(path.read_text().replace("#schemaVersion\t2", "#schemaVersion\t1", 1))
+    done, lines = device(root, config)
+    assert done.ran == ["primitives"] and lines[-1].startswith("device primitives: ran: primitives.tsv starts '#schemaVersion")
 
 
 def test_a_provider_added_to_bundled_reruns_the_device_stage_under_the_same_id(setup):

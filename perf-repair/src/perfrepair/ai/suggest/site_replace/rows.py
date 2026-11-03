@@ -70,7 +70,8 @@ def render_lines(d: Dossier, table: PrimitivesTable, perf: PerfMode, units: Disp
 def _head(columns, metrics: list[str], units: DisplayUnits) -> list[str]:
     timed = any(has_views(BY_NAME[m]) for m in metrics)
     unit_note = f"latency {units.latency_label}, throughput {units.throughput}; " if timed else ""
-    head = ["side", "operation", "key", "phase", "status", *(h for h, _, _ in columns), "n", *(f"{m} cv" for m in metrics)]
+    head = ["side", "operation", "key", "phase", "status", *(h for h, _, _ in columns), *(f"{m} n" for m in metrics),
+            *(f"{m} cv" for m in metrics)]
     return [f"MEASURED (primitives.tsv medians per input size; {unit_note}other metrics in their registry units)",
             "  " + " | ".join(head)]
 
@@ -82,4 +83,5 @@ def _shown(x, text) -> str:
 def _cells(side: str, line: PrimitiveLine, columns, metrics: list[str]) -> list[str]:
     cells = [side, line.operation, _shown(line.keySize, str), line.phase or ABSENT, line.status]
     cells += [_shown(line.medians.get(c), lambda x, f=f: number(f(x))) for _, c, f in columns]
-    return cells + [str(line.n)] + [_shown(line.cv.get(m), lambda x: f"{x:.3f}") for m in metrics]
+    return (cells + [_shown(line.n.get(m), str) for m in metrics]
+            + [_shown(line.cv.get(m), lambda x: f"{x:.3f}") for m in metrics])

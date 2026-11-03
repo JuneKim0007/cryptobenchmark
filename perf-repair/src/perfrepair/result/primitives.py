@@ -29,7 +29,9 @@ def _line(key: tuple, cells: Cells, sizes: dict[str, list[int | None]]) -> Primi
     # the noisiest input size speaks for the line
     cv = {m: rounded(max((by[m].cv for by in cells.values() if m in by and by[m].cv is not None), default=None))
           for m in sizes}
-    return PrimitiveLine(*key, medians, min(s.n for by in cells.values() for s in by.values()), cv)
+    # per metric its fewest runs at any input size
+    n = {m: min((by[m].n for by in cells.values() if m in by), default=None) for m in sizes}
+    return PrimitiveLine(*key, medians, n, cv)
 
 
 def _grouped(rows: list[PrimitiveRow], measurements: dict[str, dict[str, Summary]],

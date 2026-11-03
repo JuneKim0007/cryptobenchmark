@@ -20,7 +20,8 @@ def _shape(table: PrimitivesTable) -> list[str]:
     problems += _columns(table)
     problems += [f"line {line.key}: status {line.status!r} is not in {list(STATUSES)}" for line in table.lines
                  if line.status not in STATUSES]
-    return problems + [f"line {line.key}: n {line.n} is below 1" for line in table.lines if line.n < 1]
+    return problems + [f"line {line.key}: {m} n {n} is below 1" for line in table.lines for m, n in line.n.items()
+                       if n is not None and n < 1]
 
 
 def validate_primitives(table: PrimitivesTable, rows: list[PrimitiveRow], measurements: Measurements,

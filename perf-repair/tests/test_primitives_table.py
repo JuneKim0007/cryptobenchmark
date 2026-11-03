@@ -29,7 +29,14 @@ def test_one_line_per_primitive_with_a_column_per_metric_and_input_size():
     assert TABLE.metrics == ("timeNs", "allocationCount", "energyJ") and len(TABLE.lines) == 4
     a = _line("ALG-A", "P1")
     assert a.medians == {"timeNs@64": 100, "timeNs@1024": 912.3, "timeNs@-": None, "allocationCount@64": 3, "energyJ@64": None}
-    assert a.cv == {"timeNs": 0.04, "allocationCount": 0.01, "energyJ": None} and a.n == 50
+    assert a.cv == {"timeNs": 0.04, "allocationCount": 0.01, "energyJ": None}
+    assert a.n == {"timeNs": 50, "allocationCount": 50, "energyJ": None}
+
+
+def test_n_is_per_metric_so_one_energy_window_does_not_hide_fifty_timings():
+    table = build_table([row("e", "P1", input_size=64)], {"e": {"timeNs": summary(9), "energyJ": summary(1, n=1)}},
+                        {"TypeA|ALG-A|P1": "accepted"})
+    assert table.lines[0].n == {"timeNs": 50, "energyJ": 1}
 
 
 def test_a_deprecated_primitive_keeps_its_line_and_status():
@@ -40,9 +47,11 @@ def test_a_deprecated_primitive_keeps_its_line_and_status():
 def test_the_text_form_reads_back_equal_and_is_compact(tmp_path):
     text = TABLE.to_tsv()
     lines = text.splitlines()
-    assert lines[0] == "#schemaVersion\t1"
+    assert lines[0] == "#schemaVersion\t2"
     assert lines[1].split("\t")[:7] == ["type", "algorithm", "provider", "operation", "keySize", "phase", "status"]
-    assert "TypeA\tALG-A\tP1\tGEN\t-\tWARM\taccepted\t-\t-\t123500\t-\t-\t7\t0.01\t-\t-" in lines
+    assert lines[1].split("\t")[-6:] == ["timeNs.n", "allocationCount.n", "energyJ.n", "timeNs.cv", "allocationCount.cv",
+                                          "energyJ.cv"]
+    assert "TypeA\tALG-A\tP1\tGEN\t-\tWARM\taccepted\t-\t-\t123500\t-\t-\t7\t-\t-\t0.01\t-\t-" in lines
     assert "1.235e-05" in text
     write_text(tmp_path / "primitives.tsv", text)
     assert read_primitives(tmp_path) == TABLE
@@ -50,7 +59,7 @@ def test_the_text_form_reads_back_equal_and_is_compact(tmp_path):
 
 def test_another_schema_is_refused():
     with pytest.raises(ValueError, match="schemaVersion"):
-        PrimitivesTable.from_tsv(TABLE.to_tsv().replace("#schemaVersion\t1", "#schemaVersion\t2"))
+        PrimitivesTable.from_tsv(TABLE.to_tsv().replace("#schemaVersion\t2", "#schemaVersion\t1"))
 
 
 def test_the_validator_accepts_the_table_and_names_an_edited_line():

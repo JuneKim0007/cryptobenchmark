@@ -25,7 +25,7 @@ from .bundled import check_bundled
 from .bundled_config import bundled_config
 from .inbound import write_inbound
 from .measures import check_measures
-from .primitives import inputs as primitive_inputs, write_primitives
+from .primitives import inputs as primitive_inputs, unusable, write_primitives
 from .plan import STAGES, Seen, mapped_inputs, plan
 from .selection import FILTER_OFF, exclusions, lacking, measured, section, write_config
 from .used import write_used
@@ -80,7 +80,7 @@ def seen(folder: Path) -> Seen:
     return Seen(manifest, sha256_file(folder / rd.MANIFEST), record, problem,
                 inbound=_inbound(folder),
                 grouping=all(p.is_file() for p in (grouping.items, grouping.profiles, grouping.screen)),
-                primitives=(folder / rd.PRIMITIVES).is_file(), made_from=primitive_inputs(folder))
+                primitives=unusable(folder), made_from=primitive_inputs(folder))
 
 
 def _same_folder(manifest: Path, folder: Path) -> None:

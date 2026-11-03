@@ -1,9 +1,9 @@
-"""primitives.tsv: one line per measured primitive, a median column per (metric, input size), n, and cv per metric."""
+"""primitives.tsv: one line per measured primitive, a median column per (metric, input size), n and cv per metric."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 SCHEMA_LINE = f"#schemaVersion\t{SCHEMA_VERSION}"
 KEY = ("type", "algorithm", "provider", "operation", "keySize", "phase", "status")
 ABSENT = "-"
@@ -23,6 +23,10 @@ def cv_column(metric: str) -> str:
     return f"{metric}.cv"
 
 
+def n_column(metric: str) -> str:
+    return f"{metric}.n"
+
+
 def _text(x) -> str:
     if x is None:
         return ABSENT
@@ -37,6 +41,10 @@ def _number(text: str) -> float | None:
     return None if text == ABSENT else float(text)
 
 
+def _count(text: str) -> int | None:
+    return None if text == ABSENT else int(text)
+
+
 @dataclass(frozen=True)
 class PrimitiveLine:
     type: str
@@ -47,7 +55,8 @@ class PrimitiveLine:
     phase: str | None
     status: str
     medians: dict[str, float | None]
-    n: int
+    # runs per metric: one energy window is not fifty timings
+    n: dict[str, int | None]
     cv: dict[str, float | None]
 
     @property
@@ -63,12 +72,13 @@ class PrimitivesTable:
 
     @property
     def header(self) -> tuple[str, ...]:
-        return (*KEY, *self.columns, "n", *(cv_column(m) for m in self.metrics))
+        return (*KEY, *self.columns, *(n_column(m) for m in self.metrics), *(cv_column(m) for m in self.metrics))
 
     def to_tsv(self) -> str:
         out = [SCHEMA_LINE, "\t".join(self.header)]
         for line in self.lines:
-            cells = [*line.key, *(line.medians.get(c) for c in self.columns), line.n, *(line.cv.get(m) for m in self.metrics)]
+            cells = [*line.key, *(line.medians.get(c) for c in self.columns), *(line.n.get(m) for m in self.metrics),
+                     *(line.cv.get(m) for m in self.metrics)]
             out.append("\t".join(_text(c) for c in cells))
         return "\n".join(out) + "\n"
 
@@ -78,10 +88,13 @@ class PrimitivesTable:
         if first != SCHEMA_LINE:
             raise ValueError(f"primitives.tsv first line {first!r} is not {SCHEMA_LINE!r}")
         names = header.split("\t")
-        n_at = names.index("n")
         if tuple(names[:len(KEY)]) != KEY:
             raise ValueError(f"primitives.tsv header starts {names[:len(KEY)]}, not {list(KEY)}")
-        columns, metrics = tuple(names[len(KEY):n_at]), tuple(c.removesuffix(".cv") for c in names[n_at + 1:])
+        n_at = len(KEY) + sum(1 for c in names[len(KEY):] if "@" in c)
+        cv_at = n_at + (len(names) - n_at) // 2
+        columns, metrics = tuple(names[len(KEY):n_at]), tuple(c.removesuffix(".n") for c in names[n_at:cv_at])
+        if names[cv_at:] != [cv_column(m) for m in metrics] or names[n_at:cv_at] != [n_column(m) for m in metrics]:
+            raise ValueError(f"primitives.tsv header after the medians {names[n_at:]} is not <metric>.n then <metric>.cv")
         lines = []
         for number, raw in enumerate(body, 3):
             cells = raw.split("\t")
@@ -90,5 +103,6 @@ class PrimitivesTable:
             kind, algorithm, provider, operation, key_size, phase, status = (None if c == ABSENT else c for c in cells[:len(KEY)])
             lines.append(PrimitiveLine(kind, algorithm, provider, operation, None if key_size is None else int(key_size),
                                        phase, status, dict(zip(columns, map(_number, cells[len(KEY):n_at]))),
-                                       int(cells[n_at]), dict(zip(metrics, map(_number, cells[n_at + 1:])))))
+                                       dict(zip(metrics, map(_count, cells[n_at:cv_at]))),
+                                       dict(zip(metrics, map(_number, cells[cv_at:])))))
         return cls(columns, metrics, tuple(lines))

@@ -74,16 +74,16 @@ One stored, compact view of the benchmark results: on the API 30 emulator run, 4
 
 | part | holds |
 |---|---|
-| first line | `#schemaVersion<TAB>1`; the reader refuses another |
+| first line | `#schemaVersion<TAB>2`; the reader refuses another |
 | key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest |
 | `status` | the item's run-level `grouping/screen.json` status (no targetSdk); deprecated lines stay with their status, a site's current call needs its own line |
 | `<metric>@<input size>` | the median, per registry metric (`dto/metrics.py`) with runs and per input size it was measured at, `@-` without an input size; `-` where that size was not measured |
-| `n` | the fewest runs among the line's cells |
+| `<metric>.n` | the fewest runs among that metric's cells: one energy window beside fifty timings is `energyJ.n` 1, `timeNs.n` 50; schema 1 had one `n`, the fewest over every metric |
 | `<metric>.cv` | the largest coefficient of variation among that metric's cells |
 
 - Stored in the registry units (`timeNs` in ns/op), never in the display units: a unit change rewrites no file; a reader converts when it shows a line.
 - Numbers carry 4 significant digits: the table is for reading; `measurements.json` keeps the runs, and pImprove is computed from it, never from the table.
-- Device stage: rebuilt when `rows.json`, `measurements.json` or `grouping/screen.json` differ from the digests `device.yaml` `primitives` recorded, when inbound or screen rerun, when it is missing, and with `guide --refresh`; else reused ([pipeline.md](pipeline.md) Device stage).
+- Device stage: rebuilt when `rows.json`, `measurements.json` or `grouping/screen.json` differ from the digests `device.yaml` `primitives` recorded, when inbound or screen rerun, when it is missing or in another schema, and with `guide --refresh`; else reused ([pipeline.md](pipeline.md) Device stage).
 
 ## `used.json`
 

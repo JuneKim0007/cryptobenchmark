@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..dto.grouping import read_items
-from ..dto.primitives import PrimitivesTable
+from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
 from ..files import read_json, sha256_file, write_text
 from ..log import step
 from ..result.primitives import build_table, statuses
@@ -19,6 +19,16 @@ def inputs(device: Path) -> dict[str, str | None]:
     grouping = GroupingPaths(device)
     return {"rows": sha256_file(Path(device) / rd.ROWS), "measurements": sha256_file(Path(device) / rd.MEASUREMENTS),
             "screen": sha256_file(grouping.screen)}
+
+
+def unusable(device: Path) -> str | None:
+    """Why primitives.tsv is rebuilt whatever its inputs: absent, or written in another schema."""
+    path = Path(device) / rd.PRIMITIVES
+    if not path.is_file():
+        return f"{rd.PRIMITIVES} missing"
+    with open(path) as f:
+        first = f.readline().rstrip("\n")
+    return None if first == SCHEMA_LINE else f"{rd.PRIMITIVES} starts {first!r}, not {SCHEMA_LINE!r}"
 
 
 def status_of(device: Path) -> dict[str, str]:

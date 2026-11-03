@@ -27,7 +27,8 @@ class Seen:
     record_problem: str | None
     inbound: str | None
     grouping: bool
-    primitives: bool
+    # why primitives.tsv is rebuilt whatever its inputs; None when it is there in this schema
+    primitives: str | None
     # the digests primitives.tsv would be made from now
     made_from: dict[str, str | None]
 
@@ -84,8 +85,8 @@ def _screen(seen: Seen, current: dict) -> str | None:
 
 
 def _primitives(seen: Seen, current: dict) -> str | None:
-    if not seen.primitives:
-        return "primitives.tsv missing"
+    if seen.primitives:
+        return seen.primitives
     if problem := _record(seen):
         return problem
     if not seen.record.primitives:
