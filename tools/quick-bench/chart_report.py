@@ -3,15 +3,15 @@ import json
 
 import yaml
 
-from chart_model import AUDIT_TOLERANCE, short, size_label
+from chart_model import AUDIT_TOLERANCE, short, size_label, variant
 
 
 def summary_table(cases):
     rows = ["| group | case | op | key | input | n | unit | mean | median | q1 | q3 | cov | qcd | headline | flag |",
             "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
-    for c in sorted(cases, key=lambda c: (c["group"], c["algorithm"], c["operation"], c["keySize"] or 0, c["inputSize"] or 0)):
+    for c in sorted(cases, key=lambda c: (c["group"], c["algorithm"], c["operation"], c["keySize"] or 0, c["inputSize"] or 0, c.get("variant") or "")):
         s, ns = c["shown"], c["ns"]
-        rows.append(f"| {c['groupLabel']} | {short(c['algorithm'])} ({c['provider']}) | {c['operation']} | {c['keySize'] or '-'} | {size_label(c['inputSize'])} | {ns['n']} "
+        rows.append(f"| {c['groupLabel']} | {short(c['algorithm'])} ({c['provider']}) | {c['operation']}{variant(c)} | {c['keySize'] or '-'} | {size_label(c['inputSize'])} | {ns['n']} "
                     f"| {c['unit']} | {s['mean']:.4g} | {s['median']:.4g} | {s['q1']:.4g} | {s['q3']:.4g} | {ns['cov']:.1%} | {ns['qcd']:.1%} | {c['lead']} | {'noisy' if c['noisy'] else ''} |")
     return "\n".join(rows) + "\n"
 
@@ -26,9 +26,9 @@ def audit_summary(cases):
 def count_table(rows):
     """Median and observed range of one count metric per case. No IQR/CoV: with n this small they would be noise."""
     lines = ["| group | case | op | key | input | n | median | min | max | runs |", "|---|---|---|---|---|---|---|---|---|---|"]
-    for r in sorted(rows, key=lambda r: (r["group"], r["algorithm"], r["operation"], r["keySize"] or 0, r["inputSize"] or 0)):
+    for r in sorted(rows, key=lambda r: (r["group"], r["algorithm"], r["operation"], r["keySize"] or 0, r["inputSize"] or 0, r.get("variant") or "")):
         s = r["stats"]
-        lines.append(f"| {r['groupLabel']} | {short(r['algorithm'])} ({r['provider']}) | {r['operation']} | {r['keySize'] or '-'} | {size_label(r['inputSize'])} "
+        lines.append(f"| {r['groupLabel']} | {short(r['algorithm'])} ({r['provider']}) | {r['operation']}{variant(r)} | {r['keySize'] or '-'} | {size_label(r['inputSize'])} "
                      f"| {s['n']} | {s['median']:.6g} | {s['min']:.6g} | {s['max']:.6g} | {' '.join(f'{v:.6g}' for v in r['runs'])} |")
     return "\n".join(lines) + "\n"
 

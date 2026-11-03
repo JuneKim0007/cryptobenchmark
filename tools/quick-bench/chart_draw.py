@@ -5,15 +5,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 import display_units  # noqa: E402
-from chart_model import op_slug, short, size_label  # noqa: E402
+from chart_model import op_slug, short, size_label, variant  # noqa: E402
 
 NOISY_COLOR, CALM_COLOR = "#e07a1f", "#57068c"
 
 
 def iqr_bars(items, group_label, operation, size, folder):
-    items.sort(key=lambda c: (c["algorithm"], c["keySize"] or 0, c["provider"]))
+    items.sort(key=lambda c: (c["algorithm"], c["keySize"] or 0, c["provider"], c.get("variant") or ""))
     providers = {c["provider"] for c in items}
-    labels = [short(c["algorithm"]) + (f"-{c['keySize']}" if c["keySize"] else "") + (f" ({c['provider'][:8]})" if len(providers) > 1 else "") for c in items]
+    labels = [short(c["algorithm"]) + (f"-{c['keySize']}" if c["keySize"] else "") + (f" ({c['provider'][:8]})" if len(providers) > 1 else "") + variant(c) for c in items]
     median = [c["shown"]["median"] for c in items]
     below = [c["shown"]["median"] - c["shown"]["q1"] for c in items]
     above = [c["shown"]["q3"] - c["shown"]["median"] for c in items]
@@ -45,9 +45,9 @@ def _number(value):
 
 def count_bars(items, metric_label, group_label, operation, size, folder, metric):
     """Median of a count metric with min-max whiskers. Few runs (Jetpack's allocation pass is 5) make quartiles meaningless."""
-    items.sort(key=lambda c: (c["algorithm"], c["keySize"] or 0, c["provider"]))
+    items.sort(key=lambda c: (c["algorithm"], c["keySize"] or 0, c["provider"], c.get("variant") or ""))
     providers = {c["provider"] for c in items}
-    labels = [short(c["algorithm"]) + (f"-{c['keySize']}" if c["keySize"] else "") + (f" ({c['provider'][:8]})" if len(providers) > 1 else "") for c in items]
+    labels = [short(c["algorithm"]) + (f"-{c['keySize']}" if c["keySize"] else "") + (f" ({c['provider'][:8]})" if len(providers) > 1 else "") + variant(c) for c in items]
     median = [c["stats"]["median"] for c in items]
     below = [c["stats"]["median"] - c["stats"]["min"] for c in items]
     above = [c["stats"]["max"] - c["stats"]["median"] for c in items]
@@ -102,7 +102,7 @@ ASYMMETRIC_PREFIXES = ("RSA", "EC")
 
 def label(r):
     key = f"-{r['keySize']}" if r["keySize"] else ""
-    return f"{r['algorithm']}{key}"
+    return f"{r['algorithm']}{key}{variant(r)}"
 
 
 def is_symmetric_cipher(r):

@@ -38,8 +38,8 @@ def estimated_note(raw):
 def summary(rows, out, units, note=None):
     lines = [f"| case | op | key | input | {display_units.latency_label(units)} | {units['throughput']} | CoV | outliers |",
              "|---|---|---|---|---|---|---|---|"]
-    for r in sorted(rows, key=lambda r: (r["type"], r["algorithm"], r["operation"], r["inputSize"] or 0)):
-        lines.append(f"| {r['algorithm']} | {r['operation']} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} "
+    for r in sorted(rows, key=lambda r: (r["type"], r["algorithm"], r["operation"], r["inputSize"] or 0, r.get("variant") or "")):
+        lines.append(f"| {r['algorithm']} | {r['operation']}{chart_model.variant(r)} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} "
                      f"| {display_units.number(r['latency'])} | {display_units.number(r['rate'])} | {r['cov']:.1%} | {r['removed']} |")
     (out / "summary.md").write_text("\n".join(lines + (["", note] if note else [])) + "\n")
     if note:

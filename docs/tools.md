@@ -55,6 +55,7 @@ python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml
 - Summary columns: case, op, key, input, mean time in `analysis.units.latency` (default ms/op), throughput in `analysis.units.throughput` (default MB/s; `-` where MB/s or MiB/s has no input size), CoV, outliers; values keep 4 significant figures, so a sub-ms time never reads 0.
 - Uses `metrics.timeNs.runs`, else `missing_field: metrics.timeNs.runs for <id>`; statistics on the runs `outliers.py` keeps.
 - Stability chart gate: `analysis.statistic.meanUpToCovPercent`, default 5%.
+- A row's `variant` follows its op (`ENCRYPT notFixed`) in every table and its name in every chart (both scripts), so an item's two variants are two rows and two series, never one.
 - Without `prepared.yaml` the cases have no chart group; a warning says so.
 
 ### charts.py

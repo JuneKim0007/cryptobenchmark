@@ -29,6 +29,11 @@ def short(algorithm):
     return re.sub(r"(PKCS5Padding|NoPadding|AndMGF1Padding|/ECB)", "", algorithm).strip("-/")
 
 
+def variant(case):
+    """ ' fixed' or ' notFixed' after a case's name, so an item's two variants never read as one; empty for a row without one."""
+    return f" {case['variant']}" if case.get("variant") else ""
+
+
 def audit(case, ns):
     """Our statistics against the ones androidx wrote for the same runs, or None when benchmark.json carries none (a host run, or a merge of processes)."""
     reported = ((case.get("metrics") or {}).get("timeNs") or {}).get("reported")
@@ -56,7 +61,7 @@ def summarize_case(case, groups, cfg):
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": size,
-        "unit": unit, "ns": ns, "shown": shown, "lead": stats.headline(ns, cfg["headline"], cfg["limit"]),
+        "variant": case.get("variant"), "unit": unit, "ns": ns, "shown": shown, "lead": stats.headline(ns, cfg["headline"], cfg["limit"]),
         "noisy": ns["cov"] * 100 > cfg["limit"], "audit": audit(case, ns),
     }
 
@@ -92,5 +97,5 @@ def summarize_count(case, groups, metric):
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": case.get("inputSize"),
-        "metric": metric, "label": COUNT_LABELS.get(metric, metric) + (" (estimated)" if block.get("kind") == "estimated" else ""), "runs": list(runs), "stats": stats.summarize(runs),
+        "variant": case.get("variant"), "metric": metric, "label": COUNT_LABELS.get(metric, metric) + (" (estimated)" if block.get("kind") == "estimated" else ""), "runs": list(runs), "stats": stats.summarize(runs),
     }
