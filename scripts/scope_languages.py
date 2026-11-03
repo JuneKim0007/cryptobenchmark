@@ -3,10 +3,28 @@ from dataclasses import dataclass
 
 import scope_signature
 
-# java.lang: both languages see these without an import.
-JAVA_LANG = frozenset({"String", "System", "Math", "Integer", "Long", "Byte", "Short", "Character", "Boolean", "Object",
-                       "StringBuilder", "Exception", "RuntimeException", "IllegalArgumentException", "IllegalStateException",
-                       "Throwable", "Error", "Thread", "Number", "CharSequence", "UnsupportedOperationException"})
+# java.lang of android.jar; both languages see these without an import. perf-repair's names.yaml holds the same set: test_scope_languages compares them.
+JAVA_LANG = frozenset("""
+AbstractMethodError Appendable ArithmeticException ArrayIndexOutOfBoundsException
+ArrayStoreException AssertionError AutoCloseable Boolean BootstrapMethodError Byte
+CharSequence Character Class ClassCastException ClassCircularityError ClassFormatError
+ClassLoader ClassNotFoundException ClassValue CloneNotSupportedException Cloneable Comparable
+Compiler Deprecated Double Enum EnumConstantNotPresentException Error Exception
+ExceptionInInitializerError Float FunctionalInterface IllegalAccessError
+IllegalAccessException IllegalArgumentException IllegalMonitorStateException
+IllegalStateException IllegalThreadStateException IncompatibleClassChangeError
+IndexOutOfBoundsException InheritableThreadLocal InstantiationError InstantiationException
+Integer InternalError InterruptedException Iterable LinkageError Long MatchException Math
+NegativeArraySizeException NoClassDefFoundError NoSuchFieldError NoSuchFieldException
+NoSuchMethodError NoSuchMethodException NullPointerException Number NumberFormatException
+Object OutOfMemoryError Override Package Process ProcessBuilder Readable Record
+ReflectiveOperationException Runnable Runtime RuntimeException RuntimePermission SafeVarargs
+SecurityException SecurityManager Short StackOverflowError StackTraceElement StackWalker
+StrictMath String StringBuffer StringBuilder StringIndexOutOfBoundsException SuppressWarnings
+System Thread ThreadDeath ThreadGroup ThreadLocal Throwable TypeNotPresentException
+UnknownError UnsatisfiedLinkError UnsupportedClassVersionError UnsupportedOperationException
+VerifyError VirtualMachineError Void
+""".split())
 KOTLIN_DEFAULTS = frozenset({"ByteArray", "CharArray", "IntArray", "Charsets", "Unit", "Any", "Int", "Char", "require", "check",
                              "error", "requireNotNull", "checkNotNull", "println", "listOf", "mapOf", "setOf", "arrayOf",
                              "byteArrayOf", "lazy", "also", "apply", "let", "run", "with", "use", "toByteArray", "copyOf",

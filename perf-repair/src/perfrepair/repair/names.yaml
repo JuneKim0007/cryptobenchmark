@@ -1,14 +1,31 @@
 # Names a function may use without defining them: keywords, primitive types, and what each language puts in scope implicitly.
+# java_lang: public top-level classes of android.jar's java.lang; scripts/scope_languages.py holds the same set, a test compares them.
+java_lang: [AbstractMethodError, Appendable, ArithmeticException, ArrayIndexOutOfBoundsException,
+            ArrayStoreException, AssertionError, AutoCloseable, Boolean, BootstrapMethodError, Byte,
+            CharSequence, Character, Class, ClassCastException, ClassCircularityError, ClassFormatError,
+            ClassLoader, ClassNotFoundException, ClassValue, CloneNotSupportedException, Cloneable, Comparable,
+            Compiler, Deprecated, Double, Enum, EnumConstantNotPresentException, Error, Exception,
+            ExceptionInInitializerError, Float, FunctionalInterface, IllegalAccessError,
+            IllegalAccessException, IllegalArgumentException, IllegalMonitorStateException,
+            IllegalStateException, IllegalThreadStateException, IncompatibleClassChangeError,
+            IndexOutOfBoundsException, InheritableThreadLocal, InstantiationError, InstantiationException,
+            Integer, InternalError, InterruptedException, Iterable, LinkageError, Long, MatchException, Math,
+            NegativeArraySizeException, NoClassDefFoundError, NoSuchFieldError, NoSuchFieldException,
+            NoSuchMethodError, NoSuchMethodException, NullPointerException, Number, NumberFormatException,
+            Object, OutOfMemoryError, Override, Package, Process, ProcessBuilder, Readable, Record,
+            ReflectiveOperationException, Runnable, Runtime, RuntimeException, RuntimePermission, SafeVarargs,
+            SecurityException, SecurityManager, Short, StackOverflowError, StackTraceElement, StackWalker,
+            StrictMath, String, StringBuffer, StringBuilder, StringIndexOutOfBoundsException, SuppressWarnings,
+            System, Thread, ThreadDeath, ThreadGroup, ThreadLocal, Throwable, TypeNotPresentException,
+            UnknownError, UnsatisfiedLinkError, UnsupportedClassVersionError, UnsupportedOperationException,
+            VerifyError, VirtualMachineError, Void]
 java:
   keywords: [abstract, assert, break, case, catch, class, continue, default, do, else, enum, extends, final, finally,
              for, if, implements, import, instanceof, interface, native, new, package, private, protected, public,
              return, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, volatile,
              while, var, yield, record, "null", "true", "false"]
   types: [boolean, byte, char, short, int, long, float, double, void, var, final]
-  implicit: [java, javax, String, Object, System, Math, Integer, Long, Short, Byte, Character, Boolean, Float, Double,
-             Number, StringBuilder, Exception, RuntimeException, Throwable, Error, IllegalArgumentException,
-             IllegalStateException, UnsupportedOperationException, NullPointerException, Override, Iterable, Class,
-             Thread, Void, Runnable, AutoCloseable, CharSequence]
+  implicit: [java, javax]
 kotlin:
   keywords: [as, break, class, continue, do, else, "false", for, fun, if, in, interface, is, "null", object, package,
              return, super, this, throw, "true", try, typealias, val, var, when, while, catch, finally, by, constructor,

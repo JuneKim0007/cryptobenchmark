@@ -27,7 +27,7 @@ src/perfrepair/guide/run.py : one status line and event per step, the first stop
 src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (probe_device when no folder is named), grouping (coverage: reused, or assign and report for what is missing), app, dossier, replace, edit, harness, device, report; Stop codes
 src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app, the exit rule
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--device-results --app`; `--perfrepair-config` fills the folder and the screening catalog
-src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens
+src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens; a numeric literal is one token
 src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk → <app>/dossiers.json, validated before writing
 src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
@@ -45,7 +45,7 @@ src/perfrepair/repair/edit/specs.yaml : JCA parameter specs: constructor argumen
 src/perfrepair/repair/edit/splice.py : exact-span replacement that keeps line numbers; unified diff
 src/perfrepair/repair/harness.py : harness.yaml: each applied scope's original and patched function, imports, inputs, current and option item, dependencies
 src/perfrepair/repair/inputs.py : a scope's harness inputs: the app's static sizes, else the run's effective.yaml sizes both items share; their source
-src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names per language
+src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names per language; java.lang of android.jar, compared with scripts/scope_languages.py by a test
 src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option
 src/perfrepair/report/__main__.py : command: `app --device-results --app [--mode]` | `summary --device-results`
 src/perfrepair/report/app_report.py : an app's step files → report.json: a row per scope, the funnel
