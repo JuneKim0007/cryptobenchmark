@@ -30,13 +30,17 @@ def _metric(where: str, m: dict) -> list[str]:
     return problems
 
 
+def _decision(where: str, d: dict) -> list[str]:
+    if (d.get("decision") not in DECISION_STATUSES or (d["decision"] != "not_run" and d.get("source") not in SOURCES)
+            or not isinstance(d.get("stale"), bool)):
+        return [f"{where}: decision {d}"]
+    return []
+
+
 def _row(where: str, r: dict) -> list[str]:
     if tuple(r) != ROW_KEYS:
         return [f"{where}: keys {list(r)}"]
-    d, problems = r["decision"], []
-    if (d.get("decision") not in DECISION_STATUSES or (d["decision"] != "not_run" and d.get("source") not in SOURCES)
-            or not isinstance(d.get("stale"), bool)):
-        problems.append(f"{where}: decision {d}")
+    problems = _decision(where, r["decision"])
     for step, allowed in (("edit", EDIT_STATUSES), ("compile", COMPILE_STATUSES), ("interop", INTEROP_STATUSES)):
         if r[step].get("status") not in allowed:
             problems.append(f"{where}: {step} status {r[step].get('status')!r}")

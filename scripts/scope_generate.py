@@ -72,27 +72,34 @@ def record_of(scope):
             "status": "compiled"}
 
 
+def admitted(scope, record):
+    """The scope's checked candidate, or None with the record saying why it is not generated."""
+    if scope.not_measurable:
+        record.update(status="not_measurable", reason=scope.not_measurable)
+        return None
+    try:
+        candidate = checked(scope)
+    except (scope_signature.SignatureError, scope_inputs.InputError) as reason:
+        record.update(status="not_compilable", reason=str(reason))
+        return None
+    resolution = candidate[1]
+    if resolution.unsatisfied:
+        record.update(status="not_compilable", reason="unsatisfied_dependencies", identifiers=list(resolution.unsatisfied))
+        return None
+    if resolution.deferred:
+        record["deferredToCompiler"] = list(resolution.deferred)
+    return candidate
+
+
 def generate(harness_path, root, out, compiler=scope_compile.gradle):
     root, out = pathlib.Path(root), pathlib.Path(out)
     harness = scope_harness.read(harness_path)
     records, candidates, scopes = {}, {}, {}
     for scope in harness.scopes:
         records[scope.id] = record_of(scope)
-        if scope.not_measurable:
-            records[scope.id].update(status="not_measurable", reason=scope.not_measurable)
-            continue
-        try:
-            candidates[scope.id] = checked(scope)
-        except (scope_signature.SignatureError, scope_inputs.InputError) as reason:
-            records[scope.id].update(status="not_compilable", reason=str(reason))
-            continue
-        resolution = candidates[scope.id][1]
-        if resolution.unsatisfied:
-            records[scope.id].update(status="not_compilable", reason="unsatisfied_dependencies", identifiers=list(resolution.unsatisfied))
-            continue
-        if resolution.deferred:
-            records[scope.id]["deferredToCompiler"] = list(resolution.deferred)
-        scopes[scope.id] = scope
+        candidate = admitted(scope, records[scope.id])
+        if candidate:
+            candidates[scope.id], scopes[scope.id] = candidate, scope
     compiled = compile_each(root, scopes, candidates, compiler, records) if scopes else {}
     if not compiled:
         clean(root)

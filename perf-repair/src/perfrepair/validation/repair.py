@@ -55,6 +55,14 @@ def valid_inputs(inputs) -> bool:
             and inputs["from"] in INPUT_SOURCES and _size(inputs["inputSize"]) and _size(inputs["keySize"]))
 
 
+def _listed(where: str, s: dict) -> list[str]:
+    return [p for p in (
+        f"{where}: metrics {s['metrics']}" if s["metrics"] != list(METRICS) else "",
+        f"{where}: dependencies are not sorted and unique" if s["dependencies"] != sorted(set(s["dependencies"])) else "",
+        f"{where}: notMeasurable {s['notMeasurable']!r}" if s["notMeasurable"] not in (None, *NOT_MEASURABLE_REASONS) else "",
+    ) if p]
+
+
 def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
     """`base` is harness.yaml's folder; the scopes are exactly the applied edits."""
     problems = _header(doc, app, "scopes", HARNESS_SCHEMA_VERSION)
@@ -80,10 +88,5 @@ def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
             problems.append(f"{where}: inputs {s['inputs']}")
         if not isinstance(s["option"], str) or not isinstance(s["current"], str) or s["current"] == s["option"]:
             problems.append(f"{where}: current {s['current']!r} and option {s['option']!r} are not two items")
-        if s["metrics"] != list(METRICS):
-            problems.append(f"{where}: metrics {s['metrics']}")
-        if s["dependencies"] != sorted(set(s["dependencies"])):
-            problems.append(f"{where}: dependencies are not sorted and unique")
-        if s["notMeasurable"] is not None and s["notMeasurable"] not in NOT_MEASURABLE_REASONS:
-            problems.append(f"{where}: notMeasurable {s['notMeasurable']!r}")
+        problems += _listed(where, s)
     return problems

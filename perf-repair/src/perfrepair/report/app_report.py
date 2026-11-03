@@ -38,7 +38,7 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     replaced = _optional(paths.replacements) or {}
     replacements = {r["scope"]: r for r in replaced.get("replacements") or []}
     sources = replaced.get("sources") or {}
-    stale = set(replaced.get("stale") or ())
+    stale = set(replaced.get("stale", ()))
     edits_doc = _optional(paths.edits)
     edits = {e["scope"]: e for e in (edits_doc or {}).get("edits") or []}
     harness = _optional(paths.harness, read_yaml) or {}
