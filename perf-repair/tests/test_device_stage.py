@@ -9,7 +9,8 @@ from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
 from perfrepair.device import stage as device_stage
 from perfrepair.device.measures import switched_on
-from perfrepair.device.stage import probe_device
+from perfrepair.device.stage import DEVICE_PROBES, probe_device
+from perfrepair.dto.event import END
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
 from perfrepair.config.load import load
@@ -180,6 +181,17 @@ def test_on_a_device_the_benchmark_run_probes_again_and_says_so(setup):
     done, lines = device(root, config, on_device=True)
     assert lines[0] == "device probe: ran: a device benchmark probes the device it measures"
     assert "--discovery" not in runs(root)[-1] and runs(root)[-1].endswith("--device")
+
+
+@pytest.mark.parametrize("detect, ran_with", [(None, [("ran", DEVICE_PROBES)]), (lambda _: [], [])], ids=["whole", "scoped"])
+def test_on_a_device_only_a_whole_run_reports_the_probe_as_ran_with_the_benchmark(setup, detect, ran_with):
+    root, config = setup
+    from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline
+    run_pipeline(config, root, "device", benchmark=FAKE, echo=None, extra=("--probe",), device=root)
+    with captured_events() as events:
+        probe_device(root, screening_catalog(None), config, True, echo=lambda _: None, benchmark=FAKE, detect=detect)
+    assert [(e.outcome, e.detail) for e in events
+            if (e.step, e.event, e.data.get("ranWith")) == ("probe", END, "benchmark")] == ran_with
 
 
 def test_an_interrupted_benchmark_leaves_no_record_and_the_next_call_runs_it_all(setup, monkeypatch):
