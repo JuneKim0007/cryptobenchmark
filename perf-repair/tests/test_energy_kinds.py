@@ -3,6 +3,7 @@ import json
 from dataclasses import replace
 
 from helpers import summary
+from site_replace_data import item
 from test_dossier import ROWS, build, scope
 
 from perfrepair.data_handler.inbound.results import read_results
@@ -57,7 +58,8 @@ def test_two_estimated_sides_give_a_labelled_estimate(tmp_path):
     assert joules["kind"] == "estimated" and joules["configuration"].endswith(", estimated") and joules["ratio"] == 0.5
     assert "noEstimates" not in option
     assert all("kind" not in e for e in option["estimates"] if e["metric"] == "timeNs")
-    assert "energyJ | 0.500" in render(Dossier.from_json(document["dossiers"][0])) and ", estimated" in render(Dossier.from_json(document["dossiers"][0]))
+    text = render(item(Dossier.from_json(document["dossiers"][0])))
+    assert "energyJ | 0.500" in text and ", estimated" in text
 
 
 def test_two_measured_sides_are_unlabelled(tmp_path):
