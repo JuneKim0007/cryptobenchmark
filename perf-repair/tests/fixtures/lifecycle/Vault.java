@@ -93,4 +93,19 @@ class Vault {
 
     void keep(Mac m) {
     }
+
+    private static final int SIZE = 16;
+
+    byte[] sized(Key k) throws Exception {
+        Cipher c = Cipher.getInstance("ALG-A"); // site: array_size
+        byte[] iv = new byte[SIZE];
+        c.init(Cipher.ENCRYPT_MODE, k, new javax.crypto.spec.IvParameterSpec(iv));
+        return c.doFinal(new byte[] {1});
+    }
+
+    byte[] branch(boolean flag) throws Exception {
+        Mac m = Mac.getInstance("ALG-B"); // site: branch
+        m.init(flag ? held : opaque());
+        return m.doFinal(new byte[] {1});
+    }
 }

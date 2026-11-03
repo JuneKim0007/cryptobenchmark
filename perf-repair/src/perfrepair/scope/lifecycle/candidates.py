@@ -82,8 +82,11 @@ def _called_values(src: Source) -> list[Node]:
 
 
 def _parts(e: Node | None) -> list[Node]:
+    # only branches and joins carry their operands' value: an array's size or an index does not
+    if e is None or e.kind != g.FLOW:
+        return []
     out = []
-    for c in (e.children if e is not None else ()):
+    for c in e.children:
         inner = unwrapped(c)
         if inner is not None:
             out += [inner] if inner.kind in _VALUE_KINDS else _parts(inner)

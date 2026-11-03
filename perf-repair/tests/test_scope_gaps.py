@@ -73,6 +73,15 @@ def test_the_budget_caps_the_lines_and_says_so():
     assert len(gap.candidates) == REACH_LINES and gap.over_budget
 
 
+def test_an_arrays_size_is_not_its_value():
+    f = found("Vault.java", "array_size")
+    assert f.settled == {} and only_gap("Vault.java", "array_size", "parameters").candidates == ()
+
+
+def test_a_branch_offers_its_operands():
+    assert {c.how for c in only_gap("Vault.java", "branch").candidates} >= {"part"}
+
+
 def test_a_lost_use_offers_the_references_and_the_helpers_callers():
     gap = only_gap("Vault.java", "lost_use", "use")
     assert {c.how for c in gap.candidates} == {"object_reference", "helper_caller"}
