@@ -10,6 +10,13 @@ from ...catalog.families import Families
 from .rules import common_key_sizes
 
 
+def _dropped(k: Knowledge, items: dict[int, Item], records: list[OutboxRecord]) -> list[dict]:
+    """Under today's ids; a dropped item that left or is screened out now is in no list."""
+    ids = {item.key: n for n, item in items.items()}
+    return [{"item": ids[r.item], "problems": list(r.problems)} for r in records
+            if r.outcome == "dropped" and ids.get(r.item) in k.dropped]
+
+
 def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile], findings: list[Finding],
              records: list[OutboxRecord], families: Families, interop: list[PairResult] | None,
              screen: dict[int, Verdict] | None) -> dict:
@@ -17,7 +24,6 @@ def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
     for f in findings:
         if f.group:
             by_group.setdefault(f.group, []).append(f.kind)
-    ids = {item.key: n for n, item in items.items()}
     used = sorted({g.family for g in k.groups.values()} | {items[m].family for m in k.dropped})
     return {
         "schemaVersion": GROUPS_SCHEMA_VERSION,
@@ -30,7 +36,6 @@ def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
                            "measured": profiles[i].measured, "resolved": items[i].resolved,
                            "keyContract": profiles[i].keyContract,
                            "screen": screen[i].status if screen else None} for i in sorted(items)},
-        "dropped": [{"item": ids[r.item], "problems": list(r.problems)} for r in records
-                    if r.outcome == "dropped" and ids.get(r.item) in k.dropped],
+        "dropped": _dropped(k, items, records),
         "interop": interop_section(interop),
     }

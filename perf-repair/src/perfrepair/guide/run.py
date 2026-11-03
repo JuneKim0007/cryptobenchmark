@@ -9,7 +9,7 @@ from ..dto.event import END
 from ..failure import FAILURES
 from ..log import attach, emit
 from ..log.emit import elapsed_ms
-from .steps import APP_DRY, APP_MEASURED, DEVICE_LEVEL, Guide, Stop
+from .steps import APP_DRY, APP_MEASURED, Guide, Stop
 
 
 @dataclass(frozen=True)
@@ -55,7 +55,3 @@ def run_app(g: Guide, device: bool) -> Stopped | None:
                f"`python3 scripts/pipeline.py --device --harness {g.paths.harness}`")
     return stopped
 
-
-def run_steps(g: Guide, device: bool) -> int:
-    """The device-level steps, then the one app g names."""
-    return 1 if run_sequence(g, DEVICE_LEVEL) or run_app(g, device) else 0

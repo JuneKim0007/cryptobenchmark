@@ -30,27 +30,27 @@ def _stopped(app: str, s: Stopped) -> AppResult:
     return AppResult(app, STOP, f"{s.code} at {s.step}: {s.detail}", s.halts)
 
 
-def _guarded(g: Guide, device: bool) -> Stopped | None:
-    """An exception no step codes is a bug in this app's handling: logged with its traceback, and the others still run."""
-    try:
-        return run_app(g, device)
-    except Exception as e:
-        record_bug(e)
-        return Stopped("app", "bug", f"{type(e).__name__}: {e}")
+def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
+    now = finished.inputs(g, device)
+    if reuse and finished.unchanged(g, now):
+        return AppResult(g.app_id, REUSED)
+    stopped = run_app(g, device)
+    if stopped:
+        return _stopped(g.app_id, stopped)
+    finished.record(g, now)
+    return AppResult(g.app_id, OK)
 
 
 def _one(base: Guide, root: Path, device: bool, reuse: bool) -> AppResult:
     g = replace(base, app_root=root)
     if not root.is_dir():
         return AppResult(g.app_id, STOP, f"target_missing: {root} is no folder; its earlier results stay")
-    now = finished.inputs(g, device)
-    if reuse and finished.unchanged(g, now):
-        return AppResult(g.app_id, REUSED)
-    stopped = _guarded(g, device)
-    if stopped:
-        return _stopped(g.app_id, stopped)
-    finished.record(g, now)
-    return AppResult(g.app_id, OK)
+    try:
+        return _attempt(g, device, reuse)
+    except Exception as e:
+        # no step codes this: a bug in this app's handling, logged with its traceback; the others still run
+        record_bug(e)
+        return _stopped(g.app_id, Stopped("app", "bug", f"{type(e).__name__}: {e}"))
 
 
 def _not_run(base: Guide, root: Path, halted: AppResult) -> AppResult:

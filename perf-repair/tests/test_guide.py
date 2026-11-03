@@ -19,8 +19,8 @@ from perfrepair.dto.site import Dossier, required_risks
 from perfrepair.files import read_json
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
-from perfrepair.guide.run import run_steps
-from perfrepair.guide.steps import Guide
+from perfrepair.guide.run import run_app, run_sequence
+from perfrepair.guide.steps import DEVICE_LEVEL, Guide
 from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
@@ -32,6 +32,11 @@ F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results" / "test-api36-00000000", F / "guide"
 SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
 FIELD = {"set_provider": "provider", "set_algorithm": "algorithm"}
+
+
+def run_steps(g, device):
+    """The device-level steps, then the one app g names."""
+    return 1 if run_sequence(g, DEVICE_LEVEL) or run_app(g, device) else 0
 
 
 def first_option(run_dir, app_root=None):

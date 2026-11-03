@@ -58,6 +58,9 @@ class Knowledge:
     # groups whose members all left: never shown or saved, kept so a record can name them and no answer reuses their id
     retired: dict[str, Group] = field(default_factory=dict)
 
+    def taken(self, group: str) -> bool:
+        return group in self.groups or group in self.retired
+
     def held(self, group: str) -> Group:
         return self.groups[group] if group in self.groups else self.retired[group]
 

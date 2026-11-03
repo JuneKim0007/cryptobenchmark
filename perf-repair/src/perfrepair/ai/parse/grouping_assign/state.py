@@ -33,7 +33,7 @@ def apply(knowledge: Knowledge, record: OutboxRecord, item: Item, asked: bool = 
     else:
         a = Answer.from_json(record.decision)
         if not a.joins:
-            if a.newGroupId in knowledge.groups or a.newGroupId in knowledge.retired:
+            if knowledge.taken(a.newGroupId):
                 raise ValueError(f"record {record.seq}: group {a.newGroupId} already exists")
             knowledge.retired[a.newGroupId] = Group(item.family, a.newGroupDescription)
         if asked:

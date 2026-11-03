@@ -258,6 +258,13 @@ def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, c
     assert [line.split(":")[0] for line in app_lines(out.splitlines())] == [f"app {path_id(absolute)}"]
 
 
+def test_a_folder_that_is_no_project_says_why_in_its_line(base):
+    empty = base.tmp / "empty"
+    empty.mkdir()
+    code, lines = base.go([empty])
+    assert code == 1 and "stop app_failed at app: not_android_project: " in app_lines(lines)[0]
+
+
 def test_a_path_that_is_a_file_is_a_missing_target(base):
     path = base.tmp / "a-file"
     path.write_text("x")

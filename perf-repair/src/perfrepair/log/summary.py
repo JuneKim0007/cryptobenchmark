@@ -100,16 +100,19 @@ def _chosen(events: list[Event], run: str | None, last: bool) -> list[str]:
 def summarize(events: list[Event], run: str | None = None, last: bool = False) -> dict:
     """Every run in the file, unless run names one or last asks for the newest."""
     chosen = _chosen(events, run, last)
-    newest = runs(events)[-1]
     of_runs = [e for e in events if e.run in chosen]
     # plain log records (settings, warnings) belong to no stage's numbers
     staged = [e for e in of_runs if e.stage != "run" and e.event != LOG]
-    each = [{"run": r, **_bounds([e for e in of_runs if e.run == r], r == newest)} for r in chosen]
+    each = _each(of_runs, chosen, runs(events)[-1])
     overall = each[0] if len(each) == 1 else _overall(each)
     # the guide's steps wrap the app's own, so an app's numbers leave them out
     return {**overall, "runs": each, "total": {**block(of_runs), "durationMs": overall["durationMs"]},
             "stages": _grouped(staged, lambda e: e.stage),
             "apps": _grouped([e for e in staged if e.stage not in WRAPPERS], lambda e: e.app)}
+
+
+def _each(of_runs: list[Event], chosen: list[str], newest: str) -> list[dict]:
+    return [{"run": r, **_bounds([e for e in of_runs if e.run == r], r == newest)} for r in chosen]
 
 
 def _overall(each: list[dict]) -> dict:

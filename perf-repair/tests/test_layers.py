@@ -27,7 +27,7 @@ RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 ALLOWLIST: dict[tuple[str, str], str] = {
     ("guide/steps", "app/__main__"): "guide calls the app command's main; no stage planned",
     ("guide/steps", "repair/__main__"): "guide calls the repair command's main; no stage planned",
-    ("guide/steps", "grouping/__main__"): "guide runs grouping assign and report while groups.json is missing; #76 L5",
+    ("guide/steps", "grouping/__main__"): "guide runs grouping assign and report for what coverage finds missing",
 }
 
 # (importer, imported) package edges that close a cycle: reason; the #66 stage that removes it.

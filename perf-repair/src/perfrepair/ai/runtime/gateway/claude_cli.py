@@ -32,6 +32,14 @@ def child_env() -> dict[str, str]:
     return {k: v for k, v in os.environ.items() if k not in WITHHELD_ENV}
 
 
+def _raise_unless_answered(returncode: int, out: dict) -> None:
+    if returncode != 0 or out.get("is_error") or out.get("subtype") != "success":
+        raise ClaudeCliError(f"claude -p: {out.get('subtype')}: {str(out.get('result'))[:300]}")
+    # no model wrote this (a limit notice): as an answer it would be rejected until the item is dropped
+    if out.get("usage") and not out["usage"].get("output_tokens"):
+        raise ClaudeCliError(f"claude -p: no model output: {str(out.get('result'))[:300]}")
+
+
 class ClaudeCliSession(LifetimeGuarded):
 
     def __init__(self, owner: "ClaudeCliConversations", system: SystemPrompt, schema: dict):
@@ -61,15 +69,11 @@ class ClaudeCliSession(LifetimeGuarded):
             raise ClaudeCliError(f"claude -p exited {done.returncode}: {(done.stderr or done.stdout).strip()[:300] or 'no output'}")
         if out.get("stop_reason") == "refusal":
             raise AgentRefused(str(out.get("result") or "refused"))
-        if done.returncode != 0 or out.get("is_error") or out.get("subtype") != "success":
-            raise ClaudeCliError(f"claude -p: {out.get('subtype')}: {str(out.get('result'))[:300]}")
-        u = out.get("usage") or {}
-        # no model wrote this (a limit notice): as an answer it would be rejected until the item is dropped
-        if u and not u.get("output_tokens"):
-            raise ClaudeCliError(f"claude -p: no model output: {str(out.get('result'))[:300]}")
+        _raise_unless_answered(done.returncode, out)
         self.session_id = out["session_id"]
         structured = out.get("structured_output")
         text = json.dumps(structured) if structured is not None else str(out.get("result") or "")
+        u = out.get("usage") or {}
         return AgentReply(text, o.model, self.session_id, {
             "input": u.get("input_tokens", 0), "output": u.get("output_tokens", 0),
             "cacheRead": u.get("cache_read_input_tokens", 0), "cacheWrite": u.get("cache_creation_input_tokens", 0),

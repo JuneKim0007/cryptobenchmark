@@ -21,6 +21,7 @@ One app from source to a measured report, after inbound and grouping have filled
 
 ```
 python3 scripts/llm_guide.py --app <app root> --device-results <results root>/<device id> [--mode latency|battery] [--device]
+python3 scripts/llm_guide.py --device-results <results root>/<device id>   # without --app: every apps.targets entry
 ```
 
 `python3 -m perfrepair guide` takes the same arguments once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path. Without `--device` it ends at `harness.yaml`; `--device` needs an attached phone. Steps and stop codes: `docs/replacement.md`.

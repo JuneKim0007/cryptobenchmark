@@ -12,6 +12,7 @@ from ..ai.runtime.prompt import PromptLibrary
 from ..ai.parse.grouping_assign.rekey import rekey
 from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
+from ..app.facts.gate import open_apps
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.coverage import Coverage, coverage, no_rerun
@@ -124,6 +125,8 @@ def grouping(g: Guide) -> str:
 
 
 def app(g: Guide) -> str:
+    # raises the gate's reason here: the command would only print it, and a run of many apps needs it in the app's line
+    open_apps(g.app_root)
     _exit(app_main(["--device-results", str(g.device), "--app", str(g.app_root)]), "app_failed", "perfrepair.app")
     if not g.paths.scopes.is_file():
         raise Stop("several_project_roots", f"{g.app_root} holds several; pass one of them as --app")

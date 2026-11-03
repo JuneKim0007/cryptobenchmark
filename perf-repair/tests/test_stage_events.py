@@ -1,12 +1,11 @@
 """Each static step's start and end events with its counts and file digests, on the guide's two fixture chains."""
-from test_guide import APP, F, FAKE_ROOT, _from_root, first_option, guide
+from test_guide import APP, F, FAKE_ROOT, _from_root, first_option, guide, run_steps
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.failure import reported
 from perfrepair.files import sha256_file
-from perfrepair.guide.run import run_steps
 from perfrepair.log import attach
 from perfrepair.log.read import read_events
 

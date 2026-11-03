@@ -41,7 +41,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 | `target_missing` | the target | an `apps.targets` entry is no folder; its earlier results stay |
 | `missing_results` | prerequisites | no `manifest.yaml` in the device folder |
 | `missing_device_stage` | prerequisites, grouping | `rows.json` or `measurements.json` absent, `grouping/items.json` absent, or items with no decision in a named folder; the line names the commands |
-| `app_failed` | app | `perfrepair.app` exits non-zero |
+| `app_failed` | app | `perfrepair.app` exits non-zero, or its gate refuses the folder, whose reason the line carries |
 | `several_project_roots` | app | `--app` holds several project roots; pass one of them |
 | `no_options` | dossier | no scope has an option; the line lists the `noOptions` reasons |
 | `no_replacement` | replace | every scope is kept |
