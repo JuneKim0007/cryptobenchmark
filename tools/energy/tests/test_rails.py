@@ -103,6 +103,7 @@ class SnapshotProcessor:
 
 
 def test_the_offset_comes_from_the_first_snapshot_with_both_clocks():
+    pytest.importorskip("perfetto")
     from rails.trace import Trace
     trace = Trace.__new__(Trace)
     trace.processor = SnapshotProcessor()
