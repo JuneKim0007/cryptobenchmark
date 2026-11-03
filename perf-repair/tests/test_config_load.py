@@ -159,7 +159,7 @@ def test_a_command_without_a_device_folder_or_a_results_root_exits_2(capsys):
 
 
 @pytest.mark.parametrize("command", ((grouping_main, ["assign", "--device-results", "r"]),
-                                     (ai_main, ["worthiness", "--device-results", "r", "--mode", "latency"])))
+                                     (ai_main, ["worthiness", "--device-results", "r", "--perf-mode", "latency"])))
 @pytest.mark.parametrize("flag", ("--turns", "--sessions", "--limit"))
 @pytest.mark.parametrize("value", ("0", "-1", "x", "1.5"))
 def test_a_count_flag_takes_only_a_positive_integer(command, flag, value, capsys):

@@ -1,6 +1,6 @@
 # perf-repair
 
-Reads cryptobenchmark results for one device and decides which crypto replacements are worth testing in an app, in latency or battery mode.
+Reads cryptobenchmark results for one device and decides which crypto replacements are worth testing in an app, for the metrics its perfMode selects (latency, throughput, memAlloc, energy, or generic).
 Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found one level up, `CRYPTOBENCH_ROOT` overrides.
 
 ## Setup
@@ -20,7 +20,7 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 One app from source to a measured report, after inbound and grouping have filled the device folder:
 
 ```
-python3 scripts/llm_guide.py --app <app root> --device-results <results root>/<device id> [--mode latency|battery] [--device]
+python3 scripts/llm_guide.py --app <app root> --device-results <results root>/<device id> [--perf-mode generic|<keys>] [--device]
 python3 scripts/llm_guide.py --device-results <results root>/<device id>   # without --app: every apps.targets entry
 ```
 

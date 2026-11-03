@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 
 from .measurement import Summary
 
-SCHEMA_VERSION = 1
+# 2: no proxy flag; mode is the perfMode name
+SCHEMA_VERSION = 2
 DECISIONS = ("test", "skip")
 VERDICTS = ("test", "skip", "not_comparable", "no_improvement", "not_measured")
 SOURCES = ("llm", "static", "fallback")
@@ -36,13 +37,8 @@ class MetricComparison:
 class PairMetrics:
     fromItem: str
     toItem: str
-    timeRatio: float
-    pImprove: float | None
-    level: str
-    n: int
-    allocationRatio: float | None
     interop: str
-    # every registry metric both sides measured; the fields above are the time and allocation ones the modes judge
+    # every selected metric both sides measured
     metrics: tuple[MetricComparison, ...] = ()
 
 
@@ -89,12 +85,11 @@ class Verdict:
     decision: str
     reason: str
     source: str
-    proxy: bool
     pairs: tuple[Pair, ...] = ()
 
     def to_json(self) -> dict:
         return {"groupId": self.groupId, "mode": self.mode, "decision": self.decision, "reason": self.reason,
-                "source": self.source, "proxy": self.proxy,
+                "source": self.source,
                 "pairs": [{"from": p.fromItem, "to": p.toItem, "reason": p.reason, "pImprove": p.pImprove,
                            "level": p.level} for p in self.pairs]}
 
@@ -102,7 +97,7 @@ class Verdict:
     def from_json(cls, d: dict) -> "Verdict":
         if d["decision"] not in VERDICTS or d["source"] not in SOURCES:
             raise ValueError(f"verdict {d['groupId']}: decision {d['decision']!r} or source {d['source']!r} unknown")
-        return cls(d["groupId"], d["mode"], d["decision"], d["reason"], d["source"], bool(d["proxy"]),
+        return cls(d["groupId"], d["mode"], d["decision"], d["reason"], d["source"],
                    tuple(Pair(p["from"], p["to"], p["reason"], p.get("pImprove"), p.get("level"))
                          for p in d.get("pairs") or ()))
 

@@ -20,13 +20,13 @@ From an app's source to a measured before/after of each call site the model chos
 
 ```
 python3 -m perfrepair guide --app <root> --device-results <device> \
-    [--mode latency|battery] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--refresh] [--device [--config <global.yaml>]]
+    [--perf-mode generic|<keys>] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--refresh] [--device [--config <global.yaml>]]
 python3 -m perfrepair guide --device-results <device> ...   # without --app: every apps.targets entry
 python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
 ```
 
 - `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
-- `--mode`, `--limit` and `--device` default to `apps.mode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
+- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--refresh` asks again the replace decisions whose dossier changed, and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).
 - `--device-results` is required unless `paths.results` is set (`docs/settings.md`); keep results under `~/capstone/runs/<date>-<name>`.
 - Named folder (`--device-results`, or `device.id`): it must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): device-level stages, made once per device, never per app; a missing one stops with `missing_device_stage`.
@@ -54,7 +54,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 ## Report
 
-`python3 -m perfrepair.report app --device-results <device> --app <src> [--mode latency|battery]`, then `python3 -m perfrepair.report summary --device-results <device>`. A step whose file is absent is `not_run`; `sites.json`, `scopes.json` and `units.json` are required.
+`python3 -m perfrepair.report app --device-results <device> --app <src> [--perf-mode generic|<keys>]`, then `python3 -m perfrepair.report summary --device-results <device>`. A step whose file is absent is `not_run`; `sites.json`, `scopes.json` and `units.json` are required.
 
 | report.json row field | value |
 |---|---|

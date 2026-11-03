@@ -108,8 +108,17 @@ def app_dirs(device: Path) -> list[Path]:
     return sorted(p for p in device.iterdir() if (p / APP).is_file()) if device.is_dir() else []
 
 
+WORTHINESS_PREFIX = "worthiness-"
+
+
 def worthiness(device: Path, mode: str) -> Path:
-    return Path(device) / f"worthiness-{mode}"
+    return Path(device) / f"{WORTHINESS_PREFIX}{mode}"
+
+
+def worthiness_modes(device: Path) -> list[str]:
+    """The perfMode name of each worthiness folder that holds verdicts."""
+    return sorted(p.name.removeprefix(WORTHINESS_PREFIX) for p in Path(device).glob(f"{WORTHINESS_PREFIX}*")
+                  if (p / VERDICTS).is_file())
 
 
 def load_rows(device: Path) -> list[PrimitiveRow]:

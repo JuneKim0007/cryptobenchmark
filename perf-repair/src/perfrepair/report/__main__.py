@@ -1,4 +1,4 @@
-"""python3 -m perfrepair.report app --device-results <dir> --app <source> [--mode latency|battery] — <dir>/<app>/report.json, .md;
+"""python3 -m perfrepair.report app --device-results <dir> --app <source> [--perf-mode generic|<keys>] — <dir>/<app>/report.json, .md;
    python3 -m perfrepair.report summary --device-results <dir> — <dir>/summary.json, .md over every app's report.json."""
 from __future__ import annotations
 
@@ -7,10 +7,11 @@ import sys
 from pathlib import Path
 
 from ..app.facts.path_id import app_id
-from ..config.args import add_config_arg
+from ..config.args import add_config_arg, perf_mode
+from ..dto.perf_mode import GENERIC, PerfMode
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..log import attach
-from ..result.modes import MODES
+from ..result.modes import mode_of
 from ..failure import reported
 from .command import app_report, device_summary
 
@@ -21,7 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="step", required=True)
     p = sub.add_parser("app")
     p.add_argument("--app", type=Path, required=True, help="the app's source folder; its path gives the app's id")
-    p.add_argument("--mode", choices=sorted(MODES), default="latency")
+    p.add_argument("--perf-mode", type=perf_mode, default=GENERIC, metavar="KEYS",
+                   help="the selection the rows mark as the model's input; default generic")
     for step in (p, sub.add_parser("summary")):
         add_device_results_arg(step)
         add_config_arg(step)
@@ -33,7 +35,7 @@ def _step(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     fill_device_results(ap, a)
     attach(a.device_results)
     if a.step == "app":
-        app_report(a.device_results, app_id(a.device_results, a.app), MODES[a.mode])
+        app_report(a.device_results, app_id(a.device_results, a.app), mode_of(PerfMode.parse(a.perf_mode)))
     else:
         device_summary(a.device_results)
 

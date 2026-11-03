@@ -4,9 +4,14 @@ from pathlib import Path
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
+from perfrepair.dto.perf_mode import PerfMode
+from perfrepair.result.modes import mode_of
 
 FIXTURE_DEVICE = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000"
 LIBRARY = PromptLibrary.load()
+GENERIC = mode_of(PerfMode())
+LATENCY = mode_of(PerfMode(("latency",)))
+LATENCY_ALLOC = mode_of(PerfMode(("latency", "memAlloc")))
 
 
 def with_results(folder):

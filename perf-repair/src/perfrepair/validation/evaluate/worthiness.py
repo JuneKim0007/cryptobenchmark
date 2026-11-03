@@ -53,9 +53,9 @@ def check_reply(text: str, e: GroupEvidence, mode: Mode) -> tuple[dict | None, l
             why_not = "lacks the measurements" if any(j == "not_measured" for j, _ in judged) else "does not improve"
             problems.append(f"pairs[{i}]: {b} {why_not} on {a} under {mode.name} in any configuration")
             continue
-        # the pair carries its best-supported configuration; a low level is reported, never refused
-        best = max(hits, key=lambda m: -1.0 if m.pImprove is None else m.pImprove)
+        # the pair carries its best-supported configuration and metric; a low level is reported, never refused
+        best = max((mode.deciding(m) for m in hits), key=lambda c: -1.0 if c.pImprove is None else c.pImprove)
         pairs.append(Pair(a, b, why, best.pImprove, best.level))
     if problems:
         return None, problems
-    return Verdict(e.groupId, mode.name, decision, reason, "llm", mode.proxy, tuple(pairs)).to_json(), []
+    return Verdict(e.groupId, mode.name, decision, reason, "llm", tuple(pairs)).to_json(), []

@@ -80,7 +80,7 @@ def test_a_typo_file_exits_2_before_any_work(run, tmp_path, capsys, command):
 
 def test_worthiness_rejects_a_missing_prompts_folder(run, tmp_path, capsys):
     with pytest.raises(SystemExit) as exit_:
-        ai(["worthiness", "--device-results", str(run), "--mode", "latency", *DRY, "--prompts", str(tmp_path / "absent")])
+        ai(["worthiness", "--device-results", str(run), "--perf-mode", "latency", *DRY, "--prompts", str(tmp_path / "absent")])
     assert exit_.value.code == 2
     assert "error: missing_directory" in capsys.readouterr().err
 
@@ -101,11 +101,11 @@ def test_worthiness_with_an_override_decides_into_a_new_outbox_beside_the_defaul
     assert grouping(["assign", "--device-results", str(run), *DRY]) == 0
     assert grouping(["report", "--device-results", str(run)]) == 0
     root = rd.worthiness(run, "latency")
-    assert ai(["worthiness", "--device-results", str(run), "--mode", "latency", *DRY]) == 0
+    assert ai(["worthiness", "--device-results", str(run), "--perf-mode", "latency", *DRY]) == 0
     default = active_fingerprint(root)
     assert default == worthiness_charter(PromptLibrary.load()).fingerprint
     folder = overriding(tmp_path, "evaluate/worthiness.system.md", "\nOVERRIDE")
-    assert ai(["worthiness", "--device-results", str(run), "--mode", "latency", *DRY, "--prompts", str(folder)]) == 0
+    assert ai(["worthiness", "--device-results", str(run), "--perf-mode", "latency", *DRY, "--prompts", str(folder)]) == 0
     overridden = active_fingerprint(root)
     assert overridden == worthiness_charter(PromptLibrary.load(folder)).fingerprint != default
     assert outboxes(root) == sorted([default, overridden])

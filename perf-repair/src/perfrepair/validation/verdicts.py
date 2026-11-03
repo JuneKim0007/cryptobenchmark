@@ -16,8 +16,6 @@ def validate_verdicts(verdicts: Verdicts, evidence: list[GroupEvidence], mode: M
     for g, v in verdicts.verdicts.items():
         if g in asked and v.source == "static":
             problems.append(f"{g}: needs a decision but holds a static verdict")
-        if v.proxy != mode.proxy:
-            problems.append(f"{g}: proxy flag {v.proxy} does not match mode {mode.name}")
         members = set(by_id[g].members) if g in by_id else set()
         problems += [f"{g}: pair {p.fromItem} -> {p.toItem} names a non-member"
                      for p in v.pairs if {p.fromItem, p.toItem} - members]

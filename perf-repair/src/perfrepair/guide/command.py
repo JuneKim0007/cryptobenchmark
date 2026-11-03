@@ -12,15 +12,16 @@ from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
 from ..ai.suggest.site_replace import command as replace_cmd
-from ..config.args import fill, load_settings, positive_int
+from ..config.args import fill, load_settings, perf_mode, positive_int
 from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
-from ..inputs.check import check_one_of, target_path
-from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, APPS_TARGETS,
+from ..dto.perf_mode import PerfMode
+from ..inputs.check import target_path
+from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
                             BENCHMARK_CONFIG)
 from ..failure import reported
 from ..log import attach
-from ..result.modes import MODES
+from ..result.modes import mode_of
 from .steps import Guide
 from .targets import run_targets
 
@@ -31,7 +32,9 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--app", type=Path, help="run this one app, its source root; only read; its path gives the app's id; "
                                              "default: every apps.targets entry")
     add_device_results_arg(ap)
-    ap.add_argument("--mode", choices=sorted(MODES), help="default: apps.mode, else latency")
+    ap.add_argument("--perf-mode", type=perf_mode, metavar="KEYS",
+                    help="the metrics the model is given: generic (all), or a comma list of latency, throughput, memAlloc, "
+                         "energy; default: apps.perfMode, else generic")
     ap.add_argument("--device", action="store_true", default=None,
                     help="also measure the harness on the attached phone (cryptobenchmark pipeline.py), then report; "
                          "default: apps.measure")
@@ -52,9 +55,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
-    fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT})
-    # modes come from result/criteria.yaml, a layer above the rows
-    a.mode = settings.read(APPS_MODE, a.mode, lambda name, value: check_one_of(name, value, tuple(sorted(MODES))))
+    fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE})
     return reported(lambda: _run(ap, a, settings))
 
 
@@ -77,7 +78,7 @@ def _roots(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded)
 def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> int:
     roots = _roots(ap, a, settings)
     root = device_root(ap, a, settings)
-    base = Guide(a.device_results, None, MODES[a.mode], spawn(a, settings, replace_cmd.DRY_RUN),
+    base = Guide(a.device_results, None, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, replace_cmd.DRY_RUN),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh)
     return run_targets(base, roots, a.device, reuse=a.app is None)

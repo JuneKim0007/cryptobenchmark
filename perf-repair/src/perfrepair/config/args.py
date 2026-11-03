@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Mapping
 
+from ..dto.perf_mode import PerfMode
 from ..inputs.check import Invalid, check_positive
 from ..inputs.table import Row
 from .dotenv import load_env
@@ -21,6 +22,15 @@ def positive_int(text: str) -> int:
     except (ValueError, Invalid):
         raise argparse.ArgumentTypeError(f"{text!r} is not a positive integer") from None
     return value
+
+
+def perf_mode(text: str) -> str:
+    """The argparse type of --perf-mode: `generic`, or keys joined by `,` (energy,latency,throughput)."""
+    try:
+        PerfMode.parse(text)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e)) from None
+    return text
 
 
 def add_config_arg(parser: argparse.ArgumentParser) -> None:

@@ -34,7 +34,7 @@ def inputs(g: Guide, measured: bool) -> dict:
     return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "units": sha256_file(g.paths.units), "scoper": scoper_version(),
             "groups": sha256_file(GroupingPaths(g.device).groups),
             "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
-            "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint, "mode": g.mode.name, "measured": measured}
+            "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint, "perfMode": g.mode.name, "measured": measured}
 
 
 def unchanged(g: Guide, now: dict) -> bool:

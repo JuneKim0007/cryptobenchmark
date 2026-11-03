@@ -9,6 +9,7 @@ from perfrepair.dto.measurement import Measurements
 from perfrepair.dto.metrics import BY_NAME, METRICS, NAMES
 from perfrepair.dto.report import REPORTED
 from perfrepair.dto.site import METRICS as DOSSIER_METRICS
+from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.result.evidence import build_evidence
 from perfrepair.validation.measurements import validate_measurements
 
@@ -30,7 +31,7 @@ def chain(tmp_path):
     groups = {"groups": [{"id": "g", "family": "f", "description": "G", "members": [1, 2]}],
               "items": {"1": {"qualified": "TypeA|ALG-A|P1"}, "2": {"qualified": "TypeA|ALG-A|P2"}},
               "interop": {"status": "not_run", "pairs": []}}
-    return rows, document, build_evidence(groups, rows, document.byRow, None)
+    return rows, document, build_evidence(groups, rows, document.byRow, None, PerfMode())
 
 
 @pytest.mark.parametrize("metric", NAMES)

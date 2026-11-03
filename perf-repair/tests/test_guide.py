@@ -24,7 +24,7 @@ from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.guide.run import run_app, run_sequence
 from perfrepair.guide.steps import DEVICE_LEVEL, Guide
-from perfrepair.result.modes import MODES
+from helpers import LATENCY
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
 from perfrepair.validation.dossiers import parse_dossiers
@@ -83,7 +83,7 @@ def _first_option(alias, d):
 
 def guide(run_dir, conversations, app=APP, config=None):
     lines = []
-    g = Guide(run_dir, app, MODES["latency"], conversations, LIBRARY, config=config, echo=lines.append)
+    g = Guide(run_dir, app, LATENCY, conversations, LIBRARY, config=config, echo=lines.append)
     return g, lines
 
 

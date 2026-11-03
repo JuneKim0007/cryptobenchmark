@@ -1,21 +1,37 @@
 # Modes
 
-Criteria are data: `src/perfrepair/result/criteria.yaml`. A mode differs only in its entry there.
+A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/metrics.py`) it is given and judged by. The rule and its threshold are data: `src/perfrepair/result/criteria.yaml`.
 
-| Mode | Improves when | Proxy |
+## perfMode
+
+| Key | Selects | Shown as |
 |---|---|---|
-| `latency` | time ratio `to ÷ from` ≤ `improvingRatio` (0.97) | no |
-| `battery` | time ratio ≤ 0.97, and `to` allocations per operation ≤ `from` (`allocationsMustNotRise`) | yes |
+| `latency` | `timeNs` | ms/op by default (`analysis.units.latency`) |
+| `throughput` | `timeNs` | MB/s by default (`analysis.units.throughput`); MB/s and MiB/s only where an input size exists |
+| `memAlloc` | `allocationCount` | allocations/op |
+| `energy` | `energyJ` | J/op, with its kind |
+| `generic` | every metric | every unit above |
+
+- `apps.perfMode` (`guide --perf-mode`), and `--perf-mode` on `ai worthiness` and `report app`: `generic` or a list of keys; the CLI takes them comma-joined (`energy,latency,throughput`).
+- Selection = the registry metrics whose `selects` hold a chosen key (`dto/perf_mode.py`). Latency and throughput are one metric: one estimate, one ratio, shown in each selected unit, never two pieces of evidence.
+- A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`); `worthiness-<name>/` holds its verdicts.
+- Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another. The report still shows people every measured metric, marking the selected ones.
+
+## Verdict
+
+| Mode | Improves when |
+|---|---|
+| any perfMode | at least one selected metric's ratio `to ÷ from` ≤ `improvingRatio` (0.97), and none ≥ 1 ÷ `improvingRatio` (1.031) |
 
 - A pair is judged `improves`, `not_improving` or `not_measured`.
-- `not_measured`: time improves but a criterion's data is missing (allocations unknown, or `from` allocations 0). It is never reported as `no_improvement`.
-- A mode judges time and allocations only; the worthiness message shows every measured metric of `dto/metrics.py`, energy with its kind, and never compares energy across kinds (`energy_kinds_differ`).
-- Every battery verdict carries `proxy: true`.
+- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` decides on the metrics measured and names the rest.
+- A group or option without data for a selected metric is the static reason `no_evidence: <metric>`, logged; never a proxy and never `no_improvement`.
+- Energy is never compared across kinds (`energy_kinds_differ`).
 - Energy measurement: [docs/energy.md](../../docs/energy.md).
 
 ## Confidence: pImprove
 
-`pImprove` is the probability that the candidate's median is lower than the current one's. It grades a pair; it never rejects one.
+`pImprove` is the probability that the candidate's median is lower than the current one's. It grades a pair; it never rejects one. A pair under several selected metrics is graded by its improving metric with the highest pImprove.
 
 | Level | pImprove |
 |---|---|

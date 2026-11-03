@@ -16,7 +16,7 @@ from perfrepair.inputs import table
 from perfrepair.inputs.check import check_positive
 from perfrepair.inputs.resolve import Candidate, InputError, OnInvalid, choose
 from perfrepair.inputs.table import ROLE_KEYS, ROWS, RoleRow, Row
-from perfrepair.result.modes import MODES
+from perfrepair.dto.perf_mode import PerfMode
 
 SRC = Path(table.__file__).parents[1]
 EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
@@ -93,7 +93,7 @@ def test_only_the_unsafe_rows_refuse_a_fallback():
 
 def test_the_row_defaults_are_what_their_readers_use():
     assert (table.GROUPING_TURNS.default, table.GROUPING_SESSIONS.default) == (Limits.turns, Limits.sessions)
-    assert table.APPS_MODE.default in MODES and table.GROUPING_ASSIGN.defaults == {"effort": "low"}
+    assert PerfMode.parse(table.APPS_PERF_MODE.default).generic and table.GROUPING_ASSIGN.defaults == {"effort": "low"}
 
 
 def picked(on_invalid, value, source="file c.yaml"):
@@ -167,14 +167,14 @@ def test_a_bad_file_value_warns_once_and_reads_the_default(tmp_path, caplog, key
     assert loaded.sources[key.key] == "default"
 
 
-def test_a_bad_mode_in_the_file_warns_and_a_bad_flag_is_argparse(tmp_path, capsys):
-    config = write(tmp_path, "apps: {mode: fast}\n")
+def test_a_bad_perf_mode_in_the_file_warns_and_a_bad_flag_is_argparse(tmp_path, capsys):
+    config = write(tmp_path, "apps: {perfMode: [fast]}\n")
     code = guide(["--app", str(tmp_path), "--device-results", str(tmp_path), "--agent", "dry-run",
                   "--perfrepair-config", str(config)])
     err = capsys.readouterr().err
-    assert code == 1 and "invalid: apps.mode fast, one of ['battery', 'latency']; using the default latency" in err
+    assert code == 1 and "invalid: apps.perfMode ['fast'], generic or a list of" in err and "using the default generic" in err
     with pytest.raises(SystemExit) as e:
-        guide(["--app", "a", "--mode", "fast"])
+        guide(["--app", "a", "--perf-mode", "fast"])
     assert e.value.code == 2
 
 

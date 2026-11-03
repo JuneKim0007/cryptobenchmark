@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from ..catalog.screening import SCREENING
-from .check import check_any, check_bool, check_path, check_positive, check_targets, check_text
+from ..dto.perf_mode import GENERIC
+from .check import check_any, check_bool, check_path, check_perf_mode, check_positive, check_targets, check_text
 from .resolve import Candidate, Need, OnInvalid, Resolved, resolve
 
 
@@ -81,7 +82,7 @@ DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
 WORTHINESS = RoleRow("device.worthiness")
 
 APPS_TARGETS = Row("apps.targets", check_targets)
-APPS_MODE = Row("apps.mode", check_text, default="latency")
+APPS_PERF_MODE = Row("apps.perfMode", check_perf_mode, default=GENERIC)
 APPS_LIMIT = Row("apps.limit", check_positive)
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 APPS_AGENT = RoleRow("apps.agent")

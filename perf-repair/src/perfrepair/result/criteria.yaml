@@ -4,12 +4,5 @@ levels:                     # the first level whose atLeast pImprove reaches; a 
   - {name: ok, atLeast: 0.95}
   - {name: warn, atLeast: 0.8}
   - {name: weak, atLeast: 0.0}
-modes:
-  - name: latency
-    proxy: false
-    allocationsMustNotRise: false
-    rule: improves when time per operation is lower; allocations are context
-  - name: battery
-    proxy: true
-    allocationsMustNotRise: true
-    rule: "proxy (no energy measured): improves when time per operation is lower and allocations per operation are not higher"
+# one rule for every perfMode; a metric worsens at or above 1 / improvingRatio, the summary's own `worse` line
+rule: improves when at least one selected metric improves and none worsens

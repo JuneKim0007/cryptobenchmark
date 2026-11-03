@@ -23,7 +23,8 @@ from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.runtime.engine import charter_file
 from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES, OutboxError, active_outbox
 from ..result.evidence import build_evidence
-from ..result.modes import MODES
+from ..dto.perf_mode import PerfMode
+from ..result.modes import mode_of
 from ..validation.dossier_units import validate_dossier_units
 from ..validation.dossiers import validate_dossiers
 from ..validation.events import validate_events
@@ -72,20 +73,26 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     out |= validate_interop(groups, grouping.interop_plan, grouping.interop)
     screen = rd.load_screen(grouping)
     out |= _dossiers(run, groups, screen, catalog)
-    for mode in MODES.values():
-        directory = rd.worthiness(run, mode.name)
-        if (directory / rd.VERDICTS).exists():
-            measurements = rd.load_measurements(run)
-            evidence = build_evidence(groups, rows, measurements.byRow, qualified_verdicts(groups, screen))
-            kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
-            try:
-                records = active_outbox(directory).records()
-            except OutboxError as e:
-                out[directory.name] = [str(e)]
-                continue
-            saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
-            out[directory.name] = kind.validate(saved, records)
+    for name in rd.worthiness_modes(run):
+        out[rd.worthiness(run, name).name] = _worthiness(run, name, groups, rows, screen)
     return out
+
+
+def _worthiness(run: Path, name: str, groups: dict, rows, screen) -> list[str]:
+    directory = rd.worthiness(run, name)
+    try:
+        mode = mode_of(PerfMode.parse(name))
+        saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
+    except ValueError as e:
+        return [f"{e}; the folder is from before perfMode"]
+    measurements = rd.load_measurements(run)
+    evidence = build_evidence(groups, rows, measurements.byRow, qualified_verdicts(groups, screen), mode.perf)
+    kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
+    try:
+        records = active_outbox(directory).records()
+    except OutboxError as e:
+        return [str(e)]
+    return kind.validate(saved, records)
 
 
 def _beside_rows(run: Path, rows) -> dict[str, list[str]]:

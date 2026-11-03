@@ -14,7 +14,7 @@ from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.evaluate.worthiness.command import worthiness
-from perfrepair.result.modes import MODES
+from helpers import LATENCY, LATENCY_ALLOC
 from perfrepair.validation import ValidationFailed
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
@@ -53,10 +53,10 @@ def test_all_stages_validate(run):
     groups = json.loads(GroupingPaths(run).groups.read_text())
     shared = [g for g in groups["groups"] if len(g["members"]) == 2]
     assert len(shared) == 1
-    latency = worthiness(run, MODES["latency"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
-    battery = worthiness(run, MODES["battery"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
+    latency = worthiness(run, LATENCY, ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
+    alloc = worthiness(run, LATENCY_ALLOC, ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
     assert [v.decision for v in latency.verdicts.values() if v.source == "llm"] == ["test"]
-    assert {v.decision for v in battery.verdicts.values()} == {"not_comparable", "not_measured"}
+    assert {v.decision for v in alloc.verdicts.values()} == {"not_comparable", "not_measured"}
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
 
 
@@ -75,7 +75,7 @@ def test_a_hand_edited_grouping_is_caught(run):
     path.write_text(json.dumps(doc))
     assert validate_run(run, screening_catalog(None))["grouping/groups.json"]
     with pytest.raises(ValidationFailed):
-        worthiness(run, MODES["latency"], ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
+        worthiness(run, LATENCY, ScriptedConversations(first_improving_pair), LIBRARY, **QUIET)
 
 
 def test_a_run_without_rows_is_a_reported_problem(tmp_path):

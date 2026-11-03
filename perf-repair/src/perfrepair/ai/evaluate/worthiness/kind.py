@@ -54,7 +54,7 @@ class WorthinessKind:
     def apply(self, verdicts: Verdicts, e: GroupEvidence, record: OutboxRecord) -> None:
         verdicts.verdicts[e.groupId] = (Verdict.from_json(record.decision) if record.outcome == "decided" else
                                         Verdict(e.groupId, self.mode.name, "skip", "dropped: " + "; ".join(record.problems),
-                                                "fallback", self.mode.proxy))
+                                                "fallback"))
         verdicts.version += 1
 
     def validate(self, verdicts: Verdicts, records: list[OutboxRecord]) -> list[str]:

@@ -6,7 +6,8 @@ import statistics
 
 from ..dto.measurement import ESTIMATED
 from ..dto.report import CHANGES, FUNNEL, REPORTED, SCHEMA_VERSION
-from ..result.modes import MODES
+from ..dto.perf_mode import PerfMode
+from ..result.modes import mode_of
 
 
 def app_ratio(report: dict, metric: str) -> float | None:
@@ -34,7 +35,7 @@ def build_summary(reports: list[dict]) -> dict:
     modes = sorted({r["mode"] for r in reports})
     if len(modes) != 1:
         raise ValueError(f"mixed_modes: the app reports were built in modes {modes}; rebuild them in one mode")
-    improving = MODES[modes[0]].improvingRatio
+    improving = mode_of(PerfMode.parse(modes[0])).improvingRatio
     by_app = {r["app"]: r["funnel"] for r in reports}
     metrics = {}
     for metric, unit in REPORTED:

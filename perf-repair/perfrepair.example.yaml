@@ -41,7 +41,7 @@ device:                    # once per device
 
 apps:                      # per app: the guide, `ai replace`
   targets: []              # the guide's apps without --app: paths or {path: ...}; relative to this file
-  mode: latency            # latency | battery
+  perfMode: generic        # generic (every metric) | a list of latency, throughput, memAlloc, energy
   limit:                   # scopes the guide asks the model about; empty = all
   measure: false           # true: the guide also measures the harness on the attached phone
   agent: {}                # role keys of the guide

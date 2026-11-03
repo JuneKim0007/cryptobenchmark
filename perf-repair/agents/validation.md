@@ -16,7 +16,7 @@
 ## File structure
 
 ```
-src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder (each outbox's charter.json rehashed to its folder name, supervisor.charter.json, events.jsonl) (a malformed rows, measurements or run log file is its problem); primitives.tsv against rows, measurements and screen.json, rebuilding kinds from their outboxes; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
+src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder (each outbox's charter.json rehashed to its folder name, supervisor.charter.json, events.jsonl) (a malformed rows, measurements or run log file is its problem); primitives.tsv against rows, measurements and screen.json, rebuilding kinds from their outboxes, each worthiness-<perfMode> folder under its own perfMode; screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed
 src/perfrepair/validation/__main__.py : command: validate a device folder by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
 src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers

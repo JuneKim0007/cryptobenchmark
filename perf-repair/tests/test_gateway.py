@@ -217,7 +217,7 @@ def run(tmp_path):
 @pytest.mark.parametrize("command, argv", [
     (grouping, ["assign", "--device-results", "{run}"]),
     (grouping, ["report", "--device-results", "{run}", "--supervisor"]),
-    (ai, ["worthiness", "--device-results", "{run}", "--mode", "latency"]),
+    (ai, ["worthiness", "--device-results", "{run}", "--perf-mode", "latency"]),
     (ai, ["replace", "--device-results", "{run}", "--app", "x"]),
     (guide, ["--app", "{run}", "--device-results", "{run}"]),
 ])

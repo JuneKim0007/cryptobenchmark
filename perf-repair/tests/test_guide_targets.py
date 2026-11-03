@@ -20,7 +20,7 @@ from perfrepair.guide.steps import Guide
 from perfrepair.guide.targets import run_targets
 from perfrepair.log import attach
 from perfrepair.log.read import read_events
-from perfrepair.result.modes import MODES
+from helpers import LATENCY
 from perfrepair.run_dir import EVENTS, AppPaths
 
 
@@ -42,7 +42,7 @@ class Base:
 
     def go(self, roots, device=False, reuse=True, conversations=None):
         lines = []
-        base = Guide(self.run_dir, None, MODES["latency"], conversations or self.answer, LIBRARY, echo=lines.append)
+        base = Guide(self.run_dir, None, LATENCY, conversations or self.answer, LIBRARY, echo=lines.append)
         return run_targets(base, roots, device, reuse), lines
 
     def calls(self, root):
@@ -121,7 +121,7 @@ def test_an_explicit_app_runs_even_when_nothing_changed(base):
 def test_a_capped_app_is_never_reused(base):
     a = base.app("a")
     lines = []
-    capped = Guide(base.run_dir, None, MODES["latency"], base.answer, LIBRARY, echo=lines.append, limit=1)
+    capped = Guide(base.run_dir, None, LATENCY, base.answer, LIBRARY, echo=lines.append, limit=1)
     run_targets(capped, [a], False, True)
     lines.clear()
     run_targets(capped, [a], False, True)
@@ -188,7 +188,7 @@ def test_a_provider_failure_stops_the_whole_loop(base):
 
 def test_a_device_stage_stop_runs_no_app(tmp_path):
     lines = []
-    g = Guide(tmp_path, None, MODES["latency"], DRY_RUN, LIBRARY, echo=lines.append)
+    g = Guide(tmp_path, None, LATENCY, DRY_RUN, LIBRARY, echo=lines.append)
     assert run_targets(g, [APP], False, True) == 1
     assert len(lines) == 1 and lines[0].startswith("guide prerequisites: stop missing_results")
 

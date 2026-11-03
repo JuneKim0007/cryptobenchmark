@@ -53,7 +53,7 @@ src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names 
 src/perfrepair/repair/operation.py : whether a scope's function calls an operation on its primitive: `no_operation` for a factory
 src/perfrepair/repair/setup_calls.yaml : member calls that only configure a primitive; Kotlin scope-function blocks
 src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option
-src/perfrepair/report/__main__.py : command: `app --device-results --app [--mode]` | `summary --device-results`
+src/perfrepair/report/__main__.py : command: `app --device-results --app [--perf-mode]` | `summary --device-results`
 src/perfrepair/report/app_report.py : an app's step files → report.json: a row per scope with its unit and the members that stayed, the funnel
 src/perfrepair/report/command.py : stage: report.json and .md, summary.json and .md, validated before writing
 src/perfrepair/report/markdown.py : report.md and summary.md from their documents

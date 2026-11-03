@@ -2,7 +2,7 @@
 why the metrics are not measured."""
 from __future__ import annotations
 
-from ..dto import PairMetrics
+from ..dto import MetricComparison, PairMetrics
 from ..dto.report import MEASURABLE, case_id
 from ..result.modes import Mode
 from .measured import Measured
@@ -39,14 +39,8 @@ def _interop(record: dict | None, compiled: dict) -> dict:
 
 
 def _verdict(mode: Mode, current: str, option: str, metrics: list[dict]) -> str:
-    by = {m["metric"]: m for m in metrics if m["measured"]}
-    time = by.get("timeNs")
-    if time is None or time["ratio"] is None:
-        return "not_measured"
-    alloc = by.get("allocationCount")
-    allocation_ratio = alloc["ratio"] if alloc else None
-    return mode.judge(PairMetrics(current, option, time["ratio"], time["pImprove"], time["level"], time["n"],
-                                  allocation_ratio, "n/a"))
+    measured = tuple(MetricComparison(m["metric"], m["ratio"], m["pImprove"], m["level"], m["n"]) for m in metrics if m["measured"])
+    return mode.judge(PairMetrics(current, option, "n/a", measured))
 
 
 def _decision(replacement: dict | None, source: str | None, stale: bool) -> dict:

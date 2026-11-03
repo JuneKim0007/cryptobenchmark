@@ -1,4 +1,4 @@
-"""python3 -m perfrepair.ai worthiness --device-results <dir> --mode latency|battery — after grouping;
+"""python3 -m perfrepair.ai worthiness --device-results <dir> --perf-mode generic|<keys> — after grouping;
    python3 -m perfrepair.ai replace --device-results <dir> --app <source> [--refresh] — after dossiers. All take [--agent ...] [--prompts DIR]
    and read perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
 from __future__ import annotations
@@ -8,12 +8,13 @@ import sys
 from pathlib import Path
 
 from ..app.facts.path_id import app_id
-from ..config.args import load_settings, positive_int
+from ..config.args import load_settings, perf_mode, positive_int
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..inputs.table import APPS_REPLACE, WORTHINESS, RoleRow
 from ..log import attach
-from ..result.modes import MODES
+from ..dto.perf_mode import PerfMode
+from ..result.modes import mode_of
 from .runtime.gateway.args import add_agent_args
 from .runtime.gateway.spawn import spawn
 from .evaluate.worthiness import command as worthiness_cmd
@@ -36,7 +37,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="stage", required=True)
     p = sub.add_parser("worthiness")
     add_device_results_arg(p)
-    p.add_argument("--mode", required=True, choices=sorted(MODES))
+    p.add_argument("--perf-mode", required=True, type=perf_mode, metavar="KEYS",
+                   help="generic, or a comma list of latency, throughput, memAlloc, energy")
     _engine_args(p, WORTHINESS)
     p = sub.add_parser("replace")
     add_device_results_arg(p)
@@ -56,7 +58,7 @@ def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     library = load_prompts(ap, a, settings)
     limits = Limits(a.turns, a.sessions)
     if a.stage == "worthiness":
-        worthiness_cmd.worthiness(a.device_results, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
+        worthiness_cmd.worthiness(a.device_results, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
     else:
         state = replace_cmd.replace(a.device_results, app_id(a.device_results, a.app), spawn(a, settings, replace_cmd.DRY_RUN),
                                     library, limits, a.limit, refresh=a.refresh)

@@ -6,7 +6,8 @@ from itertools import permutations
 from ..dto import Configuration, GroupEvidence, MemberStats, MetricComparison, PairMetrics, PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
-from ..dto.metrics import ALLOCATIONS, METRICS, TIME, Metric
+from ..dto.metrics import METRICS, Metric
+from ..dto.perf_mode import PerfMode
 from ..dto.screen import Verdict, lowers_status
 from ..dto.site import ENERGY_KINDS_DIFFER
 from .confidence import level
@@ -25,13 +26,10 @@ def _compare(metric: Metric, a: Summary, b: Summary) -> MetricComparison:
     return MetricComparison(metric.name, ratio, p, level(p), min(a.n, b.n))
 
 
-def _pair(a: MemberStats, b: MemberStats, interop: str) -> PairMetrics:
-    both = tuple(_compare(m, a.metrics[m.name], b.metrics[m.name]) for m in METRICS
+def _pair(a: MemberStats, b: MemberStats, interop: str, perf: PerfMode) -> PairMetrics:
+    both = tuple(_compare(m, a.metrics[m.name], b.metrics[m.name]) for m in perf.metrics
                  if m.name in a.metrics and m.name in b.metrics)
-    by = {c.metric: c for c in both}
-    time, alloc = by[TIME.name], by.get(ALLOCATIONS.name)
-    return PairMetrics(a.itemId, b.itemId, time.ratio, time.pImprove, time.level, time.n,
-                       alloc.ratio if alloc else None, interop, both)
+    return PairMetrics(a.itemId, b.itemId, interop, both)
 
 
 def _kept(a: str, b: str, failed: set, verdicts: dict[str, Verdict]) -> bool:
@@ -40,6 +38,10 @@ def _kept(a: str, b: str, failed: set, verdicts: dict[str, Verdict]) -> bool:
 
 def _measured(s: MemberStats) -> bool:
     return all(m.name in s.metrics for m in METRICS if m.required)
+
+
+def _selected(s: MemberStats, perf: PerfMode) -> MemberStats:
+    return MemberStats(s.rowId, s.itemId, s.provider, s.algorithm, {k: v for k, v in s.metrics.items() if k in perf.names})
 
 
 def _configurations(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict]
@@ -55,8 +57,9 @@ def _configurations(groups: dict, rows: list[PrimitiveRow], measurements: dict[s
 
 
 def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict],
-                   verdicts: dict[str, Verdict] | None) -> list[GroupEvidence]:
-    """verdicts: the run-level screen verdicts by qualified name; a pair whose target lowers the status is left out."""
+                   verdicts: dict[str, Verdict] | None, perf: PerfMode) -> list[GroupEvidence]:
+    """verdicts: the run-level screen verdicts by qualified name; a pair whose target lowers the status is left out.
+    Only perf's metrics reach the evidence, so a decision never sees another."""
     v = verdicts or {}
     configs = _configurations(groups, rows, measurements)
     out, failed = [], failed_pairs(groups)
@@ -64,10 +67,10 @@ def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[st
         cs = []
         for key, members in sorted(configs[g["id"]].items(), key=lambda kv: str(kv[0])):
             members = sorted(members, key=lambda s: s.itemId)
-            measured = [s for s in members if _measured(s)]
-            pairs = tuple(_pair(a, b, pair_status(groups, a.itemId, b.itemId)) for a, b in permutations(measured, 2)
+            measured = [_selected(s, perf) for s in members if _measured(s)]
+            pairs = tuple(_pair(a, b, pair_status(groups, a.itemId, b.itemId), perf) for a, b in permutations(measured, 2)
                           if _kept(a.itemId, b.itemId, failed, v))
-            cs.append(Configuration(*key, tuple(members), pairs))
+            cs.append(Configuration(*key, tuple(_selected(s, perf) for s in members), pairs))
         engine = parse_qualified(groups["items"][str(g["members"][0])]["qualified"])[0]
         out.append(GroupEvidence(g["id"], g["description"], engine, g["family"], tuple(cs)))
     return out
