@@ -51,7 +51,7 @@ python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml
 
 - Writes `summary.md`; `throughput.png`, `latency.png`, `stability.png` when `analysis.charts` names them.
 - Writes `<metric>-vs-time.png` per count metric (`allocationCount`, a CPU event) in `benchmark.json`.
-- Summary columns: case, op, key, input, ops/s, MB/s, CoV, outliers.
+- Summary columns: case, op, key, input, mean time in `analysis.units.latency` (default ms/op), throughput in `analysis.units.throughput` (default MB/s; `-` where MB/s or MiB/s has no input size), CoV, outliers; values keep 4 significant figures, so a sub-ms time never reads 0.
 - Uses `metrics.timeNs.runs`, else `missing_field: metrics.timeNs.runs for <id>`; statistics on the runs `outliers.py` keeps.
 - Stability chart gate: `analysis.statistic.meanUpToCovPercent`, default 5%.
 - Without `prepared.yaml` the cases have no chart group; a warning says so.
@@ -67,13 +67,14 @@ python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.
 - Writes `<group id>-<group>/iqr-bars_<operation>_input-<size>.png` per chart group, operation and input size when `analysis.charts` names `iqrBars`.
 - Writes `<metric>-bars_*.png` and `chart-data-<metric>.json` per count metric; an explicit `analysis.charts` without `countBars` turns them off.
 - Statistics on every run; `manifest.yaml` `auditAgainstJetpack` compares them with the ones androidx reported.
-- Payload groups (symmetric cipher, hash, mac) show MB/s; the others us/op.
+- Payload groups (symmetric cipher, hash, mac) with an input size show `analysis.units.throughput` (default MB/s); the others `analysis.units.latency` per op (default ms/op). Statistics stay on ns/op.
 
 | file | holds |
 |---|---|
 | `stats.py` | per-case statistics: mean, sample SD, CoV (SD / mean), interpolated quantiles, IQR, QCD, headline choice |
 | `chart_input.py` | reads benchmark.json, chart groups from prepared.yaml, analysis settings |
 | `chart_model.py` | one case summarised in its display unit; count metrics |
+| `display_units.py` | `analysis.units`: ns/op to the latency and throughput units, checked; significant-figure numbers |
 | `chart_draw.py` | matplotlib drawing for both scripts |
 | `chart_report.py` | `summary.md`, `chart-data*.json`, `manifest.yaml` |
 

@@ -57,6 +57,18 @@ class GlobalDocumentTest {
         assertEquals(emptyList<AnalysisSettings.Chart>(), GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\nanalysis: {charts: []}\n")).analysis.charts)
     }
 
+    /** Display units default to ms and MB/s; a choice travels to the effective file, where the tools read it. */
+    @Test
+    fun theDisplayUnitsDefaultToMsAndMbPerSecondAndTravelToTheEffectiveFile() {
+        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: a.yaml}\n"))
+        assertEquals(AnalysisSettings.Units(AnalysisSettings.LatencyUnit.MS, AnalysisSettings.ThroughputUnit.MB_PER_SECOND), minimal.analysis.units)
+        val chosen = GlobalDocument.parse(codec.load(Fixtures.GLOBAL + "analysis: {units: {latency: us, throughput: ops/s}}\n"))
+        assertEquals(AnalysisSettings.Units(AnalysisSettings.LatencyUnit.US, AnalysisSettings.ThroughputUnit.OPS_PER_SECOND), chosen.analysis.units)
+        val built = EffectiveBuilder().build(chosen, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
+        val reread = EffectiveDocument.parse(codec.load(YamlCodec().dump(EffectiveDocument.of(built))))
+        assertEquals(chosen.analysis.units, reread.analysis.units)
+    }
+
     /** A bundled provider list is optional; written, it travels unchanged to effective.yaml for the build and the device. */
     @Test
     fun bundledProvidersAreOptionalAndTravelToTheEffectiveFile() {

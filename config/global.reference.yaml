@@ -35,6 +35,9 @@ analysis:                        # optional — how results are summarised and d
   statistic:                     # optional
     headline: auto               # optional, default auto — auto | median | mean. Which statistic leads in tables and charts; both are always computed
     meanUpToCovPercent: 5        # optional, default 5 — only read when headline is auto: the mean leads while a case's CoV (sample sd / mean) is within this many percent, the median above it
+  units:                         # optional — display only: results stay ns/op and ratios unitless; recorded in manifest.yaml
+    latency: ms                  # optional, default ms — ms | us | ns
+    throughput: MB/s             # optional, default MB/s — MB/s (10^6 bytes) | MiB/s | ops/s; MB/s and MiB/s only where a case has an input size
 
 providers:                       # optional — providers an app ships, measured beside the platform's (device runs)
   bundled: []                    # optional, default [] — each entry is built into the APK and appended after every platform provider, e.g.

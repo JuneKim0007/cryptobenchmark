@@ -3,7 +3,10 @@ package io.github.junekim0007.cryptobench.config.global
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Chart
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Headline
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.LatencyUnit
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Statistic
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.ThroughputUnit
+import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Units
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.choice
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
@@ -21,6 +24,9 @@ object AnalysisDocument {
     private const val DIR = "dir"
     private const val HEADLINE = "headline"
     private const val MEAN_UP_TO_COV_PERCENT = "meanUpToCovPercent"
+    private const val UNITS = "units"
+    private const val LATENCY = "latency"
+    private const val THROUGHPUT = "throughput"
 
     fun of(analysis: AnalysisSettings): Map<String, Any> = linkedMapOf(
         STATISTIC to linkedMapOf(
@@ -28,14 +34,27 @@ object AnalysisDocument {
             MEAN_UP_TO_COV_PERCENT to analysis.statistic.meanUpToCovPercent,
         ),
         CHARTS to analysis.charts.map { it.key },
+        UNITS to linkedMapOf(LATENCY to analysis.units.latency.key, THROUGHPUT to analysis.units.throughput.key),
     ).apply { analysis.dir?.let { put(DIR, it) } }
 
     fun parse(document: Map<String, Any>, path: String): AnalysisSettings {
-        expectKeys(document, listOf(STATISTIC, CHARTS, DIR), path)
+        expectKeys(document, listOf(STATISTIC, CHARTS, DIR, UNITS), path)
         val defaults = AnalysisSettings()
         val statistic = optionalSection(document, STATISTIC)?.let { statistic(it, "$path.$STATISTIC") } ?: defaults.statistic
         val charts = if (CHARTS in document) charts(optionalStrings(document, CHARTS), "$path.$CHARTS") else defaults.charts
-        return withPathInFailure(path) { AnalysisSettings(statistic, charts, optionalStringOrNull(document, DIR)) }
+        val units = optionalSection(document, UNITS)?.let { units(it, "$path.$UNITS") } ?: defaults.units
+        return withPathInFailure(path) { AnalysisSettings(statistic, charts, optionalStringOrNull(document, DIR), units) }
+    }
+
+    private fun units(document: Map<String, Any>, path: String): Units {
+        expectKeys(document, listOf(LATENCY, THROUGHPUT), path)
+        val defaults = Units()
+        val latency = optionalString(document, LATENCY)
+        val throughput = optionalString(document, THROUGHPUT)
+        return Units(
+            if (latency.isEmpty()) defaults.latency else choice("$path.$LATENCY", latency, LatencyUnit.entries) { it.key },
+            if (throughput.isEmpty()) defaults.throughput else choice("$path.$THROUGHPUT", throughput, ThroughputUnit.entries) { it.key },
+        )
     }
 
     private fun charts(names: List<String>, path: String): List<Chart> = names.map { name -> choice(path, name, Chart.entries) { it.key } }

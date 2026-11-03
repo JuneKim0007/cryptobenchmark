@@ -9,6 +9,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import chart_input  # noqa: E402
 import charts  # noqa: E402
+import display_units  # noqa: E402
 
 CALM = [100.0, 101.0, 99.0, 100.0, 100.0] * 10
 NOISY = [100.0] * 47 + [160.0, 170.0, 180.0]
@@ -57,12 +58,22 @@ class Charts(unittest.TestCase):
         self.assertEqual([50], manifest["runsPerCase"])
         self.assertEqual(2, manifest["noisy"])
 
-    def test_throughput_is_shown_for_payload_groups_and_microseconds_otherwise(self):
+    def test_throughput_is_shown_for_payload_groups_and_milliseconds_otherwise(self):
         root, _ = self.run_charts()
         data = {c["id"]: c for c in json.load(open(root / "chart-data.json"))}
         self.assertEqual("MB/s", data["a64"]["unit"])
         self.assertAlmostEqual(64 / 100.0 * 1000, data["a64"]["shown"]["median"], places=6)
-        self.assertEqual("us/op", data["g"]["unit"])
+        self.assertEqual("ms/op", data["g"]["unit"])
+        self.assertGreater(data["g"]["shown"]["median"], 0)
+
+    def test_the_units_follow_analysis_units_and_an_unknown_one_is_refused(self):
+        units = chart_input.settings({"analysis": {"units": {"latency": "us", "throughput": "ops/s"}}})["units"]
+        self.assertEqual({"latency": "us", "throughput": "ops/s"}, units)
+        self.assertEqual("0.000662", display_units.number(display_units.latency(662, {"latency": "ms"})))
+        self.assertIsNone(display_units.throughput(100, None, {"throughput": "MB/s"}))
+        self.assertEqual(1e7, display_units.throughput(100, None, {"throughput": "ops/s"}))
+        with self.assertRaises(ValueError):
+            chart_input.settings({"analysis": {"units": {"latency": "s"}}})
 
     def test_naming_other_charts_turns_the_bars_off_but_keeps_the_summary(self):
         self.write_effective({"runId": "r1", "analysis": {"charts": ["stability"]}})
@@ -101,6 +112,7 @@ class Charts(unittest.TestCase):
         self.assertEqual(chart_input.DEFAULTS["charts"], analysis["charts"])
         self.assertEqual(chart_input.DEFAULTS["headline"], analysis["statistic"]["headline"])
         self.assertEqual(chart_input.DEFAULTS["meanUpToCovPercent"], analysis["statistic"]["meanUpToCovPercent"])
+        self.assertEqual(chart_input.DEFAULTS["units"], analysis["units"])
 
 
 class AuditAgainstJetpack(unittest.TestCase):

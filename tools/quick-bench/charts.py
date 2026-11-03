@@ -4,7 +4,7 @@
 
 Reads what the run already wrote and draws only what analysis.charts in effective.yaml names (default: all, of
 which this file draws iqrBars; analyze.py draws throughput, latency and stability from the same list). Statistics are taken on the measured ns/op,
-then shown as MB/s or us/op.
+then shown in analysis.units (default MB/s for payload groups with an input size, ms/op otherwise).
 
     chart_input   what is read           chart_model   one case, summarised     chart_draw    matplotlib only
     chart_report  summary, data, manifest

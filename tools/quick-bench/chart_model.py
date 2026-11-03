@@ -1,11 +1,12 @@
 """One measured case as the charts and the summary need it: statistics on ns/op, shown in the unit that fits its group."""
 import re
 
+import display_units
 import stats
 from chart_input import UNIDENTIFIED
 
 AUDIT_TOLERANCE = 1e-9         # relative; stats.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement
-PAYLOAD_GROUPS = {1, 4, 5}      # symmetric-cipher, hash, mac: cost scales with the input, so MB/s means something
+PAYLOAD_GROUPS = {1, 4, 5}      # symmetric-cipher, hash, mac: cost scales with the input, so throughput means something
 
 
 def runs_of(case):
@@ -42,14 +43,16 @@ def summarize_case(case, groups, cfg):
     ns = stats.summarize(runs_of(case))
     group_id, group_label = groups.get(case["id"], UNIDENTIFIED)
     size = case.get("inputSize")
-    if group_id in PAYLOAD_GROUPS and size:       # monotone, so the quartiles swap ends; the mean is the throughput of the mean time
-        f = lambda t: size / t * 1000
+    units = cfg["units"]
+    if group_id in PAYLOAD_GROUPS and display_units.throughput(ns["median"], size, units) is not None:
+        # monotone, so the quartiles swap ends; the mean is the throughput of the mean time
+        f = lambda t: display_units.throughput(t, size, units)
         shown = dict(mean=f(ns["mean"]), median=f(ns["median"]), q1=f(ns["q3"]), q3=f(ns["q1"]), min=f(ns["max"]), max=f(ns["min"]))
-        unit = "MB/s"
+        unit = units["throughput"]
     else:
-        f = lambda t: t / 1000
+        f = lambda t: display_units.latency(t, units)
         shown = dict(mean=f(ns["mean"]), median=f(ns["median"]), q1=f(ns["q1"]), q3=f(ns["q3"]), min=f(ns["min"]), max=f(ns["max"]))
-        unit = "us/op"
+        unit = display_units.latency_label(units)
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": size,

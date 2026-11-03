@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
+import display_units  # noqa: E402
 from chart_model import op_slug, short, size_label  # noqa: E402
 
 NOISY_COLOR, CALM_COLOR = "#e07a1f", "#57068c"
@@ -24,7 +25,7 @@ def iqr_bars(items, group_label, operation, size, folder):
     ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
     ax.set_ylabel(items[0]["unit"])
     ax.grid(axis="y", alpha=.3)
-    if items[0]["unit"] == "us/op" and max(median) / max(min(median), 1e-9) > 200:
+    if items[0]["unit"].endswith("/op") and max(median) / max(min(median), 1e-300) > 200:
         ax.set_yscale("log")
     runs = ",".join(str(n) for n in sorted({c["ns"]["n"] for c in items}))
     ax.set_title(f"{group_label} · {op_slug(operation).replace('-', ' ')} · input {size_label(size)}\n"
@@ -71,18 +72,18 @@ def count_bars(items, metric_label, group_label, operation, size, folder, metric
     return path
 
 
-def count_vs_time(pairs, metric_label, out, metric):
+def count_vs_time(pairs, metric_label, out, metric, units):
     """Median count per call against median time per call, one point per case, both axes log; each point carries its own n."""
     fig, ax = plt.subplots(figsize=(8, 5.5))
     groups = sorted({c["groupLabel"] for c, _ in pairs})
     colors = plt.get_cmap("tab10")
     for i, name in enumerate(groups):
         pts = [(c, t) for c, t in pairs if c["groupLabel"] == name]
-        ax.scatter([t["ns"]["median"] / 1000 for _, t in pts], [max(c["stats"]["median"], 0.5) for c, _ in pts], s=22, color=colors(i % 10), label=name, alpha=.8)
+        ax.scatter([display_units.latency(t["ns"]["median"], units) for _, t in pts], [max(c["stats"]["median"], 0.5) for c, _ in pts], s=22, color=colors(i % 10), label=name, alpha=.8)
     ax.set_xscale("log")
     ax.set_yscale("log")
     zero = sum(1 for c, _ in pairs if c["stats"]["median"] == 0)
-    ax.set_xlabel(f"median time, us/op (n={','.join(str(n) for n in sorted({t['ns']['n'] for _, t in pairs}))} runs)")
+    ax.set_xlabel(f"median time, {display_units.latency_label(units)} (n={','.join(str(n) for n in sorted({t['ns']['n'] for _, t in pairs}))} runs)")
     ax.set_ylabel(f"median {metric_label} (n={','.join(str(n) for n in sorted({c['stats']['n'] for c, _ in pairs}))} runs; zero medians drawn at 0.5)")
     ax.set_title(f"{metric_label} against time, {len(pairs)} cases" + (f"; {zero} with a median of 0" if zero else ""), fontsize=10)
     ax.grid(alpha=.3, which="both")
@@ -114,24 +115,24 @@ GROUPS = [
 ]
 
 
-def throughput(rows, out):
+def throughput(rows, out, units):
     fig, axes = plt.subplots(1, len(GROUPS), figsize=(12, 5), sharey=True)
     for ax, (title, matches) in zip(axes, GROUPS):
         series = {}
         for r in rows:
-            if r["mbps"] and r["operation"] in ("ENCRYPT", "DIGEST", "COMPUTE_MAC") and matches(r):
+            if r["rate"] and r["operation"] in ("ENCRYPT", "DIGEST", "COMPUTE_MAC") and matches(r):
                 series.setdefault(label(r), []).append(r)
         for name, pts in sorted(series.items()):
             pts.sort(key=lambda r: r["inputSize"])
             xs = [r["inputSize"] for r in pts]
-            line, = ax.plot(xs, [r["mbps"] for r in pts], marker="o", label=name)
-            ax.fill_between(xs, [r["mbps_min"] for r in pts], [r["mbps_max"] for r in pts], color=line.get_color(), alpha=0.15)
+            line, = ax.plot(xs, [r["rate"] for r in pts], marker="o", label=name)
+            ax.fill_between(xs, [r["rate_min"] for r in pts], [r["rate_max"] for r in pts], color=line.get_color(), alpha=0.15)
         ax.set_xscale("log", base=2)
         ax.set_xlabel("input size (bytes)")
         ax.set_title(title)
         ax.grid(alpha=.3)
         ax.legend(fontsize=8)
-    axes[0].set_ylabel("MB/s")
+    axes[0].set_ylabel(units["throughput"])
     fig.suptitle("Throughput vs input size")
     fig.tight_layout()
     path = out / "throughput.png"
@@ -140,13 +141,13 @@ def throughput(rows, out):
     return path
 
 
-def latency(rows, out):
+def latency(rows, out, units):
     plt.figure(figsize=(8, 4.5))
     slow = [r for r in rows if r["type"] in ("Signature", "KeyPairGenerator", "KeyGenerator") or r["algorithm"].startswith("RSA")]
-    slow.sort(key=lambda r: -r["ops"])
+    slow.sort(key=lambda r: r["latency"])
     names = [f"{label(r)} {r['operation'].lower()}" + (f" {r['inputSize']}B" if r["inputSize"] else "") for r in slow]
-    plt.barh(names, [r["ops"] for r in slow], color="#4c72b0")
-    plt.xscale("log"); plt.xlabel("ops/s (log)"); plt.title("Asymmetric operations and key generation")
+    plt.barh(names, [r["latency"] for r in slow], color="#4c72b0")
+    plt.xscale("log"); plt.xlabel(f"mean time, {display_units.latency_label(units)} (log)"); plt.title("Asymmetric operations and key generation")
     path = out / "latency.png"
     plt.grid(axis="x", alpha=.3); plt.tight_layout(); plt.savefig(path, dpi=140, bbox_inches="tight"); plt.close()
     return path

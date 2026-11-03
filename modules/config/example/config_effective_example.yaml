@@ -18,6 +18,7 @@ policy: {onFailure: skip}
 analysis:
   statistic: {headline: auto, meanUpToCovPercent: 5.0}
   charts: [iqrBars, throughput, latency, stability]
+  units: {latency: ms, throughput: MB/s}
 bundledProviders:
 - {artifact: 'org.example:crypto-provider:1.0', create: org.example.crypto.ExampleProvider#newProvider,
   alias: ExampleBundled}

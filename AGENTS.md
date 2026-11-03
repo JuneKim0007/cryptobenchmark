@@ -71,7 +71,7 @@ scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` 
 scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
 scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, device selection, the temporary-folder warning
-scripts/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set, for the manifest and --identify
+scripts/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 scripts/scope_compile.py : compiles the android test sources with Gradle; the compiler's error lines
 scripts/scope_dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
 scripts/scope_generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure

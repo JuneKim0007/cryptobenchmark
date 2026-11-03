@@ -120,6 +120,15 @@ def test_paths_are_relative_to_the_manifest_and_exist():
                 assert not pathlib.PurePosixPath(relative).is_absolute() and (results / relative).is_file(), relative
 
 
+def test_the_display_units_are_recorded_from_effective_yaml():
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        files = layout(results, measured=False)
+        assert "units" not in written(results, "host", files)
+        files["effective"].write_text(yaml.safe_dump({"analysis": {"units": {"latency": "us", "throughput": "ops/s"}}}))
+        assert written(results, "host", files)["units"] == {"latency": "us", "throughput": "ops/s"}
+
+
 if __name__ == "__main__":
     tests = [value for name, value in sorted(globals().items()) if name.startswith("test_")]
     for test in tests:

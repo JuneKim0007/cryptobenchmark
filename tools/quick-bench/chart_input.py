@@ -4,9 +4,12 @@ import pathlib
 
 import yaml
 
+import display_units
+
 # Mirrors AnalysisSettings in :config. effective.yaml always carries these, so they apply only when that file is
 # missing; test_charts.py compares them with the committed effective example so the two cannot drift apart.
-DEFAULTS = {"charts": ["iqrBars", "throughput", "latency", "stability"], "headline": "auto", "meanUpToCovPercent": 5.0}
+DEFAULTS = {"charts": ["iqrBars", "throughput", "latency", "stability"], "headline": "auto", "meanUpToCovPercent": 5.0,
+            "units": {"latency": "ms", "throughput": "MB/s"}}
 UNIDENTIFIED = (0, "unidentified")      # ChartGroup.UNIDENTIFIED in :preparation
 
 
@@ -29,6 +32,7 @@ def settings(effective):
         "headline": statistic.get("headline", DEFAULTS["headline"]),
         "limit": float(statistic.get("meanUpToCovPercent", DEFAULTS["meanUpToCovPercent"])),
         "run_id": effective.get("runId") or "adhoc",
+        "units": display_units.check({**DEFAULTS["units"], **(analysis.get("units") or {})}),
         # additive: count-metric bars (allocationCount, CPU events) are drawn when the run has such a metric, unless an explicit
         # analysis.charts list leaves "countBars" out. DEFAULTS above stays what :config writes.
         "countBars": "charts" not in analysis or "countBars" in (analysis["charts"] or []),

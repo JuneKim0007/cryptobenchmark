@@ -33,7 +33,7 @@ modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
 modules/config/src/main/kotlin/global/ProvidersDocument.kt : providers section reader and writer; bundled list shared with effective
 modules/config/src/main/kotlin/global/RunDocument.kt : run section reader and writer
-modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic
+modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic, display units
 modules/config/src/main/kotlin/global/dto/BundledProvider.kt : one bundled provider and its validation: artifact, create, alias
 modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
 modules/config/src/main/kotlin/global/dto/Policy.kt : onFailure enum STOP, SKIP

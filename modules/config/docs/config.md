@@ -41,6 +41,8 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `dir` | unset: `<device folder>/chart/<run-id>` | non-blank; `<run-id>` in it is replaced by the run id |
 | | `statistic.headline` | `auto` | `auto`, `median`, `mean`; the statistic that leads in the chart summary |
 | | `statistic.meanUpToCovPercent` | `5` | `> 0`; `auto` leads with the mean at or below this CoV, else the median; also the stability limit |
+| | `units.latency` | `ms` | `ms`, `us`, `ns`; display only, results stay ns/op; else `invalid: analysis.units.latency` |
+| | `units.throughput` | `MB/s` | `MB/s` (10⁶ bytes), `MiB/s`, `ops/s`; MB/s and MiB/s only where a case has an input size; else `invalid: analysis.units.throughput` |
 | `providers` | `bundled` | `[]` | list of `{artifact, create, alias?}`; no duplicate artifact or alias |
 | | `bundled[].artifact` | required | `group:name:version`, no comma or whitespace; else `invalid_artifact` |
 | | `bundled[].create` | required | `fully.qualified.Class` (public no-argument constructor) or `fully.qualified.Class#staticFactory`; else `invalid_create` |
@@ -48,7 +50,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 
-`analysis` is read by `tools/quick-bench/analyze.py` and `charts.py` only (`docs/tools.md`).
+`analysis` is read by `tools/quick-bench/analyze.py` and `charts.py`; `scripts/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest, so a change reruns no measurement and applies from the next run's manifest.
 
 `providers.bundled` is for `--device` runs. `scripts/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, so it becomes an `implementation` dependency of `modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. Fields: `modules/environment/discovery/docs/probe.md`.
 

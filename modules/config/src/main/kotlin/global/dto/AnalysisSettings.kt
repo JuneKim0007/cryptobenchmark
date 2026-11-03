@@ -4,6 +4,7 @@ data class AnalysisSettings(
     val statistic: Statistic = Statistic(),
     val charts: List<Chart> = Chart.entries.toList(),
     val dir: String? = null,
+    val units: Units = Units(),
 ) {
 
     init {
@@ -32,4 +33,15 @@ data class AnalysisSettings(
         LATENCY("latency"),
         STABILITY("stability"),
     }
+
+    /** Display units only: results stay ns/op and ratios unitless, so a choice changes no number a decision reads. */
+    data class Units(
+        val latency: LatencyUnit = LatencyUnit.MS,
+        val throughput: ThroughputUnit = ThroughputUnit.MB_PER_SECOND,
+    )
+
+    enum class LatencyUnit(val key: String) { MS("ms"), US("us"), NS("ns") }
+
+    /** MB is 10^6 bytes; MB/s and MiB/s exist only where a case has an input size, ops/s everywhere. */
+    enum class ThroughputUnit(val key: String) { MB_PER_SECOND("MB/s"), MIB_PER_SECOND("MiB/s"), OPS_PER_SECOND("ops/s") }
 }

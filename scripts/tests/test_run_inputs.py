@@ -32,3 +32,8 @@ def test_the_config_covers_its_test_set(tmp_path):
     assert digests(tmp_path, BASE.replace("seed: 1", "seed: 2"))["config"] != first["config"]
     changed = digests(tmp_path, test_set="include: [{type: Mac}]\n")
     assert changed["config"] != first["config"] and changed["bundled"] == first["bundled"]
+
+
+def test_analysis_shows_results_and_reruns_nothing(tmp_path):
+    first = digests(tmp_path)
+    assert digests(tmp_path, BASE + "analysis: {units: {latency: us}, charts: []}\n") == first
