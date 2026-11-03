@@ -50,8 +50,8 @@ flowchart TD
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
 | `profiles.json` | build | schema 3: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract; build needs only the manifest's probe and trial: `runs`, `reason` and the default-run fields come from the trial (inventory's `runs` when present, itself the trial's), `measured` is null without a benchmark and `preparedKeySizes` null without `prepared.yaml`, never false or empty, so a group's `keySizes` is `[]` and `no_common_key_size` stays silent until a benchmark exists |
-| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem, and the gateway, model and effort that answered; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter and the screened-out item ids (none: as before screening) |
-| `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`) |
+| `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem, and the gateway, model and effort that answered; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter, with `refresh <token>` as its inputs after `assign --refresh`; `item` is `Item.key`, `<family>\|<type>\|<name>\|<provider>`, never the id |
+| `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`); `assign --refresh` makes a new one active, every item asked, and later runs read its token from the active charter and stay in it |
 | `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
 | `cursor.json` | assign | `next` pending id, `decided` and `dropped` counts, `knowledgeVersion` |
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
@@ -75,7 +75,9 @@ flowchart TD
 | description | fixed: code-made group of one algorithm: its canonical name, any key size, who holds the keys, and status |
 | model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |
 | groups.json | a screened-out item is in exactly one code-made group and never in a model group; a code-made group is exactly the one its key implies |
-| screen change | only the screened-out item ids join the charter fingerprint, the pending set being all the model is asked about: a change in which items are code-grouped starts a new outbox, a reverted one resumes its old outbox, and `report` on a stale outbox fails with `rerun assign`; a change of a code key, or among asked items' statuses, keeps the outbox and asks nothing, because gate A and `report` recompute the code-made groups from screen.json (`knowledge.json` catches up on the next assign) |
+| screen change | what is screened out is no charter input, since the model never sees code groups: every change keeps the outbox. A newly screened-out item's record adds no member and it joins its code group; one no longer screened out with no record is asked, one with a record goes back to its group. Gate A and `report` recompute the code-made groups from screen.json |
+| record key | ids are positional in the sorted items, so any added or removed item moves them; a record names `Item.key` and replay resolves it to today's id, so moved ids change nothing. A record whose item left (or is screened out) adds no member, and its answer still creates and amends groups, later answers may name them; a group with no member left is out of `knowledge.json` and `groups.json`, and its id stays taken for that outbox. A changed family is another key, so that item is asked again. Other facts of a name (`resolved`, the key contract) are not in the key: same name, same device id |
+| outbox from positions | one naming ids, with the screened-out ids as inputs, moves once to a keyed outbox at the next assign or guide (`grouping_assign/rekey.py`), when its old charter still hashes to its name, so the prompts and the screened-out ids are unchanged; no call. Otherwise `outbox_not_rekeyed` and its items are asked. The old one stays |
 | bare name | a screened-out name without mode or padding is its own canonical name, so its own code-made group, until discovery records what it resolves to |
 | resolved parameters | not in the key; a group whose members resolved a different digest or MGF1, compared by canonical digest name (`SHA1` is `SHA-1`), gets `resolved_parameters_differ` |
 
@@ -94,7 +96,7 @@ flowchart TD
 
 | Gate | When | Checks |
 |---|---|---|
-| A | before every pop | items and profiles valid; knowledge equals the projection of the outbox; code-made groups equal the ones screen.json implies; no record for a screened-out item |
+| A | before every pop | items and profiles valid; knowledge equals the projection of the outbox; code-made groups equal the ones screen.json implies |
 | B | after pop | item parses whole, carries no group, family and profile exist |
 | C | every answer | the answer contract above; `group` and `amend` name model-made groups only; the item has no outbox record yet |
 | D | after write | the record reads back equal; new knowledge validates |

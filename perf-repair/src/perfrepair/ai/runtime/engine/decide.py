@@ -15,14 +15,14 @@ from . import journal
 from ..agent import Conversations
 from .ask import Asked, Limits, ask
 from .events import TurnEvents, Where
-from .kind import DecisionKind, project
+from .kind import DecisionKind, item_of, project
 from .outbox import Outbox, activate
 
 LOG = logging.getLogger(__name__)
 
 
 def _errors(kind: DecisionKind, records: list[OutboxRecord], by_key: dict) -> str:
-    return "".join(json.dumps({"item": r.item, "label": kind.label(by_key[r.item]), "seq": r.seq,
+    return "".join(json.dumps({"item": r.item, "label": kind.label(item_of(kind, by_key, r.item)), "seq": r.seq,
                                "problems": list(r.problems)}) + "\n" for r in records if r.outcome == "dropped")
 
 

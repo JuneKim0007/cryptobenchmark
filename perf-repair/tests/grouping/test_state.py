@@ -22,7 +22,7 @@ def join(gid, amend=()):
 
 
 def record(seq, item, answer=None, problems=()):
-    return OutboxRecord(seq, str(item), "dropped" if answer is None else "decided", 1, 1,
+    return OutboxRecord(seq, BY_ID[item].key, "dropped" if answer is None else "decided", 1, 1,
                         answer.to_json() if answer else None, problems)
 
 
@@ -32,7 +32,7 @@ RECORDS = [record(1, 1, new("a-m1")), record(2, 2, join("a-m1", (Amendment("a-m1
 def project(records, by_id):
     k = Knowledge()
     for r in records:
-        apply(k, r, by_id[int(r.item)])
+        apply(k, r, next(i for i in by_id.values() if i.key == r.item))
     return k
 
 

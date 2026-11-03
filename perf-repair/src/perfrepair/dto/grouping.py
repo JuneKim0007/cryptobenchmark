@@ -52,7 +52,17 @@ class Item:
 
     @property
     def key(self) -> str:
-        return str(self.id)
+        """What a record names: ids are positional and move when items change; a new family makes it a new question."""
+        return SEPARATOR.join((self.family, self.qualified))
+
+    @classmethod
+    def from_key(cls, key: str) -> "Item":
+        """An item a record names that items.json no longer holds; id 0 is no item."""
+        parts = key.split(SEPARATOR)
+        if len(parts) != 4:
+            raise ValueError(f"outbox_unkeyed: a record names item {key!r}; run grouping assign to rekey its outbox")
+        family, engine_type, name, provider = parts
+        return cls(0, engine_type, name, provider, family)
 
     def to_json(self) -> dict:
         return asdict(self)

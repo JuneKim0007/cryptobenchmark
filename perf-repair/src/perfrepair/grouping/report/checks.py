@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from ...dto.grouping_output import checks_document
 from ...files import write_json
 from ...log import step
@@ -25,6 +27,14 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
 
 
 def _report(paths: GroupingPaths, families: Families | None) -> dict:
+    documents = report_documents(paths, families)
+    for path, doc in documents.items():
+        write_json(path, doc)
+    return documents[paths.groups]
+
+
+def report_documents(paths: GroupingPaths, families: Families | None = None) -> dict[Path, dict]:
+    """What the finished grouping's files should hold, the outbox being the commit; nothing written."""
     kind = GroupingKind(paths, families)
     records = active_outbox(paths.root).records()
     knowledge = project(kind, records)
@@ -33,8 +43,6 @@ def _report(paths: GroupingPaths, families: Families | None) -> dict:
     require("grouping", [] if unfinished is None else [f"item {unfinished} is not decided yet; run assign first"])
     interop = imported(paths)
     findings = check(knowledge, kind.by_id, kind.profiles) + check_interop(interop, kind.by_id)
-    write_json(paths.checks, checks_document(findings))
     document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop, kind.screen)
     require("groups.json", validate_output(document, kind.by_id, kind.screen))
-    write_json(paths.groups, document)
-    return document
+    return {paths.knowledge: knowledge.to_json(), paths.checks: checks_document(findings), paths.groups: document}

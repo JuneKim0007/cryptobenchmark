@@ -25,16 +25,19 @@ def cursor(items: list[Item], records: list[OutboxRecord]) -> Cursor:
                   sum(r.outcome == "dropped" for r in records), len(records))
 
 
-def apply(knowledge: Knowledge, record: OutboxRecord, item: Item) -> None:
+def apply(knowledge: Knowledge, record: OutboxRecord, item: Item, asked: bool = True) -> None:
+    """asked False: the item left, or is screened out now; its record still names groups, it adds no member."""
     if record.outcome == "dropped":
-        knowledge.dropped.append(item.id)
+        if asked:
+            knowledge.dropped.append(item.id)
     else:
         a = Answer.from_json(record.decision)
         if not a.joins:
-            if a.newGroupId in knowledge.groups:
+            if a.newGroupId in knowledge.groups or a.newGroupId in knowledge.retired:
                 raise ValueError(f"record {record.seq}: group {a.newGroupId} already exists")
-            knowledge.groups[a.newGroupId] = Group(item.family, a.newGroupDescription)
-        knowledge.groups[a.target].members.append(item.id)
+            knowledge.retired[a.newGroupId] = Group(item.family, a.newGroupDescription)
+        if asked:
+            knowledge.filled(a.target).members.append(item.id)
         for amendment in a.amend:
-            knowledge.groups[amendment.group].description = amendment.description
+            knowledge.held(amendment.group).description = amendment.description
     knowledge.version += 1

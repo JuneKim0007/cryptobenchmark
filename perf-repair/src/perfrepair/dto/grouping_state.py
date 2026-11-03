@@ -55,6 +55,16 @@ class Knowledge:
     version: int = 0
     groups: dict[str, Group] = field(default_factory=dict)
     dropped: list[int] = field(default_factory=list)
+    # groups whose members all left: never shown or saved, kept so a record can name them and no answer reuses their id
+    retired: dict[str, Group] = field(default_factory=dict)
+
+    def held(self, group: str) -> Group:
+        return self.groups[group] if group in self.groups else self.retired[group]
+
+    def filled(self, group: str) -> Group:
+        if group in self.retired:
+            self.groups[group] = self.retired.pop(group)
+        return self.groups[group]
 
     def group_of(self, item: int) -> str | None:
         return next((gid for gid, g in self.groups.items() if item in g.members), None)

@@ -48,7 +48,7 @@ def test_an_item_no_conversation_answers_is_dropped_and_the_run_continues(paths)
         return by_name(m)
     knowledge = group(paths, ScriptedConversations(answer), Limits(turns=2, sessions=2))
     dropped = [r for r in records(paths) if r.outcome == "dropped"]
-    assert len(dropped) == 1 and knowledge.dropped == [int(dropped[0].item)]
+    assert len(dropped) == 1 and dropped[0].item == "digest.none|TypeD|H1|P1" and len(knowledge.dropped) == 1
     errors = [json.loads(line) for line in paths.errors.read_text().splitlines()]
     assert errors[0]["label"].startswith("TypeD|H1") and "model refused: declined" in errors[0]["problems"][0]
 

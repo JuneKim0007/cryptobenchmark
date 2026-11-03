@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import secrets
+
 from ....dto.decision import OutboxRecord
 from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict
 from ....files import read_json, write_json
+from ...runtime.engine import charter_file
 from ...runtime.engine.kind import replay_problems
+from ...runtime.engine.outbox import active_outbox
 from ...runtime.prompt import PromptLibrary
 from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
 from ....validation.grouping.code_groups import validate_code_groups
@@ -14,17 +18,23 @@ from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....validation.screen import read_checked_screen
 from ....catalog.families import Families
-from ....run_dir import GroupingPaths
-from ....screen.groups import charter_inputs, code_groups, screened_out
+from ....run_dir import CHARTER, GroupingPaths
+from ....screen.groups import code_groups, screened_out
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
 
 NAME = "parse/grouping-assign"
+REFRESH = "refresh "
 
 
 def charter(library: PromptLibrary, inputs: str = "") -> Charter:
     return library.charter(NAME, SCHEMA, inputs, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
+
+
+def refresh_inputs() -> str:
+    """Run inputs no outbox holds yet, so every item is asked into a new one."""
+    return REFRESH + secrets.token_hex(6)
 
 
 class GroupingKind:
@@ -39,13 +49,22 @@ class GroupingKind:
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
         self.screen: dict[int, Verdict] | None = read_checked_screen(paths)
+        self._asked = {i.key for i in self.pending()}
 
     @property
     def inputs(self) -> str:
-        return charter_inputs(self.screen)
+        """The active outbox's refresh, kept so a later run stays in it; what is screened out is no input: its records just add no member."""
+        active = active_outbox(self.paths.root)
+        if active.fingerprint is None:
+            return ""
+        kept = charter_file.inputs(active.directory / CHARTER)
+        return kept if kept.startswith(REFRESH) else ""
 
     def items(self) -> list[Item]:
         return self._items
+
+    def gone(self, key: str) -> Item:
+        return Item.from_key(key)
 
     def pending(self) -> list[Item]:
         return [i for i in self._items if not screened_out((self.screen or {}).get(i.id))]
@@ -77,15 +96,12 @@ class GroupingKind:
         return (None if problems else answer.to_json()), problems
 
     def apply(self, knowledge: Knowledge, item: Item, record: OutboxRecord) -> None:
-        apply(knowledge, record, item)
+        apply(knowledge, record, item, item.key in self._asked)
 
     def validate(self, knowledge: Knowledge, records: list[OutboxRecord]) -> list[str]:
         problems = validate_items(self._items, self.profiles, self.families)
         problems += validate_knowledge(knowledge, self.by_id, self.families)
         problems += validate_code_groups(knowledge.groups, self.by_id, self.screen)
-        asked = {i.key for i in self.pending()}
-        problems += [f"record {r.seq}: item {r.item} is grouped by code, not asked; rerun assign"
-                     for r in records if r.item not in asked]
         return problems + replay_problems(self, knowledge, records)
 
     def write(self, knowledge: Knowledge, records: list[OutboxRecord]) -> None:

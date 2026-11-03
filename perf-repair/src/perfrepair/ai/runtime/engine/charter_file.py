@@ -31,6 +31,12 @@ def record(path: Path, charter: Charter) -> None:
         raise CharterMismatch(f"charter_mismatch: {path} does not hold the charter {charter.fingerprint}")
 
 
+def inputs(path: Path) -> str:
+    """The run inputs of a recorded charter; none when it has no charter.json."""
+    path = Path(path)
+    return read_json(path)["inputs"] if path.is_file() else ""
+
+
 def problems(path: Path, fingerprint: str) -> list[str]:
     """What is wrong with the charter.json that should hash to fingerprint."""
     path = Path(path)

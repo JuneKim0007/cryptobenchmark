@@ -52,7 +52,7 @@ def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Famil
     if a.newGroupId:
         if not SLUG.match(a.newGroupId):
             problems.append(f"newGroup.id {a.newGroupId!r} must match {SLUG.pattern}")
-        if a.newGroupId in knowledge.groups:
+        if a.newGroupId in knowledge.groups or a.newGroupId in knowledge.retired:
             problems.append(f"newGroup.id {a.newGroupId!r} already exists; join it or choose another id")
         if a.newGroupId in families.by_id:
             problems.append(f"newGroup.id {a.newGroupId!r} is a family id")

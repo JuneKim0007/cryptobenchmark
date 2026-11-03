@@ -47,7 +47,8 @@ def test_without_screen_json_every_item_is_asked(paths):
 def test_broken_items_are_grouped_by_code_per_canonical_key_and_never_asked(paths):
     screen(paths)
     knowledge, agent = assign(paths)
-    assert agent.started == 3 and {r.item for r in active_outbox(paths.root).records()} == {"1", "2", "5"}
+    assert agent.started == 3 and len(active_outbox(paths.root).records()) == 3
+    assert not {r.item for r in active_outbox(paths.root).records()} & {GroupingKind(paths, FAMILIES).by_id[n].key for n in (3, 4, 6)}
     assert sorted(code_groups_of(knowledge).values()) == [[3, 4], [6]]
     assert all(not SLUG.match(gid) for gid in code_groups_of(knowledge))
     assert json.loads(paths.cursor.read_text())["next"] is None
@@ -93,21 +94,27 @@ def test_an_answer_may_not_join_or_amend_a_code_made_group(paths):
     assert gid not in kind.render(kind.by_id[3], knowledge).text
 
 
-def test_a_screen_change_after_assign_rotates_the_outbox_and_reverting_resumes(paths):
+def test_a_screen_change_after_assign_asks_nothing_and_reverting_restores_it(paths):
     screen(paths, {})
     before, _ = assign(paths)
     old = active_fingerprint(paths.root)
     screen(paths, {6: "H1"})
-    with pytest.raises(ValidationFailed, match="item 6 is grouped by code"):
-        report(paths, FAMILIES)
     after, agent = assign(paths)
-    assert active_fingerprint(paths.root) != old and agent.started == 5
+    assert active_fingerprint(paths.root) == old and agent.started == 0
     assert list(code_groups_of(after).values()) == [[6]]
-    report(paths, FAMILIES)
+    assert report(paths, FAMILIES)["items"]["6"]["screen"] == "broken"
     screen(paths, {})
     reverted, agent = assign(paths)
     assert active_fingerprint(paths.root) == old and agent.started == 0
     assert reverted.to_json() == before.to_json()
+
+
+def test_an_item_no_longer_screened_out_is_the_only_one_asked(paths):
+    screen(paths, {6: "H1"})
+    assign(paths)
+    screen(paths, {})
+    _, agent = assign(paths)
+    assert agent.started == 1
 
 
 def test_validate_output_holds_broken_items_to_their_code_groups(paths):

@@ -17,6 +17,7 @@ def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
     for f in findings:
         if f.group:
             by_group.setdefault(f.group, []).append(f.kind)
+    ids = {item.key: n for n, item in items.items()}
     used = sorted({g.family for g in k.groups.values()} | {items[m].family for m in k.dropped})
     return {
         "schemaVersion": GROUPS_SCHEMA_VERSION,
@@ -29,6 +30,7 @@ def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
                            "measured": profiles[i].measured, "resolved": items[i].resolved,
                            "keyContract": profiles[i].keyContract,
                            "screen": screen[i].status if screen else None} for i in sorted(items)},
-        "dropped": [{"item": int(r.item), "problems": list(r.problems)} for r in records if r.outcome == "dropped"],
+        "dropped": [{"item": ids[r.item], "problems": list(r.problems)} for r in records
+                    if r.outcome == "dropped" and ids.get(r.item) in k.dropped],
         "interop": interop_section(interop),
     }

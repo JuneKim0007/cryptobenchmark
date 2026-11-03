@@ -16,11 +16,6 @@ def _key(item: Item, verdict: Verdict) -> tuple:
     return item.family, verdict.status, verdict.canonical, verdict.providerHeld
 
 
-def charter_inputs(verdicts: dict[int, Verdict] | None) -> str:
-    """Only what changes what assign asks: the screened-out ids. The model never sees code groups; gate A recomputes them."""
-    return "\n".join(str(k) for k, v in sorted((verdicts or {}).items()) if screened_out(v))
-
-
 def code_group_id(item: Item, verdict: Verdict) -> str:
     return CODE_PREFIX + hashlib.sha256(json.dumps(_key(item, verdict)).encode()).hexdigest()[:10]
 

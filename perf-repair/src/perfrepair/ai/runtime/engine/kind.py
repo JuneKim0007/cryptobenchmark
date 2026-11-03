@@ -15,7 +15,8 @@ class DecisionKind(Protocol):
     name: str
 
     def items(self) -> list:
-        """Every item a record may name: the lookup list of projections and replay."""
+        """Every item a record may name: the lookup list of projections and replay; a kind whose items can leave between
+        runs also has gone(key), the stand-in for a record's item that left."""
 
     def pending(self) -> list:
         """The items to ask, a subset of items(); a kind that settles none in code returns items()."""
@@ -40,11 +41,15 @@ class DecisionKind(Protocol):
     def write(self, state, records: list[OutboxRecord]) -> None: ...
 
 
+def item_of(kind: DecisionKind, by_key: dict, key: str):
+    return by_key[key] if key in by_key or not hasattr(kind, "gone") else kind.gone(key)
+
+
 def project(kind: DecisionKind, records: list[OutboxRecord]):
     by_key = {i.key: i for i in kind.items()}
     state = kind.empty()
     for r in records:
-        kind.apply(state, by_key[r.item], r)
+        kind.apply(state, item_of(kind, by_key, r.item), r)
     return state
 
 

@@ -50,12 +50,12 @@ src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
 src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations; each turn's model latency
-src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator
+src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator; a recorded charter's inputs
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`; start, turn, decision and end events
 src/perfrepair/ai/runtime/engine/events.py : Where (stage, step, app); TurnEvents: each model turn and decision as an event with tokens, cost, latency and its journal line or outbox record
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append, line count and read; audit only
-src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask), project(kind, records), replay_problems: version count and replay equality
-src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer
+src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask), item_of, project(kind, records), replay_problems: version count and replay equality
+src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer; carry: another outbox's records into a charter's
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
 src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth
 src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
