@@ -13,6 +13,7 @@ from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
 from ...run_dir import GroupingPaths
 from ...screen.catalog import Catalog
+from ...screen.groups import grouped_by_code
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
@@ -26,9 +27,11 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
                 families: Families | None = None, echo=print) -> GroupingPaths:
     """reviewer: given only with device.screening.aiReview; it classifies the unknown items before screen.json is written."""
     with step("grouping", "build") as s:
-        paths, items, verdicts = _build(manifest_path, run, catalog, reviewer, families, echo)
+        paths, items, verdicts, profiles = _build(manifest_path, run, catalog, reviewer, families, echo)
         s.count(items=len(items), verdicts=len(verdicts),
-                codeGrouped=sum(1 for v in verdicts.values() if v.status in CODE_GROUPED))
+                codeGrouped=sum(1 for v in verdicts.values() if v.status in CODE_GROUPED),
+                signatureGrouped=sum(1 for i in items if grouped_by_code(i.id, verdicts, profiles)
+                                     and verdicts[i.id].status not in CODE_GROUPED))
         s.wrote(paths.screen, paths.profiles, paths.items)
     return paths
 
@@ -41,7 +44,7 @@ def _screened(context: RunContext, items, profiles, catalog: Catalog) -> dict:
 
 
 def _build(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None, families: Families | None,
-           echo) -> tuple[GroupingPaths, list, dict]:
+           echo) -> tuple[GroupingPaths, list, dict, dict]:
     context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])
@@ -61,4 +64,4 @@ def _build(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer 
     # screen.json first: its absence reads as "built without screening"; any later partial rename fails its digests
     write_texts([(paths.screen, json_text(screen_document(verdicts, catalog.identity(), built, review))),
                  (paths.profiles, profiles_text), (paths.items, items_text)])
-    return paths, items, verdicts
+    return paths, items, verdicts, profiles

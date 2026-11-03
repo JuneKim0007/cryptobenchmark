@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from ...dto.grouping import Item, read_items
+from ...dto.grouping import Item, Profile, read_items, read_profiles
 from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
 from ...dto.grouping_state import Group
 from ...dto.screen import Verdict
@@ -13,8 +13,9 @@ from ..screen import read_checked_screen
 from .code_groups import validate_code_groups
 
 
-def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None = None) -> list[str]:
-    """screen: screen.json's verdicts, None without it; a screened-out item is grouped by code, never asked."""
+def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None = None,
+                    profiles: dict[int, Profile] | None = None) -> list[str]:
+    """screen: screen.json's verdicts, None without it; a screened-out item or a decided signature is grouped by code, never asked."""
     problems = []
     if doc.get("schemaVersion") != GROUPS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {GROUPS_SCHEMA_VERSION}")
@@ -28,7 +29,7 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
         problems.append("no interop section; rerun grouping report")
     if set(doc["items"]) != {str(i) for i in items}:
         problems.append("items index differs from items.json")
-    problems += _screen_problems(doc, items, screen)
+    problems += _screen_problems(doc, items, screen, profiles or {})
     for g in doc["groups"]:
         if g["family"] not in doc["families"]:
             problems.append(f"group {g['id']}: family {g['family']} is not listed")
@@ -41,16 +42,18 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
     return problems
 
 
-def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None) -> list[str]:
+def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None,
+                     profiles: dict[int, Profile]) -> list[str]:
     status = {str(n): v.status for n, v in (screen or {}).items()}
     problems = [f"item {k}: screen {e.get('screen')!r}, screen.json says {status.get(k)!r}"
                 for k, e in sorted(doc["items"].items()) if e.get("screen") != status.get(k)]
     groups = {g["id"]: Group(g["family"], g.get("description", ""), list(g["members"])) for g in doc["groups"]}
-    return problems + validate_code_groups(groups, items, screen)
+    return problems + validate_code_groups(groups, items, screen, profiles)
 
 
 def read_groups(paths: GroupingPaths) -> dict:
     document = read_json(paths.groups)
     screen = read_checked_screen(paths)
-    require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}, screen))
+    profiles = read_profiles(read_json(paths.profiles)) if screen is not None else {}
+    require("groups.json", validate_output(document, {i.id: i for i in read_items(read_json(paths.items))}, screen, profiles))
     return document

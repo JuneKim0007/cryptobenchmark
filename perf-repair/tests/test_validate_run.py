@@ -1,3 +1,4 @@
+import pytest
 import json
 
 from test_stages import run  # noqa: F401  (the stage fixture)
@@ -15,6 +16,7 @@ def test_a_hand_edited_knowledge_is_caught(run):
     assert validate_run(run, screening_catalog(None))["grouping"]
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_an_active_switched_to_an_older_outbox_is_caught(run):
     root = GroupingPaths(run).root / "outbox"
     current = (root / "active").read_text().strip()

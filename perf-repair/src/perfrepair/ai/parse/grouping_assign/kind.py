@@ -19,7 +19,7 @@ from ....validation.grouping.knowledge import validate_knowledge
 from ....validation.screen import read_checked_screen
 from ....catalog.families import Families
 from ....run_dir import CHARTER, GroupingPaths
-from ....screen.groups import code_groups, screened_out
+from ....screen.groups import code_groups, grouped_by_code
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
@@ -67,10 +67,10 @@ class GroupingKind:
         return Item.from_key(key)
 
     def pending(self) -> list[Item]:
-        return [i for i in self._items if not screened_out((self.screen or {}).get(i.id))]
+        return [i for i in self._items if not grouped_by_code(i.id, self.screen, self.profiles)]
 
     def empty(self) -> Knowledge:
-        return Knowledge(groups=code_groups(self._items, self.screen))
+        return Knowledge(groups=code_groups(self._items, self.screen, self.profiles))
 
     def label(self, item: Item) -> str:
         return item.qualified
@@ -92,7 +92,7 @@ class GroupingKind:
 
     def check(self, item: Item, text: str, knowledge: Knowledge) -> tuple[dict | None, list[str]]:
         answer, problems = parse_answer(text)
-        problems = problems or validate_answer(answer, item, knowledge, self.families)
+        problems = problems or validate_answer(answer, item, knowledge, self.families, self.profiles)
         return (None if problems else answer.to_json()), problems
 
     def apply(self, knowledge: Knowledge, item: Item, record: OutboxRecord) -> None:
@@ -101,7 +101,7 @@ class GroupingKind:
     def validate(self, knowledge: Knowledge, records: list[OutboxRecord]) -> list[str]:
         problems = validate_items(self._items, self.profiles, self.families)
         problems += validate_knowledge(knowledge, self.by_id, self.families)
-        problems += validate_code_groups(knowledge.groups, self.by_id, self.screen)
+        problems += validate_code_groups(knowledge.groups, self.by_id, self.screen, self.profiles)
         return problems + replay_problems(self, knowledge, records)
 
     def write(self, knowledge: Knowledge, records: list[OutboxRecord]) -> None:

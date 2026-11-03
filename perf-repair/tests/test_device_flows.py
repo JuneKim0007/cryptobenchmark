@@ -19,6 +19,7 @@ APP = F / "app"
 FOLDER = "fake-api36-00000000"
 BUNDLED_FIRST = "bundled: [{artifact: 'g:a:1', create: Aaa}]"
 OLD_ITEMS = 4
+pytestmark = pytest.mark.usefixtures("asked_by_model")
 
 
 class Flow:

@@ -3,7 +3,9 @@ import os
 
 import pytest
 
+from perfrepair.catalog.interchange import Interchange
 from perfrepair.config import device_results, dotenv, load
+from perfrepair.grouping import signature
 from perfrepair.log.attach import SINK
 
 
@@ -28,3 +30,9 @@ def detached_log():
     SINK.close()
     logger.handlers[:] = handlers
     logger.setLevel(level)
+
+
+@pytest.fixture
+def asked_by_model(monkeypatch):
+    """No interchange rule, so every item not screened out is asked: for tests of asking, whatever the fixture's names."""
+    monkeypatch.setattr(signature, "interchange", lambda: Interchange({}, frozenset(), ()))

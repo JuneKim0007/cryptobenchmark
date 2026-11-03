@@ -131,6 +131,7 @@ def test_build_with_a_reviewer_applies_the_answers_and_writes_the_candidates(rev
     assert "className: a.B" in message and "trial: instantiates" in message and "id 1\n" not in message
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_a_model_deprecated_item_is_grouped_by_code_and_never_asked_by_assign(reviewed):
     paths, _ = reviewed
     kind = GroupingKind(paths)

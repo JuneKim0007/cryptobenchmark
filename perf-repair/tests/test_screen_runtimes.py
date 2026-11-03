@@ -73,7 +73,7 @@ def test_each_item_gets_one_verdict_and_the_counts_are_pinned(runtime):
 @pytest.mark.parametrize("runtime", RUNTIMES)
 def test_every_screened_out_item_is_in_exactly_the_code_group_its_key_implies(runtime):
     items, verdicts = loaded(runtime)
-    groups = code_groups(items, verdicts)
+    groups = code_groups(items, verdicts, {})
     by_id = {i.id: i for i in items}
     placed = Counter(m for g in groups.values() for m in g.members)
     out = {i.id for i in items if verdicts[i.id].status in CODE_GROUPED}
@@ -162,7 +162,7 @@ def test_the_platform_gate_flips_at_target_sdk_28_not_27():
 def test_code_group_ids_are_the_same_across_two_builds(runtime):
     first, again = loaded(runtime), load(runtime)
     assert first == again
-    assert code_groups(*first) == code_groups(*again)
+    assert code_groups(*first, {}) == code_groups(*again, {})
 
 
 def test_code_group_ids_are_the_same_across_runtimes_for_the_same_key():
@@ -183,5 +183,5 @@ def test_code_group_ids_are_the_same_across_runtimes_for_the_same_key():
 @pytest.mark.parametrize("runtime", RUNTIMES)
 def test_no_code_group_mixes_a_key_held_inside_the_provider_with_any_other(runtime):
     items, verdicts = loaded(runtime)
-    for group in code_groups(items, verdicts).values():
+    for group in code_groups(items, verdicts, {}).values():
         assert len({verdicts[m].providerHeld for m in group.members}) == 1

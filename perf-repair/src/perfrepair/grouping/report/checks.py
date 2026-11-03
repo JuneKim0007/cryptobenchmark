@@ -44,5 +44,5 @@ def report_documents(paths: GroupingPaths, families: Families | None = None) -> 
     interop = imported(paths)
     findings = check(knowledge, kind.by_id, kind.profiles) + check_interop(interop, kind.by_id)
     document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop, kind.screen)
-    require("groups.json", validate_output(document, kind.by_id, kind.screen))
+    require("groups.json", validate_output(document, kind.by_id, kind.screen, kind.profiles))
     return {paths.knowledge: knowledge.to_json(), paths.checks: checks_document(findings), paths.groups: document}

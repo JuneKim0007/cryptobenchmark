@@ -145,6 +145,7 @@ def test_a_run_without_grouping_says_how_to_make_it(run):
     assert "stop missing_device_stage" in lines[-1] and "grouping assign --device-results <device>" in lines[-1]
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_a_named_folder_with_items_undecided_stops_and_names_how_many(run):
     shutil.rmtree(GroupingPaths(run).root / "outbox")
     g, lines = guide(run, DRY_RUN)
@@ -160,6 +161,7 @@ def test_a_named_folder_whose_groups_json_went_missing_is_rebuilt_with_no_call(r
     assert GroupingPaths(run).groups.is_file()
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_singleton_groups_leave_no_options(tmp_path):
     from perfrepair.data_handler.inbound.__main__ import main as inbound
     from perfrepair.grouping.build.stage import build_stage
@@ -222,6 +224,7 @@ def _from_root(tmp_path, capsys):
     return code, [l for l in capsys.readouterr().out.splitlines() if l.startswith(("device ", "guide "))]
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     code, first = _from_root(tmp_path, capsys)

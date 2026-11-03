@@ -1,4 +1,5 @@
 """Each static step's start and end events with its counts and file digests, on the guide's two fixture chains."""
+import pytest
 from test_guide import APP, F, FAKE_ROOT, _from_root, first_option, guide, run_steps
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -29,6 +30,7 @@ def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_
                                                                     ("probe", "benchmark", "inbound", "screen", "grouping")]
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_inbound_build_screen_assign_report_app_and_dossier_end_with_counts(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     _from_root(tmp_path, capsys)
@@ -37,7 +39,7 @@ def test_inbound_build_screen_assign_report_app_and_dossier_end_with_counts(tmp_
     inbound = _ends(events, "inbound")[0]
     assert set(inbound.data["counts"]) == {"rows", "logEntries", "records", "warnings"}
     build = _ends(events, "grouping", "build")[0]
-    assert set(build.data["counts"]) == {"items", "verdicts", "codeGrouped"}
+    assert set(build.data["counts"]) == {"items", "verdicts", "codeGrouped", "signatureGrouped"}
     assert build.data["files"] == {f"grouping/{n}": sha256_file(device / "grouping" / n)
                                    for n in ("screen.json", "profiles.json", "items.json")}
     screen = _ends(events, "screening", "screen")[0]

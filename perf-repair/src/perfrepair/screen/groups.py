@@ -3,13 +3,25 @@ from __future__ import annotations
 import hashlib
 import json
 
-from ..dto.grouping import Item
+from ..dto.grouping import Item, Profile
 from ..dto.grouping_state import CODE_PREFIX, Group
 from ..dto.screen import CODE_GROUPED, Verdict
+from ..dto.signature import UNKNOWN, Signature
 
 
 def screened_out(verdict: Verdict | None) -> bool:
     return verdict is not None and verdict.status in CODE_GROUPED
+
+
+def decided_signature(profile: Profile | None) -> Signature | None:
+    signature = profile.signature if profile else None
+    return signature if signature is not None and signature.decided else None
+
+
+def grouped_by_code(item: int, verdicts: dict[int, Verdict] | None, profiles: dict[int, Profile]) -> bool:
+    """Never without screen.json: runs built before screening ask every item."""
+    verdict = (verdicts or {}).get(item)
+    return verdict is not None and (screened_out(verdict) or decided_signature(profiles.get(item)) is not None)
 
 
 def _key(item: Item, verdict: Verdict) -> tuple:
@@ -20,16 +32,29 @@ def code_group_id(item: Item, verdict: Verdict) -> str:
     return CODE_PREFIX + hashlib.sha256(json.dumps(_key(item, verdict)).encode()).hexdigest()[:10]
 
 
+def signature_group_id(item: Item, signature: Signature) -> str:
+    return CODE_PREFIX + hashlib.sha256(json.dumps((item.family, "signature", signature.identity)).encode()).hexdigest()[:10]
+
+
+def describe_signature(signature: Signature) -> str:
+    shown = ", ".join(f"{c.name}={c.value}" for c in signature.components if c.status != UNKNOWN)
+    assumed = f"; assumed by convention: {', '.join(signature.assumed)}" if signature.assumed else ""
+    return (f"Code-made group by signature, no model decided it: {shown}{assumed}; "
+            "its members are that function from each provider, at any key size.")
+
+
 def describe(verdict: Verdict) -> str:
     keys = "keys inside the provider" if verdict.providerHeld else "keys the application holds"
     return (f"Code-made group of one algorithm, no model decided it: {verdict.canonical} (any key size), {keys}, "
             f"screened {verdict.status}; its members are that algorithm from each provider.")
 
 
-def code_groups(items: list[Item], verdicts: dict[int, Verdict] | None) -> dict[str, Group]:
+def code_groups(items: list[Item], verdicts: dict[int, Verdict] | None, profiles: dict[int, Profile]) -> dict[str, Group]:
     groups: dict[str, Group] = {}
     for i in items:
-        v = (verdicts or {}).get(i.id)
+        v, signature = (verdicts or {}).get(i.id), decided_signature(profiles.get(i.id))
         if screened_out(v):
             groups.setdefault(code_group_id(i, v), Group(i.family, describe(v))).members.append(i.id)
+        elif v is not None and signature is not None:
+            groups.setdefault(signature_group_id(i, signature), Group(i.family, describe_signature(signature))).members.append(i.id)
     return groups

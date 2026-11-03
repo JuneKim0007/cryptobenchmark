@@ -56,6 +56,7 @@ def _claude_missing(tmp_path) -> Path:
     return config
 
 
+@pytest.mark.usefixtures("asked_by_model")
 def test_a_cli_that_cannot_run_is_claude_cli_failed_in_a_model_command(tmp_path, capsys):
     run = tmp_path / "run"
     assert inbound(["--device-results", str(with_results(run))]) == 0
