@@ -1,7 +1,7 @@
 # Results
 
 - `results/` is gitignored.
-- `manifest.yaml` is written last by every run.
+- `manifest.yaml` is written last by every run, atomically: a temporary file beside it, then a rename, so a reader finds the old manifest or the whole new one.
 
 ## Device folder
 

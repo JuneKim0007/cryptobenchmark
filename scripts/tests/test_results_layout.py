@@ -122,3 +122,17 @@ def test_a_harness_run_takes_no_results_root(capsys):
     with pytest.raises(SystemExit):
         pipeline.measured_folder(options)
     assert "a --harness run writes measured/ beside its harness.yaml" in capsys.readouterr().err
+
+
+def test_a_write_that_fails_midway_leaves_the_old_manifest_whole_and_no_temporary(tmp_path, monkeypatch):
+    path = write(tmp_path / layout.MANIFEST, "old: whole\n")
+
+    def broken(_descriptor):
+        raise OSError("disk full")
+    monkeypatch.setattr(layout.os, "fsync", broken)
+    with pytest.raises(OSError):
+        layout.write_atomic(path, "new: half\n")
+    assert path.read_text() == "old: whole\n" and [p.name for p in tmp_path.iterdir()] == [layout.MANIFEST]
+    monkeypatch.undo()
+    layout.write_atomic(path, "new: whole\n")
+    assert path.read_text() == "new: whole\n"

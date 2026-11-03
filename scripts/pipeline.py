@@ -77,7 +77,7 @@ def manifest(results, mode, configuration, files, problems=()):
                    for count, (key, field) in counted.items() if key in files},
     } | units(files) | energy_stage.estimated_mark(files.get("energy")) | ({"problems": list(problems)} if problems else {})
     path = results / results_layout.MANIFEST
-    path.write_text(yaml.safe_dump(document, sort_keys=False))
+    results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")
 
 
@@ -86,7 +86,7 @@ def add_to_manifest(results, added):
     path = results / results_layout.MANIFEST
     document = yaml.safe_load(path.read_text())
     document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
-    path.write_text(yaml.safe_dump(document, sort_keys=False))
+    results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")
 
 

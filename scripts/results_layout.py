@@ -1,5 +1,5 @@
 """<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then."""
-import contextlib, pathlib, shutil, tempfile
+import contextlib, os, pathlib, shutil, tempfile
 
 from failure import fail
 
@@ -27,6 +27,20 @@ def staged(root):
         yield stage
     finally:
         shutil.rmtree(stage, ignore_errors=True)
+
+
+def write_atomic(path, text):
+    """The manifest marks a finished run, so a reader sees the old file or the whole new one, never half of one."""
+    handle, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(handle, "w") as out:
+            out.write(text)
+            out.flush()
+            os.fsync(out.fileno())
+        os.replace(temporary, path)
+    except BaseException:
+        pathlib.Path(temporary).unlink(missing_ok=True)
+        raise
 
 
 def replace_folder(source, target):

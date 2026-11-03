@@ -30,6 +30,18 @@ class BenchmarkJsonRoundTripTest {
     )
 
     @Test
+    fun aNameWithQuotesBackslashesOrControlCharactersStaysValidJson() {
+        val odd = "P \"q\" \\ \n\t\u0001"
+        val row = ResultRow("a", "Cipher", odd, odd, "ENCRYPT", null, null, null, both, mapOf(odd to odd))
+        val written = BenchmarkJson(output.root).text(mapOf(odd to odd), listOf(row))
+        assertTrue(written, written.contains("\"P \\\"q\\\" \\\\ \\n\\t\\u0001\""))
+        val read = Merge.merge(listOf(written))
+        assertEquals(odd, read.rows.single().provider)
+        assertEquals(mapOf<String, Any>(odd to odd), read.rows.single().parameters)
+        assertEquals(mapOf(odd to odd), read.runtime)
+    }
+
+    @Test
     fun whatTheWriterWritesIsWhatTheReaderReads() {
         val written = text(listOf(row("a", both)))
 
