@@ -4,6 +4,7 @@ from perfetto.trace_processor import TraceProcessor
 MARKER_PREFIX = "energy:"
 JETPACK_TIMED = "Benchmark Time"
 JETPACK_THERMAL_SLEEP = "Sleep due to Thermal Throttle"
+JETPACK_RUN = "measurement "
 
 
 class Trace:
@@ -38,9 +39,13 @@ class Trace:
         return rows[0].offset if rows else None
 
     def timed_phases(self):
-        """A phase that slept for heat starts after its last sleep: the attempt before it was discarded and re-run."""
-        rows = self.processor.query(f"""
-            select bt.ts as ts, bt.ts + bt.dur as end_ts,
-              (select max(c.ts + c.dur) from slice c where c.parent_id = bt.id and c.name = '{JETPACK_THERMAL_SLEEP}') as slept
-            from slice bt where bt.name = '{JETPACK_TIMED}' and bt.dur > 0 order by bt.ts""")
-        return [(r.slept or r.ts, r.end_ts) for r in rows]
+        """Each Jetpack timed phase with its numbered measurement runs and its heat sleeps, MONOTONIC, in time order."""
+        phases = list(self.processor.query(f"select id, ts, ts + dur as end_ts from slice where name = '{JETPACK_TIMED}' and dur > 0 order by ts"))
+        out = []
+        for phase in phases:
+            children = list(self.processor.query(f"select name, ts, ts + dur as end_ts from slice where parent_id = {phase.id} and dur > 0 order by ts"))
+            runs = [(int(c.name[len(JETPACK_RUN):]), c.ts, c.end_ts) for c in children
+                    if c.name.startswith(JETPACK_RUN) and c.name[len(JETPACK_RUN):].isdigit()]
+            sleeps = [(c.ts, c.end_ts) for c in children if c.name == JETPACK_THERMAL_SLEEP]
+            out.append({"start": phase.ts, "end": phase.end_ts, "runs": runs, "sleeps": sleeps})
+        return out

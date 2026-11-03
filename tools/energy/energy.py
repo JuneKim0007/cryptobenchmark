@@ -8,6 +8,8 @@ from capture import capture  # noqa: E402
 from rails import counters  # noqa: E402
 
 MIN_POLLS = 20
+# Valid windows read about 7 MB traces; the four cases that lost rail data read 38 to 125 MB, flooded by memory counters.
+LARGE_TRACE_BYTES = 32 * 1024 * 1024
 # 2: source and kind
 SCHEMA_VERSION = 2
 SOURCE = "rails"
@@ -85,11 +87,11 @@ def measured_case(benchmark, traces, idle, open_trace, measure):
     trace_file = next((o["filename"] for o in benchmark.get("profilerOutputs") or [] if o.get("type") == "PerfettoTrace"), None)
     if trace_file is None or not (pathlib.Path(traces) / trace_file).is_file():
         return not_measured("trace_not_pulled", operations) | {"capture": "measured"}
-    offset = None
+    offset, slept, path = None, None, pathlib.Path(traces) / trace_file
     try:
-        trace = open_trace(pathlib.Path(traces) / trace_file)
+        trace = open_trace(path)
         try:
-            start, end, offset = timed_window(trace)
+            start, end, offset, slept = timed_window(trace)
             result = measure(trace.rails(), start, end, idle, operations)
         finally:
             trace.close()
@@ -97,7 +99,19 @@ def measured_case(benchmark, traces, idle, open_trace, measure):
         result = not_measured(str(reason), operations)
     except Exception as error:  # a truncated trace fails inside trace_processor; that case alone has no energy
         result = not_measured(f"trace_unreadable: {one_line(error)}", operations)
-    return result | {"capture": "measured", "clockOffsetNs": offset}
+    return result | {"capture": "measured", "clockOffsetNs": offset, "heatSleepAfterKeptRuns": slept, "traceBytes": path.stat().st_size,
+                     "traceLarge": path.stat().st_size > LARGE_TRACE_BYTES}
+
+
+def kept_runs(phase):
+    """The runs Jetpack kept: from the last `measurement 0` to the last run after it, whatever heat sleeps came before or after."""
+    starts = [i for i, (number, _, _) in enumerate(phase["runs"]) if number == 0]
+    if not starts:
+        raise NotMeasured("no_measurement_slices")
+    kept = phase["runs"][starts[-1]:]
+    start, end = kept[0][1], kept[-1][2]
+    # Jetpack keeps an attempt it then slept after once its sleeps are spent: these runs may be hot.
+    return start, end, any(ts >= start for ts, _ in phase["sleeps"])
 
 
 def timed_window(trace):
@@ -107,8 +121,8 @@ def timed_window(trace):
     offset = trace.boot_minus_monotonic()
     if offset is None:
         raise NotMeasured("no_clock_snapshot")
-    start, end = (ts + offset for ts in phases[0])
-    return start, end, offset
+    start, end, slept = kept_runs(phases[0])
+    return start + offset, end + offset, offset, slept
 
 
 def one_line(error):
@@ -161,6 +175,10 @@ def report_cases(cases):
     print(f"energy:    {len(cases)} cases, {len(cases) - len(invalid)} valid")
     for c, reasons in invalid.items():
         print(f"invalid:   {c}: {', '.join(reasons)}")
+    for c in (c for c, r in cases.items() if r.get("heatSleepAfterKeptRuns")):
+        print(f"flagged:   {c}: Jetpack slept for heat after its kept runs started; they may be hot")
+    for c in (c for c, r in cases.items() if r.get("traceLarge")):
+        print(f"flagged:   {c}: trace {cases[c]['traceBytes'] / 1e6:.0f} MB; rail samples may be lost to the trace buffer")
 
 
 def main(argv=None):

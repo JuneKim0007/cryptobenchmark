@@ -42,11 +42,15 @@ def test_a_case_is_valid_only_when_every_check_holds():
     assert bad["invalid"] == ["rails_unresponsive", "short_window", "net_not_positive"]
 
 
+def phase(start, end):
+    return {"start": start, "end": end, "runs": [(0, start, end)], "sleeps": []}
+
+
 class SuspendedDeviceTrace:
     """Phase slices on MONOTONIC, rails on BOOTTIME, 1000 ns apart: a device that has slept."""
 
     def timed_phases(self):
-        return [(100, 200)]
+        return [phase(100, 200)]
 
     def boot_minus_monotonic(self):
         return 1000
@@ -118,7 +122,7 @@ def _benchmark(case, trace, runs=1):
 class Phases(SuspendedDeviceTrace):
 
     def __init__(self, phases=((100, 200),), offset=1000, rails=None):
-        self.phases, self.offset, self.rail_samples = list(phases), offset, rails
+        self.phases, self.offset, self.rail_samples = [phase(*p) if isinstance(p, tuple) else p for p in phases], offset, rails
 
     def timed_phases(self):
         return self.phases
@@ -143,6 +147,7 @@ class Broken(SuspendedDeviceTrace):
     (Phases(offset=None), "no_clock_snapshot"),
     (Phases(rails={}), "no_rails"),
     (Phases(phases=[(200, 100)]), "empty_window"),
+    (Phases(phases=[{"start": 100, "end": 200, "runs": [], "sleeps": []}]), "no_measurement_slices"),
     (Broken(), "trace_unreadable: truncated trace"),
 ])
 def test_one_bad_measured_case_is_its_own_invalid_reason_and_the_others_still_measure(tmp_path, trace, reason):

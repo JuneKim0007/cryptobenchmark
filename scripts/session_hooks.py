@@ -35,6 +35,14 @@ class EnergyCapture(Hooks):
     def abandon(self, _process):
         self.stack.close()
 
+    def after_case(self, process, case, _failure):
+        """Traces stay on the device until the process's end: one more per measured case, else that case lost its trace."""
+        if "measured" in self.captures and self.timed:
+            names = self.session.device.shell(f"ls {self.session.device.media}").split()
+            expected = process.cases.index(case) + 1
+            count = sum(1 for name in names if name.endswith(".perfetto-trace"))
+            print(f"traces:    {case}: {count} on the device" + ("" if count >= expected else f", {expected} expected"))
+
     def after_process(self, process):
         with self.stack:
             if "measured" in self.captures and self.timed:

@@ -14,7 +14,7 @@ class FakeTrace:
         self.loaded = pathlib.Path(path).name == "busy.pftrace"
 
     def timed_phases(self):
-        return [(1000, 5000)]
+        return [{"start": 900, "end": 5000, "runs": [(0, 1000, 3000), (1, 3000, 5000)], "sleeps": []}]
 
     def boot_minus_monotonic(self):
         return 500

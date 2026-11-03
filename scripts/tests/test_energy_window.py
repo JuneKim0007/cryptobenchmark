@@ -11,7 +11,7 @@ from fake_phone import Energy, Phone  # noqa: E402
 class Session:
 
     def __init__(self, phone, failing):
-        self.phone, self.failing = phone, failing
+        self.phone, self.failing, self.device = phone, failing, phone
 
     def pull_traces(self, _traces):
         self.phone.log.append("pull traces")
@@ -52,3 +52,8 @@ def test_a_failed_energy_step_is_one_recorded_line(tmp_path, capsys):
     assert calls == ["window open", "instrument CryptoBenchmark a", "pull traces", "window close", "joules"]
     assert problems == ["energy_failed: adb pull x: device offline", "energy_failed: tools/energy/energy.py: boom"]
     assert capsys.readouterr().err.count("error: energy_failed: ") == 2
+
+
+def test_each_measured_case_logs_the_traces_on_the_device(tmp_path, capsys):
+    run(tmp_path, {"measured"})
+    assert "traces:    a: 0 on the device, 1 expected" in capsys.readouterr().out

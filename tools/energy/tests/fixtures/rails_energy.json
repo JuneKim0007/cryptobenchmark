@@ -16,6 +16,9 @@
    },
    "capture": "measured",
    "clockOffsetNs": 500,
+   "heatSleepAfterKeptRuns": false,
+   "traceBytes": 0,
+   "traceLarge": false,
    "valid": true,
    "invalid": []
   },
@@ -33,6 +36,9 @@
    },
    "capture": "measured",
    "clockOffsetNs": 500,
+   "heatSleepAfterKeptRuns": false,
+   "traceBytes": 0,
+   "traceLarge": false,
    "valid": true,
    "invalid": []
   },

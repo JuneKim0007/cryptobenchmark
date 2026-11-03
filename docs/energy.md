@@ -5,7 +5,7 @@
 | `harness.energy.capture` | run | window | operations |
 |---|---|---|---|
 | `none` (default) | Jetpack timed run only | none | none |
-| `measured` | Jetpack timed run, then cooldown | Jetpack `Benchmark Time` slice, from the end of its last `Sleep due to Thermal Throttle` child | `repeatIterations` × runs |
+| `measured` | Jetpack timed run, then cooldown | the kept runs: the `Benchmark Time` slice's children from its last `measurement 0` to the last `measurement <n>` after it, whatever heat sleeps lie around them | `repeatIterations` × runs |
 | `dry` | `EnergyDryBenchmark`: Cooldown(Rewarm(EnergyWindow(TimedLoop for `windowSeconds`))) | atrace slice `energy:<caseId>` | calls from `energy-dry.yaml` |
 
 - Energy runs only with `--device`; any other capture without it fails.
@@ -26,8 +26,7 @@
 | `energy.source` | `rails`, `manafa` | `rails` |
 
 - Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `modules/config/docs/config.md`.
-- `config/global-energy.yaml`: `capture: measured`, windows 3/1/1 s, test set `testsets/energy-smoke.yaml`.
-- `config/testsets/energy-smoke.yaml`: SHA-256, HmacSHA256 measured; AES/GCM/NoPadding `dry`.
+- `config/global-energy.yaml`: `capture: measured`, windows 3/1/1 s, test set `testsets/energy-smoke.yaml` (SHA-256, HmacSHA256 measured; AES/GCM/NoPadding `dry`).
 
 ## Sources
 
@@ -77,8 +76,7 @@
 | `dry` | host Perfetto session around `EnergyDryBenchmark` from `tools/energy/energy.pbtx` |
 
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
-- Rails are counter tracks named `power.%`; counters are cumulative µJ.
-- Window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`.
+- Rails are counter tracks named `power.%`, cumulative µJ; window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`.
 - `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a Pixel 10 trace can open with BOOTTIME alone); exactly one timed phase per case is required.
 
 ## Outputs
@@ -92,6 +90,8 @@
 | `operations` | see capture modes |
 | `joulesPerOperation` | net / operations |
 | `windowSeconds`, `polls`, `shortWindow`, `rails`, `capture`, `clockOffsetNs` | window facts |
+| `heatSleepAfterKeptRuns` | `measured`: Jetpack slept for heat after the kept runs began; it keeps such runs once its sleeps are spent, so they may be hot; printed `flagged:` |
+| `traceBytes`, `traceLarge` | `measured`: the trace's size; large above 32 MiB, where rail samples were lost before; printed `flagged:` |
 | `valid`, `invalid` | judgement and reasons |
 
 | invalid reason | condition |
@@ -105,10 +105,10 @@
 | `trace_not_pulled` | `measured`: the case's Jetpack trace is not in `traces/` |
 | `trace_unreadable: <error>` | `measured`: the trace processor failed on the case's trace |
 | `timed_phases: <n>` | `measured`: not exactly one timed phase |
+| `no_measurement_slices` | `measured`: the timed phase has no `measurement 0` child |
 | `no_clock_snapshot` | `measured`: no BOOTTIME/MONOTONIC snapshot in the trace |
 | `no_call_count` | `dry`: a marker without its line in `energy-dry.yaml` |
 | `no_rails` | the trace has no `power.%` counter |
-| `window_uncovered` | the window reaches outside the rail samples |
 | `empty_window` | the window ends before it starts |
 | `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured); the case-level reasons above reach manafa the same way |
 
