@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, contextlib, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
 
-import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, run_inputs, scope_generate, scope_results
+import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, scope_generate, scope_results
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from device_id import DeviceIdError, capture_id, device_id
@@ -482,6 +482,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     elapsed("prepare and measure", started)
     collapse(files, preparation, repetitions)
     if timed:
+        not_measured.report(preparation / "prepared.yaml", benchmark / "benchmark.json", problems)
         analyse(results, files, effective, preparation, benchmark, written, repetitions)
 
 if __name__ == "__main__":

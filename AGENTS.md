@@ -69,6 +69,7 @@ scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
+scripts/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
 scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
 scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, device selection, the temporary-folder warning
