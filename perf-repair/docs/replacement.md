@@ -58,14 +58,14 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 | `inputs` | the scope's harness.yaml `inputs`: `inputSize`, `keySize`, `from` (`app` or `run`); null when the scope is not in the harness |
 | `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static` |
 | `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
-| `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `skipped`; `not_run` (no device run) |
-| `interop` | `passed`, `unchecked`, `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |
+| `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `not_measurable` with its reason (`no_operation`: a factory, never generated); `skipped`; `not_run` (no device run) |
+| `interop` | `passed`, `unchecked`, `not_comparable` (an identity-only output, not measured), `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |
 | `metrics` | `timeNs` (ns/op, with ops/s and MB/s when the case has an input size), `allocationCount`, `energyJ`: median before and after, ratio (after ÷ before; null when before is 0), pImprove and its level, n |
 | `verdict` | the mode's rule on the measured ratios: `improves`, `not_improving`, `not_measured` |
 | `primitive` | the chosen option's dossier estimates: the benchmark's evidence when the function itself is not measured |
 
 - A metric without runs on both sides is `{"measured": false, "reason"}`: the first step that stopped, e.g. `primitive_only: missing_input: inputSize for in`. No number is ever filled in.
-- `funnel`: sites → scopes → withOptions → replace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`.
+- `funnel`: sites → scopes → withOptions → replace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`, counted again in `measuredUnchecked` (not a stage); report.md marks each such scope "measured without an interop check", e.g. a randomized encrypt with no decrypt partner (`nondeterministic_output`).
 - A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.
 - summary.json: the funnel summed and per app; per metric each app's ratio is the median over its measured scopes, `improved` at or below `improvingRatio` (`result/criteria.yaml`), `worse` at or above its inverse, else `unchanged` or `notMeasured`; `medianChange` is the median app ratio − 1. Reports of different modes are `mixed_modes`.
 

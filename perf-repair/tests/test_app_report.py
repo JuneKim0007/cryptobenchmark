@@ -90,7 +90,7 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
                        D: "not replaced: keep (no_alternative)", E: "rejected: call_moved"}
     assert all(set(m) == {"metric", "unit", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
     assert doc["funnel"] == {"sites": 6, "scopes": 5, "withOptions": 4, "replace": 4, "applied": 3, "compiled": 2,
-                             "interopPassed": 1, "measured": 1}
+                             "interopPassed": 1, "measured": 1, "measuredUnchecked": 0}
 
 
 def test_the_markdown_carries_the_numbers_and_the_reasons(tmp_path, app):
@@ -100,6 +100,28 @@ def test_the_markdown_carries_the_numbers_and_the_reasons(tmp_path, app):
     assert "| energyJ (J/op) | 0.002 → 0.0015 | 0.750 | n/a (n<2) | 1 |" in text
     assert "not measured: primitive_only: missing_input: inputSize for in" in text
     assert "Primitive-only evidence" in text and "ratio 0.700, pImprove 0.99" in text
+
+
+def _plan(app, change):
+    plan = yaml.safe_load(app.scoped_plan.read_text())
+    for record in plan["scopes"]:
+        record.update(change.get(record["id"], {}))
+    write_text(app.scoped_plan, yaml.safe_dump(plan))
+
+
+def test_a_measured_scope_without_an_interop_check_says_so(tmp_path, app):
+    reason = "nondeterministic_output: two calls of before differ on one input"
+    _plan(app, {A: {"interop": {"check": "same_output", "result": "unchecked", "reason": reason}},
+                B: {"status": "not_measurable", "reason": "no_operation"},
+                C: {"status": "not_comparable", "interop": {"check": "same_output", "result": "not_comparable",
+                                                            "reason": "identity_only_output: X has no value equality"}}})
+    doc = app_report(tmp_path, "shop", MODES["latency"], **QUIET)
+    r = rows(doc)
+    assert r[A]["interop"]["status"] == "unchecked" and r[A]["metrics"][0]["measured"]
+    assert r[B]["compile"] == {"status": "not_measurable", "reason": "no_operation"}
+    assert r[C]["interop"]["status"] == "not_comparable" and not r[C]["metrics"][0]["measured"]
+    assert (doc["funnel"]["measured"], doc["funnel"]["measuredUnchecked"]) == (1, 1)
+    assert f"interop: unchecked: {reason} (check same_output) — measured without an interop check" in app.report_md.read_text()
 
 
 def test_without_a_device_run_nothing_is_measured(tmp_path):

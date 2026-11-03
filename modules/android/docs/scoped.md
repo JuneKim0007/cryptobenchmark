@@ -88,7 +88,8 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | verdict | measured | when |
 |---|---|---|
 | `passed` | yes | the check passed |
-| `unchecked` | yes | `none`, `no_output`, or `nondeterministic_output` |
+| `unchecked` | yes | `none`, `no_output`, or `nondeterministic_output` (a randomized primitive with no partner); the report counts it in `measuredUnchecked` and says it is measured without an interop check |
+| `not_comparable` | no | `identity_only_output`: before returned an object with no value equality (`equals` from `Object`, or a primitive array other than bytes and chars), so two calls cannot be compared |
 | `interop_failed` | no | the check failed; reason names the direction or `outputs_differ` |
 | `call_failed` | no | a variant threw on its inputs |
 
@@ -110,4 +111,4 @@ A consumer scope is measured on the before producer's output.
 | `not_measurable` | `notMeasurable` in `harness.yaml` (`no_operation`): recorded with `reason`, never generated |
 | `compiled` | generated; replaced after the device run |
 | `measured` | interop `passed` or `unchecked` |
-| `not_compilable`, `interop_failed`, `call_failed` | excluded with `reason` |
+| `not_compilable`, `not_comparable`, `interop_failed`, `call_failed` | excluded with `reason` |

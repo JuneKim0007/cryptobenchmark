@@ -18,6 +18,13 @@ def _step(s: dict) -> str:
     return s["status"] + (f": {s['reason']}" if s.get("reason") else "")
 
 
+def _interop(s: dict) -> str:
+    i = s["interop"]
+    unverified = i["status"] == "unchecked" and any(m["measured"] for m in s["metrics"])
+    return (_step(i) + (f" (check {i['check']})" if i.get("check") else "")
+            + (" — measured without an interop check" if unverified else ""))
+
+
 def _inputs(i: dict | None) -> str:
     if i is None:
         return "n/a (not in harness.yaml)"
@@ -53,7 +60,7 @@ def report_markdown(doc: dict) -> str:
                 f"- inputs: {_inputs(s['inputs'])}",
                 f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}",
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}",
-                f"- interop: {_step(s['interop'])}" + (f" (check {s['interop']['check']})" if s["interop"].get("check") else ""),
+                f"- interop: {_interop(s)}",
                 f"- verdict ({doc['mode']}): {s['verdict']}", "",
                 "| metric | before → after | ratio | pImprove | n |", "|---|---|---|---|---|"]
         for m in s["metrics"]:

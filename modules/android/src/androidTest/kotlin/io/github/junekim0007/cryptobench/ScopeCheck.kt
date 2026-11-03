@@ -7,6 +7,7 @@ object ScopeCheck {
     const val UNCHECKED = "unchecked"
     const val INTEROP_FAILED = "interop_failed"
     const val CALL_FAILED = "call_failed"
+    const val NOT_COMPARABLE = "not_comparable"
 
     data class Verdict(val id: String, val interop: String, val check: String, val reason: String?) {
         val measurable: Boolean get() = interop == PASSED || interop == UNCHECKED
@@ -30,6 +31,7 @@ object ScopeCheck {
 
     private fun sameOutput(scope: Scope, before: Any?, after: Any?, verdict: (String, String?) -> Verdict): Verdict {
         if (before == null || before == Unit) return verdict(UNCHECKED, "no_output: before returned nothing to compare")
+        if (!comparable(before)) return verdict(NOT_COMPARABLE, "identity_only_output: ${before.javaClass.name} has no value equality")
         val again = runCatching { scope.before() }.getOrElse { return verdict(CALL_FAILED, "before: ${describe(it)}") }
         if (!same(before, again)) return verdict(UNCHECKED, "nondeterministic_output: two calls of before differ on one input")
         if (!same(before, after)) return verdict(INTEROP_FAILED, "outputs_differ: before and after differ on one input")
@@ -46,6 +48,13 @@ object ScopeCheck {
             if (!same(restored, interop.expected)) return verdict(INTEROP_FAILED, "$direction: restored value differs from the input")
         }
         return verdict(PASSED, null)
+    }
+
+    // identity equality would read every two calls as different: a false nondeterministic_output, then measured
+    fun comparable(value: Any): Boolean = when {
+        value is ByteArray || value is CharArray || value is Array<*> -> true
+        value.javaClass.isArray -> false
+        else -> value.javaClass.getMethod("equals", Any::class.java).declaringClass != Any::class.java
     }
 
     fun same(a: Any?, b: Any?): Boolean = when {

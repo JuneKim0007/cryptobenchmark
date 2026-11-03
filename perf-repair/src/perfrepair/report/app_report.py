@@ -14,14 +14,18 @@ def _optional(path, read=read_json) -> dict | None:
     return read(path) if path.is_file() else None
 
 
+def _measured(row: dict) -> bool:
+    return row["interop"]["status"] in MEASURABLE and any(m["measured"] for m in row["metrics"])
+
+
 def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
     return {"sites": sites, "scopes": len(rows), "withOptions": with_options,
             "replace": sum(r["decision"]["decision"] == "replace" for r in rows),
             "applied": sum(r["edit"]["status"] == "applied" for r in rows),
             "compiled": sum(r["compile"]["status"] == "compiled" for r in rows),
             "interopPassed": sum(r["interop"]["status"] == "passed" for r in rows),
-            "measured": sum(r["interop"]["status"] in MEASURABLE and any(m["measured"] for m in r["metrics"])
-                            for r in rows)}
+            "measured": sum(_measured(r) for r in rows),
+            "measuredUnchecked": sum(_measured(r) and r["interop"]["status"] == "unchecked" for r in rows)}
 
 
 def build_report(paths: AppPaths, mode: Mode) -> dict:

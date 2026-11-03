@@ -18,6 +18,8 @@ def _compile(record: dict | None, measured: Measured, applied: bool) -> dict:
         return _step("skipped", "no applied edit")
     if measured.absent:
         return _step("not_run", measured.absent)
+    if record["status"] == "not_measurable":
+        return _step("not_measurable", record.get("reason"))
     if record["status"] == "not_compilable":
         detail = record.get("identifiers") or record.get("compilerErrors")
         reason = record.get("reason") + (f": {', '.join(detail)}" if detail else "")

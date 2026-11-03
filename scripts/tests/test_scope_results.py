@@ -41,3 +41,13 @@ def test_a_compiled_scope_without_a_verdict_fails(tmp_path):
     plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: unchecked, check: none, reason: "no_output: x"}\n')
     with pytest.raises(scope_results.ScopeResultError, match="missing_verdict: scope bbbbbbbbbbbb"):
         scope_results.merge(plan, verdicts)
+
+
+def test_an_identity_only_output_is_not_measured_and_a_randomized_one_is_unchecked(tmp_path):
+    plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: not_comparable, check: same_output, reason: "identity_only_output: X"}\n'
+                                     '"bbbbbbbbbbbb": {interop: unchecked, check: same_output, reason: "nondeterministic_output: y"}\n')
+    _, measured = scope_results.merge(plan, verdicts)
+    scopes = {s["id"]: s for s in yaml.safe_load(plan.read_text())["scopes"]}
+    assert scopes["aaaaaaaaaaaa"]["status"] == "not_comparable"
+    assert (scopes["bbbbbbbbbbbb"]["status"], scopes["bbbbbbbbbbbb"]["interop"]["result"]) == ("measured", "unchecked")
+    assert [r["id"] for r in measured] == ["bbbbbbbbbbbb"]
