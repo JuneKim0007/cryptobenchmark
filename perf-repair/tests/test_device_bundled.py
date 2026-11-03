@@ -1,4 +1,4 @@
-"""device.bundled: the missing set, its catalog suggestions, the suggestions validator and the one warn-or-stop."""
+"""device.bundled: the missing set, its catalog suggestions, the suggestions validator and the onMissing alias."""
 import json
 
 import pytest
@@ -8,7 +8,9 @@ import yaml
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.device.bundled_config import bundled_config, harness_config
 from perfrepair.device.bundled_missing import missing_set
-from perfrepair.device.bundled_policy import DeviceHalt, act
+from perfrepair.config.load import load
+from perfrepair.config.stops import install_stops
+from perfrepair.stop import CODES, policy
 from perfrepair.device.bundled_suggest import suggest
 from perfrepair.dto.bundled import OFF, BundledPolicy, Coordinate, MissingProvider, entries_digest
 from perfrepair.dto.version import newest
@@ -88,13 +90,13 @@ def test_each_bad_suggestions_file_names_its_problem_first(change, problem):
     assert validate_suggestions(doc)[0] == problem
 
 
-def test_act_warns_or_stops_with_one_code(tmp_path):
-    echoed = []
-    act("bundled_missing", "Aaa", ["Aaa"], "warn", tmp_path, echoed.append)
-    assert echoed == ["device bundled_missing: warn: Aaa"]
-    with pytest.raises(DeviceHalt) as e:
-        act("bundled_missing", "Aaa", ["Aaa"], "stop", tmp_path, echoed.append)
-    assert (e.value.code, e.value.folder) == ("bundled_missing", tmp_path) and len(echoed) == 1
+@pytest.mark.parametrize("text, action", [
+    ("", "warn"), ("device: {bundled: {onMissing: stop}}\n", "stop"), ("stops: {bundled_missing: stop}\n", "stop"),
+    ("stops: {bundled_missing: warn}\ndevice: {bundled: {onMissing: stop}}\n", "warn")])
+def test_device_bundled_on_missing_is_the_older_name_of_stops_bundled_missing(tmp_path, text, action):
+    (tmp_path / "perfrepair.yaml").write_text(text)
+    install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
+    assert policy.action(CODES["bundled_missing"]) == action
 
 
 def test_newest_follows_gradle_order_over_pinned_versions_only():
@@ -105,7 +107,7 @@ def test_newest_follows_gradle_order_over_pinned_versions_only():
 def test_a_bare_off_in_yaml_is_off_with_no_warning():
     value = yaml.safe_load("fromApps: off")["fromApps"]
     check_from_apps("device.bundled.fromApps", value)
-    assert BundledPolicy.read("warn", value).fromApps == OFF
+    assert BundledPolicy.read(value).fromApps == OFF
 
 
 def applied_folder(tmp_path):

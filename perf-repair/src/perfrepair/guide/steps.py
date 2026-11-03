@@ -16,7 +16,6 @@ from ..app.facts.gate import open_apps
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.bundled_config import harness_config
-from ..device.bundled_policy import DeviceHalt
 from ..device.coverage import Coverage, coverage, no_rerun
 from ..device.energy import report_invalid
 from ..device.stage import probe_device
@@ -37,7 +36,7 @@ from ..result.modes import Mode
 from ..review.sheet import write_sheet
 from ..config.load import Loaded
 from ..screen.catalog import Catalog, screening_catalog
-from ..stop import CODES, Halt, terminate
+from ..stop import terminate
 
 INBOUND = "python3 -m perfrepair.data_handler.inbound --device-results <device>"
 GROUPING = ("python3 -m perfrepair.grouping build --device-results <device>, then "
@@ -130,13 +129,10 @@ def prerequisites(g: Guide) -> str:
     g.catalog = screening_catalog(g.settings)
     if g.root is not None:
         detect = (lambda folder: detect_targets(g, folder)) if g.filter_by_apps else None
-        try:
-            g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
-                                    detect=detect, perf=g.mode.perf, bundled=g.bundled,
-                                    named=lambda folder: setattr(g, "device", folder)).folder
-        except DeviceHalt as e:
-            g.device = e.folder
-            raise Halt(e.code, e.detail, CODES[e.code].next) from None
+        # named: a stop inside it still finds the folder its log goes to
+        g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
+                                detect=detect, perf=g.mode.perf, bundled=g.bundled,
+                                named=lambda folder: setattr(g, "device", folder)).folder
     if not (g.device / rd.MANIFEST).is_file():
         halt(g, "missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):

@@ -20,7 +20,7 @@ from ..dto.perf_mode import PerfMode
 from ..inputs.check import target_path
 from ..dto.change import CHANGES
 from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
-                            APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, BUNDLED_FROM_APPS, BUNDLED_ON_MISSING,
+                            APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, BUNDLED_FROM_APPS,
                             FILTER_BY_APPS)
 from ..failure import reported
 from ..log import attach
@@ -89,7 +89,7 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG),
-                 bundled=BundledPolicy.read(settings.read(BUNDLED_ON_MISSING), settings.read(BUNDLED_FROM_APPS)),
+                 bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
                  max_change=a.max_change)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 

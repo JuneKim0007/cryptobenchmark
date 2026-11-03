@@ -308,8 +308,11 @@ def test_bundled_stop_halts_before_the_benchmark_naming_each_provider(scoped):
     assert len(stop) == 1 and "BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-" in stop[0]
     assert scoped.device_runs() == 1 and not (scoped.device / rd.USED_CONFIG).exists()
     events = [json.loads(e) for e in (scoped.device / "log" / "events.jsonl").read_text().splitlines()]
-    halt = [e for e in events if e["step"] == "bundled_missing"]
-    assert [(e["outcome"], e["data"]) for e in halt] == [("stop", {"code": "bundled_missing", "items": ["BC"]})]
+    halt = [e for e in events if e["event"] == "finding" and e["data"].get("code") == "bundled_missing"]
+    assert [(e["step"], e["outcome"], e["data"]["items"]) for e in halt] == [("bundled", "stop", ["BC"])]
+    status = (scoped.device / rd.STATUS_LOG).read_text().splitlines()
+    assert [line.split()[0] for line in status if not line.startswith(("run ", "end ", "ran ", "reused "))] == [
+        "bundled_missing"]
 
 
 def test_bundled_warn_logs_and_the_run_goes_on(scoped):

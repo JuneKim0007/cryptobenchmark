@@ -13,7 +13,6 @@ WARN, STOP = "warn", "stop"
 ON_MISSING = (WARN, STOP)
 OFF, SUGGEST, APPLY = "off", "suggest", "apply"
 FROM_APPS = (OFF, SUGGEST, APPLY)
-BUNDLED_MISSING = "bundled_missing"
 NO_CATALOG_ROW, NO_COORDINATES, NO_PINNED_VERSION, NAME_TAKEN = ("no_catalog_row", "no_coordinates", "no_pinned_version",
                                                                   "name_taken")
 UNMATCHED_REASONS = (NO_CATALOG_ROW, NO_COORDINATES, NO_PINNED_VERSION, NAME_TAKEN)
@@ -21,13 +20,12 @@ UNMATCHED_REASONS = (NO_CATALOG_ROW, NO_COORDINATES, NO_PINNED_VERSION, NAME_TAK
 
 @dataclass(frozen=True)
 class BundledPolicy:
-    """device.bundled: what a missing provider does, and what the catalog's rows are used for."""
-    onMissing: str = WARN
+    """device.bundled.fromApps: what the catalog's rows are used for; a missing provider is stops.bundled_missing."""
     fromApps: str = OFF
 
     @classmethod
-    def read(cls, on_missing: str, from_apps: str | bool) -> "BundledPolicy":
-        return cls(on_missing, OFF if from_apps is False else from_apps)
+    def read(cls, from_apps: str | bool) -> "BundledPolicy":
+        return cls(OFF if from_apps is False else from_apps)
 
 
 @dataclass(frozen=True)

@@ -1,16 +1,16 @@
-"""The one reader of `stops.<code>`: each read when its code fires, through the row's resolver (unset: the default;
-bad: one warning, then the default); a fixed code set is one warning, ignored."""
+"""The one reader of `stops.<code>` and its alias `device.bundled.onMissing`: each read when its code fires, through
+the row's resolver (unset: the default; bad: one warning, then the default); a fixed code set is one warning, ignored."""
 from __future__ import annotations
 
 import logging
 
-from ..inputs.table import STOP_ROWS
+from ..inputs.table import BUNDLED_ON_MISSING, STOP_ROWS
 from ..stop import policy
 from ..stop.codes import Code
 from .load import Loaded
 
 LOG = logging.getLogger(__name__)
-ALIASES: dict = {}
+ALIASES = {"bundled_missing": BUNDLED_ON_MISSING}
 
 
 class StopReader:

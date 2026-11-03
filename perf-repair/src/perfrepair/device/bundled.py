@@ -1,5 +1,5 @@
 """The bundled step, after the targets' detect and before the benchmark: the missing set, its suggestions (written with
-fromApps suggest or apply), and the warn-or-stop for what no applied row covers; returns the entries to apply."""
+fromApps suggest or apply), and bundled_missing through terminate for what no applied row covers; returns the entries to apply."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,19 +10,18 @@ import yaml
 from .. import run_dir as rd
 from ..catalog.bundled_providers import BUNDLED_PROVIDERS, BundledCatalog
 from ..data_handler.inbound import RunContext
-from ..dto.bundled import APPLY, BUNDLED_MISSING, OFF, BundledPolicy, Suggestions
+from ..dto.bundled import APPLY, OFF, BundledPolicy, Suggestions
 from ..dto.event import END
 from ..files import write_text
 from ..log import emit, step
+from ..stop import CODES, terminate
 from ..validation import require
 from ..validation.bundled import validate_suggestions
 from .bundled_config import configured
 from .bundled_missing import missing_set
-from .bundled_policy import act
 from .bundled_suggest import suggest
 
 CATALOG = f"catalog/{BUNDLED_PROVIDERS.name}"
-NEXT = "add them to providers.bundled in global.yaml, or set device.bundled.fromApps"
 
 
 def _write(folder: Path, policy: BundledPolicy, found: Suggestions) -> Path | None:
@@ -60,6 +59,7 @@ def check_bundled(folder: Path, apps: list[str], base: Path, policy: BundledPoli
         echo(f"device bundled: {', '.join(f'{k} {n}' for k, n in found.counts().items())}; wrote {written}")
     left = found.left()
     if left:
-        act(BUNDLED_MISSING, "; ".join(m.text() for m in left) + f"; {NEXT}", [m.provider for m in left],
-            policy.onMissing, folder, echo)
+        detail = "; ".join(m.text() for m in left)
+        action = terminate("bundled_missing", detail, stage="device", step="bundled", data={"items": [m.provider for m in left]})
+        echo(f"device bundled_missing: {action}: {detail}; {CODES['bundled_missing'].next}")
     return [a.entry for a in found.applied]
