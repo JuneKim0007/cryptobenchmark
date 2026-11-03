@@ -36,9 +36,11 @@ class Gone:
     key: str
 
 
-def evidence(u: UnitDossiers, perf: PerfMode, table: PrimitivesTable | None = None) -> str:
-    """The selection and the primitives.tsv lines shown are evidence too: a change in either marks the decision stale."""
+def evidence(u: UnitDossiers, perf: PerfMode, table: PrimitivesTable | None = None, warnings: tuple[str, ...] = ()) -> str:
+    """The selection, the primitives.tsv lines and the run warnings shown are evidence too: a change marks the decision
+    stale; no warning hashes as before warnings were shown."""
     shown = {"lines": [digest_input(d, table) for d in u.dossiers]} if table is not None else {}
+    shown |= {"warnings": list(warnings)} if warnings else {}
     return sha256_text(json_text({"unit": u.entry(), "dossiers": [d.to_json() for d in u.dossiers], "perfMode": perf.to_json(),
                                   **shown}))
 
@@ -47,9 +49,11 @@ class SiteReplaceKind:
     name = "site-replace"
 
     def __init__(self, app: str, doc: dict, directory: Path, table: PrimitivesTable | None = None,
-                 units: DisplayUnits = DisplayUnits()):
-        """table: the device's primitives.tsv, shown beside the estimates; units: the manifest's display units."""
+                 units: DisplayUnits = DisplayUnits(), warnings: tuple[str, ...] = ()):
+        """table: the device's primitives.tsv, shown beside the estimates; units: the manifest's display units;
+        warnings: the run's comparability warnings."""
         self.app, self.doc, self.directory, self.table, self.display = app, doc, Path(directory), table, units
+        self.warnings = tuple(warnings)
         self.units, self.no_options, self.problems = parse_dossiers(doc, app)
         self.perf = perf_of(doc) or PerfMode()
         self.max_change = doc.get("maxChange", DROP_IN)
@@ -64,7 +68,7 @@ class SiteReplaceKind:
         return Gone(key)
 
     def evidence_digest(self, u: UnitDossiers) -> str:
-        return evidence(u, self.perf, self.table)
+        return evidence(u, self.perf, self.table, self.warnings)
 
     def empty(self) -> Replacements:
         state = Replacements(self.app)
@@ -87,7 +91,7 @@ class SiteReplaceKind:
         return f"{first.file}:{first.line}" + (f" +{len(u.dossiers) - 1}" if len(u.dossiers) > 1 else "")
 
     def render(self, u: UnitDossiers, state: Replacements) -> TaskPrompt:
-        return TaskPrompt(NAME, render(u, self.perf, self.table, self.display), u.key)
+        return TaskPrompt(NAME, render(u, self.perf, self.table, self.display, self.warnings), u.key)
 
     def check(self, u: UnitDossiers, text: str, state: Replacements) -> tuple[dict | None, list[str]]:
         return check_reply(text, u, self.max_change)
@@ -97,7 +101,7 @@ class SiteReplaceKind:
         if isinstance(u, Gone):
             return
         # a record without evidence predates it and cannot be shown to match
-        mark = state.stale.add if record.evidence != evidence(u, self.perf, self.table) else state.stale.discard
+        mark = state.stale.add if record.evidence != self.evidence_digest(u) else state.stale.discard
         for d in u.dossiers:
             mark(d.key)
         if record.outcome == "decided":

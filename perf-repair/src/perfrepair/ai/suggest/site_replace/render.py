@@ -1,4 +1,4 @@
-"""What the replacement decision sees for one unit: its links and each inverse pair's interop, the members that stay,
+"""What the replacement decision sees for one unit: the run warnings, its links and each inverse pair's interop, the members that stay,
 then per member with options the site, scope facts, lifecycle, requirements, current, aliased options with their
 estimates, the primitives.tsv lines of the current and the options, and source; the edit kinds once."""
 from __future__ import annotations
@@ -78,8 +78,9 @@ def _option(s: Scope, o: Option) -> list[str]:
     named = _names(o.estimates)
     cells = [f"{e.metric}{named[e.configuration]} {e.ratio:.3f} "
              f"{TOO_FEW_RUNS if e.pImprove is None else f'{e.pImprove:.3f}'} {e.n}" for e in o.estimates]
-    return lines + ["    estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: " + "; ".join(cells),
-                    *absent]
+    # with no input size nothing is nearest: result/dossier.py nearest() keeps every measured size
+    where = "every measured input size (this site's is unknown)" if s.inputSize is None else "the configurations nearest this site"
+    return lines + [f"    estimates (ratio option ÷ current, pImprove, n), {where}: " + "; ".join(cells), *absent]
 
 
 def _names(estimates) -> dict[str, str]:
@@ -159,11 +160,13 @@ def _links(u: UnitDossiers) -> list[str]:
 
 
 def render(u: UnitDossiers, perf: PerfMode = PerfMode(), table: PrimitivesTable | None = None,
-           units: DisplayUnits = DisplayUnits()) -> str:
-    """table: primitives.tsv; without one (a folder before it) the members show their estimates only."""
+           units: DisplayUnits = DisplayUnits(), warnings: tuple[str, ...] = ()) -> str:
+    """table: primitives.tsv; without one (a folder before it) the members show their estimates only; warnings: the
+    run's comparability warnings from measurements.json."""
     aliased, stayed = u.aliased(), u.stayed()
     members = ", ".join(u.aliases().values())
-    lines = [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *_links(u), ""]
+    lines = ["RUN WARNINGS:", *([f"  - {w}" for w in warnings] or ["  (none)"]), ""]
+    lines += [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *_links(u), ""]
     if stayed:
         lines += ["STAYS (no option; these members keep what they use)"]
         lines += [f"  {a}: current {s.current or 'unknown'} | reason {s.reason}" for a, s in stayed.items()] + [""]

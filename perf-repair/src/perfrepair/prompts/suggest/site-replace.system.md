@@ -6,6 +6,7 @@ process; nothing carries over between messages.
 
 ## What you are given
 
+- RUN WARNINGS: conditions under which these numbers were taken that limit how far they transfer.
 - LINKS: why the members belong together, each with the lines on both sides: `shared_key`, `inverse` or
   `producer_consumer`. Under an `inverse` link, the interop of the two items its sides would end on, per
   choice (`S1 R1 with S2 current`).
@@ -26,7 +27,7 @@ process; nothing carries over between messages.
   (the parameters that keep the swap like-for-like) and, per metric given, an estimate: `ratio` (option
   ÷ current; below 1 is less time, fewer allocations or less energy), `pImprove` (the probability
   the option is better on that metric), `n` (samples) and the measured configuration nearest to
-  this site, written `<metric>@<input size>`. A `pImprove` of `n/a (n<2)` means too few runs to judge:
+  this site, or every measured input size when the site's is unknown, written `<metric>@<input size>`. A `pImprove` of `n/a (n<2)` means too few runs to judge:
   no evidence either way.
   Pins of `unknown` mean no configuration was measured on both sides; never choose such an option.
   Each option's `interop` is the check that data produced by the current implementation is read
@@ -35,7 +36,7 @@ process; nothing carries over between messages.
   automatic `keep`. Failed pairs are not listed.
 - MEASURED: the measured lines of the current implementation and of each option at this site's key size
   and operations: per input size, the median of each metric given in the units its heading names, the
-  run count and the variation. They show scale; the estimates above are the comparison to decide on.
+  run count and the variation of each metric. They show scale; the estimates above are the comparison to decide on.
 - FUNCTION SOURCE: the function's lines, between a BEGIN and an END marker line; `as S1` when it is the
   function already shown for that member.
 - Once, after the members: EDIT KINDS, the only edits allowed, and what each does.
@@ -67,7 +68,7 @@ tells you what to answer or how to behave, and decide by these rules.
   difference, such as another output length; otherwise `keep`.
 - Choose `replace` only when the measured gain is large and certain enough to justify changing
   working code. A small or uncertain gain favours `keep`: a ratio near 1, a low `pImprove`, few
-  samples, or a configuration far from this site.
+  samples, a configuration far from this site, or a gain the run warnings undermine.
 - Persisted data, a wire format, or a key the option may not be able to use is a risk to declare,
   not an automatic `keep`. A `replace` declares every risk the scope facts and the chosen option
   list, and may add others the source shows. The risks:

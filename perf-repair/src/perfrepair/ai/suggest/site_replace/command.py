@@ -61,7 +61,9 @@ def replace(run_path: Path, app: str, conversations: Conversations, library: Pro
     table = read_primitives(run_path) if (Path(run_path) / rd.PRIMITIVES).is_file() else None
     if table is None:
         emit("replace", "site-replace", LOG, app=app, detail=f"no {rd.PRIMITIVES}: the members show their estimates only")
-    kind = SiteReplaceKind(app, rd.read_dossiers(paths.dossiers), paths.root, table, display_units(run_path))
+    # a folder before measurements.json has no run warnings to show
+    warnings = tuple(rd.load_measurements(run_path).comparability) if (Path(run_path) / rd.MEASUREMENTS).is_file() else ()
+    kind = SiteReplaceKind(app, rd.read_dossiers(paths.dossiers), paths.root, table, display_units(run_path), warnings)
     require(str(paths.dossiers), kind.problems)
     inputs = _refreshed(kind, paths.replace, library, echo) if refresh else kept_inputs(paths.replace)
     state = decide(kind, charter(library, inputs), conversations, paths.replace, limits, limit, echo,
