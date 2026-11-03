@@ -3,6 +3,7 @@ import json, pathlib, sys
 
 import yaml
 
+import timeouts
 from device import DeviceError, android_home
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -34,7 +35,7 @@ def source(effective, python, stacktrace=False):
     names = {source_of(one, default) for one in _entries(document)} or {default}
     if len(names) > 1:
         raise EnergyError(f"energy_sources_differ: {sorted(names)}; set harness.energy.source once, for the run")
-    return SOURCES[names.pop()](Host(python, stacktrace, android_home() / "platform-tools"))
+    return SOURCES[names.pop()](Host(python, stacktrace, android_home() / "platform-tools", timeouts.SECONDS["energy"]))
 
 
 def estimated_mark(energy_files):
@@ -49,7 +50,7 @@ def guarded(problems, step):
     """An energy step that fails costs this process its energy, never its timing: one error line, recorded."""
     try:
         step()
-    except (EnergyError, DeviceError) as error:
+    except (EnergyError, DeviceError, timeouts.StepTimeout) as error:
         line = "energy_failed: " + " ".join(str(error).split())[:500]
         print(f"error: {line}", file=sys.stderr)
         problems.append(line)

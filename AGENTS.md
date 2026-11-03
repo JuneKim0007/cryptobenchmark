@@ -85,6 +85,7 @@ scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measur
 scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/tests/ : pytest and standalone tests for scripts/
+scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, gradle, compile, energy, analysis); expiry is one coded error
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution

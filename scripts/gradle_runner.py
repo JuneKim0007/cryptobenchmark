@@ -3,6 +3,8 @@ import pathlib
 import subprocess
 import sys
 
+import timeouts
+
 from failure import fail
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -37,11 +39,11 @@ def run(project, arguments, stacktrace, stream=False, main_class=None):
     if main_class:
         command.append(f"-PmainClass={main_class}")
     if stream:
-        result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+        result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:
             fail(f"{project} failed; rerun without --stream for a filtered message")
         return result.stdout.strip().splitlines()
-    result = subprocess.run(command, capture_output=True, text=True)
+    result = timeouts.run("gradle", command, capture_output=True, text=True)
     output = (result.stdout + result.stderr).splitlines()
     if result.returncode != 0:
         if stacktrace:

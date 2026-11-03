@@ -28,8 +28,11 @@ class ManafaSource:
         folder = discovery / "energy-preflight"
         folder.mkdir(exist_ok=True)
         capability = (discovery / "energy.yaml").resolve()
-        result = subprocess.run([self.python(), str(SESSION), "--check", str(PREFLIGHT_SECONDS), "--capability", str(capability)],
-                                capture_output=True, text=True, cwd=folder, env=self.host.adb_environment())
+        try:
+            result = subprocess.run([self.python(), str(SESSION), "--check", str(PREFLIGHT_SECONDS), "--capability", str(capability)],
+                                    capture_output=True, text=True, cwd=folder, env=self.host.adb_environment(), timeout=self.host.timeout)
+        except subprocess.TimeoutExpired:
+            raise self.host.expired("manafa pre-flight") from None
         if result.returncode != 0:
             if self.host.stacktrace:
                 print(result.stderr)
@@ -45,7 +48,11 @@ class ManafaSource:
             raise EnergyError("manafa_not_started: joules without a window around the run")
         process, self.process = self.process, None
         request = [str(pathlib.Path(a).resolve()) if isinstance(a, pathlib.Path) else a for a in case_arguments(*case_paths)]
-        output, _ = process.communicate(json.dumps(request) + "\n")
+        try:
+            output, _ = process.communicate(json.dumps(request) + "\n", timeout=self.host.timeout)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            raise self.host.expired("manafa joules") from None
         if process.returncode != 0:
             raise EnergyError(_last_line(output) or f"manafa_failed: exit {process.returncode}")
         print(output.rstrip())

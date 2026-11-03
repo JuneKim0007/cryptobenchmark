@@ -1,6 +1,8 @@
 """The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
 import os, pathlib, re, subprocess
 
+import timeouts
+
 PACKAGE = "io.github.junekim0007.cryptobench"
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
@@ -64,7 +66,7 @@ class Device:
         self.adb = android_home() / "platform-tools/adb"
 
     def run(self, *arguments, check=True):
-        result = subprocess.run([str(self.adb), *arguments], capture_output=True, text=True)
+        result = timeouts.run("adb", [str(self.adb), *arguments], capture_output=True, text=True)
         if check and result.returncode != 0:
             raise DeviceError(f"adb {' '.join(arguments)}: {(result.stderr or result.stdout).strip()}")
         return result
@@ -96,10 +98,10 @@ class Device:
     def install(self, properties=()):
         command = [str(self.root / "gradlew"), "-p", str(self.root), *properties, ":android:installRelease", ":android:installReleaseAndroidTest"]
         if self.stream:
-            if subprocess.run(command, env=self.environment).returncode != 0:
+            if timeouts.run("install", command, env=self.environment).returncode != 0:
                 raise DeviceError("gradle install failed; rerun without --stream for a filtered message")
             return
-        result = subprocess.run(command, capture_output=True, text=True, env=self.environment)
+        result = timeouts.run("install", command, capture_output=True, text=True, env=self.environment)
         if result.returncode != 0:
             output = (result.stdout + result.stderr).splitlines()
             if self.stacktrace:
@@ -107,19 +109,20 @@ class Device:
             reason = output[output.index("* What went wrong:") + 1:] if "* What went wrong:" in output else output[-5:]
             raise DeviceError("gradle install failed:\n" + "\n".join(line for line in reason[:10] if line.strip() and not line.startswith("* Try:")))
 
-    def instrument(self, test_class, *arguments):
+    def instrument(self, test_class, *arguments, step="instrument"):
         command = [str(self.adb), "shell", "am", "instrument", "-w", "-r", "-e", "class", f"{PACKAGE}.{test_class}",
                    *arguments, f"{PACKAGE}.test/{RUNNER}"]
         if not self.stream:
-            output = subprocess.run(command, capture_output=True, text=True).stdout
+            output = timeouts.run(step, command, capture_output=True, text=True).stdout
         else:
             process, lines, shown = subprocess.Popen(command, stdout=subprocess.PIPE, text=True), [], set()
-            for line in process.stdout:
-                if line.startswith(("INSTRUMENTATION_STATUS: test=", "INSTRUMENTATION_STATUS: stack=", "Tests run:", "OK (")) and line not in shown:
-                    print(f"  {line.rstrip()}")
-                    shown.add(line)
-                lines.append(line)
-            process.wait()
+            with timeouts.watched(step, process, command):
+                for line in process.stdout:
+                    if line.startswith(("INSTRUMENTATION_STATUS: test=", "INSTRUMENTATION_STATUS: stack=", "Tests run:", "OK (")) and line not in shown:
+                        print(f"  {line.rstrip()}")
+                        shown.add(line)
+                    lines.append(line)
+                process.wait()
             output = "".join(lines)
         if self.stacktrace and not re.search(r"^OK \(\d+ tests?\)", output, re.M):
             print(output)

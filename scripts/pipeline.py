@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, contextlib, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
+import argparse, contextlib, dataclasses, json, os, pathlib, shutil, sys, time
 
-import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, scope_generate, scope_results
+import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, scope_generate, scope_results, timeouts
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError
 from device_id import DeviceIdError, capture_id, device_id
@@ -265,9 +265,9 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
     if repetitions > 1:
         files["processes"] = written
     started = time.monotonic()
-    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(results / "analysis"),
+    timeouts.run("analysis", [sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(results / "analysis"),
                     str(effective), str(preparation / "prepared.yaml")], check=True)
-    subprocess.run([sys.executable, str(ROOT / "tools/quick-bench/charts.py"), str(benchmark / "benchmark.json"),
+    timeouts.run("analysis", [sys.executable, str(ROOT / "tools/quick-bench/charts.py"), str(benchmark / "benchmark.json"),
                     str(preparation / "prepared.yaml"), str(effective), str(results)], check=True)
     elapsed("analyse", started)
 
@@ -488,5 +488,5 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
 if __name__ == "__main__":
     try:
         main()
-    except (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError) as error:
+    except (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError, timeouts.StepTimeout) as error:
         fail(str(error))

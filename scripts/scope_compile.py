@@ -1,5 +1,7 @@
 """Compiles the android test sources with Gradle; returns the compiler's error lines, empty when it passed."""
-import os, pathlib, re, subprocess
+import os, pathlib, re
+
+import timeouts
 
 TASK = ":android:compileReleaseAndroidTestJavaWithJavac"
 ERROR = re.compile(r"^(e: |.*\.java:\d+: error: )")
@@ -16,7 +18,7 @@ def errors(output, root):
 
 def gradle(root):
     command = [str(root / "gradlew"), "-p", str(root), TASK, "-q"]
-    result = subprocess.run(command, capture_output=True, text=True, env=dict(os.environ, ANDROID_HOME=str(android_home())))
+    result = timeouts.run("compile", command, capture_output=True, text=True, env=dict(os.environ, ANDROID_HOME=str(android_home())))
     if result.returncode == 0:
         return []
     output = result.stdout + result.stderr

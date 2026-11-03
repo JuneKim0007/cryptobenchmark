@@ -13,10 +13,18 @@ class Host:
     python: str
     stacktrace: bool = False
     platform_tools: pathlib.Path | None = None
+    timeout: float | None = None
+
+    def expired(self, what):
+        return EnergyError(f"timeout: {what} ran past {self.timeout} s")
 
     def tool(self, script, *arguments):
         """Runs in tools/energy's own venv: it needs perfetto, which the host pipeline does not."""
-        result = subprocess.run([self.python, str(TOOLS / script), *map(str, arguments)], capture_output=True, text=True)
+        try:
+            result = subprocess.run([self.python, str(TOOLS / script), *map(str, arguments)], capture_output=True, text=True,
+                                    timeout=self.timeout)
+        except subprocess.TimeoutExpired:
+            raise self.expired(f"tools/energy/{script}") from None
         if result.returncode != 0:
             if "No module named" in result.stderr:
                 raise EnergyError(f"missing_module: {result.stderr.strip().splitlines()[-1]}; "
