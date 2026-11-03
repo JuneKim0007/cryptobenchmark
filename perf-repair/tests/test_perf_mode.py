@@ -9,7 +9,7 @@ def test_generic_is_the_plain_list_of_every_key_with_only_the_rule_differing(spe
     g = PerfMode.parse(spelling)
     listed = PerfMode.parse(list(KEYS))
     assert g.overall and not listed.overall and g.keys == listed.keys == KEYS
-    assert g.metrics == listed.metrics == METRICS and g.required == listed.required == METRICS
+    assert g.metrics == listed.metrics == METRICS and g.required == () and listed.required == METRICS
     assert g.to_json() == GENERIC and PerfMode.parse(g.to_json()) == g and listed.to_json() == list(KEYS)
     assert g.views(TIME) == ("latency", "throughput")
 
@@ -44,3 +44,8 @@ def test_text_forms_and_names_parse_back():
 def test_anything_else_is_refused(bad):
     with pytest.raises(ValueError, match="perfMode"):
         PerfMode.parse(bad)
+
+
+def test_generic_requires_no_metric_so_an_option_missing_energy_still_reaches_the_model():
+    from perfrepair.dto.perf_mode import PerfMode
+    assert PerfMode.parse("generic").required == () and PerfMode.parse(["latency", "energy"]).required != ()

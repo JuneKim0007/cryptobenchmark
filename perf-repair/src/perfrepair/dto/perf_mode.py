@@ -54,7 +54,8 @@ class PerfMode:
 
     @property
     def required(self) -> tuple[Metric, ...]:
-        return self.metrics
+        """The metrics an option must have an estimate of; generic judges on what was measured, so none."""
+        return () if self.overall else self.metrics
 
     def views(self, metric: Metric) -> tuple[str, ...]:
         """The keys a selected metric is shown as: timeNs as latency, throughput or both, one estimate either way."""

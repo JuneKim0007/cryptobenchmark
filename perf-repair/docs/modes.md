@@ -14,7 +14,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 
 - `apps.perfMode` (`guide --perf-mode`), and `--perf-mode` on `ai worthiness` and `report app`: `generic`, `all` or a list of keys; the CLI takes them comma-joined (`energy,latency,throughput`).
 - Selection = the registry metrics whose `selects` hold a chosen key (`dto/perf_mode.py`). Latency and throughput are one metric: one estimate, one ratio, shown in each selected unit, never two pieces of evidence.
-- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: only the decision rule differs from a hand-written list naming every key. Measures check, passes, labels, render and report see the list.
+- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: the decision rule and what is required differ from a hand-written list naming every key: generic requires no metric and judges on what was measured. Measures check, passes, labels, render and report see the list.
 - A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`), or is `generic`; `worthiness-<name>/` holds its verdicts.
 - Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another. The report still shows people every measured metric, marking the selected ones.
 
@@ -25,7 +25,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | any perfMode | at least one selected metric's ratio `to ÷ from` ≤ `improvingRatio` (0.97), and none ≥ 1 ÷ `improvingRatio` (1.031) |
 
 - A pair is judged `improves`, `not_improving` or `not_measured`.
-- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). Every perfMode needs every selected metric; `generic` selects them all, so a metric the run lacks costs the option.
+- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` requires none and decides on the metrics that were measured, so a missing energy or allocation estimate never drops an option.
 - A selected metric without data is the static reason `no_evidence: <metric>`, logged; never a proxy and never `no_improvement`. Levels:
 
 | Where | Unit judged | Without the metric |

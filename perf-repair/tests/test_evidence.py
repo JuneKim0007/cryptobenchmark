@@ -82,7 +82,7 @@ def test_missing_allocations_are_not_measured_never_no_improvement():
     unknown = {**M, "a2": {"timeNs": summary(100)}}
     assert _decided(unknown, LATENCY_ALLOC)[1]["g-a"] == "not_measured"
     assert _decided(unknown, LATENCY)[0]["g-a"]
-    assert _decided(unknown, GENERIC)[1]["g-a"] == "not_measured"
+    assert _decided(unknown, GENERIC)[0]["g-a"]
 
 
 def test_a_selected_metric_without_data_is_no_evidence_never_a_proxy():
