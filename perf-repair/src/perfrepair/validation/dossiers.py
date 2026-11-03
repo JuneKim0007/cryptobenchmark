@@ -159,7 +159,6 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
         return problems + ["groups.json has no interop section; rerun grouping report"]
     problems += check_no_options(doc)
     by_id = {s.id: s for s in scopes}
-    group_of = {v["qualified"]: v.get("group") for v in groups["items"].values()}
     no_options = [n["scope"] for n in doc.get("noOptions") or [] if isinstance(n, dict) and "scope" in n]
     seen = Counter([_id(raw) for raw in doc.get("dossiers") or []] + no_options)
     problems += [f"scope {s} appears {n} times" for s, n in sorted(seen.items(), key=str) if n > 1]
@@ -167,22 +166,29 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     problems += [f"scope {s}: neither a dossier nor in noOptions" for s in sorted(set(by_id) - set(seen))]
     problems += _unused_reasons(doc, scopes)
     for raw in doc.get("dossiers") or []:
-        d, found = check_dossier(raw, doc.get("app"), perf)
-        problems += found
-        if d is None:
-            continue
-        where = f"dossier {d.key}"
-        if d.scope.id in by_id and d.scope != by_id[d.scope.id]:
-            problems.append(f"{where}: scope differs from scopes.json")
-        group = group_of.get(d.current)
-        if group is None:
-            problems.append(f"{where}: current {d.current} is not a grouped item")
-        problems += [f"{where} {o.alias}: {o.item} is not another member of group {group}"
-                     for o in d.options if o.item == d.current or group_of.get(o.item) != group]
-        problems += [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
-                     for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
-        problems += _screen(where, d, verdicts)
+        problems += _against_run(raw, doc.get("app"), perf, by_id, groups, verdicts)
     return problems
+
+
+def _against_run(raw, app, perf: PerfMode, by_id: dict[str, Scope], groups: dict, verdicts: dict[str, Verdict] | None) -> list[str]:
+    """One dossier against scopes.json, groups.json and the screen verdicts."""
+    d, problems = check_dossier(raw, app, perf)
+    if d is None:
+        return problems
+    where = f"dossier {d.key}"
+    if d.scope.id in by_id and d.scope != by_id[d.scope.id]:
+        problems.append(f"{where}: scope differs from scopes.json")
+    return problems + _in_group(where, d, groups) + _screen(where, d, verdicts)
+
+
+def _in_group(where: str, d: Dossier, groups: dict) -> list[str]:
+    group_of = {v["qualified"]: v.get("group") for v in groups["items"].values()}
+    group = group_of.get(d.current)
+    problems = [f"{where}: current {d.current} is not a grouped item"] if group is None else []
+    problems += [f"{where} {o.alias}: {o.item} is not another member of group {group}"
+                 for o in d.options if o.item == d.current or group_of.get(o.item) != group]
+    return problems + [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
+                       for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
 
 
 def _grouped(doc: dict, dossiers: list[Dossier], none: dict[str, str]) -> tuple[list[UnitDossiers], list[str]]:

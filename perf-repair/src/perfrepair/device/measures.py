@@ -32,11 +32,7 @@ def _switch(m: Metric) -> str:
     return "run.harness.energy.capture: measured" if m.run == ENERGY_RUN else f"{m.run} in run.metrics"
 
 
-def check_measures(config: Path, perf: PerfMode) -> None:
-    """generic measures what the config says and decides on what was measured, so it checks nothing."""
-    if perf.generic or not Path(config).is_file():
-        return
-    on = switched_on(read_yaml(config) or {})
+def _missing(config: Path, perf: PerfMode, on: set[str]) -> None:
     missing = [m for m in perf.metrics if m.run not in on]
     hard = [m for m in missing if m.run != ENERGY_RUN]
     if hard:
@@ -45,7 +41,19 @@ def check_measures(config: Path, perf: PerfMode) -> None:
     for m in missing:
         emit("device", "measures", LOG, detail=f"perf_mode_unmeasured: {m.name} is selected but {config} does not set "
                                                f"{_switch(m)}; only cases a test set turns it on for get it, the rest are no_evidence")
+
+
+def _extra(config: Path, perf: PerfMode, on: set[str]) -> None:
     extra = [m for m in METRICS if m.run in on and m not in perf.metrics and not m.required]
     if extra:
         emit("device", "measures", LOG, detail=f"perf_mode_extra: {config} measures {', '.join(m.name for m in extra)}, "
                                                f"which perfMode {perf.name} does not select; device time no decision reads")
+
+
+def check_measures(config: Path, perf: PerfMode) -> None:
+    """generic measures what the config says and decides on what was measured, so it checks nothing."""
+    if perf.generic or not Path(config).is_file():
+        return
+    on = switched_on(read_yaml(config) or {})
+    _missing(config, perf, on)
+    _extra(config, perf, on)

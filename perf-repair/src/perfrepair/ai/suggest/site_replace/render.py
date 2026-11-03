@@ -77,9 +77,13 @@ def _names(estimates) -> dict[str, str]:
     parsed = {e.configuration: CONFIGURATION.match(e.configuration) for e in estimates}
     if not all(parsed.values()):
         return {c: f" at {c}:" for c in parsed}
-    varies = {f: len({m[f] for m in parsed.values()}) > 1 for f in ("op", "key", "phase")}
-    return {c: f"@{m['input']}" + (f" {m['op']}" if varies["op"] else "") + (f" key {m['key']}" if varies["key"] else "")
-            + (f" {m['phase']}" if varies["phase"] else "") + (" (estimated)" if m["estimated"] else "") for c, m in parsed.items()}
+    varies = [f for f in ("op", "key", "phase") if len({m[f] for m in parsed.values()}) > 1]
+    return {c: _name(m, varies) for c, m in parsed.items()}
+
+
+def _name(m: re.Match, varies: list[str]) -> str:
+    shown = "".join(f" key {m[f]}" if f == "key" else f" {m[f]}" for f in varies)
+    return f"@{m['input']}{shown}" + (" (estimated)" if m["estimated"] else "")
 
 
 def _source(d: Dossier) -> list[str]:

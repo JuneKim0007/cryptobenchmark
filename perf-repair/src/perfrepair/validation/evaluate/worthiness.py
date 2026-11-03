@@ -14,6 +14,10 @@ def aliases(e: GroupEvidence) -> dict[str, str]:
     return {f"{MEMBER_PREFIX}{n}": m for n, m in enumerate(e.members, 1)}
 
 
+def _support(c) -> float:
+    return -1.0 if c.pImprove is None else c.pImprove
+
+
 def check_reply(text: str, e: GroupEvidence, mode: Mode) -> tuple[dict | None, list[str]]:
     d, problems = parse_object(text)
     if d is None:
@@ -54,7 +58,7 @@ def check_reply(text: str, e: GroupEvidence, mode: Mode) -> tuple[dict | None, l
             problems.append(f"pairs[{i}]: {b} {why_not} on {a} under {mode.name} in any configuration")
             continue
         # the pair carries its best-supported configuration and metric; a low level is reported, never refused
-        best = max((mode.deciding(m) for m in hits), key=lambda c: -1.0 if c.pImprove is None else c.pImprove)
+        best = max((mode.deciding(m) for m in hits), key=_support)
         pairs.append(Pair(a, b, why, best.pImprove, best.level))
     if problems:
         return None, problems

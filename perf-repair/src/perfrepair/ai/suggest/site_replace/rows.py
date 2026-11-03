@@ -64,15 +64,22 @@ def render_lines(d: Dossier, table: PrimitivesTable, perf: PerfMode, units: Disp
     # a column no shown line has a value in says nothing
     columns = [x for x in _columns(table, perf, units) if any(line.medians.get(x[1]) is not None for _, line in found)]
     metrics = [m for m in perf.names if m in table.metrics]
-    unit_note = f"latency {units.latency_label}, throughput {units.throughput}; " if any(
-        has_views(BY_NAME[m]) for m in metrics) else ""
+    return _head(columns, metrics, units) + ["  " + " | ".join(_cells(side, line, columns, metrics)) for side, line in found]
+
+
+def _head(columns, metrics: list[str], units: DisplayUnits) -> list[str]:
+    timed = any(has_views(BY_NAME[m]) for m in metrics)
+    unit_note = f"latency {units.latency_label}, throughput {units.throughput}; " if timed else ""
     head = ["side", "operation", "key", "phase", "status", *(h for h, _, _ in columns), "n", *(f"{m} cv" for m in metrics)]
-    lines = [f"MEASURED (primitives.tsv medians per input size; {unit_note}other metrics in their registry units)",
-             "  " + " | ".join(head)]
-    for side, line in found:
-        cells = [side, line.operation, ABSENT if line.keySize is None else str(line.keySize), line.phase or ABSENT,
-                 line.status]
-        cells += [ABSENT if line.medians.get(c) is None else number(f(line.medians[c])) for _, c, f in columns]
-        cells += [str(line.n)] + [ABSENT if line.cv.get(m) is None else f"{line.cv[m]:.3f}" for m in metrics]
-        lines.append("  " + " | ".join(cells))
-    return lines
+    return [f"MEASURED (primitives.tsv medians per input size; {unit_note}other metrics in their registry units)",
+            "  " + " | ".join(head)]
+
+
+def _shown(x, text) -> str:
+    return ABSENT if x is None else text(x)
+
+
+def _cells(side: str, line: PrimitiveLine, columns, metrics: list[str]) -> list[str]:
+    cells = [side, line.operation, _shown(line.keySize, str), line.phase or ABSENT, line.status]
+    cells += [_shown(line.medians.get(c), lambda x, f=f: number(f(x))) for _, c, f in columns]
+    return cells + [str(line.n)] + [_shown(line.cv.get(m), lambda x: f"{x:.3f}") for m in metrics]

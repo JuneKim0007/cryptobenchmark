@@ -144,17 +144,24 @@ class Joined:
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), estimates(*sides),
                       None if self.verdicts is None else self.verdicts[q].status, no_estimates(*sides))
 
+    def others(self, current: str) -> list[str] | None:
+        """The other members of the current item's group; None when it is in none."""
+        items = self.groups["items"]
+        key = next((k for k, v in items.items() if v["qualified"] == current), None)
+        group = items[key].get("group") if key is not None else None
+        if group is None:
+            return None
+        members = next(g["members"] for g in self.groups["groups"] if g["id"] == group)
+        return sorted(items[str(m)]["qualified"] for m in members if str(m) != key)
+
     def options(self, s: Scope) -> tuple[str, list[Option], str | None]:
         """The scope's current item and options, or the reason of the first filter that leaves none."""
         items = self.groups["items"]
         by_qualified = {v["qualified"]: key for key, v in items.items()}
         current = qualified(s.engineType, s.algorithm, s.provider)
-        key = by_qualified.get(current)
-        group = items[key].get("group") if key is not None else None
-        if group is None:
+        others = self.others(current)
+        if others is None:
             return current, [], "not_grouped"
-        members = next(g["members"] for g in self.groups["groups"] if g["id"] == group)
-        others = sorted(items[str(m)]["qualified"] for m in members if str(m) != key)
         usable = [q for q in others if items[by_qualified[q]].get("runs") and parse_qualified(q)[2] in self.available]
         targets, reason = _targets(current, others, usable, failed_pairs(self.groups), self.verdicts)
         if reason is not None:

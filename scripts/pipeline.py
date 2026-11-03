@@ -50,9 +50,11 @@ def runtime(measured, probe, files):
     return document
 
 
-def units(effective):
-    """analysis.units as :config wrote it: the display units every view of this run reads; absent before it existed."""
-    found = (effective.get("analysis") or {}).get("units")
+def units(files):
+    """analysis.units as :config wrote it into effective.yaml: the display units every view of this run reads."""
+    import yaml
+    effective = yaml.safe_load(files["effective"].read_text()) if "effective" in files else None
+    found = ((effective or {}).get("analysis") or {}).get("units")
     return {"units": found} if found else {}
 
 
@@ -77,7 +79,7 @@ def manifest(results, mode, configuration, files):
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
-    } | units(load("effective") if "effective" in files else {}) | energy_stage.estimated_mark(files.get("energy"))
+    } | units(files) | energy_stage.estimated_mark(files.get("energy"))
     path = results / results_layout.MANIFEST
     path.write_text(yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")

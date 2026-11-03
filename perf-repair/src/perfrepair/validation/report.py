@@ -26,7 +26,9 @@ def _selection(doc: dict) -> tuple[str, ...] | None:
 
 def _views(where: str, m: dict, units: DisplayUnits) -> list[str]:
     """The time row's display: latency is its medians in the latency unit, throughput their inverse in its unit or null."""
-    v = m["views"]
+    v = m.get("views")
+    if "views" not in m:
+        return []
     if v is None:
         return [] if not (m["before"] > 0 and m["after"] > 0) else [f"{where}: views null for positive medians"]
     lat, tput = v.get("latency") or {}, v.get("throughput")
@@ -38,15 +40,22 @@ def _views(where: str, m: dict, units: DisplayUnits) -> list[str]:
     return []
 
 
-def _metric(where: str, m: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
-    if m.get("selected") is not (m.get("metric") in selected):
-        return [f"{where}: selected {m.get('selected')!r} is not whether the mode selects it"]
+def _extra(m: dict) -> set[str]:
+    """The keys a measured row adds: views on the time metric, else kind when energy was estimated."""
+    metric = BY_NAME.get(m.get("metric"))
+    return {"views"} if metric and has_views(metric) else set(m) & {"kind"}
+
+
+def _selected(where: str, metrics: list[dict], selected: tuple[str, ...]) -> list[str]:
+    return [f"{where}.{m.get('metric')}: selected {m.get('selected')!r} is not whether the mode selects it"
+            for m in metrics if m.get("selected") is not (m.get("metric") in selected)]
+
+
+def _metric(where: str, m: dict, units: DisplayUnits) -> list[str]:
     if m.get("measured") is False:
         ok = set(m) == {"metric", "unit", "selected", "measured", "reason"} and isinstance(m["reason"], str) and m["reason"]
         return [] if ok else [f"{where}: an unmeasured metric has exactly a non-empty reason and no numbers"]
-    metric = BY_NAME.get(m.get("metric"))
-    extra = {"views"} if metric is not None and has_views(metric) else set(m) & {"kind"}
-    if set(m) != MEASURED_KEYS | extra:
+    if set(m) != MEASURED_KEYS | _extra(m):
         return [f"{where}: keys {sorted(m)}"]
     problems = []
     if not all(isinstance(m[k], (int, float)) and math.isfinite(m[k]) and m[k] >= 0 for k in ("before", "after")):
@@ -55,7 +64,7 @@ def _metric(where: str, m: dict, selected: tuple[str, ...], units: DisplayUnits)
         problems.append(f"{where}: ratio {m['ratio']} is not after ÷ before")
     if m["level"] != level(m["pImprove"]):
         problems.append(f"{where}: level {m['level']} is not the grade of pImprove {m['pImprove']}")
-    return problems + (_views(where, m, units) if "views" in extra and not problems else [])
+    return problems or _views(where, m, units)
 
 
 def _decision(where: str, d: dict) -> list[str]:
@@ -81,7 +90,8 @@ def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) ->
     if [m.get("metric") for m in r["metrics"]] != [k for k, _ in REPORTED]:
         problems.append(f"{where}: metrics are not {[k for k, _ in REPORTED]} in order")
     for m in r["metrics"]:
-        problems += _metric(f"{where}.{m.get('metric')}", m, selected, units)
+        problems += _metric(f"{where}.{m.get('metric')}", m, units)
+    problems += _selected(where, r["metrics"], selected)
     if any(m.get("measured") for m in r["metrics"]) and r["interop"].get("status") not in MEASURABLE:
         problems.append(f"{where}: measured although interop is {r['interop'].get('status')}")
     if r["inputs"] is not None and not valid_inputs(r["inputs"]):
@@ -109,16 +119,27 @@ def _stayed(rows: list[dict]) -> list[str]:
             for r in rows if r["stayed"] != stays[r["unit"]]]
 
 
-def validate_report(doc: dict, app: str) -> list[str]:
-    problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
-    if doc.get("app") != app:
-        problems.append(f"app {doc.get('app')!r} is not {app!r}")
-    if (selected := _selection(doc)) is None:
-        return problems + [f"mode {doc.get('mode')!r} is not a perfMode"]
+def _mode_units(doc: dict) -> tuple[tuple[str, ...], DisplayUnits, str | None]:
+    """The selection and display units a report was built with, or the problem that stops its check."""
+    selected = _selection(doc)
+    if selected is None:
+        return (), DisplayUnits(), f"mode {doc.get('mode')!r} is not a perfMode"
     try:
-        units = DisplayUnits.parse(doc["units"])
+        return selected, DisplayUnits.parse(doc["units"]), None
     except (KeyError, ValueError) as e:
-        return problems + [f"units: {e}"]
+        return selected, DisplayUnits(), f"units: {e}"
+
+
+def _identity(doc: dict, app: str) -> list[str]:
+    problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
+    return problems + ([] if doc.get("app") == app else [f"app {doc.get('app')!r} is not {app!r}"])
+
+
+def validate_report(doc: dict, app: str) -> list[str]:
+    problems = _identity(doc, app)
+    selected, units, stop = _mode_units(doc)
+    if stop:
+        return problems + [stop]
     rows = doc.get("scopes") or []
     for r in rows:
         problems += _row(str(r.get("scope")), r, selected, units)

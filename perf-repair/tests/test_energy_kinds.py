@@ -89,19 +89,19 @@ def energy_row(before, after):
 
 def test_the_report_labels_an_estimate_and_validates_it():
     m = energy_row(case("estimated"), case("estimated"))
-    assert m["kind"] == "estimated" and m["measured"] is True and _metric("r", m, PerfMode().names, DisplayUnits()) == []
+    assert m["kind"] == "estimated" and m["measured"] is True and _metric("r", m, DisplayUnits()) == []
     assert "| energyJ * (J/op, estimated) |" in _metric_lines(m, DisplayUnits().to_json())[0]
 
 
 def test_the_report_of_rails_energy_is_what_it_was():
     for kind in ("measured", None):
         m = energy_row(case(kind), case(kind))
-        assert "kind" not in m and _metric("r", m, PerfMode().names, DisplayUnits()) == [] and "| energyJ * (J/op) |" in _metric_lines(m, DisplayUnits().to_json())[0]
+        assert "kind" not in m and _metric("r", m, DisplayUnits()) == [] and "| energyJ * (J/op) |" in _metric_lines(m, DisplayUnits().to_json())[0]
 
 
 def test_the_report_refuses_a_ratio_across_kinds():
     m = energy_row(case("measured"), case("estimated"))
-    assert m["measured"] is False and m["reason"] == "energy_kinds_differ: measured before, estimated after" and _metric("r", m, PerfMode().names, DisplayUnits()) == []
+    assert m["measured"] is False and m["reason"] == "energy_kinds_differ: measured before, estimated after" and _metric("r", m, DisplayUnits()) == []
 
 
 def test_the_summary_names_the_apps_with_estimates():
