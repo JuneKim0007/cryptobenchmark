@@ -17,6 +17,8 @@ class ResultRow(
     val thermalThrottleSleepSeconds: Long? = null,
     val thermal: Map<String, Any?>? = null,
     val thermalNote: String? = null,
+    // The host's thermal gate before the case: {waitedSeconds, target, timedOut}; null when no gate ran.
+    val gate: Map<String, Any?>? = null,
 ) {
 
     val metrics: Map<String, MetricSamples> = LinkedHashMap(metrics)
@@ -35,8 +37,21 @@ class ResultRow(
         else -> LinkedHashMap(first).apply { END_KEYS.forEach { put(it, last[it]) } }
     }
 
+    // Merged processes: every wait added, timed out if any process's gate did, the first target.
+    private fun gated(first: Map<String, Any?>?, last: Map<String, Any?>?): Map<String, Any?>? = when {
+        first == null || last == null -> first ?: last
+        else -> LinkedHashMap(first).apply {
+            put(WAITED, seconds(first[WAITED]) + seconds(last[WAITED]))
+            put(TIMED_OUT, first[TIMED_OUT] == true || last[TIMED_OUT] == true)
+        }
+    }
+
+    private fun seconds(value: Any?): Double = (value as? Number)?.toDouble() ?: 0.0
+
     private companion object {
         val END_KEYS = listOf("end", "endStatus")
+        const val WAITED = "waitedSeconds"
+        const val TIMED_OUT = "timedOut"
     }
 
     fun mergedWith(later: ResultRow): ResultRow {
@@ -49,6 +64,6 @@ class ResultRow(
         val slept = if (thermalThrottleSleepSeconds == null && later.thermalThrottleSleepSeconds == null) null
             else (thermalThrottleSleepSeconds ?: 0) + (later.thermalThrottleSleepSeconds ?: 0)
         return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged, parameters, slept, spanned(thermal, later.thermal),
-            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null })
+            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null }, gated(gate, later.gate))
     }
 }

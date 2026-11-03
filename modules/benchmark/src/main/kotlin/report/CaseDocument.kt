@@ -49,7 +49,7 @@ internal object CaseDocument {
     @Suppress("UNCHECKED_CAST")
     fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>,
             sleep: Long? = (case[SLEEP] as? Number)?.toLong(), thermal: Map<String, Any?>? = case[THERMAL] as? Map<String, Any?>,
-            note: String? = case[THERMAL_NOTE]?.toString()): ResultRow = ResultRow(
+            note: String? = case[THERMAL_NOTE]?.toString(), gate: Map<String, Any?>? = case[GATE] as? Map<String, Any?>): ResultRow = ResultRow(
         id = case["id"].toString(),
         type = case["type"].toString(),
         algorithm = case["algorithm"].toString(),
@@ -63,11 +63,13 @@ internal object CaseDocument {
         thermalThrottleSleepSeconds = sleep,
         thermal = thermal,
         thermalNote = note,
+        gate = gate,
     )
 
     const val SLEEP = "thermalThrottleSleepSeconds"
     const val THERMAL = "thermal"
     const val THERMAL_NOTE = "thermalNote"
+    const val GATE = "gate"
     // thermal.json's per-case "note": why a reading is missing, cached, or the process's instead of the case's
     const val NOTE = "note"
     val THERMAL_KEYS = setOf("start", "end", "startStatus", "endStatus")

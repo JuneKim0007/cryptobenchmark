@@ -61,6 +61,26 @@ class PassMergeTest {
     }
 
     @Test
+    fun theThermalGateTravelsBesideTheReadingAndMergedProcessesAddTheirWaits() {
+        val example = File("example")
+        val reading = """{"cases": {"%s": {"start": {"cpu0": 31.5}, "end": {"cpu0": 40.0}, "startStatus": 0, "endStatus": 0,
+                         "gate": {"waitedSeconds": 12.5, "target": 34.0, "timedOut": false}}}}"""
+        val data = File(example, "benchmark_jetpack_example.json").readText()
+        val prepared = File(example, "benchmark_prepared_example.yaml").readText()
+        val digestId = JetpackResults.convert(data, prepared).rows.single { it.algorithm == "SHA-256" }.id
+        val converted = JetpackResults.convert(data, prepared, thermal = JetpackResults.thermalOf(reading.format(digestId)))
+        val digest = converted.rows.single { it.id == digestId }
+        assertEquals(mapOf("waitedSeconds" to 12.5, "target" to 34.0, "timedOut" to false), digest.gate)
+        assertEquals(null, digest.thermal?.get("gate"))
+        assertEquals(true, converted.rows.filter { it.id != digestId }.all { it.gate == null })
+        val text = io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson(File("build")).text(converted.runtime, converted.rows)
+        val later = text.replace("\"waitedSeconds\": 12.5, \"target\": 34.0, \"timedOut\": false", "\"waitedSeconds\": 300.0, \"target\": 34.0, \"timedOut\": true")
+        val merged = io.github.junekim0007.cryptobench.benchmark.report.Merge.merge(listOf(text, later)).rows.single { it.id == digestId }
+        assertEquals(mapOf("waitedSeconds" to 312.5, "target" to 34.0, "timedOut" to true), merged.gate)
+        assertEquals(digest.gate, PassMerge.merge(text, emptyList()).rows.single { it.id == digestId }.gate)
+    }
+
+    @Test
     fun anAllocationPassReadsOneRunPerSampleAndItsOwnSampleCount() {
         val example = File("example")
         val sampled = File(example, "benchmark_jetpack_example.json").readText()

@@ -26,6 +26,7 @@ class BenchmarkJson(private val directory: File) {
             row.thermalThrottleSleepSeconds?.let { document.append(", \"${CaseDocument.SLEEP}\": $it") }
             row.thermal?.let { document.append(", \"${CaseDocument.THERMAL}\": ").append(json(it)) }
             row.thermalNote?.let { document.append(", \"${CaseDocument.THERMAL_NOTE}\": ").append(escaped(it)) }
+            row.gate?.let { document.append(", \"${CaseDocument.GATE}\": ").append(json(it)) }
             document.append(",\n     \"metrics\": {")
             document.append(row.metrics.entries.joinToString(", ") { (metric, samples) -> metricBlock(metric, samples) })
             document.append("}}")

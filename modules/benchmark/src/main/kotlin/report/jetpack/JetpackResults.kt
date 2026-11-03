@@ -39,7 +39,7 @@ object JetpackResults {
                 energy[id]?.let { measured[MetricSamples.ENERGY] = it }
                 val reading = thermal[id]
                 rows += CaseDocument.row(case, measured, resolvedParametersOf(id, case), (benchmark[CaseDocument.SLEEP] as? Number)?.toLong(),
-                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString())
+                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString(), gateOf(reading))
                 notApplied += RunCountAudit.findings(id, samples ?: CaseDocument.requestedIterations(case), measured, sampledAllocations(benchmark))
             } catch (unusable: RuntimeException) {
                 dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
@@ -78,10 +78,13 @@ object JetpackResults {
         CaseDocument.optionalSection(case[RESOLVED_PARAMETERS])
             ?: throw IllegalArgumentException("missing_field: $RESOLVED_PARAMETERS for $id; prepared.yaml predates schemaVersion 2")
 
-    // thermal.json of scripts/thermal_hook.py: {"cases": {"<id>": {start, end, startStatus, endStatus, ...}}}
+    // thermal.json of scripts/thermal_hook.py: {"cases": {"<id>": {start, end, startStatus, endStatus, note?, gate?}}}
     @Suppress("UNCHECKED_CAST")
     fun thermalOf(text: String): Map<String, Map<String, Any?>> =
         (CaseDocument.optionalSection(CaseDocument.load(text)["cases"]) ?: emptyMap()).mapValues { (_, reading) -> reading as Map<String, Any?> }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun gateOf(reading: Map<String, Any?>?): Map<String, Any?>? = reading?.get(CaseDocument.GATE) as? Map<String, Any?>
 
     fun caseIdOf(benchmark: Map<String, Any>): String {
         val name = benchmark["name"].toString()
