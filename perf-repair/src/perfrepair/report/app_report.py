@@ -2,7 +2,7 @@
 is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 
-from ..dto.report import MEASURABLE, SCHEMA_VERSION
+from ..dto.report import MEASURABLE, SCHEMA_VERSION, unit_counts
 from ..dto.unit import read_units, units_by_scope
 from ..files import read_json, read_yaml
 from ..result.modes import Mode
@@ -20,9 +20,9 @@ def _measured(row: dict) -> bool:
 
 
 def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
-    return {"sites": sites, "scopes": len(rows), "units": len({r["unit"] for r in rows}), "withOptions": with_options,
-            "replace": sum(r["decision"]["decision"] == "replace" for r in rows),
-            "unitsReplace": len({r["unit"] for r in rows if r["decision"]["decision"] == "replace"}),
+    units = unit_counts(rows)
+    return {"sites": sites, "scopes": len(rows), "units": units["units"], "withOptions": with_options,
+            "replace": sum(r["decision"]["decision"] == "replace" for r in rows), "unitsReplace": units["unitsReplace"],
             "applied": sum(r["edit"]["status"] == "applied" for r in rows),
             "compiled": sum(r["compile"]["status"] == "compiled" for r in rows),
             "interopPassed": sum(r["interop"]["status"] == "passed" for r in rows),

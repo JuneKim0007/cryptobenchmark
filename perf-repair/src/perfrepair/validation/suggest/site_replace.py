@@ -142,12 +142,16 @@ def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, proble
     return Replacement(dossier.key, "replace", option.item, tuple(resolved), tuple(risks), reason).to_json()
 
 
+def _named(given: list, aliased: dict[str, Dossier]) -> list[str]:
+    problems = [f"member {a!r} is not one of {', '.join(aliased)}" for a in given if a not in aliased]
+    problems += [f"member {a} given more than once" for a in aliased if given.count(a) > 1]
+    return problems + [f"a unit is replaced whole: member {a} has no option" for a in aliased if a not in given]
+
+
 def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str]) -> list[dict]:
     aliased = unit.aliased()
     given = [m.get("member") if isinstance(m, dict) else None for m in raw]
-    problems += [f"member {a!r} is not one of {', '.join(aliased)}" for a in given if a not in aliased]
-    problems += [f"member {a} given more than once" for a in aliased if given.count(a) > 1]
-    problems += [f"a unit is replaced whole: member {a} has no option" for a in aliased if a not in given]
+    problems += _named(given, aliased)
     rows = []
     for alias, m in zip(given, raw):
         if alias in aliased and given.count(alias) == 1:

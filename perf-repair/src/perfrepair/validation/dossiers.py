@@ -178,19 +178,26 @@ def _grouped(doc: dict, dossiers: list[Dossier]) -> tuple[list[UnitDossiers], li
     by_key = {d.key: d for d in dossiers}
     items, problems = [], []
     for raw in doc["units"]:
-        try:
-            unit = Unit.from_json(raw)
-        except (KeyError, TypeError) as e:
-            problems.append(f"unit: does not parse: {e!r}")
-            continue
-        missing = [m for m in unit.members if m not in by_key]
-        problems += [f"unit {unit.id}: member {m} has no dossier" for m in missing]
-        if not missing:
-            items.append(UnitDossiers(unit, tuple(by_key[m] for m in unit.members)))
+        item, found = _unit_item(raw, by_key)
+        problems += found
+        if item is not None:
+            items.append(item)
+    return items, problems + _membership(items, by_key, not problems)
+
+
+def _membership(items: list[UnitDossiers], by_key: dict[str, Dossier], complete: bool) -> list[str]:
     members = Counter(m for item in items for m in item.unit.members)
-    problems += [f"dossier {k}: in no unit" for k in by_key if members[k] == 0 and not problems]
-    problems += [f"dossier {k}: in {n} units" for k, n in members.items() if n > 1]
-    return items, problems
+    unplaced = [f"dossier {k}: in no unit" for k in by_key if members[k] == 0] if complete else []
+    return unplaced + [f"dossier {k}: in {n} units" for k, n in members.items() if n > 1]
+
+
+def _unit_item(raw, by_key: dict[str, Dossier]) -> tuple[UnitDossiers | None, list[str]]:
+    try:
+        unit = Unit.from_json(raw)
+    except (KeyError, TypeError) as e:
+        return None, [f"unit: does not parse: {e!r}"]
+    missing = [f"unit {unit.id}: member {m} has no dossier" for m in unit.members if m not in by_key]
+    return (None, missing) if missing else (UnitDossiers(unit, tuple(by_key[m] for m in unit.members)), [])
 
 
 def parse_dossiers(doc: dict, app: str) -> tuple[list[UnitDossiers], dict[str, str], list[str]]:

@@ -25,6 +25,15 @@ def _header(doc: dict, app: str, key: str, version: int = SCHEMA_VERSION) -> lis
     return problems
 
 
+def _rejected(where: str, e: dict) -> list[str]:
+    problems = []
+    if e.get("reason") not in EDIT_REASONS or e.get("diff") != "":
+        problems.append(f"{where}: rejected needs a coded reason and an empty diff")
+    if (e.get("reason") == "unit_member_rejected") != bool(e.get("blockedBy")):
+        problems.append(f"{where}: blockedBy names the member that rejected the unit, and only then")
+    return problems
+
+
 def validate_edits(doc: dict, app: str, scope_ids: set[str]) -> list[str]:
     problems = _header(doc, app, "edits")
     seen = set()
@@ -39,10 +48,7 @@ def validate_edits(doc: dict, app: str, scope_ids: set[str]) -> list[str]:
             if e.get("reason") is not None or not e.get("diff"):
                 problems.append(f"{where}: applied needs a diff and no reason")
         elif e.get("status") == "rejected":
-            if e.get("reason") not in EDIT_REASONS or e.get("diff") != "":
-                problems.append(f"{where}: rejected needs a coded reason and an empty diff")
-            if (e.get("reason") == "unit_member_rejected") != bool(e.get("blockedBy")):
-                problems.append(f"{where}: blockedBy names the member that rejected the unit, and only then")
+            problems += _rejected(where, e)
         else:
             problems.append(f"{where}: status {e.get('status')!r}")
     return problems

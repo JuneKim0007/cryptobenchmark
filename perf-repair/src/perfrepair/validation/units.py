@@ -16,6 +16,13 @@ def _lifecycle_lines(scope: dict) -> set[int]:
     return lines
 
 
+def _cited(where: str, side: str, lines: list[int], by_id: dict[str, dict]) -> list[str]:
+    if not lines:
+        return [f"{where}: link side {side} cites no line"]
+    known = _lifecycle_lines(by_id[side]) if side in by_id else set(lines)
+    return [f"{where}: line {n} is not in the lifecycle of {side}" for n in lines if n not in known]
+
+
 def _link(where: str, k, members: set[str], by_id: dict[str, dict]) -> list[str]:
     if not isinstance(k, dict) or set(k) != _LINK_KEYS:
         return [f"{where}: a link is not {sorted(_LINK_KEYS)}"]
@@ -24,13 +31,7 @@ def _link(where: str, k, members: set[str], by_id: dict[str, dict]) -> list[str]
     problems = [f"{where}: link side {side} is not a member" for side in (k["a"], k["b"]) if side not in members]
     if k["a"] == k["b"]:
         problems.append(f"{where}: a link of {k['a']} to itself")
-    for side, lines in ((k["a"], k["aLines"]), (k["b"], k["bLines"])):
-        if not lines:
-            problems.append(f"{where}: link side {side} cites no line")
-        elif side in by_id:
-            problems += [f"{where}: line {n} is not in the lifecycle of {side}" for n in lines
-                         if n not in _lifecycle_lines(by_id[side])]
-    return problems
+    return problems + _cited(where, k["a"], k["aLines"], by_id) + _cited(where, k["b"], k["bLines"], by_id)
 
 
 def _connected(members: list[str], links: list[dict]) -> bool:
@@ -67,9 +68,13 @@ def validate_units(doc: dict, scopes: list[dict]) -> list[str]:
         problems += _unit(u, doc["app"], by_id)
     if problems:
         return problems
+    return _coverage(units, set(by_id))
+
+
+def _coverage(units: list[dict], scopes: set[str]) -> list[str]:
     members = [m for u in units for m in u["members"]]
-    problems += [f"scope {m}: in several units" for m in sorted(set(members)) if members.count(m) > 1]
-    problems += [f"scope {m}: in no unit" for m in sorted(set(by_id) - set(members))]
+    problems = [f"scope {m}: in several units" for m in sorted(set(members)) if members.count(m) > 1]
+    problems += [f"scope {m}: in no unit" for m in sorted(scopes - set(members))]
     ids = {u["id"] for u in units}
     return problems + [f"unit {u['id']}: sharedFunction names {o}, not a unit" for u in units for o in u["sharedFunction"]
                        if o not in ids]

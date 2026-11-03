@@ -20,6 +20,11 @@ FUNNEL = ("sites", "scopes", "units", "withOptions", "replace", "unitsReplace", 
 CHANGES = ("improved", "unchanged", "worse", "notMeasured")
 
 
+def unit_counts(rows: list[dict]) -> dict:
+    return {"units": len({r["unit"] for r in rows}),
+            "unitsReplace": len({r["unit"] for r in rows if r["decision"]["decision"] == "replace"})}
+
+
 def case_id(scope: str, side: str) -> str:
     """cryptobenchmark's scoped case id; side is before or after."""
     return f"scope:{scope}:{side}"

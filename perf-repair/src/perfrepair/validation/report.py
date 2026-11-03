@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
-                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS)
+                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS, unit_counts)
 from ..result.confidence import level
 from .repair import valid_inputs
 
@@ -37,6 +37,12 @@ def _decision(where: str, d: dict) -> list[str]:
     return []
 
 
+def _unit(where: str, r: dict) -> list[str]:
+    if isinstance(r["unit"], str) and isinstance(r["sharedFunction"], list):
+        return []
+    return [f"{where}: unit {r['unit']!r} or sharedFunction {r['sharedFunction']!r}"]
+
+
 def _row(where: str, r: dict) -> list[str]:
     if tuple(r) != ROW_KEYS:
         return [f"{where}: keys {list(r)}"]
@@ -52,8 +58,7 @@ def _row(where: str, r: dict) -> list[str]:
         problems.append(f"{where}: measured although interop is {r['interop'].get('status')}")
     if r["inputs"] is not None and not valid_inputs(r["inputs"]):
         problems.append(f"{where}: inputs {r['inputs']}")
-    if not isinstance(r["unit"], str) or not isinstance(r["sharedFunction"], list):
-        problems.append(f"{where}: unit {r['unit']!r} or sharedFunction {r['sharedFunction']!r}")
+    problems += _unit(where, r)
     if r["verdict"] not in VERDICTS:
         problems.append(f"{where}: verdict {r['verdict']!r}")
     return problems
@@ -62,9 +67,9 @@ def _row(where: str, r: dict) -> list[str]:
 def _recount(f: dict, rows: list[dict]) -> dict:
     statuses = [(r["decision"]["decision"], r["edit"]["status"], r["compile"]["status"], r["interop"]["status"],
                  any(m["measured"] for m in r["metrics"])) for r in rows]
-    return {"sites": f["sites"], "scopes": len(rows), "units": len({r["unit"] for r in rows}), "withOptions": f["withOptions"],
-            "replace": sum(s[0] == "replace" for s in statuses),
-            "unitsReplace": len({r["unit"] for r in rows if r["decision"]["decision"] == "replace"}), "applied": sum(s[1] == "applied" for s in statuses),
+    units = unit_counts(rows)
+    return {"sites": f["sites"], "scopes": len(rows), "units": units["units"], "withOptions": f["withOptions"],
+            "replace": sum(s[0] == "replace" for s in statuses), "unitsReplace": units["unitsReplace"], "applied": sum(s[1] == "applied" for s in statuses),
             "compiled": sum(s[2] == "compiled" for s in statuses),
             "interopPassed": sum(s[3] == "passed" for s in statuses), "measured": sum(s[4] for s in statuses),
             "measuredUnchecked": sum(s[4] and s[3] == "unchecked" for s in statuses)}
