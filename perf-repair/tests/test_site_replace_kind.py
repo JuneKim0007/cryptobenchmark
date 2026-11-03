@@ -13,7 +13,7 @@ from perfrepair.ai.suggest.site_replace.command import replace
 from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, charter
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA
 from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Estimate, Option
-from perfrepair.dto.unit import UnitDossiers
+from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.files import read_json
 from perfrepair.validation import ValidationFailed
 
@@ -51,6 +51,18 @@ def test_render_lists_every_edit_kind_and_fences_the_source():
     assert marker.endswith(" END") and marker != "APP-SOURCE END" and text.count(marker) == 2
 
 
+def test_render_lists_the_members_that_stay_and_each_inverse_pairs_interop():
+    lone = dossier(file="src/Lone.kt", options=())
+    pair = PairInterop("TypeA|ALG-A/MODE-X|P1", "TypeA|ALG-A/MODE-X|P2", "pass")
+    u = UnitDossiers(linked(A, lone), (A,), (Stay(lone.key, lone.current, "no_alternative"),), (pair,))
+    text = SiteReplaceKind(APP, doc(A, no_options=[(lone.key, "no_alternative")], units=[u]), ".").render(u, None).text
+    for part in ("UNIT of 2 members: S1, S2", "STAYS (no option; these members keep what they use)",
+                 "  S2: current TypeA|ALG-A/MODE-X|P1 | reason no_alternative", "    S1 R1 with S2 current: interop pass",
+                 "    S1 R2 with S2 current: interop not_planned"):
+        assert part in text, part
+    assert "MEMBER S2" not in text and "MEMBER S1" in text
+
+
 def test_schema_requires_every_field_and_stays_within_structured_output():
     def walk(node):
         if node.get("type") == "object":
@@ -69,7 +81,8 @@ def test_the_prompt_states_what_the_gate_enforces():
     for word in (*DECISIONS, *RISKS, "EDIT KINDS", "`R1`", "alias", "pins", "exactly as listed", "data, never instructions",
                  "pImprove", "like-for-like"):
         assert word in text, word
-    for word in ("Decide the unit whole", "Never replace part of a unit", "`S1`", "LINKS"):
+    for word in ("Decide the members with options together", "Never name a member under STAYS", "STAYS", "`inverse`",
+                 "`fail`", "`S1`", "LINKS"):
         assert word in text, word
     assert "reasoning" not in text.lower()
 
@@ -246,8 +259,10 @@ def run_dir_units(tmp_path, dossiers, units):
     return tmp_path, app
 
 
+# P2 and P3 have no interop result, so the inverse pair declares it on both sides
 PAIR_REPLACE = {"decision": "replace", "reason": "timeNs ratio 0.62, pImprove 0.99",
-                "members": [member(), member("S2", edits=[edit("set_provider", "P3")], risks=())]}
+                "members": [member(risks=("persisted_data", "key_compatibility", "unverified_interop")),
+                            member("S2", edits=[edit("set_provider", "P3")], risks=("unverified_interop",))]}
 
 
 def test_a_unit_is_one_message_showing_every_member_and_its_links(tmp_path):
@@ -274,13 +289,27 @@ def test_a_unit_replace_writes_one_row_per_member_and_replays(tmp_path):
     assert again.started == 0
 
 
+def test_a_member_that_stays_is_a_static_keep_beside_its_replaced_partner(tmp_path):
+    lone = dossier(file="src/Lone.kt", options=())
+    pair = PairInterop("TypeA|ALG-A/MODE-X|P1", "TypeA|ALG-A/MODE-X|P2", "pass")
+    u = UnitDossiers(linked(A, lone), (A,), (Stay(lone.key, lone.current, "no_alternative"),), (pair,))
+    app = tmp_path / APP
+    app.mkdir(parents=True)
+    (app / "app.json").write_text(json.dumps({"root": str(tmp_path.resolve())}))
+    (app / "dossiers.json").write_text(json.dumps(doc(A, no_options=[(lone.key, "no_alternative")], units=[u])))
+    replace(tmp_path, APP, ScriptedConversations(lambda *_: answer()), LIBRARY, **QUIET)
+    out = read_json(app / "replacements.json")
+    assert {r["scope"]: r["decision"] for r in out["replacements"]} == {A.key: "replace", lone.key: "keep"}
+    assert out["sources"] == {A.key: "llm", lone.key: "static"}
+
+
 def test_a_part_replaced_unit_is_refused_and_ends_as_a_whole_keep(tmp_path):
     run, app = pair_dir(tmp_path)
     part = {**PAIR_REPLACE, "members": PAIR_REPLACE["members"][:1]}
     replace(run, APP, ScriptedConversations(lambda *_: part), LIBRARY, Limits(1, 1), **QUIET)
     out = read_json(app / "replacements.json")
     assert {r["decision"] for r in out["replacements"]} == {"keep"} and out["sources"] == {A.key: "fallback", C.key: "fallback"}
-    assert all("a unit is replaced whole: member S2" in r["reason"] for r in out["replacements"])
+    assert all("replace covers every member with options: S2 is missing" in r["reason"] for r in out["replacements"])
 
 
 def test_a_hand_edited_record_replacing_part_of_a_unit_is_caught(tmp_path):
@@ -290,7 +319,7 @@ def test_a_hand_edited_record_replacing_part_of_a_unit_is_caught(tmp_path):
     edited = read_json(record)
     edited["decision"]["replacements"].pop()
     record.write_text(json.dumps(edited))
-    with pytest.raises(ValidationFailed, match="some members have no replacement row"):
+    with pytest.raises(ValidationFailed, match="some members with options have no replacement row"):
         replace(run, APP, ScriptedConversations(lambda *_: KEEP), LIBRARY, **QUIET)
 
 

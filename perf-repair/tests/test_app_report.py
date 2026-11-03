@@ -201,6 +201,20 @@ def test_rows_carry_their_unit_and_the_units_their_function_shares(tmp_path):
     assert "- unit: u-ab; its function also holds u-c, measured with only this unit swapped" in md
 
 
+def test_a_row_names_the_members_that_stayed_while_its_unit_was_replaced(tmp_path):
+    paths = AppPaths(tmp_path, "shop")
+    units = read_json(paths.units)
+    units["units"] = [u for u in units["units"] if u["id"] not in ("u-c", "u-d")] + [
+        {"id": "u-cd", "members": [C, D], "links": [], "sharedFunction": []}]
+    write_json(paths.units, units)
+    doc = build_report(paths, MODES["latency"])
+    rows = {r["scope"]: r for r in doc["scopes"]}
+    assert rows[C]["stayed"] == rows[D]["stayed"] == [D] and rows[A]["stayed"] == [] and rows[E]["stayed"] == []
+    assert validate_report(doc, "shop") == []
+    assert any("stayed" in p for p in validate_report({**doc, "scopes": [{**rows[A], "stayed": [D]}, *doc["scopes"][1:]]}, "shop"))
+    assert f"- unit: u-cd; stayed on what they use: {D}" in report_markdown(doc)
+
+
 def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
     paths = AppPaths(tmp_path, "shop")
     edits = read_json(paths.edits)

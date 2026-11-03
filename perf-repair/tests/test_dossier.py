@@ -13,7 +13,7 @@ from perfrepair.dto.lifecycle import Lifecycle
 from perfrepair.dto.screen import Verdict
 from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
-from perfrepair.dto.site import UNIT_MEMBER_WITHOUT_OPTION
+from perfrepair.dto.site import PROVIDER_HELD_KEY
 from perfrepair.dto.unit import Link, Unit, unit_id
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.result.unit_dossiers import by_unit
@@ -302,43 +302,80 @@ def test_estimates_cover_only_the_operations_the_lifecycle_performs_and_pins_sta
     assert {e.configuration for e in r1.estimates} == {"OP1 key 128 input 64 WARM", "OP2 key 128 input 64 WARM"}
 
 
-def _unit(*ids):
+def _unit(*ids, kind="shared_key"):
     return Unit(unit_id("app", list(ids)), tuple(ids), tuple(
-        Link("shared_key", a, b, (1,), (1,), "field") for a, b in zip(ids, ids[1:])))
+        Link(kind, a, b, (1,), (1,), "field" if kind == "shared_key" else "key") for a, b in zip(ids, ids[1:])))
 
 
 def _with_and_without():
     return [scope(), scope(line=30, algorithm="ALG-NONE")]
 
 
-def test_a_unit_with_a_member_without_options_is_a_static_keep_for_all(tmp_path):
+def test_a_member_without_options_stays_and_the_others_are_still_asked(tmp_path):
     has, lacks = _with_and_without()
     plain = build([has, lacks], tmp_path)
-    assert [d["scope"]["id"] for d in plain["dossiers"]] == [has.id]
     own = plain["noOptions"][0]["reason"]
     unit = _unit(has.id, lacks.id)
-    doc = by_unit(plain, [unit])
+    doc = by_unit(plain, [unit], [has, lacks], GROUPS)
+    assert [d["scope"]["id"] for d in doc["dossiers"]] == [has.id] and doc["noOptions"] == plain["noOptions"]
+    assert doc["units"] == [unit.to_json() | {"stays": [{"scope": lacks.id, "current": "TypeA|ALG-NONE|P1", "reason": own}],
+                                              "pairs": []}]
+    assert validate_dossier_units(doc, [unit], [has, lacks], GROUPS) == []
+    assert validate_dossiers(doc, [has, lacks], GROUPS, None) == []
+
+
+def test_an_inverse_link_carries_the_interop_of_every_two_items_its_sides_can_end_on(tmp_path):
+    has, lacks = _with_and_without()
+    unit = _unit(has.id, lacks.id, kind="inverse")
+    [entry] = by_unit(build([has, lacks], tmp_path), [unit], [has, lacks], GROUPS)["units"]
+    assert entry["pairs"] == [{"a": "TypeA|ALG-A|P2", "b": "TypeA|ALG-NONE|P1", "status": "not_planned"},
+                              {"a": "TypeA|ALG-NONE|P1", "b": "TypeA|alg-a-alias|P3", "status": "not_planned"}]
+    same = scope(line=40)
+    [entry] = by_unit(build([has, same], tmp_path), [_unit(has.id, same.id, kind="inverse")], [has, same], GROUPS)["units"]
+    assert {(p["a"], p["b"], p["status"]) for p in entry["pairs"]} >= {
+        ("TypeA|ALG-A|P1", "TypeA|ALG-A|P2", "pass"), ("TypeA|ALG-A|P1", "TypeA|alg-a-alias|P3", "not_checkable"),
+        ("TypeA|ALG-A|P2", "TypeA|alg-a-alias|P3", "not_planned")}
+
+
+def _held_contract():
+    return {**GROUPS, "items": {**GROUPS["items"], "5": {**GROUPS["items"]["5"], "keyContract": "provider_held"}}}
+
+
+def test_a_provider_held_key_on_any_member_keeps_every_member(tmp_path):
+    has, lone = scope(), scope(line=30, algorithm="ALG-L")
+    groups, unit = _held_contract(), _unit(has.id, lone.id)
+    doc = by_unit(build([has, lone], tmp_path, groups=groups), [unit], [has, lone], groups)
     assert doc["dossiers"] == [] and doc["units"] == []
-    assert {n["scope"]: n["reason"] for n in doc["noOptions"]} == {lacks.id: own, has.id: UNIT_MEMBER_WITHOUT_OPTION}
-    assert validate_dossier_units(doc, [unit]) == [] and validate_dossiers(doc, [has, lacks], GROUPS, None) == []
+    assert {n["scope"]: n["reason"] for n in doc["noOptions"]} == {has.id: PROVIDER_HELD_KEY, lone.id: "no_alternative"}
+    assert validate_dossier_units(doc, [unit], [has, lone], groups) == []
 
 
-def test_every_unit_whose_members_have_options_is_asked(tmp_path):
+def test_a_keystore_key_source_alone_is_a_declared_risk_not_a_keep(tmp_path):
+    has, lacks = _with_and_without()
+    stored = replace(lacks, keySource="keystore")
+    doc = by_unit(build([has, stored], tmp_path), [_unit(has.id, stored.id)], [has, stored], GROUPS)
+    assert [d["scope"]["id"] for d in doc["dossiers"]] == [has.id]
+
+
+def test_every_unit_with_a_member_with_options_is_asked(tmp_path):
     has, lacks = _with_and_without()
     units = [_unit(has.id), _unit(lacks.id)]
-    doc = by_unit(build([has, lacks], tmp_path), units)
-    assert doc["units"] == [units[0].to_json()] and [d["scope"]["id"] for d in doc["dossiers"]] == [has.id]
-    assert validate_dossier_units(doc, units) == []
+    doc = by_unit(build([has, lacks], tmp_path), units, [has, lacks], GROUPS)
+    assert doc["units"] == [units[0].to_json() | {"stays": [], "pairs": []}]
+    assert [d["scope"]["id"] for d in doc["dossiers"]] == [has.id]
+    assert validate_dossier_units(doc, units, [has, lacks], GROUPS) == []
 
 
-def test_the_unit_validator_refuses_a_partly_asked_unit_and_a_wrong_static_keep(tmp_path):
+def test_the_unit_validator_refuses_a_wrong_key_contract_keep_and_lost_units(tmp_path):
     has, lacks = _with_and_without()
     unit = _unit(has.id, lacks.id)
-    plain = {**build([has, lacks], tmp_path), "units": []}
-    assert any("has a dossier although" in p for p in validate_dossier_units(plain, [unit]))
-    alone = [_unit(has.id), _unit(lacks.id)]
-    wrong = by_unit(build([has, lacks], tmp_path), [unit])
-    assert any("but every member has options" in p or "units are not" in p for p in validate_dossier_units(wrong, alone))
-    lost = {**by_unit(build([has, lacks], tmp_path), alone), "units": []}
-    assert any("units are not the units.json" in p for p in validate_dossier_units(lost, alone))
+    plain = build([has, lacks], tmp_path)
+    held = {**plain, "dossiers": [], "noOptions": plain["noOptions"] + [{"scope": has.id, "reason": PROVIDER_HELD_KEY}]}
+    assert any("no member's key is provider-held" in p for p in validate_dossier_units(held, [unit], [has, lacks], GROUPS))
+    lone = scope(line=30, algorithm="ALG-L")
+    both = build([has, lone], tmp_path)
+    assert any("has a dossier although" in p
+               for p in validate_dossier_units(both, [_unit(has.id, lone.id)], [has, lone], _held_contract()))
+    lost = {**by_unit(plain, [unit], [has, lacks], GROUPS), "units": []}
+    assert any("units are not the units.json" in p for p in validate_dossier_units(lost, [unit], [has, lacks], GROUPS))
 

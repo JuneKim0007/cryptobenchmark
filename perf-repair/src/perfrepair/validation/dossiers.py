@@ -10,7 +10,7 @@ from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.site import (DOSSIERS_SCHEMA_VERSION, METRICS, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX,
                         Dossier, Scope)
-from ..dto.unit import Unit, UnitDossiers
+from ..dto.unit import PairInterop, Stay, Unit, UnitDossiers
 from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "dossiers", "noOptions", "units"}
@@ -173,12 +173,12 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     return problems
 
 
-def _grouped(doc: dict, dossiers: list[Dossier]) -> tuple[list[UnitDossiers], list[str]]:
-    """Each asked unit with its members' dossiers, in member order; every dossier in exactly one unit."""
+def _grouped(doc: dict, dossiers: list[Dossier], none: dict[str, str]) -> tuple[list[UnitDossiers], list[str]]:
+    """Each asked unit with its members' dossiers and stays, in member order; every dossier in exactly one unit."""
     by_key = {d.key: d for d in dossiers}
     items, problems = [], []
     for raw in doc["units"]:
-        item, found = _unit_item(raw, by_key)
+        item, found = _unit_item(raw, by_key, none)
         problems += found
         if item is not None:
             items.append(item)
@@ -191,13 +191,28 @@ def _membership(items: list[UnitDossiers], by_key: dict[str, Dossier], complete:
     return unplaced + [f"dossier {k}: in {n} units" for k, n in members.items() if n > 1]
 
 
-def _unit_item(raw, by_key: dict[str, Dossier]) -> tuple[UnitDossiers | None, list[str]]:
+def _stays(unit: Unit, stays: tuple[Stay, ...], by_key: dict[str, Dossier], none: dict[str, str]) -> list[str]:
+    where = f"unit {unit.id}"
+    problems = [] if any(m in by_key for m in unit.members) else [f"{where}: no member has a dossier"]
+    if [s.scope for s in stays] != [m for m in unit.members if m not in by_key]:
+        problems.append(f"{where}: stays are not exactly its members without a dossier, in member order")
+    return problems + [f"{where}: {s.scope} stays for {s.reason!r}, not its noOptions reason {none.get(s.scope)!r}"
+                       for s in stays if none.get(s.scope) != s.reason]
+
+
+def _unit_item(raw, by_key: dict[str, Dossier], none: dict[str, str]) -> tuple[UnitDossiers | None, list[str]]:
     try:
         unit = Unit.from_json(raw)
+        stays = tuple(Stay.from_json(s) for s in raw["stays"])
+        pairs = tuple(PairInterop.from_json(p) for p in raw["pairs"])
     except (KeyError, TypeError) as e:
         return None, [f"unit: does not parse: {e!r}"]
-    missing = [f"unit {unit.id}: member {m} has no dossier" for m in unit.members if m not in by_key]
-    return (None, missing) if missing else (UnitDossiers(unit, tuple(by_key[m] for m in unit.members)), [])
+    problems = _stays(unit, stays, by_key, none)
+    problems += [f"unit {unit.id}: pair {p.a} and {p.b}: interop {p.status!r} is not one of {PAIR_STATUSES}"
+                 for p in pairs if p.status not in PAIR_STATUSES]
+    if problems:
+        return None, problems
+    return UnitDossiers(unit, tuple(by_key[m] for m in unit.members if m in by_key), stays, pairs), []
 
 
 def parse_dossiers(doc: dict, app: str) -> tuple[list[UnitDossiers], dict[str, str], list[str]]:
@@ -217,5 +232,5 @@ def parse_dossiers(doc: dict, app: str) -> tuple[list[UnitDossiers], dict[str, s
     none = {n["scope"]: n["reason"] for n in doc["noOptions"] if isinstance(n, dict) and "scope" in n}
     keys = Counter([d.key for d in dossiers] + [n.get("scope") for n in doc["noOptions"] if isinstance(n, dict)])
     problems += [f"{k}: scope appears more than once" for k, n in sorted(keys.items(), key=str) if n > 1]
-    items, grouping = _grouped(doc, dossiers)
+    items, grouping = _grouped(doc, dossiers, none)
     return items, none, problems + grouping

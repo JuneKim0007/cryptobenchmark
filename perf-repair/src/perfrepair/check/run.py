@@ -141,7 +141,8 @@ def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalo
         verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))
         doc = read_json(directory)
         units = read_units(read_json(directory.parent / rd.UNITS))
-        out[str(directory.relative_to(run))] = validate_dossiers(doc, scopes, groups, verdicts) + validate_dossier_units(doc, units)
+        out[str(directory.relative_to(run))] = (validate_dossiers(doc, scopes, groups, verdicts)
+                                                + validate_dossier_units(doc, units, scopes, groups))
     return out
 
 

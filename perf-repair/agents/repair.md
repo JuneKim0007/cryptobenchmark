@@ -10,7 +10,7 @@
 - edit: never write inside the app root; copies go to `<app>/original/` and `patched/`.
 - edit: a splice keeps the file's line count; harness extraction relies on it.
 - edit: never edit a constant's declaration or render code from model text; constants come from `specs.yaml`.
-- edit: atomic per unit: one rejected member rejects the unit, and the other rows say which and why.
+- edit: atomic over a unit's replaced members: one rejected member rejects them all, and the other rows say which and why; a member that stays has no edit.
 - edit: a new reason code goes in `EDIT_REASONS` (`validation/repair.py`) and the limits table of `docs/repair.md`.
 - pin: a new parameter spec is a row in `specs.yaml`, never code.
 - order: scope → dossier → test-set (per-app benchmark run) → replace → edit → harness → device → report.
@@ -33,7 +33,7 @@ src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements 
 src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
 src/perfrepair/repair/edit/alone.py : units applied in one function: a copy of the file per unit with only its splices
-src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies, atomically per unit; edits.json document
+src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies, atomically over each unit's replaced members; edits.json document
 src/perfrepair/repair/edit/init.py : the one init call on the engine a scope's call returns
 src/perfrepair/repair/edit/lines.py : whole lines of a source: a function's line range, its import lines
 src/perfrepair/repair/edit/literal.py : a string rendered as a Java or Kotlin literal
@@ -54,7 +54,7 @@ src/perfrepair/repair/operation.py : whether a scope's function calls an operati
 src/perfrepair/repair/setup_calls.yaml : member calls that only configure a primitive; Kotlin scope-function blocks
 src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option
 src/perfrepair/report/__main__.py : command: `app --device-results --app [--mode]` | `summary --device-results`
-src/perfrepair/report/app_report.py : an app's step files → report.json: a row per scope with its unit, the funnel
+src/perfrepair/report/app_report.py : an app's step files → report.json: a row per scope with its unit and the members that stayed, the funnel
 src/perfrepair/report/command.py : stage: report.json and .md, summary.json and .md, validated before writing
 src/perfrepair/report/markdown.py : report.md and summary.md from their documents
 src/perfrepair/report/measured.py : cryptobenchmark's scoped-plan.yaml and scoped benchmark.json for one app; refuses a plan of another harness

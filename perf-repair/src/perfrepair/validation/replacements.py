@@ -66,15 +66,15 @@ def validate_replacements(replacements: dict[str, Replacement], sources: dict[st
     return problems
 
 
-def whole_units(replacements: dict[str, Replacement], units: list[UnitDossiers]) -> list[str]:
-    """A unit is replaced whole or kept whole, every member with its row."""
+def consistent_units(replacements: dict[str, Replacement], units: list[UnitDossiers]) -> list[str]:
+    """The members with options of a unit are replaced together or kept together, every one with its row."""
     problems = []
     for u in units:
-        rows = [replacements.get(m) for m in u.unit.members]
+        rows = [replacements.get(d.key) for d in u.dossiers]
         if not any(rows):
             continue
         if not all(rows):
-            problems.append(f"unit {u.key}: some members have no replacement row")
+            problems.append(f"unit {u.key}: some members with options have no replacement row")
         elif len({r.decision for r in rows}) != 1:
-            problems.append(f"unit {u.key}: replaced in part")
+            problems.append(f"unit {u.key}: its members with options are not all replaced or all kept")
     return problems

@@ -216,6 +216,13 @@ def test_a_unit_applies_every_member(tmp_path):
     assert call_line(text, LITERAL).endswith('"Fast");') and call_line(text, ABSENT).endswith('"Fast");')
 
 
+def test_a_unit_with_a_member_that_stays_applies_the_replaced_one_alone(tmp_path):
+    doc, out = run(tmp_path, replace(LITERAL, provider("Fast")), units=together(LITERAL, ABSENT))
+    assert [(e["scope"], e["status"]) for e in doc["edits"]] == [(LITERAL.id, "applied")]
+    text = (out.patched / LITERAL.file).read_text()
+    assert call_line(text, LITERAL).endswith('"Fast");') and not call_line(text, ABSENT).endswith('"Fast");')
+
+
 def test_one_rejected_member_rejects_its_unit_and_the_rows_say_why(tmp_path):
     doc, out = run(tmp_path, replace(LITERAL, provider("Fast")), replace(TEMPLATE), replace(ABSENT, provider("Fast")),
                    units=together(LITERAL, TEMPLATE))

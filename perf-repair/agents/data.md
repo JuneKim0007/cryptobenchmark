@@ -61,12 +61,12 @@ src/perfrepair/dto/metrics.py : the metric registry, the only metric list: bench
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
 src/perfrepair/dto/primitives.py : PrimitiveLine, PrimitivesTable: primitives.tsv (schema 1) as text both ways; a median column per (metric, input size), n, cv per metric; 4 significant digits
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds; each prompt's source, never hashed
-src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, scoped case ids
+src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, the members a unit left staying, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED, NEVER_TARGET; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and lowers_status (the don't-lower-the-status rule); verdicts by qualified name; screen.json document (schema 4, with the catalog identity and the `built` items and profiles digests)
 src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
-src/perfrepair/dto/unit.py : Link, Unit, UnitDossiers (one decision: a unit and its members' dossiers), unit_id, read_units, link kinds and their evidence
+src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per metric), MetricComparison, PairMetrics, Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append; several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only

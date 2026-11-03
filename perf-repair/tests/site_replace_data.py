@@ -1,7 +1,7 @@
 """Fake dossiers for the replacement decision; fake names only."""
 from perfrepair.dto.lifecycle import Lifecycle, Requirement, Step
 from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Dossier, Estimate, Option, Scope, scope_id
-from perfrepair.dto.unit import Link, Unit, UnitDossiers, unit_id
+from perfrepair.dto.unit import Link, Unit, UnitDossiers, unit_entry, unit_id
 
 APP = "demo-app"
 SOURCE = "fun seal(data: ByteArray): ByteArray {\n    val c = Engine.get(\"ALG-A/MODE-X\")\n    return c.run(data)\n}"
@@ -47,7 +47,7 @@ def item(d: Dossier) -> UnitDossiers:
 def doc(*dossiers: Dossier, app=APP, no_options=(), units=None) -> dict:
     grouped = units if units is not None else [solo(d) for d in dossiers]
     return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers],
-            "noOptions": [{"scope": s, "reason": r} for s, r in no_options], "units": [u.to_json() for u in grouped]}
+            "noOptions": [{"scope": s, "reason": r} for s, r in no_options], "units": [u.entry() if isinstance(u, UnitDossiers) else unit_entry(u, (), ()) for u in grouped]}
 
 
 def edit(kind, provider="", parameters=(), algorithm=""):

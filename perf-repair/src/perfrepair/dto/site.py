@@ -29,10 +29,10 @@ NOT_ON_DEVICE_STEP = "add it to providers.bundled in global.yaml and rerun the d
 NO_REAL_USE = "no_real_use"
 ENERGY_KINDS_DIFFER = "energy_kinds_differ"
 NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER,)
-UNIT_MEMBER_WITHOUT_OPTION = "unit_member_without_option"
-# in filter order: a scope is in noOptions under the first filter that leaves it nothing
+PROVIDER_HELD_KEY = "provider_held_key"
+# in filter order: a scope is in noOptions under the first filter that leaves it nothing; the last is its unit's
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
-                     "interop_failed", UNIT_MEMBER_WITHOUT_OPTION)
+                     "interop_failed", PROVIDER_HELD_KEY)
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
 DERIVED_RISKS = (

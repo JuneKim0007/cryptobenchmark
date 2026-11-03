@@ -31,8 +31,8 @@ def dossier(run: Path, app: str, source: Path, catalog: Catalog, echo=print) -> 
     facts = read_json(paths.facts)
     verdicts = catalog.handler().app_verdicts(groups, rd.load_screen(grouping), facts.get("targetSdk"))
     with step("repair", "dossier", app=app) as s:
-        doc = by_unit(build_dossiers(app, scopes, facts, groups, rows, measurements.byRow, source, verdicts), units)
-        require(rd.DOSSIERS, validate_dossiers(doc, scopes, groups, verdicts) + validate_dossier_units(doc, units))
+        doc = by_unit(build_dossiers(app, scopes, facts, groups, rows, measurements.byRow, source, verdicts), units, scopes, groups)
+        require(rd.DOSSIERS, validate_dossiers(doc, scopes, groups, verdicts) + validate_dossier_units(doc, units, scopes, groups))
         write_json(paths.dossiers, doc)
         s.count(scopes=len(scopes), units=len(doc["units"]), dossiers=len(doc["dossiers"]), options=sum(len(d["options"]) for d in doc["dossiers"]),
                 noOptions=dict(Counter(n["reason"] for n in doc["noOptions"])))

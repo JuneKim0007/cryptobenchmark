@@ -12,7 +12,7 @@ from ....files import json_text, sha256_text, write_json
 from ....validation.dossiers import check_dossier
 from ....validation.dossiers import parse_dossiers
 from ....validation.suggest.site_replace import check_reply
-from ....validation.replacements import validate_replacements, whole_units
+from ....validation.replacements import consistent_units, validate_replacements
 from ...runtime.engine.kind import replay_problems
 from ...runtime.prompt import PromptLibrary
 from .render import render
@@ -33,7 +33,7 @@ class Gone:
 
 
 def evidence(u: UnitDossiers) -> str:
-    return sha256_text(json_text({"unit": u.unit.to_json(), "dossiers": [d.to_json() for d in u.dossiers]}))
+    return sha256_text(json_text({"unit": u.entry(), "dossiers": [d.to_json() for d in u.dossiers]}))
 
 
 class SiteReplaceKind:
@@ -87,20 +87,20 @@ class SiteReplaceKind:
             return
         # a record without evidence predates it and cannot be shown to match
         mark = state.stale.add if record.evidence != evidence(u) else state.stale.discard
-        for member in u.unit.members:
-            mark(member)
+        for d in u.dossiers:
+            mark(d.key)
         if record.outcome == "decided":
             for row in record.decision["replacements"]:
                 state.put(Replacement.from_json(row), "llm")
             return
-        for member in u.unit.members:
-            state.put(Replacement(member, "keep", None, (), (), "dropped: " + "; ".join(record.problems)), "fallback")
+        for d in u.dossiers:
+            state.put(Replacement(d.key, "keep", None, (), (), "dropped: " + "; ".join(record.problems)), "fallback")
 
     def validate(self, state: Replacements, records: list[OutboxRecord]) -> list[str]:
         dossiers = [d for u in self.units for d in u.dossiers]
         problems = list(self.problems) + validate_replacements(state.replacements, state.sources, dossiers,
                                                                 self.no_options, state.stale)
-        return problems + whole_units(state.replacements, self.units) + replay_problems(self, state, records)
+        return problems + consistent_units(state.replacements, self.units) + replay_problems(self, state, records)
 
     def write(self, state: Replacements, records: list[OutboxRecord]) -> None:
         write_json(self.directory / rd.REPLACEMENTS, state.to_json())

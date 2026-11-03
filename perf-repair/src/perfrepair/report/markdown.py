@@ -29,7 +29,8 @@ def _interop(s: dict) -> str:
 def _unit(s: dict) -> str:
     shared = (f"; its function also holds {', '.join(s['sharedFunction'])}, measured with only this unit swapped"
               if s["sharedFunction"] else "")
-    return f"- unit: {s['unit']}{shared}"
+    stays = f"; stayed on what they use: {', '.join(s['stayed'])}" if s["stayed"] else ""
+    return f"- unit: {s['unit']}{shared}{stays}"
 
 
 def _inputs(i: dict | None) -> str:

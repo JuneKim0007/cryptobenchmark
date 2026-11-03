@@ -1,4 +1,5 @@
 """The guide end to end on the fixtures: recorded results, the demo app, scripted model answers, no device."""
+import json
 import shutil
 import sys
 from dataclasses import replace as with_field
@@ -26,7 +27,8 @@ from perfrepair.guide.steps import DEVICE_LEVEL, Guide
 from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
-from perfrepair.validation.suggest.site_replace import required_kinds, takes
+from perfrepair.validation.dossiers import parse_dossiers
+from perfrepair.validation.suggest.site_replace import check_reply, required_kinds, takes
 from perfrepair.screen.catalog import screening_catalog
 from perfrepair.app.facts.path_id import path_id
 
@@ -55,11 +57,14 @@ def first_option(run_dir, app_root=None):
 
 
 def replacing(doc, task):
-    """The answer that gives each member of the unit its first option, and the unit's first dossier."""
-    unit = next(u for u in doc["units"] if u["id"] == task.item)
-    dossiers = [next(Dossier.from_json(x) for x in doc["dossiers"] if x["scope"]["id"] == m) for m in unit["members"]]
-    members = [_first_option(f"S{n}", d) for n, d in enumerate(dossiers, 1)]
-    return {"decision": "replace", "members": members, "reason": "faster"}, dossiers[0]
+    """The answer that gives each member with options its first option and the risks the gate wants, and its first dossier."""
+    unit = next(u for u in parse_dossiers(doc, doc["app"])[0] if u.key == task.item)
+    members = [_first_option(a, d) for a, d in unit.aliased().items()]
+    reply = {"decision": "replace", "members": members, "reason": "faster"}
+    wants = {p.split(":")[0] for p in check_reply(json.dumps(reply), unit)[1] if "must include unverified_interop" in p}
+    for m in members:
+        m["risks"] += ["unverified_interop"] if m["member"] in wants else []
+    return reply, unit.dossiers[0]
 
 
 def _first_option(alias, d):

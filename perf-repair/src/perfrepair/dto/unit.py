@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
+from .interop import NOT_PLANNED
 from .site import Dossier
 
 UNITS_SCHEMA_VERSION = 1
@@ -69,14 +70,60 @@ def units_by_scope(units: list[Unit]) -> dict[str, Unit]:
 
 
 @dataclass(frozen=True)
+class Stay:
+    """A member with no option: it stays on what it uses, `current` None when unresolved, for its noOptions reason."""
+    scope: str
+    current: str | None
+    reason: str
+
+    @classmethod
+    def from_json(cls, d: dict) -> "Stay":
+        return cls(d["scope"], d["current"], d["reason"])
+
+
+@dataclass(frozen=True)
+class PairInterop:
+    """The interop status of two items an inverse link can end on, one per side."""
+    a: str
+    b: str
+    status: str
+
+    @classmethod
+    def from_json(cls, d: dict) -> "PairInterop":
+        return cls(d["a"], d["b"], d["status"])
+
+
+@dataclass(frozen=True)
 class UnitDossiers:
-    """One decision: a unit and the dossier of each member, in the unit's member order."""
+    """One decision: a unit, the dossier of each member with options and the members that stay, in member order."""
     unit: Unit
     dossiers: tuple[Dossier, ...]
+    stays: tuple[Stay, ...] = ()
+    pairs: tuple[PairInterop, ...] = ()
 
     @property
     def key(self) -> str:
         return self.unit.id
 
+    def aliases(self) -> dict[str, str]:
+        return {m: f"{MEMBER_PREFIX}{n}" for n, m in enumerate(self.unit.members, 1)}
+
     def aliased(self) -> dict[str, Dossier]:
-        return {f"{MEMBER_PREFIX}{n}": d for n, d in enumerate(self.dossiers, 1)}
+        alias = self.aliases()
+        return {alias[d.key]: d for d in self.dossiers}
+
+    def stayed(self) -> dict[str, Stay]:
+        alias = self.aliases()
+        return {alias[s.scope]: s for s in self.stays}
+
+    def interop(self, a: str | None, b: str | None) -> str:
+        pair = frozenset((a, b))
+        return next((p.status for p in self.pairs if frozenset((p.a, p.b)) == pair), NOT_PLANNED)
+
+    def entry(self) -> dict:
+        return unit_entry(self.unit, self.stays, self.pairs)
+
+
+def unit_entry(unit: Unit, stays: tuple[Stay, ...], pairs: tuple[PairInterop, ...]) -> dict:
+    """An asked unit's line in dossiers.json's units."""
+    return unit.to_json() | {"stays": [asdict(s) for s in stays], "pairs": [asdict(p) for p in pairs]}

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from .metrics import METRICS
 
-# 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit and sharedFunction, funnel units and unitsReplace
+# 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
+# sharedFunction and stayed, funnel units and unitsReplace
 SCHEMA_VERSION = 4
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")
@@ -23,6 +24,16 @@ CHANGES = ("improved", "unchanged", "worse", "notMeasured")
 def unit_counts(rows: list[dict]) -> dict:
     return {"units": len({r["unit"] for r in rows}),
             "unitsReplace": len({r["unit"] for r in rows if r["decision"]["decision"] == "replace"})}
+
+
+def stayed(rows: list[dict]) -> dict[str, list[str]]:
+    """Per unit, its members a static keep left on what they use while another member is replaced."""
+    replaced = {r["unit"] for r in rows if r["decision"]["decision"] == "replace"}
+    out: dict[str, list[str]] = {r["unit"]: [] for r in rows}
+    for r in rows:
+        if r["unit"] in replaced and r["decision"]["source"] == "static":
+            out[r["unit"]].append(r["scope"])
+    return out
 
 
 def case_id(scope: str, side: str) -> str:

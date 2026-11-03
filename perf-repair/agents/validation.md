@@ -21,7 +21,7 @@ src/perfrepair/validation/__main__.py : command: validate a device folder by the
 src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
 src/perfrepair/validation/classified.py : classify/classified.json: answers only for batched ids, ids in one batch, allowed values, a reason each
-src/perfrepair/validation/dossier_units.py : dossiers.json against units.json: asked units whole, `unit_member_without_option` exactly where another member has no option
+src/perfrepair/validation/dossier_units.py : dossiers.json against units.json: every unit with a member with options asked, with its stays and pairs; `provider_held_key` exactly where a member's key contract is provider-held
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status; parse_dossiers: units with their Dossiers and noOptions for the replace stage, by the same checks
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
 src/perfrepair/validation/events.py : log/events.jsonl: every line JSON, schema 1, every field with its type, a known kind; a partial last line
@@ -38,13 +38,13 @@ src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-clas
 src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures
 src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry metric columns, screen statuses, n, and equal line for line to what rows, measurements and screen.json make
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
-src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; whole_units
+src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; consistent_units
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition
 src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
-src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its unit, member by member in their aliases; a unit whole or kept; refuses an option with unknown pins; risks from scope and option
+src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its unit, member by member in their aliases; the members with options all replaced or all kept, none that stays named; an inverse pair's interop; refuses an option with unknown pins; risks from scope and option
 src/perfrepair/validation/units.py : units.json: every scope in one unit, ids recomputed, members connected, each cited line in that side's lifecycle
 src/perfrepair/validation/verdicts.py : verdicts: known groups, static equal triage, pairs are members
 ```

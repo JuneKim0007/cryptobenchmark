@@ -1,5 +1,6 @@
-"""What the replacement decision sees for one unit: its links, then per member the site, scope facts, lifecycle,
-requirements, current, aliased options and source; the edit kinds once."""
+"""What the replacement decision sees for one unit: its links and each inverse pair's interop, the members that stay,
+then per member with options the site, scope facts, lifecycle, requirements, current, aliased options and source; the
+edit kinds once."""
 from __future__ import annotations
 
 import hashlib
@@ -8,7 +9,7 @@ from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
 from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
                          required_risks)
-from ....dto.unit import UnitDossiers
+from ....dto.unit import INVERSE, Link, UnitDossiers
 
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
 TOO_FEW_RUNS = "n/a (n<2)"
@@ -89,16 +90,35 @@ def _member(alias: str, d: Dossier, shown: dict[tuple, str]) -> list[str]:
     return lines + [""] + source + [""]
 
 
+def _ends(u: UnitDossiers, member: str) -> list[tuple[str, str | None]]:
+    d = next((d for d in u.dossiers if d.key == member), None)
+    if d is None:
+        return [("current", next(s.current for s in u.stays if s.scope == member))]
+    return [("current", d.current), *((o.alias, o.item) for o in d.options)]
+
+
+def _pairs(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[str]:
+    a, b = _ends(u, k.a), _ends(u, k.b)
+    return [f"    {alias[k.a]} {x} with {alias[k.b]} {y}: interop {u.interop(i, j)}" for x, i in a for y, j in b
+            if i != j and (x, y) != ("current", "current")]
+
+
 def _links(u: UnitDossiers) -> list[str]:
-    alias = {d.key: a for a, d in u.aliased().items()}
-    lines = [f"  {alias[k.a]} {k.kind} {alias[k.b]} ({k.via}): lines {', '.join(map(str, k.aLines))} | "
-             f"lines {', '.join(map(str, k.bLines))}" for k in u.unit.links]
+    alias, lines = u.aliases(), []
+    for k in u.unit.links:
+        lines.append(f"  {alias[k.a]} {k.kind} {alias[k.b]} ({k.via}): lines {', '.join(map(str, k.aLines))} | "
+                     f"lines {', '.join(map(str, k.bLines))}")
+        lines += _pairs(u, k, alias) if k.kind == INVERSE else []
     return ["LINKS"] + (lines or ["  none: this unit has one member"])
 
 
 def render(u: UnitDossiers) -> str:
-    aliased = u.aliased()
-    lines = [f"UNIT of {len(aliased)} member{'s' if len(aliased) > 1 else ''}: {', '.join(aliased)}", *_links(u), ""]
+    aliased, stayed = u.aliased(), u.stayed()
+    members = ", ".join(u.aliases().values())
+    lines = [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *_links(u), ""]
+    if stayed:
+        lines += ["STAYS (no option; these members keep what they use)"]
+        lines += [f"  {a}: current {s.current or 'unknown'} | reason {s.reason}" for a, s in stayed.items()] + [""]
     shown: dict[tuple, str] = {}
     for alias, d in aliased.items():
         lines += _member(alias, d, shown)

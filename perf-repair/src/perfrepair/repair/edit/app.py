@@ -1,4 +1,5 @@
-"""An app's `replace` decisions applied to copies, atomically per unit: `original/` and `patched/` of each changed file, and edits.json."""
+"""An app's `replace` decisions applied to copies, atomically over each unit's replaced members (a member that stays has
+no edit): `original/` and `patched/` of each changed file, and edits.json."""
 from __future__ import annotations
 
 import shutil
@@ -71,7 +72,7 @@ class _Run:
         return splices
 
     def unit(self, uid: str, members: list[Replacement]) -> list[dict]:
-        """Every member applied, or none: one rejection rejects the unit, and the other rows name it."""
+        """Every replaced member applied, or none: one rejection rejects them all, and the other rows name it."""
         planned: dict[str, list[Splice]] = defaultdict(list)
         own, rejected = {}, {}
         for r in members:

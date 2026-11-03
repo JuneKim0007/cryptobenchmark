@@ -4,7 +4,7 @@ import pytest
 from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, item, linked, member, scope
 
 from perfrepair.dto.site import Option, Replacement, required_risks
-from perfrepair.dto.unit import UnitDossiers
+from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.validation.suggest.site_replace import check_reply
 
 D = dossier()
@@ -36,7 +36,7 @@ def test_a_good_keep():
     (answer(option="TypeA|ALG-A/MODE-X|P2"), "is not one of R1, R2"),
     (answer(edits=[]), "replace names no edit"),
     (answer("keep", "R1", []), "keep names members"),
-    ({"decision": "replace", "members": [], "reason": "x"}, "a unit is replaced whole: member S1 has no option"),
+    ({"decision": "replace", "members": [], "reason": "x"}, "replace covers every member with options: S1 is missing"),
     ({"decision": "replace", "members": [member("S7")], "reason": "x"}, "member 'S7' is not one of S1"),
     ({"decision": "replace", "members": [member(), member()], "reason": "x"}, "member S1 given more than once"),
     ({"decision": "replace", "members": "S1", "reason": "x"}, "members is not a list"),
@@ -132,7 +132,7 @@ def test_required_risks_add_the_options_interop(status, risks):
 
 SECOND = dossier(file="src/Other.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass"),),
                  sinks=("local",), key_source="derived")
-PAIR = UnitDossiers(linked(D, SECOND), (D, SECOND))
+PAIR = UnitDossiers(linked(D, SECOND), (D, SECOND), pairs=(PairInterop("TypeA|ALG-A/MODE-X|P2", "TypeA|ALG-A/MODE-X|P3", "pass"),))
 
 
 def both(first=None, second=None):
@@ -155,7 +155,7 @@ def test_a_unit_keep_is_one_row_per_member():
 
 
 @pytest.mark.parametrize("reply, problem", [
-    ({**both(), "members": [member()]}, "a unit is replaced whole: member S2 has no option"),
+    ({**both(), "members": [member()]}, "replace covers every member with options: S2 is missing"),
     (both(second=member("S2", option="R2", edits=[edit("set_provider", "P3")], risks=())), "S2: option 'R2' is not one of R1"),
     (both(second=member("S2", risks=())), "pin_parameters on R1, which lists no pins"),
     (both(first=member(risks=())), "S1: risks must include"),
@@ -163,3 +163,51 @@ def test_a_unit_keep_is_one_row_per_member():
 def test_a_unit_answer_is_checked_member_by_member(reply, problem):
     decision, problems = check_reply(json.dumps(reply), PAIR)
     assert decision is None and any(problem in p for p in problems), problems
+
+
+STAYING = dossier(file="src/Stays.kt", options=())
+
+
+def staying(*pairs):
+    """D with options, its inverse partner S2 without: S2 stays on P1."""
+    return UnitDossiers(linked(D, STAYING), (D,), (Stay(STAYING.key, STAYING.current, "no_alternative"),), pairs)
+
+
+def test_a_member_without_options_stays_and_the_other_is_replaced_alone():
+    unit = staying(PairInterop("TypeA|ALG-A/MODE-X|P1", "TypeA|ALG-A/MODE-X|P2", "pass"))
+    decision, problems = check_reply(json.dumps(answer()), unit)
+    assert problems == [] and [(r["scope"], r["decision"]) for r in decision["replacements"]] == [(D.key, "replace")]
+
+
+def test_a_keep_covers_only_the_members_with_options():
+    decision, problems = check_reply(json.dumps(KEEP), staying())
+    assert problems == [] and [r["scope"] for r in decision["replacements"]] == [D.key]
+
+
+def test_a_member_that_stays_is_never_named():
+    reply = {**answer(), "members": [member(), member("S2")]}
+    _, problems = check_reply(json.dumps(reply), staying())
+    assert "member S2 has no option; it stays on TypeA|ALG-A/MODE-X|P1" in problems
+
+
+@pytest.mark.parametrize("status, problem", [
+    ("not_run", "S1: risks must include unverified_interop: its inverse S2 ends on TypeA|ALG-A/MODE-X|P1, and their "
+                "interop is not_run"),
+    ("fail", "S1 and S2 are inverse, and TypeA|ALG-A/MODE-X|P2 and TypeA|ALG-A/MODE-X|P1 failed their interop check"),
+])
+def test_an_inverse_pair_with_one_side_swapped_needs_the_interop_of_the_two_providers(status, problem):
+    unit = staying(PairInterop("TypeA|ALG-A/MODE-X|P1", "TypeA|ALG-A/MODE-X|P2", status))
+    decision, problems = check_reply(json.dumps(answer()), unit)
+    assert decision is None and problems == [problem]
+    if status == "not_run":
+        risks = ("persisted_data", "key_compatibility", "unverified_interop")
+        assert check_reply(json.dumps(answer(risks=risks)), unit)[1] == []
+
+
+def test_two_sides_swapped_to_different_providers_need_their_interop_too():
+    unchecked = UnitDossiers(PAIR.unit, PAIR.dossiers)
+    _, problems = check_reply(json.dumps(both()), unchecked)
+    assert problems == ["S1: risks must include unverified_interop: its inverse S2 ends on TypeA|ALG-A/MODE-X|P3, and "
+                        "their interop is not_planned",
+                        "S2: risks must include unverified_interop: its inverse S1 ends on TypeA|ALG-A/MODE-X|P2, and "
+                        "their interop is not_planned"]

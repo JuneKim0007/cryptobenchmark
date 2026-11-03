@@ -2,7 +2,7 @@
 is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 
-from ..dto.report import MEASURABLE, SCHEMA_VERSION, unit_counts
+from ..dto.report import MEASURABLE, SCHEMA_VERSION, stayed, unit_counts
 from ..dto.unit import read_units, units_by_scope
 from ..files import read_json, read_yaml
 from ..result.modes import Mode
@@ -51,6 +51,8 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
                          edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]), s["id"] in stale),
              "unit": of_unit[s["id"]].id, "sharedFunction": list(of_unit[s["id"]].sharedFunction)}
             for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))]
+    stays = stayed(rows)
+    rows = [{**r, "stayed": stays[r["unit"]]} for r in rows]
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name,
             "measuredFrom": str(paths.scoped_benchmark.relative_to(paths.root)) if measured.cases else None,
             "funnel": funnel(len(sites), rows, len(dossiers)), "scopes": rows}

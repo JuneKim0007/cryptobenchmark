@@ -4,12 +4,12 @@ from __future__ import annotations
 import math
 
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
-                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS, unit_counts)
+                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS, stayed, unit_counts)
 from ..result.confidence import level
 from .repair import valid_inputs
 
 ROW_KEYS = ("scope", "file", "line", "function", "current", "option", "inputs", "decision", "edit", "compile", "interop",
-            "metrics", "verdict", "primitive", "unit", "sharedFunction")
+            "metrics", "verdict", "primitive", "unit", "sharedFunction", "stayed")
 MEASURED_KEYS = {"metric", "unit", "measured", "before", "after", "ratio", "pImprove", "level", "n"}
 
 
@@ -84,6 +84,9 @@ def validate_report(doc: dict, app: str) -> list[str]:
         problems += _row(str(r.get("scope")), r)
     if problems:
         return problems
+    stays = stayed(rows)
+    problems += [f"{r['scope']}: stayed {r['stayed']} is not its unit's static keeps beside a replace {stays[r['unit']]}"
+                 for r in rows if r["stayed"] != stays[r["unit"]]]
     f = doc.get("funnel") or {}
     if tuple(f) != FUNNEL or _recount(f, rows) != f or not f["scopes"] >= f["withOptions"] >= f["replace"]:
         problems.append(f"funnel {f} is not the recount of the scope rows")
