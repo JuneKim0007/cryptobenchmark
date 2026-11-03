@@ -1,4 +1,4 @@
-import pathlib, sys
+import json, pathlib, sys
 
 import pytest
 
@@ -36,9 +36,9 @@ def test_rails_that_do_not_respond_to_load_are_flagged():
 
 
 def test_a_case_is_valid_only_when_every_check_holds():
-    good = {"shortWindow": False, "netJoules": 1.0}
+    good = {"shortWindow": False, "netJoules": 1.0, "operations": 4, "joulesPerOperation": 0.25}
     assert energy.judge(dict(good), True)["valid"]
-    bad = energy.judge({"shortWindow": True, "netJoules": -1.0}, False)
+    bad = energy.judge({"shortWindow": True, "netJoules": -1.0, "operations": 4, "joulesPerOperation": -0.25}, False)
     assert bad["invalid"] == ["rails_unresponsive", "short_window", "net_not_positive"]
 
 
@@ -108,3 +108,75 @@ def test_the_offset_comes_from_the_first_snapshot_with_both_clocks():
     trace = Trace.__new__(Trace)
     trace.processor = SnapshotProcessor()
     assert trace.boot_minus_monotonic() == 700
+
+
+def _benchmark(case, trace, runs=1):
+    return {"name": f"measure[{case}]", "repeatIterations": 10, "metrics": {"timeNs": {"runs": [1] * runs}},
+            "profilerOutputs": [{"type": "PerfettoTrace", "filename": trace}]}
+
+
+class Phases(SuspendedDeviceTrace):
+
+    def __init__(self, phases=((100, 200),), offset=1000, rails=None):
+        self.phases, self.offset, self.rail_samples = list(phases), offset, rails
+
+    def timed_phases(self):
+        return self.phases
+
+    def boot_minus_monotonic(self):
+        return self.offset
+
+    def rails(self):
+        return super().rails() if self.rail_samples is None else self.rail_samples
+
+
+class Broken(SuspendedDeviceTrace):
+
+    def timed_phases(self):
+        raise RuntimeError("truncated\ntrace")
+
+
+@pytest.mark.parametrize("trace, reason", [
+    (None, "trace_not_pulled"),
+    (Phases(phases=[]), "timed_phases: 0"),
+    (Phases(phases=[(100, 200), (300, 400)]), "timed_phases: 2"),
+    (Phases(offset=None), "no_clock_snapshot"),
+    (Phases(rails={}), "no_rails"),
+    (Phases(phases=[(200, 100)]), "empty_window"),
+    (Broken(), "trace_unreadable: truncated trace"),
+])
+def test_one_bad_measured_case_is_its_own_invalid_reason_and_the_others_still_measure(tmp_path, trace, reason):
+    data = tmp_path / "data.json"
+    data.write_text(json.dumps({"benchmarks": [_benchmark("bad", "bad.trace"), _benchmark("good", "good.trace", runs=2)]}))
+    prepared = tmp_path / "prepared.yaml"
+    prepared.write_text("run: {harness: {energy: {capture: measured}}}\ncases: [{id: bad}, {id: good}]\n")
+    (tmp_path / "good.trace").write_text("")
+    if trace is not None:
+        (tmp_path / "bad.trace").write_text("")
+    traces = {"good.trace": SuspendedDeviceTrace(), "bad.trace": trace}
+    cases = energy.measured_cases(data, prepared, tmp_path, 0.0, lambda path: traces[path.name])
+    bad, good = (energy.judge(cases[c], True) for c in ("bad", "good"))
+    assert bad["invalid"] == [reason] and bad["joulesPerOperation"] is None and bad["operations"] == 10
+    assert good["joulesPerOperation"] is not None and good["operations"] == 20 and "notMeasured" not in good
+
+
+def test_a_dry_marker_without_a_call_count_is_invalid_and_the_other_marker_measures(tmp_path):
+    class Dry(SuspendedDeviceTrace):
+        def markers(self):
+            return {"lost": (1000, 1200), "kept": (1000, 1200)}
+    calls = tmp_path / "calls.yaml"
+    calls.write_text("kept: 5\n")
+    cases = energy.dry_cases(tmp_path / "dry.pftrace", calls, 0.0, lambda path: Dry())
+    assert energy.judge(cases["lost"], True)["invalid"] == ["no_call_count"]
+    assert cases["kept"]["joulesPerOperation"] is not None
+
+
+def test_a_case_without_operations_is_never_valid():
+    result = energy.window({"r": SAMPLES}, 0, 200, 0.0, 0)
+    assert result["joulesPerOperation"] is None
+    assert energy.judge(result, True)["invalid"][0] == "no_operations"
+
+
+def test_end_before_start_is_an_empty_window_not_an_uncovered_one():
+    with pytest.raises(counters.EmptyWindow):
+        counters.between(SAMPLES, 150, 50)

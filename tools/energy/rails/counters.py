@@ -6,6 +6,10 @@ class Uncovered(ValueError):
     pass
 
 
+class EmptyWindow(ValueError):
+    pass
+
+
 def at(samples, ts):
     times = [t for t, _ in samples]
     if not samples or ts < times[0] or ts > times[-1]:
@@ -19,7 +23,7 @@ def at(samples, ts):
 
 def between(samples, start, end):
     if end < start:
-        raise ValueError(f"empty_window: end {end} before start {start}")
+        raise EmptyWindow(f"empty_window: end {end} before start {start}")
     return at(samples, end) - at(samples, start)
 
 

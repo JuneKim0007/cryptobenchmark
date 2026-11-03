@@ -3,7 +3,7 @@ import json, pathlib, sys
 
 import yaml
 
-from device import android_home
+from device import DeviceError, android_home
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT / "tools/energy"))
@@ -11,7 +11,7 @@ from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources.runner import EnergyError, Host  # noqa: E402
 
-__all__ = ["EnergyError", "capture", "captures", "estimated_mark", "source"]
+__all__ = ["EnergyError", "capture", "captures", "estimated_mark", "guarded", "source"]
 
 
 def _entries(document):
@@ -43,3 +43,13 @@ def estimated_mark(energy_files):
     documents = [json.loads(path.read_text()) for path in paths]
     sources = sorted({d["source"] for d in documents if d.get("kind") == "estimated"})
     return {"energy": {"source": ", ".join(sources), "kind": "estimated"}} if sources else {}
+
+
+def guarded(problems, step):
+    """An energy step that fails costs this process its energy, never its timing: one error line, recorded."""
+    try:
+        step()
+    except (EnergyError, DeviceError) as error:
+        line = "energy_failed: " + " ".join(str(error).split())[:500]
+        print(f"error: {line}", file=sys.stderr)
+        problems.append(line)

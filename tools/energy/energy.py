@@ -14,8 +14,19 @@ SOURCE = "rails"
 KIND = "measured"
 
 
+class NotMeasured(Exception):
+    pass
+
+
 def window(rail_samples, start, end, idle_uj_per_ns, operations):
-    per_rail = {name: counters.between(samples, start, end) for name, samples in rail_samples.items()}
+    if not rail_samples:
+        raise NotMeasured("no_rails")
+    try:
+        per_rail = {name: counters.between(samples, start, end) for name, samples in rail_samples.items()}
+    except counters.Uncovered:
+        raise NotMeasured("window_uncovered") from None
+    except counters.EmptyWindow:
+        raise NotMeasured("empty_window") from None
     gross_uj = sum(per_rail.values())
     net_uj = gross_uj - idle_uj_per_ns * (end - start)
     polls = min(counters.polls_inside(s, start, end) for s in rail_samples.values())
@@ -31,18 +42,22 @@ def window(rail_samples, start, end, idle_uj_per_ns, operations):
     }
 
 
-def uncovered(operations):
+def not_measured(reason, operations):
+    """The case's record when it has no window to read; manafa's judge reads the same notMeasured."""
     return {"joules": None, "netJoules": None, "operations": operations, "joulesPerOperation": None,
-            "windowSeconds": None, "polls": 0, "shortWindow": False, "rails": {}, "uncovered": True}
+            "windowSeconds": None, "polls": 0, "shortWindow": False, "rails": {}, "notMeasured": reason}
 
 
 def judge(result, rails_responsive):
     reasons = [reason for reason, failed in (
         ("rails_unresponsive", not rails_responsive),
-        ("window_uncovered", result.get("uncovered", False)),
+        (result.get("notMeasured"), "notMeasured" in result),
+        ("no_operations", "notMeasured" not in result and not result["operations"]),
         ("short_window", result["shortWindow"]),
         ("net_not_positive", result["netJoules"] is not None and result["netJoules"] <= 0),
     ) if failed]
+    if result["joulesPerOperation"] is None and not reasons:
+        reasons.append("no_joules_per_operation")
     result.update(valid=not reasons, invalid=reasons)
     return result
 
@@ -59,32 +74,45 @@ def measured_cases(data_path, prepared_path, traces, idle, open_trace, measure=w
     out = {}
     for benchmark in data["benchmarks"]:
         name = benchmark["name"]
-        case_id = name[name.index("[") + 1:-1] if "[" in name else name
-        if case_id not in wanted:
-            continue
-        trace_file = next((o["filename"] for o in benchmark.get("profilerOutputs") or [] if o["type"] == "PerfettoTrace"), None)
-        if trace_file is None or not (pathlib.Path(traces) / trace_file).is_file():
-            raise ValueError(f"{case_id}: measured energy, but its Jetpack trace {trace_file} was not pulled into {traces}")
+        case_id = name[name.index("[") + 1:-1] if "[" in name and name.endswith("]") else name
+        if case_id in wanted:
+            out[case_id] = measured_case(benchmark, traces, idle, open_trace, measure)
+    return out
+
+
+def measured_case(benchmark, traces, idle, open_trace, measure):
+    operations = benchmark.get("repeatIterations", 0) * len(((benchmark.get("metrics") or {}).get("timeNs") or {}).get("runs") or [])
+    trace_file = next((o["filename"] for o in benchmark.get("profilerOutputs") or [] if o.get("type") == "PerfettoTrace"), None)
+    if trace_file is None or not (pathlib.Path(traces) / trace_file).is_file():
+        return not_measured("trace_not_pulled", operations) | {"capture": "measured"}
+    offset = None
+    try:
         trace = open_trace(pathlib.Path(traces) / trace_file)
         try:
-            phases = trace.timed_phases()
-            if len(phases) != 1:
-                raise ValueError(f"{case_id}: {len(phases)} timed phases in {trace_file}")
-            offset = trace.boot_minus_monotonic()
-            if offset is None:
-                raise ValueError(f"{case_id}: {trace_file} has no BOOTTIME/MONOTONIC snapshot to place its phase on the rails' clock")
-            start, end = (ts + offset for ts in phases[0])
-            runs = len(benchmark["metrics"]["timeNs"]["runs"])
-            try:
-                result = measure(trace.rails(), start, end, idle, benchmark["repeatIterations"] * runs)
-            except counters.Uncovered:
-                # the rails stopped before the phase did: this case has no energy, the run goes on
-                result = uncovered(benchmark["repeatIterations"] * runs)
-            result.update(capture="measured", clockOffsetNs=offset)
-            out[case_id] = result
+            start, end, offset = timed_window(trace)
+            result = measure(trace.rails(), start, end, idle, operations)
         finally:
             trace.close()
-    return out
+    except NotMeasured as reason:
+        result = not_measured(str(reason), operations)
+    except Exception as error:  # a truncated trace fails inside trace_processor; that case alone has no energy
+        result = not_measured(f"trace_unreadable: {one_line(error)}", operations)
+    return result | {"capture": "measured", "clockOffsetNs": offset}
+
+
+def timed_window(trace):
+    phases = trace.timed_phases()
+    if len(phases) != 1:
+        raise NotMeasured(f"timed_phases: {len(phases)}")
+    offset = trace.boot_minus_monotonic()
+    if offset is None:
+        raise NotMeasured("no_clock_snapshot")
+    start, end = (ts + offset for ts in phases[0])
+    return start, end, offset
+
+
+def one_line(error):
+    return " ".join(str(error).split())[:200] or type(error).__name__
 
 
 def dry_cases(trace_path, calls_path, idle, open_trace, measure=window):
@@ -96,12 +124,14 @@ def dry_cases(trace_path, calls_path, idle, open_trace, measure=window):
         trace.close()
     out = {}
     for case_id, (start, end) in sorted(markers.items()):
-        if case_id not in calls:
-            raise ValueError(f"{case_id}: a marker without a call count in {calls_path}")
-        result = measure(rail_samples, start, end, idle, calls[case_id])
+        try:
+            if case_id not in calls:
+                raise NotMeasured("no_call_count")
+            result = measure(rail_samples, start, end, idle, calls[case_id])
+        except NotMeasured as reason:
+            result = not_measured(str(reason), calls.get(case_id))
         # Markers and rails are both atrace/BOOTTIME in one session: no second clock to disagree with.
-        result.update(capture="dry", clockOffsetNs=0)
-        out[case_id] = result
+        out[case_id] = result | {"capture": "dry", "clockOffsetNs": 0}
     return out
 
 

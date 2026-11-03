@@ -78,7 +78,7 @@
 
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
 - Rails are counter tracks named `power.%`; counters are cumulative µJ.
-- Window edges are interpolated linearly; a window outside the samples raises `uncovered`.
+- Window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`.
 - `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a Pixel 10 trace can open with BOOTTIME alone); exactly one timed phase per case is required.
 
 ## Outputs
@@ -100,7 +100,21 @@
 | `window_uncovered` | the timed phase reaches past the first or last rail sample; the case has no number, the run goes on |
 | `short_window` | < 20 polls |
 | `net_not_positive` | `netJoules` ≤ 0 |
-| `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured) |
+| `no_operations` | `operations` is 0 or absent |
+| `no_joules_per_operation` | no other reason, yet `joulesPerOperation` is null; a valid case always has a number |
+| `trace_not_pulled` | `measured`: the case's Jetpack trace is not in `traces/` |
+| `trace_unreadable: <error>` | `measured`: the trace processor failed on the case's trace |
+| `timed_phases: <n>` | `measured`: not exactly one timed phase |
+| `no_clock_snapshot` | `measured`: no BOOTTIME/MONOTONIC snapshot in the trace |
+| `no_call_count` | `dry`: a marker without its line in `energy-dry.yaml` |
+| `no_rails` | the trace has no `power.%` counter |
+| `window_uncovered` | the window reaches outside the rail samples |
+| `empty_window` | the window ends before it starts |
+| `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured); the case-level reasons above reach manafa the same way |
+
+- A case without a window keeps `operations` and holds its reason in `notMeasured`; `joules`, `joulesPerOperation`, `windowSeconds` are null, `clockOffsetNs` is null when no trace was read.
+- One case's problem is that case's reason; `energy.py` exits 0 and writes every other case.
+- An energy step that fails as a whole (trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `error: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
 
 - `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
 - `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.

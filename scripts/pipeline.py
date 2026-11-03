@@ -58,7 +58,7 @@ def units(files):
     return {"units": found} if found else {}
 
 
-def manifest(results, mode, configuration, files):
+def manifest(results, mode, configuration, files, problems=()):
     import yaml
     def load(key):
         text = files[key].read_text()
@@ -79,7 +79,7 @@ def manifest(results, mode, configuration, files):
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
-    } | units(files) | energy_stage.estimated_mark(files.get("energy"))
+    } | units(files) | energy_stage.estimated_mark(files.get("energy")) | ({"problems": list(problems)} if problems else {})
     path = results / results_layout.MANIFEST
     path.write_text(yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")
@@ -94,23 +94,27 @@ def add_to_manifest(results, added):
     print(f"wrote:     {path}")
 
 
-def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery):
-    data, traces = into / "benchmarkData.json", into / "traces"
+def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems):
+    data, traces, joules = into / "benchmarkData.json", into / "traces", into / "energy.json"
+    joules.unlink(missing_ok=True)
+    timed = captures - {"dry"}
     with source.window(into) if captures - {"none"} else contextlib.nullcontext():
-        if captures - {"dry"}:
+        if timed:
             print("measure:   CryptoBenchmark on the device" + ("" if options.stream else "; --stream shows each case"))
             before = clocks.read(device)
             device.measure(options.suppress_errors, metrics, data, preparation)
             clocks.write(into / CLOCKS, before, clocks.read(device))
             if "measured" in captures:
-                print(f"traces:    {session.pull_traces(traces)} pulled")
+                energy_stage.guarded(problems, lambda: print(f"traces:    {session.pull_traces(traces)} pulled"))
         if "dry" in captures:
             print("measure:   EnergyDryBenchmark inside a host trace session")
-            session.dry_pass(ROOT / "tools/energy/energy.pbtx", traces / "dry.pftrace", into / DRY_CALLS, preparation)
+            dry = lambda: session.dry_pass(ROOT / "tools/energy/energy.pbtx", traces / "dry.pftrace", into / DRY_CALLS, preparation)
+            energy_stage.guarded(problems, dry) if timed else dry()
     if captures - {"none"}:
-        source.joules(captures, discovery / "energy.yaml", preparation, data, traces, into / DRY_CALLS, into / "energy.json")
-    if captures - {"dry"}:
-        joined = f" {into / 'energy.json'}" if "measured" in captures else ""
+        energy_stage.guarded(problems, lambda: source.joules(captures, discovery / "energy.yaml", preparation, data, traces,
+                                                             into / DRY_CALLS, joules))
+    if timed:
+        joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
         gradle_runner.run("quick-bench", f"{data} {preparation / 'prepared.yaml'} {into}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
 
 
@@ -243,7 +247,7 @@ def push(device, options, plan):
 
 
 def record(files, into, captures, device):
-    if captures - {"none"}:
+    if captures - {"none"} and (into / "energy.json").is_file():
         files.setdefault("energy", []).append(into / "energy.json")
     if device and captures - {"dry"}:
         files.setdefault("clocks", []).append(into / CLOCKS)
@@ -330,7 +334,7 @@ def measure_scopes(options, configuration, device, results, scoped):
     return ScopedRun(discovery, effective, files, session, source, run_capture, ran)
 
 
-def convert_scopes(options, plan, scoped, run):
+def convert_scopes(options, plan, scoped, run, problems):
     files = run.files
     document, measured = scope_results.merge(plan, scoped / "scoped-interop.yaml")
     files.update(scopedPlan=plan, scopedInterop=scoped / "scoped-interop.yaml", clocks=scoped / CLOCKS)
@@ -342,10 +346,13 @@ def convert_scopes(options, plan, scoped, run):
     prepared = scope_results.prepared(document, measured, run.effective, scoped / "prepared.yaml")
     joined = ""
     if run.capture == "measured":
-        print(f"traces:    {run.session.pull_traces(scoped / 'traces')} pulled")
-        run.source.joules({"measured"}, run.discovery / "energy.yaml", scoped, scoped / "benchmarkData.json",
-                          scoped / "traces", None, scoped / "energy.json")
-        files["energy"], joined = scoped / "energy.json", f" {scoped / 'energy.json'}"
+        joules = scoped / "energy.json"
+        joules.unlink(missing_ok=True)
+        energy_stage.guarded(problems, lambda: print(f"traces:    {run.session.pull_traces(scoped / 'traces')} pulled"))
+        energy_stage.guarded(problems, lambda: run.source.joules({"measured"}, run.discovery / "energy.yaml", scoped,
+                                                                 scoped / "benchmarkData.json", scoped / "traces", None, joules))
+        if joules.is_file():
+            files["energy"], joined = joules, f" {joules}"
     gradle_runner.run("quick-bench", f"{scoped / 'benchmarkData.json'} {prepared} {scoped}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
     files["scoped"] = scoped / "benchmark.json"
     print(f"wrote:     {files['scoped']}")
@@ -362,8 +369,9 @@ def harness_run(options, configuration, device, results):
         fail(str(error))
     finally:
         scope_generate.clean(ROOT)
-    convert_scopes(options, plan, scoped, run)
-    manifest(results, "device", configuration, run.files)
+    problems = []
+    convert_scopes(options, plan, scoped, run, problems)
+    manifest(results, "device", configuration, run.files, problems)
 
 
 def interop_run(options, configuration, device, root):
@@ -440,12 +448,13 @@ def main():
     if options.interop:
         return interop_run(options, configuration, device, root)
     results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, root)
+    problems = []
     if not options.probe and (options.bench or device):
-        measure_cases(options, device, results, discovery, effective, capture, trial, files)
-    manifest(results, "device" if device else "host", configuration, files)
+        measure_cases(options, device, results, discovery, effective, capture, trial, files, problems)
+    manifest(results, "device" if device else "host", configuration, files, problems)
 
 
-def measure_cases(options, device, results, discovery, effective, capture, trial, files):
+def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems):
     benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
@@ -468,7 +477,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         if repetitions > 1:
             print(f"process:   {repetition} of {repetitions}")
         if device:
-            measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery)
+            measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems)
         else:
             gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
         if timed:

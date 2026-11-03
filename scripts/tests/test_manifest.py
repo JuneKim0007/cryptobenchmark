@@ -55,6 +55,16 @@ def test_a_run_with_estimated_energy_says_so_and_a_measured_one_is_as_it_was():
         assert written(results, "device", files)["energy"] == {"source": "manafa", "kind": "estimated"}
 
 
+def test_problems_the_run_survived_are_recorded_and_a_clean_run_has_none():
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        files = layout(results, measured=True)
+        assert "problems" not in written(results, "device", files)
+        (results / "global.yaml").write_text("schemaVersion: 1\n")
+        manifest(results, "device", results / "global.yaml", files, ["energy_failed: x", "not_measured: c"])
+        assert yaml.safe_load((results / "manifest.yaml").read_text())["problems"] == ["energy_failed: x", "not_measured: c"]
+
+
 def test_configure_only_lists_no_stage_that_did_not_run():
     with tempfile.TemporaryDirectory() as temporary:
         results = pathlib.Path(temporary)
