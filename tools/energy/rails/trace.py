@@ -30,11 +30,12 @@ class Trace:
 
     def boot_minus_monotonic(self):
         """BOOTTIME - MONOTONIC (time suspended): rails are stamped in BOOTTIME, androidx 1.5.0 phase slices in MONOTONIC."""
-        rows = {r.clock_name: r.clock_value for r in self.processor.query(
-            "select clock_name, clock_value from clock_snapshot where snapshot_id = (select min(snapshot_id) from clock_snapshot)")}
-        if "BOOTTIME" not in rows or "MONOTONIC" not in rows:
-            return None
-        return rows["BOOTTIME"] - rows["MONOTONIC"]
+        # the first snapshot can lack MONOTONIC (seen on a Pixel 10), so take the first that has both
+        rows = list(self.processor.query(
+            "select b.clock_value - m.clock_value as offset from clock_snapshot b join clock_snapshot m "
+            "on b.snapshot_id = m.snapshot_id where b.clock_name = 'BOOTTIME' and m.clock_name = 'MONOTONIC' "
+            "order by b.snapshot_id limit 1"))
+        return rows[0].offset if rows else None
 
     def timed_phases(self):
         """A phase that slept for heat starts after its last sleep: the attempt before it was discarded and re-run."""

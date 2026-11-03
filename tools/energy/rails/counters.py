@@ -2,10 +2,14 @@
 from bisect import bisect_left
 
 
+class Uncovered(ValueError):
+    pass
+
+
 def at(samples, ts):
     times = [t for t, _ in samples]
     if not samples or ts < times[0] or ts > times[-1]:
-        raise ValueError(f"uncovered: {ts} outside the rail samples [{times[0] if times else '-'}, {times[-1] if times else '-'}]")
+        raise Uncovered(f"uncovered: {ts} outside the rail samples [{times[0] if times else '-'}, {times[-1] if times else '-'}]")
     i = bisect_left(times, ts)
     if times[i] == ts:
         return samples[i][1]

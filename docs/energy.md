@@ -79,7 +79,7 @@
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
 - Rails are counter tracks named `power.%`; counters are cumulative µJ.
 - Window edges are interpolated linearly; a window outside the samples raises `uncovered`.
-- `measured` windows shift by BOOTTIME − MONOTONIC; exactly one timed phase per case is required.
+- `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a Pixel 10 trace can open with BOOTTIME alone); exactly one timed phase per case is required.
 
 ## Outputs
 
@@ -97,6 +97,7 @@
 | invalid reason | condition |
 |---|---|
 | `rails_unresponsive` | rails not responsive |
+| `window_uncovered` | the timed phase reaches past the first or last rail sample; the case has no number, the run goes on |
 | `short_window` | < 20 polls |
 | `net_not_positive` | `netJoules` ≤ 0 |
 | `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured) |

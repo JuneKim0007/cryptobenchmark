@@ -31,11 +31,17 @@ def window(rail_samples, start, end, idle_uj_per_ns, operations):
     }
 
 
+def uncovered(operations):
+    return {"joules": None, "netJoules": None, "operations": operations, "joulesPerOperation": None,
+            "windowSeconds": None, "polls": 0, "shortWindow": False, "rails": {}, "uncovered": True}
+
+
 def judge(result, rails_responsive):
     reasons = [reason for reason, failed in (
         ("rails_unresponsive", not rails_responsive),
+        ("window_uncovered", result.get("uncovered", False)),
         ("short_window", result["shortWindow"]),
-        ("net_not_positive", result["netJoules"] <= 0),
+        ("net_not_positive", result["netJoules"] is not None and result["netJoules"] <= 0),
     ) if failed]
     result.update(valid=not reasons, invalid=reasons)
     return result
@@ -69,7 +75,11 @@ def measured_cases(data_path, prepared_path, traces, idle, open_trace, measure=w
                 raise ValueError(f"{case_id}: {trace_file} has no BOOTTIME/MONOTONIC snapshot to place its phase on the rails' clock")
             start, end = (ts + offset for ts in phases[0])
             runs = len(benchmark["metrics"]["timeNs"]["runs"])
-            result = measure(trace.rails(), start, end, idle, benchmark["repeatIterations"] * runs)
+            try:
+                result = measure(trace.rails(), start, end, idle, benchmark["repeatIterations"] * runs)
+            except counters.Uncovered:
+                # the rails stopped before the phase did: this case has no energy, the run goes on
+                result = uncovered(benchmark["repeatIterations"] * runs)
             result.update(capture="measured", clockOffsetNs=offset)
             out[case_id] = result
         finally:

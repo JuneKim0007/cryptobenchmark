@@ -68,3 +68,42 @@ def test_a_measured_window_is_moved_onto_the_rails_clock(tmp_path):
     result = energy.measured_cases(data, prepared, tmp_path, 0.0, lambda path: SuspendedDeviceTrace())["c1"]
     assert result["windowSeconds"] == pytest.approx(100 / 1e9) and result["joules"] == pytest.approx(100 / 1e6)
     assert result["clockOffsetNs"] == 1000
+
+
+class RailsStopEarlyTrace(SuspendedDeviceTrace):
+    """The rail capture ended before the timed phase did (seen on a Pixel 10)."""
+
+    def rails(self):
+        return {"r": [(t, float(t)) for t in range(1000, 1150, 10)]}
+
+
+def test_a_phase_past_the_last_rail_sample_is_one_invalid_case_not_a_failed_run(tmp_path):
+    data = tmp_path / "data.json"
+    data.write_text('{"benchmarks": [{"name": "measure[c1]", "repeatIterations": 10, "metrics": {"timeNs": {"runs": [1]}},'
+                    ' "profilerOutputs": [{"type": "PerfettoTrace", "filename": "c1.trace"}]}]}')
+    prepared = tmp_path / "prepared.yaml"
+    prepared.write_text("cases: [{id: c1, harness: {energy: {capture: measured}}}]\n")
+    (tmp_path / "c1.trace").write_text("")
+    result = energy.measured_cases(data, prepared, tmp_path, 0.0, lambda path: RailsStopEarlyTrace())["c1"]
+    assert result["joulesPerOperation"] is None
+    assert energy.judge(result, True)["invalid"] == ["window_uncovered"]
+
+
+class Rows(list):
+    pass
+
+
+class SnapshotProcessor:
+    """The first snapshot holds only BOOTTIME; the second holds both clocks."""
+
+    def query(self, sql):
+        row = type("R", (), {})
+        r = row(); r.offset = 700
+        return Rows([r]) if "BOOTTIME" in sql and "MONOTONIC" in sql and "join" in sql else Rows()
+
+
+def test_the_offset_comes_from_the_first_snapshot_with_both_clocks():
+    from rails.trace import Trace
+    trace = Trace.__new__(Trace)
+    trace.processor = SnapshotProcessor()
+    assert trace.boot_minus_monotonic() == 700
