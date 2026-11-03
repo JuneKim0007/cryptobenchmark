@@ -1,0 +1,57 @@
+{
+ "schemaVersion": 1,
+ "railsResponsive": true,
+ "cases": {
+  "m1": {
+   "joules": 0.01,
+   "netJoules": 0.009999995999999999,
+   "operations": 120,
+   "joulesPerOperation": 8.333329999999999e-05,
+   "windowSeconds": 4e-06,
+   "polls": 41,
+   "shortWindow": false,
+   "rails": {
+    "power.a": 0.008,
+    "power.b": 0.002
+   },
+   "capture": "measured",
+   "clockOffsetNs": 500,
+   "valid": true,
+   "invalid": []
+  },
+  "m2": {
+   "joules": 0.01,
+   "netJoules": 0.009999995999999999,
+   "operations": 5,
+   "joulesPerOperation": 0.0019999991999999998,
+   "windowSeconds": 4e-06,
+   "polls": 41,
+   "shortWindow": false,
+   "rails": {
+    "power.a": 0.008,
+    "power.b": 0.002
+   },
+   "capture": "measured",
+   "clockOffsetNs": 500,
+   "valid": true,
+   "invalid": []
+  },
+  "d1": {
+   "joules": 0.0125,
+   "netJoules": 0.012499995000000002,
+   "operations": 77,
+   "joulesPerOperation": 0.00016233759740259742,
+   "windowSeconds": 5e-06,
+   "polls": 51,
+   "shortWindow": false,
+   "rails": {
+    "power.a": 0.01,
+    "power.b": 0.0025
+   },
+   "capture": "dry",
+   "clockOffsetNs": 0,
+   "valid": true,
+   "invalid": []
+  }
+ }
+}

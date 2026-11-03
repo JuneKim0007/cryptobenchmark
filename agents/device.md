@@ -19,4 +19,4 @@
 - pinning: request a core through `harness.cpu` (`core: <index>|big`, `required`) in `config/`, never in code.
 - pinning: a pinned run needs `libaffinity.so` in the installed release APK; check `pinning` in `discovery/facts.yaml`.
 - pinning: report a pinned run as pinned, never as core-isolated; pinning restricts the measuring thread only.
-- energy: set `harness.energy.capture` only for `--device` runs; pass `--energy-python` an interpreter with `tools/energy/requirements.txt` installed.
+- energy: set `harness.energy.capture` only for `--device` runs; pass `--energy-python` an interpreter with `tools/energy/requirements.txt` installed, plus `tools/energy/requirements-manafa.txt` for `harness.energy.source: manafa`.

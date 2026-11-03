@@ -36,8 +36,8 @@ class SettingsTest {
     @Test
     fun theEnergySourceIsReadWrittenAndOnlyRailsNeedRails() {
         val written = HarnessSettings.read(mapOf("energy" to mapOf("source" to "manafa")), "run.harness")
-        assertEquals("manafa", written.energy?.source)
-        assertEquals(false, written.energy?.needsRails)
+        assertEquals("manafa", written.energy.source)
+        assertEquals(false, written.energy.needsRails)
         assertEquals(true, EnergySettings().needsRails)
         assertEquals(true, EnergySettings(source = "rails").needsRails)
     }

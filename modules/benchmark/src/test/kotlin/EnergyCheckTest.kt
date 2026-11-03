@@ -21,9 +21,9 @@ class EnergyCheckTest {
 
     private val installed = { setOf("SUN") }
 
-    private fun run(capture: String?, algorithm: String = "SHA-256") = PreparedRun(listOf(PreparedCase(
+    private fun run(capture: String?, algorithm: String = "SHA-256", source: String? = null) = PreparedRun(listOf(PreparedCase(
         BenchmarkCase("MessageDigest", algorithm, "SUN", Operation.DIGEST, inputSize = 64,
-                      harness = HarnessSettings(energy = EnergySettings(capture = capture))),
+                      harness = HarnessSettings(energy = EnergySettings(capture = capture, source = source))),
         KeyRecipe.None, KeyMaterial.None, null, null, OperationInput.Message(ByteArray(64)),
     )), emptyList(), 1)
 
@@ -45,6 +45,14 @@ class EnergyCheckTest {
         assertEquals(listOf("rails_unresponsive"), reasons("measured", capability(responsive = false)))
         assertEquals(emptyList<String>(), reasons("measured", capability(responsive = false, accept = true)))
         assertEquals(emptyList<String>(), reasons("dry", capability(responsive = true)))
+    }
+
+    @Test
+    fun aSourceWithoutRailsNeverReadsTheRailCapability() {
+        val check = PlanCheck(HostHarness.METRICS, installed) { error("must not be read") }
+        assertEquals(emptyList<String>(), check.check(run("measured", source = "manafa")).map { it.reason })
+        assertEquals(listOf("no_power_rails"), PlanCheck(HostHarness.METRICS, installed) { capability(responsive = false, present = false) }
+            .check(run("measured", source = "rails")).map { it.reason.substringBefore(':') })
     }
 
     @Test

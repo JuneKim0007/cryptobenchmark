@@ -29,6 +29,17 @@
 - `config/global-energy.yaml`: `capture: measured`, windows 3/1/1 s, test set `testsets/energy-smoke.yaml`.
 - `config/testsets/energy-smoke.yaml`: SHA-256, HmacSHA256 measured; AES/GCM/NoPadding `dry`.
 
+## Sources
+
+| `energy.source` | kind | joules from | pre-flight |
+|---|---|---|---|
+| `rails` (default) | `measured` | Perfetto power rails | below |
+| `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | a short session |
+
+- A run has one source; entries that differ fail with `energy_sources_differ`.
+- `scripts/energy_stage.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
+- `manafa` facts, its pre-flight and its reasons: [energy-manafa.md](energy-manafa.md).
+
 ## Pre-flight
 
 | step | value |
@@ -56,6 +67,7 @@
 | `rails_unresponsive: idle <x> uJ, busy <y> uJ over <s> s` | `railsResponsive` false and not `acceptUnresponsive` |
 
 - Any refusal throws `RefusedPlanException` on the device.
+- A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
 
 ## Traces
 
@@ -87,6 +99,7 @@
 | `rails_unresponsive` | rails not responsive |
 | `short_window` | < 20 polls |
 | `net_not_positive` | `netJoules` ≤ 0 |
+| `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured) |
 
 - `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`).
 - Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason).
@@ -95,19 +108,24 @@
 
 ```
 scripts/energy_session.py : starts, stops and pulls Perfetto sessions on the device
-scripts/energy_stage.py : capture selection, pre-flight, settle, tools/energy calls
-tools/energy/capture.py : resolves a case's capture against the run default
+scripts/energy_stage.py : capture selection, the run's one source
+tools/energy/capture.py : resolves a node's capture and source against the default
 tools/energy/energy.pbtx : Perfetto config for the dry host session
-tools/energy/energy.py : rail traces to energy.json
+tools/energy/energy.py : rail traces to energy.json; the case windows both sources read
+tools/energy/manafa_estimate.py : joules per case window from a stopped EManafa, or not_measured
+tools/energy/manafa_session.py : the process holding one EManafa; the manafa pre-flight check
 tools/energy/preflight.py : idle and busy traces to energy.yaml
 tools/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset
+tools/energy/requirements-manafa.txt : manafa, pinned; optional
 tools/energy/requirements.txt : perfetto, pyyaml
-tools/energy/tests/ : capture, counters, window, preflight and judge tests
+tools/energy/sources/ : one adapter per energy.source on the host; how the host runs tools/energy
+tools/energy/tests/ : capture, counters, window, preflight, judge and source tests; a fake manafa; recorded rails output
 ```
 
 | command | arguments |
 |---|---|
 | `preflight.py` | `<idle.pftrace> <busy.pftrace> <window seconds> <out energy.yaml> [--accept-unresponsive]` |
 | `energy.py` | `--capability F -o OUT [--prepared --benchmark-data --traces] [--dry-trace --dry-calls]` |
+| `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
 
 - Missing `perfetto` fails with an error naming `pip install -r tools/energy/requirements.txt` and `--energy-python`.

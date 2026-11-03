@@ -35,13 +35,13 @@ Paths relative to the device folder.
 | `manifest.yaml` | run index | every run |
 | `discovery/` | `probe_<stamp>.yaml`, `probe_classes_<stamp>.yaml`, `trial_<stamp>.yaml` | every run |
 | `discovery/` | `facts.yaml`; the whole device plan directory | `--device` |
-| `discovery/` | `energy.yaml`, `energy-preflight/{rails.pbtx,idle.pftrace,busy.pftrace}` | energy capture |
+| `discovery/` | `energy.yaml`, `energy-preflight/{rails.pbtx,idle.pftrace,busy.pftrace}` (rails), `energy-preflight/` power profile (manafa) | energy capture |
 | `configuration/` | `inventory.yaml`, `effective.yaml`, `report.yaml` | every run |
 | `preparation/` | `prepared.yaml`, `skipped.yaml` | `--bench`, `--device` |
 | `benchmark/` | `benchmark.json` | `--bench`, `--device`, at least one case not `dry` |
 | `benchmark/process-<n>/` | one run's files | `processRepetitions` > 1 |
 | `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `cpu-pins.yaml` when written | `--device` |
-| `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml` | energy capture |
+| `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml`, `scoped-interop.yaml`, `benchmarkData.json`, `prepared.yaml`, `benchmark.json`, `clocks.yaml`; `energy.json`, `traces/` on measured capture | `--harness`: [scoped.md](../modules/android/docs/scoped.md) |
 | `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../modules/preparation/docs/interop.md) |
 | `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |

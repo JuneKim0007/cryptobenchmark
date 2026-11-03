@@ -61,7 +61,7 @@ scripts/device_id.py : device id from a capture's runtime block
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
-scripts/energy_stage.py : energy steps of a --device run: capture selection, pre-flight, tools/energy calls
+scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
 scripts/facts.py : device facts into discovery/facts.yaml
 scripts/failure.py : one error line and exit
@@ -85,7 +85,7 @@ scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedSco
 scripts/tests/ : pytest and standalone tests for scripts/
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
-tools/energy/ : rail pre-flight, joules per case, capture resolution
+tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
 tools/jca-contract/ : host probe and configure commands, JCA contract tests, examples, shared tools Gradle wrapper
 tools/module-isolation/ : per-module isolated compile and test
 tools/quick-bench/ : host prepare and measure, Jetpack result conversion, run merge, analysis

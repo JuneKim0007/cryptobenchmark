@@ -28,19 +28,22 @@ class PlanCheck(
             .forEach { (id, duplicates) -> refusals += Refusal(id, "duplicate_case: ${duplicates.size} cases share this id") }
         run.cases.forEach { prepared -> refusals += refusalsFor(prepared, installed) }
         if (energy != null) {
-            run.cases.filter { capturesEnergy(it) }.forEach { refusals += Refusal(it.case.id, energy) }
+            run.cases.filter { readsRails(it) }.forEach { refusals += Refusal(it.case.id, energy) }
         }
         return refusals
     }
 
     private fun energyRefusal(run: PreparedRun): String? {
-        if (run.cases.none { capturesEnergy(it) }) return null
+        if (run.cases.none { readsRails(it) }) return null
         val capability = energyCapability()
             ?: return "energy_capability_unknown: push ${EnergyCapability.FILE} from the pre-flight"
         return capability.refusal()
     }
 
     private fun capturesEnergy(prepared: PreparedCase): Boolean = Energy.of(prepared.case.harness.energy).capture != Energy.Capture.NONE
+
+    private fun readsRails(prepared: PreparedCase): Boolean =
+        capturesEnergy(prepared) && prepared.case.harness.energy.needsRails
 
     private fun refusalsFor(prepared: PreparedCase, installed: Set<String>): List<Refusal> {
         val case = prepared.case

@@ -8,6 +8,7 @@ from capture import capture  # noqa: E402
 from rails import counters  # noqa: E402
 
 MIN_POLLS = 20
+SCHEMA_VERSION = 1
 
 
 def window(rail_samples, start, end, idle_uj_per_ns, operations):
@@ -43,7 +44,7 @@ def captures(prepared_path):
     return {c["id"]: capture(c, run) for c in prepared.get("cases") or []}
 
 
-def measured_cases(data_path, prepared_path, traces, idle, open_trace):
+def measured_cases(data_path, prepared_path, traces, idle, open_trace, measure=window):
     data = json.loads(pathlib.Path(data_path).read_text())
     wanted = {case for case, capture in captures(prepared_path).items() if capture == "measured"}
     out = {}
@@ -65,7 +66,7 @@ def measured_cases(data_path, prepared_path, traces, idle, open_trace):
                 raise ValueError(f"{case_id}: {trace_file} has no BOOTTIME/MONOTONIC snapshot to place its phase on the rails' clock")
             start, end = (ts + offset for ts in phases[0])
             runs = len(benchmark["metrics"]["timeNs"]["runs"])
-            result = window(trace.rails(), start, end, idle, benchmark["repeatIterations"] * runs)
+            result = measure(trace.rails(), start, end, idle, benchmark["repeatIterations"] * runs)
             result.update(capture="measured", clockOffsetNs=offset)
             out[case_id] = result
         finally:
@@ -73,7 +74,7 @@ def measured_cases(data_path, prepared_path, traces, idle, open_trace):
     return out
 
 
-def dry_cases(trace_path, calls_path, idle, open_trace):
+def dry_cases(trace_path, calls_path, idle, open_trace, measure=window):
     calls = yaml.safe_load(pathlib.Path(calls_path).read_text()) or {}
     trace = open_trace(trace_path)
     try:
@@ -84,14 +85,14 @@ def dry_cases(trace_path, calls_path, idle, open_trace):
     for case_id, (start, end) in sorted(markers.items()):
         if case_id not in calls:
             raise ValueError(f"{case_id}: a marker without a call count in {calls_path}")
-        result = window(rail_samples, start, end, idle, calls[case_id])
+        result = measure(rail_samples, start, end, idle, calls[case_id])
         # Markers and rails are both atrace/BOOTTIME in one session: no second clock to disagree with.
         result.update(capture="dry", clockOffsetNs=0)
         out[case_id] = result
     return out
 
 
-def main(argv=None):
+def parser():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--capability", required=True)
     ap.add_argument("--prepared")
@@ -100,23 +101,35 @@ def main(argv=None):
     ap.add_argument("--dry-trace")
     ap.add_argument("--dry-calls")
     ap.add_argument("-o", "--out", required=True)
-    a = ap.parse_args(argv)
-    from rails.trace import Trace
+    return ap
 
-    capability = yaml.safe_load(pathlib.Path(a.capability).read_text())
-    idle = capability["idleMicrojoules"] / (capability["windowSeconds"] * 1e9)
+
+def read_cases(a, idle, open_trace, measure=window):
     cases = {}
     if a.benchmark_data:
-        cases.update(measured_cases(a.benchmark_data, a.prepared, a.traces, idle, Trace))
+        cases.update(measured_cases(a.benchmark_data, a.prepared, a.traces, idle, open_trace, measure))
     if a.dry_trace:
-        cases.update(dry_cases(a.dry_trace, a.dry_calls, idle, Trace))
-    cases = {c: judge(r, capability["railsResponsive"]) for c, r in cases.items()}
-    document = {"schemaVersion": 1, "railsResponsive": capability["railsResponsive"], "cases": cases}
-    pathlib.Path(a.out).write_text(json.dumps(document, indent=1))
+        cases.update(dry_cases(a.dry_trace, a.dry_calls, idle, open_trace, measure))
+    return cases
+
+
+def report_cases(cases):
     invalid = {c: r["invalid"] for c, r in cases.items() if not r["valid"]}
     print(f"energy:    {len(cases)} cases, {len(cases) - len(invalid)} valid")
     for c, reasons in invalid.items():
         print(f"invalid:   {c}: {', '.join(reasons)}")
+
+
+def main(argv=None):
+    a = parser().parse_args(argv)
+    from rails.trace import Trace
+
+    capability = yaml.safe_load(pathlib.Path(a.capability).read_text())
+    idle = capability["idleMicrojoules"] / (capability["windowSeconds"] * 1e9)
+    cases = {c: judge(r, capability["railsResponsive"]) for c, r in read_cases(a, idle, Trace).items()}
+    document = {"schemaVersion": SCHEMA_VERSION, "railsResponsive": capability["railsResponsive"], "cases": cases}
+    pathlib.Path(a.out).write_text(json.dumps(document, indent=1))
+    report_cases(cases)
     return 0
 
 

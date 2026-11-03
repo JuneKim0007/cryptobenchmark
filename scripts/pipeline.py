@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
+import argparse, contextlib, dataclasses, json, os, pathlib, shutil, subprocess, sys, time
 
 import bundled, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, results_layout, run_inputs, scope_generate, scope_results
 from clocks import CLOCKS
@@ -86,21 +86,21 @@ def add_to_manifest(results, added):
     print(f"wrote:     {path}")
 
 
-def measure_on_device(device, session, options, captures, metrics, into, preparation, discovery):
+def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery):
     data, traces = into / "benchmarkData.json", into / "traces"
-    if captures - {"dry"}:
-        print("measure:   CryptoBenchmark on the device" + ("" if options.stream else "; --stream shows each case"))
-        before = clocks.read(device)
-        device.measure(options.suppress_errors, metrics, data, preparation)
-        clocks.write(into / CLOCKS, before, clocks.read(device))
-        if "measured" in captures:
-            print(f"traces:    {session.pull_traces(traces)} pulled")
-    if "dry" in captures:
-        print("measure:   EnergyDryBenchmark inside a host trace session")
-        session.dry_pass(ROOT / "tools/energy/energy.pbtx", traces / "dry.pftrace", into / DRY_CALLS, preparation)
+    with source.window(into) if captures - {"none"} else contextlib.nullcontext():
+        if captures - {"dry"}:
+            print("measure:   CryptoBenchmark on the device" + ("" if options.stream else "; --stream shows each case"))
+            before = clocks.read(device)
+            device.measure(options.suppress_errors, metrics, data, preparation)
+            clocks.write(into / CLOCKS, before, clocks.read(device))
+            if "measured" in captures:
+                print(f"traces:    {session.pull_traces(traces)} pulled")
+        if "dry" in captures:
+            print("measure:   EnergyDryBenchmark inside a host trace session")
+            session.dry_pass(ROOT / "tools/energy/energy.pbtx", traces / "dry.pftrace", into / DRY_CALLS, preparation)
     if captures - {"none"}:
-        energy_stage.joules(options.energy_python, captures, discovery / "energy.yaml", preparation, data, traces,
-                            into / DRY_CALLS, into / "energy.json", stacktrace=options.stacktrace)
+        source.joules(captures, discovery / "energy.yaml", preparation, data, traces, into / DRY_CALLS, into / "energy.json")
     if captures - {"dry"}:
         joined = f" {into / 'energy.json'}" if "measured" in captures else ""
         gradle_runner.run("quick-bench", f"{data} {preparation / 'prepared.yaml'} {into}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
@@ -220,10 +220,9 @@ def device_discover(options, configuration, device, root):
     return results, located(results)
 
 
-def energy_preflight(options, session, discovery, files):
+def energy_preflight(options, source, session, discovery, files):
     started = time.monotonic()
-    capability = energy_stage.preflight(session, discovery, options.energy_python, options.energy_accept_unresponsive,
-                                        stacktrace=options.stacktrace)
+    capability = source.preflight(session, discovery, options.energy_accept_unresponsive)
     files["energyCapability"] = capability
     elapsed("energy pre-flight and settle", started)
     return capability
@@ -286,6 +285,7 @@ class ScopedRun:
     effective: pathlib.Path
     files: dict
     session: EnergySession
+    source: object
     capture: str
     ran: bool
 
@@ -308,16 +308,18 @@ def measure_scopes(options, configuration, device, results, scoped):
     if run_capture == "dry":
         fail("not_supported: run.harness.energy.capture dry with --harness; use measured or none")
     session, plan_files = EnergySession(device), [effective, capture, trial]
+    source = energy_stage.source(effective, options.energy_python, options.stacktrace)
     if run_capture == "measured":
-        plan_files.append(energy_preflight(options, session, discovery, files))
+        plan_files.append(energy_preflight(options, source, session, discovery, files))
     push(device, options, plan_files)
     print("measure:   ScopedBenchmark on the device")
     started, before = time.monotonic(), clocks.read(device)
-    ran = device.measure_scoped(options.suppress_errors, effective_view.metrics(document),
-                                scoped / "benchmarkData.json", scoped / "scoped-interop.yaml")
+    with source.window(scoped) if run_capture == "measured" else contextlib.nullcontext():
+        ran = device.measure_scoped(options.suppress_errors, effective_view.metrics(document),
+                                    scoped / "benchmarkData.json", scoped / "scoped-interop.yaml")
     clocks.write(scoped / CLOCKS, before, clocks.read(device))
     elapsed("interop check and measure", started)
-    return ScopedRun(discovery, effective, files, session, run_capture, ran)
+    return ScopedRun(discovery, effective, files, session, source, run_capture, ran)
 
 
 def convert_scopes(options, plan, scoped, run):
@@ -333,8 +335,8 @@ def convert_scopes(options, plan, scoped, run):
     joined = ""
     if run.capture == "measured":
         print(f"traces:    {run.session.pull_traces(scoped / 'traces')} pulled")
-        energy_stage.joules(options.energy_python, {"measured"}, run.discovery / "energy.yaml", scoped, scoped / "benchmarkData.json",
-                            scoped / "traces", None, scoped / "energy.json", stacktrace=options.stacktrace)
+        run.source.joules({"measured"}, run.discovery / "energy.yaml", scoped, scoped / "benchmarkData.json",
+                          scoped / "traces", None, scoped / "energy.json")
         files["energy"], joined = scoped / "energy.json", f" {scoped / 'energy.json'}"
     gradle_runner.run("quick-bench", f"{scoped / 'benchmarkData.json'} {prepared} {scoped}{joined}", options.stacktrace, options.stream, main_class="ConvertKt")
     files["scoped"] = scoped / "benchmark.json"
@@ -447,8 +449,9 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         fail("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     plan = [effective, capture, trial]
     session = EnergySession(device) if device else None
+    source = energy_stage.source(effective, options.energy_python, options.stacktrace)
     if energy:
-        plan.append(energy_preflight(options, session, discovery, files))
+        plan.append(energy_preflight(options, source, session, discovery, files))
     if device:
         push(device, options, plan)
     written = []
@@ -457,7 +460,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         if repetitions > 1:
             print(f"process:   {repetition} of {repetitions}")
         if device:
-            measure_on_device(device, session, options, captures, metrics, into, preparation, discovery)
+            measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery)
         else:
             gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
         if timed:

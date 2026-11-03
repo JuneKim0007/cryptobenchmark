@@ -1,0 +1,7 @@
+schemaVersion: 1
+railsPresent: true
+railsResponsive: true
+idleMicrojoules: 19750.0
+busyMicrojoules: 59250.0
+windowSeconds: 3.0
+acceptUnresponsive: false
