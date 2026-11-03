@@ -1,4 +1,4 @@
-# Policy as data: what counts as improving, and how confidence is graded. Read by modes.py and confidence.py.
+# Policy as data: what counts as improving, and how confidence is graded. Read by modes.py criteria().
 improvingRatio: 0.97        # to / from at or below this counts as improving; smaller gains are not worth an app change
 levels:                     # the first level whose atLeast pImprove reaches; a level grades, it never rejects
   - {name: ok, atLeast: 0.95}

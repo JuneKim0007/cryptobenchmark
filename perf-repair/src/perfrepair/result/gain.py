@@ -2,14 +2,12 @@
 from __future__ import annotations
 
 from ..dto.site import Estimate
-from .modes import CRITERIA
-from ..files import read_yaml
+from .modes import criteria, worse_ratio
 
-CRITERIA_DOC = read_yaml(CRITERIA)
-IMPROVING_RATIO = float(CRITERIA_DOC["improvingRatio"])
-WORSE_RATIO = 1 / IMPROVING_RATIO
+IMPROVING_RATIO = float(criteria()["improvingRatio"])
+WORSE_RATIO = worse_ratio(IMPROVING_RATIO)
 # the top level's floor, read from the other side: the option is better with at most this probability
-NOISE = 1 - max(float(lv["atLeast"]) for lv in CRITERIA_DOC["levels"])
+NOISE = 1 - max(float(lv["atLeast"]) for lv in criteria()["levels"])
 
 
 def _worse(e: Estimate) -> bool:

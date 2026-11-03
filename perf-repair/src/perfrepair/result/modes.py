@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 
 from ..dto import MetricComparison, PairMetrics
@@ -9,6 +10,15 @@ from ..dto.perf_mode import PerfMode
 from ..files import read_yaml
 
 CRITERIA = Path(__file__).with_name("criteria.yaml")
+
+
+@cache
+def criteria() -> dict:
+    return read_yaml(CRITERIA)
+
+
+def worse_ratio(improving: float) -> float:
+    return 1 / improving
 
 
 @dataclass(frozen=True)
@@ -23,7 +33,7 @@ class Mode:
 
     @property
     def worseningRatio(self) -> float:
-        return 1 / self.improvingRatio
+        return worse_ratio(self.improvingRatio)
 
     def _given(self, pair: PairMetrics) -> list[MetricComparison]:
         by = {c.metric: c for c in pair.metrics}
@@ -51,6 +61,5 @@ class Mode:
         return max(hits, key=lambda c: -1.0 if c.pImprove is None else c.pImprove, default=None)
 
 
-def mode_of(perf: PerfMode, path: Path = CRITERIA) -> Mode:
-    doc = read_yaml(path)
-    return Mode(perf, doc["rule"], float(doc["improvingRatio"]))
+def mode_of(perf: PerfMode) -> Mode:
+    return Mode(perf, criteria()["rule"], float(criteria()["improvingRatio"]))
