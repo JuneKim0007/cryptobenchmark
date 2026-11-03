@@ -7,6 +7,7 @@ from ...catalog.names import Names, NamesError, fold
 from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import Item, Profile
 from ...catalog.families import Families
+from ..signature import signature
 from .key_contract import key_contract
 from .key_kind import Context, Evidence, key_kind
 
@@ -66,6 +67,7 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
         if family is None:
             raise ValueError(f"{key}: no family for ({s['type']}, {kind}) in the catalog")
         inventoried = runs.get(key, {})
+        contract = key_contract(formats, classes)
         drafts[key] = (family.id, run.get("providerChose"), Profile(
             keyKind=kind, keyKindFrom=source, instantiates=bool(s.get("instantiates")),
             runs=bool(inventoried.get("runs", run.get("works", False))),
@@ -73,7 +75,7 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
             bareName=bool(run.get("bareName")), measured=measured(key),
             preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])),
-            keyContract=key_contract(formats, classes)))
+            keyContract=contract, signature=signature(s["type"], s["algorithm"], run.get("providerChose"), contract, names)))
 
     order = sorted(drafts, key=lambda k: (drafts[k][0], _sort_name(names, k[1], k[2]), k[0], k[2]))
     items, profiles = [], {}

@@ -14,8 +14,12 @@ def _names() -> Names:
     return Names.load()
 
 
+def digest_name(text: str) -> str:
+    return _names().canonical(DIGEST_ENGINE, text).name.upper()
+
+
 def function_parameters(resolved: str | None) -> tuple[tuple[str, str], ...]:
     """Each value by its canonical digest name: providers report one digest under different spellings."""
     pairs = (token.split("=", 1) for token in (resolved or "").split() if "=" in token)
-    return tuple(sorted((k.lower(), _names().canonical(DIGEST_ENGINE, v).name.upper())
+    return tuple(sorted((k.lower(), digest_name(v))
                         for k, v in pairs if k.lower() in FUNCTION_FIXED))

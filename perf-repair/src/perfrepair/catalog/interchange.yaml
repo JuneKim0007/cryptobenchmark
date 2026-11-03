@@ -1,0 +1,125 @@
+# Which components split an interchangeability group, per engine type; docs/grouping.md Signature.
+# A rule reads a catalogued canonical name, first full match wins, case-insensitive; no match is an unknown name.
+#   set: read from the name; defaults: what no rule contradicts; resolved: read only from the trial's resolved, missing is unknown
+#   convention: a provider's habit nothing recorded confirms: grouped by code with a convention_assumed finding
+#   unknown: the name does not fix it and nothing recorded does: the item is asked
+# key: none, the engine takes no key; assumed, a missing key contract groups with application-held, by convention;
+#      asked, a missing key contract asks the item.
+schemaVersion: 1
+digestComponents: [digest, mgf1]
+notSplitting: [key size, IV size, tag length, provider]
+engines:
+  Cipher:
+    splits: [base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, key]
+    key: assumed
+    defaults: {wrap: 'false', passwordBased: 'false'}
+    rules:
+      - match: 'PBEWithHmac(?P<digest>.+)And(?P<base>[A-Z0-9]+)_\d+'
+        set: {base: $base, digest: $digest, passwordBased: 'true'}
+        convention: {kdf: provider convention}
+      - match: 'PBEWith(?P<digest>MD5|SHA-?1?|SHA256)And(?:\d+BIT)?(?P<base>[A-Z0-9-]+?)(?:_\d+)?'
+        set: {base: $base, digest: $digest, passwordBased: 'true'}
+        convention: {kdf: provider convention}
+      - match: '(?P<base>ARCFOUR|ChaCha20)'
+        set: {base: $base, mode: stream}
+      - match: '(?P<base>ChaCha20-Poly1305)'
+        set: {base: $base, mode: aead}
+      - match: '(?P<base>DESedeWrap)'
+        set: {base: $base, mode: wrap, wrap: 'true'}
+      - match: '(?P<base>[^/]+)'
+        set: {base: $base}
+        unknown: [mode, padding]
+      - match: '(?P<base>[^/]+)/(?P<mode>[^/]+)/OAEPPadding'
+        set: {base: $base, mode: $mode, padding: OAEP}
+        resolved: [digest, mgf1]
+      - match: '(?P<base>[^/]+)/(?P<mode>[^/]+)/OAEPWith(?P<digest>.+)AndMGF1Padding'
+        set: {base: $base, mode: $mode, padding: OAEP, digest: $digest}
+        resolved: [digest, mgf1]
+      - match: '(?P<base>[^/]+)/(?P<mode>KWP?)/(?P<padding>[^/]+)'
+        set: {base: $base, mode: $mode, padding: $padding, wrap: 'true'}
+      - match: '(?P<base>[^/]+)/(?P<mode>[^/]+)/(?P<padding>[^/]+)'
+        set: {base: $base, mode: $mode, padding: $padding}
+  Signature:
+    splits: [scheme, digest, mgf1, salt, curve, encoding, prehashed, key]
+    key: assumed
+    defaults: {prehashed: 'false'}
+    rules:
+      - match: '(?P<curve>Ed25519|Ed448)'
+        set: {scheme: EdDSA, curve: $curve}
+      - match: 'EdDSA'
+        set: {scheme: EdDSA}
+        convention: {curve: by key}
+      - match: 'RSASSA-PSS'
+        set: {scheme: RSA-PSS}
+        unknown: [digest, mgf1, salt]
+      - match: 'HSS/LMS'
+        set: {scheme: HSS/LMS}
+      - match: 'ML-DSA'
+        set: {scheme: ML-DSA}
+        convention: {curve: by key}
+      - match: 'ML-DSA-(?P<set>\d+)'
+        set: {scheme: ML-DSA, curve: $set}
+      - match: 'NONEwithRSA'
+        set: {scheme: RSA, digest: NONE, prehashed: 'true', encoding: PKCS1}
+      - match: 'NONEwith(?P<scheme>ECDSA|DSA)inP1363Format'
+        set: {scheme: $scheme, digest: NONE, prehashed: 'true', encoding: P1363, curve: by key}
+      - match: 'NONEwith(?P<scheme>ECDSA|DSA)'
+        set: {scheme: $scheme, digest: NONE, prehashed: 'true', encoding: DER, curve: by key}
+      - match: '(?P<digest>.+)withRSA/PSS'
+        set: {scheme: RSA-PSS, digest: $digest}
+        convention: {mgf1: the digest, salt: digest length}
+      - match: '(?P<digest>.+)withRSA'
+        set: {scheme: RSA, digest: $digest, encoding: PKCS1}
+      - match: '(?P<digest>.+)with(?P<scheme>ECDSA|DSA)inP1363Format'
+        set: {scheme: $scheme, digest: $digest, encoding: P1363, curve: by key}
+      - match: '(?P<digest>.+)with(?P<scheme>ECDSA|DSA)'
+        set: {scheme: $scheme, digest: $digest, encoding: DER, curve: by key}
+  Mac:
+    splits: [construction, digest, passwordBased, kdf, key]
+    key: assumed
+    defaults: {passwordBased: 'false'}
+    rules:
+      - match: 'HmacPBE(?P<digest>.+)'
+        set: {construction: HMAC, digest: $digest, passwordBased: 'true'}
+        convention: {kdf: HmacPBE provider convention}
+      - match: 'PBEWithHmac(?P<digest>.+)'
+        set: {construction: HMAC, digest: $digest, passwordBased: 'true'}
+        convention: {kdf: PBEWithHmac provider convention}
+      - match: 'Hmac(?P<digest>.+)'
+        set: {construction: HMAC, digest: $digest}
+      - match: '(?P<construction>AESCMAC)'
+        set: {construction: $construction}
+      - match: 'SslMac(?P<digest>.+)'
+        set: {construction: SSLMAC, digest: $digest}
+  MessageDigest:
+    splits: [function]
+    key: none
+    rules:
+      - match: '(?P<function>.+)'
+        set: {function: $function}
+  KeyAgreement:
+    splits: [algorithm, curve, key]
+    key: assumed
+    rules:
+      - match: '(?P<algorithm>ECDH|DiffieHellman)'
+        set: {algorithm: $algorithm, curve: by key}
+      - match: 'XDH'
+        set: {algorithm: XDH}
+        convention: {curve: by key}
+      - match: '(?P<curve>X25519|X448)'
+        set: {algorithm: XDH, curve: $curve}
+  # A generator's output is what its consumer defines, and no attribute says whether the key stays inside the provider.
+  KeyGenerator:
+    splits: [function, consumer, key]
+    key: asked
+    rules:
+      - match: '(?P<function>.+)'
+        set: {function: $function}
+        convention: {consumer: consumer-defined}
+  KeyPairGenerator:
+    splits: [function, consumer, key]
+    key: asked
+    rules:
+      - match: '(?P<function>.+)'
+        set: {function: $function}
+        convention: {consumer: consumer-defined}

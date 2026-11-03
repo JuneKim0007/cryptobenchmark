@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from .signature import Signature
+
 SCHEMA_VERSION = 1
-# 3: measured and preparedKeySizes are null when the build had no benchmark or prepared.yaml
-PROFILES_SCHEMA_VERSION = 3
+# 4: signature
+PROFILES_SCHEMA_VERSION = 4
 SEPARATOR = "|"
 KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN = "app_held", "provider_held", "unknown"
 KEY_CONTRACTS = (KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN)
@@ -86,16 +88,19 @@ class Profile:
     measured: bool | None = None
     preparedKeySizes: tuple[int, ...] | None = None
     keyContract: str = KEY_UNKNOWN
+    signature: Signature | None = None
 
     def to_json(self) -> dict:
         d = asdict(self)
         d["preparedKeySizes"] = None if self.preparedKeySizes is None else list(self.preparedKeySizes)
+        d["signature"] = None if self.signature is None else self.signature.to_json()
         return d
 
     @classmethod
     def from_json(cls, d: dict) -> "Profile":
-        sizes = d.get("preparedKeySizes")
-        return cls(**{**d, "preparedKeySizes": None if sizes is None else tuple(sizes)})
+        sizes, signature = d.get("preparedKeySizes"), d.get("signature")
+        return cls(**{**d, "preparedKeySizes": None if sizes is None else tuple(sizes),
+                      "signature": None if signature is None else Signature.from_json(signature)})
 
 
 def items_document(items: list[Item]) -> dict:
