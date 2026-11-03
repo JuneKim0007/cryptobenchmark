@@ -29,8 +29,8 @@ LOG, EVENTS = "log", "log/events.jsonl"
 STATUS_LOG, BUG_LOG = "log/status.log", "log/bug.log"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
-# one file per model stage; the grouping supervisor's turns apart from the assign role's
-AI_SCREENING_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/grouping.log"
+# one file per model stage; screening's classify and grouping's supervisor apart from their stage's other turns
+AI_SCREENING_LOG, AI_CLASSIFY_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/classify.log", "log/ai/grouping.log"
 AI_SUPERVISOR_LOG, AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/supervisor.log", "log/ai/worthiness.log", "log/ai/replace.log"
 CHARTER = "charter.json"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")

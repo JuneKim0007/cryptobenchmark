@@ -1,4 +1,4 @@
-"""The summary as text lines: the runs, then the total, each stage and each app folder."""
+"""The summary as text lines: the runs, then the total, each stage and each app folder, last the status lines."""
 from __future__ import annotations
 
 from .views import seconds, tokens_text
@@ -38,4 +38,5 @@ def summary_lines(doc: dict) -> list[str]:
         lines += _block(f"stage {stage}", b)
     for app, b in doc["apps"].items():
         lines += _block(f"app {app}", b)
-    return lines
+    # last, so the lines a person acts on end the output
+    return lines + ["status:", *(f"  {line}" for line in doc["status"])] if doc["status"] else lines

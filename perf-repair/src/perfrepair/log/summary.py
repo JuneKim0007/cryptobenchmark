@@ -1,4 +1,5 @@
-"""summarize(): a folder's events, all runs or one, per stage and per app folder: time, items, model calls, rejections, tokens, cost."""
+"""summarize(): a folder's events, all runs or one, per stage and per app folder: time, items, model calls, rejections, tokens,
+cost; then the chosen runs' status lines."""
 from __future__ import annotations
 
 import re
@@ -6,6 +7,7 @@ from collections import Counter
 from datetime import datetime
 
 from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, TURN, Event
+from .status import status_line
 
 TOP = 5
 ALL = "all"
@@ -108,7 +110,8 @@ def summarize(events: list[Event], run: str | None = None, last: bool = False) -
     # the guide's steps wrap the app's own, so an app's numbers leave them out
     return {**overall, "runs": each, "total": {**block(of_runs), "durationMs": overall["durationMs"]},
             "stages": _grouped(staged, lambda e: e.stage),
-            "apps": _grouped([e for e in staged if e.stage not in WRAPPERS], lambda e: e.app)}
+            "apps": _grouped([e for e in staged if e.stage not in WRAPPERS], lambda e: e.app),
+            "status": [line for line in map(status_line, of_runs) if line is not None]}
 
 
 def _each(of_runs: list[Event], chosen: list[str], newest: str) -> list[dict]:

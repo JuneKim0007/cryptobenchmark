@@ -118,7 +118,7 @@ def test_each_view_is_the_render_of_the_events_it_was_written_from(tmp_path, log
     grouping = (tmp_path / rd.AI_GROUPING_LOG).read_text()
     assert "i1 s1t1 rejected 1.2s" in grouping and "-> grouping/journal.jsonl:1" in grouping
     assert "  - gate: no such group" in grouping and "b1" not in grouping and "g1" not in grouping
-    assert "b1 s1t1 accepted" in (tmp_path / rd.AI_SCREENING_LOG).read_text()
+    assert "b1 s1t1 accepted" in (tmp_path / rd.AI_CLASSIFY_LOG).read_text() and not (tmp_path / rd.AI_SCREENING_LOG).exists()
     assert "review turn g1" in (tmp_path / rd.AI_SUPERVISOR_LOG).read_text()
     assert "w1" in (tmp_path / rd.AI_WORTHINESS_LOG).read_text() and "u1" in (tmp_path / rd.AI_REPLACE_LOG).read_text()
     assert not (tmp_path / "log/grouping").exists() and not (tmp_path / "log/screening").exists()

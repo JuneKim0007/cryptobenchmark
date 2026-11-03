@@ -106,6 +106,19 @@ def test_the_summary_is_of_every_run_unless_narrowed(tmp_path, capsys):
     assert f"run {first}" in text and f"run {last}" in text and "total of 2 runs" in text and "4 model calls" in text
 
 
+def test_the_summary_ends_with_the_status_lines_of_the_runs_it_shows(tmp_path, capsys):
+    _scripted(tmp_path, limit=1)
+    _scripted(tmp_path)
+    events = read_events(tmp_path / rd.EVENTS)
+    first, last = dict.fromkeys(e.run for e in events)
+    assert summarize(events, last=True)["status"] == (tmp_path / rd.STATUS_LOG).read_text().splitlines()[2:]
+    assert log_main(["summary", str(tmp_path), "--last"]) == 0
+    text = capsys.readouterr().out.splitlines()
+    status = text[text.index("status:") + 1:]
+    assert status[0].startswith(f"  run {last} {next(e.ts for e in events if e.run == last)}: ")
+    assert status[-1].startswith(f"  end {last}: ok (") and not any(first in line for line in status)
+
+
 def test_a_run_with_no_end_is_running_if_newest_and_else_unfinished(tmp_path):
     _scripted(tmp_path, limit=1)
     _scripted(tmp_path)

@@ -1,6 +1,6 @@
 """python3 -m perfrepair.log summary <device-results> [--run ID | --last] [--json] — <device>/log/events.jsonl, every run
 by default, per stage and per app folder: time, items, model calls, rejections and their top problems, the slowest
-items, tokens and cost."""
+items, tokens and cost; last the status lines of the runs shown, as log/status.log holds them."""
 from __future__ import annotations
 
 import argparse
