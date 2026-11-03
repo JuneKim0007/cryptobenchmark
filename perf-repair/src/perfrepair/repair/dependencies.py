@@ -64,23 +64,41 @@ def _lambda_parameter(tokens: list[str], i: int) -> bool:
     return j < len(tokens) and tokens[j] == "->"
 
 
+def _neighbours(tokens: list[str], i: int) -> tuple[str, str, str]:
+    before = tokens[i - 2] if i > 1 else ""
+    prev = tokens[i - 1] if i else ""
+    after = tokens[i + 1] if i + 1 < len(tokens) else ""
+    return before, prev, after
+
+
+def _member_access(prev: str, before: str) -> bool:
+    return prev == "." and before not in {"this", "super"}
+
+
+def _typed(token: str, names: Names) -> bool:
+    return token == "]" or (bool(_IDENT.fullmatch(token)) and (token not in names.keywords or token in names.types))
+
+
+def _declares(tokens: list[str], i: int, language: Language, names: Names) -> bool:
+    before, prev, after = _neighbours(tokens, i)
+    return (prev in {"val", "var", "fun"} or (_typed(prev, names) and after in _DECLARED_BEFORE)
+            or (prev in {"(", ","} and after == ":" and language.colon_types)
+            or (prev == "(" and before == "for") or _lambda_parameter(tokens, i))
+
+
+def _first_call(tokens: list[str]) -> int | None:
+    return next((i - 1 for i, t in enumerate(tokens) if t == "(" and i), None)
+
+
 def dependencies(function: str, language: Language, imports: list[str], names: Names) -> list[str]:
     found = tokens(mask(function, language))
-    typed = lambda t: t == "]" or (bool(_IDENT.fullmatch(t)) and (t not in names.keywords or t in names.types))
     used, declared = set(), set()
-    first_call = next((i - 1 for i, t in enumerate(found) if t == "(" and i), None)
+    first_call = _first_call(found)
     for i, t in enumerate(found):
         if not _IDENT.fullmatch(t) or t in names.keywords or t in names.types:
             continue
-        prev = found[i - 1] if i else ""
-        before = found[i - 2] if i > 1 else ""
-        after = found[i + 1] if i + 1 < len(found) else ""
-        if prev == "@" or (prev == "." and before not in {"this", "super"}):
+        before, prev, _ = _neighbours(found, i)
+        if prev == "@" or _member_access(prev, before):
             continue
-        if (i == first_call or prev in {"val", "var", "fun"} or (typed(prev) and after in _DECLARED_BEFORE)
-                or (prev in {"(", ","} and after == ":" and language.colon_types)
-                or (prev == "(" and before == "for") or _lambda_parameter(found, i)):
-            declared.add(t)
-        else:
-            used.add(t)
+        (declared if i == first_call or _declares(found, i, language, names) else used).add(t)
     return sorted(used - declared - names.implicit - imported(imports))
