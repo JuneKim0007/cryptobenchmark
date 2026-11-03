@@ -4,7 +4,8 @@ from __future__ import annotations
 from typing import Callable
 
 from ..dto.event import BUG, Event
-from ..run_dir import BUG_LOG, GROUPING_AI_LOG, SCREENING_AI_LOG, STATUS_LOG
+from ..run_dir import (AI_GROUPING_LOG, AI_REPLACE_LOG, AI_SCREENING_LOG, AI_SUPERVISOR_LOG, AI_WORTHINESS_LOG, BUG_LOG,
+                       STATUS_LOG)
 from .status import status_line
 
 
@@ -36,8 +37,20 @@ def model_line(e: Event) -> str:
     return line + (f" -> {e.ref}" if e.ref else "") + problems
 
 
-def _model_view(stage: str) -> Callable[[Event], str | None]:
-    return lambda e: model_line(e) if e.stage == stage and e.kind == "model" else None
+# (stage, step) → its file; a step of None takes the stage's other model steps
+AI_LOGS: dict[tuple[str, str | None], str] = {
+    ("screening", None): AI_SCREENING_LOG, ("grouping", "review"): AI_SUPERVISOR_LOG, ("grouping", None): AI_GROUPING_LOG,
+    ("worthiness", None): AI_WORTHINESS_LOG, ("replace", None): AI_REPLACE_LOG}
+
+
+def ai_log(e: Event) -> str | None:
+    if e.kind != "model":
+        return None
+    return AI_LOGS.get((e.stage, e.step)) or AI_LOGS.get((e.stage, None))
+
+
+def _model_view(path: str) -> Callable[[Event], str | None]:
+    return lambda e: model_line(e) if ai_log(e) == path else None
 
 
 def _bug(e: Event) -> str | None:
@@ -47,8 +60,7 @@ def _bug(e: Event) -> str | None:
 
 
 VIEWS: tuple[tuple[str, Callable[[Event], str | None]], ...] = (
-    (SCREENING_AI_LOG, _model_view("screening")),
-    (GROUPING_AI_LOG, _model_view("grouping")),
+    *((path, _model_view(path)) for path in dict.fromkeys(AI_LOGS.values())),
     (BUG_LOG, _bug),
     (STATUS_LOG, status_line),
 )
