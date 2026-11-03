@@ -23,6 +23,7 @@ from ..device.used import clear_used, write_used
 from ..dto.bundled import BundledPolicy
 from ..dto.change import DROP_IN
 from ..dto.event import END
+from ..dto.perf_mode import PerfMode
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..failure import FAILURES, last_failure
 from ..grouping.__main__ import main as grouping_main
@@ -72,6 +73,8 @@ class Guide:
     # app ids whose app step ran before the benchmark, shared by every app's copy
     detected: set = field(default_factory=set)
     max_change: str = DROP_IN
+    # the targets that name their own perfMode, by root; the others take mode
+    app_modes: dict = field(default_factory=dict)
     # the running step's name, set by run_step, so a stop's line says where
     step: str | None = None
 
@@ -126,6 +129,12 @@ def _used(g: Guide) -> str:
     return f", used set {len(used.items)} of {used.deviceItems} items for {len(used.apps)} app folders"
 
 
+def _measured(g: Guide) -> PerfMode:
+    """What the one benchmark must measure: every key of every target's own perfMode."""
+    modes = [g.app_modes.get(r, g.mode).perf for r in g.targets] or [g.mode.perf]
+    return modes[0] if len({m.name for m in modes}) == 1 else PerfMode.union(modes)
+
+
 def prerequisites(g: Guide) -> str:
     # resolved and checked before any step runs, so a bad catalog stops the guide first
     g.catalog = screening_catalog(g.settings)
@@ -133,7 +142,7 @@ def prerequisites(g: Guide) -> str:
         detect = (lambda folder: detect_targets(g, folder)) if g.filter_by_apps else None
         # named: a stop inside it still finds the folder its log goes to
         g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
-                                detect=detect, perf=g.mode.perf, bundled=g.bundled,
+                                detect=detect, perf=_measured(g), bundled=g.bundled,
                                 named=lambda folder: setattr(g, "device", folder)).folder
     if not (g.device / rd.MANIFEST).is_file():
         halt(g, "missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")

@@ -15,7 +15,11 @@ from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.files import read_json
 from perfrepair.guide import finished, steps as guide_steps
+from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.guide.command import main as guide_main
+from perfrepair.guide.steps import _measured as measured_by_targets
+from perfrepair.inputs.check import target_path, target_perf
+from perfrepair.result.modes import mode_of
 from perfrepair.guide.steps import Guide
 from perfrepair.guide.targets import run_targets
 from perfrepair.log import attach
@@ -40,9 +44,9 @@ class Base:
             shutil.copytree(APP, path)
         return path.resolve()
 
-    def go(self, roots, device=False, reuse=True, conversations=None):
+    def go(self, roots, device=False, reuse=True, conversations=None, app_modes=None):
         lines = []
-        base = Guide(self.run_dir, None, LATENCY, conversations or self.answer, LIBRARY, echo=lines.append)
+        base = Guide(self.run_dir, None, LATENCY, conversations or self.answer, LIBRARY, echo=lines.append, app_modes=app_modes or {})
         return run_targets(base, roots, device, reuse), lines
 
     def calls(self, root):
@@ -247,7 +251,7 @@ def test_malformed_targets_warn_then_count_as_none(tmp_path, capsys):
     with pytest.raises(SystemExit) as e:
         guide_main(command(tmp_path, settings(tmp_path, targets="one")))
     err = capsys.readouterr().err
-    assert e.value.code == 2 and "invalid: apps.targets one, a list of paths or {path: ...}; ignored" in err
+    assert e.value.code == 2 and "invalid: apps.targets one, a list of paths or {path: ..., perfMode: ...}; ignored" in err
 
 
 def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, capsys, monkeypatch):
@@ -286,3 +290,32 @@ def test_a_path_that_is_a_file_is_a_missing_target(base):
     path.write_text("x")
     code, lines = base.go([Path(path)])
     assert code == 1 and "target_missing" in app_lines(lines)[0]
+
+
+def test_a_target_with_its_own_perf_mode_uses_it_in_its_dossier_and_its_record(base):
+    a, b = base.app("a"), base.app("b")
+    code, _ = base.go([a, b], app_modes={b: mode_of(PerfMode.parse(["throughput"]))})
+    assert code == 0
+    of = {r: AppPaths(base.run_dir, path_id(r)) for r in (a, b)}
+    assert read_json(of[a].dossiers)["perfMode"] == ["latency"] and read_json(of[b].dossiers)["perfMode"] == ["throughput"]
+    assert read_json(of[a].finished)["perfMode"] == "latency" and read_json(of[b].finished)["perfMode"] == "throughput"
+
+
+def test_the_benchmark_must_measure_every_targets_selection():
+    a, b = Path("/a"), Path("/b")
+    g = Guide(None, None, LATENCY, None, LIBRARY, targets=(a, b), app_modes={b: mode_of(PerfMode.parse(["memAlloc"]))})
+    assert measured_by_targets(g).keys == ("latency", "memAlloc")
+    assert measured_by_targets(Guide(None, None, LATENCY, None, LIBRARY, targets=(a,))).keys == ("latency",)
+
+
+@pytest.mark.parametrize("entry,want", [("x", None), ({"path": "x"}, None), ({"path": "x", "perfMode": "all"}, "generic"),
+                                        ({"path": "x", "perfMode": ["energy"]}, "energy")])
+def test_a_target_entry_reads_its_own_perf_mode(entry, want):
+    got = target_perf(entry)
+    assert target_path(entry) == "x" and (got.name if got else None) == want
+
+
+def test_a_bad_target_perf_mode_warns_like_any_bad_targets(tmp_path, capsys):
+    with pytest.raises(SystemExit):
+        guide_main(command(tmp_path, settings(tmp_path, targets=[{"path": "x", "perfMode": "fast"}])))
+    assert "invalid: apps.targets" in capsys.readouterr().err

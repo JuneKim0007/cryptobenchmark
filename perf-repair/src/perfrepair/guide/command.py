@@ -17,14 +17,14 @@ from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
 from ..dto.bundled import BundledPolicy
 from ..dto.perf_mode import PerfMode
-from ..inputs.check import target_path
+from ..inputs.check import target_path, target_perf
 from ..dto.change import CHANGES
 from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
                             APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, BUNDLED_FROM_APPS,
                             FILTER_BY_APPS)
 from ..failure import reported
 from ..log import attach
-from ..result.modes import mode_of
+from ..result.modes import Mode, mode_of
 from .steps import Guide
 from .targets import run_targets
 
@@ -61,6 +61,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
+    # a flag outranks an entry's own perfMode as it outranks apps.perfMode
+    a.perf_mode_named = a.perf_mode is not None
     fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE,
                          "max_change": APPS_MAX_CHANGE})
     return reported(lambda: _run(ap, a, settings))
@@ -78,8 +80,21 @@ def _roots(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded)
     listed = settings.read(APPS_TARGETS)
     if not listed:
         ap.error(f"the following arguments are required: --app (or {APPS_TARGETS.key} in perfrepair.yaml)")
-    # relative to the settings file, as its paths are; one app named twice runs once
-    return list(dict.fromkeys((settings.file.parent / Path(target_path(e)).expanduser()).resolve() for e in listed))
+    # one app named twice runs once
+    return list(dict.fromkeys(_root(settings, e) for e in listed))
+
+
+def _app_modes(a: argparse.Namespace, settings: Loaded) -> dict[Path, Mode]:
+    """Each target root naming its own perfMode, by root; an app run alone or under --perf-mode takes the flag or default."""
+    if a.app is not None or a.perf_mode_named:
+        return {}
+    listed = settings.read(APPS_TARGETS) or []
+    return {_root(settings, e): mode_of(target_perf(e)) for e in listed if target_perf(e) is not None}
+
+
+def _root(settings: Loaded, entry) -> Path:
+    # relative to the settings file, as its paths are
+    return (settings.file.parent / Path(target_path(entry)).expanduser()).resolve()
 
 
 def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> int:
@@ -90,7 +105,7 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG),
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
-                 max_change=a.max_change)
+                 max_change=a.max_change, app_modes=_app_modes(a, settings))
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

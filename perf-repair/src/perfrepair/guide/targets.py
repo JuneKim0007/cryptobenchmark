@@ -52,7 +52,7 @@ def _missing(g: Guide, root: Path) -> AppResult:
 
 
 def _one(base: Guide, root: Path, device: bool, reuse: bool) -> AppResult:
-    g = replace(base, app_root=root)
+    g = replace(base, app_root=root, mode=base.app_modes.get(root, base.mode))
     if not root.is_dir():
         return _missing(g, root)
     try:

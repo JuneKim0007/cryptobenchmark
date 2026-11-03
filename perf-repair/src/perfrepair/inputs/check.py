@@ -42,14 +42,28 @@ def check_bool(name: str, value: Any) -> None:
 
 
 def target_path(entry: Any) -> str | None:
-    """The path of one apps.targets entry: a bare string, or a mapping holding only `path`."""
-    if isinstance(entry, Mapping) and set(entry) == {"path"}:
+    """The path of one apps.targets entry: a bare string, or a mapping of `path` and optionally `perfMode`."""
+    if isinstance(entry, Mapping) and "path" in entry and set(entry) <= {"path", "perfMode"}:
         entry = entry["path"]
     return entry if isinstance(entry, str) and entry else None
 
 
+def target_perf(entry: Any) -> PerfMode | None:
+    """An apps.targets entry's own perfMode; None takes apps.perfMode. A bad one raises ValueError."""
+    value = entry.get("perfMode") if isinstance(entry, Mapping) else None
+    return None if value is None else PerfMode.parse(value)
+
+
+def _target_ok(entry: Any) -> bool:
+    try:
+        target_perf(entry)
+        return bool(target_path(entry))
+    except ValueError:
+        return False
+
+
 def check_targets(name: str, value: Any) -> None:
-    _check(name, value, isinstance(value, list) and all(target_path(e) for e in value), "a list of paths or {path: ...}")
+    _check(name, value, isinstance(value, list) and all(_target_ok(e) for e in value), "a list of paths or {path: ..., perfMode: ...}")
 
 
 def check_path(name: str, value: Any) -> None:
