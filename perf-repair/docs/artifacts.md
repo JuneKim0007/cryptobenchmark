@@ -32,7 +32,9 @@
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |
-| `<app>/sites.json` | `perfrepair.app` | scope | none |
+| `used.json` | the device stage's used step (`device/used.py`), with `device.filterByApps` | grouping assign and report (what is asked, `notUsed`), the benchmark's selection | `validation/used.py`, before writing; [Used set](#usedjson) |
+| `used-global.yaml` | the device stage, before a benchmark of the used set | cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with `selection.exclude` added |
+| `<app>/sites.json` | `perfrepair.app` | scope, used | none |
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
 | `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 4, every scope's lifecycle in its closed lists, cited lines inside the file |
 | `<app>/units.json` | `perfrepair.app` | dossier, edit, harness, report, the guide's `finished.json` | `validation/units.py`, before writing: every scope in one unit, recomputed ids, members connected by their links, each cited line in that side's lifecycle |
@@ -77,6 +79,22 @@ One stored, compact view of the benchmark results: on the API 30 emulator run, 4
 - Stored in the registry units (`timeNs` in ns/op), never in the display units: a unit change rewrites no file; a reader converts when it shows a line.
 - Numbers carry 4 significant digits: the table is for reading; `measurements.json` keeps the runs, and pImprove is computed from it, never from the table.
 - Device stage: rebuilt when `rows.json`, `measurements.json` or `grouping/screen.json` differ from the digests `device.yaml` `primitives` recorded, when inbound or screen rerun, when it is missing, and with `guide --refresh`; else reused ([pipeline.md](pipeline.md) Device stage).
+
+## `used.json`
+
+The device items the target apps need, and which app needs each; code joins sites, groups and signatures, no model.
+
+| field | holds |
+|---|---|
+| `deviceItems` | the count of `grouping/items.json` |
+| `apps` | per app folder: `sites` in its `sites.json`, `matched` those whose resolved (type, name, provider) is a device item |
+| `items[]` | `{item, via, apps}`: the qualified name, the strongest way any app reaches it, the apps that do |
+| `via: site` | an app's site resolves to it |
+| `via: group` | a member of the group of a `site` item: its options |
+| `via: candidate` | the `site` item has no grouping record yet: every askable item of its family whose signature no component both know sets apart, and the members of their model groups; the model may group them together |
+
+- A site that resolves to no item (`unresolved_*`, `not_on_device`, `name_conflict`, an engine type no family covers) adds nothing.
+- Rewritten on each run before the benchmark, and after a screen rerun; absent with `device.filterByApps: false`, so nothing narrows grouping.
 
 ## `manifest.yaml` (cryptobenchmark)
 

@@ -20,11 +20,13 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
     if doc.get("schemaVersion") != GROUPS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {GROUPS_SCHEMA_VERSION}")
     placed = Counter(m for g in doc["groups"] for m in g["members"])
-    dropped = {d["item"] for d in doc["dropped"]}
+    dropped, unused = {d["item"] for d in doc["dropped"]}, set(doc.get("notUsed") or ())
     problems += [f"item {m}: in {n} groups" for m, n in placed.items() if n > 1]
     problems += [f"item {m}: grouped and dropped" for m in dropped if m in placed]
-    problems += [f"item {i}: neither grouped nor dropped" for i in items if i not in placed and i not in dropped]
-    problems += [f"item {m}: not in items.json" for m in set(placed) | dropped if m not in items]
+    problems += [f"item {m}: notUsed and {'grouped' if m in placed else 'dropped'}" for m in unused & (set(placed) | dropped)]
+    problems += [f"item {i}: neither grouped nor dropped" for i in items
+                 if i not in placed and i not in dropped and i not in unused]
+    problems += [f"item {m}: not in items.json" for m in set(placed) | dropped | unused if m not in items]
     if "interop" not in doc:
         problems.append("no interop section; rerun grouping report")
     if set(doc["items"]) != {str(i) for i in items}:

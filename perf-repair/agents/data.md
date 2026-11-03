@@ -46,6 +46,7 @@ src/perfrepair/device/measures.py : the run config's measurements (run.metrics, 
 src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; --refresh reruns primitives
 src/perfrepair/device/primitives.py : the primitives stage: rows, measurements, screen.json → primitives.tsv, validated as it reads back; its input digests; status_of (screen.json by qualified name)
 src/perfrepair/device/stage.py : probe_device(): identify, the perfMode's measurement check, plan, run the needed stages (pipeline, inbound, grouping build, primitives), write device.yaml last; `device <stage>: reused` or `ran: <reason>`
+src/perfrepair/device/used.py : the used step: each app's sites.json → the items its sites resolve to, their groups' members, an ungrouped one's candidates → used.json, validated before writing; clear_used
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
@@ -70,6 +71,7 @@ src/perfrepair/dto/signature.py : Signature and its components, known, conventio
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
 src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (latency ms|us|ns, throughput MB/s|MiB/s|ops/s), parsed and checked, defaults mirroring :config; ns/op to each; significant-figure numbers
+src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group or candidate; names_digest
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per selected metric), MetricComparison, PairMetrics (a comparison per selected metric), Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append; several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
@@ -88,7 +90,7 @@ src/perfrepair/log/summary.py : summarize(): one run per stage and per app folde
 src/perfrepair/log/summary_text.py : the summary as text lines
 src/perfrepair/log/views.py : the views screening/ai.log, grouping/ai.log, bug.log, each a function of one event; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
-src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/), not_device_results, app folders, device.yaml read and write, artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/), not_device_results, app folders, device.yaml read and write, load_used (None without used.json), artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130
 ```

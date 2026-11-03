@@ -59,7 +59,7 @@ flowchart TD
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
 | `checks.json` | report | static findings with severity; counts |
-| `groups.json` | report | schema 3: families, groups with members, runnable members, common key sizes, findings; items index with each item's `keyContract` and `screen` status (null without screen.json); dropped; `interop` |
+| `groups.json` | report | schema 3: families, groups with members, runnable members, common key sizes, findings; items index with each item's `keyContract` and `screen` status (null without screen.json); dropped; with `used.json`, `notUsed`: askable items outside it with no record, left unasked and never dropped; `interop` |
 | `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size; `notCheckable[]` `{id, group, a, b, reason}`, present when a pair crosses key contracts: never sent to the oracle, which reads only `pairs` |
 | `interop.yaml` | interop-read | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions |
 | `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings |
@@ -69,6 +69,7 @@ flowchart TD
 
 | Rule | Value |
 |---|---|
+| used | with `<device>/used.json` ([artifacts.md](artifacts.md#usedjson)) only the pending items it names are asked; a record outside it still places its item, so a target removed keeps its groups |
 | pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json), and whose signature has an `unknown` component; only these reach the model |
 | no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
 | build write | everything, the classify review included, is computed first; then screen.json, profiles.json and items.json are staged as temp files and renamed in that order: a failure before the renames leaves the previous build whole, a partial rename fails screen.json's `built` digests, and screen.json first means its absence never follows a new items.json |

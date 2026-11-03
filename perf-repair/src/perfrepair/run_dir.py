@@ -7,12 +7,15 @@ import yaml
 
 from .dto import Measurements, PrimitiveRow, RunLog
 from .dto.device import DeviceRecord
+from .dto.used import UsedSet
 from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
 from .files import read_json, read_yaml, sha256_file, write_text
 
 MANIFEST, DEVICE = "manifest.yaml", "device.yaml"
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
 PRIMITIVES = "primitives.tsv"
+# the apps' items and the global.yaml that measures only them: device.filterByApps
+USED, USED_CONFIG = "used.json", "used-global.yaml"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, UNITS, DOSSIERS = "app.json", "scopes.json", "units.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
@@ -160,6 +163,12 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
         return DeviceRecord.from_json(read_yaml(path)), None
     except (ValueError, KeyError, TypeError, yaml.YAMLError) as e:
         return None, f"{DEVICE} unreadable ({e})"
+
+
+def load_used(device: Path) -> UsedSet | None:
+    """None without used.json: every item counts as used."""
+    path = Path(device) / USED
+    return UsedSet.from_json(read_json(path)) if path.is_file() else None
 
 
 def write_device_record(device: Path, record: DeviceRecord) -> Path:

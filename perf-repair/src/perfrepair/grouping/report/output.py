@@ -19,7 +19,7 @@ def _dropped(k: Knowledge, items: dict[int, Item], records: list[OutboxRecord]) 
 
 def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile], findings: list[Finding],
              records: list[OutboxRecord], families: Families, interop: list[PairResult] | None,
-             screen: dict[int, Verdict] | None) -> dict:
+             screen: dict[int, Verdict] | None, not_used: list[int] | None = None) -> dict:
     by_group: dict[str, list[str]] = {}
     for f in findings:
         if f.group:
@@ -37,5 +37,6 @@ def assemble(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
                            "keyContract": profiles[i].keyContract,
                            "screen": screen[i].status if screen else None} for i in sorted(items)},
         "dropped": _dropped(k, items, records),
+        **({} if not_used is None else {"notUsed": sorted(not_used)}),
         "interop": interop_section(interop),
     }

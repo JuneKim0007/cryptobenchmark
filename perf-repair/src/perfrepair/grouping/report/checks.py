@@ -43,6 +43,7 @@ def report_documents(paths: GroupingPaths, families: Families | None = None) -> 
     require("grouping", [] if unfinished is None else [f"item {unfinished} is not decided yet; run assign first"])
     interop = imported(paths)
     findings = check(knowledge, kind.by_id, kind.profiles) + check_interop(interop, kind.by_id)
-    document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop, kind.screen)
+    document = assemble(knowledge, kind.by_id, kind.profiles, findings, records, kind.families, interop, kind.screen,
+                        None if kind.scope is None else [i.id for i in kind.not_used(records)])
     require("groups.json", validate_output(document, kind.by_id, kind.screen, kind.profiles))
     return {paths.knowledge: knowledge.to_json(), paths.checks: checks_document(findings), paths.groups: document}

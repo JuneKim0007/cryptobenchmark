@@ -18,7 +18,7 @@ from ....validation.grouping.items import validate_items
 from ....validation.grouping.knowledge import validate_knowledge
 from ....validation.screen import read_checked_screen
 from ....catalog.families import Families
-from ....run_dir import CHARTER, GroupingPaths
+from ....run_dir import CHARTER, GroupingPaths, load_used
 from ....screen.groups import code_groups, grouped_by_code
 from .render import render
 from .schema import SCHEMA
@@ -49,7 +49,11 @@ class GroupingKind:
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
         self.screen: dict[int, Verdict] | None = read_checked_screen(paths)
-        self._asked = {i.key for i in self.pending()}
+        self._askable = [i for i in self._items if not grouped_by_code(i.id, self.screen, self.profiles)]
+        self._asked = {i.key for i in self._askable}
+        used = load_used(paths.root.parent)
+        # used.json narrows what is asked, never what a record adds: an item outside it keeps its group
+        self.scope = None if used is None else used.names
 
     @property
     def inputs(self) -> str:
@@ -66,8 +70,16 @@ class GroupingKind:
     def gone(self, key: str) -> Item:
         return Item.from_key(key)
 
+    def askable(self) -> list[Item]:
+        return self._askable
+
     def pending(self) -> list[Item]:
-        return [i for i in self._items if not grouped_by_code(i.id, self.screen, self.profiles)]
+        return self._askable if self.scope is None else [i for i in self._askable if i.qualified in self.scope]
+
+    def not_used(self, records: list[OutboxRecord]) -> list[Item]:
+        """Askable, outside used.json and never asked: left unasked, never dropped."""
+        done = {r.item for r in records}
+        return [i for i in self._askable if self.scope is not None and i.qualified not in self.scope and i.key not in done]
 
     def empty(self) -> Knowledge:
         return Knowledge(groups=code_groups(self._items, self.screen, self.profiles))

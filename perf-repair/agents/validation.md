@@ -46,5 +46,6 @@ src/perfrepair/validation/run_log.py : run log: measured rows exist, every other
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
 src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its unit, member by member in their aliases; the members with options all replaced or all kept, none that stays named; an inverse pair's interop; refuses an option with unknown pins; risks from scope and option
 src/perfrepair/validation/units.py : units.json: every scope in one unit, ids recomputed, members connected, each cited line in that side's lifecycle
+src/perfrepair/validation/used.py : used.json: each item a device item named once, a known via, apps it lists, matched within sites, deviceItems equal to items.json
 src/perfrepair/validation/verdicts.py : verdicts: known groups, static equal triage, pairs are members
 ```

@@ -37,7 +37,7 @@ src/perfrepair/ai/parse/algorithm_classify/render.py : one batch's message: per 
 src/perfrepair/ai/parse/algorithm_classify/schema.py : the answer's JSON schema: answers of id, answer, reason
 src/perfrepair/ai/parse/algorithm_classify/state.py : Classified (the outbox's projection), reviewed (answers onto verdicts), candidates (registry-candidates.yaml)
 src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; rekey, refresh; GroupingKind on the engine, its dry run
-src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: pending (not grouped by code), code-made groups seeded in empty, a refresh token as charter inputs, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
+src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: askable (not grouped by code), pending (askable, narrowed to used.json when present), not_used, code-made groups seeded in empty, a refresh token as charter inputs, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/rekey.py : one move of an outbox whose records name positions to one naming Item.key, when its old charter still hashes to its name
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: family, its groups with their signature and key lines, the item with its signature and key line
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
@@ -59,7 +59,7 @@ src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measu
 src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profiles.json, screen.json (by the resolved catalog; classify first with a reviewer), validated, then written together with screen.json's `built` digests
 src/perfrepair/grouping/interop_plan.py : groups.json → interop_plan.yaml: every two runnable members of a group, once; a pair across key contracts as not_checkable
 src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked against the plan and imported into grouping/
-src/perfrepair/grouping/report/checks.py : stage: finished grouping → knowledge.json, checks.json, groups.json; report_documents: what they should hold, nothing written
+src/perfrepair/grouping/report/checks.py : stage: finished grouping → knowledge.json, checks.json, groups.json (`notUsed` with used.json); report_documents: what they should hold, nothing written
 src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping
 src/perfrepair/grouping/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
