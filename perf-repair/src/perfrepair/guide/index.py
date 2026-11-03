@@ -18,7 +18,7 @@ from ..files import read_json, write_text
 from ..log import attach
 from ..log.read import read_events
 
-# the step an app reached is the last whose file is there, in guide order
+# the step an app reached: the last of an unbroken run of files in guide order, each no older than the one before
 STAGES = (("app", rd.SCOPES), ("dossier", rd.DOSSIERS), ("replace", rd.REPLACEMENTS), ("edit", rd.EDITS),
           ("harness", rd.HARNESS), ("device", rd.SCOPED_BENCHMARK), ("report", rd.REPORT))
 COLUMNS = ("app", "project", "source", "sites", "scopes", "stage", "stop", "reason", *CHANGES, *TRACKS, "notOffered",
@@ -39,13 +39,24 @@ def _stops(device: Path) -> dict[str, tuple[str, str]]:
     return {app: (code, reason) for app, (_, code, reason) in latest.items()}
 
 
+def _stage(folder: Path) -> str:
+    """A file a later step left from an earlier run is older than the one rewritten before it, so it does not count."""
+    reached, since = "", 0.0
+    for name, file in STAGES:
+        path = folder / file
+        if not path.exists() or path.stat().st_mtime < since:
+            break
+        reached, since = name, path.stat().st_mtime
+    return reached
+
+
 def _count(path: Path, key: str) -> int | str:
     return len(read_json(path)[key]) if path.is_file() else ""
 
 
 def _row(folder: Path, project: str, stops: dict) -> dict:
     paths, facts = rd.AppPaths(folder.parent, folder.name), read_json(folder / rd.APP)
-    stage = next((s for s, f in reversed(STAGES) if (folder / f).is_file()), "")
+    stage = _stage(folder)
     dossiers = read_json(paths.dossiers) if paths.dossiers.is_file() else {"dossiers": [], "notOffered": []}
     options = [o for d in dossiers["dossiers"] for o in d["options"]]
     changes, tracks = Counter(o.get("change", "drop-in") for o in options), Counter(o.get("track") for o in options)

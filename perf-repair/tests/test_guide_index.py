@@ -12,7 +12,7 @@ from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide import steps as guide_steps
 from perfrepair.guide.index import main as index_main
 from perfrepair.log import attach
-from perfrepair.run_dir import APPS_INDEX
+from perfrepair.run_dir import APPS_INDEX, EDITS
 
 
 def _rows(device):
@@ -56,5 +56,10 @@ def test_a_later_run_that_stops_nowhere_clears_the_stop_and_the_command_rewrites
     code = _go(base, [a], reuse=False)
     row = _rows(base.run_dir)[path_id(a)]
     assert code == 0 and (row["stop"], row["reason"], row["stage"]) == ("", "", "harness") and int(row["replace"]) > 0
+    # a stop before the edit leaves the earlier edits.json and harness.yaml; older than replacements.json, they do not count
+    with monkeypatch.context() as m:
+        m.setattr(guide_steps, "repair_main", lambda argv: 1)
+        assert _go(base, [a], reuse=False) == 1 and _rows(base.run_dir)[path_id(a)]["stage"] == "replace"
+    assert (base.run_dir / path_id(a) / EDITS).is_file()
     (base.run_dir / APPS_INDEX).unlink()
     assert index_main(["--device-results", str(base.run_dir)]) == 0 and path_id(a) in _rows(base.run_dir)
