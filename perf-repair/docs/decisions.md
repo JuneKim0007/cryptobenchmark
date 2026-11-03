@@ -55,30 +55,6 @@
 | dropped item | every id `unsure` with reason `dropped: ...`: the items stay `unknown` |
 | state | `grouping/classify/classified.json`, merged into `screen.json` by `with_answer`; `registry-candidates.yaml` |
 
-## Scope complete
-
-| field | scope-complete |
-|---|---|
-| stage | `python3 -m perfrepair.ai scope-complete --device-results <device> --app <src>`, or the guide's complete step with `apps.scopeComplete` |
-| prompt | `parse/scope-complete` |
-| item | one `ScopeGaps` with at least one gap that has a candidate; scopes with a key gap first, so a `--limit` spends its calls there |
-| sees | the anchor line, the statements code included, each offered gap with its numbered lines and what code reads at each, at most one other body, fenced as data |
-| answers | per offered gap: `gap`, `choice` (a candidate id or `unknown`), `origin` |
-| inputs | the digest of gaps.json's scopes: changed gaps start a new outbox, the same gaps resume it |
-| dropped | every offered gap `unknown`, the scope in `dropped` |
-| dry run | `unknown` for every gap |
-
-## Scope complete gate
-
-| refused | when |
-|---|---|
-| a gap | not offered, answered twice, or not answered |
-| a choice | a candidate not offered to that gap |
-| an origin | off `ORIGINS`, or off `USE_ORIGINS` for a `use` gap |
-| a pairing | `unknown` choice with another origin; a chosen line with origin `unknown` |
-| a closed reading | a chosen line whose `code reads` value is closed, with another origin |
-| an open origin | a chosen line of a requirement gap with `parameter`, `field`, `same_class_call` or `other_call` other than its `code reads` value |
-
 ## Site replace
 
 | field | site-replace |

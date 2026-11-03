@@ -14,7 +14,7 @@ MANIFEST, DEVICE = "manifest.yaml", "device.yaml"
 ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.json", "sites.json"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, DOSSIERS = "app.json", "scopes.json", "dossiers.json"
-GAPS, COMPLETE, COMPLETED = "gaps.json", "complete", "completed.json"
+GAPS = "gaps.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
 FINISHED = "finished.json"
@@ -56,8 +56,6 @@ class AppPaths:
     facts = property(lambda self: self.root / APP)
     scopes = property(lambda self: self.root / SCOPES)
     gaps = property(lambda self: self.root / GAPS)
-    complete = property(lambda self: self.root / COMPLETE)
-    completed = property(lambda self: self.root / COMPLETED)
     dossiers = property(lambda self: self.root / DOSSIERS)
     replace = property(lambda self: self.root / REPLACE)
     replacements = property(lambda self: self.root / REPLACEMENTS)

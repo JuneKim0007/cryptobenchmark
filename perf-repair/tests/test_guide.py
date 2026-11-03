@@ -12,7 +12,6 @@ from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.__main__ import main as top
 from perfrepair.ai.parse.grouping_assign import command as assign_cmd
-from perfrepair.ai.parse.scope_complete import command as complete_cmd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
@@ -22,7 +21,6 @@ from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.files import read_json, write_json
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
-from perfrepair.guide import finished
 from perfrepair.guide.run import run_app, run_sequence
 from perfrepair.guide.steps import DEVICE_LEVEL, Guide
 from perfrepair.result.modes import MODES
@@ -83,44 +81,13 @@ def statuses(lines):
     return [l.split(":")[0] + ":" + l.split(":")[1] for l in lines if l.startswith("guide ")]
 
 
-GAPPED = """package demo;
-import javax.crypto.Mac;
-class Gapped {
-    private byte[] mac(byte[] data, java.security.Key key) throws Exception {
-        Mac m = Mac.getInstance("HmacSHA256");
-        m.init(key);
-        return m.doFinal(data);
-    }
-    byte[] caller(byte[] data) throws Exception { return mac(data, Keys.load()); }
-}
-"""
-
-
-def test_scope_complete_on_runs_the_role_replays_and_a_flip_of_the_setting_reruns_the_app(run, tmp_path):
-    pytest.importorskip("tree_sitter")
-    app = tmp_path / "gapped"
-    shutil.copytree(APP, app)
-    (app / "src/main/java/demo/Gapped.java").write_text(GAPPED)
-    completer = ScriptedConversations(complete_cmd.DRY_RUN.answer)
-    g, lines = guide(run, DRY_RUN, app)
-    on = with_field(g, completer=completer)
-    run_steps(on, device=False)
-    assert any(l.startswith("guide complete: ok: ") and "answered" in l for l in lines)
-    assert completer.started > 0 and g.paths.completed.is_file() and g.paths.gaps.is_file()
-    assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
-    assert finished.inputs(on, False)["complete"] and finished.inputs(with_field(on, completer=None), False)["complete"] is None
-    again = ScriptedConversations(complete_cmd.DRY_RUN.answer)
-    run_steps(with_field(g, completer=again), device=False)
-    assert again.started == 0
-
-
 def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run):
     before = digests(APP)
     g, lines = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
-    assert statuses(lines) == ["guide prerequisites: ok", "guide grouping: ok", "guide app: ok", "guide complete: ok", "guide dossier: ok",
+    assert statuses(lines) == ["guide prerequisites: ok", "guide grouping: ok", "guide app: ok", "guide dossier: ok",
                                "guide replace: ok", "guide edit: ok", "guide harness: ok"]
-    assert "guide complete: ok: off" in lines and digests(APP) == before
+    assert digests(APP) == before
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
     harness = yaml.safe_load(g.paths.harness.read_text())
     assert harness["scopes"] and all(s["current"] != s["option"] for s in harness["scopes"])

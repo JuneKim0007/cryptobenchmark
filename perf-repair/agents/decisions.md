@@ -47,11 +47,6 @@ src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurem
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; triage statics, apply, dropped → fallback skip
 src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables
 src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required; member aliases and non-blank reasons as patterns
-src/perfrepair/ai/parse/scope_complete/command.py : stage: <app>/gaps.json → ScopeCompleteKind on the engine → completed.json, answers applied to scopes.json; the role's one reader and its DRY_RUN; scopes_completed
-src/perfrepair/ai/parse/scope_complete/kind.py : decision: per scope with an offered gap, a candidate or unknown and an origin per gap; key gaps first; the gaps' digest as the charter's inputs
-src/perfrepair/ai/parse/scope_complete/render.py : message: anchor, included statements, offered gaps with numbered lines and what code reads there, one fenced other body; gap_ids
-src/perfrepair/ai/parse/scope_complete/schema.py : answer schema: answers of gap, choice (candidate alias or unknown), origin
-src/perfrepair/ai/parse/scope_complete/state.py : Completed: per scope its answers; the dropped scopes
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
 src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations; each turn's model latency
@@ -86,7 +81,6 @@ src/perfrepair/config/settings.py : reads perfrepair.yaml: secret_key anywhere, 
 src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worthiness
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules
-src/perfrepair/prompts/parse/scope-complete.system.md : system prompt: choose a candidate or unknown per gap, an origin from the closed list; directives only
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
 src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: the three contracts; findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer

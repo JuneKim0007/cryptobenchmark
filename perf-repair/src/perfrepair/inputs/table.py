@@ -86,8 +86,6 @@ APPS_LIMIT = Row("apps.limit", check_positive)
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
-APPS_SCOPE_COMPLETE = Row("apps.scopeComplete", check_bool, default=False)
-APPS_COMPLETE = RoleRow("apps.complete")
 
 ROWS = tuple(v for v in tuple(globals().values()) if isinstance(v, (Row, RoleRow)))
 
