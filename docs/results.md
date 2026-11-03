@@ -66,6 +66,7 @@ Paths relative to the device folder.
 - `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`, `scoped`; `--interop` adds `interopPlan`, `interop`.
 - A key is absent when its stage did not run.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
+- A run whose energy is estimated has a top-level `energy: {source, kind: estimated}`; any other run has no `energy` key.
 
 ## clocks.yaml
 

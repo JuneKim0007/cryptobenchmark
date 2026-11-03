@@ -30,16 +30,18 @@ def _throughput(before: float, after: float, input_size: int | None) -> dict:
     return {"opsPerSecond": ops, "mbPerSecond": mb}
 
 
-def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
-    runs = {side: _runs(case, metric) for side, case in (("before", before_case), ("after", after_case))}
-    missing = [side for side, r in runs.items() if r is None]
+def _not_comparable(metric: str, before_case: dict, after_case: dict) -> str | None:
+    missing = [side for side, case in (("before", before_case), ("after", after_case)) if _runs(case, metric) is None]
     if missing:
-        return {"metric": metric, "unit": unit, "measured": False,
-                "reason": f"absent: no {metric} runs for {' and '.join(missing)} in benchmark.json"}
+        return f"absent: no {metric} runs for {' and '.join(missing)} in benchmark.json"
     kinds = _kind(before_case, metric), _kind(after_case, metric)
-    if kinds[0] != kinds[1]:
-        return {"metric": metric, "unit": unit, "measured": False, "reason": f"{ENERGY_KINDS_DIFFER}: {kinds[0]} before, {kinds[1]} after"}
-    before, after = summarise([runs["before"]]), summarise([runs["after"]])
+    return f"{ENERGY_KINDS_DIFFER}: {kinds[0]} before, {kinds[1]} after" if kinds[0] != kinds[1] else None
+
+
+def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
+    if reason := _not_comparable(metric, before_case, after_case):
+        return {"metric": metric, "unit": unit, "measured": False, "reason": reason}
+    before, after = summarise([_runs(before_case, metric)]), summarise([_runs(after_case, metric)])
     p = p_improve(before.processes, after.processes)
     # a zero median before (no allocations) has no ratio; pImprove still compares the runs
     ratio = after.median / before.median if before.median else None
@@ -48,7 +50,7 @@ def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
     if metric == "timeNs":
         positive = before.median > 0 and after.median > 0
         row["throughput"] = _throughput(before.median, after.median, before_case.get("inputSize")) if positive else None
-    return row | ({"kind": ESTIMATED} if kinds[0] == ESTIMATED else {})
+    return row | ({"kind": ESTIMATED} if _kind(before_case, metric) == ESTIMATED else {})
 
 
 def metric_rows(before_case: dict, after_case: dict) -> list[dict]:

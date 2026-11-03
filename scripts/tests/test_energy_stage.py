@@ -33,3 +33,11 @@ def test_entries_with_another_source_are_refused(tmp_path):
                          "providers: {p: {t: {a: {}, b: {harness: {energy: {source: manafa}}}}}}\n")
     with pytest.raises(energy_stage.EnergyError, match="energy_sources_differ"):
         energy_stage.source(effective, "py")
+
+
+def test_only_an_estimated_run_is_marked(tmp_path):
+    estimated, measured = tmp_path / "e.json", tmp_path / "m.json"
+    estimated.write_text('{"source": "manafa", "kind": "estimated"}')
+    measured.write_text('{"source": "rails", "kind": "measured"}')
+    assert energy_stage.estimated_mark(None) == {} and energy_stage.estimated_mark(measured) == {}
+    assert energy_stage.estimated_mark([estimated, estimated]) == {"energy": {"source": "manafa", "kind": "estimated"}}

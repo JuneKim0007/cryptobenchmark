@@ -29,12 +29,19 @@ def summarize(case, groups, limit):
                 group=group, groupLabel=group_label, noisy=ns["cov"] * 100 > limit)
 
 
-def summary(rows, out):
+def estimated_note(raw):
+    sources = chart_model.estimated_energy(raw)
+    return f"energyJ is estimated by {', '.join(sources)}, not measured." if sources else None
+
+
+def summary(rows, out, note=None):
     lines = ["| case | op | key | input | ops/s | MB/s | CoV | outliers |", "|---|---|---|---|---|---|---|---|"]
     for r in sorted(rows, key=lambda r: (r["type"], r["algorithm"], r["operation"], r["inputSize"] or 0)):
         mbps = f"{r['mbps']:,.0f}" if r["mbps"] else "-"
         lines.append(f"| {r['algorithm']} | {r['operation']} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} | {r['ops']:,.0f} | {mbps} | {r['cov']:.1%} | {r['removed']} |")
-    (out / "summary.md").write_text("\n".join(lines) + "\n")
+    (out / "summary.md").write_text("\n".join(lines + (["", note] if note else [])) + "\n")
+    if note:
+        print(f"note: {note}")
 
 
 def build(benchmark_file, out, effective_file="", prepared_file=""):
@@ -46,7 +53,7 @@ def build(benchmark_file, out, effective_file="", prepared_file=""):
               "Pass prepared.yaml, from a preparation run that writes chartGroup.", file=sys.stderr)
     out = pathlib.Path(out)
     out.mkdir(parents=True, exist_ok=True)
-    summary(rows, out)
+    summary(rows, out, estimated_note(raw))
     drawn = {
         "throughput": lambda: chart_draw.throughput(rows, out),
         "latency": lambda: chart_draw.latency(rows, out),

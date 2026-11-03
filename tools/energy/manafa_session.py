@@ -1,8 +1,5 @@
-"""usage: manafa_session.py [--check <seconds> --capability <energy.yaml>]
-
-One process holds one EManafa from start to stop: a second one's init kills the session's perfetto.
-stdin: `stop`, then one JSON list of energy.py's arguments; end of input stops and writes nothing.
-"""
+"""usage: manafa_session.py [--check <seconds> --capability <energy.yaml>]; one process, one EManafa: a second one's init kills its perfetto.
+stdin: `stop`, then a JSON list of energy.py's arguments; end of input stops and writes nothing."""
 import contextlib, json, pathlib, sys, time
 
 import yaml

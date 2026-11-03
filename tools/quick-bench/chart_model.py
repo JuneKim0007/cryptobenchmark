@@ -59,6 +59,7 @@ def summarize_case(case, groups, cfg):
 
 
 TIME = "timeNs"
+ENERGY = "energyJ"
 COUNT_LABELS = {"allocationCount": "allocations per call"}      # any other non-time metric (a CPU event) is labelled by its own name
 
 
@@ -72,14 +73,21 @@ def count_metrics(raw_cases):
     return names
 
 
+def estimated_energy(raw_cases):
+    """The sources behind a run's estimated energy; empty when it has none."""
+    blocks = [(case.get("metrics") or {}).get(ENERGY) or {} for case in raw_cases]
+    return sorted({block.get("source", "unknown") for block in blocks if block.get("kind") == "estimated"})
+
+
 def summarize_count(case, groups, metric):
     """One case's runs of a count metric, as measured: no unit conversion. None when the case has no runs for it."""
-    runs = ((case.get("metrics") or {}).get(metric) or {}).get("runs") or []
+    block = (case.get("metrics") or {}).get(metric) or {}
+    runs = block.get("runs") or []
     if not runs:
         return None
     group_id, group_label = groups.get(case["id"], UNIDENTIFIED)
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": case.get("inputSize"),
-        "metric": metric, "label": COUNT_LABELS.get(metric, metric), "runs": list(runs), "stats": stats.summarize(runs),
+        "metric": metric, "label": COUNT_LABELS.get(metric, metric) + (" (estimated)" if block.get("kind") == "estimated" else ""), "runs": list(runs), "stats": stats.summarize(runs),
     }

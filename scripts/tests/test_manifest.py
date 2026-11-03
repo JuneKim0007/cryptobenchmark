@@ -44,6 +44,17 @@ def written(results, mode, files):
     return yaml.safe_load((results / "manifest.yaml").read_text())
 
 
+def test_a_run_with_estimated_energy_says_so_and_a_measured_one_is_as_it_was():
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        files = layout(results, measured=True)
+        files["energy"] = results / "benchmark/energy.json"
+        files["energy"].write_text(json.dumps({"source": "rails", "kind": "measured"}))
+        assert "energy" not in written(results, "device", files)
+        files["energy"].write_text(json.dumps({"source": "manafa", "kind": "estimated"}))
+        assert written(results, "device", files)["energy"] == {"source": "manafa", "kind": "estimated"}
+
+
 def test_configure_only_lists_no_stage_that_did_not_run():
     with tempfile.TemporaryDirectory() as temporary:
         results = pathlib.Path(temporary)

@@ -71,7 +71,7 @@ def manifest(results, mode, configuration, files):
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
-    }
+    } | energy_stage.estimated_mark(files.get("energy"))
     path = results / results_layout.MANIFEST
     path.write_text(yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")

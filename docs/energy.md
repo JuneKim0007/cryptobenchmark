@@ -104,6 +104,7 @@
 - `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
 - `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
 - An `energy.json` of another `schemaVersion` fails with `unsupported`.
+- An estimated run: `manifest.yaml` top-level `energy`, a closing line in `analysis/summary.md`, `(estimated)` on its `energyJ` chart.
 - Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason).
 
 ## Files

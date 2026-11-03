@@ -67,9 +67,12 @@ def _estimates(where: str, d: Dossier) -> list[str]:
                 problems.append(f"{at}: pImprove {p!r} with n {n}; only fewer than two runs leave it empty")
             if p is not None and not (_number(p) and 0 <= p <= 1):
                 problems.append(f"{at}: pImprove {p!r} is not a probability")
-        problems += [f"{where} {o.alias} {n.metric}: no-estimate reason {n.reason!r} is not one of {NO_ESTIMATE_REASONS}"
-                     for n in o.noEstimates if n.reason not in NO_ESTIMATE_REASONS]
-    return problems
+    return problems + _no_estimates(where, d)
+
+
+def _no_estimates(where: str, d: Dossier) -> list[str]:
+    return [f"{where} {o.alias} {n.metric}: no-estimate reason {n.reason!r} is not one of {NO_ESTIMATE_REASONS}"
+            for o in d.options for n in o.noEstimates if n.reason not in NO_ESTIMATE_REASONS]
 
 
 def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
