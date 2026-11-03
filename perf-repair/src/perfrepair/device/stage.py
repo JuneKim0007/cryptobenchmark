@@ -17,7 +17,9 @@ from ..grouping.build.stage import build_stage
 from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
+from ..dto.perf_mode import PerfMode
 from .inbound import write_inbound
+from .measures import check_measures
 from .primitives import inputs as primitive_inputs, write_primitives
 from .plan import STAGES, Seen, plan
 
@@ -92,9 +94,11 @@ def _run(root: Path, folder: Path, steps: dict, catalog: Catalog, config: Path |
 
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
-                 refresh: bool = False) -> DeviceStage:
-    """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv."""
+                 refresh: bool = False, perf: PerfMode = PerfMode()) -> DeviceStage:
+    """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv; perf: the run config must
+    measure what it selects, checked before any device run."""
     identity = identify(config, on_device, benchmark)
+    check_measures(Path(identity["config"]), perf)
     folder = Path(root) / identity["deviceId"]
     current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": catalog.sha256}
     steps = plan(seen(folder), current, refresh)

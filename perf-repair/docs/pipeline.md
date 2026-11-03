@@ -56,6 +56,19 @@ flowchart LR
 
 `device/stage.py` `probe_device(root, catalog, config, on_device)`: `pipeline.py --identify` names the device (`getprop` on a phone, `RuntimeFieldsKt` on a host: the id the probe gives, without probing), then each stage is reused or rerun. It calls no model.
 
+Before any stage it checks the config `--identify` names against the perfMode (`device/measures.py`), so the device measures what the decisions read:
+
+| perfMode selects | config needs | without it |
+|---|---|---|
+| `latency`, `throughput` | `TIME` in `run.metrics` (always there) | |
+| `memAlloc` | `ALLOCATION` in `run.metrics` | stops `perf_mode_unmeasured` before any device run |
+| `energy` | `run.harness.energy.capture: measured` (on a device) | logged `perf_mode_unmeasured`: a test set may capture energy per case; a case without it is `no_evidence: energyJ` |
+| not `memAlloc` or not `energy` | that switch off | logged `perf_mode_extra`: device time no decision reads |
+
+- `generic` checks nothing: it decides on what was measured and names the rest.
+- The config is never rewritten: the trial runs and the real run read the same file, and a perfMode change reruns no measurement by itself. Turning a switch on or off changes `inputs.config`, so the next device stage reruns probe and benchmark.
+- Checked where the guide makes the device folder (`paths.results` set, no `--device-results` or `device.id`); a named device folder is taken as measured.
+
 | input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
 |---|---|---|---|---|---|---|
 | `providers.bundled` | manifest `inputs.bundled`, device.yaml | reruns | reruns | reruns | reruns | reruns |

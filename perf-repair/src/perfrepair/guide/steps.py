@@ -80,7 +80,8 @@ def prerequisites(g: Guide) -> str:
     # resolved and checked before any step runs, so a bad catalog stops the guide first
     g.catalog = screening_catalog(g.settings)
     if g.root is not None:
-        g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh).folder
+        g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
+                                perf=g.mode.perf).folder
     if not (g.device / rd.MANIFEST).is_file():
         raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):

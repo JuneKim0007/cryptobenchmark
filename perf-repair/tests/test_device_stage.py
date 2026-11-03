@@ -9,7 +9,9 @@ from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
 from perfrepair.data_handler.outbound import BenchmarkRunError
 from perfrepair.device import stage as device_stage
+from perfrepair.device.measures import switched_on
 from perfrepair.device.stage import probe_device
+from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
 
 FAKE = Path(__file__).parent / "fixtures" / "device"
@@ -204,3 +206,27 @@ def test_a_probe_that_names_another_device_stops(setup, monkeypatch):
     with pytest.raises(ValueError, match=r"^device_id_changed: --identify named other-api36-00000000, the probe wrote "
                                          r"fake-api36-00000000$"):
         device(root, config)
+
+
+def _with_run(config, run):
+    config.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n" + run)
+    return config
+
+
+def test_a_selected_metric_the_config_cannot_measure_stops_before_any_device_run(setup):
+    root, config = setup
+    with pytest.raises(ValueError, match="perf_mode_unmeasured: perfMode latency\\+memAlloc selects allocationCount"):
+        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
+                     perf=PerfMode.parse(["latency", "memAlloc"]))
+    assert runs(root) == []
+
+
+def test_unselected_measurements_and_run_level_energy_are_logged_not_refused(setup, caplog):
+    root, config = setup
+    _with_run(config, "run: {metrics: [TIME, ALLOCATION]}\n")
+    with caplog.at_level("INFO", logger="perfrepair.event"):
+        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
+                     perf=PerfMode.parse(["energy", "latency"]))
+    text = caplog.text
+    assert "perf_mode_unmeasured: energyJ is selected" in text and "perf_mode_extra:" in text and "allocationCount" in text
+    assert switched_on({"run": {"metrics": ["TIME"], "harness": {"energy": {"capture": "measured"}}}}) == {"TIME", "energy"}
