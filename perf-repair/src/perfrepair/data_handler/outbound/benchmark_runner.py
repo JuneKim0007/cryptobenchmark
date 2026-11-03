@@ -99,6 +99,19 @@ def _timed_out(stage: str, seconds: int, ref: str | None, app: str | None) -> No
               stage="device", step="pipeline", item=stage, app=app, ref=ref, data={"seconds": seconds, "stage": stage})
 
 
+def _stream(process: subprocess.Popen, log, last: deque[str], echo: Callable[[str], None] | None) -> Path | None:
+    """Every line into the transcript and the tail; the manifest the run says it wrote."""
+    manifest = None
+    for line in process.stdout:
+        log.write(line)
+        last.append(line.rstrip("\n"))
+        wrote = WROTE_MANIFEST.match(last[-1])
+        manifest = Path(wrote.group(1)) if wrote else manifest
+        if echo:
+            echo(last[-1])
+    return manifest
+
+
 def run_pipeline(config: Path | None, results: Path | None, stage: str = "configure",
                  benchmark: Path | str | None = None, harness: Path | None = None,
                  echo: Callable[[str], None] | None = print, tail: int = 40, extra: tuple[str, ...] = (),
@@ -114,19 +127,12 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
     # the call's first line, so a reference lands on this call among the run's others
     ref = f"{log_path}:{_lines(log_path) + 1}"
     last: deque[str] = deque(maxlen=tail)
-    manifest = None
     seconds = pipeline_seconds()
     with open(log_path, "a") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
             env=child_env(PYTHONUNBUFFERED="1"), start_new_session=True) as process, Deadline(process, seconds) as deadline:
         log.write(f"# {stage}" + (f" app {app}" if app else "") + "\n$ " + " ".join(command) + "\n")
-        for line in process.stdout:
-            log.write(line)
-            last.append(line.rstrip("\n"))
-            wrote = WROTE_MANIFEST.match(last[-1])
-            manifest = Path(wrote.group(1)) if wrote else manifest
-            if echo:
-                echo(line.rstrip("\n"))
+        manifest = _stream(process, log, last, echo)
         code = process.wait()
     if deadline.expired:
         _timed_out(stage, seconds, ref, app)

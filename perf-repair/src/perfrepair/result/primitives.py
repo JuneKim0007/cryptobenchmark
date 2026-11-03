@@ -26,12 +26,16 @@ def _order(values: tuple) -> tuple:
 def _line(key: tuple, cells: Cells, sizes: dict[str, list[int | None]]) -> PrimitiveLine:
     medians = {column(m, size): rounded(cells[size][m].median) if m in cells.get(size, {}) else None
                for m, found in sizes.items() for size in found}
-    # the noisiest input size speaks for the line
-    cv = {m: rounded(max((by[m].cv for by in cells.values() if m in by and by[m].cv is not None), default=None))
-          for m in sizes}
-    # per metric its fewest runs at any input size
-    n = {m: min((by[m].n for by in cells.values() if m in by), default=None) for m in sizes}
-    return PrimitiveLine(*key, medians, n, cv)
+    return PrimitiveLine(*key, medians, {m: _fewest_runs(cells, m) for m in sizes}, {m: _noisiest(cells, m) for m in sizes})
+
+
+def _fewest_runs(cells: Cells, metric: str) -> int | None:
+    return min((by[metric].n for by in cells.values() if metric in by), default=None)
+
+
+def _noisiest(cells: Cells, metric: str) -> float | None:
+    """The noisiest input size speaks for the line."""
+    return rounded(max((by[metric].cv for by in cells.values() if metric in by and by[metric].cv is not None), default=None))
 
 
 def _grouped(rows: list[PrimitiveRow], measurements: dict[str, dict[str, Summary]],

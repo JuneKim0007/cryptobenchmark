@@ -45,6 +45,18 @@ def _count(text: str) -> int | None:
     return None if text == ABSENT else int(text)
 
 
+def _header(names: list[str]) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """The median columns and the metrics: the key, `<metric>@<size>` columns, then `<metric>.n` and `<metric>.cv`."""
+    if tuple(names[:len(KEY)]) != KEY:
+        raise ValueError(f"primitives.tsv header starts {names[:len(KEY)]}, not {list(KEY)}")
+    n_at = len(KEY) + sum(1 for c in names[len(KEY):] if "@" in c)
+    cv_at = n_at + (len(names) - n_at) // 2
+    metrics = tuple(c.removesuffix(".n") for c in names[n_at:cv_at])
+    if names[n_at:] != [*map(n_column, metrics), *map(cv_column, metrics)]:
+        raise ValueError(f"primitives.tsv header after the medians {names[n_at:]} is not <metric>.n then <metric>.cv")
+    return tuple(names[len(KEY):n_at]), metrics
+
+
 @dataclass(frozen=True)
 class PrimitiveLine:
     type: str
@@ -88,13 +100,8 @@ class PrimitivesTable:
         if first != SCHEMA_LINE:
             raise ValueError(f"primitives.tsv first line {first!r} is not {SCHEMA_LINE!r}")
         names = header.split("\t")
-        if tuple(names[:len(KEY)]) != KEY:
-            raise ValueError(f"primitives.tsv header starts {names[:len(KEY)]}, not {list(KEY)}")
-        n_at = len(KEY) + sum(1 for c in names[len(KEY):] if "@" in c)
-        cv_at = n_at + (len(names) - n_at) // 2
-        columns, metrics = tuple(names[len(KEY):n_at]), tuple(c.removesuffix(".n") for c in names[n_at:cv_at])
-        if names[cv_at:] != [cv_column(m) for m in metrics] or names[n_at:cv_at] != [n_column(m) for m in metrics]:
-            raise ValueError(f"primitives.tsv header after the medians {names[n_at:]} is not <metric>.n then <metric>.cv")
+        columns, metrics = _header(names)
+        n_at, cv_at = len(KEY) + len(columns), len(KEY) + len(columns) + len(metrics)
         lines = []
         for number, raw in enumerate(body, 3):
             cells = raw.split("\t")

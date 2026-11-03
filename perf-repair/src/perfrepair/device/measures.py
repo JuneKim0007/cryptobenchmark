@@ -32,16 +32,18 @@ def _switch(m: Metric) -> str:
 
 def _missing(config: Path, perf: PerfMode, on: set[str]) -> None:
     missing = [m for m in perf.metrics if m.run not in on]
-    hard = [m for m in missing if m.run != ENERGY_RUN]
+    _unmeasured(config, perf, [m for m in missing if m.run != ENERGY_RUN])
+    for m in (m for m in missing if m.run == ENERGY_RUN):
+        terminate("perf_mode_maybe_unmeasured", f"{m.name} is selected but {config} does not set {_switch(m)}; only "
+                  "cases a test set turns it on for get it, the rest are no_evidence", stage="device", step="measures",
+                  item=m.name)
+
+
+def _unmeasured(config: Path, perf: PerfMode, hard: list[Metric]) -> None:
     if hard:
         terminate("perf_mode_unmeasured", f"perfMode {perf.name} selects {', '.join(m.name for m in hard)}; {config} "
                   f"measures none of it; add {', '.join(_switch(m) for m in hard)}", stage="device", step="measures",
                   data={"items": [m.name for m in hard]})
-    for m in missing:
-        if m.run == ENERGY_RUN:
-            terminate("perf_mode_maybe_unmeasured", f"{m.name} is selected but {config} does not set {_switch(m)}; only "
-                      "cases a test set turns it on for get it, the rest are no_evidence", stage="device", step="measures",
-                      item=m.name)
 
 
 def _extra(config: Path, perf: PerfMode, on: set[str]) -> None:
