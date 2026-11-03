@@ -161,7 +161,7 @@ def _parsed(load, run: Path):
 def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalog: Catalog) -> dict[str, list[str]]:
     out, handler = {}, catalog.handler()
     for directory in sorted(run.glob(f"*/{rd.DOSSIERS}")):
-        scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
+        scopes = [Scope.from_json(s) for s in rd.read_scopes(directory.parent / rd.SCOPES)["scopes"]]
         verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))
         doc = read_json(directory)
         units = read_units(read_json(directory.parent / rd.UNITS))

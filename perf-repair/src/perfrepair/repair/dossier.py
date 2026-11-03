@@ -64,7 +64,7 @@ def dossier(run: Path, app: str, source: Path, catalog: Catalog, perf: PerfMode,
     catalog.require_same(rd.load_screen_catalog(grouping))
     groups = read_groups(grouping)
     paths = rd.AppPaths(run, app)
-    scopes = [Scope.from_json(s) for s in read_json(paths.scopes)["scopes"]]
+    scopes = [Scope.from_json(s) for s in rd.read_scopes(paths.scopes)["scopes"]]
     units = read_units(read_json(paths.units))
     facts = read_json(paths.facts)
     verdicts = catalog.handler().app_verdicts(groups, rd.load_screen(grouping), facts.get("targetSdk"))

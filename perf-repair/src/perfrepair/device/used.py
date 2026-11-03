@@ -11,7 +11,7 @@ from ..ai.runtime.engine.outbox import active_outbox
 from ..dto.grouping import Item, qualified
 from ..dto.grouping_state import Knowledge
 from ..dto.used import CANDIDATE, GROUP, SITE, VIA, AppUse, UsedItem, UsedSet
-from ..files import read_json, write_json
+from ..files import write_json
 from ..log import step
 from ..run_dir import AppPaths, GroupingPaths
 from ..validation import require
@@ -19,7 +19,7 @@ from ..validation.used import validate_used
 
 
 def _site_items(device: Path, app: str, by_name: dict[str, Item]) -> tuple[list[Item], AppUse]:
-    sites = read_json(AppPaths(device, app).sites)["sites"]
+    sites = rd.read_sites(AppPaths(device, app).sites)["sites"]
     names = [qualified(s["engineType"], s["resolvedAlgorithm"], s["resolvedProvider"]) for s in sites
              if s.get("resolvedProvider") and s.get("resolvedAlgorithm")]
     found = [by_name[n] for n in names if n in by_name]

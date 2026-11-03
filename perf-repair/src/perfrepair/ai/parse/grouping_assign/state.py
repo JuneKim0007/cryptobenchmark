@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from ....dto.decision import OutboxRecord
-from ....dto.grouping import SCHEMA_VERSION, Item
+from ....dto.grouping import CURSOR_SCHEMA_VERSION, Item
 from ....dto.grouping_state import Answer, Group, Knowledge
 
 
@@ -15,7 +15,7 @@ class Cursor:
     knowledgeVersion: int
 
     def to_json(self) -> dict:
-        return {"schemaVersion": SCHEMA_VERSION, **asdict(self)}
+        return {"schemaVersion": CURSOR_SCHEMA_VERSION, **asdict(self)}
 
 
 def cursor(items: list[Item], records: list[OutboxRecord]) -> Cursor:

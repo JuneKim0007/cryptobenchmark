@@ -8,6 +8,7 @@ import pytest
 import yaml
 from helpers import QUIET
 
+from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SITES_SCHEMA_VERSION
 from perfrepair.files import read_json, write_json, write_text
 from perfrepair.report.__main__ import main
 from perfrepair.report.app_report import build_report
@@ -33,21 +34,21 @@ def make_app(run, name="shop", after_scale=1.0, measured=True):
     paths.root.mkdir(parents=True)
     write_json(paths.facts, {"root": str((run / f"{name}-source").resolve())})
     scopes = [_scope(s, i) for i, s in enumerate((A, B, C, D, E), 1)]
-    write_json(paths.sites, {"sites": [{}] * 6})
-    write_json(paths.scopes, {"scopes": scopes})
+    write_json(paths.sites, {"schemaVersion": SITES_SCHEMA_VERSION, "sites": [{}] * 6})
+    write_json(paths.scopes, {"schemaVersion": SCOPES_SCHEMA_VERSION, "scopes": scopes})
     write_json(paths.units, {"schemaVersion": 1, "app": name, "units": [
         {"id": "u-ab", "members": [A, B], "links": [], "sharedFunction": ["u-c"]},
         {"id": "u-c", "members": [C], "links": [], "sharedFunction": ["u-ab"]},
         {"id": "u-d", "members": [D], "links": [], "sharedFunction": []},
         {"id": "u-e", "members": [E], "links": [], "sharedFunction": []}]})
     options = [{"alias": "R1", "item": OPTION, "pins": {}, "interop": "not_run", "estimates": [ESTIMATE]}]
-    write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s}, "current": CURRENT, "options": options}
+    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [{"scope": {"id": s}, "current": CURRENT, "options": options}
                                              for s in (A, B, C, E)], "noOptions": [{"scope": D, "reason": "no_alternative"}]})
     replace = {"decision": "replace", "option": OPTION, "edits": [], "risks": [], "reason": "faster"}
     write_json(paths.replacements, {"replacements": [{"scope": s, **replace} for s in (A, B, C, E)] + [
         {"scope": D, "decision": "keep", "option": None, "edits": [], "risks": [], "reason": "no_alternative"}],
         "sources": {A: "llm", B: "llm", C: "llm", E: "fallback", D: "static"}})
-    write_json(paths.edits, {"edits": [{"scope": s, "status": "applied", "reason": None, "diff": "x"} for s in (A, B, C)]
+    write_json(paths.edits, {"schemaVersion": EDITS_SCHEMA_VERSION, "edits": [{"scope": s, "status": "applied", "reason": None, "diff": "x"} for s in (A, B, C)]
                              + [{"scope": E, "status": "rejected", "reason": "call_moved", "diff": ""}]})
     write_text(paths.harness, yaml.safe_dump({"scopes": [{"id": s} for s in (A, B, C)]}))
     if measured:

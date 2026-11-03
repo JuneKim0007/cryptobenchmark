@@ -5,6 +5,7 @@ from dataclasses import asdict, dataclass
 from .signature import Signature
 
 SCHEMA_VERSION = 1
+CURSOR_SCHEMA_VERSION = 1
 # 4: signature
 PROFILES_SCHEMA_VERSION = 4
 SEPARATOR = "|"

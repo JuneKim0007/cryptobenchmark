@@ -6,7 +6,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto.lifecycle import (BINDINGS, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
                              PARTIALLY_BOUNDED, REQUIREMENTS, ROLES, STATUSES, UNSUPPORTED, UNSUPPORTED_REASONS, WHERE)
-from ..dto.site import KEY_SOURCES, SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SINKS, Scope, scope_id
+from ..dto.site import APP_SCHEMA_VERSION, KEY_SOURCES, SCOPES_SCHEMA_VERSION, SINKS, Scope, scope_id
 from ..files import read_json
 from .units import validate_units
 
@@ -25,7 +25,7 @@ def _typed(where: str, d: dict, types: dict, optional: dict) -> list[str]:
 
 
 def validate_app_facts(doc: dict) -> list[str]:
-    out = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
+    out = [] if doc.get("schemaVersion") == APP_SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
     out += _typed(rd.APP, doc, {"app": str, "pathId": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
                   {"minSdk": int, "targetSdk": int})
     for i, b in enumerate(doc.get("bundled") or []):

@@ -5,6 +5,7 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 from test_code_groups import screen
 
+from perfrepair.dto.site import SITES_SCHEMA_VERSION
 from perfrepair import run_dir as rd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
@@ -31,7 +32,7 @@ def app(paths, name, *qualified, unresolved=0):
     folder = rd.app_dir(paths.root.parent, name)
     folder.mkdir(exist_ok=True)
     sites = [site(q) for q in qualified] + [{"engineType": "TypeC", "resolvedAlgorithm": None, "resolvedProvider": None}] * unresolved
-    write_json(folder / rd.SITES, {"sites": sites})
+    write_json(folder / rd.SITES, {"schemaVersion": SITES_SCHEMA_VERSION, "sites": sites})
     return name
 
 

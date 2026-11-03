@@ -5,6 +5,7 @@ import pytest
 
 import yaml
 
+from perfrepair.dto.site import SITES_SCHEMA_VERSION
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.device.bundled_config import bundled_config, harness_config
 from perfrepair.device.bundled_missing import missing_set
@@ -29,7 +30,7 @@ def app(device, name, bundled=(), sites=()):
     folder.mkdir(parents=True)
     (folder / "app.json").write_text(json.dumps({"bundled": [
         {"artifact": a, "providerName": p, "version": v} for a, p, v in bundled]}))
-    (folder / "sites.json").write_text(json.dumps({"sites": [
+    (folder / "sites.json").write_text(json.dumps({"schemaVersion": SITES_SCHEMA_VERSION, "sites": [
         {"resolution": r, "resolvedProvider": p} for r, p in sites]}))
 
 

@@ -9,7 +9,10 @@ from .lifecycle import Lifecycle
 from .metrics import NAMES
 from .perf_mode import NO_EVIDENCE
 
-SCHEMA_VERSION = 1
+# one per artifact, so a change to one file never moves another's reader
+APP_SCHEMA_VERSION = 1
+SITES_SCHEMA_VERSION = 1
+EDITS_SCHEMA_VERSION = 1
 # 2: `units`, the units asked, each member with a dossier; 3: `perfMode`, estimates of its metrics only
 # 4: `maxChange` and `notOffered`; an option above drop-in carries its change class and pair diff
 DOSSIERS_SCHEMA_VERSION = 4

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, NOT_MEASURABLE_REASONS, SCHEMA_VERSION
+from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, NOT_MEASURABLE_REASONS, EDITS_SCHEMA_VERSION
 from ..source.language import NAMES
 
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
@@ -14,7 +14,7 @@ HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inp
                 "metrics", "dependencies", "notMeasurable", "inverse")
 
 
-def _header(doc: dict, app: str, key: str, version: int = SCHEMA_VERSION) -> list[str]:
+def _header(doc: dict, app: str, key: str, version: int = EDITS_SCHEMA_VERSION) -> list[str]:
     problems = []
     if doc.get("schemaVersion") != version:
         problems.append(f"schemaVersion is {doc.get('schemaVersion')!r}")

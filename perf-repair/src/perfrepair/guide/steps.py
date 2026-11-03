@@ -25,7 +25,6 @@ from ..dto.change import DROP_IN
 from ..dto.event import END
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..failure import FAILURES, last_failure
-from ..files import read_json
 from ..grouping.__main__ import main as grouping_main
 from ..log import emit, step
 from ..run_dir import GroupingPaths
@@ -202,7 +201,7 @@ def app(g: Guide) -> str:
               "perfrepair.app")
     if not g.paths.scopes.is_file():
         halt(g, "several_project_roots", f"{g.app_root} holds several; pass one of them as --app")
-    return f"{len(read_json(g.paths.scopes)['scopes'])} scopes"
+    return f"{len(rd.read_scopes(g.paths.scopes)['scopes'])} scopes"
 
 
 def dossiers(g: Guide) -> str:
@@ -228,7 +227,7 @@ def replacements(g: Guide) -> str:
 def edits(g: Guide) -> str:
     _exit(g, repair_main(["edit", "--device-results", str(g.device), "--app", str(g.app_root)]), "edit_invalid",
           "repair edit")
-    rows = read_json(g.paths.edits)["edits"]
+    rows = rd.read_edits(g.paths.edits)["edits"]
     applied = sum(e["status"] == "applied" for e in rows)
     if not applied:
         reasons = sorted({e["reason"] for e in rows})

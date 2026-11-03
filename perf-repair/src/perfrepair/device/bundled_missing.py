@@ -8,7 +8,7 @@ from pathlib import Path
 from ..dto.bundled import Coordinate, MissingProvider
 from ..dto.site import NOT_ON_DEVICE
 from ..files import read_json
-from ..run_dir import AppPaths
+from ..run_dir import AppPaths, read_sites
 
 
 def _app_needs(device: Path, app: str) -> tuple[dict[str, list[tuple[str, str | None]]], Counter]:
@@ -19,7 +19,7 @@ def _app_needs(device: Path, app: str) -> tuple[dict[str, list[tuple[str, str | 
     for entry in facts.get("bundled") or []:
         if entry.get("providerName"):
             shipped.setdefault(entry["providerName"], []).append((entry["artifact"], entry.get("version")))
-    sites = read_json(paths.sites)["sites"] if paths.sites.is_file() else []
+    sites = read_sites(paths.sites)["sites"] if paths.sites.is_file() else []
     # an explicit provider not on the device resolves to its own name; a default site's missing is a service
     named = Counter(s["resolvedProvider"] for s in sites if s["resolution"] == NOT_ON_DEVICE and s.get("resolvedProvider"))
     return shipped, named

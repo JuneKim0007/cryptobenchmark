@@ -7,7 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ...dto.site import SCHEMA_VERSION, Replacement, Scope
+from ...dto.site import EDITS_SCHEMA_VERSION, Replacement, Scope
 from ...dto.unit import Unit, units_by_scope
 from ...files import write_text
 from ...run_dir import AppPaths
@@ -120,4 +120,4 @@ def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Pa
         _write(out.original / file, run.sources[file].text)
         _write(out.patched / file, apply(run.sources[file].text, splices))
     write_alone(run.by_unit, units, scopes, {file: code.text for file, code in run.sources.items()}, out)
-    return {"schemaVersion": SCHEMA_VERSION, "app": out.app, "edits": sorted(rows, key=lambda row: row["scope"])}
+    return {"schemaVersion": EDITS_SCHEMA_VERSION, "app": out.app, "edits": sorted(rows, key=lambda row: row["scope"])}

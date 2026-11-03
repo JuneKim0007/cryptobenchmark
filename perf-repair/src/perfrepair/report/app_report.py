@@ -7,7 +7,7 @@ from ..dto.unit import read_units, units_by_scope
 from ..dto.units import DisplayUnits
 from ..files import read_json, read_yaml
 from ..result.modes import Mode
-from ..run_dir import AppPaths
+from ..run_dir import AppPaths, read_scopes, read_sites
 from .measured import read_measured
 from .recommendations import recommendations
 from .scope_row import scope_row
@@ -42,8 +42,8 @@ def build_report(paths: AppPaths, mode: Mode, units: DisplayUnits) -> dict:
     for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
             raise FileNotFoundError(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
-    sites = read_json(paths.sites)["sites"]
-    scopes = read_json(paths.scopes)["scopes"]
+    sites = read_sites(paths.sites)["sites"]
+    scopes = read_scopes(paths.scopes)["scopes"]
     of_unit = units_by_scope(read_units(read_json(paths.units)))
     dossiers_doc = _optional(paths.dossiers)
     dossiers = {d["scope"]["id"]: d for d in (dossiers_doc or {}).get("dossiers") or []}

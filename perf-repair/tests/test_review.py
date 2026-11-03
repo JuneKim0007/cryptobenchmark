@@ -9,7 +9,7 @@ from perfrepair.dto.change import PairDiff
 from perfrepair.dto.decision import AgentIdentity, OutboxRecord
 from perfrepair.dto.grouping import Item, Profile, items_document, profiles_document
 from perfrepair.dto.signature import Component, Signature
-from perfrepair.dto.site import Dossier, Option, Scope, scope_id
+from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Dossier, Option, Scope, scope_id
 from perfrepair.review.__main__ import main
 from perfrepair.review.score import score
 from perfrepair.review.sheet import COLUMNS, read_sheet, write_sheet
@@ -53,7 +53,7 @@ def device(tmp_path):
     paths.replace.mkdir(parents=True)
     paths.root.joinpath("app.json").write_text("{}")
     d = Dossier(SCOPE, "src", "TypeA|ALG|P1", (Option("R1", OPTION, {}, "not_planned", change="local-edit", diff=PairDiff("same", "same", "bytes", "local")),))
-    paths.dossiers.write_text(json.dumps({"dossiers": [d.to_json()]}))
+    paths.dossiers.write_text(json.dumps({"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [d.to_json()]}))
     row = {"scope": SCOPE.id, "decision": "replace", "option": OPTION, "edits": [], "risks": [], "reason": "faster"}
     _outbox(paths.replace, OutboxRecord(1, "unit", "decided", 1, 1, {"replacements": [row]}, (), AGENT))
     _journal(paths.replace, _turn("unit", text='{"decision": "replace"}', sha="m3"), _turn("unit", "rejected", sha="m3"))

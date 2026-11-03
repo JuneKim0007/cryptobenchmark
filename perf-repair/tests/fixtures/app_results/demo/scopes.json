@@ -1,5 +1,5 @@
 {
- "schemaVersion": 1,
+ "schemaVersion": 4,
  "app": "demo",
  "scopes": [
   {"id": "582c531311f4", "app": "demo", "file": "src/main/java/demo/Crypto.java", "line": 12,

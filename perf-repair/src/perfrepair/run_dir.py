@@ -7,6 +7,7 @@ import yaml
 
 from .dto import Measurements, PrimitiveRow, RunLog
 from .dto.device import DeviceRecord
+from .dto.site import DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SITES_SCHEMA_VERSION
 from .dto.used import UsedSet
 from .dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
 from .files import read_json, read_yaml, sha256_file, write_text
@@ -181,6 +182,31 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
         return DeviceRecord.from_json(read_yaml(path)), None
     except (ValueError, KeyError, TypeError, yaml.YAMLError) as e:
         return None, f"{DEVICE} unreadable ({e})"
+
+
+def versioned(path: Path, version: int) -> dict:
+    """An app artifact at the schema its readers know; another is schema_version, never a field read as missing."""
+    doc = read_json(path)
+    if doc.get("schemaVersion") != version:
+        raise ValueError(f"schema_version: {path} schemaVersion {doc.get('schemaVersion')!r} is not {version}; "
+                         "rerun the step that writes it")
+    return doc
+
+
+def read_scopes(path: Path) -> dict:
+    return versioned(path, SCOPES_SCHEMA_VERSION)
+
+
+def read_sites(path: Path) -> dict:
+    return versioned(path, SITES_SCHEMA_VERSION)
+
+
+def read_edits(path: Path) -> dict:
+    return versioned(path, EDITS_SCHEMA_VERSION)
+
+
+def read_dossiers(path: Path) -> dict:
+    return versioned(path, DOSSIERS_SCHEMA_VERSION)
 
 
 def load_used(device: Path) -> UsedSet | None:

@@ -59,14 +59,14 @@ def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
 
 
 def _test_set(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    doc = build_test_set(read_json(AppPaths(a.device_results, a.app).dossiers), a.app)
+    doc = build_test_set(rd.read_dossiers(AppPaths(a.device_results, a.app).dossiers), a.app)
     write_text(a.out, yaml.safe_dump(doc, sort_keys=False))
     print(f"{a.out}: {len(doc['include'])} primitives")
     return 0
 
 
 def _load(paths: AppPaths) -> tuple[dict[str, Scope], dict[str, Replacement]]:
-    scopes = {s["id"]: Scope.from_json(s) for s in read_json(paths.scopes)["scopes"]}
+    scopes = {s["id"]: Scope.from_json(s) for s in rd.read_scopes(paths.scopes)["scopes"]}
     replacements = read_replacements(read_json(paths.replacements))
     return scopes, replacements
 
@@ -98,8 +98,8 @@ def _edit(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
 def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
-    edits = read_json(paths.edits)
-    currents = {d["scope"]["id"]: d["current"] for d in read_json(paths.dossiers)["dossiers"]}
+    edits = rd.read_edits(paths.edits)
+    currents = {d["scope"]["id"]: d["current"] for d in rd.read_dossiers(paths.dossiers)["dossiers"]}
     with step("repair", "harness", app=a.app) as s:
         doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.device_results / rd.MANIFEST),
                       read_units(read_json(paths.units)))

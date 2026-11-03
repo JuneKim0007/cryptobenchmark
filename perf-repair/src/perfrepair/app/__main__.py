@@ -9,7 +9,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..catalog.names import Names, NamesError
 from ..config.args import add_config_arg, load_settings
-from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
+from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP, SITES_SCHEMA_VERSION
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
@@ -29,7 +29,6 @@ from .facts.path_id import path_id, unit_id
 from .facts.sdk import sdk_levels
 from .find.sources import build_files
 
-SCHEMA_VERSION = 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -93,7 +92,7 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
         require(rd.SCOPES, validate_scopes(scopes, scoping.lines))
 
         out_dir.mkdir(parents=True, exist_ok=True)
-        write_json(out_dir / rd.SITES, {"schemaVersion": SCHEMA_VERSION, "app": name, "root": str(app.path),
+        write_json(out_dir / rd.SITES, {"schemaVersion": SITES_SCHEMA_VERSION, "app": name, "root": str(app.path),
                                         "sites": found.sites, "dropped": found.dropped})
         write_json(out_dir / rd.APP, facts)
         write_json(out_dir / rd.SCOPES, scopes)
