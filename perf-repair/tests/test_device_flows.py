@@ -32,11 +32,13 @@ class Flow:
         self.global_yaml.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n")
         self.grouping = {"noRerun": True}
         self.filter = False
+        self.bundled = {}
 
     def settings(self, text=None):
         path = self.tmp / "perfrepair.yaml"
         document = {"paths": {"results": str(self.root)}, "device": {"benchmark": {"config": str(self.global_yaml)},
-                                                                     "grouping": self.grouping, "filterByApps": self.filter}}
+                                                                     "grouping": self.grouping, "filterByApps": self.filter,
+                                                                     "bundled": self.bundled}}
         path.write_text(text if text is not None else yaml.safe_dump(document))
         return path
 
@@ -203,10 +205,13 @@ GCM_FAST, GCM_SLOW = "Cipher|AES/GCM/NoPadding|Fast", "Cipher|AES/GCM/NoPadding|
 CALLS = {SHA: 'java.security.MessageDigest.getInstance("SHA-256")', HMAC: 'javax.crypto.Mac.getInstance("HmacSHA256")'}
 
 
-def target(flow, name, *items):
-    """The demo app's build files around one class calling only these items."""
+def target(flow, name, *items, ships=""):
+    """The demo app's build files around one class calling only these items; ships: one more dependency it declares."""
     root = flow.tmp / "apps" / name
     shutil.copytree(APP, root, ignore=shutil.ignore_patterns("java", "kotlin"))
+    if ships:
+        build = root / "build.gradle"
+        build.write_text(build.read_text().replace("dependencies {", f"dependencies {{\n    implementation '{ships}'"))
     body = "\n".join(f"    Object m{n}() throws Exception {{ return {CALLS[q]}; }}" for n, q in enumerate(items))
     (root / "src/main/java/demo").mkdir(parents=True)
     (root / "src/main/java/demo/Uses.java").write_text(f"package demo;\n\nclass Uses {{\n{body}\n}}\n")
@@ -281,3 +286,82 @@ def test_filter_off_asks_and_measures_every_item(scoped):
     assert not (scoped.device / rd.USED).exists() and "notUsed" not in read_json(scoped.paths.groups)
     record, _ = rd.load_device_record(scoped.device)
     assert record.benchmark == {} and scoped.problems() == {}
+
+
+CONSCRYPT = "org.conscrypt:conscrypt-android:2.5.3"
+WARNED = "device bundled_missing: warn: BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-"
+
+
+def suggestions(flow):
+    return yaml.safe_load((flow.device / rd.BUNDLED_SUGGESTIONS).read_text())
+
+
+def applied(flow):
+    used = yaml.safe_load((flow.device / rd.USED_CONFIG).read_text())
+    return used["providers"]["bundled"]
+
+
+def test_bundled_stop_halts_before_the_benchmark_naming_each_provider(scoped):
+    scoped.bundled = {"onMissing": "stop"}
+    lines = run_targets(scoped, scoped.sha)
+    stop = [line for line in lines if line.startswith("guide prerequisites: stop bundled_missing: ")]
+    assert len(stop) == 1 and "BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-" in stop[0]
+    assert scoped.device_runs() == 1 and not (scoped.device / rd.USED_CONFIG).exists()
+    events = [json.loads(e) for e in (scoped.device / "log" / "events.jsonl").read_text().splitlines()]
+    halt = [e for e in events if e["step"] == "bundled_missing"]
+    assert [(e["outcome"], e["data"]) for e in halt] == [("stop", {"code": "bundled_missing", "items": ["BC"]})]
+
+
+def test_bundled_warn_logs_and_the_run_goes_on(scoped):
+    lines = run_targets(scoped, scoped.sha)
+    assert any(line.startswith(WARNED) for line in lines) and scoped.device_runs() == 2
+    assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists() and scoped.problems() == {}
+
+
+def test_bundled_suggest_writes_the_matched_the_blocked_and_applies_nothing(scoped):
+    scoped.bundled = {"fromApps": "suggest"}
+    run_targets(scoped, target(scoped, "tls", SHA, ships=CONSCRYPT))
+    doc = suggestions(scoped)
+    assert [(s["provider"], s["entry"], s.get("applied")) for s in doc["matched"]] == [
+        ("Conscrypt", {"artifact": CONSCRYPT, "create": "org.conscrypt.Conscrypt#newProvider", "alias": "BundledConscrypt"},
+         False)]
+    assert [(s["provider"], s["artifact"], s["version"]) for s in doc["blocked"]] == [
+        ("BC", "org.bouncycastle:bcprov-jdk18on", "1.78")]
+    assert "duplicate_name" in doc["blocked"][0]["reason"] and applied(scoped) == []
+    assert scoped.problems() == {}
+
+
+def test_bundled_apply_builds_the_matched_row_in_and_a_second_run_reuses_it(scoped):
+    scoped.bundled = {"fromApps": "apply"}
+    tls = target(scoped, "tls", SHA, ships=CONSCRYPT)
+    lines = run_targets(scoped, tls)
+    assert applied(scoped) == [{"artifact": CONSCRYPT, "create": "org.conscrypt.Conscrypt#newProvider",
+                                "alias": "BundledConscrypt"}]
+    # the blocked BC is listed, never built in, so it is still missing
+    assert any(line.startswith("device bundled_missing: warn: BC ") for line in lines) and scoped.device_runs() == 2
+    assert suggestions(scoped)["counts"]["applied"] == 1 and scoped.problems() == {}
+    again = run_targets(scoped, tls)
+    assert scoped.device_runs() == 2 and "device probe: reused" in again and "device benchmark: reused" in again
+
+
+def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
+    scoped.bundled = {"fromApps": "apply"}
+    tls = target(scoped, "tls", SHA, ships=CONSCRYPT)
+    run_targets(scoped, tls)
+    scoped.bundled = {}
+    lines = run_targets(scoped, tls)
+    assert scoped.device_runs() == 3 and applied(scoped) == []
+    assert "device benchmark: ran: the providers.bundled entries device.bundled.fromApps applies changed" in lines
+    record, _ = rd.load_device_record(scoped.device)
+    assert record.bundled == {} and not (scoped.device / rd.BUNDLED_CONFIG).exists()
+
+
+@pytest.mark.parametrize("value", ["always", 1])
+def test_a_bad_bundled_value_warns_and_takes_the_default(scoped, caplog, value):
+    scoped.bundled = {"onMissing": value, "fromApps": value}
+    with caplog.at_level(logging.WARNING, "perfrepair"):
+        lines = run_targets(scoped, scoped.sha)
+    assert any(line.startswith(WARNED) for line in lines) and scoped.device_runs() == 2
+    assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists()
+    assert {m.split(" ")[1] for m in caplog.messages if m.startswith("invalid: device.bundled.")} == {
+        "device.bundled.onMissing", "device.bundled.fromApps"}

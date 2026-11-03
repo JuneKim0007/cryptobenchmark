@@ -27,13 +27,15 @@
 | Artifact | Producer | Consumers | Validator |
 |---|---|---|---|
 | `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the report and both renders (absent: ms, MB/s) | `validation/manifest.py` |
-| `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark: the generated config's digest, the measured set's digest and items; unreadable counts as absent |
+| `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark: the generated config's digest, the measured set's digest and items; `bundled`, with `device.bundled.fromApps: apply`: the applied entries' digest and the manifest's `bundled` and `config` digests they produced; unreadable counts as absent |
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |
 | `used.json` | the device stage's used step (`device/used.py`), with `device.filterByApps` | grouping assign and report (what is asked, `notUsed`), the benchmark's selection | `validation/used.py`, before writing; [Used set](#usedjson) |
 | `used-global.yaml` | the device stage, before a benchmark of the used set | cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with `selection.exclude` added |
+| `bundled-suggestions.yaml` | the device stage's bundled step (`device/bundled.py`), with `device.bundled.fromApps` `suggest` or `apply`; removed with `off` | people; `device/bundled_config.py`, for the per-app harness | `validation/bundled.py`, before writing and in `check` |
+| `bundled-global.yaml` | the bundled step with `apply` and a row applied, removed otherwise; in `<app>/` when `apps.benchmarkConfig` is set | `used-global.yaml`; the per-app harness; cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with the applied entries after its own `providers.bundled` |
 | `<app>/sites.json` | `perfrepair.app` | scope, used | none |
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
 | `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 4, every scope's lifecycle in its closed lists, cited lines inside the file |

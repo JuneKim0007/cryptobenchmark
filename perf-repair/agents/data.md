@@ -44,6 +44,11 @@ src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnab
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; the transcript appended to <device>/log/pipeline/<run id>.log; a failed run is one `pipeline_failed` finding (exit, last error line, the call's transcript line); identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
+src/perfrepair/device/bundled.py : the bundled step after the targets' detect: missing set, suggestions, bundled-suggestions.yaml validated before writing, its events, the warn-or-stop; the entries to apply
+src/perfrepair/device/bundled_config.py : the base's providers.bundled group:names; bundled-global.yaml, the base with the applied entries; the config a per-app harness builds
+src/perfrepair/device/bundled_missing.py : the missing set: providers the targets ship or name at a not_on_device site, neither on the device nor in the base's providers.bundled
+src/perfrepair/device/bundled_policy.py : the one warn-or-stop decision for a coded device finding: one event, outcome stop or warn, data {code, items}; DeviceHalt
+src/perfrepair/device/bundled_suggest.py : the missing set against the bundled-providers catalog: matched at the pinned version, blocked, or unmatched with a reason
 src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items (in used.json when present), not used ones, whether the saved files are current; noRerun's reader
 src/perfrepair/device/energy.py : after a device run: one `finding` event per invalid energy case across its process files, keyed by its first reason; `energy_unreadable` when the files cannot be read
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
@@ -53,6 +58,7 @@ src/perfrepair/device/primitives.py : the primitives stage: rows, measurements, 
 src/perfrepair/device/selection.py : with device.filterByApps: what the last benchmark measured, why the used set reruns it, the exclude rules and used-global.yaml, device.yaml's benchmark section
 src/perfrepair/device/stage.py : probe_device(): identify, the perfMode's measurement check, plan, run the needed stages (pipeline, inbound, grouping build, primitives), write device.yaml last; with detect: probe and screen first, the targets' detect, used.json, the benchmark of the measured set only; `device <stage>: reused` or `ran: <reason>`
 src/perfrepair/device/used.py : the used step: each app's sites.json → the items its sites resolve to, their groups' members, an ungrouped one's candidates → used.json, validated before writing; clear_used
+src/perfrepair/dto/bundled.py : device.bundled's values, BundledPolicy; MissingProvider, Coordinate, Suggestion, Suggestions: bundled-suggestions.yaml (schema 1); applied_entries, entries_digest
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one

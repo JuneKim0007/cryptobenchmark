@@ -10,6 +10,7 @@ from .. import run_dir as rd
 from ..catalog.names import CATALOG
 from ..data_handler.inbound import read_manifest
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
+from ..dto.bundled import BundledPolicy, entries_digest
 from ..dto.device import DeviceRecord, runtime_summary
 from ..dto.event import END
 from ..dto.grouping import read_items
@@ -20,10 +21,12 @@ from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..dto.perf_mode import PerfMode
 from .energy import report_invalid
+from .bundled import check_bundled
+from .bundled_config import bundled_config
 from .inbound import write_inbound
 from .measures import check_measures
 from .primitives import inputs as primitive_inputs, write_primitives
-from .plan import STAGES, Seen, plan
+from .plan import STAGES, Seen, mapped_inputs, plan
 from .selection import FILTER_OFF, exclusions, lacking, measured, section, write_config
 from .used import write_used
 
@@ -31,6 +34,7 @@ from .used import write_used
 DEVICE_PROBES = "a device benchmark probes the device it measures"
 REUSED = "its inputs match device.yaml"
 NO_ITEM = "no target app reaches a device item: the base selection is measured"
+APPLIED_CHANGED = "the providers.bundled entries device.bundled.fromApps applies changed"
 
 
 @dataclass(frozen=True)
@@ -54,6 +58,7 @@ class Run:
     echo: Callable[[str], None]
     benchmark: Path | str | None
     probed: bool = False
+    bundled: BundledPolicy = BundledPolicy()
 
 
 def _inbound(folder: Path) -> str | None:
@@ -127,12 +132,12 @@ def _probed(r: Run, steps: dict) -> None:
             build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)
 
 
-def _measured_set(r: Run, keep: frozenset[str]) -> Path:
+def _measured_set(r: Run, keep: frozenset[str], base: Path) -> Path:
     with step("device", "selection") as s:
         paths = GroupingPaths(r.folder)
         items = read_items(read_json(paths.items))
         rules = exclusions(items, rd.load_screen(paths), keep)
-        path = write_config(Path(r.config), r.folder, rules)
+        path = write_config(base, r.folder, rules)
         s.count(deviceItems=len(items), measured=len(keep), excluded=len(rules))
         s.wrote(path)
     return path
@@ -148,6 +153,8 @@ class Pass:
     keep: frozenset[str] | None = None
     apps: list[str] | None = None
     kept: dict = field(default_factory=dict)
+    # the digest of the providers.bundled entries device.bundled.fromApps applied; None: none
+    applied: str | None = None
 
 
 def _drop_record(folder: Path, steps: dict) -> None:
@@ -157,7 +164,8 @@ def _drop_record(folder: Path, steps: dict) -> None:
 
 
 def _whole(r: Run, before: Seen, current: dict, refresh: bool) -> Pass:
-    scoped = before.record.benchmark if before.record else {}
+    bundled_config(r.config, r.folder, [])
+    scoped = (before.record.benchmark or before.record.bundled) if before.record else {}
     steps = plan(before, current, refresh, {"benchmark": FILTER_OFF} if scoped else None)
     return Pass(steps, steps, r)
 
@@ -183,15 +191,20 @@ def _scoped(r: Run, before: Seen, current: dict, refresh: bool, detect: Callable
     _drop_record(r.folder, steps)
     _probed(r, steps)
     apps = detect(r.folder)
+    entries = check_bundled(r.folder, apps, r.config, r.bundled, r.echo)
+    applied = entries_digest(entries)
+    base = bundled_config(r.config, r.folder, entries)
     used = write_used(r.folder, apps)
     manifest, _ = read_manifest(r.folder / rd.MANIFEST)
-    lack = lacking(used.names, before.record, manifest.inputs.get("config"), current["config"])
-    todo = _left(plan(before, current, refresh, {"benchmark": lack} if lack else None))
+    lack = lacking(used.names, before.record, mapped_inputs(manifest.inputs, before.record).get("config"), current["config"])
+    changed = APPLIED_CHANGED if applied != (before.record.bundled.get("applied") if before.record else None) else None
+    forced = lack or changed
+    todo = _left(plan(before, current, refresh, {"benchmark": forced} if forced else None))
     keep = _keep(used.names, before, todo)
-    config = _measured_set(r, keep) if keep else r.config
+    config = _measured_set(r, keep, base) if keep else base
     reported = {s: steps[s] if s in ("probe", "screen") and steps[s] else todo[s] for s in STAGES}
     return Pass(reported, todo, replace(r, config=config, probed=True), keep, apps,
-                before.record.benchmark if before.record else {})
+                before.record.benchmark if before.record else {}, applied)
 
 
 def _reused(done: Pass, on_device: bool) -> dict:
@@ -207,25 +220,29 @@ def _reused(done: Pass, on_device: bool) -> dict:
 def _record(folder: Path, identity: dict, current: dict, done: Pass) -> None:
     manifest, _ = read_manifest(folder / rd.MANIFEST)
     scoped = section(manifest.inputs.get("config"), done.keep) if done.keep else done.kept
+    bundled = {"applied": done.applied, "bundled": manifest.inputs.get("bundled"),
+               "config": manifest.inputs.get("config")} if done.applied else {}
     rd.write_device_record(folder, DeviceRecord(identity["deviceId"], identity["mode"], runtime_summary(manifest.runtime),
-                                                current, sha256_file(folder / rd.MANIFEST), primitive_inputs(folder), scoped))
+                                                current, sha256_file(folder / rd.MANIFEST), primitive_inputs(folder), scoped,
+                                                bundled))
 
 
 def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_device: bool = False,
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
                  refresh: bool = False, detect: Callable[[Path], list[str]] | None = None,
-                 perf: PerfMode = PerfMode(), named: Callable[[Path], None] = lambda _: None) -> DeviceStage:
+                 perf: PerfMode = PerfMode(), bundled: BundledPolicy = BundledPolicy(),
+                 named: Callable[[Path], None] = lambda _: None) -> DeviceStage:
     """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv. detect: the target apps'
-    folders found on the probe (device.filterByApps); with it the benchmark measures their used set only. perf: the run
-    config must measure what it selects, checked before any device run. named: told the folder once known, so a failed
-    first run still reports into it."""
+    folders found on the probe (device.filterByApps); with it the benchmark measures their used set only, after the
+    device.bundled step. perf: the run config must measure what it selects, checked before any device run. named: told
+    the folder once known, so a failed first run still reports into it."""
     identity = identify(config, on_device, benchmark)
     check_measures(Path(identity["config"]), perf)
     folder = Path(root) / identity["deviceId"]
     named(folder)
     current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": catalog.sha256}
     before = seen(folder)
-    r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark)
+    r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark, bundled=bundled)
     done = _scoped(r, before, current, refresh, detect) if detect else _whole(r, before, current, refresh)
     _drop_record(folder, done.todo)
     steps = _reused(done, on_device)

@@ -15,10 +15,13 @@ from ..app.__main__ import main as app_main
 from ..app.facts.gate import open_apps
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
+from ..device.bundled_config import harness_config
+from ..device.bundled_policy import DeviceHalt
 from ..device.coverage import Coverage, coverage, no_rerun
 from ..device.energy import report_invalid
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
+from ..dto.bundled import BundledPolicy
 from ..dto.event import END
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..failure import FAILURES
@@ -69,6 +72,8 @@ class Guide:
     targets: tuple[Path, ...] = ()
     # the command sets it from device.filterByApps
     filter_by_apps: bool = False
+    # the command sets it from device.bundled
+    bundled: BundledPolicy = BundledPolicy()
     # app ids whose app step ran before the benchmark, shared by every app's copy
     detected: set = field(default_factory=set)
 
@@ -118,8 +123,13 @@ def prerequisites(g: Guide) -> str:
     g.catalog = screening_catalog(g.settings)
     if g.root is not None:
         detect = (lambda folder: detect_targets(g, folder)) if g.filter_by_apps else None
-        g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
-                                detect=detect, perf=g.mode.perf, named=lambda folder: setattr(g, "device", folder)).folder
+        try:
+            g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
+                                    detect=detect, perf=g.mode.perf, bundled=g.bundled,
+                                    named=lambda folder: setattr(g, "device", folder)).folder
+        except DeviceHalt as e:
+            g.device = e.folder
+            raise Stop(e.code, e.detail) from None
     if not (g.device / rd.MANIFEST).is_file():
         raise Stop("missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):
@@ -226,8 +236,8 @@ def harness(g: Guide) -> str:
 
 
 def device(g: Guide) -> str:
-    manifest = run_pipeline(g.app_config or g.config, None, "device", harness=g.paths.harness, echo=g.echo,
-                            app=g.app_id, device=g.device)
+    config = harness_config(g.device, g.app_config, g.paths.root) or g.config
+    manifest = run_pipeline(config, None, "device", harness=g.paths.harness, echo=g.echo, app=g.app_id, device=g.device)
     invalid = report_invalid(manifest, g.app_id)
     return str(manifest) + (f", {invalid} energy cases invalid" if invalid else "")
 

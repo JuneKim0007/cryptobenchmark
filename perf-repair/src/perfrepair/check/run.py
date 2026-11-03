@@ -37,6 +37,7 @@ from ..validation.report import validate_report, validate_summary
 from ..validation.rows import validate_rows
 from ..validation.run_log import validate_run_log
 from ..validation.screen import validate_model_verdicts, validate_screen_document
+from ..validation.bundled import validate_suggestions
 from ..validation.used import validate_used
 
 
@@ -49,7 +50,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
         return {rd.ROWS: [rows]}
     out[rd.ROWS] = validate_rows(rows)
     out |= _beside_rows(run, rows)
-    out |= _charters(run) | _events(run)
+    out |= _charters(run) | _events(run) | _suggestions(run)
     reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)
@@ -115,6 +116,11 @@ def _primitives(run: Path, rows) -> dict[str, list[str]]:
     except (KeyError, TypeError, ValueError) as e:
         return {rd.PRIMITIVES: [f"does not read: {type(e).__name__} {e}"]}
     return {rd.PRIMITIVES: validate_primitives(table, rows, measurements, made_from)}
+
+
+def _suggestions(run: Path) -> dict[str, list[str]]:
+    path = run / rd.BUNDLED_SUGGESTIONS
+    return {rd.BUNDLED_SUGGESTIONS: validate_suggestions(read_yaml(path))} if path.is_file() else {}
 
 
 def _used(run: Path, grouping: GroupingPaths) -> dict[str, list[str]]:

@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Mapping
 
+from ..dto.bundled import FROM_APPS
 from ..dto.perf_mode import GENERIC, KEYS, PerfMode
 
 
@@ -52,6 +53,11 @@ def check_targets(name: str, value: Any) -> None:
 
 def check_path(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, Path) or (isinstance(value, str) and value != ""), "a path")
+
+
+def check_from_apps(name: str, value: Any) -> None:
+    # YAML 1.1 reads a bare `off` as false
+    _check(name, value, value is False or value in FROM_APPS, f"one of {list(FROM_APPS)}")
 
 
 def check_perf_mode(name: str, value: Any) -> None:

@@ -12,6 +12,10 @@ from ._names import merged
 from ._services import attributes_of, class_names_of, generator_kind
 
 
+# the capture's origin of a provider providers.bundled installed; an older capture without origin is all platform
+BUNDLED_ORIGIN = "bundled"
+
+
 class Probe:
 
     def __init__(self, document: dict, source: str = "probe"):
@@ -36,6 +40,10 @@ class Probe:
 
     def generator_kind(self, names: Names) -> Callable[[str], str | None]:
         return generator_kind(self._document, names)
+
+    def platform_providers(self) -> frozenset[str]:
+        """The names the device registers itself, without the ones providers.bundled installed."""
+        return frozenset(p["name"] for p in self._document.get("providers") or [] if p.get("origin") != BUNDLED_ORIGIN)
 
     @cached_property
     def _attributes(self) -> dict[tuple, dict]:

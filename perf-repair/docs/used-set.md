@@ -5,7 +5,7 @@ With `device.filterByApps` (default `true`) the guide hands probe_device the tar
 ```mermaid
 flowchart LR
     P[pipeline.py --probe] --> S[screen: items, signatures, code-made groups] --> D[app step per target, static]
-    D --> U[used.json] --> X[used-global.yaml: base + selection.exclude] --> B[pipeline.py --bench / --device]
+    D --> K[bundled: missing, suggestions, warn or stop] --> U[used.json] --> X[used-global.yaml: base + selection.exclude] --> B[pipeline.py --bench / --device]
     B --> I[inbound] --> S2[screen] --> U2[used.json again] --> T[primitives] --> G[guide grouping: pending in used.json only]
 ```
 
@@ -25,6 +25,26 @@ flowchart LR
 - A first run makes two pipeline runs (probe, then benchmark); later runs with the same targets make none.
 - Logged: `device used` (`deviceItems`, `apps`, `sites`, `matched`, `used`, per `via`), `device selection` (`deviceItems`, `measured`, `excluded`), `device grouping` (`items` asked of, `asked`, `notUsed`).
 - Each excluded item the base selection never held is one `exclude_matches_nothing` warning in `effective.yaml`: harmless, and the price of not repeating cryptobenchmark's include matching here.
+
+## Bundled providers
+
+A target can ship a JCA provider the device does not register. Measuring without it compares nothing the app runs, so the step after detect names each one, code only, no model (`device/bundled.py`).
+
+| step | rule |
+|---|---|
+| missing | a provider a target's `app.json` `bundled` names, or a target's site resolved `not_on_device` to, neither among the probe's own providers (`origin` not `bundled`) nor shipped by a group:name in the base `providers.bundled` |
+| version | per app its build files' pin (a literal coordinate, a Gradle map, a version catalog entry; several in one app: the newest); apps that differ: the newest, each app's pin kept in `missing[].coordinates[].pins`; a variable or a range is no pin |
+| `onMissing` | `warn`: one event and line `device bundled_missing: warn`, the run goes on; `stop`: the same event with outcome `stop`, the guide stops `bundled_missing`, listing provider, coordinates and apps, before the benchmark; the probe has run, since detect resolves against it. A stopped run resumes: a kept probe is reused |
+| `fromApps` | `off`: no file, the catalog's verdicts are not logged; `suggest`: `bundled-suggestions.yaml`; `apply`: the same, and its matched rows are built in |
+| matched | a catalog row of the coordinate's group:name for that provider, unblocked, at a pinned version |
+| blocked | the row's `blocked` reason; listed, never applied; the provider stays missing |
+| unmatched | `no_catalog_row`, `no_coordinates` (a site names it, no build file ships it), `no_pinned_version`, `name_taken` (two rows register one name: the first wins); stays missing |
+| apply | `bundled-global.yaml`: the base and the entries, the base's first; the measured set's config is made from it; the per-app harness builds them too, or a candidate from an applied provider would not exist there |
+| rerun | device.yaml `bundled.applied` holds the entries' digest; a different set reruns the benchmark on today's probe (`the providers.bundled entries device.bundled.fromApps applies changed`). `bundled.bundled` and `bundled.config` map the manifest's digests back to the base's, as `benchmark.config` does, so the base `global.yaml` still judges the probe and an unchanged set runs nothing |
+
+- With `device.filterByApps` only: without it nothing is detected before the benchmark, so the step does not run, and any applied set is dropped with a benchmark on the base. `--device-results` names a finished folder, so it does not run there either.
+- Logged: `device bundled` (`missing`, `matched`, `blocked`, `unmatched`, `applied`), one `device bundled.<kind>` per non-empty kind with `data.items` (only `missing` with `off`), `device bundled_missing` with `data {code, items}`.
+- An applied provider measures under its alias: a site naming the provider's own name still resolves `not_on_device`, and its items enter the used set only through a group.
 
 ## Evidence
 

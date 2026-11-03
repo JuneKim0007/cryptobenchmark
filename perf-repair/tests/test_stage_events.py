@@ -15,6 +15,10 @@ def _ends(events, stage, step=None):
     return [e for e in events if e.stage == stage and e.event == "end" and step in (None, e.step)]
 
 
+WARNED = ("BC (org.bouncycastle:bcprov-jdk18on:1.78; apps app-0f9b286c); Bundled (no coordinates in the build files; "
+          "apps app-0f9b286c); add them to providers.bundled in global.yaml, or set device.bundled.fromApps")
+
+
 def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     _from_root(tmp_path, capsys)
@@ -22,13 +26,15 @@ def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_
     events = read_events(device / rd.EVENTS)
     assert events[0].event == "run_start" and events[-1].event == "run_end" and events[-1].outcome == "exit 1"
     assert [(e.step, e.outcome, e.detail) for e in _ends(events, "device")] == [
-        ("probe", "ran", "no manifest.yaml"), ("screen", "ran", "probe reruns"), ("used", "ok", ""),
+        ("probe", "ran", "no manifest.yaml"), ("screen", "ran", "probe reruns"), ("bundled.missing", "ok", ""),
+        ("bundled", "ok", ""), ("bundled_missing", "warn", WARNED), ("used", "ok", ""),
         ("selection", "ok", ""), ("benchmark", "ran", "probe reruns"), ("inbound", "ran", "benchmark reruns"),
         ("screen", "ran", "probe reruns"), ("primitives", "ran", "inbound reruns"), ("used", "ok", ""),
         ("grouping", "ran", "rebuilt from the kept decisions, no item asked, 0 not used by the targets")]
     _from_root(tmp_path, capsys)
     again = [e for e in read_events(device / rd.EVENTS) if e.run != events[0].run]
-    assert [(e.step, e.outcome) for e in _ends(again, "device")] == [("used", "ok")] + [(s, "reused") for s in
+    assert [(e.step, e.outcome) for e in _ends(again, "device")] == [
+        ("bundled.missing", "ok"), ("bundled", "ok"), ("bundled_missing", "warn"), ("used", "ok")] + [(s, "reused") for s in
                                                                     ("probe", "benchmark", "inbound", "screen", "primitives",
                                                                      "grouping")]
 

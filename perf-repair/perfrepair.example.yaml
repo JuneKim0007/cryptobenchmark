@@ -37,6 +37,10 @@ device:                    # once per device
   benchmark:
     config:                # cryptobenchmark global.yaml for the guide's device step
   filterByApps: true       # guide: group and measure only the items the target apps use and their options; false = every item
+  bundled:                 # guide, with filterByApps: providers the target apps ship that the device lacks
+    onMissing: warn        # warn: logged, the run goes on | stop: bundled_missing before the benchmark
+    # NOT RECOMMENDED: apply. Prepare providers.bundled yourself before the device run.
+    fromApps: off          # off | suggest: write <device>/bundled-suggestions.yaml | apply: also build its matched rows in
   id:                      # the folder under paths.results; needed when it holds several; a device not there is an error
   worthiness: {}           # role keys of `ai worthiness`
 

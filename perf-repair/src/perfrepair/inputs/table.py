@@ -3,12 +3,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from ..catalog.screening import SCREENING
+from ..dto.bundled import OFF, ON_MISSING, WARN
 from ..dto.perf_mode import GENERIC
-from .check import check_any, check_bool, check_path, check_perf_mode, check_positive, check_targets, check_text
+from .check import (check_any, check_bool, check_from_apps, check_one_of, check_path, check_perf_mode, check_positive,
+                    check_targets, check_text)
 from .resolve import Candidate, Need, OnInvalid, Resolved, resolve
 
 
@@ -79,6 +82,9 @@ GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
 BENCHMARK_CONFIG = _path("device.benchmark.config")
 # off is a full-device run: more device time and model calls, never a wrong result
 FILTER_BY_APPS = Row("device.filterByApps", check_bool, default=True)
+BUNDLED_ON_MISSING = Row("device.bundled.onMissing", partial(check_one_of, choices=ON_MISSING), default=WARN)
+# apply builds catalog rows into the harness unreviewed, so a bad value falls back to off
+BUNDLED_FROM_APPS = Row("device.bundled.fromApps", check_from_apps, default=OFF)
 # a bad id must not fall through to another device's numbers
 DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
 WORTHINESS = RoleRow("device.worthiness")

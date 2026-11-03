@@ -1,7 +1,7 @@
 """A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log
 and its selection.exclude one in excluded.log.
-The device folder is the recorded test-api36 results, each providers.bundled `create` adding a provider of the same
-primitives and MD5; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
+The device folder is the recorded test-api36 results, each providers.bundled entry adding a provider named by its alias
+or `create`, of the same primitives and MD5; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
 import argparse, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -50,9 +50,10 @@ ADDED = (("Cipher", "AES/GCM/NoPadding"), ("MessageDigest", "SHA-256"), ("Messag
 probe_path, trial_path = folder / manifest["files"]["probe"], folder / manifest["files"]["trial"]
 probe, trial = yaml.safe_load(probe_path.read_text()), yaml.safe_load(trial_path.read_text())
 for n, entry in enumerate(shipped):
-    name = entry["create"]
-    probe["providers"].append({"name": name, "version": "1", "precedence": 3 + n, "usable": True, "services": [
-        {"type": t, "algorithm": a, "className": f"{name}.{i}"} for i, (t, a) in enumerate(ADDED)]})
+    name = entry.get("alias") or entry["create"]
+    services = [{"type": t, "algorithm": a, "className": f"{name}.{i}"} for i, (t, a) in enumerate(ADDED)]
+    probe["providers"].append({"name": name, "version": "1", "precedence": 3 + n, "origin": "bundled", "usable": True,
+                               "services": services})
     trial["services"] += [{"provider": name, "type": t, "algorithm": a, "instantiates": True,
                            "defaultRun": {"works": True, "inputSize": 1024}} for t, a in ADDED]
 probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))

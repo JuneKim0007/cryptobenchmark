@@ -240,7 +240,9 @@ def _from_root(tmp_path, capsys):
 def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     code, first = _from_root(tmp_path, capsys)
-    assert code == 1 and first[0] == "device probe: ran: no manifest.yaml"
+    # device.bundled.onMissing warn: the demo app ships a provider the fake device lacks, and the run goes on
+    assert code == 1 and first[0].startswith("device bundled_missing: warn: BC (org.bouncycastle:bcprov-jdk18on:1.78; ")
+    assert first[1] == "device probe: ran: no manifest.yaml"
     assert any(l.startswith("guide grouping: ok: ran: ") and "items asked" in l for l in first)
     stops = [l for l in first if " stop " in l]
     assert len(stops) == 1 and stops[0].startswith("guide dossier: stop no_options: ")
@@ -248,7 +250,7 @@ def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(
     decided = sorted((device / "grouping" / "outbox").rglob("*.json"))
     assert decided
     code, again = _from_root(tmp_path, capsys)
-    assert code == 1 and again[:4] == [f"device {s}: reused" for s in ("probe", "benchmark", "inbound", "screen")]
+    assert code == 1 and again[1:5] == [f"device {s}: reused" for s in ("probe", "benchmark", "inbound", "screen")]
     assert "guide grouping: ok: reused" in again and [l for l in again if " stop " in l] == stops
     # device.filterByApps: a probe, then the benchmark of the used set
     assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 2

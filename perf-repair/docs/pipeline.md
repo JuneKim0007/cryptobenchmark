@@ -56,6 +56,8 @@ flowchart LR
 
 `device/stage.py` `probe_device(root, catalog, config, on_device)`: `pipeline.py --identify` names the device (`getprop` on a phone, `RuntimeFieldsKt` on a host: the id the probe gives, without probing), then each stage is reused or rerun. It calls no model.
 
+With `device.filterByApps`, after the targets' detect and before the benchmark, a provider the targets ship that the device lacks warns or stops, and may be built in ([used-set.md](used-set.md) Bundled providers).
+
 Before any stage it checks the config `--identify` names against the perfMode (`device/measures.py`), so the device measures what the decisions read:
 
 | perfMode selects | config needs | without it |

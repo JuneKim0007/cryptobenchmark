@@ -37,12 +37,22 @@ def _changed(stage: str, recorded: dict, current: dict) -> str | None:
     return f"{', '.join(changed)} changed" if changed else None
 
 
-def base_inputs(seen: Seen) -> dict:
-    """A used-set benchmark's manifest carries its generated config's digest; device.yaml maps it back to the base."""
-    inputs, scoped = dict(seen.manifest.inputs), seen.record.benchmark if seen.record else {}
-    if scoped and inputs.get("config") == scoped.get("config"):
-        inputs["config"] = seen.record.inputs["config"]
+def mapped_inputs(inputs: dict, record: DeviceRecord | None) -> dict:
+    """A used-set or applied-bundled benchmark's manifest carries its generated config's digests; device.yaml maps them
+    back to the base's."""
+    inputs = dict(inputs)
+    if record is None:
+        return inputs
+    generated = {"config": {record.benchmark.get("config"), record.bundled.get("config")},
+                 "bundled": {record.bundled.get("bundled")}}
+    for key, digests in generated.items():
+        if inputs.get(key) in digests - {None}:
+            inputs[key] = record.inputs[key]
     return inputs
+
+
+def base_inputs(seen: Seen) -> dict:
+    return mapped_inputs(seen.manifest.inputs, seen.record)
 
 
 def _probe(seen: Seen, current: dict) -> str | None:
