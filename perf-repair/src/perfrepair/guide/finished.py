@@ -12,13 +12,16 @@ from .steps import Guide
 
 
 PACKAGE = Path(__file__).resolve().parents[1]
-# the code that turns an app tree into scopes.json: a change here changes the scopes the same tree yields
-SCOPER = ("app", "scope", "source")
+REPO = PACKAGE.parents[2]
+# the code that turns an app tree into scopes, dossiers, edits and a measured harness: a change reruns the app
+SCOPER = ("app", "scope", "source", "result", "repair")
+HARNESS = ("scripts/scope_*.py", "modules/android/src/androidTest/**/Scope*.kt")
 
 
 def scoper_version() -> str:
     files = sorted(p for name in SCOPER for p in (PACKAGE / name).rglob("*") if p.suffix in (".py", ".yaml"))
-    return sha256_text("\n".join(f"{p.relative_to(PACKAGE)} {sha256_file(p)}" for p in files))
+    files += sorted(p for pattern in HARNESS for p in REPO.glob(pattern))
+    return sha256_text("\n".join(f"{p.relative_to(REPO)} {sha256_file(p)}" for p in files))
 
 
 def _tree_digest(g: Guide) -> str:
