@@ -1,9 +1,10 @@
-import pathlib, sys
+import json, pathlib, sys
 
 import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import gradle_runner  # noqa: E402
 import scope_results  # noqa: E402
 
 PLAN = {"schemaVersion": 1, "app": "fixture", "seed": 7, "scopes": [
@@ -34,7 +35,8 @@ def test_failed_interop_is_recorded_and_left_out(tmp_path):
     prepared = yaml.safe_load(scope_results.prepared(document, measured, effective, tmp_path / "prepared.yaml").read_text())
     assert [c["id"] for c in prepared["cases"]] == ["scope:aaaaaaaaaaaa:before", "scope:aaaaaaaaaaaa:after"]
     assert prepared["cases"][1] == {"id": "scope:aaaaaaaaaaaa:after", "type": "Scope", "algorithm": "f", "provider": "fixture",
-                                 "operation": "after", "key": {"kind": "none"}, "harness": {"iterations": 5}, "inputSize": 64}
+                                 "operation": "after", "key": {"kind": "none"}, "harness": {"iterations": 5}, "inputSize": 64,
+                                 "metrics": ["TIME"], "resolvedParameters": {}}
 
 
 def test_a_compiled_scope_without_a_verdict_fails(tmp_path):
@@ -51,3 +53,26 @@ def test_an_identity_only_output_is_not_measured_and_a_randomized_one_is_uncheck
     assert scopes["aaaaaaaaaaaa"]["status"] == "not_comparable"
     assert (scopes["bbbbbbbbbbbb"]["status"], scopes["bbbbbbbbbbbb"]["interop"]["result"]) == ("measured", "unchecked")
     assert [r["id"] for r in measured] == ["bbbbbbbbbbbb"]
+
+
+def jetpack_case(case, nanos):
+    return {"name": f"measure[{case}]", "repeatIterations": 10, "thermalThrottleSleepSeconds": 0,
+            "metrics": {"timeNs": {"minimum": nanos, "maximum": nanos, "median": nanos, "coefficientOfVariation": 0.0, "runs": [nanos] * 3}}}
+
+
+def test_prepared_goes_through_the_real_converter(tmp_path):
+    """The contract the stubbed tests missed: JetpackResults needs metrics and resolvedParameters on every case."""
+    plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: passed, check: same_output}\n'
+                                     '"bbbbbbbbbbbb": {interop: unchecked, check: none, reason: x}\n')
+    document, measured = scope_results.merge(plan, verdicts)
+    effective = tmp_path / "effective.yaml"
+    effective.write_text("run: {metrics: [TIME], harness: {iterations: 3}}\n")
+    prepared = scope_results.prepared(document, measured, effective, tmp_path / "prepared.yaml")
+    data = tmp_path / "benchmarkData.json"
+    data.write_text(json.dumps({"context": {"build": {"model": "fake", "fingerprint": "f", "version": {"sdk": 36}}, "cpuLocked": False,
+                                            "sustainedPerformanceModeEnabled": False, "compilationMode": "speed"},
+                                "benchmarks": [jetpack_case(c, 100.0) for r in measured for c in r["cases"]]}))
+    gradle_runner.run("quick-bench", f"{data} {prepared} {tmp_path}", False, main_class="ConvertKt")
+    converted = json.loads((tmp_path / "benchmark.json").read_text())
+    assert [c["id"] for c in converted["cases"]] == [c for r in measured for c in r["cases"]]
+    assert converted["cases"][0]["metrics"]["timeNs"]["runs"] == [100.0, 100.0, 100.0]

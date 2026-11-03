@@ -2,6 +2,7 @@
 import yaml
 
 MEASURABLE = ("passed", "unchecked")
+DEFAULT_METRICS = ("TIME",)   # RunSettings.metrics
 
 
 class ScopeResultError(Exception):
@@ -29,12 +30,14 @@ def merge(plan_path, interop_path):
 
 
 def prepared(plan, measured, effective, out):
-    harness = ((yaml.safe_load(effective.read_text()) or {}).get("run") or {}).get("harness") or {}
+    run = (yaml.safe_load(effective.read_text()) or {}).get("run") or {}
+    harness, metrics = run.get("harness") or {}, run.get("metrics") or DEFAULT_METRICS
     cases = []
     for record in measured:
         for case in record["cases"]:
             entry = {"id": case, "type": "Scope", "algorithm": record["function"], "provider": plan["app"],
-                     "operation": case.rsplit(":", 1)[1], "key": {"kind": "none"}, "harness": harness}
+                     "operation": case.rsplit(":", 1)[1], "key": {"kind": "none"}, "harness": harness,
+                     "metrics": list(metrics), "resolvedParameters": {}}
             entry.update({k: record["inputs"][k] for k in ("inputSize", "keySize") if record["inputs"].get(k) is not None})
             cases.append(entry)
     document = {"schemaVersion": 1, "run": {"seed": plan["seed"], "harness": harness}, "cases": cases}
