@@ -61,6 +61,9 @@ def test_a_finding_names_its_code_item_app_and_where_to_look():
     e = ev("device", "pipeline", FINDING, item="device", outcome="pipeline_failed", detail="exit 3; error: x",
            ref="log/pipeline/r1.log")
     assert status_line(e) == "pipeline_failed device: exit 3; error: x; see log/pipeline/r1.log"
+    e = ev("device", "measures", FINDING, item="energyJ", outcome="perf_mode_unmeasured",
+           detail="perf_mode_unmeasured: energyJ is selected but c.yaml does not set it")
+    assert status_line(e) == "perf_mode_unmeasured energyJ: energyJ is selected but c.yaml does not set it"
 
 
 @pytest.fixture
@@ -90,7 +93,7 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     missing = [f"not_on_device {name} app {{}}: 1 sites; {NOT_ON_DEVICE_STEP}" for name in ("Bundled", "KeyStore AndroidKeyStore")]
     assert last[0].startswith("run ") and last[-1].startswith("end ") and ": exit 1 (" in last[-1]
     assert last[1:-1] == [
-        "reused device grouping",
+        "reused device grouping: every item decided, saved files current",
         *(m.format(pa) for m in missing),
         f"short_window {case} app {pa}: energy_invalid: short_window; see {pa}/measured/scoped/energy.json",
         f"ok app {pa}",

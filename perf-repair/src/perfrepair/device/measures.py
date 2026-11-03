@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.event import LOG
+from ..dto.event import FINDING, LOG
 from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from ..files import read_yaml
@@ -39,8 +39,9 @@ def _missing(config: Path, perf: PerfMode, on: set[str]) -> None:
         raise PerfModeUnmeasured(f"perf_mode_unmeasured: perfMode {perf.name} selects {', '.join(m.name for m in hard)}; "
                                  f"{config} measures none of it; add {', '.join(_switch(m) for m in hard)}")
     for m in missing:
-        emit("device", "measures", LOG, detail=f"perf_mode_unmeasured: {m.name} is selected but {config} does not set "
-                                               f"{_switch(m)}; only cases a test set turns it on for get it, the rest are no_evidence")
+        emit("device", "measures", FINDING, item=m.name, outcome="perf_mode_unmeasured",
+             detail=f"perf_mode_unmeasured: {m.name} is selected but {config} does not set {_switch(m)}; only cases a test "
+                    "set turns it on for get it, the rest are no_evidence")
 
 
 def _extra(config: Path, perf: PerfMode, on: set[str]) -> None:

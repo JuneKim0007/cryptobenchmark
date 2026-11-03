@@ -29,6 +29,7 @@ from .used import write_used
 
 # a device run installs and probes before it measures, so its probe is never the one already there
 DEVICE_PROBES = "a device benchmark probes the device it measures"
+REUSED = "its inputs match device.yaml"
 NO_ITEM = "no target app reaches a device item: the base selection is measured"
 
 
@@ -199,7 +200,7 @@ def _reused(done: Pass, on_device: bool) -> dict:
         steps["probe"] = DEVICE_PROBES
     for stage in STAGES:
         if not steps[stage]:
-            emit("device", stage, END, outcome="reused")
+            emit("device", stage, END, outcome="reused", detail=REUSED)
     return steps
 
 

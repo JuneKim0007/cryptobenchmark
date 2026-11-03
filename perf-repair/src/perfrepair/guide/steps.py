@@ -132,24 +132,29 @@ def prerequisites(g: Guide) -> str:
     return f"device results {g.device}, catalog {g.catalog.source}" + _used(g)
 
 
+REUSED_GROUPING = "every item decided, saved files current"
+
+
 def _no_decision(what: str) -> Stop:
     return Stop("missing_device_stage", f"{what}; grouping is a device-level stage, made once per device: {GROUPING}, {NAMED}")
 
 
 def _regroup(g: Guide, seen: Coverage, every: bool) -> str:
+    unused = "" if seen.not_used is None else f", {seen.not_used} not used by the targets"
+    if every:
+        said = f"ran: device.grouping.noRerun false, all {seen.asked} items asked again{unused}"
+    elif seen.pending:
+        said = f"ran: {len(seen.pending)} of {seen.asked} items asked{unused}"
+    else:
+        said = f"rebuilt from the kept decisions, no item asked{unused}"
     with step("device", "grouping") as s:
         if every or seen.pending:
             _exit(grouping_main(["assign", "--device-results", str(g.device), *g.grouping_args, *(("--refresh",) if every else ())]),
                   "grouping_failed", "grouping assign")
         _exit(grouping_main(["report", "--device-results", str(g.device), *g.grouping_args]), "grouping_failed", "grouping report")
-        s.outcome = "ran"
+        s.outcome, s.detail = "ran", said.removeprefix("ran: ")
         s.count(items=seen.asked, asked=seen.asked if every else len(seen.pending), **_not_used(seen))
-    unused = "" if seen.not_used is None else f", {seen.not_used} not used by the targets"
-    if every:
-        return f"ran: device.grouping.noRerun false, all {seen.asked} items asked again{unused}"
-    if seen.pending:
-        return f"ran: {len(seen.pending)} of {seen.asked} items asked{unused}"
-    return f"rebuilt from the kept decisions, no item asked{unused}"
+    return said
 
 
 def _not_used(seen: Coverage) -> dict:
@@ -164,7 +169,8 @@ def grouping(g: Guide) -> str:
     rekey(paths, g.library)
     seen, every = coverage(paths), not no_rerun(g.settings)
     if seen.current and not every:
-        emit("device", "grouping", END, outcome="reused", data={"counts": {"items": seen.asked, **_not_used(seen)}})
+        emit("device", "grouping", END, outcome="reused", detail=REUSED_GROUPING,
+             data={"counts": {"items": seen.asked, **_not_used(seen)}})
         return "reused"
     if seen.pending and g.root is None and not every:
         raise _no_decision(f"{len(seen.pending)} of {seen.asked} items have no decision")

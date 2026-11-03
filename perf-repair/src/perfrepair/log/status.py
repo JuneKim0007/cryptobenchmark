@@ -71,7 +71,8 @@ def _device(e: Event) -> str:
 
 def _finding(e: Event) -> str:
     subject = " ".join(p for p in (e.item or e.step, f"app {e.app}" if e.app else "") if p)
-    return line(e.outcome or e.step, subject, first_line(e.detail) + (f"; see {e.ref}" if e.ref else ""))
+    code = e.outcome or e.step
+    return line(code, subject, after_code(e.detail, code) + (f"; see {e.ref}" if e.ref else ""))
 
 
 def _error(e: Event) -> str:
