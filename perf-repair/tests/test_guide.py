@@ -1,6 +1,7 @@
 """The guide end to end on the fixtures: recorded results, the demo app, scripted model answers, no device."""
 import shutil
 import sys
+from dataclasses import replace as with_field
 from pathlib import Path
 
 import pytest
@@ -16,7 +17,8 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.dto.site import Dossier, required_risks
-from perfrepair.files import read_json
+from perfrepair.ai.runtime.engine.outbox import active_outbox
+from perfrepair.files import read_json, write_json
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.guide.run import run_app, run_sequence
@@ -247,3 +249,17 @@ def _scripts_off_path():
     yield
     if str(SCRIPTS) in sys.path:
         sys.path.remove(str(SCRIPTS))
+
+
+def test_a_decision_on_an_earlier_dossier_stops_the_guide_until_refresh(run):
+    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    assert run_steps(g, device=False) == 0
+    outbox = active_outbox(g.paths.replace)
+    first = outbox.path(1)
+    write_json(first, {**read_json(first), "evidence": "0" * 64})
+    lines.clear()
+    assert run_steps(g, device=False) == 1
+    assert lines[-1].startswith("guide replace: stop dossier_changed") and "(guide --refresh)" in lines[-1]
+    lines.clear()
+    assert run_steps(with_field(g, refresh=True), device=False) == 0
+    assert "guide replace: ok" in statuses(lines)

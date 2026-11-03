@@ -19,13 +19,14 @@ From an app's source to a measured before/after of each call site the model chos
 
 ```
 python3 -m perfrepair guide --app <root> --device-results <device> \
-    [--mode latency|battery] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--device [--config <global.yaml>]]
+    [--mode latency|battery] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--refresh] [--device [--config <global.yaml>]]
 python3 -m perfrepair guide --device-results <device> ...   # without --app: every apps.targets entry
 python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
 ```
 
 - `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
 - `--mode`, `--limit` and `--device` default to `apps.mode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
+- `--refresh` asks again the replace decisions whose dossier changed; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).
 - `--device-results` is required unless `paths.results` is set (`docs/settings.md`); keep results under `~/capstone/runs/<date>-<name>`.
 - Named folder (`--device-results`, or `device.id`): it must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): device-level stages, made once per device, never per app; a missing one stops with `missing_device_stage`.
 - `paths.results` alone: prerequisites calls probe_device() on that root (`docs/pipeline.md` Device stage; on the phone with `--device`), printing `device <stage>: reused` or `ran: <reason>`; the grouping step asks what coverage finds missing (`docs/pipeline.md` Grouping knowledge) by `grouping assign` and `grouping report`, with the guide's `--agent` and `--perfrepair-config`, and prints `reused`, or what it ran.
@@ -45,6 +46,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 | `several_project_roots` | app | `--app` holds several project roots; pass one of them |
 | `no_options` | dossier | no scope has an option; the line lists the `noOptions` reasons |
 | `no_replacement` | replace | every scope is kept |
+| `dossier_changed` | replace | a decision was made on an earlier dossier; the line names the scopes; `guide --refresh` asks them again |
 | `edit_invalid`, `no_edit_applied` | edit | edits.json fails its validator; every edit is rejected, with the reasons |
 | `harness_invalid` | harness | harness.yaml fails its validator |
 | `<step>_failed` | any | a validation failure, coded `ValueError`, missing file or failed pipeline run inside the step |
@@ -56,7 +58,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 | report.json row field | value |
 |---|---|
 | `inputs` | the scope's harness.yaml `inputs`: `inputSize`, `keySize`, `from` (`app` or `run`); null when the scope is not in the harness |
-| `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static` |
+| `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static`; `stale` true when replacements.json lists the scope as decided on an earlier dossier, marked in report.md |
 | `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
 | `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `not_measurable` with its reason (`no_operation`: a factory, never generated); `skipped`; `not_run` (no device run) |
 | `interop` | `passed`, `unchecked`, `not_comparable` (an identity-only output, not measured), `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |

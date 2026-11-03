@@ -10,7 +10,7 @@ from ..ai.runtime.agent import Conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
 from ..ai.parse.grouping_assign.rekey import rekey
-from ..ai.suggest.site_replace.command import replace
+from ..ai.suggest.site_replace.command import replace, stale_problem
 from ..app.__main__ import main as app_main
 from ..app.facts.gate import open_apps
 from ..app.facts.path_id import path_id
@@ -60,6 +60,7 @@ class Guide:
     root: Path | None = None
     on_device: bool = False
     grouping_args: tuple[str, ...] = ()
+    refresh: bool = False
 
     @property
     def app_id(self) -> str | None:
@@ -143,7 +144,11 @@ def dossiers(g: Guide) -> str:
 
 
 def replacements(g: Guide) -> str:
-    state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo)
+    state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo, refresh=g.refresh)
+    stale = stale_problem(state)
+    if stale:
+        code, detail = stale.split(": ", 1)
+        raise Stop(code, detail + " (guide --refresh)")
     chosen = sum(r.decision == "replace" for r in state.replacements.values())
     if not chosen:
         raise Stop("no_replacement", f"every one of {len(state.replacements)} scopes is kept")

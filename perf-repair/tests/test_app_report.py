@@ -60,7 +60,7 @@ def rows(doc):
 def test_a_measured_scope_reports_before_after_per_metric(tmp_path):
     doc = app_report(tmp_path, "shop", MODES["latency"], **QUIET)
     a = rows(doc)[A]
-    assert a["decision"] == {"decision": "replace", "reason": "faster", "source": "llm"}
+    assert a["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "stale": False}
     assert (a["current"], a["option"], a["edit"]["status"], a["compile"]["status"]) == (CURRENT, OPTION, "applied",
                                                                                         "compiled")
     assert a["interop"] == {"status": "passed", "reason": None, "check": "same_output"}

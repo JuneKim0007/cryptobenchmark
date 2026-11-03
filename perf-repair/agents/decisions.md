@@ -54,8 +54,9 @@ src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: wri
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`; start, turn, decision and end events
 src/perfrepair/ai/runtime/engine/events.py : Where (stage, step, app); TurnEvents: each model turn and decision as an event with tokens, cost, latency and its journal line or outbox record
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append, line count and read; audit only
-src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask), item_of, project(kind, records), replay_problems: version count and replay equality
+src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, optional gone and evidence_digest), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer; carry: another outbox's records into a charter's
+src/perfrepair/ai/runtime/engine/refresh.py : --refresh run inputs (`refresh <token>`) and the active outbox's kept ones
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
 src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth
 src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
@@ -66,11 +67,11 @@ src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default ga
 src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; the one reader of `paths.prompts`; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values; each prompt's origin, `packaged` or its override file
-src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps
-src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep
+src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps; --refresh carries all but the stale records into a new outbox; dossier_changed
+src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep; evidence digest per dossier, stale, gone scopes
 src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required; option alias (or empty) and non-blank reason as patterns
-src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope
+src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope; the stale scopes
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled from their rows, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/device_results.py : the device folder of a command: --device-results, else paths.results with device.id or its only device, their one reader; device_root (the root the guide hands to probe_device); not_device_results; the temporary-folder warning

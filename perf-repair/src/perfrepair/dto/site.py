@@ -5,8 +5,8 @@ import json
 from dataclasses import asdict, dataclass, fields
 
 SCHEMA_VERSION = 1
-# 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm
-REPLACEMENTS_SCHEMA_VERSION = 2
+# 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
+REPLACEMENTS_SCHEMA_VERSION = 3
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe
 HARNESS_SCHEMA_VERSION = 3
 NO_OPERATION = "no_operation"

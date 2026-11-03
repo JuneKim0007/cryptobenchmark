@@ -21,7 +21,7 @@
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.
 - A record holds `gateway`, `model`, `effort` (schema 2; schema 1 records read back without them). A resume with items left to ask, whose values differ from an earlier record's, logs one line: `mixed_agents: outbox <fingerprint> holds answers from <gateway>/<model>/<effort>, now asking <gateway>/<model>/<effort>`; the answers stay in one outbox.
 - A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items. Grouping alone has `gone(key)`: a record's item that left since replays through its stand-in; for the other kinds an unknown item is an error.
-- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, or the `refresh <token>` of `assign --refresh`, classify's the whole batched evidence, the other kinds have none and keep their fingerprints.
+- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, or the `refresh <token>` of `assign --refresh`, classify's the whole batched evidence, site-replace's are empty or the `refresh <token>` of `ai replace --refresh`, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
 ## Worthiness
@@ -65,7 +65,10 @@
 | ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
 | no option | static `keep`, source `static`, never asked |
 | dropped item | `keep` with reason `dropped: …`, source `fallback` |
-| state | `<app>/replacements.json`: `{schemaVersion: 2, app, replacements, sources}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, and the edit step refuses another version; outbox under `<app>/replace/` |
+| state | `<app>/replacements.json`: `{schemaVersion: 3, app, replacements, sources, stale}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, version 3 added `stale`; the edit step refuses another version; outbox under `<app>/replace/` |
+| evidence | each record carries `evidence`, the sha256 of its dossier's JSON (scope facts, source, current, options with pins, interop and estimates); a scope whose latest record's digest differs from today's dossier, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
+| `--refresh` | the stale scopes are asked again into a new outbox (inputs `refresh <token>`) that carries every other record; the old outbox stays; later runs read the token from the active charter and stay in it; a prompt change carries nothing |
+| gone | a record whose scope has no dossier any more replays to no row (`gone`), never a KeyError; a scope moved to `noOptions` gets its static keep |
 
 ## Site replace gate
 

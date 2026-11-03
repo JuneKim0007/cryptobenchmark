@@ -77,7 +77,7 @@ def test_end_to_end_command_writes_replacements_with_static_and_model_sources(tm
     agent = ScriptedConversations(lambda m, *_: by_file(m))
     state = replace(run, APP, agent, LIBRARY, **QUIET)
     out = read_json(app / "replacements.json")
-    assert out["schemaVersion"] == 2 and out["app"] == APP and agent.started == 2
+    assert out["schemaVersion"] == 3 and out["app"] == APP and agent.started == 2 and out["stale"] == []
     decisions = {r["scope"]: r for r in out["replacements"]}
     assert decisions[A.key]["decision"] == "replace" and decisions[A.key]["option"] == "TypeA|ALG-A/MODE-X|P2"
     assert decisions[B.key]["decision"] == "keep" and decisions[NONE] == {"scope": NONE, "decision": "keep", "option": None, "edits": [], "risks": [], "reason": "none_available"}
@@ -176,3 +176,51 @@ def test_the_cli_dry_run_keeps_every_site(tmp_path, capsys):
     out = read_json(app / "replacements.json")
     assert {r["decision"] for r in out["replacements"]} == {"keep"}
     assert "2 sites, 2 asked" in capsys.readouterr().out
+
+
+def _changed_estimate(d):
+    first, *rest = d.options
+    estimate = first.estimates[0]
+    moved = Option(first.alias, first.item, first.pins, first.interop,
+                   (Estimate(estimate.metric, 0.95, estimate.pImprove, estimate.n, estimate.configuration),) + first.estimates[1:])
+    return type(d)(d.scope, d.source, d.current, (moved, *rest))
+
+
+def _rewrite(app, *dossiers):
+    (app / "dossiers.json").write_text(json.dumps(doc(*dossiers)))
+
+
+def test_a_changed_dossier_is_flagged_stale_and_not_asked_again_by_default(tmp_path, capsys):
+    run, app = run_dir(tmp_path, A, B)
+    replace(run, APP, ScriptedConversations(lambda m, *_: by_file(m)), LIBRARY, **QUIET)
+    _rewrite(app, _changed_estimate(A), B)
+    again = ScriptedConversations(lambda m, *_: by_file(m))
+    state = replace(run, APP, again, LIBRARY, **QUIET)
+    assert again.started == 0 and state.stale == {A.key}
+    assert read_json(app / "replacements.json")["stale"] == [A.key]
+    assert main(["replace", "--device-results", str(run), "--app", str(run), "--agent", "dry-run"]) == 1
+    assert f"error dossier_changed: 1 decisions were made on an earlier dossier ({A.key})" in capsys.readouterr().err
+
+
+def test_refresh_asks_only_the_changed_scope_into_a_new_outbox(tmp_path):
+    run, app = run_dir(tmp_path, A, B)
+    replace(run, APP, ScriptedConversations(lambda m, *_: by_file(m)), LIBRARY, **QUIET)
+    old = active_outbox(app / "replace")
+    _rewrite(app, _changed_estimate(A), B)
+    again = ScriptedConversations(lambda *_: KEEP)
+    state = replace(run, APP, again, LIBRARY, refresh=True, **QUIET)
+    new = active_outbox(app / "replace")
+    assert again.started == 1 and not state.stale and state.replacements[A.key].decision == "keep"
+    assert new.fingerprint != old.fingerprint and len(old.records()) == 2
+    assert [r.item for r in new.records()] == [B.key, A.key]
+    later = ScriptedConversations(lambda *_: KEEP)
+    replace(run, APP, later, LIBRARY, **QUIET)
+    assert later.started == 0 and active_outbox(app / "replace").fingerprint == new.fingerprint
+
+
+def test_a_scope_that_left_the_dossiers_replays_without_its_row(tmp_path):
+    run, app = run_dir(tmp_path, A, B)
+    replace(run, APP, ScriptedConversations(lambda m, *_: by_file(m)), LIBRARY, **QUIET)
+    _rewrite(app, B)
+    state = replace(run, APP, ScriptedConversations(lambda *_: KEEP), LIBRARY, **QUIET)
+    assert list(state.replacements) == [B.key] and state.version == 2 and not state.stale

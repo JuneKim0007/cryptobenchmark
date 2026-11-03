@@ -38,9 +38,10 @@ def _static(k: str, r: Replacement, source: str | None, no_options: dict[str, st
 
 
 def validate_replacements(replacements: dict[str, Replacement], sources: dict[str, str],
-                          dossiers: list[Dossier], no_options: dict[str, str]) -> list[str]:
+                          dossiers: list[Dossier], no_options: dict[str, str], stale: set[str]) -> list[str]:
     by_key = {d.key: d for d in dossiers}
-    problems = [f"{k}: replacement for an unknown scope" for k in replacements if k not in by_key and k not in no_options]
+    problems = [f"{k}: stale but not a decision on a dossier" for k in sorted(stale) if k not in by_key or k not in replacements]
+    problems += [f"{k}: replacement for an unknown scope" for k in replacements if k not in by_key and k not in no_options]
     problems += [f"{k}: noOptions scope without its static keep" for k in no_options if k not in replacements]
     problems += [f"{k}: source {sources.get(k)!r} is not one of {SOURCES}" for k in replacements
                  if sources.get(k) not in SOURCES]

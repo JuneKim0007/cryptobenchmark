@@ -45,7 +45,7 @@ src/perfrepair/device/plan.py : which device stage reruns and why: current diges
 src/perfrepair/device/stage.py : probe_device(): identify, plan, run the needed stages (pipeline, inbound, grouping build), write device.yaml last; `device <stage>: reused` or `ran: <reason>`
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
-src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind and the AgentIdentity (gateway, model, effort) that answered it
+src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256)
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names, kinds, each field's types
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of

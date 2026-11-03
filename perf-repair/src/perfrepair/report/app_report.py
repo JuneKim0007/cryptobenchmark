@@ -38,13 +38,14 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     replaced = _optional(paths.replacements) or {}
     replacements = {r["scope"]: r for r in replaced.get("replacements") or []}
     sources = replaced.get("sources") or {}
+    stale = set(replaced.get("stale") or ())
     edits_doc = _optional(paths.edits)
     edits = {e["scope"]: e for e in (edits_doc or {}).get("edits") or []}
     harness = _optional(paths.harness, read_yaml) or {}
     inputs = {s["id"]: s.get("inputs") for s in harness.get("scopes") or []}
     measured = read_measured(paths, list(inputs))
     rows = [scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
-                      edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]))
+                      edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]), s["id"] in stale)
             for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))]
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name,
             "measuredFrom": str(paths.scoped_benchmark.relative_to(paths.root)) if measured.cases else None,

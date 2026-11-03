@@ -1,7 +1,7 @@
 """Vocabulary of report.json and summary.json: step statuses, reported metrics, funnel stages."""
 from __future__ import annotations
 
-# 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked
+# 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale
 SCHEMA_VERSION = 3
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")

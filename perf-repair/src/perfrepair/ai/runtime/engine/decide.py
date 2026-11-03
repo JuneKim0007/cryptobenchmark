@@ -15,7 +15,7 @@ from . import journal
 from ..agent import Conversations
 from .ask import Asked, Limits, ask
 from .events import TurnEvents, Where
-from .kind import DecisionKind, item_of, project
+from .kind import DecisionKind, evidence_of, item_of, project
 from .outbox import Outbox, activate
 
 LOG = logging.getLogger(__name__)
@@ -50,7 +50,8 @@ def _ended(where: Where, started: float, counts: dict, records: list, left: int,
 def _commit(kind: DecisionKind, item, asked: Asked, records: list, outbox: Outbox, agent: AgentIdentity) -> OutboxRecord:
     accepted = asked.decision is not None
     record = OutboxRecord(len(records) + 1, item.key, "decided" if accepted else "dropped", asked.last.session,
-                          asked.last.turn, asked.decision, () if accepted else tuple(asked.problems), agent)
+                          asked.last.turn, asked.decision, () if accepted else tuple(asked.problems), agent,
+                          evidence_of(kind, item))
     committed = outbox.append(record)
     require(f"{kind.name} record {record.seq}", [] if committed == record else ["reads back different"])
     return committed

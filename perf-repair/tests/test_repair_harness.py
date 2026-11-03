@@ -29,7 +29,7 @@ def setup_run(tmp_path):
     with_results(tmp_path)
     write_json(paths.facts, {"root": str(ROOT.resolve())})
     write_json(paths.scopes, {"schemaVersion": 1, "app": APP, "scopes": [s.to_json() for s in SCOPES]})
-    write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
+    write_json(paths.replacements, {"schemaVersion": 3, "app": APP, "replacements": [
         replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
         replace(TWICE, pins(tagBits=128), option=FAST).to_json(), replace(TEMPLATE, provider("Fast"), option=FAST).to_json()]})
     write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES]})
@@ -101,12 +101,12 @@ def test_validators_refuse_broken_documents(tmp_path):
 
 def test_an_unknown_edit_kind_is_rejected(tmp_path):
     paths = setup_run(tmp_path)
-    write_json(paths.replacements, {"schemaVersion": 2, "app": APP, "replacements": [
+    write_json(paths.replacements, {"schemaVersion": 3, "app": APP, "replacements": [
         replace(LITERAL, Edit("rename_class")).to_json()]})
     assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
     assert read_json(paths.edits)["edits"][0]["reason"] == "unsupported_kind"
 
 
 def test_a_replacements_file_of_another_version_is_refused():
-    with pytest.raises(ValueError, match="replacements schemaVersion 1 is not 2"):
+    with pytest.raises(ValueError, match="replacements schemaVersion 1 is not 3"):
         read_replacements({"schemaVersion": 1, "app": APP, "replacements": []})

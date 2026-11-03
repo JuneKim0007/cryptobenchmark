@@ -28,11 +28,14 @@ class OutboxRecord:
     decision: dict | None = None
     problems: tuple[str, ...] = ()
     agent: AgentIdentity = AgentIdentity()
+    # the digest of the evidence the item was decided on, for a kind that declares one
+    evidence: str | None = None
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "seq": self.seq, "item": self.item, "outcome": self.outcome,
                 "session": self.session, "turn": self.turn, "decision": self.decision, "problems": list(self.problems),
-                "gateway": self.agent.gateway, "model": self.agent.model, "effort": self.agent.effort}
+                "gateway": self.agent.gateway, "model": self.agent.model, "effort": self.agent.effort,
+                **({"evidence": self.evidence} if self.evidence is not None else {})}
 
     @classmethod
     def from_json(cls, d: dict) -> "OutboxRecord":
@@ -44,4 +47,4 @@ class OutboxRecord:
             raise ValueError(f"outbox record {d.get('seq')}: a decided record carries a decision, a dropped one none")
         return cls(int(d["seq"]), str(d["item"]), d["outcome"], int(d["session"]), int(d["turn"]),
                    d.get("decision"), tuple(d.get("problems") or ()),
-                   AgentIdentity(d.get("gateway"), d.get("model"), d.get("effort")))
+                   AgentIdentity(d.get("gateway"), d.get("model"), d.get("effort")), d.get("evidence"))

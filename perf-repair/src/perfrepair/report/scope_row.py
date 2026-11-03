@@ -49,10 +49,10 @@ def _verdict(mode: Mode, current: str, option: str, metrics: list[dict]) -> str:
                                   allocation_ratio, "n/a"))
 
 
-def _decision(replacement: dict | None, source: str | None) -> dict:
+def _decision(replacement: dict | None, source: str | None, stale: bool) -> dict:
     if replacement is None:
-        return {"decision": "not_run", "reason": "no replacements.json row (not asked yet)", "source": None}
-    return {"decision": replacement["decision"], "reason": replacement["reason"], "source": source}
+        return {"decision": "not_run", "reason": "no replacements.json row (not asked yet)", "source": None, "stale": False}
+    return {"decision": replacement["decision"], "reason": replacement["reason"], "source": source, "stale": stale}
 
 
 def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
@@ -64,9 +64,10 @@ def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
 
 
 def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, source: str | None, edit: dict | None,
-              has_edits: bool, measured: Measured, mode: Mode, inputs: dict | None) -> dict:
-    """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness."""
-    decision = _decision(replacement, source)
+              has_edits: bool, measured: Measured, mode: Mode, inputs: dict | None, stale: bool = False) -> dict:
+    """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness.
+    `stale`: the decision was made on an earlier dossier."""
+    decision = _decision(replacement, source, stale)
     edited = _edit(edit, decision, has_edits)
     record = measured.plan.get(scope["id"])
     compiled = _compile(record, measured, edited["status"] == "applied")

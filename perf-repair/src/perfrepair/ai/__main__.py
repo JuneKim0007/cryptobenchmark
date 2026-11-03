@@ -1,5 +1,5 @@
 """python3 -m perfrepair.ai worthiness --device-results <dir> --mode latency|battery — after grouping;
-   python3 -m perfrepair.ai replace --device-results <dir> --app <source> — after dossiers. Both take [--agent ...] [--prompts DIR]
+   python3 -m perfrepair.ai replace --device-results <dir> --app <source> [--refresh] — after dossiers. Both take [--agent ...] [--prompts DIR]
    and read perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
 from __future__ import annotations
 
@@ -42,6 +42,9 @@ def main(argv: list[str] | None = None) -> int:
     add_device_results_arg(p)
     p.add_argument("--app", type=Path, required=True, help="the app's source folder; its path gives the app's id")
     _engine_args(p, APPS_REPLACE)
+    p.add_argument("--refresh", action="store_true",
+                   help="ask again the scopes whose dossier changed since their decision, into a new outbox; the old one stays; "
+                        "default: they stay, flagged stale, and the command exits with dossier_changed")
     a = ap.parse_args(argv)
     return reported(lambda: _stage(ap, a))
 
@@ -55,7 +58,10 @@ def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     if a.stage == "worthiness":
         worthiness_cmd.worthiness(a.device_results, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
     else:
-        replace_cmd.replace(a.device_results, app_id(a.device_results, a.app), spawn(a, settings, replace_cmd.DRY_RUN), library, limits, a.limit)
+        state = replace_cmd.replace(a.device_results, app_id(a.device_results, a.app), spawn(a, settings, replace_cmd.DRY_RUN),
+                                    library, limits, a.limit, refresh=a.refresh)
+        if replace_cmd.stale_problem(state):
+            raise replace_cmd.DossierChanged(replace_cmd.stale_problem(state))
 
 
 if __name__ == "__main__":

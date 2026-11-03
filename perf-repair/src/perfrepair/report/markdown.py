@@ -58,7 +58,8 @@ def report_markdown(doc: dict) -> str:
         out += ["", f"### {s['file']}:{s['line']} `{s['function']}` ({s['scope']})", "",
                 f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
                 f"- inputs: {_inputs(s['inputs'])}",
-                f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}",
+                f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}"
+                + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}",
                 f"- interop: {_interop(s)}",
                 f"- verdict ({doc['mode']}): {s['verdict']}", "",

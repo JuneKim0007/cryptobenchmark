@@ -16,7 +16,8 @@ class DecisionKind(Protocol):
 
     def items(self) -> list:
         """Every item a record may name: the lookup list of projections and replay; a kind whose items can leave between
-        runs also has gone(key), the stand-in for a record's item that left."""
+        runs also has gone(key), the stand-in for a record's item that left; a kind whose items' evidence can change has
+        evidence_digest(item), the digest each record carries."""
 
     def pending(self) -> list:
         """The items to ask, a subset of items(); a kind that settles none in code returns items()."""
@@ -39,6 +40,10 @@ class DecisionKind(Protocol):
     def validate(self, state, records: list[OutboxRecord]) -> list[str]: ...
 
     def write(self, state, records: list[OutboxRecord]) -> None: ...
+
+
+def evidence_of(kind: DecisionKind, item) -> str | None:
+    return kind.evidence_digest(item) if hasattr(kind, "evidence_digest") else None
 
 
 def item_of(kind: DecisionKind, by_key: dict, key: str):

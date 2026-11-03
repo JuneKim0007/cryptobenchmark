@@ -37,6 +37,9 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--config", type=Path, help="global.yaml for the device step; default: device.benchmark.config, "
                                                 "else pipeline.py's own lookup")
     ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: apps.limit")
+    ap.add_argument("--refresh", action="store_true",
+                    help="ask again the scopes whose dossier changed since their replace decision; default: the app stops "
+                         "with dossier_changed and its report flags them stale")
     add_agent_args(ap, role=APPS_AGENT)
     add_prompt_args(ap)
     return ap
@@ -74,7 +77,7 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
     root = device_root(ap, a, settings)
     base = Guide(a.device_results, None, MODES[a.mode], spawn(a, settings, replace_cmd.DRY_RUN),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
-                 on_device=bool(a.device), grouping_args=_grouping_args(a))
+                 on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 
