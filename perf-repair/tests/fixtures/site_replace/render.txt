@@ -16,6 +16,7 @@ SCOPE FACTS
   sinks: persist
   key source: keystore
   risks a replace must declare: persisted_data, key_compatibility
+  pattern: notFixed (created_per_call: the function that creates the object uses it, so every call pays the setup); the estimates and measured lines are the notFixed variant's, its timed call redoing unknown
 
 LIFECYCLE
   status partially_bounded (depth1) | binding local

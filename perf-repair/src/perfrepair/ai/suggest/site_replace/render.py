@@ -11,6 +11,7 @@ from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
 from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
                          required_risks)
+from ....dto.pattern import rule_words
 from ....dto.perf_mode import GENERIC_MODE, PerfMode
 from ....dto.primitives import PrimitivesTable
 from ....dto.unit import INVERSE, Link, UnitDossiers
@@ -126,6 +127,12 @@ def _source(d: Dossier) -> list[str]:
             f"{marker} BEGIN", *body, f"{marker} END"]
 
 
+def pattern_line(d: Dossier) -> str:
+    s = d.scope
+    return (f"  pattern: {s.pattern} ({s.patternReason}: {rule_words(s.patternReason)}); the estimates and measured lines are "
+            f"the {s.pattern} variant's, its timed call redoing {', '.join(d.perCall) or 'unknown'}")
+
+
 def _member(alias: str, d: Dossier, shown: dict[tuple, str], measured: list[str]) -> list[str]:
     s = d.scope
     lines = [f"MEMBER {alias}", f"SITE {s.file}:{s.line} | call {s.call} | function {s.function} (lines {s.start}..{s.end})",
@@ -133,7 +140,7 @@ def _member(alias: str, d: Dossier, shown: dict[tuple, str], measured: list[str]
              f"| resolution {s.resolution}",
              f"  key size {_known(s.keySize)} | input size {_known(s.inputSize)}",
              "", "SCOPE FACTS", f"  sinks: {', '.join(s.sinks)}", f"  key source: {s.keySource}",
-             f"  risks a replace must declare: {', '.join(required_risks(s)) or 'none'}",
+             f"  risks a replace must declare: {', '.join(required_risks(s)) or 'none'}", pattern_line(d),
              "", *_lifecycle(s),
              "", f"CURRENT {d.current} | name {algorithm_of(d.current)} | provider {provider_of(d.current)}",
              "", "OPTIONS (answer with these names)"]

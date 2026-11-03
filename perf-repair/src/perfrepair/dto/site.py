@@ -17,7 +17,8 @@ EDITS_SCHEMA_VERSION = 1
 # 2: `units`, the units asked, each member with a dossier; 3: `perfMode`, estimates of its metrics only
 # 4: `maxChange` and `notOffered`; an option above drop-in carries its change class and pair diff
 # 5: every option carries track, outputChanges, reach and needsReview
-DOSSIERS_SCHEMA_VERSION = 5
+# 6: estimates of the scope's pattern's variant only; perCall, what its current item's timed call redoes
+DOSSIERS_SCHEMA_VERSION = 6
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
 # 5: pattern, patternReason and patternLines on every scope
 SCOPES_SCHEMA_VERSION = 5
@@ -46,7 +47,8 @@ ZERO_MEDIAN = "zero_median"
 NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER, ZERO_MEDIAN)
 PROVIDER_HELD_KEY = "provider_held_key"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing; the last is its unit's
-NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
+VARIANT_NOT_MEASURED = "variant_not_measured"
+NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", VARIANT_NOT_MEASURED, "not_grouped", "no_alternative", "none_available", "deprecated_only",
                      "interop_failed", NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY)
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
@@ -191,6 +193,8 @@ class Dossier:
     source: str
     current: str
     options: tuple[Option, ...]
+    # prepared.yaml perCall of the current item's rows in the scope's variant; empty before variants
+    perCall: tuple[str, ...] = ()
 
     @property
     def key(self) -> str:
@@ -198,11 +202,12 @@ class Dossier:
 
     def to_json(self) -> dict:
         return {"scope": self.scope.to_json(), "source": self.source, "current": self.current,
-                "options": [o.to_json() for o in self.options]}
+                "options": [o.to_json() for o in self.options], "perCall": list(self.perCall)}
 
     @classmethod
     def from_json(cls, d: dict) -> "Dossier":
-        return cls(Scope.from_json(d["scope"]), d["source"], d["current"], tuple(Option.from_json(o) for o in d["options"]))
+        return cls(Scope.from_json(d["scope"]), d["source"], d["current"], tuple(Option.from_json(o) for o in d["options"]),
+                   tuple(d.get("perCall") or ()))
 
 
 @dataclass(frozen=True)

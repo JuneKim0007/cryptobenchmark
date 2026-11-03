@@ -12,7 +12,9 @@ from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
-from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, ZERO_MEDIAN, Dossier, Option, Scope
+from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, VARIANT_NOT_MEASURED, ZERO_MEDIAN,
+                        Dossier, Option, Scope)
+from ..dto.pattern import VARIANTS
 from ..dto.shipped import shipped, shipped_names
 from ..dto.change import (DROP_IN, NO_GAIN, PROVIDER_PATH, RECOMMENDATION, REJECTED, SAME_ENGINE, Change, PairDiff,
                           output_changes)
@@ -77,7 +79,7 @@ def _unresolved(s: Scope, named: bool = False) -> str | None:
 
 @dataclass(frozen=True)
 class Joined:
-    """What every scope's dossier is joined from: groups, the measured rows by item, their summaries, the app's
+    """What every scope's dossier is joined from: groups, the measured rows of one variant by item, their summaries, the app's
     screen verdicts (None without screen.json), the perfMode whose metrics alone are estimated, and the family
     candidates beyond the group (None: drop-in only, nothing classed)."""
     groups: dict
@@ -195,14 +197,24 @@ def available_providers(platform: frozenset[str], harness: dict[str, str], app_d
     return {*platform, *shipped_names(app_doc), *(p for p, artifact in harness.items() if artifact in artifacts)}
 
 
-def _measured(rows: list[PrimitiveRow]) -> dict[str, dict[Config, PrimitiveRow]]:
+Measured = dict[str, dict[Config, PrimitiveRow]]
+
+
+def _measured(rows: list[PrimitiveRow]) -> dict[str, Measured]:
+    """Per benchmark variant, the rows by item: a scope reads only its pattern's, so the two never mix."""
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
         raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
-    measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
+    measured: dict[str, Measured] = {v: defaultdict(dict) for v in VARIANTS}
     for r in rows:
-        measured[qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r
+        measured[r.variant][qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r
     return measured
+
+
+def _variant_missing(s: Scope, current: str, measured: dict[str, Measured]) -> str | None:
+    """The current item measured, but not in the scope's variant (a fixed-only key generation, a legacy run)."""
+    others = any(current in m for v, m in measured.items() if v != s.pattern)
+    return VARIANT_NOT_MEASURED if others and current not in measured[s.pattern] else None
 
 
 def _probed_or_shipped(groups: dict, app_doc: dict) -> set[str]:
@@ -220,18 +232,21 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
     providers: the provider each site is on for this app; None: the scope's own, by order when its resolution is default."""
     if available is None:
         available = _probed_or_shipped(groups, app_doc)
-    joined = Joined(groups, _measured(rows), measurements, verdicts, perf, available, family)
+    measured = _measured(rows)
+    joined = {v: Joined(groups, m, measurements, verdicts, perf, available, family) for v, m in measured.items()}
     dossiers, none, kept = [], [], []
     items = {v["qualified"] for v in groups["items"].values()}
     for s in scopes:
         on, by_order = providers.on(s, items) if providers else (s.provider, s.resolution == "default")
-        unresolved = _unresolved(s, on != s.provider)
-        current, options, reason, others = (None, [], unresolved, []) if unresolved else joined.options(s, on, by_order)
+        unresolved = _unresolved(s, on != s.provider) or _variant_missing(
+            s, qualified(s.engineType, s.algorithm, on or s.provider), measured)
+        current, options, reason, others = (None, [], unresolved, []) if unresolved else joined[s.pattern].options(s, on, by_order)
         kept += [{"scope": s.id, **c.to_json()} for c in others]
         if reason is not None:
             none.append({"scope": s.id, "reason": reason})
             continue
-        dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))
+        per_call = tuple(sorted({r.perCall for r in measured[s.pattern][current].values() if r.perCall}))
+        dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options), per_call))
     return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "perfMode": perf.to_json(),
             "maxChange": family.max_change if family else DROP_IN, "dossiers": [d.to_json() for d in dossiers],
             "noOptions": none, "notOffered": kept, "units": []}

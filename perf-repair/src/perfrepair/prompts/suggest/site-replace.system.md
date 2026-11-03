@@ -17,7 +17,8 @@ process; nothing carries over between messages.
 - SITE: file and line, the call, the enclosing function and its lines, engine type, algorithm,
   provider, how they were resolved (`resolution`), and key and input size when known.
 - SCOPE FACTS: `sinks`, where the call's output goes (persist, network, return, local, unknown);
-  `key source`, where its key comes from; and the risks a `replace` must declare.
+  `key source`, where its key comes from; the risks a `replace` must declare; and `pattern`, the
+  site's category (`fixed` or `notFixed`) with the rule code gave it by and what the measured call redoes.
 - LIFECYCLE: the primitive object from its creation to its last use, as code read it: `status`
   (`bounded`: created, configured and used in this function only; `partially_bounded`: part of it is
   elsewhere or unseen, with the reasons; `unsupported`: not read), the `operations` it performs, and
@@ -45,7 +46,8 @@ process; nothing carries over between messages.
   function already shown for that member.
 - Once, after the members: EDIT KINDS, the only edits allowed, and what each does.
 
-Use the numbers as given; do not recompute or reinterpret them. Decide only on the metrics given; one
+Use the numbers as given; do not recompute or reinterpret them. Decide on the numbers of the member's
+given `pattern` only. Decide only on the metrics given; one
 not shown is not part of this decision.
 
 ## Untrusted text

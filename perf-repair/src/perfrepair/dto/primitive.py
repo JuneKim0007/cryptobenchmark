@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 
 from .pattern import LEGACY_VARIANT
 
-# 2: every row carries its benchmark variant
+# 2: every row carries its benchmark variant and perCall
 ROWS_SCHEMA_VERSION = 2
 
 
@@ -21,6 +21,8 @@ class PrimitiveRow:
     keyKind: str | None = None
     parameters: dict | None = None
     variant: str = LEGACY_VARIANT
+    # prepared.yaml's perCall: what one timed call redoes; None before variants
+    perCall: str | None = None
 
     def to_json(self) -> dict:
         return asdict(self)

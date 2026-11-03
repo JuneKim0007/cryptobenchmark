@@ -107,6 +107,10 @@ def test_a_case_carries_its_variant_and_one_without_is_the_legacy_notfixed(tmp_p
     path.write_text(json.dumps(doc))
     rows = read_results(path, prepared)[0]
     assert {r.rowId: r.variant for r in rows} == {"g_fast": "fixed", "g_slow": "notFixed", "d_fast": "notFixed"}
+    doc["cases"][1]["variant"] = None
+    path.write_text(json.dumps(doc))
+    from perfrepair.validation.rows import validate_rows
+    assert validate_rows(read_results(path, prepared)[0]) == ["g_slow: variant None is not one of ('fixed', 'notFixed')"]
 
 
 def test_the_rows_validator_refuses_a_variant_outside_the_two():

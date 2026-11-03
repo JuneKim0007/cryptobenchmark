@@ -20,14 +20,15 @@ def _size(column: str) -> int | None:
 
 
 def lines_of(d: Dossier, table: PrimitivesTable) -> list[tuple[str, PrimitiveLine]]:
-    """(side, line): `current` or an option alias; the scope's key size and lifecycle operations when known."""
-    ops, key = operations(d.scope), d.scope.keySize
+    """(side, line): `current` or an option alias; the scope's key size, lifecycle operations when known, and its
+    pattern's variant only."""
+    ops, key, variant = operations(d.scope), d.scope.keySize, d.scope.pattern
     sides = [("current", d.current)] + [(o.alias, o.item) for o in d.options]
     out = []
     for side, item in sides:
         engine, name, provider = parse_qualified(item)
         out += [(side, line) for line in table.lines if (line.type, line.algorithm, line.provider) == (engine, name, provider)
-                and (not ops or line.operation in ops) and key in (None, line.keySize)]
+                and (not ops or line.operation in ops) and key in (None, line.keySize) and line.variant == variant]
     return out
 
 
