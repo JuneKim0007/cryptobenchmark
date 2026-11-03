@@ -9,14 +9,18 @@ from .. import run_dir as rd
 from ..ai.runtime.agent import Conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
+from ..ai.parse.grouping_assign.rekey import rekey
 from ..ai.suggest.site_replace.command import replace
 from ..app.__main__ import main as app_main
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
+from ..device.coverage import Coverage, coverage, no_rerun
 from ..device.stage import probe_device
+from ..dto.event import END
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..files import read_json
 from ..grouping.__main__ import main as grouping_main
+from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
@@ -86,18 +90,36 @@ def prerequisites(g: Guide) -> str:
     return f"device results {g.device}, catalog {g.catalog.source}"
 
 
+def _no_decision(what: str) -> Stop:
+    return Stop("missing_device_stage", f"{what}; grouping is a device-level stage, made once per device: {GROUPING}, {NAMED}")
+
+
+def _regroup(g: Guide, seen: Coverage, every: bool) -> str:
+    with step("device", "grouping") as s:
+        if every or seen.pending:
+            _exit(grouping_main(["assign", "--device-results", str(g.device), *g.grouping_args, *(("--refresh",) if every else ())]),
+                  "grouping_failed", "grouping assign")
+        _exit(grouping_main(["report", "--device-results", str(g.device), *g.grouping_args]), "grouping_failed", "grouping report")
+        s.outcome = "ran"
+        s.count(items=seen.asked, asked=seen.asked if every else len(seen.pending))
+    if every:
+        return f"ran: device.grouping.noRerun false, all {seen.asked} items asked again"
+    return f"ran: {len(seen.pending)} of {seen.asked} items asked" if seen.pending else "rebuilt from the kept decisions, no item asked"
+
+
 def grouping(g: Guide) -> str:
-    """Assign is the guide's one device-level model step, run only while groups.json is missing (#76 L5 adds coverage)."""
-    groups = GroupingPaths(g.device).groups
-    if groups.is_file():
+    """The guide's one device-level model step: only what coverage finds missing is asked."""
+    paths = GroupingPaths(g.device)
+    if not paths.items.is_file() and g.root is None:
+        raise _no_decision(f"{paths.items} absent")
+    rekey(paths, g.library)
+    seen, every = coverage(paths), not no_rerun(g.settings)
+    if seen.current and not every:
+        emit("device", "grouping", END, outcome="reused", data={"counts": {"items": seen.asked}})
         return "reused"
-    if g.root is None:
-        raise Stop("missing_device_stage", f"{groups} absent; grouping is a device-level stage, made once per device: "
-                                           f"{GROUPING}, {NAMED}")
-    for step in ("assign", "report"):
-        _exit(grouping_main([step, "--device-results", str(g.device), *g.grouping_args]), "grouping_failed",
-              f"grouping {step}")
-    return f"ran: no {groups.name}"
+    if seen.pending and g.root is None and not every:
+        raise _no_decision(f"{len(seen.pending)} of {seen.asked} items have no decision")
+    return _regroup(g, seen, every)
 
 
 def app(g: Guide) -> str:

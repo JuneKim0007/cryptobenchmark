@@ -39,6 +39,7 @@ src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnab
 src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
+src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items, whether the saved files are current; noRerun's reader
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml; upstream reruns carry down
 src/perfrepair/device/stage.py : probe_device(): identify, plan, run the needed stages (pipeline, inbound, grouping build), write device.yaml last; `device <stage>: reused` or `ran: <reason>`

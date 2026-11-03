@@ -1,5 +1,6 @@
 """A fake pipeline.py for the device stage: --identify, --probe, --bench, --device; each run is one line in <root>/runs.log.
-The device folder is the recorded test-api36 results; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
+The device folder is the recorded test-api36 results, each providers.bundled `create` adding a provider of the same
+primitives and MD5; FAKE_INTERRUPT=1 fails after the old manifest is gone."""
 import argparse, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -41,6 +42,17 @@ for item in RECORDED.iterdir():
         target = folder / item.name
         shutil.copytree(item, target, dirs_exist_ok=True) if item.is_dir() else shutil.copy(item, target)
 manifest = yaml.safe_load((RECORDED / "manifest.yaml").read_text())
+ADDED = (("Cipher", "AES/GCM/NoPadding"), ("MessageDigest", "SHA-256"), ("MessageDigest", "MD5"))
+probe_path, trial_path = folder / manifest["files"]["probe"], folder / manifest["files"]["trial"]
+probe, trial = yaml.safe_load(probe_path.read_text()), yaml.safe_load(trial_path.read_text())
+for n, entry in enumerate(shipped):
+    name = entry["create"]
+    probe["providers"].append({"name": name, "version": "1", "precedence": 3 + n, "usable": True, "services": [
+        {"type": t, "algorithm": a, "className": f"{name}.{i}"} for i, (t, a) in enumerate(ADDED)]})
+    trial["services"] += [{"provider": name, "type": t, "algorithm": a, "instantiates": True,
+                           "defaultRun": {"works": True, "inputSize": 1024}} for t, a in ADDED]
+probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))
+trial_path.write_text(yaml.safe_dump(trial, sort_keys=False))
 manifest.update(deviceId=DEVICE_ID, mode="device" if options.device else "host", config=options.config, inputs=inputs)
 if options.probe:
     manifest["files"] = {k: manifest["files"][k] for k in ("probe", "trial", "inventory", "effective")}

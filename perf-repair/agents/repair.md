@@ -22,7 +22,7 @@
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
 src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and exit 1; the guide's step failures
 src/perfrepair/guide/command.py : guide arguments, the step loop, one status line per step, the dry-run ending
-src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (probe_device when no folder is named), grouping (assign and report while groups.json is missing), app, dossier, replace, edit, harness, device, report; Stop codes
+src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (probe_device when no folder is named), grouping (coverage: reused, or assign and report for what is missing), app, dossier, replace, edit, harness, device, report; Stop codes
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--device-results --app`; `--perfrepair-config` fills the folder and the screening catalog
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens
 src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk → <app>/dossiers.json, validated before writing

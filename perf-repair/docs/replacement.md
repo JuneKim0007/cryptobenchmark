@@ -27,14 +27,14 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 - `--mode`, `--limit` and `--device` default to `apps.mode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--device-results` is required unless `paths.results` is set (`docs/settings.md`); keep results under `~/capstone/runs/<date>-<name>`.
 - Named folder (`--device-results`, or `device.id`): it must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): device-level stages, made once per device, never per app; a missing one stops with `missing_device_stage`.
-- `paths.results` alone: prerequisites calls probe_device() on that root (`docs/pipeline.md` Device stage; on the phone with `--device`), printing `device <stage>: reused` or `ran: <reason>`; the grouping step then runs `grouping assign` and `grouping report` only while `groups.json` is missing, with the guide's `--agent` and `--perfrepair-config`, and prints `ran: no groups.json` or `reused`.
+- `paths.results` alone: prerequisites calls probe_device() on that root (`docs/pipeline.md` Device stage; on the phone with `--device`), printing `device <stage>: reused` or `ran: <reason>`; the grouping step asks what coverage finds missing (`docs/pipeline.md` Grouping knowledge) by `grouping assign` and `grouping report`, with the guide's `--agent` and `--perfrepair-config`, and prints `reused`, or what it ran.
 - Steps in order: prerequisites, grouping, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml>`, an attached phone; it writes `measured/` beside the harness), then report. Without `--device` the guide ends at the harness and prints the device command.
 - Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>` and the guide exits 1.
 
 | stop code | step | when |
 |---|---|---|
 | `missing_results` | prerequisites | no `manifest.yaml` in the device folder |
-| `missing_device_stage` | prerequisites | `rows.json`, `measurements.json` or `grouping/groups.json` absent; the line names the commands |
+| `missing_device_stage` | prerequisites, grouping | `rows.json` or `measurements.json` absent, `grouping/items.json` absent, or items with no decision in a named folder; the line names the commands |
 | `app_failed` | app | `perfrepair.app` exits non-zero |
 | `several_project_roots` | app | `--app` holds several project roots; pass one of them |
 | `no_options` | dossier | no scope has an option; the line lists the `noOptions` reasons |

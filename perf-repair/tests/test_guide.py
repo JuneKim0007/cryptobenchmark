@@ -128,10 +128,25 @@ def test_results_without_a_manifest_stop_first(tmp_path):
 
 
 def test_a_run_without_grouping_says_how_to_make_it(run):
-    GroupingPaths(run).groups.unlink()
+    shutil.rmtree(GroupingPaths(run).root)
     g, lines = guide(run, DRY_RUN)
     assert run_steps(g, device=False) == 1
     assert "stop missing_device_stage" in lines[-1] and "grouping assign --device-results <device>" in lines[-1]
+
+
+def test_a_named_folder_with_items_undecided_stops_and_names_how_many(run):
+    shutil.rmtree(GroupingPaths(run).root / "outbox")
+    g, lines = guide(run, DRY_RUN)
+    assert run_steps(g, device=False) == 1
+    assert "stop missing_device_stage" in lines[-1] and "items have no decision" in lines[-1]
+
+
+def test_a_named_folder_whose_groups_json_went_missing_is_rebuilt_with_no_call(run):
+    GroupingPaths(run).groups.unlink()
+    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    assert run_steps(g, device=False) == 0
+    assert any("guide grouping: ok: rebuilt from the kept decisions" in l for l in lines)
+    assert GroupingPaths(run).groups.is_file()
 
 
 def test_singleton_groups_leave_no_options(tmp_path):
@@ -200,7 +215,7 @@ def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     code, first = _from_root(tmp_path, capsys)
     assert code == 1 and first[0] == "device probe: ran: no manifest.yaml"
-    assert "guide grouping: ok: ran: no groups.json" in first
+    assert any(l.startswith("guide grouping: ok: ran: ") and "items asked" in l for l in first)
     assert first[-1].startswith("guide dossier: stop no_options: ")
     device = tmp_path / "results" / "fake-api36-00000000"
     decided = sorted((device / "grouping" / "outbox").rglob("*.json"))

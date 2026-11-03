@@ -31,6 +31,7 @@ device:                    # once per device
     turns:                 # empty = the code default
     sessions:              # empty = the code default
     limit:                 # items per `grouping assign` call; empty = all
+    noRerun: true          # guide: true asks only items with no decision; false asks every item into a new outbox
     assign: {}             # role keys: gateway, model, effort; effort here sets this role only
     supervisor: {}
   benchmark:

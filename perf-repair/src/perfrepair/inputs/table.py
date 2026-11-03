@@ -71,6 +71,8 @@ SCREENING_CLASSIFY = RoleRow("device.screening.classify")
 GROUPING_TURNS = Row("device.grouping.turns", check_positive, default=DEFAULT_TURNS)
 GROUPING_SESSIONS = Row("device.grouping.sessions", check_positive, default=DEFAULT_SESSIONS)
 GROUPING_LIMIT = Row("device.grouping.limit", check_positive)
+# knowledge that is missing is asked either way, so a bad value is never unsafe
+GROUPING_NO_RERUN = Row("device.grouping.noRerun", check_bool, default=True)
 GROUPING_ASSIGN = RoleRow("device.grouping.assign", {"effort": "low"})
 GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
 BENCHMARK_CONFIG = _path("device.benchmark.config")

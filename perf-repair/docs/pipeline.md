@@ -50,7 +50,7 @@ flowchart LR
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own; `grouping assign --refresh` starts a new one on purpose. An item change keeps the assign outbox and asks only what has no record (`docs/grouping.md` Record key).
 - `--prompts DIR`: `docs/decisions.md`.
 - `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`; a bad value there warns and uses the default, a bad flag errors: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `device.screening.catalog` from it (`docs/screening.md` Settings).
-- The guide runs one app; without `--device-results` it calls probe_device() first, which makes the device folder current (below); grouping assign and report run from the guide only when `grouping/groups.json` is missing. Steps, stop codes and the report: `docs/replacement.md`.
+- The guide runs one app; without `--device-results` it calls probe_device() first, which makes the device folder current (below); its grouping step then reads coverage (below). Steps, stop codes and the report: `docs/replacement.md`.
 
 ## Device stage
 
@@ -71,7 +71,22 @@ flowchart LR
 - The device id is the build fingerprint only, so adding a bundled provider keeps the folder; the digests, not the id, trigger the rerun.
 - Each stage prints `device <stage>: reused` or `device <stage>: ran: <reason>`; a probe writing another folder than `--identify` named is `device_id_changed`.
 - With `device.screening.aiReview` on, probe_device builds without the review; run `grouping build` for it.
-- Known gap until #76 L5: after a rerun that changes the items, an existing `groups.json` is kept and new primitives stay `not_grouped`.
+
+## Grouping knowledge
+
+`device/coverage.py`, on every guide run, never stored: pending is every non-screened-out item with no record in the active outbox (a `dropped` record counts: it was asked; `noRerun: false` asks it again).
+
+| found | `device.grouping.noRerun` | model calls | `guide grouping:` |
+|---|---|---|---|
+| nothing pending, saved files current | true | 0 | `reused` |
+| nothing pending, `knowledge.json`, `checks.json` or `groups.json` not what the outbox and items make | true | 0 | `rebuilt from the kept decisions` |
+| items pending | true | one conversation per pending item | `ran: <n> of <m> items asked` |
+| anything | false | every item, into a new outbox (`assign --refresh`), the old one kept | `ran: device.grouping.noRerun false, ...` |
+
+- A named folder (`--device-results`, `device.id`) never asks on its own: items pending there stop with `missing_device_stage`; `noRerun: false` asks, it was set on purpose.
+- A device-stage rerun that changes the items reaches this step the same way: new primitives are asked, removed ones leave `groups.json`, and moved ids change nothing (`docs/grouping.md` Record key).
+- A capped or interrupted `noRerun: false` run restarts on the next run with it; set it back to true to finish the active outbox.
+- A prompt edit alone is no coverage gap to the guide, which reads the active outbox: `grouping assign` starts the new outbox. A pending item asked after such an edit starts it too, and every item is asked there.
 
 ## Run log
 
