@@ -196,12 +196,7 @@ def test_the_summary_counts_apps_per_metric_and_sums_the_funnel(tmp_path):
     assert validate_summary({**doc, "funnel": {**doc["funnel"], "sites": 1}}, reports) == ["funnel is not the sum of byApp"]
 
 
-def test_the_summary_refuses_mixed_modes_and_an_empty_run(tmp_path):
-    make_app(tmp_path, "slow")
-    app_report(tmp_path, "shop", LATENCY, **QUIET)
-    app_report(tmp_path, "slow", LATENCY_ALLOC, **QUIET)
-    with pytest.raises(ValueError, match="mixed_modes"):
-        device_summary(tmp_path, **QUIET)
+def test_the_summary_refuses_an_empty_run(tmp_path):
     assert main(["summary", "--device-results", str(tmp_path / "empty")]) == 1
 
 

@@ -4,5 +4,6 @@ levels:                     # the first level whose atLeast pImprove reaches; a 
   - {name: ok, atLeast: 0.95}
   - {name: warn, atLeast: 0.8}
   - {name: weak, atLeast: 0.0}
+thermalMismatchDegrees: 5   # a before/after pair whose start readings differ by more on one sensor is labelled thermal_mismatch; it changes no verdict
 # one rule for every perfMode; a metric worsens at or above 1 / improvingRatio, the summary's own `worse` line
 rule: improves when at least one selected metric improves and none worsens

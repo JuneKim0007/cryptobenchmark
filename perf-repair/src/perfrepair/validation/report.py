@@ -4,18 +4,19 @@ from __future__ import annotations
 import math
 
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
-                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS, stayed, unit_counts)
+                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, THERMAL_MISMATCH, THERMAL_THROTTLED, VERDICTS, stayed, unit_counts)
 from ..dto.change import CHANGES as CHANGE_CLASSES, REJECT_REASONS, admits
-from ..dto.metrics import BY_NAME
+from ..dto.metrics import BY_NAME, NAMES
 from ..dto.perf_mode import PerfMode
 from ..dto.report import has_views
 from ..dto.units import DisplayUnits
 from ..result.confidence import level
+from ..result.gain import change_of, label_of, noise_of
 from .repair import valid_inputs
 
 ROW_KEYS = ("scope", "file", "line", "function", "current", "option", "inputs", "decision", "edit", "compile", "interop",
-            "metrics", "verdict", "primitive", "unit", "sharedFunction", "stayed")
-MEASURED_KEYS = {"metric", "unit", "selected", "measured", "before", "after", "ratio", "pImprove", "level", "n"}
+            "metrics", "verdict", "label", "thermal", "deciding", "accepted", "primitive", "unit", "sharedFunction", "stayed")
+MEASURED_KEYS = {"metric", "unit", "selected", "measured", "before", "after", "ratio", "pImprove", "level", "n", "noise", "change"}
 
 
 def _selection(doc: dict) -> tuple[str, ...] | None:
@@ -65,6 +66,8 @@ def _metric(where: str, m: dict, units: DisplayUnits) -> list[str]:
         problems.append(f"{where}: ratio {m['ratio']} is not after ÷ before")
     if m["level"] != level(m["pImprove"]):
         problems.append(f"{where}: level {m['level']} is not the grade of pImprove {m['pImprove']}")
+    if m["noise"] != noise_of(m["pImprove"]) or m["change"] != change_of(m["ratio"], m["pImprove"]):
+        problems.append(f"{where}: noise {m['noise']} or change {m['change']} is not the rule's for its ratio and pImprove")
     return problems or _views(where, m, units)
 
 
@@ -79,6 +82,12 @@ def _unit(where: str, r: dict) -> list[str]:
     if isinstance(r["unit"], str) and isinstance(r["sharedFunction"], list):
         return []
     return [f"{where}: unit {r['unit']!r} or sharedFunction {r['sharedFunction']!r}"]
+
+
+def _thermal(where: str, t: dict | None) -> list[str]:
+    if t is None:
+        return []
+    return [] if set(t["labels"]) <= {THERMAL_MISMATCH, THERMAL_THROTTLED} else [f"{where}: thermal labels {t['labels']}"]
 
 
 def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
@@ -100,6 +109,9 @@ def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) ->
     problems += _unit(where, r)
     if r["verdict"] not in VERDICTS:
         problems.append(f"{where}: verdict {r['verdict']!r}")
+    problems += _thermal(where, r["thermal"])
+    if r["label"] != label_of([m["change"] for m in r["metrics"] if m.get("measured") and m.get("selected")]):
+        problems.append(f"{where}: label {r['label']!r} is not the rule's over its selected metrics")
     return problems
 
 
@@ -133,6 +145,7 @@ def _mode_units(doc: dict) -> tuple[tuple[str, ...], DisplayUnits, str | None]:
 
 def _identity(doc: dict, app: str) -> list[str]:
     problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
+    problems += [] if isinstance(doc.get("project"), str) and doc["project"] else [f"project {doc.get('project')!r}"]
     return problems + ([] if doc.get("app") == app else [f"app {doc.get('app')!r} is not {app!r}"])
 
 
@@ -163,6 +176,11 @@ def validate_report(doc: dict, app: str) -> list[str]:
     return problems
 
 
+def _union(reports: list[dict]) -> list[str]:
+    chosen = {n for r in reports for n in PerfMode.parse(r["mode"]).names}
+    return [n for n in NAMES if n in chosen]
+
+
 def validate_summary(doc: dict, reports: list[dict]) -> list[str]:
     """`reports`: the device's <app>/report.json documents."""
     problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
@@ -171,9 +189,11 @@ def validate_summary(doc: dict, reports: list[dict]) -> list[str]:
         problems.append(f"apps {doc.get('apps')} and byApp are not the reports' apps and funnels")
     if doc.get("funnel") != {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}:
         problems.append("funnel is not the sum of byApp")
-    selected = _selection(doc)
-    if selected is None or list(doc.get("metrics") or {}) != list(selected):
-        problems.append(f"metrics {list(doc.get('metrics') or {})} are not the mode's selected metrics {selected}")
+    selected = _union(reports)
+    if list(doc.get("metrics") or {}) != list(selected):
+        problems.append(f"metrics {list(doc.get('metrics') or {})} are not the apps' selected metrics {selected}")
+    if doc.get("modes") != {r["app"]: r["mode"] for r in reports}:
+        problems.append("modes are not each report's own")
     for metric, m in (doc.get("metrics") or {}).items():
         if sorted(a for c in CHANGES for a in m["apps"][c]) != sorted(by_app):
             problems.append(f"{metric}: the change classes do not partition the apps")

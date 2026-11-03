@@ -20,7 +20,8 @@ from perfrepair.data_handler.inbound.run_log import (
     normalise_reason,
     split_case_id,
 )
-from perfrepair.dto import RunLog
+from perfrepair.data_handler.inbound.results import ended_throttled, thermal_of
+from perfrepair.dto import Measurements, RunLog
 from helpers import with_results
 
 F = Path(__file__).parent / "fixtures"
@@ -244,3 +245,14 @@ def test_measurements_document_round_trips(tmp_path):
     from perfrepair.dto import Measurements, Summary
     m = Measurements({"model": "x"}, ["note"], {"r1": {"timeNs": Summary(2, 1, 3, 0.1, 5, 1, 3)}})
     assert Measurements.from_json(json.loads(json.dumps(m.to_json()))) == m
+
+
+def test_thermal_blocks_join_measurements_and_only_ended_throttled_cases_are_named():
+    hot = {"start": {"BIG": 40.0}, "end": {"BIG": 50.0}, "startStatus": 0, "endStatus": 2}
+    cool = {**hot, "endStatus": 0}
+    cases = [{"id": "a", "thermal": hot, "thermalThrottleSleepSeconds": 90}, {"id": "b", "thermal": cool}, {"id": "c"}]
+    thermal = thermal_of(cases)
+    assert thermal == {"a": {"thermal": hot, "thermalThrottleSleepSeconds": 90}, "b": {"thermal": cool}}
+    assert ended_throttled(thermal) == ["a"]
+    kept = Measurements({}, [], {}, thermal)
+    assert Measurements.from_json(kept.to_json()).thermal == thermal and "thermal" not in Measurements({}, []).to_json()

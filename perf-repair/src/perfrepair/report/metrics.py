@@ -12,6 +12,7 @@ from ..dto.report import REPORTED, has_views
 from ..dto.units import DisplayUnits
 from ..result.confidence import level
 from ..result.estimate import compare
+from ..result.gain import change_of, noise_of
 
 
 def unmeasured(reason: str, perf: PerfMode) -> list[dict]:
@@ -51,7 +52,8 @@ def _row(metric: str, unit: str, selected: bool, before_case: dict, after_case: 
     if not c.comparable:
         return {"metric": metric, "unit": unit, "selected": selected, "measured": False, "reason": c.reason}
     row = {"metric": metric, "unit": unit, "selected": selected, "measured": True, "before": before.median, "after": after.median,
-           "ratio": c.ratio, "pImprove": c.pImprove, "level": level(c.pImprove), "n": c.n}
+           "ratio": c.ratio, "pImprove": c.pImprove, "level": level(c.pImprove), "n": c.n,
+           "noise": noise_of(c.pImprove), "change": change_of(c.ratio, c.pImprove)}
     if has_views(BY_NAME[metric]):
         positive = before.median > 0 and after.median > 0
         row["views"] = views(before.median, after.median, before_case.get("inputSize"), units) if positive else None

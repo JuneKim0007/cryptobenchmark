@@ -5,9 +5,11 @@ from __future__ import annotations
 from ..dto import MetricComparison, PairMetrics
 from ..dto.report import MEASURABLE, case_id
 from ..dto.units import DisplayUnits
+from ..result.gain import label_of
 from ..result.modes import Mode
 from .measured import Measured
 from .metrics import metric_rows, unmeasured
+from .thermal import thermal_row
 
 
 def _step(status: str, reason: str | None = None, **extra) -> dict:
@@ -42,6 +44,11 @@ def _interop(record: dict | None, compiled: dict) -> dict:
 def _verdict(mode: Mode, current: str, option: str, metrics: list[dict]) -> str:
     measured = tuple(MetricComparison(m["metric"], m["ratio"], m["pImprove"], m["level"], m["n"]) for m in metrics if m["measured"])
     return mode.judge(PairMetrics(current, option, "n/a", measured))
+
+
+def _label(metrics: list[dict]) -> str:
+    """Over the selected metrics measured: the change of each, per the one rule of result/gain.py."""
+    return label_of([m["change"] for m in metrics if m["measured"] and m["selected"]])
 
 
 def _decision(replacement: dict | None, source: str | None, stale: bool) -> dict:
@@ -87,4 +94,6 @@ def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, sourc
             "current": current, "option": option, "inputs": inputs, "decision": decision, "edit": edited, "compile": compiled,
             "interop": interop, "metrics": metrics,
             "verdict": _verdict(mode, current, option, metrics) if option else "not_measured",
+            "label": _label(metrics), "thermal": thermal_row(before, after),
+            "deciding": list((replacement or {}).get("deciding") or ()), "accepted": list((replacement or {}).get("accepted") or ()),
             "primitive": chosen["estimates"] if chosen else []}

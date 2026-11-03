@@ -5,8 +5,9 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..data_handler.inbound import build_run_log, comparability, manifest_file, read_manifest, read_prepared, read_results
+from ..data_handler.inbound.results import ended_throttled, thermal_of
 from ..dto import Measurements
-from ..files import write_json
+from ..files import read_json, write_json
 from ..log import step
 from ..validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
 from ..stop import terminate
@@ -41,7 +42,12 @@ def _write_inbound(device: Path) -> tuple[list[str], dict]:
     log, raw = build_run_log(rows, prepared, manifest_file(manifest, base, "skipped"),
                              manifest_file(manifest, base, "inventory"), lacking)
     notes = comparability(manifest.runtime, max(1, len(processes)))
-    summaries = Measurements(manifest.runtime, notes, measurements)
+    thermal = thermal_of(read_json(benchmark).get("cases") or [])
+    summaries = Measurements(manifest.runtime, notes, measurements, thermal)
+    throttled = ended_throttled(thermal)
+    if throttled:
+        terminate("thermal_throttled_at_end", f"{len(throttled)} cases ended throttled: " + ", ".join(throttled),
+                  stage="inbound", step="results", data={"cases": throttled})
     require(rd.ROWS, validate_rows(rows))
     require(rd.MEASUREMENTS, validate_measurements(summaries, rows))
     require(rd.RUN_LOG, validate_run_log(log, rows))

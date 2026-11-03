@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ..dto.measurement import ESTIMATED
-from ..dto.report import CHANGES, FUNNEL
+from ..dto.report import CHANGES, FUNNEL, THERMAL_MISMATCH, THERMAL_THROTTLED
 from ..dto.units import number
 
 NOT_MEASURED = "not measured"
@@ -72,8 +72,30 @@ def _recommended(doc: dict) -> list[str]:
     return lines + ([f"- rejected candidates: {rejected}"] if rejected else []) + [""]
 
 
+def _chose(s: dict) -> str:
+    named = (f", deciding {', '.join(s['deciding'])}" if s["deciding"] else "") + (f", accepted {', '.join(s['accepted'])}" if s["accepted"] else "")
+    return named
+
+
+def _thermal(s: dict) -> list[str]:
+    t = s["thermal"]
+    if t is None:
+        return []
+    sleeps = f"{t['before']['thermalThrottleSleepSeconds'] or 0} s before, {t['after']['thermalThrottleSleepSeconds'] or 0} s after"
+    return [f"- thermal: start gap {t['startGap'] if t['startGap'] is not None else 'n/a'} degrees, thermal pause {sleeps}"
+            + (f"; {', '.join(t['labels'])}" if t["labels"] else "")]
+
+
+def _swap(s: dict) -> list[str]:
+    labels = ", ".join(f"{k} {v}" for k, v in s["labels"].items())
+    lines = [f"- {s['current']} → {s['option']}: {', '.join(s['apps'])}; {labels}"]
+    return lines + [f"  - {name}: median ratio {m['medianRatio']:.3f} over {len(m['ratios'])} apps, {m['scopes']} scopes"
+                    for name, m in s["metrics"].items()]
+
+
 def report_markdown(doc: dict) -> str:
-    out = [f"# {doc['app']}: replacement report", "", f"Mode: {doc['mode']}. Measured from: "
+    out = [f"# {doc['app']}: replacement report", "", f"Project: {doc['project']}. Source: {doc['source'] or 'n/a'}.", "",
+           f"Mode: {doc['mode']}. Measured from: "
            f"{doc['measuredFrom'] or NOT_MEASURED}.", "", "## Funnel", "", *_funnel(doc["funnel"]), "",
            *_recommended(doc), "## Scopes"]
     for s in doc["scopes"]:
@@ -85,7 +107,8 @@ def report_markdown(doc: dict) -> str:
                 + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}",
                 f"- interop: {_interop(s)}",
-                f"- verdict ({doc['mode']}): {s['verdict']}; `*` marks the metrics it selects", "",
+                f"- verdict ({doc['mode']}): {s['verdict']}; label: {s['label']}{_chose(s)}; `*` marks the metrics it selects",
+                *_thermal(s), "",
                 "| metric | before → after | ratio | pImprove | n |", "|---|---|---|---|---|"]
         for m in s["metrics"]:
             out += _metric_lines(m, doc["units"])
@@ -97,17 +120,23 @@ def report_markdown(doc: dict) -> str:
 
 
 def summary_markdown(doc: dict) -> str:
+    modes = ", ".join(sorted(set(doc["modes"].values())))
     out = [f"# Replacement summary: {len(doc['apps'])} apps", "",
-           f"Mode: {doc['mode']}, its selected metrics below. An app's change is the median ratio (after ÷ before) of its measured scopes; "
+           f"Modes: {modes}, the metrics they select below, each app under its own. An app's change is the median ratio (after ÷ before) of its measured scopes; "
            f"improved at or below {doc['improvingRatio']}, worse at or above {1 / doc['improvingRatio']:.3f}.", "",
            "## Funnel", "", "| app | " + " | ".join(FUNNEL) + " |", "|---|" + "---|" * len(FUNNEL)]
     rows = [*doc["byApp"].items(), ("all", doc["funnel"])]
     out += [f"| {app} | " + " | ".join(str(f[k]) for k in FUNNEL) + " |" for app, f in rows]
+    out += ["", "## Apps", "", *(f"- {app}: {n['project']}, {n['source'] or 'n/a'}, {doc['modes'][app]}" for app, n in doc["named"].items())]
+    out += ["", "## Decisions by measured label", "", ", ".join(f"{k} {v}" for k, v in doc["labels"].items()) + ".",
+            "", f"Thermal: {doc['thermal'][THERMAL_MISMATCH]} pairs {THERMAL_MISMATCH}, {doc['thermal'][THERMAL_THROTTLED]} pairs {THERMAL_THROTTLED}."]
     out += ["", "## Metrics", "", "| metric | " + " | ".join(CHANGES) + " | median change |", "|---|" + "---|" * (len(CHANGES) + 1)]
     for metric, m in doc["metrics"].items():
         change = NOT_MEASURED if m["medianChange"] is None else f"{m['medianChange']:+.1%}"
         estimated = f", estimated in {', '.join(m['estimatedIn'])}" if m.get("estimatedIn") else ""
         out.append(f"| {metric} ({m['unit']}{estimated}) | " + " | ".join(str(len(m["apps"][c])) for c in CHANGES) + f" | {change} |")
+    if doc["swaps"]:
+        out += ["", "## Swaps", "", *(line for s in doc["swaps"] for line in _swap(s))]
     if doc.get("recommendations") or doc.get("rejected"):
         counts = ", ".join(f"{k} {v}" for k, v in {**doc["recommendations"], **doc["rejected"]}.items())
         out += ["", "## Candidates not offered", "", f"Recommended above maxChange, never applied, and rejected: {counts}."]

@@ -37,6 +37,32 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 - Energy is never compared across kinds (`energy_kinds_differ`).
 - Energy measurement: [docs/energy.md](../../docs/energy.md). The device stage checks the run config measures what the perfMode selects: [pipeline.md](pipeline.md) Device stage.
 
+## Labels
+
+`result/gain.py` holds the one rule, over `compare()`'s ratio and pImprove; `improvingRatio` comes from `criteria.yaml`.
+
+| Per metric | When |
+|---|---|
+| `improved` | ratio ≤ `improvingRatio` and pImprove ≥ 0.95 |
+| `worse` | ratio ≥ 1 ÷ `improvingRatio` and pImprove ≤ 0.05 |
+| `unchanged` | otherwise; n < 2 is never beyond noise, so a single energy window stays here whatever its ratio |
+
+| Overall (option or swap) | When |
+|---|---|
+| `improves` | a metric improved, none worse |
+| `trade_off` | a metric improved and another worse |
+| `worse` | a metric worse, none improved |
+| `unchanged`, `not_measured` | no change beyond noise; no metric to label |
+
+- Selected metrics only. `noise` per metric: `beyond`, `within`, `unknown` (n < 2).
+- A report's `verdict` stays the ratio rule above; `label` is what the summary counts.
+- A zero median before keeps the option: it shows `no estimate: zero_median`, and the metric has no change.
+
+## Temperature
+
+- A scoped case of `benchmark.json` carries `thermal: {start: {sensor: value}, end: {sensor: value}, startStatus, endStatus}` and `thermalThrottleSleepSeconds`; inbound keeps them per row in `measurements.json` (`thermal`), the report per pair (`thermal`).
+- `thermal_mismatch`: the two start readings differ by more than `thermalMismatchDegrees` (`criteria.yaml`, 5) on a sensor both name. `thermal_throttled_at_end`: a side's `endStatus` is above 0. Both go through `stops.<code>`, warn by default, and change no verdict or label; inbound fires the second too, once with its cases.
+
 ## Confidence: pImprove
 
 `pImprove` is the probability that the candidate's median is lower than the current one's. It grades a pair; it never rejects one. A pair under several selected metrics is graded by its improving metric with the highest pImprove.

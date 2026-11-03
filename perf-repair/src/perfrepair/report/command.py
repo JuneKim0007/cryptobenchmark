@@ -10,10 +10,20 @@ from ..files import read_json, write_json, write_text
 from ..log import step
 from ..result.modes import Mode
 from ..validation import require
+from ..stop import terminate
 from ..validation.report import validate_report, validate_summary
 from .app_report import build_report
 from .markdown import report_markdown, summary_markdown
 from .summary import build_summary
+
+
+def _thermal(doc: dict) -> None:
+    """Each pair's labels through the terminator: warned by default, a verdict never changes."""
+    for s in doc["scopes"]:
+        for code in (s["thermal"] or {}).get("labels") or ():
+            terminate(code, f"{s['scope']}: start gap {s['thermal']['startGap']} degrees, before and after "
+                            f"{s['thermal']['before']['thermal']} and {s['thermal']['after']['thermal']}",
+                      stage="report", step="app", app=doc["app"], item=s["scope"])
 
 
 def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
@@ -23,6 +33,7 @@ def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
         require(rd.REPORT, validate_report(doc, app))
         write_json(paths.report, doc)
         write_text(paths.report_md, report_markdown(doc))
+        _thermal(doc)
         s.count(**doc["funnel"])
         s.wrote(paths.report, paths.report_md)
     f = doc["funnel"]

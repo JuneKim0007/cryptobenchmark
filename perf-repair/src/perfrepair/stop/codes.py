@@ -58,6 +58,8 @@ CODES_LIST: tuple[Code, ...] = (
     _choice("energy_invalid", WARN, "the case has no energy number; rerun it with a longer window or more operations",
             (WARN, STOP)),
     _choice("energy_unreadable", WARN, "check the energy.json files the manifest lists", (WARN, STOP)),
+    _choice("thermal_mismatch", WARN, "the sides of a pair started at different temperatures; rerun the pair, or read its ratio with care", (WARN, STOP)),
+    _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),
     # fixed: continuing would mix runs or devices
@@ -76,7 +78,6 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("no_device_results", "run the device stage, or point paths.results at a results root", MIXES),
     _fixed("not_device_results", "pass a device folder cryptobenchmark wrote", MIXES),
     _fixed("measured_mismatch", "rerun the app's device step", MIXES),
-    _fixed("mixed_modes", "rerun every app report in one perfMode", MIXES),
     _fixed("dossier_changed", "rerun with --refresh to ask the changed units again", MIXES),
     _fixed("schema_version", "rerun the step that writes the file", MIXES),
     # fixed: nothing is left to run

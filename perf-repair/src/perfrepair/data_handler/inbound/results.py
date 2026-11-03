@@ -92,6 +92,20 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
     return rows, measurements, lacking
 
 
+def thermal_of(cases: list[dict]) -> dict[str, dict]:
+    """Per case its temperatures and thermal pause as measured; nothing for a case without them."""
+    out = {}
+    for c in cases:
+        kept = {k: c[k] for k in ("thermal", "thermalThrottleSleepSeconds") if c.get(k) is not None}
+        if kept:
+            out[c["id"]] = kept
+    return out
+
+
+def ended_throttled(thermal: dict[str, dict]) -> list[str]:
+    return sorted(c for c, t in thermal.items() if ((t.get("thermal") or {}).get("endStatus") or 0) > 0)
+
+
 def comparability(runtime: dict, processes: int) -> list[str]:
     notes = []
     if str(runtime.get("cpuLocked", "")).lower() != "true":

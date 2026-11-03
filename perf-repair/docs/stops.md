@@ -34,6 +34,8 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `perf_mode_maybe_unmeasured` | `warn` | `warn`, `stop` | 1 | set run.harness.energy.capture: measured, or rely on the test set |
 | `energy_invalid` | `warn` | `warn`, `stop` | 1 | the case has no energy number; rerun it with a longer window or more operations |
 | `energy_unreadable` | `warn` | `warn`, `stop` | 1 | check the energy.json files the manifest lists |
+| `thermal_mismatch` | `warn` | `warn`, `stop` | 1 | the sides of a pair started at different temperatures; rerun the pair, or read its ratio with care |
+| `thermal_throttled_at_end` | `warn` | `warn`, `stop` | 1 | the case ended throttled; let the phone cool, or read its numbers with care |
 | `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
 | `screening_catalog_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun grouping build, or set device.screening.catalog to the catalog screen.json names |
 | `charter_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | move the outbox aside or restore the prompts it was made with |
@@ -49,7 +51,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `no_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage, or point paths.results at a results root |
 | `not_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass a device folder cryptobenchmark wrote |
 | `measured_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
-| `mixed_modes` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun every app report in one perfMode |
 | `dossier_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun with --refresh to ask the changed units again |
 | `schema_version` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the step that writes the file |
 | `missing_results` | `stop` | fixed: nothing is left to run | 1 | pass a device folder cryptobenchmark wrote |

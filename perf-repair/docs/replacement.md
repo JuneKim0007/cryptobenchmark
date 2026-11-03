@@ -76,6 +76,8 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 - One row per scope stays; `funnel` adds `units` (all of them) and `unitsReplace` (those replaced).
 - `funnel`: sites → scopes → units → withOptions → replace → unitsReplace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`, counted again in `measuredUnchecked` (not a stage); report.md marks each such scope "measured without an interop check", e.g. a randomized encrypt with no decrypt partner (`nondeterministic_output`).
 - A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.
+- report.json names the app's project (Gradle `rootProject.name`, else its folder) and source path beside its id; a row carries each metric's `noise` and `change`, the overall `label`, the model's `deciding` and `accepted`, and `thermal` (see [modes.md](modes.md#labels)).
+- summary.json: `modes` and `named` per app, `labels` (`improves`, `tradeOffAccepted`, `worse`, `unchanged`, `notMeasured` over the replace decisions), `swaps` (each chosen current → option: its apps, labels and per metric ratios), `thermal` (pairs per label); each app counts under its own perfMode.
 - summary.json: the funnel summed and per app; per selected metric (the reports' perfMode) each app's ratio is the median over its measured scopes, `improved` at or below `improvingRatio` (`result/criteria.yaml`), `worse` at or above its inverse, else `unchanged` or `notMeasured`; `medianChange` is the median app ratio − 1. Reports of different modes are `mixed_modes`.
 
 ## Contracts

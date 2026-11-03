@@ -6,7 +6,9 @@ from .metrics import METRICS, Metric
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
 # sharedFunction and stayed, funnel units and unitsReplace; 5: metric rows carry selected, the time row its views in the
 # display units (report units), summary metrics are the selected ones; 6: maxChange, recommendations, rejected
-SCHEMA_VERSION = 6
+# 7: rows carry label and thermal, measured metric rows change and noise; a report names its project and source; summary modes, labels, swaps, thermal
+SCHEMA_VERSION = 7
+THERMAL_MISMATCH, THERMAL_THROTTLED = "thermal_mismatch", "thermal_throttled_at_end"
 THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")

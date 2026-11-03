@@ -36,11 +36,13 @@ class Measurements:
     runtime: dict
     comparability: list[str]
     byRow: dict[str, dict[str, Summary]] = field(default_factory=dict)
+    # per row its benchmark.json `thermal` and thermalThrottleSleepSeconds; a host run has none; not decision evidence
+    thermal: dict[str, dict] = field(default_factory=dict)
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "runtime": self.runtime, "comparability": self.comparability,
                 "measurements": {rid: {k: s.to_json() for k, s in m.items()}
-                                 for rid, m in self.byRow.items()}}
+                                 for rid, m in self.byRow.items()}} | ({"thermal": self.thermal} if self.thermal else {})
 
     @classmethod
     def from_json(cls, doc: dict) -> "Measurements":
@@ -48,4 +50,4 @@ class Measurements:
             raise ValueError(f"measurements schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
         return cls(doc.get("runtime") or {}, list(doc.get("comparability") or []),
                    {rid: {k: Summary.from_json(s) for k, s in m.items()}
-                    for rid, m in (doc.get("measurements") or {}).items()})
+                    for rid, m in (doc.get("measurements") or {}).items()}, doc.get("thermal") or {})
