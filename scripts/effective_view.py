@@ -42,6 +42,11 @@ def isolation(document):
     return chosen
 
 
+def throttle_sleep(document):
+    """None keeps Jetpack's own sleep; RunSettings already refused a negative value."""
+    return (document.get("run") or {}).get("thermalThrottleSleepSeconds")
+
+
 def scoped_repetitions(document):
     repetitions = (document.get("run") or {}).get("scopedRepetitions", SCOPED_REPETITIONS)
     if not isinstance(repetitions, int) or repetitions < 1:

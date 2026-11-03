@@ -104,6 +104,7 @@ class Measuring:
     discovery: pathlib.Path
     files: dict
     problems: list
+    throttle_sleep: int | None = None
 
 
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
@@ -123,7 +124,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
             written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
-    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics)) + one.arguments()
+    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed),
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
@@ -351,7 +352,7 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
               + (f" ({scope['interop'].get('reason')})" if scope.get("interop", {}).get("reason") else ""))
     if measured:
         prepared = scope_results.prepared(record, measured, effective, scoped / "prepared.yaml")
-        run = Measuring(device, session, source, options, discovery, files, problems)
+        run = Measuring(device, session, source, options, discovery, files, problems, effective_view.throttle_sleep(document))
         cases = tuple(case for scope in measured for case in scope["cases"])
         scoped_passes(run, document, {run_capture}, prepared, cases, scoped)
     elapsed("interop check and measure", started)
@@ -383,7 +384,7 @@ def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, 
         written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
-    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics)) + one.arguments()
+    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
     plan = measure_session.Plan("ScopedBenchmark", arguments, cases=cases, named=True,
                                 order=measure_session.alternating, pull_plan=lambda process: device.pull_pins(process.into), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
@@ -491,7 +492,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         fail("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if device:
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
-                        files, problems)
+                        files, problems, effective_view.throttle_sleep(document))
         written, processes = device_cases(run, document, [effective, capture, trial], captures, benchmark, preparation)
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files), repetitions

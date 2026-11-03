@@ -15,9 +15,12 @@ NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
 CPU_EVENTS = ["-e", "androidx.benchmark.cpuEventCounter.enable", "true"]
 
 
-def measure_arguments(suppress, metrics):
+THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
+
+
+def measure_arguments(suppress, metrics, throttle_sleep=None):
     return (NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
-            + (CPU_EVENTS if "CPU_EVENTS" in metrics else []))
+            + (CPU_EVENTS if "CPU_EVENTS" in metrics else []) + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
 
 
 class DeviceError(Exception):

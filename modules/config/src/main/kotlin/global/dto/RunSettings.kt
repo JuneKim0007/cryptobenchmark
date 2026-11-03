@@ -15,6 +15,8 @@ data class RunSettings(
     val scopedRepetitions: Int = 3,
     // empty: one pass measures every metric; else one device session per metric group, merged per metric
     val passes: List<MeasurePass> = emptyList(),
+    // androidx.benchmark.thermalThrottle.sleepDurationSeconds on the device; null keeps Jetpack's default
+    val thermalThrottleSleepSeconds: Int? = null,
     val harness: HarnessSettings = HarnessSettings(),
 ) {
 
@@ -31,6 +33,7 @@ data class RunSettings(
         require(passes.none { it.name == MeasurePass.ALLOCATION } || "ALLOCATION" in metrics) {
             "pass_without_metric: run.passes.allocation measures ALLOCATION, which run.metrics $metrics does not report"
         }
+        require(thermalThrottleSleepSeconds == null || thermalThrottleSleepSeconds >= 0) { "negative: thermalThrottleSleepSeconds $thermalThrottleSleepSeconds" }
         require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
     }
 

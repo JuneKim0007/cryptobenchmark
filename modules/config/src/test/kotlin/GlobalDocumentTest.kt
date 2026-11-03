@@ -42,6 +42,16 @@ class GlobalDocumentTest {
     }
 
     @Test
+    fun theThrottleSleepIsUnsetUnlessWrittenAndTravelsToTheEffectiveFile() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(null, run("").thermalThrottleSleepSeconds)
+        assertEquals(30, run("run: {thermalThrottleSleepSeconds: 30}\n").thermalThrottleSleepSeconds)
+        assertEquals(false, "thermalThrottleSleepSeconds" in io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("")))
+        val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {thermalThrottleSleepSeconds: -1}\n") }
+        assertEquals("negative: thermalThrottleSleepSeconds -1", refused.message)
+    }
+
+    @Test
     fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
         fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
         assertEquals(3, run("").scopedRepetitions)

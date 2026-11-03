@@ -98,6 +98,13 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     assert "pass:      timing pass: 1 process," in out and "pass:      allocation pass: 1 process," in out
 
 
+def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_path, monkeypatch):
+    phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"thermalThrottleSleepSeconds": 30})
+    assert all(args[args.index("androidx.benchmark.thermalThrottle.sleepDurationSeconds") + 1] == "30" for args in phone.arguments)
+    phone, _files, _problems, _results = measured(tmp_path / "unset", monkeypatch, {})
+    assert not any("androidx.benchmark.thermalThrottle.sleepDurationSeconds" in args for args in phone.arguments)
+
+
 def test_dry_capture_is_refused_with_passes(tmp_path, monkeypatch):
     with pytest.raises(SystemExit):
         measured(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "dry"}}, "passes": {"timing": {"samples": 3}}})

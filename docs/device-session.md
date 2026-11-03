@@ -42,6 +42,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | files | `thermal.json` per process folder (`process` and `cases`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
 | per pass | `thermal:   <pass>: hottest <c> C at a case start, <c> C at an end; <n> pauses, <s> s paused; <n> cases ended throttled (status > 0)` |
 | cost | two `dumpsys` calls per case, under a second |
+| Jetpack's heat pause | `run.thermalThrottleSleepSeconds` passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds` to every measuring process; unset keeps Jetpack's 90 s |
 
 - Cached values: AOSP's `ThermalManagerService` fills `Cached temperatures` only from the HAL's `onTemperatureChanged` callbacks, which a HAL sends when a sensor's severity changes; between changes the cached value can be minutes old. The `Current temperatures from HAL` section asks the HAL at dump time. Whether the Pixel's Android 17 dump to an unrooted shell carries that section is not yet confirmed on the phone; when it does not, every reading is noted `source: cached` and is a lower bound on how stale the temperature is.
 
