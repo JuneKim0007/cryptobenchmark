@@ -41,15 +41,19 @@ def _warn_if_temp(folder: Path) -> None:
         LOG.warning("results_in_temp: %s is under a temporary folder the system may wipe; keep results elsewhere", folder)
 
 
+def _results_root(parser: argparse.ArgumentParser, loaded: Loaded) -> Path:
+    root = loaded.read(PATHS_RESULTS)
+    if root is None:
+        parser.error(f"the following arguments are required: --device-results (or {PATHS_RESULTS.key} in perfrepair.yaml)")
+    return Path(root).expanduser()
+
+
 def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded) -> Path | None:
     """The results root when the caller makes the device folder itself (probe_device); None when one is named."""
     if args.device_results is not None or loaded.read(DEVICE_ID):
         fill_device_results(parser, args, loaded)
         return None
-    root = loaded.read(PATHS_RESULTS)
-    if root is None:
-        parser.error(f"the following arguments are required: --device-results (or {PATHS_RESULTS.key} in perfrepair.yaml)")
-    root = Path(root).expanduser()
+    root = _results_root(parser, loaded)
     _warn_if_temp(root)
     return root
 
@@ -57,10 +61,7 @@ def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loade
 def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded | None = None) -> None:
     if args.device_results is None:
         loaded = loaded or load_settings(parser, args)
-        root = loaded.read(PATHS_RESULTS)
-        if root is None:
-            parser.error(f"the following arguments are required: --device-results (or {PATHS_RESULTS.key} in perfrepair.yaml)")
-        args.device_results = select_device(Path(root).expanduser(), loaded.read(DEVICE_ID))
+        args.device_results = select_device(_results_root(parser, loaded), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
     if rd.device_folders(args.device_results) and not (args.device_results / rd.MANIFEST).is_file():
         raise Coded(rd.not_device_results(args.device_results))
