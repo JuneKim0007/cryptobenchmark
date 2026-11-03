@@ -29,7 +29,7 @@ def benchmark(tmp_path, block):
 
 
 def test_inbound_carries_the_kind_on_the_energy_metric_only(tmp_path):
-    rows, m = read_results(benchmark(tmp_path, {"iterations": 9, "runs": [0.5], "source": "manafa", "kind": "estimated"}))
+    rows, m, _ = read_results(benchmark(tmp_path, {"iterations": 9, "runs": [0.5], "source": "manafa", "kind": "estimated"}))
     assert m["c"]["energyJ"].kind == "estimated" and m["c"]["energyJ"].median == 0.5 and m["c"]["timeNs"].kind is None
     document = Measurements({}, [], m)
     assert document.to_json()["measurements"]["c"]["energyJ"]["kind"] == "estimated"

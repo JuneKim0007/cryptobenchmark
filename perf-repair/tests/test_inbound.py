@@ -40,7 +40,7 @@ def prepared(run):
 
 @pytest.fixture
 def results(run, prepared):
-    return read_results(run[2]("benchmark"), prepared)
+    return read_results(run[2]("benchmark"), prepared)[:2]
 
 
 @pytest.fixture
@@ -105,6 +105,31 @@ def test_comparability_from_runtime_and_process_count(run):
     assert any(n.startswith("single_process") for n in notes)
     assert not any(n.startswith("single_process") for n in comparability({"cpuLocked": "true"}, 3))
 
+
+
+def _without_time(tmp_path, settings=""):
+    device = with_results(tmp_path / "d")
+    path = device / "benchmark" / "benchmark.json"
+    doc = json.loads(path.read_text())
+    del doc["cases"][0]["metrics"]["timeNs"]
+    path.write_text(json.dumps(doc))
+    (tmp_path / "perfrepair.yaml").write_text(settings)
+    return device, main(["--device-results", str(device), "--perfrepair-config", str(tmp_path / "perfrepair.yaml")])
+
+
+def test_a_case_without_a_required_metric_is_skipped_counted_and_named(tmp_path):
+    device, code = _without_time(tmp_path)
+    log = json.loads((device / "run_log.json").read_text())["entries"]
+    assert code == 0 and [e["rowIds"] for e in log if e["reason"] and e["reason"].startswith("no_required_metric:")] == [
+        ["g_fast"]]
+    assert all(r["rowId"] != "g_fast" for r in json.loads((device / "rows.json").read_text())["rows"])
+    status = (device / "log" / "status.log").read_text()
+    assert "no_required_metric inbound results: skip: 1 cases of benchmark.json have no runs of a required metric: g_fast" in status
+
+
+def test_stops_no_required_metric_stop_refuses_before_writing(tmp_path):
+    device, code = _without_time(tmp_path, "stops: {no_required_metric: stop}\n")
+    assert code == 1 and not (device / "rows.json").exists()
 
 
 def test_case_id_is_split_out_of_a_reason():

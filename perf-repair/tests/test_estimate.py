@@ -83,7 +83,7 @@ def test_per_process_files_restore_the_process_index(tmp_path):
     merged.write_text(json.dumps({"cases": [_case([1, 2, 3, 10, 11, 12])]}))
     parts[0].write_text(json.dumps({"cases": [_case([1, 2, 3])]}))
     parts[1].write_text(json.dumps({"cases": [_case([10, 11, 12])]}))
-    _, m = read_results(merged, {}, parts)
+    _, m, _ = read_results(merged, {}, parts)
     assert m["c"]["timeNs"].processes == ((1, 2, 3), (10, 11, 12)) and m["c"]["timeNs"].n == 6
     parts[1].write_text(json.dumps({"cases": [_case([10, 11])]}))
     with pytest.raises(ValueError, match="not the 6 runs"):

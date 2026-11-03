@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from ...config.args import add_config_arg
+from ...config.args import add_config_arg, load_settings
 from ...config.device_results import add_device_results_arg, fill_device_results
 from ...device.inbound import write_inbound
 from ...failure import reported
@@ -21,7 +21,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _inbound(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
-    fill_device_results(ap, a)
+    # loaded even with --device-results: stops.no_required_metric is read when the code fires
+    fill_device_results(ap, a, load_settings(ap, a))
     attach(a.device_results)
     for line in write_inbound(a.device_results):
         print(line)

@@ -26,7 +26,7 @@ def _case(cid: str, provider: str, runs: list[float]) -> dict:
 def chain(tmp_path):
     path = tmp_path / "benchmark.json"
     path.write_text(json.dumps({"cases": [_case("from", "P1", RUNS["from"]), _case("to", "P2", RUNS["to"])]}))
-    rows, by_row = read_results(path)
+    rows, by_row, _ = read_results(path)
     document = Measurements.from_json(json.loads(json.dumps(Measurements({}, [], by_row).to_json())))
     groups = {"groups": [{"id": "g", "family": "f", "description": "G", "members": [1, 2]}],
               "items": {"1": {"qualified": "TypeA|ALG-A|P1"}, "2": {"qualified": "TypeA|ALG-A|P2"}},

@@ -66,16 +66,19 @@ def read_prepared(prepared_yaml: Path | None) -> dict[str, dict]:
 
 
 def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, process_files: list[Path] = ()
-                 ) -> tuple[list[PrimitiveRow], Measurements]:
-    """`process_files`: the per-process files the merged benchmark.json concatenates; they restore the process index."""
+                 ) -> tuple[list[PrimitiveRow], Measurements, dict[str, dict]]:
+    """`process_files`: the per-process files the merged benchmark.json concatenates; they restore the process index.
+    The third value: each case with no runs of a required metric, by id, left out of the rows; the stage decides."""
     doc = json.loads(Path(benchmark_json).read_text())
     prepared = prepared or {}
     per_process = [{c["id"]: c for c in json.loads(Path(p).read_text()).get("cases") or []} for p in process_files]
     rows: list[PrimitiveRow] = []
     measurements: Measurements = {}
+    lacking: dict[str, dict] = {}
     for c in doc.get("cases") or []:
         summaries = _summaries(c, per_process)
         if any(m.required and m.name not in summaries for m in METRICS):
+            lacking[c["id"]] = c
             continue
         plan = prepared.get(c["id"]) or {}
         rows.append(PrimitiveRow(
@@ -86,7 +89,7 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
             parameters=c.get("parameters"),
         ))
         measurements[c["id"]] = summaries
-    return rows, measurements
+    return rows, measurements, lacking
 
 
 def comparability(runtime: dict, processes: int) -> list[str]:

@@ -9,6 +9,7 @@ from ..dto import Measurements
 from ..files import write_json
 from ..log import step
 from ..validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
+from ..stop import terminate
 from ..stop.halt import Coded
 
 SCHEMA_VERSION = 1
@@ -32,9 +33,13 @@ def _write_inbound(device: Path) -> tuple[list[str], dict]:
         raise Coded(f"no_benchmark: {path}: the run measured nothing; run the benchmark")
     prepared = read_prepared(manifest_file(manifest, base, "prepared"))
     processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
-    rows, measurements = read_results(benchmark, prepared, processes)
+    rows, measurements, lacking = read_results(benchmark, prepared, processes)
+    if lacking:
+        # skip leaves them out of the rows, counted and named in the run log under the same code
+        terminate("no_required_metric", f"{len(lacking)} cases of benchmark.json have no runs of a required metric: "
+                  + ", ".join(sorted(lacking)), stage="inbound", step="results", data={"cases": sorted(lacking)})
     log, raw = build_run_log(rows, prepared, manifest_file(manifest, base, "skipped"),
-                             manifest_file(manifest, base, "inventory"))
+                             manifest_file(manifest, base, "inventory"), lacking)
     notes = comparability(manifest.runtime, max(1, len(processes)))
     summaries = Measurements(manifest.runtime, notes, measurements)
     require(rd.ROWS, validate_rows(rows))
