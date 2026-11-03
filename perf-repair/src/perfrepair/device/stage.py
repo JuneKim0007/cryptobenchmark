@@ -19,6 +19,7 @@ from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..dto.perf_mode import PerfMode
+from .energy import report_invalid
 from .inbound import write_inbound
 from .measures import check_measures
 from .primitives import inputs as primitive_inputs, write_primitives
@@ -84,8 +85,10 @@ def _measure(r: Run, steps: dict) -> None:
     # on a host, a kept probe is reused by the benchmark run itself, so the capture is the one the plan judged
     fresh = steps["probe"] and not r.probed
     reuse = () if r.on_device or fresh else ("--discovery", "reuse")
-    _same_folder(run_pipeline(r.config, r.root, "device" if r.on_device else "bench", benchmark=r.benchmark, echo=r.echo,
-                              extra=reuse), r.folder)
+    manifest = run_pipeline(r.config, r.root, "device" if r.on_device else "bench", benchmark=r.benchmark, echo=r.echo,
+                            extra=reuse)
+    _same_folder(manifest, r.folder)
+    report_invalid(manifest)
 
 
 @contextmanager

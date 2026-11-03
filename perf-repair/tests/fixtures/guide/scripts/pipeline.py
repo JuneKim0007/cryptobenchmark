@@ -1,4 +1,5 @@
-"""A fake `pipeline.py --device --harness`: every harness scope compiled, interop passed, after 20% faster."""
+"""A fake `pipeline.py --device --harness`: every harness scope compiled, interop passed, after 20% faster.
+FAKE_EXIT fails every run, FAKE_FAIL_APP only the app of that name; FAKE_ENERGY_INVALID adds energy.json, one case invalid."""
 import argparse, json, os, pathlib, sys
 
 import yaml
@@ -8,13 +9,13 @@ parser.add_argument("--config")
 parser.add_argument("--device", action="store_true")
 parser.add_argument("--harness", required=True)
 options = parser.parse_args()
-if os.environ.get("FAKE_EXIT"):
-    print("no_scope_compiled: every scope is not_compilable", file=sys.stderr)
-    sys.exit(int(os.environ["FAKE_EXIT"]))
+harness = yaml.safe_load(pathlib.Path(options.harness).read_text())
+if os.environ.get("FAKE_EXIT") or os.environ.get("FAKE_FAIL_APP") == harness["app"]:
+    print("error: no_scope_compiled: every scope is not_compilable", file=sys.stderr)
+    sys.exit(int(os.environ.get("FAKE_EXIT") or 1))
 measured = pathlib.Path(options.harness).resolve().parent / "measured"
 scoped = measured / "scoped"
 scoped.mkdir(parents=True, exist_ok=True)
-harness = yaml.safe_load(pathlib.Path(options.harness).read_text())
 records, cases = [], []
 for s in harness["scopes"]:
     ids = [f"scope:{s['id']}:{side}" for side in ("before", "after")]
@@ -28,5 +29,10 @@ for s in harness["scopes"]:
                                   "allocationCount": {"iterations": 1, "runs": [4, 4, 4]}}})
 (scoped / "scoped-plan.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "app": harness["app"], "scopes": records}))
 (scoped / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": cases}))
-(measured / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")
+manifest = "schemaVersion: 1\nmode: device\n"
+if os.environ.get("FAKE_ENERGY_INVALID"):
+    (scoped / "energy.json").write_text(json.dumps({"cases": {
+        cases[0]["id"]: {"valid": True, "invalid": []}, cases[1]["id"]: {"valid": False, "invalid": ["short_window"]}}}))
+    manifest += "files:\n  energy: scoped/energy.json\n"
+(measured / "manifest.yaml").write_text(manifest)
 print(f"wrote:     {measured / 'manifest.yaml'}")

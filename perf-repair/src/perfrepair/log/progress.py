@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
-from ..dto.event import BUG, DECISION, END, ERROR, LOG, RUN_END, RUN_START, START, TURN, Event
+from ..dto.event import BUG, DECISION, END, ERROR, FINDING, LOG, RUN_END, RUN_START, START, TURN, Event
+from .status import status_line
 from .views import counts_text, seconds
 
 SHOWN_LEVELS = ("warning", "error", "critical")
@@ -45,6 +46,7 @@ TEXTS: dict[str, Callable[[Event], str | None]] = {
     RUN_END: lambda e: f"run {e.step}: {e.outcome} ({seconds(e.durationMs)})",
     ERROR: lambda e: f"error {e.detail}",
     BUG: lambda e: f"bug {e.detail}",
+    FINDING: status_line,
     LOG: lambda e: f"{e.outcome}: {e.detail}" if e.outcome in SHOWN_LEVELS else None,
 }
 

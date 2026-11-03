@@ -8,6 +8,8 @@ KINDS = ("static", "model")
 # a step's start and end; a model turn and the item's decision; a command's run, its coded error or bug; a log record
 START, END, TURN, DECISION = "start", "end", "turn", "decision"
 RUN_START, RUN_END, ERROR, BUG, LOG = "run_start", "run_end", "error", "bug", "log"
+# a coded fact the status log reports (outcome: the code; item: what it is about), not a step or a log record
+FINDING = "finding"
 OPTIONAL = (str, type(None))
 # field → the types its value may take; every field is present on every line
 FIELDS: dict[str, tuple[type, ...]] = {

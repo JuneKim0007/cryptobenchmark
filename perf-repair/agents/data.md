@@ -27,6 +27,7 @@ src/perfrepair/catalog/screening.py : the screening reader: crypto, component, p
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, through device/inbound.py
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
+src/perfrepair/data_handler/inbound/energy.py : the invalid energy cases of each energy.json a manifest's files.energy lists (a path or one per process)
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path; display_units, the one reader of the units every view shows
 src/perfrepair/data_handler/inbound/primitives.py : read_primitives: the reader of primitives.tsv
 src/perfrepair/data_handler/inbound/probe/__init__.py : exports only `Probe`; the `_` modules are private to the package (`tests/test_layers.py`)
@@ -37,10 +38,11 @@ src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: de
 src/perfrepair/data_handler/inbound/results.py : benchmark.json + process files + prepared.yaml → PrimitiveRows and a Summary per registry metric with runs per process; comparability notes
 src/perfrepair/data_handler/inbound/run_context.py : RunContext: the manifest read once; catalog, families, screening, probe and benchmark documents on first use; tests inject any piece
 src/perfrepair/data_handler/inbound/run_log.py : skipped, unmeasured, not-runnable and measured records → deduplicated RunLog
-src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; identify: `--identify`'s device id and input digests
+src/perfrepair/data_handler/outbound/benchmark_runner.py : runs cryptobenchmark pipeline.py, with or without `--config`, extra flags passed on; returns the manifest path; a failed run is one `pipeline_failed` finding (exit, last error line, transcript); identify: `--identify`'s device id and input digests
 src/perfrepair/data_handler/outbound/run_config.py : writes generated_perf_repair.yaml from a base global.yaml
 src/perfrepair/device/__init__.py : docstring only
 src/perfrepair/device/coverage.py : grouping coverage computed from the active outbox: pending items (in used.json when present), not used ones, whether the saved files are current; noRerun's reader
+src/perfrepair/device/energy.py : after a device run: one `finding` event per invalid energy case, keyed by its first reason
 src/perfrepair/device/inbound.py : the inbound stage: manifest → rows.json, measurements.json, run_log.json, validated before writing
 src/perfrepair/device/measures.py : the run config's measurements (run.metrics, run-level energy capture) against the perfMode: a selected run.metrics switch missing stops (perf_mode_unmeasured), run-level energy missing and unselected measurements are logged
 src/perfrepair/device/plan.py : which device stage reruns and why: current digests against the manifest's `inputs` and device.yaml (primitives: the rows, measurements and screen.json digests it was made from); upstream reruns carry down; a forced reason (the used set); base_inputs: a used-set manifest's config digest mapped back to the base; --refresh reruns primitives
@@ -52,7 +54,7 @@ src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correcti
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests, the used-set benchmark: generated config digest, measured set digest and items)
-src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names, kinds, each field's types
+src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only; retired: memberless groups a record still names); the `code_` id prefix
@@ -86,6 +88,7 @@ src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed 
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
 src/perfrepair/log/read.py : events.jsonl read whole or followed, whole lines only; `events_unreadable`
 src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order
+src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, findings, errors, bugs), each starting with its code word; code_of and line, the one parser and formatter
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
 src/perfrepair/log/summary.py : summarize(): one run per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost
 src/perfrepair/log/summary_text.py : the summary as text lines

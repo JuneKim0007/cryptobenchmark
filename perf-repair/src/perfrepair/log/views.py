@@ -4,7 +4,8 @@ from __future__ import annotations
 from typing import Callable
 
 from ..dto.event import BUG, Event
-from ..run_dir import BUG_LOG, GROUPING_AI_LOG, SCREENING_AI_LOG
+from ..run_dir import BUG_LOG, GROUPING_AI_LOG, SCREENING_AI_LOG, STATUS_LOG
+from .status import status_line
 
 
 def seconds(ms: int | None) -> str:
@@ -49,6 +50,7 @@ VIEWS: tuple[tuple[str, Callable[[Event], str | None]], ...] = (
     (SCREENING_AI_LOG, _model_view("screening")),
     (GROUPING_AI_LOG, _model_view("grouping")),
     (BUG_LOG, _bug),
+    (STATUS_LOG, status_line),
 )
 
 

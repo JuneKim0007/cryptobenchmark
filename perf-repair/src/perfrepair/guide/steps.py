@@ -16,6 +16,7 @@ from ..app.facts.gate import open_apps
 from ..app.facts.path_id import path_id
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.coverage import Coverage, coverage, no_rerun
+from ..device.energy import report_invalid
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
 from ..dto.event import END
@@ -219,8 +220,10 @@ def harness(g: Guide) -> str:
 
 
 def device(g: Guide) -> str:
-    manifest = run_pipeline(g.app_config or g.config, g.paths.root, "device", harness=g.paths.harness, echo=g.echo)
-    return str(manifest)
+    manifest = run_pipeline(g.app_config or g.config, g.paths.root, "device", harness=g.paths.harness, echo=g.echo,
+                            app=g.app_id)
+    invalid = report_invalid(manifest, g.app_id)
+    return str(manifest) + (f", {invalid} energy cases invalid" if invalid else "")
 
 
 def report(g: Guide) -> str:

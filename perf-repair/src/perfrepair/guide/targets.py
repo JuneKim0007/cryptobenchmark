@@ -20,6 +20,8 @@ class AppResult:
     status: str
     detail: str = ""
     halts: bool = False
+    code: str | None = None
+    step: str | None = None
 
     @property
     def line(self) -> str:
@@ -27,7 +29,7 @@ class AppResult:
 
 
 def _stopped(app: str, s: Stopped) -> AppResult:
-    return AppResult(app, STOP, f"{s.code} at {s.step}: {s.detail}", s.halts)
+    return AppResult(app, STOP, f"{s.code} at {s.step}: {s.detail}", s.halts, s.code, s.step)
 
 
 def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
@@ -45,7 +47,7 @@ def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
 def _one(base: Guide, root: Path, device: bool, reuse: bool) -> AppResult:
     g = replace(base, app_root=root)
     if not root.is_dir():
-        return AppResult(g.app_id, STOP, f"target_missing: {root} is no folder; its earlier results stay")
+        return AppResult(g.app_id, STOP, f"target_missing: {root} is no folder; its earlier results stay", code="target_missing")
     try:
         return _attempt(g, device, reuse)
     except Exception as e:
@@ -68,7 +70,8 @@ def run_targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> in
         result = _not_run(base, root, halted) if halted else _one(base, root, device, reuse)
         results.append(result)
         halted = halted or (result if result.halts else None)
-        emit("guide", "target", END, app=result.app, outcome=result.status, detail=result.detail)
+        emit("guide", "target", END, app=result.app, outcome=result.status, detail=result.detail,
+             data={k: v for k, v in (("code", result.code), ("step", result.step)) if v})
     run_step(base, "summary", summary)
     for result in results:
         base.echo(result.line)

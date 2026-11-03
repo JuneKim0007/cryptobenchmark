@@ -13,7 +13,8 @@ from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
-from ..log import attach, step
+from ..dto.event import FINDING
+from ..log import attach, emit, step
 from ..scope.build import Scoping, build_scopes
 from ..scope.units.build import build_units, unit_counts, units_document
 from ..validation import require, validate_manifest
@@ -105,6 +106,8 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
         print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'perf-repair[scope]'")
     for missing, n in sorted(Counter(s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE).items()):
         print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_STEP}")
+        emit("app", "detect", FINDING, app=name, item=missing, outcome=NOT_ON_DEVICE,
+             detail=f"{n} sites; {NOT_ON_DEVICE_STEP}", data={"sites": n})
     _write_units(name, app, out_dir, scoping)
 
 

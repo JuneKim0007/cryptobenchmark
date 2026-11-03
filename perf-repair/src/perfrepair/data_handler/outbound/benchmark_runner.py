@@ -10,11 +10,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+from ...dto.event import FINDING
+from ...log import emit
+
 PIPELINE = Path("scripts/pipeline.py")
 # the id is known only to the run, so the run says where its manifest went
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
 LOG = "pipeline.log"
+PIPELINE_FAILED = "pipeline_failed"
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
 PERF_REPAIR_ROOT = Path(__file__).resolve().parents[4]
 
@@ -62,9 +66,15 @@ def identify(config: Path | None, on_device: bool, benchmark: Path | str | None 
     return json.loads(found[-1])
 
 
+def _failed(stage: str, code: int, last: list[str], transcript: Path, app: str | None) -> None:
+    errors = [line for line in last if line.lstrip().startswith("error")] or [line for line in last if line.strip()]
+    emit("device", "pipeline", FINDING, item=stage, app=app, outcome=PIPELINE_FAILED, ref=str(transcript),
+         detail=f"exit {code}" + (f"; {errors[-1].strip()}" if errors else ""), data={"exit": code, "stage": stage})
+
+
 def run_pipeline(config: Path | None, results: Path, stage: str = "configure", benchmark: Path | str | None = None,
                  harness: Path | None = None, echo: Callable[[str], None] | None = print, tail: int = 40,
-                 extra: tuple[str, ...] = ()) -> Path:
+                 extra: tuple[str, ...] = (), app: str | None = None) -> Path:
     """results: the root, or with harness the folder beside it that only holds the log; pipeline.py picks measured/ itself."""
     if stage not in STAGES:
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")
@@ -89,6 +99,7 @@ def run_pipeline(config: Path | None, results: Path, stage: str = "configure", b
                 echo(line.rstrip("\n"))
         code = process.wait()
     if code != 0:
+        _failed(stage, code, list(last), results / LOG, app)
         raise BenchmarkRunError(f"pipeline exited {code} ({stage}); full log {results / LOG}; last lines:\n"
                                 + "\n".join(last))
     if manifest is None or not manifest.is_file():

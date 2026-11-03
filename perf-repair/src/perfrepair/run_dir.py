@@ -27,6 +27,7 @@ GROUPING = "grouping"
 # the run log: events.jsonl is the record; the .log files are views of it
 LOG, EVENTS = "log", "log/events.jsonl"
 SCREENING_AI_LOG, GROUPING_AI_LOG, BUG_LOG = "log/screening/ai.log", "log/grouping/ai.log", "log/bug.log"
+STATUS_LOG = "log/status.log"
 CHARTER = "charter.json"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
