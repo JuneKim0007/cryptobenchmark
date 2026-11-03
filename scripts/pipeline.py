@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, contextlib, dataclasses, json, os, pathlib, shutil, sys, time
+import argparse, contextlib, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
 import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, scope_generate, scope_results, timeouts
 from clocks import CLOCKS
@@ -485,8 +485,22 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         not_measured.report(preparation / "prepared.yaml", benchmark / "benchmark.json", problems)
         analyse(results, files, effective, preparation, benchmark, written, repetitions)
 
+KNOWN = (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError, timeouts.StepTimeout)
+
+
+def failure_line(error):
+    """Every error the run did not survive, as one coded line; --stacktrace adds the traceback."""
+    if isinstance(error, KNOWN):
+        return str(error)
+    if isinstance(error, subprocess.CalledProcessError):
+        return f"subprocess_failed: {' '.join(map(str, error.cmd))[:300]} exited {error.returncode}"
+    return f"internal_error: {type(error).__name__}: {' '.join(str(error).split())[:500]}"
+
+
 if __name__ == "__main__":
     try:
         main()
-    except (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError, timeouts.StepTimeout) as error:
-        fail(str(error))
+    except Exception as error:
+        if "--stacktrace" in sys.argv:
+            traceback.print_exc()
+        fail(failure_line(error))

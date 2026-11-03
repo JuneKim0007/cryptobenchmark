@@ -1,8 +1,10 @@
 import pathlib, subprocess, sys
 
 import pytest
+import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import pipeline  # noqa: E402
 import timeouts  # noqa: E402
 
 SLEEP = [sys.executable, "-c", "import time; time.sleep(30)"]
@@ -31,3 +33,14 @@ def test_a_step_inside_its_ceiling_returns_its_result():
 def test_every_step_has_a_ceiling_and_each_is_generous():
     assert all(seconds >= 600 for seconds in timeouts.SECONDS.values())
     assert timeouts.SECONDS["instrument"] >= 6 * 60 * 60
+
+
+@pytest.mark.parametrize("error, line", [
+    (pipeline.DeviceError("no_device: x"), "no_device: x"),
+    (timeouts.StepTimeout("timeout: adb ran past 1 s: adb"), "timeout: adb ran past 1 s: adb"),
+    (subprocess.CalledProcessError(2, ["python3", "analyze.py"]), "subprocess_failed: python3 analyze.py exited 2"),
+    (KeyError("files"), "internal_error: KeyError: 'files'"),
+    (yaml.YAMLError("bad\nyaml"), "internal_error: YAMLError: bad yaml"),
+])
+def test_an_error_the_run_did_not_survive_is_one_line(error, line):
+    assert pipeline.failure_line(error) == line
