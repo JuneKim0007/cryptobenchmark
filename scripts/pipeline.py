@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, results_layout, run_inputs, scope_generate, scope_results, session_hooks, timeouts
+import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, timeouts
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError, measure_arguments
 from device_id import DeviceIdError, capture_id, device_id
@@ -106,8 +106,9 @@ class Measuring:
     problems: list
 
 
-def measure_on_device(run, captures, metrics, preparation, isolation, repetitions, folder, written):
-    device, timed = run.device, captures - {"dry"}
+def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
+    device, captures = run.device, one.captures(captures)
+    timed = captures - {"dry"}
     hooks = [session_hooks.Clocks(device)] if timed else []
     if captures - {"none"}:
         dry = lambda into, guarded: dry_pass(run.session, into, preparation, run.problems, guarded)
@@ -117,12 +118,13 @@ def measure_on_device(run, captures, metrics, preparation, isolation, repetition
         if timed:
             joules = process.into / "energy.json"
             joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-            gradle_runner.run("quick-bench", f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}", run.options.stacktrace,
-                              run.options.stream, main_class="ConvertKt")
+            gradle_runner.run("quick-bench", f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}",
+                              run.options.stacktrace, run.options.stream, main_class="ConvertKt")
             written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
-    plan = measure_session.Plan("CryptoBenchmark", tuple(measure_arguments(run.options.suppress_errors, metrics)), timed=bool(timed),
+    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics)) + one.arguments()
+    plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed),
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
@@ -346,14 +348,24 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
         prepared = scope_results.prepared(record, measured, effective, scoped / "prepared.yaml")
         run = Measuring(device, session, source, options, discovery, files, problems)
         cases = tuple(case for scope in measured for case in scope["cases"])
-        measure_scoped(run, {run_capture}, effective_view.metrics(document), prepared, cases, document, scoped)
+        scoped_passes(run, document, {run_capture}, prepared, cases, scoped)
     elapsed("interop check and measure", started)
     return files, problems
 
 
-def measure_scoped(run, captures, metrics, prepared, cases, document, scoped):
-    device, written = run.device, []
-    repetitions = effective_view.scoped_repetitions(document)
+def scoped_passes(run, document, captures, prepared, cases, scoped):
+    chosen, repetitions, isolation = passes.read(document, captures), effective_view.scoped_repetitions(document), effective_view.isolation(document)
+    measure_one = lambda one, folder, written: measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written)
+    written = passes.run_all(chosen, repetitions, scoped, measure_one, run.options)
+    if written:
+        run.files["processes"] = written
+    singles(run.files, repetitions * len(chosen))
+    run.files["scoped"] = scoped / "benchmark.json"
+    print(f"wrote:     {run.files['scoped']}")
+
+
+def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written):
+    device, captures = run.device, one.captures(captures)
     hooks = [session_hooks.Clocks(device)]
     if "measured" in captures:
         hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, prepared.parent, run.problems, None))
@@ -361,21 +373,15 @@ def measure_scoped(run, captures, metrics, prepared, cases, document, scoped):
     def converted(process):
         joules = process.into / "energy.json"
         joined = f" {joules}" if joules.is_file() else ""
-        gradle_runner.run("quick-bench", f"{process.data} {prepared} {process.into}{joined}", run.options.stacktrace, run.options.stream,
-                          main_class="ConvertKt")
+        gradle_runner.run("quick-bench", f"{process.data} {prepared} {process.into}{joined}{one.convert_flags()}", run.options.stacktrace,
+                          run.options.stream, main_class="ConvertKt")
         written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
-    plan = measure_session.Plan("ScopedBenchmark", tuple(measure_arguments(run.options.suppress_errors, metrics)), cases=cases, named=True,
+    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics)) + one.arguments()
+    plan = measure_session.Plan("ScopedBenchmark", arguments, cases=cases, named=True,
                                 order=measure_session.alternating, pull_plan=lambda process: device.pull_pins(process.into), after_process=converted)
-    folder = lambda repetition: scoped if repetitions == 1 else scoped / f"process-{repetition}"
-    measure_session.run_session(device, plan, repetitions, effective_view.isolation(document), hooks, folder, run.problems)
-    if repetitions > 1:
-        gradle_runner.run("quick-bench", " ".join(map(str, [scoped, *written])), run.options.stacktrace, run.options.stream, main_class="MergeRunsKt")
-        run.files["processes"] = written
-    singles(run.files, repetitions)
-    run.files["scoped"] = scoped / "benchmark.json"
-    print(f"wrote:     {run.files['scoped']}")
+    measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
 
 def harness_run(options, configuration, device, results):
@@ -474,37 +480,48 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     benchmark, preparation = results / "benchmark", results / "preparation"
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
-    repetitions, metrics = effective_view.process_repetitions(document), effective_view.metrics(document)
-    captures = energy_stage.captures(effective)
-    energy = captures - {"none"}
+    repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
     timed = bool(captures - {"dry"})
-    if energy and not device:
+    if captures - {"none"} and not device:
         fail("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
-    session = EnergySession(device) if device else None
-    source = energy_stage.source(effective, options.energy_python, options.stacktrace)
     if device:
-        push(device, options, [effective, capture, trial], (lambda: energy_preflight(options, source, session, discovery, files)) if energy else None)
-    written = []
-    folder = lambda repetition: benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
-    if device:
-        run = Measuring(device, session, source, options, discovery, files, problems)
-        measure_on_device(run, captures, metrics, preparation, effective_view.isolation(document), repetitions, folder, written)
-    for repetition in range(1, repetitions + 1) if not device else ():
-        into = folder(repetition)
-        if repetitions > 1:
-            print(f"process:   {repetition} of {repetitions}")
-        gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
-        if timed:
-            written.append(into / "benchmark.json")
-        record(files, into, captures, device)
-    if repetitions > 1 and timed:
-        gradle_runner.run("quick-bench", " ".join([str(benchmark)] + [str(path) for path in written]), options.stacktrace, options.stream, main_class="MergeRunsKt")
+        run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
+                        files, problems)
+        written, processes = device_cases(run, document, [effective, capture, trial], captures, benchmark, preparation)
+    else:
+        written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files), repetitions
     print(f"wrote:     {preparation / 'prepared.yaml'}")
     elapsed("prepare and measure", started)
-    collapse(files, preparation, repetitions)
+    collapse(files, preparation, processes)
     if timed:
         not_measured.report(preparation / "prepared.yaml", benchmark / "benchmark.json", problems)
         analyse(results, files, effective, preparation, benchmark, written, repetitions)
+
+def device_cases(run, document, plan_files, captures, benchmark, preparation):
+    """Every pass of the run on the device; the per-process files for the manifest and how many processes ran."""
+    chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
+    energy = any(one.captures(captures) - {"none"} for one in chosen)
+    push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
+    isolation = effective_view.isolation(document)
+    measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
+    return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
+
+
+def host_cases(options, document, capture, trial, effective, benchmark, preparation, files):
+    repetitions, written = effective_view.process_repetitions(document), []
+    if (document.get("run") or {}).get("passes"):
+        print("warning: run.passes: only a --device run measures in passes; this run measures once per process")
+    for repetition in range(1, repetitions + 1):
+        into = benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
+        if repetitions > 1:
+            print(f"process:   {repetition} of {repetitions}")
+        gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
+        written.append(into / "benchmark.json")
+        record(files, into, {"none"}, None)
+    if repetitions > 1:
+        gradle_runner.run("quick-bench", " ".join(map(str, [benchmark, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
+    return written
+
 
 KNOWN = (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError, timeouts.StepTimeout)
 

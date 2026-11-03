@@ -113,28 +113,14 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 
 ### Device session
 
-`scripts/measure_session.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
+The benchmark and the before/after run measure through one device session: [device-session.md](device-session.md).
 
-| step | what runs |
-|---|---|
-| session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt` |
-| process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files and `cpu-pins.yaml`; convert with `ConvertKt` |
-| hooks | around the session, each process and each case: the clock state and the energy window (`scripts/session_hooks.py`) |
-
-### One process per case
-
-`run.isolation` ([config.md](../modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.
-
-| `run.isolation` | printed | what runs |
+| piece | what it is | device time it costs |
 |---|---|---|
-| `case` (default) | `measure:   one process per case (<n> cases, isolation: case)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it and joined into one (the first process's `context`, every process's `benchmarks`) |
-| `run` | `measure:   one process for every case (isolation: run)` | one `am instrument` holding every timed case |
-
-- Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.
-- Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device prepares the whole plan again in every process (`DevicePlan` has no per-case preparation), so a plan whose keys are slow to generate pays that per case too.
-- A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises.
-- `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
-- Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedBenchmark`, `InteropCheck` and `DeviceProbe` stay one process each.
+| session | `scripts/measure_session.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
+| passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
+| process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
+| ABBA | the before/after run alternates the sides over `run.scopedRepetitions` (3) | 3 processes per side and pass |
 
 ### Recover a metric without a device
 

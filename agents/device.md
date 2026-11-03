@@ -2,6 +2,7 @@
 
 ## Calls
 - `docs/run.md` : prerequisites, `scripts/pipeline.py` flags, device requirements
+- `docs/device-session.md` : the device session: passes, a process per case, temperature, warm-up
 - `docs/results.md` : results/ layout, manifest.yaml, clocks.yaml, facts.yaml
 - `docs/energy.md` : capture modes, rail pre-flight, joules output
 - `modules/android/docs/index.md` : instrumentation harness and device plan
@@ -16,7 +17,7 @@
 - suppress-errors: pass `--suppress-errors EMULATOR,UNLOCKED` only on an emulator or a device with unlocked clocks.
 - suppress-errors: never compare numbers from a suppressed run with a locked device's.
 - clocks: read `cpuLocked` in `results/<device_id>/manifest.yaml` before comparing two device runs.
-- isolation: leave `run.isolation: case` on a device run, so a case that crashes its process loses only itself (`docs/run.md#one-process-per-case`); set `run` only to measure every case in one process on purpose.
+- isolation: leave `run.isolation: case` on a device run, so a case that crashes its process loses only itself (`docs/device-session.md#one-process-per-case`); set `run` only to measure every case in one process on purpose.
 - pinning: request a core through `harness.cpu` (`core: <index>|big`, `required`) in `config/`, never in code.
 - pinning: a pinned run needs `libaffinity.so` in the installed release APK; check `pinning` in `discovery/facts.yaml`.
 - pinning: report a pinned run as pinned, never as core-isolated; pinning restricts the measuring thread only.

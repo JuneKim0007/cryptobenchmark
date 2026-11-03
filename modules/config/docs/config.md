@@ -36,6 +36,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
 | | `isolation` | `case` | `case` or `run`, else `invalid: run.isolation`; `--device` only: `case` runs each measured case in its own instrumentation process, `run` all of them in one ([run.md](../../../docs/run.md#device-run)) |
 | | `seed` | `0` | input seed |
+| | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `timing` required when set (`missing_pass`); `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../docs/device-session.md#passes) |
 | | `scopedRepetitions` | `3` | `>= 1`, else `not_positive`; `--harness` only: processes per side, before and after in alternating order ([scoped.md](../../android/docs/scoped.md#order)) |
 | | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |

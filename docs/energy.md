@@ -9,9 +9,9 @@
 | `dry` | `EnergyDryBenchmark`: Cooldown(Rewarm(EnergyWindow(TimedLoop for `windowSeconds`))) | atrace slice `energy:<caseId>` | calls from `energy-dry.yaml` |
 
 - Energy runs only with `--device`; any other capture without it fails.
+- `measured`: the window is Jetpack's timed phase; the case's samples (`iterations`, or the energy pass's `samples`) set its length: 100 samples at about 0.11 s is about 11 s, about 110 rail polls; `windowSeconds` does not apply. `dry` is refused with `--harness` and with `run.passes` ([device-session.md](device-session.md#passes)).
 - A case's `harness.energy.capture` overrides the run's (`tools/energy/capture.py`).
-- A `dry` case passed to the timed run fails with `not_timed`.
-- `measured` cases run in `CryptoBenchmark`; `dry` cases run in `EnergyDryBenchmark`, one parameterised test per case.
+- A `dry` case passed to the timed run fails with `not_timed`; `measured` cases run in `CryptoBenchmark`, `dry` cases in `EnergyDryBenchmark`, one test per case.
 - The `energy:<caseId>` marker closes on failure; labels over 127 chars fail with `too_long`.
 - Dry calls are appended to `energy-dry.yaml` as `"<id>": <calls>`.
 
@@ -20,7 +20,7 @@
 | key | rule | default |
 |---|---|---|
 | `energy.capture` | `none`, `measured`, `dry` | `none` |
-| `energy.windowSeconds` | ≥1 | 10 |
+| `energy.windowSeconds` | ≥1; `dry` only | 10 |
 | `energy.warmupSeconds` | ≥1 | 2 |
 | `energy.cooldownSeconds` | ≥0 | 5 |
 | `energy.source` | `rails`, `manafa` | `rails` |

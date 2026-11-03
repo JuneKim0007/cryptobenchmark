@@ -36,8 +36,9 @@ cd tools/android-api-check && ../jca-contract/gradlew compileKotlin -PandroidJar
 | entry | arguments | output |
 |---|---|---|
 | `BenchKt` (default) | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; prints the `benchmark.json` path |
-| `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,ALLOCATION]` | `benchmark.json` from androidx output; `--metrics` reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
+| `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,...] [--samples=n]` | `benchmark.json` from androidx output; a pass's metrics and samples; `--metrics` alone reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
 | `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
+| `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../modules/benchmark/docs/measure.md#pass-merge)) |
 | `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
 
 - `BenchKt` prepares and measures with the host harness: `modules/benchmark/docs/measure.md`.

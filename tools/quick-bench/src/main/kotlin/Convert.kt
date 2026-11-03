@@ -5,23 +5,27 @@ import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
 import java.io.File
 import kotlin.system.exitProcess
 
-private const val METRICS_FLAG = "--metrics="
+private const val METRICS = "--metrics="
+private const val SAMPLES = "--samples="
 
 fun main(arguments: Array<String>) {
-    val (flags, paths) = arguments.partition { it.startsWith(METRICS_FLAG) }
-    if (paths.size < 3) {
-        System.err.println("usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [$METRICS_FLAG<TIME,ALLOCATION,...>]")
+    val (flags, positional) = arguments.partition { it.startsWith("--") }
+    if (positional.size < 3 || flags.any { !it.startsWith(METRICS) && !it.startsWith(SAMPLES) }) {
+        System.err.println("usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--samples=n]")
         exitProcess(2)
     }
-    val metrics = flags.lastOrNull()?.removePrefix(METRICS_FLAG)?.split(",")
-    val converted = JetpackResults.convert(File(paths[0]).readText(), File(paths[1]).readText(), energy(paths.getOrNull(3)), metrics)
+    val pass = JetpackResults.PassView(
+        metrics = flags.firstOrNull { it.startsWith(METRICS) }?.removePrefix(METRICS)?.split(','),
+        samples = flags.firstOrNull { it.startsWith(SAMPLES) }?.removePrefix(SAMPLES)?.toInt(),
+    )
+    val converted = JetpackResults.convert(File(positional[0]).readText(), File(positional[1]).readText(), energy(positional.getOrNull(3)), pass)
     converted.dropped.forEach { System.err.println(it) }
     converted.notApplied.forEach { System.err.println(it) }
     if (converted.rows.isEmpty()) {
-        System.err.println("error: nothing_converted: no benchmark in ${paths[0]} gave a row")
+        System.err.println("error: nothing_converted: no benchmark in ${positional[0]} gave a row")
         exitProcess(1)
     }
-    val written = BenchmarkJson(File(paths[2]).apply { mkdirs() }).write(converted.runtime, converted.rows)
+    val written = BenchmarkJson(File(positional[2]).apply { mkdirs() }).write(converted.runtime, converted.rows)
     System.err.println("converted=${converted.rows.size} dropped=${converted.dropped.size}")
     println(written.path)
 }

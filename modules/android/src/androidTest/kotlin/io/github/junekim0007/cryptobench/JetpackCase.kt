@@ -11,7 +11,7 @@ import org.junit.Rule
 @OptIn(ExperimentalBenchmarkConfigApi::class)
 abstract class JetpackCase(private val caseId: String, caseSettings: CaseSettings) {
 
-    protected val settings: CaseSettings = caseSettings
+    protected val settings: CaseSettings = PassArguments.applied(caseSettings)
 
     @get:Rule
     val benchmarkRule = BenchmarkRule(JetpackConfig.of(settings))

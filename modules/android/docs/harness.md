@@ -38,7 +38,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 |---|---|
 | `DeviceProbe` | installs the bundled providers of the `bundledProviders` argument, then writes this device's capture, classes file and trial via `Discovery`; run alone |
 | `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, then prepares and checks the plan on the device |
-| `CryptoBenchmark` | one parameterised test per timed case; test name = case id; `-e case <id>` keeps that case only (`run.isolation: case` starts one process per case: [run.md](../../../docs/run.md#one-process-per-case)) |
+| `CryptoBenchmark` | one parameterised test per timed case; test name = case id; `-e case <id>` keeps that case only (`run.isolation: case` starts one process per case: [device-session.md](../../../docs/device-session.md#one-process-per-case)) |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
 | `ScopedBenchmark` | one parameterised test per scope variant the `case` argument names: [scoped.md](scoped.md) |
 | `ScopedInterop` | the scope interop check, alone in its process: [scoped.md](scoped.md) |
@@ -69,7 +69,8 @@ JetpackCase.timed: counterMismatch check, then PinnedCase.run { benchmarkRule.me
 | `profiling` METHOD_TRACING | `ProfilerConfig.MethodTracing` |
 | `profiling` STACK_SAMPLING | `ProfilerConfig.StackSampling` |
 | `warmupIterations` | `warmupCount` |
-| `iterations` | `measurementCount` |
+| `iterations` | `measurementCount`; a pass's `cryptobench.samples` replaces it |
+| a pass (`-e cryptobench.pass timing\|energy\|allocation`) | `PassArguments`: energy capture `none` outside the energy pass; the allocation pass adds `SampledAllocations` to the timed phase's metrics |
 
 `BenchmarkRule` is androidx's public rule; its `measureRepeated` always runs every phase, whatever `run.metrics` says:
 

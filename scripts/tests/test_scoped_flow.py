@@ -18,7 +18,7 @@ def scoped(tmp_path, monkeypatch, run, crash=()):
     prepared = tmp_path / "scoped/prepared.yaml"
     prepared.parent.mkdir(parents=True)
     prepared.write_text("cases: []\n")
-    pipeline.measure_scoped(measuring, {"none"}, ["TIME"], prepared, CASES, {"run": {"metrics": ["TIME"], **run}}, tmp_path / "scoped")
+    pipeline.scoped_passes(measuring, {"run": {"metrics": ["TIME"], **run}}, {"none"}, prepared, CASES, tmp_path / "scoped")
     return phone, files, problems
 
 

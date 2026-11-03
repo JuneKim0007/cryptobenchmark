@@ -13,6 +13,10 @@ run:                             # optional — every key below falls back to it
   processRepetitions: 1          # optional, default 1 — independent process runs
   isolation: case                # optional, default case — --device: case starts one process per measured case, so a crash loses that case only; run measures every case in one process
   seed: 0                        # optional, default 0 — seeds the input bytes
+  passes: {}                     # optional, default {} — one pass measures every metric; else one device session per metric group, e.g.
+  #   timing: {samples: 300}      # required when passes is set — TIME (and CPU_EVENTS); no energy capture; its rows are the base the others merge into
+  #   energy: {samples: 100}      # optional — energy where a case captures measured; the window is the timed phase, so samples set its length
+  #   allocation: {samples: 100}  # optional — ALLOCATION, one run per sample; needs ALLOCATION in metrics
   scopedRepetitions: 3           # optional, default 3 — --harness: processes per side, before and after alternating (AB BA AB); 4 cancels linear drift exactly
   harness:                       # optional — the run's defaults; an entry states only what differs
     iterations: 50               # optional — timing samples per case; the device applies it per case (allocation is always 5 runs)

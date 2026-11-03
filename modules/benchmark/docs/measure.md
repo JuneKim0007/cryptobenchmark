@@ -94,6 +94,17 @@ Harness settings as plain values, no androidx type.
 | a process entry without `metrics` or `parameters` | that entry is left out: `not_merged: <id>: process <n>: missing_field: ...`; the other processes keep the case |
 | no case left | `MergeRunsKt` stops with `nothing_merged` |
 
+## Pass merge
+
+`PassMerge` (`MergePassesKt`): the base pass's file, plus `<metric key>=<benchmark.json>` per other pass.
+
+| rule | value |
+|---|---|
+| rows | one per base case, its shape, `parameters` and every metric the other passes do not own |
+| an owned key | only from its pass's row of the same id; the base pass's value of it is dropped |
+| a case its pass lost | no value of that key: `not_merged: <id>: <key>: its pass has no row` |
+| no case left | `nothing_merged` |
+
 ## Jetpack conversion
 
 | rule | value |
@@ -109,6 +120,8 @@ Harness settings as plain values, no androidx type.
 | case without `metrics` | `not_converted: <id>: missing_field: metrics for <id>` |
 | `timeNs.iterations`, CPU event `iterations` | `repeatIterations`, default 1 |
 | `allocationCount.iterations` | 1 |
+| `allocationSamples` written (an allocation pass) | read as `allocationCount`, one run per sample; `allocation_runs_changed` is not checked |
+| a pass (`ConvertKt --metrics=... --samples=n`) | the pass's metrics replace the case's `metrics`; `n` replaces `iterations` in `iterations_not_applied` |
 | case shape | algorithm, provider, operation, sizes, `keyKind` from the `prepared.yaml` case |
 | `parameters` | the case's `resolvedParameters`; absent: `not_converted: <id>: missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |
 | androidx.benchmark | 1.5.0 |

@@ -1,5 +1,5 @@
 """The device benchmark's steps on a fake phone, in order: what moving the loop into one shared session must keep."""
-import pathlib, sys, types
+import json, pathlib, sys, types
 
 import pytest
 import yaml
@@ -19,7 +19,7 @@ def layout(tmp_path, run):
     (results / "configuration").mkdir(parents=True)
     (results / "discovery").mkdir()
     effective = results / "configuration/effective.yaml"
-    effective.write_text(yaml.safe_dump({"run": {"metrics": ["TIME"], **run}, "providers": {}}))
+    effective.write_text(yaml.safe_dump({"run": {"metrics": ["TIME"], **run}, "providers": {}}, sort_keys=False))
     capture, trial = results / "discovery/probe_1.yaml", results / "discovery/trial_1.yaml"
     capture.write_text("{}")
     trial.write_text("{}")
@@ -77,3 +77,23 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
     with pytest.raises(pipeline.DeviceError, match="failed on the device for every case"):
         measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a",), crash=("a",))
+
+
+def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch, capsys):
+    run = {"isolation": "case", "metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
+           "passes": {"timing": {"samples": 300}, "energy": {"samples": 100}, "allocation": {"samples": 100}}}
+    phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
+    named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
+    assert named == ["timing:300", "timing:300", "energy:100", "energy:100", "allocation:100", "allocation:100"]
+    assert phone.log.count("window open") == 1 and phone.log.index("window open") > phone.log.index("instrument CryptoBenchmark b")
+    assert [c.split("--metrics=")[1] for c in phone.converted] == ["TIME --samples=300", "TIME --samples=100", "TIME,ALLOCATION --samples=100"]
+    merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
+    assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
+    assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"
+    out = capsys.readouterr().out
+    assert "pass:      timing pass: 1 process," in out and "pass:      allocation pass: 1 process," in out
+
+
+def test_dry_capture_is_refused_with_passes(tmp_path, monkeypatch):
+    with pytest.raises(SystemExit):
+        measured(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "dry"}}, "passes": {"timing": {"samples": 3}}})

@@ -18,6 +18,7 @@ modules/benchmark/src/main/kotlin/report/CaseDocument.kt : shared YAML and JSON 
 modules/benchmark/src/main/kotlin/report/Merge.kt : merges per-process benchmark.json texts; a case that cannot merge is left out with a line
 modules/benchmark/src/main/kotlin/report/MetricKeys.kt : run.metrics entry to its benchmark.json metric keys
 modules/benchmark/src/main/kotlin/report/MetricSamples.kt : one metric's runs, iteration count, reported stats; metric key names
+modules/benchmark/src/main/kotlin/report/PassMerge.kt : one row per case from per-pass files; each owned metric only from its pass
 modules/benchmark/src/main/kotlin/report/ReportedStats.kt : androidx minimum, maximum, median, CoV for one process
 modules/benchmark/src/main/kotlin/report/ResultRow.kt : one case row of benchmark.json
 modules/benchmark/src/main/kotlin/report/energy/EnergyWindows.kt : reads energy.json into energyJ samples and per-case reasons a case is not joined

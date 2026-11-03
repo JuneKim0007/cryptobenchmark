@@ -20,7 +20,9 @@ modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/EnergyD
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/InteropCheck.kt : installs bundled providers; runs the pushed interop_plan.yaml into interop.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackCase.kt : base of a Jetpack-timed case: its rule, the counter check, the pin, the timed loop
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig; reportable metrics, CPU event counter argument check
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PassArguments.kt : the run.passes pass and samples the host names, applied over a case's settings
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PinnedCase.kt : one timed case under its cpu pin and energy setting
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/SampledAllocations.kt : allocation counting inside the timed phase for an allocation pass
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Scope.kt : one scope's before and after calls and its interop check
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeCatalog.kt : loads the generated GeneratedScopes catalog
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeCheck.kt : calls both variants once and runs the interop check

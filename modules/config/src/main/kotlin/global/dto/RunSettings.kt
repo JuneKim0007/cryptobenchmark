@@ -13,6 +13,8 @@ data class RunSettings(
     val seed: Long = 0L,
     // before/after runs: processes per side, run in alternating order so linear drift does not land on one side
     val scopedRepetitions: Int = 3,
+    // empty: one pass measures every metric; else one device session per metric group, merged per metric
+    val passes: List<MeasurePass> = emptyList(),
     val harness: HarnessSettings = HarnessSettings(),
 ) {
 
@@ -22,6 +24,13 @@ data class RunSettings(
         Metric.read(metrics, "run.metrics")
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
         require(scopedRepetitions >= 1) { "not_positive: scopedRepetitions $scopedRepetitions" }
+        require(passes.map { it.name }.toSet().size == passes.size) { "duplicate: run.passes ${passes.map { it.name }}" }
+        require(passes.isEmpty() || passes.any { it.name == MeasurePass.TIMING }) {
+            "missing_pass: run.passes ${passes.map { it.name }}, timing is the pass every other merges into"
+        }
+        require(passes.none { it.name == MeasurePass.ALLOCATION } || "ALLOCATION" in metrics) {
+            "pass_without_metric: run.passes.allocation measures ALLOCATION, which run.metrics $metrics does not report"
+        }
         require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
     }
 

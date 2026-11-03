@@ -23,7 +23,7 @@ class Phone(device_module.Device):
         super().__init__(pathlib.Path(folder), False, False)
         self.files, self.media, self.data = "/plan", "/media", "/media/data.json"
         self.cases, self.crash, self.hang = list(cases), set(crash), set(hang)
-        self.written, self.log, self.ran, self.arguments = [], [], [], []
+        self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
         self.thermal = thermal
 
     def run(self, *arguments, check=True):
@@ -118,8 +118,10 @@ class Energy:
             self.phone.log.append("window close")
         return around()
 
-    def joules(self, *_paths):
+    def joules(self, *paths):
         self.phone.log.append("joules")
+        if paths and isinstance(paths[-1], pathlib.Path):
+            paths[-1].write_text("{}")
 
 
 def fake_tools(monkeypatch, phone):
@@ -131,7 +133,21 @@ def fake_tools(monkeypatch, phone):
             data, into = pathlib.Path(words[0]), pathlib.Path(words[2])
             names = [b["name"][8:-1] for b in json.loads(data.read_text())["benchmarks"]]
             into.mkdir(parents=True, exist_ok=True)
-            (into / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": [{"id": n, "metrics": {"timeNs": {"runs": [1.0]}}} for n in names]}))
+            phone.converted.append(arguments)
+            metric = {"ALLOCATION": "allocationCount"}.get(arguments.split("--metrics=TIME,")[-1].split()[0], None) if "--metrics=TIME," in arguments else None
+            extra = {"energyJ": {"runs": [2.0]}} if len(words) > 3 and words[3].endswith("energy.json") else {metric: {"runs": [3.0]}} if metric else {}
+            (into / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": [{"id": n, "metrics": {"timeNs": {"runs": [1.0]}, **extra}} for n in names]}))
+        elif main_class == "MergePassesKt":
+            phone.log.append("merge passes")
+            out, base = pathlib.Path(words[0]), json.loads(pathlib.Path(words[1]).read_text())
+            for owned in words[2:]:
+                key, path = owned.split("=", 1)
+                cases = {c["id"]: c for c in json.loads(pathlib.Path(path).read_text())["cases"]}
+                for case in base["cases"]:
+                    case["metrics"].pop(key, None)
+                    case["metrics"].update({key: cases[case["id"]]["metrics"][key]} if key in cases.get(case["id"], {}).get("metrics", {}) else {})
+            out.mkdir(parents=True, exist_ok=True)
+            (out / "benchmark.json").write_text(json.dumps(base))
         elif main_class == "MergeRunsKt":
             phone.log.append("merge")
             out = pathlib.Path(words[0])

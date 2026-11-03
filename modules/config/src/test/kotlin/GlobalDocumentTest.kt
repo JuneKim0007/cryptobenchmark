@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
+import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import java.nio.file.Files
 import org.junit.Assert.assertEquals
@@ -47,6 +48,23 @@ class GlobalDocumentTest {
         assertEquals(4, run("run: {scopedRepetitions: 4}\n").scopedRepetitions)
         val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {scopedRepetitions: 0}\n") }
         assertEquals("not_positive: scopedRepetitions 0", refused.message)
+    }
+
+    @Test
+    fun passesAreReadInTheirOrderAndRefuseWhatNoPassCanMeasure() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(emptyList<MeasurePass>(), run("").passes)
+        val three = run("run: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 300}, energy: {samples: 100}, allocation: {samples: 100}}}\n")
+        assertEquals(listOf(MeasurePass("timing", 300), MeasurePass("energy", 100), MeasurePass("allocation", 100)), three.passes)
+        val reread = GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(GlobalDocument.parse(codec.load(
+            "schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 3}, allocation: {samples: 2}}}\n"))))))
+        assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), reread.run.passes)
+        fun refused(text: String) = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run(text) }.message
+        assertEquals("invalid: run.passes.speed, known [timing, energy, allocation]", refused("run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n"))
+        assertEquals("not_positive: run.passes.timing.samples 0", refused("run: {passes: {timing: {samples: 0}}}\n"))
+        assertEquals("missing_pass: run.passes [energy], timing is the pass every other merges into", refused("run: {passes: {energy: {samples: 5}}}\n"))
+        assertEquals("pass_without_metric: run.passes.allocation measures ALLOCATION, which run.metrics [TIME] does not report",
+            refused("run: {passes: {timing: {samples: 1}, allocation: {samples: 1}}}\n"))
     }
 
     /** The statistic that leads is the user's call; auto at 5% when nothing is said, and the choice is frozen into effective.yaml. */

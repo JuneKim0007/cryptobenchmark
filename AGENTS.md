@@ -72,6 +72,7 @@ scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host I
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
 scripts/measure_session.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks
 scripts/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
+scripts/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric
 scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
 scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, device selection, the temporary-folder warning

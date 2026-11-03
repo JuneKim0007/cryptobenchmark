@@ -32,7 +32,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | cleanup | generated sources are removed after the run, on success and on failure |
 | normal runs | unchanged; `ScopedBenchmark` and `ScopedInterop` run only by class name |
 | interop check | `ScopedInterop`, one process before any case: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |
-| measuring | the device session of `docs/run.md#device-session`, as for the benchmark: `run.isolation`, a case's failure is one `case_failed` line, timeouts, force-stop, pin warnings, repetitions merged by `MergeRunsKt` |
+| measuring | the device session of `docs/device-session.md`, as for the benchmark: `run.isolation`, a case's failure is one `case_failed` line, timeouts, force-stop, pin warnings, repetitions merged by `MergeRunsKt` |
 | case selection | the host names the measured cases with `-e case <id>`, or one ordered comma list when one process runs them all; `ScopedBenchmark` measures nothing else |
 | bundled providers | every `ScopedInterop` and `ScopedBenchmark` process installs `effective.yaml`'s `bundledProviders` first |
 
