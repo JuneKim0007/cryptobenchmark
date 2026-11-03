@@ -15,8 +15,8 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | test set | contents |
 |---|---|
 | `testsets/all.yaml` | description only; empty include = whole inventory |
-| `testsets/scope.yaml` | 19 includes, baselines MD5, DESede/CBC/PKCS5Padding, ARCFOUR; AES 128/192/256; RSA 2048/4096 with inputSizes `[32]`; OAEP-SHA256 with explicit `OAEPParameterSpec`; ChaCha20 with `fresh(12)` |
-| `testsets/quick.yaml` | 11 includes, one per primitive; RSA/* keySizes `[2048]`, inputSizes `[32]`; harness iterations 5; ChaCha20 `ChaCha20ParameterSpec [fresh(12), 1]` |
+| `testsets/scope.yaml` | 19 includes, baselines MD5, DESede/CBC/PKCS5Padding, ARCFOUR; AES 128/192/256, `AES_<n>/*` variants their own size; a `fresh(n)` IV or nonce for every AES GCM, CBC and CTR name and variant, DESede/CBC, ChaCha20 and ChaCha20-Poly1305; RSA 2048/4096 with inputSizes `[32]`; OAEP-SHA256 with explicit `OAEPParameterSpec` |
+| `testsets/quick.yaml` | 11 includes, one per primitive; AES 128/256 with the same variant and `fresh(n)` IV rules as scope; RSA/* keySizes `[2048]`, inputSizes `[32]`; harness iterations 5; ChaCha20 `ChaCha20ParameterSpec [fresh(12), 1]` |
 | `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`, GCM 128 + `fresh(12)`; HmacSHA256 |
 | `testsets/energy-smoke.yaml` | the smoke staples; AES-GCM override adds `harness.energy.capture: dry` |
 
@@ -106,6 +106,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | rule | value |
 |---|---|
 | order | ascending specificity, ties by file order; the last applicable override wins per key |
+| sized variant | a wildcard matches `AES_128/...` by its canonical name `AES/...` too, so a variant's own `AES_128/*` rule goes after `AES/*`; an exact name never matches a variant |
 | lists | replace |
 | `harness` | merges field by field, nested `energy` and `cpu` too |
 | override without `group` | applies to every group of that name |

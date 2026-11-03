@@ -45,7 +45,7 @@ modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten o
 modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM, COLD
 modules/preparation/src/main/kotlin/operation/AgreeKeyDefinition.kt : AGREE_KEY definition
 modules/preparation/src/main/kotlin/operation/CaseArguments.kt : spec pool, seeded message, key accessors for definitions
-modules/preparation/src/main/kotlin/operation/CipherCall.kt : one timed doFinal into a preallocated buffer; decides re-init
+modules/preparation/src/main/kotlin/operation/CipherCall.kt : one timed init + doFinal into a preallocated buffer; refuses parameters a provider will not init twice
 modules/preparation/src/main/kotlin/operation/ComputeMacDefinition.kt : COMPUTE_MAC definition
 modules/preparation/src/main/kotlin/operation/DecryptDefinition.kt : DECRYPT definition; builds ciphertext input
 modules/preparation/src/main/kotlin/operation/DigestDefinition.kt : DIGEST definition
@@ -97,7 +97,7 @@ modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case vali
 modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
 modules/preparation/src/test/kotlin/CaseResolverTest.kt : expansion and rejection tests
 modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart group tests
-modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall repeat and re-init tests
+modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall init-per-call and refusal tests
 modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
 modules/preparation/src/test/kotlin/EngineTypesTest.kt : engine type registry tests

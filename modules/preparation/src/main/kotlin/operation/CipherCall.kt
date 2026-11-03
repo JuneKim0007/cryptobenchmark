@@ -3,43 +3,34 @@ package io.github.junekim0007.cryptobench.preparation.operation
 import java.security.GeneralSecurityException
 import javax.crypto.Cipher
 
-/** One timed doFinal into a buffer allocated once; init repeats only when the parameters change per call or the provider refuses a repeat. */
-internal class CipherCall(private val cipher: Cipher, private val input: ByteArray, private val init: (Int) -> Unit, perCallParameters: Boolean) {
+/** One timed init + doFinal into a buffer allocated once, the same for every cipher and mode. */
+internal class CipherCall(private val cipher: Cipher, private val input: ByteArray, private val init: (Int) -> Unit) {
 
     private val output: ByteArray
-    internal val reinitialises: Boolean
     private var calls = 0
     private var written = 0
 
     init {
-        init(0)
+        init(calls++)
         output = ByteArray(cipher.getOutputSize(input.size))
-        reinitialises = perCallParameters || !repeats()
-    }
-
-    private fun repeats(): Boolean {
-        val repeated = try {
-            cipher.doFinal(input, 0, input.size, output, 0)
-            cipher.doFinal(input, 0, input.size, output, 0)
-            true
-        } catch (refused: GeneralSecurityException) {
-            false
-        } catch (refused: IllegalStateException) {
-            false
-        }
+        cipher.doFinal(input, 0, input.size, output, 0)
         try {
-            init(0)
+            invoke()
         } catch (refused: GeneralSecurityException) {
-            throw IllegalArgumentException("not_repeatable: the provider refuses these parameters twice; draw them with fresh(n)", refused)
+            throw notRepeatable(refused)
+        } catch (refused: IllegalStateException) {
+            throw notRepeatable(refused)
         }
-        return repeated
     }
 
     private fun invoke(): ByteArray {
-        if (reinitialises) init(++calls)
+        init(calls++)
         written = cipher.doFinal(input, 0, input.size, output, 0)
         return output
     }
+
+    private fun notRepeatable(cause: Exception) =
+        IllegalArgumentException("not_repeatable: the provider refuses these parameters twice; draw them with fresh(n)", cause)
 
     fun invocation(): Invocation = Invocation(::invoke, { output.copyOf(written) }, cipher)
 }

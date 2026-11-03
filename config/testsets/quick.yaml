@@ -16,10 +16,21 @@ include:
   - {type: KeyPairGenerator, name: EC}
 
 overrides:
+  # variants after AES/*: a glob matches a variant by its canonical name, and the later of equal rules wins
   - match: {type: Cipher, name: "AES/*"}
     set: {keySizes: [128, 256]}
-  - match: {type: Cipher, name: AES/GCM/NoPadding}
+  - match: {type: Cipher, name: "AES_128/*"}
+    set: {keySizes: [128]}
+  - match: {type: Cipher, name: "AES_192/*"}
+    set: {keySizes: [192]}
+  - match: {type: Cipher, name: "AES_256/*"}
+    set: {keySizes: [256]}
+  - match: {type: Cipher, name: "AES*/GCM/NoPadding"}
     set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+  - match: {type: Cipher, name: "AES*/CBC/*"}
+    set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
+  - match: {type: Cipher, name: "AES*/CTR/*"}
+    set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
   - match: {type: Cipher, name: ChaCha20}
     set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}
   - match: {type: Cipher, name: "RSA/*"}

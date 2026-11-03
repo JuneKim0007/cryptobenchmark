@@ -18,7 +18,7 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 
 | timed call | operation |
 |---|---|
-| `Cipher.doFinal` into a preallocated buffer | ENCRYPT, DECRYPT |
+| `Cipher.init` + `doFinal` into a preallocated buffer, every cipher and mode | ENCRYPT, DECRYPT |
 | `update` + `sign` | SIGN |
 | `update` + `verify`; false fails `verify_failed` | VERIFY |
 | `Mac.doFinal` | COMPUTE_MAC |
@@ -29,7 +29,8 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 | rule | value |
 |---|---|
 | measured generator init | spec: `init(spec)`; else keySize: `init(keySize)`; else provider default; no `SecureRandom` passed |
-| Cipher re-init | per call when parameters vary or the provider refuses a second `doFinal`; refusing re-init with the same parameters fails `not_repeatable: ...; draw them with fresh(n)` |
+| Cipher init | inside every timed call, so modes compare like for like; ENCRYPT takes the next pooled spec, DECRYPT the ciphertext's; a provider refusing a second init fails `not_repeatable: ...; draw them with fresh(n)` |
+| fresh IV | an IV or nonce from `fresh(n)` in a test-set override is drawn before timing; without one the provider draws it inside the timed init |
 | ENCRYPT spec pool | varying parameters: 256 specs drawn before timing, cycled `specs[n % size]` |
 | other operations | call `next()` on the parameters once |
 | `Invocation` | `perIteration` is timed; `once()` returns the exact result (Cipher output trimmed to bytes written) |
