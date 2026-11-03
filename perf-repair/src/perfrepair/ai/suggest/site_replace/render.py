@@ -98,12 +98,16 @@ def _ends(u: UnitDossiers, member: str) -> list[tuple[str, str | None]]:
     return [(o.alias, o.item) for o in d.options]
 
 
-def _pairs(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[str]:
-    """The interop of each two items a replace leaves the sides on; the commonest status once, as every other choice."""
+def _choices(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[tuple[str, str]]:
     if not any(d.key in (k.a, k.b) for d in u.dossiers):
         return []
-    found = [(f"{alias[k.a]} {x} with {alias[k.b]} {y}", u.interop(i, j))
-             for x, i in _ends(u, k.a) for y, j in _ends(u, k.b) if i != j]
+    return [(f"{alias[k.a]} {x} with {alias[k.b]} {y}", u.interop(i, j))
+            for x, i in _ends(u, k.a) for y, j in _ends(u, k.b) if i != j]
+
+
+def _pairs(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[str]:
+    """The interop of each two items a replace leaves the sides on; the commonest status once, as every other choice."""
+    found = _choices(u, k, alias)
     if not found:
         return []
     common = Counter(s for _, s in found).most_common(1)[0][0]

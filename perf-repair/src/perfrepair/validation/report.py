@@ -75,6 +75,12 @@ def _recount(f: dict, rows: list[dict]) -> dict:
             "measuredUnchecked": sum(s[4] and s[3] == "unchecked" for s in statuses)}
 
 
+def _stayed(rows: list[dict]) -> list[str]:
+    stays = stayed(rows)
+    return [f"{r['scope']}: stayed {r['stayed']} is not its unit's static keeps beside a replace {stays[r['unit']]}"
+            for r in rows if r["stayed"] != stays[r["unit"]]]
+
+
 def validate_report(doc: dict, app: str) -> list[str]:
     problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
     if doc.get("app") != app:
@@ -84,9 +90,7 @@ def validate_report(doc: dict, app: str) -> list[str]:
         problems += _row(str(r.get("scope")), r)
     if problems:
         return problems
-    stays = stayed(rows)
-    problems += [f"{r['scope']}: stayed {r['stayed']} is not its unit's static keeps beside a replace {stays[r['unit']]}"
-                 for r in rows if r["stayed"] != stays[r["unit"]]]
+    problems += _stayed(rows)
     f = doc.get("funnel") or {}
     if tuple(f) != FUNNEL or _recount(f, rows) != f or not f["scopes"] >= f["withOptions"] >= f["replace"]:
         problems.append(f"funnel {f} is not the recount of the scope rows")

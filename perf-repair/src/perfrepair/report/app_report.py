@@ -30,6 +30,12 @@ def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
             "measuredUnchecked": sum(_measured(r) and r["interop"]["status"] == "unchecked" for r in rows)}
 
 
+def _with_units(rows: list[dict], of_unit: dict) -> list[dict]:
+    rows = [{**r, "unit": of_unit[r["scope"]].id, "sharedFunction": list(of_unit[r["scope"]].sharedFunction)} for r in rows]
+    stays = stayed(rows)
+    return [{**r, "stayed": stays[r["unit"]]} for r in rows]
+
+
 def build_report(paths: AppPaths, mode: Mode) -> dict:
     for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
@@ -47,12 +53,10 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     harness = _optional(paths.harness, read_yaml) or {}
     inputs = {s["id"]: s.get("inputs") for s in harness.get("scopes") or []}
     measured = read_measured(paths, list(inputs))
-    rows = [{**scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
-                         edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]), s["id"] in stale),
-             "unit": of_unit[s["id"]].id, "sharedFunction": list(of_unit[s["id"]].sharedFunction)}
-            for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))]
-    stays = stayed(rows)
-    rows = [{**r, "stayed": stays[r["unit"]]} for r in rows]
+    rows = _with_units([scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
+                                  edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]),
+                                  s["id"] in stale)
+                        for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))], of_unit)
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name,
             "measuredFrom": str(paths.scoped_benchmark.relative_to(paths.root)) if measured.cases else None,
             "funnel": funnel(len(sites), rows, len(dossiers)), "scopes": rows}

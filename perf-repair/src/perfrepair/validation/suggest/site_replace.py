@@ -6,7 +6,7 @@ from __future__ import annotations
 from ...dto.grouping import algorithm_of, provider_of
 from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Edit, Option,
                          Replacement, Scope, pin_text, required_risks)
-from ...dto.unit import INVERSE, UnitDossiers
+from ...dto.unit import INVERSE, Link, UnitDossiers
 from ..json_reply import parse_object
 
 
@@ -143,10 +143,14 @@ def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, proble
     return Replacement(dossier.key, "replace", option.item, tuple(resolved), tuple(risks), reason).to_json()
 
 
+def _staying(given: list, unit: UnitDossiers) -> list[str]:
+    stayed = unit.stayed()
+    return [f"member {a} has no option; it stays on {stayed[a].current or 'what it uses'}" for a in given if a in stayed]
+
+
 def _named(given: list, unit: UnitDossiers) -> list[str]:
-    aliased, stayed = unit.aliased(), unit.stayed()
-    problems = [f"member {a} has no option; it stays on {stayed[a].current or 'what it uses'}" for a in given if a in stayed]
-    problems += [f"member {a!r} is not one of {', '.join(aliased)}" for a in given if a not in aliased and a not in stayed]
+    aliased, problems = unit.aliased(), _staying(given, unit)
+    problems += [f"member {a!r} is not one of {', '.join(aliased)}" for a in given if a not in aliased and a not in unit.stayed()]
     problems += [f"member {a} given more than once" for a in aliased if given.count(a) > 1]
     return problems + [f"replace covers every member with options: {a} is missing" for a in aliased if a not in given]
 
@@ -159,6 +163,7 @@ def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str]) ->
     for alias, m in zip(given, raw):
         if alias in aliased and given.count(alias) == 1:
             rows.append(_replace_member(m, alias, aliased[alias], reason, problems))
+    problems += [] if problems else _inverse(unit, rows)
     return rows
 
 
@@ -168,21 +173,22 @@ def _inverse(unit: UnitDossiers, rows: list[dict]) -> list[str]:
     replaced = {r["scope"]: r for r in rows}
     ends = {d.key: d.current for d in unit.dossiers} | {s.scope: s.current for s in unit.stays}
     ends |= {k: r["option"] for k, r in replaced.items()}
-    alias, problems = unit.aliases(), []
-    for link in (k for k in unit.unit.links if k.kind == INVERSE):
-        swapped = [m for m in (link.a, link.b) if m in replaced]
-        if not swapped or ends[link.a] == ends[link.b]:
-            continue
-        status = unit.interop(ends[link.a], ends[link.b])
-        if status == "fail":
-            problems.append(f"{alias[link.a]} and {alias[link.b]} are inverse, and {ends[link.a]} and {ends[link.b]} "
-                            "failed their interop check")
-        elif status != "pass":
-            other = {link.a: link.b, link.b: link.a}
-            problems += [f"{alias[m]}: risks must include unverified_interop: its inverse {alias[other[m]]} ends on "
-                         f"{ends[other[m]] or 'an unresolved item'}, and their interop is {status}"
-                         for m in swapped if "unverified_interop" not in replaced[m]["risks"]]
-    return problems
+    return [p for k in unit.unit.links if k.kind == INVERSE for p in _link(k, unit, ends, replaced)]
+
+
+def _link(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: dict[str, dict]) -> list[str]:
+    swapped = [m for m in (k.a, k.b) if m in replaced]
+    if not swapped or ends[k.a] == ends[k.b]:
+        return []
+    alias, status = unit.aliases(), unit.interop(ends[k.a], ends[k.b])
+    if status == "fail":
+        return [f"{alias[k.a]} and {alias[k.b]} are inverse, and {ends[k.a]} and {ends[k.b]} failed their interop check"]
+    if status == "pass":
+        return []
+    other = {k.a: k.b, k.b: k.a}
+    return [f"{alias[m]}: risks must include unverified_interop: its inverse {alias[other[m]]} ends on "
+            f"{ends[other[m]] or 'an unresolved item'}, and their interop is {status}"
+            for m in swapped if "unverified_interop" not in replaced[m]["risks"]]
 
 
 def check_reply(text: str, unit: UnitDossiers) -> tuple[dict | None, list[str]]:
@@ -201,7 +207,6 @@ def check_reply(text: str, unit: UnitDossiers) -> tuple[dict | None, list[str]]:
         problems.append("keep names members; a keep covers every member with options and has none")
     if decision == "replace":
         rows = _members(members, unit, reason, problems)
-        problems += [] if problems else _inverse(unit, rows)
     if problems:
         return None, problems
     if decision == "keep":

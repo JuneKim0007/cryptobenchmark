@@ -44,18 +44,24 @@ def asked(doc: dict, units: list[Unit], scopes: list[Scope], groups: dict) -> tu
     """The asked units' entries, and the members with options a provider-held key keeps."""
     dossiers = {d["scope"]["id"]: d for d in doc["dossiers"]}
     reasons = {n["scope"]: n["reason"] for n in doc["noOptions"]}
-    by_id = {s.id: s for s in scopes}
-    contracts, entries, held = key_contracts(groups), [], []
+    by_id, contracts = {s.id: s for s in scopes}, key_contracts(groups)
+    entries, held = [], []
     for u in units:
         decided = [m for m in u.members if m in dossiers]
-        if not decided:
-            continue
-        if any(provider_held(by_id[m], contracts) for m in u.members):
+        if decided and _held(u, by_id, contracts):
             held += decided
-            continue
-        stays = tuple(Stay(m, current_item(by_id[m]), reasons[m]) for m in u.members if m not in dossiers)
-        entries.append(unit_entry(u, stays, pairs(u, dossiers, by_id, groups)))
+        elif decided:
+            entries.append(_entry(u, dossiers, reasons, by_id, groups))
     return entries, held
+
+
+def _held(u: Unit, by_id: dict[str, Scope], contracts: dict[str, str | None]) -> bool:
+    return any(provider_held(by_id[m], contracts) for m in u.members)
+
+
+def _entry(u: Unit, dossiers: dict[str, dict], reasons: dict[str, str], by_id: dict[str, Scope], groups: dict) -> dict:
+    stays = tuple(Stay(m, current_item(by_id[m]), reasons[m]) for m in u.members if m not in dossiers)
+    return unit_entry(u, stays, pairs(u, dossiers, by_id, groups))
 
 
 def by_unit(doc: dict, units: list[Unit], scopes: list[Scope], groups: dict) -> dict:
