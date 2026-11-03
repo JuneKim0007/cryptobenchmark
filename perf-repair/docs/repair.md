@@ -43,6 +43,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 | `missing_parameter`, `unknown_parameters` | an edit lacks its field, or its fields match no single spec |
 | `unsupported_kind`, `unsupported_language` | an edit kind or file suffix this step does not handle |
 | `file_missing`, `no_edits`, `no_change`, `overlapping_edits` | the source file is gone, the replacement has no edits, the edits change nothing, two scopes' spans overlap |
+| `unit_member_rejected` | another member of its unit was rejected, so no member is applied; the row's `blockedBy` is `<scope>: <reason>`; the report's edit reason carries it |
 
 ## harness.yaml
 

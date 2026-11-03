@@ -9,7 +9,7 @@ from ..source.language import NAMES
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
                 "algorithm_not_literal", "no_init", "ambiguous_init", "missing_parameter",
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
-                "no_change", "overlapping_edits")
+                "no_change", "overlapping_edits", "unit_member_rejected")
 HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "current", "option",
                 "metrics", "dependencies", "notMeasurable")
 
@@ -41,6 +41,8 @@ def validate_edits(doc: dict, app: str, scope_ids: set[str]) -> list[str]:
         elif e.get("status") == "rejected":
             if e.get("reason") not in EDIT_REASONS or e.get("diff") != "":
                 problems.append(f"{where}: rejected needs a coded reason and an empty diff")
+            if (e.get("reason") == "unit_member_rejected") != bool(e.get("blockedBy")):
+                problems.append(f"{where}: blockedBy names the member that rejected the unit, and only then")
         else:
             problems.append(f"{where}: status {e.get('status')!r}")
     return problems

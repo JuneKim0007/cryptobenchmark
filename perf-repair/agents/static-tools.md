@@ -21,6 +21,7 @@ src/perfrepair/result/evidence.py : groups.json + rows + measurements + run-leve
 src/perfrepair/result/modes.py : Mode loaded from criteria.yaml: judges a pair improves, not_improving or not_measured
 src/perfrepair/result/primitives.py : rows + measurements + run-level screen statuses → the primitives table: one line per (type, algorithm, provider, operation, keySize, phase, status), deprecated ones kept
 src/perfrepair/result/triage.py : not_comparable, not_measured and no_improvement verdicts; every group with an improving pair asked
+src/perfrepair/result/unit_dossiers.py : a dossiers document grouped by unit: units asked, members of the others as static keeps
 src/perfrepair/screen/__init__.py : the screening package
 src/perfrepair/screen/catalog.py : screening_catalog: the catalog every screening step judges by, resolved from `device.screening.catalog` or the packaged file (logged); Catalog (path, sha256, identity, handler, mismatch: `screening_catalog_mismatch`); ai_review
 src/perfrepair/screen/evidence.py : unknown items with a canonical name → classify Evidence from the trial and probe; fixed-size batches (BATCH)

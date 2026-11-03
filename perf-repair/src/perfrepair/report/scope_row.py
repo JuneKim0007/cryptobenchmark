@@ -60,7 +60,8 @@ def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
         return _step("skipped", f"decision {decision['decision']}")
     if not has_edits:
         return _step("not_run", "no edits.json")
-    return _step(edit["status"], edit["reason"])
+    blocked = f": {edit['blockedBy']}" if edit.get("blockedBy") else ""
+    return _step(edit["status"], (edit["reason"] + blocked) if edit["reason"] else None)
 
 
 def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, source: str | None, edit: dict | None,

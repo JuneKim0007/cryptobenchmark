@@ -7,6 +7,7 @@ from perfrepair.dto.site import Edit, read_replacements
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
+from perfrepair.dto.unit import unit_id
 from perfrepair.run_dir import AppPaths
 from perfrepair.source import language
 from perfrepair.validation.repair import validate_edits, validate_harness
@@ -33,6 +34,8 @@ def setup_run(tmp_path):
         replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
         replace(TWICE, pins(tagBits=128), option=FAST).to_json(), replace(TEMPLATE, provider("Fast"), option=FAST).to_json()]})
     write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES]})
+    write_json(paths.units, {"schemaVersion": 1, "app": APP, "units": [
+        {"id": unit_id(APP, [s.id]), "members": [s.id], "links": [], "sharedFunction": []} for s in SCOPES]})
     return paths
 
 

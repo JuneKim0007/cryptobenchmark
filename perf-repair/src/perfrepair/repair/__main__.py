@@ -10,6 +10,7 @@ import yaml
 
 from ..app.facts.path_id import absolute, app_id
 from ..dto.site import Replacement, Scope, read_replacements
+from ..dto.unit import read_units
 from ..files import read_json, write_json, write_text
 from .. import run_dir as rd
 from ..run_dir import AppPaths
@@ -75,7 +76,7 @@ def _edit(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
     with step("repair", "edit", app=a.app) as s:
-        doc = edit_app(scopes, list(replacements.values()), a.source, paths, load_specs())
+        doc = edit_app(scopes, list(replacements.values()), a.source, paths, load_specs(), read_units(read_json(paths.units)))
         problems = validate_edits(doc, a.app, set(scopes))
         if problems:
             s.outcome = "invalid"

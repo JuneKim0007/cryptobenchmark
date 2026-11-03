@@ -10,6 +10,7 @@
 - edit: never write inside the app root; copies go to `<app>/original/` and `patched/`.
 - edit: a splice keeps the file's line count; harness extraction relies on it.
 - edit: never edit a constant's declaration or render code from model text; constants come from `specs.yaml`.
+- edit: atomic per unit: one rejected member rejects the unit, and the other rows say which and why.
 - edit: a new reason code goes in `EDIT_REASONS` (`validation/repair.py`) and the limits table of `docs/repair.md`.
 - pin: a new parameter spec is a row in `specs.yaml`, never code.
 - order: scope → dossier → test-set (per-app benchmark run) → replace → edit → harness → device → report.
@@ -31,7 +32,7 @@ src/perfrepair/repair/dependencies.py : identifiers a function uses but does not
 src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk → <app>/dossiers.json, validated before writing
 src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines
 src/perfrepair/repair/edit/algorithm.py : set_algorithm: the literal algorithm argument rewritten
-src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies; edits.json document
+src/perfrepair/repair/edit/app.py : an app's replace decisions applied to copies, atomically per unit; edits.json document
 src/perfrepair/repair/edit/init.py : the one init call on the engine a scope's call returns
 src/perfrepair/repair/edit/lines.py : whole lines of a source: a function's line range, its import lines
 src/perfrepair/repair/edit/literal.py : a string rendered as a Java or Kotlin literal

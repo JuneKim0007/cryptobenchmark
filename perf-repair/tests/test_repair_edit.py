@@ -1,6 +1,7 @@
 import pytest
 
 from perfrepair.dto.site import EDIT_KINDS, Scope, scope_id
+from perfrepair.dto.unit import Unit, unit_id
 
 from perfrepair.repair.edit import edit_app
 from perfrepair.repair.edit.plan import APPLY
@@ -21,9 +22,13 @@ TEMPLATE = scope(KOTLIN, "fun template(", 'Cipher.getInstance("AES/$mode/NoPaddi
 ALL = [LITERAL, ABSENT, LOOKED_UP, MULTI, NESTED, TWICE, WRAP, UNWRAP, TEMPLATE]
 
 
-def run(tmp_path, *replacements, scopes=ALL):
+def solo(scopes):
+    return [Unit(unit_id(APP, [s.id]), (s.id,)) for s in scopes]
+
+
+def run(tmp_path, *replacements, scopes=ALL, units=None):
     out = AppPaths(tmp_path, APP)
-    doc = edit_app({s.id: s for s in scopes}, list(replacements), ROOT, out, load())
+    doc = edit_app({s.id: s for s in scopes}, list(replacements), ROOT, out, load(), solo(scopes) if units is None else units)
     assert validate_edits(doc, APP, {s.id for s in scopes}) == []
     return doc, out
 
@@ -177,7 +182,7 @@ def _own_app(tmp_path, file, text, function, call):
     line = next(i for i in range(start, end + 1) if "getInstance(" in lines[i - 1])
     s = Scope(scope_id(APP, file, function, line, call), APP, file, line, call, function, start, end,
               "Cipher", None, None, "default")
-    doc = edit_app({s.id: s}, [replace(s, provider("Fast"))], root, AppPaths(tmp_path / "run", APP), load())
+    doc = edit_app({s.id: s}, [replace(s, provider("Fast"))], root, AppPaths(tmp_path / "run", APP), load(), solo([s]))
     return doc["edits"][0]
 
 
@@ -197,3 +202,49 @@ def test_edit_lexes_like_the_scope_step(tmp_path, file, text):
 
 def test_every_edit_kind_has_one_apply_function():
     assert set(APPLY) == set(EDIT_KINDS)
+
+
+def together(*scopes):
+    ids = [s.id for s in scopes]
+    return [Unit(unit_id(APP, ids), tuple(ids))] + solo([s for s in ALL if s not in scopes])
+
+
+def test_a_unit_applies_every_member(tmp_path):
+    doc, out = run(tmp_path, replace(LITERAL, provider("Fast")), replace(ABSENT, provider("Fast")), units=together(LITERAL, ABSENT))
+    assert {e["status"] for e in doc["edits"]} == {"applied"}
+    text = (out.patched / LITERAL.file).read_text()
+    assert call_line(text, LITERAL).endswith('"Fast");') and call_line(text, ABSENT).endswith('"Fast");')
+
+
+def test_one_rejected_member_rejects_its_unit_and_the_rows_say_why(tmp_path):
+    doc, out = run(tmp_path, replace(LITERAL, provider("Fast")), replace(TEMPLATE), replace(ABSENT, provider("Fast")),
+                   units=together(LITERAL, TEMPLATE))
+    rows = {e["scope"]: e for e in doc["edits"]}
+    assert rows[TEMPLATE.id]["status"] == "rejected" and "blockedBy" not in rows[TEMPLATE.id]
+    assert rows[LITERAL.id] == {"scope": LITERAL.id, "status": "rejected", "reason": "unit_member_rejected", "diff": "",
+                                "blockedBy": f"{TEMPLATE.id}: {rows[TEMPLATE.id]['reason']}"}
+    assert rows[ABSENT.id]["status"] == "applied"
+    text = (out.patched / LITERAL.file).read_text()
+    assert 'getInstance("AES/GCM/NoPadding", "Slow")' in call_line(text, LITERAL) and call_line(text, ABSENT).endswith('"Fast");')
+
+
+def test_two_members_with_overlapping_edits_reject_the_unit(tmp_path):
+    same = scope(JAVA, "byte[] literal(byte[] in)", 'Cipher.getInstance("AES/GCM/NoPadding", "Slow")')
+    twin = Scope(scope_id(APP, same.file, "other", same.line, same.call), APP, same.file, same.line, same.call, "other", same.start,
+                 same.end, same.engineType, same.algorithm, same.provider, same.resolution)
+    doc, _ = run(tmp_path, replace(same, provider("Fast")), replace(twin, provider("Faster")), scopes=[same, twin],
+                 units=[Unit(unit_id(APP, [same.id, twin.id]), (same.id, twin.id))])
+    assert {e["status"] for e in doc["edits"]} == {"rejected"}
+    assert {e["reason"] for e in doc["edits"]} == {"overlapping_edits", "unit_member_rejected"}
+
+
+def test_a_replacement_outside_every_unit_is_a_bug(tmp_path):
+    with pytest.raises(ValueError, match="in no unit"):
+        run(tmp_path, replace(LITERAL, provider("Fast")), units=[])
+
+
+def test_the_validator_wants_blocked_by_exactly_with_its_reason():
+    base = {"scope": LITERAL.id, "status": "rejected", "diff": ""}
+    assert validate_edits({"schemaVersion": 1, "app": APP, "edits": [{**base, "reason": "unit_member_rejected"}]}, APP, {LITERAL.id})
+    assert validate_edits({"schemaVersion": 1, "app": APP, "edits": [{**base, "reason": "no_change", "blockedBy": "x"}]}, APP, {LITERAL.id})
+

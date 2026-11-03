@@ -11,7 +11,7 @@ From an app's source to a measured before/after of each call site the model chos
 | units | static | scopes, app source, `scope/units/relations.yaml` | `<app>/units.json` (`Unit`: members, `Link`s with lines on both sides, the units it shares a function with) |
 | dossier | static | scopes, units, app.json `targetSdk`, `grouping/groups.json` (with its `interop` section), `grouping/screen.json`, `measurements.json` | `<app>/dossiers.json` (schema 2; `Dossier`: function source, current item, `Option`s with interop status and `Estimate`s; `units`: the units asked) |
 | replace | model | one unit, every member's `Dossier`, per conversation | `<app>/replace/` outbox, `replacements.json` (`Replacement`) |
-| edit | static | replacements, app source | `<app>/patched/` (a copy; the app is never edited), `edits.json` |
+| edit | static | replacements, units, app source | `<app>/patched/` (a copy; the app is never edited), `edits.json` |
 | harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
 | measure | device | `harness.yaml` | `<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
 | report | static | every file above | `<app>/report.json`, `report.md`; `summary.json`, `summary.md` across apps |
