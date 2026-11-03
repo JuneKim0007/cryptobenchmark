@@ -10,6 +10,8 @@ from helpers import QUIET
 
 from perfrepair.files import read_json, write_json, write_text
 from perfrepair.report.__main__ import main
+from perfrepair.report.app_report import build_report
+from perfrepair.report.markdown import report_markdown
 from perfrepair.report.command import app_report, device_summary
 from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
@@ -32,6 +34,11 @@ def make_app(run, name="shop", after_scale=1.0, measured=True):
     scopes = [_scope(s, i) for i, s in enumerate((A, B, C, D, E), 1)]
     write_json(paths.sites, {"sites": [{}] * 6})
     write_json(paths.scopes, {"scopes": scopes})
+    write_json(paths.units, {"schemaVersion": 1, "app": name, "units": [
+        {"id": "u-ab", "members": [A, B], "links": [], "sharedFunction": ["u-c"]},
+        {"id": "u-c", "members": [C], "links": [], "sharedFunction": ["u-ab"]},
+        {"id": "u-d", "members": [D], "links": [], "sharedFunction": []},
+        {"id": "u-e", "members": [E], "links": [], "sharedFunction": []}]})
     options = [{"alias": "R1", "item": OPTION, "pins": {}, "interop": "not_run", "estimates": [ESTIMATE]}]
     write_json(paths.dossiers, {"dossiers": [{"scope": {"id": s}, "current": CURRENT, "options": options}
                                              for s in (A, B, C, E)], "noOptions": [{"scope": D, "reason": "no_alternative"}]})
@@ -89,7 +96,7 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
     assert reasons == {B: "primitive_only: missing_input: inputSize for in", C: "interop_failed: outputs_differ",
                        D: "not replaced: keep (no_alternative)", E: "rejected: call_moved"}
     assert all(set(m) == {"metric", "unit", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
-    assert doc["funnel"] == {"sites": 6, "scopes": 5, "withOptions": 4, "replace": 4, "applied": 3, "compiled": 2,
+    assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "replace": 4, "unitsReplace": 3, "applied": 3, "compiled": 2,
                              "interopPassed": 1, "measured": 1, "measuredUnchecked": 0}
 
 
@@ -182,3 +189,32 @@ def test_the_summary_refuses_mixed_modes_and_an_empty_run(tmp_path):
 def test_the_command_writes_both_files(tmp_path, app):
     assert main(["app", "--device-results", str(tmp_path), "--app", str(tmp_path / "shop-source"), "--mode", "battery"]) == 0
     assert read_json(app.report)["mode"] == "battery" and app.report_md.is_file()
+
+
+def test_rows_carry_their_unit_and_the_units_their_function_shares(tmp_path):
+    paths = AppPaths(tmp_path, "shop")
+    doc = build_report(paths, MODES["latency"])
+    rows = {r["scope"]: r for r in doc["scopes"]}
+    assert (rows[A]["unit"], rows[B]["unit"], rows[A]["sharedFunction"]) == ("u-ab", "u-ab", ["u-c"])
+    assert rows[D]["sharedFunction"] == [] and len(doc["scopes"]) == 5
+    md = report_markdown(doc)
+    assert "- unit: u-ab; its function also holds u-c, measured with only this unit swapped" in md
+
+
+def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
+    paths = AppPaths(tmp_path, "shop")
+    edits = read_json(paths.edits)
+    for row in edits["edits"]:
+        if row["scope"] == A:
+            row.update(status="rejected", reason="unit_member_rejected", diff="", blockedBy=f"{B}: call_moved")
+    write_json(paths.edits, edits)
+    row = next(r for r in build_report(paths, MODES["latency"])["scopes"] if r["scope"] == A)
+    assert row["edit"] == {"status": "rejected", "reason": f"unit_member_rejected: {B}: call_moved"}
+
+
+def test_a_report_without_units_says_which_step_to_run(tmp_path):
+    paths = AppPaths(tmp_path, "shop")
+    paths.units.unlink()
+    with pytest.raises(FileNotFoundError, match="missing_step"):
+        build_report(paths, MODES["latency"])
+

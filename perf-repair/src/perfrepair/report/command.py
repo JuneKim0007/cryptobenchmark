@@ -25,7 +25,7 @@ def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
         s.count(**doc["funnel"])
         s.wrote(paths.report, paths.report_md)
     f = doc["funnel"]
-    echo(f"{paths.report}: {f['scopes']} scopes, {f['replace']} replace, {f['applied']} applied, "
+    echo(f"{paths.report}: {f['scopes']} scopes in {f['units']} units, {f['replace']} replace in {f['unitsReplace']} units, {f['applied']} applied, "
          f"{f['compiled']} compiled, {f['measured']} measured")
     return doc
 

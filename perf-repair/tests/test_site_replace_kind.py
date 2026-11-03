@@ -11,13 +11,11 @@ from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.suggest.site_replace.command import replace
 from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, charter
-from perfrepair.ai.suggest.site_replace.render import UNKNOWN_PINS
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA
-from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Edit, Estimate, Option, Replacement
+from perfrepair.dto.site import DECISIONS, EDIT_KINDS, RISKS, Estimate, Option
 from perfrepair.dto.unit import UnitDossiers
 from perfrepair.files import read_json
 from perfrepair.validation import ValidationFailed
-from perfrepair.validation.replacements import validate_replacements
 
 SNAPSHOT = Path(__file__).parent / "fixtures" / "site_replace" / "render.txt"
 A = dossier()

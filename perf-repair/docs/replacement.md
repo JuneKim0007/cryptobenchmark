@@ -14,7 +14,7 @@ From an app's source to a measured before/after of each call site the model chos
 | edit | static | replacements, units, app source | `<app>/patched/` (a copy; the app is never edited), `edits.json` |
 | harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
 | measure | device | `harness.yaml` | `<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
-| report | static | every file above | `<app>/report.json`, `report.md`; `summary.json`, `summary.md` across apps |
+| report | static | every file above (`units.json` required) | `<app>/report.json`, `report.md`; `summary.json`, `summary.md` across apps |
 
 ## Guide
 
@@ -54,10 +54,11 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 ## Report
 
-`python3 -m perfrepair.report app --device-results <device> --app <src> [--mode latency|battery]`, then `python3 -m perfrepair.report summary --device-results <device>`. A step whose file is absent is `not_run`; `sites.json` and `scopes.json` are required.
+`python3 -m perfrepair.report app --device-results <device> --app <src> [--mode latency|battery]`, then `python3 -m perfrepair.report summary --device-results <device>`. A step whose file is absent is `not_run`; `sites.json`, `scopes.json` and `units.json` are required.
 
 | report.json row field | value |
 |---|---|
+| `unit`, `sharedFunction` | the scope's unit id; the other units with a member in its function, whose edits its measured `after` leaves out |
 | `inputs` | the scope's harness.yaml `inputs`: `inputSize`, `keySize`, `from` (`app` or `run`); null when the scope is not in the harness |
 | `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static`; `stale` true when replacements.json lists the scope as decided on an earlier dossier, marked in report.md |
 | `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
@@ -69,7 +70,8 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 - `energyJ` of different kinds before and after is `{"measured": false, "reason": "energy_kinds_differ: ..."}`.
 - A metric without runs on both sides is `{"measured": false, "reason"}`: the first step that stopped, e.g. `primitive_only: missing_input: inputSize for in`. No number is ever filled in.
-- `funnel`: sites → scopes → withOptions → replace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`, counted again in `measuredUnchecked` (not a stage); report.md marks each such scope "measured without an interop check", e.g. a randomized encrypt with no decrypt partner (`nondeterministic_output`).
+- One row per scope stays; `funnel` adds `units` (all of them) and `unitsReplace` (those replaced).
+- `funnel`: sites → scopes → units → withOptions → replace → unitsReplace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`, counted again in `measuredUnchecked` (not a stage); report.md marks each such scope "measured without an interop check", e.g. a randomized encrypt with no decrypt partner (`nondeterministic_output`).
 - A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.
 - summary.json: the funnel summed and per app; per metric each app's ratio is the median over its measured scopes, `improved` at or below `improvingRatio` (`result/criteria.yaml`), `worse` at or above its inverse, else `unchanged` or `notMeasured`; `medianChange` is the median app ratio − 1. Reports of different modes are `mixed_modes`.
 

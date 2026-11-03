@@ -26,6 +26,12 @@ def _interop(s: dict) -> str:
             + (" — measured without an interop check" if unverified else ""))
 
 
+def _unit(s: dict) -> str:
+    shared = (f"; its function also holds {', '.join(s['sharedFunction'])}, measured with only this unit swapped"
+              if s["sharedFunction"] else "")
+    return f"- unit: {s['unit']}{shared}"
+
+
 def _inputs(i: dict | None) -> str:
     if i is None:
         return "n/a (not in harness.yaml)"
@@ -58,7 +64,7 @@ def report_markdown(doc: dict) -> str:
     for s in doc["scopes"]:
         d = s["decision"]
         out += ["", f"### {s['file']}:{s['line']} `{s['function']}` ({s['scope']})", "",
-                f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
+                _unit(s), f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
                 f"- inputs: {_inputs(s['inputs'])}",
                 f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}"
                 + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),

@@ -3,6 +3,7 @@ is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 
 from ..dto.report import MEASURABLE, SCHEMA_VERSION
+from ..dto.unit import read_units, units_by_scope
 from ..files import read_json, read_yaml
 from ..result.modes import Mode
 from ..run_dir import AppPaths
@@ -19,8 +20,9 @@ def _measured(row: dict) -> bool:
 
 
 def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
-    return {"sites": sites, "scopes": len(rows), "withOptions": with_options,
+    return {"sites": sites, "scopes": len(rows), "units": len({r["unit"] for r in rows}), "withOptions": with_options,
             "replace": sum(r["decision"]["decision"] == "replace" for r in rows),
+            "unitsReplace": len({r["unit"] for r in rows if r["decision"]["decision"] == "replace"}),
             "applied": sum(r["edit"]["status"] == "applied" for r in rows),
             "compiled": sum(r["compile"]["status"] == "compiled" for r in rows),
             "interopPassed": sum(r["interop"]["status"] == "passed" for r in rows),
@@ -29,11 +31,12 @@ def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
 
 
 def build_report(paths: AppPaths, mode: Mode) -> dict:
-    for required in (paths.sites, paths.scopes):
+    for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
             raise FileNotFoundError(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
     sites = read_json(paths.sites)["sites"]
     scopes = read_json(paths.scopes)["scopes"]
+    of_unit = units_by_scope(read_units(read_json(paths.units)))
     dossiers = {d["scope"]["id"]: d for d in (_optional(paths.dossiers) or {}).get("dossiers") or []}
     replaced = _optional(paths.replacements) or {}
     replacements = {r["scope"]: r for r in replaced.get("replacements") or []}
@@ -44,8 +47,9 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     harness = _optional(paths.harness, read_yaml) or {}
     inputs = {s["id"]: s.get("inputs") for s in harness.get("scopes") or []}
     measured = read_measured(paths, list(inputs))
-    rows = [scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
-                      edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]), s["id"] in stale)
+    rows = [{**scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
+                         edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]), s["id"] in stale),
+             "unit": of_unit[s["id"]].id, "sharedFunction": list(of_unit[s["id"]].sharedFunction)}
             for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))]
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name,
             "measuredFrom": str(paths.scoped_benchmark.relative_to(paths.root)) if measured.cases else None,
