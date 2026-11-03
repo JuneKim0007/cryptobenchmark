@@ -1,9 +1,10 @@
-"""The failures every command reports as one `error ...` line and exit 1, instead of a traceback."""
+"""The failures every command reports as one `error ...` line and its code's exit, instead of a traceback."""
 from __future__ import annotations
 
 import logging
 import sys
 import traceback
+from dataclasses import dataclass
 from typing import Callable
 
 from .ai.runtime.agent.reply import AgentFailed
@@ -11,10 +12,28 @@ from .app.facts.gate import GateError
 from .data_handler.outbound.benchmark_runner import BenchmarkRunError
 from .dto.event import BUG, ERROR
 from .log import bug_log, command_run, emit
+from .log.attach import nested
+from .stop import CODES, Halt, code_of
 from .validation.failure import ValidationFailed
 
 # ValueError covers JSON and YAML parse errors and every coded error (InputError, CatalogMismatch, ...)
-FAILURES = (ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError, AgentFailed)
+FAILURES = (Halt, ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError, AgentFailed)
+
+
+@dataclass(frozen=True)
+class Failed:
+    code: str | None
+    detail: str
+
+
+_last: Failed | None = None
+
+
+def last_failure() -> Failed | None:
+    """The coded failure of the last command run in-process, taken once: its caller's line carries it."""
+    global _last
+    found, _last = _last, None
+    return found
 
 
 def record_bug(e: Exception) -> None:
@@ -28,16 +47,25 @@ def record_bug(e: Exception) -> None:
         print(trace, file=sys.stderr, end="")
 
 
+def _failed(e: Exception) -> int:
+    """A Halt's event is written; another coded failure is one error event, left to the caller when it runs in-process."""
+    global _last
+    code = code_of(e)
+    if not isinstance(e, Halt) and not nested():
+        emit("run", "error", ERROR, outcome="error", detail=str(e), data={"code": code} if code else {})
+    print(f"error {e}", file=sys.stderr)
+    _last = Failed(code, e.detail if isinstance(e, Halt) else str(e))
+    return e.exit if isinstance(e, Halt) else CODES[code].exit if code in CODES else 1
+
+
 def reported(step: Callable[[], object]) -> int:
-    """step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and 1."""
+    """step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit."""
     with command_run() as run:
         try:
             code = step()
         except FAILURES as e:
-            emit("run", "error", ERROR, outcome="error", detail=str(e))
-            print(f"error {e}", file=sys.stderr)
             run.outcome = "error"
-            return 1
+            return _failed(e)
         except Exception as e:
             record_bug(e)
             run.outcome = "bug"

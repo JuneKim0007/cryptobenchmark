@@ -14,5 +14,6 @@ docs/run-log.md : <device>/log/: events.jsonl, its views (status, model stages, 
 docs/screening.md : screening statuses, precedence, lookup, catalog settings and identity, the model review of unknown items, the screening.yaml sections, loader codes, sources policy, limits
 docs/settings.md : perfrepair.yaml and .env: lookup, precedence, keys, roles, errors
 docs/signature.md : what code reads per item, per engine type; known, convention, unknown; which items it groups
+docs/stops.md : every stop, warn and skip code: default action, overridable or fixed, exit, next step; terminate, Halt, stops.<code>
 docs/used-set.md : device.filterByApps: the two-pass device stage, used.json, the measured set and its selection, the numbers on the API 30 capture
 ```

@@ -1,0 +1,134 @@
+# Stops
+
+## Terminate
+
+- `stop/codes.py` holds every stop, warn and skip code once; `stop/terminate.py` `terminate(code, detail, ...)` is where an overridable code's action is decided.
+- `terminate` resolves the action, emits one `finding` event with `data.code`, `data.action` and `data.next` (its `status.log` line), then raises `Halt(code, detail, next_step)` on `stop`, or returns `warn` or `skip` to its caller.
+- `skip` leaves the item out and counts it; `warn` keeps it.
+- `failure.py` maps a `Halt` to its code's exit; any other coded failure is one `error` event with `data.code`.
+- A step that ends in a `Halt` records `data.reported` on its end; `status.log` shows the `terminate` line only.
+- A guide step's other coded failure is `<step>_failed`, the inner code in `data.inner` and first in the detail.
+- A command another one runs in-process writes no `error` event of its own; its caller's `<step>_failed` line carries its code.
+- A code with no `Halt` yet is a coded exception whose `.code`, or its message's first word, `failure.py` records.
+
+## Settings
+
+| key | values | on a bad value |
+|---|---|---|
+| `stops.<code>` of an overridable code | the code's allowed actions below | one warning `invalid: stops.<code> <value>, one of [...]; using the default <default>`, then the default |
+| `stops.<code>` of a fixed code | none | one warning `stop_fixed: stops.<code> <value>, <code> is fixed (<why>); ignored` when the code fires |
+| `device.bundled.onMissing` | `warn`, `stop` | the same as `stops.bundled_missing`; read only when `stops.bundled_missing` is unset |
+
+- Each key is read when its code fires, through its `inputs/table.py` row (`STOP_ROWS`), by `config/stops.py`.
+- The first command of a run that loads settings installs the reader; a command it runs in-process keeps it; without one each code takes its default.
+
+## Codes
+
+Exit: what `failure.py` returns for the code; argparse refusals exit 2 before any code is reached.
+
+| code | default | `stops.<code>` | exit | next |
+|---|---|---|---|---|
+| `bundled_missing` | `warn` | `warn`, `stop` | 1 | add the providers to providers.bundled in global.yaml, or set device.bundled.fromApps |
+| `not_on_device` | `warn` | `warn`, `stop` | 1 | add it to providers.bundled in global.yaml and rerun the device stage |
+| `perf_mode_unmeasured` | `stop` | `stop`, `warn` | 1 | turn the metric on in the run config, or drop it from apps.perfMode |
+| `perf_mode_maybe_unmeasured` | `warn` | `warn`, `stop` | 1 | set run.harness.energy.capture: measured, or rely on the test set |
+| `energy_invalid` | `warn` | `warn`, `stop` | 1 | the case has no energy number; rerun it with a longer window or more operations |
+| `energy_unreadable` | `warn` | `warn`, `stop` | 1 | check the energy.json files the manifest lists |
+| `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
+| `screening_catalog_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun grouping build, or set device.screening.catalog to the catalog screen.json names |
+| `charter_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | move the outbox aside or restore the prompts it was made with |
+| `missing_device_stage` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage once for this device, or leave --device-results unset |
+| `outbox_unversioned` | `stop` | fixed: continuing would mix runs or devices | 1 | move the records into a fingerprint folder or remove them |
+| `outbox_active_invalid` | `stop` | fixed: continuing would mix runs or devices | 1 | rewrite the active pointer to an existing fingerprint folder |
+| `outbox_missing` | `stop` | fixed: continuing would mix runs or devices | 1 | restore the outbox folder the active pointer names, or remove the pointer |
+| `outbox_fingerprint_invalid` | `stop` | fixed: continuing would mix runs or devices | 1 | the fingerprint is not a charter hash; remove the folder |
+| `outbox_unkeyed` | `stop` | fixed: continuing would mix runs or devices | 1 | remove the records the current items do not key |
+| `device_id_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | the device changed between identify and probe; rerun on one device |
+| `device_not_in_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |
+| `several_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |
+| `no_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage, or point paths.results at a results root |
+| `not_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass a device folder cryptobenchmark wrote |
+| `measured_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
+| `mixed_modes` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun every app report in one perfMode |
+| `dossier_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun with --refresh to ask the changed units again |
+| `schema_version` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the step that writes the file |
+| `missing_results` | `stop` | fixed: nothing is left to run | 1 | pass a device folder cryptobenchmark wrote |
+| `several_project_roots` | `stop` | fixed: nothing is left to run | 1 | pass one of the project roots as --app |
+| `no_options` | `stop` | fixed: nothing is left to run | 1 | see each scope's reason in dossiers.json noOptions |
+| `no_replacement` | `stop` | fixed: nothing is left to run | 1 | every scope is kept; nothing to edit |
+| `no_edit_applied` | `stop` | fixed: nothing is left to run | 1 | see each edit's reason in edits.json |
+| `edit_invalid` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `harness_invalid` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `target_missing` | `stop` | fixed: nothing is left to run | 1 | fix the apps.targets entry; its earlier results stay |
+| `prerequisites_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `grouping_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `detect_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `app_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `dossier_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `replace_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `edit_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `harness_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `device_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `report_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `summary_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `pipeline_failed` | `stop` | fixed: nothing is left to run | 1 | read the transcript line the status names |
+| `pipeline_timeout` | `stop` | fixed: nothing is left to run | 1 | raise timeouts.pipeline, or check the device |
+| `identify_failed` | `stop` | fixed: nothing is left to run | 1 | run scripts/pipeline.py --identify by hand to see why |
+| `claude_cli_failed` | `stop` | fixed: nothing is left to run | 1 | log in to the claude CLI, or check its binary and budget |
+| `claude_cli_timeout` | `stop` | fixed: nothing is left to run | 1 | raise timeouts.claude, or check the claude CLI |
+| `claude_api_failed` | `stop` | fixed: nothing is left to run | 1 | check ANTHROPIC_API_KEY and the API status |
+| `claude_api_missing` | `stop` | fixed: nothing is left to run | 1 | pip install -e '.[api]' |
+| `bug` | `stop` | fixed: nothing is left to run | 1 | the traceback is in log/bug.log; report it |
+| `missing_file` | `stop` | fixed: the input is unusable | 1 | pass a file that exists |
+| `invalid` | `stop` | fixed: the input is unusable | 1 | fix the value in perfrepair.yaml, the environment or the flag the message names |
+| `invalid_yaml` | `stop` | fixed: the input is unusable | 1 | fix the YAML of the file the message names |
+| `secret_key` | `stop` | fixed: the input is unusable | 1 | move the secret to the environment or .env |
+| `missing_input` | `stop` | fixed: the input is unusable | 1 | set the input, or restore its packaged default |
+| `unknown_gateway` | `stop` | fixed: the input is unusable | 1 | name a registered gateway: claude or dry-run |
+| `missing_secret` | `stop` | fixed: the input is unusable | 1 | set the secret in the environment or .env |
+| `wrong_version` | `stop` | fixed: the input is unusable | 1 | fix the prompts folder or prompts.yaml the message names |
+| `placeholder_missing` | `stop` | fixed: the input is unusable | 1 | fix the prompts folder or prompts.yaml the message names |
+| `missing_directory` | `stop` | fixed: the input is unusable | 1 | fix the prompts folder or prompts.yaml the message names |
+| `prompt_missing` | `stop` | fixed: the input is unusable | 1 | fix the prompts folder or prompts.yaml the message names |
+| `prompt_unknown` | `stop` | fixed: the input is unusable | 1 | fix the prompts folder or prompts.yaml the message names |
+| `value_mismatch` | `stop` | fixed: the input is unusable | 1 | fix the prompts folder or prompts.yaml the message names |
+| `lifetime_mismatch` | `stop` | fixed: the input is unusable | 1 | a conversation was started out of order; report it |
+| `not_a_directory` | `stop` | fixed: the input is unusable | 1 | pass the app's source folder as --app |
+| `not_readable` | `stop` | fixed: the input is unusable | 1 | make the app folder readable |
+| `not_android_project` | `stop` | fixed: the input is unusable | 1 | pass a folder holding an Android project root |
+| `escapes_root` | `stop` | fixed: the input is unusable | 1 | remove the link that leaves the app folder |
+| `too_large` | `stop` | fixed: the input is unusable | 1 | pass a smaller project root |
+| `bundled_catalog_yaml` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `interchange_component` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `interchange_key` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `names_catalog_duplicate` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `names_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `screening_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `screening_shape` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `screening_yaml` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `types_fields` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `types_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `types_strength` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `relations_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `events_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable events.jsonl aside |
+| `item_not_configured` | `stop` | fixed: the input is unusable | 1 | rerun the device stage with the item in the run config |
+| `manifest_without_device_id` | `stop` | fixed: the input is unusable | 1 | rerun the benchmark |
+| `missing_effective` | `stop` | fixed: the input is unusable | 1 | rerun the device stage |
+| `missing_parameters` | `stop` | fixed: the input is unusable | 1 | rerun the inbound stage (or the guide's device stage) |
+| `missing_probe` | `stop` | fixed: the input is unusable | 1 | rerun the device stage |
+| `missing_step` | `stop` | fixed: the input is unusable | 1 | run the app's earlier steps first |
+| `no_benchmark` | `stop` | fixed: the input is unusable | 1 | rerun the benchmark |
+| `no_events` | `stop` | fixed: the input is unusable | 1 | run a command against the device folder first |
+| `no_reports` | `stop` | fixed: the input is unusable | 1 | run the guide with --device first |
+| `no_screen` | `stop` | fixed: the input is unusable | 1 | rerun grouping build, assign and report |
+| `primitive_line_collision` | `stop` | fixed: the input is unusable | 1 | rerun the inbound stage (or the guide's device stage) |
+| `primitive_not_screened` | `stop` | fixed: the input is unusable | 1 | rerun grouping build, assign and report |
+| `review_verdict` | `stop` | fixed: the input is unusable | 1 | fill the verdict column with one of the listed values |
+| `run_context` | `stop` | fixed: the input is unusable | 1 | report it |
+| `run_unknown` | `stop` | fixed: the input is unusable | 1 | name a run log summary lists |
+| `unknown_key` | `warn` | fixed: a notice; nothing to choose | 1 | remove the key, or fix its spelling |
+| `mixed_agents` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the records name each gateway |
+| `perf_mode_extra` | `warn` | fixed: a notice; nothing to choose | 1 | drop the measurement from the run config to save device time |
+| `append_repaired` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the partial line stays and readers skip it |
+| `log_dropped` | `warn` | fixed: a notice; nothing to choose | 1 | name the device folder earlier in the command |
+| `stop_fixed` | `warn` | fixed: a notice; nothing to choose | 1 | remove the stops.<code> entry |

@@ -11,6 +11,7 @@ from ..catalog.screening import SCREENING
 from ..dto.bundled import OFF, ON_MISSING, WARN
 from ..dto.change import DROP_IN
 from ..dto.perf_mode import GENERIC
+from ..stop.codes import CODES_LIST, OVERRIDABLE
 from .check import (check_any, check_bool, check_from_apps, check_max_change, check_one_of, check_path, check_perf_mode,
                     check_positive, check_targets, check_text)
 from .resolve import Candidate, Need, OnInvalid, Resolved, resolve
@@ -101,7 +102,12 @@ APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
 
-ROWS = tuple(v for v in tuple(globals().values()) if isinstance(v, (Row, RoleRow)))
+# stops.<code>: an overridable code's action; a bad value warns and keeps the code's default
+STOP_ROWS = {c.code: Row(f"stops.{c.code}", partial(check_one_of, choices=c.allowed), default=c.action) for c in OVERRIDABLE}
+# a fixed code is known, so setting it warns where it fires instead of as an unknown key
+FIXED_STOP_KEYS = tuple(f"stops.{c.code}" for c in CODES_LIST if c.fixed)
+
+ROWS = (*(v for v in tuple(globals().values()) if isinstance(v, (Row, RoleRow))), *STOP_ROWS.values())
 
 
 def known_tree() -> dict[str, Any]:
@@ -112,9 +118,15 @@ def known_tree() -> dict[str, Any]:
             # a role's gateway falling back is the wrong provider, as aiGateway.use is
             f"{row.key}.{k}": AI_GATEWAY_USE.invalid if k == "gateway" else OnInvalid.USE_DEFAULT for k in ROLE_KEYS}
         for key, policy in leaves.items():
-            *sections, leaf = key.split(".")
-            node = tree
-            for part in sections:
-                node = node.setdefault(part, {})
-            node[leaf] = policy
+            _leaf(tree, key, policy)
+    for key in FIXED_STOP_KEYS:
+        _leaf(tree, key, OnInvalid.USE_DEFAULT)
     return tree
+
+
+def _leaf(tree: dict[str, Any], key: str, policy: OnInvalid) -> None:
+    *sections, leaf = key.split(".")
+    node = tree
+    for part in sections:
+        node = node.setdefault(part, {})
+    node[leaf] = policy

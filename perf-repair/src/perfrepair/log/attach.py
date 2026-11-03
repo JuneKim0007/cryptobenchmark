@@ -44,6 +44,15 @@ def attach(device_results: Path | None = None) -> None:
         SINK.bind(Path(device_results))
 
 
+def nested() -> bool:
+    """Inside command_run, whether another command's run encloses this one: a command it calls in-process."""
+    return _depth > 1
+
+
+def current_run() -> str | None:
+    return SINK.run
+
+
 def run_id() -> str:
     """The attached run's id; a call outside any command run gets one of its own."""
     return SINK.run or _run_id()

@@ -67,8 +67,12 @@ def test_the_reader_check_sees_a_parsed_but_unused_setting():
     assert readers("NOT_A_ROW") == [] and row_of("device.unread") is None
 
 
+def test_the_stop_rows_have_exactly_one_reader():
+    assert readers("STOP_ROWS") == ["config/stops.py"]
+
+
 def test_every_example_key_is_a_row_some_command_reads():
-    constants = {id(getattr(table, name)): name for name in row_names()}
+    constants = {id(getattr(table, name)): name for name in row_names()} | {id(r): "STOP_ROWS" for r in table.STOP_ROWS.values()}
     gateway_keys = {f.name for g in registry.GATEWAYS.values() for f in fields(g.settings)}
     for key in leaves(yaml.safe_load(EXAMPLE.read_text())):
         if key.startswith("aiGateway.") and key != "aiGateway.use":

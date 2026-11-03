@@ -1,10 +1,14 @@
+import logging
 import shutil
+from contextlib import contextmanager
 from pathlib import Path
 
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.dto.perf_mode import PerfMode
+from perfrepair.log.emit import EVENT_ATTR
+from perfrepair.log.sink import to_event
 from perfrepair.result.modes import mode_of
 
 FIXTURE_DEVICE = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000"
@@ -54,3 +58,24 @@ QUIET = {"echo": lambda _: None}
 
 
 CATALOG = {"source": "packaged", "sha256": "0" * 64}
+
+
+@contextmanager
+def captured_events():
+    """Every event emitted inside the block, as the sink would write it, without a device folder."""
+    events = []
+
+    class Capture(logging.Handler):
+        def emit(self, record):
+            if getattr(record, EVENT_ATTR, None) is not None:
+                events.append(to_event(record, "r1"))
+
+    handler, logger = Capture(logging.DEBUG), logging.getLogger("perfrepair")
+    level = logger.level
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    try:
+        yield events
+    finally:
+        logger.removeHandler(handler)
+        logger.setLevel(level)

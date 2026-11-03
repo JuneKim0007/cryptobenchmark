@@ -1,4 +1,5 @@
-"""The status view: one line per outcome a person acts on, each starting with its code word, a header per run."""
+"""The status view: one line per outcome a person acts on, each starting with its code word, a header per run; an
+event's `data.code` is its code, the detail's first word only for events written before it."""
 from __future__ import annotations
 
 import re
@@ -51,7 +52,9 @@ def last_error(text: str) -> str:
     return f"; last {errors[-1]}" if errors else ""
 
 
-def _target(e: Event) -> str:
+def _target(e: Event) -> str | None:
+    if e.data.get("reported"):
+        return None
     code = e.data.get("code") or (code_of(e.detail, e.outcome) if e.outcome == "stop" else e.outcome)
     rest = after_code(e.detail, code)
     at = AT_STEP.match(rest)
@@ -59,24 +62,48 @@ def _target(e: Event) -> str:
     return line(code, subject, (rest[at.end():] if at else rest) + last_error(e.detail))
 
 
-def _guide_stop(e: Event) -> str:
-    code = code_of(e.detail, e.outcome)
+def _guide_stop(e: Event) -> str | None:
+    if e.data.get("reported"):
+        return None
+    code = e.data.get("code") or code_of(e.detail, e.outcome)
     return line(code, f"guide {e.step}", after_code(e.detail, code) + last_error(e.detail))
 
 
-def _device(e: Event) -> str:
+def _device(e: Event) -> str | None:
+    if e.data.get("reported"):
+        return None
     code = code_of(e.detail.split(": ", 1)[-1], e.outcome) if e.outcome == "failed" else e.outcome
     return line(code, f"device {e.step}", first_line(e.detail) + last_error(e.detail))
 
 
+def _subject(e: Event) -> str:
+    app = f"app {e.app}" if e.app else ""
+    if e.item:
+        return " ".join(p for p in (e.item, app) if p)
+    if e.stage == "guide":
+        return f"{app} at {e.step}" if app else f"guide {e.step}"
+    return " ".join(p for p in (f"{e.stage} {e.step}", app) if p)
+
+
+def _terminated(e: Event) -> str:
+    """terminate()'s event: `<code> <subject>: [<action>: ]<detail>[; see <ref>]; next: <next step>`."""
+    code, action = e.data["code"], e.data.get("action")
+    said = after_code(e.detail, code)
+    said = f"{action}: {said}" if action and action != "stop" else said
+    return line(code, _subject(e), said + last_error(e.detail) + (f"; see {e.ref}" if e.ref else "")
+                + (f"; next: {e.data['next']}" if e.data.get("next") else ""))
+
+
 def _finding(e: Event) -> str:
+    if "code" in e.data:
+        return _terminated(e)
     subject = " ".join(p for p in (e.item or e.step, f"app {e.app}" if e.app else "") if p)
     code = e.outcome or e.step
     return line(code, subject, after_code(e.detail, code) + (f"; see {e.ref}" if e.ref else ""))
 
 
 def _error(e: Event) -> str:
-    code = code_of(e.detail, "error")
+    code = e.data.get("code") or code_of(e.detail, "error")
     return line(code, "error", after_code(e.detail, code))
 
 

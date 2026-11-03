@@ -50,8 +50,10 @@ def step(stage: str, name: str, *, kind: str = "static", item: str | None = None
     try:
         yield s
     except BaseException as e:
+        # a terminated failure already has its status line; its end only records it
+        reported = {"code": e.code, "reported": True} if getattr(e, "reported", False) else {}
         emit(stage, name, END, kind=kind, item=item, app=app, outcome="failed", durationMs=elapsed_ms(started),
-             detail=f"{type(e).__name__}: {e}", data=s.data())
+             detail=f"{type(e).__name__}: {e}", data={**s.data(), **reported})
         raise
     emit(stage, name, END, kind=kind, item=item, app=app, outcome=s.outcome, durationMs=elapsed_ms(started),
          detail=s.detail, data=s.data())

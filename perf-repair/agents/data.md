@@ -92,21 +92,26 @@ src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line 
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
-src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); known_tree
+src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); STOP_ROWS, one per overridable stop code, and the fixed codes known so setting one is not an unknown key; known_tree
 src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, emit, run_id, step
 src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] [--json]`, the runs of events.jsonl, status lines last
-src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id
-src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed start and end with counts and the digests of the files written
+src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id; nested(), current_run()
+src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed start and end with counts and the digests of the files written; a step ended by a Halt records its code and `reported`
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
 src/perfrepair/log/read.py : events.jsonl read whole or followed, whole lines only; `events_unreadable`
 src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order
-src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, findings, errors, bugs), each starting with its code word; code_of and line, the one parser and formatter
+src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, terminate's findings, errors, bugs), each starting with its code word, data.code before the detail's first word; a line already written by terminate is not repeated; code_of and line, the one parser and formatter
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
 src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines
 src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last
 src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage>.log per model stage (AI_LOGS: screening, classify, grouping, supervisor, worthiness, replace), bug.log, status.log; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
 src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/), not_device_results, app folders, device.yaml read and write, load_used (None without used.json), artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
+src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
+src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; code_of, the code a failure carries as `.code` or its message's first word
+src/perfrepair/stop/policy.py : the stops reader the first settings load of a run installs; a code's action, its default without one
+src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next, then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130
 ```

@@ -12,6 +12,7 @@ from ..inputs.table import Row
 from .dotenv import load_env
 from .load import Loaded, load
 from .settings import ConfigError
+from .stops import install_stops
 
 
 def positive_int(text: str) -> int:
@@ -40,9 +41,11 @@ def add_config_arg(parser: argparse.ArgumentParser) -> None:
 
 def load_settings(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Loaded:
     try:
-        return load(args.perfrepair_config, os.environ, load_env())
+        loaded = load(args.perfrepair_config, os.environ, load_env())
     except ConfigError as e:
         parser.error(str(e))
+    install_stops(loaded)
+    return loaded
 
 
 def fill(loaded: Loaded, args: argparse.Namespace, rows: Mapping[str, Row]) -> None:

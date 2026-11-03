@@ -22,7 +22,7 @@
 
 ```
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
-src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and exit 1; the guide's step failures
+src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and its code's exit; a Halt adds no event (terminate wrote it), another coded failure one error event with data.code, none when run in-process (last_failure hands it to the caller)
 src/perfrepair/guide/command.py : guide arguments; `--app` or apps.targets, the one reader of that row; device.filterByApps's reader
 src/perfrepair/guide/finished.py : <app>/finished.json: an app that reached its last step and the digests of its inputs, its scopes and the code from tree to measured harness
 src/perfrepair/guide/run.py : one status line and event per step, the first stop ends the sequence, the dry-run ending; Stopped (halts: a provider failure)

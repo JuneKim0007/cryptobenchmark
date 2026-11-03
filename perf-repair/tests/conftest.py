@@ -7,6 +7,7 @@ from perfrepair.catalog.interchange import Interchange
 from perfrepair.config import device_results, dotenv, load
 from perfrepair.grouping import signature
 from perfrepair.log.attach import SINK
+from perfrepair.stop import policy
 
 
 @pytest.fixture(autouse=True)
@@ -23,10 +24,11 @@ def isolated_settings(tmp_path_factory, monkeypatch):
 
 @pytest.fixture(autouse=True)
 def detached_log():
-    """A command's attach() lasts for its process; each test starts without its handlers or level."""
+    """A command's attach() lasts for its process; each test starts without its handlers, level or stops reader."""
     logger = logging.getLogger("perfrepair")
     handlers, level = list(logger.handlers), logger.level
     yield
+    policy.reset()
     SINK.close()
     logger.handlers[:] = handlers
     logger.setLevel(level)
