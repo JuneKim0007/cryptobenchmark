@@ -59,6 +59,7 @@
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
 | `apps.benchmarkConfig` | a `global.yaml` | `device.benchmark.config` | warning | the guide's per-app device step (`guide/steps.py` device): its harness run only; the device stage keeps `device.benchmark.config`, so a lighter app config reruns no device benchmark |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
+| `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
 
 | role | file section | role default |
 |---|---|---|

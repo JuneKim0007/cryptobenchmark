@@ -120,6 +120,18 @@ def _risks(risks: list, scope: Scope, option: Option | None, decision: str) -> l
     return problems
 
 
+def _chosen(chosen: str | None, by_alias: dict[str, Option], max_change: str, found: list[str]) -> Option | None:
+    if chosen not in by_alias:
+        found.append(f"option {chosen!r} is not one of {', '.join(by_alias) or '(none)'}")
+    elif not admits(max_change, by_alias[chosen].change):
+        found.append(f"{chosen} is a {by_alias[chosen].change}, above maxChange {max_change}; it cannot be chosen")
+    elif by_alias[chosen].pins is None:
+        found.append(f"{chosen} has unknown pins, so no like-for-like swap can be stated; it cannot be chosen")
+    else:
+        return by_alias[chosen]
+    return None
+
+
 def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, problems: list[str],
                     max_change: str = DROP_IN) -> dict | None:
     """One member's option, edits and risks against its own dossier; its problems name the member."""
@@ -128,15 +140,7 @@ def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, proble
     by_alias = {o.alias: o for o in dossier.options}
     found += ["edits is not a list"] * (not isinstance(edits, list)) + ["risks is not a list"] * (not isinstance(risks, list))
     edits, risks = edits if isinstance(edits, list) else [], risks if isinstance(risks, list) else []
-    option = None
-    if chosen not in by_alias:
-        found.append(f"option {chosen!r} is not one of {', '.join(by_alias) or '(none)'}")
-    elif not admits(max_change, by_alias[chosen].change):
-        found.append(f"{chosen} is a {by_alias[chosen].change}, above maxChange {max_change}; it cannot be chosen")
-    elif by_alias[chosen].pins is None:
-        found.append(f"{chosen} has unknown pins, so no like-for-like swap can be stated; it cannot be chosen")
-    else:
-        option = by_alias[chosen]
+    option = _chosen(chosen, by_alias, max_change, found)
     if not edits:
         found.append("replace names no edit")
     resolved = _edits(edits, option, dossier.current, found)
@@ -191,9 +195,14 @@ def _link(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: di
         return []
     alias, status = unit.aliases(), unit.interop(ends[k.a], ends[k.b])
     # another output format on one side only: the other side can no longer read it, whatever interop says
-    above = [m for m in swapped if _class_of(unit, m, ends[m]) != DROP_IN]
-    if above:
+    if any(_class_of(unit, m, ends[m]) != DROP_IN for m in swapped):
         return [f"{alias[k.a]} and {alias[k.b]} are inverse; a change above drop-in must end both on one item"]
+    return _interop_of_ends(k, unit, ends, replaced, swapped, status)
+
+
+def _interop_of_ends(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: dict[str, dict],
+                     swapped: list[str], status: str) -> list[str]:
+    alias = unit.aliases()
     if status == "fail":
         return [f"{alias[k.a]} and {alias[k.b]} are inverse, and {ends[k.a]} and {ends[k.b]} failed their interop check"]
     if status == "pass":

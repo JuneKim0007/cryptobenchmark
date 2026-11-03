@@ -13,7 +13,7 @@ Two primitives share a group only when all three contracts match, inside one fam
 - Boundary: the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared.
 - Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
 
-Signature: [signature.md](signature.md): what code reads per item, and which items it groups instead of asking.
+Signature: [signature.md](signature.md): what code reads per item, and which items it groups. A group is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
 
 ## Key contract
 

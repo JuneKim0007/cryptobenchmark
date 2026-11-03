@@ -211,16 +211,25 @@ def _against_run(raw, app, perf: PerfMode, by_id: dict[str, Scope], groups: dict
     return problems + _in_group(where, d, groups) + _screen(where, d, verdicts)
 
 
+def _drop_ins_in_group(where: str, d: Dossier, group_of: dict, group: str | None) -> list[str]:
+    drop_ins = [o for o in d.options if o.change == DROP_IN]
+    problems = [f"{where}: current {d.current} is not a grouped item"] if group is None and drop_ins else []
+    return problems + [f"{where} {o.alias}: {o.item} is not another member of group {group}"
+                       for o in drop_ins if o.item == d.current or group_of.get(o.item) != group]
+
+
+def _others_outside_group(where: str, d: Dossier, group_of: dict, group: str | None) -> list[str]:
+    if group is None:
+        return []
+    return [f"{where} {o.alias}: {o.change} {o.item} is in the current item's group {group}"
+            for o in d.options if o.change != DROP_IN and group_of.get(o.item) == group]
+
+
 def _in_group(where: str, d: Dossier, groups: dict) -> list[str]:
     """A drop-in is another member of the current item's group; any other class is outside it."""
     group_of = {v["qualified"]: v.get("group") for v in groups["items"].values()}
     group = group_of.get(d.current)
-    drop_ins = [o for o in d.options if o.change == DROP_IN]
-    problems = [f"{where}: current {d.current} is not a grouped item"] if group is None and drop_ins else []
-    problems += [f"{where} {o.alias}: {o.item} is not another member of group {group}"
-                 for o in drop_ins if o.item == d.current or group_of.get(o.item) != group]
-    problems += [f"{where} {o.alias}: {o.change} {o.item} is in the current item's group {group}"
-                 for o in d.options if o.change != DROP_IN and group is not None and group_of.get(o.item) == group]
+    problems = _drop_ins_in_group(where, d, group_of, group) + _others_outside_group(where, d, group_of, group)
     return problems + [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
                        for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
 

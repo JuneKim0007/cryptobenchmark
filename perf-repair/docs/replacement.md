@@ -9,7 +9,7 @@ From an app's source to a measured before/after of each call site the model chos
 | detect | static | app root; engine types from the packaged names catalog; the run's probe and providers to resolve each site | `<app>/sites.json` |
 | scope | static | sites, app source, `scope/engines.yaml` | `<app>/scopes.json` (schema 4; `Scope` per site: function span, sinks, key source, `lifecycle`) |
 | units | static | scopes, app source, `scope/units/relations.yaml` | `<app>/units.json` (`Unit`: members, `Link`s with lines on both sides, the units it shares a function with) |
-| dossier | static | scopes, units, app.json `targetSdk`, `grouping/groups.json` (with its `interop` section), `grouping/screen.json`, `measurements.json` | `<app>/dossiers.json` (schema 3, `perfMode` the selection, estimates of its metrics only; `Dossier`: function source, current item, `Option`s with interop status and `Estimate`s; `units`: the units asked, each with `stays`, its members without options, and `pairs`, the interop of every two differing items a replace can leave an inverse link's sides on: an option of a member with options, the current item of one that stays) |
+| dossier | static | scopes, units, app.json `targetSdk`, `grouping/groups.json` (with its `interop` section), `grouping/screen.json`, `measurements.json` | `<app>/dossiers.json` (schema 4, `perfMode` the selection, estimates of its metrics only; `Dossier`: function source, current item, `Option`s with interop status and `Estimate`s; `units`: the units asked, each with `stays`, its members without options, and `pairs`, the interop of every two differing items a replace can leave an inverse link's sides on: an option of a member with options, the current item of one that stays) |
 | replace | model | one unit, the `Dossier` of each member with options and the members that stay, per conversation | `<app>/replace/` outbox, `replacements.json` (`Replacement`) |
 | edit | static | replacements, units, app source | `<app>/patched/` (a copy; the app is never edited), `edits.json` |
 | harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
@@ -26,6 +26,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 ```
 
 - `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
+- `--max-change` defaults to `apps.maxChange` ([change-classes.md](change-classes.md)).
 - `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--refresh` asks again the replace decisions whose dossier changed, and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).
 - `--device-results` is required unless `paths.results` is set (`docs/settings.md`); keep results under `~/capstone/runs/<date>-<name>`.
@@ -71,6 +72,7 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 
 - `energyJ` of different kinds before and after is `{"measured": false, "reason": "energy_kinds_differ: ..."}`.
 - A metric without runs on both sides is `{"measured": false, "reason"}`: the first step that stopped, e.g. `primitive_only: missing_input: inputSize for in`. No number is ever filled in.
+- `maxChange`, `recommendations` (each candidate above it: `scope`, `item`, `change`, `diff`) and `rejected` (a count per reason), summed per class and reason in summary.json; a recommendation is never applied.
 - One row per scope stays; `funnel` adds `units` (all of them) and `unitsReplace` (those replaced).
 - `funnel`: sites → scopes → units → withOptions → replace → unitsReplace → applied → compiled → interopPassed → measured; `measured` includes interop `unchecked`, counted again in `measuredUnchecked` (not a stage); report.md marks each such scope "measured without an interop check", e.g. a randomized encrypt with no decrypt partner (`nondeterministic_output`).
 - A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.

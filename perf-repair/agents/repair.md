@@ -16,6 +16,7 @@
 - order: scope → dossier → test-set (per-app benchmark run) → replace → edit → harness → device → report.
 - guide: `guide/steps.py` chains the stage functions and commands; it adds no logic of its own and stops at the first failing step with a coded reason.
 - report: never invent a number; a metric without both runs is `not measured` with the first step that stopped it.
+- change class: code classes a candidate and offers those up to `apps.maxChange`; the model selects, the gate refuses a pick above it; the higher ones stay recommendations.
 
 ## File structure
 

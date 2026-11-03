@@ -23,10 +23,13 @@
 | Mac | construction, digest, passwordBased, kdf, key |
 | MessageDigest | function |
 | KeyAgreement | algorithm, curve, key |
-| KeyGenerator, KeyPairGenerator | function, consumer, key |
+| KeyGenerator, KeyPairGenerator | function, consumer, key, keyMaterial |
 
 - Group: an item not screened out with a decided signature is grouped by family and the signature's name and value pairs, so `known` and `convention` of one value share a group; id, description and rules as in [grouping.md](grouping.md) Code-made groups.
 - A generator stays asked: no attribute says whether the key it makes stays inside the provider, and on the API 30 capture the model split 8 generators on exactly that.
+- `keyMaterial` is the trial's `defaultRun.keyMaterial`, else `exportable` for `app_held` and `non_exportable` for `provider_held`, else `unknown`; a generator whose default run failed records nothing.
+- `keyMaterial` is the one component where `unknown` decides: gate C refuses to join an unknown side to a known one; two unknown sides may join.
+- A screened-out generator group splits by `keyMaterial` too; no other screened-out group id changes.
 - A model answer joins no group across a component both sides know (gate C).
 - A model never joins a code-made group: an asked item whose function a code-made group has stays in its own model group, a false split and no false join.
 - Evidence, API 30 capture: of Haiku's 98 model groups, code makes 69 exactly and leaves the 29 others asked with no known component differing; neither side joins what the other split. The rules were written after that run, so this is consistency, not an independent test.

@@ -75,6 +75,7 @@
 
 - The members with options are decided together: `replace` gives each exactly once, each a listed alias of its own options and at least one edit, and names no member that stays; `keep` names no members; `reason` is not empty. Per-member problems name the member. `validate` refuses a state where those members differ in decision or some have no row.
 - An inverse link whose sides end on two items after the answer: `fail` refuses it; any status but `pass` needs `unverified_interop` on each swapped side (`S1: risks must include unverified_interop: its inverse S2 ends on …`).
+- A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side above `drop-in` is refused whatever its interop says.
 - Edit kinds come from `EDIT_KIND_TABLE` (`dto/site.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
 - `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.
@@ -92,3 +93,24 @@
 | `no_improvement` | no pair improves under the mode, on complete data |
 
 - A group with an improving pair always reaches the model, whatever its pImprove.
+
+## Accuracy sheet
+
+`python3 -m perfrepair.review sheet|score <device>`.
+
+| `review/decisions.tsv` column | Holds |
+|---|---|
+| `kind`, `app`, `item` | grouping, classify, worthiness (`app` the mode) or replace (`item` the scope) |
+| `model` | the record's model |
+| `facts` | JSON of what code knows: an item's family and known signature; a scope's current, sinks, key source, options, the pick's change class |
+| `pick`, `reason` | the answer; `(dropped)` with its problems |
+| `verdict`, `note` | empty until a person fills them: `ok` or `wrong`; kept across rebuilds while `kind`, `app`, `item` and `pick` stay equal |
+
+| `review/score.json` | Counts |
+|---|---|
+| `groupingPrecision` | `ok` of the judged grouping rows; null while none is judged |
+| `pickAccuracy` | `ok` of the other judged rows |
+| `stability` | items asked twice or more on one message whose accepted answers all pick the same, free text left out |
+| `gateRejections` | rejected turns per 100 calls, per kind and whole |
+
+- Rows come from the active outboxes; stability and rejections from each stage's `journal.jsonl`; a supervisor turn is in neither.

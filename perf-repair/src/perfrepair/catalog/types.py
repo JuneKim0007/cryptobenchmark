@@ -65,23 +65,49 @@ def _row(family: str, canonical: str, raw: dict) -> TypeRow:
                    raw["minSdk"], raw["minSdkSource"])
 
 
-def _problems(row: TypeRow, sources: dict, maps: dict) -> list[str]:
-    where, p = f"{row.family} {row.canonical}", row.properties
+def _number_problems(row: TypeRow) -> list[str]:
+    bad = lambda v: v is not None and (not isinstance(v, int) or v < 1)
+    found = [f"outputBytes {row.properties.outputBytes!r} is neither a positive integer nor null"] * bad(row.properties.outputBytes)
+    return found + [f"minSdk {row.minSdk!r} is neither an API level nor null"] * bad(row.minSdk)
+
+
+def _value_problems(row: TypeRow) -> list[str]:
+    p = row.properties
     found = [f"outputKind {row.outputKind!r} is not one of {OUTPUT_KINDS}"] * (row.outputKind not in OUTPUT_KINDS)
     found += [f"nonceRequired {p.nonceRequired!r} is not one of {NONCES}"] * (p.nonceRequired not in NONCES)
     found += [f"{k} is not a boolean" for k in ("authenticated", "deterministic") if not isinstance(getattr(p, k), bool)]
     found += [f"{k} is not a string" for k in ("parameters", "keyType") if not isinstance(getattr(p, k), str)]
-    if p.outputBytes is not None and (not isinstance(p.outputBytes, int) or p.outputBytes < 1):
-        found.append(f"outputBytes {p.outputBytes!r} is neither a positive integer nor null")
-    if row.minSdk is not None and (not isinstance(row.minSdk, int) or row.minSdk < 1):
-        found.append(f"minSdk {row.minSdk!r} is neither an API level nor null")
-    found += [f"{k} {getattr(row, k)!r} is not a listed source" for k in ("strengthSource", "minSdkSource")
-              if getattr(row, k) not in sources and not (k == "strengthSource" and getattr(row, k) == UNSOURCED)]
+    return found + _number_problems(row)
+
+
+def _source_problems(row: TypeRow, sources: dict, maps: dict) -> list[str]:
+    found = [f"{k} {getattr(row, k)!r} is not a listed source" for k in ("strengthSource", "minSdkSource")
+             if getattr(row, k) not in sources and not (k == "strengthSource" and getattr(row, k) == UNSOURCED)]
     if row.strengthSource == UNSOURCED and row.strength.known:
         found.append("an unsourced strength must be null")
     if row.strength.key is not None and row.strength.key not in maps:
         found.append(f"strength key {row.strength.key!r} is not a keyStrength map")
-    return [f"{where}: {x}" for x in found]
+    return found
+
+
+def _problems(row: TypeRow, sources: dict, maps: dict) -> list[str]:
+    where = f"{row.family} {row.canonical}"
+    return [f"{where}: {x}" for x in _value_problems(row) + _source_problems(row, sources, maps)]
+
+
+def _rows(doc: dict, sources: dict, maps: dict, known) -> tuple[dict[tuple[str, str], TypeRow], list[str]]:
+    rows: dict[tuple[str, str], TypeRow] = {}
+    problems: list[str] = []
+    for family, block in doc["families"].items():
+        if family not in known:
+            problems.append(f"{family}: not a family of families.yaml")
+        for canonical, raw in block["rows"].items():
+            row = _row(family, canonical, {**block.get("defaults", {}), **(raw or {})})
+            if (family, fold(canonical)) in rows:
+                problems.append(f"{family} {canonical}: listed twice")
+            rows[(family, fold(canonical))] = row
+            problems += _problems(row, sources, maps)
+    return rows, problems
 
 
 def load(path: Path = CATALOG, families: Families | None = None) -> Types:
@@ -92,17 +118,8 @@ def load(path: Path = CATALOG, families: Families | None = None) -> Types:
     maps = {name: {int(k): int(v) for k, v in m["bits"].items()} for name, m in doc["keyStrength"].items()}
     problems = [f"keyStrength {n}: source {m['source']!r} is not listed" for n, m in doc["keyStrength"].items()
                 if m["source"] not in sources]
-    known = (families or Families.load()).by_id
-    rows: dict[tuple[str, str], TypeRow] = {}
-    for family, block in doc["families"].items():
-        if family not in known:
-            problems.append(f"{family}: not a family of families.yaml")
-        for canonical, raw in block["rows"].items():
-            row = _row(family, canonical, {**block.get("defaults", {}), **(raw or {})})
-            if (family, fold(canonical)) in rows:
-                problems.append(f"{family} {canonical}: listed twice")
-            rows[(family, fold(canonical))] = row
-            problems += _problems(row, sources, maps)
+    rows, found = _rows(doc, sources, maps, (families or Families.load()).by_id)
+    problems += found
     relied = doc["deterministicRelied"]
     problems += [f"deterministicRelied {k!r} is not an output kind" for k in relied if k not in OUTPUT_KINDS]
     if problems:
