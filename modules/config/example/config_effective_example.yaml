@@ -20,6 +20,12 @@ run:
   warmup:
     iterations: 10
     jobs: []
+  thermalGate:
+    enabled: true
+    sensors: [BIG, MID, LITTLE]
+    marginCelsius: 3.0
+    pollSeconds: 5
+    timeoutSeconds: 120
 policy: {onFailure: skip}
 analysis:
   statistic: {headline: auto, meanUpToCovPercent: 5.0}

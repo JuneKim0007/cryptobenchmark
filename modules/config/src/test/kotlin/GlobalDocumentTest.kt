@@ -72,6 +72,27 @@ class GlobalDocumentTest {
     }
 
     @Test
+    fun theThermalGateIsOffUnlessWrittenNamesItsSensorsAndTravelsToTheEffectiveFile() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(null, run("").thermalGate)
+        assertEquals(false, "thermalGate" in io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("")))
+        val gate = run("run: {thermalGate: {sensors: [s1, s2]}}\n").thermalGate!!
+        assertEquals(io.github.junekim0007.cryptobench.config.global.dto.ThermalGate(true, listOf("s1", "s2"), 3.0, 5, 300), gate)
+        assertEquals(mapOf("enabled" to true, "sensors" to listOf("s1", "s2"), "marginCelsius" to 3.0, "pollSeconds" to 5, "timeoutSeconds" to 300),
+            io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("run: {thermalGate: {sensors: [s1, s2]}}\n"))["thermalGate"])
+        assertEquals(false, run("run: {thermalGate: {enabled: false}}\n").thermalGate!!.enabled)
+        listOf(
+            "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.sensors, the device's sensor names to gate on",
+            "run: {thermalGate: {sensors: [s], marginCelsius: -1}}\n" to "negative: run.thermalGate.marginCelsius -1.0",
+            "run: {thermalGate: {sensors: [s], pollSeconds: 0}}\n" to "not_positive: run.thermalGate.pollSeconds 0",
+            "run: {thermalGate: {sensors: [s], timeoutSeconds: -5}}\n" to "negative: run.thermalGate.timeoutSeconds -5",
+            "run: {thermalGate: {sensors: [s], margin: 3}}\n" to "unknown_keys: run.thermalGate [margin], known [enabled, sensors, marginCelsius, pollSeconds, timeoutSeconds]",
+        ).forEach { (text, message) ->
+            assertEquals(message, org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run(text) }.message)
+        }
+    }
+
+    @Test
     fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
         fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
         assertEquals(3, run("").scopedRepetitions)

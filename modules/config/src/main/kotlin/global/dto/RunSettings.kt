@@ -20,6 +20,8 @@ data class RunSettings(
     // host sleep before every measured case but a session's first, so heat from one case does not land on the next
     val caseCooldownSeconds: Int = 0,
     val warmup: Warmup = Warmup(),
+    // null: no gate, the run starts every case as soon as the last one ends
+    val thermalGate: ThermalGate? = null,
     val harness: HarnessSettings = HarnessSettings(),
 ) {
 

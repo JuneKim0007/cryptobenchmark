@@ -22,6 +22,12 @@ run:                             # optional — every key below falls back to it
   warmup:                        # optional — --device: a pre-flight run once per session, before the first pass; never measured
     iterations: 10               # optional, default 10 — samples each warm-up case takes; 0 turns it off
     jobs: []                     # optional, default [] = the plan's first 3 cases — test-set rules {provider?, type?, name?}
+  thermalGate:                   # optional, default absent = off — --device: before each case process the host waits while the device is hotter than its idle baseline
+    enabled: true                # optional, default true — false keeps the block but turns the gate off
+    sensors: [BIG, MID, LITTLE]  # required when enabled — thermal HAL sensor names (device facts); these are the Pixel's CPU clusters; an absent one is skipped
+    marginCelsius: 3             # optional, default 3 — target = hottest of sensors after the warm-up + margin
+    pollSeconds: 5               # optional, default 5 — seconds between dumpsys reads while waiting
+    timeoutSeconds: 300          # optional, default 300 — past it the case starts anyway, flagged thermal_gate_timeout
   scopedRepetitions: 3           # optional, default 3 — --harness: processes per side, before and after alternating (AB BA AB); 4 cancels linear drift exactly
   harness:                       # optional — the run's defaults; an entry states only what differs
     iterations: 50               # optional — timing samples per case; the device applies it per case (allocation is always 5 runs)

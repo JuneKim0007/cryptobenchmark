@@ -11,6 +11,7 @@ run:                                     # optional — every key falls back to 
   metrics: [TIME]                        # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS
   processRepetitions: 1                  # optional, default 1
   seed: 42                               # optional, default 0
+  thermalGate: {sensors: [BIG, MID, LITTLE], timeoutSeconds: 120}   # optional, default absent = off — --device only
   # harness: {iterations: 50, warmupIterations: null, profiling: none}   # optional — omitted here, the harness's defaults apply
 
 policy:                                  # optional

@@ -32,6 +32,7 @@ class CommittedConfigTest {
         val reference = files.at(File(root, "config/global.reference.yaml"), GlobalDocument).read()
         assertEquals("testsets/scope.yaml", reference.selection.testSet)
         assertEquals(50, reference.run.harness.iterations)
+        assertEquals(listOf("BIG", "MID", "LITTLE"), reference.run.thermalGate?.sensors)
     }
 
     @Test
