@@ -1,0 +1,605 @@
+{
+ "source": "pixel-10-api37-eee9b747 grouping/items.json and screen.json, 2026-11-03",
+ "items": [
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/OAEPPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/OAEPWithSHA-1AndMGF1Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/OAEPWithSHA-224AndMGF1Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/OAEPWithSHA-384AndMGF1Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/OAEPWithSHA-512AndMGF1Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.pair",
+   "canonical": "RSA/ECB/PKCS1Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/CBC/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/CBC/PKCS5Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/CTR/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/ECB/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/ECB/PKCS5Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/GCM-SIV/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/GCM/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "AES/KW/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "ARCFOUR"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "Blowfish"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "ChaCha20"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "ChaCha20-Poly1305"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "DES"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "DESede"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "DESede/CBC/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "DESede/CBC/PKCS5Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "DESede/ECB/NoPadding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.secret",
+   "canonical": "DESede/ECB/PKCS5Padding"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "DESedeWrap"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHMD5AND128BITAES-CBC-OPENSSL"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHMD5AND192BITAES-CBC-OPENSSL"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHMD5AND256BITAES-CBC-OPENSSL"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHA256AND128BITAES-CBC-BC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHA256AND192BITAES-CBC-BC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHA256AND256BITAES-CBC-BC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHAAND128BITAES-CBC-BC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHAAND192BITAES-CBC-BC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHAAND2-KEYTRIPLEDES-CBC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHAAND256BITAES-CBC-BC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWITHSHAANDTWOFISH-CBC"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithMD5AndDES"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithMD5AndRC2"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndDES"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndDESede"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndRC2"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndRC2_128"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndRC2_40"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndRC4_128"
+  },
+  {
+   "type": "Cipher",
+   "family": "cipher.unknown",
+   "canonical": "PBEWithSHA1AndRC4_40"
+  },
+  {
+   "type": "KeyAgreement",
+   "family": "agreement.peer",
+   "canonical": "DiffieHellman"
+  },
+  {
+   "type": "KeyAgreement",
+   "family": "agreement.peer",
+   "canonical": "ECDH"
+  },
+  {
+   "type": "KeyAgreement",
+   "family": "agreement.peer",
+   "canonical": "XDH"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "AES"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "ARCFOUR"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "Blowfish"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "ChaCha20"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "DES"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "DESede"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "HmacMD5"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "HmacSHA1"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "HmacSHA224"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "HmacSHA256"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "HmacSHA384"
+  },
+  {
+   "type": "KeyGenerator",
+   "family": "keygen.none",
+   "canonical": "HmacSHA512"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "DSA"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "DiffieHellman"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "EC"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "EdDSA"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "ML-DSA"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "ML-DSA-65"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "ML-DSA-87"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "ML-KEM"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "ML-KEM-1024"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "ML-KEM-768"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "RSA"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "SLH-DSA-SHA2-128S"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "XDH"
+  },
+  {
+   "type": "KeyPairGenerator",
+   "family": "keypairgen.none",
+   "canonical": "XWING"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "AESCMAC"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "HmacMD5"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "HmacSHA1"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "HmacSHA224"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "HmacSHA256"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "HmacSHA384"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "HmacSHA512"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "PBEWITHHMACSHA"
+  },
+  {
+   "type": "Mac",
+   "family": "mac.secret",
+   "canonical": "PBEWithHmacSHA1"
+  },
+  {
+   "type": "MessageDigest",
+   "family": "digest.none",
+   "canonical": "MD5"
+  },
+  {
+   "type": "MessageDigest",
+   "family": "digest.none",
+   "canonical": "SHA-1"
+  },
+  {
+   "type": "MessageDigest",
+   "family": "digest.none",
+   "canonical": "SHA-224"
+  },
+  {
+   "type": "MessageDigest",
+   "family": "digest.none",
+   "canonical": "SHA-256"
+  },
+  {
+   "type": "MessageDigest",
+   "family": "digest.none",
+   "canonical": "SHA-384"
+  },
+  {
+   "type": "MessageDigest",
+   "family": "digest.none",
+   "canonical": "SHA-512"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "EdDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "MD5withRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "ML-DSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "ML-DSA-65"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "ML-DSA-87"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "NONEwithDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "NONEwithECDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "NONEwithRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA1withDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA1withECDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA1withRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA1withRSA/PSS"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA224withDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA224withECDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA224withRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA224withRSA/PSS"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA256withDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA256withECDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA256withRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA256withRSA/PSS"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA384withECDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA384withRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA384withRSA/PSS"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA512withECDSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA512withRSA"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SHA512withRSA/PSS"
+  },
+  {
+   "type": "Signature",
+   "family": "signature.pair",
+   "canonical": "SLH-DSA-SHA2-128S"
+  }
+ ]
+}

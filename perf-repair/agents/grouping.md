@@ -52,6 +52,8 @@ src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rul
 src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, and what a missing key contract means
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own
 src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes
+src/perfrepair/catalog/types.py : reader of types.yaml, checked whole: fields, sources, families, keyStrength maps; lookup by family and canonical name; strength at a key size
+src/perfrepair/catalog/types.yaml : data: per family and canonical name the output kind, properties, strengthBits (SP 800-57) and minSdk (Android reference), each sourced
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown
