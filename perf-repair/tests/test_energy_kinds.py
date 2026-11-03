@@ -78,6 +78,18 @@ def test_sides_of_different_kinds_have_no_energy_estimate_and_say_why(tmp_path):
     assert check_dossier(document["dossiers"][0], "app", PerfMode())[1] == []
 
 
+def test_a_zero_median_current_has_no_estimate_and_the_dossier_and_render_say_why(tmp_path):
+    rows = [r for r in ROWS if r.rowId in ("c64", "o64")]
+    zero = {"c64": {"timeNs": summary(100), "allocationCount": summary(0, spread=0)},
+            "o64": {"timeNs": summary(80), "allocationCount": summary(3)}}
+    document = build([scope()], tmp_path, rows=rows, measurements=zero)
+    option = next(x for x in document["dossiers"][0]["options"] if x["item"] == "TypeA|ALG-A|P2")
+    assert [(n["metric"], n["reason"]) for n in option["noEstimates"]] == [("allocationCount", "zero_median")]
+    assert check_dossier(document["dossiers"][0], "app", PerfMode())[1] == []
+    assert "no estimate: allocationCount at OP1 key 128 input 64 WARM: zero_median" in render(
+        item(Dossier.from_json(document["dossiers"][0])))
+
+
 def case(kind, runs=(0.5, 0.6)):
     block = {"iterations": 1, "runs": list(runs)} | ({"kind": kind} if kind else {})
     return {"inputSize": None, "metrics": {"timeNs": {"runs": [10.0, 11.0]}, "energyJ": block}}

@@ -1,5 +1,6 @@
 import json
 import random
+from dataclasses import replace
 
 import pytest
 from helpers import summary
@@ -33,7 +34,17 @@ def test_a_clear_win_is_near_certain_and_identical_data_is_a_coin_flip():
 def test_fewer_than_two_runs_give_no_probability():
     assert p_improve(((100.0,),), (process(50),)) is None
     c = compare(summary(100, n=1), summary(50))
-    assert c.pImprove is None and c.reason == "too_few_runs" and c.n == 1 and c.ratio == 0.5
+    assert c.pImprove is None and c.reason is None and c.n == 1 and c.ratio == 0.5
+
+
+def test_compare_is_the_one_rule_for_zero_medians_kinds_and_orientation():
+    zero = compare(summary(0), summary(5))
+    assert zero.ratio is None and zero.reason.startswith("zero_median: ") and zero.pImprove is not None and zero.comparable
+    kinds = compare(replace(summary(100), kind="measured"), replace(summary(50), kind="estimated"))
+    assert (kinds.ratio, kinds.pImprove, kinds.n, kinds.comparable) == (None, None, 0, False)
+    assert kinds.reason == "energy_kinds_differ: measured before, estimated after"
+    higher = compare(summary(100), summary(200), lower_is_better=False)
+    assert higher.ratio == 0.5 and higher.pImprove > 0.99
 
 
 def test_resampling_by_process_widens_what_concatenated_runs_hide():

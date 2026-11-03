@@ -9,21 +9,16 @@ from ..dto.interop import failed_pairs, pair_status
 from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from ..dto.screen import Verdict, lowers_status
-from ..dto.site import ENERGY_KINDS_DIFFER
 from .confidence import level
-from .estimate import p_improve
+from .estimate import compare
 
 WORK_FIELDS = ("operation", "keySize", "inputSize", "phase")
 
 
 def _compare(metric: Metric, a: Summary, b: Summary) -> MetricComparison:
-    if a.kind != b.kind:
-        return MetricComparison(metric.name, None, None, level(None), 0, f"{ENERGY_KINDS_DIFFER}: {a.kind} from, {b.kind} to")
-    before, after = (a, b) if metric.lowerIsBetter else (b, a)
-    p = p_improve(before.processes, after.processes)
-    # a zero median (no allocations) has no ratio; pImprove still compares the runs
-    ratio = after.median / before.median if before.median else None
-    return MetricComparison(metric.name, ratio, p, level(p), min(a.n, b.n))
+    c = compare(a, b, metric.lowerIsBetter)
+    # a zero median keeps its pImprove and no reason: only a pair that is not comparable carries one
+    return MetricComparison(metric.name, c.ratio, c.pImprove, level(c.pImprove), c.n, None if c.comparable else c.reason)
 
 
 def _pair(a: MemberStats, b: MemberStats, interop: str, perf: PerfMode) -> PairMetrics:

@@ -149,8 +149,8 @@ def test_energy_of_different_kinds_is_never_compared():
     g, p = _energy("measured", "estimated")
     joules = {c.metric: c for c in p.metrics}["energyJ"]
     assert joules.ratio is None and joules.pImprove is None
-    assert joules.reason == "energy_kinds_differ: measured from, estimated to"
-    assert "energy_kinds_differ: measured from, estimated to | - | -" in render(g, LATENCY, [])
+    assert joules.reason == "energy_kinds_differ: measured before, estimated after"
+    assert "energy_kinds_differ: measured before, estimated after | - | -" in render(g, LATENCY, [])
 
 
 def test_a_metric_one_side_lacks_is_no_comparison():

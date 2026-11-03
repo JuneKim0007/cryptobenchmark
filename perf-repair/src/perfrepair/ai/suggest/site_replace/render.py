@@ -71,12 +71,15 @@ def _option(s: Scope, o: Option) -> list[str]:
     pins = UNKNOWN_PINS if o.pins is None else ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
     lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}",
              *_change(o), _interop(s, o)]
+    # a metric both sides have but no ratio is shown with its reason, never left out unexplained
+    absent = [f"    no estimate: {n.metric} at {n.configuration}: {n.reason}" for n in o.noEstimates]
     if not o.estimates:
-        return lines + ["    estimates: none measured"]
+        return lines + ["    estimates: none measured", *absent]
     named = _names(o.estimates)
     cells = [f"{e.metric}{named[e.configuration]} {e.ratio:.3f} "
              f"{TOO_FEW_RUNS if e.pImprove is None else f'{e.pImprove:.3f}'} {e.n}" for e in o.estimates]
-    return lines + ["    estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: " + "; ".join(cells)]
+    return lines + ["    estimates (ratio option ÷ current, pImprove, n), the configurations nearest this site: " + "; ".join(cells),
+                    *absent]
 
 
 def _names(estimates) -> dict[str, str]:

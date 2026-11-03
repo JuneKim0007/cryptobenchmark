@@ -12,8 +12,9 @@ from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.measurement import ESTIMATED
 from ..dto.perf_mode import PerfMode, no_evidence
-from ..dto.site import (DOSSIERS_SCHEMA_VERSION, ENERGY_KINDS_DIFFER, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier,
-                        Estimate, NoEstimate, Option, Scope)
+from ..dto.metrics import BY_NAME
+from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier,
+                        Estimate, NoEstimate, Option, Scope, reason_code)
 from ..dto.change import DROP_IN, NO_GAIN, REJECTED, Change, PairDiff
 from .candidates import Family
 from .change import foreign_member, reach
@@ -62,8 +63,8 @@ def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: d
         for metric in metrics:
             before = (measurements.get(current[c].rowId) or {}).get(metric)
             after = (measurements.get(option[c].rowId) or {}).get(metric)
-            if before is not None and after is not None and before.median != 0:
-                yield c, metric, before, after
+            if before is not None and after is not None:
+                yield c, metric, compare(before, after, BY_NAME[metric].lowerIsBetter), after.kind
 
 
 def _shown(c: Config, kind: str | None) -> str:
@@ -71,19 +72,12 @@ def _shown(c: Config, kind: str | None) -> str:
     return f"{label(c)}, estimated" if kind == ESTIMATED else label(c)
 
 
-def estimates(*sides) -> tuple[Estimate, ...]:
-    out = []
-    for c, metric, before, after in _sides(*sides):
-        if before.kind == after.kind:
-            e = compare(before, after)
-            out.append(Estimate(metric, e.ratio, e.pImprove, e.n, _shown(c, after.kind), after.kind))
-    return tuple(out)
-
-
-def no_estimates(*sides) -> tuple[NoEstimate, ...]:
-    """A measured side and an estimated one are never one estimate."""
-    return tuple(NoEstimate(metric, label(c), ENERGY_KINDS_DIFFER) for c, metric, before, after in _sides(*sides)
-                 if before.kind != after.kind)
+def estimates(*sides) -> tuple[tuple[Estimate, ...], tuple[NoEstimate, ...]]:
+    """Each metric both sides have: an estimate, or the reason code compare() gives no ratio, so the decision sees why."""
+    found = list(_sides(*sides))
+    return (tuple(Estimate(metric, e.ratio, e.pImprove, e.n, _shown(c, kind), kind) for c, metric, e, kind in found
+                  if e.ratio is not None),
+            tuple(NoEstimate(metric, label(c), reason_code(e.reason)) for c, metric, e, _ in found if e.ratio is None))
 
 
 def function_source(root: Path, scope: Scope) -> str:
@@ -149,8 +143,9 @@ class Joined:
         used = nearest(s, mine, theirs, operations(s))
         sides = (used, mine, theirs, self.measurements, self.perf.names)
         classed = {"change": change.change, "diff": change.diff} if change is not None else {}
-        return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), estimates(*sides),
-                      None if self.verdicts is None else self.verdicts[q].status, no_estimates(*sides), **classed)
+        found, absent = estimates(*sides)
+        return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), found,
+                      None if self.verdicts is None else self.verdicts[q].status, absent, **classed)
 
     def others(self, current: str) -> list[str] | None:
         """The other members of the current item's group; None when it is in none."""
