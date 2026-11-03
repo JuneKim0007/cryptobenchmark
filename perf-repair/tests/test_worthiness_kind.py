@@ -5,6 +5,9 @@ from helpers import summary
 from test_evidence import EVIDENCE, GROUPS, M, ROWS
 
 from perfrepair.dto import Verdicts
+from perfrepair.dto.perf_mode import PerfMode
+from perfrepair.dto.units import DisplayUnits
+from perfrepair.result.modes import mode_of
 from perfrepair.ai.evaluate.worthiness.kind import WorthinessKind
 from perfrepair.result.evidence import build_evidence
 from helpers import LATENCY, LATENCY_ALLOC
@@ -59,3 +62,11 @@ def test_gate_names_missing_selected_allocations_as_unmeasured():
     kind = WorthinessKind(LATENCY_ALLOC, [], list(evidence.values()), ".")
     _, problems = kind.check(evidence["g-a"], reply(pairs=[{"from": P1, "to": P2, "reason": "x"}]), Verdicts(LATENCY_ALLOC.name))
     assert any("lacks the measurements" in p for p in problems)
+
+
+def test_time_is_shown_in_the_display_units_and_throughput_only_when_selected():
+    both = WorthinessKind(mode_of(PerfMode.parse("latency,throughput")), [], list(EVIDENCE.values()), ".",
+                          DisplayUnits("us", "MiB/s"))
+    text = both.render(G, Verdicts("x")).text
+    assert "timeNs median us/op" in text and "throughput MiB/s (median)" in text and "| 0.2 |" in text
+    assert "throughput" not in KIND.render(G, Verdicts("latency")).text.split("CONFIGURATION", 1)[1]

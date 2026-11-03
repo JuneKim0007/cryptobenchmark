@@ -27,7 +27,7 @@ src/perfrepair/catalog/screening.py : the screening reader: crypto, component, p
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
 src/perfrepair/data_handler/inbound/__main__.py : command: manifest → rows.json, measurements.json, run_log.json, through device/inbound.py
 src/perfrepair/data_handler/inbound/bootstrap.py : median bootstrap that resamples processes, then blocks of runs; seeded
-src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path
+src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path; display_units, the one reader of the units every view shows
 src/perfrepair/data_handler/inbound/primitives.py : read_primitives: the reader of primitives.tsv
 src/perfrepair/data_handler/inbound/probe/__init__.py : exports only `Probe`; the `_` modules are private to the package (`tests/test_layers.py`)
 src/perfrepair/data_handler/inbound/probe/_index.py : probe → engine types and the name each provider registers for a spelling
@@ -55,19 +55,20 @@ src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only; retired: memberless groups a record still names); the `code_` id prefix
 src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml with its notCheckable pairs, the groups.json interop section, failed_pairs, pair_status, PAIR_STATUSES
 src/perfrepair/dto/lifecycle.py : Lifecycle, Step, Requirement, Settled: a primitive object from creation to last use; statuses, reasons, bindings, roles, origins, the open ones
-src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
+src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark, its display units included
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
 src/perfrepair/dto/metrics.py : the metric registry, the only metric list: benchmark.json name, unit, lowerIsBetter, energy kinds, perfMode keys, required, positive, the run.metrics or energy capture that measures it
 src/perfrepair/dto/perf_mode.py : PerfMode: generic or a list of keys parsed and named; the selected registry metrics, the required ones, the views timeNs is shown as; the no_evidence reason
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
 src/perfrepair/dto/primitives.py : PrimitiveLine, PrimitivesTable: primitives.tsv (schema 1) as text both ways; a median column per (metric, input size), n, cv per metric; 4 significant digits
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds; each prompt's source, never hashed
-src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, the members a unit left staying, scoped case ids
+src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, has_views (the time metric throughput selects), funnel stages, the members a unit left staying, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED, NEVER_TARGET; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and lowers_status (the don't-lower-the-status rule); verdicts by qualified name; screen.json document (schema 4, with the catalog identity and the `built` items and profiles digests)
 src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
+src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (latency ms|us|ns, throughput MB/s|MiB/s|ops/s), parsed and checked, defaults mirroring :config; ns/op to each; significant-figure numbers
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per selected metric), MetricComparison, PairMetrics (a comparison per selected metric), Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; one-line append; several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only

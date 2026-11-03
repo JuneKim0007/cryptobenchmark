@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from ..dto.report import MEASURABLE, SCHEMA_VERSION, stayed, unit_counts
 from ..dto.unit import read_units, units_by_scope
+from ..dto.units import DisplayUnits
 from ..files import read_json, read_yaml
 from ..result.modes import Mode
 from ..run_dir import AppPaths
@@ -36,7 +37,7 @@ def _with_units(rows: list[dict], of_unit: dict) -> list[dict]:
     return [{**r, "stayed": stays[r["unit"]]} for r in rows]
 
 
-def build_report(paths: AppPaths, mode: Mode) -> dict:
+def build_report(paths: AppPaths, mode: Mode, units: DisplayUnits) -> dict:
     for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
             raise FileNotFoundError(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
@@ -54,9 +55,9 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     inputs = {s["id"]: s.get("inputs") for s in harness.get("scopes") or []}
     measured = read_measured(paths, list(inputs))
     rows = _with_units([scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
-                                  edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]),
+                                  edits.get(s["id"]), edits_doc is not None, measured, mode, inputs.get(s["id"]), units,
                                   s["id"] in stale)
                         for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))], of_unit)
-    return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name,
+    return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name, "units": units.to_json(),
             "measuredFrom": str(paths.scoped_benchmark.relative_to(paths.root)) if measured.cases else None,
             "funnel": funnel(len(sites), rows, len(dossiers)), "scopes": rows}

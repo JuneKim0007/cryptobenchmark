@@ -3,14 +3,11 @@ from __future__ import annotations
 
 from ..dto.measurement import ESTIMATED
 from ..dto.report import CHANGES, FUNNEL
+from ..dto.units import number
 
 NOT_MEASURED = "not measured"
 # marks a metric the perfMode selected: the one a decision saw and the verdict judged
 SELECTED = " *"
-
-
-def _num(v: float | None, digits: int = 3) -> str:
-    return "n/a" if v is None else f"{v:.{digits}g}" if abs(v) < 1000 else f"{v:,.0f}"
 
 
 def _p(m: dict) -> str:
@@ -45,20 +42,20 @@ def _funnel(f: dict) -> list[str]:
     return ["| " + " | ".join(FUNNEL) + " |", "|" + "---|" * len(FUNNEL), "| " + " | ".join(str(f[k]) for k in FUNNEL) + " |"]
 
 
-def _metric_lines(m: dict) -> list[str]:
+def _metric_lines(m: dict, units: dict) -> list[str]:
+    """The time metric is one row in the latency unit and a throughput line under it, never two pieces of evidence."""
     name = f"{m['metric']}{SELECTED if m['selected'] else ''}"
     if not m["measured"]:
         return [f"| {name} ({m['unit']}) | {NOT_MEASURED}: {m['reason']} | | | |"]
     ratio = "n/a (zero before)" if m["ratio"] is None else f"{m['ratio']:.3f}"
     estimated = ", estimated" if m.get("kind") == ESTIMATED else ""
-    lines = [f"| {name} ({m['unit']}{estimated}) | {_num(m['before'])} → {_num(m['after'])} | {ratio} | {_p(m)} | {m['n']} |"]
-    t = m.get("throughput")
-    if t:
-        ops = t["opsPerSecond"]
-        lines.append(f"| ops/s | {_num(ops['before'])} → {_num(ops['after'])} | | | |")
-        mb = t["mbPerSecond"]
-        lines.append(f"| MB/s | {_num(mb['before'])} → {_num(mb['after'])} | | | |" if mb
-                     else f"| MB/s | {NOT_MEASURED}: no input size | | | |")
+    shown = (m.get("views") or {}).get("latency") or {"unit": m["unit"], "before": m["before"], "after": m["after"]}
+    lines = [f"| {name} ({shown['unit']}{estimated}) | {number(shown['before'])} → {number(shown['after'])} | {ratio} | {_p(m)} "
+             f"| {m['n']} |"]
+    if "views" in m:
+        t = (m["views"] or {}).get("throughput")
+        lines.append(f"| throughput ({units['throughput']}) | {number(t['before'])} → {number(t['after'])} | | | |" if t
+                     else f"| throughput ({units['throughput']}) | {NOT_MEASURED}: no input size | | | |")
     return lines
 
 
@@ -77,7 +74,7 @@ def report_markdown(doc: dict) -> str:
                 f"- verdict ({doc['mode']}): {s['verdict']}; `*` marks the metrics it selects", "",
                 "| metric | before → after | ratio | pImprove | n |", "|---|---|---|---|---|"]
         for m in s["metrics"]:
-            out += _metric_lines(m)
+            out += _metric_lines(m, doc["units"])
         if s["primitive"] and not any(m["measured"] for m in s["metrics"]):
             out += ["", "Primitive-only evidence (the benchmark's cases, not this function):"]
             out += [f"- {e['metric']} at {e['configuration']}: ratio {e['ratio']:.3f}, pImprove "

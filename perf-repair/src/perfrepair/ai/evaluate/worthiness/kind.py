@@ -6,6 +6,7 @@ from .... import run_dir as rd
 from ....dto import GroupEvidence, Verdict, Verdicts
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
+from ....dto.units import DisplayUnits
 from ....files import write_json
 from ....result.modes import Mode
 from ....result.triage import triage
@@ -25,8 +26,10 @@ def charter(library: PromptLibrary) -> Charter:
 
 class WorthinessKind:
 
-    def __init__(self, mode: Mode, comparability: list[str], evidence: list[GroupEvidence], directory: Path):
+    def __init__(self, mode: Mode, comparability: list[str], evidence: list[GroupEvidence], directory: Path,
+                 units: DisplayUnits = DisplayUnits()):
         self.mode, self.comparability, self.evidence, self.directory = mode, comparability, evidence, Path(directory)
+        self.units = units
         self.name = f"worthiness-{mode.name}"
         self._ask, self.static = triage(evidence, mode)
 
@@ -46,7 +49,7 @@ class WorthinessKind:
         return e.groupId
 
     def render(self, e: GroupEvidence, verdicts: Verdicts) -> TaskPrompt:
-        return TaskPrompt(NAME, render(e, self.mode, self.comparability), e.key)
+        return TaskPrompt(NAME, render(e, self.mode, self.comparability, self.units), e.key)
 
     def check(self, e: GroupEvidence, text: str, verdicts: Verdicts) -> tuple[dict | None, list[str]]:
         return check_reply(text, e, self.mode)

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .units import DisplayUnits
+
 SCHEMA_VERSION = 1
 MODES = ("host", "device")
 
@@ -24,12 +26,13 @@ class BenchmarkManifest:
     deviceId: str = ""
     # digests of providers.bundled and global.yaml the run used; empty from a pipeline before they were recorded
     inputs: dict[str, str] = field(default_factory=dict)
+    units: DisplayUnits = DisplayUnits()
 
     def to_json(self) -> dict:
         return {"schemaVersion": SCHEMA_VERSION, "mode": self.mode, "config": self.config, "deviceId": self.deviceId,
                 "runtime": self.runtime,
                 "providers": [vars(p) for p in self.providers],
-                "files": self.files, "counts": self.counts, "inputs": self.inputs}
+                "files": self.files, "counts": self.counts, "inputs": self.inputs, "units": self.units.to_json()}
 
     @classmethod
     def from_json(cls, doc: dict) -> "BenchmarkManifest":
@@ -43,4 +46,4 @@ class BenchmarkManifest:
                    [ProviderEntry(p["name"], int(p["precedence"]), int(p.get("serviceCount", 0)))
                     for p in doc.get("providers") or []],
                    doc.get("files") or {}, doc.get("counts") or {}, doc["deviceId"],
-                   doc.get("inputs") or {})
+                   doc.get("inputs") or {}, DisplayUnits.parse(doc.get("units")))

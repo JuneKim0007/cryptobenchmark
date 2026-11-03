@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from ..dto import MetricComparison, PairMetrics
 from ..dto.report import MEASURABLE, case_id
+from ..dto.units import DisplayUnits
 from ..result.modes import Mode
 from .measured import Measured
 from .metrics import metric_rows, unmeasured
@@ -59,7 +60,8 @@ def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
 
 
 def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, source: str | None, edit: dict | None,
-              has_edits: bool, measured: Measured, mode: Mode, inputs: dict | None, stale: bool = False) -> dict:
+              has_edits: bool, measured: Measured, mode: Mode, inputs: dict | None, units: DisplayUnits,
+              stale: bool = False) -> dict:
     """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness.
     `stale`: the decision was made on an earlier dossier."""
     decision = _decision(replacement, source, stale)
@@ -79,7 +81,7 @@ def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, sourc
     elif before is None or after is None:
         metrics = unmeasured("no_cases: the device measured neither or one of before and after", mode.perf)
     else:
-        metrics = metric_rows(before, after, mode.perf)
+        metrics = metric_rows(before, after, mode.perf, units)
     chosen = next((o for o in (dossier or {}).get("options") or [] if o["item"] == option), None)
     return {"scope": scope["id"], "file": scope["file"], "line": scope["line"], "function": scope["function"],
             "current": current, "option": option, "inputs": inputs, "decision": decision, "edit": edited, "compile": compiled,

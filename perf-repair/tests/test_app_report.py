@@ -15,6 +15,7 @@ from perfrepair.report.markdown import report_markdown
 from perfrepair.report.command import app_report, device_summary
 from helpers import LATENCY, LATENCY_ALLOC
 from perfrepair.run_dir import AppPaths
+from perfrepair.dto.units import DisplayUnits
 from perfrepair.validation.report import validate_report, validate_summary
 
 F = Path(__file__).parent / "fixtures" / "report"
@@ -73,8 +74,9 @@ def test_a_measured_scope_reports_before_after_per_metric(tmp_path):
     assert a["interop"] == {"status": "passed", "reason": None, "check": "same_output"}
     time, alloc, energy = a["metrics"]
     assert (time["before"], time["after"], time["ratio"], time["level"]) == (1000, 800, 0.8, "ok")
-    assert time["throughput"]["opsPerSecond"] == {"before": 1e6, "after": 1.25e6}
-    assert time["throughput"]["mbPerSecond"] == {"before": 1024.0, "after": 1280.0}
+    assert time["views"]["latency"] == {"unit": "ms/op", "before": 0.001, "after": 0.0008}
+    assert time["views"]["throughput"] == {"unit": "MB/s", "before": 1024.0, "after": 1280.0}
+    assert doc["units"] == {"latency": "ms", "throughput": "MB/s"}
     assert (alloc["ratio"], alloc["level"]) == (1.0, "weak")
     assert (energy["before"], energy["after"], energy["pImprove"], energy["level"]) == (0.002, 0.0015, None, "too_few_runs")
     assert a["verdict"] == "improves" and a["primitive"] == [ESTIMATE]
@@ -104,7 +106,7 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
 def test_the_markdown_carries_the_numbers_and_the_reasons(tmp_path, app):
     app_report(tmp_path, "shop", LATENCY, **QUIET)
     text = app.report_md.read_text()
-    assert "| timeNs * (ns/op) | 1,000 → 800 | 0.800 |" in text and "| MB/s | 1,024 → 1,280 |" in text
+    assert "| timeNs * (ms/op) | 0.001 → 0.0008 | 0.800 |" in text and "| throughput (MB/s) | 1,024 → 1,280 |" in text
     assert "| energyJ (J/op) | 0.002 → 0.0015 | 0.750 | n/a (n<2) | 1 |" in text
     assert "not measured: primitive_only: missing_input: inputSize for in" in text
     assert "Primitive-only evidence" in text and "ratio 0.700, pImprove 0.99" in text
@@ -144,6 +146,18 @@ def test_a_plan_of_another_harness_is_refused(tmp_path, app):
     write_text(app.harness, yaml.safe_dump({"scopes": [{"id": A}]}))
     with pytest.raises(ValueError, match="measured_mismatch"):
         app_report(tmp_path, "shop", LATENCY, **QUIET)
+
+
+def test_the_manifest_units_are_what_the_report_shows(tmp_path):
+    (tmp_path / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\ndeviceId: d\nunits: {latency: us, throughput: ops/s}\n")
+    doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
+    views = rows(doc)[A]["metrics"][0]["views"]
+    assert views == {"latency": {"unit": "us/op", "before": 1.0, "after": 0.8},
+                     "throughput": {"unit": "ops/s", "before": 1e6, "after": 1.25e6}}
+    assert validate_report(doc, "shop") == []
+    bad = json.loads(json.dumps(doc))
+    rows(bad)[A]["metrics"][0]["views"]["latency"]["before"] = 2.0
+    assert any("latency view" in p for p in validate_report(bad, "shop"))
 
 
 def test_the_validator_refuses_an_invented_number(tmp_path):
@@ -197,7 +211,7 @@ def test_the_command_writes_both_files(tmp_path, app):
 
 def test_rows_carry_their_unit_and_the_units_their_function_shares(tmp_path):
     paths = AppPaths(tmp_path, "shop")
-    doc = build_report(paths, LATENCY)
+    doc = build_report(paths, LATENCY, DisplayUnits())
     rows = {r["scope"]: r for r in doc["scopes"]}
     assert (rows[A]["unit"], rows[B]["unit"], rows[A]["sharedFunction"]) == ("u-ab", "u-ab", ["u-c"])
     assert rows[D]["sharedFunction"] == [] and len(doc["scopes"]) == 5
@@ -211,7 +225,7 @@ def test_a_row_names_the_members_that_stayed_while_its_unit_was_replaced(tmp_pat
     units["units"] = [u for u in units["units"] if u["id"] not in ("u-c", "u-d")] + [
         {"id": "u-cd", "members": [C, D], "links": [], "sharedFunction": []}]
     write_json(paths.units, units)
-    doc = build_report(paths, LATENCY)
+    doc = build_report(paths, LATENCY, DisplayUnits())
     rows = {r["scope"]: r for r in doc["scopes"]}
     assert rows[C]["stayed"] == rows[D]["stayed"] == [D] and rows[A]["stayed"] == [] and rows[E]["stayed"] == []
     assert validate_report(doc, "shop") == []
@@ -226,7 +240,7 @@ def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
         if row["scope"] == A:
             row.update(status="rejected", reason="unit_member_rejected", diff="", blockedBy=f"{B}: call_moved")
     write_json(paths.edits, edits)
-    row = next(r for r in build_report(paths, LATENCY)["scopes"] if r["scope"] == A)
+    row = next(r for r in build_report(paths, LATENCY, DisplayUnits())["scopes"] if r["scope"] == A)
     assert row["edit"] == {"status": "rejected", "reason": f"unit_member_rejected: {B}: call_moved"}
 
 
@@ -234,5 +248,5 @@ def test_a_report_without_units_says_which_step_to_run(tmp_path):
     paths = AppPaths(tmp_path, "shop")
     paths.units.unlink()
     with pytest.raises(FileNotFoundError, match="missing_step"):
-        build_report(paths, LATENCY)
+        build_report(paths, LATENCY, DisplayUnits())
 

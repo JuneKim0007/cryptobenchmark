@@ -29,7 +29,7 @@
 | field | worthiness |
 |---|---|
 | item | one group of `grouping/groups.json` with an improving pair, not settled by triage |
-| message | mode, run warnings, members `M1..Mn`, per configuration with pairs and per selected and measured metric (`dto/metrics.py`, [modes.md](modes.md) perfMode; energy with its kind): medians with their 95% bootstrap interval, IQR, cv, n, pair ratios, pImprove with its level (`docs/modes.md`) |
+| message | mode, run warnings, members `M1..Mn`, per configuration with pairs and per selected and measured metric (`dto/metrics.py`, [modes.md](modes.md) perfMode; energy with its kind; time in the manifest's display units, with a throughput median column when `throughput` is selected and the configuration has an input size): medians with their 95% bootstrap interval, IQR, cv, n, pair ratios, pImprove with its level (`docs/modes.md`) |
 | timings shown | yes |
 | answer | `decision` test\|skip, `pairs` [{from, to, reason}], `reason` naming the deciding metrics; code adds each pair's best `pImprove` and `level` |
 | ids minted by | code: aliases resolve to qualified item names `Type\|name\|provider` |

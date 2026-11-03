@@ -1,12 +1,13 @@
 """Vocabulary of report.json and summary.json: step statuses, reported metrics, funnel stages."""
 from __future__ import annotations
 
-from .metrics import METRICS
+from .metrics import METRICS, Metric
 
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
-# sharedFunction and stayed, funnel units and unitsReplace; 5: metric rows carry selected, summary metrics are the
-# selected ones
+# sharedFunction and stayed, funnel units and unitsReplace; 5: metric rows carry selected, the time row its views in the
+# display units (report units), summary metrics are the selected ones
 SCHEMA_VERSION = 5
+THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")
 EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")
@@ -20,6 +21,11 @@ REPORTED = tuple((m.name, m.unit) for m in METRICS)
 FUNNEL = ("sites", "scopes", "units", "withOptions", "replace", "unitsReplace", "applied", "compiled", "interopPassed", "measured",
           "measuredUnchecked")
 CHANGES = ("improved", "unchanged", "worse", "notMeasured")
+
+
+def has_views(metric: Metric) -> bool:
+    """A metric throughput selects is time: its row carries latency and throughput in the display units."""
+    return THROUGHPUT in metric.selects
 
 
 def unit_counts(rows: list[dict]) -> dict:

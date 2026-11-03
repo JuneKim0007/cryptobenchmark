@@ -4,6 +4,7 @@ from pathlib import Path
 
 from ... import run_dir as rd
 from ...dto import BenchmarkManifest
+from ...dto.units import DisplayUnits
 from ...files import read_yaml
 
 
@@ -25,3 +26,9 @@ def manifest_file(manifest: BenchmarkManifest, base: Path, key: str) -> Path | N
     if not path.is_file():
         raise FileNotFoundError(f"manifest files.{key} = {rel} does not exist under {base}")
     return path
+
+
+def display_units(device: Path) -> DisplayUnits:
+    """The units every view of this device folder shows; a folder without a manifest (a test, a hand-made one) the defaults."""
+    path = Path(device) / rd.MANIFEST
+    return read_manifest(path)[0].units if path.is_file() else DisplayUnits()

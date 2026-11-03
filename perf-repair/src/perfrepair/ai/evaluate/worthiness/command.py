@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .... import run_dir as rd
 from ....dto import Verdicts
+from ....data_handler.inbound.manifest import display_units
 from ....dto.event import LOG
 from ....dto.perf_mode import NO_EVIDENCE
 from ....dto.screen import qualified_verdicts
@@ -38,7 +39,7 @@ def worthiness(run_path: Path, mode: Mode, conversations: Conversations, library
     directory = rd.worthiness(run_path, mode.name)
     directory.mkdir(parents=True, exist_ok=True)
     write_json(directory / rd.EVIDENCE, {"schemaVersion": EVIDENCE_SCHEMA_VERSION, "groups": [asdict(e) for e in evidence]})
-    kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
+    kind = WorthinessKind(mode, measurements.comparability, evidence, directory, display_units(run_path))
     missing = [v.reason for v in kind.static if v.reason.startswith(NO_EVIDENCE)]
     if missing:
         emit("worthiness", "triage", LOG, detail=f"{len(missing)} groups {NO_EVIDENCE} under {mode.name}",

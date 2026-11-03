@@ -46,7 +46,7 @@
 src/perfrepair/ai/__main__.py : command: the worthiness and replace stages
 src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurements → evidence, triage, WorthinessKind on the engine
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; triage statics, apply, dropped → fallback skip
-src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables
+src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables; time in the display units, a throughput column when selected
 src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required; member aliases and non-blank reasons as patterns
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
 src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)

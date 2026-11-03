@@ -26,7 +26,7 @@
 
 | Artifact | Producer | Consumers | Validator |
 |---|---|---|---|
-| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`) | `validation/manifest.py` |
+| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the report and both renders (absent: ms, MB/s) | `validation/manifest.py` |
 | `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; unreadable counts as absent |
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
@@ -74,6 +74,7 @@ One stored, compact view of the benchmark results: on the API 30 emulator run, 4
 | `n` | the fewest runs among the line's cells |
 | `<metric>.cv` | the largest coefficient of variation among that metric's cells |
 
+- Stored in the registry units (`timeNs` in ns/op), never in the display units: a unit change rewrites no file; a reader converts when it shows a line.
 - Numbers carry 4 significant digits: the table is for reading; `measurements.json` keeps the runs, and pImprove is computed from it, never from the table.
 - Device stage: rebuilt when `rows.json`, `measurements.json` or `grouping/screen.json` differ from the digests `device.yaml` `primitives` recorded, when inbound or screen rerun, when it is missing, and with `guide --refresh`; else reused ([pipeline.md](pipeline.md) Device stage).
 
@@ -88,6 +89,7 @@ One stored, compact view of the benchmark results: on the API 30 emulator run, 4
 | `providers[]` | `{name, precedence, serviceCount}` in precedence order |
 | `files` | paths relative to the manifest: probe, trial, inventory, effective, prepared, skipped, benchmark, processes[]; a stage that did not run is absent |
 | `counts` | prepared, skipped, measured, for the files that exist |
+| `units` | `analysis.units`: `latency` (`ms`, `us`, `ns`), `throughput` (`MB/s`, `MiB/s`, `ops/s`); display only; absent before cryptobenchmark recorded it, read as `ms`, `MB/s`; another value fails the read `invalid: manifest units` |
 
 ## `run_log.json` statuses
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
+from ..data_handler.inbound.manifest import display_units
 from ..files import read_json, write_json, write_text
 from ..log import step
 from ..result.modes import Mode
@@ -18,7 +19,7 @@ from .summary import build_summary
 def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
     paths = rd.AppPaths(device, app)
     with step("report", "app", app=app) as s:
-        doc = build_report(paths, mode)
+        doc = build_report(paths, mode, display_units(device))
         require(rd.REPORT, validate_report(doc, app))
         write_json(paths.report, doc)
         write_text(paths.report_md, report_markdown(doc))

@@ -5,7 +5,10 @@ import math
 
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
                           MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS, stayed, unit_counts)
+from ..dto.metrics import BY_NAME
 from ..dto.perf_mode import PerfMode
+from ..dto.report import has_views
+from ..dto.units import DisplayUnits
 from ..result.confidence import level
 from .repair import valid_inputs
 
@@ -21,13 +24,28 @@ def _selection(doc: dict) -> tuple[str, ...] | None:
         return None
 
 
-def _metric(where: str, m: dict, selected: tuple[str, ...]) -> list[str]:
+def _views(where: str, m: dict, units: DisplayUnits) -> list[str]:
+    """The time row's display: latency is its medians in the latency unit, throughput their inverse in its unit or null."""
+    v = m["views"]
+    if v is None:
+        return [] if not (m["before"] > 0 and m["after"] > 0) else [f"{where}: views null for positive medians"]
+    lat, tput = v.get("latency") or {}, v.get("throughput")
+    if lat != {"unit": units.latency_label, "before": units.latency_of(m["before"]), "after": units.latency_of(m["after"])}:
+        return [f"{where}: latency view {lat} is not the medians in {units.latency_label}"]
+    if tput is not None and (tput.get("unit") != units.throughput
+                             or not math.isclose(tput["before"] * m["before"], tput["after"] * m["after"], rel_tol=1e-9)):
+        return [f"{where}: throughput view {tput} is not the medians' inverse in {units.throughput}"]
+    return []
+
+
+def _metric(where: str, m: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
     if m.get("selected") is not (m.get("metric") in selected):
         return [f"{where}: selected {m.get('selected')!r} is not whether the mode selects it"]
     if m.get("measured") is False:
         ok = set(m) == {"metric", "unit", "selected", "measured", "reason"} and isinstance(m["reason"], str) and m["reason"]
         return [] if ok else [f"{where}: an unmeasured metric has exactly a non-empty reason and no numbers"]
-    extra = {"throughput"} if m.get("metric") == "timeNs" else set(m) & {"kind"}
+    metric = BY_NAME.get(m.get("metric"))
+    extra = {"views"} if metric is not None and has_views(metric) else set(m) & {"kind"}
     if set(m) != MEASURED_KEYS | extra:
         return [f"{where}: keys {sorted(m)}"]
     problems = []
@@ -37,7 +55,7 @@ def _metric(where: str, m: dict, selected: tuple[str, ...]) -> list[str]:
         problems.append(f"{where}: ratio {m['ratio']} is not after ÷ before")
     if m["level"] != level(m["pImprove"]):
         problems.append(f"{where}: level {m['level']} is not the grade of pImprove {m['pImprove']}")
-    return problems
+    return problems + (_views(where, m, units) if "views" in extra and not problems else [])
 
 
 def _decision(where: str, d: dict) -> list[str]:
@@ -53,7 +71,7 @@ def _unit(where: str, r: dict) -> list[str]:
     return [f"{where}: unit {r['unit']!r} or sharedFunction {r['sharedFunction']!r}"]
 
 
-def _row(where: str, r: dict, selected: tuple[str, ...]) -> list[str]:
+def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
     if tuple(r) != ROW_KEYS:
         return [f"{where}: keys {list(r)}"]
     problems = _decision(where, r["decision"])
@@ -63,7 +81,7 @@ def _row(where: str, r: dict, selected: tuple[str, ...]) -> list[str]:
     if [m.get("metric") for m in r["metrics"]] != [k for k, _ in REPORTED]:
         problems.append(f"{where}: metrics are not {[k for k, _ in REPORTED]} in order")
     for m in r["metrics"]:
-        problems += _metric(f"{where}.{m.get('metric')}", m, selected)
+        problems += _metric(f"{where}.{m.get('metric')}", m, selected, units)
     if any(m.get("measured") for m in r["metrics"]) and r["interop"].get("status") not in MEASURABLE:
         problems.append(f"{where}: measured although interop is {r['interop'].get('status')}")
     if r["inputs"] is not None and not valid_inputs(r["inputs"]):
@@ -97,9 +115,13 @@ def validate_report(doc: dict, app: str) -> list[str]:
         problems.append(f"app {doc.get('app')!r} is not {app!r}")
     if (selected := _selection(doc)) is None:
         return problems + [f"mode {doc.get('mode')!r} is not a perfMode"]
+    try:
+        units = DisplayUnits.parse(doc["units"])
+    except (KeyError, ValueError) as e:
+        return problems + [f"units: {e}"]
     rows = doc.get("scopes") or []
     for r in rows:
-        problems += _row(str(r.get("scope")), r, selected)
+        problems += _row(str(r.get("scope")), r, selected, units)
     if problems:
         return problems
     problems += _stayed(rows)
