@@ -68,7 +68,7 @@ Paths relative to the device folder.
 - `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`, `scoped`; `--interop` adds `interopPlan`, `interop`.
 - A key is absent when its stage did not run.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
-- `problems`: coded lines of what the run survived, absent when there were none: `energy_failed: <message>` ([energy.md](energy.md#outputs)); `case_failed: <id>: <reason>` for a case whose own process failed under `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)); `iterations_not_applied: <id> asked for <n>, timeNs has <m> runs` from `ConvertKt` on a device run; `not_measured: <id>` for each case of `prepared.yaml` not `dry` that the final `benchmark.json` lacks, whatever lost it (the device run, `ConvertKt`'s `not_in_plan`/`no_metrics`/`not_converted`, `MergeRunsKt`'s `not_merged`, a plan-check refusal in `skipped.yaml`); each is also printed.
+- `problems`: coded lines of what the run survived, absent when there were none: `energy_failed: <message>` ([energy.md](energy.md#outputs)); `case_failed: <id>: <reason>` for a case whose own process failed under `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)); `iterations_not_applied: <id> asked for <n>, timeNs has <m> runs` from `ConvertKt` on a device run; `thermal_gate_timeout: <id>: <pass>: ...` for a case the thermal gate started past its timeout ([device-session.md](device-session.md#thermal-gate)); `not_measured: <id>` for each case of `prepared.yaml` not `dry` that the final `benchmark.json` lacks, whatever lost it (the device run, `ConvertKt`'s `not_in_plan`/`no_metrics`/`not_converted`, `MergeRunsKt`'s `not_merged`, a plan-check refusal in `skipped.yaml`); each is also printed.
 - A run whose energy is estimated has a top-level `energy: {source, kind: estimated}`; any other run has no `energy` key.
 
 ## benchmark.json case fields
@@ -80,6 +80,9 @@ Beside `metrics` and `parameters` ([measure.md](../modules/benchmark/docs/measur
 | `thermalThrottleSleepSeconds` | Jetpack's heat pauses for this case, from `benchmarkData.json`; summed over merged processes |
 | `thermal` | `{start: {<sensor>: <C>}, end: {<sensor>: <C>}, startStatus: <n>, endStatus: <n>}` around the case ([device-session.md](device-session.md#temperature)); merged processes keep the first start and the last end; values null when unavailable |
 | `thermalNote` | present when a reading is missing (its reason), cached (`source: cached`) or the process's (`scope: run`) |
+| `gate` | `{waitedSeconds: <s>, target: <C>, timedOut: <bool>}`: the host's wait before the case ([device-session.md](device-session.md#thermal-gate)); `waitedSeconds` 0 when it started at once; with `isolation: run` the process's wait on every case; merged processes add `waitedSeconds`, `timedOut` if any did, the first `target`; the merged file keeps the timing pass's, each pass's own under `benchmark/<pass>/`; absent when no gate ran |
+
+A reader of `gate` (perf-repair's side): `timedOut: true` means the case started hotter than its target, and the manifest's `problems` carries the same case as `thermal_gate_timeout: <id>: ...`, a warning, not a lost case; `waitedSeconds` is host time outside the timed loop and never part of a metric.
 
 ## clocks.yaml
 

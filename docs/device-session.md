@@ -10,7 +10,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 |---|---|
 | session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt` |
 | process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files and `cpu-pins.yaml`; convert with `ConvertKt` |
-| hooks | around the session, each process and each case: the cool-down (`scripts/cooldown_hook.py`), the clock state and the energy window (`scripts/session_hooks.py`), the temperature (`scripts/thermal_hook.py`) |
+| hooks | around the session, each process and each case: the cool-down (`scripts/cooldown_hook.py`), the thermal gate (`scripts/thermal_gate.py`, [Thermal gate](#thermal-gate)), the clock state and the energy window (`scripts/session_hooks.py`), the temperature (`scripts/thermal_hook.py`) |
 
 ## Passes
 
@@ -39,7 +39,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | section | `Current temperatures from HAL:` (queried when dumpsys runs); when absent or empty, `Cached temperatures:` with note `source: cached` |
 | unavailable | `start`, `end`, statuses null and the reason in `thermalNote`; the case is measured as ever |
 | `isolation: run` | no case boundary: every case gets its process's reading, note `scope: run` |
-| files | `thermal.json` per process folder (`process` and `cases`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
+| files | `thermal.json` per process folder (`process` and `cases`; with the gate on also its `gate` baseline and each case's `gate`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
 | per pass | `thermal:   <pass>: hottest <c> C at a case start, <c> C at an end; <n> pauses, <s> s paused; <n> cases ended throttled (status > 0)` |
 | cost | two `dumpsys` calls per case, under a second |
 | Jetpack's heat pause | `run.thermalThrottleSleepSeconds` passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds` to every measuring process; unset keeps Jetpack's 90 s |
@@ -52,10 +52,35 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 |---|---|
 | cool-down | `run.caseCooldownSeconds` (0): the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read; `isolation: run` has no case boundary, so it sleeps between processes |
 | printed | `cool-down: <pass>: <n> x <s> s = <t> s between cases` per pass when set |
+| with the gate | the cool-down sleeps first, then `run.thermalGate` waits while the device is above its target ([Thermal gate](#thermal-gate)) |
 | cost | `(cases - 1) x seconds` per pass; at 20 s and 50 cases about 16 min a pass |
 | caps | `clocks.yaml` `cases`: per case the online cores whose `scaling_max_freq` is below `cpuinfo_max_freq` at its start and end; `clocks:    <n> of <m> cases started or ended with a core capped below its maximum` per process |
 | what caps show | boundary snapshots, one sysfs read each (tens of ms); a cap that rose and fell inside a case is not seen; unrooted, a cap cannot be lifted, only recorded |
 | pinning | `run.harness.cpu.core` (`<index>` or `big`) pins the measuring thread on both paths ([harness.md](../modules/android/docs/harness.md#core-pinning)); a failed pin is `cpu_pin_failed` in `cpu-pins.yaml` and a warning |
+
+## Thermal gate
+
+Why: a case that starts on a device still hot from the last one runs on throttled clocks, so its time reads slower than the same case on a cool device; a fixed cool-down guesses how long cooling takes, the gate reads it.
+
+| rule | value |
+|---|---|
+| on | `run.thermalGate` set and not `enabled: false` ([config.md](../modules/config/docs/config.md)); absent, every case starts as soon as the last ends |
+| baseline | once per run, after the warm-up and before the first case: the hottest of `sensors` (`scripts/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}` |
+| wait | before each case process (`isolation: case`), or before each process (`isolation: run`, no case boundary): read every `pollSeconds` while the hottest of `sensors` is above target or `Thermal Status` is above 0 |
+| timeout | past `timeoutSeconds` the case starts anyway; `thermal_gate_timeout: <id>: <pass>: started after <s> s at <c> C, status <n>, target <t> C` in `manifest.yaml` `problems` (`process-<n>` for `isolation: run`) |
+| sensors | names in config (device facts), never in code; one absent from a reading is skipped; none present at the baseline turns the gate off for the run with one `warning: thermal_gate_off: ...`; a poll with no gated sensor and no status does not hold a case |
+| order | `caseCooldownSeconds` first (fixed), then the gate, then the case's temperature and clocks are read; the warm-up is not gated; the before/after run is gated the same way |
+| record | `benchmark.json` per case: `gate: {waitedSeconds, target, timedOut}` ([results.md](results.md#benchmarkjson-case-fields)) |
+| per pass | `gate:      <pass>: <n> of <m> cases gated, <s> s waited, max <s> s, <n> timed out` |
+| `--bench` | no temperatures on a host: one `warning: thermal_gate_off: ...` and the run measures ungated |
+| cost | unknown until measured on the phone; worst case `timeoutSeconds x cases` per pass (300 s x 190 cases = about 16 h a pass); one `dumpsys` per poll |
+
+What it does not fix:
+- heat inside a case: the timed loop is untouched, so a long case still warms the device while it measures, and Jetpack's own heat pause still applies.
+- a hot idle: the baseline is the device after the warm-up, not a cold device; a run started warm gates to a warm target.
+- skin and battery heat: only the named sensors and the status count; a warm battery under a cool CPU does not wait.
+- stale readings: with only `Cached temperatures` ([Temperature](#temperature)) the gate can see an old value and start or wait wrongly.
+- frequency caps: a cap the governor keeps after the device cools is recorded in `clocks.yaml`, never waited out.
 
 ## Warm-up
 

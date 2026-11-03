@@ -14,6 +14,8 @@ run:
   scopedRepetitions: 3
   caseCooldownSeconds: 0
   warmup: {iterations: 10}
+  # BIG, MID, LITTLE: the Pixel's CPU-cluster sensors in dumpsys thermalservice; another device names its own
+  thermalGate: {sensors: [BIG, MID, LITTLE], marginCelsius: 3, pollSeconds: 5, timeoutSeconds: 300}
   passes:
     timing: {samples: 300}
     energy: {samples: 100}
