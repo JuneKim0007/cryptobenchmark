@@ -25,7 +25,7 @@ def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_
         ("probe", "ran", "no manifest.yaml"), ("screen", "ran", "probe reruns"), ("used", "ok", ""),
         ("selection", "ok", ""), ("benchmark", "ran", "probe reruns"), ("inbound", "ran", "benchmark reruns"),
         ("screen", "ran", "probe reruns"), ("primitives", "ran", "inbound reruns"), ("used", "ok", ""),
-        ("grouping", "ran", "")]
+        ("grouping", "ran", "rebuilt from the kept decisions, no item asked, 0 not used by the targets")]
     _from_root(tmp_path, capsys)
     again = [e for e in read_events(device / rd.EVENTS) if e.run != events[0].run]
     assert [(e.step, e.outcome) for e in _ends(again, "device")] == [("used", "ok")] + [(s, "reused") for s in
