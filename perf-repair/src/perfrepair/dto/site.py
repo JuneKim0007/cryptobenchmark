@@ -7,8 +7,8 @@ from dataclasses import asdict, dataclass, fields
 from .lifecycle import Lifecycle
 
 SCHEMA_VERSION = 1
-# 2: each scope carries its lifecycle
-SCOPES_SCHEMA_VERSION = 2
+# 2: each scope carries its lifecycle; 3: requirements and the use carry their completion
+SCOPES_SCHEMA_VERSION = 3
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
 REPLACEMENTS_SCHEMA_VERSION = 3
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe
@@ -17,7 +17,7 @@ NO_OPERATION = "no_operation"
 NOT_MEASURABLE_REASONS = (NO_OPERATION,)
 INPUT_SOURCES = ("app", "run")
 SINKS = ("persist", "network", "return", "local", "unknown")
-KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")
+KEY_SOURCES = ("keystore", "generated", "derived", "storage", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")
 OPTION_PREFIX = "R"
 METRICS = ("timeNs", "allocationCount", "energyJ")
@@ -35,6 +35,7 @@ DERIVED_RISKS = (
     ("sinks", "unknown", "unknown_sink", "where the output goes is unknown"),
     ("keySource", "keystore", "key_compatibility", "the key lives in a key store"),
     ("keySource", "literal", "key_compatibility", "the key is a literal in the code"),
+    ("keySource", "storage", "key_compatibility", "the key is read back from storage"),
     ("interop", "not_checkable", "unverified_interop", "the interop check could not decide the pair"),
     ("interop", "not_planned", "unverified_interop", "the pair was not in the interop plan"),
     ("interop", "not_run", "unverified_interop", "no interop check has run"),

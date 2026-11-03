@@ -61,6 +61,15 @@ def key_source(code: Code, fn: Function, patterns: Patterns) -> str:
     return "unknown"
 
 
+def completed_key_source(lifecycle: Lifecycle, current: str) -> str:
+    """A completed key origin fills only a view code left open; a closed reading stays."""
+    key = lifecycle.origin_of("key")
+    done = key.completed if key is not None else None
+    if done is None or done.origin not in KEY_SOURCES or done.origin == "unknown" or current not in ("unknown", "parameter"):
+        return current
+    return done.origin
+
+
 def key_source_view(lifecycle: Lifecycle | None, regex: str) -> str:
     """The key requirement's origin when the lifecycle knows it, one method away for a field or private parameter;
     else the pattern reading."""

@@ -2,6 +2,8 @@
 those calls need, the operations they perform, and the status that follows."""
 from __future__ import annotations
 
+from dataclasses import dataclass, field
+
 from ...dto.lifecycle import Lifecycle, Requirement, Step
 from ..engines import Engine, Engines
 from ..syntax.calls import Call, find_call
@@ -13,6 +15,15 @@ from .depth1 import Reach, callees, callers, field_calls, requirement_depth1
 from .origins import origin
 from .slice import ALIAS, PASSED, RETURN, STORED, Escape, Slice, scan, scope_calls
 from .status import Found, status
+
+
+@dataclass(frozen=True)
+class Reading:
+    """The lifecycle, and what it was read from: the factory call, its binding, each requirement's argument."""
+    lifecycle: Lifecycle
+    created: Node | None = None
+    binding: Binding | None = None
+    values: dict[Requirement, Node] = field(default_factory=dict)
 
 
 def _local(created: Node, name: str, method: Node | None) -> Slice:
@@ -62,14 +73,15 @@ def _steps(engine: Engine, same: list[Call], reach: Reach, consumed: list[Call])
     return tuple(Step(*r) for r in sorted(rows, key=lambda r: (r[2], r[1], r[0], r[3])))
 
 
-def _requirements(engine: Engine, calls: list[Call], engines: Engines) -> tuple[Requirement, ...]:
-    out = set()
+def _requirements(engine: Engine, calls: list[Call], engines: Engines) -> dict[Requirement, Node]:
+    out: dict[Requirement, Node] = {}
     for c in calls:
         for index, name in sorted(engine.requirements.get(c.name, {}).items()):
             if index < len(c.args):
                 src = origin(c.args[index], engines)
-                out.add(Requirement(name, src.origin, src.line, c.line, requirement_depth1(src, c.args[index], engines)))
-    return tuple(sorted(out, key=lambda r: (r.at, r.name, r.line, r.origin)))
+                out.setdefault(Requirement(name, src.origin, src.line, c.line, requirement_depth1(src, c.args[index], engines)),
+                               c.args[index])
+    return dict(sorted(out.items(), key=lambda kv: (kv[0].at, kv[0].name, kv[0].line, kv[0].origin)))
 
 
 def _operations(engine: Engine, calls: list[Call]) -> tuple[str, ...]:
@@ -98,12 +110,16 @@ def _found(b: Binding, engine: Engine, same: Slice, reach: Reach, consumed: list
 
 
 def lifecycle_of(root: Node, site: dict, engines: Engines) -> Lifecycle:
+    return read_site(root, site, engines).lifecycle
+
+
+def read_site(root: Node, site: dict, engines: Engines) -> Reading:
     engine = engines.engines.get(site["engineType"])
     if engine is None:
-        return Lifecycle.unsupported("engine_unknown")
+        return Reading(Lifecycle.unsupported("engine_unknown"))
     created = find_call(root, site["line"], site["call"], frozenset((engines.factory,)), site["engineType"])
     if created is None:
-        return Lifecycle.unsupported("call_not_found")
+        return Reading(Lifecycle.unsupported("call_not_found"))
     method, b, reach = enclosing_method(created), bind(created), Reach()
     same = _same_method(created, b, method, reach)
     passed = [e for e in same.escapes if e.kind == PASSED and e.call is not None]
@@ -115,5 +131,6 @@ def lifecycle_of(root: Node, site: dict, engines: Engines) -> Lifecycle:
     found = _found(b, engine, same, reach, consumed, created)
     state, reasons = status(found)
     calls = same.calls + reach.calls
-    return Lifecycle(state, reasons, b.kind, _steps(engine, same.calls, reach, consumed),
-                     _requirements(engine, calls, engines), _operations(engine, calls))
+    values = _requirements(engine, calls, engines)
+    return Reading(Lifecycle(state, reasons, b.kind, _steps(engine, same.calls, reach, consumed), tuple(values),
+                             _operations(engine, calls)), created, b, values)

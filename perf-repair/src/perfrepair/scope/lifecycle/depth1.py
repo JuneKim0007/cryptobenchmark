@@ -37,7 +37,7 @@ class Reach:
         return True
 
 
-def _same_class_calls(method: Node, at: Node) -> list[Call]:
+def same_class_calls(method: Node, at: Node) -> list[Call]:
     name, arity, cls = method_name(method), len(parameters(method)), outermost_class(at)
     if name is None or cls is None:
         return []
@@ -65,7 +65,7 @@ def _bound_calls(at: Node, reach: Reach) -> None:
 def callers(helper: Node | None, site: Node, reach: Reach) -> None:
     if helper is None:
         return
-    for c in _same_class_calls(helper, site):
+    for c in same_class_calls(helper, site):
         if c.node.start <= site.start < c.node.end or not reach.admit(enclosing_method(c.node)):
             continue
         _bound_calls(c.node, reach)
@@ -104,6 +104,6 @@ def requirement_depth1(source: Source, at: Node, engines: Engines) -> tuple[str,
         values = ([initial] if initial is not None else []) + written_values(source.field, held.scope)
         return tuple(sorted({origin(v, engines, 1).origin for v in values}))
     if source.origin == "parameter" and source.method is not None and is_private(source.method):
-        args = [c.args[source.index] for c in _same_class_calls(source.method, at) if source.index < len(c.args)]
+        args = [c.args[source.index] for c in same_class_calls(source.method, at) if source.index < len(c.args)]
         return tuple(sorted({origin(a, engines, 1).origin for a in args}))
     return ()

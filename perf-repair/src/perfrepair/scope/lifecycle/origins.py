@@ -18,12 +18,14 @@ _CONSTANT = re.compile(r"[A-Z][A-Z0-9_]+")
 
 @dataclass(frozen=True)
 class Source:
-    """field: the field's name when origin is field; method, index: the parameter when origin is parameter."""
+    """field: the field's name when origin is field; method, index: the parameter when origin is parameter;
+    node: the call of same_class_call, the expression of unknown."""
     origin: str
     line: int
     field: str | None = None
     method: Node | None = None
     index: int | None = None
+    node: Node | None = None
 
 
 def _assigned_values(name: str, scope: Node, before: Node) -> list[Node]:
@@ -87,7 +89,7 @@ def _call(e: Node, engines: Engines, depth: int) -> Source:
         return origin(c.args[0], engines, depth + 1)
     if e.kind != g.NEW and (c.receiver is None or c.receiver.kind == g.THIS) \
             and methods_named(outermost_class(e), c.name, len(c.args)):
-        return Source("same_class_call", e.line)
+        return Source("same_class_call", e.line, node=e)
     return Source("other_call", e.line)
 
 
@@ -106,7 +108,7 @@ def origin(e: Node | None, engines: Engines, depth: int = 0) -> Source:
         return _member(e, engines, depth)
     if e.kind in (g.CALL, g.NEW) and as_call(e) is not None:
         return _call(e, engines, depth)
-    return Source("unknown", e.line)
+    return Source("unknown", e.line, node=e)
 
 
 def written_values(name: str, body: Node) -> list[Node]:
