@@ -18,7 +18,7 @@ from ..config.load import Loaded
 from ..dto.perf_mode import PerfMode
 from ..inputs.check import target_path
 from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
-                            BENCHMARK_CONFIG, FILTER_BY_APPS)
+                            APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, FILTER_BY_APPS)
 from ..failure import reported
 from ..log import attach
 from ..result.modes import mode_of
@@ -81,7 +81,7 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
     base = Guide(a.device_results, None, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, replace_cmd.DRY_RUN),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
-                 filter_by_apps=settings.read(FILTER_BY_APPS))
+                 filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG))
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

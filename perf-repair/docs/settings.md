@@ -55,6 +55,7 @@
 | `apps.targets` | a list of paths or `{path: ...}`, relative to the file | none | warning | `guide` without `--app`: every entry, in order; `--app` runs one |
 | `apps.perfMode` | `generic`, or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers, the replace render and the report's selected marks carry, and what the device step measures |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
+| `apps.benchmarkConfig` | a `global.yaml` | `device.benchmark.config` | warning | the guide's per-app device step (`guide/steps.py` device): its harness run only; the device stage keeps `device.benchmark.config`, so a lighter app config reruns no device benchmark |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
 
 | role | file section | role default |

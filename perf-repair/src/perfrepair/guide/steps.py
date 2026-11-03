@@ -56,6 +56,8 @@ class Guide:
     limits: Limits = Limits()
     limit: int | None = None
     config: Path | None = None
+    # the per-app device step; None uses config
+    app_config: Path | None = None
     settings: Loaded | None = None
     echo: Callable[[str], None] = print
     catalog: Catalog | None = None
@@ -217,7 +219,7 @@ def harness(g: Guide) -> str:
 
 
 def device(g: Guide) -> str:
-    manifest = run_pipeline(g.config, g.paths.root, "device", harness=g.paths.harness, echo=g.echo)
+    manifest = run_pipeline(g.app_config or g.config, g.paths.root, "device", harness=g.paths.harness, echo=g.echo)
     return str(manifest)
 
 

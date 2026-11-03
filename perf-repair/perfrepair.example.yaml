@@ -44,6 +44,7 @@ apps:                      # per app: the guide, `ai replace`
   targets: []              # the guide's apps without --app: paths or {path: ...}; relative to this file
   perfMode: generic        # generic (every metric) | a list of latency, throughput, memAlloc, energy
   limit:                   # scopes the guide asks the model about; empty = all
+  benchmarkConfig:         # global.yaml for the per-app device step; empty = device.benchmark.config
   measure: false           # true: the guide also measures the harness on the attached phone
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`

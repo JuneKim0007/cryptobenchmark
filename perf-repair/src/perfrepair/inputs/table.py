@@ -86,6 +86,8 @@ WORTHINESS = RoleRow("device.worthiness")
 APPS_TARGETS = Row("apps.targets", check_targets)
 APPS_PERF_MODE = Row("apps.perfMode", check_perf_mode, default=GENERIC)
 APPS_LIMIT = Row("apps.limit", check_positive)
+# unset falls back to the device config
+APPS_BENCHMARK_CONFIG = _path("apps.benchmarkConfig")
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
