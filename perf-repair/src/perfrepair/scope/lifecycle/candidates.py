@@ -60,13 +60,18 @@ def _caller_values(src: Source, at: Node) -> list[Node]:
     return [c.args[src.index] for c in same_class_calls(src.method, at) if src.index < len(c.args)]
 
 
+def _is_expression_body(body: Node) -> bool:
+    return body.kind == g.FUNCTION_BODY and not any(c.kind == g.BLOCK for c in body.children)
+
+
 def _returned(method: Node) -> list[Node]:
     body = method_body(method)
     if body is None:
         return []
-    if body.kind == g.FUNCTION_BODY and not any(c.kind == g.BLOCK for c in body.children):
+    if _is_expression_body(body):
         return [c for c in body.children if c.type not in g.COMMENTS][-1:]
-    return [n.children[-1] for n in body.walk() if n.kind == g.RETURN and n.children and enclosing_method(n) is method]
+    returns = (n for n in body.walk() if n.kind == g.RETURN and n.children)
+    return [n.children[-1] for n in returns if enclosing_method(n) is method]
 
 
 def _called_values(src: Source) -> list[Node]:
@@ -108,6 +113,17 @@ def _line(how: str, value: Node, src: Source) -> Line:
     return Line(how, value.line if src.origin in OPEN_ORIGINS else src.line, src.origin, value)
 
 
+def _follow(src: Source, node: Node, hops: int, out: Reached, methods: set[int]) -> list[tuple[str, Node, int]]:
+    """The next values to read from an open one; a path that ends open or over budget is recorded on `out`."""
+    following = _next_values(src, node)
+    out.open_ends = out.open_ends or _outside_writers(src, node) or not following
+    methods |= {id(enclosing_method(v)) for _, v in following}
+    if following and (hops >= REACH_HOPS or len(methods) > REACH_METHODS):
+        out.over_budget = True
+        return []
+    return [(h, v, hops + 1) for h, v in following]
+
+
 def reach(value: Node, engines: Engines) -> Reached:
     """Breadth first from the requirement's own argument, so the nearest lines are the ones a budget keeps."""
     out, seen, methods = Reached(), set(), set()
@@ -118,20 +134,11 @@ def reach(value: Node, engines: Engines) -> Reached:
             continue
         seen.add(id(node))
         src = origin(node, engines)
-        if how:
-            if len(out.lines) >= REACH_LINES:
-                out.over_budget = True
-                break
-            out.lines.append(_line(how, node, src))
-        if src.origin not in OPEN_ORIGINS:
-            continue
-        following = _next_values(src, node)
-        out.open_ends = out.open_ends or _outside_writers(src, node)
-        methods |= {id(enclosing_method(v)) for _, v in following}
-        if not following:
-            out.open_ends = True
-        elif hops >= REACH_HOPS or len(methods) > REACH_METHODS:
+        if how and len(out.lines) >= REACH_LINES:
             out.over_budget = True
-        else:
-            queue.extend((h, v, hops + 1) for h, v in following)
+            break
+        if how:
+            out.lines.append(_line(how, node, src))
+        if src.origin in OPEN_ORIGINS:
+            queue.extend(_follow(src, node, hops, out, methods))
     return out

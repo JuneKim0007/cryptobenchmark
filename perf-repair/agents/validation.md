@@ -21,10 +21,12 @@ src/perfrepair/validation/__main__.py : command: validate a device folder by the
 src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
 src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract values, recomputed scope ids; scope_problems shared with dossiers
 src/perfrepair/validation/classified.py : classify/classified.json: answers only for batched ids, ids in one batch, allowed values, a reason each
+src/perfrepair/validation/completed.py : completed.json against gaps.json; each model completion in scopes.json against its answer and the active outbox
 src/perfrepair/validation/dossiers.py : the one dossiers.json validator: header, noOptions codes, check_dossier per dossier (interop labels in PAIR_STATUSES, never fail), every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status; parse_dossiers: Dossiers and noOptions for the replace stage, by the same checks
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
 src/perfrepair/validation/events.py : log/events.jsonl: every line JSON, schema 1, every field with its type, a known kind; a partial last line
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
+src/perfrepair/validation/gaps.py : gaps.json: closed lists, unique ids, cited lines inside the file, each gap an open requirement of its scope
 src/perfrepair/validation/grouping/code_groups.py : code-made groups equal the ones screen.json and the signatures imply; no item grouped by code in a model group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
@@ -35,6 +37,7 @@ src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted 
 src/perfrepair/validation/measurements.py : measurements: known rows, ordered finite summaries, positive medians
 src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
 src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures
+src/perfrepair/validation/parse/scope_complete.py : gate C of scope-complete: one answer per offered gap, a candidate offered to it or unknown, an origin on its list, a closed code reading kept
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply
 src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement), funnel recount, app partition

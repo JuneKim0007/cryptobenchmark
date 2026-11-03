@@ -8,6 +8,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from ..ai.parse.scope_complete import command as complete_cmd
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
@@ -16,7 +17,8 @@ from ..config.args import fill, load_settings, positive_int
 from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
 from ..inputs.check import check_one_of, target_path
-from ..inputs.table import APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, APPS_TARGETS, BENCHMARK_CONFIG
+from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_MODE, APPS_SCOPE_COMPLETE, APPS_TARGETS,
+                            BENCHMARK_CONFIG)
 from ..failure import reported
 from ..log import attach
 from ..result.modes import MODES
@@ -77,7 +79,8 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
     root = device_root(ap, a, settings)
     base = Guide(a.device_results, None, MODES[a.mode], spawn(a, settings, replace_cmd.DRY_RUN),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
-                 on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh)
+                 on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh,
+                 completer=complete_cmd.conversations_for(a, settings) if settings.read(APPS_SCOPE_COMPLETE) else None)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

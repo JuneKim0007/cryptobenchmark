@@ -1,7 +1,7 @@
 # Copy to perfrepair.yaml (git-ignored) or point --perfrepair-config / PERFREPAIR_CONFIG at a copy.
 # Every key is optional; a missing or null key falls through to the next layer:
 #   CLI flag > a role section here (device.grouping.assign, device.grouping.supervisor, device.screening.classify,
-#   device.worthiness, apps.agent, apps.replace) > environment (PERFREPAIR_*) > the gateway's block here > .env
+#   device.worthiness, apps.agent, apps.replace, apps.complete) > environment (PERFREPAIR_*) > the gateway's block here > .env
 #   > the role's code default > the general code default.
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
@@ -46,3 +46,5 @@ apps:                      # per app: the guide, `ai replace`
   measure: false           # true: the guide also measures the harness on the attached phone
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`
+  scopeComplete: false     # true: the guide asks the model to choose among code's candidate lines for each open gap
+  complete: {}             # role keys of `ai scope-complete` and the guide's completion step

@@ -10,7 +10,7 @@ from ...dto.lifecycle import CODE_SOURCE, REQUIREMENTS, Completion, Requirement
 from ..engines import Engines
 from ..syntax.declarations import enclosing_method
 from ..syntax.node import Node
-from .candidates import Line, Reached, reach
+from .candidates import Reached, reach
 from .read import Reading
 from .use_lines import use_lines
 

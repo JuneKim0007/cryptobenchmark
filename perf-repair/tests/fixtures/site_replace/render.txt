@@ -4,7 +4,7 @@ SITE src/Box.kt:11 | call Engine.get | function seal (lines 10..13)
 
 SCOPE FACTS
   sinks: persist
-  key source: keystore
+  key source: keystore (code-derived)
   risks a replace must declare: persisted_data, key_compatibility
 
 LIFECYCLE
@@ -15,8 +15,8 @@ LIFECYCLE
   line 20: configure prepare (one method away)
 
 REQUIREMENTS
-  key: field (line 3), taken at line 20; one method away: keystore
-  input: parameter (line 10), taken at line 12
+  key: field (code-derived, line 3), taken at line 20; one method away: keystore
+  input: parameter (code-derived, line 10), taken at line 12
 
 CURRENT TypeA|ALG-A/MODE-X|P1 | name ALG-A/MODE-X | provider P1
 

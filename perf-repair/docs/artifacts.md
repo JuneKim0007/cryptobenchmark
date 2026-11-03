@@ -33,7 +33,9 @@
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `<app>/sites.json` | `perfrepair.app` | scope | none |
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
-| `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 2, every scope's lifecycle in its closed lists, cited lines inside the file |
+| `<app>/gaps.json` | `perfrepair.app` | scope-complete | `validation/gaps.py`, before writing: closed lists, unique ids, cited lines in the file, each gap an open requirement of its scope |
+| `<app>/completed.json` | `ai scope-complete`, guide | `check/run.py` | `validation/completed.py`: answers only for offered gaps, one per gap; each model completion in scopes.json equals its answer under the active outbox |
+| `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 3, every scope's lifecycle in its closed lists, cited lines inside the file |
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |

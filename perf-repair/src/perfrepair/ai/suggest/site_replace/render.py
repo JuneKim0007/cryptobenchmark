@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 
 from ....dto.grouping import algorithm_of, provider_of
+from ....dto.lifecycle import Completion, Requirement
 from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
                          required_risks)
 
@@ -24,9 +25,25 @@ def _known(x) -> str:
     return "unknown" if x is None else str(x)
 
 
+def _completion(done: Completion) -> str:
+    return f"{done.origin}, model-chosen ({done.source}), line {done.line}" if done.by_model else f"{done.origin}, code-derived, line {done.line}"
+
+
+def _key_source(s: Scope) -> str:
+    key = s.lifecycle.origin_of("key") if s.lifecycle is not None else None
+    chosen = key is not None and key.completed is not None and key.completed.by_model and key.completed.origin == s.keySource
+    return f"{s.keySource} ({'model-chosen' if chosen else 'code-derived'})"
+
+
 def _interop(s: Scope, o: Option) -> str:
     added = [r for r in required_risks(s, o) if r not in required_risks(s)]
     return f"    interop: {o.interop}" + (f"; a replace to it must also declare {', '.join(added)}" if added else "")
+
+
+def _requirement(r: Requirement) -> str:
+    away = f"; one method away: {', '.join(r.depth1)}" if r.depth1 else ""
+    done = f"; completed: {_completion(r.completed)}" if r.completed else ""
+    return f"  {r.name}: {r.origin} (code-derived, line {r.line}), taken at line {r.at}{away}{done}"
 
 
 def _lifecycle(s: Scope) -> list[str]:
@@ -38,10 +55,8 @@ def _lifecycle(s: Scope) -> list[str]:
              f"  operations: {', '.join(lc.operations) or 'unknown (estimates cover every measured operation)'}",
              f"  line {s.line}: create {s.call}"]
     lines += [f"  line {t.line}: {t.role} {t.call}" + (" (one method away)" if t.where == "depth1" else "") for t in lc.steps]
-    lines += ["", "REQUIREMENTS"]
-    for r in lc.requirements:
-        away = f"; one method away: {', '.join(r.depth1)}" if r.depth1 else ""
-        lines.append(f"  {r.name}: {r.origin} (line {r.line}), taken at line {r.at}{away}")
+    lines += [f"  use found: {_completion(lc.use)}"] if lc.use else []
+    lines += ["", "REQUIREMENTS", *(_requirement(r) for r in lc.requirements)]
     return lines + ([] if lc.requirements else ["  none found"])
 
 
@@ -71,7 +86,7 @@ def render(d: Dossier) -> str:
              f"  engine type {s.engineType} | algorithm {_known(s.algorithm)} | provider {_known(s.provider)} "
              f"| resolution {s.resolution}",
              f"  key size {_known(s.keySize)} | input size {_known(s.inputSize)}",
-             "", "SCOPE FACTS", f"  sinks: {', '.join(s.sinks)}", f"  key source: {s.keySource}",
+             "", "SCOPE FACTS", f"  sinks: {', '.join(s.sinks)}", f"  key source: {_key_source(s)}",
              f"  risks a replace must declare: {', '.join(required_risks(s)) or 'none'}",
              "", *_lifecycle(s),
              "", f"CURRENT {d.current} | name {algorithm_of(d.current)} | provider {provider_of(d.current)}",

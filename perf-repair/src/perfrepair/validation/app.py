@@ -41,6 +41,10 @@ def _closed(where: str, rows: list, field: str, values: tuple) -> list[str]:
             if not isinstance(r, dict) or r.get(field) not in values]
 
 
+def _in_file(n, lines: int | None) -> bool:
+    return isinstance(n, int) and n >= 1 and (lines is None or n <= lines)
+
+
 def _completion_problems(where: str, done, lines: int | None) -> list[str]:
     if done is None:
         return []
@@ -49,9 +53,7 @@ def _completion_problems(where: str, done, lines: int | None) -> list[str]:
     out = [] if done["origin"] in ORIGINS else [f"{where}: completed origin {done['origin']!r} is not one of {ORIGINS}"]
     if done["source"] != CODE_SOURCE and not _MODEL_SOURCE.fullmatch(str(done["source"])):
         out.append(f"{where}: completion source {done['source']!r} is neither {CODE_SOURCE} nor {MODEL_PREFIX}<fingerprint>")
-    if not isinstance(done["line"], int) or done["line"] < 1 or (lines is not None and done["line"] > lines):
-        out.append(f"{where}: completion cites line {done['line']!r}, not a line of the file")
-    return out
+    return out + [f"{where}: completion cites line {n!r}, not a line of the file" for n in [done["line"]] if not _in_file(n, lines)]
 
 
 def _completions(where: str, lc: dict, lines: int | None) -> list[str]:

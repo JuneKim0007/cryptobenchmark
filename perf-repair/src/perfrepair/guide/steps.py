@@ -10,6 +10,7 @@ from ..ai.runtime.agent import Conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
 from ..ai.parse.grouping_assign.rekey import rekey
+from ..ai.parse.scope_complete.command import scope_complete
 from ..ai.suggest.site_replace.command import replace, stale_problem
 from ..app.__main__ import main as app_main
 from ..app.facts.gate import open_apps
@@ -61,6 +62,8 @@ class Guide:
     on_device: bool = False
     grouping_args: tuple[str, ...] = ()
     refresh: bool = False
+    # None: apps.scopeComplete is off and gaps stay as code read them
+    completer: Conversations | None = None
 
     @property
     def app_id(self) -> str | None:
@@ -134,6 +137,13 @@ def app(g: Guide) -> str:
     return f"{len(read_json(g.paths.scopes)['scopes'])} scopes"
 
 
+def complete(g: Guide) -> str:
+    if g.completer is None:
+        return "off"
+    state = scope_complete(g.device, g.app_id, g.completer, g.library, g.limits, g.limit, echo=g.echo)
+    return f"{len(state.answers)} scopes answered, {len(state.dropped)} dropped"
+
+
 def dossiers(g: Guide) -> str:
     doc = dossier(g.device, g.app_id, g.app_root, g.catalog, echo=lambda _: None)
     if not doc["dossiers"]:
@@ -190,5 +200,5 @@ def summary(g: Guide) -> str:
 
 
 DEVICE_LEVEL = (("prerequisites", prerequisites), ("grouping", grouping))
-APP_DRY = (("app", app), ("dossier", dossiers), ("replace", replacements), ("edit", edits), ("harness", harness))
+APP_DRY = (("app", app), ("complete", complete), ("dossier", dossiers), ("replace", replacements), ("edit", edits), ("harness", harness))
 APP_MEASURED = (("device", device), ("report", report))

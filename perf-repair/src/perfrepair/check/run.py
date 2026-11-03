@@ -7,12 +7,15 @@ from ..dto import Verdicts
 from ..dto.grouping import read_items
 from ..dto.screen import Verdict, qualified_verdicts
 from ..dto.grouping_state import Knowledge
+from ..dto.gaps import read_gaps
 from ..dto.site import Scope
 from ..dto.classify import read_batches
 from ..files import read_json, read_yaml
 from ..ai.parse.algorithm_classify.kind import ClassifyKind
 from ..ai.parse.algorithm_classify.state import Classified, candidates
 from ..ai.parse.grouping_assign.kind import GroupingKind
+from ..ai.parse.scope_complete.kind import ScopeCompleteKind
+from ..ai.parse.scope_complete.state import Completed
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
@@ -21,10 +24,12 @@ from ..ai.runtime.engine import charter_file
 from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES, OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
+from ..validation.completed import validate_completions
 from ..validation.dossiers import validate_dossiers
 from ..validation.events import validate_events
 from ..validation.app import validate_app_dir
 from ..validation.failure import ValidationFailed
+from ..validation.gaps import validate_gaps
 from ..validation.grouping.interop import validate_interop
 from ..validation.measurements import validate_measurements
 from ..validation.report import validate_report, validate_summary
@@ -45,7 +50,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     out |= _charters(run) | _events(run)
     reports = []
     for directory in rd.app_dirs(run):
-        out |= validate_app_dir(directory)
+        out |= validate_app_dir(directory) | _completion(directory)
         if (directory / rd.REPORT).is_file():
             reports.append(read_json(directory / rd.REPORT))
             out[f"{directory.name}/{rd.REPORT}"] = validate_report(reports[-1], directory.name)
@@ -80,6 +85,25 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
             saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
             out[directory.name] = kind.validate(saved, records)
     return out
+
+
+def _completion(directory: Path) -> dict[str, list[str]]:
+    """gaps.json against its scopes; with answers, the outbox's replay and every completion against its answer."""
+    if not (directory / rd.GAPS).is_file():
+        return {}
+    where, gaps, scopes = f"{directory.name}/{rd.GAPS}", read_json(directory / rd.GAPS), read_json(directory / rd.SCOPES)
+    out = {where: validate_gaps(gaps, scopes)}
+    if out[where] or not (directory / rd.COMPLETED).is_file():
+        return out
+    try:
+        outbox = active_outbox(directory / rd.COMPLETE)
+        saved = Completed.from_json(read_json(directory / rd.COMPLETED))
+    except (OSError, KeyError, TypeError, ValueError, OutboxError) as e:
+        return {**out, f"{directory.name}/{rd.COMPLETED}": [f"does not read: {e}"]}
+    entries = read_gaps(gaps)
+    problems = ScopeCompleteKind(directory.name, entries, directory).validate(saved, outbox.records())
+    problems += validate_completions(scopes, saved.answers, entries, outbox.fingerprint)
+    return {**out, f"{directory.name}/{rd.COMPLETED}": problems}
 
 
 def _beside_rows(run: Path, rows) -> dict[str, list[str]]:

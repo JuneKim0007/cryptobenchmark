@@ -1,5 +1,6 @@
 """python3 -m perfrepair.ai worthiness --device-results <dir> --mode latency|battery — after grouping;
-   python3 -m perfrepair.ai replace --device-results <dir> --app <source> [--refresh] — after dossiers. Both take [--agent ...] [--prompts DIR]
+   python3 -m perfrepair.ai replace --device-results <dir> --app <source> [--refresh] — after dossiers;
+   python3 -m perfrepair.ai scope-complete --device-results <dir> --app <source> — after the app step. All take [--agent ...] [--prompts DIR]
    and read perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
 from __future__ import annotations
 
@@ -17,6 +18,7 @@ from ..result.modes import MODES
 from .runtime.gateway.args import add_agent_args
 from .runtime.gateway.spawn import spawn
 from .evaluate.worthiness import command as worthiness_cmd
+from .parse.scope_complete import command as complete_cmd
 from .suggest.site_replace import command as replace_cmd
 from .runtime.engine.ask import Limits
 from .runtime.prompt.args import add_prompt_args, load_prompts
@@ -45,6 +47,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--refresh", action="store_true",
                    help="ask again the scopes whose dossier changed since their decision, into a new outbox; the old one stays; "
                         "default: they stay, flagged stale, and the command exits with dossier_changed")
+    p = sub.add_parser("scope-complete")
+    add_device_results_arg(p)
+    p.add_argument("--app", type=Path, required=True, help="the app's source folder; its path gives the app's id")
+    _engine_args(p, complete_cmd.ROLE)
     a = ap.parse_args(argv)
     return reported(lambda: _stage(ap, a))
 
@@ -57,6 +63,9 @@ def _stage(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     limits = Limits(a.turns, a.sessions)
     if a.stage == "worthiness":
         worthiness_cmd.worthiness(a.device_results, MODES[a.mode], spawn(a, settings, worthiness_cmd.DRY_RUN), library, limits, a.limit)
+    elif a.stage == "scope-complete":
+        complete_cmd.scope_complete(a.device_results, app_id(a.device_results, a.app), complete_cmd.conversations_for(a, settings),
+                                    library, limits, a.limit)
     else:
         state = replace_cmd.replace(a.device_results, app_id(a.device_results, a.app), spawn(a, settings, replace_cmd.DRY_RUN),
                                     library, limits, a.limit, refresh=a.refresh)

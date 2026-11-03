@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ..ai.parse.scope_complete import kind as complete_kind
 from ..ai.suggest.site_replace.kind import charter
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
 from ..files import read_json, sha256_file, sha256_text, write_json
@@ -34,7 +35,8 @@ def inputs(g: Guide, measured: bool) -> dict:
     return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "scoper": scoper_version(),
             "groups": sha256_file(GroupingPaths(g.device).groups),
             "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
-            "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint, "mode": g.mode.name, "measured": measured}
+            "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint, "mode": g.mode.name, "measured": measured,
+            "complete": complete_kind.charter(g.library).fingerprint if g.completer is not None else None}
 
 
 def unchanged(g: Guide, now: dict) -> bool:

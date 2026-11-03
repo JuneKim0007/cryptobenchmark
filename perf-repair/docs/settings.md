@@ -55,6 +55,7 @@
 | `apps.mode` | `latency`, `battery` | `latency` | warning | `guide --mode` |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
+| `apps.scopeComplete` | `true`, `false` | `false` | warning | the guide's complete step: `true` asks the `apps.complete` role about each scope with an offered gap; `false` leaves gaps as code read them |
 
 | role | file section | role default |
 |---|---|---|
@@ -64,6 +65,7 @@
 | `ai worthiness` | `device.worthiness` | none |
 | `guide` | `apps.agent` | none |
 | `ai replace` | `apps.replace` | none |
+| `ai scope-complete`, the guide's complete step | `apps.complete` | none |
 
 - A role section takes the keys `gateway`, `model`, `effort`. Its `gateway` is an error when bad; `model` and `effort` warn.
 - `auth` and `binary` belong to the gateway's block; in a role section they are unknown keys, warned about and never read.

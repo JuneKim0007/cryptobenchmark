@@ -13,6 +13,7 @@
 - syntax: the lifecycle reads a tree-sitter tree through `scope/syntax/` only, the pinned optional extra `perf-repair[scope]` imported lazily in `parser.py`; without it every lifecycle is `unsupported` `parser_missing`, never a pattern fallback; `tests/test_scope_syntax.py` checks no other module names the parser.
 - lifecycle: per engine type, the lifecycle calls, requirements, operations and consumers live in `scope/engines.yaml`, origin calls too; code names none of them.
 - lifecycle: `bounded` only when one method creates, configures and uses the object with no escape, consumer or deferred lambda; depth 1 stays in the class and is capped by `METHOD_BUDGET`; over it is `partially_bounded` `budget`.
+- gaps: every open requirement and `use_not_found` lifecycle gets the lines code can reach in `gaps.json`, inside `REACH_METHODS`, `REACH_HOPS`, `REACH_LINES` and `GAPS_PER_SCOPE`; over them is recorded, never widened; a requirement whose every path closes one way is settled by code (`completed.source: code`) and never asked.
 - roots: one project root keeps the given name; several are units `<name>.<root dirs joined by '.'>`, each scanned from its root.
 - layers: `app/find/` reads only source text, never device data; `app/facts/` reads the app tree; `app/resolve.py` is the only module where a site meets the device's primitives (Probe, providers); `tests/test_layers.py` checks it.
 - ids: a scope id is `scope_id(app, file, function, line, call)`; output is sorted, so reruns are byte-identical.
@@ -41,18 +42,22 @@ src/perfrepair/app/find/scan.py : getInstance calls in one file, across lines; S
 src/perfrepair/app/find/sources.py : source files tagged main, test or generated; build files; ignored folders
 src/perfrepair/app/resolve.py : the only meeting of a site and the device: Primitives (probe, names, providers from the manifest); a site's provider and canonical algorithm, explicit or by manifest precedence
 src/perfrepair/scope/__init__.py : docstring only
-src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per site with its lifecycle, and the unscoped; counts per lifecycle status
+src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per site with its lifecycle, settled requirements, its gaps, and the unscoped; counts per lifecycle status and of gaps
+src/perfrepair/scope/complete.py : completions onto a lifecycle and a scope; a code-derived origin or completion stays; apply_answers
 src/perfrepair/scope/engines.py : engines.yaml read and checked once: Engine (configuration, terminal, optional, requirements, operations, consumers), the origin tables
 src/perfrepair/scope/engines.yaml : per engine type its lifecycle calls, requirement arguments, operations and consumers; origin calls, value-carrying specs, accessors, decoders
 src/perfrepair/scope/extract.py : named functions and their spans: Java methods, Kotlin funs, expression bodies, constructors
-src/perfrepair/scope/facts.py : a function's sinks and key source from patterns.yaml; the key source from the lifecycle's key origin when known
+src/perfrepair/scope/facts.py : a function's sinks and key source from patterns.yaml; the key source from the lifecycle's key origin when known, and from its completed origin where the view stayed open
 src/perfrepair/scope/lifecycle/__init__.py : docstring only
 src/perfrepair/scope/lifecycle/binding.py : where the created object goes first: chain, local, field, returned, argument, discarded
+src/perfrepair/scope/lifecycle/candidates.py : the lines code reaches for one open value: field writes, in-class call arguments, returned values, an expression's parts; the budget; whether every path closes one way
 src/perfrepair/scope/lifecycle/depth1.py : one method away in the class: a field's other methods, a helper's callers, a callee; METHOD_BUDGET; requirement origins one away
+src/perfrepair/scope/lifecycle/gaps.py : one scope's gaps with numbered candidates, included statements, one other body; what code settles
 src/perfrepair/scope/lifecycle/origins.py : a value's origin in the closed list, read back through same-method definitions, with its line
-src/perfrepair/scope/lifecycle/read.py : one site's Lifecycle: binding, steps, requirements, operations, status
+src/perfrepair/scope/lifecycle/read.py : one site's Reading: its Lifecycle (binding, steps, requirements, operations, status) and each requirement's argument
 src/perfrepair/scope/lifecycle/slice.py : calls on one named object in one scope from a point on, shadowing-aware; its escapes
 src/perfrepair/scope/lifecycle/status.py : status and reasons from what the slice found
+src/perfrepair/scope/lifecycle/use_lines.py : the lines an object with no use goes on to: references to its name, the helper's callers
 src/perfrepair/scope/patterns.yaml : sink and key-source patterns
 src/perfrepair/scope/syntax/__init__.py : docstring only
 src/perfrepair/scope/syntax/calls.py : a call's receiver, name, arguments and trailing lambda; the factory call at a line; a lambda's parameter and owner
