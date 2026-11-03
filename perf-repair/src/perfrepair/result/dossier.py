@@ -14,6 +14,8 @@ from ..dto.measurement import ESTIMATED
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.site import (DOSSIERS_SCHEMA_VERSION, ENERGY_KINDS_DIFFER, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier,
                         Estimate, NoEstimate, Option, Scope)
+from ..dto.change import DROP_IN, Change
+from .candidates import Family
 from .estimate import compare
 
 RESOLVED = ("default", "explicit")
@@ -125,15 +127,17 @@ def _unresolved(s: Scope) -> str | None:
 @dataclass(frozen=True)
 class Joined:
     """What every scope's dossier is joined from: groups, the measured rows by item, their summaries, the app's
-    screen verdicts (None without screen.json) and the perfMode whose metrics alone are estimated."""
+    screen verdicts (None without screen.json), the perfMode whose metrics alone are estimated, and the family
+    candidates beyond the group (None: drop-in only, nothing classed)."""
     groups: dict
     measured: dict[str, dict[Config, PrimitiveRow]]
     measurements: dict[str, dict[str, Summary | None]]
     verdicts: dict[str, Verdict] | None
     perf: PerfMode
     available: set[str]
+    family: Family | None = None
 
-    def option(self, s: Scope, current: str, n: int, q: str) -> Option:
+    def option(self, s: Scope, current: str, n: int, q: str, change: Change | None = None) -> Option:
         mine, theirs = self.measured[current], self.measured[q]
         configs = nearest(s, mine, theirs)
         # no configuration measured on both sides: the pins are unknown, never guessed
@@ -141,8 +145,9 @@ class Joined:
         # a site that only decrypts is shown decrypt numbers; pins do not depend on the operation
         used = nearest(s, mine, theirs, operations(s))
         sides = (used, mine, theirs, self.measurements, self.perf.names)
+        classed = {"change": change.change, "diff": change.diff} if change is not None else {}
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), estimates(*sides),
-                      None if self.verdicts is None else self.verdicts[q].status, no_estimates(*sides))
+                      None if self.verdicts is None else self.verdicts[q].status, no_estimates(*sides), **classed)
 
     def others(self, current: str) -> list[str] | None:
         """The other members of the current item's group; None when it is in none."""
@@ -154,27 +159,51 @@ class Joined:
         members = next(g["members"] for g in self.groups["groups"] if g["id"] == group)
         return sorted(items[str(m)]["qualified"] for m in members if str(m) != key)
 
-    def options(self, s: Scope) -> tuple[str, list[Option], str | None]:
-        """The scope's current item and options, or the reason of the first filter that leaves none."""
-        items = self.groups["items"]
-        by_qualified = {v["qualified"]: key for key, v in items.items()}
+    def _usable(self, q: str) -> bool:
+        entry = next((v for v in self.groups["items"].values() if v["qualified"] == q), None)
+        return bool(entry and entry.get("runs")) and parse_qualified(q)[2] in self.available
+
+    def _measured_here(self, q: str) -> bool:
+        return self._usable(q) and bool(self.measured.get(q))
+
+    def _lowers(self, current: str, q: str) -> bool:
+        v = self.verdicts or {}
+        return lowers_status(v.get(current), v.get(q))
+
+    def changes(self, s: Scope, current: str, others: list[str] | None) -> list[Change]:
+        """Every family candidate outside the group, classed; empty without a Family."""
+        if self.family is None:
+            return []
+        return self.family.classed(s, current, set(others or ()), lambda q: parse_qualified(q)[2], self._measured_here,
+                                   lambda q: self._lowers(current, q))
+
+    def _drop_in(self, current: str, others: list[str] | None) -> tuple[list[str], str | None]:
+        if others is None:
+            return [], "not_grouped"
+        usable = [q for q in others if self._usable(q)]
+        return _targets(current, others, usable, failed_pairs(self.groups), self.verdicts)
+
+    def options(self, s: Scope) -> tuple[str, list[Option], str | None, list[Change]]:
+        """The scope's current item, options and the candidates not offered, or the reason of the first filter that
+        leaves no option: the drop-in reason when no other class is offered either."""
         current = qualified(s.engineType, s.algorithm, s.provider)
         others = self.others(current)
-        if others is None:
-            return current, [], "not_grouped"
-        usable = [q for q in others if items[by_qualified[q]].get("runs") and parse_qualified(q)[2] in self.available]
-        targets, reason = _targets(current, others, usable, failed_pairs(self.groups), self.verdicts)
-        if reason is not None:
-            return current, [], reason
-        options, reason = _evidenced([self.option(s, current, n, q) for n, q in enumerate(targets, 1)], self.perf)
-        return current, options, reason
+        targets, reason = self._drop_in(current, others)
+        offered, kept = self.family.split(self.changes(s, current, others)) if self.family else ([], [])
+        if not targets and not offered:
+            return current, [], reason, kept
+        built = [self.option(s, current, n, q) for n, q in enumerate(targets, 1)]
+        built += [self.option(s, current, n, c.item, c) for n, c in enumerate(offered, len(built) + 1)]
+        options, missing = _evidenced(built, self.perf)
+        return current, options, missing, kept
 
 
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
                    measurements: dict[str, dict[str, Summary | None]], source_root: Path,
-                   verdicts: dict[str, Verdict] | None, perf: PerfMode) -> dict:
+                   verdicts: dict[str, Verdict] | None, perf: PerfMode, family: Family | None = None) -> dict:
     """verdicts: each item's screen verdict for this app by qualified name; None without screen.json.
-    perf: only its metrics are estimated, and an option without one it requires is dropped."""
+    perf: only its metrics are estimated, and an option without one it requires is dropped.
+    family: the type catalog's candidates beyond the group up to its maxChange; None offers drop-ins only."""
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
         raise ValueError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
@@ -184,13 +213,15 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
     measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
     for r in rows:
         measured[qualified(r.type, r.algorithm, r.provider)][_config(r)] = r
-    joined = Joined(groups, measured, measurements, verdicts, perf, available)
-    dossiers, none = [], []
+    joined = Joined(groups, measured, measurements, verdicts, perf, available, family)
+    dossiers, none, kept = [], [], []
     for s in scopes:
-        current, options, reason = (None, [], _unresolved(s)) if _unresolved(s) else joined.options(s)
+        current, options, reason, others = (None, [], _unresolved(s), []) if _unresolved(s) else joined.options(s)
+        kept += [{"scope": s.id, **c.to_json()} for c in others]
         if reason is not None:
             none.append({"scope": s.id, "reason": reason})
             continue
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))
     return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "perfMode": perf.to_json(),
-            "dossiers": [d.to_json() for d in dossiers], "noOptions": none, "units": []}
+            "maxChange": family.max_change if family else DROP_IN, "dossiers": [d.to_json() for d in dossiers],
+            "noOptions": none, "notOffered": kept, "units": []}

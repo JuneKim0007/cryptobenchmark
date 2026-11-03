@@ -3,6 +3,7 @@ given an option of its own, or all of them kept; a member that stays is never na
 needs their interop."""
 from __future__ import annotations
 
+from ...dto.change import DROP_IN, admits
 from ...dto.grouping import algorithm_of, provider_of
 from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Edit, Option,
                          Replacement, Scope, pin_text, required_risks)
@@ -119,7 +120,8 @@ def _risks(risks: list, scope: Scope, option: Option | None, decision: str) -> l
     return problems
 
 
-def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, problems: list[str]) -> dict | None:
+def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, problems: list[str],
+                    max_change: str = DROP_IN) -> dict | None:
     """One member's option, edits and risks against its own dossier; its problems name the member."""
     found: list[str] = []
     chosen, edits, risks = _text(raw, "option"), raw.get("edits"), raw.get("risks")
@@ -129,6 +131,8 @@ def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, proble
     option = None
     if chosen not in by_alias:
         found.append(f"option {chosen!r} is not one of {', '.join(by_alias) or '(none)'}")
+    elif not admits(max_change, by_alias[chosen].change):
+        found.append(f"{chosen} is a {by_alias[chosen].change}, above maxChange {max_change}; it cannot be chosen")
     elif by_alias[chosen].pins is None:
         found.append(f"{chosen} has unknown pins, so no like-for-like swap can be stated; it cannot be chosen")
     else:
@@ -155,14 +159,14 @@ def _named(given: list, unit: UnitDossiers) -> list[str]:
     return problems + [f"replace covers every member with options: {a} is missing" for a in aliased if a not in given]
 
 
-def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str]) -> list[dict]:
+def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str], max_change: str) -> list[dict]:
     aliased = unit.aliased()
     given = [m.get("member") if isinstance(m, dict) else None for m in raw]
     problems += _named(given, unit)
     rows = []
     for alias, m in zip(given, raw):
         if alias in aliased and given.count(alias) == 1:
-            rows.append(_replace_member(m, alias, aliased[alias], reason, problems))
+            rows.append(_replace_member(m, alias, aliased[alias], reason, problems, max_change))
     problems += [] if problems else _inverse(unit, rows)
     return rows
 
@@ -176,11 +180,20 @@ def _inverse(unit: UnitDossiers, rows: list[dict]) -> list[str]:
     return [p for k in unit.unit.links if k.kind == INVERSE for p in _link(k, unit, ends, replaced)]
 
 
+def _class_of(unit: UnitDossiers, member: str, item: str | None) -> str:
+    d = next(d for d in unit.dossiers if d.key == member)
+    return next((o.change for o in d.options if o.item == item), DROP_IN)
+
+
 def _link(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: dict[str, dict]) -> list[str]:
     swapped = [m for m in (k.a, k.b) if m in replaced]
     if not swapped or ends[k.a] == ends[k.b]:
         return []
     alias, status = unit.aliases(), unit.interop(ends[k.a], ends[k.b])
+    # another output format on one side only: the other side can no longer read it, whatever interop says
+    above = [m for m in swapped if _class_of(unit, m, ends[m]) != DROP_IN]
+    if above:
+        return [f"{alias[k.a]} and {alias[k.b]} are inverse; a change above drop-in must end both on one item"]
     if status == "fail":
         return [f"{alias[k.a]} and {alias[k.b]} are inverse, and {ends[k.a]} and {ends[k.b]} failed their interop check"]
     if status == "pass":
@@ -191,7 +204,8 @@ def _link(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: di
             for m in swapped if "unverified_interop" not in replaced[m]["risks"]]
 
 
-def check_reply(text: str, unit: UnitDossiers) -> tuple[dict | None, list[str]]:
+def check_reply(text: str, unit: UnitDossiers, max_change: str = DROP_IN) -> tuple[dict | None, list[str]]:
+    """max_change: the dossiers' own; an option above it is refused even when listed."""
     d, problems = parse_object(text)
     if d is None:
         return None, problems
@@ -206,7 +220,7 @@ def check_reply(text: str, unit: UnitDossiers) -> tuple[dict | None, list[str]]:
     if decision == "keep" and members:
         problems.append("keep names members; a keep covers every member with options and has none")
     if decision == "replace":
-        rows = _members(members, unit, reason, problems)
+        rows = _members(members, unit, reason, problems, max_change)
     if problems:
         return None, problems
     if decision == "keep":

@@ -9,6 +9,7 @@ from ..dto.metrics import BY_NAME
 from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION
 from ..dto.perf_mode import PerfMode
 from ..result.modes import mode_of
+from .recommendations import summed
 
 
 def app_ratio(report: dict, metric: str) -> float | None:
@@ -50,4 +51,5 @@ def build_summary(reports: list[dict]) -> dict:
                            "medianChange": statistics.median(measured) - 1 if measured else None,
                            **_estimated_in(reports, metric)}
     return {"schemaVersion": SCHEMA_VERSION, "mode": modes[0], "improvingRatio": improving, "apps": sorted(by_app),
-            "funnel": {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}, "byApp": by_app, "metrics": metrics}
+            "funnel": {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}, "byApp": by_app, "metrics": metrics,
+            **summed(reports)}

@@ -22,6 +22,7 @@ from ..device.energy import report_invalid
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
 from ..dto.bundled import BundledPolicy
+from ..dto.change import DROP_IN
 from ..dto.event import END
 from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..failure import FAILURES
@@ -76,6 +77,7 @@ class Guide:
     bundled: BundledPolicy = BundledPolicy()
     # app ids whose app step ran before the benchmark, shared by every app's copy
     detected: set = field(default_factory=set)
+    max_change: str = DROP_IN
 
     @property
     def app_id(self) -> str | None:
@@ -198,7 +200,7 @@ def app(g: Guide) -> str:
 
 
 def dossiers(g: Guide) -> str:
-    doc = dossier(g.device, g.app_id, g.app_root, g.catalog, g.mode.perf, echo=lambda _: None)
+    doc = dossier(g.device, g.app_id, g.app_root, g.catalog, g.mode.perf, echo=lambda _: None, max_change=g.max_change)
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         step = f"; {NOT_ON_DEVICE}: {NOT_ON_DEVICE_STEP}" if NOT_ON_DEVICE in reasons else ""

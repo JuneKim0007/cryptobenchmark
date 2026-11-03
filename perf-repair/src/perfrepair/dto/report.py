@@ -5,8 +5,8 @@ from .metrics import METRICS, Metric
 
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
 # sharedFunction and stayed, funnel units and unitsReplace; 5: metric rows carry selected, the time row its views in the
-# display units (report units), summary metrics are the selected ones
-SCHEMA_VERSION = 5
+# display units (report units), summary metrics are the selected ones; 6: maxChange, recommendations, rejected
+SCHEMA_VERSION = 6
 THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")

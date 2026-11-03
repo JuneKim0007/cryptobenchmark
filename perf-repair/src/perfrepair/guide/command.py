@@ -18,7 +18,8 @@ from ..config.load import Loaded
 from ..dto.bundled import BundledPolicy
 from ..dto.perf_mode import PerfMode
 from ..inputs.check import target_path
-from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
+from ..dto.change import CHANGES
+from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
                             APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, BUNDLED_FROM_APPS, BUNDLED_ON_MISSING,
                             FILTER_BY_APPS)
 from ..failure import reported
@@ -42,6 +43,9 @@ def parser() -> argparse.ArgumentParser:
                          "default: apps.measure")
     ap.add_argument("--config", type=Path, help="global.yaml for the device step; default: device.benchmark.config, "
                                                 "else pipeline.py's own lookup")
+    ap.add_argument("--max-change", choices=CHANGES,
+                    help="the highest change class an option may have; higher ones are reported as recommendations, "
+                         "never applied; default: apps.maxChange, else drop-in")
     ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: apps.limit")
     ap.add_argument("--refresh", action="store_true",
                     help="ask again the scopes whose dossier changed since their replace decision, and rebuild the "
@@ -57,7 +61,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = parser()
     a = ap.parse_args(argv)
     settings = load_settings(ap, a)
-    fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE})
+    fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE,
+                         "max_change": APPS_MAX_CHANGE})
     return reported(lambda: _run(ap, a, settings))
 
 
@@ -84,7 +89,8 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG),
-                 bundled=BundledPolicy.read(settings.read(BUNDLED_ON_MISSING), settings.read(BUNDLED_FROM_APPS)))
+                 bundled=BundledPolicy.read(settings.read(BUNDLED_ON_MISSING), settings.read(BUNDLED_FROM_APPS)),
+                 max_change=a.max_change)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

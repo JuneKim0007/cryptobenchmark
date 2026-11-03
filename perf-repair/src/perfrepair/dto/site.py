@@ -4,13 +4,15 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, fields
 
+from .change import DROP_IN, PairDiff
 from .lifecycle import Lifecycle
 from .metrics import NAMES
 from .perf_mode import NO_EVIDENCE
 
 SCHEMA_VERSION = 1
 # 2: `units`, the units asked, each member with a dossier; 3: `perfMode`, estimates of its metrics only
-DOSSIERS_SCHEMA_VERSION = 3
+# 4: `maxChange` and `notOffered`; an option above drop-in carries its change class and pair diff
+DOSSIERS_SCHEMA_VERSION = 4
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
 SCOPES_SCHEMA_VERSION = 4
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
@@ -133,7 +135,8 @@ class NoEstimate:
 @dataclass(frozen=True)
 class Option:
     """pins None: the parameters are unknown, so no like-for-like swap can be stated; {} means nothing to pin.
-    interop: the pair_status of the current item and this one. screen: its status for this app; None without screen.json."""
+    interop: the pair_status of the current item and this one. screen: its status for this app; None without screen.json.
+    change: its class against the current item; diff None for a drop-in, a member of the current item's group."""
     alias: str
     item: str
     pins: dict | None
@@ -141,16 +144,21 @@ class Option:
     estimates: tuple[Estimate, ...] = ()
     screen: str | None = None
     noEstimates: tuple[NoEstimate, ...] = ()
+    change: str = DROP_IN
+    diff: PairDiff | None = None
 
     def to_json(self) -> dict:
         missing = {"noEstimates": [asdict(n) for n in self.noEstimates]} if self.noEstimates else {}
+        # a drop-in writes neither, so a drop-in dossier reads as it did before change classes
+        changed = {"change": self.change, "diff": asdict(self.diff) if self.diff else None} if self.change != DROP_IN else {}
         return {"alias": self.alias, "item": self.item, "pins": self.pins, "interop": self.interop,
-                "screen": self.screen, "estimates": [e.to_json() for e in self.estimates]} | missing
+                "screen": self.screen, "estimates": [e.to_json() for e in self.estimates]} | missing | changed
 
     @classmethod
     def from_json(cls, d: dict) -> "Option":
+        diff = PairDiff(**d["diff"]) if d.get("diff") else None
         return cls(d["alias"], d["item"], d["pins"], d["interop"], tuple(Estimate(**e) for e in d.get("estimates") or ()),
-                   d["screen"], tuple(NoEstimate(**n) for n in d.get("noEstimates") or ()))
+                   d["screen"], tuple(NoEstimate(**n) for n in d.get("noEstimates") or ()), d.get("change", DROP_IN), diff)
 
 
 @dataclass(frozen=True)

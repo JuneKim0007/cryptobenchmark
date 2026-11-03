@@ -9,9 +9,10 @@ from typing import Any, Callable, Iterable, Mapping
 
 from ..catalog.screening import SCREENING
 from ..dto.bundled import OFF, ON_MISSING, WARN
+from ..dto.change import DROP_IN
 from ..dto.perf_mode import GENERIC
-from .check import (check_any, check_bool, check_from_apps, check_one_of, check_path, check_perf_mode, check_positive,
-                    check_targets, check_text)
+from .check import (check_any, check_bool, check_from_apps, check_max_change, check_one_of, check_path, check_perf_mode,
+                    check_positive, check_targets, check_text)
 from .resolve import Candidate, Need, OnInvalid, Resolved, resolve
 
 
@@ -95,6 +96,8 @@ APPS_LIMIT = Row("apps.limit", check_positive)
 # unset falls back to the device config
 APPS_BENCHMARK_CONFIG = _path("apps.benchmarkConfig")
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)
+# the highest change class the guide may apply; a bad value falls back to drop-in, the class that changes no contract
+APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
 

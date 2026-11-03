@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from ..dto.bundled import FROM_APPS
+from ..dto.change import CHANGES
 from ..dto.perf_mode import GENERIC, KEYS, PerfMode
 
 
@@ -66,3 +67,7 @@ def check_perf_mode(name: str, value: Any) -> None:
     except ValueError:
         ok = False
     _check(name, value, ok, f"{GENERIC} or a list of {list(KEYS)}")
+
+
+def check_max_change(name: str, value: Any) -> None:
+    check_one_of(name, value, CHANGES)

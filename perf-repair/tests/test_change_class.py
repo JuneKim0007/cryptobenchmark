@@ -141,9 +141,13 @@ def test_reject_unavailable_at_the_app_min_sdk_unless_bundled():
     assert classify(TYPES, scope(), WEAK, cand(late, bundled=True), 21).change == "local-edit"
 
 
-@pytest.mark.parametrize("candidate_sdk,app_sdk", [(None, 21), (1, None)])
+@pytest.mark.parametrize("candidate_sdk,app_sdk", [(None, 21), (2, None)])
 def test_reject_availability_unknown(candidate_sdk, app_sdk):
     assert _rejected(WEAK, cand(replace(STRONG, minSdk=candidate_sdk)), min_sdk=app_sdk) == {"availability_unknown"}
+
+
+def test_a_name_in_every_release_needs_no_app_min_sdk():
+    assert classify(TYPES, scope(), WEAK, cand(replace(STRONG, minSdk=1)), None).change == "local-edit"
 
 
 def test_reject_not_measured_deprecated_and_type_unknown():

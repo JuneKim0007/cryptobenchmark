@@ -13,6 +13,7 @@
 ## File structure
 
 ```
+src/perfrepair/result/candidates.py : Family: a scope's candidates outside its group, other canonical names of its family, classed; split into offered (up to maxChange) and not offered
 src/perfrepair/result/change.py : a scope's current item against one candidate of its family: pair diff, floor, lost properties, nonce origin, availability at minSdk, measured, screening → change class or every reject reason
 src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, the one verdict rule

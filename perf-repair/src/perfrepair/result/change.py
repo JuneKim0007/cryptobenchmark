@@ -12,6 +12,8 @@ LOCAL_SINKS, RETURN_SINKS = {"local"}, {"local", "return"}
 # a value built in the function itself can be rebuilt there for another parameter shape
 RESHAPEABLE = ("generated", "literal", "derived")
 FRESH = "generated"
+# in every release, so an app whose minSdk was not read still has it
+FIRST_API = 1
 
 
 @dataclass(frozen=True)
@@ -81,9 +83,9 @@ def _lost(types: Types, current: TypeRow, candidate: TypeRow) -> list[str]:
 def _available(c: Candidate, min_sdk: int | None) -> list[str]:
     if c.bundled:
         return []
-    if c.row.minSdk is None or min_sdk is None:
+    if c.row.minSdk is None or (min_sdk is None and c.row.minSdk > FIRST_API):
         return ["availability_unknown"]
-    return ["unavailable"] if min_sdk < c.row.minSdk else []
+    return ["unavailable"] if min_sdk is not None and min_sdk < c.row.minSdk else []
 
 
 def rejects(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, min_sdk: int | None) -> list[str]:

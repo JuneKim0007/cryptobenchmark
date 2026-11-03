@@ -14,10 +14,12 @@ from ..dto.unit import read_units
 from ..files import read_json, write_json, write_text
 from .. import run_dir as rd
 from ..run_dir import AppPaths
-from ..config.args import add_config_arg, load_settings
+from ..config.args import add_config_arg, load_settings, perf_mode
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..log import attach, step
 from ..failure import reported
+from ..dto.change import CHANGES, DROP_IN
+from ..dto.perf_mode import GENERIC, PerfMode
 from ..screen.catalog import screening_catalog
 from ..validation.repair import validate_edits, validate_harness
 from .dossier import dossier
@@ -38,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--app", type=Path, required=True,
                        help="the app's source root, only read; its path gives the app's id, scope files are relative to it")
     sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
+    sub.choices["dossier"].add_argument("--perf-mode", type=perf_mode, default=GENERIC, metavar="KEYS")
+    sub.choices["dossier"].add_argument("--max-change", choices=CHANGES, default=DROP_IN)
     a = ap.parse_args(argv)
     return reported(lambda: STEPS[a.command](ap, _located(ap, a)))
 
@@ -50,7 +54,8 @@ def _located(ap: argparse.ArgumentParser, a: argparse.Namespace) -> argparse.Nam
 
 
 def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
-    dossier(a.device_results, a.app, a.source, screening_catalog(load_settings(ap, a)))
+    dossier(a.device_results, a.app, a.source, screening_catalog(load_settings(ap, a)), PerfMode.parse(a.perf_mode),
+            max_change=a.max_change)
 
 
 def _test_set(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:

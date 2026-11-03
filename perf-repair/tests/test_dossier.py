@@ -140,7 +140,7 @@ def test_a_selected_metric_no_option_has_is_a_static_no_evidence_never_a_proxy(t
 def test_the_builder_is_deterministic_and_validates(tmp_path):
     first, second = build([scope()], tmp_path), build([scope()], tmp_path)
     assert json.dumps(first) == json.dumps(second)
-    assert set(first) == {"schemaVersion", "app", "perfMode", "dossiers", "noOptions", "units"}
+    assert set(first) == {"schemaVersion", "app", "perfMode", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
     assert validate_dossiers(first, [scope()], GROUPS, None) == []
 
 

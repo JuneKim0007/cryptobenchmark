@@ -59,10 +59,17 @@ def _lifecycle(s: Scope) -> list[str]:
     return lines + ([] if lc.requirements else ["  none found"])
 
 
+def _change(o: Option) -> list[str]:
+    """A drop-in shows nothing, so its prompt and evidence stay what they were before change classes."""
+    if o.diff is None:
+        return []
+    return [f"    change: {o.change} | input {o.diff.input} | key {o.diff.key} | output {o.diff.output} | reach {o.diff.reach}"]
+
+
 def _option(s: Scope, o: Option) -> list[str]:
     pins = UNKNOWN_PINS if o.pins is None else ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
     lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}",
-             _interop(s, o)]
+             *_change(o), _interop(s, o)]
     if not o.estimates:
         return lines + ["    estimates: none measured"]
     named = _names(o.estimates)

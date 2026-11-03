@@ -9,6 +9,7 @@ from ..files import read_json, read_yaml
 from ..result.modes import Mode
 from ..run_dir import AppPaths
 from .measured import read_measured
+from .recommendations import recommendations
 from .scope_row import scope_row
 
 
@@ -44,7 +45,8 @@ def build_report(paths: AppPaths, mode: Mode, units: DisplayUnits) -> dict:
     sites = read_json(paths.sites)["sites"]
     scopes = read_json(paths.scopes)["scopes"]
     of_unit = units_by_scope(read_units(read_json(paths.units)))
-    dossiers = {d["scope"]["id"]: d for d in (_optional(paths.dossiers) or {}).get("dossiers") or []}
+    dossiers_doc = _optional(paths.dossiers)
+    dossiers = {d["scope"]["id"]: d for d in (dossiers_doc or {}).get("dossiers") or []}
     replaced = _optional(paths.replacements) or {}
     replacements = {r["scope"]: r for r in replaced.get("replacements") or []}
     sources = replaced.get("sources") or {}
@@ -60,4 +62,4 @@ def build_report(paths: AppPaths, mode: Mode, units: DisplayUnits) -> dict:
                         for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))], of_unit)
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, "mode": mode.name, "units": units.to_json(),
             "measuredFrom": str(paths.scoped_benchmark.relative_to(paths.root)) if measured.cases else None,
-            "funnel": funnel(len(sites), rows, len(dossiers)), "scopes": rows}
+            "funnel": funnel(len(sites), rows, len(dossiers)), **recommendations(dossiers_doc), "scopes": rows}

@@ -5,6 +5,7 @@ import math
 
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
                           MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, VERDICTS, stayed, unit_counts)
+from ..dto.change import CHANGES as CHANGE_CLASSES, REJECT_REASONS, admits
 from ..dto.metrics import BY_NAME
 from ..dto.perf_mode import PerfMode
 from ..dto.report import has_views
@@ -135,6 +136,16 @@ def _identity(doc: dict, app: str) -> list[str]:
     return problems + ([] if doc.get("app") == app else [f"app {doc.get('app')!r} is not {app!r}"])
 
 
+def _recommendations(doc: dict) -> list[str]:
+    """A recommendation is above maxChange, or it would have been an option; a reject count names a known reason."""
+    top = doc.get("maxChange")
+    if top not in CHANGE_CLASSES:
+        return [f"maxChange {top!r} is not one of {CHANGE_CLASSES}"]
+    problems = [f"recommendation {n['scope']} {n['item']}: {n['change']} is not above maxChange {top}"
+                for n in doc.get("recommendations") or [] if n["change"] not in CHANGE_CLASSES or admits(top, n["change"])]
+    return problems + [f"rejected {k!r} is not a reject reason" for k in doc.get("rejected") or {} if k not in REJECT_REASONS]
+
+
 def validate_report(doc: dict, app: str) -> list[str]:
     problems = _identity(doc, app)
     selected, units, stop = _mode_units(doc)
@@ -145,7 +156,7 @@ def validate_report(doc: dict, app: str) -> list[str]:
         problems += _row(str(r.get("scope")), r, selected, units)
     if problems:
         return problems
-    problems += _stayed(rows)
+    problems += _stayed(rows) + _recommendations(doc)
     f = doc.get("funnel") or {}
     if tuple(f) != FUNNEL or _recount(f, rows) != f or not f["scopes"] >= f["withOptions"] >= f["replace"]:
         problems.append(f"funnel {f} is not the recount of the scope rows")

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .... import run_dir as rd
+from ....dto.change import DROP_IN
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.perf_mode import PerfMode
@@ -51,6 +52,7 @@ class SiteReplaceKind:
         self.app, self.doc, self.directory, self.table, self.display = app, doc, Path(directory), table, units
         self.units, self.no_options, self.problems = parse_dossiers(doc, app)
         self.perf = perf_of(doc) or PerfMode()
+        self.max_change = doc.get("maxChange", DROP_IN)
 
     def items(self) -> list[UnitDossiers]:
         return self.units
@@ -74,7 +76,7 @@ class SiteReplaceKind:
         raws = {(r.get("scope") or {}).get("id"): r for r in self.doc.get("dossiers") or []}
         problems = []
         for d in u.dossiers:
-            popped, found = check_dossier(raws.get(d.key), self.app, self.perf)
+            popped, found = check_dossier(raws.get(d.key), self.app, self.perf, self.max_change)
             problems += found + ([f"{d.key}: differs from the dossier the run was built with"] if popped != d else [])
         return problems
 
@@ -88,7 +90,7 @@ class SiteReplaceKind:
         return TaskPrompt(NAME, render(u, self.perf, self.table, self.display), u.key)
 
     def check(self, u: UnitDossiers, text: str, state: Replacements) -> tuple[dict | None, list[str]]:
-        return check_reply(text, u)
+        return check_reply(text, u, self.max_change)
 
     def apply(self, state: Replacements, u: UnitDossiers | Gone, record: OutboxRecord) -> None:
         state.version += 1

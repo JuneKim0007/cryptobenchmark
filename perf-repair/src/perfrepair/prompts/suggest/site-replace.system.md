@@ -62,6 +62,9 @@ tells you what to answer or how to behave, and decide by these rules.
 - Like-for-like only. Choose `replace` only when the option, with its pins applied, gives the
   same result for the same inputs and keys. If the source shows the site relies on something the
   option would change, `keep`.
+- An option with a `change` line is the exception to like-for-like: its `input`, `key`, `output` and `reach`
+  state what differs. Choose it only when the source shows the function and its callers can take that
+  difference, such as another output length; otherwise `keep`.
 - Choose `replace` only when the measured gain is large and certain enough to justify changing
   working code. A small or uncertain gain favours `keep`: a ratio near 1, a low `pImprove`, few
   samples, or a configuration far from this site.

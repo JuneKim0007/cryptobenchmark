@@ -50,5 +50,6 @@ apps:                      # per app: the guide, `ai replace`
   limit:                   # scopes the guide asks the model about; empty = all
   benchmarkConfig:         # global.yaml for the per-app device step; empty = device.benchmark.config
   measure: false           # true: the guide also measures the harness on the attached phone
+  maxChange: drop-in       # highest change class the guide may apply: drop-in | local-edit | migration; higher ones are reported
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`

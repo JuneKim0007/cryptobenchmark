@@ -59,9 +59,22 @@ def _metric_lines(m: dict, units: dict) -> list[str]:
     return lines
 
 
+def _recommended(doc: dict) -> list[str]:
+    """Candidates above maxChange, reported and never applied; a report without any says nothing."""
+    rows = doc.get("recommendations") or []
+    if not rows and not doc.get("rejected"):
+        return []
+    lines = ["## Recommendations", "", f"maxChange: {doc['maxChange']}; these are not applied."]
+    lines += [f"- {n['scope']}: {n['item']}: {n['change']} (input {n['diff']['input']}, key {n['diff']['key']}, "
+              f"output {n['diff']['output']}, reach {n['diff']['reach']})" for n in rows]
+    rejected = ", ".join(f"{k} {v}" for k, v in doc["rejected"].items())
+    return lines + ([f"- rejected candidates: {rejected}"] if rejected else []) + [""]
+
+
 def report_markdown(doc: dict) -> str:
     out = [f"# {doc['app']}: replacement report", "", f"Mode: {doc['mode']}. Measured from: "
-           f"{doc['measuredFrom'] or NOT_MEASURED}.", "", "## Funnel", "", *_funnel(doc["funnel"]), "", "## Scopes"]
+           f"{doc['measuredFrom'] or NOT_MEASURED}.", "", "## Funnel", "", *_funnel(doc["funnel"]), "",
+           *_recommended(doc), "## Scopes"]
     for s in doc["scopes"]:
         d = s["decision"]
         out += ["", f"### {s['file']}:{s['line']} `{s['function']}` ({s['scope']})", "",
@@ -94,4 +107,7 @@ def summary_markdown(doc: dict) -> str:
         change = NOT_MEASURED if m["medianChange"] is None else f"{m['medianChange']:+.1%}"
         estimated = f", estimated in {', '.join(m['estimatedIn'])}" if m.get("estimatedIn") else ""
         out.append(f"| {metric} ({m['unit']}{estimated}) | " + " | ".join(str(len(m["apps"][c])) for c in CHANGES) + f" | {change} |")
+    if doc.get("recommendations") or doc.get("rejected"):
+        counts = ", ".join(f"{k} {v}" for k, v in {**doc["recommendations"], **doc["rejected"]}.items())
+        out += ["", "## Candidates not offered", "", f"Recommended above maxChange, never applied, and rejected: {counts}."]
     return "\n".join(out) + "\n"

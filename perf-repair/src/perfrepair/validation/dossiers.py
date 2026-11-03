@@ -5,6 +5,7 @@ import math
 from collections import Counter
 
 from ..dto.grouping import parse_qualified
+from ..dto.change import CHANGES, CLASSES, DROP_IN, REJECT_REASONS, REJECTED, admits
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
@@ -14,7 +15,8 @@ from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_ESTIMATE_REASONS, NO_OPTION_
 from ..dto.unit import PairInterop, Stay, Unit, UnitDossiers
 from .app import scope_problems
 
-KEYS = {"schemaVersion", "app", "perfMode", "dossiers", "noOptions", "units"}
+KEYS = {"schemaVersion", "app", "perfMode", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
+NOT_OFFERED_KEYS = {"scope", "item", "change", "diff", "reasons"}
 
 
 def _id(raw) -> str | None:
@@ -40,7 +42,10 @@ def check_header(doc) -> list[str]:
     problems = [] if set(doc) == KEYS else [f"keys {sorted(doc)} are not {sorted(KEYS)}"]
     if doc.get("schemaVersion") != DOSSIERS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {DOSSIERS_SCHEMA_VERSION}")
-    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions", "units") if not isinstance(doc.get(k), list)]
+    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions", "notOffered", "units")
+                 if not isinstance(doc.get(k), list)]
+    if doc.get("maxChange") not in CHANGES:
+        problems.append(f"maxChange {doc.get('maxChange')!r} is not one of {CHANGES}")
     if perf_of(doc) is None:
         problems.append(f"perfMode {doc.get('perfMode')!r} does not parse")
     return problems + ([] if isinstance(doc.get("app"), str) else ["app is not a string"])
@@ -61,6 +66,30 @@ def check_no_options(doc: dict) -> list[str]:
         elif not isinstance(n["reason"], str) or reason_code(n["reason"]) not in NO_OPTION_REASONS:
             problems.append(f"noOptions {n['scope']}: reason {n['reason']!r} is not one of {NO_OPTION_REASONS}")
     return problems
+
+
+def check_not_offered(doc: dict) -> list[str]:
+    """A candidate not offered is rejected with reasons, or of a class above maxChange: a recommendation."""
+    problems, top = [], doc.get("maxChange")
+    for i, n in enumerate(doc.get("notOffered") or []):
+        where = f"notOffered[{i}]"
+        if not isinstance(n, dict) or set(n) != NOT_OFFERED_KEYS:
+            problems.append(f"{where}: keys are not {sorted(NOT_OFFERED_KEYS)}")
+        elif n["change"] not in CLASSES:
+            problems.append(f"{where}: change {n['change']!r} is not one of {CLASSES}")
+        elif (n["change"] == REJECTED) != bool(n["reasons"]) or not set(n["reasons"]) <= set(REJECT_REASONS):
+            problems.append(f"{where}: reasons {n['reasons']!r} are not reject reasons of a rejected candidate")
+        elif top in CHANGES and admits(top, n["change"]):
+            problems.append(f"{where}: {n['change']} is within maxChange {top}; it is an option")
+    return problems
+
+
+def _changes(where: str, d: Dossier, max_change: str) -> list[str]:
+    """Each option within maxChange; a drop-in carries no diff, any other class carries one."""
+    problems = [f"{where} {o.alias}: change {o.change!r} is above maxChange {max_change}" for o in d.options
+                if not admits(max_change, o.change)]
+    return problems + [f"{where} {o.alias}: {o.change} {'with' if o.diff else 'without'} a pair diff" for o in d.options
+                       if (o.diff is None) != (o.change == DROP_IN)]
 
 
 def _estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str]:
@@ -88,9 +117,9 @@ def _no_estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str
             if n.reason not in NO_ESTIMATE_REASONS or n.metric not in selected]
 
 
-def check_dossier(raw, app: str | None, perf: PerfMode) -> tuple[Dossier | None, list[str]]:
-    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels and estimates of
-    perf's metrics only."""
+def check_dossier(raw, app: str | None, perf: PerfMode, max_change: str = DROP_IN) -> tuple[Dossier | None, list[str]]:
+    """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels, estimates of
+    perf's metrics only and change classes within max_change."""
     where = f"dossier {_id(raw)}"
     if not isinstance(raw, dict):
         return None, [f"{where}: is not an object"]
@@ -115,7 +144,7 @@ def check_dossier(raw, app: str | None, perf: PerfMode) -> tuple[Dossier | None,
         problems.append(f"{where}: an option repeats the current item or another option")
     problems += [f"{where} {o.alias}: screen {o.screen!r} is neither one of {STATUSES} nor null"
                  for o in d.options if o.screen is not None and o.screen not in STATUSES]
-    return d, problems + _labels(where, d) + _estimates(where, d, perf.names)
+    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change)
 
 
 def _labels(where: str, d: Dossier) -> list[str]:
@@ -157,7 +186,7 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
         return problems
     if "interop" not in groups:
         return problems + ["groups.json has no interop section; rerun grouping report"]
-    problems += check_no_options(doc)
+    problems += check_no_options(doc) + check_not_offered(doc)
     by_id = {s.id: s for s in scopes}
     no_options = [n["scope"] for n in doc.get("noOptions") or [] if isinstance(n, dict) and "scope" in n]
     seen = Counter([_id(raw) for raw in doc.get("dossiers") or []] + no_options)
@@ -166,13 +195,14 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     problems += [f"scope {s}: neither a dossier nor in noOptions" for s in sorted(set(by_id) - set(seen))]
     problems += _unused_reasons(doc, scopes)
     for raw in doc.get("dossiers") or []:
-        problems += _against_run(raw, doc.get("app"), perf, by_id, groups, verdicts)
+        problems += _against_run(raw, doc.get("app"), perf, by_id, groups, verdicts, doc.get("maxChange", DROP_IN))
     return problems
 
 
-def _against_run(raw, app, perf: PerfMode, by_id: dict[str, Scope], groups: dict, verdicts: dict[str, Verdict] | None) -> list[str]:
+def _against_run(raw, app, perf: PerfMode, by_id: dict[str, Scope], groups: dict, verdicts: dict[str, Verdict] | None,
+                 max_change: str) -> list[str]:
     """One dossier against scopes.json, groups.json and the screen verdicts."""
-    d, problems = check_dossier(raw, app, perf)
+    d, problems = check_dossier(raw, app, perf, max_change)
     if d is None:
         return problems
     where = f"dossier {d.key}"
@@ -182,11 +212,15 @@ def _against_run(raw, app, perf: PerfMode, by_id: dict[str, Scope], groups: dict
 
 
 def _in_group(where: str, d: Dossier, groups: dict) -> list[str]:
+    """A drop-in is another member of the current item's group; any other class is outside it."""
     group_of = {v["qualified"]: v.get("group") for v in groups["items"].values()}
     group = group_of.get(d.current)
-    problems = [f"{where}: current {d.current} is not a grouped item"] if group is None else []
+    drop_ins = [o for o in d.options if o.change == DROP_IN]
+    problems = [f"{where}: current {d.current} is not a grouped item"] if group is None and drop_ins else []
     problems += [f"{where} {o.alias}: {o.item} is not another member of group {group}"
-                 for o in d.options if o.item == d.current or group_of.get(o.item) != group]
+                 for o in drop_ins if o.item == d.current or group_of.get(o.item) != group]
+    problems += [f"{where} {o.alias}: {o.change} {o.item} is in the current item's group {group}"
+                 for o in d.options if o.change != DROP_IN and group is not None and group_of.get(o.item) == group]
     return problems + [f"{where} {o.alias}: interop {o.interop} is not the groups.json status {status}"
                        for o in d.options if o.interop != (status := pair_status(groups, d.current, o.item))]
 
@@ -240,10 +274,10 @@ def parse_dossiers(doc: dict, app: str) -> tuple[list[UnitDossiers], dict[str, s
         return [], {}, problems
     if doc["app"] != app:
         return [], {}, [f"dossiers are for app {doc['app']!r}, not {app!r}"]
-    problems, perf = check_no_options(doc), perf_of(doc)
+    problems, perf = check_no_options(doc) + check_not_offered(doc), perf_of(doc)
     dossiers = []
     for raw in doc["dossiers"]:
-        d, found = check_dossier(raw, app, perf)
+        d, found = check_dossier(raw, app, perf, doc["maxChange"])
         problems += found
         if d is not None:
             dossiers.append(d)
