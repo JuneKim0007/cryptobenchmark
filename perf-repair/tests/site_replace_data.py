@@ -1,13 +1,21 @@
 """Fake dossiers for the replacement decision; fake names only."""
+from perfrepair.dto.lifecycle import Lifecycle, Requirement, Step
 from perfrepair.dto.site import SCHEMA_VERSION, Dossier, Estimate, Option, Scope, scope_id
 
 APP = "demo-app"
 SOURCE = "fun seal(data: ByteArray): ByteArray {\n    val c = Engine.get(\"ALG-A/MODE-X\")\n    return c.run(data)\n}"
 
 
-def scope(file="src/Box.kt", line=11, function="seal", call="Engine.get", sinks=("persist",), key_source="keystore"):
+LIFECYCLE = Lifecycle("partially_bounded", ("depth1",), "local",
+                      (Step("use", "run", 12, "same"), Step("configure", "prepare", 20, "depth1")),
+                      (Requirement("key", "field", 3, 20, ("keystore",)), Requirement("input", "parameter", 10, 12)),
+                      ("OP1",))
+
+
+def scope(file="src/Box.kt", line=11, function="seal", call="Engine.get", sinks=("persist",), key_source="keystore",
+          lifecycle=LIFECYCLE):
     return Scope(scope_id(APP, file, function, line, call), APP, file, line, call, function, 10, 13, "TypeA",
-                 "ALG-A/MODE-X", "P1", "literal", 128, 1024, sinks, key_source)
+                 "ALG-A/MODE-X", "P1", "literal", 128, 1024, sinks, key_source, lifecycle)
 
 
 def dossier(options=None, **kw) -> Dossier:

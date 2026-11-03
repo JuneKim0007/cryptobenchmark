@@ -9,6 +9,7 @@ from helpers import QUIET, row, summary
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.catalog.screening import SCREENING, PlatformRule
+from perfrepair.dto.lifecycle import Lifecycle
 from perfrepair.dto.screen import Verdict
 from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
@@ -273,3 +274,24 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
         doc = dossier(run, "demo", F / "app", handler, **QUIET)
         assert {n["reason"] for n in doc["noOptions"]} == {"unresolved", "no_alternative"} | extra
         assert len(doc["dossiers"]) == (0 if extra else 1)
+
+
+def test_a_lifecycle_with_no_real_use_is_a_static_no_option_never_a_dossier(tmp_path):
+    unused = replace(scope(), lifecycle=Lifecycle("no_real_use", binding="discarded"))
+    doc = build([unused], tmp_path)
+    assert doc["dossiers"] == [] and doc["noOptions"] == [{"scope": unused.id, "reason": "no_real_use"}]
+    assert validate_dossiers(doc, [unused], GROUPS, None) == []
+    wrong = {**doc, "noOptions": [{"scope": unused.id, "reason": "no_alternative"}]}
+    assert any("no_real_use" in p for p in validate_dossiers(wrong, [unused], GROUPS, None))
+
+
+def test_estimates_cover_only_the_operations_the_lifecycle_performs_and_pins_stay(tmp_path):
+    rows = ROWS[:4] + [replace(row("c2", "P1", input_size=64, operation="OP2"), parameters=PARAMS),
+                       replace(row("o2", "P2", input_size=64, operation="OP2"), parameters={**PARAMS, "ivBytes": 16})]
+    m = {**M, "c2": {"timeNs": summary(100), "allocations": None}, "o2": {"timeNs": summary(50), "allocations": None}}
+    only = replace(scope(), lifecycle=Lifecycle("bounded", binding="local", operations=("OP2",)))
+    r1 = Dossier.from_json(build([only], tmp_path, rows=rows, measurements=m)["dossiers"][0]).options[0]
+    assert {e.configuration for e in r1.estimates} == {"OP2 key 128 input 64 WARM"} and r1.pins == {"ivBytes": 16}
+    unknown = replace(scope(), lifecycle=Lifecycle("bounded", binding="local"))
+    r1 = Dossier.from_json(build([unknown], tmp_path, rows=rows, measurements=m)["dossiers"][0]).options[0]
+    assert {e.configuration for e in r1.estimates} == {"OP1 key 128 input 64 WARM", "OP2 key 128 input 64 WARM"}

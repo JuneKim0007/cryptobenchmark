@@ -7,6 +7,17 @@ SCOPE FACTS
   key source: keystore
   risks a replace must declare: persisted_data, key_compatibility
 
+LIFECYCLE
+  status partially_bounded (depth1) | binding local
+  operations: OP1
+  line 11: create Engine.get
+  line 12: use run
+  line 20: configure prepare (one method away)
+
+REQUIREMENTS
+  key: field (line 3), taken at line 20; one method away: keystore
+  input: parameter (line 10), taken at line 12
+
 CURRENT TypeA|ALG-A/MODE-X|P1 | name ALG-A/MODE-X | provider P1
 
 OPTIONS (answer with these names)

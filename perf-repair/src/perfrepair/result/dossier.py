@@ -8,7 +8,8 @@ from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
-from ..dto.site import METRICS, NOT_ON_DEVICE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
+from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
+from ..dto.site import METRICS, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Estimate, Option, Scope
 from .estimate import compare
 
 RESOLVED = ("default", "explicit")
@@ -25,13 +26,20 @@ def label(c: Config) -> str:
     return f"{c[0]} key {c[1]} input {c[2]} {c[3]}"
 
 
-def nearest(scope: Scope, current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow]) -> list[Config]:
-    """Configurations both measured at the scope's key size and the closest input size; every size when unknown."""
-    shared = [c for c in current if c in option and scope.keySize in (None, c[1])]
+def nearest(scope: Scope, current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow],
+            operations: tuple[str, ...] = ()) -> list[Config]:
+    """Configurations both measured at the scope's key size and the closest input size; every size when unknown.
+    operations: only these, when given."""
+    shared = [c for c in current if c in option and scope.keySize in (None, c[1]) and (not operations or c[0] in operations)]
     if scope.inputSize is None or not shared:
         return sorted(shared, key=str)
     gap = min(abs((c[2] or 0) - scope.inputSize) for c in shared)
     return sorted((c for c in shared if abs((c[2] or 0) - scope.inputSize) == gap), key=str)
+
+
+def operations(scope: Scope) -> tuple[str, ...]:
+    """The operations the lifecycle performs; empty, meaning every one, when it does not know."""
+    return scope.lifecycle.operations if scope.lifecycle is not None else ()
 
 
 def pins(current: PrimitiveRow, option: PrimitiveRow) -> dict:
@@ -75,6 +83,8 @@ def _targets(current: str, others: list[str], usable: list[str], failed: set,
 
 
 def _unresolved(s: Scope) -> str | None:
+    if s.lifecycle is not None and s.lifecycle.status == NO_REAL_USE_STATUS:
+        return NO_REAL_USE
     if s.resolution == NOT_ON_DEVICE:
         return NOT_ON_DEVICE
     return None if s.resolution in RESOLVED and s.algorithm is not None and s.provider is not None else "unresolved"
@@ -119,8 +129,10 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
             configs = nearest(s, measured[current], measured[q])
             # no configuration measured on both sides: the pins are unknown, never guessed
             pinned = pins(measured[current][configs[0]], measured[q][configs[0]]) if configs else None
+            # a site that only decrypts is shown decrypt numbers; pins do not depend on the operation
+            used = nearest(s, measured[current], measured[q], operations(s))
             options.append(Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(groups, current, q),
-                                  estimates(configs, measured[current], measured[q], measurements),
+                                  estimates(used, measured[current], measured[q], measurements),
                                   None if verdicts is None else verdicts[q].status))
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options)))
     return {"schemaVersion": SCHEMA_VERSION, "app": app, "dossiers": [d.to_json() for d in dossiers],

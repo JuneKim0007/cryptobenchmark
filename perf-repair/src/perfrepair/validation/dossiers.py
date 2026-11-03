@@ -7,7 +7,8 @@ from collections import Counter
 from ..dto.grouping import parse_qualified
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
-from ..dto.site import METRICS, NO_OPTION_REASONS, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Scope
+from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
+from ..dto.site import METRICS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Scope
 from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "dossiers", "noOptions"}
@@ -87,6 +88,8 @@ def check_dossier(raw, app: str | None) -> tuple[Dossier | None, list[str]]:
     problems += [f"{where}: {item!r} is not a qualified item id" for item in items if not _qualified(item)]
     if not d.options:
         problems.append(f"{where}: no options; such a scope belongs in noOptions")
+    if d.scope.lifecycle is not None and d.scope.lifecycle.status == NO_REAL_USE_STATUS:
+        problems.append(f"{where}: lifecycle {NO_REAL_USE_STATUS}; such a scope belongs in noOptions as {NO_REAL_USE}")
     if [o.alias for o in d.options] != [f"{OPTION_PREFIX}{n}" for n in range(1, len(d.options) + 1)]:
         problems.append(f"{where}: aliases are not R1..R{len(d.options)} in order")
     if len(set(items)) != len(items):
@@ -120,6 +123,13 @@ def _screen(where: str, d: Dossier, verdicts: dict[str, Verdict] | None) -> list
     return problems
 
 
+def _unused_reasons(doc: dict, scopes: list[Scope]) -> list[str]:
+    reasons = {n["scope"]: n.get("reason") for n in doc.get("noOptions") or [] if isinstance(n, dict) and "scope" in n}
+    unused = [s.id for s in scopes if s.lifecycle is not None and s.lifecycle.status == NO_REAL_USE_STATUS]
+    return [f"scope {sid}: lifecycle {NO_REAL_USE_STATUS} but noOptions reason {reasons[sid]!r}" for sid in unused
+            if sid in reasons and reasons[sid] != NO_REAL_USE]
+
+
 def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: dict[str, Verdict] | None) -> list[str]:
     """dossiers.json against scopes.json, groups.json and the app's screen verdicts (None without screen.json): every
     scope once, options from the current item's group labelled with the pair's interop status and the app's status."""
@@ -136,6 +146,7 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     problems += [f"scope {s} appears {n} times" for s, n in sorted(seen.items(), key=str) if n > 1]
     problems += [f"scope {s}: not in scopes.json" for s in sorted(set(seen) - set(by_id), key=str)]
     problems += [f"scope {s}: neither a dossier nor in noOptions" for s in sorted(set(by_id) - set(seen))]
+    problems += _unused_reasons(doc, scopes)
     for raw in doc.get("dossiers") or []:
         d, found = check_dossier(raw, doc.get("app"))
         problems += found

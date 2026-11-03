@@ -1,4 +1,5 @@
-"""What the replacement decision sees for one dossier: site, scope facts, current, aliased options, edit kinds, source."""
+"""What the replacement decision sees for one dossier: site, scope facts, lifecycle, requirements, current, aliased
+options, edit kinds, source."""
 from __future__ import annotations
 
 import hashlib
@@ -26,6 +27,22 @@ def _known(x) -> str:
 def _interop(s: Scope, o: Option) -> str:
     added = [r for r in required_risks(s, o) if r not in required_risks(s)]
     return f"    interop: {o.interop}" + (f"; a replace to it must also declare {', '.join(added)}" if added else "")
+
+
+def _lifecycle(s: Scope) -> list[str]:
+    lc = s.lifecycle
+    if lc is None:
+        return ["LIFECYCLE", "  not read", "", "REQUIREMENTS", "  not read"]
+    reasons = f" ({', '.join(lc.reasons)})" if lc.reasons else ""
+    lines = ["LIFECYCLE", f"  status {lc.status}{reasons} | binding {_known(lc.binding)}",
+             f"  operations: {', '.join(lc.operations) or 'unknown (estimates cover every measured operation)'}",
+             f"  line {s.line}: create {s.call}"]
+    lines += [f"  line {t.line}: {t.role} {t.call}" + (" (one method away)" if t.where == "depth1" else "") for t in lc.steps]
+    lines += ["", "REQUIREMENTS"]
+    for r in lc.requirements:
+        away = f"; one method away: {', '.join(r.depth1)}" if r.depth1 else ""
+        lines.append(f"  {r.name}: {r.origin} (line {r.line}), taken at line {r.at}{away}")
+    return lines + ([] if lc.requirements else ["  none found"])
 
 
 def _option(s: Scope, o: Option) -> list[str]:
@@ -56,6 +73,7 @@ def render(d: Dossier) -> str:
              f"  key size {_known(s.keySize)} | input size {_known(s.inputSize)}",
              "", "SCOPE FACTS", f"  sinks: {', '.join(s.sinks)}", f"  key source: {s.keySource}",
              f"  risks a replace must declare: {', '.join(required_risks(s)) or 'none'}",
+             "", *_lifecycle(s),
              "", f"CURRENT {d.current} | name {algorithm_of(d.current)} | provider {provider_of(d.current)}",
              "", "OPTIONS (answer with these names)"]
     for o in d.options:

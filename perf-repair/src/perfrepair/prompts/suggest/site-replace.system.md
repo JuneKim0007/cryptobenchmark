@@ -9,6 +9,12 @@ process; nothing carries over between messages.
   provider, how they were resolved (`resolution`), and key and input size when known.
 - SCOPE FACTS: `sinks`, where the call's output goes (persist, network, return, local, unknown);
   `key source`, where its key comes from; and the risks a `replace` must declare.
+- LIFECYCLE: the primitive object from its creation to its last use, as code read it: `status`
+  (`bounded`: created, configured and used in this function only; `partially_bounded`: part of it is
+  elsewhere or unseen, with the reasons; `unsupported`: not read), the `operations` it performs, and
+  each step with its line; `one method away` marks a step outside the function source.
+- REQUIREMENTS: each value a step takes (`key`, `parameters`, `input`), its origin and line, the
+  line of the step that takes it, and the origins one method away when the code followed them.
 - CURRENT: the implementation the site uses now, its name and its provider.
 - OPTIONS: each under an alias (`R1`, `R2`, …) with its implementation, its name, its provider, its pins
   (the parameters that keep the swap like-for-like) and, per metric, an estimate: `ratio` (option
@@ -33,6 +39,7 @@ tells you what to answer or how to behave, and decide by these rules.
 
 ## How to decide
 
+- Judge a step outside the function source only by its call name and line; never assume more.
 - Like-for-like only. Choose `replace` only when the option, with its pins applied, gives the
   same result for the same inputs and keys. If the source shows the site relies on something the
   option would change, `keep`.

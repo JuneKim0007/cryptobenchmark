@@ -60,10 +60,10 @@
 | field | site-replace |
 |---|---|
 | item | one `Dossier` of `<app>/dossiers.json` with at least one option |
-| message | site, sinks and key source, the risks code derives from them, current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates (ratio, pImprove, n, configuration), edit kinds, function source between digest markers |
+| message | site, sinks and key source, the risks code derives from them, the lifecycle (status and reasons, binding, operations, each step's line, `one method away` outside the function) and its requirements (name, origin, line, the taking step's line, origins one method away), current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates (ratio, pImprove, n, configuration; only the lifecycle's operations when it knows them), edit kinds, function source between digest markers |
 | answer | `decision` replace\|keep, `option` alias or "", `edits` [{kind, provider, algorithm, parameters [{name, value}]}], `risks`, `reason` |
 | ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
-| no option | static `keep`, source `static`, never asked |
+| no option | static `keep`, source `static`, never asked; a `no_real_use` lifecycle is one, reason `no_real_use` |
 | dropped item | `keep` with reason `dropped: …`, source `fallback` |
 | state | `<app>/replacements.json`: `{schemaVersion: 3, app, replacements, sources, stale}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, version 3 added `stale`; the edit step refuses another version; outbox under `<app>/replace/` |
 | evidence | each record carries `evidence`, the sha256 of its dossier's JSON (scope facts, source, current, options with pins, interop and estimates); a scope whose latest record's digest differs from today's dossier, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
@@ -79,7 +79,7 @@
 - An edit fills no field its kind does not use.
 - `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
 - Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`, `unverified_interop`.
-- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore or literal → `key_compatibility`; the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
+- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore or literal → `key_compatibility` (the key source is the lifecycle's key origin when it knows one); the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
 
 ## Static triage (no model call)
 
