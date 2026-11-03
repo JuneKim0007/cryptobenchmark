@@ -19,16 +19,23 @@ def api_schema(node: dict) -> dict:
     return out
 
 
+class _NoSdkError(Exception):
+    pass
+
+
 class ClaudeClient:
 
     def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
+        self.model, self.effort, self.max_tokens = model, effort, max_tokens
         try:
             import anthropic
         except ImportError:
-            raise AgentFailed("claude_api_missing", "auth api needs the anthropic package: pip install -e .[api]") from None
-        self.model, self.effort, self.max_tokens = model, effort, max_tokens
+            if client is None:
+                raise AgentFailed("claude_api_missing", "auth api needs the anthropic package: pip install -e .[api]") from None
+            anthropic = None
         self.client = client or anthropic.Anthropic()
-        self.api_error = anthropic.APIError
+        # an injected client without the SDK raises nothing this class codes
+        self.api_error = anthropic.APIError if anthropic else _NoSdkError
 
     def request(self, system: SystemPrompt, messages: list[dict], schema: dict) -> tuple[AgentReply, list]:
         block = {"type": "text", "text": system.text}
