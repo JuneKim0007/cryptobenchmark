@@ -11,7 +11,7 @@ from ....dto.primitives import ABSENT, PrimitiveLine, PrimitivesTable
 from ....dto.report import THROUGHPUT, has_views
 from ....dto.site import Dossier
 from ....dto.units import DisplayUnits, number
-from ....result.dossier import operations
+from ....result.configurations import operations
 
 
 def _size(column: str) -> int | None:

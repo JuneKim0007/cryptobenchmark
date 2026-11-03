@@ -17,7 +17,7 @@ from ....dto.unit import INVERSE, Link, UnitDossiers
 from ....dto.units import DisplayUnits
 from .rows import render_lines
 
-# result/dossier.py label(), with `, estimated` when a side's energy is estimated
+# result/configurations.py label(), with `, estimated` when a side's energy is estimated
 CONFIGURATION = re.compile(r"^(?P<op>\S+) key (?P<key>\S+) input (?P<input>\S+) (?P<phase>\S+)(?P<estimated>, estimated)?$")
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
 TOO_FEW_RUNS = "n/a (n<2)"
@@ -78,7 +78,7 @@ def _option(s: Scope, o: Option) -> list[str]:
     named = _names(o.estimates)
     cells = [f"{e.metric}{named[e.configuration]} {e.ratio:.3f} "
              f"{TOO_FEW_RUNS if e.pImprove is None else f'{e.pImprove:.3f}'} {e.n}" for e in o.estimates]
-    # with no input size nothing is nearest: result/dossier.py nearest() keeps every measured size
+    # with no input size nothing is nearest: result/configurations.py nearest() keeps every measured size
     where = "every measured input size (this site's is unknown)" if s.inputSize is None else "the configurations nearest this site"
     return lines + [f"    estimates (ratio option ÷ current, pImprove, n), {where}: " + "; ".join(cells), *absent]
 

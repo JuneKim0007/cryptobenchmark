@@ -10,74 +10,16 @@ from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
-from ..dto.measurement import ESTIMATED
 from ..dto.perf_mode import PerfMode, no_evidence
-from ..dto.metrics import BY_NAME
-from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier,
-                        Estimate, NoEstimate, Option, Scope, reason_code)
+from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier, Option, Scope
 from ..dto.change import DROP_IN, NO_GAIN, REJECTED, Change, PairDiff
 from .candidates import Family
 from .change import foreign_member, reach
-from .estimate import compare
+from .configurations import Config, config_of, estimates, nearest, operations, pins
 from .gain import no_gain
 from ..stop.halt import Coded
 
 RESOLVED = ("default", "explicit")
-
-Config = tuple  # (operation, keySize, inputSize, phase)
-
-
-def _config(r: PrimitiveRow) -> Config:
-    return r.operation, r.keySize, r.inputSize, r.phase
-
-
-def label(c: Config) -> str:
-    return f"{c[0]} key {c[1]} input {c[2]} {c[3]}"
-
-
-def nearest(scope: Scope, current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow],
-            operations: tuple[str, ...] = ()) -> list[Config]:
-    """Configurations both measured at the scope's key size and the closest input size; every size when unknown.
-    operations: only these, when given."""
-    shared = [c for c in current if c in option and scope.keySize in (None, c[1]) and (not operations or c[0] in operations)]
-    if scope.inputSize is None or not shared:
-        return sorted(shared, key=str)
-    gap = min(abs((c[2] or 0) - scope.inputSize) for c in shared)
-    return sorted((c for c in shared if abs((c[2] or 0) - scope.inputSize) == gap), key=str)
-
-
-def operations(scope: Scope) -> tuple[str, ...]:
-    """The operations the lifecycle performs; empty, meaning every one, when it does not know."""
-    return scope.lifecycle.operations if scope.lifecycle is not None else ()
-
-
-def pins(current: PrimitiveRow, option: PrimitiveRow) -> dict:
-    """The option's parameters that differ from the current ones."""
-    keys = sorted(set(current.parameters) | set(option.parameters))
-    return {k: option.parameters.get(k) for k in keys if current.parameters.get(k) != option.parameters.get(k)}
-
-
-def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow],
-           measurements: dict[str, dict[str, Summary | None]], metrics: tuple[str, ...]):
-    for c in configs:
-        for metric in metrics:
-            before = (measurements.get(current[c].rowId) or {}).get(metric)
-            after = (measurements.get(option[c].rowId) or {}).get(metric)
-            if before is not None and after is not None:
-                yield c, metric, compare(before, after, BY_NAME[metric].lowerIsBetter), after.kind
-
-
-def _shown(c: Config, kind: str | None) -> str:
-    # the words reach the decision through the configuration it is already shown
-    return f"{label(c)}, estimated" if kind == ESTIMATED else label(c)
-
-
-def estimates(*sides) -> tuple[tuple[Estimate, ...], tuple[NoEstimate, ...]]:
-    """Each metric both sides have: an estimate, or the reason code compare() gives no ratio, so the decision sees why."""
-    found = list(_sides(*sides))
-    return (tuple(Estimate(metric, e.ratio, e.pImprove, e.n, _shown(c, kind), kind) for c, metric, e, kind in found
-                  if e.ratio is not None),
-            tuple(NoEstimate(metric, label(c), reason_code(e.reason)) for c, metric, e, _ in found if e.ratio is None))
 
 
 def function_source(root: Path, scope: Scope) -> str:
@@ -236,7 +178,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
         available |= {b["providerName"] for b in app_doc.get("bundled") or []}
     measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
     for r in rows:
-        measured[qualified(r.type, r.algorithm, r.provider)][_config(r)] = r
+        measured[qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r
     joined = Joined(groups, measured, measurements, verdicts, perf, available, family)
     dossiers, none, kept = [], [], []
     for s in scopes:
