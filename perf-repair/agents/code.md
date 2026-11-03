@@ -1,7 +1,7 @@
 # Code
 
 ## Rules
-- python: 3.10+, stdlib and pyyaml only; the anthropic SDK only in `src/perfrepair/ai/runtime/gateway/claude_api.py`.
+- python: 3.10+, stdlib and pyyaml only; the anthropic SDK only in `src/perfrepair/ai/runtime/gateway/claude_api.py`; tree-sitter (the `scope` extra) only in `src/perfrepair/scope/syntax/parser.py`; a suite needing an extra skips without it.
 - shape: dataclasses for data; a module holds one responsibility; `__init__.py` only re-exports or holds a docstring.
 - names: snake_case modules named for their one job; a stage command is named for its stage.
 - generality: aliases and precedence come from the probe and manifest, engine types to scan from the names catalog, never from literals.
