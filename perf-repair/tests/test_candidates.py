@@ -228,8 +228,20 @@ def _estimate(ratio, p, metric="timeNs", n=9):
     ((_estimate(20.0, 0.4),), False),
     ((_estimate(20.0, None, n=1),), False),
     ((), False)])
-def test_no_gain_is_worse_beyond_noise_on_every_estimate(estimates, want):
+def test_no_gain_is_one_metric_proven_worse_and_none_better(estimates, want):
     assert no_gain(estimates) is want
+
+
+def test_a_single_window_reading_does_not_save_a_proven_slower_option():
+    assert no_gain((_estimate(1.5, 0.0), _estimate(1.56, None, n=1)))
+
+
+def test_a_single_window_reading_that_improves_keeps_the_trade_off():
+    assert not no_gain((_estimate(1.5, 0.0), _estimate(0.8, None, n=1)))
+
+
+def test_an_unchanged_metric_does_not_save_a_proven_slower_option():
+    assert no_gain((_estimate(1.5, 0.0), _estimate(1.0, 0.5)))
 
 
 def _slow(tmp_path, top="drop-in"):

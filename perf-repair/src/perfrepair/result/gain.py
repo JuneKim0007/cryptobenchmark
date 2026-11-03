@@ -1,4 +1,4 @@
-"""Whether an option is worse beyond noise on every selected metric it has a number for: code rejects it, the model never weighs it."""
+"""Whether an option is proven worse with nothing better to show for it: code rejects it, the model never weighs it."""
 from __future__ import annotations
 
 from ..dto.site import Estimate
@@ -6,7 +6,8 @@ from .modes import CRITERIA
 from ..files import read_yaml
 
 CRITERIA_DOC = read_yaml(CRITERIA)
-WORSE_RATIO = 1 / float(CRITERIA_DOC["improvingRatio"])
+IMPROVING_RATIO = float(CRITERIA_DOC["improvingRatio"])
+WORSE_RATIO = 1 / IMPROVING_RATIO
 # the top level's floor, read from the other side: the option is better with at most this probability
 NOISE = 1 - max(float(lv["atLeast"]) for lv in CRITERIA_DOC["levels"])
 
@@ -16,5 +17,5 @@ def _worse(e: Estimate) -> bool:
 
 
 def no_gain(estimates: tuple[Estimate, ...]) -> bool:
-    """Every estimate of every metric worse; none at all, or one without runs enough to say, is not evidence of no gain."""
-    return bool(estimates) and all(_worse(e) for e in estimates)
+    """One metric proven worse and none better; a single-window energy reading can neither prove nor save."""
+    return any(_worse(e) for e in estimates) and not any(e.ratio <= IMPROVING_RATIO for e in estimates)
