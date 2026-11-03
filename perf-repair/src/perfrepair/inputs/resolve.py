@@ -78,8 +78,7 @@ def choose(name: str, candidates: Iterable[Candidate], check: Callable[[str, Any
     return None
 
 
-def resolve(name: str, candidates: Iterable[Candidate], load: Callable[[Any], Any], need: Need,
-            null: Any = None) -> Resolved:
+def resolve(name: str, candidates: Iterable[Candidate], load: Callable[[Any], Any], need: Need) -> Resolved:
     candidates = list(candidates)
     for c in candidates:
         if c.value is None:
@@ -96,5 +95,5 @@ def resolve(name: str, candidates: Iterable[Candidate], load: Callable[[Any], An
     tried = ", ".join(c.source for c in candidates) or "no source"
     if need is Need.OPTIONAL:
         _log(name, "not_found", "none", f"not found ({tried}); skipped")
-        return Resolved(null, "none")
+        return Resolved(None, "none")
     raise InputError("missing_input", f"{name}: nothing found ({tried})")

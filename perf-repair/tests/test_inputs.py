@@ -56,8 +56,8 @@ def test_nothing_found_is_an_error_unless_optional(need):
 
 def test_nothing_found_for_an_optional_input_is_the_null_value_and_logged(caplog):
     caplog.set_level(logging.INFO, "perfrepair")
-    got = resolve("x", [Candidate(None, "cli")], read, Need.OPTIONAL, null={})
-    assert (got.value, got.source) == ({}, "none")
+    got = resolve("x", [Candidate(None, "cli")], read, Need.OPTIONAL)
+    assert (got.value, got.source) == (None, "none")
     assert [(r.code, r.getMessage()) for r in caplog.records] == [("not_found", "x: not found (cli); skipped")]
 
 
