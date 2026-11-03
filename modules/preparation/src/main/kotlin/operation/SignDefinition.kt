@@ -12,13 +12,16 @@ internal object SignDefinition : OperationDefinition {
     override val consumesInput = true
 
     override fun invocation(prepared: PreparedCase): Invocation {
-        val signature = Signature.getInstance(prepared.case.algorithm, prepared.case.provider)
-        prepared.parameters?.next()?.let { signature.setParameter(it) }
-        signature.initSign(CaseArguments.pair(prepared.key).private)
+        val spec = prepared.parameters?.next()
+        val private = CaseArguments.pair(prepared.key).private
         val message = CaseArguments.preparedMessage(prepared)
-        return Invocation(perIteration = {
+        val call = EngineCall({ Signature.getInstance(prepared.case.algorithm, prepared.case.provider) }, { signature, _ ->
+            spec?.let { signature.setParameter(it) }
+            signature.initSign(private)
+        }, { signature ->
             signature.update(message)
             signature.sign()
-        }, engine = signature)
+        })
+        return call.invocation(SetupCatalog.standard.perCall(prepared.case), readBack = true)
     }
 }

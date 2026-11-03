@@ -24,7 +24,10 @@ kotlin {
 sourceSets {
     main { kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/main/kotlin", "../../modules/settings/src/main/kotlin", "../../modules/config/src/main/kotlin", "src/main/kotlin")) }
     // Preparation only for the contract test: discovery itself never compiles against it.
-    test { kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/test/kotlin", "../../modules/config/src/test/kotlin", "../../modules/preparation/src/main/kotlin", "src/test/kotlin")) }
+    test {
+        kotlin.setSrcDirs(listOf("../../modules/environment/discovery/src/test/kotlin", "../../modules/config/src/test/kotlin", "../../modules/preparation/src/main/kotlin", "src/test/kotlin"))
+        resources.setSrcDirs(listOf("../../modules/preparation/src/main/resources"))
+    }
 }
 
 tasks.processResources { from("../../perf-repair/src/perfrepair/catalog/algorithm-names.yaml") }

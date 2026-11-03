@@ -45,7 +45,7 @@ internal class CasePreparer(
             .getOrElse { failure -> return skipped(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
         val resolved = runCatching { ResolvedParameters.of(invocation.engine, material, result) }
             .getOrElse { failure -> return skipped(case, "parameters_unreadable: ${failure.javaClass.simpleName}: ${failure.message}") }
-        return Outcome.Prepared(candidate.copy(resolvedParameters = resolved))
+        return Outcome.Prepared(candidate.copy(resolvedParameters = resolved, perCall = invocation.perCall))
     }
 
     private fun bound(tree: Map<String, Any>, path: String) =

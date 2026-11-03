@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
+import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
 
 data class PreparedCase(
@@ -14,6 +15,7 @@ data class PreparedCase(
     val keyParameters: BoundParameters?,
     val input: OperationInput,
     val resolvedParameters: Map<String, Any> = emptyMap(),
+    val perCall: PerCall? = null,
 ) {
 
     val chartGroup: ChartGroup get() = ChartGroup.of(case.type, recipe)

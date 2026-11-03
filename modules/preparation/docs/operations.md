@@ -18,7 +18,7 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 
 | timed call | operation |
 |---|---|
-| `Cipher.init` + `doFinal` into a preallocated buffer, every cipher and mode | ENCRYPT, DECRYPT |
+| `doFinal` into a preallocated buffer, with `Cipher.init` before it when the [variant](#variants) says | ENCRYPT, DECRYPT |
 | `update` + `sign` | SIGN |
 | `update` + `verify`; false fails `verify_failed` | VERIFY |
 | `Mac.doFinal` | COMPUTE_MAC |
@@ -29,12 +29,45 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 | rule | value |
 |---|---|
 | measured generator init | spec: `init(spec)`; else keySize: `init(keySize)`; else provider default; no `SecureRandom` passed |
-| Cipher init | inside every timed call, so modes compare like for like; ENCRYPT takes the next pooled spec, DECRYPT the ciphertext's; a provider refusing a second init fails `not_repeatable: ...; draw them with fresh(n)` |
+| Cipher init | inside the timed call when the variant's `perCall` holds it; ENCRYPT takes the next pooled spec, DECRYPT the ciphertext's; a provider refusing a second init fails `not_repeatable: ...; draw them with fresh(n)`, one refusing a second `doFinal` without init `not_repeatable: ...` naming the catalog |
 | fresh IV | an IV or nonce from `fresh(n)` in a test-set override is drawn before timing; without one the provider draws it inside the timed init |
 | ENCRYPT spec pool | varying parameters: 256 specs drawn before timing, cycled `specs[n % size]` |
 | other operations | call `next()` on the parameters once |
-| `Invocation` | `perIteration` is timed; `once()` returns the exact result (Cipher output trimmed to bytes written) |
+| `Invocation` | `perIteration` is timed; `once()` returns the exact result (Cipher output trimmed to bytes written); `perCall` what the timed call redoes |
 | `Invocations.of(prepared)` | the case's invocation; used by the host and device harness |
+
+## Variants
+
+Each item is measured twice, as two cases (`run.variants`, default both). Setup outside the call runs once, before the timer, in `Invocations.of`; keys, inputs, spec pools and the output buffer are built before it too, from the same seed for both variants.
+
+| variant | timed call |
+|---|---|
+| `fixed` | the setup the API lets a call keep, kept: what the catalog row below still does per call |
+| `notFixed` | `getInstance` + init + operation every call, for every row |
+
+Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operation/SetupCatalog`; each row cites the JCA API contract it rests on. No engine or mode name is in code.
+
+| engine type, mode | `fixed` per call (`perCall`) | contract |
+|---|---|---|
+| MessageDigest | operation (`operation`) | `digest()` resets the digest |
+| Mac | operation | `doFinal()` resets the Mac to its state after `init(key)` |
+| Signature | operation after one init | `sign()`, `verify()` reset to the state after `initSign`/`initVerify` |
+| KeyAgreement | operation after one init | `generateSecret()` resets to the state after `init` |
+| Cipher ECB, NONE | operation | `doFinal()` resets the cipher to its state after init |
+| Cipher CBC, PCBC, CTS, CFB, OFB, CTR | init with the next fresh IV + operation (`initAndOperation`) | an IV must not repeat under one key |
+| Cipher GCM, CCM | init with the next fresh IV + operation | a nonce must not repeat under one key; the provider refuses a reused one |
+| Cipher, other mode | init + operation | unknown: the safe side |
+| Cipher without a mode (stream or provider default) | operation when the initialised cipher has no IV, else init + operation | as above |
+| KeyGenerator, KeyPairGenerator | one variant, `fixed`: `generateKey()`/`generateKeyPair()` after one init | the generation is the work |
+| a type not in the catalog | one variant, `fixed`, operation | |
+
+| rule | value |
+|---|---|
+| `perCall` labels | `operation`, `initAndOperation`, `getInstanceInitAndOperation`; in `prepared.yaml` per case |
+| DECRYPT `initAndOperation` | init with the ciphertext's IV; decrypting may repeat one |
+| allocation | each variant is its own case, so its `allocationCount` is its own |
+| order on a device | interleaved per item, each in its own process: [device-session.md](../../../docs/device-session.md#variants) |
+| `--harness` before/after | not split: it times the app's function as written |
 
 ## Inputs and keys
 

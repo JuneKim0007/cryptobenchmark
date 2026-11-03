@@ -15,6 +15,7 @@ internal object CaseName {
         case.inputSize?.let { "i$it" },
         case.phase.name,
         parametersTag(case),
+        case.variant.label,
     ).joinToString("_") { part -> part.replace(UNSAFE, "-") }
 
     private fun parametersTag(case: BenchmarkCase): String? {

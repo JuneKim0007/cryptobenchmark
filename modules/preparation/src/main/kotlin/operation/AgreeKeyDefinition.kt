@@ -13,12 +13,13 @@ internal object AgreeKeyDefinition : OperationDefinition {
 
     override fun invocation(prepared: PreparedCase): Invocation {
         val pairs = prepared.key.keyPairsOrNull ?: throw IllegalArgumentException("agreement_needs_key_pairs")
-        val agreement = KeyAgreement.getInstance(prepared.case.algorithm, prepared.case.provider)
         val spec = prepared.parameters?.next()
-        if (spec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, spec)
-        return Invocation(perIteration = {
-            agreement.doPhase(pairs.last().public, true)
-            agreement.generateSecret()
-        })
+        val call = EngineCall({ KeyAgreement.getInstance(prepared.case.algorithm, prepared.case.provider) },
+            { agreement, _ -> if (spec == null) agreement.init(pairs.first().private) else agreement.init(pairs.first().private, spec) },
+            { agreement ->
+                agreement.doPhase(pairs.last().public, true)
+                agreement.generateSecret()
+            })
+        return call.invocation(SetupCatalog.standard.perCall(prepared.case))
     }
 }

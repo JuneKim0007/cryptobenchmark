@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinition
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
+import io.github.junekim0007.cryptobench.preparation.operation.SetupCatalog
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 internal object SelectionExpander {
@@ -16,7 +17,7 @@ internal object SelectionExpander {
                 val definition = OperationDefinitions.of(operation)
                 for (keySize in keySizesFor(definition, selection)) {
                     for (inputSize in inputSizesFor(definition, selection, global)) {
-                        for (phase in global.phases) {
+                        for (phase in global.phases) for (variant in SetupCatalog.standard.variantsOf(selection.type, global.variants)) {
                             cases += BenchmarkCase(
                                 type = selection.type,
                                 algorithm = selection.algorithm,
@@ -31,6 +32,7 @@ internal object SelectionExpander {
                                 harness = global.harness.mergedWith(selection.harness),
                                 keyParameters = selection.keyParameters,
                                 parameters = selection.parameters,
+                                variant = variant,
                             )
                         }
                     }

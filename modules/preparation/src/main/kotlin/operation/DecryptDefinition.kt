@@ -31,9 +31,8 @@ internal object DecryptDefinition : OperationDefinition {
 
     override fun invocation(prepared: PreparedCase): Invocation {
         val input = prepared.input as? OperationInput.Ciphertext ?: throw IllegalArgumentException("decrypt_without_ciphertext")
-        val cipher = Cipher.getInstance(prepared.case.algorithm, prepared.case.provider)
         val key = CipherKeys.decrypting(prepared.key)
-        val call = CipherCall(cipher, input.bytes, { input.initDecrypting(cipher, key) })
-        return call.invocation()
+        val call = CipherCall({ Cipher.getInstance(prepared.case.algorithm, prepared.case.provider) }, input.bytes, { cipher, _ -> input.initDecrypting(cipher, key) })
+        return call.invocation(prepared.case)
     }
 }

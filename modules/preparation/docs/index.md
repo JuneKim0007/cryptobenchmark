@@ -43,13 +43,15 @@ modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's ax
 modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
 modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
 modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM, COLD
+modules/preparation/src/main/kotlin/measurement/Variant.kt : enum fixed, notFixed
 modules/preparation/src/main/kotlin/operation/AgreeKeyDefinition.kt : AGREE_KEY definition
 modules/preparation/src/main/kotlin/operation/CaseArguments.kt : spec pool, seeded message, key accessors for definitions
-modules/preparation/src/main/kotlin/operation/CipherCall.kt : one timed init + doFinal into a preallocated buffer; refuses parameters a provider will not init twice
+modules/preparation/src/main/kotlin/operation/CipherCall.kt : one timed doFinal into a preallocated buffer, init and getInstance by perCall; refuses parameters a provider will not repeat
 modules/preparation/src/main/kotlin/operation/ComputeMacDefinition.kt : COMPUTE_MAC definition
 modules/preparation/src/main/kotlin/operation/DecryptDefinition.kt : DECRYPT definition; builds ciphertext input
 modules/preparation/src/main/kotlin/operation/DigestDefinition.kt : DIGEST definition
 modules/preparation/src/main/kotlin/operation/EncryptDefinition.kt : ENCRYPT definition
+modules/preparation/src/main/kotlin/operation/EngineCall.kt : one timed call over a JCA engine: what it redoes per call, by PerCall
 modules/preparation/src/main/kotlin/operation/GenerateKeyDefinition.kt : GENERATE_KEY definition
 modules/preparation/src/main/kotlin/operation/GenerateKeyPairDefinition.kt : GENERATE_KEY_PAIR definition
 modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once() and the engine it calls
@@ -57,6 +59,8 @@ modules/preparation/src/main/kotlin/operation/Invocations.kt : of(prepared) to t
 modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum NONE, SECRET, PAIR, PEER_PAIRS, DEVICE_DECIDES
 modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
 modules/preparation/src/main/kotlin/operation/OperationDefinitions.kt : Operation to definition map
+modules/preparation/src/main/kotlin/operation/PerCall.kt : enum of what one timed call does: operation, initAndOperation, getInstanceInitAndOperation
+modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads setup-catalog.yaml: a case's variants and its PerCall
 modules/preparation/src/main/kotlin/operation/SignDefinition.kt : SIGN definition
 modules/preparation/src/main/kotlin/operation/TypeDefaultDefinition.kt : TYPE_DEFAULT definition (no-op call)
 modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input
@@ -93,19 +97,21 @@ modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian exp
 modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
 modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
+modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type and cipher mode, what a fixed call still does; JCA contract per row
 modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
 modules/preparation/src/test/kotlin/CaseResolverTest.kt : expansion and rejection tests
 modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart group tests
-modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall init-per-call and refusal tests
+modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall per-call init, instance and refusal tests
 modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
+modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call
 modules/preparation/src/test/kotlin/EngineTypesTest.kt : engine type registry tests
 modules/preparation/src/test/kotlin/ExampleFilesTest.kt : prepares example/ and compares the committed outputs
 modules/preparation/src/test/kotlin/GlobalReaderTest.kt : run and policy read tests
 modules/preparation/src/test/kotlin/InboundFileTest.kt : effective.yaml section and schema tests
 modules/preparation/src/test/kotlin/InteropOracleTest.kt : interop verdict and plan-file tests
-modules/preparation/src/test/kotlin/InvocationTest.kt : invocation repeatability and IV-reuse tests
+modules/preparation/src/test/kotlin/InvocationTest.kt : invocation repeatability, IV reuse, both variants, fresh IV under fixed
 modules/preparation/src/test/kotlin/KeyAlgorithmContractTest.kt : derived key names against a device trial's keyAlgorithm (-Dtrial)
 modules/preparation/src/test/kotlin/KeyAlgorithmNameTest.kt : key name derivation tests
 modules/preparation/src/test/kotlin/KeyMaterialGeneratorTest.kt : key generation tests
@@ -119,4 +125,5 @@ modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests
 modules/preparation/src/test/kotlin/PreparedFileTest.kt : prepared.yaml content tests
 modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : providers-section read tests
 modules/preparation/src/test/kotlin/ResolvedParametersTest.kt : read-back tests per parameter kind: GCM, CBC, key wrap, OAEP, PSS, EC curve, key size
+modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, variants per type
 ```

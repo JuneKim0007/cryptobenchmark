@@ -13,13 +13,12 @@ internal object EncryptDefinition : OperationDefinition {
     override val consumesInput = true
 
     override fun invocation(prepared: PreparedCase): Invocation {
-        val cipher = Cipher.getInstance(prepared.case.algorithm, prepared.case.provider)
         val key = CipherKeys.encrypting(prepared.key)
         val message = CaseArguments.preparedMessage(prepared)
         val specs = CaseArguments.specPool(prepared.parameters)
-        val call = CipherCall(cipher, message, { n ->
+        val call = CipherCall({ Cipher.getInstance(prepared.case.algorithm, prepared.case.provider) }, message, { cipher, n ->
             if (specs.isEmpty()) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, specs[n % specs.size])
         })
-        return call.invocation()
+        return call.invocation(prepared.case)
     }
 }

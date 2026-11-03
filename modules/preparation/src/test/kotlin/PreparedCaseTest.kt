@@ -62,7 +62,7 @@ class PreparedCaseTest {
         }
         val run = preparation.prepare(file)
         val mismatch = run.skipped.filter { it.name == "AES_128/GCM/NoPadding" }
-        assertEquals(4, mismatch.size)
+        assertEquals(8, mismatch.size)
         assertTrue(mismatch.first().reason, mismatch.first().reason.contains("dry_run_failed: InvalidKeyException"))
         assertTrue(run.cases.none { it.case.algorithm == "AES_128/GCM/NoPadding" })
     }

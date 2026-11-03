@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.preparation.global.OnFailure
 import io.github.junekim0007.cryptobench.settings.Metric
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 
 object EffectiveFixture {
 
@@ -14,6 +15,7 @@ object EffectiveFixture {
         processRepetitions = 1,
         seed = 0L,
         onFailure = OnFailure.SKIP,
+        variants = listOf(Variant.FIXED),
     )
 
     const val TEXT = """schemaVersion: 1

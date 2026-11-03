@@ -71,7 +71,7 @@ class PreparedFileTest {
     fun aFingerprintFollowsWhatTheCaseSays() {
         val text = File(example, "preparation_effective_example.yaml").readText()
         val fewer = text.replace("      SHA-256: {}", "      SHA-256: {harness: {iterations: 5}}")
-        val digest = { document: Map<String, Any> -> cases(document).single { it["algorithm"] == "SHA-256" } }
+        val digest = { document: Map<String, Any> -> cases(document).single { it["algorithm"] == "SHA-256" && it["variant"] == "fixed" } }
         assertNotEquals(digest(prepare())["fingerprint"], digest(prepare(fewer))["fingerprint"])
         assertEquals(mapOf("iterations" to 5), digest(prepare(fewer))["harness"])
     }

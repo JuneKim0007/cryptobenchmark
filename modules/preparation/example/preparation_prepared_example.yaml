@@ -2,7 +2,7 @@ schemaVersion: 2
 generatedFrom: {effective: preparation_effective_example.yaml}
 run: {seed: 42, processRepetitions: 1}
 cases:
-- id: MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM
+- id: MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed
   type: MessageDigest
   algorithm: SHA-256
   provider: SUN
@@ -11,12 +11,30 @@ cases:
   chartGroupId: 4
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   key: {kind: none}
   input: {kind: message, bytes: 1024}
-  fingerprint: 6535816b
+  fingerprint: 6216e67d
+  perCall: operation
   resolvedParameters: {}
-- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4
+- id: MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_notFixed
+  type: MessageDigest
+  algorithm: SHA-256
+  provider: SUN
+  operation: DIGEST
+  chartGroup: hash
+  chartGroupId: 4
+  inputSize: 1024
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: none}
+  input: {kind: message, bytes: 1024}
+  fingerprint: 396baf07
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {}
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
@@ -26,6 +44,7 @@ cases:
   keySize: 128
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 128, encodedBytes: 16}
   parameters:
@@ -33,9 +52,31 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: message, bytes: 1024}
-  fingerprint: 58d03995
+  fingerprint: 2747403b
+  perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
-- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4_notFixed
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: ENCRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
+  keySize: 128
+  inputSize: 1024
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 128, encodedBytes: 16}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: message, bytes: 1024}
+  fingerprint: e0fec794
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
@@ -45,6 +86,7 @@ cases:
   keySize: 256
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 256, encodedBytes: 32}
   parameters:
@@ -52,9 +94,31 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: message, bytes: 1024}
-  fingerprint: 38409d3b
+  fingerprint: 9044d92a
+  perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
-- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4_notFixed
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: ENCRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
+  keySize: 256
+  inputSize: 1024
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 256, encodedBytes: 32}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: message, bytes: 1024}
+  fingerprint: 24c4fef8
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
+- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
@@ -64,6 +128,7 @@ cases:
   keySize: 128
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 128, encodedBytes: 16}
   parameters:
@@ -71,9 +136,31 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
-  fingerprint: 2b49c8fe
+  fingerprint: 06b8ad56
+  perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
-- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4
+- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4_notFixed
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: DECRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
+  keySize: 128
+  inputSize: 1024
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 128, encodedBytes: 16}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
+  fingerprint: '04853e65'
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
+- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: SunJCE
@@ -83,6 +170,7 @@ cases:
   keySize: 256
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 256, encodedBytes: 32}
   parameters:
@@ -90,9 +178,31 @@ cases:
     arguments: [128, fresh(12)]
   specPerIteration: true
   input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
-  fingerprint: 7fd5d97b
+  fingerprint: 5cdde99f
+  perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
-- id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM
+- id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4_notFixed
+  type: Cipher
+  algorithm: AES/GCM/NoPadding
+  provider: SunJCE
+  operation: DECRYPT
+  chartGroup: symmetric-cipher
+  chartGroupId: 1
+  keySize: 256
+  inputSize: 1024
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: secret, algorithm: AES, provider: SunJCE, keySize: 256, encodedBytes: 32}
+  parameters:
+    class: javax.crypto.spec.GCMParameterSpec
+    arguments: [128, fresh(12)]
+  specPerIteration: true
+  input: {kind: ciphertext, bytes: 1040, plaintextBytes: 1024, spec: carried}
+  fingerprint: 62ef0f12
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
+- id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM_fixed
   type: Mac
   algorithm: HmacSHA256
   provider: SunJCE
@@ -101,8 +211,26 @@ cases:
   chartGroupId: 5
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   key: {kind: secret, algorithm: HmacSHA256, provider: SunJCE, encodedBytes: 32}
   input: {kind: message, bytes: 1024}
-  fingerprint: eace64d3
+  fingerprint: 3df8f35c
+  perCall: operation
+  resolvedParameters: {keyBits: 256}
+- id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM_notFixed
+  type: Mac
+  algorithm: HmacSHA256
+  provider: SunJCE
+  operation: COMPUTE_MAC
+  chartGroup: mac
+  chartGroupId: 5
+  inputSize: 1024
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: secret, algorithm: HmacSHA256, provider: SunJCE, encodedBytes: 32}
+  input: {kind: message, bytes: 1024}
+  fingerprint: 0646726d
+  perCall: getInstanceInitAndOperation
   resolvedParameters: {keyBits: 256}

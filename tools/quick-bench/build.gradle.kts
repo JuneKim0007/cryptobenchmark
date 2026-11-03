@@ -25,6 +25,7 @@ sourceSets {
             "../../modules/benchmark/src/main/kotlin",
             "src/main/kotlin",
         ))
+        resources.setSrcDirs(listOf("../../modules/preparation/src/main/resources"))
     }
 }
 

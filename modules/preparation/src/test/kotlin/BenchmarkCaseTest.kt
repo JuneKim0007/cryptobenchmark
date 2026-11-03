@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -14,10 +15,11 @@ class BenchmarkCaseTest {
     @Test
     fun theIdIsSafeAsAMethodNameAndNamesEveryAxis() {
         val case = BenchmarkCase("Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", Operation.ENCRYPT, keySize = 256, inputSize = 1024)
-        assertEquals("Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM", case.id)
-        assertEquals("Cipher_AES-GCM-NoPadding_DECRYPT_AndroidOpenSSL_k256_i1024_WARM", case.copy(operation = Operation.DECRYPT).id)
+        assertEquals("Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM_fixed", case.id)
+        assertEquals("Cipher_AES-GCM-NoPadding_DECRYPT_AndroidOpenSSL_k256_i1024_WARM_fixed", case.copy(operation = Operation.DECRYPT).id)
         val keyGeneration = BenchmarkCase("KeyPairGenerator", "RSA", "AndroidOpenSSL", Operation.GENERATE_KEY_PAIR, keySize = 2048, phase = Phase.COLD)
-        assertEquals("KeyPairGenerator_RSA_GENERATE-KEY-PAIR_AndroidOpenSSL_k2048_COLD", keyGeneration.id)
+        assertEquals("KeyPairGenerator_RSA_GENERATE-KEY-PAIR_AndroidOpenSSL_k2048_COLD_fixed", keyGeneration.id)
+        assertEquals("Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM_notFixed", case.copy(variant = Variant.NOT_FIXED).id)
     }
 
     @Test
@@ -37,8 +39,8 @@ class BenchmarkCaseTest {
         val plain = BenchmarkCase("Cipher", "RSA/ECB/OAEPPadding", "SunJCE", Operation.ENCRYPT, keySize = 2048, inputSize = 32)
         val tuned = plain.copy(parameters = oaepSha256)
         val reordered = plain.copy(parameters = linkedMapOf("arguments" to listOf("SHA-256", "MGF1"), "class" to "javax.crypto.spec.OAEPParameterSpec"))
-        assertEquals("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM", plain.id)
-        assertTrue(tuned.id, tuned.id.matches(Regex("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM_p[0-9a-f]{8}")))
+        assertEquals("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM_fixed", plain.id)
+        assertTrue(tuned.id, tuned.id.matches(Regex("Cipher_RSA-ECB-OAEPPadding_ENCRYPT_SunJCE_k2048_i32_WARM_p[0-9a-f]{8}_fixed")))
         assertEquals(tuned.id, reordered.id)
     }
 
@@ -46,7 +48,7 @@ class BenchmarkCaseTest {
     @Test
     fun theGroupIsPartOfTheName() {
         val case = BenchmarkCase("KeyPairGenerator", "EC", "SunEC", Operation.GENERATE_KEY_PAIR, group = "p256")
-        assertEquals("KeyPairGenerator_EC-p256_GENERATE-KEY-PAIR_SunEC_WARM", case.id)
-        assertEquals("KeyPairGenerator_EC_GENERATE-KEY-PAIR_SunEC_WARM", case.copy(group = "").id)
+        assertEquals("KeyPairGenerator_EC-p256_GENERATE-KEY-PAIR_SunEC_WARM_fixed", case.id)
+        assertEquals("KeyPairGenerator_EC_GENERATE-KEY-PAIR_SunEC_WARM_fixed", case.copy(group = "").id)
     }
 }

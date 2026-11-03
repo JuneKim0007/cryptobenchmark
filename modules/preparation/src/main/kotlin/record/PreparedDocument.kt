@@ -28,6 +28,7 @@ internal object PreparedDocument {
         val described = described(prepared)
         return LinkedHashMap(described).apply {
             put("fingerprint", Fingerprint.of(YamlCodec().dump(described)))
+            prepared.perCall?.let { put("perCall", it.label) }
             put(RESOLVED_PARAMETERS, LinkedHashMap(prepared.resolvedParameters))
         }
     }
@@ -46,6 +47,7 @@ internal object PreparedDocument {
             case.keySize?.let { put("keySize", it) }
             case.inputSize?.let { put("inputSize", it) }
             put("phase", case.phase.name)
+            put("variant", case.variant.label)
             put("metrics", case.metrics.map { it.name })
             harnessOf(case.harness)?.let { put("harness", it) }
             put("key", key(prepared.recipe, prepared.key))

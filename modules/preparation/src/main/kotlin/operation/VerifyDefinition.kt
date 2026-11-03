@@ -35,12 +35,15 @@ internal object VerifyDefinition : OperationDefinition {
 
     override fun invocation(prepared: PreparedCase): Invocation {
         val input = prepared.input as? OperationInput.SignedMessage ?: throw IllegalArgumentException("verify_without_signature")
-        val signature = Signature.getInstance(prepared.case.algorithm, prepared.case.provider)
-        prepared.parameters?.next()?.let { signature.setParameter(it) }
-        signature.initVerify(CaseArguments.pair(prepared.key).public)
-        return Invocation(perIteration = {
+        val spec = prepared.parameters?.next()
+        val public = CaseArguments.pair(prepared.key).public
+        val call = EngineCall({ Signature.getInstance(prepared.case.algorithm, prepared.case.provider) }, { signature, _ ->
+            spec?.let { signature.setParameter(it) }
+            signature.initVerify(public)
+        }, { signature ->
             signature.update(input.message)
             check(signature.verify(input.signature)) { "verify_failed" }
-        }, engine = signature)
+        })
+        return call.invocation(SetupCatalog.standard.perCall(prepared.case), readBack = true)
     }
 }

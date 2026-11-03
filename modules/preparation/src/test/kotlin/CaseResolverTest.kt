@@ -53,10 +53,10 @@ class CaseResolverTest {
         ))
         assertEquals(
             listOf(
-                "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM",
-                "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM",
-                "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k128_WARM",
-                "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k256_WARM",
+                "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed",
+                "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM_fixed",
+                "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k128_WARM_fixed",
+                "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_k256_WARM_fixed",
             ),
             resolution.cases.map { it.id },
         )

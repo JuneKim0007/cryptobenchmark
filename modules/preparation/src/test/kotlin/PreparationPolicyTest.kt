@@ -18,12 +18,13 @@ class PreparationPolicyTest {
     @Test
     fun skipPreparesWhatItCanAndRecordsTheRest() {
         val run = preparation.prepare(effective("skip"))
-        assertEquals(listOf("AES/GCM/NoPadding", "AES/GCM/NoPadding", "AES/GCM/NoPadding", "AES/GCM/NoPadding", "SHA-256", "SHA-256"), run.cases.map { it.case.algorithm })
-        assertEquals(listOf("SUN", "SUN"), run.cases.filter { it.case.algorithm == "SHA-256" }.map { it.case.provider })
+        assertEquals(List(8) { "AES/GCM/NoPadding" } + List(4) { "SHA-256" }, run.cases.map { it.case.algorithm })
+        assertEquals(listOf("fixed", "notFixed"), run.cases.map { it.case.variant.label }.distinct())
+        assertEquals(List(4) { "SUN" }, run.cases.filter { it.case.algorithm == "SHA-256" }.map { it.case.provider })
         assertEquals(3, run.processRepetitions)
         val reasons = run.skipped.map { it.toString() }
         assertTrue(reasons.toString(), reasons.contains("[preparation] SunJCE Cipher ChaCha20: not_registered"))
-        assertTrue(reasons.toString(), reasons.any { it.startsWith("[preparation] SunJCE Cipher Serpent/CBC/NoPadding: Cipher_Serpent-CBC-NoPadding_ENCRYPT_SunJCE_k128_i64_WARM: key_generation_failed:") })
+        assertTrue(reasons.toString(), reasons.any { it.startsWith("[preparation] SunJCE Cipher Serpent/CBC/NoPadding: Cipher_Serpent-CBC-NoPadding_ENCRYPT_SunJCE_k128_i64_WARM_fixed: key_generation_failed:") })
         assertTrue(File(directory, "preparation/skipped.yaml").readText().contains("stage: preparation"))
     }
 
@@ -41,7 +42,7 @@ class PreparationPolicyTest {
     @Test
     fun stopListsEveryFailureAndStillWritesTheReport() {
         val error = assertThrows(StoppedOnFailureException::class.java) { preparation.prepare(effective("stop")) }
-        assertEquals(5, error.skipped.size)
+        assertEquals(9, error.skipped.size)
         assertTrue(File(directory, "preparation/skipped.yaml").exists())
     }
 }

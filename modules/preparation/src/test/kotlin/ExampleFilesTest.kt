@@ -37,7 +37,7 @@ class ExampleFilesTest {
                 "Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4",
                 "Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM",
                 "MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM",
-            ),
+            ).flatMap { listOf("${it}_fixed", "${it}_notFixed") },
             run.cases.map { it.case.id }.sorted(),
         )
         assertExample("preparation_skipped_example.yaml", report.file)

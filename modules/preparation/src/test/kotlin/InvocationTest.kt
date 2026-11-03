@@ -5,12 +5,17 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGen
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
+import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertSame
+import javax.crypto.Cipher
 import org.junit.Test
 
 /**
@@ -36,8 +41,9 @@ class InvocationTest {
         parameters: BoundParameters? = null,
         keySize: Int? = null,
         inputSize: Int? = 64,
+        variant: Variant = Variant.FIXED,
     ): PreparedCase {
-        val case = BenchmarkCase(type, algorithm, provider, operation, keySize = keySize, inputSize = inputSize, seed = 7)
+        val case = BenchmarkCase(type, algorithm, provider, operation, keySize = keySize, inputSize = inputSize, seed = 7, variant = variant)
         val input = OperationDefinitions.of(operation).input(case, key, parameters)
         return PreparedCase(case, KeyRecipe.None, key, parameters, null, input)
     }
@@ -67,5 +73,35 @@ class InvocationTest {
     fun encryptNeverReusesTheLastIv() {
         val invocation = Invocations.of(prepared("Cipher", "AES/GCM/NoPadding", "SunJCE", Operation.ENCRYPT, key = aes, parameters = gcm()))
         repeat(5) { assertNotNull(invocation.perIteration()) }
+    }
+
+    @Test
+    fun bothVariantsOfEveryShapeSurviveTheIterations() {
+        everyShape.map { it.copy(case = it.case.copy(variant = Variant.NOT_FIXED)) }.forEach { prepared ->
+            val invocation = Invocations.of(prepared)
+            assertNotNull(prepared.case.id, invocation.once())
+            repeat(3) { assertNotNull(prepared.case.id, invocation.perIteration()) }
+        }
+    }
+
+    @Test
+    fun gcmFixedStillInitsWithAFreshIvOnOneInstance() {
+        val invocation = Invocations.of(prepared("Cipher", "AES/GCM/NoPadding", "SunJCE", Operation.ENCRYPT, key = aes, parameters = gcm()))
+        assertEquals(PerCall.INIT_AND_OPERATION, invocation.perCall)
+        val engine = invocation.engine as Cipher
+        val ivs = (1..4).map { invocation.perIteration(); assertSame(engine, invocation.engine); engine.iv.toList() }
+        assertEquals(ivs.size, ivs.toSet().size)
+    }
+
+    @Test
+    fun notFixedMakesANewInstanceEveryCallAndFixedKeepsOne() {
+        val sign = prepared("Signature", "SHA256withECDSA", "SunEC", Operation.SIGN, key = ec)
+        val fixed = Invocations.of(sign)
+        val kept = fixed.engine
+        repeat(2) { fixed.perIteration(); assertSame(kept, fixed.engine) }
+        val notFixed = Invocations.of(sign.copy(case = sign.case.copy(variant = Variant.NOT_FIXED)))
+        assertEquals(PerCall.INSTANCE_INIT_AND_OPERATION, notFixed.perCall)
+        val engines = (1..3).map { notFixed.perIteration(); notFixed.engine }
+        assertEquals(3, engines.toSet().size)
     }
 }

@@ -12,6 +12,7 @@ run:
   inputSizes: [1024]
   phases: [WARM]
   metrics: [TIME]
+  variants: [fixed, notFixed]
   processRepetitions: 1
   seed: 42
 policy: {onFailure: skip}

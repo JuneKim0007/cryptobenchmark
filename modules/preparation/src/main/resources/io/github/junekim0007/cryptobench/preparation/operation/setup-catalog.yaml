@@ -1,0 +1,27 @@
+# Per JCA engine type and cipher mode: what a fixed call still does per call (operation | initAndOperation); notFixed is getInstance + init + operation.
+# Source: each engine's JCA API contract; read by operation/SetupCatalog; documented in modules/preparation/docs/operations.md#variants.
+schemaVersion: 1
+engines:
+  MessageDigest: {fixed: operation, contract: "digest() resets the digest for further use"}
+  Mac: {fixed: operation, contract: "doFinal() resets the Mac to its state after init(key)"}
+  Signature: {fixed: operation, contract: "sign() and verify() reset the object to its state after initSign or initVerify"}
+  KeyAgreement: {fixed: operation, contract: "generateSecret() resets the object to its state after init"}
+  KeyGenerator: {variants: one, contract: "generateKey() is the measured work; init once by the case"}
+  KeyPairGenerator: {variants: one, contract: "generateKeyPair() is the measured work; initialize once by the case"}
+  Cipher:
+    contract: "doFinal() resets the cipher to its state after init; an IV or nonce must not repeat under one key"
+    fixed: byMode
+    modes:
+      ECB: operation
+      NONE: operation
+      CBC: initAndOperation
+      PCBC: initAndOperation
+      CTS: initAndOperation
+      CFB: initAndOperation
+      OFB: initAndOperation
+      CTR: initAndOperation
+      GCM: initAndOperation
+      CCM: initAndOperation
+    # a transformation without a mode: a stream cipher or the provider's default mode; the initialised cipher's IV decides
+    withoutMode: {iv: initAndOperation, noIv: operation}
+    otherMode: initAndOperation

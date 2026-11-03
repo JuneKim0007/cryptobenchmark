@@ -18,15 +18,16 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 ## Case id
 
 ```
-<type>_<algorithm>[@<group>]_<OPERATION>_<provider>[_k<keySize>][_i<inputSize>]_<PHASE>[_p<crc32>]
+<type>_<algorithm>[@<group>]_<OPERATION>_<provider>[_k<keySize>][_i<inputSize>]_<PHASE>[_p<crc32>]_<variant>
 ```
 
 | rule | value |
 |---|---|
 | characters | every non `[A-Za-z0-9]` character in each part becomes `-` |
 | `p` tag | 8-hex CRC32 of canonical `keyParameters` and `parameters`; only when either is set |
-| examples | `MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM`, `Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4` |
-| `BenchmarkCase` defaults | phase WARM, metrics `{TIME}`, seed 0 |
+| variant | last part, `fixed` or `notFixed`; the item's id is the case id without it |
+| examples | `MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed`, `Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4_notFixed` |
+| `BenchmarkCase` defaults | phase WARM, metrics `{TIME}`, seed 0, variant `fixed` |
 
 ## prepared.yaml
 
@@ -46,13 +47,14 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 | `id`, `type`, `algorithm`, `provider`, `operation` | the case |
 | `chartGroup`, `chartGroupId` | which cases a chart may compare; from the service type, `Cipher` split by key kind (`secret` symmetric, `pair` asymmetric); `unidentified` (0) otherwise |
 | `group`, `keySize`, `inputSize` | when set |
-| `phase`, `metrics` | the case axes |
+| `phase`, `variant`, `metrics` | the case axes; `variant` `fixed` or `notFixed` |
 | `harness` | `run.harness` merged with the entry's; when non-empty |
 | `key` | `kind` (`none`, `secret`, `pair`); secret and pair add `algorithm`, `provider`, `keySize?`, `parameters?`, and `encodedBytes` (secret length) or `pairs` (count) |
 | `keyParameters`, `parameters` | spec trees that reached the generator and the call; when set |
 | `specPerIteration` | `true` when the bound parameters vary |
 | `input` | `kind` (`none`, `message`, `ciphertext`, `signedMessage`) and `bytes`; ciphertext adds `plaintextBytes` and `spec` (`carried`, `provider`, `none`) |
-| `fingerprint` | first 8 hex of SHA-256 over the YAML dump of the case block without `fingerprint` and `resolvedParameters` |
+| `fingerprint` | first 8 hex of SHA-256 over the YAML dump of the case block without `fingerprint`, `perCall` and `resolvedParameters` |
+| `perCall` | what one timed call does: `operation`, `initAndOperation` or `getInstanceInitAndOperation` ([operations.md](operations.md#variants)) |
 | `resolvedParameters` | what the provider used, read back after the case's one call; always present, `{}` when nothing applies |
 
 ## resolvedParameters

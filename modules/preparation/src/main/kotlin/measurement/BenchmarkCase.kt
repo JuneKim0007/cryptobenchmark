@@ -17,6 +17,7 @@ data class BenchmarkCase(
     val parameters: Map<String, Any> = emptyMap(),
     val group: String = "",
     val harness: HarnessSettings = HarnessSettings(),
+    val variant: Variant = Variant.FIXED,
 ) {
 
     init {

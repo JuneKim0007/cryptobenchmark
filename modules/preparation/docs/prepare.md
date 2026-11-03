@@ -42,6 +42,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 | `inputSizes` | required; non-empty, positive, distinct |
 | `phases` | required; non-empty; `WARM`, `COLD` |
 | `metrics` | required; `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
+| `variants` | optional, default `[fixed, notFixed]`; distinct values of `fixed`, `notFixed` ([operations.md](operations.md#variants)) |
 | `processRepetitions` | required; `>= 1` |
 | `seed` | required |
 | `harness` | optional; settings key table |
@@ -79,7 +80,8 @@ Type names match case-insensitively. `with(type, operations)` returns a new regi
 | rule | value |
 |---|---|
 | operations | entry `operations` narrows the type's list |
-| expansion | provider x operation x keySize x inputSize x phase |
+| expansion | provider x operation x keySize x inputSize x phase x variant; variant innermost, so an item's two variants are adjacent |
+| variant axis | `run.variants` for a type whose catalog row has two; one `fixed` case for a `variants: one` row (key generation) and a type the catalog lacks |
 | keySize axis | only when the operation consumes key size and `keySizes` is set, else one null |
 | inputSize axis | only when the operation consumes input, else one null |
 | harness | `run.harness` merged with the entry's |
