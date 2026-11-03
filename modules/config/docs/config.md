@@ -9,7 +9,7 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | `config/global.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, seed 0 | harness `iterations: 100`; every other key takes its default |
 | `config/global.reference.yaml` | `testsets/scope.yaml` | every key with its default and whether it is required | read by no stage; `CommittedConfigTest` parses it |
 | `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}`; analysis charts `[iqrBars, stability]` |
-| `config/global-overnight.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, metrics `[TIME, ALLOCATION]`, isolation `case`, processRepetitions 2, scopedRepetitions 3, warm-up 10, thermal gate `[BIG, MID, LITTLE]` margin 3 poll 5 timeout 300, passes timing 300 / energy 100 / allocation 100 | harness energy `measured`, cpu `{core: big, required: false}`; device time below |
+| `config/global-overnight.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024]`, metrics `[TIME, ALLOCATION]`, variants `[fixed, notFixed]`, isolation `case`, processRepetitions 2, scopedRepetitions 3, warm-up 10, thermal gate `[BIG, MID, LITTLE]` margin 3 poll 5 timeout 120, passes timing 300 / energy 100 / allocation 100 | harness energy `measured`, cpu `{core: big, required: false}`; device time below |
 | `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
 | `config/global-energy.yaml` | `testsets/energy-smoke.yaml` | inputSizes `[1024]`, seed 42 | harness `iterations: 20`, energy `{capture: measured, windowSeconds: 3, warmupSeconds: 1, cooldownSeconds: 1}` |
 
@@ -21,16 +21,17 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`, GCM 128 + `fresh(12)`; HmacSHA256 |
 | `testsets/energy-smoke.yaml` | the smoke staples; AES-GCM override adds `harness.energy.capture: dry` |
 
-`global-overnight.yaml` device time, from the per-pass estimates in [device-session.md](../../../docs/device-session.md#passes) (Pixel 10, about 0.11 s a sample):
+`global-overnight.yaml` device time, estimates from the per-pass figures in [device-session.md](../../../docs/device-session.md#passes) (Pixel 10, about 0.11 s a sample):
 
 | part | per case | why |
 |---|---|---|
-| one process of the three passes | timing 38 s + energy 20 s + allocation 15 to 30 s + 3 process starts of 1 to 2 s + temperature and clocks about 1 s = 80 to 95 s | |
+| one process of the three passes | timing 38 s + energy 20 s + allocation 15 to 30 s + 3 process starts of 1 to 2 s + temperature and clocks about 1 s = 80 to 95 s | samples set the time, so a `notFixed` case costs the same |
 | `processRepetitions: 2` | 160 to 190 s | `energyJ` is one value per process; perf-repair's median interval and pImprove need two runs, so energy needs two processes; timing and allocation pay it too |
-| benchmark, 190 cases | 8.5 to 10 h, plus heat pauses (31% of the last full session) | runs once per device, then only for used-set items it lacks |
-| before/after, per scope | 2 sides x 3 repetitions x 80 to 95 s = 8 to 9.5 min | ABBA over `scopedRepetitions: 3`; energy n = 3 per side |
+| cases | about 285, from 190 at `[64, 1024, 16384]` and one variant | the host plan of `scope.yaml` goes from 164 to 246 cases (x 1.5): two sizes instead of three (x 2/3 of the sized cases), two variants (x 2) of every item but key generation; the Pixel's is assumed the same shape |
+| benchmark, about 285 cases | 12.5 to 15 h, plus heat pauses (31% of the last full session) | runs once per device, then only for used-set items it lacks |
+| before/after, per scope | 2 sides x 3 repetitions x 80 to 95 s = 8 to 9.5 min | not split by variant: it times the app's function as written; ABBA over `scopedRepetitions: 3`; energy n = 3 per side |
 | 50 apps, one scope each | 7 to 8 h, plus heat pauses | two scopes an app doubles it |
-| thermal gate | unknown until measured: 0 s a case on a device that cools within its gap, at most 300 s a case | worst case `timeoutSeconds x cases` per pass: 190 cases x 300 s = about 16 h a pass, three passes and two processes about 95 h; a before/after scope at most 2 x 3 x 3 x 300 s = 90 min; the first overnight run's `gate:` lines give the real figure |
+| thermal gate | unknown until measured: 0 s a case on a device that cools within its gap, at most 120 s a case | worst case `timeoutSeconds x cases` per pass: 285 cases x 120 s = 9.5 h a pass, three passes and two processes 57 h; a before/after scope at most 2 x 3 x 3 x 120 s = 36 min; the first overnight run's `gate:` lines give the real figure |
 
 Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 

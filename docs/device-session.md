@@ -85,7 +85,7 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 | record | `benchmark.json` per case: `gate: {waitedSeconds, target, timedOut}` ([results.md](results.md#benchmarkjson-case-fields)) |
 | per pass | `gate:      <pass>: <n> of <m> cases gated, <s> s waited, max <s> s, <n> timed out` |
 | `--bench` | no temperatures on a host: one `warning: thermal_gate_off: ...` and the run measures ungated |
-| cost | unknown until measured on the phone; worst case `timeoutSeconds x cases` per pass (300 s x 190 cases = about 16 h a pass); one `dumpsys` per poll |
+| cost | unknown until measured on the phone; worst case `timeoutSeconds x cases` per pass (the overnight 120 s x about 285 cases = about 9.5 h a pass); one `dumpsys` per poll |
 
 What it does not fix:
 - heat inside a case: the timed loop is untouched, so a long case still warms the device while it measures, and Jetpack's own heat pause still applies.

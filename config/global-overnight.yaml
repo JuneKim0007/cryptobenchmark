@@ -5,8 +5,10 @@ selection:
   testSet: testsets/scope.yaml
 
 run:
-  inputSizes: [64, 1024, 16384]
+  inputSizes: [64, 1024]
   metrics: [TIME, ALLOCATION]
+  # each item twice: setup kept (fixed) and getInstance + init every call (notFixed); key generation once
+  variants: [fixed, notFixed]
   seed: 0
   isolation: case
   # two processes per pass: energy is one value per process, and a median interval needs two
@@ -15,7 +17,7 @@ run:
   caseCooldownSeconds: 0
   warmup: {iterations: 10}
   # BIG, MID, LITTLE: the Pixel's CPU-cluster sensors in dumpsys thermalservice; another device names its own
-  thermalGate: {sensors: [BIG, MID, LITTLE], marginCelsius: 3, pollSeconds: 5, timeoutSeconds: 300}
+  thermalGate: {sensors: [BIG, MID, LITTLE], marginCelsius: 3, pollSeconds: 5, timeoutSeconds: 120}
   passes:
     timing: {samples: 300}
     energy: {samples: 100}
