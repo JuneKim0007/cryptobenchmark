@@ -14,6 +14,7 @@
 - lifecycle: per engine type, the lifecycle calls, requirements, operations and consumers live in `scope/engines.yaml`, origin calls too; code names none of them.
 - lifecycle: `bounded` only when one method creates, configures and uses the object with no escape, consumer or deferred lambda; depth 1 stays in the class and is capped by `METHOD_BUDGET`; over it is `partially_bounded` `budget`.
 - settlement: an open requirement whose every path closes one way inside `REACH_METHODS`, `REACH_HOPS`, `REACH_LINES`, with no outside writer, holds `settled`; past a budget it stays open, never widened; no model is asked and no cross-file analysis runs.
+- units: links are read from lifecycles, never by name; inverse operations and key producers live in `scope/units/relations.yaml`; every link cites lines on both sides.
 - roots: one project root keeps the given name; several are units `<name>.<root dirs joined by '.'>`, each scanned from its root.
 - layers: `app/find/` reads only source text, never device data; `app/facts/` reads the app tree; `app/resolve.py` is the only module where a site meets the device's primitives (Probe, providers); `tests/test_layers.py` checks it.
 - ids: a scope id is `scope_id(app, file, function, line, call)`; output is sorted, so reruns are byte-identical.
@@ -25,7 +26,7 @@
 
 ```
 src/perfrepair/app/__init__.py : docstring only
-src/perfrepair/app/__main__.py : command: app source → <device>/<path id>/sites.json, app.json, scopes.json per project root, validated before writing
+src/perfrepair/app/__main__.py : command: app source → <device>/<path id>/sites.json, app.json, scopes.json, units.json per project root, validated before writing
 src/perfrepair/app/detect.py : the detect step: non-test sources → import-checked, constant-folded sites, each resolved by the given resolver
 src/perfrepair/app/facts/__init__.py : docstring only
 src/perfrepair/app/facts/app_facts.py : the app.json document: project root, bundled, registers, SDK levels
@@ -63,6 +64,13 @@ src/perfrepair/scope/syntax/grammar.py : the grammars' node types mapped to neut
 src/perfrepair/scope/syntax/node.py : Node: a parsed node as plain data
 src/perfrepair/scope/syntax/parser.py : the one tree-sitter adapter, lazily imported; ParserMissing; source → Node tree
 src/perfrepair/scope/syntax/usage.py : what the code around a value does with it; when a node runs later than it is written
+src/perfrepair/scope/units/__init__.py : docstring only
+src/perfrepair/scope/units/build.py : connected components of the links as Units; units.json's document; counts
+src/perfrepair/scope/units/links.py : shared key and inverse links within a file, from lifecycles; which scopes link at all
+src/perfrepair/scope/units/producers.py : producer → consumer links: by line, helper call, field write or parameter type
+src/perfrepair/scope/units/relations.py : relations.yaml read and checked once
+src/perfrepair/scope/units/relations.yaml : inverse operations, calls that perform one, calls that produce a key
+src/perfrepair/scope/units/shapes.py : a scope's class, its method's return and parameter types, a file's lines
 src/perfrepair/source/__init__.py : docstring only
 src/perfrepair/source/language.py : the language table: suffix, script suffix, statement terminators, template, comment nesting, `name: Type`
 src/perfrepair/source/lexer.py : the one Java and Kotlin lexer: per-char code/literal/comment classes, masking, literals, bracket matching, argument spans, expression end

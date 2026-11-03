@@ -51,7 +51,7 @@ def test_inbound_build_screen_assign_report_app_and_dossier_end_with_counts(tmp_
     assert {e.event for e in assign} == {"start", "turn", "decision", "end"} and all(e.tokens is None for e in assign)
     assert _ends(events, "grouping", "report")[0].data["counts"]["groups"] >= 1
     app = [e for e in events if e.stage == "app" and e.event == "end"]
-    assert [e.step for e in app] == ["detect", "scope"] and app[0].app == app[1].app
+    assert [e.step for e in app] == ["detect", "scope", "units"] and app[0].app == app[1].app
     assert app[0].data["counts"]["sites"] >= 1 and "scopes" in app[1].data["counts"]
     dossier = _ends(events, "repair", "dossier")[0]
     assert dossier.data["counts"]["dossiers"] == 0 and dossier.data["counts"]["noOptions"]

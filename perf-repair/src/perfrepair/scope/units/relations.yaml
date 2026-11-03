@@ -1,0 +1,13 @@
+# inverses: an operation (the side that produces the artifact) → the one that takes it back.
+# steps: calls that perform an operation whatever the lifecycle's own operations say.
+# producers: per engine type, the calls whose result is a key another object can take.
+schemaVersion: 1
+inverses: {ENCRYPT: DECRYPT, SIGN: VERIFY, WRAP: UNWRAP}
+steps:
+  Cipher: {wrap: WRAP, unwrap: UNWRAP}
+producers:
+  KeyGenerator: [generateKey]
+  KeyPairGenerator: [generateKeyPair, genKeyPair]
+  SecretKeyFactory: [generateSecret]
+  KeyFactory: [generatePublic, generatePrivate]
+  KeyAgreement: [generateSecret]

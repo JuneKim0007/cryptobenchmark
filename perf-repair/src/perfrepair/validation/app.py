@@ -8,6 +8,7 @@ from ..dto.lifecycle import (BINDINGS, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
                              PARTIALLY_BOUNDED, REQUIREMENTS, ROLES, STATUSES, UNSUPPORTED, UNSUPPORTED_REASONS, WHERE)
 from ..dto.site import KEY_SOURCES, SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SINKS, Scope, scope_id
 from ..files import read_json
+from .units import validate_units
 
 _SCOPE_TYPES = {"id": str, "app": str, "file": str, "line": int, "call": str, "function": str, "start": int,
                 "end": int, "engineType": str, "resolution": str, "sinks": list, "keySource": str}
@@ -137,4 +138,7 @@ def validate_app_dir(directory: Path) -> dict[str, list[str]]:
         path = Path(directory) / name
         if path.exists():
             out[f"{Path(directory).name}/{name}"] = check(read_json(path))
+    units, scopes = Path(directory) / rd.UNITS, Path(directory) / rd.SCOPES
+    if units.exists() and scopes.exists():
+        out[f"{Path(directory).name}/{rd.UNITS}"] = validate_units(read_json(units), read_json(scopes)["scopes"])
     return out

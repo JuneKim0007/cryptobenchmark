@@ -14,9 +14,11 @@ from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json
 from ..log import attach, step
-from ..scope.build import build_scopes
+from ..scope.build import Scoping, build_scopes
+from ..scope.units.build import build_units, unit_counts, units_document
 from ..validation import require, validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
+from ..validation.units import validate_units
 from .facts.app_facts import app_facts
 from .facts.dependencies import bundled, read_libraries
 from .detect import Detection, detect
@@ -103,6 +105,17 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
         print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'perf-repair[scope]'")
     for missing, n in sorted(Counter(s["missing"] for s in found.sites if s["resolution"] == NOT_ON_DEVICE).items()):
         print(f"{NOT_ON_DEVICE}: {missing} ({n} sites); {NOT_ON_DEVICE_STEP}")
+    _write_units(name, app, out_dir, scoping)
+
+
+def _write_units(name: str, app: AppRoot, out_dir: Path, scoping: Scoping) -> None:
+    with step("app", "units", app=name) as s:
+        units = build_units(name, scoping.scopes, app.path)
+        doc = units_document(name, units)
+        require(rd.UNITS, validate_units(doc, [x.to_json() for x in scoping.scopes]))
+        write_json(out_dir / rd.UNITS, doc)
+        s.count(**unit_counts(units))
+        s.wrote(out_dir / rd.UNITS)
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -44,5 +44,6 @@ src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
 src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its dossier, in its aliases; refuses an option with unknown pins; risks from scope and option
+src/perfrepair/validation/units.py : units.json: every scope in one unit, ids recomputed, members connected, each cited line in that side's lifecycle
 src/perfrepair/validation/verdicts.py : verdicts: known groups, static equal triage, pairs are members
 ```
