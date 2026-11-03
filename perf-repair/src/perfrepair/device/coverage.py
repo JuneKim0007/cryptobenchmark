@@ -1,7 +1,6 @@
 """What the device's grouping knowledge covers, computed each run from the active outbox, never a stored flag; noRerun's reader."""
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 
 from ..ai.parse.grouping_assign.kind import GroupingKind
@@ -12,7 +11,6 @@ from ..grouping.report.checks import report_documents
 from ..inputs.table import GROUPING_NO_RERUN
 from ..run_dir import GroupingPaths
 
-LOG = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -40,6 +38,4 @@ def no_rerun(settings: Loaded | None) -> bool:
     """False asks every item again; knowledge that is missing is asked either way."""
     if settings is None:
         return True
-    if settings.settings.get(GROUPING_NO_RERUN.key) is None:
-        LOG.warning("unset: %s; counts as true", GROUPING_NO_RERUN.key)
     return settings.read(GROUPING_NO_RERUN)
