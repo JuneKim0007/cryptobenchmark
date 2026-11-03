@@ -189,7 +189,7 @@ class Joined:
         return _targets(current, others, usable, failed_pairs(self.groups), self.verdicts)
 
     def _gained(self, s: Scope, built: list[Option]) -> tuple[list[Option], list[Change]]:
-        """No option worse on every selected metric, whatever its class; each dropped one kept with its reason."""
+        """No option with one metric proven worse and none better, whatever its class; each dropped one kept with its reason."""
         lost = [o for o in built if no_gain(o.estimates)]
         return [o for o in built if o not in lost], [Change(o.item, REJECTED, o.diff or PairDiff.same(reach(s)), (NO_GAIN,)) for o in lost]
 

@@ -94,7 +94,7 @@ def _changes(where: str, d: Dossier, max_change: str) -> list[str]:
 
 
 def _gained(where: str, d: Dossier) -> list[str]:
-    return [f"{where} {o.alias}: worse on every selected metric; such a candidate is rejected no_gain"
+    return [f"{where} {o.alias}: one metric proven worse and none better; such a candidate is rejected no_gain"
             for o in d.options if no_gain(o.estimates)]
 
 
