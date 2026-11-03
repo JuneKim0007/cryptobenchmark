@@ -4,9 +4,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..catalog.types import Types
-from ..dto.change import LOCAL_EDIT, MIGRATION, REJECTED, SAME, Change, PairDiff
+from ..dto.change import (FIELD_BOUND, LOCAL_EDIT, MIGRATION, REACH_REVIEW, REJECTED, SAME, Change, PairDiff,
+                          output_changes)
 from ..dto.site import Scope
 from ..dto.types import NO_NONCE, NO_PARAMETERS, TypeRow
+
+FIELD_BINDING = "field"
+NO_KEY = "none"
 
 LOCAL_SINKS, RETURN_SINKS = {"local"}, {"local", "return"}
 # a value built in the function itself can be rebuilt there for another parameter shape
@@ -28,8 +32,15 @@ class Candidate:
     foreign: bool = False
 
 
+def field_bound(scope: Scope) -> bool:
+    return scope.lifecycle is not None and scope.lifecycle.binding == FIELD_BINDING
+
+
 def reach(scope: Scope) -> str:
+    """A field keeps the object past the function, so where its output goes is not read: unknown, never local."""
     sinks = set(scope.sinks)
+    if "unknown" in sinks or (field_bound(scope) and sinks <= RETURN_SINKS):
+        return "unknown"
     return "local" if sinks <= LOCAL_SINKS else "return" if sinks <= RETURN_SINKS else "persist"
 
 
@@ -100,7 +111,7 @@ def rejects(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, m
 
 def _class(scope: Scope, d: PairDiff) -> str:
     rekeyed = d.key == "type" or (d.key == "size" and scope.keySource != FRESH)
-    if d.addsDependency or d.reach == "persist" or rekeyed or d.input == "new_parameter" or d.output == "kind":
+    if d.addsDependency or d.reach in ("persist", "unknown") or rekeyed or d.input == "new_parameter" or d.output == "kind":
         return MIGRATION
     return LOCAL_EDIT
 
@@ -113,6 +124,24 @@ def classify(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, 
         return Change(c.item, REJECTED, d, tuple(found))
     d = diff(scope, current, c.row, c.foreign)
     return Change(c.item, _class(scope, d), d)
+
+
+def _length_changes(current: TypeRow | None, candidate: TypeRow | None) -> bool:
+    if current is None or candidate is None:
+        return True
+    mine, theirs = current.properties.outputBytes, candidate.properties.outputBytes
+    return current.outputKind != candidate.outputKind or mine is None or mine != theirs
+
+
+def needs_review(scope: Scope, d: PairDiff | None, current: TypeRow | None, candidate: TypeRow | None) -> tuple[str, ...]:
+    """What the code could not settle about a swap, from facts only; an output that stays the same needs none of it."""
+    found = ["adds_dependency"] if d is not None and d.addsDependency else []
+    if not output_changes(d):
+        return tuple(found)
+    found = [REACH_REVIEW[d.reach]] + [FIELD_BOUND] * field_bound(scope) + found
+    found += ["output_length_changes"] * _length_changes(current, candidate) + ["key_changes"] * (d.key != SAME)
+    keyed = current is not None and current.properties.keyType != NO_KEY
+    return tuple(found + ["key_size_unknown"] * (keyed and scope.keySize is None) + ["parameter_changes"] * (d.input != SAME))
 
 
 def foreign_member(scope: Scope, item: str) -> Change:

@@ -23,6 +23,8 @@ class Patterns:
     keySources: dict[str, tuple[re.Pattern, ...]]
     keyCalls: re.Pattern
     fieldWrite: re.Pattern
+    assignment: re.Pattern
+    declaration: re.Pattern
 
 
 @cache
@@ -35,7 +37,14 @@ def read_patterns(path: Path = PATTERNS) -> Patterns:
         raise ValueError(f"{path}: kinds {sorted(unknown)} are not in the Scope contract")
     compile_all = lambda d: {k: tuple(re.compile(p) for p in v) for k, v in d.items()}
     return Patterns(compile_all(doc["sinks"]), compile_all(doc["keySources"]), re.compile(doc["keyCalls"]),
-                    re.compile(doc["fieldWrite"]))
+                    re.compile(doc["fieldWrite"]), re.compile(doc["assignment"], re.M), re.compile(doc["declaration"], re.M))
+
+
+def _field_write(body: str, params: tuple[str, ...], patterns: Patterns) -> bool:
+    if patterns.fieldWrite.search(body):
+        return True
+    declared = {a or b for a, b in patterns.declaration.findall(body)} | set(params)
+    return any(name not in declared for name in patterns.assignment.findall(body))
 
 
 def sinks(code: Code, fn: Function, patterns: Patterns) -> tuple[str, ...]:
@@ -43,9 +52,9 @@ def sinks(code: Code, fn: Function, patterns: Patterns) -> tuple[str, ...]:
     found = {kind for kind, ps in patterns.sinks.items() if any(p.search(body) for p in ps)}
     if fn.expression:
         found.add("return")
-    if found:
-        return tuple(s for s in SINKS if s in found)
-    return ("unknown",) if patterns.fieldWrite.search(body) else ("local",)
+    if _field_write(body, fn.params, patterns):
+        found.add("unknown")
+    return tuple(s for s in SINKS if s in found) if found else ("local",)
 
 
 def key_source(code: Code, fn: Function, patterns: Patterns) -> str:

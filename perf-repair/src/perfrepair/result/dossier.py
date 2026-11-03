@@ -14,9 +14,9 @@ from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, ZERO_MEDIAN, Dossier, Option, Scope
 from ..dto.shipped import shipped, shipped_names
-from ..dto.change import DROP_IN, NO_GAIN, REJECTED, SAME_ENGINE, Change, PairDiff
+from ..dto.change import DROP_IN, NO_GAIN, REJECTED, SAME_ENGINE, Change, PairDiff, output_changes
 from .candidates import Family
-from .change import foreign_member, reach
+from .change import foreign_member, needs_review, reach
 from .configurations import Config, config_of, estimates, nearest, operations, pins
 from .gain import no_gain
 from ..stop.halt import Coded
@@ -93,8 +93,11 @@ class Joined:
         sides = (used, mine, theirs, self.measurements, self.perf.names)
         classed = {"change": change.change, "diff": change.diff} if change is not None else {}
         found, absent = estimates(*sides)
+        d = change.diff if change is not None else None
+        rows = (self.family.row(current), self.family.row(q)) if self.family else (None, None)
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), found,
-                      None if self.verdicts is None else self.verdicts[q].status, absent, **classed)
+                      None if self.verdicts is None else self.verdicts[q].status, absent, **classed,
+                      outputChanges=output_changes(d), reach=reach(s), needsReview=needs_review(s, d, *rows))
 
     def others(self, current: str) -> list[str] | None:
         """The other members of the current item's group; None when it is in none."""

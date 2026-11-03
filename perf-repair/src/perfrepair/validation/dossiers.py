@@ -5,7 +5,7 @@ import math
 from collections import Counter
 
 from ..dto.grouping import parse_qualified
-from ..dto.change import CHANGES, CLASSES, DROP_IN, REJECT_REASONS, REJECTED, admits
+from ..dto.change import CHANGES, CLASSES, DROP_IN, NEEDS_REVIEW, REACHES, REJECT_REASONS, REJECTED, admits, output_changes
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
@@ -17,7 +17,7 @@ from ..result.gain import no_gain
 from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "perfMode", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
-NOT_OFFERED_KEYS = {"scope", "item", "change", "diff", "reasons"}
+NOT_OFFERED_KEYS = {"scope", "item", "change", "diff", "reasons", "outputChanges"}
 
 
 def _id(raw) -> str | None:
@@ -93,6 +93,15 @@ def _changes(where: str, d: Dossier, max_change: str) -> list[str]:
                        if (o.diff is None) != (o.change == DROP_IN)]
 
 
+def _review(where: str, d: Dossier) -> list[str]:
+    """outputChanges, reach and needsReview are what code computed from the diff and the scope, never a judgement."""
+    problems = [f"{where} {o.alias}: reach {o.reach!r} is not one of {REACHES}" for o in d.options if o.reach not in REACHES]
+    problems += [f"{where} {o.alias}: outputChanges {o.outputChanges!r} does not follow its pair diff" for o in d.options
+                 if o.outputChanges is not output_changes(o.diff)]
+    return problems + [f"{where} {o.alias}: needsReview {list(o.needsReview)} is not a list of {NEEDS_REVIEW}"
+                       for o in d.options if not set(o.needsReview) <= set(NEEDS_REVIEW)]
+
+
 def _gained(where: str, d: Dossier) -> list[str]:
     return [f"{where} {o.alias}: one metric proven worse and none better; such a candidate is rejected no_gain"
             for o in d.options if no_gain(o.estimates)]
@@ -150,7 +159,7 @@ def check_dossier(raw, app: str | None, perf: PerfMode, max_change: str = DROP_I
         problems.append(f"{where}: an option repeats the current item or another option")
     problems += [f"{where} {o.alias}: screen {o.screen!r} is neither one of {STATUSES} nor null"
                  for o in d.options if o.screen is not None and o.screen not in STATUSES]
-    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change) + _gained(where, d)
+    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change) + _gained(where, d) + _review(where, d)
 
 
 def _labels(where: str, d: Dossier) -> list[str]:

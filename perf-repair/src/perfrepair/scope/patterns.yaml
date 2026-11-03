@@ -49,3 +49,6 @@ keySources:
 keyCalls: '\.\s*init(?:Sign|Verify)?\s*\(|\bSecretKeySpec\s*\('
 # A write to a field means the output may leave the function another way: `unknown` rather than `local`.
 fieldWrite: '\bthis\s*\.\s*\w+\s*=[^=]'
+# A field written without `this.`: a statement assigning a name the function neither declares nor takes.
+assignment: '(?:^|[;{}])\s*(\w+)\s*(?:\[[^\]]*\]\s*)?[-+*/%|&^]?=(?!=)'
+declaration: '\b(?:val|var)\s+(\w+)|[\w>\]?]\s+(\w+)\s*(?:[=;,:)]|$)'

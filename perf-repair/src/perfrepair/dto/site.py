@@ -15,7 +15,8 @@ SITES_SCHEMA_VERSION = 1
 EDITS_SCHEMA_VERSION = 1
 # 2: `units`, the units asked, each member with a dossier; 3: `perfMode`, estimates of its metrics only
 # 4: `maxChange` and `notOffered`; an option above drop-in carries its change class and pair diff
-DOSSIERS_SCHEMA_VERSION = 4
+# 5: every option carries outputChanges, reach and needsReview
+DOSSIERS_SCHEMA_VERSION = 5
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
 SCOPES_SCHEMA_VERSION = 4
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
@@ -154,19 +155,24 @@ class Option:
     noEstimates: tuple[NoEstimate, ...] = ()
     change: str = DROP_IN
     diff: PairDiff | None = None
+    outputChanges: bool = False
+    reach: str = "unknown"
+    needsReview: tuple[str, ...] = ()
 
     def to_json(self) -> dict:
         missing = {"noEstimates": [asdict(n) for n in self.noEstimates]} if self.noEstimates else {}
         # a drop-in writes neither, so a drop-in dossier reads as it did before change classes
         changed = {"change": self.change, "diff": asdict(self.diff) if self.diff else None} if self.change != DROP_IN else {}
         return {"alias": self.alias, "item": self.item, "pins": self.pins, "interop": self.interop,
-                "screen": self.screen, "estimates": [e.to_json() for e in self.estimates]} | missing | changed
+                "screen": self.screen, "estimates": [e.to_json() for e in self.estimates], "outputChanges": self.outputChanges,
+                "reach": self.reach, "needsReview": list(self.needsReview)} | missing | changed
 
     @classmethod
     def from_json(cls, d: dict) -> "Option":
         diff = PairDiff(**d["diff"]) if d.get("diff") else None
         return cls(d["alias"], d["item"], d["pins"], d["interop"], tuple(Estimate(**e) for e in d.get("estimates") or ()),
-                   d["screen"], tuple(NoEstimate(**n) for n in d.get("noEstimates") or ()), d.get("change", DROP_IN), diff)
+                   d["screen"], tuple(NoEstimate(**n) for n in d.get("noEstimates") or ()), d.get("change", DROP_IN), diff,
+                   d["outputChanges"], d["reach"], tuple(d["needsReview"]))
 
 
 @dataclass(frozen=True)

@@ -84,8 +84,17 @@ def test_without_a_family_nothing_is_classed(tmp_path):
     assert doc["notOffered"] == [] and doc["maxChange"] == "drop-in"
 
 
-def test_a_drop_in_option_writes_no_change_so_its_dossier_is_unchanged():
-    assert set(Option("R1", B, {}, "pass").to_json()) == {"alias", "item", "pins", "interop", "screen", "estimates"}
+def test_a_drop_in_option_writes_no_change_and_its_output_stays():
+    written = Option("R1", B, {}, "pass").to_json()
+    assert set(written) == {"alias", "item", "pins", "interop", "screen", "estimates", "outputChanges", "reach", "needsReview"}
+    assert (written["outputChanges"], written["needsReview"]) == (False, [])
+
+
+def test_a_returned_output_that_changes_is_offered_and_lists_what_to_review(tmp_path):
+    o = build(tmp_path, "local-edit")["dossiers"][0]["options"][0]
+    assert (o["change"], o["outputChanges"], o["reach"]) == ("local-edit", True, "return")
+    assert o["needsReview"] == ["reach_return_unverified"]
+    assert "safe" not in json.dumps(o)
 
 
 def test_the_validator_refuses_an_option_above_max_change(tmp_path):

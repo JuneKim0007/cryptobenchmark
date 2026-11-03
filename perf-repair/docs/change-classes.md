@@ -47,7 +47,7 @@ flowchart TD
 | `key` | `same`, `size`, `type` | `keyType` equal and one key-size fact; another key-size fact; another `keyType` |
 | `output` | `bytes` | same `outputKind`, other bytes or length |
 | | `kind` | another `outputKind` |
-| `reach` | `local`, `return`, `persist` | the sinks are all `local`; all `local` or `return`; any other sink, `unknown` included |
+| `reach` | `local`, `return`, `unknown`, `persist` | the sinks are all `local`; all `local` or `return`; a sink `unknown` or the lifecycle's `binding` `field` (the object outlives the function); any other sink |
 | `addsDependency` | true | the candidate's provider is one `providers.bundled` installed and the app does not ship |
 
 `same` output is a drop-in's: a drop-in carries no diff.
@@ -57,7 +57,7 @@ flowchart TD
 | Class | Holds when |
 |---|---|
 | `drop-in` | the candidate is another member of the current item's group |
-| `migration` | `addsDependency`, `reach` `persist`, `key` `type`, `key` `size` with a key not generated in the function, `input` `new_parameter`, or `output` `kind` |
+| `migration` | `addsDependency`, `reach` `persist` or `unknown`, `key` `type`, `key` `size` with a key not generated in the function, `input` `new_parameter`, or `output` `kind` |
 | `local-edit` | none of the above |
 | `rejected` | any reason below |
 
@@ -84,6 +84,28 @@ flowchart TD
 
 - A provider is in the app's process when the probe's `origin` is not `bundled`, the app's `app.json` `bundled` names it, or the probe's `artifact` group:name is one the app ships.
 - A capture without `origin` reads as all platform.
+
+## Review facts
+
+Every option carries three fields code computes; the model is not asked for them and no option is called safe by them.
+
+| Field | Value |
+|---|---|
+| `outputChanges` | true when the pair diff's `output` is not `same`: every class but a drop-in and a group member only the harness has |
+| `reach` | the scope's reach, as in the pair diff |
+| `needsReview` | the facts below that hold, in this order; empty when the output stays the same, but for `adds_dependency` |
+
+| `needsReview` | Holds when the output changes and |
+|---|---|
+| `reach_local_unverified`, `reach_return_unverified`, `reach_unknown`, `reach_persist` | its reach: `local` is a pattern reading (17 of 29 audited `local` sinks were wrong), and a returned value's callers are not read |
+| `field_bound` | the lifecycle's binding is `field` |
+| `output_length_changes` | another output kind, an output length of null on either side, or two lengths |
+| `key_changes` | the diff's `key` is not `same` |
+| `key_size_unknown` | the current item takes a key and the scope's key size is unknown |
+| `parameter_changes` | the diff's `input` is not `same` |
+| `adds_dependency` | the candidate's provider is the harness's, not the app's (any output) |
+
+- A recommendation stays a recommendation: `return` and `local` reach stay `local-edit`, offered up to `apps.maxChange`, deliberately loose; `needsReview` says what a person checks before it means anything for the app.
 
 ## `apps.maxChange`
 

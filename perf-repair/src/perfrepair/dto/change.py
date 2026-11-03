@@ -12,14 +12,26 @@ SAME = "same"
 INPUT_DIFFS = (SAME, "reshaped", "new_parameter")
 KEY_DIFFS = (SAME, "size", "type")
 OUTPUT_DIFFS = (SAME, "bytes", "kind")
-# persist: the output is stored, sent, or goes where code cannot see
-REACHES = ("local", "return", "persist")
+# unknown: a field takes the object or the output, or a sink is unknown; persist: the output is stored or sent
+REACHES = ("local", "return", "unknown", "persist")
 NO_GAIN = "no_gain"
 # another spelling of the current item's canonical name from its own provider: one engine, nothing to measure
 SAME_ENGINE = "same_engine"
 REJECT_REASONS = ("type_unknown", "strength_below", "strength_unknown", "authenticated_lost", "deterministic_lost",
                   "nonce_not_generated", "unavailable", "availability_unknown", "not_measured", "deprecated", NO_GAIN,
                   SAME_ENGINE)
+
+
+# facts a person checks before a recommendation is applied; never a verdict that it is fine
+REACH_REVIEW = {"local": "reach_local_unverified", "return": "reach_return_unverified", "unknown": "reach_unknown",
+                "persist": "reach_persist"}
+FIELD_BOUND = "field_bound"
+NEEDS_REVIEW = (*REACH_REVIEW.values(), FIELD_BOUND, "output_length_changes", "key_changes", "key_size_unknown",
+                "parameter_changes", "adds_dependency", "resolved_by_order")
+
+
+def output_changes(diff: "PairDiff | None") -> bool:
+    return diff is not None and diff.output != SAME
 
 
 def admits(max_change: str, change: str) -> bool:
@@ -49,7 +61,8 @@ class Change:
     reasons: tuple[str, ...] = ()
 
     def to_json(self) -> dict:
-        return {"item": self.item, "change": self.change, "diff": asdict(self.diff), "reasons": list(self.reasons)}
+        return {"item": self.item, "change": self.change, "diff": asdict(self.diff), "reasons": list(self.reasons),
+                "outputChanges": output_changes(self.diff)}
 
     @classmethod
     def from_json(cls, d: dict) -> "Change":

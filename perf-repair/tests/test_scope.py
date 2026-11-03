@@ -86,6 +86,10 @@ def test_kotlin_secondary_constructor_but_not_primary():
     ("void f(char[] p) { SecretKeyFactory.getInstance(\"P\").generateSecret(new PBEKeySpec(p)); }", JAVA,
      ("local",), "derived"),
     ("void f() { this.out = c.doFinal(); }", JAVA, ("unknown",), "unknown"),
+    ("void f() { out = c.doFinal(); }", JAVA, ("unknown",), "unknown"),
+    ("fun f() { hash = md.digest(x); return }", KOTLIN, ("unknown",), "unknown"),
+    ("void f(byte[] a) { byte[] out; out = md.digest(a); a[0] = 1; int n = 0; n += 1; }", JAVA, ("local",), "unknown"),
+    ("fun f(): ByteArray { var h: ByteArray; h = md.digest(); return h }", KOTLIN, ("return",), "unknown"),
 ])
 def test_sinks_and_key_sources(body, language, expected_sinks, expected_key):
     code = Code.of(body, language)

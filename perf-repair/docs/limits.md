@@ -10,7 +10,7 @@
 | a name outside `catalog/algorithm-names.yaml` and the probe's aliases keeps its spelling, `known` false; config's reader uses the file alone, not the probe | `sites.json` `canonicalAlgorithm` |
 | a probe alias that contradicts the catalog or another provider (e.g. one provider's `RSA/None/OAEPWithSHA-224AndMGF1Padding` → SHA-256) stops the app step that meets it with `name_conflict`; grouping build screens the item `unknown` and asks it | `perfrepair.app`, grouping build |
 | a function is found by bracket matching, not a grammar; a call in a field initializer or init block has none | `scopes.json` `unscoped` |
-| sinks are pattern matches over the whole function body, not data flow; the key source is too when the lifecycle has no key origin | `scopes.json` |
+| sinks are pattern matches over the whole function body, not data flow; the key source is too when the lifecycle has no key origin; a field written with `this.`, or a name the function neither declares nor takes (`assignment`, `declaration` in `scope/patterns.yaml`), adds `unknown`; a write through another object (`a.b = x`) or an app wrapper is not seen | `scopes.json` |
 | settlement stays in the outermost class of the site's file: a key from another class's call, or a public method's parameter, stays open | `scopes.json`: a requirement with no `settled` |
 | the lifecycle follows the object in its method and one method away inside its class only; DI, factories in other classes and callers elsewhere end `partially_bounded`; without the `scope` extra it is `unsupported` | `scopes.json` `lifecycle` |
 | default provider resolution | `docs/repair.md` limits |

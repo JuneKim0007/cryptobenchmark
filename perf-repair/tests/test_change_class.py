@@ -36,10 +36,17 @@ def test_a_longer_stronger_digest_returned_is_a_local_edit():
     assert (c.change, c.diff.output, c.diff.input, c.diff.key, c.diff.reach) == ("local-edit", "bytes", "same", "same", "return")
 
 
-@pytest.mark.parametrize("sinks", [("persist",), ("network",), ("unknown",), ("local", "persist")])
-def test_an_output_that_leaves_the_function_is_a_migration(sinks):
+@pytest.mark.parametrize("sinks, reached", [(("persist",), "persist"), (("network",), "persist"), (("unknown",), "unknown"),
+                                            (("local", "persist"), "persist")])
+def test_an_output_that_leaves_the_function_is_a_migration(sinks, reached):
     c = classify(TYPES, scope(sinks), WEAK, cand(STRONG), 21)
-    assert (c.change, c.diff.reach) == ("migration", "persist")
+    assert (c.change, c.diff.reach) == ("migration", reached)
+
+
+def test_an_object_a_field_holds_reads_unknown_reach_even_with_local_sinks():
+    bound = replace(scope(("local",)), lifecycle=Lifecycle("partially_bounded", ("field",), "field"))
+    assert reach(bound) == "unknown"
+    assert classify(TYPES, bound, WEAK, cand(STRONG), 21).change == "migration"
 
 
 def test_reach_local_return_persist():
