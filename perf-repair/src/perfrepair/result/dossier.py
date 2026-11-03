@@ -15,7 +15,6 @@ from ..dto.site import (ENERGY_KINDS_DIFFER, METRICS, NO_REAL_USE, NOT_ON_DEVICE
 from .estimate import compare
 
 RESOLVED = ("default", "explicit")
-MEASUREMENT_KEY = {"allocationCount": "allocations"}
 
 Config = tuple  # (operation, keySize, inputSize, phase)
 
@@ -54,9 +53,8 @@ def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: d
            measurements: dict[str, dict[str, Summary | None]]):
     for c in configs:
         for metric in METRICS:
-            key = MEASUREMENT_KEY.get(metric, metric)
-            before = (measurements.get(current[c].rowId) or {}).get(key)
-            after = (measurements.get(option[c].rowId) or {}).get(key)
+            before = (measurements.get(current[c].rowId) or {}).get(metric)
+            after = (measurements.get(option[c].rowId) or {}).get(metric)
             if before is not None and after is not None and before.median != 0:
                 yield c, metric, before, after
 

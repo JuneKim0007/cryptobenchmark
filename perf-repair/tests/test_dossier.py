@@ -37,9 +37,9 @@ ROWS = [replace(row("c64", "P1", input_size=64), parameters=PARAMS),
         replace(row("o64", "P2", input_size=64), parameters={**PARAMS, "ivBytes": 16}),
         replace(row("o4k", "P2", input_size=4096), parameters={**PARAMS, "ivBytes": 16}),
         replace(row("a64", "P3", algorithm="alg-a-alias", input_size=64), parameters=PARAMS)]
-M = {"c64": {"timeNs": summary(100), "allocations": summary(10)}, "c4k": {"timeNs": summary(900), "allocations": None},
-     "o64": {"timeNs": summary(80), "allocations": summary(12)}, "o4k": {"timeNs": summary(950), "allocations": None},
-     "a64": {"timeNs": summary(99, spread=30.0), "allocations": None}}
+M = {"c64": {"timeNs": summary(100), "allocationCount": summary(10)}, "c4k": {"timeNs": summary(900), "allocationCount": None},
+     "o64": {"timeNs": summary(80), "allocationCount": summary(12)}, "o4k": {"timeNs": summary(950), "allocationCount": None},
+     "a64": {"timeNs": summary(99, spread=30.0), "allocationCount": None}}
 
 
 def scope(provider="P1", algorithm="ALG-A", resolution="explicit", input_size=100, key_size=128, line=2):
@@ -91,7 +91,7 @@ def test_no_shared_configuration_gives_unknown_pins_that_survive_the_round_trip(
 
 
 def test_a_one_run_estimate_has_no_pimprove_and_validates(tmp_path):
-    one = {**M, "c64": {"timeNs": summary(100, n=1), "allocations": None}}
+    one = {**M, "c64": {"timeNs": summary(100, n=1), "allocationCount": None}}
     doc = build([scope()], tmp_path, measurements=one)
     e = doc["dossiers"][0]["options"][0]["estimates"][0]
     assert (e["metric"], e["n"], e["pImprove"]) == ("timeNs", 1, None)
@@ -288,7 +288,7 @@ def test_a_lifecycle_with_no_real_use_is_a_static_no_option_never_a_dossier(tmp_
 def test_estimates_cover_only_the_operations_the_lifecycle_performs_and_pins_stay(tmp_path):
     rows = ROWS[:4] + [replace(row("c2", "P1", input_size=64, operation="OP2"), parameters=PARAMS),
                        replace(row("o2", "P2", input_size=64, operation="OP2"), parameters={**PARAMS, "ivBytes": 16})]
-    m = {**M, "c2": {"timeNs": summary(100), "allocations": None}, "o2": {"timeNs": summary(50), "allocations": None}}
+    m = {**M, "c2": {"timeNs": summary(100), "allocationCount": None}, "o2": {"timeNs": summary(50), "allocationCount": None}}
     only = replace(scope(), lifecycle=Lifecycle("bounded", binding="local", operations=("OP2",)))
     r1 = Dossier.from_json(build([only], tmp_path, rows=rows, measurements=m)["dossiers"][0]).options[0]
     assert {e.configuration for e in r1.estimates} == {"OP2 key 128 input 64 WARM"} and r1.pins == {"ivBytes": 16}
