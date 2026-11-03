@@ -63,8 +63,8 @@ Before any stage it checks the config `--identify` names against the perfMode (`
 | perfMode selects | config needs | without it |
 |---|---|---|
 | `latency`, `throughput` | `TIME` in `run.metrics` (always there) | |
-| `memAlloc` | `ALLOCATION` in `run.metrics` | stops `perf_mode_unmeasured` before any device run |
-| `energy` | `run.harness.energy.capture: measured` (on a device) | logged `perf_mode_unmeasured`: a test set may capture energy per case; a case without it is `no_evidence: energyJ` |
+| `memAlloc` | `ALLOCATION` in `run.metrics` | `perf_mode_unmeasured` before any device run, a stop unless `stops.perf_mode_unmeasured: warn` |
+| `energy` | `run.harness.energy.capture: measured` (on a device) | `perf_mode_maybe_unmeasured`, a warning: a test set may capture energy per case; a case without it is `no_evidence: energyJ` |
 | not `memAlloc` or not `energy` | that switch off | logged `perf_mode_extra`: device time no decision reads |
 
 - `generic` checks nothing: it decides on what was measured and names the rest.

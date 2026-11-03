@@ -13,6 +13,10 @@ from perfrepair.device.measures import switched_on
 from perfrepair.device.stage import probe_device
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
+from perfrepair.config.load import load
+from perfrepair.config.stops import install_stops
+from perfrepair.stop import Halt
+from helpers import captured_events
 
 FAKE = Path(__file__).parent / "fixtures" / "device"
 ALL_RAN = ["probe", "benchmark", "inbound", "screen", "primitives"]
@@ -215,10 +219,21 @@ def _with_run(config, run):
 
 def test_a_selected_metric_the_config_cannot_measure_stops_before_any_device_run(setup):
     root, config = setup
-    with pytest.raises(ValueError, match="perf_mode_unmeasured: perfMode latency\\+memAlloc selects allocationCount"):
+    with pytest.raises(Halt, match="perf_mode_unmeasured: perfMode latency\\+memAlloc selects allocationCount"):
         probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
                      perf=PerfMode.parse(["latency", "memAlloc"]))
     assert runs(root) == []
+
+
+def test_stops_warn_turns_perf_mode_unmeasured_into_a_warning_and_the_device_stage_runs(setup, tmp_path):
+    root, config = setup
+    (tmp_path / "perfrepair.yaml").write_text("stops: {perf_mode_unmeasured: warn}\n")
+    install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
+    with captured_events() as events:
+        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
+                     perf=PerfMode.parse(["latency", "memAlloc"]))
+    warned = [e for e in events if e.data.get("code") == "perf_mode_unmeasured"]
+    assert [e.outcome for e in warned] == ["warn"] and runs(root)
 
 
 def test_unselected_measurements_and_run_level_energy_are_logged_not_refused(setup, caplog):
@@ -228,5 +243,5 @@ def test_unselected_measurements_and_run_level_energy_are_logged_not_refused(set
         probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
                      perf=PerfMode.parse(["energy", "latency"]))
     text = caplog.text
-    assert "perf_mode_unmeasured: energyJ is selected" in text and "perf_mode_extra:" in text and "allocationCount" in text
+    assert "energyJ is selected but" in text and "perf_mode_extra:" in text and "allocationCount" in text
     assert switched_on({"run": {"metrics": ["TIME"], "harness": {"energy": {"capture": "measured"}}}}) == {"TIME", "energy"}

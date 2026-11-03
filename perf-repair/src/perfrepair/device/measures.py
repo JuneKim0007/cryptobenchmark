@@ -1,23 +1,21 @@
-"""The run config's measurements against the perfMode: a selected metric nothing measures stops before the device runs,
-one measured but not selected is device time spent for nothing and is logged. The config is never rewritten."""
+"""The run config's measurements against the perfMode: a selected metric nothing measures is perf_mode_unmeasured before
+the device runs, one measured but not selected is device time spent for nothing and is logged. The config is never
+rewritten."""
 from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.event import FINDING, LOG
+from ..dto.event import LOG
 from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from ..files import read_yaml
 from ..log import emit
+from ..stop import terminate
 
 DEFAULT_METRICS = ("TIME",)
 ENERGY_RUN = "energy"
 # capture values that measure energy; a test set may still turn it on per case, so its absence only warns
 CAPTURES = ("measured", "dry")
-
-
-class PerfModeUnmeasured(ValueError):
-    pass
 
 
 def switched_on(doc: dict) -> set[str]:
@@ -36,12 +34,14 @@ def _missing(config: Path, perf: PerfMode, on: set[str]) -> None:
     missing = [m for m in perf.metrics if m.run not in on]
     hard = [m for m in missing if m.run != ENERGY_RUN]
     if hard:
-        raise PerfModeUnmeasured(f"perf_mode_unmeasured: perfMode {perf.name} selects {', '.join(m.name for m in hard)}; "
-                                 f"{config} measures none of it; add {', '.join(_switch(m) for m in hard)}")
+        terminate("perf_mode_unmeasured", f"perfMode {perf.name} selects {', '.join(m.name for m in hard)}; {config} "
+                  f"measures none of it; add {', '.join(_switch(m) for m in hard)}", stage="device", step="measures",
+                  data={"items": [m.name for m in hard]})
     for m in missing:
-        emit("device", "measures", FINDING, item=m.name, outcome="perf_mode_unmeasured",
-             detail=f"perf_mode_unmeasured: {m.name} is selected but {config} does not set {_switch(m)}; only cases a test "
-                    "set turns it on for get it, the rest are no_evidence")
+        if m.run == ENERGY_RUN:
+            terminate("perf_mode_maybe_unmeasured", f"{m.name} is selected but {config} does not set {_switch(m)}; only "
+                      "cases a test set turns it on for get it, the rest are no_evidence", stage="device", step="measures",
+                      item=m.name)
 
 
 def _extra(config: Path, perf: PerfMode, on: set[str]) -> None:
