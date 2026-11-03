@@ -45,7 +45,7 @@ Host (`HostHarness`):
 | inner loop count | 30 ms (`RUN_NANOS`) / warm-up ns per call, min 1 |
 | samples | `harness.iterations`, else 5 (`RUNS`) |
 | one sample | elapsed ns / inner loop count; results passed to `BlackHole` |
-| row | `timeNs` only; `keyKind` = recipe kind; `parameters` = the prepared case's `resolvedParameters`; median = middle or mean of the two middles |
+| row | `timeNs` only; `keyKind` = recipe kind; `variant` = the case's; `parameters` = the prepared case's `resolvedParameters`; median = middle or mean of the two middles |
 
 `TimedLoop` calls `once()` until the budget is spent and returns the call count. The host loop locks no clocks and reads no thermal state. `processRepetitions` is one process per repetition, run by the caller: `docs/run.md`.
 
@@ -66,7 +66,7 @@ Harness settings as plain values, no androidx type.
 | key | holds |
 |---|---|
 | `runtime` | string map |
-| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `parameters`, `metrics` |
+| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `variant`, `parameters`, `metrics` |
 | `metrics.<key>` | `iterations`, `runs[]`, optional `reported{minimum, maximum, median, coefficientOfVariation}` |
 
 | rule | value |
@@ -74,7 +74,7 @@ Harness settings as plain values, no androidx type.
 | metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` (with `source` and `kind`) |
 | reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `tools/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
 | `timeNs` | required in every row |
-| `keyKind` | `secret`, `pair`, `none` |
+| `keyKind`, `variant` | `secret`, `pair`, `none`; `"fixed"` or `"notFixed"`, the prepared case's ([operations.md](../../preparation/docs/operations.md#variants)); always written, `null` for a row whose plan has none (a before/after scope) |
 | `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`modules/preparation/docs/prepared.md`); `{}` when nothing applies; required |
 | `runs` | doubles; non-finite: `not_finite: runs` |
 | `iterations` | `>= 1` |
@@ -90,7 +90,7 @@ Harness settings as plain values, no androidx type.
 | `reported` | dropped |
 | partial presence | a case or metric present in only some processes survives |
 | `runtime` keys | first value wins |
-| `parameters` | must be equal across processes, else the case is left out: `not_merged: <id>: different_parameters: <id>: <a> and <b>`; energy of different kinds or sources the same |
+| `parameters`, `variant` | must be equal across processes, else the case is left out: `not_merged: <id>: different_parameters: <id>: <a> and <b>` (`different_variant: ...`); energy of different kinds or sources the same |
 | a process entry without `metrics` or `parameters` | that entry is left out: `not_merged: <id>: process <n>: missing_field: ...`; the other processes keep the case |
 | no case left | `MergeRunsKt` stops with `nothing_merged` |
 
@@ -100,7 +100,7 @@ Harness settings as plain values, no androidx type.
 
 | rule | value |
 |---|---|
-| rows | one per base case, its shape, `parameters` and every metric the other passes do not own |
+| rows | one per base case, its shape, `variant`, `parameters` and every metric the other passes do not own |
 | an owned key | only from its pass's row of the same id; the base pass's value of it is dropped |
 | a case its pass lost | no value of that key: `not_merged: <id>: <key>: its pass has no row` |
 | no case left | `nothing_merged` |
@@ -122,7 +122,7 @@ Harness settings as plain values, no androidx type.
 | `allocationCount.iterations` | 1 |
 | `allocationSamples` written (an allocation pass) | read as `allocationCount`, one run per sample; `allocation_runs_changed` is not checked |
 | a pass (`ConvertKt --metrics=... --samples=n`) | the pass's metrics replace the case's `metrics`; `n` replaces `iterations` in `iterations_not_applied` |
-| case shape | algorithm, provider, operation, sizes, `keyKind` from the `prepared.yaml` case |
+| case shape | algorithm, provider, operation, sizes, `keyKind`, `variant` from the `prepared.yaml` case |
 | `parameters` | the case's `resolvedParameters`; absent: `not_converted: <id>: missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |
 | androidx.benchmark | 1.5.0 |
 

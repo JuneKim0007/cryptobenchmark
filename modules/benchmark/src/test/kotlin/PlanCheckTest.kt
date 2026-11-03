@@ -57,8 +57,8 @@ class PlanCheckTest {
         ))
         assertEquals(
             listOf(
-                "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM: provider_not_installed: BC, installed [SUN, SunJCE]",
-                "MessageDigest_SHA-512_TYPE-DEFAULT_SUN_i1024_WARM: not_measurable: MessageDigest has no operation this harness can time",
+                "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM_fixed: provider_not_installed: BC, installed [SUN, SunJCE]",
+                "MessageDigest_SHA-512_TYPE-DEFAULT_SUN_i1024_WARM_fixed: not_measurable: MessageDigest has no operation this harness can time",
             ),
             refusals.map { it.toString() },
         )
@@ -67,9 +67,9 @@ class PlanCheckTest {
     @Test
     fun oneRefusedCaseIsLeftOutWithItsReasonAndTheOthersRun() {
         val checked = PlanCheck(HostHarness.METRICS, installed).runnable(run(case(provider = "BC"), case(), case(algorithm = "SHA-512")))
-        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM", "MessageDigest_SHA-512_DIGEST_SUN_i1024_WARM"),
+        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed", "MessageDigest_SHA-512_DIGEST_SUN_i1024_WARM_fixed"),
             checked.runnable.map { it.case.id })
-        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_BC_i1024_WARM" to "provider_not_installed: BC, installed [SUN, SunJCE]"),
+        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_BC_i1024_WARM_fixed" to "provider_not_installed: BC, installed [SUN, SunJCE]"),
             checked.refused.map { (prepared, refusal) -> prepared.case.id to refusal.reason })
     }
 
@@ -88,7 +88,7 @@ class PlanCheckTest {
     @Test
     fun twoCasesCannotShareAnId() {
         assertEquals(
-            listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM: duplicate_case: 2 cases share this id"),
+            listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed: duplicate_case: 2 cases share this id"),
             PlanCheck(HostHarness.METRICS, installed).check(run(case(), case())).map { it.toString() },
         )
     }
@@ -101,6 +101,6 @@ class PlanCheckTest {
             measured += prepared.case.id
             io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement(prepared.case, prepared.recipe.kind, 1, listOf(1.0))
         }
-        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM"), measured)
+        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed"), measured)
     }
 }

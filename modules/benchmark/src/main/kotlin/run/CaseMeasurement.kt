@@ -31,5 +31,6 @@ class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: M
         keyKind = keyKind,
         metrics = linkedMapOf(MetricSamples.TIME to time),
         parameters = parameters,
+        variant = case.variant.label,
     )
 }

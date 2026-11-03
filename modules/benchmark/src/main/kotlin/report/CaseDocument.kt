@@ -64,12 +64,14 @@ internal object CaseDocument {
         thermal = thermal,
         thermalNote = note,
         gate = gate,
+        variant = case[VARIANT]?.toString(),
     )
 
     const val SLEEP = "thermalThrottleSleepSeconds"
     const val THERMAL = "thermal"
     const val THERMAL_NOTE = "thermalNote"
     const val GATE = "gate"
+    const val VARIANT = "variant"
     // thermal.json's per-case "note": why a reading is missing, cached, or the process's instead of the case's
     const val NOTE = "note"
     val THERMAL_KEYS = setOf("start", "end", "startStatus", "endStatus")

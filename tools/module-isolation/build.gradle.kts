@@ -34,12 +34,9 @@ subprojects {
         sourceSets["test"].kotlin.setSrcDirs(listOf(File(moduleDirectory, "src/test/kotlin")))
     }
 
-    extensions.configure<SourceSetContainer> {
-        named("main") {
-            resources.setSrcDirs(listOfNotNull(File(moduleDirectory, "src/main/resources"),
-                rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/resources").takeIf { name == "benchmark" }))
-        }
-    }
+    val resourceDirectories = listOfNotNull(File(moduleDirectory, "src/main/resources"),
+        rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/resources").takeIf { name == "benchmark" })
+    extensions.configure<SourceSetContainer> { named("main") { resources.setSrcDirs(resourceDirectories) } }
 
     dependencies {
         "implementation"("org.yaml:snakeyaml:2.3")

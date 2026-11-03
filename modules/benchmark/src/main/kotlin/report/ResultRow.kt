@@ -19,6 +19,8 @@ class ResultRow(
     val thermalNote: String? = null,
     // The host's thermal gate before the case: {waitedSeconds, target, timedOut}; null when no gate ran.
     val gate: Map<String, Any?>? = null,
+    // fixed|notFixed: what the timed call redoes (preparation's setup catalog); null for a before/after scope row.
+    val variant: String? = null,
 ) {
 
     val metrics: Map<String, MetricSamples> = LinkedHashMap(metrics)
@@ -57,6 +59,7 @@ class ResultRow(
     fun mergedWith(later: ResultRow): ResultRow {
         require(id == later.id) { "different_case: $id and ${later.id}" }
         require(parameters == later.parameters) { "different_parameters: $id: $parameters and ${later.parameters}" }
+        require(variant == later.variant) { "different_variant: $id: $variant and ${later.variant}" }
         val merged = LinkedHashMap(metrics)
         later.metrics.forEach { (metric, samples) ->
             merged[metric] = merged[metric]?.mergedWith(samples) ?: samples
@@ -64,6 +67,6 @@ class ResultRow(
         val slept = if (thermalThrottleSleepSeconds == null && later.thermalThrottleSleepSeconds == null) null
             else (thermalThrottleSleepSeconds ?: 0) + (later.thermalThrottleSleepSeconds ?: 0)
         return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged, parameters, slept, spanned(thermal, later.thermal),
-            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null }, gated(gate, later.gate))
+            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null }, gated(gate, later.gate), variant)
     }
 }

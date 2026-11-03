@@ -21,7 +21,7 @@
   },
   "benchmarks": [
     {
-      "name": "measure[MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM]",
+      "name": "measure[MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed]",
       "params": {},
       "className": "io.github.junekim0007.cryptobench.CryptoBenchmark",
       "totalRunTimeNs": 1174000000,
@@ -48,7 +48,7 @@
       "profilerOutputs": []
     },
     {
-      "name": "measure[Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4]",
+      "name": "measure[Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4_fixed]",
       "params": {},
       "className": "io.github.junekim0007.cryptobench.CryptoBenchmark",
       "totalRunTimeNs": 2260000000,

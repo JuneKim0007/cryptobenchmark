@@ -5,20 +5,21 @@ run:
   processRepetitions: 1
   harness: {iterations: 5}
 cases:
-- id: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM
+- id: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed
   type: MessageDigest
   algorithm: SHA-256
   provider: AndroidOpenSSL
   operation: DIGEST
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME, ALLOCATION]
   harness: {iterations: 5}
   key: {kind: none}
   input: {kind: message, bytes: 1024}
   fingerprint: 4cf5f521
   resolvedParameters: {}
-- id: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4
+- id: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
   provider: AndroidOpenSSL
@@ -26,6 +27,7 @@ cases:
   keySize: 128
   inputSize: 1024
   phase: WARM
+  variant: fixed
   metrics: [TIME]
   harness: {iterations: 5}
   key: {kind: secret, algorithm: AES, provider: AndroidOpenSSL, keySize: 128, encodedBytes: 16}

@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.benchmark
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.Merge
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
+import io.github.junekim0007.cryptobench.benchmark.report.PassMerge
 import io.github.junekim0007.cryptobench.benchmark.report.ReportedStats
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import org.junit.Assert.assertEquals
@@ -71,6 +72,26 @@ class BenchmarkJsonRoundTripTest {
         val row = merged.rows.single()
         assertEquals(listOf(1191.0, 1180.0, 1204.0, 1300.0), row.metrics.getValue(MetricSamples.TIME).runs)
         assertEquals(listOf(2.0, 2.0, 3.0, 4.0), row.metrics.getValue(MetricSamples.ALLOCATIONS).runs)
+    }
+
+    private fun variant(id: String, variant: String?) =
+        ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", both, emptyMap(), variant = variant)
+
+    @Test
+    fun theVariantIsWrittenAndSurvivesAProcessMergeAndAPassMerge() {
+        val written = text(listOf(variant("a_fixed", "fixed"), variant("a_notFixed", "notFixed"), variant("scope", null)))
+        assertTrue(written, written.contains("\"keyKind\": \"secret\", \"variant\": \"notFixed\""))
+        assertTrue(written, written.contains("\"variant\": null"))
+        val expected = listOf("fixed", "notFixed", null)
+        assertEquals(expected, Merge.merge(listOf(written, written)).rows.map { it.variant })
+        assertEquals(expected, PassMerge.merge(written, listOf(MetricSamples.ALLOCATIONS to written)).rows.map { it.variant })
+    }
+
+    @Test
+    fun processesThatDisagreeOnTheVariantDropTheCase() {
+        val merged = Merge.merge(listOf(text(listOf(variant("a", "fixed"))), text(listOf(variant("a", "notFixed")))))
+        assertEquals(emptyList<ResultRow>(), merged.rows)
+        assertTrue(merged.dropped.single(), merged.dropped.single().startsWith("not_merged: a: different_variant: a"))
     }
 
     private val gcm = linkedMapOf<String, Any>("mode" to "GCM", "padding" to "NoPadding", "ivBytes" to 12, "tagBits" to 128, "keyBits" to 128)
