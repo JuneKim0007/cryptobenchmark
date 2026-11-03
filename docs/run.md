@@ -121,6 +121,10 @@ The benchmark and the before/after run measure through one device session: [devi
 | passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
 | process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
 | ABBA | the before/after run alternates the sides over `run.scopedRepetitions` (3) | 3 processes per side and pass |
+| temperature | `dumpsys thermalservice` before and after every process and case, into `benchmark.json` per case | two `dumpsys` calls per case, under a second |
+| warm-up | `run.warmup`: a pre-flight of a few cases once per session, never measured | about 2 s plus 1 s per case at 10 samples, once per run |
+| cool-down | `run.caseCooldownSeconds`: host sleep between measured cases | `(cases - 1) x seconds` per pass |
+| frequency caps | capped cores per case at its start and end in `clocks.yaml` | two sysfs reads per case, tens of ms |
 
 ### Recover a metric without a device
 

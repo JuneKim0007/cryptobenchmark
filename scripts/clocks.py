@@ -36,9 +36,16 @@ def read(device):
     return parse(device.shell(READ))
 
 
-def write(path, before, after):
+def capped(snapshot):
+    """Online cores whose ceiling sits below the hardware maximum, as {core: maxKhz}: a thermal or policy frequency cap."""
+    return {c["core"]: c["maxKhz"] for c in snapshot if c["online"] and c["maxKhz"] and c["cpuMaxKhz"] and c["maxKhz"] < c["cpuMaxKhz"]}
+
+
+def write(path, before, after, cases=None):
     state = locked([before, after])
     document = {"schemaVersion": 1, "locked": "unknown" if state is None else state, "before": before, "after": after}
+    if cases:
+        document["cases"] = cases
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(document, sort_keys=False))
     return path

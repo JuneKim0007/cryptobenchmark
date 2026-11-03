@@ -18,6 +18,7 @@ run:                             # optional — every key below falls back to it
   #   energy: {samples: 100}      # optional — energy where a case captures measured; the window is the timed phase, so samples set its length
   #   allocation: {samples: 100}  # optional — ALLOCATION, one run per sample; needs ALLOCATION in metrics
   thermalThrottleSleepSeconds: null  # optional — --device: Jetpack's pause when it detects throttling (androidx.benchmark.thermalThrottle.sleepDurationSeconds); null keeps Jetpack's default (90)
+  caseCooldownSeconds: 0         # optional, default 0 — --device: host sleep before every measured case but a session's first (between processes with isolation run)
   warmup:                        # optional — --device: a pre-flight run once per session, before the first pass; never measured
     iterations: 10               # optional, default 10 — samples each warm-up case takes; 0 turns it off
     jobs: []                     # optional, default [] = the plan's first 3 cases — test-set rules {provider?, type?, name?}

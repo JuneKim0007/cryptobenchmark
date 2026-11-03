@@ -10,8 +10,8 @@ import pipeline  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False)
-CASE_PROCESS = ["clocks", "clear", "list CryptoBenchmark", "instrument CryptoBenchmark a", "pull data", "instrument CryptoBenchmark b", "pull data",
-                "pull prepared.yaml", "pull skipped.yaml", "pull pins", "clocks", "convert"]
+CASE_PROCESS = ["clocks", "clear", "list CryptoBenchmark", "clocks", "instrument CryptoBenchmark a", "pull data", "clocks",
+                "clocks", "instrument CryptoBenchmark b", "pull data", "clocks", "pull prepared.yaml", "pull skipped.yaml", "pull pins", "clocks", "convert"]
 
 
 def steps(phone):
@@ -163,3 +163,15 @@ def test_a_failed_warm_up_warns_and_the_run_goes_on(tmp_path, monkeypatch, capsy
                                                 cases=("a", "b"), crash=("a,b",))
     assert "WARM-UP FAILED, measuring anyway" in capsys.readouterr().out and problems == []
     assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2
+
+
+def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, monkeypatch, capsys):
+    slept = []
+    monkeypatch.setattr(pipeline.cooldown_hook.time, "sleep", slept.append)
+    measured(tmp_path, monkeypatch, {"isolation": "case", "caseCooldownSeconds": 20})
+    assert slept == [20]
+    assert "cool-down: measure: 1 x 20 s = 20 s between cases" in capsys.readouterr().out
+    measured(tmp_path / "run", monkeypatch, {"isolation": "run", "processRepetitions": 2, "caseCooldownSeconds": 5})
+    assert slept == [20, 5]
+    measured(tmp_path / "off", monkeypatch, {"isolation": "case"})
+    assert slept == [20, 5]

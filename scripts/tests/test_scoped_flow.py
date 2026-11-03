@@ -10,11 +10,11 @@ OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=Fal
 CASES = ("scope:s:before", "scope:s:after", "scope:t:before", "scope:t:after")
 
 
-def scoped(tmp_path, monkeypatch, run, crash=()):
+def scoped(tmp_path, monkeypatch, run, crash=(), cooldown=0):
     phone = Phone(tmp_path, cases=CASES, crash=crash)
     fake_tools(monkeypatch, phone)
     files, problems = {}, []
-    measuring = pipeline.Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems)
+    measuring = pipeline.Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems, cooldown=cooldown)
     prepared = tmp_path / "scoped/prepared.yaml"
     prepared.parent.mkdir(parents=True)
     prepared.write_text("cases: []\n")
@@ -48,3 +48,10 @@ def test_one_process_for_every_scoped_case_names_them_in_order(tmp_path, monkeyp
     phone, _files, _problems = scoped(tmp_path, monkeypatch, {"isolation": "run", "scopedRepetitions": 2})
     assert phone.ran == [("ScopedBenchmark", ",".join(CASES)),
                          ("ScopedBenchmark", "scope:s:after,scope:s:before,scope:t:after,scope:t:before")]
+
+
+def test_the_cool_down_sleeps_between_scoped_cases_too(tmp_path, monkeypatch):
+    slept = []
+    monkeypatch.setattr(pipeline.cooldown_hook.time, "sleep", slept.append)
+    scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1}, cooldown=10)
+    assert slept == [10, 10, 10]

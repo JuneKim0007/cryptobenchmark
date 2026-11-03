@@ -47,6 +47,10 @@ def throttle_sleep(document):
     return (document.get("run") or {}).get("thermalThrottleSleepSeconds")
 
 
+def case_cooldown(document):
+    return (document.get("run") or {}).get("caseCooldownSeconds") or 0
+
+
 def scoped_repetitions(document):
     repetitions = (document.get("run") or {}).get("scopedRepetitions", SCOPED_REPETITIONS)
     if not isinstance(repetitions, int) or repetitions < 1:

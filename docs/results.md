@@ -88,6 +88,7 @@ Beside `metrics` and `parameters` ([measure.md](../modules/benchmark/docs/measur
 | `schemaVersion` | 1 |
 | `locked` | `true`, `false` or `unknown` |
 | `before`, `after` | per core: `core`, `index`, `online`, `governor`, `minKhz`, `maxKhz`, `cpuMaxKhz` |
+| `cases` | `isolation: case` only: per case `start` and `end`, each `{core: maxKhz}` of the online cores capped below `cpuMaxKhz`; `{}` none |
 
 ## facts.yaml
 

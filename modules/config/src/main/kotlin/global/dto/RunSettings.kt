@@ -17,6 +17,8 @@ data class RunSettings(
     val passes: List<MeasurePass> = emptyList(),
     // androidx.benchmark.thermalThrottle.sleepDurationSeconds on the device; null keeps Jetpack's default
     val thermalThrottleSleepSeconds: Int? = null,
+    // host sleep before every measured case but a session's first, so heat from one case does not land on the next
+    val caseCooldownSeconds: Int = 0,
     val warmup: Warmup = Warmup(),
     val harness: HarnessSettings = HarnessSettings(),
 ) {
@@ -35,6 +37,7 @@ data class RunSettings(
             "pass_without_metric: run.passes.allocation measures ALLOCATION, which run.metrics $metrics does not report"
         }
         require(thermalThrottleSleepSeconds == null || thermalThrottleSleepSeconds >= 0) { "negative: thermalThrottleSleepSeconds $thermalThrottleSleepSeconds" }
+        require(caseCooldownSeconds >= 0) { "negative: caseCooldownSeconds $caseCooldownSeconds" }
         require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
     }
 

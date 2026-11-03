@@ -26,3 +26,9 @@ def test_a_lock_released_mid_run_is_not_a_lock(tmp_path):
 def test_an_unreadable_cpu_directory_yields_no_cores():
     assert clocks.parse("cpu[0-9]* 1 - - - -\n") == []
     assert clocks.parse(SCALING)[1]["index"] == 7 and clocks.parse(SCALING)[1]["cpuMaxKhz"] == 3782000
+
+
+def test_a_core_below_its_hardware_maximum_is_capped_and_offline_cores_are_not():
+    capped = "cpu0 1 sched_pixel 422000 2246000 2246000\ncpu7 1 sched_pixel 533000 3398000 3782000\ncpu6 0 - - - -\n"
+    assert clocks.capped(clocks.parse(capped)) == {"cpu7": 3398000}
+    assert clocks.capped(clocks.parse(SCALING)) == {}

@@ -57,6 +57,7 @@ scripts/bundled.py : providers.bundled of global.yaml: build property, DevicePro
 scripts/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
 scripts/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
+scripts/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
 scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument, clear, pull, scope check
 scripts/device_id.py : device id from a capture's runtime block

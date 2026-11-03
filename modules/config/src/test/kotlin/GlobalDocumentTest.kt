@@ -63,6 +63,15 @@ class GlobalDocumentTest {
     }
 
     @Test
+    fun theCaseCooldownIsOffByDefaultAndTravelsToTheEffectiveFile() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(0, run("").caseCooldownSeconds)
+        assertEquals(20, io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("run: {caseCooldownSeconds: 20}\n"))["caseCooldownSeconds"])
+        val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {caseCooldownSeconds: -1}\n") }
+        assertEquals("negative: caseCooldownSeconds -1", refused.message)
+    }
+
+    @Test
     fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
         fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
         assertEquals(3, run("").scopedRepetitions)

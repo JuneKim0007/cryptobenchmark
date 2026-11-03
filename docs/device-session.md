@@ -10,7 +10,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 |---|---|
 | session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt` |
 | process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files and `cpu-pins.yaml`; convert with `ConvertKt` |
-| hooks | around the session, each process and each case: the clock state and the energy window (`scripts/session_hooks.py`) |
+| hooks | around the session, each process and each case: the cool-down (`scripts/cooldown_hook.py`), the clock state and the energy window (`scripts/session_hooks.py`), the temperature (`scripts/thermal_hook.py`) |
 
 ## Passes
 
@@ -45,6 +45,17 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | Jetpack's heat pause | `run.thermalThrottleSleepSeconds` passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds` to every measuring process; unset keeps Jetpack's 90 s |
 
 - Cached values: AOSP's `ThermalManagerService` fills `Cached temperatures` only from the HAL's `onTemperatureChanged` callbacks, which a HAL sends when a sensor's severity changes; between changes the cached value can be minutes old. The `Current temperatures from HAL` section asks the HAL at dump time. Whether the Pixel's Android 17 dump to an unrooted shell carries that section is not yet confirmed on the phone; when it does not, every reading is noted `source: cached` and is a lower bound on how stale the temperature is.
+
+## Cool-down and frequency caps
+
+| rule | value |
+|---|---|
+| cool-down | `run.caseCooldownSeconds` (0): the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read; `isolation: run` has no case boundary, so it sleeps between processes |
+| printed | `cool-down: <pass>: <n> x <s> s = <t> s between cases` per pass when set |
+| cost | `(cases - 1) x seconds` per pass; at 20 s and 50 cases about 16 min a pass |
+| caps | `clocks.yaml` `cases`: per case the online cores whose `scaling_max_freq` is below `cpuinfo_max_freq` at its start and end; `clocks:    <n> of <m> cases started or ended with a core capped below its maximum` per process |
+| what caps show | boundary snapshots, one sysfs read each (tens of ms); a cap that rose and fell inside a case is not seen; unrooted, a cap cannot be lifted, only recorded |
+| pinning | `run.harness.cpu.core` (`<index>` or `big`) pins the measuring thread on both paths ([harness.md](../modules/android/docs/harness.md#core-pinning)); a failed pin is `cpu_pin_failed` in `cpu-pins.yaml` and a warning |
 
 ## Warm-up
 

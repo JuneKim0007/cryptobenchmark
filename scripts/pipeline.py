@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, case_isolation, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_hook, timeouts, warmup
+import bundled, capture_files, case_isolation, clocks, cooldown_hook, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_hook, timeouts, warmup
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError, measure_arguments
 from device_id import DeviceIdError, capture_id, device_id
@@ -105,12 +105,13 @@ class Measuring:
     files: dict
     problems: list
     throttle_sleep: int | None = None
+    cooldown: int = 0
 
 
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
-    hooks = [session_hooks.Clocks(device), thermal_hook.Thermal(device, one.label)] if timed else []
+    hooks = timed_hooks(run, one, isolation) if timed else []
     if captures - {"none"}:
         dry = lambda into, guarded: dry_pass(run.session, into, preparation, run.problems, guarded)
         hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
@@ -129,6 +130,12 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
+
+
+def timed_hooks(run, one, isolation):
+    """The cool-down goes first, so a case's start temperature and clocks are read after it."""
+    per_case = isolation == effective_view.CASE_ISOLATION
+    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), session_hooks.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
 
 
 def thermal_flag(process):
@@ -352,7 +359,8 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
               + (f" ({scope['interop'].get('reason')})" if scope.get("interop", {}).get("reason") else ""))
     if measured:
         prepared = scope_results.prepared(record, measured, effective, scoped / "prepared.yaml")
-        run = Measuring(device, session, source, options, discovery, files, problems, effective_view.throttle_sleep(document))
+        run = Measuring(device, session, source, options, discovery, files, problems, effective_view.throttle_sleep(document),
+                        effective_view.case_cooldown(document))
         cases = tuple(case for scope in measured for case in scope["cases"])
         import yaml
         arguments = measure_arguments(options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
@@ -375,7 +383,7 @@ def scoped_passes(run, document, captures, prepared, cases, scoped):
 
 def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written):
     device, captures = run.device, one.captures(captures)
-    hooks = [session_hooks.Clocks(device), thermal_hook.Thermal(device, one.label)]
+    hooks = timed_hooks(run, one, isolation)
     if "measured" in captures:
         hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, prepared.parent, run.problems, None))
 
@@ -495,7 +503,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         fail("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if device:
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
-                        files, problems, effective_view.throttle_sleep(document))
+                        files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))
         written, processes = device_cases(run, document, [effective, capture, trial], captures, benchmark, preparation)
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files), repetitions

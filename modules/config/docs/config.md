@@ -39,6 +39,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `timing` required when set (`missing_pass`); `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../docs/device-session.md#passes) |
 | | `thermalThrottleSleepSeconds` | unset | `>= 0`, else `negative`; `--device`: passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds`; unset keeps Jetpack's default |
 | | `warmup` | `{iterations: 10, jobs: []}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, `[]` the plan's first 3 cases; `--device` only ([device-session.md](../../../docs/device-session.md#warm-up)) |
+| | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first, between processes with `isolation: run` ([device-session.md](../../../docs/device-session.md#cool-down-and-frequency-caps)) |
 | | `scopedRepetitions` | `3` | `>= 1`, else `not_positive`; `--harness` only: processes per side, before and after in alternating order ([scoped.md](../../android/docs/scoped.md#order)) |
 | | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
