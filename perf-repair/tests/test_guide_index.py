@@ -46,6 +46,7 @@ def test_two_trees_of_one_folder_name_differ_and_a_stop_is_their_code(base):  # 
     assert (ra["source"], ra["stage"], ra["stop"], ra["measured"], ra["replace"]) == (str(a), "replace", "no_replacement",
                                                                                       "no", "0")
     assert int(ra["sites"]) >= int(ra["scopes"]) > 0 and int(ra["drop-in"]) + int(ra["local-edit"]) > 0
+    assert int(ra["fixed"]) + int(ra["notFixed"]) == int(ra["scopes"]) and int(ra["unknown_default"]) <= int(ra["notFixed"])
 
 
 def test_a_later_run_that_stops_nowhere_clears_the_stop_and_the_command_rewrites_it(base, monkeypatch):  # noqa: F811

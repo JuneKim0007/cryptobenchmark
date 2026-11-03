@@ -13,6 +13,7 @@ from ..app.facts.project import gradle_name
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..dto.change import CHANGES, TRACKS
 from ..dto.event import END
+from ..dto.pattern import PATTERNS, UNKNOWN_DEFAULT
 from ..failure import reported
 from ..files import read_json, write_text
 from ..log import attach
@@ -21,8 +22,8 @@ from ..log.read import read_events
 # the step an app reached: the last of an unbroken run of files in guide order, each no older than the one before
 STAGES = (("app", rd.SCOPES), ("dossier", rd.DOSSIERS), ("replace", rd.REPLACEMENTS), ("edit", rd.EDITS),
           ("harness", rd.HARNESS), ("device", rd.SCOPED_BENCHMARK), ("report", rd.REPORT))
-COLUMNS = ("app", "project", "source", "sites", "scopes", "stage", "stop", "reason", *CHANGES, *TRACKS, "notOffered",
-           "replace", "measured")
+COLUMNS = ("app", "project", "source", "sites", "scopes", *PATTERNS, UNKNOWN_DEFAULT, "stage", "stop", "reason", *CHANGES,
+           *TRACKS, "notOffered", "replace", "measured")
 
 
 def _stops(device: Path) -> dict[str, tuple[str, str]]:
@@ -54,6 +55,15 @@ def _count(path: Path, key: str) -> int | str:
     return len(read_json(path)[key]) if path.is_file() else ""
 
 
+def _patterns(path: Path) -> dict:
+    """Scopes per category and those the default put there; blank without scopes.json."""
+    scopes = read_json(path)["scopes"] if path.is_file() else None
+    if scopes is None:
+        return {k: "" for k in (*PATTERNS, UNKNOWN_DEFAULT)}
+    return {**{p: sum(s["pattern"] == p for s in scopes) for p in PATTERNS},
+            UNKNOWN_DEFAULT: sum(s["patternReason"] == UNKNOWN_DEFAULT for s in scopes)}
+
+
 def _row(folder: Path, project: str, stops: dict) -> dict:
     paths, facts = rd.AppPaths(folder.parent, folder.name), read_json(folder / rd.APP)
     stage = _stage(folder)
@@ -63,7 +73,7 @@ def _row(folder: Path, project: str, stops: dict) -> dict:
     chosen = read_json(paths.replacements)["replacements"] if paths.replacements.is_file() else []
     code, reason = stops.get(folder.name, ("", ""))
     return {"app": folder.name, "project": project, "source": facts["root"], "sites": _count(paths.sites, "sites"),
-            "scopes": _count(paths.scopes, "scopes"), "stage": stage, "stop": code, "reason": reason,
+            "scopes": _count(paths.scopes, "scopes"), **_patterns(paths.scopes), "stage": stage, "stop": code, "reason": reason,
             **{c: changes[c] for c in CHANGES}, **{t: tracks[t] for t in TRACKS},
             "notOffered": len(dossiers["notOffered"]), "replace": sum(r["decision"] == "replace" for r in chosen),
             "measured": "yes" if (folder / rd.SCOPED_BENCHMARK).is_file() else "no"}

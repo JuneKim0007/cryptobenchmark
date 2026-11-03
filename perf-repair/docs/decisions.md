@@ -115,6 +115,7 @@
 | `review/decisions.tsv` column | Holds |
 |---|---|
 | `kind`, `app`, `item` | grouping, classify, worthiness (`app` the mode) or replace (`item` the scope) |
+| `pattern`, `patternReason` | a replace row's scope category and its rule; empty for the other kinds |
 | `model` | the record's model |
 | `facts` | JSON of what code knows: an item's family and known signature; a scope's current, sinks, key source, options, the pick's change class and code label |
 | `pick`, `reason` | the answer; `(dropped)` with its problems |

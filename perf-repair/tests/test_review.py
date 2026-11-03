@@ -69,6 +69,7 @@ def test_a_row_per_decision_with_code_facts_pick_reason_and_empty_verdict(device
     assert json.loads(group["facts"]) == {"family": "fam", "signature": {"function": "ALG"}}
     swap = rows[("replace", SCOPE.id)]
     assert swap["app"] == "app" and swap["pick"] == f"replace {OPTION}"
+    assert (swap["pattern"], swap["patternReason"], group["pattern"]) == ("notFixed", "unknown_default", "")
     assert json.loads(swap["facts"])["change"] == "local-edit" and json.loads(swap["facts"])["sinks"] == ["local"]
     assert rows[("grouping", "other")]["pick"] == "(dropped)" and rows[("grouping", "other")]["reason"] == "no json"
 

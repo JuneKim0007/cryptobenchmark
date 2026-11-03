@@ -25,7 +25,7 @@ src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch on
 src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and its code's exit; a Halt adds no event (terminate wrote it), another coded failure one error event with data.code, none when run in-process (last_failure hands it to the caller)
 src/perfrepair/guide/command.py : guide arguments; `--app` or apps.targets, the one reader of that row; device.filterByApps's reader
 src/perfrepair/guide/finished.py : <app>/finished.json: an app that reached its last step and the digests of its inputs, its scopes and the code from tree to measured harness
-src/perfrepair/guide/index.py : <device>/apps-index.tsv, written by the summary step and on demand: per app folder its project (rootProject.name, else its path under the apps' common folder), source, sites, scopes, stage reached (its files in guide order, none older than the one before), the latest run's stop code and reason, options per change class and track, notOffered, chosen replaces, measured
+src/perfrepair/guide/index.py : <device>/apps-index.tsv, written by the summary step and on demand: per app folder its project (rootProject.name, else its path under the apps' common folder), source, sites, scopes, scopes per pattern and unknown_default, stage reached (its files in guide order, none older than the one before), the latest run's stop code and reason, options per change class and track, notOffered, chosen replaces, measured
 src/perfrepair/guide/run.py : one status line and event per step, the first stop ends the sequence, the dry-run ending; Stopped (halts: a provider failure)
 src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (probe_device when no folder is named; with device.filterByApps the targets' detect and used.json, else used.json removed), detect_targets, grouping (coverage: reused, or assign and report for what is missing), app, dossier, replace, edit, harness, device, report; Stop codes
 src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app, the exit rule
@@ -69,6 +69,6 @@ src/perfrepair/report/thermal.py : a before/after pair's `thermal` blocks and sl
 src/perfrepair/review/__init__.py : docstring only
 src/perfrepair/review/__main__.py : command: `sheet|score <device>`, `stability <device> --sample N --asks K`
 src/perfrepair/review/score.py : the sheet's verdicts and the journals' turns → grouping precision, pick accuracy, stability across asks of one message, gate rejections per 100 calls; review/score.json
-src/perfrepair/review/sheet.py : one row per model decision from the active outboxes with its code facts, pick, reason, empty verdict and note: review/decisions.tsv; a rebuild keeps what a person filled
+src/perfrepair/review/sheet.py : one row per model decision from the active outboxes with its scope pattern and patternReason, code facts, pick, reason, empty verdict and note: review/decisions.tsv; a rebuild keeps what a person filled
 src/perfrepair/review/stability.py : N sampled replace units asked K times each, no commit → review/stability.json
 ```

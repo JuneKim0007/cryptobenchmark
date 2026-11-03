@@ -14,7 +14,7 @@ from ..dto.site import Dossier
 from ..files import read_json
 from ..result.gain import option_label
 
-COLUMNS = ("kind", "app", "item", "model", "facts", "pick", "reason", "concerns", "verdict", "note")
+COLUMNS = ("kind", "app", "item", "pattern", "patternReason", "model", "facts", "pick", "reason", "concerns", "verdict", "note")
 GROUPING, REPLACE, CLASSIFY, WORTHY = "grouping", "replace", "classify", "worthiness"
 KEY = ("kind", "app", "item", "pick")
 FREE_TEXT = ("reason", "description")
@@ -51,15 +51,16 @@ def _item_facts(grouping: rd.GroupingPaths) -> dict[str, dict]:
     return facts
 
 
-def _scope_facts(paths: rd.AppPaths) -> dict[str, tuple[dict, dict]]:
-    """Per scope its facts and, by item, its options' class and code label."""
+def _scope_facts(paths: rd.AppPaths) -> dict[str, tuple[dict, dict, tuple[str, str]]]:
+    """Per scope its facts, by item its options' class and code label, and its (pattern, patternReason)."""
     out = {}
     for raw in _optional(paths.dossiers).get("dossiers") or []:
         d = Dossier.from_json(raw)
         s = d.scope
         out[d.key] = ({"current": d.current, "sinks": list(s.sinks), "keySource": s.keySource,
                        "options": [o.item for o in d.options]},
-                      {o.item: {"change": o.change, "label": option_label(o.estimates)} for o in d.options})
+                      {o.item: {"change": o.change, "label": option_label(o.estimates)} for o in d.options},
+                      (s.pattern, s.patternReason))
     return out
 
 
@@ -72,8 +73,9 @@ def _grouping_pick(decision: dict) -> str:
     return decision.get("group") or (decision.get("newGroup") or {}).get("id") or ""
 
 
-def _row(stage: Stage, r: OutboxRecord, item: str, facts: dict, pick: str, reason: str, concerns=()) -> dict:
-    return {"kind": stage.kind, "app": stage.app, "item": item, "model": r.agent.model or "", "facts": json.dumps(facts, sort_keys=True),
+def _row(stage: Stage, r: OutboxRecord, item: str, facts: dict, pick: str, reason: str, concerns=(), pattern=("", "")) -> dict:
+    return {"kind": stage.kind, "app": stage.app, "item": item, "pattern": pattern[0], "patternReason": pattern[1],
+            "model": r.agent.model or "", "facts": json.dumps(facts, sort_keys=True),
             "pick": pick, "reason": reason, "concerns": "; ".join(concerns), "verdict": "", "note": ""}
 
 
@@ -81,11 +83,11 @@ def _replace_rows(stage: Stage, r: OutboxRecord, scopes: dict[str, tuple[dict, d
     rows = []
     # a record before units decided one scope at its top level
     for one in (r.decision.get("replacements") or [r.decision]):
-        facts, classes = scopes.get(one["scope"], ({}, {}))
+        facts, classes, pattern = scopes.get(one["scope"], ({}, {}, ("", "")))
         option = one.get("option")
         chosen = classes.get(option, {})
         rows.append(_row(stage, r, one["scope"], {**facts, **chosen}, f"{one['decision']} {option}" if option else one["decision"],
-                         one.get("reason") or "", one.get("concerns") or ()))
+                         one.get("reason") or "", one.get("concerns") or (), pattern))
     return rows
 
 
