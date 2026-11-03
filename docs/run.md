@@ -106,7 +106,7 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 | install | root `gradlew :android:installRelease :android:installReleaseAndroidTest`, plus `-PbundledArtifacts=<artifact>,...` when global.yaml has `providers.bundled` |
 | bundled providers | `DeviceProbe` gets `-e bundledProviders '<json>'`; after configure, `effective.yaml` `bundledProviders` must equal the built list, else `bundled_mismatch` |
 | plan and androidx output directories | by API level: `modules/android/docs/harness.md#device-directories` |
-| AOT compile | `cmd package compile -f -m speed` on both APKs |
+| AOT compile | `cmd package compile -f -m speed` on both APKs, right after the plan push; with energy capture the rails pre-flight and its settle come after it, then `energy.yaml` is pushed, so dex2oat never runs inside the settle |
 | profiler | `-e androidx.benchmark.profiling.mode None` |
 | pull | whole plan directory into `discovery/` |
 
@@ -134,7 +134,7 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 - Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device prepares the whole plan again in every process (`DevicePlan` has no per-case preparation), so a plan whose keys are slow to generate pays that per case too.
 - A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises.
 - `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
-- Energy: the rails pre-flight runs once per run, before the plan is pushed, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedBenchmark`, `InteropCheck` and `DeviceProbe` stay one process each.
+- Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedBenchmark`, `InteropCheck` and `DeviceProbe` stay one process each.
 
 ### Recover a metric without a device
 

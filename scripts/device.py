@@ -145,8 +145,11 @@ class Device:
             raise DeviceError("DeviceProbe failed on the device:\n" + instrumentation_report(output))
         self.pull(f"{self.files}/.", discovery)
 
-    def push_plan(self, *files):
+    def push_files(self, *files):
         self.run("push", *map(str, files), f"{self.files}/")
+
+    def push_plan(self, *files):
+        self.push_files(*files)
         # Without androidx.benchmark's gradle plugin nothing AOT-compiles the APKs, and Jetpack fails
         # every case with NOT-AOT-COMPILED.
         for package in (PACKAGE, f"{PACKAGE}.test"):

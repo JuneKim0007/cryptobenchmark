@@ -47,7 +47,7 @@
 | windows | idle, then busy (one spin loop per core) |
 | window length | 3 s each |
 | source | Perfetto `android.power`, rails polled every 100 ms |
-| settle | 15 s sleep before the first case |
+| settle | 15 s sleep before the first case, after the plan push and the AOT compile (dex2oat), so the compile heat is not in it |
 | output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/` |
 | delivery | `energy.yaml` is pushed with the plan |
 

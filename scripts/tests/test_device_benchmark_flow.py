@@ -61,7 +61,8 @@ def test_repetitions_each_write_their_folder_and_merge(tmp_path, monkeypatch):
 
 def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path, monkeypatch):
     phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
-    assert phone.log[0] == "preflight"
+    assert phone.log[:5] == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", "preflight",
+                             "adb push energy.yaml"]
     assert "window open" in phone.log and phone.log[-4:] == ["pull traces", "window close", "joules", "convert"]
     assert files["energyCapability"] == results / "discovery/energy.yaml"
 

@@ -254,10 +254,13 @@ def energy_preflight(options, source, session, discovery, files):
     return capability
 
 
-def push(device, options, plan):
+def push(device, options, plan, energy=None):
+    """dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle."""
     device.push_plan(*plan)
     if options.suppress_errors:
         print(f"warning: suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
+    if energy:
+        device.push_files(energy())
 
 
 def record(files, into, captures, device):
@@ -327,11 +330,10 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
     run_capture = energy_stage.capture(document.get("run"))
     if run_capture == "dry":
         fail("not_supported: run.harness.energy.capture dry with --harness; use measured or none")
-    session, plan_files, problems = EnergySession(device), [effective, capture, trial], []
+    session, problems = EnergySession(device), []
     source = energy_stage.source(effective, options.energy_python, options.stacktrace)
-    if run_capture == "measured":
-        plan_files.append(energy_preflight(options, source, session, discovery, files))
-    push(device, options, plan_files)
+    preflight = (lambda: energy_preflight(options, source, session, discovery, files)) if run_capture == "measured" else None
+    push(device, options, [effective, capture, trial], preflight)
     started = time.monotonic()
     print("measure:   ScopedInterop on the device")
     interop = device.check_scopes(scoped)
@@ -478,13 +480,10 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     timed = bool(captures - {"dry"})
     if energy and not device:
         fail("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
-    plan = [effective, capture, trial]
     session = EnergySession(device) if device else None
     source = energy_stage.source(effective, options.energy_python, options.stacktrace)
-    if energy:
-        plan.append(energy_preflight(options, source, session, discovery, files))
     if device:
-        push(device, options, plan)
+        push(device, options, [effective, capture, trial], (lambda: energy_preflight(options, source, session, discovery, files)) if energy else None)
     written = []
     folder = lambda repetition: benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
     if device:
