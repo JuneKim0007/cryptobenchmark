@@ -34,9 +34,19 @@ class SettingsTest {
     }
 
     @Test
+    fun theEnergySourceIsReadWrittenAndOnlyRailsNeedRails() {
+        val written = HarnessSettings.read(mapOf("energy" to mapOf("source" to "manafa")), "run.harness")
+        assertEquals("manafa", written.energy?.source)
+        assertEquals(false, written.energy?.needsRails)
+        assertEquals(true, EnergySettings().needsRails)
+        assertEquals(true, EnergySettings(source = "rails").needsRails)
+    }
+
+    @Test
     fun aBadValueNamesItsKeyAndWhere() {
         fun failure(document: Map<String, Any>) = assertThrows(IllegalArgumentException::class.java) { HarnessSettings.read(document, "run.harness") }.message
         assertEquals("invalid: energy.capture always, known [none, measured, dry] at run.harness.energy", failure(mapOf("energy" to mapOf("capture" to "always"))))
+        assertEquals("invalid: energy.source wattmeter, known [rails, manafa] at run.harness.energy", failure(mapOf("energy" to mapOf("source" to "wattmeter"))))
         assertEquals("not_positive: iterations 0 at run.harness", failure(mapOf("iterations" to 0)))
         assertTrue(failure(mapOf("cpu" to mapOf("core" to "fast")))!!.startsWith("invalid: cpu.core fast"))
         assertTrue(failure(mapOf("cpu" to mapOf("core" to "big", "pin" to true)))!!.startsWith("unknown_keys: run.harness.cpu [pin]"))

@@ -15,6 +15,7 @@ All keys are unset by default (null, empty `energy`).
 | `energy.windowSeconds` | int `>= 1` |
 | `energy.warmupSeconds` | int `>= 1` |
 | `energy.cooldownSeconds` | int `>= 0` |
+| `energy.source` | `rails`, `manafa`; unset means `rails` |
 | `cpu.core` | core index `0..63` or `big`, as a number or a word |
 | `cpu.required` | bool |
 

@@ -23,6 +23,7 @@
 | `energy.windowSeconds` | ≥1 | 10 |
 | `energy.warmupSeconds` | ≥1 | 2 |
 | `energy.cooldownSeconds` | ≥0 | 5 |
+| `energy.source` | `rails`, `manafa` | `rails` |
 
 - Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `modules/config/docs/config.md`.
 - `config/global-energy.yaml`: `capture: measured`, windows 3/1/1 s, test set `testsets/energy-smoke.yaml`.
