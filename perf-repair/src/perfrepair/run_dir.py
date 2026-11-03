@@ -16,6 +16,7 @@ EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, DOSSIERS = "app.json", "scopes.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
+FINISHED = "finished.json"
 # cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`
 SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
 GROUPING = "grouping"
@@ -66,6 +67,7 @@ class AppPaths:
     scoped_benchmark = property(lambda self: self.root / MEASURED / SCOPED_BENCHMARK)
     report = property(lambda self: self.root / REPORT)
     report_md = property(lambda self: self.root / REPORT_MD)
+    finished = property(lambda self: self.root / FINISHED)
 
 
 class GroupingPaths:

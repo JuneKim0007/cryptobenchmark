@@ -149,6 +149,8 @@ def write(tmp_path, text):
     (table.GROUPING_SESSIONS, "device: {grouping: {sessions: 0}}\n", 2),
     (table.GROUPING_LIMIT, "device: {grouping: {limit: -1}}\n", None),
     (table.APPS_LIMIT, "apps: {limit: x}\n", None),
+    (table.APPS_TARGETS, "apps: {targets: 3}\n", None),
+    (table.APPS_TARGETS, "apps: {targets: [{name: a}]}\n", None),
     (table.GROUPING_NO_RERUN, "device: {grouping: {noRerun: maybe}}\n", True),
     (table.APPS_MEASURE, "apps: {measure: 'yes'}\n", False),
     (table.SCREENING_AI_REVIEW, "device: {screening: {aiReview: 'yes'}}\n", False),

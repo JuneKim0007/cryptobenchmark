@@ -20,6 +20,7 @@ From an app's source to a measured before/after of each call site the model chos
 ```
 python3 -m perfrepair guide --app <root> --device-results <device> \
     [--mode latency|battery] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--device [--config <global.yaml>]]
+python3 -m perfrepair guide --device-results <device> ...   # without --app: every apps.targets entry
 python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
 ```
 
@@ -29,10 +30,15 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 - Named folder (`--device-results`, or `device.id`): it must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): device-level stages, made once per device, never per app; a missing one stops with `missing_device_stage`.
 - `paths.results` alone: prerequisites calls probe_device() on that root (`docs/pipeline.md` Device stage; on the phone with `--device`), printing `device <stage>: reused` or `ran: <reason>`; the grouping step asks what coverage finds missing (`docs/pipeline.md` Grouping knowledge) by `grouping assign` and `grouping report`, with the guide's `--agent` and `--perfrepair-config`, and prints `reused`, or what it ran.
 - Steps in order: prerequisites, grouping, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml>`, an attached phone; it writes `measured/` beside the harness), then report. Without `--device` the guide ends at the harness and prints the device command.
-- Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>` and the guide exits 1.
+- Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>`, and ends that app; a stop in prerequisites or grouping ends the run, exit 1, no app runs.
+- Over the apps: prerequisites and grouping once, each app's steps, then `guide summary:` (`report summary` over every `<app>/report.json`; a dry run has none) and one line per app: `app <id>: ok`, `reused`, `stop <code> at <step>: <detail>`, or `not_run <why>`.
+- One app's stop, gate rejection or bug (`stop bug at app`, the traceback in `log/bug.log`) is recorded and the next app runs. A provider failure (`claude_cli_failed`, `claude_api_failed`) stops the loop, the rest `not_run`, since every app would fail the same way.
+- Exit 0 only if every app reached its last step, the harness or with `--device` the report, or was reused: `no_options` and `no_replacement` count against it, so a run of many real apps usually exits 1 and the per-app lines are the result.
+- Reuse is of `apps.targets` only: an app that reached its last step writes `<app>/finished.json`, the digests of its source and build files, `groups.json`, `rows.json`, `measurements.json`, the screening catalog and the replace charter, its mode and whether it was measured; the same on a later run means no step for it, `reused`. `--app`, `--limit` and an app that stopped run every time; a stopped one repays nothing, its replace outbox resumes.
 
 | stop code | step | when |
 |---|---|---|
+| `target_missing` | the target | an `apps.targets` entry is no folder; its earlier results stay |
 | `missing_results` | prerequisites | no `manifest.yaml` in the device folder |
 | `missing_device_stage` | prerequisites, grouping | `rows.json` or `measurements.json` absent, `grouping/items.json` absent, or items with no decision in a named folder; the line names the commands |
 | `app_failed` | app | `perfrepair.app` exits non-zero |

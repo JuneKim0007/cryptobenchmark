@@ -17,7 +17,7 @@ from .validation.failure import ValidationFailed
 FAILURES = (ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError, AgentFailed)
 
 
-def _bug(e: Exception) -> None:
+def record_bug(e: Exception) -> None:
     """Anything not coded is a bug: its traceback goes to bug.log, or to stderr before the device folder is known."""
     trace = traceback.format_exc()
     emit("run", "bug", BUG, outcome="bug", detail=f"{type(e).__name__}: {e}", data={"traceback": trace},
@@ -39,7 +39,7 @@ def reported(step: Callable[[], object]) -> int:
             run.outcome = "error"
             return 1
         except Exception as e:
-            _bug(e)
+            record_bug(e)
             run.outcome = "bug"
             return 1
         code = code if isinstance(code, int) else 0

@@ -6,7 +6,7 @@ from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.failure import reported
 from perfrepair.files import sha256_file
-from perfrepair.guide.command import run_steps
+from perfrepair.guide.run import run_steps
 from perfrepair.log import attach
 from perfrepair.log.read import read_events
 
@@ -52,7 +52,7 @@ def test_inbound_build_screen_assign_report_app_and_dossier_end_with_counts(tmp_
     assert app[0].data["counts"]["sites"] >= 1 and "scopes" in app[1].data["counts"]
     dossier = _ends(events, "repair", "dossier")[0]
     assert dossier.data["counts"]["dossiers"] == 0 and dossier.data["counts"]["noOptions"]
-    guide_steps = [(e.step, e.outcome) for e in events if e.stage == "guide"]
+    guide_steps = [(e.step, e.outcome) for e in events if e.stage == "guide" and e.step not in ("target", "summary")]
     assert guide_steps[-1] == ("dossier", "stop") and all(o == "ok" for _, o in guide_steps[:-1])
 
 

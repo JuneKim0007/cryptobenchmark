@@ -51,6 +51,7 @@
 | `device.grouping.limit` | a positive integer | all items | warning | `grouping assign --limit` |
 | `device.grouping.noRerun` | `true`, `false` | `true`; missing warns too | warning | the guide's grouping step (`device/coverage.py`): `true` asks only items with no decision, `false` asks every item into a new outbox, one more each run. Coverage is computed each run, so knowledge that is missing is asked under either |
 | `device.benchmark.config` | a `global.yaml` | `pipeline.py`'s lookup | warning | `guide --config`: the device stage and the device step |
+| `apps.targets` | a list of paths or `{path: ...}`, relative to the file | none | warning | `guide` without `--app`: every entry, in order; `--app` runs one |
 | `apps.mode` | `latency`, `battery` | `latency` | warning | `guide --mode` |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |

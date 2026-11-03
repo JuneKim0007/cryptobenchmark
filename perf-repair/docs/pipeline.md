@@ -39,7 +39,7 @@ flowchart LR
 | repair | `python3 -m perfrepair.repair dossier\|test-set\|edit\|harness --device-results <device> --app <src>` | `docs/repair.md` | `<app>/`; test-set at `-o` | no |
 | device | cryptobenchmark `pipeline.py --device --harness <device>/<app>/harness.yaml`, writing `measured/` beside it | `harness.yaml`, the phone | `<app>/measured/` | no |
 | report | `python3 -m perfrepair.report app --device-results <device> --app <src> [--mode]` ; `report summary --device-results <device>` | `<app>/` | `report.json`, `report.md`; `summary.json`, `summary.md` | no |
-| guide | `python3 -m perfrepair guide --app <src> --device-results <device> [--device]` | the device folder, the app tree | app, dossier, replace, edit, harness; with `--device` measured and report | the replace step |
+| guide | `python3 -m perfrepair guide [--app <src>] --device-results <device> [--device]` | the device folder, each app tree | app, dossier, replace, edit, harness per app (`apps.targets`, or `--app`), `<app>/finished.json`; with `--device` measured and report, `summary.json` | the replace step, per app |
 | validate | `python3 -m perfrepair.validation --device-results <device>` | every artifact present | nothing | no |
 | watch | `python3 -m perfrepair.watch <device> [--from-start]` | `log/events.jsonl`, followed | stdout | no |
 | log summary | `python3 -m perfrepair.log summary <device> [--run ID \| --last] [--json]` | `log/events.jsonl` | stdout | no |
@@ -50,7 +50,7 @@ flowchart LR
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own; `grouping assign --refresh` starts a new one on purpose. An item change keeps the assign outbox and asks only what has no record (`docs/grouping.md` Record key).
 - `--prompts DIR`: `docs/decisions.md`.
 - `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`; a bad value there warns and uses the default, a bad flag errors: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `device.screening.catalog` from it (`docs/screening.md` Settings).
-- The guide runs one app; without `--device-results` it calls probe_device() first, which makes the device folder current (below); its grouping step then reads coverage (below). Steps, stop codes and the report: `docs/replacement.md`.
+- The guide runs `--app`, else every `apps.targets` entry, the device-level steps once before them; without `--device-results` it calls probe_device() first, which makes the device folder current (below); its grouping step then reads coverage (below). Steps, stop codes and the report: `docs/replacement.md`.
 
 ## Device stage
 

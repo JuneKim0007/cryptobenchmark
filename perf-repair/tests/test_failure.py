@@ -66,12 +66,12 @@ def test_a_cli_that_cannot_run_is_claude_cli_failed_in_a_model_command(tmp_path,
 
 
 def test_the_guide_stops_on_claude_cli_failed(tmp_path, capsys, monkeypatch):
-    from perfrepair.guide import command
+    from perfrepair.guide import targets
 
     def failing(g):
         from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
         raise ClaudeCliError("not logged in")
-    monkeypatch.setattr(command, "DRY", (("dossier", failing),))
+    monkeypatch.setattr(targets, "DEVICE_LEVEL", (("dossier", failing),))
     run = tmp_path / "run"
     run.mkdir()
     assert guide(["--app", str(tmp_path), "--device-results", str(run),

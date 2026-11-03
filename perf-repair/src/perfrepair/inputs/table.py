@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from ..catalog.screening import SCREENING
-from .check import check_any, check_bool, check_path, check_positive, check_text
+from .check import check_any, check_bool, check_path, check_positive, check_targets, check_text
 from .resolve import Candidate, Need, OnInvalid, Resolved, resolve
 
 
@@ -80,6 +80,7 @@ BENCHMARK_CONFIG = _path("device.benchmark.config")
 DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
 WORTHINESS = RoleRow("device.worthiness")
 
+APPS_TARGETS = Row("apps.targets", check_targets)
 APPS_MODE = Row("apps.mode", check_text, default="latency")
 APPS_LIMIT = Row("apps.limit", check_positive)
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)

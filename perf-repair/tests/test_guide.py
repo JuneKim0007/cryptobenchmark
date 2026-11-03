@@ -19,7 +19,7 @@ from perfrepair.dto.site import Dossier, required_risks
 from perfrepair.files import read_json
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
-from perfrepair.guide.command import run_steps
+from perfrepair.guide.run import run_steps
 from perfrepair.guide.steps import Guide
 from perfrepair.result.modes import MODES
 from perfrepair.run_dir import AppPaths
@@ -39,23 +39,29 @@ def first_option(run_dir, app_root=None):
     with app_root, it also shifts the scope's file by a line, so the edit can no longer find the call."""
     def answer(task, *_):
         doc = read_json(AppPaths(run_dir, path_id(app_root or APP)).dossiers)
-        d = next(Dossier.from_json(x) for x in doc["dossiers"] if x["scope"]["id"] == task.item)
-        o = d.options[0]
-        edits = []
-        for kind in required_kinds(o, d.current):
-            value = takes(kind, o.item, o.pins)
-            e = {"kind": kind, "provider": "", "algorithm": "", "parameters": []}
-            if kind == "pin_parameters":
-                e["parameters"] = [{"name": k, "value": str(v)} for k, v in value.items()]
-            else:
-                e[FIELD[kind]] = value
-            edits.append(e)
+        reply, d = replacing(doc, task)
         if app_root is not None:
             path = app_root / d.scope.file
             path.write_text("\n" + path.read_text())
-        return {"decision": "replace", "option": o.alias, "edits": edits, "risks": sorted(required_risks(d.scope, o)),
-                "reason": "faster"}
+        return reply
     return answer
+
+
+def replacing(doc, task):
+    """The answer that takes the dossier's first option, and that dossier."""
+    d = next(Dossier.from_json(x) for x in doc["dossiers"] if x["scope"]["id"] == task.item)
+    o = d.options[0]
+    edits = []
+    for kind in required_kinds(o, d.current):
+        value = takes(kind, o.item, o.pins)
+        e = {"kind": kind, "provider": "", "algorithm": "", "parameters": []}
+        if kind == "pin_parameters":
+            e["parameters"] = [{"name": k, "value": str(v)} for k, v in value.items()]
+        else:
+            e[FIELD[kind]] = value
+        edits.append(e)
+    return {"decision": "replace", "option": o.alias, "edits": edits, "risks": sorted(required_risks(d.scope, o)),
+            "reason": "faster"}, d
 
 
 def guide(run_dir, conversations, app=APP, config=None):
@@ -216,13 +222,14 @@ def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(
     code, first = _from_root(tmp_path, capsys)
     assert code == 1 and first[0] == "device probe: ran: no manifest.yaml"
     assert any(l.startswith("guide grouping: ok: ran: ") and "items asked" in l for l in first)
-    assert first[-1].startswith("guide dossier: stop no_options: ")
+    stops = [l for l in first if " stop " in l]
+    assert len(stops) == 1 and stops[0].startswith("guide dossier: stop no_options: ")
     device = tmp_path / "results" / "fake-api36-00000000"
     decided = sorted((device / "grouping" / "outbox").rglob("*.json"))
     assert decided
     code, again = _from_root(tmp_path, capsys)
     assert code == 1 and again[:4] == [f"device {s}: reused" for s in ("probe", "benchmark", "inbound", "screen")]
-    assert "guide grouping: ok: reused" in again and again[-1] == first[-1]
+    assert "guide grouping: ok: reused" in again and [l for l in again if " stop " in l] == stops
     assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 1
     assert sorted((device / "grouping" / "outbox").rglob("*.json")) == decided
 

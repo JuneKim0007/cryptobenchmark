@@ -40,6 +40,7 @@ device:                    # once per device
   worthiness: {}           # role keys of `ai worthiness`
 
 apps:                      # per app: the guide, `ai replace`
+  targets: []              # the guide's apps without --app: paths or {path: ...}; relative to this file
   mode: latency            # latency | battery
   limit:                   # scopes the guide asks the model about; empty = all
   measure: false           # true: the guide also measures the harness on the attached phone

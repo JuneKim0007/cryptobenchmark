@@ -24,7 +24,7 @@ from ..log import emit, step
 from ..run_dir import GroupingPaths
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
-from ..report.command import app_report
+from ..report.command import app_report, device_summary
 from ..result.modes import Mode
 from ..config.load import Loaded
 from ..screen.catalog import Catalog, CatalogMismatch, screening_catalog
@@ -43,9 +43,10 @@ class Stop(Exception):
 
 @dataclass
 class Guide:
-    """device: the named device folder; with root instead, prerequisites makes it by probe_device() and sets it."""
+    """device: the named device folder; with root instead, prerequisites makes it by probe_device() and sets it.
+    app_root: None for the device-level steps, which run once before the apps."""
     device: Path | None
-    app_root: Path
+    app_root: Path | None
     mode: Mode
     conversations: Conversations
     library: PromptLibrary
@@ -60,8 +61,8 @@ class Guide:
     grouping_args: tuple[str, ...] = ()
 
     @property
-    def app_id(self) -> str:
-        return path_id(self.app_root)
+    def app_id(self) -> str | None:
+        return path_id(self.app_root) if self.app_root else None
 
     @property
     def paths(self) -> rd.AppPaths:
@@ -173,6 +174,13 @@ def report(g: Guide) -> str:
     return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured"
 
 
-DRY = (("prerequisites", prerequisites), ("grouping", grouping), ("app", app), ("dossier", dossiers), ("replace", replacements),
-       ("edit", edits), ("harness", harness))
-DEVICE = (("device", device), ("report", report))
+def summary(g: Guide) -> str:
+    if not any((d / rd.REPORT).is_file() for d in rd.app_dirs(g.device)):
+        return "no app has a report yet"
+    doc = device_summary(g.device, echo=lambda _: None)
+    return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured"
+
+
+DEVICE_LEVEL = (("prerequisites", prerequisites), ("grouping", grouping))
+APP_DRY = (("app", app), ("dossier", dossiers), ("replace", replacements), ("edit", edits), ("harness", harness))
+APP_MEASURED = (("device", device), ("report", report))

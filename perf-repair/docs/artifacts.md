@@ -37,6 +37,7 @@
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
+| `<app>/finished.json` | the guide, when an app reaches its last step | the guide's targets loop | digests compared, no validator: a mismatch only runs the app |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/run.py`: rehashed to the folder's name |
 | `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/run.py`: rehashed to `supervisor.json` `charter` |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |

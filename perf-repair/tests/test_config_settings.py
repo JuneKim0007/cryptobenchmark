@@ -32,7 +32,7 @@ def test_empty_file_and_null_values_are_unset():
     ({"device": {"name": "x"}}, "unknown_key: device.name, known ['screening', 'grouping', 'benchmark', 'id', 'worthiness'] (c.yaml)"),
     ({"device": {"grouping": {"assign": {"efort": "low"}}}}, f"unknown_key: device.grouping.assign.efort, known {ROLE_KEYS} (c.yaml)"),
     ({"apps": {"agent": {"auth": "api"}}}, f"unknown_key: apps.agent.auth, known {ROLE_KEYS} (c.yaml)"),
-    ({"apps": {"targets": []}}, "unknown_key: apps.targets, known ['mode', 'limit', 'measure', 'agent', 'replace'] (c.yaml)"),
+    ({"apps": {"names": []}}, "unknown_key: apps.names, known ['targets', 'mode', 'limit', 'measure', 'agent', 'replace'] (c.yaml)"),
 ])
 def test_an_unknown_key_is_one_warning_naming_the_known_keys(document, line, caplog):
     parse(document, "c.yaml")

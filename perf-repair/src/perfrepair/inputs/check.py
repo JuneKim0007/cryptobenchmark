@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 
 class Invalid(ValueError):
@@ -35,6 +35,17 @@ def check_positive(name: str, value: Any) -> None:
 
 def check_bool(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, bool), "true or false")
+
+
+def target_path(entry: Any) -> str | None:
+    """The path of one apps.targets entry: a bare string, or a mapping holding only `path`."""
+    if isinstance(entry, Mapping) and set(entry) == {"path"}:
+        entry = entry["path"]
+    return entry if isinstance(entry, str) and entry else None
+
+
+def check_targets(name: str, value: Any) -> None:
+    _check(name, value, isinstance(value, list) and all(target_path(e) for e in value), "a list of paths or {path: ...}")
 
 
 def check_path(name: str, value: Any) -> None:
