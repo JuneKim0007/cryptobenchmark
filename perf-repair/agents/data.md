@@ -55,6 +55,7 @@ src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml with 
 src/perfrepair/dto/lifecycle.py : Lifecycle, Step, Requirement, Settled: a primitive object from creation to last use; statuses, reasons, bindings, roles, origins, the open ones
 src/perfrepair/dto/manifest.py : BenchmarkManifest: the manifest.yaml contract with cryptobenchmark
 src/perfrepair/dto/measurement.py : Summary and the Measurements document
+src/perfrepair/dto/metrics.py : the metric registry, the only metric list: benchmark.json name, unit, lowerIsBetter, energy kinds, perfMode keys, required, positive
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration, no numbers
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds; each prompt's source, never hashed
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, funnel stages, scoped case ids

@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict, dataclass, fields
 
 from .lifecycle import Lifecycle
+from .metrics import NAMES
 
 SCHEMA_VERSION = 1
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
@@ -20,7 +21,7 @@ SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "storage", "literal", "parameter", "unknown")
 DECISIONS = ("replace", "keep")
 OPTION_PREFIX = "R"
-METRICS = ("timeNs", "allocationCount", "energyJ")
+METRICS = NAMES
 NOT_ON_DEVICE = "not_on_device"
 NOT_ON_DEVICE_STEP = "add it to providers.bundled in global.yaml and rerun the device stage"
 NO_REAL_USE = "no_real_use"

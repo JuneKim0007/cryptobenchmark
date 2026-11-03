@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .metrics import ESTIMATED, MEASURED
+
+__all__ = ["ESTIMATED", "MEASURED", "Measurements", "SCHEMA_VERSION", "Summary"]
 SCHEMA_VERSION = 3
 ENERGY = "energyJ"
-MEASURED, ESTIMATED = "measured", "estimated"
 
 
 @dataclass(frozen=True)

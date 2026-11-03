@@ -1,6 +1,8 @@
 """Vocabulary of report.json and summary.json: step statuses, reported metrics, funnel stages."""
 from __future__ import annotations
 
+from .metrics import METRICS
+
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale
 SCHEMA_VERSION = 3
 SOURCES = ("llm", "fallback", "static")
@@ -11,7 +13,7 @@ INTEROP_STATUSES = ("passed", "unchecked", "not_comparable", "interop_failed", "
 MEASURABLE = ("passed", "unchecked")
 VERDICTS = ("improves", "not_improving", "not_measured")
 # (benchmark.json metric key, unit per operation)
-REPORTED = (("timeNs", "ns/op"), ("allocationCount", "allocations/op"), ("energyJ", "J/op"))
+REPORTED = tuple((m.name, m.unit) for m in METRICS)
 # measuredUnchecked: of measured, those with no interop check; not a stage
 FUNNEL = ("sites", "scopes", "withOptions", "replace", "applied", "compiled", "interopPassed", "measured", "measuredUnchecked")
 CHANGES = ("improved", "unchanged", "worse", "notMeasured")
