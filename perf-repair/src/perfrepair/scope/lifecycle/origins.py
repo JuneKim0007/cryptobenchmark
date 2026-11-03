@@ -31,7 +31,8 @@ def _assigned_values(name: str, scope: Node, before: Node) -> list[Node]:
     for n in scope.walk():
         if n.start >= before.start:
             break
-        if n.kind == g.ASSIGNMENT:
+        # an assignment that holds `before` (`k = decode(k)`) has not happened yet when its right side reads k
+        if n.kind == g.ASSIGNMENT and n.end <= before.start:
             left, right = assignment_sides(n)
             if left is not None and left.kind == g.IDENTIFIER and left.text == name and right is not None:
                 out.append(right)
