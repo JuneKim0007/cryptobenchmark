@@ -89,6 +89,8 @@ scripts/scope_signature.py : Java method and Kotlin function header parser; head
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/session_hooks.py : session hooks every device run uses: clocks around a process; the energy window, traces, dry pass and joules
 scripts/tests/ : pytest and standalone tests for scripts/
+scripts/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
+scripts/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK

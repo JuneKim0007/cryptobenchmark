@@ -46,7 +46,10 @@ internal object CaseDocument {
 
     fun requestedIterations(case: Map<String, Any>): Int? = integer(optionalSection(case["harness"])?.get("iterations"))
 
-    fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>): ResultRow = ResultRow(
+    @Suppress("UNCHECKED_CAST")
+    fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>,
+            sleep: Long? = (case[SLEEP] as? Number)?.toLong(), thermal: Map<String, Any?>? = case[THERMAL] as? Map<String, Any?>,
+            note: String? = case[THERMAL_NOTE]?.toString()): ResultRow = ResultRow(
         id = case["id"].toString(),
         type = case["type"].toString(),
         algorithm = case["algorithm"].toString(),
@@ -57,7 +60,17 @@ internal object CaseDocument {
         keyKind = keyKind(case),
         metrics = metrics,
         parameters = parameters,
+        thermalThrottleSleepSeconds = sleep,
+        thermal = thermal,
+        thermalNote = note,
     )
+
+    const val SLEEP = "thermalThrottleSleepSeconds"
+    const val THERMAL = "thermal"
+    const val THERMAL_NOTE = "thermalNote"
+    // thermal.json's per-case "note": why a reading is missing, cached, or the process's instead of the case's
+    const val NOTE = "note"
+    val THERMAL_KEYS = setOf("start", "end", "startStatus", "endStatus")
 
     private fun keyKind(case: Map<String, Any>): String? =
         case["keyKind"]?.toString() ?: optionalSection(case["key"])?.get("kind")?.toString()

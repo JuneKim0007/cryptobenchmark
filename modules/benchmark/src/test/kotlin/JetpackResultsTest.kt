@@ -138,9 +138,9 @@ class JetpackResultsTest {
             """{
   "runtime": {"model": "Pixel 9", "fingerprint": "google/tokay/tokay:16/BP3A.250905.014/13718934:user/release-keys", "sdkInt": "36", "jetpackCpuLocked": "false", "sustainedPerformanceModeEnabled": "true", "compilationMode": "DEFAULT", "thermalThrottleSleepSeconds": "90"},
   "cases": [
-    {"id": "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "AndroidOpenSSL", "operation": "DIGEST", "keySize": null, "inputSize": 1024, "keyKind": "none", "parameters": {},
+    {"id": "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "AndroidOpenSSL", "operation": "DIGEST", "keySize": null, "inputSize": 1024, "keyKind": "none", "parameters": {}, "thermalThrottleSleepSeconds": 0,
      "metrics": {"timeNs": {"iterations": 8192, "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0], "reported": {"minimum": 1180.0, "maximum": 1256.0, "median": 1191.0, "coefficientOfVariation": 0.019}}, "allocationCount": {"iterations": 1, "runs": [2.0, 2.0, 3.0, 2.0, 2.0], "reported": {"minimum": 2.0, "maximum": 3.0, "median": 2.0, "coefficientOfVariation": 0.183}}}},
-    {"id": "Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4", "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "provider": "AndroidOpenSSL", "operation": "ENCRYPT", "keySize": 128, "inputSize": 1024, "keyKind": "secret", "parameters": {"mode": "GCM", "padding": "NoPadding", "ivBytes": 12, "tagBits": 128, "keyBits": 128},
+    {"id": "Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4", "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "provider": "AndroidOpenSSL", "operation": "ENCRYPT", "keySize": 128, "inputSize": 1024, "keyKind": "secret", "parameters": {"mode": "GCM", "padding": "NoPadding", "ivBytes": 12, "tagBits": 128, "keyBits": 128}, "thermalThrottleSleepSeconds": 90,
      "metrics": {"timeNs": {"iterations": 4096, "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0], "reported": {"minimum": 2380.0, "maximum": 2611.0, "median": 2401.0, "coefficientOfVariation": 0.031}}}}
   ]
 }

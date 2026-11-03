@@ -41,7 +41,7 @@ Paths relative to the device folder.
 | `benchmark/` | `benchmark.json` | `--bench`, `--device`, at least one case not `dry` |
 | `benchmark/process-<n>/` | one run's files; with `run.passes`, the n-th process of every pass merged | `processRepetitions` > 1 |
 | `benchmark/<pass>/` | one pass's files, `process-<n>/` under it; `benchmark/benchmark.json` merges them per metric | `run.passes` ([device-session.md](device-session.md#passes)) |
-| `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `cpu-pins.yaml` when written | `--device` |
+| `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `thermal.json`, `cpu-pins.yaml` when written | `--device` |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml`, `scoped-interop.yaml`, `benchmarkData.json`, `prepared.yaml`, `benchmark.json`, `clocks.yaml`; `energy.json`, `traces/` on measured capture | `--harness`: [scoped.md](../modules/android/docs/scoped.md) |
 | `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../modules/preparation/docs/interop.md) |
@@ -70,6 +70,16 @@ Paths relative to the device folder.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
 - `problems`: coded lines of what the run survived, absent when there were none: `energy_failed: <message>` ([energy.md](energy.md#outputs)); `case_failed: <id>: <reason>` for a case whose own process failed under `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)); `not_measured: <id>` for each case of `prepared.yaml` not `dry` that the final `benchmark.json` lacks, whatever lost it (the device run, `ConvertKt`'s `not_in_plan`/`no_metrics`/`not_converted`, `MergeRunsKt`'s `not_merged`, a plan-check refusal in `skipped.yaml`); each is also printed.
 - A run whose energy is estimated has a top-level `energy: {source, kind: estimated}`; any other run has no `energy` key.
+
+## benchmark.json case fields
+
+Beside `metrics` and `parameters` ([measure.md](../modules/benchmark/docs/measure.md)), a device case carries:
+
+| field | value |
+|---|---|
+| `thermalThrottleSleepSeconds` | Jetpack's heat pauses for this case, from `benchmarkData.json`; summed over merged processes |
+| `thermal` | `{start: {<sensor>: <C>}, end: {<sensor>: <C>}, startStatus: <n>, endStatus: <n>}` around the case ([device-session.md](device-session.md#temperature)); merged processes keep the first start and the last end; values null when unavailable |
+| `thermalNote` | present when a reading is missing (its reason), cached (`source: cached`) or the process's (`scope: run`) |
 
 ## clocks.yaml
 

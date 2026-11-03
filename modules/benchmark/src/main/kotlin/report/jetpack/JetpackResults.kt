@@ -14,10 +14,9 @@ object JetpackResults {
     // dropped: one coded line per benchmark that gave no row: not_in_plan, no_metrics, not_converted
     class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val dropped: List<String>, val notApplied: List<String> = emptyList())
 
-    /** A pass names the metrics it reports and the samples it asked for; without one, prepared.yaml's metrics and iterations apply. */
-    class PassView(val metrics: List<String>? = null, val samples: Int? = null)
-
-    fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap(), pass: PassView = PassView()): Converted {
+    // metrics: a set the run reports instead of each case's own; samples: a pass's own count; thermal: thermal.json's readings by case id
+    fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap(), metrics: List<String>? = null,
+                samples: Int? = null, thermal: Map<String, Map<String, Any?>> = emptyMap()): Converted {
         val data = CaseDocument.load(benchmarkDataText)
         val prepared = CaseDocument.load(preparedText)
         val cases = CaseDocument.sections(prepared["cases"]).associateBy { case -> case["id"].toString() }
@@ -32,14 +31,16 @@ object JetpackResults {
                 continue
             }
             try {
-                val metrics = metricsOf(benchmark, requestedOf(id, pass.metrics ?: case["metrics"]))
-                if (metrics.isEmpty()) {
+                val measured = metricsOf(benchmark, requestedOf(id, metrics ?: case["metrics"]))
+                if (measured.isEmpty()) {
                     dropped += "no_metrics: $id"
                     continue
                 }
-                energy[id]?.let { metrics[MetricSamples.ENERGY] = it }
-                rows += CaseDocument.row(case, metrics, resolvedParametersOf(id, case))
-                notApplied += RunCountAudit.findings(id, pass.samples ?: CaseDocument.requestedIterations(case), metrics, sampledAllocations(benchmark))
+                energy[id]?.let { measured[MetricSamples.ENERGY] = it }
+                val reading = thermal[id]
+                rows += CaseDocument.row(case, measured, resolvedParametersOf(id, case), (benchmark[CaseDocument.SLEEP] as? Number)?.toLong(),
+                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString())
+                notApplied += RunCountAudit.findings(id, samples ?: CaseDocument.requestedIterations(case), measured, sampledAllocations(benchmark))
             } catch (unusable: RuntimeException) {
                 dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
             }
@@ -76,6 +77,11 @@ object JetpackResults {
     private fun resolvedParametersOf(id: String, case: Map<String, Any>): Map<String, Any> =
         CaseDocument.optionalSection(case[RESOLVED_PARAMETERS])
             ?: throw IllegalArgumentException("missing_field: $RESOLVED_PARAMETERS for $id; prepared.yaml predates schemaVersion 2")
+
+    // thermal.json of scripts/thermal_hook.py: {"cases": {"<id>": {start, end, startStatus, endStatus, ...}}}
+    @Suppress("UNCHECKED_CAST")
+    fun thermalOf(text: String): Map<String, Map<String, Any?>> =
+        (CaseDocument.optionalSection(CaseDocument.load(text)["cases"]) ?: emptyMap()).mapValues { (_, reading) -> reading as Map<String, Any?> }
 
     fun caseIdOf(benchmark: Map<String, Any>): String {
         val name = benchmark["name"].toString()

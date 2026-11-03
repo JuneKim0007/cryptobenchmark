@@ -23,6 +23,9 @@ class BenchmarkJson(private val directory: File) {
             document.append("    {\"id\": ${quoted(row.id)}, \"type\": ${quoted(row.type)}, \"algorithm\": ${quoted(row.algorithm)}, \"provider\": ${quoted(row.provider)}")
             document.append(", \"operation\": ${quoted(row.operation)}, \"keySize\": ${row.keySize}, \"inputSize\": ${row.inputSize}, \"keyKind\": ${quoted(row.keyKind)}")
             document.append(", \"$PARAMETERS\": ").append(parameters(row.parameters))
+            row.thermalThrottleSleepSeconds?.let { document.append(", \"${CaseDocument.SLEEP}\": $it") }
+            row.thermal?.let { document.append(", \"${CaseDocument.THERMAL}\": ").append(json(it)) }
+            row.thermalNote?.let { document.append(", \"${CaseDocument.THERMAL_NOTE}\": ").append(escaped(it)) }
             document.append(",\n     \"metrics\": {")
             document.append(row.metrics.entries.joinToString(", ") { (metric, samples) -> metricBlock(metric, samples) })
             document.append("}}")
@@ -45,6 +48,15 @@ class BenchmarkJson(private val directory: File) {
 
     private fun parameters(fields: Map<String, Any>): String =
         fields.entries.joinToString(", ", "{", "}") { (key, value) -> "${escaped(key)}: ${if (value is Number) value else escaped(value.toString())}" }
+
+    private fun json(value: Any?): String = when (value) {
+        null -> "null"
+        is Number -> if (value.toDouble().isFinite()) value.toString() else "null"
+        is Boolean -> value.toString()
+        is Map<*, *> -> value.entries.joinToString(", ", "{", "}") { (key, inner) -> "${escaped(key.toString())}: ${json(inner)}" }
+        is List<*> -> value.joinToString(", ", "[", "]") { json(it) }
+        else -> escaped(value.toString())
+    }
 
     // RFC 8259: quote, backslash and every control character escaped; nothing else needs it.
     private fun escaped(text: String): String = buildString(text.length + 2) {

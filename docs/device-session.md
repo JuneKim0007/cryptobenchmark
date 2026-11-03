@@ -28,6 +28,23 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 - Each pass prints `pass:      <name> pass: <n> processes, <time> on the device`; the run's device time is their sum, plus thermal sleeps (31% of the last full Pixel session).
 - `capture: dry` with `run.passes` stops with `not_supported`; an energy pass with no `measured` case is skipped with a warning; `--bench` warns and measures once per process.
 
+## Temperature
+
+`scripts/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `scripts/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
+
+| rule | value |
+|---|---|
+| sensors | every `Temperature{mValue, mType, mName, mStatus}` line, keyed by the HAL's `mName`; a value outside -60..200 C (the HAL's `-3.4e38` for unknown, `NaN`) is no reading |
+| status | `Thermal Status: <n>`, 0 none to 6 shutdown |
+| section | `Current temperatures from HAL:` (queried when dumpsys runs); when absent or empty, `Cached temperatures:` with note `source: cached` |
+| unavailable | `start`, `end`, statuses null and the reason in `thermalNote`; the case is measured as ever |
+| `isolation: run` | no case boundary: every case gets its process's reading, note `scope: run` |
+| files | `thermal.json` per process folder (`process` and `cases`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
+| per pass | `thermal:   <pass>: hottest <c> C at a case start, <c> C at an end; <n> pauses, <s> s paused; <n> cases ended throttled (status > 0)` |
+| cost | two `dumpsys` calls per case, under a second |
+
+- Cached values: AOSP's `ThermalManagerService` fills `Cached temperatures` only from the HAL's `onTemperatureChanged` callbacks, which a HAL sends when a sensor's severity changes; between changes the cached value can be minutes old. The `Current temperatures from HAL` section asks the HAL at dump time. Whether the Pixel's Android 17 dump to an unrooted shell carries that section is not yet confirmed on the phone; when it does not, every reading is noted `source: cached` and is a lower bound on how stale the temperature is.
+
 ## One process per case
 
 `run.isolation` ([config.md](../modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.

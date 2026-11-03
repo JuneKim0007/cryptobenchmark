@@ -7,18 +7,19 @@ import kotlin.system.exitProcess
 
 private const val METRICS = "--metrics="
 private const val SAMPLES = "--samples="
+private const val THERMAL = "--thermal="
+private val FLAGS = listOf(METRICS, SAMPLES, THERMAL)
 
 fun main(arguments: Array<String>) {
     val (flags, positional) = arguments.partition { it.startsWith("--") }
-    if (positional.size < 3 || flags.any { !it.startsWith(METRICS) && !it.startsWith(SAMPLES) }) {
-        System.err.println("usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--samples=n]")
+    if (positional.size < 3 || flags.any { flag -> FLAGS.none { flag.startsWith(it) } }) {
+        System.err.println("usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json]")
         exitProcess(2)
     }
-    val pass = JetpackResults.PassView(
-        metrics = flags.firstOrNull { it.startsWith(METRICS) }?.removePrefix(METRICS)?.split(','),
-        samples = flags.firstOrNull { it.startsWith(SAMPLES) }?.removePrefix(SAMPLES)?.toInt(),
-    )
-    val converted = JetpackResults.convert(File(positional[0]).readText(), File(positional[1]).readText(), energy(positional.getOrNull(3)), pass)
+    val metrics = flags.lastOrNull { it.startsWith(METRICS) }?.removePrefix(METRICS)?.split(',')
+    val samples = flags.lastOrNull { it.startsWith(SAMPLES) }?.removePrefix(SAMPLES)?.toInt()
+    val thermal = flags.firstOrNull { it.startsWith(THERMAL) }?.removePrefix(THERMAL)?.let { JetpackResults.thermalOf(File(it).readText()) }.orEmpty()
+    val converted = JetpackResults.convert(File(positional[0]).readText(), File(positional[1]).readText(), energy(positional.getOrNull(3)), metrics, samples, thermal)
     converted.dropped.forEach { System.err.println(it) }
     converted.notApplied.forEach { System.err.println(it) }
     if (converted.rows.isEmpty()) {

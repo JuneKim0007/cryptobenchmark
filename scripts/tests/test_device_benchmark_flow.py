@@ -14,6 +14,10 @@ CASE_PROCESS = ["clocks", "clear", "list CryptoBenchmark", "instrument CryptoBen
                 "pull prepared.yaml", "pull skipped.yaml", "pull pins", "clocks", "convert"]
 
 
+def steps(phone):
+    return [line for line in phone.log if line != "thermal"]
+
+
 def layout(tmp_path, run):
     results = tmp_path / "results"
     (results / "configuration").mkdir(parents=True)
@@ -40,7 +44,7 @@ def measured(tmp_path, monkeypatch, run, **phone_options):
 
 def test_isolation_case_is_one_process_per_case_and_one_conversion(tmp_path, monkeypatch):
     phone, files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
-    assert phone.log == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", *CASE_PROCESS]
+    assert steps(phone) == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", *CASE_PROCESS]
     assert problems == []
     assert files["clocks"] == results / "benchmark/clocks.yaml"
     assert files["prepared"] == results / "preparation/prepared.yaml"
@@ -48,22 +52,22 @@ def test_isolation_case_is_one_process_per_case_and_one_conversion(tmp_path, mon
 
 def test_isolation_run_is_one_process(tmp_path, monkeypatch):
     phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"isolation": "run"})
-    assert phone.log[3:] == ["clocks", "clear", "instrument CryptoBenchmark", "pull data", "pull prepared.yaml", "pull skipped.yaml",
+    assert steps(phone)[3:] == ["clocks", "clear", "instrument CryptoBenchmark", "pull data", "pull prepared.yaml", "pull skipped.yaml",
                              "pull pins", "clocks", "convert"]
 
 
 def test_repetitions_each_write_their_folder_and_merge(tmp_path, monkeypatch):
     phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 2})
-    assert phone.log[3:] == CASE_PROCESS + CASE_PROCESS + ["merge"]
+    assert steps(phone)[3:] == CASE_PROCESS + CASE_PROCESS + ["merge"]
     assert files["clocks"] == [results / "benchmark/process-1/clocks.yaml", results / "benchmark/process-2/clocks.yaml"]
     assert (results / "benchmark/process-1/benchmark.json").is_file() and (results / "benchmark/process-2/benchmark.json").is_file()
 
 
 def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path, monkeypatch):
     phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
-    assert phone.log[:5] == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", "preflight",
+    assert steps(phone)[:5] == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", "preflight",
                              "adb push energy.yaml"]
-    assert "window open" in phone.log and phone.log[-4:] == ["pull traces", "window close", "joules", "convert"]
+    assert "window open" in steps(phone) and steps(phone)[-4:] == ["pull traces", "window close", "joules", "convert"]
     assert files["energyCapability"] == results / "discovery/energy.yaml"
 
 
@@ -71,7 +75,7 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a", "crash", "hang", "b"),
                                                  crash=("crash",), hang=("hang",))
     assert [line.split(":")[1].strip() for line in problems if line.startswith("case_failed")] == ["crash", "hang"]
-    assert "force-stop" in phone.log and "not_measured: crash" in problems
+    assert "force-stop" in steps(phone) and "not_measured: crash" in problems
 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
@@ -85,8 +89,8 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
     named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
     assert named == ["timing:300", "timing:300", "energy:100", "energy:100", "allocation:100", "allocation:100"]
-    assert phone.log.count("window open") == 1 and phone.log.index("window open") > phone.log.index("instrument CryptoBenchmark b")
-    assert [c.split("--metrics=")[1] for c in phone.converted] == ["TIME --samples=300", "TIME --samples=100", "TIME,ALLOCATION --samples=100"]
+    assert steps(phone).count("window open") == 1 and steps(phone).index("window open") > steps(phone).index("instrument CryptoBenchmark b")
+    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --samples=100", "TIME,ALLOCATION --samples=100"]
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
     assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"
@@ -97,3 +101,37 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
 def test_dry_capture_is_refused_with_passes(tmp_path, monkeypatch):
     with pytest.raises(SystemExit):
         measured(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "dry"}}, "passes": {"timing": {"samples": 3}}})
+
+
+DUMP = """Thermal Status: 1
+Cached temperatures:
+\tTemperature{mValue=30.0, mType=2, mName=battery, mStatus=0}
+HAL Ready: true
+Current temperatures from HAL:
+\tTemperature{mValue=41.5, mType=0, mName=cpu7, mStatus=1}
+\tTemperature{mValue=-3.4028235E38, mType=3, mName=skin, mStatus=0}
+Current cooling devices from HAL:
+\tCoolingDevice{mValue=0, mType=2, mName=cpu}
+"""
+
+
+def test_temperature_is_read_around_every_case_and_reaches_the_conversion(tmp_path, monkeypatch, capsys):
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"}, thermal=DUMP)
+    assert phone.log.count("thermal") == 2 + 2 * 2
+    reading = json.loads((results / "benchmark/thermal.json").read_text())
+    assert reading["cases"]["a"] == {"start": {"cpu7": 41.5}, "end": {"cpu7": 41.5}, "startStatus": 1, "endStatus": 1}
+    assert any("--thermal=" in converted for converted in phone.converted) and problems == []
+    assert "thermal:   measure: hottest 41.5 C at a case start, 41.5 C at an end; 0 pauses, 0 s paused; 2 cases ended throttled" in capsys.readouterr().out
+
+
+def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_path, monkeypatch, capsys):
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
+    reading = json.loads((results / "benchmark/thermal.json").read_text())["cases"]["b"]
+    assert reading["start"] is None and reading["endStatus"] is None and reading["note"].startswith("thermal_unavailable: ")
+    assert problems == [] and json.loads((results / "benchmark/benchmark.json").read_text())["cases"]
+    assert "thermal:   measure: temperature unavailable: thermal_unavailable:" in capsys.readouterr().out
+
+
+def test_one_process_for_every_case_gives_each_case_the_process_reading_noted(tmp_path, monkeypatch):
+    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "run"}, thermal=DUMP)
+    assert json.loads((results / "benchmark/thermal.json").read_text())["cases"]["a"]["note"] == "scope: run"

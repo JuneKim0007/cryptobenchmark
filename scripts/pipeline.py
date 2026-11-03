@@ -2,7 +2,7 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, timeouts
+import bundled, capture_files, clocks, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_hook, timeouts
 from clocks import CLOCKS
 from device import CPU_PINS, Device, DeviceError, measure_arguments
 from device_id import DeviceIdError, capture_id, device_id
@@ -109,7 +109,7 @@ class Measuring:
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
-    hooks = [session_hooks.Clocks(device)] if timed else []
+    hooks = [session_hooks.Clocks(device), thermal_hook.Thermal(device, one.label)] if timed else []
     if captures - {"none"}:
         dry = lambda into, guarded: dry_pass(run.session, into, preparation, run.problems, guarded)
         hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
@@ -118,7 +118,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
         if timed:
             joules = process.into / "energy.json"
             joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-            gradle_runner.run("quick-bench", f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}",
+            gradle_runner.run("quick-bench", f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}",
                               run.options.stacktrace, run.options.stream, main_class="ConvertKt")
             written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
@@ -128,6 +128,11 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
+
+
+def thermal_flag(process):
+    reading = process.into / thermal_hook.FILE
+    return f" --thermal={reading}" if reading.is_file() else ""
 
 
 def dry_pass(session, into, preparation, problems, guarded):
@@ -366,14 +371,14 @@ def scoped_passes(run, document, captures, prepared, cases, scoped):
 
 def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written):
     device, captures = run.device, one.captures(captures)
-    hooks = [session_hooks.Clocks(device)]
+    hooks = [session_hooks.Clocks(device), thermal_hook.Thermal(device, one.label)]
     if "measured" in captures:
         hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, prepared.parent, run.problems, None))
 
     def converted(process):
         joules = process.into / "energy.json"
         joined = f" {joules}" if joules.is_file() else ""
-        gradle_runner.run("quick-bench", f"{process.data} {prepared} {process.into}{joined}{one.convert_flags()}", run.options.stacktrace,
+        gradle_runner.run("quick-bench", f"{process.data} {prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}", run.options.stacktrace,
                           run.options.stream, main_class="ConvertKt")
         written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)

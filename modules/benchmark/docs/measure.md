@@ -132,7 +132,7 @@ Harness settings as plain values, no androidx type.
 | `sdkInt` | `context.build.version.sdk` |
 | `jetpackCpuLocked` | `context.cpuLocked` |
 | `sustainedPerformanceModeEnabled`, `compilationMode` | `context` |
-| `thermalThrottleSleepSeconds` | sum over benchmarks |
+| `thermalThrottleSleepSeconds` | sum over benchmarks; each case also keeps its own (`docs/results.md`) |
 
 | `RunCountAudit` line | when |
 |---|---|

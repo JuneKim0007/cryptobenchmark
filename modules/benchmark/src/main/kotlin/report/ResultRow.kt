@@ -13,6 +13,10 @@ class ResultRow(
     metrics: Map<String, MetricSamples>,
     // What the provider used: prepared.yaml resolvedParameters.
     val parameters: Map<String, Any>,
+    // Jetpack's heat pauses for this case, and the host's temperature reading around it (thermal.json); null when not known.
+    val thermalThrottleSleepSeconds: Long? = null,
+    val thermal: Map<String, Any?>? = null,
+    val thermalNote: String? = null,
 ) {
 
     val metrics: Map<String, MetricSamples> = LinkedHashMap(metrics)
@@ -25,6 +29,16 @@ class ResultRow(
 
     val time: MetricSamples? get() = metrics[MetricSamples.TIME]
 
+    // Merged processes: the first one's start, the last one's end.
+    private fun spanned(first: Map<String, Any?>?, last: Map<String, Any?>?): Map<String, Any?>? = when {
+        first == null || last == null -> first ?: last
+        else -> LinkedHashMap(first).apply { END_KEYS.forEach { put(it, last[it]) } }
+    }
+
+    private companion object {
+        val END_KEYS = listOf("end", "endStatus")
+    }
+
     fun mergedWith(later: ResultRow): ResultRow {
         require(id == later.id) { "different_case: $id and ${later.id}" }
         require(parameters == later.parameters) { "different_parameters: $id: $parameters and ${later.parameters}" }
@@ -32,6 +46,9 @@ class ResultRow(
         later.metrics.forEach { (metric, samples) ->
             merged[metric] = merged[metric]?.mergedWith(samples) ?: samples
         }
-        return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged, parameters)
+        val slept = if (thermalThrottleSleepSeconds == null && later.thermalThrottleSleepSeconds == null) null
+            else (thermalThrottleSleepSeconds ?: 0) + (later.thermalThrottleSleepSeconds ?: 0)
+        return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged, parameters, slept, spanned(thermal, later.thermal),
+            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null })
     }
 }

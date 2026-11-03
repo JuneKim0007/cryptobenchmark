@@ -41,12 +41,32 @@ class PassMergeTest {
     }
 
     @Test
+    fun eachCaseKeepsItsOwnHeatPausesAndTemperatureThroughConversionAndBothMerges() {
+        val example = File("example")
+        val reading = """{"cases": {"%s": {"start": {"cpu0": 31.5}, "end": {"cpu0": 40.0}, "startStatus": 0, "endStatus": 1, "note": "scope: run"}}}"""
+        val data = File(example, "benchmark_jetpack_example.json").readText()
+        val digestId = JetpackResults.convert(data, File(example, "benchmark_prepared_example.yaml").readText()).rows.single { it.algorithm == "SHA-256" }.id
+        val converted = JetpackResults.convert(data, File(example, "benchmark_prepared_example.yaml").readText(),
+            thermal = JetpackResults.thermalOf(reading.format(digestId)))
+        val digest = converted.rows.single { it.id == digestId }
+        assertEquals(mapOf("start" to mapOf("cpu0" to 31.5), "end" to mapOf("cpu0" to 40.0), "startStatus" to 0, "endStatus" to 1), digest.thermal)
+        assertEquals("scope: run", digest.thermalNote)
+        val text = io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson(File("build")).text(converted.runtime, converted.rows)
+        val later = text.replace("\"end\": {\"cpu0\": 40.0}", "\"end\": {\"cpu0\": 45.0}")
+        val merged = io.github.junekim0007.cryptobench.benchmark.report.Merge.merge(listOf(text, later)).rows.single { it.id == digestId }
+        assertEquals(mapOf("cpu0" to 31.5), merged.thermal?.get("start"))
+        assertEquals(mapOf("cpu0" to 45.0), merged.thermal?.get("end"))
+        assertEquals(2 * (digest.thermalThrottleSleepSeconds ?: -1), merged.thermalThrottleSleepSeconds)
+        assertEquals(digest.thermal, PassMerge.merge(text, emptyList()).rows.single { it.id == digestId }.thermal)
+    }
+
+    @Test
     fun anAllocationPassReadsOneRunPerSampleAndItsOwnSampleCount() {
         val example = File("example")
         val sampled = File(example, "benchmark_jetpack_example.json").readText()
             .replaceFirst("\"allocationCount\": {", "\"allocationSamples\": {\"runs\": [4.0, 4.0, 4.0]},\n        \"allocationCount\": {")
         val converted = JetpackResults.convert(sampled, File(example, "benchmark_prepared_example.yaml").readText(),
-            pass = JetpackResults.PassView(metrics = listOf("TIME", "ALLOCATION"), samples = 3))
+            metrics = listOf("TIME", "ALLOCATION"), samples = 3)
         val digest = converted.rows.single { it.algorithm == "SHA-256" }
         assertEquals(listOf(4.0, 4.0, 4.0), digest.metrics[MetricSamples.ALLOCATIONS]?.runs)
         assertEquals(true, converted.notApplied.none { it.startsWith("allocation_runs_changed: ${digest.id}") })
