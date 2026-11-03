@@ -14,6 +14,7 @@ from .extract import enclosing, functions
 from .facts import key_source, key_source_view, read_patterns, settled_key_source, sinks
 from .lifecycle.read import Reading, read_site
 from .lifecycle.settle import settle
+from .pattern import pattern_of
 from .syntax.parser import ParserMissing, parse
 
 NO_FUNCTION, CALL_MOVED = "no_enclosing_function", "call_not_on_line"
@@ -79,11 +80,12 @@ def build_scopes(app: str, root: Path, sites: list[dict]) -> Scoping:
             continue
         sid = scope_id(app, s["file"], fn.name, s["line"], s["call"])
         lifecycle = settle(trees.reading(s["file"], code, s), read_engines())
+        pattern = pattern_of(lifecycle, s["line"])
         out.scopes.append(Scope(
             id=sid, app=app, file=s["file"], line=s["line"],
             call=s["call"], function=fn.name, start=code.line(fn.start), end=code.line(fn.end - 1),
             engineType=s["engineType"], algorithm=s["resolvedAlgorithm"], provider=s["resolvedProvider"],
             resolution=s["resolution"], sinks=sinks(code, fn, patterns),
             keySource=settled_key_source(lifecycle, key_source_view(lifecycle, key_source(code, fn, patterns))),
-            lifecycle=lifecycle))
+            lifecycle=lifecycle, pattern=pattern.pattern, patternReason=pattern.reason, patternLines=pattern.lines))
     return out

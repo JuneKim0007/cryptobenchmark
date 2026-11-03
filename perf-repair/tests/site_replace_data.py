@@ -2,6 +2,7 @@
 from perfrepair.dto.lifecycle import Lifecycle, Requirement, Step
 from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Dossier, Estimate, Option, Scope, scope_id
 from perfrepair.dto.unit import Link, Unit, UnitDossiers, unit_entry, unit_id
+from perfrepair.scope.pattern import pattern_of
 
 APP = "demo-app"
 SOURCE = "fun seal(data: ByteArray): ByteArray {\n    val c = Engine.get(\"ALG-A/MODE-X\")\n    return c.run(data)\n}"
@@ -15,8 +16,9 @@ LIFECYCLE = Lifecycle("partially_bounded", ("depth1",), "local",
 
 def scope(file="src/Box.kt", line=11, function="seal", call="Engine.get", sinks=("persist",), key_source="keystore",
           lifecycle=LIFECYCLE):
+    p = pattern_of(lifecycle, line)
     return Scope(scope_id(APP, file, function, line, call), APP, file, line, call, function, 10, 13, "TypeA",
-                 "ALG-A/MODE-X", "P1", "literal", 128, 1024, sinks, key_source, lifecycle)
+                 "ALG-A/MODE-X", "P1", "literal", 128, 1024, sinks, key_source, lifecycle, p.pattern, p.reason, p.lines)
 
 
 def dossier(options=None, **kw) -> Dossier:

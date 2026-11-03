@@ -6,12 +6,16 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto.lifecycle import (BINDINGS, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
                              PARTIALLY_BOUNDED, REQUIREMENTS, ROLES, STATUSES, UNSUPPORTED, UNSUPPORTED_REASONS, WHERE)
+from ..dto.lifecycle import Lifecycle
+from ..dto.pattern import PATTERN_REASONS, PATTERNS
 from ..dto.site import APP_SCHEMA_VERSION, KEY_SOURCES, SCOPES_SCHEMA_VERSION, SINKS, Scope, scope_id
 from ..files import read_json
+from ..scope.pattern import pattern_of
 from .units import validate_units
 
 _SCOPE_TYPES = {"id": str, "app": str, "file": str, "line": int, "call": str, "function": str, "start": int,
-                "end": int, "engineType": str, "resolution": str, "sinks": list, "keySource": str}
+                "end": int, "engineType": str, "resolution": str, "sinks": list, "keySource": str, "pattern": str,
+                "patternReason": str, "patternLines": list}
 _LIFECYCLE_KEYS = {"status", "reasons", "binding", "steps", "requirements", "operations"}
 _STATUS_REASONS = {UNSUPPORTED: UNSUPPORTED_REASONS, PARTIALLY_BOUNDED: PARTIAL_REASONS}
 _OPTIONAL = {"algorithm": str, "provider": str, "keySize": int, "inputSize": int}
@@ -89,6 +93,19 @@ def lifecycle_problems(where: str, lc, lines: int | None = None) -> list[str]:
     return _lifecycle_values(where, lc) + _cited_lines(where, lc, lines) + _settlements(where, lc, lines)
 
 
+def _pattern_problems(where: str, s: dict, lines: int | None) -> list[str]:
+    """The category is the rule's for the scope's own lifecycle, recomputed, never trusted."""
+    if s["pattern"] not in PATTERNS or s["patternReason"] not in PATTERN_REASONS:
+        return [f"{where}: pattern {s['pattern']!r} / patternReason {s['patternReason']!r} is not one of "
+                f"{PATTERNS} / {PATTERN_REASONS}"]
+    lc = Lifecycle.from_json(s["lifecycle"]) if s.get("lifecycle") is not None else None
+    want = pattern_of(lc, s["line"])
+    out = [] if (s["pattern"], s["patternReason"]) == want[:2] else [
+        f"{where}: pattern {s['pattern']}/{s['patternReason']} is not the rule's {want.pattern}/{want.reason}"]
+    return out + [f"{where}: patternLines cites line {n!r}, not a line of the file" for n in s["patternLines"]
+                  if not _in_file(n, lines)]
+
+
 def scope_problems(where: str, s, app: str | None, lines: int | None = None) -> list[str]:
     """One scope's shape and contract values; shared by scopes.json and every dossier that carries a scope."""
     if not isinstance(s, dict):
@@ -100,6 +117,7 @@ def scope_problems(where: str, s, app: str | None, lines: int | None = None) -> 
         return out
     try:
         Scope.from_json(s)
+        out += _pattern_problems(where, s, lines)
     except (TypeError, KeyError) as e:
         out.append(f"{where}: {e}")
     if s["id"] != scope_id(s["app"], s["file"], s["function"], s["line"], s["call"]):

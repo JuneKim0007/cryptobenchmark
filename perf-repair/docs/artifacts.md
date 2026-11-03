@@ -38,7 +38,7 @@
 | `bundled-global.yaml` | the bundled step with `apply` and a row applied, removed otherwise; in `<app>/` when `apps.benchmarkConfig` is set | `used-global.yaml`; the per-app harness; cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with the applied entries after its own `providers.bundled` |
 | `<app>/sites.json` | `perfrepair.app` | scope, used | none |
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
-| `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 4, every scope's lifecycle in its closed lists, cited lines inside the file |
+| `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 5, every scope's lifecycle in its closed lists, its pattern the rule's for that lifecycle, cited lines inside the file |
 | `<app>/units.json` | `perfrepair.app` | dossier, edit, harness, report, the guide's `finished.json` | `validation/units.py`, before writing: every scope in one unit, recomputed ids, members connected by their links, each cited line in that side's lifecycle |
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |

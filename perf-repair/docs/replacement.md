@@ -7,7 +7,7 @@ From an app's source to a measured before/after of each call site the model chos
 | step | who | reads | writes |
 |---|---|---|---|
 | detect | static | app root; engine types from the packaged names catalog; the run's probe and providers to resolve each site | `<app>/sites.json` |
-| scope | static | sites, app source, `scope/engines.yaml` | `<app>/scopes.json` (schema 4; `Scope` per site: function span, sinks, key source, `lifecycle`) |
+| scope | static | sites, app source, `scope/engines.yaml` | `<app>/scopes.json` (schema 5; `Scope` per site: function span, sinks, key source, `lifecycle`, `pattern`) |
 | units | static | scopes, app source, `scope/units/relations.yaml` | `<app>/units.json` (`Unit`: members, `Link`s with lines on both sides, the units it shares a function with) |
 | dossier | static | scopes, units, app.json `targetSdk`, `grouping/groups.json` (with its `interop` section), `grouping/screen.json`, `measurements.json` | `<app>/dossiers.json` (schema 4, `perfMode` the selection, estimates of its metrics only; `Dossier`: function source, current item, `Option`s with interop status and `Estimate`s; `units`: the units asked, each with `stays`, its members without options, and `pairs`, the interop of every two differing items a replace can leave an inverse link's sides on: an option of a member with options, the current item of one that stays) |
 | replace | model | one unit, the `Dossier` of each member with options and the members that stay, per conversation | `<app>/replace/` outbox, `replacements.json` (`Replacement`) |
@@ -83,6 +83,14 @@ python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark ro
 ## Contracts
 
 - A scope's `lifecycle` (`dto/lifecycle.py`) is evidence beside the function span, never a narrower region: `start`, `end` stay the function's bounds for edit, render and harness. `status` is `bounded` (one method creates, configures and uses the object; no escape, consumer or deferred lambda), `partially_bounded` with its reasons (`field`, `escape`, `wrapper`, `deferred`, `depth1`, `budget`, `configuration_not_found`, `use_not_found`), `no_real_use` (created and never used, nothing escapes), or `unsupported` (`parser_missing`, `engine_unknown`, `call_not_found`). `steps` are the calls on the object, each with role (`configure`, `use`, `consume`, `other`), line and `where` (`same` or `depth1`, one method away in the class); `requirements` name each value a step takes (`key`, `parameters`, `input`) and its origin in a closed list (`parameter`, `field`, `same_class_call`, `other_call`, `generated`, `derived`, `keystore`, `decoded`, `storage`, `literal`, `unknown`) with its line; `operations` are the benchmark operations the steps perform, empty when unknown. The validator refuses a value outside the lists or a cited line outside the file.
+- A scope's `pattern` is its divergence category, `fixed` (the setup the API lets a caller keep is kept) or `notFixed` (the setup runs on every call), by a fixed rule over its lifecycle (`scope/pattern.py`); `patternReason` names the rule and `patternLines` the site, configure and use lines it read. The validator recomputes it.
+
+| patternReason | pattern | lifecycle |
+|---|---|---|
+| `created_per_call` | `notFixed` | binding `local` or `chain`, `bounded` or partial only by `wrapper`, `depth1`; a use found |
+| `held_in_field` | `fixed` | binding `field`, partial only by `field`, `depth1`; every use one method away |
+| `unknown_default` | `notFixed` | anything else: an escape, a return, a deferred use, a cut budget, a step not found, a field used beside its creation, `no_real_use`, `unsupported` |
+
 - A requirement is open when its origin is in `OPEN_ORIGINS` (`parameter`, `field`, `same_class_call`, `other_call`, `unknown`) and no single closed origin one method away settles it. Code reads on from it in the outermost class of its file: field writes, call arguments in the class, returned values, a branch's operands (never a join's, an array's size or an index), then on from each open one. At most `REACH_METHODS` methods, `REACH_HOPS` hops, `REACH_LINES` values per requirement; past any the requirement stays open, never a wider reading.
 - Settlement: when every path closes to one origin, with no path open or cut and no parameter or field other classes can reach, the requirement holds `settled: {origin, line}` and nothing asks.
 - Scoping is local and has no cross-file analysis: a requirement from elsewhere (`parameter`, `other_call`, with its line) is a recorded fact, and unknown is an allowed result. A model role choosing among the in-class lines was tried and removed: on a real app it changed no `keySource` and 12 of 25 answers were wrong.

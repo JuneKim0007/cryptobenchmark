@@ -1,18 +1,21 @@
 {
- "schemaVersion": 4,
+ "schemaVersion": 5,
  "app": "demo",
  "scopes": [
   {"id": "582c531311f4", "app": "demo", "file": "src/main/java/demo/Crypto.java", "line": 12,
    "call": "Cipher.getInstance", "function": "seal", "start": 11, "end": 14, "engineType": "Cipher",
    "algorithm": "AES/GCM/NoPadding", "provider": "Slow", "resolution": "explicit", "keySize": 128,
-   "inputSize": 1000, "sinks": ["return"], "keySource": "unknown"},
+   "inputSize": 1000, "sinks": ["return"], "keySource": "unknown",
+   "pattern": "notFixed", "patternReason": "unknown_default", "patternLines": [12]},
   {"id": "70e88231c98f", "app": "demo", "file": "src/main/java/demo/Crypto.java", "line": 17,
    "call": "MessageDigest.getInstance", "function": "hash", "start": 16, "end": 18, "engineType": "MessageDigest",
    "algorithm": "SHA-256", "provider": "Fast", "resolution": "default", "keySize": null,
-   "inputSize": null, "sinks": ["return"], "keySource": "unknown"},
+   "inputSize": null, "sinks": ["return"], "keySource": "unknown",
+   "pattern": "notFixed", "patternReason": "unknown_default", "patternLines": [17]},
   {"id": "f55fb37e0a85", "app": "demo", "file": "src/main/java/demo/Crypto.java", "line": 25,
    "call": "Mac.getInstance", "function": "mac", "start": 24, "end": 28, "engineType": "Mac",
    "algorithm": "HmacSHA256", "provider": null, "resolution": "unresolved_provider", "keySize": null,
-   "inputSize": null, "sinks": ["unknown"], "keySource": "unknown"}
+   "inputSize": null, "sinks": ["unknown"], "keySource": "unknown",
+   "pattern": "notFixed", "patternReason": "unknown_default", "patternLines": [25]}
  ]
 }

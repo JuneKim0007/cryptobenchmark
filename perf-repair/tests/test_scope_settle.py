@@ -6,7 +6,7 @@ import pytest
 
 from perfrepair.ai.suggest.site_replace.render import _lifecycle
 from perfrepair.dto.lifecycle import Lifecycle, Requirement, Settled
-from perfrepair.dto.site import Scope, required_risks, scope_id
+from perfrepair.dto.site import SCOPES_SCHEMA_VERSION, Scope, required_risks, scope_id
 from perfrepair.scope.engines import read_engines
 from perfrepair.scope.facts import settled_key_source
 from perfrepair.source.language import of_file
@@ -114,13 +114,13 @@ def test_site_replace_shows_what_code_settled():
     (Requirement("input", "literal", 9, 12, (), Settled("literal", 3)), "settled over the closed origin 'literal'"),
 ])
 def test_the_scopes_validator_refuses(requirement, problem):
-    doc = {"schemaVersion": 4, "app": APP, "scopes": [scope(lifecycle(requirement)).to_json()], "unscoped": []}
+    doc = {"schemaVersion": SCOPES_SCHEMA_VERSION, "app": APP, "scopes": [scope(lifecycle(requirement)).to_json()], "unscoped": []}
     assert any(problem in p for p in validate_scopes(doc, {FILE: 40}))
 
 
 def test_the_scopes_validator_refuses_a_settled_of_another_shape():
     row = {**vars(OPEN_KEY), "depth1": [], "settled": {"origin": "keystore", "line": 3, "source": "code"}}
-    doc = {"schemaVersion": 4, "app": APP, "unscoped": [], "scopes": [{**scope(lifecycle()).to_json(),
+    doc = {"schemaVersion": SCOPES_SCHEMA_VERSION, "app": APP, "unscoped": [], "scopes": [{**scope(lifecycle()).to_json(),
                                                                        "lifecycle": {**lifecycle().to_json(), "requirements": [row]}}]}
     assert any("settled is not {origin, line}" in p for p in validate_scopes(doc, {FILE: 40}))
 

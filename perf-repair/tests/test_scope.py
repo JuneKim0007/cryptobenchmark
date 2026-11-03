@@ -163,7 +163,7 @@ def test_a_lifecycle_outside_its_closed_lists_or_its_file_is_refused(scopes, cha
     s = doc["scopes"][0]
     s["lifecycle"] = {**GOOD_LIFECYCLE, **change}
     assert any(problem in p for p in validate_scopes(doc, {s["file"]: 40}))
-    s["lifecycle"] = GOOD_LIFECYCLE
+    s.update(lifecycle=GOOD_LIFECYCLE, pattern="fixed", patternReason="held_in_field", patternLines=[4])
     assert validate_scopes(doc, {s["file"]: 40}) == []
 
 

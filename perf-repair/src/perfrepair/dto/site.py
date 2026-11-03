@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass, fields
 from .change import DROP_IN, NO_GAIN, RECOMMENDATION, PairDiff
 from .lifecycle import Lifecycle
 from .metrics import NAMES
+from .pattern import NOT_FIXED, UNKNOWN_DEFAULT
 from .perf_mode import NO_EVIDENCE
 
 # one per artifact, so a change to one file never moves another's reader
@@ -18,7 +19,8 @@ EDITS_SCHEMA_VERSION = 1
 # 5: every option carries track, outputChanges, reach and needsReview
 DOSSIERS_SCHEMA_VERSION = 5
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
-SCOPES_SCHEMA_VERSION = 4
+# 5: pattern, patternReason and patternLines on every scope
+SCOPES_SCHEMA_VERSION = 5
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
 # 4: recommend with needs; deciding, accepted and concerns on every row
 REPLACEMENTS_SCHEMA_VERSION = 4
@@ -92,15 +94,20 @@ class Scope:
     sinks: tuple[str, ...] = ("unknown",)
     keySource: str = "unknown"
     lifecycle: Lifecycle | None = None
+    # the divergence category scope/pattern.py gives, its rule's reason and the lines that decided it
+    pattern: str = NOT_FIXED
+    patternReason: str = UNKNOWN_DEFAULT
+    patternLines: tuple[int, ...] = ()
 
     def to_json(self) -> dict:
-        return asdict(self) | {"sinks": list(self.sinks),
+        return asdict(self) | {"sinks": list(self.sinks), "patternLines": list(self.patternLines),
                                "lifecycle": self.lifecycle.to_json() if self.lifecycle is not None else None}
 
     @classmethod
     def from_json(cls, d: dict) -> "Scope":
         lifecycle = Lifecycle.from_json(d["lifecycle"]) if d.get("lifecycle") is not None else None
-        return cls(**{**d, "sinks": tuple(d.get("sinks") or ("unknown",)), "lifecycle": lifecycle})
+        return cls(**{**d, "sinks": tuple(d.get("sinks") or ("unknown",)), "lifecycle": lifecycle,
+                      "patternLines": tuple(d.get("patternLines") or ())})
 
 
 def required_risks(scope: Scope, option: "Option | None" = None) -> dict[str, list[str]]:

@@ -48,7 +48,7 @@ src/perfrepair/app/resolve.py : the only meeting of a site and the device: Primi
 src/perfrepair/catalog/sdk-constants.yaml : data: platform constants an app passes as a name (KeyProperties fields, KeyStore.getDefaultType()) and their values, sourced
 src/perfrepair/catalog/sdk_constants.py : reader of sdk-constants.yaml: every row a value and a listed source
 src/perfrepair/scope/__init__.py : docstring only
-src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per site with its lifecycle and settled requirements, and the unscoped; counts per lifecycle status
+src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per site with its lifecycle, settled requirements and pattern, and the unscoped; counts per lifecycle status
 src/perfrepair/scope/engines.py : engines.yaml read and checked once: Engine (configuration, terminal, optional, requirements, operations, consumers), the origin tables
 src/perfrepair/scope/engines.yaml : per engine type its lifecycle calls, requirement arguments, operations and consumers; origin calls, value-carrying specs, accessors, decoders
 src/perfrepair/scope/extract.py : named functions and their spans: Java methods, Kotlin funs, expression bodies, constructors
@@ -61,6 +61,7 @@ src/perfrepair/scope/lifecycle/read.py : one site's Reading: its Lifecycle (bind
 src/perfrepair/scope/lifecycle/settle.py : code settlement: field writes, in-class call arguments, returned values, a branch's operands; the budget; whether every path closes to one origin
 src/perfrepair/scope/lifecycle/slice.py : calls on one named object in one scope from a point on, shadowing-aware; its escapes
 src/perfrepair/scope/lifecycle/status.py : status and reasons from what the slice found
+src/perfrepair/scope/pattern.py : a scope's pattern, patternReason and evidence lines by the fixed rule over its lifecycle
 src/perfrepair/scope/patterns.yaml : sink and key-source patterns
 src/perfrepair/scope/syntax/__init__.py : docstring only
 src/perfrepair/scope/syntax/calls.py : a call's receiver, name, arguments and trailing lambda; the factory call at a line; a lambda's parameter and owner
