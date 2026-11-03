@@ -13,7 +13,11 @@ from perfrepair.dto.lifecycle import Lifecycle
 from perfrepair.dto.screen import Verdict
 from perfrepair.dto.site import Dossier, Scope, scope_id
 from perfrepair.repair.dossier import dossier
+from perfrepair.dto.site import UNIT_MEMBER_WITHOUT_OPTION
+from perfrepair.dto.unit import Link, Unit, unit_id
 from perfrepair.result.dossier import build_dossiers
+from perfrepair.result.unit_dossiers import by_unit
+from perfrepair.validation.dossier_units import validate_dossier_units
 from perfrepair.screen.catalog import load_catalog
 from perfrepair.validation.dossiers import validate_dossiers
 from perfrepair.check.run import validate_run
@@ -117,7 +121,7 @@ def test_scopes_without_options_say_why(tmp_path):
 def test_the_builder_is_deterministic_and_validates(tmp_path):
     first, second = build([scope()], tmp_path), build([scope()], tmp_path)
     assert json.dumps(first) == json.dumps(second)
-    assert set(first) == {"schemaVersion", "app", "dossiers", "noOptions"}
+    assert set(first) == {"schemaVersion", "app", "dossiers", "noOptions", "units"}
     assert validate_dossiers(first, [scope()], GROUPS, None) == []
 
 
@@ -179,7 +183,7 @@ def test_an_option_without_interop_does_not_parse(tmp_path):
 def test_the_command_writes_dossiers_from_a_recorded_run(run):  # noqa: F811
     app = run / "demo"
     app.mkdir(parents=True)
-    for name in ("scopes.json", "app.json"):
+    for name in ("scopes.json", "app.json", "units.json"):
         shutil.copy(DEMO / name, app / name)
     doc = dossier(run, "demo", F / "app", load_catalog(SCREENING), **QUIET)
     [d] = doc["dossiers"]
@@ -264,6 +268,7 @@ def test_the_command_applies_the_apps_target_sdk_through_the_handler_it_is_given
     app = run / "demo"
     app.mkdir(parents=True)
     shutil.copy(DEMO / "scopes.json", app / "scopes.json")
+    shutil.copy(DEMO / "units.json", app / "units.json")
     packaged = load_catalog(SCREENING)
     rule = PlatformRule(28, None, "test rule", "S")
     handler = replace(packaged, screening=replace(packaged.screening,
@@ -295,3 +300,45 @@ def test_estimates_cover_only_the_operations_the_lifecycle_performs_and_pins_sta
     unknown = replace(scope(), lifecycle=Lifecycle("bounded", binding="local"))
     r1 = Dossier.from_json(build([unknown], tmp_path, rows=rows, measurements=m)["dossiers"][0]).options[0]
     assert {e.configuration for e in r1.estimates} == {"OP1 key 128 input 64 WARM", "OP2 key 128 input 64 WARM"}
+
+
+def _unit(*ids):
+    return Unit(unit_id("app", list(ids)), tuple(ids), tuple(
+        Link("shared_key", a, b, (1,), (1,), "field") for a, b in zip(ids, ids[1:])))
+
+
+def _with_and_without():
+    return [scope(), scope(line=30, algorithm="ALG-NONE")]
+
+
+def test_a_unit_with_a_member_without_options_is_a_static_keep_for_all(tmp_path):
+    has, lacks = _with_and_without()
+    plain = build([has, lacks], tmp_path)
+    assert [d["scope"]["id"] for d in plain["dossiers"]] == [has.id]
+    own = plain["noOptions"][0]["reason"]
+    unit = _unit(has.id, lacks.id)
+    doc = by_unit(plain, [unit])
+    assert doc["dossiers"] == [] and doc["units"] == []
+    assert {n["scope"]: n["reason"] for n in doc["noOptions"]} == {lacks.id: own, has.id: UNIT_MEMBER_WITHOUT_OPTION}
+    assert validate_dossier_units(doc, [unit]) == [] and validate_dossiers(doc, [has, lacks], GROUPS, None) == []
+
+
+def test_every_unit_whose_members_have_options_is_asked(tmp_path):
+    has, lacks = _with_and_without()
+    units = [_unit(has.id), _unit(lacks.id)]
+    doc = by_unit(build([has, lacks], tmp_path), units)
+    assert doc["units"] == [units[0].to_json()] and [d["scope"]["id"] for d in doc["dossiers"]] == [has.id]
+    assert validate_dossier_units(doc, units) == []
+
+
+def test_the_unit_validator_refuses_a_partly_asked_unit_and_a_wrong_static_keep(tmp_path):
+    has, lacks = _with_and_without()
+    unit = _unit(has.id, lacks.id)
+    plain = {**build([has, lacks], tmp_path), "units": []}
+    assert any("has a dossier although" in p for p in validate_dossier_units(plain, [unit]))
+    alone = [_unit(has.id), _unit(lacks.id)]
+    wrong = by_unit(build([has, lacks], tmp_path), [unit])
+    assert any("but every member has options" in p or "units are not" in p for p in validate_dossier_units(wrong, alone))
+    lost = {**by_unit(build([has, lacks], tmp_path), alone), "units": []}
+    assert any("units are not the units.json" in p for p in validate_dossier_units(lost, alone))
+

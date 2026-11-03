@@ -1,5 +1,5 @@
-"""What the replacement decision sees for one dossier: site, scope facts, lifecycle, requirements, current, aliased
-options, edit kinds, source."""
+"""What the replacement decision sees for one unit: its links, then per member the site, scope facts, lifecycle,
+requirements, current, aliased options and source; the edit kinds once."""
 from __future__ import annotations
 
 import hashlib
@@ -8,6 +8,7 @@ from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
 from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
                          required_risks)
+from ....dto.unit import UnitDossiers
 
 UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
 TOO_FEW_RUNS = "n/a (n<2)"
@@ -69,9 +70,9 @@ def _source(d: Dossier) -> list[str]:
             f"{marker} BEGIN", *body, f"{marker} END"]
 
 
-def render(d: Dossier) -> str:
+def _member(alias: str, d: Dossier, shown: dict[tuple, str]) -> list[str]:
     s = d.scope
-    lines = [f"SITE {s.file}:{s.line} | call {s.call} | function {s.function} (lines {s.start}..{s.end})",
+    lines = [f"MEMBER {alias}", f"SITE {s.file}:{s.line} | call {s.call} | function {s.function} (lines {s.start}..{s.end})",
              f"  engine type {s.engineType} | algorithm {_known(s.algorithm)} | provider {_known(s.provider)} "
              f"| resolution {s.resolution}",
              f"  key size {_known(s.keySize)} | input size {_known(s.inputSize)}",
@@ -82,5 +83,24 @@ def render(d: Dossier) -> str:
              "", "OPTIONS (answer with these names)"]
     for o in d.options:
         lines += _option(s, o)
-    lines += ["", "EDIT KINDS (the only edits allowed)"] + [f"  {k}: {edit_meaning(k)}" for k in EDIT_KINDS]
-    return "\n".join(lines + [""] + _source(d))
+    span = (s.file, s.start, s.end)
+    source = [f"FUNCTION SOURCE: as {shown[span]}"] if span in shown else _source(d)
+    shown.setdefault(span, alias)
+    return lines + [""] + source + [""]
+
+
+def _links(u: UnitDossiers) -> list[str]:
+    alias = {d.key: a for a, d in u.aliased().items()}
+    lines = [f"  {alias[k.a]} {k.kind} {alias[k.b]} ({k.via}): lines {', '.join(map(str, k.aLines))} | "
+             f"lines {', '.join(map(str, k.bLines))}" for k in u.unit.links]
+    return ["LINKS"] + (lines or ["  none: this unit has one member"])
+
+
+def render(u: UnitDossiers) -> str:
+    aliased = u.aliased()
+    lines = [f"UNIT of {len(aliased)} member{'s' if len(aliased) > 1 else ''}: {', '.join(aliased)}", *_links(u), ""]
+    shown: dict[tuple, str] = {}
+    for alias, d in aliased.items():
+        lines += _member(alias, d, shown)
+    lines += ["EDIT KINDS (the only edits allowed)"] + [f"  {k}: {edit_meaning(k)}" for k in EDIT_KINDS]
+    return "\n".join(lines)

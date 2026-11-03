@@ -1,1 +1,1 @@
-"""The replacement decision: one call site, its options, replace or keep."""
+"""The replacement decision: one unit of call sites, their options, replace or keep the unit whole."""

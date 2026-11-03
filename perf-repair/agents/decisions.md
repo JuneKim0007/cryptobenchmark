@@ -15,6 +15,7 @@
 - static first: an item code can settle (triage) never reaches the model.
 - spawn: an agent starts one way: the role's kind builds its charter from `PromptLibrary`, `ai/runtime/gateway/spawn` gives the conversations, `ai/runtime/engine` opens one fresh conversation per item with the kind's rendered knowledge; `tests/test_layers.py` refuses any other path.
 - log: a stage reports through `log/emit.py` (`step`, `emit`), never its own format.
+- unit: a decision over coupled scopes is one item keyed by unit, replaced whole or kept whole; apply writes one row per member.
 - select, never aggregate: code reads, joins and stores the data (scopes, benchmark rows, groups, dossiers); a model chooses among the stored options by alias for one item and never reads raw benchmark data or computes a number.
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
 - journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
@@ -67,10 +68,10 @@ src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default ga
 src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; the one reader of `paths.prompts`; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values; each prompt's origin, `packaged` or its override file
-src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps; --refresh carries all but the stale records into a new outbox; dossier_changed
-src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one call site; a static keep per noOptions scope (reason = its code), gate, apply, dropped → fallback keep; evidence digest per dossier, stale, gone scopes
-src/perfrepair/ai/suggest/site_replace/render.py : message: site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
-src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, option alias, edits, risks, reason; all required; option alias (or empty) and non-blank reason as patterns
+src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json → SiteReplaceKind on the engine → replacements.json; dry run keeps; --refresh carries all but the stale units' records into a new outbox; dossier_changed
+src/perfrepair/ai/suggest/site_replace/kind.py : decision: replace or keep one unit whole; a static keep per noOptions scope (reason = its code), gate, apply one row per member, dropped → fallback keep for all; evidence digest per unit, stale members, gone units
+src/perfrepair/ai/suggest/site_replace/render.py : message: unit members and links; per member site, scope facts, current, options R1..Rn with pins (or unknown), interop and the risk it adds, and estimates (n/a when n<2), edit kinds, fenced source
+src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision, members (member alias, option alias, edits, risks), reason; all required; aliases and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope; the stale scopes
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command; unset flags filled from their rows, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
@@ -84,5 +85,5 @@ src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the inpu
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
 src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: the three contracts; findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer
-src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace or keep a call site; like-for-like, risks (unverified interop is one), cite the metric
+src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace or keep one unit whole; like-for-like, risks (unverified interop is one), cite the metric
 ```

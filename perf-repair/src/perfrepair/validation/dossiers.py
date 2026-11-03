@@ -8,10 +8,12 @@ from ..dto.grouping import parse_qualified
 from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
-from ..dto.site import METRICS, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX, SCHEMA_VERSION, Dossier, Scope
+from ..dto.site import (DOSSIERS_SCHEMA_VERSION, METRICS, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX,
+                        Dossier, Scope)
+from ..dto.unit import Unit, UnitDossiers
 from .app import scope_problems
 
-KEYS = {"schemaVersion", "app", "dossiers", "noOptions"}
+KEYS = {"schemaVersion", "app", "dossiers", "noOptions", "units"}
 
 
 def _id(raw) -> str | None:
@@ -35,9 +37,9 @@ def check_header(doc) -> list[str]:
     if not isinstance(doc, dict):
         return ["dossiers.json is not an object"]
     problems = [] if set(doc) == KEYS else [f"keys {sorted(doc)} are not {sorted(KEYS)}"]
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
-    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions") if not isinstance(doc.get(k), list)]
+    if doc.get("schemaVersion") != DOSSIERS_SCHEMA_VERSION:
+        problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {DOSSIERS_SCHEMA_VERSION}")
+    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions", "units") if not isinstance(doc.get(k), list)]
     return problems + ([] if isinstance(doc.get("app"), str) else ["app is not a string"])
 
 
@@ -171,8 +173,28 @@ def validate_dossiers(doc: dict, scopes: list[Scope], groups: dict, verdicts: di
     return problems
 
 
-def parse_dossiers(doc: dict, app: str) -> tuple[list[Dossier], dict[str, str], list[str]]:
-    """The dossiers, each noOptions scope with its reason code, and every problem found."""
+def _grouped(doc: dict, dossiers: list[Dossier]) -> tuple[list[UnitDossiers], list[str]]:
+    """Each asked unit with its members' dossiers, in member order; every dossier in exactly one unit."""
+    by_key = {d.key: d for d in dossiers}
+    items, problems = [], []
+    for raw in doc["units"]:
+        try:
+            unit = Unit.from_json(raw)
+        except (KeyError, TypeError) as e:
+            problems.append(f"unit: does not parse: {e!r}")
+            continue
+        missing = [m for m in unit.members if m not in by_key]
+        problems += [f"unit {unit.id}: member {m} has no dossier" for m in missing]
+        if not missing:
+            items.append(UnitDossiers(unit, tuple(by_key[m] for m in unit.members)))
+    members = Counter(m for item in items for m in item.unit.members)
+    problems += [f"dossier {k}: in no unit" for k in by_key if members[k] == 0 and not problems]
+    problems += [f"dossier {k}: in {n} units" for k, n in members.items() if n > 1]
+    return items, problems
+
+
+def parse_dossiers(doc: dict, app: str) -> tuple[list[UnitDossiers], dict[str, str], list[str]]:
+    """The units asked with their dossiers, each noOptions scope with its reason code, and every problem found."""
     problems = check_header(doc)
     if problems:
         return [], {}, problems
@@ -188,4 +210,5 @@ def parse_dossiers(doc: dict, app: str) -> tuple[list[Dossier], dict[str, str], 
     none = {n["scope"]: n["reason"] for n in doc["noOptions"] if isinstance(n, dict) and "scope" in n}
     keys = Counter([d.key for d in dossiers] + [n.get("scope") for n in doc["noOptions"] if isinstance(n, dict)])
     problems += [f"{k}: scope appears more than once" for k, n in sorted(keys.items(), key=str) if n > 1]
-    return dossiers, none, problems
+    items, grouping = _grouped(doc, dossiers)
+    return items, none, problems + grouping

@@ -4,7 +4,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 
 | Step | Flags | Input | Output |
 |---|---|---|---|
-| dossier | | `scopes.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
+| dossier | | `scopes.json`, `units.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
 | test-set | `-o` | `dossiers.json` | YAML test set at `-o`: each scope's current item and every option, once each |
 | edit | | `scopes.json`, `replacements.json`, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
 | harness | | `scopes.json`, `replacements.json`, `edits.json`, `dossiers.json`, `original/`, `patched/`, the manifest's `effective.yaml` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |

@@ -18,8 +18,7 @@ from ...runtime.prompt import PromptLibrary
 from .kind import SiteReplaceKind, charter
 from .state import Replacements
 
-DRY_RUN = ScriptedConversations(lambda *_: {"decision": "keep", "option": "", "edits": [], "risks": [],
-                                            "reason": "dry run: no model was called"})
+DRY_RUN = ScriptedConversations(lambda *_: {"decision": "keep", "members": [], "reason": "dry run: no model was called"})
 
 
 class DossierChanged(ValueError):
@@ -34,7 +33,7 @@ def stale_problem(state: Replacements) -> str | None:
 
 
 def _refreshed(kind: SiteReplaceKind, root: Path, library: PromptLibrary, echo) -> str:
-    """A new outbox holding every record but the stale scopes', so only those are asked again; the old outbox stays.
+    """A new outbox holding every record but the stale units', so only those are asked again; the old outbox stays.
     Records of another prompt are not carried: that prompt's outbox is not this charter's."""
     kept_charter = charter(library, kept_inputs(root))
     active = active_outbox(root)
@@ -43,7 +42,8 @@ def _refreshed(kind: SiteReplaceKind, root: Path, library: PromptLibrary, echo) 
     if records and not stale:
         echo("refresh: no stale scope; the outbox is kept")
         return kept_charter.inputs
-    kept = [r for r in records if r.item not in stale]
+    again = {u.key for u in kind.items() if stale & set(u.unit.members)}
+    kept = [r for r in records if r.item not in again]
     inputs = refresh_inputs()
     carry(root, charter(library, inputs), [replace_record(r, seq=n) for n, r in enumerate(kept, 1)])
     echo(f"refresh: {len(stale)} stale scopes asked again, {len(kept)} records kept")
@@ -63,6 +63,7 @@ def replace(run_path: Path, app: str, conversations: Conversations, library: Pro
     for scope, r in state.replacements.items():
         key = f"{r.decision} ({state.sources[scope]})"
         counts[key] = counts.get(key, 0) + 1
-    echo(f"{app}: {len(kind.dossiers) + len(kind.no_options)} sites, {len(kind.items())} asked, {counts}"
+    members = sum(len(u.dossiers) for u in kind.items())
+    echo(f"{app}: {members + len(kind.no_options)} sites, {len(kind.items())} units asked, {counts}"
          + (f", {len(state.stale)} stale" if state.stale else ""))
     return state

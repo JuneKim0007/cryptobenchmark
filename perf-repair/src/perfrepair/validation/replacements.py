@@ -1,6 +1,7 @@
 """replacements: each one names a known scope, a well-formed decision, and edits that apply its option exactly."""
 from __future__ import annotations
 
+from ..dto.unit import UnitDossiers
 from ..dto.site import DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
 from .suggest.site_replace import required_kinds, takes
 
@@ -62,4 +63,18 @@ def validate_replacements(replacements: dict[str, Replacement], sources: dict[st
         problems += _static(k, r, sources.get(k), no_options)
         if r.decision == "replace" and k in by_key:
             problems += _edits(r, by_key[k])
+    return problems
+
+
+def whole_units(replacements: dict[str, Replacement], units: list[UnitDossiers]) -> list[str]:
+    """A unit is replaced whole or kept whole, every member with its row."""
+    problems = []
+    for u in units:
+        rows = [replacements.get(m) for m in u.unit.members]
+        if not any(rows):
+            continue
+        if not all(rows):
+            problems.append(f"unit {u.key}: some members have no replacement row")
+        elif len({r.decision for r in rows}) != 1:
+            problems.append(f"unit {u.key}: replaced in part")
     return problems

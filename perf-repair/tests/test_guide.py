@@ -55,8 +55,14 @@ def first_option(run_dir, app_root=None):
 
 
 def replacing(doc, task):
-    """The answer that takes the dossier's first option, and that dossier."""
-    d = next(Dossier.from_json(x) for x in doc["dossiers"] if x["scope"]["id"] == task.item)
+    """The answer that gives each member of the unit its first option, and the unit's first dossier."""
+    unit = next(u for u in doc["units"] if u["id"] == task.item)
+    dossiers = [next(Dossier.from_json(x) for x in doc["dossiers"] if x["scope"]["id"] == m) for m in unit["members"]]
+    members = [_first_option(f"S{n}", d) for n, d in enumerate(dossiers, 1)]
+    return {"decision": "replace", "members": members, "reason": "faster"}, dossiers[0]
+
+
+def _first_option(alias, d):
     o = d.options[0]
     edits = []
     for kind in required_kinds(o, d.current):
@@ -67,8 +73,7 @@ def replacing(doc, task):
         else:
             e[FIELD[kind]] = value
         edits.append(e)
-    return {"decision": "replace", "option": o.alias, "edits": edits, "risks": sorted(required_risks(d.scope, o)),
-            "reason": "faster"}, d
+    return {"member": alias, "option": o.alias, "edits": edits, "risks": sorted(required_risks(d.scope, o))}
 
 
 def guide(run_dir, conversations, app=APP, config=None):

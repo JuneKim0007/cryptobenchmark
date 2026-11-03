@@ -8,6 +8,7 @@ from ..dto.grouping import read_items
 from ..dto.screen import Verdict, qualified_verdicts
 from ..dto.grouping_state import Knowledge
 from ..dto.site import Scope
+from ..dto.unit import read_units
 from ..dto.classify import read_batches
 from ..data_handler.inbound.primitives import read_primitives
 from ..device.primitives import status_of
@@ -23,6 +24,7 @@ from ..ai.runtime.engine import charter_file
 from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES, OutboxError, active_outbox
 from ..result.evidence import build_evidence
 from ..result.modes import MODES
+from ..validation.dossier_units import validate_dossier_units
 from ..validation.dossiers import validate_dossiers
 from ..validation.events import validate_events
 from ..validation.app import validate_app_dir
@@ -137,7 +139,9 @@ def _dossiers(run: Path, groups: dict, screen: dict[int, Verdict] | None, catalo
     for directory in sorted(run.glob(f"*/{rd.DOSSIERS}")):
         scopes = [Scope.from_json(s) for s in read_json(directory.parent / rd.SCOPES)["scopes"]]
         verdicts = handler.app_verdicts(groups, screen, read_json(directory.parent / rd.APP).get("targetSdk"))
-        out[str(directory.relative_to(run))] = validate_dossiers(read_json(directory), scopes, groups, verdicts)
+        doc = read_json(directory)
+        units = read_units(read_json(directory.parent / rd.UNITS))
+        out[str(directory.relative_to(run))] = validate_dossiers(doc, scopes, groups, verdicts) + validate_dossier_units(doc, units)
     return out
 
 

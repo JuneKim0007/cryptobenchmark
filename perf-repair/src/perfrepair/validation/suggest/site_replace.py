@@ -1,9 +1,11 @@
-"""Gate C of the replacement decision: a reply against its dossier, in the aliases the model saw."""
+"""Gate C of the replacement decision: a reply against its unit, in the aliases the model saw: every member given an
+option of its own, or the unit kept."""
 from __future__ import annotations
 
 from ...dto.grouping import algorithm_of, provider_of
 from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Edit, Option,
                          Replacement, Scope, pin_text, required_risks)
+from ...dto.unit import UnitDossiers
 from ..json_reply import parse_object
 
 
@@ -116,40 +118,61 @@ def _risks(risks: list, scope: Scope, option: Option | None, decision: str) -> l
     return problems
 
 
-def check_reply(text: str, dossier: Dossier) -> tuple[dict | None, list[str]]:
+def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, problems: list[str]) -> dict | None:
+    """One member's option, edits and risks against its own dossier; its problems name the member."""
+    found: list[str] = []
+    chosen, edits, risks = _text(raw, "option"), raw.get("edits"), raw.get("risks")
+    by_alias = {o.alias: o for o in dossier.options}
+    found += ["edits is not a list"] * (not isinstance(edits, list)) + ["risks is not a list"] * (not isinstance(risks, list))
+    edits, risks = edits if isinstance(edits, list) else [], risks if isinstance(risks, list) else []
+    option = None
+    if chosen not in by_alias:
+        found.append(f"option {chosen!r} is not one of {', '.join(by_alias) or '(none)'}")
+    elif by_alias[chosen].pins is None:
+        found.append(f"{chosen} has unknown pins, so no like-for-like swap can be stated; it cannot be chosen")
+    else:
+        option = by_alias[chosen]
+    if not edits:
+        found.append("replace names no edit")
+    resolved = _edits(edits, option, dossier.current, found)
+    found += _risks(risks, dossier.scope, option, "replace")
+    problems += [f"{alias}: {p}" for p in found]
+    if found:
+        return None
+    return Replacement(dossier.key, "replace", option.item, tuple(resolved), tuple(risks), reason).to_json()
+
+
+def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str]) -> list[dict]:
+    aliased = unit.aliased()
+    given = [m.get("member") if isinstance(m, dict) else None for m in raw]
+    problems += [f"member {a!r} is not one of {', '.join(aliased)}" for a in given if a not in aliased]
+    problems += [f"member {a} given more than once" for a in aliased if given.count(a) > 1]
+    problems += [f"a unit is replaced whole: member {a} has no option" for a in aliased if a not in given]
+    rows = []
+    for alias, m in zip(given, raw):
+        if alias in aliased and given.count(alias) == 1:
+            rows.append(_replace_member(m, alias, aliased[alias], reason, problems))
+    return rows
+
+
+def check_reply(text: str, unit: UnitDossiers) -> tuple[dict | None, list[str]]:
     d, problems = parse_object(text)
     if d is None:
         return None, problems
-    decision, alias, reason = d.get("decision"), _text(d, "option"), (_text(d, "reason") or "").strip()
-    edits = d.get("edits") if isinstance(d.get("edits"), list) else None
-    risks = d.get("risks") if isinstance(d.get("risks"), list) else None
-    by_alias = {o.alias: o for o in dossier.options}
+    decision, members, reason = d.get("decision"), d.get("members"), (_text(d, "reason") or "").strip()
     problems = [p for p in (
         f"decision {decision!r} is not one of {DECISIONS}" if decision not in DECISIONS else "",
-        "option is not a string" if alias is None else "",
-        "edits is not a list" if edits is None else "",
-        "risks is not a list" if risks is None else "",
+        "members is not a list" if not isinstance(members, list) else "",
         "reason is empty" if not reason else "",
     ) if p]
-    edits, risks = edits or [], risks or []
-    option = None
+    members = members if isinstance(members, list) else []
+    rows: list = []
+    if decision == "keep" and members:
+        problems.append("keep names members; a keep covers the whole unit and has none")
     if decision == "replace":
-        if alias not in by_alias:
-            problems.append(f"option {alias!r} is not one of {', '.join(by_alias) or '(none)'}")
-        elif by_alias[alias].pins is None:
-            problems.append(f"{alias} has unknown pins, so no like-for-like swap can be stated; it cannot be chosen")
-        else:
-            option = by_alias[alias]
-        if not edits:
-            problems.append("replace names no edit")
-    if decision == "keep":
-        if alias:
-            problems.append(f"keep names option {alias!r}; a keep has none")
-        if edits:
-            problems.append("keep names edits; a keep has none")
-    resolved = _edits(edits, option, dossier.current, problems)
-    problems += _risks(risks, dossier.scope, option, decision)
+        rows = _members(members, unit, reason, problems)
     if problems:
         return None, problems
-    return Replacement(dossier.key, decision, option.item if option else None, tuple(resolved), tuple(risks),
-                       reason).to_json(), []
+    if decision == "keep":
+        rows = [Replacement(m, "keep", None, (), (), reason).to_json() for m in unit.unit.members]
+    return {"replacements": rows}, []

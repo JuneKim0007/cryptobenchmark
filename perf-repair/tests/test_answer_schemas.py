@@ -62,8 +62,8 @@ def test_alias_patterns_follow_the_minted_prefixes():
     member = WORTHINESS["properties"]["pairs"]["items"]["properties"]["from"]
     assert all(matches(member, f"{MEMBER_PREFIX}{n}") for n in (1, 9, 12))
     assert not any(matches(member, a) for a in (f"{MEMBER_PREFIX}0", "", "1", f"{MEMBER_PREFIX}1 "))
-    option = REPLACE["properties"]["option"]
-    assert matches(option, "") and matches(option, f"{OPTION_PREFIX}3") and not matches(option, f"{OPTION_PREFIX}0")
+    option = REPLACE["properties"]["members"]["items"]["properties"]["option"]
+    assert matches(option, f"{OPTION_PREFIX}3") and not matches(option, "") and not matches(option, f"{OPTION_PREFIX}0")
 
 
 @pytest.mark.parametrize("name", SCHEMAS)

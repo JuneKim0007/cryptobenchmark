@@ -16,7 +16,7 @@ flowchart LR
     G -- grouping/groups.json --> D
     I -- rows, measurements --> D
     D -- app/dossiers.json --> T[repair test-set]
-    D -- app/dossiers.json --> P[ai replace: model per scope]
+    D -- app/dossiers.json --> P[ai replace: model per unit]
     P -- app/replacements.json --> R[repair: edit, harness]
     R -- app/harness.yaml --> M[cryptobenchmark pipeline.py --device --harness]
     M -- app/measured/scoped/ --> Q[report: app, summary]

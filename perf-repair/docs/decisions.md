@@ -59,20 +59,21 @@
 
 | field | site-replace |
 |---|---|
-| item | one `Dossier` of `<app>/dossiers.json` with at least one option |
-| message | site, sinks and key source, the risks code derives from them, the lifecycle (status and reasons, binding, operations, each step's line, `one method away` outside the function) and its requirements (name, origin, line, the taking step's line, origins one method away), current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates (ratio, pImprove, n, configuration; only the lifecycle's operations when it knows them), edit kinds, function source between digest markers |
-| answer | `decision` replace\|keep, `option` alias or "", `edits` [{kind, provider, algorithm, parameters [{name, value}]}], `risks`, `reason` |
-| ids minted by | dossier: option aliases; the gate resolves them to item ids and the option's typed pins |
-| no option | static `keep`, source `static`, never asked; a `no_real_use` lifecycle is one, reason `no_real_use` |
-| dropped item | `keep` with reason `dropped: …`, source `fallback` |
+| item | one unit of `<app>/dossiers.json` `units`: its `Link`s and each member's `Dossier`, every member with at least one option; a unit of one is the common case |
+| message | the unit's members `S1..Sn` and links with their lines; then per member (a function already shown is `as S1`): site, sinks and key source, the risks code derives from them, the lifecycle (status and reasons, binding, operations, each step's line, `one method away` outside the function) and its requirements (name, origin, line, the taking step's line, origins one method away), current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates (ratio, pImprove, n, configuration; only the lifecycle's operations when it knows them), edit kinds, function source between digest markers |
+| answer | `decision` replace\|keep for the unit, `members` [{member, option, edits [{kind, provider, algorithm, parameters [{name, value}]}], risks}] (one per member for replace, [] for keep), `reason` |
+| ids minted by | code: member aliases in unit order; dossier: option aliases per member; the gate resolves them to item ids and the option's typed pins |
+| no option | static `keep`, source `static`, never asked; a `no_real_use` lifecycle is one, reason `no_real_use`; a member with options in a unit where another has none is one, reason `unit_member_without_option`, so a unit is never decided in part |
+| dropped item | every member `keep` with reason `dropped: …`, source `fallback` |
 | state | `<app>/replacements.json`: `{schemaVersion: 3, app, replacements, sources, stale}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, version 3 added `stale`; the edit step refuses another version; outbox under `<app>/replace/` |
-| evidence | each record carries `evidence`, the sha256 of its dossier's JSON (scope facts, source, current, options with pins, interop and estimates); a scope whose latest record's digest differs from today's dossier, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
-| `--refresh` | the stale scopes are asked again into a new outbox (inputs `refresh <token>`) that carries every other record; the old outbox stays; later runs read the token from the active charter and stay in it; a prompt change carries nothing |
-| gone | a record whose scope has no dossier any more replays to no row (`gone`), never a KeyError; a scope moved to `noOptions` gets its static keep |
+| evidence | each record, keyed by unit id, carries `evidence`, the sha256 of its unit's links and every member's dossier JSON (scope facts, source, current, options with pins, interop and estimates); every member of a unit whose latest record's digest differs from today's, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
+| `--refresh` | the stale units are asked again into a new outbox (inputs `refresh <token>`) that carries every other record; the old outbox stays; later runs read the token from the active charter and stay in it; a prompt change carries nothing |
+| gone | a record whose unit is not asked any more replays to no row (`gone`), never a KeyError; a unit whose members changed has a new id and is asked; a scope moved to `noOptions` gets its static keep |
+| record | `decision.replacements`: one `Replacement` per member; `apply` writes one row per member |
 
 ## Site replace gate
 
-- `replace` names a listed alias and at least one edit; `keep` names no option and no edits; `reason` is not empty.
+- A unit is replaced whole or kept whole: `replace` gives every member exactly once, each a listed alias of its own options and at least one edit; `keep` names no members; `reason` is not empty. Per-member problems name the member. `validate` refuses a state where a unit's members differ in decision or some have no row.
 - Edit kinds come from `EDIT_KIND_TABLE` (`dto/site.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
 - `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.

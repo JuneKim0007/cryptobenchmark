@@ -1,21 +1,22 @@
 import json
 
 import pytest
-from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, scope
+from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, item, linked, member, scope
 
 from perfrepair.dto.site import Option, Replacement, required_risks
+from perfrepair.dto.unit import UnitDossiers
 from perfrepair.validation.suggest.site_replace import check_reply
 
 D = dossier()
 
 
 def check(reply, d=D):
-    return check_reply(reply if isinstance(reply, str) else json.dumps(reply), d)
+    return check_reply(reply if isinstance(reply, str) else json.dumps(reply), item(d))
 
 
 def test_a_good_replace_maps_aliases_back_to_items_and_typed_pins():
     decision, problems = check(answer())
-    r = Replacement.from_json(decision)
+    r = Replacement.from_json(decision["replacements"][0])
     assert problems == [] and r.option == "TypeA|ALG-A/MODE-X|P2" and r.scope == D.key
     assert [(e.kind, e.provider, e.parameters) for e in r.edits] == [
         ("set_provider", "P2", None), ("pin_parameters", None, {"ivLength": 12, "tagMode": "full"})]
@@ -23,7 +24,8 @@ def test_a_good_replace_maps_aliases_back_to_items_and_typed_pins():
 
 def test_a_good_keep():
     decision, problems = check(KEEP)
-    assert problems == [] and decision["decision"] == "keep" and decision["option"] is None
+    [row] = decision["replacements"]
+    assert problems == [] and row["decision"] == "keep" and row["option"] is None and row["scope"] == D.key
 
 
 @pytest.mark.parametrize("reply, problem", [
@@ -33,8 +35,11 @@ def test_a_good_keep():
     (answer(option="R9"), "option 'R9' is not one of R1, R2"),
     (answer(option="TypeA|ALG-A/MODE-X|P2"), "is not one of R1, R2"),
     (answer(edits=[]), "replace names no edit"),
-    (answer("keep", "R1", []), "keep names option 'R1'"),
-    (answer("keep", "", GOOD_EDITS), "keep names edits"),
+    (answer("keep", "R1", []), "keep names members"),
+    ({"decision": "replace", "members": [], "reason": "x"}, "a unit is replaced whole: member S1 has no option"),
+    ({"decision": "replace", "members": [member("S7")], "reason": "x"}, "member 'S7' is not one of S1"),
+    ({"decision": "replace", "members": [member(), member()], "reason": "x"}, "member S1 given more than once"),
+    ({"decision": "replace", "members": "S1", "reason": "x"}, "members is not a list"),
     (answer(edits=GOOD_EDITS + [edit("rewrite_call")]), "kind 'rewrite_call' is not one of"),
     (answer(edits=GOOD_EDITS + [edit("set_provider", "P2")]), "set_provider given more than once"),
     (answer(edits=[edit("set_provider", "P3"), GOOD_EDITS[1]]), "set_provider names 'P3', but R1 is provided by 'P2'"),
@@ -61,8 +66,9 @@ def test_a_good_keep():
     (answer(risks=["fast"]), "risk 'fast' is not one of"),
     (answer(risks=["wire_format", "wire_format"]), "risk 'wire_format' given more than once"),
     (answer(reason="  "), "reason is empty"),
-    ({**answer(), "edits": "x"}, "edits is not a list"),
-    ({**answer(), "option": None}, "option is not a string"),
+    ({**answer(), "members": [{**member(), "edits": "x"}]}, "S1: edits is not a list"),
+    ({**answer(), "members": [{**member(), "risks": None}]}, "S1: risks is not a list"),
+    ({**answer(), "members": [{**member(), "option": None}]}, "S1: option None is not one of"),
 ])
 def test_gate(reply, problem):
     decision, problems = check(reply)
@@ -71,7 +77,7 @@ def test_gate(reply, problem):
 
 def test_a_replace_without_pins_needs_only_set_provider():
     decision, problems = check(answer(option="R2", edits=[edit("set_provider", "P3")]))
-    assert problems == [] and [e["kind"] for e in decision["edits"]] == ["set_provider"]
+    assert problems == [] and [e["kind"] for e in decision["replacements"][0]["edits"]] == ["set_provider"]
 
 
 def test_messages_never_name_an_item_id_the_model_was_not_asked_for():
@@ -82,8 +88,8 @@ def test_messages_never_name_an_item_id_the_model_was_not_asked_for():
 def test_set_algorithm_resolves_to_the_option_name():
     decision, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")],
                                       risks=("persisted_data", "key_compatibility", "unverified_interop")))
-    assert problems == [] and decision["edits"] == [{"kind": "set_algorithm", "provider": None,
-                                                     "algorithm": "ALG-B", "parameters": None}]
+    assert problems == [] and decision["replacements"][0]["edits"] == [
+        {"kind": "set_algorithm", "provider": None, "algorithm": "ALG-B", "parameters": None}]
 
 
 def test_the_model_may_add_risks_beyond_the_derived_ones():
@@ -114,7 +120,7 @@ def test_an_option_with_unknown_pins_cannot_be_replaced_to():
 
 def test_a_replace_to_an_option_whose_interop_is_not_pass_must_declare_unverified_interop():
     _, problems = check(answer(option="R3", edits=[edit("set_algorithm", algorithm="ALG-B")]))
-    assert problems == ["risks must include unverified_interop: no interop check has run"]
+    assert problems == ["S1: risks must include unverified_interop: no interop check has run"]
 
 
 @pytest.mark.parametrize("status, risks", [("pass", set()), ("not_checkable", {"unverified_interop"}),
@@ -122,3 +128,38 @@ def test_a_replace_to_an_option_whose_interop_is_not_pass_must_declare_unverifie
 def test_required_risks_add_the_options_interop(status, risks):
     s = scope(sinks=("local",), key_source="derived")
     assert set(required_risks(s, Option("R1", "TypeA|ALG-B|P1", {}, status))) == risks
+
+
+SECOND = dossier(file="src/Other.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass"),),
+                 sinks=("local",), key_source="derived")
+PAIR = UnitDossiers(linked(D, SECOND), (D, SECOND))
+
+
+def both(first=None, second=None):
+    return {"decision": "replace", "reason": "timeNs ratio 0.62, pImprove 0.99",
+            "members": [first or member(), second or member("S2", edits=[edit("set_provider", "P3")], risks=())]}
+
+
+def test_a_unit_answer_gives_one_row_per_member_each_with_its_own_option():
+    decision, problems = check_reply(json.dumps(both()), PAIR)
+    rows = decision["replacements"]
+    assert problems == [] and [(r["scope"], r["option"]) for r in rows] == [
+        (D.key, "TypeA|ALG-A/MODE-X|P2"), (SECOND.key, "TypeA|ALG-A/MODE-X|P3")]
+    assert {r["reason"] for r in rows} == {"timeNs ratio 0.62, pImprove 0.99"}
+
+
+def test_a_unit_keep_is_one_row_per_member():
+    decision, problems = check_reply(json.dumps(KEEP), PAIR)
+    assert problems == [] and [(r["scope"], r["decision"]) for r in decision["replacements"]] == [
+        (D.key, "keep"), (SECOND.key, "keep")]
+
+
+@pytest.mark.parametrize("reply, problem", [
+    ({**both(), "members": [member()]}, "a unit is replaced whole: member S2 has no option"),
+    (both(second=member("S2", option="R2", edits=[edit("set_provider", "P3")], risks=())), "S2: option 'R2' is not one of R1"),
+    (both(second=member("S2", risks=())), "pin_parameters on R1, which lists no pins"),
+    (both(first=member(risks=())), "S1: risks must include"),
+])
+def test_a_unit_answer_is_checked_member_by_member(reply, problem):
+    decision, problems = check_reply(json.dumps(reply), PAIR)
+    assert decision is None and any(problem in p for p in problems), problems
