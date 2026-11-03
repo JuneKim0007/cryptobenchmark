@@ -120,8 +120,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
         if timed:
             joules = process.into / "energy.json"
             joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-            gradle_runner.run("quick-bench", f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}",
-                              run.options.stacktrace, run.options.stream, main_class="ConvertKt")
+            convert(run, f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
             written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
@@ -130,6 +129,13 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
+
+
+def convert(run, arguments):
+    """ConvertKt on one process; a case that did not get the samples it asked for is a problem the manifest records."""
+    notices = []
+    gradle_runner.run("quick-bench", arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt", notices=notices)
+    run.problems.extend(line for line in notices if line.startswith("iterations_not_applied:"))
 
 
 def timed_hooks(run, one, isolation):
@@ -316,8 +322,6 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
 
 
 def generate_scopes(options, scoped):
-    if scoped.exists():
-        shutil.rmtree(scoped)
     started = time.monotonic()
     plan, compiled = scope_generate.generate(options.harness, ROOT, scoped)
     elapsed(f"generate and compile {len(compiled)} scopes", started)
@@ -390,8 +394,7 @@ def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, 
     def converted(process):
         joules = process.into / "energy.json"
         joined = f" {joules}" if joules.is_file() else ""
-        gradle_runner.run("quick-bench", f"{process.data} {prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}", run.options.stacktrace,
-                          run.options.stream, main_class="ConvertKt")
+        convert(run, f"{process.data} {prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
         written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
@@ -402,15 +405,16 @@ def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, 
 
 
 def harness_run(options, configuration, device, results):
-    scoped = results / "scoped"
     try:
-        plan = generate_scopes(options, scoped)
-        files, problems = measure_scopes(options, configuration, device, results, scoped, plan)
-    except (HarnessError, scope_generate.GenerateError) as error:
-        fail(str(error))
+        with results_layout.kept_until_replaced(results / "scoped") as scoped:
+            try:
+                plan = generate_scopes(options, scoped)
+                files, problems = measure_scopes(options, configuration, device, results, scoped, plan)
+            except (HarnessError, scope_generate.GenerateError) as error:
+                fail(str(error))
+            manifest(results, "device", configuration, files, problems)
     finally:
         scope_generate.clean(ROOT)
-    manifest(results, "device", configuration, files, problems)
 
 
 def interop_run(options, configuration, device, root):

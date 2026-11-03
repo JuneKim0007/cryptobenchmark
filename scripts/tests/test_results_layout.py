@@ -136,3 +136,29 @@ def test_a_write_that_fails_midway_leaves_the_old_manifest_whole_and_no_temporar
     monkeypatch.undo()
     layout.write_atomic(path, "new: whole\n")
     assert path.read_text() == "new: whole\n"
+
+
+def test_a_failed_run_leaves_the_last_finished_folder_and_a_finished_one_replaces_it(tmp_path):
+    folder = tmp_path / "scoped"
+    folder.mkdir()
+    (folder / "benchmark.json").write_text("old")
+    with pytest.raises(SystemExit):
+        with layout.kept_until_replaced(folder):
+            folder.mkdir()
+            (folder / "partial").write_text("half")
+            raise SystemExit(1)
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["scoped"] and (folder / "benchmark.json").read_text() == "old"
+    with layout.kept_until_replaced(folder):
+        folder.mkdir()
+        (folder / "benchmark.json").write_text("new")
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["scoped"] and (folder / "benchmark.json").read_text() == "new"
+
+
+def test_a_folder_set_aside_by_a_killed_run_comes_back_first(tmp_path):
+    (tmp_path / "scoped.previous").mkdir()
+    (tmp_path / "scoped.previous" / "benchmark.json").write_text("old")
+    (tmp_path / "scoped").mkdir()
+    with pytest.raises(RuntimeError):
+        with layout.kept_until_replaced(tmp_path / "scoped"):
+            raise RuntimeError("halted")
+    assert (tmp_path / "scoped" / "benchmark.json").read_text() == "old" and not (tmp_path / "scoped.previous").exists()

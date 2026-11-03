@@ -10,8 +10,9 @@ OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=Fal
 CASES = ("scope:s:before", "scope:s:after", "scope:t:before", "scope:t:after")
 
 
-def scoped(tmp_path, monkeypatch, run, crash=(), cooldown=0):
+def scoped(tmp_path, monkeypatch, run, crash=(), cooldown=0, notices=()):
     phone = Phone(tmp_path, cases=CASES, crash=crash)
+    phone.notices = list(notices)
     fake_tools(monkeypatch, phone)
     files, problems = {}, []
     measuring = pipeline.Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems, cooldown=cooldown)
@@ -55,3 +56,9 @@ def test_the_cool_down_sleeps_between_scoped_cases_too(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline.cooldown_hook.time, "sleep", slept.append)
     scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1}, cooldown=10)
     assert slept == [10, 10, 10]
+
+
+def test_a_case_short_of_its_samples_is_recorded_as_a_problem(tmp_path, monkeypatch):
+    short = "iterations_not_applied: scope:s:before asked for 100, timeNs has 50 runs"
+    _phone, _files, problems = scoped(tmp_path, monkeypatch, {"isolation": "run", "scopedRepetitions": 1}, notices=(short, "warning: other"))
+    assert problems == [short]

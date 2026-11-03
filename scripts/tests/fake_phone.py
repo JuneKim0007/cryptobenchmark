@@ -24,7 +24,7 @@ class Phone(device_module.Device):
         self.files, self.media, self.data = "/plan", "/media", "/media/data.json"
         self.cases, self.crash, self.hang = list(cases), set(crash), set(hang)
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
-        self.thermal = thermal
+        self.thermal, self.notices = thermal, []
 
     def run(self, *arguments, check=True):
         if arguments[0] == "pull":
@@ -126,10 +126,12 @@ class Energy:
 
 def fake_tools(monkeypatch, phone):
     """ConvertKt and MergeRunsKt: the same files as the real tools, from the fake data."""
-    def run(_project, arguments, _stacktrace, _stream=False, main_class=None):
+    def run(_project, arguments, _stacktrace, _stream=False, main_class=None, notices=None):
         words = arguments.split()
         if main_class == "ConvertKt":
             phone.log.append("convert")
+            if notices is not None:
+                notices.extend(phone.notices)
             data, into = pathlib.Path(words[0]), pathlib.Path(words[2])
             names = [b["name"][8:-1] for b in json.loads(data.read_text())["benchmarks"]]
             into.mkdir(parents=True, exist_ok=True)

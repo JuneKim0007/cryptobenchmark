@@ -29,6 +29,25 @@ def staged(root):
         shutil.rmtree(stage, ignore_errors=True)
 
 
+@contextlib.contextmanager
+def kept_until_replaced(folder):
+    """The last finished run's folder survives a failed or interrupted one: set aside, restored on failure, dropped on success."""
+    previous = folder.with_name(folder.name + ".previous")
+    if previous.exists():
+        shutil.rmtree(folder, ignore_errors=True)
+        previous.rename(folder)
+    if folder.exists():
+        folder.rename(previous)
+    try:
+        yield folder
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        if previous.exists():
+            previous.rename(folder)
+        raise
+    shutil.rmtree(previous, ignore_errors=True)
+
+
 def write_atomic(path, text):
     """The manifest marks a finished run, so a reader sees the old file or the whole new one, never half of one."""
     handle, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)

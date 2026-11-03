@@ -28,7 +28,8 @@ def failure_message(output):
     return "\n".join(reported or fallback[-5:])[:2000]
 
 
-def run(project, arguments, stacktrace, stream=False, main_class=None):
+def run(project, arguments, stacktrace, stream=False, main_class=None, notices=None):
+    """notices, when given, collects every passed-on line, so a caller can record it."""
     wrapper = ROOT / "tools/jca-contract/gradlew"
     if not wrapper.is_file():
         fail(f"missing_file: {wrapper}")
@@ -52,4 +53,6 @@ def run(project, arguments, stacktrace, stream=False, main_class=None):
     for line in output:
         if line.startswith(PASSED_ON):
             print(line)
+            if notices is not None:
+                notices.append(line)
     return result.stdout.strip().splitlines()

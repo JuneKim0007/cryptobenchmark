@@ -30,6 +30,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | settings | `run.harness` of the pushed `effective.yaml`; provider and entry overrides do not apply |
 | energy capture | `none` and `measured`; `dry` fails `not_supported` |
 | cleanup | generated sources are removed after the run, on success and on failure |
+| last run kept | the previous `scoped/` is set aside as `scoped.previous/` and restored when the new run fails or is interrupted; dropped once the new manifest is written; a `scoped.previous/` a killed run left comes back first |
 | normal runs | unchanged; `ScopedBenchmark` and `ScopedInterop` run only by class name |
 | interop check | `ScopedInterop`, one process before any case: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |
 | measuring | the device session of `docs/device-session.md`, as for the benchmark: `run.isolation`, a case's failure is one `case_failed` line, timeouts, force-stop, pin warnings, repetitions merged by `MergeRunsKt` |
