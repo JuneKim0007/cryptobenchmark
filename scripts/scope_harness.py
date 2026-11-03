@@ -6,9 +6,9 @@ import yaml
 
 import scope_languages
 
-SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable"}
+SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse"}
 ID = re.compile(r"^[0-9a-f]{12}$")
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 INPUT_SOURCES = ("app", "run")
 
 
@@ -32,6 +32,7 @@ class HarnessScope:
     metrics: tuple
     dependencies: tuple
     not_measurable: str | None = None
+    inverse: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -81,7 +82,7 @@ def scope(entry, index, base):
         key_size=size(inputs.get("keySize"), f"{where}.inputs.keySize"), input_source=inputs["from"],
         current=entry.get("current"), option=entry.get("option"), metrics=tuple(entry.get("metrics") or ()),
         dependencies=tuple(str(name) for name in entry.get("dependencies") or ()),
-        not_measurable=entry.get("notMeasurable"),
+        not_measurable=entry.get("notMeasurable"), inverse=entry.get("inverse"),
     )
 
 

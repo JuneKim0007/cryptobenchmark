@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Replacement, Scope
+from ..dto.unit import Unit
 from ..files import write_text
 from ..source.lexer import Code
 from .dependencies import dependencies, load
@@ -12,6 +13,7 @@ from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
 from .imports import used_imports
 from .inputs import scope_inputs
+from .inverses import inverse_partners
 from .operation import has_operation
 
 
@@ -23,11 +25,13 @@ def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
 
 
 def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
-            currents: dict[str, str], effective: dict) -> dict:
+            currents: dict[str, str], effective: dict, units: list[Unit]) -> dict:
     """Paths in the document are relative to harness.yaml's folder; `currents` is each dossier's current item."""
     shutil.rmtree(out.extracts, ignore_errors=True)
     entries = []
-    for row in sorted((e for e in edits["edits"] if e["status"] == "applied"), key=lambda e: e["scope"]):
+    applied = sorted((e for e in edits["edits"] if e["status"] == "applied"), key=lambda e: e["scope"])
+    inverses = inverse_partners(units, {e["scope"] for e in applied})
+    for row in applied:
         scope = scopes[row["scope"]]
         lang = language(scope.file)
         original = read_source(out.original / scope.file)
@@ -49,5 +53,6 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "metrics": list(METRICS),
             "dependencies": uses,
             "notMeasurable": None if has_operation(Code.of(original, lang), scope) else NO_OPERATION,
+            "inverse": inverses.get(scope.id),
         })
     return {"schemaVersion": HARNESS_SCHEMA_VERSION, "app": out.app, "scopes": entries}

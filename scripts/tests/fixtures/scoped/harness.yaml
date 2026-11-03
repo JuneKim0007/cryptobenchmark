@@ -1,4 +1,4 @@
-schemaVersion: 3
+schemaVersion: 4
 app: fixture
 scopes:
   - id: 0a1b2c3d4e5f
@@ -12,6 +12,7 @@ scopes:
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
     metrics: [timeNs, allocationCount, energyJ]
     dependencies: [Cipher, SecretKey, GCMParameterSpec, SecureRandom, Arrays, System]
+    inverse: {partner: 1b2c3d4e5f60, role: produce}
   - id: 1b2c3d4e5f60
     language: java
     function: "byte[] decrypt(byte[], SecretKey)"
@@ -23,6 +24,7 @@ scopes:
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
     metrics: [timeNs, allocationCount, energyJ]
     dependencies: [Cipher, SecretKey, GCMParameterSpec]
+    inverse: {partner: 0a1b2c3d4e5f, role: consume}
   - id: 2c3d4e5f6071
     language: kotlin
     function: "fun digest(ByteArray): ByteArray"

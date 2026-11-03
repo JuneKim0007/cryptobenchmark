@@ -77,7 +77,7 @@ scripts/scope_dependencies.py : a scope's dependencies: imported, language-provi
 scripts/scope_generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
 scripts/scope_harness.py : reads perf-repair's harness.yaml
 scripts/scope_inputs.py : synthesisable parameter types and their ScopeInputs calls
-scripts/scope_interop.py : each scope's interop check: round trip with a partner, same output, or none
+scripts/scope_interop.py : each scope's interop check: round trip with its partner by inverse link, same output, or none
 scripts/scope_languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
 scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
 scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member

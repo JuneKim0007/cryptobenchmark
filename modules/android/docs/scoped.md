@@ -59,7 +59,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 
 ## Inputs
 
-`harness.yaml` `schemaVersion: 3`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
+`harness.yaml` `schemaVersion: 4`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
 
 | parameter type | value |
 |---|---|
@@ -81,7 +81,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 
 | check | chosen when | passes when |
 |---|---|---|
-| `round_trip` | two scopes whose names differ by one verb pair (encrypt/decrypt, encipher/decipher, encode/decode, seal/unseal, wrap/unwrap), the consumer takes exactly one parameter of the producer's return type, the producer exactly one of the consumer's | before-produce then after-consume, and after-produce then before-consume, restore the input |
+| `round_trip` | a scope whose `inverse` is `produce` and its partner (an `inverse` link of perf-repair's `units.json`, never a name), the consumer takes exactly one parameter of the producer's return type, the producer exactly one of the consumer's | before-produce then after-consume, and after-produce then before-consume, restore the input |
 | `same_output` | a function with a value | two calls of before agree and after equals before |
 | `none` | void or `Unit` | never checked |
 

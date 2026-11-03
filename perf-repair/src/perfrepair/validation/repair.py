@@ -11,7 +11,7 @@ EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_cal
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
                 "no_change", "overlapping_edits", "unit_member_rejected")
 HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "current", "option",
-                "metrics", "dependencies", "notMeasurable")
+                "metrics", "dependencies", "notMeasurable", "inverse")
 
 
 def _header(doc: dict, app: str, key: str, version: int = SCHEMA_VERSION) -> list[str]:
@@ -65,6 +65,14 @@ def _listed(where: str, s: dict) -> list[str]:
     ) if p]
 
 
+def _inverse(where: str, inverse, applied: list[str]) -> list[str]:
+    if inverse is None:
+        return []
+    if not isinstance(inverse, dict) or inverse.get("role") not in ("produce", "consume") or inverse.get("partner") not in applied:
+        return [f"{where}: inverse {inverse} is not a role and an applied partner"]
+    return []
+
+
 def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
     """`base` is harness.yaml's folder; the scopes are exactly the applied edits."""
     problems = _header(doc, app, "scopes", HARNESS_SCHEMA_VERSION)
@@ -90,5 +98,5 @@ def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
             problems.append(f"{where}: inputs {s['inputs']}")
         if not isinstance(s["option"], str) or not isinstance(s["current"], str) or s["current"] == s["option"]:
             problems.append(f"{where}: current {s['current']!r} and option {s['option']!r} are not two items")
-        problems += _listed(where, s)
+        problems += _listed(where, s) + _inverse(where, s["inverse"], applied)
     return problems

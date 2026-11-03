@@ -7,7 +7,8 @@ from perfrepair.dto.site import Edit, read_replacements
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
-from perfrepair.dto.unit import unit_id
+from perfrepair.dto.unit import Link, Unit, unit_id
+from perfrepair.repair.inverses import inverse_partners
 from perfrepair.run_dir import AppPaths
 from perfrepair.source import language
 from perfrepair.validation.repair import validate_edits, validate_harness
@@ -61,7 +62,7 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
         "before": f"harness/{LITERAL.id}/before.java", "after": f"harness/{LITERAL.id}/after.java",
         "imports": ["import javax.crypto.Cipher;"],
         "inputs": {"inputSize": 1024, "keySize": 256, "from": "app"}, "current": CURRENT, "option": FAST,
-        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None}
+        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None, "inverse": None}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
@@ -113,3 +114,20 @@ def test_an_unknown_edit_kind_is_rejected(tmp_path):
 def test_a_replacements_file_of_another_version_is_refused():
     with pytest.raises(ValueError, match="replacements schemaVersion 1 is not 3"):
         read_replacements({"schemaVersion": 1, "app": APP, "replacements": []})
+
+
+def test_inverse_partners_come_from_links_of_applied_scopes_only():
+    link = Link("inverse", "p", "c", (1,), (2,), "key")
+    other = Link("shared_key", "p", "x", (1,), (2,), "field")
+    units = [Unit("u", ("p", "c", "x"), (link, other))]
+    assert inverse_partners(units, {"p", "c", "x"}) == {"p": {"partner": "c", "role": "produce"}, "c": {"partner": "p", "role": "consume"}}
+    assert inverse_partners(units, {"p", "x"}) == {}
+
+
+def test_the_validator_refuses_an_inverse_partner_not_applied(tmp_path):
+    paths = commands(tmp_path)
+    edits = read_json(paths.edits)
+    doc = yaml.safe_load(paths.harness.read_text())
+    doc["scopes"][0]["inverse"] = {"partner": "gone", "role": "produce"}
+    assert any("applied partner" in p for p in validate_harness(doc, APP, paths.root, edits))
+

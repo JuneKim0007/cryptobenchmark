@@ -14,8 +14,8 @@ DOSSIERS_SCHEMA_VERSION = 2
 SCOPES_SCHEMA_VERSION = 4
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
 REPLACEMENTS_SCHEMA_VERSION = 3
-# 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe
-HARNESS_SCHEMA_VERSION = 3
+# 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe; 4: inverse, the interop partner by link
+HARNESS_SCHEMA_VERSION = 4
 NO_OPERATION = "no_operation"
 NOT_MEASURABLE_REASONS = (NO_OPERATION,)
 INPUT_SOURCES = ("app", "run")

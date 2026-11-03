@@ -45,6 +45,18 @@ def test_interop_pairs_only_an_inverse_whose_types_line_up():
     encrypt = scope_languages.of("kotlin").parse("fun encryptNote(note: String, key: SecretKey): ByteArray = error(\"x\")")
     decrypt = scope_languages.of("kotlin").parse("fun decryptNote(sealed: ByteArray, key: SecretKey): String = error(\"x\")")
     wrong = scope_languages.of("kotlin").parse("fun decryptNote(sealed: String, key: SecretKey): String = error(\"x\")")
-    assert scope_interop.plan({"a": encrypt, "b": decrypt})["a"].index == 0
-    assert scope_interop.plan({"a": encrypt, "b": decrypt})["b"].index == 0
-    assert scope_interop.plan({"a": encrypt, "b": wrong})["a"].check == "same_output"
+    linked = {"a": {"partner": "b", "role": "produce"}, "b": {"partner": "a", "role": "consume"}}
+    assert scope_interop.plan({"a": encrypt, "b": decrypt}, linked)["a"].index == 0
+    assert scope_interop.plan({"a": encrypt, "b": decrypt}, linked)["b"].index == 0
+    assert scope_interop.plan({"a": encrypt, "b": wrong}, linked)["a"].check == "same_output"
+
+
+def test_interop_pairs_by_link_never_by_name():
+    encrypt = scope_languages.of("kotlin").parse("fun encryptNote(note: String, key: SecretKey): ByteArray = error(\"x\")")
+    decrypt = scope_languages.of("kotlin").parse("fun decryptNote(sealed: ByteArray, key: SecretKey): String = error(\"x\")")
+    other = scope_languages.of("kotlin").parse("fun readBack(sealed: ByteArray, key: SecretKey): String = error(\"x\")")
+    assert scope_interop.plan({"a": encrypt, "b": decrypt}, {})["a"].check == "same_output"
+    linked = {"a": {"partner": "b", "role": "produce"}, "b": {"partner": "a", "role": "consume"}}
+    plan = scope_interop.plan({"a": encrypt, "b": other}, linked)
+    assert (plan["a"].check, plan["a"].partner, plan["b"].role) == ("round_trip", "b", "consume")
+    assert scope_interop.plan({"a": encrypt}, {"a": {"partner": "gone", "role": "produce"}})["a"].check == "same_output"

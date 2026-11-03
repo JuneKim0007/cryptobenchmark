@@ -1,10 +1,7 @@
-"""Chooses each scope's interop check from the function shapes: round trip with a partner scope, same output, or none."""
+"""Chooses each scope's interop check from the function shapes: round trip with its partner by inverse link, same output, or none."""
 from dataclasses import dataclass
 
 import scope_inputs
-
-# Producer and consumer verbs of an operation and its inverse; a scope pair matches by name with one verb swapped.
-VERBS = (("encrypt", "decrypt"), ("encipher", "decipher"), ("encode", "decode"), ("seal", "unseal"), ("wrap", "unwrap"))
 
 
 @dataclass(frozen=True)
@@ -14,16 +11,6 @@ class InteropPlan:
     partner: str | None = None
     role: str | None = None
     index: int | None = None
-
-
-def inverse(name):
-    lowered = name.lower()
-    for produce, consume in VERBS:
-        if produce in lowered and consume not in lowered:
-            at = lowered.index(produce)
-            swapped = consume if name[at].islower() else consume[0].upper() + consume[1:]
-            return name[:at] + swapped + name[at + len(produce):]
-    return None
 
 
 def only_index(parameters, type_kind):
@@ -42,15 +29,13 @@ def round_trip(producer, consumer):
     return artifact, plaintext
 
 
-def plan(signatures):
-    """signatures: {scope id: before Signature}, in harness order."""
-    by_name = {}
-    for scope_id, signature in signatures.items():
-        by_name.setdefault(signature.name, scope_id)
+def plan(signatures, inverses):
+    """signatures: {scope id: before Signature}, in harness order; inverses: {scope id: its link's partner and role}."""
     plans = {}
     for scope_id, signature in signatures.items():
-        partner = by_name.get(inverse(signature.name) or "")
-        indices = round_trip(signature, signatures[partner]) if partner else None
+        link = inverses.get(scope_id) or {}
+        partner = link.get("partner") if link.get("role") == "produce" else None
+        indices = round_trip(signature, signatures[partner]) if partner in signatures else None
         if indices:
             plans[scope_id] = InteropPlan("round_trip", partner=partner, role="produce", index=indices[1])
             plans.setdefault(partner, InteropPlan("round_trip", partner=scope_id, role="consume", index=indices[0]))

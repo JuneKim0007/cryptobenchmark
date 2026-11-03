@@ -48,7 +48,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 ## harness.yaml
 
 ```yaml
-schemaVersion: 3
+schemaVersion: 4
 app: <name>
 scopes:
   - id: <scope id>
@@ -63,9 +63,11 @@ scopes:
     metrics: [timeNs, allocationCount, energyJ]
     dependencies: [<identifiers used but not defined in the function>]
     notMeasurable: null|no_operation
+    inverse: null|{partner: <scope id>, role: produce|consume}
 ```
 
 - Paths are relative to the folder of `harness.yaml`; only applied scopes are listed.
+- `inverse` is the scope's partner by an `inverse` link of `units.json`, both sides applied; cryptobenchmark's round trip takes it, never a name.
 - `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
 - `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
 - `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim.
