@@ -49,10 +49,10 @@ def test_the_summary_counts_labels_apart_and_never_mixes_a_trade_off_with_an_imp
     for name in ("shop", "slow"):
         app_report(tmp_path, name, LATENCY, **QUIET)
     doc = device_summary(tmp_path, **QUIET)
-    assert doc["labels"]["worse"] >= 1 and doc["labels"]["tradeOffAccepted"] == 0
-    assert sum(doc["labels"].values()) == sum(s["decision"]["decision"] == "replace" for n in ("shop", "slow")
+    assert doc["labels"]["notFixed"]["worse"] >= 1 and doc["labels"]["notFixed"]["tradeOffAccepted"] == 0
+    assert sum(doc["labels"]["notFixed"].values()) == sum(s["decision"]["decision"] == "replace" for n in ("shop", "slow")
                                               for s in read_json(AppPaths(tmp_path, n).report)["scopes"])
-    assert "## Decisions by measured label" in (tmp_path / "summary.md").read_text()
+    assert "Decisions by measured label" in (tmp_path / "summary.md").read_text()
 
 
 def test_the_swap_view_shows_one_swap_on_every_metric_across_the_apps(tmp_path):
@@ -74,8 +74,8 @@ def test_each_app_keeps_its_own_mode_in_one_summary(tmp_path):
     app_report(tmp_path, "slow", LATENCY_ALLOC, **QUIET)
     doc = device_summary(tmp_path, **QUIET)
     assert doc["modes"] == {"shop": "latency", "slow": "latency+memAlloc"}
-    assert list(doc["metrics"]) == ["timeNs", "allocationCount"]
-    assert doc["metrics"]["allocationCount"]["ratios"]["shop"] is None
+    assert list(doc["metrics"]["notFixed"]) == ["timeNs", "allocationCount"]
+    assert doc["metrics"]["notFixed"]["allocationCount"]["ratios"]["shop"] is None
     reports = [read_json(AppPaths(tmp_path, n).report) for n in ("shop", "slow")]
     assert validate_summary(doc, reports) == []
     assert validate_summary({**doc, "modes": {}}, reports) == ["modes are not each report's own"]

@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 from .metrics import METRICS, Metric
+from .pattern import PATTERNS, UNKNOWN_DEFAULT
 
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
 # sharedFunction and stayed, funnel units and unitsReplace; 5: metric rows carry selected, the time row its views in the
 # display units (report units), summary metrics are the selected ones; 6: maxChange, recommendations, rejected
 # 7: rows carry label and thermal, measured metric rows change and noise; a report names its project and source; summary modes, labels, swaps, thermal
-SCHEMA_VERSION = 7
+# 8: rows carry pattern, patternReason, categoryMismatch; summary metrics, labels and swaps per pattern, never mixed
+SCHEMA_VERSION = 8
 THERMAL_MISMATCH, THERMAL_THROTTLED = "thermal_mismatch", "thermal_throttled_at_end"
 THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static")
@@ -48,3 +50,16 @@ def stayed(rows: list[dict]) -> dict[str, list[str]]:
 def case_id(scope: str, side: str) -> str:
     """cryptobenchmark's scoped case id; side is before or after."""
     return f"scope:{scope}:{side}"
+
+
+def of_pattern(reports: list[dict], pattern: str) -> list[dict]:
+    """Each report with only the rows of one category, so no count or ratio mixes the two."""
+    return [{**r, "scopes": [s for s in r["scopes"] if s["pattern"] == pattern]} for r in reports]
+
+
+def pattern_counts(reports: list[dict]) -> dict:
+    def counts(rows: list[dict]) -> dict:
+        return {**{p: sum(s["pattern"] == p for s in rows) for p in PATTERNS},
+                "unknownDefault": sum(s["patternReason"] == UNKNOWN_DEFAULT for s in rows),
+                "categoryMismatch": sum(bool(s["categoryMismatch"]) for s in rows)}
+    return {"all": counts([s for r in reports for s in r["scopes"]]), "byApp": {r["app"]: counts(r["scopes"]) for r in reports}}

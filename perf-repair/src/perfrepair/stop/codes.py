@@ -59,6 +59,8 @@ CODES_LIST: tuple[Code, ...] = (
             (WARN, STOP)),
     _choice("energy_unreadable", WARN, "check the energy.json files the manifest lists", (WARN, STOP)),
     _choice("thermal_mismatch", WARN, "the sides of a pair started at different temperatures; rerun the pair, or read its ratio with care", (WARN, STOP)),
+    _choice("category_mismatch", WARN, "the before/after disagrees with its category's estimate; check the scope's "
+            "pattern against its function, or read its ratio with care", (WARN, STOP)),
     _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),

@@ -1,12 +1,13 @@
 """Every <app>/report.json of a device → summary.json: the funnel summed, and per selected metric the apps improved,
-unchanged or worse by the median of their measured scopes' ratios, under each app's own perfMode; the labels, the swaps."""
+unchanged or worse by the median of their measured scopes' ratios, under each app's own perfMode; the labels, the swaps; each of these per pattern, never mixed."""
 from __future__ import annotations
 
 import statistics
 
 from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME, NAMES
-from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION, THERMAL_MISMATCH, THERMAL_THROTTLED
+from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION, THERMAL_MISMATCH, THERMAL_THROTTLED, of_pattern, pattern_counts
+from ..dto.pattern import PATTERNS
 from ..dto.perf_mode import PerfMode
 from ..result.modes import criteria
 from .recommendations import summed
@@ -61,5 +62,8 @@ def build_summary(reports: list[dict]) -> dict:
     return {"schemaVersion": SCHEMA_VERSION, "modes": {r["app"]: r["mode"] for r in reports}, "improvingRatio": improving,
             "apps": sorted(by_app), "named": {r["app"]: {"project": r["project"], "source": r["source"]} for r in reports},
             "funnel": {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}, "byApp": by_app,
-            "metrics": _metrics(reports, improving, selected), "labels": label_counts(reports), "swaps": swaps(reports),
+            "patterns": pattern_counts(reports),
+            "metrics": {p: _metrics(of_pattern(reports, p), improving, selected) for p in PATTERNS},
+            "labels": {p: label_counts(of_pattern(reports, p)) for p in PATTERNS},
+            "swaps": [{"pattern": p, **s} for p in PATTERNS for s in swaps(of_pattern(reports, p))],
             "thermal": _thermal(reports), **summed(reports)}

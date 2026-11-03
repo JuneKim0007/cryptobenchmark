@@ -26,6 +26,15 @@ def _thermal(doc: dict) -> None:
                       stage="report", step="app", app=doc["app"], item=s["scope"])
 
 
+def _category(doc: dict) -> None:
+    """A row whose before/after contradicts its category's estimate, through the terminator: warned by default."""
+    for s in doc["scopes"]:
+        if s["categoryMismatch"]:
+            terminate("category_mismatch", f"{s['scope']}: {', '.join(s['categoryMismatch'])}: the before/after change is "
+                      f"not the {s['pattern']} ({s['patternReason']}) estimate's", stage="report", step="app",
+                      app=doc["app"], item=s["scope"])
+
+
 def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
     paths = rd.AppPaths(device, app)
     with step("report", "app", app=app) as s:
@@ -34,6 +43,7 @@ def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
         write_json(paths.report, doc)
         write_text(paths.report_md, report_markdown(doc))
         _thermal(doc)
+        _category(doc)
         s.count(**doc["funnel"])
         s.wrote(paths.report, paths.report_md)
     f = doc["funnel"]

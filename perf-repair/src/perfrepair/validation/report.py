@@ -4,7 +4,8 @@ from __future__ import annotations
 import math
 
 from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
-                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, THERMAL_MISMATCH, THERMAL_THROTTLED, VERDICTS, stayed, unit_counts)
+                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, THERMAL_MISMATCH, THERMAL_THROTTLED, VERDICTS, pattern_counts,
+                          stayed, unit_counts)
 from ..dto.change import CHANGES as CHANGE_CLASSES, REJECT_REASONS, admits
 from ..dto.metrics import BY_NAME, NAMES
 from ..dto.perf_mode import PerfMode
@@ -12,10 +13,13 @@ from ..dto.report import has_views
 from ..dto.units import DisplayUnits
 from ..result.confidence import level
 from ..result.gain import change_of, label_of, noise_of
+from ..dto.pattern import PATTERN_REASONS, PATTERNS, pattern_of_reason
+from ..result.category import category_mismatch
 from .repair import valid_inputs
 
-ROW_KEYS = ("scope", "file", "line", "function", "current", "option", "inputs", "decision", "edit", "compile", "interop",
-            "metrics", "verdict", "label", "thermal", "deciding", "accepted", "primitive", "unit", "sharedFunction", "stayed")
+ROW_KEYS = ("scope", "file", "line", "function", "pattern", "patternReason", "current", "option", "inputs", "decision", "edit",
+            "compile", "interop", "metrics", "verdict", "label", "thermal", "deciding", "accepted", "primitive",
+            "categoryMismatch", "unit", "sharedFunction", "stayed")
 MEASURED_KEYS = {"metric", "unit", "selected", "measured", "before", "after", "ratio", "pImprove", "level", "n", "noise", "change"}
 
 
@@ -88,6 +92,15 @@ def _thermal(where: str, t: dict | None) -> list[str]:
     if t is None:
         return []
     return [] if set(t["labels"]) <= {THERMAL_MISMATCH, THERMAL_THROTTLED} else [f"{where}: thermal labels {t['labels']}"]
+
+
+def _pattern(where: str, r: dict) -> list[str]:
+    if r["patternReason"] not in PATTERN_REASONS or r["pattern"] not in PATTERNS:
+        return [f"{where}: pattern {r['pattern']!r} / patternReason {r['patternReason']!r}"]
+    out = [] if r["pattern"] == pattern_of_reason(r["patternReason"]) else [
+        f"{where}: pattern {r['pattern']} is not its reason {r['patternReason']}'s"]
+    return out + ([] if r["categoryMismatch"] == category_mismatch(r["metrics"], r["primitive"]) else [
+        f"{where}: categoryMismatch {r['categoryMismatch']} is not the rule's over its metrics and estimates"])
 
 
 def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
@@ -175,6 +188,8 @@ def validate_report(doc: dict, app: str) -> list[str]:
         problems += _row(str(r.get("scope")), r, selected, units)
     if problems:
         return problems
+    # read only over metric rows already found well formed
+    problems += [p for r in rows for p in _pattern(str(r["scope"]), r)]
     problems += _stayed(rows) + _recommendations(doc)
     f = doc.get("funnel") or {}
     if tuple(f) != FUNNEL or _recount(f, rows) != f or not f["scopes"] >= f["withOptions"] >= f["replace"]:
@@ -195,14 +210,26 @@ def validate_summary(doc: dict, reports: list[dict]) -> list[str]:
         problems.append(f"apps {doc.get('apps')} and byApp are not the reports' apps and funnels")
     if doc.get("funnel") != {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}:
         problems.append("funnel is not the sum of byApp")
-    selected = _union(reports)
-    if list(doc.get("metrics") or {}) != list(selected):
-        problems.append(f"metrics {list(doc.get('metrics') or {})} are not the apps' selected metrics {selected}")
     if doc.get("modes") != {r["app"]: r["mode"] for r in reports}:
         problems.append("modes are not each report's own")
-    for metric, m in (doc.get("metrics") or {}).items():
-        if sorted(a for c in CHANGES for a in m["apps"][c]) != sorted(by_app):
-            problems.append(f"{metric}: the change classes do not partition the apps")
+    if doc.get("patterns") != pattern_counts(reports):
+        problems.append("patterns are not the count of the reports' rows per pattern")
+    by_pattern = doc.get("metrics") or {}
+    if list(by_pattern) != list(PATTERNS) or list(doc.get("labels") or {}) != list(PATTERNS):
+        return problems + [f"metrics and labels are not one block per pattern {PATTERNS}"]
+    for pattern, metrics in by_pattern.items():
+        problems += _summary_metrics(pattern, metrics, _union(reports), sorted(by_app))
+    return problems + [f"swap {s.get('current')} → {s.get('option')}: pattern {s.get('pattern')!r}"
+                       for s in doc.get("swaps") or [] if s.get("pattern") not in PATTERNS]
+
+
+def _summary_metrics(pattern: str, metrics: dict, selected: list[str], apps: list[str]) -> list[str]:
+    if list(metrics) != list(selected):
+        return [f"{pattern} metrics {list(metrics)} are not the apps' selected metrics {selected}"]
+    problems = []
+    for metric, m in metrics.items():
+        if sorted(a for c in CHANGES for a in m["apps"][c]) != apps:
+            problems.append(f"{pattern} {metric}: the change classes do not partition the apps")
         if sorted(a for a, v in m["ratios"].items() if v is None) != m["apps"]["notMeasured"]:
-            problems.append(f"{metric}: notMeasured is not the apps without a ratio")
+            problems.append(f"{pattern} {metric}: notMeasured is not the apps without a ratio")
     return problems

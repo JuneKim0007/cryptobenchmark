@@ -7,6 +7,7 @@ from ..dto.report import MEASURABLE, case_id
 from ..dto.units import DisplayUnits
 from ..result.gain import label_of
 from ..result.modes import Mode
+from ..result.category import category_mismatch
 from .measured import Measured
 from .metrics import metric_rows, unmeasured
 from .thermal import thermal_row
@@ -91,11 +92,11 @@ def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, sourc
         metrics = unmeasured("no_cases: the device measured neither or one of before and after", mode.perf)
     else:
         metrics = metric_rows(before, after, mode.perf, units)
-    chosen = next((o for o in (dossier or {}).get("options") or [] if o["item"] == option), None)
+    primitive = next((o["estimates"] for o in (dossier or {}).get("options") or [] if o["item"] == option), [])
     return {"scope": scope["id"], "file": scope["file"], "line": scope["line"], "function": scope["function"],
-            "current": current, "option": option, "inputs": inputs, "decision": decision, "edit": edited, "compile": compiled,
+            "pattern": scope["pattern"], "patternReason": scope["patternReason"], "current": current, "option": option, "inputs": inputs, "decision": decision, "edit": edited, "compile": compiled,
             "interop": interop, "metrics": metrics,
             "verdict": _verdict(mode, current, option, metrics) if option else "not_measured",
             "label": _label(metrics), "thermal": thermal_row(before, after),
             "deciding": list((replacement or {}).get("deciding") or ()), "accepted": list((replacement or {}).get("accepted") or ()),
-            "primitive": chosen["estimates"] if chosen else []}
+            "primitive": primitive, "categoryMismatch": category_mismatch(metrics, primitive)}

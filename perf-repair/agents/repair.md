@@ -57,13 +57,13 @@ src/perfrepair/repair/setup_calls.yaml : member calls that only configure a prim
 src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option
 src/perfrepair/report/__main__.py : command: `app --device-results --app [--perf-mode]` | `summary --device-results`
 src/perfrepair/report/app_report.py : an app's step files → report.json: a row per scope with its unit and the members that stayed, the funnel
-src/perfrepair/report/command.py : stage: report.json and .md, summary.json and .md, validated before writing
-src/perfrepair/report/markdown.py : report.md and summary.md from their documents; time in the report's units, one row and its throughput line
+src/perfrepair/report/command.py : stage: report.json and .md, summary.json and .md, validated before writing; thermal labels and category_mismatch through the terminator
+src/perfrepair/report/markdown.py : report.md and summary.md from their documents; time in the report's units, one row and its throughput line; each row's pattern; the summary's categories table and a section per category
 src/perfrepair/report/measured.py : cryptobenchmark's scoped-plan.yaml and scoped benchmark.json for one app; refuses a plan of another harness
 src/perfrepair/report/metrics.py : before and after cases → per metric, each marked selected or not: medians, ratio, pImprove, level through compare(); the time metric's latency and throughput views in the display units
 src/perfrepair/report/recommendations.py : dossiers.json's notOffered → recommendations above maxChange, never applied, and reject counts; their sum for the summary
-src/perfrepair/report/scope_row.py : one scope's decision, edit, compile, interop, metrics, verdict, label and thermal
-src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, apps improved, unchanged, worse per selected metric
+src/perfrepair/report/scope_row.py : one scope's pattern, decision, edit, compile, interop, metrics, verdict, label, thermal and categoryMismatch
+src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, pattern counts, and per pattern apart: apps improved, unchanged, worse per selected metric, labels, swaps
 src/perfrepair/report/swaps.py : the rows of every app → one view per chosen swap across its apps, and the replace decisions per label
 src/perfrepair/report/thermal.py : a before/after pair's `thermal` blocks and sleeps, their start gap and labels
 src/perfrepair/review/__init__.py : docstring only

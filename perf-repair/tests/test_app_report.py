@@ -25,8 +25,9 @@ CURRENT, OPTION = "Cipher|AES/GCM/NoPadding|Slow", "Cipher|AES/GCM/NoPadding|Fas
 ESTIMATE = {"metric": "timeNs", "ratio": 0.7, "pImprove": 0.99, "n": 50, "configuration": "ENCRYPT key 128 input 1024 WARM"}
 
 
-def _scope(sid, line):
-    return {"id": sid, "app": "shop", "file": "src/Shop.java", "line": line, "function": f"f{line}"}
+def _scope(sid, line, pattern="notFixed", reason="unknown_default"):
+    return {"id": sid, "app": "shop", "file": "src/Shop.java", "line": line, "function": f"f{line}", "pattern": pattern,
+            "patternReason": reason}
 
 
 def make_app(run, name="shop", after_scale=1.0, measured=True):
@@ -185,10 +186,10 @@ def test_the_summary_counts_apps_per_metric_and_sums_the_funnel(tmp_path):
     for name in ("shop", "slow"):
         app_report(tmp_path, name, LATENCY, **QUIET)
     doc = device_summary(tmp_path, **QUIET)
-    time = doc["metrics"]["timeNs"]
+    time = doc["metrics"]["notFixed"]["timeNs"]
     assert time["apps"] == {"improved": ["shop"], "unchanged": [], "worse": ["slow"], "notMeasured": []}
     assert time["medianChange"] == pytest.approx(0.0)
-    assert list(doc["metrics"]) == ["timeNs"]
+    assert list(doc["metrics"]["notFixed"]) == ["timeNs"]
     assert doc["funnel"]["sites"] == 12 and doc["funnel"]["measured"] == 2
     text = (tmp_path / "summary.md").read_text()
     assert "| timeNs (ns/op) | 1 | 0 | 1 | 0 | +0.0% |" in text

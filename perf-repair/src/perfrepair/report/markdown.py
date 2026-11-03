@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from ..dto.measurement import ESTIMATED
+from ..dto.pattern import PATTERNS, rule_words
 from ..dto.report import CHANGES, FUNNEL, THERMAL_MISMATCH, THERMAL_THROTTLED
 from ..dto.units import number
 
@@ -101,7 +102,9 @@ def report_markdown(doc: dict) -> str:
     for s in doc["scopes"]:
         d = s["decision"]
         out += ["", f"### {s['file']}:{s['line']} `{s['function']}` ({s['scope']})", "",
-                _unit(s), f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
+                _unit(s), f"- pattern: {s['pattern']} ({s['patternReason']}: {rule_words(s['patternReason'])})"
+                + (f"; category_mismatch on {', '.join(s['categoryMismatch'])}" if s["categoryMismatch"] else ""),
+                f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
                 f"- inputs: {_inputs(s['inputs'])}",
                 f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}"
                 + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),
@@ -119,11 +122,29 @@ def report_markdown(doc: dict) -> str:
     return "\n".join(out) + "\n"
 
 
-def _apps_and_labels(doc: dict) -> list[str]:
+def _apps(doc: dict) -> list[str]:
     t = doc["thermal"]
     return ["", "## Apps", "", *(f"- {app}: {n['project']}, {n['source'] or 'n/a'}, {doc['modes'][app]}" for app, n in doc["named"].items()),
-            "", "## Decisions by measured label", "", ", ".join(f"{k} {v}" for k, v in doc["labels"].items()) + ".",
             "", f"Thermal: {t[THERMAL_MISMATCH]} pairs {THERMAL_MISMATCH}, {t[THERMAL_THROTTLED]} pairs {THERMAL_THROTTLED}."]
+
+
+_COUNTS = (*PATTERNS, "unknownDefault", "categoryMismatch")
+
+
+def _patterns(p: dict) -> list[str]:
+    rows = [*p["byApp"].items(), ("all", p["all"])]
+    return ["", "## Categories", "", "| app | " + " | ".join(_COUNTS) + " |", "|---|" + "---|" * len(_COUNTS),
+            *(f"| {app} | " + " | ".join(str(c[k]) for k in _COUNTS) + " |" for app, c in rows)]
+
+
+def _category(doc: dict, pattern: str) -> list[str]:
+    """One category's labels, metrics and swaps; the two are never summed."""
+    out = ["", f"## Category {pattern}", "", "Decisions by measured label: "
+           + ", ".join(f"{k} {v}" for k, v in doc["labels"][pattern].items()) + ".",
+           "", "| metric | " + " | ".join(CHANGES) + " | median change |", "|---|" + "---|" * (len(CHANGES) + 1)]
+    out += [_metric_row(metric, m) for metric, m in doc["metrics"][pattern].items()]
+    swaps = [s for s in doc["swaps"] if s["pattern"] == pattern]
+    return out + (["", "Swaps:", "", *(line for s in swaps for line in _swap(s))] if swaps else [])
 
 
 def _metric_row(metric: str, m: dict) -> str:
@@ -140,11 +161,9 @@ def summary_markdown(doc: dict) -> str:
            "## Funnel", "", "| app | " + " | ".join(FUNNEL) + " |", "|---|" + "---|" * len(FUNNEL)]
     rows = [*doc["byApp"].items(), ("all", doc["funnel"])]
     out += [f"| {app} | " + " | ".join(str(f[k]) for k in FUNNEL) + " |" for app, f in rows]
-    out += _apps_and_labels(doc)
-    out += ["", "## Metrics", "", "| metric | " + " | ".join(CHANGES) + " | median change |", "|---|" + "---|" * (len(CHANGES) + 1)]
-    out += [_metric_row(metric, m) for metric, m in doc["metrics"].items()]
-    if doc["swaps"]:
-        out += ["", "## Swaps", "", *(line for s in doc["swaps"] for line in _swap(s))]
+    out += _apps(doc) + _patterns(doc["patterns"])
+    for pattern in PATTERNS:
+        out += _category(doc, pattern)
     if doc.get("recommendations") or doc.get("rejected"):
         counts = ", ".join(f"{k} {v}" for k, v in {**doc["recommendations"], **doc["rejected"]}.items())
         out += ["", "## Candidates not offered", "", f"Recommended above maxChange, never applied, and rejected: {counts}."]

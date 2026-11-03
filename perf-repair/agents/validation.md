@@ -40,7 +40,7 @@ src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: 
 src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry metric columns, screen statuses, each metric's n, and equal line for line to what rows, measurements and screen.json make
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; consistent_units
-src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement, selected as the mode says), funnel recount, app partition
+src/perfrepair/validation/report.py : report.json and summary.json: statuses, metric rows (no number without a measurement, selected as the mode says), funnel recount, app partition per pattern, each row's pattern and categoryMismatch recomputed, pattern counts
 src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes, a known variant
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
