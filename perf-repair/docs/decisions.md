@@ -75,7 +75,7 @@
 
 - The members with options are decided together: `replace` gives each exactly once, each a listed alias of its own options and at least one edit, and names no member that stays; `keep` names no members; `reason` is not empty. Per-member problems name the member. `validate` refuses a state where those members differ in decision or some have no row.
 - An inverse link whose sides end on two items after the answer: `fail` refuses it; any status but `pass` needs `unverified_interop` on each swapped side (`S1: risks must include unverified_interop: its inverse S2 ends on …`).
-- A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side above `drop-in` is refused whatever its interop says.
+- A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side whose output differs is refused whatever its interop says.
 - Edit kinds come from `EDIT_KIND_TABLE` (`dto/site.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
 - `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.

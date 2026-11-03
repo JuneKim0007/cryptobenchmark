@@ -66,7 +66,8 @@ def _recommended(doc: dict) -> list[str]:
         return []
     lines = ["## Recommendations", "", f"maxChange: {doc['maxChange']}; these are not applied."]
     lines += [f"- {n['scope']}: {n['item']}: {n['change']} (input {n['diff']['input']}, key {n['diff']['key']}, "
-              f"output {n['diff']['output']}, reach {n['diff']['reach']})" for n in rows]
+              f"output {n['diff']['output']}, reach {n['diff']['reach']}"
+              + (", adds a dependency" if n["diff"].get("addsDependency") else "") + ")" for n in rows]
     rejected = ", ".join(f"{k} {v}" for k, v in doc["rejected"].items())
     return lines + ([f"- rejected candidates: {rejected}"] if rejected else []) + [""]
 

@@ -14,9 +14,11 @@ from ..dto.measurement import ESTIMATED
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.site import (DOSSIERS_SCHEMA_VERSION, ENERGY_KINDS_DIFFER, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier,
                         Estimate, NoEstimate, Option, Scope)
-from ..dto.change import DROP_IN, Change
+from ..dto.change import DROP_IN, NO_GAIN, REJECTED, Change, PairDiff
 from .candidates import Family
+from .change import foreign_member, reach
 from .estimate import compare
+from .gain import no_gain
 
 RESOLVED = ("default", "explicit")
 
@@ -159,29 +161,41 @@ class Joined:
         members = next(g["members"] for g in self.groups["groups"] if g["id"] == group)
         return sorted(items[str(m)]["qualified"] for m in members if str(m) != key)
 
-    def _usable(self, q: str) -> bool:
+    def _runs(self, q: str) -> bool:
         entry = next((v for v in self.groups["items"].values() if v["qualified"] == q), None)
-        return bool(entry and entry.get("runs")) and parse_qualified(q)[2] in self.available
+        return bool(entry and entry.get("runs"))
+
+    def _usable(self, q: str) -> bool:
+        return self._runs(q) and parse_qualified(q)[2] in self.available
+
+    def _foreign(self, q: str) -> bool:
+        return parse_qualified(q)[2] not in self.available
 
     def _measured_here(self, q: str) -> bool:
-        return self._usable(q) and bool(self.measured.get(q))
+        return self._runs(q) and bool(self.measured.get(q))
 
     def _lowers(self, current: str, q: str) -> bool:
         v = self.verdicts or {}
         return lowers_status(v.get(current), v.get(q))
 
     def changes(self, s: Scope, current: str, others: list[str] | None) -> list[Change]:
-        """Every family candidate outside the group, classed; empty without a Family."""
+        """Every candidate beyond a drop-in, classed: the family's, and a group member only the harness has."""
         if self.family is None:
             return []
-        return self.family.classed(s, current, set(others or ()), lambda q: parse_qualified(q)[2], self._measured_here,
-                                   lambda q: self._lowers(current, q))
+        members = [foreign_member(s, q) for q in others or () if self._foreign(q) and self._measured_here(q)]
+        return members + self.family.classed(s, current, set(others or ()), lambda q: parse_qualified(q)[2], self._measured_here,
+                                             lambda q: self._lowers(current, q), self._foreign)
 
     def _drop_in(self, current: str, others: list[str] | None) -> tuple[list[str], str | None]:
         if others is None:
             return [], "not_grouped"
         usable = [q for q in others if self._usable(q)]
         return _targets(current, others, usable, failed_pairs(self.groups), self.verdicts)
+
+    def _gained(self, s: Scope, built: list[Option]) -> tuple[list[Option], list[Change]]:
+        """No option worse on every selected metric, whatever its class; each dropped one kept with its reason."""
+        lost = [o for o in built if no_gain(o.estimates)]
+        return [o for o in built if o not in lost], [Change(o.item, REJECTED, o.diff or PairDiff.same(reach(s)), (NO_GAIN,)) for o in lost]
 
     def options(self, s: Scope) -> tuple[str, list[Option], str | None, list[Change]]:
         """The scope's current item, options and the candidates not offered, or the reason of the first filter that
@@ -194,22 +208,36 @@ class Joined:
             return current, [], reason, kept
         built = [self.option(s, current, n, q) for n, q in enumerate(targets, 1)]
         built += [self.option(s, current, n, c.item, c) for n, c in enumerate(offered, len(built) + 1)]
-        options, missing = _evidenced(built, self.perf)
-        return current, options, missing, kept
+        gained, lost = self._gained(s, built)
+        if not gained:
+            return current, [], NO_GAIN, kept + lost
+        options, missing = _evidenced(gained, self.perf)
+        return current, options, missing, kept + lost
+
+
+def available_providers(platform: frozenset[str], harness: dict[str, str], app_doc: dict) -> set[str]:
+    """What the app's process has: the device's own and what the app ships; harness: per provider providers.bundled
+    installed, its group:name, the same library under the harness's own name counting as shipped."""
+    shipped = app_doc.get("bundled") or []
+    names = {b["providerName"] for b in shipped if b.get("providerName")}
+    artifacts = {b["artifact"] for b in shipped}
+    return {*platform, *names, *(p for p, artifact in harness.items() if artifact in artifacts)}
 
 
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
                    measurements: dict[str, dict[str, Summary | None]], source_root: Path,
-                   verdicts: dict[str, Verdict] | None, perf: PerfMode, family: Family | None = None) -> dict:
+                   verdicts: dict[str, Verdict] | None, perf: PerfMode, family: Family | None = None,
+                   available: set[str] | None = None) -> dict:
     """verdicts: each item's screen verdict for this app by qualified name; None without screen.json.
     perf: only its metrics are estimated, and an option without one it requires is dropped.
-    family: the type catalog's candidates beyond the group up to its maxChange; None offers drop-ins only."""
+    family: the type catalog's candidates beyond the group up to its maxChange; None offers drop-ins only.
+    available: the providers in the app's process; None, without a probe: every probed one and what the app ships."""
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
         raise ValueError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
-    # the probe lists what the platform registers; an app adds what it bundles
-    available = {parse_qualified(v["qualified"])[2] for v in groups["items"].values()}
-    available |= {b["providerName"] for b in app_doc.get("bundled") or []}
+    if available is None:
+        available = {parse_qualified(v["qualified"])[2] for v in groups["items"].values()}
+        available |= {b["providerName"] for b in app_doc.get("bundled") or []}
     measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
     for r in rows:
         measured[qualified(r.type, r.algorithm, r.provider)][_config(r)] = r

@@ -45,6 +45,11 @@ class Probe:
         """The names the device registers itself, without the ones providers.bundled installed."""
         return frozenset(p["name"] for p in self._document.get("providers") or [] if p.get("origin") != BUNDLED_ORIGIN)
 
+    def harness_artifacts(self) -> dict[str, str]:
+        """Per provider providers.bundled installed, its artifact's group:name; an older capture names none."""
+        return {p["name"]: ":".join(p.get("artifact", "").split(":")[:2]) for p in self._document.get("providers") or []
+                if p.get("origin") == BUNDLED_ORIGIN}
+
     @cached_property
     def _attributes(self) -> dict[tuple, dict]:
         return attributes_of(self._document)

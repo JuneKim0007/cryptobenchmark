@@ -114,8 +114,8 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     by_function = {}
     for r in records:
         by_function.setdefault(r["function"], []).append((r["status"], r.get("reason")))
-    assert by_function["seal"] == [("compiled", None)] * 2
-    assert by_function["send"] == [("not_compilable", "unsupported_parameter: s: Socket")]
+    # the other seal's option is slower on every metric: rejected no_gain, so it is not asked
+    assert by_function == {"seal": [("compiled", None)]}
 
 
 def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeypatch):

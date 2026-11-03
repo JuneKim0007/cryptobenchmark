@@ -3,7 +3,7 @@ given an option of its own, or all of them kept; a member that stays is never na
 needs their interop."""
 from __future__ import annotations
 
-from ...dto.change import DROP_IN, admits
+from ...dto.change import DROP_IN, SAME, admits
 from ...dto.grouping import algorithm_of, provider_of
 from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Edit, Option,
                          Replacement, Scope, pin_text, required_risks)
@@ -184,9 +184,9 @@ def _inverse(unit: UnitDossiers, rows: list[dict]) -> list[str]:
     return [p for k in unit.unit.links if k.kind == INVERSE for p in _link(k, unit, ends, replaced)]
 
 
-def _class_of(unit: UnitDossiers, member: str, item: str | None) -> str:
+def _output_differs(unit: UnitDossiers, member: str, item: str | None) -> bool:
     d = next(d for d in unit.dossiers if d.key == member)
-    return next((o.change for o in d.options if o.item == item), DROP_IN)
+    return any(o.item == item and o.diff is not None and o.diff.output != SAME for o in d.options)
 
 
 def _link(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: dict[str, dict]) -> list[str]:
@@ -195,8 +195,8 @@ def _link(k: Link, unit: UnitDossiers, ends: dict[str, str | None], replaced: di
         return []
     alias, status = unit.aliases(), unit.interop(ends[k.a], ends[k.b])
     # another output format on one side only: the other side can no longer read it, whatever interop says
-    if any(_class_of(unit, m, ends[m]) != DROP_IN for m in swapped):
-        return [f"{alias[k.a]} and {alias[k.b]} are inverse; a change above drop-in must end both on one item"]
+    if any(_output_differs(unit, m, ends[m]) for m in swapped):
+        return [f"{alias[k.a]} and {alias[k.b]} are inverse; another output must end both on one item"]
     return _interop_of_ends(k, unit, ends, replaced, swapped, status)
 
 

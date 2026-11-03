@@ -14,8 +14,9 @@ KEY_DIFFS = (SAME, "size", "type")
 OUTPUT_DIFFS = (SAME, "bytes", "kind")
 # persist: the output is stored, sent, or goes where code cannot see
 REACHES = ("local", "return", "persist")
+NO_GAIN = "no_gain"
 REJECT_REASONS = ("type_unknown", "strength_below", "strength_unknown", "authenticated_lost", "deterministic_lost",
-                  "nonce_not_generated", "unavailable", "availability_unknown", "not_measured", "deprecated")
+                  "nonce_not_generated", "unavailable", "availability_unknown", "not_measured", "deprecated", NO_GAIN)
 
 
 def admits(max_change: str, change: str) -> bool:
@@ -28,6 +29,8 @@ class PairDiff:
     key: str
     output: str
     reach: str
+    # the candidate's provider is one the harness installed and the app does not ship
+    addsDependency: bool = False
 
     @classmethod
     def same(cls, reach: str) -> "PairDiff":

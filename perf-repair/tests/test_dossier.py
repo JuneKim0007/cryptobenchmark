@@ -121,7 +121,8 @@ def test_scopes_without_options_say_why(tmp_path):
 
 def test_only_the_selected_metrics_are_estimated_and_an_option_without_one_is_dropped(tmp_path):
     perf = PerfMode.parse(["memAlloc"])
-    doc = build([scope()], tmp_path, perf=perf)
+    gaining = {**M, "o64": {"timeNs": summary(80), "allocationCount": summary(8)}}
+    doc = build([scope()], tmp_path, perf=perf, measurements=gaining)
     [d] = doc["dossiers"]
     assert doc["perfMode"] == ["memAlloc"]
     assert [(o["alias"], o["item"]) for o in d["options"]] == [("R1", "TypeA|ALG-A|P2")]

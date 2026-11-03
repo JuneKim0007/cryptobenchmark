@@ -4,7 +4,7 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, fields
 
-from .change import DROP_IN, PairDiff
+from .change import DROP_IN, NO_GAIN, PairDiff
 from .lifecycle import Lifecycle
 from .metrics import NAMES
 from .perf_mode import NO_EVIDENCE
@@ -35,7 +35,7 @@ NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER,)
 PROVIDER_HELD_KEY = "provider_held_key"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing; the last is its unit's
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", "not_grouped", "no_alternative", "none_available", "deprecated_only",
-                     "interop_failed", NO_EVIDENCE, PROVIDER_HELD_KEY)
+                     "interop_failed", NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY)
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
 DERIVED_RISKS = (

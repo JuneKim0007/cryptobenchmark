@@ -7,14 +7,16 @@ from helpers import row, summary
 
 from perfrepair.ai.suggest.site_replace.render import render
 from perfrepair.catalog.types import Types
+from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.perf_mode import PerfMode
-from perfrepair.dto.site import Dossier, Option, Scope, scope_id
+from perfrepair.dto.site import Dossier, Estimate, Option, Scope, scope_id
 from perfrepair.dto.types import Properties, Strength, TypeRow
 from perfrepair.dto.unit import Link, Stay, Unit, UnitDossiers, unit_id
 from perfrepair.report.recommendations import recommendations, summed
 from perfrepair.result.candidates import Family
-from perfrepair.result.dossier import build_dossiers
+from perfrepair.result.dossier import available_providers, build_dossiers
+from perfrepair.result.gain import no_gain
 from perfrepair.validation.dossiers import check_dossier, validate_dossiers
 from perfrepair.validation.report import _recommendations
 from perfrepair.validation.suggest.site_replace import check_reply
@@ -59,7 +61,7 @@ def test_local_edit_offers_the_candidate_with_its_class_and_diff(tmp_path):
     doc = build(tmp_path, "local-edit")
     option = doc["dossiers"][0]["options"][0]
     assert (option["item"], option["change"]) == (B, "local-edit")
-    assert option["diff"] == {"input": "same", "key": "same", "output": "bytes", "reach": "return"}
+    assert option["diff"] == {"input": "same", "key": "same", "output": "bytes", "reach": "return", "addsDependency": False}
     assert validate_dossiers(doc, [scope()], GROUPS, None) == []
 
 
@@ -166,3 +168,84 @@ def test_render_shows_the_class_and_diff_of_an_option_above_drop_in():
 def test_a_candidate_of_the_same_name_is_left_to_grouping():
     f = Family({A: "fam", "TypeA|weak|P2": "fam"}, {A: "WEAK", "TypeA|weak|P2": "weak"}, TYPES, 21)
     assert f.items(A, set()) == []
+
+
+H = "TypeA|WEAK|HARNESS"
+GROUPED = {"groups": [{"id": "g", "family": "fam", "members": [1, 2]}], "interop": {"status": "checked", "pairs": []},
+           "items": {"1": {"qualified": A, "group": "g", "runs": True}, "2": {"qualified": H, "group": "g", "runs": True}}}
+H_ROWS = [replace(row("a", "P1", algorithm="WEAK"), parameters=PARAMS), replace(row("h", "HARNESS", algorithm="WEAK"), parameters=PARAMS)]
+H_M = {"a": {"timeNs": summary(100)}, "h": {"timeNs": summary(80)}}
+
+
+def _harness(tmp_path, top, available):
+    (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
+    f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top)
+    return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, H_M, tmp_path, None, PerfMode(), f, available)
+
+
+def test_a_harness_only_provider_the_app_does_not_ship_is_no_drop_in(tmp_path):
+    doc = _harness(tmp_path, "drop-in", {"P1"})
+    assert doc["dossiers"] == [] and doc["noOptions"][0]["reason"] == "none_available"
+    [kept] = doc["notOffered"]
+    assert (kept["item"], kept["change"], kept["diff"]["addsDependency"]) == (H, "migration", True)
+
+
+def test_under_migration_it_is_an_option_whose_diff_adds_a_dependency(tmp_path):
+    doc = _harness(tmp_path, "migration", {"P1"})
+    [option] = doc["dossiers"][0]["options"]
+    assert (option["item"], option["change"], option["diff"]["addsDependency"], option["diff"]["output"]) == (H, "migration", True, "same")
+    assert validate_dossiers(doc, [scope(("local",))], GROUPED, None) == []
+    assert "adds a dependency" in render(UnitDossiers(Unit("u", (scope().id,)), (Dossier.from_json(doc["dossiers"][0]),)))
+
+
+def test_a_provider_the_app_ships_stays_a_drop_in(tmp_path):
+    [option] = _harness(tmp_path, "drop-in", {"P1", "HARNESS"})["dossiers"][0]["options"]
+    assert option["item"] == H and "change" not in option
+
+
+def test_available_is_the_platform_and_what_the_app_ships_also_under_the_harness_name():
+    platform = frozenset({"P1"})
+    harness = {"Ours": "org.example:lib", "Other": "org.example:other"}
+    app = {"bundled": [{"artifact": "org.example:lib", "providerName": "Lib"}, {"artifact": "org.example:none", "providerName": None}]}
+    assert available_providers(platform, harness, app) == {"P1", "Lib", "Ours"}
+    assert available_providers(platform, harness, {}) == {"P1"}
+
+
+def test_the_probe_names_a_harness_providers_artifact_without_its_version():
+    probe = Probe({"providers": [{"name": "P1", "origin": "platform"}, {"name": "Ours", "origin": "bundled", "artifact": "org.example:lib:1.2"}]})
+    assert probe.harness_artifacts() == {"Ours": "org.example:lib"}
+
+
+def _estimate(ratio, p, metric="timeNs", n=9):
+    return Estimate(metric, ratio, p, n, "OP key 1 input 1 p")
+
+
+@pytest.mark.parametrize("estimates,want", [
+    ((_estimate(20.0, 0.0),), True),
+    ((_estimate(20.0, 0.0), _estimate(1.5, 0.01, "allocationCount")), True),
+    ((_estimate(20.0, 0.0), _estimate(0.9, 0.99, "allocationCount")), False),
+    ((_estimate(1.01, 0.0),), False),
+    ((_estimate(20.0, 0.4),), False),
+    ((_estimate(20.0, None, n=1),), False),
+    ((), False)])
+def test_no_gain_is_worse_beyond_noise_on_every_estimate(estimates, want):
+    assert no_gain(estimates) is want
+
+
+def _slow(tmp_path, top="drop-in"):
+    (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
+    f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top)
+    slow = {"a": {"timeNs": summary(100)}, "h": {"timeNs": summary(2000)}}
+    return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, slow, tmp_path, None, PerfMode(), f, {"P1", "HARNESS"})
+
+
+def test_a_twenty_times_slower_candidate_is_rejected_no_gain_and_the_scope_says_so(tmp_path):
+    doc = _slow(tmp_path)
+    assert doc["dossiers"] == [] and doc["noOptions"] == [{"scope": scope().id, "reason": "no_gain"}]
+    assert [(n["item"], n["change"], n["reasons"]) for n in doc["notOffered"]] == [(H, "rejected", ["no_gain"])]
+    assert validate_dossiers(doc, [scope(("local",))], GROUPED, None) == []
+
+
+def test_the_validator_refuses_a_no_gain_option():
+    d = Dossier(scope(), "src", A, (Option("R1", H, {}, "pass", (_estimate(20.0, 0.0),)),))
+    assert any("no_gain" in p for p in check_dossier(d.to_json(), "app", PerfMode())[1])

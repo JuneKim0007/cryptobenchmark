@@ -63,7 +63,8 @@ def _change(o: Option) -> list[str]:
     """A drop-in shows nothing, so its prompt and evidence stay what they were before change classes."""
     if o.diff is None:
         return []
-    return [f"    change: {o.change} | input {o.diff.input} | key {o.diff.key} | output {o.diff.output} | reach {o.diff.reach}"]
+    return [f"    change: {o.change} | input {o.diff.input} | key {o.diff.key} | output {o.diff.output} | reach {o.diff.reach}"
+            + (" | adds a dependency" if o.diff.addsDependency else "")]
 
 
 def _option(s: Scope, o: Option) -> list[str]:

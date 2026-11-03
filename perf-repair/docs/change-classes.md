@@ -48,6 +48,7 @@ flowchart TD
 | `output` | `bytes` | same `outputKind`, other bytes or length |
 | | `kind` | another `outputKind` |
 | `reach` | `local`, `return`, `persist` | the sinks are all `local`; all `local` or `return`; any other sink, `unknown` included |
+| `addsDependency` | true | the candidate's provider is one `providers.bundled` installed and the app does not ship |
 
 `same` output is a drop-in's: a drop-in carries no diff.
 
@@ -56,7 +57,7 @@ flowchart TD
 | Class | Holds when |
 |---|---|
 | `drop-in` | the candidate is another member of the current item's group |
-| `migration` | `reach` `persist`, `key` `type`, `key` `size` with a key not generated in the function, `input` `new_parameter`, or `output` `kind` |
+| `migration` | `addsDependency`, `reach` `persist`, `key` `type`, `key` `size` with a key not generated in the function, `input` `new_parameter`, or `output` `kind` |
 | `local-edit` | none of the above |
 | `rejected` | any reason below |
 
@@ -72,9 +73,16 @@ flowchart TD
 | `availability_unknown` | the candidate's `minSdk` is null, or above API 1 with the app's unread, and its provider is not bundled |
 | `not_measured` | it does not run, its provider is absent, or `rows.json` has no line of it |
 | `deprecated` | screening refuses it for this app (`lowers_status`) |
+| `no_gain` | every estimate, of any class: ratio at or above `1 / improvingRatio` and `pImprove` at or below 1 minus the top level's floor (`result/criteria.yaml`); none, or one with `pImprove` null, is no such evidence |
 
 - Every reason found is listed, not the first.
 - A candidate of the current item's canonical name is left to grouping: it is a drop-in or nothing.
+- A group member from a provider outside the app's process is not a drop-in: `migration`, `output` `same`, `addsDependency`.
+
+## Availability
+
+- A provider is in the app's process when the probe's `origin` is not `bundled`, the app's `app.json` `bundled` names it, or the probe's `artifact` group:name is one the app ships.
+- A capture without `origin` reads as all platform.
 
 ## `apps.maxChange`
 

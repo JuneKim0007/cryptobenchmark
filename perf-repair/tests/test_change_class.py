@@ -165,3 +165,8 @@ def test_every_reason_is_listed_and_reasons_accumulate():
 def test_max_change_admits_its_class_and_those_before_it():
     assert [admits("local-edit", c) for c in CHANGES] == [True, True, False]
     assert not admits("migration", "rejected")
+
+
+def test_a_family_candidate_only_the_harness_has_is_a_migration_that_adds_a_dependency():
+    c = classify(TYPES, scope(("local",)), WEAK, Candidate("TypeA|HASH-B|P9", STRONG, True, False, False, True), 21)
+    assert (c.change, c.diff.addsDependency) == ("migration", True)

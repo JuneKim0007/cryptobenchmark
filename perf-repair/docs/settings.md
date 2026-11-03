@@ -7,8 +7,7 @@
 | `perfrepair.yaml` | no | the settings below; template `perfrepair.example.yaml` |
 | `.env` | no | `PERFREPAIR_AGENT`, `PERFREPAIR_AUTH`, `PERFREPAIR_MODEL`, `PERFREPAIR_EFFORT`, `ANTHROPIC_API_KEY`; template `.env.example` |
 
-- Settings file lookup: `--perfrepair-config FILE`, then `$PERFREPAIR_CONFIG`, then `perf-repair/perfrepair.yaml`; never the working directory.
-- A file named by the flag or `PERFREPAIR_CONFIG` that does not exist exits 2 with `missing_file`.
+- Settings file lookup: `--perfrepair-config FILE`, then `$PERFREPAIR_CONFIG`, then `perf-repair/perfrepair.yaml`; never the working directory. A file named by the flag or `PERFREPAIR_CONFIG` that does not exist exits 2 with `missing_file`.
 - Relative paths in the file resolve against the file's folder.
 - `.env` keys outside `PERFREPAIR_*` fill unset environment keys; its `PERFREPAIR_*` keys are a layer below `perfrepair.yaml`.
 - `PERFREPAIR_CONFIG` is read from the environment only, never from `.env`.

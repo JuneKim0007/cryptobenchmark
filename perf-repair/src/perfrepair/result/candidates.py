@@ -34,11 +34,11 @@ class Family:
         return sorted(q for q, f in self.family_of.items() if f == family and q != current and q not in group
                       and (mine is None or self.canonical_of.get(q) is None or fold(self.canonical_of[q]) != fold(mine)))
 
-    def classed(self, s: Scope, current: str, group: set[str], provider_of, measured, lowers) -> list[Change]:
-        """measured(item) and lowers(item): the run's facts the type catalog does not hold."""
+    def classed(self, s: Scope, current: str, group: set[str], provider_of, measured, lowers, foreign) -> list[Change]:
+        """measured, lowers, foreign (item): the run's facts the type catalog does not hold."""
         mine = self.row(current)
         return [classify(self.types, s, mine, Candidate(q, self.row(q), measured(q), provider_of(q) in self.bundled,
-                                                        lowers(q)), self.min_sdk)
+                                                        lowers(q), foreign(q)), self.min_sdk)
                 for q in self.items(current, group)]
 
     def split(self, changes: list[Change]) -> tuple[list[Change], list[Change]]:

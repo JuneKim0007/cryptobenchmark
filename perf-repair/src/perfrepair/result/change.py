@@ -24,6 +24,8 @@ class Candidate:
     measured: bool
     bundled: bool
     lowers: bool
+    # the provider is only the harness's; offering it adds a dependency to the app
+    foreign: bool = False
 
 
 def reach(scope: Scope) -> str:
@@ -53,9 +55,9 @@ def _key(current: TypeRow, candidate: TypeRow) -> str:
     return "size" if current.strength.key != candidate.strength.key else SAME
 
 
-def diff(scope: Scope, current: TypeRow, candidate: TypeRow) -> PairDiff:
+def diff(scope: Scope, current: TypeRow, candidate: TypeRow, foreign: bool = False) -> PairDiff:
     output = "kind" if current.outputKind != candidate.outputKind else "bytes"
-    return PairDiff(_input(scope, current, candidate), _key(current, candidate), output, reach(scope))
+    return PairDiff(_input(scope, current, candidate), _key(current, candidate), output, reach(scope), foreign)
 
 
 def _floor(types: Types, scope: Scope, current: TypeRow, candidate: TypeRow) -> list[str]:
@@ -98,7 +100,7 @@ def rejects(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, m
 
 def _class(scope: Scope, d: PairDiff) -> str:
     rekeyed = d.key == "type" or (d.key == "size" and scope.keySource != FRESH)
-    if d.reach == "persist" or rekeyed or d.input == "new_parameter" or d.output == "kind":
+    if d.addsDependency or d.reach == "persist" or rekeyed or d.input == "new_parameter" or d.output == "kind":
         return MIGRATION
     return LOCAL_EDIT
 
@@ -109,5 +111,10 @@ def classify(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, 
     if found:
         d = diff(scope, current, c.row) if current is not None and c.row is not None else PairDiff.same(reach(scope))
         return Change(c.item, REJECTED, d, tuple(found))
-    d = diff(scope, current, c.row)
+    d = diff(scope, current, c.row, c.foreign)
     return Change(c.item, _class(scope, d), d)
+
+
+def foreign_member(scope: Scope, item: str) -> Change:
+    """A member of the current item's group from a provider the app does not ship: every contract equal but the dependency."""
+    return Change(item, MIGRATION, PairDiff(SAME, SAME, SAME, reach(scope), True))

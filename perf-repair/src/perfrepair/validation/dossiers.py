@@ -13,6 +13,7 @@ from ..dto.perf_mode import PerfMode
 from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX,
                         Dossier, Scope, reason_code)
 from ..dto.unit import PairInterop, Stay, Unit, UnitDossiers
+from ..result.gain import no_gain
 from .app import scope_problems
 
 KEYS = {"schemaVersion", "app", "perfMode", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
@@ -92,6 +93,11 @@ def _changes(where: str, d: Dossier, max_change: str) -> list[str]:
                        if (o.diff is None) != (o.change == DROP_IN)]
 
 
+def _gained(where: str, d: Dossier) -> list[str]:
+    return [f"{where} {o.alias}: worse on every selected metric; such a candidate is rejected no_gain"
+            for o in d.options if no_gain(o.estimates)]
+
+
 def _estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str]:
     problems = []
     for o in d.options:
@@ -144,7 +150,7 @@ def check_dossier(raw, app: str | None, perf: PerfMode, max_change: str = DROP_I
         problems.append(f"{where}: an option repeats the current item or another option")
     problems += [f"{where} {o.alias}: screen {o.screen!r} is neither one of {STATUSES} nor null"
                  for o in d.options if o.screen is not None and o.screen not in STATUSES]
-    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change)
+    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change) + _gained(where, d)
 
 
 def _labels(where: str, d: Dossier) -> list[str]:
@@ -222,7 +228,7 @@ def _others_outside_group(where: str, d: Dossier, group_of: dict, group: str | N
     if group is None:
         return []
     return [f"{where} {o.alias}: {o.change} {o.item} is in the current item's group {group}"
-            for o in d.options if o.change != DROP_IN and group_of.get(o.item) == group]
+            for o in d.options if o.change != DROP_IN and group_of.get(o.item) == group and not (o.diff and o.diff.addsDependency)]
 
 
 def _in_group(where: str, d: Dossier, groups: dict) -> list[str]:
