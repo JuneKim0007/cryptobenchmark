@@ -42,6 +42,8 @@ DERIVED_RISKS = (
     ("keySource", "keystore", "key_compatibility", "the key lives in a key store"),
     ("keySource", "literal", "key_compatibility", "the key is a literal in the code"),
     ("keySource", "storage", "key_compatibility", "the key is read back from storage"),
+    ("keySource", "unknown", "key_compatibility", "where the key comes from is not visible here"),
+    ("keySource", "parameter", "key_compatibility", "where the key comes from is not visible here"),
     ("interop", "not_checkable", "unverified_interop", "the interop check could not decide the pair"),
     ("interop", "not_planned", "unverified_interop", "the pair was not in the interop plan"),
     ("interop", "not_run", "unverified_interop", "no interop check has run"),

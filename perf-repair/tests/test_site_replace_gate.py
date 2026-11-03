@@ -211,3 +211,10 @@ def test_two_sides_swapped_to_different_providers_need_their_interop_too():
                         "their interop is not_planned",
                         "S2: risks must include unverified_interop: its inverse S1 ends on TypeA|ALG-A/MODE-X|P2, and "
                         "their interop is not_planned"]
+
+
+@pytest.mark.parametrize("source", ["unknown", "parameter"])
+def test_a_key_whose_origin_is_not_visible_declares_key_compatibility(source):
+    s = scope(sinks=("local",), key_source=source)
+    assert required_risks(s) == {"key_compatibility": ["where the key comes from is not visible here"]}
+    assert "key_compatibility" not in required_risks(scope(sinks=("local",), key_source="derived"))

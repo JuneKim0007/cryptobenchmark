@@ -81,7 +81,7 @@
 - An edit fills no field its kind does not use.
 - `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
 - Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`, `unverified_interop`.
-- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore or literal → `key_compatibility` (the key source is the lifecycle's key origin when it knows one); the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
+- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore, literal or storage → `key_compatibility`, and unknown or parameter too (where the key comes from is not visible here: scoping stays local, a default-provider call may pick a key store's provider at `init`, and the harness uses a synthetic key, so the swap stays allowed and the risk is declared and reported) (the key source is the lifecycle's key origin when it knows one); the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
 
 ## Static triage (no model call)
 
