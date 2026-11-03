@@ -29,7 +29,7 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
         problems.append("no interop section; rerun grouping report")
     if set(doc["items"]) != {str(i) for i in items}:
         problems.append("items index differs from items.json")
-    problems += _screen_problems(doc, items, screen, profiles or {})
+    problems += _screen_problems(doc, items, screen, profiles)
     for g in doc["groups"]:
         if g["family"] not in doc["families"]:
             problems.append(f"group {g['id']}: family {g['family']} is not listed")
@@ -43,12 +43,12 @@ def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict
 
 
 def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None,
-                     profiles: dict[int, Profile]) -> list[str]:
+                     profiles: dict[int, Profile] | None) -> list[str]:
     status = {str(n): v.status for n, v in (screen or {}).items()}
     problems = [f"item {k}: screen {e.get('screen')!r}, screen.json says {status.get(k)!r}"
                 for k, e in sorted(doc["items"].items()) if e.get("screen") != status.get(k)]
     groups = {g["id"]: Group(g["family"], g.get("description", ""), list(g["members"])) for g in doc["groups"]}
-    return problems + validate_code_groups(groups, items, screen, profiles)
+    return problems + validate_code_groups(groups, items, screen, profiles or {})
 
 
 def read_groups(paths: GroupingPaths) -> dict:
