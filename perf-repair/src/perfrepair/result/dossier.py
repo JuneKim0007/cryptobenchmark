@@ -161,6 +161,20 @@ def available_providers(platform: frozenset[str], harness: dict[str, str], app_d
     return {*platform, *shipped_names(app_doc), *(p for p, artifact in harness.items() if artifact in artifacts)}
 
 
+def _measured(rows: list[PrimitiveRow]) -> dict[str, dict[Config, PrimitiveRow]]:
+    bare = sorted(r.rowId for r in rows if r.parameters is None)
+    if bare:
+        raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
+    measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
+    for r in rows:
+        measured[qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r
+    return measured
+
+
+def _probed_or_shipped(groups: dict, app_doc: dict) -> set[str]:
+    return {provider_of(v["qualified"]) for v in groups["items"].values()} | shipped_names(app_doc)
+
+
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
                    measurements: dict[str, dict[str, Summary | None]], source_root: Path,
                    verdicts: dict[str, Verdict] | None, perf: PerfMode, family: Family | None = None,
@@ -169,16 +183,9 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
     perf: only its metrics are estimated, and an option without one it requires is dropped.
     family: the type catalog's candidates beyond the group up to its maxChange; None offers drop-ins only.
     available: the providers in the app's process; None, without a probe: every probed one and what the app ships."""
-    bare = sorted(r.rowId for r in rows if r.parameters is None)
-    if bare:
-        raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
     if available is None:
-        available = {provider_of(v["qualified"]) for v in groups["items"].values()}
-        available |= shipped_names(app_doc)
-    measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
-    for r in rows:
-        measured[qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r
-    joined = Joined(groups, measured, measurements, verdicts, perf, available, family)
+        available = _probed_or_shipped(groups, app_doc)
+    joined = Joined(groups, _measured(rows), measurements, verdicts, perf, available, family)
     dossiers, none, kept = [], [], []
     for s in scopes:
         current, options, reason, others = (None, [], _unresolved(s), []) if _unresolved(s) else joined.options(s)
