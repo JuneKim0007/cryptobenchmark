@@ -73,6 +73,7 @@ flowchart TD
 | `availability_unknown` | the candidate's `minSdk` is null, or above API 1 with the app's unread, and its provider is not bundled |
 | `not_measured` | it does not run, its provider is absent, or `rows.json` has no line of it |
 | `deprecated` | screening refuses it for this app (`lowers_status`) |
+| `same_engine` | a member of the current item's group from its own provider under the same canonical name (`AES/...` and `AES_128/...`): one engine, no signal to measure, and the key size that tells them apart is never known at the site; kept in `notOffered`, never offered |
 | `no_gain` | of any class: one estimate proven worse (ratio at or above `1 / improvingRatio`, `pImprove` at or below 1 minus the top level's floor, `result/criteria.yaml`) and no estimate at or below `improvingRatio`; an estimate with `pImprove` null proves nothing and saves nothing unless its ratio improves |
 
 - Every reason found is listed, not the first.

@@ -113,7 +113,7 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
         assert validate_dossiers(doc, scopes, groups, verdicts) == []
         offered = {d["current"]: {o["item"]: o["screen"] for o in d["options"]} for d in doc["dossiers"]}
         alone = {s.id for s, i in zip(scopes, items) if sizes[i.family] == 1}
-        assert all(n["reason"] == ("no_alternative" if n["scope"] in alone else "deprecated_only")
+        assert all(n["reason"] in (("no_alternative",) if n["scope"] in alone else ("deprecated_only", "no_alternative"))
                    for n in doc["noOptions"])
         for i in items:
             current = verdicts[i.qualified]
@@ -122,6 +122,9 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
                 target, shown = verdicts[o.qualified], offered.get(i.qualified, {}).get(o.qualified)
                 pairs += 1
                 refused += lowers_status(current, target)
+                if o.provider == i.provider and fold(target.canonical) == fold(current.canonical):
+                    assert shown is None, "another spelling of one engine is never an option"
+                    continue
                 if target.status not in NEVER_TARGET:
                     assert shown == target.status
                     continue

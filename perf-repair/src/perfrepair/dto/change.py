@@ -15,8 +15,11 @@ OUTPUT_DIFFS = (SAME, "bytes", "kind")
 # persist: the output is stored, sent, or goes where code cannot see
 REACHES = ("local", "return", "persist")
 NO_GAIN = "no_gain"
+# another spelling of the current item's canonical name from its own provider: one engine, nothing to measure
+SAME_ENGINE = "same_engine"
 REJECT_REASONS = ("type_unknown", "strength_below", "strength_unknown", "authenticated_lost", "deterministic_lost",
-                  "nonce_not_generated", "unavailable", "availability_unknown", "not_measured", "deprecated", NO_GAIN)
+                  "nonce_not_generated", "unavailable", "availability_unknown", "not_measured", "deprecated", NO_GAIN,
+                  SAME_ENGINE)
 
 
 def admits(max_change: str, change: str) -> bool:

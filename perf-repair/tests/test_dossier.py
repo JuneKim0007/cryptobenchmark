@@ -408,3 +408,12 @@ def test_the_unit_validator_refuses_a_wrong_key_contract_keep_and_lost_units(tmp
     lost = {**by_unit(plain, [unit], [has, lacks], GROUPS), "units": []}
     assert any("units are not the units.json" in p for p in validate_dossier_units(lost, [unit], [has, lacks], GROUPS))
 
+
+
+def test_another_spelling_of_the_current_engine_is_not_offered_and_says_same_engine(tmp_path):
+    groups = {**GROUPS, "items": {**GROUPS["items"], "2": {"qualified": "TypeA|ALG_128-A|P1", "group": "g", "runs": True}}}
+    verdicts = {v["qualified"]: Verdict("accepted", "r", canonical="ALG-A") for v in groups["items"].values()}
+    doc = build([scope()], tmp_path, groups=groups, verdicts=verdicts, rows=[r for r in ROWS if r.provider != "P2"])
+    assert [o["item"] for d in doc["dossiers"] for o in d["options"]] == ["TypeA|alg-a-alias|P3"]
+    assert [(n["item"], n["reasons"]) for n in doc["notOffered"]] == [("TypeA|ALG_128-A|P1", ["same_engine"])]
+    assert validate_dossiers(doc, [scope()], groups, verdicts) == []

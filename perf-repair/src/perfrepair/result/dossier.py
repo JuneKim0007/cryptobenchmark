@@ -5,6 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from ..catalog.names import fold
 from ..dto import PrimitiveRow, Summary
 from ..dto.grouping import provider_of, qualified
 from ..dto.interop import failed_pairs, pair_status
@@ -13,7 +14,7 @@ from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, ZERO_MEDIAN, Dossier, Option, Scope
 from ..dto.shipped import shipped, shipped_names
-from ..dto.change import DROP_IN, NO_GAIN, REJECTED, Change, PairDiff
+from ..dto.change import DROP_IN, NO_GAIN, REJECTED, SAME_ENGINE, Change, PairDiff
 from .candidates import Family
 from .change import foreign_member, reach
 from .configurations import Config, config_of, estimates, nearest, operations, pins
@@ -118,6 +119,16 @@ class Joined:
     def _measured_here(self, q: str) -> bool:
         return self._runs(q) and bool(self.measured.get(q))
 
+    def _canonical(self, q: str) -> str | None:
+        if self.family is not None:
+            return self.family.canonical_of.get(q)
+        v = (self.verdicts or {}).get(q)
+        return v.canonical if v is not None else None
+
+    def same_engine(self, current: str, q: str) -> bool:
+        mine, theirs = self._canonical(current), self._canonical(q)
+        return provider_of(q) == provider_of(current) and None not in (mine, theirs) and fold(mine) == fold(theirs)
+
     def _lowers(self, current: str, q: str) -> bool:
         v = self.verdicts or {}
         return lowers_status(v.get(current), v.get(q))
@@ -146,8 +157,10 @@ class Joined:
         leaves no option: the drop-in reason when no other class is offered either."""
         current = qualified(s.engineType, s.algorithm, s.provider)
         others = self.others(current)
-        targets, reason = self._drop_in(current, others)
+        alias = [q for q in others or () if self.same_engine(current, q)]
+        targets, reason = self._drop_in(current, None if others is None else [q for q in others if q not in alias])
         offered, kept = self.family.split(self.changes(s, current, others)) if self.family else ([], [])
+        kept += [Change(q, REJECTED, PairDiff.same(reach(s)), (SAME_ENGINE,)) for q in alias]
         if not targets and not offered:
             return current, [], reason, kept
         built = [self.option(s, current, n, q) for n, q in enumerate(targets, 1)]
