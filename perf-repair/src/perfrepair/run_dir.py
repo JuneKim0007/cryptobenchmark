@@ -118,6 +118,17 @@ def app_dirs(device: Path) -> list[Path]:
     return sorted(p for p in device.iterdir() if (p / APP).is_file()) if device.is_dir() else []
 
 
+REVIEW = "review"
+
+
+def review_sheet(device: Path) -> Path:
+    return Path(device) / REVIEW / "decisions.tsv"
+
+
+def review_score(device: Path) -> Path:
+    return Path(device) / REVIEW / "score.json"
+
+
 WORTHINESS_PREFIX = "worthiness-"
 
 

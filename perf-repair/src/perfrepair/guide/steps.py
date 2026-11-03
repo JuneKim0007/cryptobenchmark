@@ -34,6 +34,7 @@ from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
 from ..report.command import app_report, device_summary
 from ..result.modes import Mode
+from ..review.sheet import write_sheet
 from ..config.load import Loaded
 from ..screen.catalog import Catalog, CatalogMismatch, screening_catalog
 
@@ -250,6 +251,8 @@ def report(g: Guide) -> str:
 
 
 def summary(g: Guide) -> str:
+    # the accuracy sheet covers every decision this run made, also when no app reached its report
+    write_sheet(g.device)
     if not any((d / rd.REPORT).is_file() for d in rd.app_dirs(g.device)):
         return "no app has a report yet"
     doc = device_summary(g.device, echo=lambda _: None)
