@@ -73,13 +73,13 @@ def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, sourc
     stop = next((s for s in (edited, compiled, interop) if s["status"] not in ("applied", "compiled", *MEASURABLE)),
                 None)
     if decision["decision"] != "replace":
-        metrics = unmeasured(f"not replaced: {decision['decision']} ({decision['reason']})")
+        metrics = unmeasured(f"not replaced: {decision['decision']} ({decision['reason']})", mode.perf)
     elif stop is not None:
-        metrics = unmeasured(f"{stop['status']}: {stop['reason']}")
+        metrics = unmeasured(f"{stop['status']}: {stop['reason']}", mode.perf)
     elif before is None or after is None:
-        metrics = unmeasured("no_cases: the device measured neither or one of before and after")
+        metrics = unmeasured("no_cases: the device measured neither or one of before and after", mode.perf)
     else:
-        metrics = metric_rows(before, after)
+        metrics = metric_rows(before, after, mode.perf)
     chosen = next((o for o in (dossier or {}).get("options") or [] if o["item"] == option), None)
     return {"scope": scope["id"], "file": scope["file"], "line": scope["line"], "function": scope["function"],
             "current": current, "option": option, "inputs": inputs, "decision": decision, "edit": edited, "compile": compiled,

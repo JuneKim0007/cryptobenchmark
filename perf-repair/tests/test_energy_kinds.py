@@ -83,24 +83,24 @@ def case(kind, runs=(0.5, 0.6)):
 
 
 def energy_row(before, after):
-    return metric_rows(before, after)[2]
+    return metric_rows(before, after, PerfMode())[2]
 
 
 def test_the_report_labels_an_estimate_and_validates_it():
     m = energy_row(case("estimated"), case("estimated"))
-    assert m["kind"] == "estimated" and m["measured"] is True and _metric("r", m) == []
-    assert "| energyJ (J/op, estimated) |" in _metric_lines(m)[0]
+    assert m["kind"] == "estimated" and m["measured"] is True and _metric("r", m, PerfMode().names) == []
+    assert "| energyJ * (J/op, estimated) |" in _metric_lines(m)[0]
 
 
 def test_the_report_of_rails_energy_is_what_it_was():
     for kind in ("measured", None):
         m = energy_row(case(kind), case(kind))
-        assert "kind" not in m and _metric("r", m) == [] and "| energyJ (J/op) |" in _metric_lines(m)[0]
+        assert "kind" not in m and _metric("r", m, PerfMode().names) == [] and "| energyJ * (J/op) |" in _metric_lines(m)[0]
 
 
 def test_the_report_refuses_a_ratio_across_kinds():
     m = energy_row(case("measured"), case("estimated"))
-    assert m["measured"] is False and m["reason"] == "energy_kinds_differ: measured before, estimated after" and _metric("r", m) == []
+    assert m["measured"] is False and m["reason"] == "energy_kinds_differ: measured before, estimated after" and _metric("r", m, PerfMode().names) == []
 
 
 def test_the_summary_names_the_apps_with_estimates():

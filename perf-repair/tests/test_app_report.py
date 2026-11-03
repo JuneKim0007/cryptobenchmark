@@ -95,7 +95,8 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
     reasons = {s: r[s]["metrics"][0]["reason"] for s in (B, C, D, E)}
     assert reasons == {B: "primitive_only: missing_input: inputSize for in", C: "interop_failed: outputs_differ",
                        D: "not replaced: keep (no_alternative)", E: "rejected: call_moved"}
-    assert all(set(m) == {"metric", "unit", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
+    assert all(set(m) == {"metric", "unit", "selected", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
+    assert [m["selected"] for m in r[B]["metrics"]] == [True, False, False]
     assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "replace": 4, "unitsReplace": 3, "applied": 3, "compiled": 2,
                              "interopPassed": 1, "measured": 1, "measuredUnchecked": 0}
 
@@ -103,7 +104,7 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
 def test_the_markdown_carries_the_numbers_and_the_reasons(tmp_path, app):
     app_report(tmp_path, "shop", LATENCY, **QUIET)
     text = app.report_md.read_text()
-    assert "| timeNs (ns/op) | 1,000 → 800 | 0.800 |" in text and "| MB/s | 1,024 → 1,280 |" in text
+    assert "| timeNs * (ns/op) | 1,000 → 800 | 0.800 |" in text and "| MB/s | 1,024 → 1,280 |" in text
     assert "| energyJ (J/op) | 0.002 → 0.0015 | 0.750 | n/a (n<2) | 1 |" in text
     assert "not measured: primitive_only: missing_input: inputSize for in" in text
     assert "Primitive-only evidence" in text and "ratio 0.700, pImprove 0.99" in text
@@ -158,6 +159,9 @@ def test_the_validator_refuses_an_invented_number(tmp_path):
     bad = json.loads(json.dumps(doc))
     bad["funnel"]["measured"] = 2
     assert validate_report(bad, "shop") == [f"funnel {bad['funnel']} is not the recount of the scope rows"]
+    bad = json.loads(json.dumps(doc))
+    rows(bad)[A]["metrics"][1]["selected"] = True
+    assert any("selected True is not whether the mode selects it" in p for p in validate_report(bad, "shop"))
 
 
 def test_the_summary_counts_apps_per_metric_and_sums_the_funnel(tmp_path):
@@ -168,7 +172,7 @@ def test_the_summary_counts_apps_per_metric_and_sums_the_funnel(tmp_path):
     time = doc["metrics"]["timeNs"]
     assert time["apps"] == {"improved": ["shop"], "unchanged": [], "worse": ["slow"], "notMeasured": []}
     assert time["medianChange"] == pytest.approx(0.0)
-    assert doc["metrics"]["allocationCount"]["apps"]["unchanged"] == ["shop", "slow"]
+    assert list(doc["metrics"]) == ["timeNs"]
     assert doc["funnel"]["sites"] == 12 and doc["funnel"]["measured"] == 2
     text = (tmp_path / "summary.md").read_text()
     assert "| timeNs (ns/op) | 1 | 0 | 1 | 0 | +0.0% |" in text

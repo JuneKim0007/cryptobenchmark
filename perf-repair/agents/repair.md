@@ -58,7 +58,7 @@ src/perfrepair/report/app_report.py : an app's step files → report.json: a row
 src/perfrepair/report/command.py : stage: report.json and .md, summary.json and .md, validated before writing
 src/perfrepair/report/markdown.py : report.md and summary.md from their documents
 src/perfrepair/report/measured.py : cryptobenchmark's scoped-plan.yaml and scoped benchmark.json for one app; refuses a plan of another harness
-src/perfrepair/report/metrics.py : before and after cases → per metric: medians, ratio, pImprove, level; ops/s and MB/s
+src/perfrepair/report/metrics.py : before and after cases → per metric, each marked selected or not: medians, ratio, pImprove, level; ops/s and MB/s
 src/perfrepair/report/scope_row.py : one scope's decision, edit, compile, interop, metrics and verdict
-src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, apps improved, unchanged, worse per metric
+src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, apps improved, unchanged, worse per selected metric
 ```

@@ -4,8 +4,9 @@ from __future__ import annotations
 from .metrics import METRICS
 
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
-# sharedFunction and stayed, funnel units and unitsReplace
-SCHEMA_VERSION = 4
+# sharedFunction and stayed, funnel units and unitsReplace; 5: metric rows carry selected, summary metrics are the
+# selected ones
+SCHEMA_VERSION = 5
 SOURCES = ("llm", "fallback", "static")
 DECISION_STATUSES = ("replace", "keep", "not_run")
 EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")

@@ -5,6 +5,8 @@ from ..dto.measurement import ESTIMATED
 from ..dto.report import CHANGES, FUNNEL
 
 NOT_MEASURED = "not measured"
+# marks a metric the perfMode selected: the one a decision saw and the verdict judged
+SELECTED = " *"
 
 
 def _num(v: float | None, digits: int = 3) -> str:
@@ -44,11 +46,12 @@ def _funnel(f: dict) -> list[str]:
 
 
 def _metric_lines(m: dict) -> list[str]:
+    name = f"{m['metric']}{SELECTED if m['selected'] else ''}"
     if not m["measured"]:
-        return [f"| {m['metric']} ({m['unit']}) | {NOT_MEASURED}: {m['reason']} | | | |"]
+        return [f"| {name} ({m['unit']}) | {NOT_MEASURED}: {m['reason']} | | | |"]
     ratio = "n/a (zero before)" if m["ratio"] is None else f"{m['ratio']:.3f}"
     estimated = ", estimated" if m.get("kind") == ESTIMATED else ""
-    lines = [f"| {m['metric']} ({m['unit']}{estimated}) | {_num(m['before'])} → {_num(m['after'])} | {ratio} | {_p(m)} | {m['n']} |"]
+    lines = [f"| {name} ({m['unit']}{estimated}) | {_num(m['before'])} → {_num(m['after'])} | {ratio} | {_p(m)} | {m['n']} |"]
     t = m.get("throughput")
     if t:
         ops = t["opsPerSecond"]
@@ -71,7 +74,7 @@ def report_markdown(doc: dict) -> str:
                 + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}",
                 f"- interop: {_interop(s)}",
-                f"- verdict ({doc['mode']}): {s['verdict']}", "",
+                f"- verdict ({doc['mode']}): {s['verdict']}; `*` marks the metrics it selects", "",
                 "| metric | before → after | ratio | pImprove | n |", "|---|---|---|---|---|"]
         for m in s["metrics"]:
             out += _metric_lines(m)
@@ -84,7 +87,7 @@ def report_markdown(doc: dict) -> str:
 
 def summary_markdown(doc: dict) -> str:
     out = [f"# Replacement summary: {len(doc['apps'])} apps", "",
-           f"Mode: {doc['mode']}. An app's change is the median ratio (after ÷ before) of its measured scopes; "
+           f"Mode: {doc['mode']}, its selected metrics below. An app's change is the median ratio (after ÷ before) of its measured scopes; "
            f"improved at or below {doc['improvingRatio']}, worse at or above {1 / doc['improvingRatio']:.3f}.", "",
            "## Funnel", "", "| app | " + " | ".join(FUNNEL) + " |", "|---|" + "---|" * len(FUNNEL)]
     rows = [*doc["byApp"].items(), ("all", doc["funnel"])]

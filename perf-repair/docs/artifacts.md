@@ -54,7 +54,7 @@
 | `summary.json`, `summary.md` | report summary | people | `validation/report.py`, before writing |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
-- Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 4 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process; 4 keys every metric by its benchmark.json name, `allocations` became `allocationCount`), and `worthiness-<mode>/evidence.json` at 2 (a member's summary per metric, a pair's comparison per metric).
+- Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 4 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process; 4 keys every metric by its benchmark.json name, `allocations` became `allocationCount`), `worthiness-<mode>/evidence.json` at 3 (2: a member's summary per metric, a pair's comparison per metric; 3: only the perfMode's metrics), `<app>/dossiers.json` at 3 and `report.json`, `summary.json` at 5 (`selected` per metric row; summary metrics are the selected ones).
 - A journal is append-only, one line per model turn with its `durationMs`, audit only; state is the projection of the outbox.
 - `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path); an outbox from before it gets it on its next open.
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.

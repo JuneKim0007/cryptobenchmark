@@ -1,8 +1,10 @@
-"""One scope's before and after cases → a row per reported metric: medians, ratio, pImprove and its level."""
+"""One scope's before and after cases → a row per reported metric: medians, ratio, pImprove and its level, and whether
+the perfMode selected it; people see every metric, the model only the selected ones."""
 from __future__ import annotations
 
 from ..data_handler.inbound.results import summarise
 from ..dto.measurement import ESTIMATED, MEASURED
+from ..dto.perf_mode import PerfMode
 from ..dto.report import REPORTED
 from ..dto.site import ENERGY_KINDS_DIFFER
 from ..result.confidence import level
@@ -11,8 +13,8 @@ from ..result.estimate import p_improve
 NS_PER_SECOND, BYTES_PER_MB = 1e9, 1e6
 
 
-def unmeasured(reason: str) -> list[dict]:
-    return [{"metric": m, "unit": u, "measured": False, "reason": reason} for m, u in REPORTED]
+def unmeasured(reason: str, perf: PerfMode) -> list[dict]:
+    return [{"metric": m, "unit": u, "selected": m in perf.names, "measured": False, "reason": reason} for m, u in REPORTED]
 
 
 def _runs(case: dict, metric: str) -> list[float] | None:
@@ -38,14 +40,14 @@ def _not_comparable(metric: str, before_case: dict, after_case: dict) -> str | N
     return f"{ENERGY_KINDS_DIFFER}: {kinds[0]} before, {kinds[1]} after" if kinds[0] != kinds[1] else None
 
 
-def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
+def _row(metric: str, unit: str, selected: bool, before_case: dict, after_case: dict) -> dict:
     if reason := _not_comparable(metric, before_case, after_case):
-        return {"metric": metric, "unit": unit, "measured": False, "reason": reason}
+        return {"metric": metric, "unit": unit, "selected": selected, "measured": False, "reason": reason}
     before, after = summarise([_runs(before_case, metric)]), summarise([_runs(after_case, metric)])
     p = p_improve(before.processes, after.processes)
     # a zero median before (no allocations) has no ratio; pImprove still compares the runs
     ratio = after.median / before.median if before.median else None
-    row = {"metric": metric, "unit": unit, "measured": True, "before": before.median, "after": after.median,
+    row = {"metric": metric, "unit": unit, "selected": selected, "measured": True, "before": before.median, "after": after.median,
            "ratio": ratio, "pImprove": p, "level": level(p), "n": min(before.n, after.n)}
     if metric == "timeNs":
         positive = before.median > 0 and after.median > 0
@@ -53,5 +55,5 @@ def _row(metric: str, unit: str, before_case: dict, after_case: dict) -> dict:
     return row | ({"kind": ESTIMATED} if _kind(before_case, metric) == ESTIMATED else {})
 
 
-def metric_rows(before_case: dict, after_case: dict) -> list[dict]:
-    return [_row(metric, unit, before_case, after_case) for metric, unit in REPORTED]
+def metric_rows(before_case: dict, after_case: dict, perf: PerfMode) -> list[dict]:
+    return [_row(metric, unit, metric in perf.names, before_case, after_case) for metric, unit in REPORTED]

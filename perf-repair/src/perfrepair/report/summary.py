@@ -1,11 +1,12 @@
-"""Every <app>/report.json of a device → summary.json: the funnel summed, and per metric the apps improved,
+"""Every <app>/report.json of a device → summary.json: the funnel summed, and per selected metric the apps improved,
 unchanged or worse by the median of their measured scopes' ratios."""
 from __future__ import annotations
 
 import statistics
 
 from ..dto.measurement import ESTIMATED
-from ..dto.report import CHANGES, FUNNEL, REPORTED, SCHEMA_VERSION
+from ..dto.metrics import BY_NAME
+from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION
 from ..dto.perf_mode import PerfMode
 from ..result.modes import mode_of
 
@@ -35,10 +36,12 @@ def build_summary(reports: list[dict]) -> dict:
     modes = sorted({r["mode"] for r in reports})
     if len(modes) != 1:
         raise ValueError(f"mixed_modes: the app reports were built in modes {modes}; rebuild them in one mode")
-    improving = mode_of(PerfMode.parse(modes[0])).improvingRatio
+    mode = mode_of(PerfMode.parse(modes[0]))
+    improving = mode.improvingRatio
     by_app = {r["app"]: r["funnel"] for r in reports}
     metrics = {}
-    for metric, unit in REPORTED:
+    for metric in mode.perf.names:
+        unit = BY_NAME[metric].unit
         ratios = {r["app"]: app_ratio(r, metric) for r in reports}
         measured = [v for v in ratios.values() if v is not None]
         metrics[metric] = {"unit": unit, "ratios": ratios,
