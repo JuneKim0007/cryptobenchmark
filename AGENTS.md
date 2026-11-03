@@ -55,6 +55,7 @@ modules/settings/ : harness key table shared by config, preparation and benchmar
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 scripts/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
 scripts/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
+scripts/case_isolation.py : run.isolation case: CryptoBenchmark in one instrumentation process per case; a crashed case is one case_failed line
 scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
 scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, measure, pull
@@ -72,7 +73,7 @@ scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` 
 scripts/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
 scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
-scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, device selection, the temporary-folder warning
+scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, device selection, the temporary-folder warning
 scripts/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 scripts/scope_compile.py : compiles the android test sources with Gradle; the compiler's error lines
 scripts/scope_dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
@@ -85,7 +86,7 @@ scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measur
 scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/tests/ : pytest and standalone tests for scripts/
-scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, gradle, compile, energy, analysis); expiry is one coded error
+scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution

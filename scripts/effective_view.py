@@ -30,6 +30,13 @@ def metrics(document):
     return listed
 
 
+def isolation(document):
+    chosen = (document.get("run") or {}).get("isolation", "case")
+    if chosen not in ("case", "run"):
+        fail(f"invalid: run.isolation {chosen}, expected one of [case, run]")
+    return chosen
+
+
 def process_repetitions(document):
     repetitions = (document.get("run") or {}).get("processRepetitions", 1)
     if not isinstance(repetitions, int) or repetitions < 1:

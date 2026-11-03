@@ -27,6 +27,7 @@ class Recorder:
 
     def measure(self, *_arguments):
         self.calls.append("measure")
+        return []
 
     def pull_traces(self, _traces):
         self.calls.append("pull")

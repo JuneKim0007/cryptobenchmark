@@ -6,6 +6,7 @@ SECONDS = {
     "adb": 10 * 60,
     "install": 60 * 60,
     "instrument": 12 * 60 * 60,
+    "case": 60 * 60,
     "gradle": 4 * 60 * 60,
     "compile": 30 * 60,
     "energy": 2 * 60 * 60,

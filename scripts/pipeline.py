@@ -90,7 +90,7 @@ def add_to_manifest(results, added):
     print(f"wrote:     {path}")
 
 
-def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems):
+def measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems, isolation="case"):
     data, traces, joules = into / "benchmarkData.json", into / "traces", into / "energy.json"
     joules.unlink(missing_ok=True)
     timed = captures - {"dry"}
@@ -98,7 +98,7 @@ def measure_on_device(device, session, source, options, captures, metrics, into,
         if timed:
             print("measure:   CryptoBenchmark on the device" + ("" if options.stream else "; --stream shows each case"))
             before = clocks.read(device)
-            device.measure(options.suppress_errors, metrics, data, preparation)
+            problems += device.measure(options.suppress_errors, metrics, data, preparation, isolation)
             clocks.write(into / CLOCKS, before, clocks.read(device))
             if "measured" in captures:
                 energy_stage.guarded(problems, lambda: print(f"traces:    {session.pull_traces(traces)} pulled"))
@@ -470,7 +470,8 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         if repetitions > 1:
             print(f"process:   {repetition} of {repetitions}")
         if device:
-            measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems)
+            measure_on_device(device, session, source, options, captures, metrics, into, preparation, discovery, problems,
+                              effective_view.isolation(document))
         else:
             gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
         if timed:

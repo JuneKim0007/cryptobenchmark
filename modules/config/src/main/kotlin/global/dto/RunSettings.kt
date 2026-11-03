@@ -8,6 +8,8 @@ data class RunSettings(
     val phases: List<String> = listOf("WARM"),
     val metrics: List<String> = listOf("TIME"),
     val processRepetitions: Int = 1,
+    // case: one device process per measured case, so a case that kills its process loses only itself
+    val isolation: String = CASE,
     val seed: Long = 0L,
     val harness: HarnessSettings = HarnessSettings(),
 ) {
@@ -17,5 +19,11 @@ data class RunSettings(
         require(phases.isNotEmpty() && phases.none { it.isBlank() }) { "invalid: phases $phases" }
         Metric.read(metrics, "run.metrics")
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
+        require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
+    }
+
+    companion object {
+        const val CASE = "case"
+        val ISOLATIONS = listOf(CASE, "run")
     }
 }

@@ -38,7 +38,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 |---|---|
 | `DeviceProbe` | installs the bundled providers of the `bundledProviders` argument, then writes this device's capture, classes file and trial via `Discovery`; run alone |
 | `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, then prepares and checks the plan on the device |
-| `CryptoBenchmark` | one parameterised test per timed case; test name = case id |
+| `CryptoBenchmark` | one parameterised test per timed case; test name = case id; `-e case <id>` keeps that case only (`run.isolation: case` starts one process per case: [run.md](../../../docs/run.md#one-process-per-case)) |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
 | `ScopedBenchmark` | one parameterised test per generated scope variant: [scoped.md](scoped.md) |
 
@@ -49,7 +49,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` via discovery's `ProbeDirectory`, its `trial_*` by the same stamp; none: `missing_file: ...` |
 | prepare | `Preparation` writes `skipped.yaml` and `prepared.yaml` into the device directory |
 | check | `PlanCheck.runnable` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory: a refused case is left out and added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` |
-| timed cases | `harness.energy.capture` other than `dry` |
+| timed cases | `harness.energy.capture` other than `dry`; with the instrumentation argument `case` (`DevicePlan.CASE_ARGUMENT`) only the case of that id |
 | dry cases | `harness.energy.capture` = `dry` |
 
 Capture and trial come from the same device; preparation enforces the pair by `capturedAtMillis`.

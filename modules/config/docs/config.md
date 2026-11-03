@@ -34,6 +34,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `phases` | `[WARM]` | non-empty, non-blank; values `WARM`, `COLD` checked by preparation |
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read`); device support checked at effective build: `modules/settings/docs/settings.md#device-support`; `benchmark.json` reports only these; ALLOCATION not requested: androidx still runs its allocation phase on a device; it is not reported |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
+| | `isolation` | `case` | `case` or `run`, else `invalid: run.isolation`; `--device` only: `case` runs each measured case in its own instrumentation process, `run` all of them in one ([run.md](../../../docs/run.md#device-run)) |
 | | `seed` | `0` | input seed |
 | | `harness` | empty | key table in `modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |

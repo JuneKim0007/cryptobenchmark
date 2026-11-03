@@ -13,6 +13,7 @@ run:
   phases: [WARM]
   metrics: [TIME]
   processRepetitions: 1
+  isolation: case
   seed: 42
 policy: {onFailure: skip}
 analysis:

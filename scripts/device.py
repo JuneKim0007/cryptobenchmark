@@ -1,7 +1,7 @@
 """The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
 import os, pathlib, re, subprocess
 
-import timeouts
+import case_isolation, timeouts
 
 PACKAGE = "io.github.junekim0007.cryptobench"
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
@@ -154,24 +154,41 @@ class Device:
             if "Success" not in compiled:
                 raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
 
-    def measure(self, suppress, metrics, data, preparation):
+    def report(self, output):
+        return instrumentation_report(output)
+
+    def force_stop(self):
+        self.run("shell", f"am force-stop {PACKAGE}", check=False)
+
+    def measure(self, suppress, metrics, data, preparation, isolation="run"):
+        """The failure lines of the cases that did not measure; every case failing is the run's failure."""
         self.shell(f"rm -f {self.media}/*-benchmarkData.json {self.media}/*.perfetto-trace {self.media}/*.trace {self.files}/prepared.yaml {self.files}/skipped.yaml {self.files}/{CPU_PINS}")
+        for stale in (data, preparation / "prepared.yaml", preparation / "skipped.yaml"):
+            stale.unlink(missing_ok=True)
+        data.parent.mkdir(parents=True, exist_ok=True)
         arguments = measure_arguments(suppress, metrics)
+        if isolation == "case":
+            written, failures = case_isolation.measure_each(self, "CryptoBenchmark", arguments, data)
+            if written is None:
+                raise DeviceError("CryptoBenchmark failed on the device for every case:\n" + "\n".join(failures or ["no case planned"]))
+        else:
+            print("measure:   one process for every case (isolation: run)")
+            failures = self.measure_all(arguments)
+            self.pull(self.data, data)
+        self.pull_plan(preparation)
+        pins = data.parent / CPU_PINS
+        pins.unlink(missing_ok=True)
+        self.run("pull", f"{self.files}/{CPU_PINS}", str(pins), check=False)
+        return failures
+
+    def measure_all(self, arguments):
         output = self.instrument("CryptoBenchmark", *arguments)
         if not re.search(r"^OK \(\d+ tests?\)", output, re.M):
             counted = re.search(r"^Tests run: (\d+),\s+Failures: (\d+)", output, re.M)
             if not counted or counted.group(1) == counted.group(2):
                 raise DeviceError("CryptoBenchmark failed on the device:\n" + instrumentation_report(output))
             print("warning: CryptoBenchmark: " + instrumentation_report(output).replace("\n", "\nwarning: "))
-        for stale in (data, preparation / "prepared.yaml", preparation / "skipped.yaml"):
-            stale.unlink(missing_ok=True)
-        data.parent.mkdir(parents=True, exist_ok=True)
-        preparation.mkdir(parents=True, exist_ok=True)
-        self.pull(self.data, data)
-        self.pull_plan(preparation)
-        pins = data.parent / CPU_PINS
-        pins.unlink(missing_ok=True)
-        self.run("pull", f"{self.files}/{CPU_PINS}", str(pins), check=False)
+        return []
 
     def pull_plan(self, preparation):
         preparation.mkdir(parents=True, exist_ok=True)

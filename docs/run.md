@@ -65,7 +65,8 @@ Every host subprocess runs under a ceiling from `scripts/timeouts.py`; past it t
 |---|---|---|---|
 | `adb` | 10 min | one adb command: shell, push, pull, AOT compile, Perfetto pre-flight | a pull of every case's Perfetto trace is the longest; `cmd package compile` takes under a minute |
 | `install` | 60 min | root Gradle `installRelease` and `installReleaseAndroidTest` | a cold build with dependency download takes minutes |
-| `instrument` | 12 h | one `am instrument`: `CryptoBenchmark` with every case, `DeviceProbe`, `EnergyDryBenchmark`, `InteropCheck` | a device benchmark of the full test set at 400 samples with thermal sleeps takes hours |
+| `case` | 60 min | one case's `am instrument` under `isolation: case` | one case measures for about a minute |
+| `instrument` | 12 h | one `am instrument`: `CryptoBenchmark` with every case (`isolation: run`), `DeviceProbe`, `EnergyDryBenchmark`, `InteropCheck` | a device benchmark of the full test set at 400 samples with thermal sleeps takes hours |
 | `gradle` | 4 h | a `tools/` Gradle run: probe, configure, host measure, convert, merge | the host measure of the full test set is the longest |
 | `compile` | 30 min | `--harness` scope compile | one compile of the android test sources |
 | `energy` | 2 h | `tools/energy` (`energy.py`, `preflight.py`), manafa's pre-flight and answer | the trace processor loads one trace per case |
@@ -109,7 +110,21 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 | profiler | `-e androidx.benchmark.profiling.mode None` |
 | pull | whole plan directory into `discovery/` |
 
-- `CryptoBenchmark` partial failures become warnings; all failed raises.
+
+### One process per case
+
+`run.isolation` ([config.md](../modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.
+
+| `run.isolation` | printed | what runs |
+|---|---|---|
+| `case` (default) | `measure:   one process per case (<n> cases, isolation: case)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it and joined into one (the first process's `context`, every process's `benchmarks`) |
+| `run` | `measure:   one process for every case (isolation: run)` | one `am instrument` holding every timed case |
+
+- Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.
+- Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device prepares the whole plan again in every process (`DevicePlan` has no per-case preparation), so a plan whose keys are slow to generate pays that per case too.
+- A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises.
+- `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
+- Energy: the rails pre-flight runs once per run, before the plan is pushed, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedBenchmark`, `InteropCheck` and `DeviceProbe` stay one process each.
 
 ## Device facts
 

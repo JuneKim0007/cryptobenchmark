@@ -23,10 +23,15 @@ object DevicePlan {
 
     private const val EFFECTIVE = "effective.yaml"
     private const val STAGE = "benchmark"
+    const val CASE_ARGUMENT = "case"
 
     val cases: List<PreparedCase> by lazy { prepare() }
 
-    val timedCases: List<PreparedCase> get() = cases.filter { captureOf(it) != Energy.Capture.DRY }
+    // isolation: case names one case per instrumentation process; without the argument every timed case runs
+    val timedCases: List<PreparedCase> get() {
+        val named = InstrumentationRegistry.getArguments().getString(CASE_ARGUMENT)
+        return cases.filter { captureOf(it) != Energy.Capture.DRY && (named == null || it.case.id == named) }
+    }
 
     val dryCases: List<PreparedCase> get() = cases.filter { captureOf(it) == Energy.Capture.DRY }
 
