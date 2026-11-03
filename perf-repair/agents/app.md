@@ -36,6 +36,7 @@ src/perfrepair/app/facts/libraries.yaml : artifact group and name prefix → JCA
 src/perfrepair/app/facts/path_id.py : the app's id from its absolute path; a multi-root unit's id; the folder for --app
 src/perfrepair/app/facts/roots.py : outermost Android project roots under a folder, depth 4, symlinks not followed
 src/perfrepair/app/facts/sdk.py : minSdk and targetSdk of the application module
+src/perfrepair/app/facts/versions.py : per group:name the pinned version the build files hold: a literal coordinate, a Gradle map, a version catalog entry; newest wins; a variable or a range is none
 src/perfrepair/app/find/__init__.py : docstring only
 src/perfrepair/app/find/constants.py : same-file string constants folded: const val, top-level or object val, static final String, '+'
 src/perfrepair/app/find/imports.py : whether a type name is the java.security / javax.crypto class

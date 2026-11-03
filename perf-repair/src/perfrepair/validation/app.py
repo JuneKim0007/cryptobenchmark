@@ -29,7 +29,7 @@ def validate_app_facts(doc: dict) -> list[str]:
     out += _typed(rd.APP, doc, {"app": str, "pathId": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
                   {"minSdk": int, "targetSdk": int})
     for i, b in enumerate(doc.get("bundled") or []):
-        out += _typed(f"bundled[{i}]", b, {"artifact": str}, {"providerName": str})
+        out += _typed(f"bundled[{i}]", b, {"artifact": str}, {"providerName": str, "version": str})
     for i, r in enumerate(doc.get("registers") or []):
         out += _typed(f"registers[{i}]", r, {"file": str, "line": int, "expr": str}, {})
     return out

@@ -7,6 +7,7 @@ import pytest
 from perfrepair.app.__main__ import main
 from perfrepair.app.find.constants import Constants
 from perfrepair.app.facts.dependencies import bundled, read_libraries, registrations
+from perfrepair.app.facts.versions import pinned_versions
 from perfrepair.app.detect import detect
 from perfrepair.app.facts.gate import GateError, open_app, open_apps
 from perfrepair.app.find.imports import import_reason
@@ -213,8 +214,24 @@ def test_a_name_declared_twice_is_not_folded():
 
 def test_bundled_libraries_come_from_the_data_list():
     found = bundled(build_files(APP), read_libraries())
-    assert [(b.artifact, b.providerName) for b in found] == [
-        ("com.google.crypto.tink:tink-android", None), ("org.bouncycastle:bcprov-jdk18on", "BC")]
+    assert [(b.artifact, b.providerName, b.version) for b in found] == [
+        ("com.google.crypto.tink:tink-android", None, "1.12.0"), ("org.bouncycastle:bcprov-jdk18on", "BC", "1.78")]
+
+
+@pytest.mark.parametrize("text, pins", [
+    ("implementation 'g:a:1.2'\nimplementation \"g:a:1.10\"", {"g:a": "1.10"}),
+    ("implementation \"g:a:$v\"\nimplementation 'g:b:' + v\nimplementation 'g:c:1.+'", {}),
+    ("'g:a:b8c3fec3a59aac1aa04ccf4dad7179351e54ef7672f53f508151b614c131398a'", {}),
+    ("implementation group: 'g', name: 'a', version: '2.0'", {"g:a": "2.0"}),
+])
+def test_a_pinned_version_is_a_literal_one(text, pins):
+    assert pinned_versions([(Path("build.gradle"), text)]) == pins
+
+
+def test_a_version_catalog_entry_takes_its_version_or_its_ref():
+    toml = ('[versions]\nc = "2.5.3"\n[libraries]\nc = { module = "g:a", version.ref = "c" }\n'
+            'd = { group = "g", name = "b", version = "1.0" }\ne = { module = "g:c", version.ref = "missing" }\n')
+    assert pinned_versions([(Path("libs.versions.toml"), toml)]) == {"g:a": "2.5.3", "g:b": "1.0"}
 
 
 def test_provider_registrations_need_the_platform_class():

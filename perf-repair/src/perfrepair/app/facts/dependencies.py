@@ -9,6 +9,7 @@ from ...files import read_yaml
 from ...source.language import of_build_file
 from ...source.lexer import Code, mask
 from ..find.imports import import_reason
+from .versions import pinned_versions
 
 LIBRARIES = Path(__file__).with_name("libraries.yaml")
 REGISTRY = "Security"
@@ -30,6 +31,7 @@ class Library:
 class Bundled:
     artifact: str
     providerName: str | None
+    version: str | None = None
 
 
 @dataclass(frozen=True)
@@ -56,21 +58,23 @@ def _uncommented(path: Path) -> str:
     return mask(text, of_build_file(path.name), strings=False)
 
 
-def coordinates(build_files: list[Path]) -> set[tuple[str, str]]:
+def coordinates(texts: list[tuple[Path, str]]) -> set[tuple[str, str]]:
     found = set()
-    for path in build_files:
-        text = _uncommented(path)
+    for _, text in texts:
         found |= {(m.group(1), m.group(2)) for m in _COORDINATE.finditer(text)}
         found |= {(m.group(1), m.group(2)) for m in _MAP.finditer(text)}
     return found
 
 
 def bundled(build_files: list[Path], libraries: list[Library]) -> list[Bundled]:
-    out = {}
-    for group, name in coordinates(build_files):
+    """Each crypto library declared, with its pinned version when the build files hold one."""
+    texts = [(path, _uncommented(path)) for path in build_files]
+    versions, out = pinned_versions(texts), {}
+    for group, name in coordinates(texts):
         hit = next((lib for lib in libraries if lib.group == group and name.startswith(lib.name)), None)
         if hit is not None:
-            out[f"{group}:{name}"] = Bundled(f"{group}:{name}", hit.providerName)
+            artifact = f"{group}:{name}"
+            out[artifact] = Bundled(artifact, hit.providerName, versions.get(artifact))
     return [out[k] for k in sorted(out)]
 
 
