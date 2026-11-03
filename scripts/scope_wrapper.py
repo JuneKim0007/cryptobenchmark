@@ -68,10 +68,15 @@ def round_trip(producer, consumer, produced, consumed):
 
 
 def scope_function(entry, entries):
+    """Each side builds its own inputs, so a function that changes its input in place never changes what the other side receives."""
     plan = entry.interop
+    signature = entry.signatures["before"]
     if plan.check != "round_trip":
-        names, lines = arguments(entry, "a")
-        variants = {v: f"{{ {call(entry.scope.id, v, entry.signatures['before'], names)} }}" for v in VARIANTS}
+        lines, variants = [], {}
+        for variant in VARIANTS:
+            names, made = arguments(entry, variant[0])
+            lines += made
+            variants[variant] = f"{{ {call(entry.scope.id, variant, signature, names)} }}"
         interop = "ScopeInterop.SameOutput" if plan.check == "same_output" else f"ScopeInterop.Unchecked({quoted(plan.reason)})"
     else:
         partner = entries[plan.partner]
@@ -80,15 +85,23 @@ def scope_function(entry, entries):
         consumed, consume_lines = arguments(consumer, "c")
         lines = produce_lines + consume_lines
         interop = round_trip(producer, consumer, produced, consumed)
-        if entry is producer:
-            names = produced
-        else:
-            lines.append(f"val artifact = lazy {{ {call(producer.scope.id, 'before', producer.signatures['before'], produced)} }}")
-            names = [f"artifact.value as {scope_inputs.KOTLIN_TYPES[scope_inputs.kind(producer.signatures['before'].returns)]}"
-                     if i == consumer.interop.index else name for i, name in enumerate(consumed)]
-        variants = {v: f"{{ {call(entry.scope.id, v, entry.signatures['before'], names)} }}" for v in VARIANTS}
+        variants = {variant: side_call(entry, producer, consumer, variant, lines) for variant in VARIANTS}
     body = "\n".join(lines + [f'return Scope("{entry.scope.id}", {variants["before"]}, {variants["after"]}, {interop})'])
     return f"    private fun s{entry.scope.id}(): Scope {{\n{indent(body, '        ')}\n    }}\n"
+
+
+def side_call(entry, producer, consumer, variant, lines):
+    """One side of a round-trip scope on its own inputs; a consumer's artifact comes from the before producer on that side's inputs."""
+    produced, produce_lines = arguments(producer, f"p{variant[0]}")
+    lines += produce_lines
+    if entry is producer:
+        return f"{{ {call(entry.scope.id, variant, entry.signatures['before'], produced)} }}"
+    consumed, consume_lines = arguments(consumer, f"c{variant[0]}")
+    artifact = f"artifact{variant[0].upper()}"
+    cast = scope_inputs.KOTLIN_TYPES[scope_inputs.kind(producer.signatures["before"].returns)]
+    lines += consume_lines + [f"val {artifact} = lazy {{ {call(producer.scope.id, 'before', producer.signatures['before'], produced)} }}"]
+    names = [f"{artifact}.value as {cast}" if i == consumer.interop.index else name for i, name in enumerate(consumed)]
+    return f"{{ {call(entry.scope.id, variant, entry.signatures['before'], names)} }}"
 
 
 def quoted(text):

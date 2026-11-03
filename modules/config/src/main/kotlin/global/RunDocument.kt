@@ -18,6 +18,7 @@ object RunDocument {
     private const val PROCESS_REPETITIONS = "processRepetitions"
     private const val ISOLATION = "isolation"
     private const val SEED = "seed"
+    private const val SCOPED_REPETITIONS = "scopedRepetitions"
     private const val HARNESS = "harness"
 
     fun of(run: RunSettings): Map<String, Any> = linkedMapOf(
@@ -27,10 +28,11 @@ object RunDocument {
         PROCESS_REPETITIONS to run.processRepetitions,
         ISOLATION to run.isolation,
         SEED to run.seed,
+        SCOPED_REPETITIONS to run.scopedRepetitions,
     ).apply { if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, ISOLATION, SEED, HARNESS), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, PROCESS_REPETITIONS, ISOLATION, SEED, SCOPED_REPETITIONS, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
@@ -39,6 +41,7 @@ object RunDocument {
             processRepetitions = optionalNumber(document, PROCESS_REPETITIONS)?.toInt() ?: defaults.processRepetitions,
             isolation = optionalString(document, ISOLATION).ifEmpty { defaults.isolation },
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
+            scopedRepetitions = optionalNumber(document, SCOPED_REPETITIONS)?.toInt() ?: defaults.scopedRepetitions,
             harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )
     }

@@ -13,6 +13,12 @@ def in_plan_order(_repetition, cases):
     return list(cases)
 
 
+def alternating(repetition, cases):
+    """Pairs (before, after) as AB in odd repetitions, BA in even ones: never a fixed order, so linear drift does not land on one side."""
+    pairs = [cases[i:i + 2] for i in range(0, len(cases), 2)]
+    return [case for pair in pairs for case in (pair if repetition % 2 else pair[::-1])]
+
+
 @dataclasses.dataclass(frozen=True)
 class Plan:
     """cases None lists them on the device in each process; named passes them as one ordered filter when one process runs them all."""

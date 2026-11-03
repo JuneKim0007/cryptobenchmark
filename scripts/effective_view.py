@@ -8,6 +8,7 @@ from failure import fail
 CASE_ISOLATION = "case"
 ISOLATIONS = (CASE_ISOLATION, "run")
 DEFAULT_ISOLATION = CASE_ISOLATION
+SCOPED_REPETITIONS = 3   # RunSettings.scopedRepetitions
 
 
 def read(effective_file):
@@ -39,6 +40,13 @@ def isolation(document):
     if chosen not in ISOLATIONS:
         fail(f"invalid: run.isolation {chosen}, expected one of [{', '.join(ISOLATIONS)}]")
     return chosen
+
+
+def scoped_repetitions(document):
+    repetitions = (document.get("run") or {}).get("scopedRepetitions", SCOPED_REPETITIONS)
+    if not isinstance(repetitions, int) or repetitions < 1:
+        fail(f"not_positive: scopedRepetitions {repetitions}")
+    return repetitions
 
 
 def process_repetitions(document):

@@ -15,6 +15,7 @@ run:
   processRepetitions: 1
   isolation: case
   seed: 42
+  scopedRepetitions: 3
 policy: {onFailure: skip}
 analysis:
   statistic: {headline: auto, meanUpToCovPercent: 5.0}

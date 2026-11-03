@@ -38,6 +38,18 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 
 `python3 scripts/scope_generate.py <harness.yaml> <out>` runs generate and compile alone and leaves the sources in place.
 
+## Order
+
+Before and after are measured in `run.scopedRepetitions` processes each (default 3), never in a fixed order: odd repetitions run a scope's `before` then `after`, even ones `after` then `before` (AB BA AB).
+
+| repetitions | positions (before, after) | linear drift |
+|---|---|---|
+| 3 (default) | 1, 4, 5 against 2, 3, 6 | one step of 6 left on `after`, about a sixth of what a fixed order leaves |
+| 4 | 1, 4, 5, 8 against 2, 3, 6, 7 | cancels |
+
+- With `isolation: case` the order is the host's: one process per side per repetition. With `isolation: run` the host names the cases in that order with one `-e case a,b,...` and `ScopedBenchmark` runs them as named.
+- Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), so a function that changes its input in place never changes what the other side receives; a consumer's artifact comes from the before producer on that side's own inputs.
+
 ## Wrappers
 
 | item | value |

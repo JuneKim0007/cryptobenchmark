@@ -13,6 +13,7 @@ run:                             # optional — every key below falls back to it
   processRepetitions: 1          # optional, default 1 — independent process runs
   isolation: case                # optional, default case — --device: case starts one process per measured case, so a crash loses that case only; run measures every case in one process
   seed: 0                        # optional, default 0 — seeds the input bytes
+  scopedRepetitions: 3           # optional, default 3 — --harness: processes per side, before and after alternating (AB BA AB); 4 cancels linear drift exactly
   harness:                       # optional — the run's defaults; an entry states only what differs
     iterations: 50               # optional — timing samples per case; the device applies it per case (allocation is always 5 runs)
     warmupIterations: null       # optional — null leaves warmup to the harness; 0 is refused on a device, androidx needs at least 1

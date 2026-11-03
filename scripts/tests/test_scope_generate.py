@@ -43,7 +43,7 @@ def test_catalog_synthesises_seeded_inputs_and_pairs_encrypt_with_decrypt(tmp_pa
     catalog = generated(tmp_path)["GeneratedScopes.kt"]
     assert compiled == ["0a1b2c3d4e5f", "1b2c3d4e5f60", "2c3d4e5f6071"]
     assert 'ScopeInputs.secretKey("AES", 256, 8)' in catalog and "ScopeInputs.bytes(1024, 7)" in catalog
-    assert "val artifact = lazy {" in catalog
+    assert "val artifactB = lazy {" in catalog and "val artifactA = lazy {" in catalog
     interop = {s["id"]: s["interop"] for s in plan["scopes"]}
     assert interop["0a1b2c3d4e5f"] == {"check": "round_trip", "partner": "1b2c3d4e5f60", "role": "produce"}
     assert interop["1b2c3d4e5f60"]["role"] == "consume"

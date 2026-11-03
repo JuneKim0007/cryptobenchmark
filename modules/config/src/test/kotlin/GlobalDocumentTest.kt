@@ -40,6 +40,15 @@ class GlobalDocumentTest {
         assertEquals("invalid: run.isolation process, expected one of [case, run]", refused.message)
     }
 
+    @Test
+    fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        assertEquals(3, run("").scopedRepetitions)
+        assertEquals(4, run("run: {scopedRepetitions: 4}\n").scopedRepetitions)
+        val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {scopedRepetitions: 0}\n") }
+        assertEquals("not_positive: scopedRepetitions 0", refused.message)
+    }
+
     /** The statistic that leads is the user's call; auto at 5% when nothing is said, and the choice is frozen into effective.yaml. */
     @Test
     fun theHeadlineStatisticDefaultsToAutoAndTravelsToTheEffectiveFile() {

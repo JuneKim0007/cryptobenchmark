@@ -29,20 +29,22 @@ def test_the_scope_check_is_its_own_process_before_any_case(tmp_path):
 
 
 def test_each_scoped_case_runs_in_its_own_process_and_a_crash_costs_only_itself(tmp_path, monkeypatch):
-    phone, files, problems = scoped(tmp_path, monkeypatch, {"isolation": "case"}, crash=("scope:t:before",))
+    phone, files, problems = scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1}, crash=("scope:t:before",))
     assert [named for _class, named in phone.ran] == list(CASES)
     assert problems == ["case_failed: scope:t:before: INSTRUMENTATION_RESULT: shortMsg=Process crashed."]
     assert [c["id"] for c in json.loads(files["scoped"].read_text())["cases"]] == ["scope:s:before", "scope:s:after", "scope:t:after"]
     assert files["clocks"] == tmp_path / "scoped/clocks.yaml"
 
 
-def test_repetitions_merge_and_record_every_process(tmp_path, monkeypatch):
-    phone, files, _problems = scoped(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 3})
-    assert len(phone.ran) == 12 and phone.log[-1] == "merge"
+def test_three_repetitions_by_default_alternate_before_and_after_and_merge(tmp_path, monkeypatch):
+    phone, files, _problems = scoped(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 1})
+    s_sides = [named.rsplit(":", 1)[1] for _class, named in phone.ran if named.startswith("scope:s:")]
+    assert s_sides == ["before", "after", "after", "before", "before", "after"] and phone.log[-1] == "merge"
     assert files["processes"] == [tmp_path / f"scoped/process-{n}/benchmark.json" for n in (1, 2, 3)]
     assert len(json.loads(files["scoped"].read_text())["cases"][0]["metrics"]["timeNs"]["runs"]) == 3
 
 
 def test_one_process_for_every_scoped_case_names_them_in_order(tmp_path, monkeypatch):
-    phone, _files, _problems = scoped(tmp_path, monkeypatch, {"isolation": "run"})
-    assert phone.ran == [("ScopedBenchmark", ",".join(CASES))]
+    phone, _files, _problems = scoped(tmp_path, monkeypatch, {"isolation": "run", "scopedRepetitions": 2})
+    assert phone.ran == [("ScopedBenchmark", ",".join(CASES)),
+                         ("ScopedBenchmark", "scope:s:after,scope:s:before,scope:t:after,scope:t:before")]

@@ -351,7 +351,7 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
 
 def measure_scoped(run, captures, metrics, prepared, cases, document, scoped):
     device, written = run.device, []
-    repetitions = effective_view.process_repetitions(document)
+    repetitions = effective_view.scoped_repetitions(document)
     hooks = [session_hooks.Clocks(device)]
     if "measured" in captures:
         hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, prepared.parent, run.problems, None))
@@ -365,7 +365,7 @@ def measure_scoped(run, captures, metrics, prepared, cases, document, scoped):
         record(run.files, process.into, captures, device)
 
     plan = measure_session.Plan("ScopedBenchmark", tuple(measure_arguments(run.options.suppress_errors, metrics)), cases=cases, named=True,
-                                pull_plan=lambda process: device.pull_pins(process.into), after_process=converted)
+                                order=measure_session.alternating, pull_plan=lambda process: device.pull_pins(process.into), after_process=converted)
     folder = lambda repetition: scoped if repetitions == 1 else scoped / f"process-{repetition}"
     measure_session.run_session(device, plan, repetitions, effective_view.isolation(document), hooks, folder, run.problems)
     if repetitions > 1:
