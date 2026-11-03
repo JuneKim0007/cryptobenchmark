@@ -1,0 +1,6 @@
+# Member calls that configure or inspect a primitive; any other member call on it counts as an operation.
+setup: [getInstance, init, initSign, initVerify, initialize, getAlgorithm, getProvider, getBlockSize, getIV, getParameters,
+        getOutputSize, getMacLength, getDigestLength, getExemptionMechanism, setSeed, reset, clone, toString, hashCode,
+        equals, getClass]
+# Kotlin scope functions: the calls at the top of their block are the ones on the primitive.
+blocks: [apply, run, also, let, use]

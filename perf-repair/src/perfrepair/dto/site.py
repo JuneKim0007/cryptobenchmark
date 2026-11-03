@@ -7,8 +7,10 @@ from dataclasses import asdict, dataclass, fields
 SCHEMA_VERSION = 1
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm
 REPLACEMENTS_SCHEMA_VERSION = 2
-# 2: inputs carry `from`, the source of their sizes
-HARNESS_SCHEMA_VERSION = 2
+# 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe
+HARNESS_SCHEMA_VERSION = 3
+NO_OPERATION = "no_operation"
+NOT_MEASURABLE_REASONS = (NO_OPERATION,)
 INPUT_SOURCES = ("app", "run")
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "literal", "parameter", "unknown")

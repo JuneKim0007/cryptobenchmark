@@ -59,7 +59,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 
 ## Inputs
 
-`harness.yaml` `schemaVersion: 2`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
+`harness.yaml` `schemaVersion: 3`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
 
 | parameter type | value |
 |---|---|
@@ -107,6 +107,7 @@ A consumer scope is measured on the before producer's output.
 
 | status | meaning |
 |---|---|
+| `not_measurable` | `notMeasurable` in `harness.yaml` (`no_operation`): recorded with `reason`, never generated |
 | `compiled` | generated; replaced after the device run |
 | `measured` | interop `passed` or `unchecked` |
 | `not_compilable`, `interop_failed`, `call_failed` | excluded with `reason` |

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, SCHEMA_VERSION
+from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, NOT_MEASURABLE_REASONS, SCHEMA_VERSION
 from ..source.language import NAMES
 
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
@@ -11,7 +11,7 @@ EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_cal
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
                 "no_change", "overlapping_edits")
 HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "current", "option",
-                "metrics", "dependencies")
+                "metrics", "dependencies", "notMeasurable")
 
 
 def _header(doc: dict, app: str, key: str, version: int = SCHEMA_VERSION) -> list[str]:
@@ -84,4 +84,6 @@ def validate_harness(doc: dict, app: str, base: Path, edits: dict) -> list[str]:
             problems.append(f"{where}: metrics {s['metrics']}")
         if s["dependencies"] != sorted(set(s["dependencies"])):
             problems.append(f"{where}: dependencies are not sorted and unique")
+        if s["notMeasurable"] is not None and s["notMeasurable"] not in NOT_MEASURABLE_REASONS:
+            problems.append(f"{where}: notMeasurable {s['notMeasurable']!r}")
     return problems

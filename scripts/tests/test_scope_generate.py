@@ -1,4 +1,4 @@
-import pathlib, sys
+import pathlib, shutil, sys
 
 import pytest
 import yaml
@@ -110,3 +110,15 @@ def test_inputs_without_a_source_are_refused(tmp_path):
     path = harness_with(tmp_path, "inputs: {inputSize: 1024, keySize: 256}")
     with pytest.raises(scope_harness.HarnessError, match="inputs.from None"):
         scope_harness.read(path)
+
+
+def test_a_not_measurable_scope_is_recorded_and_never_generated(tmp_path):
+    shutil.copytree(FIXTURES, tmp_path / "fixtures")
+    path = tmp_path / "fixtures/harness.yaml"
+    doc = yaml.safe_load(path.read_text())
+    doc["scopes"][2]["notMeasurable"] = "no_operation"
+    path.write_text(yaml.safe_dump(doc))
+    plan, compiled = scope_generate.generate(path, tmp_path / "root", tmp_path / "out", compiler=lambda root: [])
+    record = yaml.safe_load(plan.read_text())["scopes"][2]
+    assert (record["status"], record["reason"]) == ("not_measurable", "no_operation")
+    assert "2c3d4e5f6071" not in compiled and not (tmp_path / "root" / GENERATED / "s2c3d4e5f6071").exists()

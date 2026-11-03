@@ -47,7 +47,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 ## harness.yaml
 
 ```yaml
-schemaVersion: 2
+schemaVersion: 3
 app: <name>
 scopes:
   - id: <scope id>
@@ -55,18 +55,21 @@ scopes:
     function: <the scope's function name>
     before: harness/<scope id>/before.java
     after: harness/<scope id>/after.java
-    imports: [<the file's import lines>]
+    imports: [<the file's import lines the functions use>]
     inputs: {inputSize: <bytes or null>, keySize: <bits or null>, from: app|run}
     current: <the dossier's current item>
     option: <the chosen item>
     metrics: [timeNs, allocationCount, energyJ]
     dependencies: [<identifiers used but not defined in the function>]
+    notMeasurable: null|no_operation
 ```
 
 - Paths are relative to the folder of `harness.yaml`; only applied scopes are listed.
 - `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
 - `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
 - `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim.
+- `imports` keeps a line whose simple name or alias a function's text uses (Kotlin: in any position, since an extension reads as a member; an operator or delegate convention name always); a header annotation's import is dropped with the annotation; a wildcard stays only while a dependency is unresolved.
+- `notMeasurable: no_operation`: the function only creates, configures or hands back its primitive (`repair/operation.py`, setup names in `repair/setup_calls.yaml`); cryptobenchmark records it and never generates it, so no number describes a factory. A form the check cannot read counts as an operation.
 - `dependencies` is the union over both functions: identifiers not declared in the function, not after another receiver's `.`, not a keyword, not imported, and not in `repair/names.yaml`.
 - `inputs` is one entry per scope, never one per size; `from` says where its sizes came from:
 
@@ -85,6 +88,8 @@ scopes:
 | Limit | Rule |
 |---|---|
 | dependencies | token rules only: Kotlin `when` branch labels and infix operands read as declared; wildcard imports hide nothing |
+| imports | by name only: a Java name used only as a member after `.` keeps no import; a kept wildcard may resolve none of the names |
+| no_operation | tokens around the call, not data flow: a field the function sets is an operation when it calls one of its own methods |
 | argument split | generic angle brackets are not counted, so `f(Map<A, B>)` reads as two arguments |
 | pin with an app-supplied IV | rejected; the IV length cannot be changed without changing the app's data flow |
 | default provider | the first by precedence that registers the name; a Cipher transformation also matches like JCA: `A/M`, `A//P`, then `A`, within the service's `SupportedModes` and `SupportedPaddings` |

@@ -26,7 +26,13 @@ java:
              while, var, yield, record, "null", "true", "false"]
   types: [boolean, byte, char, short, int, long, float, double, void, var, final]
   implicit: [java, javax]
+  extensions: false
 kotlin:
+  # an import can serve a call with no such name in the text: `by`, operators, destructuring; and a member-looking extension
+  extensions: true
+  conventions: [getValue, setValue, provideDelegate, plus, minus, times, div, rem, unaryPlus, unaryMinus, inc, dec, not,
+                contains, get, set, invoke, iterator, hasNext, next, rangeTo, compareTo, component1, component2,
+                component3, component4, component5]
   keywords: [as, break, class, continue, do, else, "false", for, fun, if, in, interface, is, "null", object, package,
              return, super, this, throw, "true", try, typealias, val, var, when, while, catch, finally, by, constructor,
              init, where, override, private, protected, public, internal, open, data, inline, suspend, lateinit, const,

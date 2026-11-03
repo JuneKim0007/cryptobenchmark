@@ -78,6 +78,9 @@ def generate(harness_path, root, out, compiler=scope_compile.gradle):
     records, candidates, scopes = {}, {}, {}
     for scope in harness.scopes:
         records[scope.id] = record_of(scope)
+        if scope.not_measurable:
+            records[scope.id].update(status="not_measurable", reason=scope.not_measurable)
+            continue
         try:
             candidates[scope.id] = checked(scope)
         except (scope_signature.SignatureError, scope_inputs.InputError) as reason:

@@ -25,12 +25,15 @@ class Names:
     keywords: frozenset[str]
     types: frozenset[str]
     implicit: frozenset[str]
+    conventions: frozenset[str] = frozenset()
+    extensions: bool = False
 
 
 def load(language: str, path: Path = TABLE) -> Names:
     table = read_yaml(path)
     d = table[language]
-    return Names(frozenset(d["keywords"]), frozenset(d["types"]), frozenset(d["implicit"]) | frozenset(table["java_lang"]))
+    return Names(frozenset(d["keywords"]), frozenset(d["types"]), frozenset(d["implicit"]) | frozenset(table["java_lang"]),
+                 frozenset(d.get("conventions") or ()), bool(d.get("extensions")))
 
 
 def tokens(masked: str) -> list[str]:
@@ -46,6 +49,12 @@ def imported(imports: list[str]) -> set[str]:
             path = m.group(1).split(".")
             names |= {path[0], m.group(2) or path[-1]}
     return names - {"*"}
+
+
+def imported_name(line: str) -> str | None:
+    """The simple name or alias one import line brings in; none for a line that is no import."""
+    m = _IMPORT.match(line.strip())
+    return (m.group(2) or m.group(1).split(".")[-1]) if m else None
 
 
 def _lambda_parameter(tokens: list[str], i: int) -> bool:

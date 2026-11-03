@@ -1,15 +1,18 @@
-"""harness.yaml for cryptobenchmark: each applied scope's original and patched function, extracted verbatim."""
+"""harness.yaml for cryptobenchmark: each applied scope's original and patched function, extracted verbatim, its needed imports."""
 from __future__ import annotations
 
 import shutil
 from pathlib import Path
 
-from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, Replacement, Scope
+from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Replacement, Scope
 from ..files import write_text
+from ..source.lexer import Code
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
+from .imports import used_imports
 from .inputs import scope_inputs
+from .operation import has_operation
 
 
 def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
@@ -31,20 +34,20 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
         patched = read_source(out.patched / scope.file)
         imports = import_lines(original, lang)
         names = load(lang.name)
-        uses = set()
-        for text in (original, patched):
-            uses |= set(dependencies(function_lines(text, scope.start, scope.end), lang, imports, names))
+        functions = [function_lines(text, scope.start, scope.end) for text in (original, patched)]
+        uses = sorted({name for f in functions for name in dependencies(f, lang, imports, names)})
         entries.append({
             "id": scope.id,
             "language": lang.name,
             "function": scope.function,
             "before": _extract(out, scope, "before", original),
             "after": _extract(out, scope, "after", patched),
-            "imports": imports,
+            "imports": used_imports(imports, functions, lang, names, uses),
             "inputs": scope_inputs(scope, currents[scope.id], replacements[scope.id].option, effective),
             "current": currents[scope.id],
             "option": replacements[scope.id].option,
             "metrics": list(METRICS),
-            "dependencies": sorted(uses),
+            "dependencies": uses,
+            "notMeasurable": None if has_operation(Code.of(original, lang), scope) else NO_OPERATION,
         })
     return {"schemaVersion": HARNESS_SCHEMA_VERSION, "app": out.app, "scopes": entries}

@@ -56,10 +56,9 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
     assert entry == {
         "id": LITERAL.id, "language": "java", "function": "byte[] literal(byte[] in)",
         "before": f"harness/{LITERAL.id}/before.java", "after": f"harness/{LITERAL.id}/after.java",
-        "imports": ["import java.security.Security;", "import javax.crypto.Cipher;", "import javax.crypto.SecretKey;",
-                    "import javax.crypto.spec.GCMParameterSpec;"],
+        "imports": ["import javax.crypto.Cipher;"],
         "inputs": {"inputSize": 1024, "keySize": 256, "from": "app"}, "current": CURRENT, "option": FAST,
-        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"]}
+        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
@@ -94,6 +93,8 @@ def test_validators_refuse_broken_documents(tmp_path):
     doc["scopes"] = doc["scopes"][:2]
     problems = validate_harness(doc, APP, paths.root, edits)
     assert any("applied edits" in p for p in problems) and any("metrics" in p for p in problems)
+    doc["scopes"][0]["notMeasurable"] = "factory"
+    assert any("notMeasurable 'factory'" in p for p in validate_harness(doc, APP, paths.root, edits))
     doc["scopes"][1]["current"] = doc["scopes"][1]["option"]
     assert any("are not two items" in p for p in validate_harness(doc, APP, paths.root, edits))
 

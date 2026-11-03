@@ -276,7 +276,7 @@ def generate_scopes(options, scoped):
     elapsed(f"generate and compile {len(compiled)} scopes", started)
     print(f"wrote:     {plan}")
     if not compiled:
-        fail(f"no_scope_compiled: every scope is not_compilable, see {plan}")
+        fail(f"no_scope_compiled: every scope is not_compilable or not_measurable, see {plan}")
     return plan
 
 
