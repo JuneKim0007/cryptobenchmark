@@ -82,6 +82,7 @@ src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run)
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: step statuses, reported metrics and units, has_views (the time metric throughput selects), funnel stages, the members a unit left staying, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED, NEVER_TARGET; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and lowers_status (the don't-lower-the-status rule); verdicts by qualified name; screen.json document (schema 4, with the catalog identity and the `built` items and profiles digests)
+src/perfrepair/dto/shipped.py : Shipped: one app.json `bundled` entry (artifact, providerName, version); shipped, shipped_names: the one reader of what the app ships
 src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
 src/perfrepair/dto/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources

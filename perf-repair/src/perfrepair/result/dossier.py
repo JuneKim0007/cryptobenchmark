@@ -12,6 +12,7 @@ from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.site import DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, Dossier, Option, Scope
+from ..dto.shipped import shipped, shipped_names
 from ..dto.change import DROP_IN, NO_GAIN, REJECTED, Change, PairDiff
 from .candidates import Family
 from .change import foreign_member, reach
@@ -156,10 +157,8 @@ class Joined:
 def available_providers(platform: frozenset[str], harness: dict[str, str], app_doc: dict) -> set[str]:
     """What the app's process has: the device's own and what the app ships; harness: per provider providers.bundled
     installed, its group:name, the same library under the harness's own name counting as shipped."""
-    shipped = app_doc.get("bundled") or []
-    names = {b["providerName"] for b in shipped if b.get("providerName")}
-    artifacts = {b["artifact"] for b in shipped}
-    return {*platform, *names, *(p for p, artifact in harness.items() if artifact in artifacts)}
+    artifacts = {s.artifact for s in shipped(app_doc)}
+    return {*platform, *shipped_names(app_doc), *(p for p, artifact in harness.items() if artifact in artifacts)}
 
 
 def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, rows: list[PrimitiveRow],
@@ -175,7 +174,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
         raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
     if available is None:
         available = {provider_of(v["qualified"]) for v in groups["items"].values()}
-        available |= {b["providerName"] for b in app_doc.get("bundled") or []}
+        available |= shipped_names(app_doc)
     measured: dict[str, dict[Config, PrimitiveRow]] = defaultdict(dict)
     for r in rows:
         measured[qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r
