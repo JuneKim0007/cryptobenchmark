@@ -14,7 +14,7 @@ from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.files import read_json
-from perfrepair.guide import steps as guide_steps
+from perfrepair.guide import finished, steps as guide_steps
 from perfrepair.guide.command import main as guide_main
 from perfrepair.guide.steps import Guide
 from perfrepair.guide.targets import run_targets
@@ -95,6 +95,20 @@ def test_a_changed_source_runs_that_app_again_and_only_it(base):
     source.write_text(source.read_text() + "\n")
     _, lines = base.go([a, b])
     assert app_lines(lines)[0] == f"app {path_id(a)}: ok" and app_lines(lines)[1] == f"app {path_id(b)}: reused"
+
+
+def test_changed_scopes_or_a_changed_scoper_run_the_app_again(base, monkeypatch):
+    a = base.app("a")
+    base.go([a])
+    scopes = AppPaths(base.run_dir, path_id(a)).scopes
+    scopes.write_text(scopes.read_text() + "\n")
+    _, lines = base.go([a])
+    assert app_lines(lines) == [f"app {path_id(a)}: ok"]
+    monkeypatch.setattr(finished, "scoper_version", lambda: "another scoper")
+    _, lines = base.go([a])
+    assert app_lines(lines) == [f"app {path_id(a)}: ok"]
+    _, lines = base.go([a])
+    assert app_lines(lines) == [f"app {path_id(a)}: reused"]
 
 
 def test_an_explicit_app_runs_even_when_nothing_changed(base):

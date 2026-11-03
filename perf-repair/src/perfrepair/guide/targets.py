@@ -37,7 +37,8 @@ def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
     stopped = run_app(g, device)
     if stopped:
         return _stopped(g.app_id, stopped)
-    finished.record(g, now)
+    # read again: the run wrote the scopes it ended with
+    finished.record(g, finished.inputs(g, device))
     return AppResult(g.app_id, OK)
 
 

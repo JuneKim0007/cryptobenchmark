@@ -1,12 +1,24 @@
 """An app that reached its last step, and the inputs it did so with: the same inputs on a later run of the targets need no step."""
 from __future__ import annotations
 
+from pathlib import Path
+
 from ..ai.suggest.site_replace.kind import charter
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
 from ..files import read_json, sha256_file, sha256_text, write_json
 from ..run_dir import MEASUREMENTS, ROWS, GroupingPaths
 from ..source.language import SOURCE_SUFFIXES
 from .steps import Guide
+
+
+PACKAGE = Path(__file__).resolve().parents[1]
+# the code that turns an app tree into scopes.json: a change here changes the scopes the same tree yields
+SCOPER = ("app", "scope", "source")
+
+
+def scoper_version() -> str:
+    files = sorted(p for name in SCOPER for p in (PACKAGE / name).rglob("*") if p.suffix in (".py", ".yaml"))
+    return sha256_text("\n".join(f"{p.relative_to(PACKAGE)} {sha256_file(p)}" for p in files))
 
 
 def _tree_digest(g: Guide) -> str:
@@ -16,7 +28,8 @@ def _tree_digest(g: Guide) -> str:
 
 
 def inputs(g: Guide, measured: bool) -> dict:
-    return {"tree": _tree_digest(g), "groups": sha256_file(GroupingPaths(g.device).groups),
+    return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "scoper": scoper_version(),
+            "groups": sha256_file(GroupingPaths(g.device).groups),
             "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
             "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint, "mode": g.mode.name, "measured": measured}
 

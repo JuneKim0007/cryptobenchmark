@@ -22,7 +22,7 @@
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
 src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and exit 1; the guide's step failures
 src/perfrepair/guide/command.py : guide arguments; `--app` or apps.targets, the one reader of that row
-src/perfrepair/guide/finished.py : <app>/finished.json: an app that reached its last step and the digests of its inputs
+src/perfrepair/guide/finished.py : <app>/finished.json: an app that reached its last step and the digests of its inputs, its scopes and the scoper's code
 src/perfrepair/guide/run.py : one status line and event per step, the first stop ends the sequence, the dry-run ending; Stopped (halts: a provider failure)
 src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (probe_device when no folder is named), grouping (coverage: reused, or assign and report for what is missing), app, dossier, replace, edit, harness, device, report; Stop codes
 src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app, the exit rule
