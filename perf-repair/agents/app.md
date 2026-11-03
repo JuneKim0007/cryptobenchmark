@@ -42,7 +42,8 @@ src/perfrepair/app/find/__init__.py : docstring only
 src/perfrepair/app/find/constants.py : same-file string constants folded: const val, top-level or object val, static final String, '+'
 src/perfrepair/app/find/imports.py : whether a type name is the java.security / javax.crypto class
 src/perfrepair/app/find/scan.py : getInstance calls in one file, across lines; Site and Argument
-src/perfrepair/app/find/sources.py : source files tagged main, test or generated; build files; ignored folders
+src/perfrepair/app/find/ignored.yaml : folders no app step enters: tooling, and stale source copies counted when skipped
+src/perfrepair/app/find/sources.py : source files tagged main, test or generated; build files; ignored folders from ignored.yaml
 src/perfrepair/app/resolve.py : the only meeting of a site and the device: Primitives (probe, names, providers from the manifest); a site's provider and canonical algorithm, explicit or by manifest precedence
 src/perfrepair/scope/__init__.py : docstring only
 src/perfrepair/scope/build.py : the scope step: resolved sites → Scope per site with its lifecycle and settled requirements, and the unscoped; counts per lifecycle status

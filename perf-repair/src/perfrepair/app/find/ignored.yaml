@@ -1,0 +1,3 @@
+# Folders no app step enters. tooling: build output and editor state; copies: stale source copies, counted when skipped.
+tooling: [build, .gradle, .git, .idea, node_modules]
+copies: [NONE_TRANSFORMED_]

@@ -6,11 +6,14 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from ...files import read_yaml
 from ...source.language import SOURCE_SUFFIXES, Language, of_file
 
 BUILD_NAMES = ("build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradle.properties")
 CATALOG = "libs.versions.toml"
-IGNORED_DIRS = frozenset({"build", ".gradle", ".git", ".idea", "node_modules"})
+_IGNORED = read_yaml(Path(__file__).with_name("ignored.yaml"))
+COPY_DIRS = frozenset(_IGNORED["copies"])
+IGNORED_DIRS = frozenset(_IGNORED["tooling"]) | COPY_DIRS
 MAIN, TEST, GENERATED = "main", "test", "generated"
 
 _TEST_SET = re.compile(r"^(test|androidTest)|Test$")
@@ -35,6 +38,15 @@ def walk(root: Path):
             path = Path(here) / name
             if not path.is_symlink():
                 yield path
+
+
+def skipped_copies(root: Path) -> int:
+    """Stale copies the scan did not enter, each counted once; nothing under an ignored folder is looked at."""
+    count = 0
+    for _, dirs, _ in os.walk(root):
+        count += sum(d in COPY_DIRS for d in dirs)
+        dirs[:] = [d for d in dirs if d not in IGNORED_DIRS]
+    return count
 
 
 def origin(rel: Path) -> str:

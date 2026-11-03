@@ -10,7 +10,7 @@ from .facts.dependencies import Registration, registrations
 from .facts.gate import AppRoot
 from .find.imports import import_reason
 from .find.scan import Argument, Site, call_pattern, provider_inner, scan
-from .find.sources import TEST, source_files
+from .find.sources import TEST, skipped_copies, source_files
 
 
 @dataclass
@@ -21,6 +21,7 @@ class Detection:
     files: int = 0
     testFiles: int = 0
     folded: int = 0
+    skippedCopies: int = 0
 
 
 def _fold(arg: Argument | None, constants: Constants, provider: bool) -> Argument | None:
@@ -38,7 +39,7 @@ def fold(site: Site, constants: Constants) -> Site:
 
 def detect(app: AppRoot, engine_types: set[str], resolve: Callable[[Site], dict]) -> Detection:
     """resolve: the site against the device's primitives (resolve.Primitives); detection itself reads no device data."""
-    out, pattern = Detection(), call_pattern(engine_types)
+    out, pattern = Detection(skippedCopies=skipped_copies(app.path)), call_pattern(engine_types)
     for f in source_files(app.path):
         if f.origin == TEST:
             out.testFiles += 1

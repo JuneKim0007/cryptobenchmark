@@ -15,7 +15,7 @@ from perfrepair.app.resolve import resolve
 from perfrepair.app.facts.roots import project_roots
 from perfrepair.app.find.scan import call_pattern, scan
 from perfrepair.app.facts.sdk import sdk_levels
-from perfrepair.app.find.sources import GENERATED, MAIN, TEST, build_files, origin, source_files
+from perfrepair.app.find.sources import GENERATED, MAIN, TEST, build_files, origin, skipped_copies, source_files
 from perfrepair.data_handler.inbound import RunContext
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
@@ -142,6 +142,14 @@ def test_gate_caps_size(tmp_path):
     with pytest.raises(GateError) as e:
         open_app(root, max_source_bytes=50)
     assert e.value.reason == "too_large"
+
+
+def test_a_stale_copy_folder_is_not_scanned_and_is_counted(tmp_path):
+    for rel in ("src/main/java/A.java", "NONE_TRANSFORMED_/src/main/java/A.java", "lib/NONE_TRANSFORMED_/B.java"):
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text("class A {}")
+    assert [f.rel for f in source_files(tmp_path)] == ["src/main/java/A.java"]
+    assert skipped_copies(tmp_path) == 2
 
 
 def test_sources_are_tagged_and_ignored_folders_skipped():

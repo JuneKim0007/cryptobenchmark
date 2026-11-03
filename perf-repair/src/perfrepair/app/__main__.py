@@ -77,7 +77,7 @@ def _detected(name: str, app: AppRoot, engine_types, primitives: Primitives) -> 
     with step("app", "detect", app=name) as s:
         found = detect(app, engine_types, primitives.resolve)
         s.count(sites=len(found.sites), files=found.files, testFiles=found.testFiles, dropped=len(found.dropped),
-                folded=found.folded, resolution=dict(Counter(site["resolution"] for site in found.sites)))
+                folded=found.folded, skippedCopies=found.skippedCopies, resolution=dict(Counter(site["resolution"] for site in found.sites)))
     return found
 
 
