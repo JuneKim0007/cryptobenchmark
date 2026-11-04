@@ -9,7 +9,8 @@ from pathlib import Path
 import yaml
 
 from ..app.facts.path_id import absolute, app_id
-from ..dto.site import Replacement, Scope, read_replacements
+from ..dto.replacement import Replacement, read_replacements
+from ..dto.site import Scope
 from ..dto.unit import read_units
 from ..files import read_json, write_json, write_text
 from .. import run_dir as rd

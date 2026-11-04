@@ -1,8 +1,8 @@
 """dossiers.json → a cryptobenchmark test set: each scope's current item and every option, nothing else."""
 from __future__ import annotations
 
+from ..dto.dossier import Dossier
 from ..dto.grouping import parse_qualified
-from ..dto.site import Dossier
 
 
 def build_test_set(doc: dict, app: str) -> dict:

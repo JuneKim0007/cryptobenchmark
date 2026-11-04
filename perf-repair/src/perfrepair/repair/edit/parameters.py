@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 
-from ...dto.site import Edit
+from ...dto.replacement import Edit
 from ...source.lexer import Arguments, Code
 from .init import find_init
 from .locate import Located, call_arguments

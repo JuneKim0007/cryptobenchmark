@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from ..dto.unit import UnitDossiers
-from ..dto.site import RECOMMEND, DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Dossier, Replacement, required_risks
+from ..dto.replacement import (RECOMMEND, DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Replacement,
+                               required_risks)
+from ..dto.dossier import Dossier
 from .suggest.site_replace import required_kinds, takes
 
 SOURCES = ("llm", "fallback", "static")

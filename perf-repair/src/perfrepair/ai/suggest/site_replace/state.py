@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ....dto.site import REPLACEMENTS_SCHEMA_VERSION, Replacement
+from ....dto.replacement import Replacement
+from ....dto.site import REPLACEMENTS_SCHEMA_VERSION
 
 
 @dataclass

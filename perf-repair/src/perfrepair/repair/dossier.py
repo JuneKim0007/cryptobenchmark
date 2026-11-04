@@ -13,7 +13,8 @@ from ..dto.change import DROP_IN
 from ..dto.grouping import read_items
 from ..dto.shipped import shipped_names
 from ..dto.perf_mode import NO_EVIDENCE, PerfMode
-from ..dto.site import Scope, reason_code
+from ..dto.site import Scope
+from ..dto.dossier import reason_code
 from ..dto.unit import read_units
 from ..files import read_json, write_json
 from ..log import step

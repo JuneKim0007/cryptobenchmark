@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from ..data_handler.inbound.bootstrap import RESAMPLES, SEED, resample, runs_of
 from ..dto import Summary
-from ..dto.site import ENERGY_KINDS_DIFFER, ZERO_MEDIAN
+from ..dto.dossier import ENERGY_KINDS_DIFFER, ZERO_MEDIAN
 
 Processes = tuple[tuple[float, ...], ...]
 

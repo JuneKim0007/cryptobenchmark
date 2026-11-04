@@ -24,7 +24,7 @@ from ..dto.bundled import BundledPolicy
 from ..dto.change import DROP_IN
 from ..dto.event import END
 from ..dto.perf_mode import PerfMode
-from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
+from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from .index import write_index
 from ..failure import FAILURES, last_failure
 from ..grouping.__main__ import main as grouping_main

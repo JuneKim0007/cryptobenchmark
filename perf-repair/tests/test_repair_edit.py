@@ -1,6 +1,7 @@
 import pytest
 
-from perfrepair.dto.site import EDIT_KINDS, Scope, scope_id
+from perfrepair.dto.replacement import EDIT_KINDS
+from perfrepair.dto.site import Scope, scope_id
 from perfrepair.dto.unit import Unit, unit_id
 
 from perfrepair.repair.edit import edit_app

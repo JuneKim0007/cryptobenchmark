@@ -4,8 +4,8 @@ from __future__ import annotations
 import hashlib
 from dataclasses import asdict, dataclass
 
+from .dossier import Dossier
 from .interop import NOT_PLANNED
-from .site import Dossier
 
 UNITS_SCHEMA_VERSION = 1
 SHARED_KEY, INVERSE, PRODUCER_CONSUMER = "shared_key", "inverse", "producer_consumer"

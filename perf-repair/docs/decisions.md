@@ -80,7 +80,7 @@
   - `generic` (`overall`): every chosen option improves a metric beyond noise; `deciding` is not empty and each named metric improved for every chosen option; every metric worse for a chosen option is in `accepted`. A trade-off is allowed only this way.
 - `recommend`: every member with options names an option with a `change` line, `needs` at least one line, and `edits` []; the risks its scope implies are declared; it is never edited, and the report counts it apart (`funnel.recommend`, `labels.recommend`), never as an improvement. An option above `maxChange` is not in the dossier, so at the default `drop-in` no option has a `change` line and recommend cannot be chosen: those candidates are the report's recommendations.
 - A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side whose output differs is refused whatever its interop says.
-- Edit kinds come from `EDIT_KIND_TABLE` (`dto/site.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
+- Edit kinds come from `EDIT_KIND_TABLE` (`dto/replacement.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
 - `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.
 - An edit fills no field its kind does not use.

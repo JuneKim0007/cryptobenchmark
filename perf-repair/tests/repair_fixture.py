@@ -4,7 +4,8 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from perfrepair.dto.site import Edit, Replacement, Scope, scope_id
+from perfrepair.dto.replacement import Edit, Replacement
+from perfrepair.dto.site import Scope, scope_id
 
 APP = "demo"
 ROOT = Path(__file__).parent / "fixtures" / "edit_app"

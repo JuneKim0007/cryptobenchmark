@@ -66,6 +66,7 @@ src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correcti
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests, the used-set benchmark: generated config digest, measured set digest and items)
+src/perfrepair/dto/dossier.py : Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), NoEstimate; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, pin_text
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
@@ -80,12 +81,13 @@ src/perfrepair/dto/perf_mode.py : PerfMode: `generic`/`all` (every key, overall 
 src/perfrepair/dto/primitive.py : PrimitiveRow: one measured configuration and its benchmark variant, no numbers; rows.json schema
 src/perfrepair/dto/primitives.py : PrimitiveLine, PrimitivesTable: primitives.tsv (schema 3, a variant column) as text both ways; a median column per (metric, input size), n and cv per metric; 4 significant digits
 src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run), TaskPrompt (session), CorrectionPrompt (turn); fingerprint, with the run inputs a kind adds; each prompt's source, never hashed
+src/perfrepair/dto/replacement.py : Replacement, Edit, the edit-kind table; DECISIONS, RISKS, DERIVED_RISKS (scope and option rows) and required_risks; read_replacements
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: of_pattern and pattern_counts (rows per category, never mixed); step statuses, reported metrics and units, has_views (the time metric throughput selects), funnel stages, the members a unit left staying, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED, NEVER_TARGET; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and lowers_status (the don't-lower-the-status rule); verdicts by qualified name; screen.json document (schema 4, with the catalog identity and the `built` items and profiles digests)
 src/perfrepair/dto/shipped.py : Shipped: one app.json `bundled` entry (artifact, providerName, version); shipped, shipped_names: the one reader of what the app ships
 src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
-src/perfrepair/dto/site.py : Scope, Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), Edit, Replacement; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, RISKS, DERIVED_RISKS (scope and option rows); the edit-kind table
+src/perfrepair/dto/site.py : Scope, scope_id; each app artifact's schema version; harness input sources and notMeasurable reasons
 src/perfrepair/dto/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
 src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (latency ms|us|ns, throughput MB/s|MiB/s|ops/s), parsed and checked, defaults mirroring :config; ns/op to each; significant-figure numbers

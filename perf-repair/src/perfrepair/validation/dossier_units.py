@@ -2,7 +2,8 @@
 and the inverse pairs' interop; a provider-held key on any member keeps every member as `provider_held_key`."""
 from __future__ import annotations
 
-from ..dto.site import PROVIDER_HELD_KEY, Scope
+from ..dto.dossier import PROVIDER_HELD_KEY
+from ..dto.site import Scope
 from ..dto.unit import Unit
 from ..result.unit_dossiers import asked, key_contracts, provider_held
 

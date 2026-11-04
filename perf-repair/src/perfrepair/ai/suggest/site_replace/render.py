@@ -9,8 +9,9 @@ from collections import Counter
 
 from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
-from ....dto.site import (EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, Dossier, Option, Scope, pin_text,
-                         required_risks)
+from ....dto.replacement import EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, required_risks
+from ....dto.dossier import Dossier, Option, pin_text
+from ....dto.site import Scope
 from ....dto.pattern import rule_words
 from ....dto.perf_mode import GENERIC_MODE, PerfMode
 from ....dto.primitives import PrimitivesTable

@@ -1,7 +1,8 @@
 """One scope's replacement turned into splices on its file, or the coded reason it cannot be."""
 from __future__ import annotations
 
-from ...dto.site import Replacement, Scope
+from ...dto.replacement import Replacement
+from ...dto.site import Scope
 from ...source.language import Language, of_file
 from ...source.lexer import Code
 from .algorithm import set_algorithm

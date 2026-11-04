@@ -9,7 +9,7 @@ from test_stages import run  # noqa: F401  the recorded run, grouped
 from perfrepair import failure
 from perfrepair import run_dir as rd
 from perfrepair.app.facts.path_id import path_id
-from perfrepair.dto.site import NOT_ON_DEVICE_STEP
+from perfrepair.dto.dossier import NOT_ON_DEVICE_STEP
 from perfrepair.files import read_json
 from perfrepair.run_dir import AppPaths
 from perfrepair.dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event

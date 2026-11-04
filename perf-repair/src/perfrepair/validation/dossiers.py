@@ -12,8 +12,8 @@ from ..dto.interop import PAIR_STATUSES, pair_status
 from ..dto.screen import STATUSES, Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode
-from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX,
-                        Dossier, Scope, reason_code)
+from ..dto.site import DOSSIERS_SCHEMA_VERSION, Scope
+from ..dto.dossier import NO_ESTIMATE_REASONS, NO_OPTION_REASONS, NO_REAL_USE, OPTION_PREFIX, Dossier, reason_code
 from ..dto.unit import PairInterop, Stay, Unit, UnitDossiers
 from ..result.gain import no_gain
 from .app import scope_problems

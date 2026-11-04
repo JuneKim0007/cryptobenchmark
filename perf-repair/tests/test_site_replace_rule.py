@@ -11,7 +11,7 @@ from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.ai.suggest.site_replace.command import replace
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.perf_mode import GENERIC_MODE, PerfMode
-from perfrepair.dto.site import Estimate, Option
+from perfrepair.dto.dossier import Estimate, Option
 from perfrepair.files import read_json
 from perfrepair.validation.suggest.site_replace import check_reply
 

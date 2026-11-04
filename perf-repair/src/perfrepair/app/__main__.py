@@ -10,7 +10,8 @@ from .. import run_dir as rd
 from ..catalog.names import Names, NamesError
 from ..config.args import add_config_arg, load_settings
 from ..dto.shipped import shipped_names
-from ..dto.site import NOT_ON_DEVICE, NOT_ON_DEVICE_ABSENT, NOT_ON_DEVICE_STEP, SITES_SCHEMA_VERSION
+from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_ABSENT, NOT_ON_DEVICE_STEP
+from ..dto.site import SITES_SCHEMA_VERSION
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from ..files import write_json

@@ -10,7 +10,7 @@ from perfrepair.data_handler.inbound.results import read_results
 from perfrepair.ai.suggest.site_replace.render import render
 from perfrepair.dto.measurement import Measurements
 from perfrepair.dto.perf_mode import PerfMode
-from perfrepair.dto.site import Dossier
+from perfrepair.dto.dossier import Dossier
 from perfrepair.dto.units import DisplayUnits
 from perfrepair.report.markdown import _metric_lines
 from perfrepair.report.metrics import metric_rows

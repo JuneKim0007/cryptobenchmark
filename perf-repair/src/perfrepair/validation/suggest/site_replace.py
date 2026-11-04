@@ -6,8 +6,10 @@ from __future__ import annotations
 from ...dto.change import DROP_IN, SAME, admits
 from ...dto.grouping import algorithm_of, provider_of
 from ...dto.perf_mode import GENERIC_MODE, PerfMode
-from ...dto.site import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RECOMMEND, RISKS, Dossier, Edit, Option,
-                         Replacement, Scope, pin_text, required_risks)
+from ...dto.replacement import (DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RECOMMEND, RISKS, Edit,
+                                Replacement, required_risks)
+from ...dto.dossier import Dossier, Option, pin_text
+from ...dto.site import Scope
 from ...dto.unit import INVERSE, Link, UnitDossiers
 from ..json_reply import parse_object
 from .site_performance import concerns_of, metric_fields, performance, recommendable

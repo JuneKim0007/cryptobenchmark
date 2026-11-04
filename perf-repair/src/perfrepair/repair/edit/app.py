@@ -7,7 +7,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ...dto.site import EDITS_SCHEMA_VERSION, Replacement, Scope
+from ...dto.replacement import Replacement
+from ...dto.site import EDITS_SCHEMA_VERSION, Scope
 from ...dto.unit import Unit, units_by_scope
 from ...files import write_text_making_parents
 from ...run_dir import AppPaths

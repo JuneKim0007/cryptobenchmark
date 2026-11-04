@@ -3,7 +3,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Edit, Scope, read_replacements, scope_id, REPLACEMENTS_SCHEMA_VERSION
+from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Scope, scope_id,
+                                 REPLACEMENTS_SCHEMA_VERSION)
+from perfrepair.dto.replacement import Edit, read_replacements
 from perfrepair.files import read_json, write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load

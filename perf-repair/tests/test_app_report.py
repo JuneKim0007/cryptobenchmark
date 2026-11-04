@@ -8,7 +8,8 @@ import pytest
 import yaml
 from helpers import QUIET
 
-from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, SITES_SCHEMA_VERSION
+from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION,
+                                 SITES_SCHEMA_VERSION)
 from perfrepair.files import read_json, write_json, write_text
 from perfrepair.report.__main__ import main
 from perfrepair.report.app_report import build_report

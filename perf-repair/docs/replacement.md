@@ -1,6 +1,6 @@
 # Replacement
 
-From an app's source to a measured before/after of each call site the model chose to replace. Types: `src/perfrepair/dto/site.py`.
+From an app's source to a measured before/after of each call site the model chose to replace. Types: `src/perfrepair/dto/site.py`, `src/perfrepair/dto/dossier.py`, `src/perfrepair/dto/replacement.py`.
 
 ## Flow
 

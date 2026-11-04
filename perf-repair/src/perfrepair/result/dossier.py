@@ -12,8 +12,8 @@ from ..dto.interop import failed_pairs, pair_status
 from ..dto.screen import Verdict, lowers_status
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode, no_evidence
-from ..dto.site import (DOSSIERS_SCHEMA_VERSION, NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, VARIANT_NOT_MEASURED, ZERO_MEDIAN,
-                        Dossier, Option, Scope)
+from ..dto.site import DOSSIERS_SCHEMA_VERSION, Scope
+from ..dto.dossier import NO_REAL_USE, NOT_ON_DEVICE, OPTION_PREFIX, VARIANT_NOT_MEASURED, ZERO_MEDIAN, Dossier, Option
 from ..dto.pattern import VARIANTS
 from ..dto.shipped import shipped, shipped_names
 from ..dto.change import (DROP_IN, NO_GAIN, PROVIDER_PATH, RECOMMENDATION, REJECTED, SAME_ENGINE, Change, PairDiff,

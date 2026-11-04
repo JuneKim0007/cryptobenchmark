@@ -5,9 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..catalog.bundled_providers import BundledCatalog
+from ..dto.dossier import NOT_ON_DEVICE
 from ..dto.grouping import qualified
 from ..dto.shipped import shipped
-from ..dto.site import NOT_ON_DEVICE, Scope
+from ..dto.site import Scope
 
 DEFAULT = "default"
 FIRST = "1"

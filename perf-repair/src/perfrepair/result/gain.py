@@ -2,7 +2,7 @@
 option's label over its metrics; and whether an option is proven worse with nothing better, which code rejects."""
 from __future__ import annotations
 
-from ..dto.site import Estimate
+from ..dto.dossier import Estimate
 from .modes import criteria, worse_ratio
 
 IMPROVING_RATIO = float(criteria()["improvingRatio"])

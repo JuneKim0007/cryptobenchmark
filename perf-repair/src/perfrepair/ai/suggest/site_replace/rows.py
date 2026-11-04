@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
+from ....dto.dossier import Dossier
 from ....dto.grouping import parse_qualified
 from ....dto.metrics import BY_NAME
 from ....dto.perf_mode import PerfMode
 from ....dto.primitives import ABSENT, PrimitiveLine, PrimitivesTable
 from ....dto.report import THROUGHPUT, has_views
-from ....dto.site import Dossier
 from ....dto.units import DisplayUnits, number
 from ....result.configurations import operations
 

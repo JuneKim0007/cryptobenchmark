@@ -9,8 +9,8 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..ai.runtime.engine.outbox import active_outbox
 from ..dto.decision import OutboxRecord
+from ..dto.dossier import Dossier
 from ..dto.grouping import read_items, read_profiles
-from ..dto.site import Dossier
 from ..files import read_json
 from ..result.gain import option_label
 

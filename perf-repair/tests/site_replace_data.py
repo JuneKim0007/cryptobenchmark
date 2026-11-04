@@ -1,6 +1,7 @@
 """Fake dossiers for the replacement decision; fake names only."""
 from perfrepair.dto.lifecycle import Lifecycle, Requirement, Step
-from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Dossier, Estimate, Option, Scope, scope_id
+from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Scope, scope_id
+from perfrepair.dto.dossier import Dossier, Estimate, Option
 from perfrepair.dto.unit import Link, Unit, UnitDossiers, unit_entry, unit_id
 from perfrepair.scope.pattern import pattern_of
 

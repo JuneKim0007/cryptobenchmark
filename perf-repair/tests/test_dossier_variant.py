@@ -8,7 +8,7 @@ from perfrepair.ai.suggest.site_replace.kind import evidence
 from perfrepair.ai.suggest.site_replace.render import pattern_line
 from perfrepair.ai.suggest.site_replace.rows import lines_of
 from perfrepair.dto.lifecycle import Lifecycle, Step
-from perfrepair.dto.site import Dossier
+from perfrepair.dto.dossier import Dossier
 from perfrepair.dto.unit import Unit, UnitDossiers, unit_id
 from perfrepair.result.primitives import build_table
 from perfrepair.validation.dossiers import validate_dossiers

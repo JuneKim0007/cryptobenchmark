@@ -2,7 +2,7 @@ import pytest
 import yaml
 from site_replace_data import APP, doc, dossier
 
-from perfrepair.dto.site import Option
+from perfrepair.dto.dossier import Option
 from perfrepair.files import write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.test_set import build_test_set

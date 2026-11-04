@@ -5,9 +5,10 @@ import re
 from typing import NamedTuple
 
 from ..dto import PrimitiveRow, Summary
+from ..dto.dossier import Estimate, NoEstimate, reason_code
 from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME
-from ..dto.site import Estimate, NoEstimate, Scope, reason_code
+from ..dto.site import Scope
 from .estimate import compare
 
 ESTIMATED_SUFFIX = ", estimated"

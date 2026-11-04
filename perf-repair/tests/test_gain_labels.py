@@ -1,6 +1,6 @@
 import pytest
 
-from perfrepair.dto.site import Estimate
+from perfrepair.dto.dossier import Estimate
 from perfrepair.result.gain import (IMPROVED, UNCHANGED, WORSE, by_change, change_of, label_of, noise_of, option_label,
                                     strict_passes)
 

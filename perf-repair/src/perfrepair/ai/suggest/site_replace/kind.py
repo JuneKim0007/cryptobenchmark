@@ -9,7 +9,7 @@ from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.perf_mode import GENERIC_MODE, PerfMode
 from ....dto.primitives import PrimitivesTable
-from ....dto.site import Replacement
+from ....dto.replacement import Replacement
 from ....dto.unit import UnitDossiers
 from ....dto.units import DisplayUnits
 from ....files import json_text, sha256_text, write_json

@@ -1,7 +1,8 @@
 """The answer's JSON schema, for structured output. Every field required; [] means "not given", which keeps the schema
 within what structured output accepts without nullable unions."""
 from ....dto.metrics import NAMES
-from ....dto.site import DECISIONS, EDIT_KINDS, MAX_CONCERN_LENGTH, MAX_CONCERNS, OPTION_PREFIX, RISKS
+from ....dto.replacement import DECISIONS, EDIT_KINDS, MAX_CONCERN_LENGTH, MAX_CONCERNS, RISKS
+from ....dto.dossier import OPTION_PREFIX
 from ....dto.unit import MEMBER_PREFIX
 from ....validation.answer_text import NOT_BLANK, alias_pattern
 

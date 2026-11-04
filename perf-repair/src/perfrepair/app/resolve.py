@@ -8,7 +8,7 @@ from .. import run_dir as rd
 from ..catalog.names import Names, NamesError
 from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
-from ..dto.site import NOT_ON_DEVICE
+from ..dto.dossier import NOT_ON_DEVICE
 
 NAME_CONFLICT = "name_conflict"
 from .find.scan import Site

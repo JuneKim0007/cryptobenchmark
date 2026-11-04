@@ -15,7 +15,9 @@ from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, chart
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.primitives import PrimitiveLine, PrimitivesTable
-from perfrepair.dto.site import DECISIONS, EDIT_KINDS, REPLACEMENTS_SCHEMA_VERSION, RISKS, Estimate, Option
+from perfrepair.dto.replacement import DECISIONS, EDIT_KINDS, RISKS
+from perfrepair.dto.site import REPLACEMENTS_SCHEMA_VERSION
+from perfrepair.dto.dossier import Estimate, Option
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.dto.units import DisplayUnits
 from perfrepair.files import read_json

@@ -9,7 +9,8 @@ from perfrepair.dto.change import PairDiff
 from perfrepair.dto.decision import AgentIdentity, OutboxRecord
 from perfrepair.dto.grouping import Item, Profile, items_document, profiles_document
 from perfrepair.dto.signature import Component, Signature
-from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Dossier, Option, Scope, scope_id
+from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Scope, scope_id
+from perfrepair.dto.dossier import Dossier, Option
 from perfrepair.review.__main__ import main
 from perfrepair.review.score import score
 from perfrepair.review.sheet import COLUMNS, read_sheet, write_sheet

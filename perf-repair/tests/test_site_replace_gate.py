@@ -3,7 +3,8 @@ import json
 import pytest
 from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, item, linked, member, scope
 
-from perfrepair.dto.site import Estimate, Option, Replacement, required_risks
+from perfrepair.dto.dossier import Estimate, Option
+from perfrepair.dto.replacement import Replacement, required_risks
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.validation.suggest.site_replace import check_reply
 

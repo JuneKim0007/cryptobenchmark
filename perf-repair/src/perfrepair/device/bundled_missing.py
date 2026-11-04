@@ -6,8 +6,8 @@ from collections import Counter
 from pathlib import Path
 
 from ..dto.bundled import Coordinate, MissingProvider
+from ..dto.dossier import NOT_ON_DEVICE
 from ..dto.shipped import shipped as app_shipped
-from ..dto.site import NOT_ON_DEVICE
 from ..files import read_json
 from ..run_dir import AppPaths, read_sites
 

@@ -14,9 +14,10 @@ from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.dto.screen import Verdict
 from perfrepair.result.provider_path import SiteProviders, site_providers
-from perfrepair.dto.site import Dossier, Scope, scope_id
+from perfrepair.dto.dossier import Dossier
+from perfrepair.dto.site import Scope, scope_id
 from perfrepair.repair.dossier import dossier
-from perfrepair.dto.site import PROVIDER_HELD_KEY
+from perfrepair.dto.dossier import PROVIDER_HELD_KEY
 from perfrepair.dto.unit import Link, Unit, unit_id
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.result.unit_dossiers import by_unit

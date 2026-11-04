@@ -4,7 +4,8 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Replacement, Scope
+from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Scope
+from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope
 from ..files import write_text_making_parents
 from ..source.lexer import Code

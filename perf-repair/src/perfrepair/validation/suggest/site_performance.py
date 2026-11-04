@@ -3,9 +3,10 @@ a recommend's and concerns' shape. A listed perfMode keeps the strict rule; gene
 names."""
 from __future__ import annotations
 
+from ...dto.dossier import Option
 from ...dto.metrics import NAMES
 from ...dto.perf_mode import PerfMode
-from ...dto.site import MAX_CONCERN_LENGTH, MAX_CONCERNS, Option
+from ...dto.replacement import MAX_CONCERN_LENGTH, MAX_CONCERNS
 from ...result.gain import IMPROVED, WORSE, by_change, strict_passes
 
 

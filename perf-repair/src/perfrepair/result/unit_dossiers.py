@@ -7,7 +7,8 @@ from itertools import product
 
 from ..dto.grouping import KEY_PROVIDER_HELD, qualified
 from ..dto.interop import pair_status
-from ..dto.site import PROVIDER_HELD_KEY, Scope
+from ..dto.dossier import PROVIDER_HELD_KEY
+from ..dto.site import Scope
 from ..dto.unit import INVERSE, PairInterop, Stay, Unit, unit_entry
 
 def current_item(s: Scope) -> str | None:
