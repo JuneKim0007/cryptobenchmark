@@ -1,6 +1,8 @@
 """A --harness run: perf-repair's scopes generated, interop-checked and measured on the device, original and patched."""
 import pathlib, shutil, time
 
+import yaml
+
 import effective_view, energy_stage
 from device.identity import capture_id
 from energy_session import EnergySession
@@ -8,6 +10,7 @@ from failure import fail
 from repo import ROOT
 from results import layout as results_layout
 from results.manifest import manifest
+from scope import call_site as scope_call_site
 from scope import generate as scope_generate
 from scope import results as scope_results
 from scope.harness import HarnessError
@@ -25,16 +28,16 @@ FAILED_PLAN = "scoped-plan.failed.yaml"
 def generate_scopes(options, scoped):
     started = time.monotonic()
     plan, compiled = scope_generate.generate(options.harness, ROOT, scoped)
-    elapsed(f"generate and compile {len(compiled)} scopes", started)
-    if not compiled:
-        fail(f"no_scope_compiled: every scope is not_compilable or not_measurable, see {scoped.parent / FAILED_PLAN}")
+    sites = scope_generate.call_sites(yaml.safe_load(plan.read_text()))
+    elapsed(f"generate and compile {len(compiled)} scopes; {len(sites)} call sites planned", started)
+    if not compiled and not sites:
+        fail(f"nothing_to_measure: no scope compiled and no call site is planned, see {scoped.parent / FAILED_PLAN}")
     print(f"wrote:     {plan}")
     return plan
 
 
 def require_harness_device(harness, capture):
     """A harness belongs to one device's folder; another device's numbers there would read as that device's."""
-    import yaml
     built_for = harness.parent.parent / results_layout.MANIFEST
     if built_for.is_file():
         wanted, attached = (yaml.safe_load(built_for.read_text()) or {}).get("deviceId"), capture_id(capture)
@@ -53,21 +56,24 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
     session, problems = EnergySession(device), []
     source = energy_stage.source(effective, options.energy_python, options.stacktrace)
     preflight = (lambda: energy_preflight(options, source, session, discovery, files)) if run_capture == "measured" else None
-    push(device, options, [effective, capture, trial], preflight)
+    sites = scope_call_site.write(scope_generate.call_sites(yaml.safe_load(plan.read_text())), effective, scoped)
+    push(device, options, [effective, capture, trial, *sites], preflight)
     started = time.monotonic()
     print("measure:   ScopedInterop on the device")
     interop = device.check_scopes(scoped)
-    record, measured = scope_results.merge(plan, interop)
+    verdicts = device.pull_call_sites(scoped) if sites else None
+    record, measured, call_sites = scope_results.merge(plan, interop, verdicts)
     files.update(scopedPlan=plan, scopedInterop=interop)
     for scope in record["scopes"]:
         print(f"scope:     {scope['id']} {scope['status']}" + (f": {scope['reason']}" if scope.get("reason") else "")
               + (f" ({scope['interop'].get('reason')})" if scope.get("interop", {}).get("reason") else ""))
-    if measured:
-        prepared = scope_results.prepared(record, measured, effective, scoped / "prepared.yaml")
+        site = scope.get("callSite") or {}
+        print(f"call site: {scope['id']} {site.get('status')}" + (f": {site['reason']}" if site.get("reason") else ""))
+    cases = scope_results.cases_of(measured, call_sites)
+    if cases:
+        prepared = scope_results.prepared(record, measured, effective, scoped / "prepared.yaml", call_sites)
         run = Measuring(device, session, source, options, discovery, files, problems, effective_view.throttle_sleep(document),
                         effective_view.case_cooldown(document))
-        cases = tuple(case for scope in measured for case in scope["cases"])
-        import yaml
         arguments = session_arguments(run, document)
         run = gated(run, document)
         warmup.run(device, "ScopedBenchmark", arguments, list(cases), yaml.safe_load(prepared.read_text())["cases"], document)
@@ -122,7 +128,7 @@ def harness_run(options, configuration, device, results):
             try:
                 plan = generate_scopes(options, scoped)
                 files, problems = measure_scopes(options, configuration, device, results, scoped, plan)
-            except (HarnessError, scope_generate.GenerateError) as error:
+            except (HarnessError, scope_generate.GenerateError, scope_results.ScopeResultError) as error:
                 keep_failed_plan(scoped)
                 fail(str(error))
             except BaseException:

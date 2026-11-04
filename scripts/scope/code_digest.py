@@ -3,7 +3,8 @@ import hashlib
 
 from repo import ROOT
 
-CODE = ("scripts/scope/*.py", "scripts/scope_generate.py", "modules/android/src/androidTest/**/Scope*.kt")
+CODE = ("scripts/scope/*.py", "scripts/scope_generate.py", "modules/android/src/androidTest/**/Scope*.kt",
+        "modules/android/src/androidTest/**/CallSite*.kt")
 
 
 class CodeDigestError(Exception):

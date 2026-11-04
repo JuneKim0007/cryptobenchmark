@@ -1,6 +1,8 @@
 """The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
 import os, pathlib, re, subprocess
 
+import yaml
+
 import timeouts
 
 PACKAGE = "io.github.junekim0007.cryptobench"
@@ -8,6 +10,7 @@ RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
 CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
 SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
+CALL_SITE_VERDICTS = "callsite-verdicts.yaml"   # CallSitePlan.VERDICTS
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
@@ -188,9 +191,20 @@ class Device:
         interop = into / SCOPED_INTEROP
         interop.unlink(missing_ok=True)
         into.mkdir(parents=True, exist_ok=True)
-        self.shell(f"rm -f {self.files}/{SCOPED_INTEROP}")
+        self.shell(f"rm -f {self.files}/{SCOPED_INTEROP} {self.files}/{CALL_SITE_VERDICTS}")
+        self.shell(f"rm -rf {self.files}/callsite-*/")
         output = self.instrument("ScopedInterop")
         if not ONE_PASSED.search(output):
             raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
         self.pull(f"{self.files}/{SCOPED_INTEROP}", interop)
         return interop
+
+    def pull_call_sites(self, into):
+        """The call sites' verdicts, and the prepared.yaml of each folder a prepared one names."""
+        verdicts = into / CALL_SITE_VERDICTS
+        self.pull(f"{self.files}/{CALL_SITE_VERDICTS}", verdicts)
+        folders = {v["folder"] for v in (yaml.safe_load(verdicts.read_text()) or {}).values() if v.get("status") == "prepared"}
+        for folder in sorted(folders):
+            (into / folder).mkdir(parents=True, exist_ok=True)
+            self.pull(f"{self.files}/{folder}/prepared.yaml", into / folder / "prepared.yaml")
+        return verdicts

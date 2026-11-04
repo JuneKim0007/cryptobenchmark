@@ -3,6 +3,7 @@ import pathlib, shutil
 
 import yaml
 
+from scope import call_site as scope_call_site
 from scope import compile as scope_compile
 from scope import dependencies as scope_dependencies
 from scope import harness as scope_harness
@@ -46,6 +47,7 @@ def write(root, chosen):
             relative, text = scope_wrapper.wrapper(entry, variant)
             (root / relative).parent.mkdir(parents=True, exist_ok=True)
             (root / relative).write_text(text)
+    (root / scope_wrapper.FOLDER).mkdir(parents=True, exist_ok=True)
     (root / scope_wrapper.FOLDER / f"{scope_wrapper.CATALOG}.kt").write_text(scope_wrapper.catalog(chosen))
 
 
@@ -76,7 +78,7 @@ def record_of(scope):
             "option": scope.option,
             "inputs": {"inputSize": scope.input_size, "keySize": scope.key_size, "from": scope.input_source},
             "metrics": list(scope.metrics),
-            "status": "compiled"}
+            "status": "compiled", "callSite": scope_call_site.planned(scope)}
 
 
 def admitted(scope, record):
@@ -98,7 +100,12 @@ def admitted(scope, record):
     return candidate
 
 
+def call_sites(plan):
+    return [r for r in plan["scopes"] if (r.get("callSite") or {}).get("status") == "planned"]
+
+
 def generate(harness_path, root, out, compiler=scope_compile.gradle):
+    """No scope compiled still writes an empty catalog: the call sites are measured through the same test APK."""
     root, out = pathlib.Path(root), pathlib.Path(out)
     harness = scope_harness.read(harness_path)
     records, candidates, scopes = {}, {}, {}
@@ -108,9 +115,9 @@ def generate(harness_path, root, out, compiler=scope_compile.gradle):
         if candidate:
             candidates[scope.id], scopes[scope.id] = candidate, scope
     compiled = compile_each(root, scopes, candidates, compiler, records) if scopes else {}
-    if not compiled:
-        clean(root)
     final = entries(compiled, candidates) if compiled else {}
+    if not compiled:
+        write(root, final)
     for scope_id, entry in final.items():
         plan = {key: value for key, value in vars(entry.interop).items() if value is not None and key != "index"}
         records[scope_id].update(interop=plan, cases=[f"scope:{scope_id}:{v}" for v in scope_wrapper.VARIANTS])

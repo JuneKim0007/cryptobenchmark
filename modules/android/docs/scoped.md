@@ -24,7 +24,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | device | a `manifest.yaml` one folder above the harness's names the device it was built for; another attached device stops with `harness_other_device` |
 | generate | `measured/scoped/scoped-plan.yaml`; sources in package `io.github.junekim0007.cryptobench.scoped` under `src/androidTest/java/`, git-ignored |
 | compile | all scopes in one Gradle compile; on failure, each scope alone, then the passing set together |
-| no scope compiled | fails `no_scope_compiled` |
+| no scope compiled | the empty catalog is written and the call sites are measured alone; with no call site planned either, fails `nothing_to_measure` |
 | a compile error outside the generated folder | fails `harness_build_failed` |
 | passing scopes compile alone, not together | fails `scopes_conflict` |
 | settings | `run.harness` of the pushed `effective.yaml`; provider and entry overrides do not apply |
@@ -51,6 +51,18 @@ Before and after are measured in `run.scopedRepetitions` processes each (default
 
 - With `isolation: case` the order is the host's: one process per side per repetition. With `isolation: run` the host names the cases in that order with one `-e case a,b,...` and `ScopedBenchmark` runs them as named.
 - Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), so a function that changes its input in place never changes what the other side receives; a consumer's artifact comes from the before producer on that side's own inputs.
+
+## Call sites
+
+Every swap is also measured as its call alone, so no swap goes unmeasured when its function does not compile or its call fails.
+
+| step | rule |
+|---|---|
+| plan | `callSite` of `harness.yaml`: the record's block holds both sides' `type`, `algorithm`, `provider`, `keySize`, `inputSize`, or `not_measurable` with `no_call_site`, `no_operation`, `not_an_item`, `type_changed` |
+| effective | `callsite-<n>.yaml`, the run's `effective.yaml` with one item, one operation, the scope's sizes and variant, phase `WARM`, `onFailure: skip`; scopes on one selection share it |
+| prepare | `ScopedInterop`, through `Preparation`, the capture and the trial: `prepared` with the benchmark's case, else `not_prepared` with the reason and `skipped.yaml` beside it |
+| measure | the function's session: warm-up, gate, a process per case, repetitions, AB BA per pair; the timed call is the benchmark's `Invocations.of(case).perIteration` |
+| settings | `run.harness`, as for a function, so the two kinds of number are taken alike |
 
 ## Wrappers
 
@@ -117,10 +129,12 @@ A consumer scope is measured on the before producer's output.
 
 | file | holds |
 |---|---|
-| `scoped-plan.yaml` | per scope: `id`, `function`, `language`, `current`, `option`, `inputs`, `metrics`, `status`, `reason`, `interop`, `cases` |
+| `scoped-plan.yaml` | per scope: `id`, `function`, `language`, `current`, `option`, `inputs`, `metrics`, `status`, `reason`, `interop`, `cases`, `callSite` |
 | `scoped-interop.yaml` | `"<id>": {interop, check, reason}` from the device |
 | `prepared.yaml` | measured cases: `type: Scope`, `algorithm` = function, `provider` = app, `operation` = `before` or `after` |
-| `benchmark.json` | the cases' shape; ids `scope:<id>:before`, `scope:<id>:after` |
+| `benchmark.json` | the cases' shape; ids `scope:<id>:before`, `scope:<id>:after`; a call site's `scope:<id>:callSite:before`, `scope:<id>:callSite:after` |
+| `callsite.yaml`, `callsite-<n>.yaml` | pushed: the call sites' cases, and one effective per distinct selection |
+| `callsite-verdicts.yaml`, `callsite-<n>/prepared.yaml` | from the device: `"<case>": {status, folder, case, reason}`, and what each selection prepared |
 
 - `current` is the app's item before the swap, carried from `harness.yaml` so the primitive interop oracle can check the `current` → `option` pair; no step here reads it yet.
 

@@ -92,6 +92,7 @@ scripts/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, 
 scripts/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 scripts/results/select.py : the device folder of a results root a reader names, or the only one there
 scripts/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
+scripts/scope/call_site.py : each swap's call site alone: the current and option item at the scope's sizes, operation and variant; one effective per selection and callsite.yaml for the device
 scripts/scope/code_digest.py : the digest of the code from a harness.yaml to a measured harness; a pattern matching nothing is an error
 scripts/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
 scripts/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
@@ -100,7 +101,7 @@ scripts/scope/harness.py : reads perf-repair's harness.yaml
 scripts/scope/inputs.py : synthesisable parameter types and their ScopeInputs calls
 scripts/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, same output, or none
 scripts/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
-scripts/scope/results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
+scripts/scope/results.py : device interop and call-site verdicts into scoped-plan.yaml; measured scopes and prepared call sites as prepared.yaml
 scripts/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/scope_generate.py : generate and compile a harness's scopes alone, sources left in place

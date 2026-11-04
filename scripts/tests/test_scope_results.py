@@ -26,7 +26,7 @@ def files(tmp_path, interop):
 def test_failed_interop_is_recorded_and_left_out(tmp_path):
     plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: passed, check: same_output}\n'
                                      '"bbbbbbbbbbbb": {interop: interop_failed, check: same_output, reason: "outputs_differ: x"}\n')
-    document, measured = scope_results.merge(plan, verdicts)
+    document, measured, _sites = scope_results.merge(plan, verdicts)
     statuses = {s["id"]: s["status"] for s in yaml.safe_load(plan.read_text())["scopes"]}
     assert statuses == {"aaaaaaaaaaaa": "measured", "bbbbbbbbbbbb": "interop_failed", "cccccccccccc": "not_compilable"}
     assert [r["id"] for r in measured] == ["aaaaaaaaaaaa"]
@@ -48,7 +48,7 @@ def test_a_compiled_scope_without_a_verdict_fails(tmp_path):
 def test_an_identity_only_output_is_not_measured_and_a_randomized_one_is_unchecked(tmp_path):
     plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: not_comparable, check: same_output, reason: "identity_only_output: X"}\n'
                                      '"bbbbbbbbbbbb": {interop: unchecked, check: same_output, reason: "nondeterministic_output: y"}\n')
-    _, measured = scope_results.merge(plan, verdicts)
+    _, measured, _sites = scope_results.merge(plan, verdicts)
     scopes = {s["id"]: s for s in yaml.safe_load(plan.read_text())["scopes"]}
     assert scopes["aaaaaaaaaaaa"]["status"] == "not_comparable"
     assert (scopes["bbbbbbbbbbbb"]["status"], scopes["bbbbbbbbbbbb"]["interop"]["result"]) == ("measured", "unchecked")
@@ -64,7 +64,7 @@ def test_prepared_goes_through_the_real_converter(tmp_path):
     """The contract the stubbed tests missed: JetpackResults needs metrics and resolvedParameters on every case."""
     plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: passed, check: same_output}\n'
                                      '"bbbbbbbbbbbb": {interop: unchecked, check: none, reason: x}\n')
-    document, measured = scope_results.merge(plan, verdicts)
+    document, measured, _sites = scope_results.merge(plan, verdicts)
     effective = tmp_path / "effective.yaml"
     effective.write_text("run: {metrics: [TIME], harness: {iterations: 3}}\n")
     prepared = scope_results.prepared(document, measured, effective, tmp_path / "prepared.yaml")

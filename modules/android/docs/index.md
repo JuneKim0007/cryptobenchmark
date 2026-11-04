@@ -9,6 +9,7 @@ modules/android/docs/scoped.md : scoped benchmark: generated scopes, interop che
 modules/android/proguard-rules.pro : Android Studio template, all rules commented out
 modules/android/src/androidTest/java/.gitignore : ignores the generated scoped/ sources
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Bundled.kt : installs the bundledProviders of a pushed effective.yaml into the process
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CallSitePlan.kt : each swap's call site alone: callsite.yaml's cases prepared from their own effective files, their verdicts into callsite-verdicts.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CaseFilter.kt : the `case` argument: one id or an ordered comma list; absent keeps every case
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePin.kt : pins the measuring thread to one core and restores on close
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePins.kt : appends one line per pinned case to cpu-pins.yaml
@@ -29,8 +30,8 @@ modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeCh
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInputs.kt : seeded bytes, text and secret keys for generated scopes
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInteropFile.kt : writes scoped-interop.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedBenchmark.kt : parameterised Jetpack measurement per scope variant the host names
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedInterop.kt : the scope check in its own process: every scope's verdict into scoped-interop.yaml
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedPlan.kt : one process of the before/after run: bundled providers once, the run harness, the catalog's variants
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedInterop.kt : the scope check in its own process: every scope's verdict into scoped-interop.yaml, every call site's into callsite-verdicts.yaml
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedPlan.kt : one process of the before/after run: bundled providers once, the run harness, the catalog's variants and the call sites
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/TraceWindowMarker.kt : WindowMarker over android.os.Trace sections
 modules/android/src/main/AndroidManifest.xml : app manifest (allowBackup false)
 modules/android/src/main/cpp/CMakeLists.txt : builds shared library affinity

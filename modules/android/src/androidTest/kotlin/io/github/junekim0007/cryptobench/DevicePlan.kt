@@ -30,13 +30,18 @@ object DevicePlan {
 
     val directory: File get() = DeviceDirectory.plan
 
+    // The pushed capture and its trial: what preparation and the key planner may use on this device.
+    val capability: DiscoveryCapability by lazy {
+        val capture = newest("probe")
+        DiscoveryCapability(capture, paired("trial", capture))
+    }
+
     private fun prepare(): List<PreparedCase> {
         val effective = File(directory, EFFECTIVE)
         check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
         Bundled.installFrom(effective)
-        val capture = newest("probe")
         val run = Preparation(
-            DiscoveryCapability(capture, paired("trial", capture)),
+            capability,
             SkipFile(directory),
             PreparedFile(directory),
         ).prepare(effective)
