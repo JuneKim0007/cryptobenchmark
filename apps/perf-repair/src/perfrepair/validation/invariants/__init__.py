@@ -10,10 +10,20 @@ from ...dto.site import Scope
 from ...dto.unit import read_units
 from ...files import read_json
 from ...run_dir import GroupingPaths
-from ..finding import Violation
+from ..finding import UNDECIDED, Violation
 from ..grouping.invariants import Grouping, grouping_invariants
 from ..scoping.invariants import scoping_invariants
 from ..scoping.source import Sources
+
+
+def _absent(files: tuple[Path, ...], subject: str) -> list[Violation]:
+    return [Violation("inputs_present", UNDECIDED, subject, (str(f),), "rerun the step that writes it; the rules that read it did not run")
+            for f in files if not f.is_file()]
+
+
+def _grouping_absent(device: Path) -> list[Violation]:
+    paths = GroupingPaths(device)
+    return _absent((paths.groups, paths.profiles, paths.checks), "grouping")
 
 
 def load_grouping(device: Path) -> Grouping | None:
@@ -51,7 +61,7 @@ def app_violations(app: Path, apps: Path | None = None, per_call: frozenset[tupl
                    root: Path | None = None) -> list[Violation]:
     scopes_file, units_file = app / rd.SCOPES, app / rd.UNITS
     if not scopes_file.is_file():
-        return []
+        return _absent((scopes_file,), app.name)
     scopes = [Scope.from_json(s) for s in rd.read_scopes(scopes_file)["scopes"]]
     units = read_units(read_json(units_file)) if units_file.is_file() else []
     return scoping_invariants(scopes, units, Sources(source_root(app, apps, root)), per_call)
@@ -64,7 +74,7 @@ def _dossiers(device: Path, only: str | None = None) -> dict[str, dict]:
 
 def run_invariants(device: Path, apps: Path | None = None, against: Path | None = None) -> list[Violation]:
     device = Path(device)
-    found = []
+    found = _grouping_absent(device)
     g = load_grouping(device)
     if g is not None:
         other = load_grouping(Path(against)) if against is not None else None
@@ -86,7 +96,7 @@ def app_gate(device: Path, app: str, root: Path) -> list[Violation]:
     """What the guide checks before an app's replace step: the groups its dossiers draw from, and its own scopes read
     from root."""
     device = Path(device)
-    found = []
+    found = _grouping_absent(device)
     g = load_grouping(device)
     dossiers = _dossiers(device, app)
     if g is not None and app in dossiers:

@@ -43,6 +43,7 @@ Read from each app's `scopes.json` and `units.json` against the source under app
 | `created_per_call_one_function` | blocking | a `created_per_call` scope's use line holds no call of that name, or no use is inside the function around the site |
 | `inverse_link_sides` | blocking | the operations read from an `inverse` link's step lines (`scope/engines.yaml` operations, `scope/units/relations.yaml` steps) are not inverses in `relations.yaml` |
 
+- `inputs_present`, `undecided`: `groups.json`, `profiles.json`, `checks.json` or an app's `scopes.json` is absent, so the rules that read it did not run.
 - `undecided`: no readable source, no function around a line, a use call with no single receiver, an operation no step line spells out.
 
 ## Known-answer fixtures

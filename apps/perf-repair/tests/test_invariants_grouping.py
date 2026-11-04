@@ -3,7 +3,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-from perfrepair.validation.finding import ADVISORY, BLOCKING
+from perfrepair.files import write_json
+from perfrepair.validation.finding import ADVISORY, BLOCKING, UNDECIDED
 from perfrepair.validation.grouping import invariants as inv
 from perfrepair.validation.invariants import load_grouping, run_invariants
 from perfrepair.validation.invariants.__main__ import main
@@ -104,6 +105,18 @@ def test_an_input_that_changed_is_not_compared(g):
     moved = str(group(other, "digest-split")["members"][0])
     other.profiles[moved]["runs"] = not other.profiles[moved]["runs"]
     assert inv.grouping_stable(g, other) == []
+
+
+def test_an_absent_input_is_undecided_never_a_silent_pass(tmp_path):
+    app = tmp_path / "bare" / "demo"
+    app.mkdir(parents=True)
+    write_json(app / "app.json", {"root": str(tmp_path), "projectRoot": "."})
+    found = run_invariants(tmp_path / "bare")
+    assert {(v.invariant, v.severity) for v in found} == {("inputs_present", UNDECIDED)}
+    assert sorted(Path(v.evidence[0]).name for v in found) == ["checks.json", "groups.json", "profiles.json", "scopes.json"]
+    shutil.copytree(EMU, tmp_path / "d")
+    (tmp_path / "d" / "grouping" / "checks.json").unlink()
+    assert [Path(v.evidence[0]).name for v in run_invariants(tmp_path / "d") if v.severity == UNDECIDED] == ["checks.json"]
 
 
 def test_run_invariants_reads_a_device_folder_with_no_apps(tmp_path):
