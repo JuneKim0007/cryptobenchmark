@@ -13,14 +13,17 @@ class EnergySession:
     def __init__(self, device):
         self.device = device
 
-    def pull_traces(self, into):
+    def pull_traces(self, into, fresh=True):
+        """fresh: the folder starts empty; else traces already pulled stay and only new names are added."""
         into.mkdir(parents=True, exist_ok=True)
-        for stale in into.glob("*.perfetto-trace"):
-            stale.unlink()
+        if fresh:
+            for stale in into.glob("*.perfetto-trace"):
+                stale.unlink()
         names = [n for n in self.device.shell(f"ls {self.device.media}").split() if n.endswith(".perfetto-trace")]
         for name in names:
-            self.device.pull(f"{self.device.media}/{name}", into / name)
-        return len(names)
+            if not (into / name).is_file():
+                self.device.pull(f"{self.device.media}/{name}", into / name)
+        return len(list(into.glob("*.perfetto-trace")))
 
     def record(self, config, remote, busy=False):
         self.device.run("push", str(config), f"{SCRATCH}/{config.name}")

@@ -13,7 +13,7 @@ class Session:
     def __init__(self, phone, failing):
         self.phone, self.failing, self.device = phone, failing, phone
 
-    def pull_traces(self, _traces):
+    def pull_traces(self, _traces, fresh=True):
         self.phone.log.append("pull traces")
         if "pull" in self.failing:
             raise DeviceError("adb pull x: device offline")
@@ -38,7 +38,7 @@ def run(tmp_path, captures, failing=(), problems=None, timed=True):
 
 
 def test_measured_and_dry_run_inside_the_window_and_joules_after_it(tmp_path):
-    assert run(tmp_path, {"measured", "dry"}) == ["window open", "instrument CryptoBenchmark a", "pull traces", "dry guarded=True",
+    assert run(tmp_path, {"measured", "dry"}) == ["window open", "instrument CryptoBenchmark a", "pull traces", "pull traces", "dry guarded=True",
                                                   "window close", "joules"]
 
 
@@ -49,11 +49,12 @@ def test_a_dry_only_run_measures_nothing_timed_and_its_dry_pass_is_the_measureme
 def test_a_failed_energy_step_is_one_recorded_line(tmp_path, capsys):
     problems = []
     calls = run(tmp_path, {"measured"}, failing=("pull", "joules"), problems=problems)
-    assert calls == ["window open", "instrument CryptoBenchmark a", "pull traces", "window close", "joules"]
-    assert problems == ["energy_failed: adb pull x: device offline", "energy_failed: tools/energy/energy.py: boom"]
-    assert capsys.readouterr().err.count("error: energy_failed: ") == 2
+    assert calls == ["window open", "instrument CryptoBenchmark a", "pull traces", "pull traces", "window close", "joules"]
+    # the per-case pull and the per-process pull each record their own failure
+    assert problems == ["energy_failed: adb pull x: device offline"] * 2 + ["energy_failed: tools/energy/energy.py: boom"]
+    assert capsys.readouterr().err.count("error: energy_failed: ") == 3
 
 
 def test_each_measured_case_logs_the_traces_on_the_device(tmp_path, capsys):
     run(tmp_path, {"measured"})
-    assert "traces:    a: 0 on the device, 1 expected" in capsys.readouterr().out
+    assert "traces:    a: 0 pulled, 1 expected" in capsys.readouterr().out

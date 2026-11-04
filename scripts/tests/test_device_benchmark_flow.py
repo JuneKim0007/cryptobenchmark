@@ -35,7 +35,7 @@ def measured(tmp_path, monkeypatch, run, **phone_options):
     fake_tools(monkeypatch, phone)
     monkeypatch.setattr(pipeline, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
     monkeypatch.setattr(pipeline.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
-    monkeypatch.setattr(pipeline.EnergySession, "pull_traces", lambda _self, _traces: phone.log.append("pull traces") or 0)
+    monkeypatch.setattr(pipeline.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
     pipeline.measure_cases(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)

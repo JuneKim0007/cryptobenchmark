@@ -39,6 +39,8 @@ class EnergyCapture(Hooks):
 
     def before_process(self, process):
         (process.into / "energy.json").unlink(missing_ok=True)
+        for stale in (process.into / "traces").glob("*.perfetto-trace"):
+            stale.unlink()
         self.stack = contextlib.ExitStack()
         self.stack.enter_context(self.source.window(process.into))
 
@@ -46,17 +48,18 @@ class EnergyCapture(Hooks):
         self.stack.close()
 
     def after_case(self, process, case, _failure):
-        """Traces stay on the device until the process's end: one more per measured case, else that case lost its trace."""
+        """A case's own process may remove the earlier cases' traces on the device, so each case's trace is pulled at once."""
         if "measured" in self.captures and self.timed:
-            names = self.session.device.shell(f"ls {self.session.device.media}").split()
             expected = process.cases.index(case) + 1
-            count = sum(1 for name in names if name.endswith(".perfetto-trace"))
-            print(f"traces:    {case}: {count} on the device" + ("" if count >= expected else f", {expected} expected"))
+            pulled = []
+            energy_stage.guarded(self.problems, lambda: pulled.append(self.session.pull_traces(process.into / "traces", fresh=False)))
+            count = pulled[0] if pulled else 0
+            print(f"traces:    {case}: {count} pulled" + ("" if count >= expected else f", {expected} expected"))
 
     def after_process(self, process):
         with self.stack:
             if "measured" in self.captures and self.timed:
-                energy_stage.guarded(self.problems, lambda: print(f"traces:    {self.session.pull_traces(process.into / 'traces')} pulled"))
+                energy_stage.guarded(self.problems, lambda: print(f"traces:    {self.session.pull_traces(process.into / 'traces', fresh=False)} pulled"))
             if "dry" in self.captures:
                 self.dry_pass(process.into, guarded=self.timed)
         energy_stage.guarded(self.problems, lambda: self.source.joules(self.captures, self.discovery / "energy.yaml", self.preparation,
