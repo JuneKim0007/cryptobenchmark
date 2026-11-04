@@ -59,16 +59,17 @@
 | `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.thermal_mismatch`, `stops.category_mismatch`, `stops.thermal_throttled_at_end`, `stops.no_required_metric` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires; `device.bundled.onMissing` is `stops.bundled_missing` while that is unset |
 
-| role | file section | role default |
-|---|---|---|
-| `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none |
-| `grouping assign` | `device.grouping.assign` | effort `low` |
-| `grouping report --supervisor` | `device.grouping.supervisor` | none |
-| `ai worthiness` | `device.worthiness` | none |
-| `guide` | `apps.agent` | none |
-| `ai replace` | `apps.replace` | none |
+| role | file section | role default | budget, measured largest |
+|---|---|---|---|
+| `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none | 2500; 2018, ten services of an API 30 capture |
+| `grouping assign` | `device.grouping.assign` | effort `low` | 8500; 7300, `signature.pair` with its 68 catalog groups |
+| `grouping report --supervisor` | `device.grouping.supervisor` | none | 6500; 5369, `signature.pair` unfiltered on a device run |
+| `ai worthiness` | `device.worthiness` | none | 6500; 5595, one group of a host run |
+| `guide` | `apps.agent` | none | 6000, as `ai replace` |
+| `ai replace` | `apps.replace` | none | 6000; 4878, the largest of 53 units across real runs |
 
-- A role section takes the keys `gateway`, `model`, `effort`. Its `gateway` is an error when bad; `model` and `effort` warn.
+- A role section takes the keys `gateway`, `model`, `effort`, `budget`. Its `gateway` is an error when bad; `model`, `effort` and `budget` warn.
+- `budget` is read from the file only, a positive integer: tokens by chars/4 of the system prompt plus one task message, the largest measured plus 15%, up to the next 500. The engine checks it before each item's first call: [decisions.md](decisions.md).
 - `auth` and `binary` belong to the gateway's block; in a role section they are unknown keys, warned about and never read.
 - The `dry-run` gateway has no keys and ignores `--auth`, `--model`, `--effort`; each role answers with its own stand-in.
 

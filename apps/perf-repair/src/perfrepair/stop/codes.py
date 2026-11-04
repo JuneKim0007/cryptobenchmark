@@ -130,6 +130,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("not_android_project", "pass a folder holding an Android project root"),
     _fixed("escapes_root", "remove the link that leaves the app folder"),
     _fixed("too_large", "pass a smaller project root"),
+    _fixed("over_budget", "raise the budget the message names in perfrepair.yaml, or find why the item's message grew"),
     _fixed("bundled_catalog_yaml", FIX_CATALOG),
     _fixed("interchange_component", FIX_CATALOG),
     _fixed("interchange_key", FIX_CATALOG),

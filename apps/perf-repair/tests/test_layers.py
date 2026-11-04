@@ -177,7 +177,7 @@ def test_a_crossing_is_caught():
 # (attribute call, the modules allowed to make it): agents start one way, prompts load one way.
 AGENT_ENTRY = {
     "start": ("ai/runtime/engine/ask", "ai/runtime/gateway/spawn"),
-    "charter": ("kind", "ai/review/grouping_review/run", "ai/runtime/prompt/library", "ai/runtime/engine"),
+    "charter": ("kind", "ai/runtime/prompt/library", "ai/runtime/engine"),
 }
 BACKENDS = {"ClaudeConversations", "ClaudeCliConversations", "ClaudeClient"}
 

@@ -7,11 +7,14 @@ from perfrepair import run_dir as rd
 from perfrepair.ai.__main__ import main as ai
 from perfrepair.ai.evaluate.worthiness.kind import charter as worthiness_charter
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter as assign_charter
-from perfrepair.ai.review.grouping_review.run import charter as supervisor_charter
+from perfrepair.ai.review.grouping_review.kind import GroupingReviewKind
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.data_handler.inbound.__main__ import main as inbound
+from perfrepair.catalog.screening import SCREENING
+from perfrepair.check.run import validate_run
 from perfrepair.grouping.__main__ import main as grouping
+from perfrepair.screen.catalog import load_catalog
 from perfrepair.run_dir import GroupingPaths
 from helpers import with_results
 
@@ -52,17 +55,25 @@ def supervised(run, *extra):
     return json.loads(GroupingPaths(run).supervisor.read_text())
 
 
+def test_the_stage_replay_checks_supervisor_json(run):
+    supervised(run)
+    assert validate_run(run, load_catalog(SCREENING))["grouping/supervisor.json"] == []
+    path = GroupingPaths(run).supervisor
+    path.write_text(json.dumps({**json.loads(path.read_text()), "charter": "000000000000"}))
+    assert "names charter 000000000000" in validate_run(run, load_catalog(SCREENING))["grouping/supervisor.json"][0]
+
+
 def test_no_flag_uses_the_packaged_prompts(run):
     library = PromptLibrary.load()
     doc = supervised(run)
-    assert doc["charter"] == supervisor_charter(library).fingerprint
+    assert doc["charter"] == GroupingReviewKind(GroupingPaths(run), library).charter.fingerprint
     assert doc["prompts"]["review/grouping-review"] == str(library.source("review/grouping-review"))
 
 
 def test_an_override_folder_is_used_and_recorded(run, override):
     doc = supervised(run, "--prompts", str(override))
-    assert doc["charter"] == supervisor_charter(PromptLibrary.load(override)).fingerprint
-    assert doc["charter"] != supervisor_charter(PromptLibrary.load()).fingerprint
+    assert doc["charter"] == GroupingReviewKind(GroupingPaths(run), PromptLibrary.load(override)).charter.fingerprint
+    assert doc["charter"] != GroupingReviewKind(GroupingPaths(run), PromptLibrary.load()).charter.fingerprint
     assert doc["prompts"]["review/grouping-review"] == str(override / "review" / "grouping-review.system.md")
 
 

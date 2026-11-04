@@ -15,7 +15,7 @@ from . import journal
 from ..agent import Conversations
 from .ask import Asked, Limits, ask
 from .events import TurnEvents, Where
-from .kind import DecisionKind, evidence_of, item_of, project
+from .kind import DecisionKind, evidence_of, item_of, narrower_of, project
 from .outbox import Outbox, activate
 
 LOG = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
             events.turn(key, turn)
 
         asked = ask(conversations, charter, kind.render(item, state), lambda text: kind.check(item, text, state), limits,
-                    on_turn)
+                    on_turn, narrower_of(kind, item, state))
         committed = _commit(kind, item, asked, records, outbox, agent)
         events.decision(item.key, kind.label(item), committed.outcome, asked, outbox.path(committed.seq))
         kind.apply(state, item, committed)

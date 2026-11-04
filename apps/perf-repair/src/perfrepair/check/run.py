@@ -17,7 +17,7 @@ from ..validation.rows import validate_rows
 from .apps import check_dossiers
 from .device import (check_beside_rows, check_charters, check_events, check_primitives, check_suggestions, check_used,
                      parsed)
-from .grouping import check_grouping, check_screen, check_worthiness
+from .grouping import check_grouping, check_screen, check_supervisor, check_worthiness
 
 
 def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
@@ -51,6 +51,7 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     except ValidationFailed as e:
         out["grouping/groups.json"] = e.problems
         return out
+    out |= check_supervisor(grouping)
     out |= validate_interop(groups, grouping.interop_plan, grouping.interop)
     screen = rd.load_screen(grouping)
     out |= check_dossiers(run, groups, screen, catalog)

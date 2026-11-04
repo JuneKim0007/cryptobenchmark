@@ -65,8 +65,18 @@ def _group(gid: str, g, items: dict[int, Item], profiles: dict[int, Profile]) ->
     return {**row, "facts": facts} if facts else row
 
 
-def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> str:
+def _contradicted(mine: Signature | None, members: list[int], profiles: dict[int, Profile]) -> bool:
+    """A member knows a component this item knows, with another value: gate C refuses the join. Unknown or assumed never hides."""
+    theirs = [profiles[m].signature for m in members if m in profiles]
+    return mine is not None and any(s and mine.contradicting(s) for s in theirs)
+
+
+def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, Item], profiles: dict[int, Profile],
+           exact: bool = False) -> str:
+    """exact: leave out each group a known fact of the item contradicts."""
     groups = knowledge.open_groups(family.id)
+    if exact:
+        groups = {gid: g for gid, g in groups.items() if not _contradicted(profiles[item.id].signature, g.members, profiles)}
     shown = {"id": item.id, "type": item.type, "name": item.name, "provider": item.provider}
     resolved, facts = _resolved(item.resolved), _item_facts(profiles[item.id].signature)
     document = {"family": {"id": family.id, "description": family.description},

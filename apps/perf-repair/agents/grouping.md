@@ -41,13 +41,14 @@ src/perfrepair/ai/parse/algorithm_classify/state.py : Classified (the outbox's p
 src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; rekey, refresh; GroupingKind on the engine, its dry run
 src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: askable (not identified), pending (askable, narrowed to used.json when present), not_used, code-made and catalog groups seeded in empty, a refresh token as charter inputs, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/rekey.py : one move of an outbox whose records name positions to one naming Item.key, when its old charter still hashes to its name
-src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: one YAML block of the family, its groups and the item, each with the facts code knows by contract
+src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: one YAML block of the family, its groups and the item, each with the facts code knows by contract; exact leaves out each group a known fact contradicts
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
-src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor; charter, provenance, its dry run
+src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor: GroupingReviewKind on the engine under grouping/review; its dry run
+src/perfrepair/ai/review/grouping_review/kind.py : decision: one item per family with a model-made group; the messages' hash as charter inputs; supervisor.json a projection of the outbox
 src/perfrepair/ai/review/grouping_review/render.py : one family's review message
-src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review conversation per family with a model-made group → supervisor.json, its charter in supervisor.charter.json
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
+src/perfrepair/ai/review/grouping_review/state.py : Reviews: one result per reviewed family
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
 src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: (family, canonical name) to its catalog group, a group at each key contract

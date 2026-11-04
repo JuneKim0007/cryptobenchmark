@@ -9,6 +9,7 @@
 - role: a model call decides one item.
 - context: items are context-free: each session starts from the system prompt + the item's TaskPrompt; later turns in a session carry only CorrectionPrompts.
 - input: a rendered message carries only what the decision needs; assignment never sees timings.
+- budget: `ask` checks every role's message against its `budget` once; over it, a kind's `narrowed` hides only what gate C refuses, then `over_budget`; never a cut message.
 - ids: code mints item ids and member aliases (`M1..Mn`) and resolves them; a grouping answer mints a new group id, checked by gate C.
 - gate: every answer passes the kind's `check` before `apply`.
 - retry: a rejected answer gets a correction turn in the same session (`--turns`); a refusal ends the session; the next session re-sends the task (`--sessions`); then the item is committed as `dropped`.
@@ -50,12 +51,13 @@ src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, m
 src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required; member aliases and non-blank reasons as patterns
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
 src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
-src/perfrepair/ai/runtime/engine/ask.py : one item's asking: turns in a conversation, then fresh conversations; each turn's model latency
+src/perfrepair/ai/runtime/engine/ask.py : one item's asking: the budget check, turns in a conversation, then fresh conversations; each turn's model latency and size
+src/perfrepair/ai/runtime/engine/budget.py : a role's Budget, the chars/4 measure, the fit: the message, the kind's narrowed one, or `over_budget`
 src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator; a recorded charter's inputs
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`; start, turn, decision and end events
 src/perfrepair/ai/runtime/engine/events.py : Where (stage, step, app); TurnEvents: each model turn and decision as an event with tokens, cost, latency and its journal line or outbox record
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append (append_repaired after a cut line), line count and read through read_jsonl; audit only
-src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, optional gone and evidence_digest), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality
+src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, optional gone, evidence_digest and narrowed), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer; carry: another outbox's records into a charter's
 src/perfrepair/ai/runtime/engine/refresh.py : --refresh run inputs (`refresh <token>`) and the active outbox's kept ones
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
@@ -65,7 +67,7 @@ src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -
 src/perfrepair/ai/runtime/gateway/contract.py : Gateway: what one provider declares: name, settings class, spawn, secret, choices
 src/perfrepair/ai/runtime/gateway/dry_run.py : the dry-run gateway: no keys, answers with the role's stand-in
 src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default gateway; `unknown_gateway`
-src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity
+src/perfrepair/ai/runtime/gateway/spawn.py : the one spawn handler: role → gateway → every block checked (each key by the gateway's settings class) and resolved values → secret check → Conversations with their AgentIdentity and the role's Budget
 src/perfrepair/ai/runtime/prompt/args.py : --prompts DIR on every model-calling command; the one reader of `paths.prompts`; one library load per invocation, PromptError exits 2
 src/perfrepair/ai/runtime/prompt/library.py : PromptLibrary: reads prompts.yaml and the prompt files once, checks them, fills declared values; each prompt's origin, `packaged` or its override file
 src/perfrepair/ai/suggest/site_replace/command.py : stage: <app>/dossiers.json, primitives.tsv, the display units and measurements.json's run warnings → SiteReplaceKind on the engine → replacements.json; dry run keeps; --refresh carries all but the stale units' records into a new outbox; dossier_changed

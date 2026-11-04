@@ -57,14 +57,14 @@ flowchart TD
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`); `assign --refresh` makes a new one active, every item asked, and later runs read its token from the active charter and stay in it |
 | `knowledge.json` | assign | the code-made and catalog groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
 | `cursor.json` | assign | `next` pending id, `decided` and `dropped` counts, `knowledgeVersion` |
-| `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
+| `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash, prompt tokens |
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
 | `checks.json` | report | static findings with severity; counts |
 | `groups.json` | report | schema 3: families, groups with members, runnable members, common key sizes, findings; items index with each item's `keyContract` and `screen` status (null without screen.json); dropped; with `used.json`, `notUsed`: askable items outside it with no record, left unasked and never dropped; `interop` |
 | `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size; `notCheckable[]` `{id, group, a, b, reason}`, present when a pair crosses key contracts: never sent to the oracle, which reads only `pairs` |
 | `interop.yaml` | interop-read | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions |
-| `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings |
-| `supervisor.journal.jsonl` | report --supervisor | one line per review turn, with `charter` |
+| `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings; a projection of `review/outbox/`, `charter` its fingerprint |
+| `review/outbox/`, `review/journal.jsonl`, `review/errors.jsonl` | report --supervisor | the review's commit, turns and dropped families; a second run asks nothing, other groups or another prompt open a new outbox, reverting resumes the old |
 
 ## Identified items
 

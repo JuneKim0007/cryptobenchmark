@@ -27,13 +27,14 @@ device:                    # once per device
   screening:               # grouping build, repair dossier, guide, validation
     catalog:               # a screening.yaml; empty = the packaged catalog (logged); a missing file is missing_file
     aiReview: false        # true: grouping build asks screening's classify role about the items no row decides
-    classify: {}           # role keys: gateway, model, effort
+    classify: {}           # role keys: gateway, model, effort, budget (tokens by chars/4 of the system prompt plus one
+                           # message; over it, a coded stop, docs/settings.md)
   grouping:                # grouping assign, grouping report --supervisor
     turns:                 # empty = the code default
     sessions:              # empty = the code default
     limit:                 # items per `grouping assign` call; empty = all
     noRerun: true          # guide: true asks only items with no decision; false asks every item into a new outbox
-    assign: {}             # role keys: gateway, model, effort; effort here sets this role only
+    assign: {}             # role keys: gateway, model, effort, budget; effort here sets this role only
     supervisor: {}
   benchmark:
     onGap: delta           # a used item the benchmark lacks: delta measures only the gaps, once | stop: not_benchmarked

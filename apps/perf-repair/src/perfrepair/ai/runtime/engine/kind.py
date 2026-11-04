@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol
 
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import TaskPrompt
@@ -12,7 +12,8 @@ class DecisionKind(Protocol):
     def items(self) -> list:
         """Every item a record may name: the lookup list of projections and replay; a kind whose items can leave between
         runs also has gone(key), the stand-in for a record's item that left; a kind whose items' evidence can change has
-        evidence_digest(item), the digest each record carries."""
+        evidence_digest(item), the digest each record carries; a kind that can show less when over budget has
+        narrowed(item, state), a TaskPrompt hiding only what gate C would refuse."""
 
     def pending(self) -> list:
         """The items to ask, a subset of items(); a kind that settles none in code returns items()."""
@@ -39,6 +40,10 @@ class DecisionKind(Protocol):
 
 def evidence_of(kind: DecisionKind, item) -> str | None:
     return kind.evidence_digest(item) if hasattr(kind, "evidence_digest") else None
+
+
+def narrower_of(kind: DecisionKind, item, state) -> Callable[[], TaskPrompt] | None:
+    return (lambda: kind.narrowed(item, state)) if hasattr(kind, "narrowed") else None
 
 
 def item_of(kind: DecisionKind, by_key: dict, key: str):

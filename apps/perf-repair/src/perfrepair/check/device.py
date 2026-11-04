@@ -56,15 +56,11 @@ def check_used(run: Path, grouping: GroupingPaths) -> dict[str, list[str]]:
 
 
 def check_charters(run: Path) -> dict[str, list[str]]:
-    """Every outbox's charter.json hashes to its folder's name; a supervisor review's to the charter it names."""
+    """Every outbox's charter.json hashes to its folder's name."""
     out = {}
     for directory in sorted(run.rglob(f"{OUTBOXES}/*")):
         if directory.is_dir() and FINGERPRINT.fullmatch(directory.name):
             out[str((directory / rd.CHARTER).relative_to(run))] = charter_file.problems(directory / rd.CHARTER, directory.name)
-    grouping = GroupingPaths(run)
-    if grouping.supervisor.is_file():
-        out[str(grouping.supervisor_charter.relative_to(run))] = charter_file.problems(
-            grouping.supervisor_charter, read_json(grouping.supervisor).get("charter"))
     return out
 
 

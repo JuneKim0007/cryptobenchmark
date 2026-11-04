@@ -10,6 +10,8 @@
 
 - A rejected answer gets a correction turn (`prompts/shared/rejection.turn.md`) in the same session, listing its problems.
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
+- Budget: `ask` measures the system prompt plus the task message by chars/4 against the role's `budget` ([settings.md](settings.md)) before any call, for every role. Over it, `grouping assign` hides each group a known fact of the item contradicts, a join gate C refuses; a `not known` or assumed component hides nothing. Still over, or any other role over: `over_budget`, naming the role's key and the size, with nothing asked or recorded for the item; no message is ever cut. The schema is left out: it is fixed per role.
+- Each turn's size is `promptTokens` in its journal line and event; a decision's event has its first turn's, and `narrowedFrom` when the prefilter ran.
 - `--prompts DIR` on `grouping build` (with `device.screening.aiReview`; off, build refuses it and `--agent`, `--auth`, `--model`, `--effort` since it calls no model), `grouping assign`, `grouping report --supervisor`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - A provider failure (`AgentFailed`: `claude_cli_failed`, `claude_api_failed`) is no answer: it stops the command with nothing recorded for the item, so a subscription limit never drops one and the next run asks it again. A CLI reply with no output tokens, a non-zero exit with JSON on stdout included, is such a failure.
@@ -22,7 +24,7 @@
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.
 - A record holds `gateway`, `model`, `effort` (schema 2; schema 1 records read back without them). A resume with items left to ask, whose values differ from an earlier record's, logs one line: `mixed_agents: outbox <fingerprint> holds answers from <gateway>/<model>/<effort>, now asking <gateway>/<model>/<effort>`; the answers stay in one outbox.
 - A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items. Grouping alone has `gone(key)`: a record's item that left since replays through its stand-in; for the other kinds an unknown item is an error.
-- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, or the `refresh <token>` of `assign --refresh`, classify's the whole batched evidence, site-replace's are empty or the `refresh <token>` of `ai replace --refresh`, the other kinds have none and keep their fingerprints.
+- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, or the `refresh <token>` of `assign --refresh`, classify's the whole batched evidence, the supervisor's a hash of its messages, site-replace's are empty or the `refresh <token>` of `ai replace --refresh`, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
 ## Worthiness
@@ -131,4 +133,4 @@
 | `stability` | items asked twice or more on one message whose accepted answers all pick the same, free text left out |
 | `gateRejections` | rejected turns per 100 calls, per kind and whole |
 
-- Rows come from the active outboxes; stability and rejections from each stage's `journal.jsonl`; a supervisor turn is in neither.
+- Rows come from the active outboxes; stability and rejections from each stage's `journal.jsonl`; the supervisor's `grouping/review` is no stage of the sheet.

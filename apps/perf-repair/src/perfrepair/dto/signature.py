@@ -36,11 +36,16 @@ class Signature:
     def known(self) -> dict[str, str]:
         return {c.name: c.value for c in self.components if c.status == KNOWN}
 
-    def differing(self, other: "Signature") -> list[str]:
-        """Components both know and disagree on; an unknown or assumed one decides nothing, except NEVER_ASSUMED."""
+    def contradicting(self, other: "Signature") -> list[str]:
+        """Components both know and disagree on; an unknown or assumed one decides nothing."""
         mine, theirs = self.known(), other.known()
-        known = sorted(n for n in mine.keys() & theirs.keys() if mine[n] != theirs[n])
-        return known + [n for n in NEVER_ASSUMED if n in self.names() & other.names() and (n in mine) != (n in theirs)]
+        return sorted(n for n in mine.keys() & theirs.keys() if mine[n] != theirs[n])
+
+    def differing(self, other: "Signature") -> list[str]:
+        """What contradicts, and a NEVER_ASSUMED component only one side knows."""
+        mine, theirs = self.known(), other.known()
+        return self.contradicting(other) + [n for n in NEVER_ASSUMED
+                                            if n in self.names() & other.names() and (n in mine) != (n in theirs)]
 
     def names(self) -> set[str]:
         return {c.name for c in self.components}

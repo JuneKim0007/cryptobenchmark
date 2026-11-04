@@ -5,7 +5,7 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
-from perfrepair.ai.review.grouping_review.run import charter as supervisor_charter, supervise
+from perfrepair.ai.review.grouping_review.command import review
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
@@ -74,10 +74,8 @@ def test_the_supervisor_reviews_model_groups_only(paths):
     screen(paths)
     assign(paths)
     report(paths, FAMILIES)
-    used = supervisor_charter(LIBRARY)
     seen = []
-    supervise(paths, used, ScriptedConversations(lambda m, *_: seen.append(m.text) or {"findings": []}),
-              LIBRARY.provenance(used), **QUIET)
+    review(paths, ScriptedConversations(lambda m, *_: seen.append(m.text) or {"findings": []}), LIBRARY, **QUIET)
     assert len(seen) == 3 and not any("code_" in text or "FAMILY digest.none" in text for text in seen)
 
 

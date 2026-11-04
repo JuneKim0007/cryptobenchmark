@@ -44,7 +44,7 @@ class TurnEvents:
         emit(w.stage, w.step, TURN, kind="model", item=item, app=w.app, outcome=turn.status,
              durationMs=turn.durationMs, tokens=tokens([turn]), costUsd=cost([turn]), ref=f"{self.journal}:{self.line}",
              data={"session": turn.session, "turn": turn.turn, "problems": list(turn.problems),
-                   "outbox": self.fingerprint})
+                   "outbox": self.fingerprint, "promptTokens": turn.promptTokens})
 
     def decision(self, item: str, label: str, outcome: str, asked: Asked, ref: Path | None) -> None:
         w = self.where
@@ -52,4 +52,5 @@ class TurnEvents:
              durationMs=sum(t.durationMs for t in asked.turns), tokens=tokens(asked.turns), costUsd=cost(asked.turns),
              ref=None if ref is None else str(ref),
              data={"label": label, "turns": len(asked.turns), "sessions": asked.last.session, "problems": asked.problems,
-                   "outbox": self.fingerprint})
+                   "outbox": self.fingerprint, "promptTokens": asked.turns[0].promptTokens,
+                   **({"narrowedFrom": asked.narrowedFrom} if asked.narrowedFrom else {})})

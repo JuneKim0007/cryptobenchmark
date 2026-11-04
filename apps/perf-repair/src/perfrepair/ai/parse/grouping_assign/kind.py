@@ -103,6 +103,10 @@ class GroupingKind:
     def render(self, item: Item, knowledge: Knowledge) -> TaskPrompt:
         return TaskPrompt(NAME, render(item, self.families.by_id[item.family], knowledge, self.by_id, self.profiles), item.key)
 
+    def narrowed(self, item: Item, knowledge: Knowledge) -> TaskPrompt:
+        return TaskPrompt(NAME, render(item, self.families.by_id[item.family], knowledge, self.by_id, self.profiles, exact=True),
+                          item.key)
+
     def check(self, item: Item, text: str, knowledge: Knowledge) -> tuple[dict | None, list[str]]:
         answer, problems = parse_answer(text)
         problems = problems or validate_answer(answer, item, knowledge, self.families, self.profiles)

@@ -100,6 +100,31 @@ def test_the_row_defaults_are_what_their_readers_use():
     assert PerfMode.parse(table.APPS_PERF_MODE.default).overall and table.GROUPING_ASSIGN.defaults == {"effort": "low"}
 
 
+ROLES = [r for r in ROWS if isinstance(r, RoleRow)]
+
+
+@pytest.mark.parametrize("role", ROLES, ids=lambda r: r.key)
+def test_every_role_has_one_budget_a_file_may_set(tmp_path, caplog, role):
+    assert role.budget_row.key == f"{role.key}.budget" and role.budget_row.default == role.budget > 0
+    *sections, leaf = role.key.split(".")
+    document = {leaf: {"budget": 123}}
+    for section in reversed(sections):
+        document = {section: document}
+    assert load(write(tmp_path, yaml.safe_dump(document)), {}, {}).read(role.budget_row) == 123
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+
+
+def test_a_bad_budget_warns_and_keeps_the_role_default(tmp_path, caplog):
+    loaded = load(write(tmp_path, "device: {grouping: {assign: {budget: 0}}}\n"), {}, {})
+    assert loaded.read(table.GROUPING_ASSIGN.budget_row) == table.GROUPING_ASSIGN.budget
+    assert any(m.startswith("invalid: device.grouping.assign.budget 0") for m in caplog.messages)
+
+
+def test_the_defaults_hold_what_was_measured_with_room():
+    measured = {"GROUPING_ASSIGN": 7300, "GROUPING_SUPERVISOR": 5369, "WORTHINESS": 5595, "APPS_REPLACE": 4878, "SCREENING_CLASSIFY": 2018}
+    assert all(getattr(table, name).budget >= size * 1.15 for name, size in measured.items())
+
+
 def picked(on_invalid, value, source="file c.yaml"):
     return choose("device.grouping.turns", [Candidate(value, source), Candidate(3, "default", explicit=False)],
                   check_positive, on_invalid)

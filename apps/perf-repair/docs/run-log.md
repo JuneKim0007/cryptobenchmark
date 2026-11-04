@@ -102,7 +102,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | `outcome`, `durationMs`, `detail` | `ok`, `ran`, `reused`, `failed`, `accepted`, `rejected`, `refused`, `decided`, `dropped`, a finding's code, a log level, a run's exit; time; a reason or message |
 | `tokens`, `costUsd` | a turn's usage from the reply: `input`, `output`, `cacheRead`, `cacheWrite`; the CLI's `total_cost_usd`, null from the API and dry-run gateways |
 | `ref` | `<role dir>/journal.jsonl:<line>` for a turn, the outbox record for a decision, the file a finding names, relative to the device folder |
-| `data` | `counts` and `files` (path → sha256) of a step's end; `session`, `turn`, `problems`, `outbox` of a model event; a start's `pending` and outbox `opened`, `resumed` or `rotated` |
+| `data` | `counts` and `files` (path → sha256) of a step's end; `session`, `turn`, `problems`, `outbox`, `promptTokens` of a model event, `narrowedFrom` of a prefiltered decision; a start's `pending` and outbox `opened`, `resumed` or `rotated` |
 
 ## Rules
 

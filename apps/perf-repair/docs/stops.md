@@ -18,8 +18,7 @@
 | `stops.<code>` of a fixed code | none | one warning `stop_fixed: stops.<code> <value>, <code> is fixed (<why>); ignored` when the code fires |
 | `device.bundled.onMissing` | `warn`, `stop` | the same as `stops.bundled_missing`; read only when `stops.bundled_missing` is unset |
 
-- Each key is read when its code fires, through its `inputs/table.py` row (`STOP_ROWS`), by `config/stops.py`.
-- The first command of a run that loads settings installs the reader; a command it runs in-process keeps it; without one each code takes its default.
+- Each key is read when its code fires, through its `inputs/table.py` row (`STOP_ROWS`), by `config/stops.py`; the first command of a run that loads settings installs the reader; a command it runs in-process keeps it; without one each code takes its default.
 
 ## Codes
 
@@ -108,6 +107,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `not_android_project` | `stop` | fixed: the input is unusable | 1 | pass a folder holding an Android project root |
 | `escapes_root` | `stop` | fixed: the input is unusable | 1 | remove the link that leaves the app folder |
 | `too_large` | `stop` | fixed: the input is unusable | 1 | pass a smaller project root |
+| `over_budget` | `stop` | fixed: the input is unusable | 1 | raise the budget the message names in perfrepair.yaml, or find why the item's message grew |
 | `bundled_catalog_yaml` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `interchange_component` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `interchange_key` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |

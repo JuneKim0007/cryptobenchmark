@@ -13,15 +13,16 @@ from ....dto.prompt import SystemPrompt
 from ....inputs.resolve import Candidate, choose, unknown_key
 from ....inputs.table import AI_GATEWAY_AUTH, AI_GATEWAY_KEY, AI_GATEWAY_USE, RoleRow, Row
 from ..agent.conversation import Conversation, Conversations
+from ..engine.budget import Budget
 from . import registry
 from .contract import Gateway
 
 
 class Spawned:
-    """A gateway's Conversations plus what the engine records per outbox record."""
+    """A gateway's Conversations plus what the engine records per outbox record and the role's budget it checks."""
 
-    def __init__(self, conversations: Conversations, identity: AgentIdentity):
-        self.conversations, self.identity = conversations, identity
+    def __init__(self, conversations: Conversations, identity: AgentIdentity, budget: Budget | None = None):
+        self.conversations, self.identity, self.budget = conversations, identity, budget
 
     def start(self, system: SystemPrompt, schema: dict) -> Conversation:
         return self.conversations.start(system, schema)
@@ -73,4 +74,5 @@ def spawn(args: argparse.Namespace, settings: Loaded, dry_run: Conversations) ->
     if secret and not os.environ.get(secret):
         raise ConfigError(f"missing_secret: {secret}: gateway {name} needs it in the environment or .env")
     return Spawned(gateway.spawn(values, dry_run),
-                   AgentIdentity(name, getattr(values, "model", None), getattr(values, "effort", None)))
+                   AgentIdentity(name, getattr(values, "model", None), getattr(values, "effort", None)),
+                   Budget(role.budget_row.key, settings.read(role.budget_row)))

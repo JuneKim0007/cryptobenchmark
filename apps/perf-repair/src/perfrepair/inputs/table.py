@@ -42,7 +42,9 @@ class Layer(Enum):
 FILE_CHAIN = (Layer.CLI, Layer.FILE, Layer.DEFAULT)
 GATEWAY_CHAIN = (Layer.CLI, Layer.ROLE, Layer.ENV, Layer.BLOCK, Layer.DOTENV, Layer.ROLE_DEFAULT, Layer.DEFAULT)
 ROLE_KEYS = ("gateway", "model", "effort")
+BUDGET_KEY = "budget"
 DEFAULT_TURNS, DEFAULT_SESSIONS = 3, 2
+REPLACE_BUDGET = 6000
 
 
 @dataclass(frozen=True)
@@ -64,9 +66,15 @@ class Row:
 
 @dataclass(frozen=True)
 class RoleRow:
-    """A role's section; its keys are ROLE_KEYS, ranked by GATEWAY_CHAIN and checked by the gateway at spawn."""
+    """A role's section; its keys are ROLE_KEYS, ranked by GATEWAY_CHAIN and checked by the gateway at spawn, and budget."""
     key: str
+    # tokens by chars/4 of the system prompt plus one task message: the largest measured, plus 15%, up to the next 500
+    budget: int
     defaults: Mapping[str, str] = field(default_factory=dict)
+
+    @property
+    def budget_row(self) -> Row:
+        return Row(f"{self.key}.{BUDGET_KEY}", check_positive, default=self.budget)
 
 
 def _path(key: str, **kwargs: Any) -> Row:
@@ -83,14 +91,14 @@ PATHS_PROMPTS = _path("paths.prompts")
 SCREENING_CATALOG = _path("device.screening.catalog", invalid=OnInvalid.ERROR, need=Need.DEFAULT, packaged=SCREENING,
                           label="packaged catalog")
 SCREENING_AI_REVIEW = Row("device.screening.aiReview", check_bool, default=False)
-SCREENING_CLASSIFY = RoleRow("device.screening.classify")
+SCREENING_CLASSIFY = RoleRow("device.screening.classify", 2500)
 GROUPING_TURNS = Row("device.grouping.turns", check_positive, default=DEFAULT_TURNS)
 GROUPING_SESSIONS = Row("device.grouping.sessions", check_positive, default=DEFAULT_SESSIONS)
 GROUPING_LIMIT = Row("device.grouping.limit", check_positive)
 # knowledge that is missing is asked either way, so a bad value is never unsafe
 GROUPING_NO_RERUN = Row("device.grouping.noRerun", check_bool, default=True)
-GROUPING_ASSIGN = RoleRow("device.grouping.assign", {"effort": "low"})
-GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
+GROUPING_ASSIGN = RoleRow("device.grouping.assign", 8500, {"effort": "low"})
+GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor", 6500)
 # a gap the gate finds: measured in one delta, or a stop; a setup that differs never starts a whole rerun unless named
 BENCHMARK_ON_GAP = Row("device.benchmark.onGap", partial(check_one_of, choices=ON_GAP), default=GAP_DELTA)
 BENCHMARK_ON_SETUP_MISMATCH = Row("device.benchmark.onSetupMismatch", partial(check_one_of, choices=ON_SETUP_MISMATCH),
@@ -102,7 +110,7 @@ BUNDLED_ON_MISSING = Row("device.bundled.onMissing", partial(check_one_of, choic
 BUNDLED_FROM_APPS = Row("device.bundled.fromApps", check_from_apps, default=OFF)
 # a bad id must not fall through to another device's numbers
 DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
-WORTHINESS = RoleRow("device.worthiness")
+WORTHINESS = RoleRow("device.worthiness", 6500)
 
 APPS_TARGETS = Row("apps.targets", check_targets)
 APPS_PERF_MODE = Row("apps.perfMode", check_perf_mode, default=GENERIC)
@@ -110,8 +118,8 @@ APPS_LIMIT = Row("apps.limit", check_positive)
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 # the highest change class the guide may apply; a bad value falls back to drop-in, the class that changes no contract
 APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
-APPS_AGENT = RoleRow("apps.agent")
-APPS_REPLACE = RoleRow("apps.replace")
+APPS_AGENT = RoleRow("apps.agent", REPLACE_BUDGET)
+APPS_REPLACE = RoleRow("apps.replace", REPLACE_BUDGET)
 
 # seconds before a hung child is killed; a device benchmark call runs for hours, a model call for minutes
 TIMEOUT_CLAUDE = Row("timeouts.claude", check_positive, default=3600)
@@ -131,7 +139,8 @@ def known_tree() -> dict[str, Any]:
     for row in ROWS:
         leaves = {row.key: row.invalid} if isinstance(row, Row) else {
             # a role's gateway falling back is the wrong provider, as aiGateway.use is
-            f"{row.key}.{k}": AI_GATEWAY_USE.invalid if k == "gateway" else OnInvalid.USE_DEFAULT for k in ROLE_KEYS}
+            f"{row.key}.{k}": AI_GATEWAY_USE.invalid if k == "gateway" else OnInvalid.USE_DEFAULT for k in ROLE_KEYS} | {
+            f"{row.key}.{BUDGET_KEY}": OnInvalid.USE_DEFAULT}
         for key, policy in leaves.items():
             _leaf(tree, key, policy)
     for key in FIXED_STOP_KEYS:
