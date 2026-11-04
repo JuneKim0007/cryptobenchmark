@@ -19,6 +19,8 @@ POINTS = ("used", "grouped")
 GAP_DELTA, GAP_STOP, SETUP_STOP, SETUP_RERUN = "delta", "stop", "stop", "rerun"
 ON_GAP, ON_SETUP_MISMATCH = (GAP_DELTA, GAP_STOP), (SETUP_STOP, SETUP_RERUN)
 ANY = "*"
+# a delta against the stored run: its anchors agreed, moved (dossier's setup_drift), or nothing was compared
+CHECKED, UNCHECKED = "checked", "unchecked"
 
 
 @dataclass(frozen=True)

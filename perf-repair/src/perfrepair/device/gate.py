@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Callable
 
 from .. import run_dir as rd
-from ..dto.benchmark_coverage import GAP_DELTA, GAP_STOP, LOST, SETUP_RERUN, SETUP_STOP, Coverage, Gap
+from ..dto.benchmark_coverage import GAP_DELTA, GAP_STOP, LOST, SETUP_RERUN, SETUP_STOP, UNCHECKED, Coverage, Gap
 from ..dto.grouping import read_items
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedSet
@@ -15,10 +15,11 @@ from ..files import read_json
 from ..log import run_id, step
 from ..stop import terminate
 from .benchmark_coverage import CoverageFile
-from .delta import rerun_whole, run_delta
+from .delta import Delta, rerun_whole, run_delta
 from .gate_after import rebuilt
 from .measured_check import measured_check
 
+UNLOCKED = " (drift is unreliable on a host: its clocks are not locked)"
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,18 @@ def _stop(gaps: tuple[Gap, ...], why: str, next_step: str | None = None) -> None
               data={"gaps": len(gaps)}, next_step=next_step)
 
 
+def _said(delta: Delta, had_anchors: bool, echo: Callable[[str], None]) -> None:
+    for line in delta.drift:
+        echo(f"device gate: setup_drift: {line}")
+    if delta.drift:
+        echo(f"device gate: setup_drift: comparisons across session {delta.session} are not sent as estimates; a whole "
+             "rerun in one session is your choice")
+    if delta.comparison == UNCHECKED and not delta.mismatch:
+        why = "the overrides leave its anchors no case shared with the stored run" if had_anchors else "its gaps have no anchor"
+        echo(f"device gate: unchecked: delta {delta.session}: {why}, so nothing says its session agrees with the stored one; "
+             "its estimates carry cross_session")
+
+
 def benchmark_gate(folder: Path, point: str, used: UsedSet, perf: PerfMode, policy: GatePolicy, on_device: bool,
                    echo: Callable[[str], None], benchmark: Path | str | None = None,
                    file: CoverageFile | None = None) -> tuple[Coverage, bool]:
@@ -65,13 +78,9 @@ def benchmark_gate(folder: Path, point: str, used: UsedSet, perf: PerfMode, poli
             _stop(first.delta(), f"and --device-results cannot measure them; run {policy.command}", policy.command)
         if policy.on_gap == GAP_STOP:
             _stop(first.delta(), "and device.benchmark.onGap is stop")
-        delta = run_delta(folder, first.delta(), anchors(folder, used, first.delta()), f"{run_id()}-{point}", on_device,
-                          echo, benchmark)
-        for line in delta.drift:
-            echo(f"device gate: setup_drift: {line}")
-        if delta.drift:
-            echo(f"device gate: setup_drift: comparisons across session {delta.session} are not sent as estimates; a whole "
-                 "rerun in one session is your choice")
+        comparators = anchors(folder, used, first.delta())
+        delta = run_delta(folder, first.delta(), comparators, f"{run_id()}-{point}", on_device, echo, benchmark)
+        _said(delta, bool(comparators), echo)
         if delta.mismatch and policy.on_mismatch == SETUP_RERUN:
             echo(f"device gate: setup_mismatch: {delta.mismatch[0]}; device.benchmark.onSetupMismatch rerun: the whole "
                  "benchmark is measured again")
@@ -85,7 +94,8 @@ def benchmark_gate(folder: Path, point: str, used: UsedSet, perf: PerfMode, poli
         after = measured_check(folder, used.names, perf, lost)
         file.write(folder, point, after, delta.summary())
         echo(f"device gate ({point}): delta {delta.session}: {len(delta.cases)} cases added, {len(delta.anchors)} anchor "
-             f"cases, {len(delta.drift)} drifted; {after.totals()['itemsMeasured']} of {len(used.names)} used items measured")
+             f"cases, {len(delta.drift)} drifted, {delta.comparison}{'' if on_device else UNLOCKED}; "
+             f"{after.totals()['itemsMeasured']} of {len(used.names)} used items measured")
         if after.delta():
             _stop(after.delta(), "left after one delta")
         return after, True

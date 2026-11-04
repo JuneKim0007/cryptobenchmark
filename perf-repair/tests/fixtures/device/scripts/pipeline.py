@@ -4,7 +4,7 @@ The device folder is the recorded test-api36 results, each providers.bundled ent
 or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=1 fails after the old manifest is gone;
 FAKE_VARIANTS=1 writes every case twice, `<id>_fixed` (Fast's runs times FIXED_SCALE) and `<id>_notFixed`, as the benchmark does;
 FAKE_SELECT=1 keeps only the cases the config's test set and excludes select; FAKE_HEAL=1 also measures the recorded lost case;
-FAKE_SCALE=<n> multiplies every timeNs run (anchors drift); FAKE_FINGERPRINT=<text> is the runtime's build fingerprint."""
+FAKE_SCALE=<n> multiplies every timeNs run (anchors drift); FAKE_RENAME_CASES=1 renames every case but the healed one (no shared case); FAKE_FINGERPRINT=<text> is the runtime's build fingerprint."""
 import argparse, fnmatch, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -92,6 +92,8 @@ if os.environ.get("FAKE_SCALE"):
         c["metrics"]["timeNs"]["runs"] = [r * float(os.environ["FAKE_SCALE"]) for r in c["metrics"]["timeNs"]["runs"]]
 if os.environ.get("FAKE_FINGERPRINT"):
     bench["runtime"]["fingerprint"] = os.environ["FAKE_FINGERPRINT"]
+if os.environ.get("FAKE_RENAME_CASES"):
+    bench["cases"] = [{**c, "id": c["id"] if c["id"] == "d_slow" else c["id"] + "_override"} for c in bench["cases"]]
 if os.environ.get("FAKE_SELECT"):
     bench["cases"] = selected(bench["cases"])
 FIXED_SCALE = 4

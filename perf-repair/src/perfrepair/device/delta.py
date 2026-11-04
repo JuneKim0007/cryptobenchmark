@@ -10,7 +10,8 @@ from typing import Callable
 from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
-from ..dto.benchmark_coverage import Gap
+from ..dto.benchmark_coverage import CHECKED, UNCHECKED, Gap
+from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, read_yaml
 from ..result.estimate import compare
 from ..result.gain import UNCHANGED, change_of
@@ -27,17 +28,23 @@ DRIFT_METRIC = "timeNs"
 
 @dataclass(frozen=True)
 class Delta:
-    """mismatch: the setup fields that differ, nothing merged; drift: anchor lines past the noise rule."""
+    """mismatch: the setup fields that differ, nothing merged; drift: anchor lines past the noise rule; compared: the
+    cases measured in both sessions, 0 leaving the delta unchecked."""
     session: str
     cases: tuple[str, ...] = ()
     anchors: tuple[str, ...] = ()
     mismatch: tuple[str, ...] = ()
     drift: tuple[str, ...] = ()
     lines: list[str] = field(default_factory=list)
+    compared: int = 0
+
+    @property
+    def comparison(self) -> str:
+        return SETUP_DRIFT if self.drift else CHECKED if self.compared else UNCHECKED
 
     def summary(self) -> dict:
         return {"session": self.session, "added": list(self.cases), "anchors": list(self.anchors),
-                "mismatch": list(self.mismatch), "drift": list(self.drift)}
+                "mismatch": list(self.mismatch), "comparison": self.comparison, "drift": list(self.drift)}
 
 
 def _stored_baseline(folder: Path) -> str | None:
@@ -56,16 +63,17 @@ def _measurements(folder: Path) -> dict:
     return read_results(manifest_file(manifest, base, "benchmark"), prepared, processes)[1]
 
 
-def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[str, ...]:
-    """Each anchor case measured in both sessions whose change is beyond noise and past improvingRatio (result/gain.py)."""
-    out = []
+def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[tuple[str, ...], int]:
+    """Each anchor case whose change is beyond noise and past improvingRatio (result/gain.py); how many both sessions hold."""
+    out, compared = [], 0
     for cid in sorted(anchors):
         before, after = (stored.get(cid) or {}).get(DRIFT_METRIC), (now.get(cid) or {}).get(DRIFT_METRIC)
         if before and after:
+            compared += 1
             c = compare(before, after)
             if change_of(c.ratio, c.pImprove) != UNCHANGED:
                 out.append(f"{cid}: {DRIFT_METRIC} ratio {c.ratio:.3f}, pImprove {c.pImprove}")
-    return tuple(out)
+    return tuple(out), compared
 
 
 def _whole_run_cases(folder: Path, measured: int) -> int:
@@ -116,10 +124,11 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     mismatch = tuple(differing(fingerprint(folder), fingerprint(staged)) + _case_mismatch(folder, staged, shared))
     if mismatch:
         return Delta(session, anchors=tuple(sorted(shared)), mismatch=mismatch, lines=[line])
-    drift = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
+    drift, compared = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
     added = staged_cases - stored_cases
-    merge_delta(folder, staged, added, session, bool(drift))
-    return Delta(session, tuple(sorted(added)), tuple(sorted(shared)), (), drift, [line])
+    done = Delta(session, tuple(sorted(added)), tuple(sorted(shared)), (), drift, [line], compared)
+    merge_delta(folder, staged, added, session, done.comparison)
+    return done
 
 
 def rerun_whole(folder: Path, gaps: tuple[Gap, ...], on_device: bool, echo: Callable[[str], None],

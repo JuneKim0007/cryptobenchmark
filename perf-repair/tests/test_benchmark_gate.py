@@ -29,6 +29,7 @@ from perfrepair.dto.perf_mode import GENERIC_MODE
 from perfrepair.dto.used import UsedItem, UsedSet
 from perfrepair.files import read_json, read_yaml
 from perfrepair.grouping.build.stage import build_stage
+from perfrepair.result.configurations import Config, cross_session
 from perfrepair.screen.catalog import screening_catalog
 from perfrepair.stop import Halt
 from perfrepair.stop.halt import Coded
@@ -262,7 +263,7 @@ def test_anchors_that_drift_mark_the_delta_setup_drift_and_its_estimates_are_not
     assert merged and any("setup_drift" in line and "d_fast" in line for line in lines)
     rows = {r.rowId: r for r in rd.load_rows(device)}
     assert rows["d_slow"].drift and not rows["d_fast"].drift
-    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["drift"] is True
+    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["comparison"] == "setup_drift"
 
 
 def test_anchors_that_agree_leave_the_delta_undrifted(device, monkeypatch):
@@ -270,6 +271,36 @@ def test_anchors_that_agree_leave_the_delta_undrifted(device, monkeypatch):
     (_, merged), lines = gate(device, SHA, SHA_LOST)
     assert merged and not any("setup_drift" in line for line in lines)
     assert not {r.rowId: r for r in rd.load_rows(device)}["d_slow"].drift
+
+
+def test_a_delta_with_no_anchor_is_unchecked_and_says_why(device, monkeypatch):
+    monkeypatch.setenv("FAKE_HEAL", "1")
+    monkeypatch.setenv("FAKE_SELECT", "1")
+    (_, merged), lines = gate(device, SHA_LOST)
+    assert merged and any(line.startswith("device gate: unchecked:") and "no anchor" in line for line in lines)
+    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["comparison"] == "unchecked"
+    assert read_yaml(device / rd.BENCHMARK_COVERAGE)["deltas"][0]["comparison"] == "unchecked"
+    assert any("unchecked" in line and "drifted, unchecked" in line for line in lines)
+    rows = {r.rowId: r for r in rd.load_rows(device)}
+    config = Config("digest", None, 1024, None)
+    assert not rows["d_slow"].drift and cross_session([config], {config: rows["d_fast"]}, {config: rows["d_slow"]})
+
+
+def test_anchors_whose_cases_the_overrides_changed_leave_the_delta_unchecked(device, monkeypatch):
+    monkeypatch.setenv("FAKE_HEAL", "1")
+    monkeypatch.setenv("FAKE_RENAME_CASES", "1")
+    (_, merged), lines = gate(device, SHA, SHA_LOST)
+    assert merged and any(line.startswith("device gate: unchecked:") and "overrides" in line for line in lines)
+    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["comparison"] == "unchecked"
+
+
+def test_a_delta_on_a_host_says_drift_is_unreliable_there(device, monkeypatch):
+    monkeypatch.setenv("FAKE_HEAL", "1")
+    manifest = read_yaml(device / rd.MANIFEST)
+    (device / rd.MANIFEST).write_text(yaml.safe_dump({**manifest, "mode": "host"}, sort_keys=False))
+    lines = []
+    benchmark_gate(device, "used", used(SHA, SHA_LOST), TIMING, GatePolicy(), False, lines.append, F / "device")
+    assert any("drift is unreliable on a host" in line for line in lines if line.startswith("device gate (used): delta"))
 
 
 def staged_copy(device, tmp_path):
@@ -285,7 +316,7 @@ def staged_copy(device, tmp_path):
 
 def test_a_merge_refuses_an_id_the_benchmark_holds(device, tmp_path):
     with pytest.raises(Coded, match="merge_refused"):
-        merge_delta(device, staged_copy(device, tmp_path), {"g_fast"}, "s", False)
+        merge_delta(device, staged_copy(device, tmp_path), {"g_fast"}, "s", "checked")
 
 
 def test_a_merge_refuses_unequal_repetitions(device, tmp_path):
@@ -294,7 +325,7 @@ def test_a_merge_refuses_unequal_repetitions(device, tmp_path):
     manifest["files"]["processes"] = ["benchmark/benchmark.json"]
     (staged / rd.MANIFEST).write_text(yaml.safe_dump(manifest))
     with pytest.raises(Coded, match="unequal_repetitions"):
-        merge_delta(device, staged, {"added"}, "s", False)
+        merge_delta(device, staged, {"added"}, "s", "checked")
 
 
 def test_an_interrupted_merge_leaves_the_stored_benchmark_whole(device, tmp_path, monkeypatch):
@@ -307,14 +338,14 @@ def test_an_interrupted_merge_leaves_the_stored_benchmark_whole(device, tmp_path
         return real(path, text)
     monkeypatch.setattr(delta_merge, "write_text_making_parents", dies_at_the_switch)
     with pytest.raises(KeyboardInterrupt):
-        merge_delta(device, staged_copy(device, tmp_path), {"added"}, "s", False)
+        merge_delta(device, staged_copy(device, tmp_path), {"added"}, "s", "checked")
     assert {name: (device / name).read_bytes() for name in before} == before
     write_inbound(device)
     assert "added" not in {r.rowId for r in rd.load_rows(device)}
 
 
 def test_a_merge_adds_only_and_the_folder_reads_back(device, tmp_path):
-    merged = merge_delta(device, staged_copy(device, tmp_path), {"added"}, "s", False)
+    merged = merge_delta(device, staged_copy(device, tmp_path), {"added"}, "s", "checked")
     write_inbound(device)
     assert merged.added == ("added",) and {"g_fast", "added"} <= {r.rowId for r in rd.load_rows(device)}
     assert (device / "benchmark/benchmark.json").is_file()
