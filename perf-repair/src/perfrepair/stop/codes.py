@@ -145,6 +145,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("missing_parameters", RERUN_INBOUND),
     _fixed("missing_probe", "rerun the device stage"),
     _fixed("missing_step", "run the app's earlier steps first"),
+    _fixed("invariant_failed", "run python3 -m perfrepair.validation.invariants on the device folder; fix each blocking finding it prints"),
     _fixed("no_benchmark", "rerun the benchmark"),
     _fixed("no_events", "run a command against the device folder first"),
     _fixed("no_reports", "run the guide with --device first"),

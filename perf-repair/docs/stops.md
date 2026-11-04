@@ -127,6 +127,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `missing_parameters` | `stop` | fixed: the input is unusable | 1 | rerun the inbound stage (or the guide's device stage) |
 | `missing_probe` | `stop` | fixed: the input is unusable | 1 | rerun the device stage |
 | `missing_step` | `stop` | fixed: the input is unusable | 1 | run the app's earlier steps first |
+| `invariant_failed` | `stop` | fixed: the input is unusable | 1 | run python3 -m perfrepair.validation.invariants on the device folder; fix each blocking finding it prints |
 | `no_benchmark` | `stop` | fixed: the input is unusable | 1 | rerun the benchmark |
 | `no_events` | `stop` | fixed: the input is unusable | 1 | run a command against the device folder first |
 | `no_reports` | `stop` | fixed: the input is unusable | 1 | run the guide with --device first |

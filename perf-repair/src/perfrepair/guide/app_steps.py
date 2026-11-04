@@ -16,6 +16,8 @@ from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
 from ..report.command import app_report
+from ..validation.finding import blocking
+from ..validation.invariants import app_gate
 from .state import Guide, check_exit, halt
 
 
@@ -46,6 +48,9 @@ def dossiers(g: Guide) -> str:
 
 
 def replacements(g: Guide) -> str:
+    blocked = blocking(app_gate(g.device, g.app_id))
+    if blocked:
+        halt(g, "invariant_failed", f"{len(blocked)} blocking: " + " | ".join(v.line() for v in blocked[:3]))
     state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo, refresh=g.refresh)
     stale = stale_problem(state)
     if stale:

@@ -268,6 +268,18 @@ def _scripts_off_path():
         sys.path.remove(str(SCRIPTS))
 
 
+def test_a_blocking_invariant_stops_before_the_replace_call(request, monkeypatch):
+    from perfrepair.guide import app_steps
+    from perfrepair.validation.finding import ADVISORY, BLOCKING, Violation
+    found = [Violation("key_contract_agrees", BLOCKING, "group g1", ("group g1",), "split it"),
+             Violation("interop_not_run", ADVISORY, "group g2", ("group g2",), "run it")]
+    monkeypatch.setattr(app_steps, "app_gate", lambda device, app: found)
+    g, lines = guide(request.getfixturevalue("run"), DRY_RUN)
+    assert run_steps(g, device=False) == 1
+    assert lines[-1].startswith("guide replace: stop invariant_failed: 1 blocking: blocking key_contract_agrees group g1")
+    assert not g.paths.replace.exists()
+
+
 def test_a_decision_on_an_earlier_dossier_stops_the_guide_until_refresh(run):
     g, lines = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
