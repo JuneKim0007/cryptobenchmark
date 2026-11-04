@@ -111,14 +111,13 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     if effective_view.thermal_gate(document):
         print("warning: thermal_gate_off: run.thermalGate: only a --device run reads temperatures; this run measures without the gate")
     for repetition in range(1, repetitions + 1):
-        into = benchmark if repetitions == 1 else benchmark / f"process-{repetition}"
-        if repetitions > 1:
-            print(f"process:   {repetition} of {repetitions}")
+        into = measure_session.process_folder(benchmark, repetition, repetitions)
+        measure_session.process_line(repetition, repetitions)
         gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
         written.append(into / "benchmark.json")
         record(files, into, {"none"}, None)
     if repetitions > 1:
-        gradle_runner.run("quick-bench", " ".join(map(str, [benchmark, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
+        passes.merge_runs(benchmark, written, options)
     return written
 
 

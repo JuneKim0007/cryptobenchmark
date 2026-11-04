@@ -97,8 +97,8 @@ scripts/session/case_isolation.py : run.isolation case: one case's instrumentati
 scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 scripts/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 scripts/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
-scripts/session/measure.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks
-scripts/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric
+scripts/session/measure.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks; a process repetition's folder and line
+scripts/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baseline once before the warm-up, then a wait before each case process while the device is hotter, one line per pass
 scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions

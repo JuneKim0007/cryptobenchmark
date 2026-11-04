@@ -71,6 +71,15 @@ class Hooks:
         pass
 
 
+def process_folder(root, repetition, repetitions):
+    return root if repetitions == 1 else root / f"process-{repetition}"
+
+
+def process_line(repetition, repetitions):
+    if repetitions > 1:
+        print(f"process:   {repetition} of {repetitions}")
+
+
 def run_session(device, plan, repetitions, isolation, hooks, folder, problems):
     """folder(repetition) is the process's folder; a case that failed is one problem line, a process that measured none the run's failure."""
     for hook in hooks:
@@ -83,8 +92,7 @@ def run_session(device, plan, repetitions, isolation, hooks, folder, problems):
 
 
 def one_process(device, plan, process, isolation, hooks, repetitions, problems):
-    if repetitions > 1:
-        print(f"process:   {process.repetition} of {repetitions}")
+    process_line(process.repetition, repetitions)
     process.into.mkdir(parents=True, exist_ok=True)
     for hook in hooks:
         hook.before_process(process)

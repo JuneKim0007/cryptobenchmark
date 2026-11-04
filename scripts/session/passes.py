@@ -3,6 +3,7 @@ import dataclasses, time
 
 import gradle_runner
 from failure import fail
+from session.measure import process_folder
 
 PASS_ARGUMENT = "cryptobench.pass"        # PassArguments.PASS
 SAMPLES_ARGUMENT = "cryptobench.samples"  # PassArguments.SAMPLES
@@ -71,14 +72,18 @@ def run_all(chosen, repetitions, root, measure_one, options):
     results = {}
     for one in chosen:
         started, into, written = time.monotonic(), one.folder(root), []
-        measure_one(one, lambda repetition, into=into: into if repetitions == 1 else into / f"process-{repetition}", written)
+        measure_one(one, lambda repetition, into=into: process_folder(into, repetition, repetitions), written)
         if repetitions > 1 and written:
-            gradle_runner.run("quick-bench", " ".join(map(str, [into, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
+            merge_runs(into, written, options)
         results[one] = (into / "benchmark.json", written)
         print(f"pass:      {one.label}: {repetitions} process{'es' if repetitions > 1 else ''}, {duration(time.monotonic() - started)} on the device")
     if chosen[0].name is None:
         return results[chosen[0]][1]
     return merged(results, root, repetitions, options)
+
+
+def merge_runs(into, written, options):
+    gradle_runner.run("quick-bench", " ".join(map(str, [into, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
 
 
 def merged(results, root, repetitions, options):
@@ -93,5 +98,5 @@ def merged(results, root, repetitions, options):
     merge(root, results[base][0], [(key, files[0]) for key, files in owned])
     if repetitions == 1:
         return []
-    return [merge(root / f"process-{n + 1}", process, [(key, files[1][n]) for key, files in owned if n < len(files[1])])
+    return [merge(process_folder(root, n + 1, repetitions), process, [(key, files[1][n]) for key, files in owned if n < len(files[1])])
             for n, process in enumerate(results[base][1])]
