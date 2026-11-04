@@ -12,21 +12,26 @@ class EnergyCapture(Hooks):
     def __init__(self, source, session, captures, discovery, preparation, problems, dry_pass, timed=True):
         self.source, self.session, self.captures = source, session, captures
         self.discovery, self.preparation, self.problems = discovery, preparation, problems
-        self.dry_pass, self.timed, self.stack = dry_pass, timed, None
+        self.dry_pass, self.timed, self.stack, self.opened = dry_pass, timed, None, False
 
     def before_process(self, process):
         (process.into / "energy.json").unlink(missing_ok=True)
         for stale in (process.into / "traces").glob("*.perfetto-trace"):
             stale.unlink()
-        self.stack = contextlib.ExitStack()
-        self.stack.enter_context(self.source.window(process.into))
+        self.stack, self.opened = contextlib.ExitStack(), False
+        step = lambda: self.open(process.into)
+        energy_stage.guarded(self.problems, step) if self.timed else step()
+
+    def open(self, into):
+        self.stack.enter_context(self.source.window(into))
+        self.opened = True
 
     def abandon(self, _process):
         self.stack.close()
 
     def after_case(self, process, case, _failure):
         """A case's own process may remove the earlier cases' traces on the device, so each case's trace is pulled at once."""
-        if "measured" in self.captures and self.timed:
+        if self.opened and "measured" in self.captures and self.timed:
             expected = process.cases.index(case) + 1
             pulled = []
             energy_stage.guarded(self.problems, lambda: pulled.append(self.session.pull_traces(process.into / "traces", fresh=False)))
@@ -34,6 +39,8 @@ class EnergyCapture(Hooks):
             print(f"traces:    {case}: {count} pulled" + ("" if count >= expected else f", {expected} expected"))
 
     def after_process(self, process):
+        if not self.opened:
+            return
         with self.stack:
             if "measured" in self.captures and self.timed:
                 energy_stage.guarded(self.problems, lambda: print(f"traces:    {self.session.pull_traces(process.into / 'traces', fresh=False)} pulled"))

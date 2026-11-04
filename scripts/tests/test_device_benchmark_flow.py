@@ -73,6 +73,16 @@ def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path
     assert files["energyCapability"] == results / "discovery/energy.yaml"
 
 
+def test_an_energy_window_that_cannot_open_costs_the_process_its_energy_never_its_timing(tmp_path, monkeypatch):
+    def refused(_self, _folder):
+        raise benchmark.energy_stage.EnergyError("manafa_cannot_start: no session")
+    monkeypatch.setattr(Energy, "window", refused)
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
+    assert problems == ["energy_failed: manafa_cannot_start: no session"]
+    assert "joules" not in steps(phone) and "pull traces" not in steps(phone) and steps(phone)[-1] == "convert"
+    assert [c["id"] for c in json.loads((results / "benchmark/benchmark.json").read_text())["cases"]] == ["a", "b"]
+
+
 def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a", "crash", "hang", "b"),
                                                  crash=("crash",), hang=("hang",))

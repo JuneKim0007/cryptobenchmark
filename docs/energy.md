@@ -115,7 +115,7 @@
 
 - A case without a window keeps `operations` and holds its reason in `notMeasured`; `joules`, `joulesPerOperation`, `windowSeconds` are null, `clockOffsetNs` is null when no trace was read.
 - One case's problem is that case's reason; `energy.py` exits 0 and writes every other case.
-- An energy step that fails as a whole (trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `error: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
+- An energy step that fails as a whole (the source's window around a timed process, trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `error: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
 - `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
 - `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
 - An `energy.json` of another `schemaVersion` is `unsupported` and joins nothing.
