@@ -31,7 +31,7 @@ class Trace:
 
     def boot_minus_monotonic(self):
         """BOOTTIME - MONOTONIC (time suspended): rails are stamped in BOOTTIME, androidx 1.5.0 phase slices in MONOTONIC."""
-        # the first snapshot can lack MONOTONIC (seen on a Pixel 10), so take the first that has both
+        # the first snapshot can lack MONOTONIC, so take the first that has both
         rows = list(self.processor.query(
             "select b.clock_value - m.clock_value as offset from clock_snapshot b join clock_snapshot m "
             "on b.snapshot_id = m.snapshot_id where b.clock_name = 'BOOTTIME' and m.clock_name = 'MONOTONIC' "

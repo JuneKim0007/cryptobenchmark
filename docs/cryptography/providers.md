@@ -2,8 +2,7 @@
 
 ## Observed devices
 
-- Pixel 9 (Tensor G4) and Pixel 10 (Tensor G5), Android 17 (API 37); baseline Android 16 (API 36).
-- Titan M2 backs StrongBox keys.
+- Android 17 (API 37); baseline Android 16 (API 36).
 - Primitive catalogue and scope: [primitives.md](primitives.md).
 
 ## Selection

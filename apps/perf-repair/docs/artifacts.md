@@ -96,7 +96,7 @@
 
 ## `primitives.tsv`
 
-One stored, compact view of the benchmark results: on the API 30 emulator run, 4.0 KB for 40 lines against 84.4 KB of `rows.json` and `measurements.json` (100 rows, `timeNs` only).
+One stored, compact view of the benchmark results, smaller than `rows.json` and `measurements.json`.
 
 | part | holds |
 |---|---|

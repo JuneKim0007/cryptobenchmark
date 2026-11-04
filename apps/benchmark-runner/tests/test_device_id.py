@@ -9,7 +9,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.identity import DeviceIdError, device_id  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parents[3]
-# Real block of a capture taken before the identity fields existed (~/capstone/runs/2026-11-02-fx).
+# Real block of a capture taken before the identity fields existed.
 OLD_HOST = {"model": "", "manufacturer": "", "hardware": "", "sdkInt": 0, "release": "", "javaVersion": "25.0.3", "defaultKeySizeProperty": ""}
 HOST = dict(OLD_HOST, fingerprint="", javaVendor="Eclipse Adoptium", javaRuntimeVersion="25.0.3+9-LTS", osName="Mac OS X", osArch="aarch64")
 ANDROID = {"model": "Pixel 9", "manufacturer": "Google", "hardware": "zuma", "sdkInt": 36, "release": "16", "javaVersion": "0",
@@ -24,7 +24,7 @@ def test_host_shape():
     assert re.fullmatch(r"host-mac-os-x-aarch64-jdk25-[0-9a-f]{8}", device_id(HOST))
 
 
-# Real blocks and ids from discovery runs (~/capstone/runs/2026-11-02-l1); an id changing here orphans results.
+# Real blocks and ids from discovery runs; an id changing here orphans results.
 @pytest.mark.parametrize("runtime, expected", [
     ({"model": "sdk_gphone_arm64", "manufacturer": "Google", "hardware": "ranchu", "sdkInt": 30, "release": "11", "javaVersion": "0",
       "defaultKeySizeProperty": "", "fingerprint": "google/sdk_gphone_arm64/emulator_arm64:11/RSR1.240422.006/12134477:userdebug/dev-keys",

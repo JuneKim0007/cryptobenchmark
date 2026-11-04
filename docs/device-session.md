@@ -16,16 +16,16 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 `run.passes` ([config.md](../apps/benchmark/modules/config/docs/config.md)) splits a device run into one session per metric group; without it one pass measures every metric, as before.
 
-| pass | measures | samples | energy | device time per case (Pixel 10, about 0.11 s a sample) |
-|---|---|---|---|---|
-| `timing` | `TIME` (and `CPU_EVENTS`) | `samples` override every `iterations` | none: no window, no trace pulled | 300: about 34 s timed + about 4 s warm-up, allocation phase and process start = about 38 s |
-| `energy` | `TIME` (dropped at the merge) and `energyJ` | `samples` set the timed phase, which is the energy window (`windowSeconds` applies only to `dry`) | the case's own capture (`measured`); rails pre-flight once per run | 100: about 11 s + `energy.cooldownSeconds` (5) + 4 = about 20 s |
-| `allocation` | `ALLOCATION`, one run per sample (`SampledAllocations` inside the timed phase; androidx's own phase keeps its 5) | as `timing` | none | 100: about 11 s, counting slows each sample (not measured yet), + 4 = 15 to 30 s |
+| pass | measures | samples | energy |
+|---|---|---|---|
+| `timing` | `TIME` (and `CPU_EVENTS`) | `samples` override every `iterations` | none: no window, no trace pulled |
+| `energy` | `TIME` (dropped at the merge) and `energyJ` | `samples` set the timed phase, which is the energy window (`windowSeconds` applies only to `dry`) | the case's own capture (`measured`); rails pre-flight once per run |
+| `allocation` | `ALLOCATION`, one run per sample (`SampledAllocations` inside the timed phase; androidx's own phase keeps its 5) | as `timing` | none |
 
 - Per group: timing takes many short samples with no trace pulled; energy takes a window of about 100 rail polls; allocation counting slows the timed loop, and those times never reach the results.
 - Merge: the timing pass's rows are the base; `MergePassesKt` takes `energyJ` only from the energy pass and `allocationCount` only from the allocation pass. A case a pass lost has no value of that metric (`not_merged: <id>: <key>: its pass has no row`), never the timing pass's, so a metric's before/after pair always comes from one pass and drift between passes never enters a ratio.
 - Layout: `benchmark/<pass>/` (with `process-<n>/` under it), then `benchmark/benchmark.json` merged; with repetitions also `benchmark/process-<n>/benchmark.json`, the n-th process of every pass merged, which `manifest.yaml` lists as `processes`. The before/after run does the same under `scoped/`.
-- Each pass prints `pass:      <name> pass: <n> processes, <time> on the device`; the run's device time is their sum, plus thermal sleeps (31% of the last full Pixel session).
+- Each pass prints `pass:      <name> pass: <n> processes, <time> on the device`; the run's device time is their sum, plus thermal sleeps.
 - `capture: dry` with `run.passes` stops with `not_supported`; an energy pass with no `measured` case is skipped with a warning; `--bench` warns and measures once per process.
 
 ## Variants
@@ -42,7 +42,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Temperature
 
-`apps/benchmark-runner/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `apps/benchmark-runner/session/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
+`apps/benchmark-runner/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` can be denied to it); `apps/benchmark-runner/session/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
 
 | rule | value |
 |---|---|
@@ -56,7 +56,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | cost | two `dumpsys` calls per case, under a second |
 | Jetpack's heat pause | `run.thermalThrottleSleepSeconds` passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds` to every measuring process; unset keeps Jetpack's 90 s |
 
-- Cached values: AOSP's `ThermalManagerService` fills `Cached temperatures` only from the HAL's `onTemperatureChanged` callbacks, which a HAL sends when a sensor's severity changes; between changes the cached value can be minutes old. The `Current temperatures from HAL` section asks the HAL at dump time. Whether the Pixel's Android 17 dump to an unrooted shell carries that section is not yet confirmed on the phone; when it does not, every reading is noted `source: cached` and is a lower bound on how stale the temperature is.
+- Cached values: AOSP's `ThermalManagerService` fills `Cached temperatures` only from the HAL's `onTemperatureChanged` callbacks, which a HAL sends when a sensor's severity changes; between changes the cached value can be minutes old. The `Current temperatures from HAL` section asks the HAL at dump time. A dump to an unrooted shell may not carry that section; when it does not, every reading is noted `source: cached` and is a lower bound on how stale the temperature is.
 
 ## Cool-down and frequency caps
 
@@ -85,11 +85,11 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 | record | `benchmark.json` per case: `gate: {waitedSeconds, target, timedOut}` ([results.md](results.md#benchmarkjson-case-fields)) |
 | per pass | `gate:      <pass>: <n> of <m> cases gated, <s> s waited, max <s> s, <n> timed out` |
 | `--bench` | no temperatures on a host: one `warning: thermal_gate_off: ...` and the run measures ungated |
-| cost | unknown until measured on the phone; worst case `timeoutSeconds x cases` per pass (the overnight 120 s x about 285 cases = about 9.5 h a pass); one `dumpsys` per poll |
+| cost | worst case `timeoutSeconds x cases` per pass; one `dumpsys` per poll |
 
 What it does not fix:
 - heat inside a case: the timed loop is untouched, so a long case still warms the device while it measures, and Jetpack's own heat pause still applies.
-- a hot idle: the baseline is the device before the warm-up, not a cold device; a run started warm gates to a warm target. Read after the warm-up it was 50 C while every Pixel 10 case started at 43-45 C, so the gate never waited.
+- a hot idle: the baseline is the device before the warm-up, not a cold device; a run started warm gates to a warm target. Read after the warm-up the baseline can sit above every case's start, so the gate never waits.
 - skin and battery heat: only the named sensors and the status count; a warm battery under a cool CPU does not wait.
 - stale readings: with only `Cached temperatures` ([Temperature](#temperature)) the gate can see an old value and start or wait wrongly.
 - frequency caps: a cap the governor keeps after the device cools is recorded in `clocks.yaml`, never waited out.

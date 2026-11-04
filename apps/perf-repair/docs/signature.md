@@ -26,15 +26,13 @@
 | KeyGenerator, KeyPairGenerator | function, consumer, key, keyMaterial |
 
 - Group: an item not screened out with a decided signature is grouped by family and the signature's name and value pairs, so `known` and `convention` of one value share a group; id, description and rules as in [grouping.md](grouping.md) Code-made groups.
-- A generator's `key` is its trial's: no attribute says whether the key it makes stays inside the provider, and on the API 30 capture the model split 8 generators on exactly that.
+- A generator's `key` is its trial's: no attribute says whether the key it makes stays inside the provider.
 
 - `keyMaterial` is the trial's `defaultRun.keyMaterial`, else `exportable` for `app_held` and `non_exportable` for `provider_held`, else `unknown`; a generator whose default run failed records nothing.
 - `keyMaterial` is the one component where `unknown` decides: gate C refuses to join an unknown side to a known one; a generator whose key contract is unknown joins nothing (Generators).
 - A screened-out generator group splits by `keyMaterial` too; no other screened-out group id changes.
 - A model answer joins no group across a component both sides know (gate C).
 - A model never joins a code-made group: an asked item whose function a code-made group has stays in its own model group, a false split and no false join.
-- Evidence, API 30 capture: of Haiku's 98 model groups, code makes 69 exactly and leaves the 29 others asked with no known component differing; neither side joins what the other split. The rules were written after that run, so this is consistency, not an independent test.
-- Asked items, before → after, before the generator rule: JDK 17 155 → 28, JDK 21 162 → 28, JDK 25 176 → 36, Android 36 119 → 23, API 30 196 → 46; what stayed is generators (`key: asked`), OAEP without `resolved` and `name_conflict` names. With it, on the runtime fixtures, whose trials have no `keyFormat` so every generator is alone: 1, 1, 1, 0.
 - Decided: a password-based name's derived key length (`_128`/`_256`, `128BIT`) is the `derivedBits` component and splits, because the provider derives the key from the name; a key size the call passes (`AES_128/...`) does not split.
 
 ## Generators
