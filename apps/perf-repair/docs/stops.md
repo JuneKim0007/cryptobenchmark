@@ -5,8 +5,7 @@
 - `stop/codes.py` holds every stop, warn and skip code once; `stop/terminate.py` `terminate(code, detail, ...)` is where an overridable code's action is decided.
 - `terminate` resolves the action, emits one `finding` event with `data.code`, `data.action` and `data.next` (its `status.log` line), then raises `Halt(code, detail, next_step)` on `stop`, or returns `warn` (the item kept) or `skip` (left out and counted) to its caller.
 - `failure.py` maps a `Halt` to its code's exit; any other coded failure is one `error` event with `data.code`; a step that ends in a `Halt` records `data.reported` on its end, and `status.log` shows the `terminate` line only.
-- A guide step's other coded failure is `<step>_failed`, the inner code in `data.inner` and first in the detail; a command another one runs in-process writes no `error` event of its own, and its caller's `<step>_failed` line carries its code.
-- When that inner code is `primitive_not_screened`, `data.next` is `read <device>/log/details/primitives_missing.yaml; ` and that code's own next, in place of the generic one below ([run-log.md](run-log.md)).
+- A guide step's other coded failure is `<step>_failed`, the inner code in `data.inner` and first in the detail; a command another one runs in-process writes no `error` event of its own, and its caller's `<step>_failed` line carries its code. When that inner code is `primitive_not_screened`, `data.next` is `read <device>/log/details/primitives_missing.yaml; ` and that code's own next, in place of the generic one below ([run-log.md](run-log.md)).
 - A code with no `Halt` yet is a coded exception whose `.code` `failure.py` records; a failure with no `.code` has no code.
 
 ## Settings
