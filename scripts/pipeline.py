@@ -3,7 +3,7 @@
 import argparse, json, os, pathlib, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
-import energy_stage, timeouts
+import bundled, energy_stage, timeouts
 from device.adb import Device, DeviceError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
@@ -14,7 +14,7 @@ from results import run_inputs
 from results.manifest import manifest
 from scope import code_digest
 from scope import results as scope_results
-from stages import bundled, config_check
+from stages import config_check
 from stages.benchmark import measure_cases
 from stages.discover import device_discover, host_runtime
 from stages.harness import harness_run, measured_folder

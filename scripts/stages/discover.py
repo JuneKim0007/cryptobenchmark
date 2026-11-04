@@ -6,7 +6,8 @@ from device import facts
 from device.identity import capture_id, device_id
 from failure import fail
 from results import layout as results_layout
-from stages import bundled, capture_files, config_check
+import bundled
+from stages import capture_files, config_check
 from stages.took import elapsed
 
 

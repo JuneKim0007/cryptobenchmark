@@ -3,7 +3,7 @@ import copy, hashlib, json
 
 import yaml
 
-from stages import bundled
+import bundled
 
 
 def digest(value):

@@ -1,5 +1,5 @@
 """The energy steps of pipeline.py --device: capture selection and the run's one energy source."""
-import json, sys
+import sys
 
 import yaml
 
@@ -13,7 +13,7 @@ from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources.runner import EnergyError, Host  # noqa: E402
 
-__all__ = ["EnergyError", "capture", "captures", "estimated_mark", "guarded", "source", "source_name"]
+__all__ = ["EnergyError", "capture", "captures", "guarded", "source", "source_name"]
 
 
 def _entries(document):
@@ -41,14 +41,6 @@ def source_name(effective):
 
 def source(effective, python, stacktrace=False):
     return SOURCES[source_name(effective)](Host(python, stacktrace, android_home() / "platform-tools", timeouts.SECONDS["energy"]))
-
-
-def estimated_mark(energy_files):
-    """The manifest's mark of a run whose energy is estimated; a measured run has none."""
-    paths = energy_files if isinstance(energy_files, list) else [energy_files] if energy_files else []
-    documents = [json.loads(path.read_text()) for path in paths]
-    sources = sorted({d["source"] for d in documents if d.get("kind") == "estimated"})
-    return {"energy": {"source": ", ".join(sources), "kind": "estimated"}} if sources else {}
 
 
 def guarded(problems, step):

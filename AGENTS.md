@@ -56,6 +56,7 @@ modules/preparation/ : effective.yaml to prepared cases, each called once; prepa
 modules/settings/ : harness key table shared by config, preparation and benchmark
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 requirements.txt : every host Python dependency
+scripts/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
 scripts/dependencies.py : the host modules a run needs, checked at its start; a missing one is one coded line and exit 1
 scripts/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
@@ -117,7 +118,6 @@ scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases 
 scripts/shared_functions.py : writes docs/shared-functions.md and perf-repair/docs/shared-functions.md from the import graph
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
-scripts/stages/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
 scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
 scripts/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 scripts/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id

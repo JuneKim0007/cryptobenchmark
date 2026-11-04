@@ -4,6 +4,7 @@ import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy_stage
+from results.manifest import estimated_mark
 
 
 def test_effective_entries_inherit_the_run_capture(tmp_path):
@@ -39,5 +40,5 @@ def test_only_an_estimated_run_is_marked(tmp_path):
     estimated, measured = tmp_path / "e.json", tmp_path / "m.json"
     estimated.write_text('{"source": "manafa", "kind": "estimated"}')
     measured.write_text('{"source": "rails", "kind": "measured"}')
-    assert energy_stage.estimated_mark(None) == {} and energy_stage.estimated_mark(measured) == {}
-    assert energy_stage.estimated_mark([estimated, estimated]) == {"energy": {"source": "manafa", "kind": "estimated"}}
+    assert estimated_mark(None) == {} and estimated_mark(measured) == {}
+    assert estimated_mark([estimated, estimated]) == {"energy": {"source": "manafa", "kind": "estimated"}}

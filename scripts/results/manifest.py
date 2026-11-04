@@ -1,7 +1,6 @@
 """results/<device_id>/manifest.yaml: what a finished run wrote, measured and survived."""
 import json
 
-import energy_stage
 from device import clocks
 from device.identity import device_id
 from results import layout as results_layout
@@ -22,6 +21,14 @@ def units(files):
     effective = yaml.safe_load(files["effective"].read_text()) if "effective" in files else None
     found = ((effective or {}).get("analysis") or {}).get("units")
     return {"units": found} if found else {}
+
+
+def estimated_mark(energy_files):
+    """The manifest's mark of a run whose energy is estimated; a measured run has none."""
+    paths = energy_files if isinstance(energy_files, list) else [energy_files] if energy_files else []
+    documents = [json.loads(path.read_text()) for path in paths]
+    sources = sorted({d["source"] for d in documents if d.get("kind") == "estimated"})
+    return {"energy": {"source": ", ".join(sources), "kind": "estimated"}} if sources else {}
 
 
 def survived(problems):
@@ -49,7 +56,7 @@ def manifest(results, mode, configuration, files, problems=()):
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
-    } | units(files) | energy_stage.estimated_mark(files.get("energy")) | survived(problems)
+    } | units(files) | estimated_mark(files.get("energy")) | survived(problems)
     path = results / results_layout.MANIFEST
     results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")

@@ -5,7 +5,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from session import case_isolation  # noqa: E402
 from device import adb as device_module  # noqa: E402
 import gradle_runner  # noqa: E402
-from stages import bundled, config_check
+import bundled
+from stages import config_check
 import timeouts  # noqa: E402
 
 OK = types.SimpleNamespace(returncode=0, stdout="", stderr="")
