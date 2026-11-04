@@ -6,7 +6,7 @@ Before/after measurement of app functions from perf-repair's `harness.yaml`. Run
 
 ```mermaid
 flowchart LR
-    H[harness.yaml] --> G[scope_generate.py: checks, wrappers, compile] --> P[scoped-plan.yaml]
+    H[harness.yaml] --> G[scope/generate.py: checks, wrappers, compile] --> P[scoped-plan.yaml]
     G --> I[install, probe, configure, push]
     I --> K[ScopedInterop: one process] --> V[scoped-interop.yaml]
     V --> S[ScopedBenchmark: the device session, per case] --> D[benchmarkData.json per process] --> C[ConvertKt, MergeRunsKt] --> B[scoped/benchmark.json]

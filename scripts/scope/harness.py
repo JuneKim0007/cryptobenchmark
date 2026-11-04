@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import yaml
 
-import scope_languages
+from scope import languages as scope_languages
 
 SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse"}
 ID = re.compile(r"^[0-9a-f]{12}$")

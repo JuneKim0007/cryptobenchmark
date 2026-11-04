@@ -2,7 +2,9 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, effective_view, energy_stage, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, scope_generate, scope_results, timeouts
+import bundled, capture_files, effective_view, energy_stage, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, timeouts
+from scope import generate as scope_generate
+from scope import results as scope_results
 from session import case_isolation
 from session import cooldown_hook
 from session import measure as measure_session
@@ -19,7 +21,7 @@ from device.adb import CPU_PINS, Device, DeviceError, measure_arguments
 from device.identity import DeviceIdError, capture_id, device_id
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
-from scope_harness import HarnessError
+from scope.harness import HarnessError
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 

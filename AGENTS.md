@@ -76,16 +76,18 @@ scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.
 scripts/requirements.txt : host Python dependencies
 scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, device selection, the temporary-folder warning
 scripts/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
-scripts/scope_compile.py : compiles the android test sources with Gradle; the compiler's error lines
-scripts/scope_dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
-scripts/scope_generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
-scripts/scope_harness.py : reads perf-repair's harness.yaml
-scripts/scope_inputs.py : synthesisable parameter types and their ScopeInputs calls
-scripts/scope_interop.py : each scope's interop check: round trip with its partner by inverse link, same output, or none
-scripts/scope_languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
-scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
-scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
-scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
+scripts/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
+scripts/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
+scripts/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
+scripts/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
+scripts/scope/harness.py : reads perf-repair's harness.yaml
+scripts/scope/inputs.py : synthesisable parameter types and their ScopeInputs calls
+scripts/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, same output, or none
+scripts/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
+scripts/scope/results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
+scripts/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
+scripts/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
+scripts/scope_generate.py : command: generate and compile a harness's scopes alone, sources left in place
 scripts/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
 scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml

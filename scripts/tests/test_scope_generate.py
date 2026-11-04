@@ -4,7 +4,9 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import scope_generate, scope_harness, scope_wrapper  # noqa: E402
+from scope import generate as scope_generate  # noqa: E402
+from scope import harness as scope_harness  # noqa: E402
+from scope import wrapper as scope_wrapper  # noqa: E402
 
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures/scoped"
 GENERATED = pathlib.PurePosixPath(scope_wrapper.FOLDER)

@@ -3,8 +3,11 @@ import pathlib, sys
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import scope_dependencies, scope_interop, scope_languages, scope_signature  # noqa: E402
-from scope_signature import Parameter  # noqa: E402
+from scope import dependencies as scope_dependencies  # noqa: E402
+from scope import interop as scope_interop  # noqa: E402
+from scope import languages as scope_languages  # noqa: E402
+from scope import signature as scope_signature  # noqa: E402
+from scope.signature import Parameter  # noqa: E402
 
 
 def test_java_header_keeps_the_body_and_strips_annotations():

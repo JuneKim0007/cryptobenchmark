@@ -102,7 +102,8 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     harness = yaml.safe_load(g.paths.harness.read_text())
     assert harness["scopes"] and all(s["current"] != s["option"] for s in harness["scopes"])
     sys.path.insert(0, str(SCRIPTS))
-    import scope_generate, scope_harness
+    from scope import generate as scope_generate
+    from scope import harness as scope_harness
     read = scope_harness.read(g.paths.harness)
     assert {s.id: (s.current, s.option) for s in read.scopes} == {s["id"]: (s["current"], s["option"])
                                                                    for s in harness["scopes"]}

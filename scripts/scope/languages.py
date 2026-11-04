@@ -1,7 +1,7 @@
 """One row per scope language: parser, source suffix, statement end, names it provides, the tag stub, the wrapper template."""
 from dataclasses import dataclass
 
-import scope_signature
+from scope import signature as scope_signature
 
 # java.lang of android.jar; both languages see these without an import. perf-repair's names.yaml holds the same set: test_scope_languages compares them.
 JAVA_LANG = frozenset("""

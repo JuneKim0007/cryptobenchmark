@@ -1,5 +1,5 @@
 # Names a function may use without defining them: keywords, primitive types, and what each language puts in scope implicitly.
-# java_lang: public top-level classes of android.jar's java.lang; scripts/scope_languages.py holds the same set, a test compares them.
+# java_lang: public top-level classes of android.jar's java.lang; scripts/scope/languages.py holds the same set, a test compares them.
 java_lang: [AbstractMethodError, Appendable, ArithmeticException, ArrayIndexOutOfBoundsException,
             ArrayStoreException, AssertionError, AutoCloseable, Boolean, BootstrapMethodError, Byte,
             CharSequence, Character, Class, ClassCastException, ClassCircularityError, ClassFormatError,

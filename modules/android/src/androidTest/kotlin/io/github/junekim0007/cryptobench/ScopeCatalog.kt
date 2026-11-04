@@ -1,12 +1,12 @@
 package io.github.junekim0007.cryptobench
 
-/** The scopes scripts/scope_generate.py compiled into this test APK. */
+/** The scopes scripts/scope/generate.py compiled into this test APK. */
 interface ScopeCatalog {
 
     fun scopes(): List<Scope>
 
     companion object {
-        // Paired with scripts/scope_wrapper.py CATALOG; only a --harness build contains it.
+        // Paired with scripts/scope/wrapper.py CATALOG; only a --harness build contains it.
         const val GENERATED = "io.github.junekim0007.cryptobench.scoped.GeneratedScopes"
 
         fun load(): List<Scope> {

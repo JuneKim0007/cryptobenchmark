@@ -15,7 +15,7 @@ PACKAGE = Path(__file__).resolve().parents[1]
 REPO = PACKAGE.parents[2]
 # the code that turns an app tree into scopes, dossiers, edits and a measured harness: a change reruns the app
 SCOPER = ("app", "scope", "source", "result", "repair")
-HARNESS = ("scripts/scope_*.py", "modules/android/src/androidTest/**/Scope*.kt")
+HARNESS = ("scripts/scope/*.py", "scripts/scope_generate.py", "modules/android/src/androidTest/**/Scope*.kt")
 
 
 def scoper_version() -> str:

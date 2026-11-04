@@ -4,7 +4,7 @@ import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-import scope_languages  # noqa: E402
+from scope import languages as scope_languages  # noqa: E402
 
 NAMES = ROOT.parent / "perf-repair/src/perfrepair/repair/names.yaml"
 

@@ -5,7 +5,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import gradle_runner  # noqa: E402
-import scope_results  # noqa: E402
+from scope import results as scope_results  # noqa: E402
 
 PLAN = {"schemaVersion": 1, "app": "fixture", "seed": 7, "scopes": [
     {"id": "aaaaaaaaaaaa", "function": "f", "inputs": {"inputSize": 64, "keySize": None}, "status": "compiled",

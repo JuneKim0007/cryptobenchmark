@@ -1,7 +1,7 @@
 """Chooses each scope's interop check from the function shapes: round trip with its partner by inverse link, same output, or none."""
 from dataclasses import dataclass
 
-import scope_inputs
+from scope import inputs as scope_inputs
 
 
 @dataclass(frozen=True)
