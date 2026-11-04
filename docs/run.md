@@ -31,7 +31,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
 | `--identify` | off | one line `identity:  {deviceId, mode, config, inputs}` (JSON) and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
-| `--suppress-errors ERRORS` | `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable |
+| `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; the variable reaches a run the guide or facade starts |
 | `--energy-python PYTHON` | `sys.executable` | interpreter with `tools/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--stacktrace` | off | print the tool's full output on failure |

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, json, pathlib, subprocess, sys, traceback
+import argparse, json, os, pathlib, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 import energy_stage, timeouts
@@ -33,7 +33,7 @@ def parse_options():
                         help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
     parser.add_argument("--identify", action="store_true",
                         help="print the device id and the digests of this run's inputs as one 'identity:' line; runs no stage, writes nothing")
-    parser.add_argument("--suppress-errors", default="", metavar="ERRORS",
+    parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
                         help="androidx.benchmark errors to suppress on --device, e.g. EMULATOR,UNLOCKED; the numbers are then not comparable")
     parser.add_argument("--energy-python", default=sys.executable, metavar="PYTHON",
                         help="interpreter with tools/energy/requirements.txt installed (default: this one)")
