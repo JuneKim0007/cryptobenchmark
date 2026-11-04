@@ -7,9 +7,10 @@ import yaml
 from perfrepair import run_dir as rd
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
-from perfrepair.device import stage as device_stage
+from perfrepair.device import stage as device_stage, stage_run
 from perfrepair.device.measures import switched_on
-from perfrepair.device.stage import DEVICE_PROBES, probe_device
+from perfrepair.device.stage_pass import DEVICE_PROBES
+from perfrepair.device.stage import probe_device
 from perfrepair.dto.event import END
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
@@ -214,7 +215,7 @@ def test_an_interrupted_grouping_build_leaves_no_record_claiming_it(setup, monke
 
     def lost(*_, **__):
         raise KeyboardInterrupt
-    monkeypatch.setattr(device_stage, "build_stage", lost)
+    monkeypatch.setattr(stage_run, "build_stage", lost)
     with pytest.raises(KeyboardInterrupt):
         device(root, config)
     assert not (first.folder / rd.DEVICE).exists()
