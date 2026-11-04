@@ -9,6 +9,7 @@ from ..data_handler.outbound.benchmark_runner import BenchmarkRunError, identify
 from ..files import sha256_file, sha256_text
 from ..run_dir import MEASUREMENTS, ROWS, GroupingPaths
 from ..source.language import SOURCE_SUFFIXES
+from ..stop.halt import Coded
 from .app_steps import measured_config
 from .state import Guide
 
@@ -21,7 +22,7 @@ def _scoper_files(name: str) -> list[Path]:
     # a renamed package would silently leave the digest, and no app would rerun
     files = sorted(p for p in (PACKAGE / name).rglob("*") if p.suffix in (".py", ".yaml"))
     if not files:
-        raise ValueError(f"missing_file: {PACKAGE / name} holds no scoper code; finished.SCOPER names it")
+        raise Coded(f"missing_file: {PACKAGE / name} holds no scoper code; finished.SCOPER names it")
     return files
 
 

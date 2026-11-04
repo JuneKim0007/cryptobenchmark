@@ -12,6 +12,7 @@ from typing import Callable
 from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
+from ...dto.coded import code_in
 from ...log import run_id
 from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
@@ -27,7 +28,11 @@ CHECKOUT = Path(__file__).resolve().parents[6]
 
 
 class BenchmarkRunError(RuntimeError):
-    pass
+    """Often the child's own last line, so its code can only be read from those words."""
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.code = code_in(message)
 
 
 def benchmark_root(explicit: Path | str | None = None) -> Path:

@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from .. import run_dir as rd
+from ..dto.coded import InputError
 from .read import read_events
 from .summary import summarize
 from .summary_text import summary_lines
@@ -28,7 +29,7 @@ def main(argv: list[str] | None = None) -> int:
     path = a.device_results.expanduser() / rd.EVENTS
     try:
         if not path.is_file():
-            raise ValueError(f"missing_file: {path}; no command has run on this device folder")
+            raise InputError(f"missing_file: {path}; no command has run on this device folder")
         doc = summarize(read_events(path), a.run, a.last)
     except ValueError as e:
         print(f"error {e}", file=sys.stderr)

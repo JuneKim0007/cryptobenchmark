@@ -156,6 +156,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("missing_probe", "rerun the device stage"),
     _fixed("missing_step", "run the app's earlier steps first"),
     _fixed("no_dossier", "rerun repair dossier, then repair edit, for the app"),
+    _fixed("artifact_invalid", "read the problems the line lists; rerun the step that wrote the artifact"),
     _fixed("invariant_failed", "run python3 -m perfrepair.validation.invariants on the device folder; fix each blocking finding it prints"),
     _fixed("no_benchmark", "rerun the benchmark"),
     _fixed("delta_unconfigured", "restore the stored benchmark's config the line names, or rerun the device stage"),

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
 
 CATALOG = Path(__file__).with_name("interchange.yaml")
@@ -63,10 +64,10 @@ def _rule(row: dict) -> Rule:
 def _engine(engine_type: str, row: dict) -> Engine:
     engine = Engine(tuple(row["splits"]), row["key"], row.get("defaults") or {}, tuple(_rule(r) for r in row["rules"]))
     if engine.key not in (KEY_NONE, KEY_ASSUMED, KEY_ASKED):
-        raise ValueError(f"interchange_key: {engine_type}: {engine.key!r}")
+        raise InputError(f"interchange_key: {engine_type}: {engine.key!r}")
     stray = sorted({*engine.defaults, *(c for r in engine.rules for c in r.components)} - set(engine.splits))
     if stray:
-        raise ValueError(f"interchange_component: {engine_type}: {stray} not in its splits")
+        raise InputError(f"interchange_component: {engine_type}: {stray} not in its splits")
     return engine
 
 

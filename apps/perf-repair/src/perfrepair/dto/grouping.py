@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from .coded import InputError
 from .document import NAMED, DocumentKind
 from .signature import Signature
 
@@ -68,7 +69,7 @@ class Item:
         """An item a record names that items.json no longer holds; id 0 is no item."""
         parts = key.split(SEPARATOR)
         if len(parts) != 4:
-            raise ValueError(f"outbox_unkeyed: a record names item {key!r}; run grouping assign to rekey its outbox")
+            raise InputError(f"outbox_unkeyed: a record names item {key!r}; run grouping assign to rekey its outbox")
         family, engine_type, name, provider = parts
         return cls(0, engine_type, name, provider, family)
 

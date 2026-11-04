@@ -14,7 +14,7 @@ def code_in(text: str) -> str | None:
 
 
 class InputError(ValueError):
-    """`.code` is the code the message starts with, None when it has none, so code_of reads what it always read."""
+    """`.code` is the code the message starts with, None when it has none."""
 
     def __init__(self, message: str, path: Path | str | None = None, detail: str | None = None):
         super().__init__(message)

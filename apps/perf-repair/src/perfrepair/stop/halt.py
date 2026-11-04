@@ -1,7 +1,7 @@
-"""Halt: the one exception terminate raises; code_of: the code any failure carries, as a field or its message's first word."""
+"""Halt: the one exception terminate raises; code_of: the code a failure carries in its field."""
 from __future__ import annotations
 
-from ..dto.coded import InputError, code_in
+from ..dto.coded import InputError
 
 
 class Halt(Exception):
@@ -19,4 +19,4 @@ Coded = InputError
 
 def code_of(e: BaseException) -> str | None:
     code = getattr(e, "code", None)
-    return code if isinstance(code, str) else code_in(str(e))
+    return code if isinstance(code, str) else None

@@ -247,6 +247,6 @@ def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
 def test_a_report_without_units_says_which_step_to_run(tmp_path):
     paths = AppPaths(tmp_path, "shop")
     paths.units.unlink()
-    with pytest.raises(FileNotFoundError, match="missing_step"):
+    with pytest.raises(ValueError, match="missing_step"):
         build_report(paths, LATENCY, DisplayUnits())
 

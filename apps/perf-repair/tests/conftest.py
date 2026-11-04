@@ -7,6 +7,7 @@ import pytest
 from perfrepair.catalog import groups as group_catalog_file
 from perfrepair.catalog.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
+from perfrepair.failure import last_failure
 from perfrepair.grouping import signature
 from perfrepair.log.attach import SINK
 from perfrepair.stop import policy
@@ -55,6 +56,7 @@ def detached_log():
     yield
     policy.reset()
     current.reset()
+    last_failure()
     SINK.close()
     logger.handlers[:] = handlers
     logger.setLevel(level)

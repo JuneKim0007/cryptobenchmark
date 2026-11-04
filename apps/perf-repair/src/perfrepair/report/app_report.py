@@ -9,6 +9,7 @@ from ..files import read_json, read_yaml
 from ..result.modes import Mode
 from ..app.facts.project import project_name
 from ..run_dir import AppPaths, read_scopes, read_sites
+from ..stop.halt import Coded
 from .measured import read_measured
 from .recommendations import recommendations
 from .scope_row import scope_row
@@ -51,7 +52,7 @@ def _named(paths: AppPaths) -> dict:
 def build_report(paths: AppPaths, mode: Mode, units: DisplayUnits) -> dict:
     for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
-            raise FileNotFoundError(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
+            raise Coded(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
     sites = read_sites(paths.sites)["sites"]
     scopes = read_scopes(paths.scopes)["scopes"]
     of_unit = units_by_scope(read_units(read_json(paths.units)))

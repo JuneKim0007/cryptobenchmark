@@ -139,7 +139,7 @@ src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, 
 src/perfrepair/run_dir/run_record.py : RunRecord, the one writer of what a device folder says is done: runs/run_<id>.json (its id, onExisting, the facade's settings tree), each <app>/finished.json (is_done, app_done; cleared on an app's first rerun step with its report), device.yaml read, write and drop; runs/delta_asked.json, the last merged delta each app's replace asked after; the folder's lock held from open to close
 src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
-src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, the name its raisers import for dto/coded.py's InputError; code_of, the code a failure carries as `.code` or its message's first word
+src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, the name its raisers import for dto/coded.py's InputError; code_of, the code a failure carries as `.code`
 src/perfrepair/stop/policy.py : the stops reader the settings layer installs; a code's action, its default without one
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only

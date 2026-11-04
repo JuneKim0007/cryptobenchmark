@@ -11,7 +11,10 @@ from perfrepair.guide.command import main as guide
 from perfrepair.repair.__main__ import main as repair
 from perfrepair.report.__main__ import main as report
 from perfrepair.validation.__main__ import main as validation
-from helpers import with_results
+from perfrepair.failure import reported
+from perfrepair.stop import code_of
+from perfrepair.validation.failure import ValidationFailed, require
+from helpers import captured_events, with_results
 
 F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
 
@@ -79,3 +82,16 @@ def test_the_guide_stops_on_claude_cli_failed(tmp_path, capsys, monkeypatch):
     assert guide(["--app", str(tmp_path), "--device-results", str(run),
                   "--agent", "dry-run"]) == 1
     assert "guide dossier: stop dossier_failed: claude_cli_failed: not logged in" in capsys.readouterr().out
+
+
+def test_a_failed_validator_carries_artifact_invalid_and_no_failure_is_coded_by_its_words():
+    assert code_of(ValidationFailed("items", ["x"])) == "artifact_invalid"
+    assert code_of(ValueError("items: not a code")) is None
+    assert code_of(ValueError("journal_unreadable: not raised through a coded type")) is None
+
+
+def test_a_failed_validator_is_one_error_event_with_its_code(capsys):
+    with captured_events() as events:
+        assert reported(lambda: require("items", ["bad row"])) == 1
+    [error] = [e for e in events if e.event == "error"]
+    assert error.data["code"] == "artifact_invalid" and "items: 1 problem(s)" in capsys.readouterr().err

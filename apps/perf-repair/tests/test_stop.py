@@ -72,6 +72,16 @@ def test_every_code_raised_anywhere_is_in_the_table():
     assert missing == {}
 
 
+def test_a_raised_code_is_carried_by_its_exception_type_never_only_by_its_words():
+    # TypeError is a programming error: outside FAILURES, so a bug with a traceback, never read for a code
+    plain = {"ValueError", "RuntimeError", "OSError", "FileNotFoundError"}
+    found = [f"{path.relative_to(SRC)}:{node.lineno}" for path in sorted(SRC.rglob("*.py"))
+             for node in ast.walk(ast.parse(path.read_text()))
+             if isinstance(node, ast.Raise) and isinstance(node.exc, ast.Call)
+             and getattr(node.exc.func, "id", "") in plain and _pattern(_first(node.exc))]
+    assert found == []
+
+
 def test_each_code_is_in_the_table_once_with_a_next_step():
     assert len(CODES) == len(CODES_LIST) and all(c.next and c.action in c.allowed or c.fixed for c in CODES_LIST)
 

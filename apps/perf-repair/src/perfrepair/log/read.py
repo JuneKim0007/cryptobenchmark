@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ..dto.coded import InputError
 from ..dto.event import Event
 from ..files import CUT, jsonl_value, read_jsonl
 
@@ -12,14 +13,14 @@ def _event(value, number: int) -> Event:
     try:
         return Event.from_json(value)
     except (TypeError, ValueError) as e:
-        raise ValueError(f"events_unreadable: line {number}: {e}") from None
+        raise InputError(f"events_unreadable: line {number}: {e}") from None
 
 
 def parse(line: str, number: int) -> Event | None:
     try:
         value = jsonl_value(line)
     except ValueError as e:
-        raise ValueError(f"events_unreadable: line {number}: {e}") from None
+        raise InputError(f"events_unreadable: line {number}: {e}") from None
     return None if value is CUT else _event(value, number)
 
 
@@ -27,7 +28,7 @@ def read_events(path: Path) -> list[Event]:
     found = read_jsonl(path)
     if found.bad:
         number, error = found.bad[0]
-        raise ValueError(f"events_unreadable: line {number}: {error}")
+        raise InputError(f"events_unreadable: line {number}: {error}")
     return [_event(value, n) for n, value in found.records]
 
 

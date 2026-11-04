@@ -6,6 +6,7 @@ import re
 from collections import Counter
 from datetime import datetime
 
+from ..dto.coded import InputError
 from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, TURN, Event
 from .status import status_line
 
@@ -93,9 +94,9 @@ def _grouped(events: list[Event], key) -> dict[str, dict]:
 def _chosen(events: list[Event], run: str | None, last: bool) -> list[str]:
     ids = runs(events)
     if not ids:
-        raise ValueError("no_events: events.jsonl holds no run")
+        raise InputError("no_events: events.jsonl holds no run")
     if run is not None and run not in ids:
-        raise ValueError(f"run_unknown: {run}; events.jsonl holds {', '.join(ids)}")
+        raise InputError(f"run_unknown: {run}; events.jsonl holds {', '.join(ids)}")
     return [run] if run else ids[-1:] if last else ids
 
 

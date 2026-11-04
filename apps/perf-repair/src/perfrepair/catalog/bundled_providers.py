@@ -8,6 +8,8 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.coded import InputError
+
 BUNDLED_PROVIDERS = Path(__file__).with_name("bundled-providers.yaml")
 SCHEMA_VERSION = 1
 REQUIRED = ("artifact", "provider", "create", "source")
@@ -20,7 +22,7 @@ _FORMS = (("artifact", _ARTIFACT, "group:name"), ("create", _CREATE, "Class or C
           ("alias", _NAME, "a name without whitespace"), ("provider", _NAME, "a name without whitespace"))
 
 
-class BundledCatalogError(ValueError):
+class BundledCatalogError(InputError):
     pass
 
 

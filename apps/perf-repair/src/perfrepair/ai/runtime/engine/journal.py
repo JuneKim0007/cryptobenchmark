@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ....files import append_line, read_jsonl
 from ....stop import terminate
+from ....stop.halt import Coded
 
 
 def append(path: Path, entry: dict) -> None:
@@ -23,5 +24,5 @@ def count(path: Path) -> int:
 def read(path: Path) -> list[dict]:
     found = read_jsonl(path)
     if found.bad:
-        raise ValueError(f"journal_unreadable: {path} line {found.bad[0][0]}: {found.bad[0][1]}")
+        raise Coded(f"journal_unreadable: {path} line {found.bad[0][0]}: {found.bad[0][1]}")
     return [value for _, value in found.records]
