@@ -3,6 +3,7 @@ import re
 from dataclasses import replace
 
 import pytest
+from perfrepair.dto.signature import Component, Signature
 import yaml
 from conftest import CHARTER, LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
@@ -49,14 +50,15 @@ def test_unknown_or_one_contract_is_no_finding(contracts):
 
 
 def rendered(item_contract, member_contract):
-    profiles = {1: profile(member_contract), 3: profile(item_contract)}
+    keyed = lambda c: replace(profile(c), signature=None if c == KEY_UNKNOWN else Signature((Component("key", c),)))
+    profiles = {1: keyed(member_contract), 3: keyed(item_contract)}
     knowledge = Knowledge(1, {"g": Group("cipher.secret", "g", [1])}, [])
     return render(ITEMS[3], FAMILIES.by_id["cipher.secret"], knowledge, ITEMS, profiles)
 
 
 def test_assign_shows_the_key_line_for_the_item_and_the_group():
     text = rendered(KEY_PROVIDER_HELD, KEY_APP_HELD)
-    assert text.index("key: application-held") < text.index("ITEM") < text.index("key: inside the provider")
+    assert text.index("key: application-held") < text.index("\nitem:") < text.index("key: inside the provider")
 
 
 def test_assign_shows_no_key_line_for_unknown():

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from ...dto.grouping_output import checks_document
-from ...files import write_json
+from ...files import write_json, write_text
 from ...log import step
 from ...ai.runtime.engine.kind import project
 from ...ai.runtime.engine.outbox import active_outbox
@@ -14,6 +16,7 @@ from ...ai.parse.grouping_assign.kind import GroupingKind
 from ...run_dir import GroupingPaths
 from ...ai.parse.grouping_assign.state import cursor
 from ..interop_read import imported
+from .candidates import candidates
 from .output import assemble
 from .rules import check, check_interop
 
@@ -22,19 +25,26 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
     with step("grouping", "report") as s:
         document = _report(paths, families)
         s.count(groups=len(document["groups"]), dropped=len(document["dropped"]))
-        s.wrote(paths.checks, paths.groups)
+        s.wrote(paths.checks, paths.groups, paths.group_candidates)
     return document
 
 
 def _report(paths: GroupingPaths, families: Families | None) -> dict:
-    documents = report_documents(paths, families)
+    kind, records, knowledge, findings, documents = _finished(paths, families)
     for path, doc in documents.items():
         write_json(path, doc)
+    # a person promotes a row by hand: nothing at run time writes the catalog
+    found = candidates(kind, knowledge, records, findings, active_outbox(paths.root).fingerprint, paths.group_candidates)
+    write_text(paths.group_candidates, yaml.safe_dump(found, sort_keys=False, width=200))
     return documents[paths.groups]
 
 
 def report_documents(paths: GroupingPaths, families: Families | None = None) -> dict[Path, dict]:
     """What the finished grouping's files should hold, the outbox being the commit; nothing written."""
+    return _finished(paths, families)[-1]
+
+
+def _finished(paths: GroupingPaths, families: Families | None):
     kind = GroupingKind(paths, families)
     records = active_outbox(paths.root).records()
     knowledge = project(kind, records)
@@ -47,4 +57,5 @@ def report_documents(paths: GroupingPaths, families: Families | None = None) -> 
     if kind.scope is not None:
         document["notUsed"] = [i.id for i in kind.not_used(records)]
     require("groups.json", validate_output(document, kind.by_id, kind.screen, kind.profiles))
-    return {paths.knowledge: knowledge.to_json(), paths.checks: checks_document(findings), paths.groups: document}
+    return kind, records, knowledge, findings, {paths.knowledge: knowledge.to_json(), paths.checks: checks_document(findings),
+                                                paths.groups: document}

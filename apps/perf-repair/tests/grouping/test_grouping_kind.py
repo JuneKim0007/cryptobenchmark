@@ -30,7 +30,7 @@ def test_every_item_gets_one_fresh_conversation_and_a_committed_outcome(paths):
     assert json.loads(paths.cursor.read_text())["next"] is None
     assert json.loads(paths.knowledge.read_text()) == knowledge.to_json()
     first = [m for _, turn, m in agent.turns if turn == 1]
-    assert all(m.text.count("ITEM") == 1 for m in first)
+    assert all(m.text.count("\nitem:") == 1 for m in first)
 
 
 def test_a_rejected_answer_is_corrected_in_the_same_conversation(paths):

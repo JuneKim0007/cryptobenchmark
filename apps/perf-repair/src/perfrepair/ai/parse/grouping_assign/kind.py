@@ -19,7 +19,7 @@ from ....validation.grouping.knowledge import validate_knowledge
 from ....validation.screen import read_checked_screen
 from ....catalog.families import Families
 from ....run_dir import CHARTER, GroupingPaths, load_used
-from ....screen.groups import code_groups, grouped_by_code
+from ....screen.groups import code_groups, identified, reserved_catalog_groups
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
@@ -49,7 +49,7 @@ class GroupingKind:
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
         self.screen: dict[int, Verdict] | None = read_checked_screen(paths)
-        self._askable = [i for i in self._items if not grouped_by_code(i.id, self.screen, self.profiles)]
+        self._askable = [i for i in self._items if not identified(i, self.screen, self.profiles)]
         self._asked = {i.key for i in self._askable}
         used = load_used(paths.root.parent)
         # used.json narrows what is asked, never what a record adds: an item outside it keeps its group
@@ -82,7 +82,8 @@ class GroupingKind:
         return [i for i in self._askable if self.scope is not None and i.qualified not in self.scope and i.key not in done]
 
     def empty(self) -> Knowledge:
-        return Knowledge(groups=code_groups(self._items, self.screen, self.profiles))
+        groups = code_groups(self._items, self.screen, self.profiles)
+        return Knowledge(groups=groups, retired=reserved_catalog_groups(groups) if self.screen is not None else {})
 
     def label(self, item: Item) -> str:
         return item.qualified

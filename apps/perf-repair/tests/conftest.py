@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from perfrepair.catalog import groups as group_catalog_file
 from perfrepair.catalog.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.grouping import signature
@@ -60,6 +61,17 @@ def detached_log():
 
 
 @pytest.fixture
-def asked_by_model(monkeypatch):
-    """No interchange rule, so every item not screened out is asked: for tests of asking, whatever the fixture's names."""
+def no_group_catalog(monkeypatch, tmp_path_factory):
+    """An empty catalog/groups.yaml, so a fixture's names are all unidentified."""
+    empty = tmp_path_factory.mktemp("no-group-catalog") / "groups.yaml"
+    empty.write_text('{schemaVersion: 1, source: test, families: {}}')
+    monkeypatch.setattr(group_catalog_file, "CATALOG", empty)
+    group_catalog_file.group_catalog.cache_clear()
+    yield
+    group_catalog_file.group_catalog.cache_clear()
+
+
+@pytest.fixture
+def asked_by_model(monkeypatch, no_group_catalog):
+    """No interchange rule and no catalog, so every item not screened out is asked: for tests of asking, whatever the fixture's names."""
     monkeypatch.setattr(signature, "interchange", lambda: Interchange({}, frozenset(), ()))

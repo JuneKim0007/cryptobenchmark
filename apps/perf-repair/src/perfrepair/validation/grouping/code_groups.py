@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from ...catalog.groups import group_catalog
 from ...dto.grouping import Item, Profile
 from ...dto.grouping_state import Group, code_made
 from ...dto.screen import Verdict
-from ...screen.groups import code_groups, grouped_by_code, screened_out
+from ...screen.groups import code_groups, identified, screened_out
 
 
 def _code_made_problems(gid: str, g: Group, want: Group | None) -> list[str]:
@@ -15,13 +16,22 @@ def _code_made_problems(gid: str, g: Group, want: Group | None) -> list[str]:
     return []
 
 
-def _model_made_problems(gid: str, g: Group, verdicts: dict[int, Verdict], profiles: dict[int, Profile]) -> list[str]:
+def _catalog_problems(gid: str, g: Group, want: Group | None) -> list[str]:
+    """A model may add a member to a catalog group; what the catalog places in it and how it reads stay."""
+    expected = group_catalog().variant_of(gid)
+    problems = [f"group {gid}: description differs from the catalog's"] * (g.description != expected.description)
+    missing = sorted(set(want.members if want else ()) - set(g.members))
+    return problems + [f"group {gid}: misses {missing}, which the catalog places in it"] * bool(missing)
+
+
+def _member_problems(gid: str, g: Group, want: Group | None, items: dict[int, Item], verdicts: dict[int, Verdict],
+                     profiles: dict[int, Profile]) -> list[str]:
     problems = []
     for m in g.members:
         if screened_out(verdicts.get(m)):
-            problems.append(f"item {m}: screened {verdicts[m].status}, but in model group {gid}; rerun assign")
-        elif grouped_by_code(m, verdicts, profiles):
-            problems.append(f"item {m}: its signature groups it by code, but in model group {gid}; rerun assign")
+            problems.append(f"item {m}: screened {verdicts[m].status}, but in group {gid}; rerun assign")
+        elif m in items and identified(items[m], verdicts, profiles) and m not in (want.members if want else ()):
+            problems.append(f"item {m}: the catalog places it elsewhere, but in group {gid}; rerun assign")
     return problems
 
 
@@ -30,6 +40,11 @@ def validate_code_groups(groups: dict[str, Group], items: dict[int, Item], verdi
     expected = code_groups(sorted(items.values(), key=lambda i: i.id), verdicts, profiles)
     problems = []
     for gid, g in sorted(groups.items()):
-        problems += (_code_made_problems(gid, g, expected.get(gid)) if code_made(gid)
-                     else _model_made_problems(gid, g, verdicts or {}, profiles))
+        want = expected.get(gid)
+        if code_made(gid):
+            problems += _code_made_problems(gid, g, want)
+            continue
+        if group_catalog().variant_of(gid) is not None:
+            problems += _catalog_problems(gid, g, want)
+        problems += _member_problems(gid, g, want, items, verdicts or {}, profiles)
     return problems + [f"group {gid}: code-made group missing" for gid in sorted(set(expected) - set(groups))]

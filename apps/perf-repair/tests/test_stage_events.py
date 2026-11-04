@@ -55,7 +55,7 @@ def test_inbound_build_screen_assign_report_app_and_dossier_end_with_counts(tmp_
     assert set(inbound.data["counts"]) == {"rows", "logEntries", "records", "warnings"}
     # the last build: the first ran on the probe alone, before the benchmark
     build = _ends(events, "grouping", "build")[-1]
-    assert set(build.data["counts"]) == {"items", "verdicts", "codeGrouped", "signatureGrouped"}
+    assert set(build.data["counts"]) == {"items", "verdicts", "codeGrouped", "catalogGrouped"}
     assert build.data["files"] == {f"grouping/{n}": sha256_file(device / "grouping" / n)
                                    for n in ("screen.json", "profiles.json", "items.json")}
     screen = _ends(events, "screening", "screen")[0]

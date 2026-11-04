@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
+from ...catalog.groups import group_catalog
 from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Item, Profile
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Knowledge, code_made
@@ -40,12 +41,39 @@ def _assumed(members: list[int], profiles: dict[int, Profile]) -> list[str]:
     return sorted({a for m in members if profiles[m].signature for a in profiles[m].signature.assumed})
 
 
+def _split_by_signature(members: list[int], profiles: dict[int, Profile]) -> list[str]:
+    """Components two members give different values for, assumed ones included: review evidence, never the decision."""
+    seen: dict[str, set] = {}
+    for m in members:
+        for c in (profiles[m].signature.components if profiles[m].signature else ()):
+            if c.value is not None:
+                seen.setdefault(c.name, set()).add(c.value)
+    return sorted(name for name, values in seen.items() if len(values) > 1)
+
+
+def _catalog(gid: str) -> bool:
+    return group_catalog().variant_of(gid) is not None
+
+
+def catalog_signature_differs(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
+    return [Finding("catalog_signature_differs", "warning", gid, tuple(g.members),
+                    f"a catalog group whose members' signatures differ on: {', '.join(_split_by_signature(g.members, profiles))}")
+            for gid, g in sorted(k.groups.items()) if _catalog(gid) and _split_by_signature(g.members, profiles)]
+
+
+def signature_would_split(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
+    return [Finding("signature_would_split", "warning", gid, tuple(g.members),
+                    f"a model group whose members' signatures differ on: {', '.join(_split_by_signature(g.members, profiles))}")
+            for gid, g in sorted(k.groups.items())
+            if not code_made(gid) and not _catalog(gid) and _split_by_signature(g.members, profiles)]
+
+
 def convention_assumed(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
-    """A code-made group of two or more whose join rests on what no member's data confirms; interop measures it."""
+    """A catalog group of two or more whose join rests on what no member's data confirms; interop measures it."""
     return [Finding("convention_assumed", "warning", gid, tuple(g.members),
                     f"grouped by provider convention, not recorded data: {', '.join(_assumed(g.members, profiles))}")
             for gid, g in sorted(k.groups.items())
-            if code_made(gid) and len(g.members) > 1 and _assumed(g.members, profiles)]
+            if (code_made(gid) or _catalog(gid)) and len(g.members) > 1 and _assumed(g.members, profiles)]
 
 
 def common_key_sizes(members: list[int], profiles: dict[int, Profile]) -> list[int]:
@@ -78,7 +106,8 @@ def dropped(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) 
             for m in sorted(k.dropped)]
 
 
-RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, key_contract_conflict, convention_assumed, no_common_key_size, no_runnable_member, singleton, dropped)
+RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, key_contract_conflict, catalog_signature_differs,
+                           signature_would_split, convention_assumed, no_common_key_size, no_runnable_member, singleton, dropped)
 
 
 def check(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:

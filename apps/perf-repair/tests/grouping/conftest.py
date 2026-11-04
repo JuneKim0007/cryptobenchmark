@@ -1,6 +1,7 @@
 import re
 
 import pytest
+import yaml
 from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
 from perfrepair.dto.grouping import items_document, profiles_document
@@ -25,16 +26,13 @@ def paths(tmp_path):
 
 
 def item_name(task):
-    return re.search(r"id \d+ · \S+ · (\S+) · (\S+)", task.text).group(1)
+    return yaml.safe_load(task.text)["item"]["name"]
 
 
 def by_name(task, *_):
-    name, message = item_name(task), task.text
-    for line in message.splitlines():
-        m = re.match(r"\s+(\S+) \(\d+ members\)", line)
-        if m:
-            following = message.split(line, 1)[1].splitlines()[1]
-            if f"{name} @" in following:
-                return {"group": m.group(1), "newGroup": {"id": "", "description": ""}, "amend": [], "reason": "same"}
+    name, message = item_name(task), yaml.safe_load(task.text)
+    for group in message["groups"]:
+        if any(m.startswith(f"{name} @") for m in group["members"]):
+            return {"group": group["id"], "newGroup": {"id": "", "description": ""}, "amend": [], "reason": "same"}
     slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
     return {"group": "", "newGroup": {"id": slug, "description": f"the function {name}"}, "amend": [], "reason": "new"}

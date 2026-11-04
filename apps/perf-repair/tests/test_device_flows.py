@@ -11,6 +11,7 @@ from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
+from perfrepair.catalog import groups as group_catalog_file
 from perfrepair.grouping import signature
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide
@@ -23,7 +24,15 @@ FOLDER = "fake-api36-00000000"
 BUNDLED_FIRST = "bundled: [{artifact: 'g:a:1', create: Aaa}]"
 OLD_ITEMS = 4
 INTERCHANGE = signature.interchange
+GROUPS = group_catalog_file.CATALOG
 pytestmark = pytest.mark.usefixtures("asked_by_model")
+
+
+def _real_catalog(monkeypatch):
+    """Undo asked_by_model for a test of what the catalog groups across providers."""
+    monkeypatch.setattr(signature, "interchange", INTERCHANGE)
+    monkeypatch.setattr(group_catalog_file, "CATALOG", GROUPS)
+    group_catalog_file.group_catalog.cache_clear()
 
 
 class Flow:
@@ -371,7 +380,7 @@ def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
 
 
 def test_bundled_apply_measures_only_the_algorithms_the_sites_name_and_groups_them_with_the_platform(scoped, monkeypatch):
-    monkeypatch.setattr(signature, "interchange", INTERCHANGE)
+    _real_catalog(monkeypatch)
     scoped.bundled = {"fromApps": "apply"}
     run_targets(scoped, target(scoped, "tls", SHA, ships=CONSCRYPT), device=True)
     groups = read_json(scoped.paths.groups)
@@ -394,7 +403,7 @@ def _sha_options(flow, root):
     (False, "MessageDigest|SHA-256|Fast", "MessageDigest|SHA-256|BundledConscrypt"),
     (True, "MessageDigest|SHA-256|BundledConscrypt", "MessageDigest|SHA-256|Fast")])
 def test_a_shipped_provider_is_a_provider_path_in_both_directions(scoped, monkeypatch, registers, current, offered):
-    monkeypatch.setattr(signature, "interchange", INTERCHANGE)
+    _real_catalog(monkeypatch)
     scoped.bundled = {"fromApps": "apply"}
     root = target(scoped, "tls", SHA, ships=CONSCRYPT)
     if registers:

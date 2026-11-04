@@ -116,6 +116,7 @@ class GroupingPaths:
     classify_batches = property(lambda self: self.root / "classify" / "batches.json")
     classified = property(lambda self: self.root / "classify" / "classified.json")
     registry_candidates = property(lambda self: self.root / "registry-candidates.yaml")
+    group_candidates = property(lambda self: self.root / "group-candidates.yaml")
 
 
 def app_dirs(device: Path) -> list[Path]:

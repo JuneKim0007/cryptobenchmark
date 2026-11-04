@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 
+from ...catalog.groups import group_catalog
 from ...dto.grouping import Item, Profile
 from ...dto.grouping_state import Amendment, Answer, Group, Knowledge
 from ...dto.signature import UNKNOWN
@@ -66,6 +67,12 @@ def _isolation_problems(group: str, item: Item, family_groups: dict[str, Group],
             "create another group" for m in alone]
 
 
+def _not_in_family(group: str, item: Item, knowledge: Knowledge, family_groups: dict[str, Group]) -> str:
+    other = knowledge.groups[group].family if group in knowledge.groups else None
+    fact = f"; it is of family {other}, never compared with this item's" if other and other != item.family else ""
+    return f"group {group!r} is not a group of family {item.family}{fact} (its groups: {sorted(family_groups) or 'none yet'})"
+
+
 def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Families,
                     profiles: dict[int, Profile] | None = None) -> list[str]:
     problems = []
@@ -73,8 +80,7 @@ def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Famil
         problems.append("give exactly one of group (join) or newGroup.id (create)")
     family_groups = knowledge.open_groups(item.family)
     if a.group and a.group not in family_groups:
-        problems.append(f"group {a.group!r} is not a group of family {item.family} "
-                        f"(its groups: {sorted(family_groups) or 'none yet'})")
+        problems.append(_not_in_family(a.group, item, knowledge, family_groups))
     problems += _signature_problems(a.group, item, family_groups, profiles)
     problems += _isolation_problems(a.group, item, family_groups, profiles or {})
     if a.newGroupId:
@@ -91,6 +97,8 @@ def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Famil
     for x in a.amend:
         if x.group not in family_groups:
             problems.append(f"amend {x.group!r}: not a group of family {item.family}")
+        if group_catalog().variant_of(x.group) is not None:
+            problems.append(f"amend {x.group!r}: a catalog group's description is fixed")
         problems += description_problems(f"amend {x.group!r}", x.description)
     if not a.reason:
         problems.append("reason is empty")

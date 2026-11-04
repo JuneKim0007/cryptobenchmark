@@ -13,7 +13,7 @@ from ...validation.grouping.items import validate_items
 from ...catalog.families import Families
 from ...run_dir import GroupingPaths
 from ...screen.catalog import Catalog
-from ...screen.groups import grouped_by_code
+from ...screen.groups import identified
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
@@ -30,8 +30,8 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
         paths, items, verdicts, profiles = _build(manifest_path, run, catalog, reviewer, families, echo)
         s.count(items=len(items), verdicts=len(verdicts),
                 codeGrouped=sum(1 for v in verdicts.values() if v.status in CODE_GROUPED),
-                signatureGrouped=sum(1 for i in items if grouped_by_code(i.id, verdicts, profiles)
-                                     and verdicts[i.id].status not in CODE_GROUPED))
+                catalogGrouped=sum(1 for i in items if identified(i, verdicts, profiles)
+                                   and verdicts[i.id].status not in CODE_GROUPED))
         s.wrote(paths.screen, paths.profiles, paths.items)
     return paths
 

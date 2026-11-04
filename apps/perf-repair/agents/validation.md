@@ -38,7 +38,7 @@ src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply
 src/perfrepair/validation/events.py : log/events.jsonl through read_jsonl: every whole line JSON (a cut one skipped), schema 1, every field with its type, a known kind; a partial last line
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
 src/perfrepair/validation/finding.py : the one invariant finding: id, severity (blocking, advisory, undecided), subject, evidence, fix; blocking, counts
-src/perfrepair/validation/grouping/code_groups.py : code-made groups equal the ones screen.json and the signatures imply; no item grouped by code in a model group
+src/perfrepair/validation/grouping/code_groups.py : code-made and catalog groups equal the ones screen.json and the catalog imply; no identified item in another group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
 src/perfrepair/validation/grouping/invariants.py : grouping invariants: key contract (a screened-out group no dossier offers exempt), signature, no runnable member no options, interop not run, algorithm split, stability against another run
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
@@ -50,7 +50,7 @@ src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, registry metrics only, required ones present, ordered finite summaries, positive medians and kinds as the registry says
 src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
-src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures; an unknown generator joins no group
+src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures; a catalog group joined, never amended; an unknown generator joins no group
 src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry metric columns, screen statuses, each metric's n, and equal line for line to what rows, measurements and screen.json make
 src/perfrepair/validation/primitives_missing.py : log/details/primitives_missing.yaml: schema, run, each row a known reason and action, its lists, a next step
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check

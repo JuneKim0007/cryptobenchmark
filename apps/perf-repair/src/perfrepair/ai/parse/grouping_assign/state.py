@@ -7,6 +7,9 @@ from ....dto.grouping import CURSOR_SCHEMA_VERSION, Item
 from ....dto.grouping_state import Answer, Group, Knowledge
 
 
+GONE_FROM_CATALOG = "A group a saved decision joined that the catalog no longer holds."
+
+
 @dataclass(frozen=True)
 class Cursor:
     next: int | None
@@ -36,6 +39,8 @@ def apply(knowledge: Knowledge, record: OutboxRecord, item: Item, asked: bool = 
             if knowledge.taken(a.newGroupId):
                 raise ValueError(f"record {record.seq}: group {a.newGroupId} already exists")
             knowledge.retired[a.newGroupId] = Group(item.family, a.newGroupDescription)
+        elif not knowledge.taken(a.group):
+            knowledge.retired[a.group] = Group(item.family, GONE_FROM_CATALOG)
         if asked:
             knowledge.filled(a.target).members.append(item.id)
         for amendment in a.amend:

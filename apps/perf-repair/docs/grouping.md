@@ -13,15 +13,15 @@ Two primitives share a group only when all three contracts match, inside one fam
 - Boundary: the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared.
 - Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
 
-Signature: [signature.md](signature.md): what code reads per item, and which items it groups. A group is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
+Catalog and signature: `catalog/groups.yaml` and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name is placed without a model; the signature seeds the catalog offline (`../../tools/seed_groups.py`, its output reviewed and committed) and checks groups; it never places an item at run time. A group is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
 
 ## Key contract
 
 | Probe attributes of the service | `keyContract` | Shown to the model |
 |---|---|---|
-| any `SupportedKeyFormats` value, or a `SupportedKeyClasses` value under a prefix of `catalog/key-contract.yaml` (`java.security.`, `javax.crypto.`) | `app_held` | `key: application-held` |
-| `SupportedKeyClasses` values, none under such a prefix | `provider_held` | `key: inside the provider` |
-| neither attribute | `unknown` | no line |
+| any `SupportedKeyFormats` value, or a `SupportedKeyClasses` value under a prefix of `catalog/key-contract.yaml` (`java.security.`, `javax.crypto.`) | `app_held` | `facts.key.key: application-held` |
+| `SupportedKeyClasses` values, none under such a prefix | `provider_held` | `facts.key.key: inside the provider` |
+| neither attribute | `unknown` | absent |
 
 - A provider registering a `KeyStore` is not evidence: a provider can register one and take raw keys. A generator accepts no key, so its `keyContract` is the key its trial produced ([signature.md](signature.md) Generators); an `unknown` one joins no group.
 
@@ -30,9 +30,9 @@ Signature: [signature.md](signature.md): what code reads per item, and which ite
 ```mermaid
 flowchart TD
     M[manifest.yaml] --> B[build: items.json, profiles.json, screen.json; aiReview: classify unknown items first]
-    B --> CG[code-made groups: screened-out items] --> A{gate A}
+    B --> CG[identified, never asked: screened-out items, catalog-listed names, split by key contract] --> A{gate A}
     A --> P[pop next pending id] --> GB{gate B}
-    GB --> C[fresh conversation: family + its groups + item]
+    GB --> C[unidentified item: fresh conversation: system prompt + family and its groups + item, one YAML block]
     C --> GC{gate C}
     GC -- rejected, turns left --> C
     GC -- rejected, no turns --> R[fresh conversation]
@@ -51,10 +51,11 @@ flowchart TD
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
+| `group-candidates.yaml` | report | model answers in `catalog/groups.yaml`'s row shape `{id, description, contracts, members}` per family, plus `provenance`: source (`model`, or `catalog` for a join), outbox, per decision item, seq, model, run, date, reason, rejected turns, and checks (gate C, the group's static findings); rebuilt from the outbox at each report, keeping each decision's run and date; a person promotes a row by hand, nothing at run time writes the catalog |
 | `profiles.json` | build | schema 5: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract with `keyContractFrom` (`attributes`, `trial`) and `keyContractConflict`, signature `{components: [{name, value, status}]}`; a schema 3 folder is refused, rerun `grouping build`; build needs only the manifest's probe and trial: `runs`, `reason` and the default-run fields come from the trial (inventory's `runs` when present, itself the trial's), `measured` is null without a benchmark and `preparedKeySizes` null without `prepared.yaml`, never false or empty, so a group's `keySizes` is `[]` and `no_common_key_size` stays silent until a benchmark exists |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem, and the gateway, model and effort that answered; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter, with `refresh <token>` as its inputs after `assign --refresh`; `item` is `Item.key`, `<family>\|<type>\|<name>\|<provider>`, never the id |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`); `assign --refresh` makes a new one active, every item asked, and later runs read its token from the active charter and stay in it |
-| `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
+| `knowledge.json` | assign | the code-made and catalog groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
 | `cursor.json` | assign | `next` pending id, `decided` and `dropped` counts, `knowledgeVersion` |
 | `journal.jsonl` | assign | one line per turn: charter, item, session, turn, status, problems, reply, message hash |
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
@@ -65,19 +66,18 @@ flowchart TD
 | `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings |
 | `supervisor.journal.jsonl` | report --supervisor | one line per review turn, with `charter` |
 
-## Code-made groups
+## Identified items
 
 | Rule | Value |
 |---|---|
 | used | with `<device>/used.json` ([artifacts.md](artifacts.md#usedjson)) only the pending items it names are asked; a record outside it still places its item, so a target removed keeps its groups |
-| pending | items whose screen status is not `broken` or `platform_deprecated`, a model `deprecated` included (the review runs inside build, before assign reads screen.json), and whose signature has an `unknown` component; only these reach the model |
-| no screen.json | pending is every item and no group is code-made (runs built before screening, hand-built fixtures) |
+| pending | items not identified: screen status not `broken` or `platform_deprecated` (a model `deprecated` included: the review runs inside build, before assign reads screen.json), and a canonical name `catalog/groups.yaml` does not list for the family, or lists while the trial's resolved digest or MGF1 is not what the row states; only these reach the model, one fresh call each. No screen.json: every item, no group code-made |
+| catalog | a listed item joins its row's group at its key contract: the row id for `app_held` (and `unknown` where the engine's key is `assumed`), `<id>.p` for `provider_held`, the row id alone for a keyless engine; a generator of unknown key contract a code-made group of one; description fixed: the model may join one, never amend it; a row with no member here keeps its id taken |
+| same name, other parameters | OAEP's MGF1 differs per provider under one name, so no OAEP name is a row (the seed leaves a name with an `unknown` component to the model): both providers are asked, and gate C refuses joining across a known `mgf1` |
 | build write | everything, the classify review included, is computed first; then screen.json, profiles.json and items.json are staged as temp files and renamed in that order: a failure before the renames leaves the previous build whole, a partial rename fails screen.json's `built` digests, and screen.json first means its absence never follows a new items.json |
 | key | family, status, the canonical name `screen.json` recorded, and whether the key lives inside the provider (`providerHeld`: key contract `provider_held`; `unknown` and `app_held` share a group); key size is the call's, as in model groups; one group per key across providers |
-| id | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision |
-| description | fixed: code-made group of one algorithm: its canonical name, any key size, who holds the keys, and status |
-| model | never sees, joins or amends one; the supervisor does not review them; static findings, interop pairs and dossiers treat them as groups |
-| groups.json | a screened-out item is in exactly one code-made group and never in a model group; a code-made group is exactly the one its key implies |
+| id, description | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision; fixed: code-made group of one algorithm: its canonical name, any key size, who holds the keys, and status |
+| model, groups.json | the model never sees, joins or amends a code-made group; the supervisor reviews neither them nor a catalog group with only listed members; static findings, interop pairs and dossiers treat them as groups. A screened-out item is in exactly one code-made group; a code-made group is exactly the one its key implies |
 | screen change | what is screened out is no charter input, since the model never sees code groups: every change keeps the outbox. A newly screened-out item's record adds no member and it joins its code group; one no longer screened out with no record is asked, one with a record goes back to its group. Gate A and `report` recompute the code-made groups from screen.json |
 | record key | ids are positional in the sorted items, so any added or removed item moves them; a record names `Item.key` and replay resolves it to today's id, so moved ids change nothing. A record whose item left (or is screened out) adds no member, and its answer still creates and amends groups, later answers may name them; a group with no member left is out of `knowledge.json` and `groups.json`, and its id stays taken for that outbox. A changed family is another key, so that item is asked again. Other facts of a name (`resolved`, the key contract) are not in the key: same name, same device id |
 | outbox from positions | one naming ids, with the screened-out ids as inputs, moves once to a keyed outbox at the next assign or guide (`grouping_assign/rekey.py`), when its old charter still hashes to its name, so the prompts and the screened-out ids are unchanged; no call. Otherwise `outbox_not_rekeyed` and its items are asked. The old one stays |
@@ -99,9 +99,9 @@ flowchart TD
 
 | Gate | When | Checks |
 |---|---|---|
-| A | before every pop | items and profiles valid; knowledge equals the projection of the outbox; code-made groups equal the ones screen.json implies |
+| A | before every pop | items and profiles valid; knowledge equals the projection of the outbox; code-made and catalog groups equal the ones screen.json and the catalog imply |
 | B | after pop | item parses whole, carries no group, family and profile exist |
-| C | every answer | the answer contract above; `group` and `amend` name model-made groups only; a `group` no member of which knows another value for a component the item knows (a `signature:` line, the key); the item has no outbox record yet |
+| C | every answer | the answer contract above; `group` names a catalog or model-made group, `amend` a model-made one only; a `group` no member of which knows another value for a component the item knows (its `facts`, the key); the item has no outbox record yet |
 | D | after write | the record reads back equal; new knowledge validates |
 
 ## Families (`catalog/families.yaml`)
@@ -124,10 +124,10 @@ flowchart TD
 |---|---|
 | `resolved_parameters_differ` | error |
 | `key_contract_differs`; `key_contract_conflict` (a generator's trial against its provider's consumers) | error; warning |
+| `catalog_signature_differs`, `signature_would_split` (members' signatures differ: evidence, never a move) | warning |
 | `convention_assumed` | warning |
 | `dropped` | error |
-| `no_common_key_size` | warning |
-| `no_runnable_member` | warning |
+| `no_common_key_size`; `no_runnable_member` | warning |
 | `singleton` | info |
 | `interop_failed` | error |
 | `interop_not_checkable` | info |

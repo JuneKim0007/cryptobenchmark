@@ -130,7 +130,7 @@ def test_validate_output_holds_broken_items_to_their_code_groups(paths):
     moved["items"]["6"]["group"] = model["id"]
     moved["items"]["1"]["screen"] = "unknown"
     problems = validate_output(moved, kind.by_id, kind.screen)
-    assert f"item 6: screened broken, but in model group {model['id']}; rerun assign" in problems
+    assert f"item 6: screened broken, but in group {model['id']}; rerun assign" in problems
     assert f"group {gid}: code-made group missing" in problems
     assert "item 1: screen 'unknown', screen.json says 'accepted'" in problems
     assert validate_output(document, kind.by_id, kind.screen) == []

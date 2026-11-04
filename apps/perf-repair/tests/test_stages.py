@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 from helpers import with_results, LIBRARY, QUIET
 
 from perfrepair.data_handler.inbound.__main__ import main as inbound
@@ -23,14 +24,13 @@ F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "ma
 
 
 def same_name(task, *_):
-    message = task.text
-    item = message.split("ITEM\n  id ")[1].split(" · ")
-    for line in message.splitlines():
-        if line.startswith("      e.g. ") and f"{item[2]} @" in line:
-            group = message.splitlines()[message.splitlines().index(line) - 1].split()[0]
-            return {"group": group, "newGroup": {"id": "", "description": ""}, "amend": [], "reason": "same"}
-    slug = "g-" + item[0]
-    return {"group": "", "newGroup": {"id": slug, "description": f"the function {item[2]}"}, "amend": [], "reason": "new"}
+    message = yaml.safe_load(task.text)
+    item = message["item"]
+    for group in message["groups"]:
+        if any(m.startswith(f"{item['name']} @") for m in group["members"]):
+            return {"group": group["id"], "newGroup": {"id": "", "description": ""}, "amend": [], "reason": "same"}
+    slug = f"g-{item['id']}"
+    return {"group": "", "newGroup": {"id": slug, "description": f"the function {item['name']}"}, "amend": [], "reason": "new"}
 
 
 def first_improving_pair(task, *_):

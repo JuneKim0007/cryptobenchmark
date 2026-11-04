@@ -15,7 +15,7 @@ from .code_groups import validate_code_groups
 
 def validate_output(doc: dict, items: dict[int, Item], screen: dict[int, Verdict] | None = None,
                     profiles: dict[int, Profile] | None = None) -> list[str]:
-    """screen: screen.json's verdicts, None without it; a screened-out item or a decided signature is grouped by code, never asked."""
+    """screen: screen.json's verdicts, None without it; a screened-out or catalog-listed item is placed without a model, never asked."""
     problems = []
     if doc.get("schemaVersion") != GROUPS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {GROUPS_SCHEMA_VERSION}")

@@ -10,7 +10,7 @@ from perfrepair.dto.screen import Verdict
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.build.key_contract import cross_checked, generator_contract
 from perfrepair.grouping.report.rules import check
-from perfrepair.screen.groups import code_groups, grouped_by_code
+from perfrepair.screen.groups import code_groups, identified
 from perfrepair.validation.grouping.invariants import Grouping, key_contract_agrees
 from perfrepair.validation.parse.grouping_assign import validate_answer
 
@@ -90,7 +90,8 @@ def test_an_unknown_generator_is_a_code_made_group_of_its_own():
     group_of = {m: gid for gid, g in groups.items() for m in g.members}
     assert group_of[gens["A"].id] == group_of[gens["B"].id]
     assert groups[group_of[gens["D"].id]].members == [gens["D"].id] != groups[group_of[gens["E"].id]].members
-    assert all(code_made(group_of[g.id]) for g in gens.values()) and grouped_by_code(gens["D"].id, verdicts, profiles)
+    assert code_made(group_of[gens["D"].id]) and code_made(group_of[gens["E"].id]) and not code_made(group_of[gens["A"].id])
+    assert identified(gens["D"], verdicts, profiles)
 
 
 def test_gate_c_refuses_an_unknown_generator_in_any_model_group():

@@ -20,6 +20,7 @@ from perfrepair.files import read_document
 from perfrepair.result import estimate
 from perfrepair.grouping.build.items import build
 from perfrepair.result.dossier import build_dossiers
+from perfrepair.dto.grouping_state import code_made
 from perfrepair.screen.groups import code_group_id, code_groups
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.dossiers.against_run import validate_dossiers
@@ -73,10 +74,14 @@ def test_each_item_gets_one_verdict_and_the_counts_are_pinned(runtime):
     assert {s: counts[s] for s in STATUSES} == {s: want.get(s, 0) for s in STATUSES}
 
 
+def _screened_groups(items, verdicts):
+    return {gid: g for gid, g in code_groups(items, verdicts, {}).items() if code_made(gid)}
+
+
 @pytest.mark.parametrize("runtime", RUNTIMES)
 def test_every_screened_out_item_is_in_exactly_the_code_group_its_key_implies(runtime):
     items, verdicts = loaded(runtime)
-    groups = code_groups(items, verdicts, {})
+    groups = _screened_groups(items, verdicts)
     by_id = {i.id: i for i in items}
     placed = Counter(m for g in groups.values() for m in g.members)
     out = {i.id for i in items if verdicts[i.id].status in CODE_GROUPED}
@@ -192,5 +197,5 @@ def test_code_group_ids_are_the_same_across_runtimes_for_the_same_key():
 @pytest.mark.parametrize("runtime", RUNTIMES)
 def test_no_code_group_mixes_a_key_held_inside_the_provider_with_any_other(runtime):
     items, verdicts = loaded(runtime)
-    for group in code_groups(items, verdicts, {}).values():
+    for group in _screened_groups(items, verdicts).values():
         assert len({verdicts[m].providerHeld for m in group.members}) == 1

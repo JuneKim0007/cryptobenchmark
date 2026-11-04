@@ -3,26 +3,34 @@ from __future__ import annotations
 import hashlib
 import json
 
-from ..dto.grouping import Item, Profile
+from ..catalog.groups import CatalogGroup, group_catalog, variant
+from ..catalog.interchange import OUTPUT
+from ..catalog.resolved import function_parameters
+from ..dto.grouping import KEY_PROVIDER_HELD, Item, Profile
 from ..dto.grouping_state import CODE_PREFIX, Group
 from ..dto.screen import CODE_GROUPED, Verdict
-from ..dto.signature import KEY_MATERIAL, UNKNOWN, Signature
+from ..dto.signature import KEY_MATERIAL
 
 
 def screened_out(verdict: Verdict | None) -> bool:
     return verdict is not None and verdict.status in CODE_GROUPED
 
 
-def decided_signature(profile: Profile | None) -> Signature | None:
-    signature = profile.signature if profile else None
-    return signature if signature is not None and signature.decided else None
+def _resolved_agrees(item: Item, group: CatalogGroup) -> bool:
+    """A name is not its parameters: what the trial resolved must be what the row states, else the model decides."""
+    stated = group.contracts.get(OUTPUT) or {}
+    return all(stated.get(name) == value for name, value in function_parameters(item.resolved))
 
 
-def grouped_by_code(item: int, verdicts: dict[int, Verdict] | None, profiles: dict[int, Profile]) -> bool:
-    """Never without screen.json: runs built before screening ask every item."""
-    verdict, profile = (verdicts or {}).get(item), profiles.get(item)
-    return verdict is not None and (screened_out(verdict) or decided_signature(profile) is not None
-                                    or bool(profile and profile.isolated))
+def listed(item: Item, verdict: Verdict | None) -> CatalogGroup | None:
+    group = group_catalog().of(item.family, verdict.canonical) if verdict is not None else None
+    return group if group is not None and _resolved_agrees(item, group) else None
+
+
+def identified(item: Item, verdicts: dict[int, Verdict] | None, profiles: dict[int, Profile]) -> bool:
+    """Never asked: screened out, or listed in the catalog; never without screen.json: runs built before screening ask every item."""
+    verdict = (verdicts or {}).get(item.id)
+    return verdict is not None and (screened_out(verdict) or listed(item, verdict) is not None)
 
 
 def _key(item: Item, verdict: Verdict, profile: Profile | None) -> tuple:
@@ -36,17 +44,6 @@ def _key(item: Item, verdict: Verdict, profile: Profile | None) -> tuple:
 
 def code_group_id(item: Item, verdict: Verdict, profile: Profile | None = None) -> str:
     return CODE_PREFIX + hashlib.sha256(json.dumps(_key(item, verdict, profile)).encode()).hexdigest()[:10]
-
-
-def signature_group_id(item: Item, signature: Signature) -> str:
-    return CODE_PREFIX + hashlib.sha256(json.dumps((item.family, "signature", signature.identity)).encode()).hexdigest()[:10]
-
-
-def describe_signature(signature: Signature) -> str:
-    shown = ", ".join(f"{c.name}={c.value}" for c in signature.components if c.status != UNKNOWN)
-    assumed = f"; assumed by convention: {', '.join(signature.assumed)}" if signature.assumed else ""
-    return (f"Code-made group by signature, no model decided it: {shown}{assumed}; "
-            "its members are that function from each provider, at any key size.")
 
 
 def isolated_group_id(item: Item) -> str:
@@ -64,13 +61,22 @@ def describe(verdict: Verdict) -> str:
 
 
 def code_groups(items: list[Item], verdicts: dict[int, Verdict] | None, profiles: dict[int, Profile]) -> dict[str, Group]:
+    """The groups an item is placed in without a model; a catalog group's id is an answer's to join, one code_ id is not."""
     groups: dict[str, Group] = {}
     for i in items:
-        v, signature = (verdicts or {}).get(i.id), decided_signature(profiles.get(i.id))
-        if v is not None and profiles.get(i.id) is not None and profiles[i.id].isolated:
+        v, profile = (verdicts or {}).get(i.id), profiles.get(i.id)
+        found = listed(i, v)
+        # an unlisted generator of unknown key contract is asked, and gate C keeps it alone
+        if profile is not None and profile.isolated and (screened_out(v) or found is not None):
             groups[isolated_group_id(i)] = Group(i.family, ISOLATED, [i.id])
         elif screened_out(v):
-            groups.setdefault(code_group_id(i, v, profiles.get(i.id)), Group(i.family, describe(v))).members.append(i.id)
-        elif v is not None and signature is not None:
-            groups.setdefault(signature_group_id(i, signature), Group(i.family, describe_signature(signature))).members.append(i.id)
+            groups.setdefault(code_group_id(i, v, profile), Group(i.family, describe(v))).members.append(i.id)
+        elif found is not None:
+            place = variant(found, profile is not None and profile.keyContract == KEY_PROVIDER_HELD)
+            groups.setdefault(place.id, Group(place.family, place.description)).members.append(i.id)
     return groups
+
+
+def reserved_catalog_groups(taken: dict[str, Group]) -> dict[str, Group]:
+    """Catalog groups with no member here: not shown, their ids kept so no answer reuses one and a record may still name one."""
+    return {v.id: Group(v.family, v.description) for v in group_catalog().variants() if v.id not in taken}

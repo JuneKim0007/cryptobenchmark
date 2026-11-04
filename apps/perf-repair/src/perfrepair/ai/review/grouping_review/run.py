@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from collections import Counter
+from typing import Callable
 
 from ....dto.charter import charter_document
+from ....catalog.groups import group_catalog
+from ....dto.grouping import read_items, read_profiles
 from ....dto.grouping_state import code_made
 from ....dto.prompt import Charter, TaskPrompt
 from ....files import read_json, write_json
@@ -14,7 +17,9 @@ from ...runtime.engine.events import TurnEvents, Where
 from ...runtime.prompt import PromptLibrary
 from ....validation.review.grouping_review import parse_review
 from ....run_dir import GroupingPaths
+from ....screen.groups import identified
 from ....validation.grouping.output import read_groups
+from ....validation.screen import read_checked_screen
 from .render import render
 from .schema import SCHEMA
 
@@ -47,6 +52,20 @@ def _review(paths: GroupingPaths, charter: Charter, conversations: Conversations
     return result
 
 
+def _model_decided(paths: GroupingPaths) -> Callable[[dict], bool]:
+    """A catalog group holding only what the catalog placed has no model decision to review; code-made groups neither."""
+    screen = read_checked_screen(paths)
+    items = {i.id: i for i in read_items(read_json(paths.items))}
+    profiles = read_profiles(read_json(paths.profiles))
+
+    def decided(group: dict) -> bool:
+        if code_made(group["id"]):
+            return False
+        return group_catalog().variant_of(group["id"]) is None or any(
+            not identified(items[m], screen, profiles) for m in group["members"])
+    return decided
+
+
 def supervise(paths: GroupingPaths, charter: Charter, conversations: Conversations, prompts: dict[str, str],
               limits: Limits = Limits(), echo=print) -> dict:
     """prompts: each of the charter's prompt names to the file it was read from, recorded in supervisor.json."""
@@ -55,7 +74,8 @@ def supervise(paths: GroupingPaths, charter: Charter, conversations: Conversatio
     document, checks = read_groups(paths), read_json(paths.checks)
     events = TurnEvents(Where("grouping", "review"), paths.supervisor_journal, journal.count(paths.supervisor_journal),
                         charter.fingerprint)
-    wanted = {f: [g for g in document["groups"] if g["family"] == f and not code_made(g["id"])]
+    decided = _model_decided(paths)
+    wanted = {f: [g for g in document["groups"] if g["family"] == f and decided(g)]
               for f in sorted(document["families"])}
     wanted = {f: groups for f, groups in wanted.items() if groups}
     out = {}
