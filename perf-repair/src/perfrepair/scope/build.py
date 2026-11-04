@@ -7,8 +7,8 @@ from pathlib import Path
 
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import SCOPES_SCHEMA_VERSION, Scope, scope_id
+from ..source.code import Code
 from ..source.language import of_file
-from ..source.lexer import Code
 from .engines import read_engines
 from .extract import enclosing, functions
 from .facts import key_source, key_source_view, read_patterns, settled_key_source, sinks

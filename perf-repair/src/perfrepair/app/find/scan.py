@@ -4,8 +4,9 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass
 
+from ...source.code import Code
 from ...source.language import Language
-from ...source.lexer import Code, literal
+from ...source.lexer import literal
 
 _GET_PROVIDER = re.compile(r'getProvider\s*\((.*)\)\s*$', re.S)
 

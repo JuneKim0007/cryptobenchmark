@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 
 from ...dto.replacement import Edit
-from ...source.lexer import Arguments, Code
+from ...source.code import Arguments, Code
 from .init import find_init
 from .locate import Located, call_arguments
 from .reject import Rejected

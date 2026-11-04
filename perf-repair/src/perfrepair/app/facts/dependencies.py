@@ -6,8 +6,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from ...files import read_yaml
+from ...source.code import Code
 from ...source.language import of_build_file
-from ...source.lexer import Code, mask
+from ...source.lexer import mask
 from ..find.imports import import_reason
 from .versions import pinned_versions
 

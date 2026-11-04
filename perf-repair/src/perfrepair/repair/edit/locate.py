@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass
 
 from ...dto.site import Scope
-from ...source.lexer import Arguments, Code
+from ...source.code import Arguments, Code
 from .reject import Rejected
 
 

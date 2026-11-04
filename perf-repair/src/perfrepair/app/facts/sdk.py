@@ -4,8 +4,9 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from ...source.brackets import matching
 from ...source.language import of_build_file
-from ...source.lexer import mask, matching
+from ...source.lexer import mask
 from ..find.sources import CATALOG
 
 APPLICATION = re.compile(r"\bcom\.android\.application\b|\bplugins\.android\.application\b")

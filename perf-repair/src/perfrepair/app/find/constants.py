@@ -6,8 +6,10 @@ import re
 from collections import Counter
 
 from ...catalog.sdk_constants import sdk_constants
+from ...source.brackets import matching, opening, split_top
+from ...source.code import Code
 from ...source.language import JAVA, KOTLIN
-from ...source.lexer import Code, literal, matching, opening, split_top
+from ...source.lexer import literal
 
 _KOTLIN = re.compile(r"\b(const\s+)?val\s+(\w+)\s*(?::\s*String\s*)?=")
 _JAVA = re.compile(r"\b((?:(?:public|private|protected|static|final)\s+)+)String\s+(\w+)\s*=")

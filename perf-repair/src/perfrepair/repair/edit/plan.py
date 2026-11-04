@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from ...dto.replacement import Replacement
 from ...dto.site import Scope
+from ...source.code import Code
 from ...source.language import Language, of_file
-from ...source.lexer import Code
 from .algorithm import set_algorithm
 from .locate import locate
 from .parameters import pin_parameters

@@ -7,8 +7,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from ..source.brackets import matching, opening, split_top
+from ..source.code import Code
 from ..source.language import JAVA, KOTLIN
-from ..source.lexer import Code, matching, opening, split_top
 
 JAVA_KEYWORDS = frozenset({"if", "for", "while", "switch", "catch", "synchronized", "try", "else", "do", "return",
                            "new", "super", "this", "assert", "throw", "when", "case", "finally"})

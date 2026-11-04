@@ -20,7 +20,8 @@ from perfrepair.app.find.sources import GENERATED, MAIN, TEST, build_files, orig
 from perfrepair.data_handler.inbound import RunContext
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
-from perfrepair.source.lexer import Code, literal
+from perfrepair.source.code import Code
+from perfrepair.source.lexer import literal
 from perfrepair.app.facts.path_id import path_id
 from helpers import with_results
 

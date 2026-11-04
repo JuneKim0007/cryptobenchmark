@@ -12,7 +12,7 @@ from ...dto.site import EDITS_SCHEMA_VERSION, Scope
 from ...dto.unit import Unit, units_by_scope
 from ...files import write_text_making_parents
 from ...run_dir import AppPaths
-from ...source.lexer import Code
+from ...source.code import Code
 from .alone import write_alone
 from .plan import language, plan
 from .reject import Rejected

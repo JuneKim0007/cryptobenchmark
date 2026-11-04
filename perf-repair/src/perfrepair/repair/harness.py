@@ -8,7 +8,7 @@ from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Scope
 from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope
 from ..files import write_text_making_parents
-from ..source.lexer import Code
+from ..source.code import Code
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source

@@ -78,6 +78,8 @@ src/perfrepair/scope/units/relations.py : relations.yaml read and checked once
 src/perfrepair/scope/units/relations.yaml : inverse operations, calls that perform one, calls that produce a key
 src/perfrepair/scope/units/shapes.py : a scope's class, its method's return and parameter types, a file's lines
 src/perfrepair/source/__init__.py : docstring only
+src/perfrepair/source/brackets.py : bracket matching and opening over masked text, top-level spans split on a separator
+src/perfrepair/source/code.py : Code: a source text with its lexer classes and masked copy; lines, normalized spellings, literals, argument spans, expression end
 src/perfrepair/source/language.py : the language table: suffix, script suffix, statement terminators, template, comment nesting, `name: Type`
-src/perfrepair/source/lexer.py : the one Java and Kotlin lexer: per-char code/literal/comment classes, masking, literals, bracket matching, argument spans, expression end
+src/perfrepair/source/lexer.py : the one Java and Kotlin lexer: per-char code/literal/comment classes, masking, literals
 ```

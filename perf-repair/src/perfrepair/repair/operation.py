@@ -9,7 +9,8 @@ from pathlib import Path
 
 from ..dto.site import Scope
 from ..files import read_yaml
-from ..source.lexer import CLOSE, OPEN, Code, matching
+from ..source.brackets import CLOSE, OPEN, matching
+from ..source.code import Code
 from .dependencies import load
 from .edit.init import BOUND
 from .edit.locate import locate

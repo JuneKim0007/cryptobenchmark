@@ -3,7 +3,7 @@ import pytest
 from perfrepair.dto.site import Scope
 from perfrepair.repair.operation import has_operation
 from perfrepair.source import language
-from perfrepair.source.lexer import Code
+from perfrepair.source.code import Code
 
 CALL = 'MessageDigest.getInstance("MD5")'
 

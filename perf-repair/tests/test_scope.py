@@ -9,7 +9,7 @@ from perfrepair.dto.lifecycle import Lifecycle, Requirement
 from perfrepair.scope.engines import read_engines
 from perfrepair.scope.facts import key_source, key_source_view, read_patterns, sinks
 from perfrepair.source.language import JAVA, KOTLIN
-from perfrepair.source.lexer import Code
+from perfrepair.source.code import Code
 from perfrepair.validation.app import validate_app_facts, validate_scopes
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ...dto.replacement import Edit
-from ...source.lexer import Code
+from ...source.code import Code
 from .literal import string_literal
 from .locate import Located
 from .reject import Rejected

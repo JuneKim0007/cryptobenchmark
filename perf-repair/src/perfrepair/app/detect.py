@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Callable
 
-from ..source.lexer import Code
+from ..source.code import Code
 from .find.constants import Constants
 from .facts.dependencies import Registration, registrations
 from .facts.gate import AppRoot
