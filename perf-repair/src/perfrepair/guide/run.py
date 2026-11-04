@@ -9,7 +9,8 @@ from ..dto.event import END
 from ..failure import FAILURES
 from ..log import attach, emit
 from ..log.emit import elapsed_ms
-from ..stop import Halt, code_of, halt_of
+from ..result.primitives import NotScreened
+from ..stop import CODES, Halt, code_of, halt_of
 from .app_steps import APP_DRY, APP_MEASURED
 from .state import Guide
 
@@ -25,7 +26,9 @@ class Stopped:
 
 def _failed(g: Guide, name: str, e: Exception) -> Stopped:
     """Any other coded failure is `<step>_failed`, its own code kept as the inner one."""
-    h = halt_of(f"{name}_failed", str(e), stage="guide", step=name, app=g.app_id, inner=code_of(e))
+    # the generic next helps nobody once the screen has scrolled: a cause on the list names the list
+    named = f"read {g.missing.path}; {CODES[e.code].next}" if isinstance(e, NotScreened) and g.missing.path else None
+    h = halt_of(f"{name}_failed", str(e), stage="guide", step=name, app=g.app_id, inner=code_of(e), next_step=named)
     return Stopped(name, h.code, h.detail, isinstance(e, AgentFailed))
 
 

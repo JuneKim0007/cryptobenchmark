@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from ..device.missing_rows import measured_rows, site_rows
 from ..dto.event import END
 from ..failure import record_bug
 from ..log import emit
@@ -40,6 +41,9 @@ def _stopped(app: str, s: Stopped) -> AppResult:
 
 
 def _reused(g: Guide) -> AppResult:
+    # a reused app's sites still stand, and this run's list starts empty
+    g.missing.put(f"sites {g.app_id}", site_rows(g.device, g.app_id))
+    g.missing.put(f"measured {g.app_id}", measured_rows(g.device, g.app_id))
     outcome = g.record.app_reused(g.app_id)
     return AppResult(g.app_id, REUSED, f"({outcome})" if outcome not in ("", OK) else "")
 

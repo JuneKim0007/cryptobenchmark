@@ -8,6 +8,7 @@
 - `failure.py` maps a `Halt` to its code's exit; any other coded failure is one `error` event with `data.code`.
 - A step that ends in a `Halt` records `data.reported` on its end; `status.log` shows the `terminate` line only.
 - A guide step's other coded failure is `<step>_failed`, the inner code in `data.inner` and first in the detail.
+- When that inner code is `primitive_not_screened`, `data.next` is `read <device>/log/details/primitives_missing.yaml; ` and that code's own next, in place of the generic one below ([run-log.md](run-log.md)).
 - A command another one runs in-process writes no `error` event of its own; its caller's `<step>_failed` line carries its code.
 - A code with no `Halt` yet is a coded exception whose `.code`, or its message's first word, `failure.py` records.
 

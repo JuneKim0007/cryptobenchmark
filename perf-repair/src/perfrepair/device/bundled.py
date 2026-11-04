@@ -20,6 +20,8 @@ from ..validation.bundled import validate_suggestions
 from .bundled_config import configured
 from .bundled_missing import missing_set
 from .bundled_suggest import suggest
+from .missing_rows import ONLY_DEVICE_BUILDS, bundled_rows
+from .primitives_missing import MissingList
 
 CATALOG = f"catalog/{BUNDLED_PROVIDERS.name}"
 
@@ -45,18 +47,24 @@ def _events(found: Suggestions, from_apps: str) -> None:
 
 
 def check_bundled(folder: Path, apps: list[str], base: Path, policy: BundledPolicy,
-                  echo: Callable[[str], None] = print) -> list[dict]:
+                  on_device: bool, echo: Callable[[str], None] = print, missing: MissingList | None = None) -> list[dict]:
+    """on_device: a host builds nothing, so what its base configures or a row matches stays missing and none is applied."""
+    missing = missing or MissingList()
+    in_base = configured(base)
     with step("device", "bundled") as s:
         platform = RunContext.load(Path(folder) / rd.MANIFEST).probe.platform_providers()
-        found = suggest(missing_set(folder, apps, platform, configured(base)), BundledCatalog.load(),
-                        policy.fromApps == APPLY)
+        found = suggest(missing_set(folder, apps, platform, in_base if on_device else frozenset()), BundledCatalog.load(),
+                        on_device and policy.fromApps == APPLY)
         written = _write(folder, policy, found)
         _events(found, policy.fromApps)
         s.count(**found.counts())
         if written:
             s.wrote(written)
     if written:
-        echo(f"device bundled: {', '.join(f'{k} {n}' for k, n in found.counts().items())}; wrote {written}")
+        nothing = f"; nothing applied: {ONLY_DEVICE_BUILDS}" if policy.fromApps == APPLY and not on_device else ""
+        echo(f"device bundled: {', '.join(f'{k} {n}' for k, n in found.counts().items())}; wrote {written}{nothing}")
+    # before terminate, whose stop would leave the list without them
+    missing.put("bundled", bundled_rows(found, policy, on_device, in_base))
     left = found.left()
     if left:
         detail = "; ".join(m.text() for m in left)

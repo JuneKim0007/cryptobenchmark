@@ -29,6 +29,9 @@ BUNDLED_UNPROBED = "the probe does not hold the providers.bundled this run measu
 
 def _probe_current(r: Run, steps: dict, base: Path) -> dict:
     """The bundled step chooses providers after the first probe; items and groups must hold them before the used set."""
+    # a host probe never holds them, whatever the base lists: probing again could not change that
+    if not r.on_device:
+        return steps
     harness = RunContext.load(r.folder / rd.MANIFEST).probe.harness_artifacts()
     if set(harness.values()) == set(configured(base)):
         return steps
@@ -96,7 +99,7 @@ def scoped_pass(r: Run, before: Seen, current: dict, refresh: bool, detect: Call
     drop_record(r.folder, steps)
     run_probe(r, steps)
     apps = detect(r.folder)
-    entries = check_bundled(r.folder, apps, r.config, r.bundled, r.echo)
+    entries = check_bundled(r.folder, apps, r.config, r.bundled, r.on_device, r.echo, r.missing)
     applied = entries_digest(entries)
     base = bundled_config(r.config, r.folder, entries)
     steps = _probe_current(r, steps, base)

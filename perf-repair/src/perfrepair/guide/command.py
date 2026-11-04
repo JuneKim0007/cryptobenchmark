@@ -17,6 +17,7 @@ from ..app.facts.target_set import TargetSet, resolve_targets
 from ..config.args import fill, load_settings, perf_mode, positive_int
 from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
+from ..device.primitives_missing import MissingList
 from ..dto.bundled import BundledPolicy
 from ..dto.change import CHANGES
 from ..dto.perf_mode import PerfMode
@@ -80,7 +81,12 @@ def main(argv: list[str] | None = None) -> int:
     a.perf_mode_named = a.perf_mode is not None
     fill(settings, a, {"device": APPS_MEASURE, "config": BENCHMARK_CONFIG, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE,
                          "max_change": APPS_MAX_CHANGE})
-    return reported(lambda: _run(ap, a, settings))
+    missing = MissingList()
+    try:
+        return reported(lambda: _run(ap, a, settings, missing))
+    finally:
+        # last of all the guide prints: after the summary, and after a stop's own error line
+        missing.announce(print)
 
 
 def _grouping_args(a: argparse.Namespace) -> tuple[str, ...]:
@@ -113,7 +119,7 @@ def _app_modes(a: argparse.Namespace, found: TargetSet | None) -> dict[Path, Mod
     return {t.path: mode_of(t.perfMode) for t in found.apps if t.perfMode is not None}
 
 
-def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> int:
+def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded, missing: MissingList) -> int:
     found = _targets(ap, a, settings)
     roots = [a.app.expanduser().resolve()] if found is None else [t.path for t in found.apps]
     root = device_root(ap, a, settings)
@@ -123,7 +129,7 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG),
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
                  max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found,
-                 run_id=settings.read(RUN_ID), on_existing=settings.read(RUN_ON_EXISTING))
+                 run_id=settings.read(RUN_ID), on_existing=settings.read(RUN_ON_EXISTING), missing=missing)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

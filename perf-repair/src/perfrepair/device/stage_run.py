@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from .. import run_dir as rd
@@ -17,6 +17,7 @@ from ..stop.halt import Coded
 from .energy import report_invalid
 from .inbound import write_inbound
 from .primitives import write_primitives
+from .primitives_missing import MissingList
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,7 @@ class Run:
     benchmark: Path | str | None
     probed: bool = False
     bundled: BundledPolicy = BundledPolicy()
+    missing: MissingList = field(default_factory=MissingList)
 
 
 def _same_folder(manifest: Path, folder: Path) -> None:

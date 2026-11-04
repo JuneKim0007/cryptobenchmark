@@ -14,6 +14,16 @@ WORK_FIELDS = ("type", "algorithm", "provider", "operation", "keySize", "phase",
 Cells = dict[int | None, dict[str, Summary]]
 
 
+class NotScreened(Coded):
+    """names: every measured primitive without a verdict; path: the file that lists them, once the caller knows it."""
+
+    def __init__(self, names: tuple[str, ...], path=None):
+        where = f"; all in {path}" if path else ""
+        super().__init__(f"primitive_not_screened: {len(names)} measured primitives have no screen.json verdict, first "
+                         f"{names[0]}: the benchmark measured cases grouping/items.json does not hold{where}", path)
+        self.names = names
+
+
 def statuses(items: list[Item], screen: dict[int, Verdict]) -> dict[str, str]:
     """screen.json's run-level status by qualified name; no groups.json needed, so the device stage can build it."""
     return {i.qualified: screen[i.id].status for i in items if i.id in screen}
@@ -40,11 +50,12 @@ def _noisiest(cells: Cells, metric: str) -> float | None:
 
 def _grouped(rows: list[PrimitiveRow], measurements: dict[str, dict[str, Summary]],
              status_of: dict[str, str]) -> dict[tuple, Cells]:
+    unscreened = sorted({n for n in (qualified(r.type, r.algorithm, r.provider) for r in rows) if n not in status_of})
+    if unscreened:
+        raise NotScreened(tuple(unscreened))
     grouped: dict[tuple, Cells] = defaultdict(dict)
     for r in rows:
         name = qualified(r.type, r.algorithm, r.provider)
-        if name not in status_of:
-            raise Coded(f"primitive_not_screened: {name} has no screen.json verdict: the benchmark measured a case grouping/items.json does not hold")
         key = (*(getattr(r, f) for f in WORK_FIELDS), status_of[name])
         if r.inputSize in grouped[key]:
             raise Coded(f"primitive_line_collision: {r.rowId} repeats {key} at input size {r.inputSize}")

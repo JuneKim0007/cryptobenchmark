@@ -10,6 +10,7 @@ from perfrepair import failure
 from perfrepair import run_dir as rd
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.dossier import NOT_ON_DEVICE_STEP
+from perfrepair.dto.primitives_missing import pointer_line
 from perfrepair.files import read_json
 from perfrepair.run_dir import AppPaths
 from perfrepair.dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
@@ -105,6 +106,7 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     assert last[1:-1] == [
         "reused device grouping: every item decided, saved files current",
         *(m.format(pa) for m in missing),
+        pointer_line(base.run_dir / rd.PRIMITIVES_MISSING),
         f"energy_invalid {case} app {pa}: warn: short_window; see {pa}/measured/scoped/energy.json; "
         f"next: {CODES['energy_invalid'].next}",
         f"ok app {pa}",

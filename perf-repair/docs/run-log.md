@@ -16,7 +16,7 @@ flowchart LR
 
 ## Files
 
-Every command appends to `<device>/log/`; nothing in it is read back by a stage.
+Every command appends to `<device>/log/`, except `details/primitives_missing.yaml`, rewritten whole; nothing in it is read back by a stage.
 
 | file | holds |
 |---|---|
@@ -25,15 +25,16 @@ Every command appends to `<device>/log/`; nothing in it is read back by a stage.
 | `ai/screening.log`, `ai/classify.log`, `ai/grouping.log`, `ai/supervisor.log`, `ai/worthiness.log`, `ai/replace.log` | one model stage's events, one line each, problems indented; `classify` is screening's classify role, `supervisor` grouping's review role |
 | `bug.log` | each exception that is not a coded error, with its traceback |
 | `pipeline/<run id>.log` | the cryptobenchmark transcript of every `pipeline.py` call of one run, each headed `# <stage>[ app <app>]` and `$ <command>` |
+| `details/primitives_missing.yaml` | the primitives and providers an app uses that this guide run skipped or stopped on because they are not available ([below](#primitives-missing)) |
 
 - `status.log`, `ai/*.log` and `bug.log` are views: each line is a function of one event (`log/views.py`); `render()` recomputes them from `events.jsonl`.
-- `pipeline/<run id>.log` and the role journals are no views; an event's `ref` points into them.
+- `pipeline/<run id>.log`, `details/primitives_missing.yaml` and the role journals are no views; an event's `ref` points into them.
 - `log/screening/ai.log` and `log/grouping/ai.log` are no longer written: their lines are in `ai/classify.log`, `ai/grouping.log` and `ai/supervisor.log`; a folder written before keeps the old files, and `render()` over its `events.jsonl` gives the new ones.
 - `<results root>/pipeline.log` is no longer written; the transcript is in the device folder, one file per run.
 
 ## Status lines
 
-Each line starts with a code word, then what it is about, then `: <detail>`; `log/status.py` renders one function per line kind.
+Each line starts with a code word, then what it is about, then `: <detail>`; `log/status.py` renders one function per line kind. The pointer line alone starts with `##`.
 
 | event | line |
 |---|---|
@@ -42,6 +43,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | guide `target` end | `ok`, `reused` or `not_run app <app>[: <detail>]`; a stopped app has its `terminate` or `bug` line only |
 | device stage end | `ran` or `reused device <stage>: <reason>`; `failed device <stage>: <error>` for a failure no `terminate` reported |
 | `error`, `bug` | `<code> error: <detail>`; `bug <stage> <step>: <type>: <message>; traceback in log/bug.log` |
+| `finding` with `data.pointer` | its detail, `## to check primitives skipped or stopped due to not downloading them go <path>` |
 
 | code | emitted by | item, detail |
 |---|---|---|
@@ -57,6 +59,36 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 - The code is `data.code`; an event written before it has its detail's first word holding an underscore, or one word before a colon.
 - A step that ends in a `Halt` records `data.code` and `data.reported`; its own line is left out.
 - A line adds the last `error` line of its detail.
+
+## Primitives missing
+
+`<device>/log/details/primitives_missing.yaml`, schema 1: `schemaVersion`, `run` (the run id), `missing` (a list of rows). Only `device/primitives_missing.py` writes it, atomically, and whole on every change, so a killed run leaves what it knew. It holds an empty list from the moment the guide has the device folder, so a clean run leaves no stale file.
+
+| field | holds |
+|---|---|
+| `primitive` | `<engine type> <algorithm>`; null on a provider's row |
+| `provider` | the provider's name; null when the site names none |
+| `reason` | below |
+| `apps`, `sites` | the apps that use it, and their sites; a provider only an app's build ships has 0 sites |
+| `action` | `skipped` or `stopped`, what the setting did |
+| `coordinates` | the `group:name:version` that ships it, when known |
+| `next` | what to do about this row |
+
+| reason | where (`device/missing_rows.py` reads it) | action from |
+|---|---|---|
+| `not_on_device` | a site's provider, or the service it needs, is not on the device (`sites.json`; the `not_on_device` finding) | `stops.not_on_device` |
+| `absent_on_device` | the same resolution, but no site names a provider and the app ships none: the app step only prints it | always `skipped` |
+| `bundled_missing` | a provider the apps ship or name that the device lacks and no applied row covers; `next` carries the catalog's reason | `stops.bundled_missing` |
+| `host_cannot_build` | as `bundled_missing`, on a host run, for a provider `fromApps apply` matched or the base's `providers.bundled` lists | `stops.bundled_missing` |
+| `not_screened` | the benchmark measured it and `screen.json` has no verdict (`primitive_not_screened`); every name, not the first | always `stopped` |
+| `not_measured` | a site's item the run log has as `skipped`, `unmeasured` or `not_runnable`, with no measured case | always `skipped` |
+| `no_device_item` | a site that resolved on a device provider, whose item `grouping/items.json` does not hold | always `skipped` |
+| `variant_not_measured` | a scope whose primitive was measured only in the other benchmark variant (`dossiers.json` `noOptions`) | always `skipped` |
+
+- The guide holds the rows in memory: no stage reads this file back, so the rule of this folder stands.
+- `## to check primitives skipped or stopped due to not downloading them go <path>` is one `finding` event, emitted with the run's first row, so `status.log` has it once per run, among the findings it points from; none with an empty list.
+- The guide prints the same line once, last of all it prints, whether it stopped or finished, when the list is not empty.
+- A standalone `perfrepair.app` writes no list: only the guide runs every source.
 
 ## Event fields
 

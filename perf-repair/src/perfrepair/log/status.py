@@ -94,6 +94,8 @@ def _terminated(e: Event) -> str:
 
 
 def _finding(e: Event) -> str:
+    if e.data.get("pointer"):
+        return e.detail
     if "code" in e.data:
         return _terminated(e)
     subject = " ".join(p for p in (e.item or e.step, f"app {e.app}" if e.app else "") if p)

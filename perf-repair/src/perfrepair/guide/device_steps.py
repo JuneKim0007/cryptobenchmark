@@ -8,6 +8,7 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..ai.parse.grouping_assign.rekey import rekey
 from ..device.coverage import Coverage, coverage, no_rerun
+from ..device.missing_rows import measured_rows
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
 from ..dto.coded import InputError
@@ -90,6 +91,7 @@ def open_record(g: Guide, folder: Path) -> None:
         if e.code not in ("run_exists", "device_busy"):
             raise
         halt(g, e.code, str(e).split(": ", 1)[1])
+    g.missing.open(folder)
 
 
 def prerequisites(g: Guide) -> str:
@@ -100,8 +102,10 @@ def prerequisites(g: Guide) -> str:
         # named: a stop inside it still finds the folder its log goes to
         made = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
                             detect=detect, perf=_measured(g), required=_required(g), bundled=g.bundled,
-                            named=lambda folder: open_record(g, folder))
+                            named=lambda folder: open_record(g, folder), missing=g.missing)
         g.device, g.base_config = made.folder, made.config
+        for app_id in sorted(g.detected):
+            g.missing.put(f"measured {app_id}", measured_rows(g.device, app_id))
     if not (g.device / rd.MANIFEST).is_file():
         halt(g, "missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     open_record(g, g.device)

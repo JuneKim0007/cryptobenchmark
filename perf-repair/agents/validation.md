@@ -44,6 +44,7 @@ src/perfrepair/validation/measurements.py : measurements: known rows, registry m
 src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
 src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures
 src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry metric columns, screen statuses, each metric's n, and equal line for line to what rows, measurements and screen.json make
+src/perfrepair/validation/primitives_missing.py : log/details/primitives_missing.yaml: schema, run, each row a known reason and action, its lists, a next step
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; consistent_units
 src/perfrepair/validation/report.py : report.json: statuses, rows, funnel recount, each row's pattern and categoryMismatch recomputed, recommendations above maxChange; schema_version_problems, shared with summary.json

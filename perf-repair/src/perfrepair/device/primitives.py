@@ -8,7 +8,7 @@ from ..dto.grouping import read_items
 from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
 from ..files import read_json, sha256_file, write_text
 from ..log import step
-from ..result.primitives import build_table, statuses
+from ..result.primitives import NotScreened, build_table, statuses
 from ..run_dir import GroupingPaths
 from ..validation import require, validate_measurements, validate_primitives
 from ..stop.halt import Coded
@@ -46,7 +46,10 @@ def write_primitives(device: Path) -> str:
         rows, measurements = rd.load_rows(device), rd.load_measurements(device)
         require(rd.MEASUREMENTS, validate_measurements(measurements, rows))
         statuses_by_name = status_of(device)
-        table = build_table(rows, measurements.byRow, statuses_by_name)
+        try:
+            table = build_table(rows, measurements.byRow, statuses_by_name)
+        except NotScreened as e:
+            raise NotScreened(e.names, device / rd.PRIMITIVES_MISSING) from None
         text = table.to_tsv()
         # checked as it reads back, so the text form is what the validator vouches for
         require(rd.PRIMITIVES, validate_primitives(PrimitivesTable.from_tsv(text), rows, measurements, statuses_by_name))

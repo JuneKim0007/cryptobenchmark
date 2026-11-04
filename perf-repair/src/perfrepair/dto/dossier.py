@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from dataclasses import asdict, dataclass
 
 from .change import DROP_IN, NO_GAIN, RECOMMENDATION, PairDiff
@@ -21,6 +22,13 @@ PROVIDER_HELD_KEY = "provider_held_key"
 VARIANT_NOT_MEASURED = "variant_not_measured"
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", VARIANT_NOT_MEASURED, "not_grouped", "no_alternative", "none_available", "deprecated_only",
                      "interop_failed", NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY)
+
+
+def not_on_device_sites(sites: list[dict], shipped: set[str]) -> list[tuple[str, int, bool]]:
+    """Per name a not_on_device site misses: its sites, and whether it is absent: no site names a provider, the app ships none."""
+    named = {s["missing"] for s in sites if s["resolution"] == NOT_ON_DEVICE and s.get("resolvedProvider")}
+    counts = Counter(s["missing"] for s in sites if s["resolution"] == NOT_ON_DEVICE)
+    return [(m, n, m not in named and not shipped) for m, n in sorted(counts.items())]
 
 
 def reason_code(reason: str) -> str:

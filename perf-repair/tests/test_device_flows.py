@@ -231,12 +231,12 @@ def scoped(flow):
     return flow
 
 
-def run_targets(flow, *roots):
+def run_targets(flow, *roots, device=False):
     path = flow.settings()
     document = yaml.safe_load(path.read_text())
     document["apps"] = {"targets": [str(r) for r in roots], "perfMode": ["latency", "throughput"]}
     path.write_text(yaml.safe_dump(document))
-    guide(["--agent", "dry-run", "--perfrepair-config", str(path)])
+    guide(["--agent", "dry-run", "--perfrepair-config", str(path), *(("--device",) if device else ())])
     return [line for line in flow.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
 
 
@@ -318,7 +318,7 @@ def test_bundled_stop_halts_before_the_benchmark_naming_each_provider(scoped):
     assert [(e["step"], e["outcome"], e["data"]["items"]) for e in halt] == [("bundled", "stop", ["BC"])]
     status = (scoped.device / rd.STATUS_LOG).read_text().splitlines()
     assert [line.split()[0] for line in status if not line.startswith(("run ", "end ", "ran ", "reused "))] == [
-        "bundled_missing"]
+        "##", "bundled_missing"]
 
 
 def test_bundled_warn_logs_and_the_run_goes_on(scoped):
@@ -343,23 +343,23 @@ def test_bundled_suggest_writes_the_matched_the_blocked_and_applies_nothing(scop
 def test_bundled_apply_builds_the_matched_row_in_and_a_second_run_reuses_it(scoped):
     scoped.bundled = {"fromApps": "apply"}
     tls = target(scoped, "tls", SHA, ships=CONSCRYPT)
-    lines = run_targets(scoped, tls)
+    lines = run_targets(scoped, tls, device=True)
     assert applied(scoped) == [{"artifact": CONSCRYPT, "create": "org.conscrypt.Conscrypt#newProvider",
                                 "alias": "BundledConscrypt"}]
     # the blocked BC is listed, never built in, so it is still missing
     # three runs: the first probe finds the apps, the second holds the applied provider, then the benchmark
     assert any(line.startswith("device bundled_missing: warn: BC ") for line in lines) and scoped.device_runs() == 3
     assert suggestions(scoped)["counts"]["applied"] == 1 and scoped.problems() == {}
-    again = run_targets(scoped, tls)
+    again = run_targets(scoped, tls, device=True)
     assert scoped.device_runs() == 3 and "device probe: reused" in again and "device benchmark: reused" in again
 
 
 def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
     scoped.bundled = {"fromApps": "apply"}
     tls = target(scoped, "tls", SHA, ships=CONSCRYPT)
-    run_targets(scoped, tls)
+    run_targets(scoped, tls, device=True)
     scoped.bundled = {}
-    lines = run_targets(scoped, tls)
+    lines = run_targets(scoped, tls, device=True)
     # the kept probe still holds the provider: probed again without it, then measured
     assert scoped.device_runs() == 5 and applied(scoped) == []
     assert "device benchmark: ran: the providers.bundled entries device.bundled.fromApps applies changed" in lines
@@ -370,7 +370,7 @@ def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
 def test_bundled_apply_measures_only_the_algorithms_the_sites_name_and_groups_them_with_the_platform(scoped, monkeypatch):
     monkeypatch.setattr(signature, "interchange", INTERCHANGE)
     scoped.bundled = {"fromApps": "apply"}
-    run_targets(scoped, target(scoped, "tls", SHA, ships=CONSCRYPT))
+    run_targets(scoped, target(scoped, "tls", SHA, ships=CONSCRYPT), device=True)
     groups = read_json(scoped.paths.groups)
     names = {k: v["qualified"] for k, v in groups["items"].items()}
     members = [{names[str(m)] for m in g["members"]} for g in groups["groups"]]
@@ -398,7 +398,7 @@ def test_a_shipped_provider_is_a_provider_path_in_both_directions(scoped, monkey
         (root / "src/main/java/demo/Boot.java").write_text(
             "package demo;\n\nimport java.security.Security;\nimport org.conscrypt.Conscrypt;\n\nclass Boot {\n"
             "    void boot() { Security.insertProviderAt(Conscrypt.newProvider(), 1); }\n}\n")
-    run_targets(scoped, root)
+    run_targets(scoped, root, device=True)
     on, options = _sha_options(scoped, root)
     assert on == current and options[offered] == ("provider_path", ["resolved_by_order"])
 

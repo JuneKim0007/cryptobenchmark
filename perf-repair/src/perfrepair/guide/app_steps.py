@@ -11,6 +11,7 @@ from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.bundled_config import harness_config
 from ..device.energy import report_invalid
 from ..device.measures import owned_config
+from ..device.missing_rows import measured_rows, site_rows, variant_rows
 from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
@@ -22,8 +23,12 @@ def app(g: Guide) -> str:
     if g.app_id not in g.detected:
         # raises the gate's reason here: the command would only print it, and a run of many apps needs it in the app's line
         open_apps(g.app_root)
-        check_exit(g, app_main(["--device-results", str(g.device), "--app", str(g.app_root)]), "app_failed",
-                   "perfrepair.app")
+        try:
+            check_exit(g, app_main(["--device-results", str(g.device), "--app", str(g.app_root)]), "app_failed",
+                       "perfrepair.app")
+        finally:
+            # a not_on_device stop has written the app's files; its rows belong on the list it ends
+            g.missing.put(f"sites {g.app_id}", site_rows(g.device, g.app_id))
     if not g.paths.scopes.is_file():
         halt(g, "several_project_roots", f"{g.app_root} holds several; pass one of them as --app")
     return f"{len(rd.read_scopes(g.paths.scopes)['scopes'])} scopes"
@@ -31,6 +36,8 @@ def app(g: Guide) -> str:
 
 def dossiers(g: Guide) -> str:
     doc = dossier(g.device, g.app_id, g.app_root, g.catalog, g.mode.perf, echo=lambda _: None, max_change=g.max_change)
+    g.missing.put(f"measured {g.app_id}", measured_rows(g.device, g.app_id))
+    g.missing.put(f"variants {g.app_id}", variant_rows(g.device, g.app_id, doc["noOptions"]))
     if not doc["dossiers"]:
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         step = f"; {NOT_ON_DEVICE}: {NOT_ON_DEVICE_STEP}" if NOT_ON_DEVICE in reasons else ""

@@ -29,6 +29,8 @@ GROUPING = "grouping"
 LOG, EVENTS = "log", "log/events.jsonl"
 APPS_INDEX = "apps-index.tsv"
 STATUS_LOG, BUG_LOG = "log/status.log", "log/bug.log"
+# rewritten whole each run, for people; no stage reads it back
+PRIMITIVES_MISSING = "log/details/primitives_missing.yaml"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
 # one file per model stage; screening's classify and grouping's supervisor apart from their stage's other turns

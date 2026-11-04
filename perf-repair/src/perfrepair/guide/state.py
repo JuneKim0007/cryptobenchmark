@@ -12,6 +12,7 @@ from ..ai.runtime.prompt import PromptLibrary
 from ..app.facts.path_id import path_id
 from ..app.facts.target_set import TargetSet
 from ..config.load import Loaded
+from ..device.primitives_missing import MissingList
 from ..dto.bundled import BundledPolicy
 from ..dto.change import DROP_IN
 from ..failure import last_failure
@@ -64,6 +65,8 @@ class Guide:
     record: RunRecord | None = None
     # units the replace step left unasked under apps.limit
     unasked: int = 0
+    # shared by every app's copy: what this run found unavailable
+    missing: MissingList = field(default_factory=MissingList)
 
     @property
     def app_id(self) -> str | None:

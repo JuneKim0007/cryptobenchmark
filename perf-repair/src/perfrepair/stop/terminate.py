@@ -9,14 +9,17 @@ from .halt import Halt
 
 
 def terminate(code: str, detail: str, *, stage: str, step: str, item: str | None = None, app: str | None = None,
-              ref: str | None = None, data: dict | None = None, inner: str | None = None, trace: str = "") -> str:
-    """Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out."""
+              ref: str | None = None, data: dict | None = None, inner: str | None = None, trace: str = "",
+              next_step: str | None = None) -> str:
+    """Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this
+    cause calls for, when the code's own next cannot know it."""
     c = CODES[code]
     chosen = policy.action(c)
-    fields = {**(data or {}), "code": code, "action": chosen, "next": c.next, **({"inner": inner} if inner else {})}
+    next_step = next_step or c.next
+    fields = {**(data or {}), "code": code, "action": chosen, "next": next_step, **({"inner": inner} if inner else {})}
     emit(stage, step, FINDING, item=item, app=app, outcome=chosen, ref=ref, detail=detail, data=fields)
     if chosen == STOP:
-        raise Halt(code, detail + trace, c.next, c.exit, inner)
+        raise Halt(code, detail + trace, next_step, c.exit, inner)
     return chosen
 
 

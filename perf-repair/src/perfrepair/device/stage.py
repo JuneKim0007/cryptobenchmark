@@ -14,13 +14,17 @@ from ..dto.device import DeviceRecord, runtime_summary
 from ..dto.event import END
 from ..dto.metrics import Metric
 from ..dto.perf_mode import GENERIC_MODE, PerfMode
+from ..dto.primitives_missing import NOT_SCREENED
 from ..files import sha256_file
 from ..log import emit
+from ..result.primitives import NotScreened
 from ..run_dir.lock import DeviceLock
 from ..screen.catalog import Catalog
 from .measures import check_measures, owned_config
+from .missing_rows import not_screened_rows
 from .plan import STAGES
 from .primitives import inputs as primitive_inputs
+from .primitives_missing import MissingList
 from .seen import seen
 from .selection import section
 from .stage_pass import Pass, drop_record, scoped_pass, whole_pass, with_device_probe
@@ -64,11 +68,13 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
                  refresh: bool = False, detect: Callable[[Path], list[str]] | None = None,
                  perf: PerfMode = GENERIC_MODE, bundled: BundledPolicy = BundledPolicy(),
-                 named: Callable[[Path], None] = lambda _: None, required: tuple[Metric, ...] | None = None) -> DeviceStage:
+                 named: Callable[[Path], None] = lambda _: None, required: tuple[Metric, ...] | None = None,
+                 missing: MissingList | None = None) -> DeviceStage:
     """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv. detect: the target apps'
     folders found on the probe (device.filterByApps); with it the benchmark measures their used set only, after the
     device.bundled step. perf: owns run.metrics (device/measures.py); required: the metrics that stop when unmeasurable,
-    perf's own by default. named: told the folder once known, so a failed first run still reports into it."""
+    perf's own by default. named: told the folder once known, so a failed first run still reports into it.
+    missing: told each primitive the run finds unavailable; None: nothing is listed."""
     check_dependencies(config, on_device, benchmark)
     identity = identify(config, on_device, benchmark)
     base = Path(identity["config"])
@@ -80,7 +86,8 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
         measured = owned_config(base, folder, perf, on_device)
         # the plan compares the digests of the config that measures, so a perfMode that changes run.metrics reruns the benchmark
         identity = identify(measured, on_device, benchmark) if measured != base else identity
-        r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark, bundled=bundled)
+        r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark, bundled=bundled,
+                missing=missing or MissingList())
         return replace(_made(r, identity, refresh, detect), config=base)
 
 
@@ -91,7 +98,11 @@ def _made(r: Run, identity: dict, refresh: bool, detect: Callable[[Path], list[s
     done = scoped_pass(r, before, current, refresh, detect) if detect else whole_pass(r, before, current, refresh)
     drop_record(folder, done.todo)
     steps = _reused(done, on_device)
-    run_stages(done.run, done.todo)
+    try:
+        run_stages(done.run, done.todo)
+    except NotScreened as e:
+        r.missing.put(NOT_SCREENED, not_screened_rows(folder, e.names, done.apps or []))
+        raise
     if done.apps is not None and done.todo["screen"]:
         write_used(folder, done.apps)
     _record(folder, identity, current, done)
