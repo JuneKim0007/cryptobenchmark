@@ -23,8 +23,10 @@ def installed_abi(device):
 
 
 def pinning(apk, abi):
+    """None when the release APK is absent: unknown, never a false no_pinning."""
     if not apk.is_file():
-        return False
+        print(f"warning: pinning_unknown: {apk} absent; facts.yaml records pinning null")
+        return None
     with zipfile.ZipFile(apk) as archive:
         return f"lib/{abi}/{NATIVE_LIBRARY}" in archive.namelist()
 

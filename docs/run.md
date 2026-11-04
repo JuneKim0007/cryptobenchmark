@@ -145,6 +145,6 @@ tools/jca-contract/gradlew -p tools/quick-bench run -q -PmainClass=ConvertKt \
 | fact | rule |
 |---|---|
 | `rooted` | `su -c id` returns `uid=0` within 5 s |
-| `pinning` | release APK contains `lib/<abi>/libaffinity.so` |
+| `pinning` | release APK contains `lib/<abi>/libaffinity.so`; null with a `pinning_unknown` warning when the APK is absent |
 | ABI | `pm dump` `primaryCpuAbi`, else `ro.product.cpu.abi` |
 | `cpuLocked` | every online core has `scaling_min_freq == scaling_max_freq` before and after the measure; unreadable gives `unknown` |
