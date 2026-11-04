@@ -11,7 +11,6 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}`; analysis charts `[iqrBars, stability]` |
 | `config/global-overnight.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024]`, metrics `[TIME, ALLOCATION]`, variants `[fixed, notFixed]`, isolation `case`, processRepetitions 2, scopedRepetitions 3, warm-up 10, thermal gate `[BIG, MID, LITTLE]` margin 3 poll 5 timeout 120, passes timing 300 / energy 100 / allocation 100 | harness energy `measured`, cpu `{core: big, required: false}`; device time below |
 | `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
-| `config/global-energy.yaml` | `testsets/energy-smoke.yaml` | inputSizes `[1024]`, seed 42 | harness `iterations: 20`, energy `{capture: measured, windowSeconds: 3, warmupSeconds: 1, cooldownSeconds: 1}` |
 
 | test set | contents |
 |---|---|

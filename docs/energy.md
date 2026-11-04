@@ -26,7 +26,7 @@
 | `energy.source` | `rails`, `manafa` | `rails` |
 
 - Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `modules/config/docs/config.md`.
-- `config/global-energy.yaml`: `capture: measured`, windows 3/1/1 s, test set `testsets/energy-smoke.yaml` (SHA-256, HmacSHA256 measured; AES/GCM/NoPadding `dry`).
+- `config/testsets/energy-smoke.yaml`: SHA-256, HmacSHA256 measured; AES/GCM/NoPadding `dry`.
 
 ## Sources
 
