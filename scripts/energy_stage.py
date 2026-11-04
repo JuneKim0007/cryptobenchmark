@@ -13,7 +13,7 @@ from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources.runner import EnergyError, Host  # noqa: E402
 
-__all__ = ["EnergyError", "capture", "captures", "estimated_mark", "guarded", "source"]
+__all__ = ["EnergyError", "capture", "captures", "estimated_mark", "guarded", "source", "source_name"]
 
 
 def _entries(document):
@@ -29,14 +29,18 @@ def captures(effective):
     return {capture(one, default) for one in _entries(document)} or {default}
 
 
-def source(effective, python, stacktrace=False):
+def source_name(effective):
     """A session spans the whole run, and a run compares its cases: one source."""
     document = yaml.safe_load(effective.read_text())
     default = source_of(document.get("run"))
     names = {source_of(one, default) for one in _entries(document)} or {default}
     if len(names) > 1:
         raise EnergyError(f"energy_sources_differ: {sorted(names)}; set harness.energy.source once, for the run")
-    return SOURCES[names.pop()](Host(python, stacktrace, android_home() / "platform-tools", timeouts.SECONDS["energy"]))
+    return names.pop()
+
+
+def source(effective, python, stacktrace=False):
+    return SOURCES[source_name(effective)](Host(python, stacktrace, android_home() / "platform-tools", timeouts.SECONDS["energy"]))
 
 
 def estimated_mark(energy_files):

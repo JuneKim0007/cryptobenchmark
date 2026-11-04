@@ -11,6 +11,12 @@ flowchart LR
     D[discovery] -- capture, trial --> C[config] -- effective --> P[preparation] --> B[benchmark] --> A[analysis]
 ```
 
+## Setup
+
+```
+pip install -r requirements.txt
+```
+
 | read | for |
 |---|---|
 | [docs/run.md](docs/run.md) | prerequisites, `scripts/pipeline.py` flags, `scripts/demo.sh`, device runs |

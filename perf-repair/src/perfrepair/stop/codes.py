@@ -64,6 +64,7 @@ CODES_LIST: tuple[Code, ...] = (
     _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),
+    _fixed("missing_dependency", "pip install -r requirements.txt"),
     # fixed: continuing would mix runs or devices
     _fixed("screening_catalog_mismatch", "rerun grouping build, or set device.screening.catalog to the catalog screen.json names",
            MIXES),

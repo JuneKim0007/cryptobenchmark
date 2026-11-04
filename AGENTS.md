@@ -53,7 +53,9 @@ modules/environment/discovery/ : provider and service probe, default-run trial, 
 modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
 modules/settings/ : harness key table shared by config, preparation and benchmark
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
+requirements.txt : every host Python dependency
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
+scripts/dependencies.py : the host modules a run needs, checked at its start; a missing one is one coded line and exit 1
 scripts/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
 scripts/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument and its OK line, clear, pull, scope check
 scripts/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
@@ -66,6 +68,7 @@ scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
 scripts/failure.py : one error line and exit; an error as one line of at most 500 characters
+scripts/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/lint/__init__.py : package of the docs lint's model of the repo
 scripts/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
@@ -74,7 +77,6 @@ scripts/lint/tree.py : the files git lists, their folders and markdown, and each
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
 scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/repo.py : the repository root every script resolves its paths against
-scripts/requirements.txt : host Python dependencies
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
 scripts/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
 scripts/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, the temporary-folder warning

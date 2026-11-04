@@ -18,6 +18,8 @@ from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
 
 PIPELINE = Path("scripts/pipeline.py")
+DEPENDENCIES = Path("scripts/dependencies.py")
+MISSING_DEPENDENCY = "missing_dependency: "
 # the id is known only to the run, so the run says where its manifest went
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
@@ -53,6 +55,20 @@ def new_run_dir(root: Path | str) -> Path:
 def _chosen(config: Path | None) -> list[str]:
     # None: pipeline.py resolves global.yaml itself (--config, CRYPTOBENCH_CONFIG, then its defaults)
     return ["--config", str(Path(config).resolve())] if config is not None else []
+
+
+def check_dependencies(config: Path | None, on_device: bool, benchmark: Path | str | None = None) -> None:
+    """scripts/dependencies.py: the modules this device stage's pipeline would need, before anything spawns it."""
+    root = benchmark_root(benchmark)
+    command = [sys.executable, str(root / DEPENDENCIES), *_chosen(config), "--device" if on_device else "--bench"]
+    done = subprocess.run(command, cwd=root, capture_output=True, text=True, env=child_env(), check=False)
+    if done.returncode == 0:
+        return
+    last = (done.stderr or done.stdout).strip().splitlines()[-1:] or [f"dependencies.py exited {done.returncode}"]
+    line = last[0].removeprefix("error: ")
+    if line.startswith(MISSING_DEPENDENCY):
+        terminate("missing_dependency", line.removeprefix(MISSING_DEPENDENCY), stage="device", step="preflight")
+    raise BenchmarkRunError(line)
 
 
 def identify(config: Path | None, on_device: bool, benchmark: Path | str | None = None) -> dict:

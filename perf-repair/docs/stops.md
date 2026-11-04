@@ -38,6 +38,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `category_mismatch` | `warn` | `warn`, `stop` | 1 | the before/after disagrees with its category's estimate; check the scope's pattern against its function, or read its ratio with care |
 | `thermal_throttled_at_end` | `warn` | `warn`, `stop` | 1 | the case ended throttled; let the phone cool, or read its numbers with care |
 | `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
+| `missing_dependency` | `stop` | fixed: the input is unusable | 1 | pip install -r requirements.txt |
 | `screening_catalog_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun grouping build, or set device.screening.catalog to the catalog screen.json names |
 | `charter_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | move the outbox aside or restore the prompts it was made with |
 | `missing_device_stage` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage once for this device, or leave --device-results unset |

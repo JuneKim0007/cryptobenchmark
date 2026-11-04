@@ -9,7 +9,6 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import chart_draw  # noqa: E402
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
 import display_units  # noqa: E402
@@ -56,6 +55,8 @@ def build(benchmark_file, out, effective_file="", prepared_file=""):
     out = pathlib.Path(out)
     out.mkdir(parents=True, exist_ok=True)
     summary(rows, out, cfg["units"], estimated_note(raw))
+    # after summary.md: without matplotlib the table is still written
+    import chart_draw
     drawn = {
         "throughput": lambda: chart_draw.throughput(rows, out, cfg["units"]),
         "latency": lambda: chart_draw.latency(rows, out, cfg["units"]),

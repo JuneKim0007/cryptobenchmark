@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, json, os, pathlib, subprocess, sys, traceback
+import argparse, json, pathlib, subprocess, sys, traceback
 
+import dependencies  # first: it reports a missing PyYAML, which the imports below need
 import energy_stage, timeouts
 from device.adb import Device, DeviceError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
+from global_file import global_config
 from repo import ROOT
 from results import layout as results_layout
 from results import run_inputs
@@ -16,18 +18,6 @@ from stages.benchmark import measure_cases
 from stages.discover import device_discover, host_runtime
 from stages.harness import harness_run, measured_folder
 from stages.interop import interop_run
-
-
-def global_config(argument):
-    if argument:
-        if not pathlib.Path(argument).is_file():
-            fail(f"missing_file: {argument} (--config)")
-        return pathlib.Path(argument).resolve()
-    for candidate in (os.environ.get("CRYPTOBENCH_CONFIG"),
-                      pathlib.Path.home() / ".config/cryptobench/global.yaml", ROOT / "config/global.yaml"):
-        if candidate and pathlib.Path(candidate).is_file():
-            return pathlib.Path(candidate).resolve()
-    fail("no global.yaml: pass --config, set CRYPTOBENCH_CONFIG, or keep config/global.yaml")
 
 
 def parse_options():
@@ -88,6 +78,7 @@ def main():
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
     configuration = global_config(options.config)
+    dependencies.check(options, configuration)
     device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()

@@ -1,9 +1,9 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
-import sys, time
+import subprocess, sys, time
 
-import effective_view, energy_stage, gradle_runner, timeouts
+import dependencies, effective_view, energy_stage, gradle_runner, timeouts
 from energy_session import DRY_CALLS, EnergySession
-from failure import fail
+from failure import fail, one_line
 from repo import ROOT
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
@@ -49,11 +49,27 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
     if repetitions > 1:
         files["processes"] = written
     started = time.monotonic()
-    timeouts.run("analysis", [sys.executable, str(ROOT / "tools/quick-bench/analyze.py"), str(benchmark / "benchmark.json"), str(results / "analysis"),
-                    str(effective), str(preparation / "prepared.yaml")], check=True)
-    timeouts.run("analysis", [sys.executable, str(ROOT / "tools/quick-bench/charts.py"), str(benchmark / "benchmark.json"),
-                    str(preparation / "prepared.yaml"), str(effective), str(results)], check=True)
+    data, prepared = str(benchmark / "benchmark.json"), str(preparation / "prepared.yaml")
+    # charts only show a benchmark already paid for: a failure warns, the first ends them, and the run keeps its files
+    failed = (drawing_failed("tools/quick-bench/analyze.py", data, str(results / "analysis"), str(effective), prepared)
+              or drawing_failed("tools/quick-bench/charts.py", data, prepared, str(effective), str(results)))
+    if failed:
+        print(f"warning: charts_failed: {failed}")
     elapsed("analyse", started)
+
+
+def drawing_failed(script, *arguments):
+    """The reason this analysis script failed, else None; what it says on stderr still reaches the run's output."""
+    try:
+        done = timeouts.run("analysis", [sys.executable, str(ROOT / script), *arguments], stderr=subprocess.PIPE, text=True, check=False)
+    except timeouts.StepTimeout as error:
+        return one_line(error)
+    if done.returncode == 0:
+        if done.stderr:
+            print(done.stderr, end="", file=sys.stderr)
+        return None
+    last = done.stderr.strip().splitlines()[-1:] or [f"exit {done.returncode}"]
+    return one_line(f"{script}: {last[0]}")
 
 
 def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems):
@@ -64,6 +80,9 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     timed = bool(captures - {"dry"})
     if captures - {"none"} and not device:
         fail("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
+    if captures - {"none"}:
+        # the effective config holds the captures a test set turned on, which the first check could not see
+        dependencies.require_energy(energy_stage.source_name(effective), options.energy_python)
     if device:
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))

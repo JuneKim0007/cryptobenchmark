@@ -33,6 +33,7 @@ def layout(tmp_path, run):
 
 
 def measured(tmp_path, monkeypatch, run, **phone_options):
+    monkeypatch.setattr(benchmark.dependencies, "require_energy", lambda *_arguments: None)
     phone = Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
     monkeypatch.setattr(benchmark, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))

@@ -8,7 +8,7 @@ from typing import Callable
 from .. import run_dir as rd
 from ..catalog.names import CATALOG
 from ..data_handler.inbound import read_manifest
-from ..data_handler.outbound.benchmark_runner import identify
+from ..data_handler.outbound.benchmark_runner import check_dependencies, identify
 from ..dto.bundled import BundledPolicy
 from ..dto.device import DeviceRecord, runtime_summary
 from ..dto.event import END
@@ -66,6 +66,7 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
     folders found on the probe (device.filterByApps); with it the benchmark measures their used set only, after the
     device.bundled step. perf: the run config must measure what it selects, checked before any device run. named: told
     the folder once known, so a failed first run still reports into it."""
+    check_dependencies(config, on_device, benchmark)
     identity = identify(config, on_device, benchmark)
     check_measures(Path(identity["config"]), perf)
     folder = Path(root) / identity["deviceId"]

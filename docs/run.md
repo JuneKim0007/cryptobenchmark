@@ -5,8 +5,8 @@
 | need | value |
 |---|---|
 | Java | 17 toolchain target; Kotlin comes from the Gradle plugin `kotlin("jvm")` 2.2.21 |
-| host Python deps | `scripts/requirements.txt`: PyYAML>=6, matplotlib>=3.7 |
-| energy Python deps | `tools/energy/requirements.txt`, see [energy.md](energy.md) |
+| host Python deps | `pip install -r requirements.txt`; a missing module a run needs is `missing_dependency: <module>; pip install -r requirements.txt` and exit 1 at its start (`scripts/dependencies.py`) |
+| energy Python deps | in `requirements.txt`; `tools/energy/requirements.txt` for a separate `--energy-python`, see [energy.md](energy.md) |
 | `ANDROID_HOME` (`--device`) | default `~/Library/Android/sdk`; adb at `$ANDROID_HOME/platform-tools/adb` |
 | device state (`--device`) | `adb get-state` must print `device` |
 | `ANDROID_SERIAL` (`--device`) | selects one device; several attached and none selected stops with `several_devices`; a serial not attached stops with `device_not_attached` |
@@ -73,7 +73,7 @@ Every host subprocess runs under a ceiling from `scripts/timeouts.py`; past it t
 | `analysis` | 30 min | `analyze.py`, `charts.py` | seconds in practice |
 
 - An energy step past its ceiling is `energy_failed: timeout: ...` and the run goes on ([energy.md](energy.md#outputs)).
-- Analysis runs `analyze.py`, then `charts.py` ([tools.md](tools.md#chartspy)).
+- Analysis runs `analyze.py`, then `charts.py` ([tools.md](tools.md#chartspy)); a failure is `warning: charts_failed: <reason>`, the benchmark and manifest stay and the run succeeds.
 
 ## scripts/explain.py
 
