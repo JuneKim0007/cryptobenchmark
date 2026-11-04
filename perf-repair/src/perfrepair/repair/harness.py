@@ -9,6 +9,7 @@ from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope
 from ..files import write_text_making_parents
 from ..source.code import Code
+from ..stop.halt import Coded
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
@@ -25,14 +26,17 @@ def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
 
 
 def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
-            currents: dict[str, str], effective: dict, units: list[Unit]) -> dict:
-    """Paths in the document are relative to harness.yaml's folder; `currents` is each dossier's current item."""
+            dossiers: dict[str, dict], effective: dict, units: list[Unit]) -> dict:
+    """Paths in the document are relative to harness.yaml's folder; `dossiers` is each scope's dossier by scope id."""
     shutil.rmtree(out.extracts, ignore_errors=True)
     entries = []
     applied = sorted((e for e in edits["edits"] if e["status"] == "applied"), key=lambda e: e["scope"])
     inverses, of_unit = inverse_partners(units, {e["scope"] for e in applied}), units_by_scope(units)
     for row in applied:
         scope = scopes[row["scope"]]
+        if scope.id not in dossiers:
+            raise Coded(f"no_dossier: scope {scope.id} has an applied edit but no dossiers.json entry; rerun repair dossier, then edit")
+        current = dossiers[scope.id]["current"]
         lang = language(scope.file)
         original = read_source(out.original / scope.file)
         alone = out.alone(of_unit[scope.id].id) / scope.file
@@ -48,8 +52,8 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "before": _extract(out, scope, "before", original),
             "after": _extract(out, scope, "after", patched),
             "imports": used_imports(imports, functions, lang, names, uses),
-            "inputs": scope_inputs(scope, currents[scope.id], replacements[scope.id].option, effective),
-            "current": currents[scope.id],
+            "inputs": scope_inputs(scope, current, replacements[scope.id].option, effective),
+            "current": current,
             "option": replacements[scope.id].option,
             "metrics": list(METRICS),
             "dependencies": uses,

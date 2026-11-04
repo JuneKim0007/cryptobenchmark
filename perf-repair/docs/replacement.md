@@ -56,6 +56,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 | `dossier_changed` | replace | a decision was made on an earlier dossier; the line names the scopes; `guide --refresh` asks them again |
 | `edit_invalid`, `no_edit_applied` | edit | edits.json fails its validator; every edit is rejected, with the reasons |
 | `harness_invalid` | harness | harness.yaml fails its validator |
+| `no_dossier` | harness | an applied edit's scope has no `dossiers.json` entry; nothing is written |
 | `<step>_failed` | any | a validation failure, coded `ValueError`, missing file or failed pipeline run inside the step |
 
 ## Report

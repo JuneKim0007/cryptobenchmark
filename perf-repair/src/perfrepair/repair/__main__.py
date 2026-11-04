@@ -100,9 +100,9 @@ def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
     edits = rd.read_edits(paths.edits)
-    currents = {d["scope"]["id"]: d["current"] for d in rd.read_dossiers(paths.dossiers)["dossiers"]}
+    dossiers = {d["scope"]["id"]: d for d in rd.read_dossiers(paths.dossiers)["dossiers"]}
     with step("repair", "harness", app=a.app) as s:
-        doc = harness(paths, scopes, replacements, edits, currents, read_effective(a.device_results / rd.MANIFEST),
+        doc = harness(paths, scopes, replacements, edits, dossiers, read_effective(a.device_results / rd.MANIFEST),
                       read_units(read_json(paths.units)))
         problems = validate_harness(doc, a.app, paths.root, edits)
         if problems:

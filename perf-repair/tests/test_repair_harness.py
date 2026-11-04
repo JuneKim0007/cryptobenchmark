@@ -108,6 +108,16 @@ def test_validators_refuse_broken_documents(tmp_path):
     assert any("are not two items" in p for p in validate_harness(doc, APP, paths.root, edits))
 
 
+def test_an_applied_scope_without_a_dossier_is_a_coded_refusal(tmp_path, capsys):
+    paths = setup_run(tmp_path)
+    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [
+        {"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES if s is not LITERAL]})
+    assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
+    assert main(["harness", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 1
+    assert f"no_dossier: scope {LITERAL.id}" in capsys.readouterr().err
+    assert not paths.harness.exists()
+
+
 def test_an_unknown_edit_kind_is_rejected(tmp_path):
     paths = setup_run(tmp_path)
     write_json(paths.replacements, {"schemaVersion": REPLACEMENTS_SCHEMA_VERSION, "app": APP, "replacements": [
@@ -163,7 +173,7 @@ def test_two_units_in_one_function_are_each_measured_swapped_alone(tmp_path):
     chosen = {s.id: replace(s, provider("Fast"), option=FAST) for s in (a, b)}
     edits = edit_app(scopes, list(chosen.values()), root, paths, load_specs(), units)
     assert {e["status"] for e in edits["edits"]} == {"applied"}
-    doc = harness(paths, scopes, chosen, edits, {s.id: CURRENT for s in (a, b)}, read_effective(MANIFEST), units)
+    doc = harness(paths, scopes, chosen, edits, {s.id: {"current": CURRENT} for s in (a, b)}, read_effective(MANIFEST), units)
     afters = {e["id"]: (paths.root / e["after"]).read_text() for e in doc["scopes"]}
     assert afters[a.id].count('"Fast"') == 1 and afters[b.id].count('"Fast"') == 1 and afters[a.id] != afters[b.id]
     assert (paths.patched / "V.java").read_text().count('"Fast"') == 2
