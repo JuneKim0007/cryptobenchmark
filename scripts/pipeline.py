@@ -370,6 +370,7 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
         cases = tuple(case for scope in measured for case in scope["cases"])
         import yaml
         arguments = measure_arguments(options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
+        run = dataclasses.replace(run, gate=thermal_gate.start(device, effective_view.thermal_gate(document)))
         warmup.run(device, "ScopedBenchmark", arguments, list(cases), yaml.safe_load(prepared.read_text())["cases"], document)
         scoped_passes(run, document, {run_capture}, prepared, cases, scoped)
     elapsed("interop check and measure", started)
@@ -377,7 +378,8 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
 
 
 def scoped_passes(run, document, captures, prepared, cases, scoped):
-    run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
+    if run.gate is None:
+        run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
     chosen, repetitions, isolation = passes.read(document, captures), effective_view.scoped_repetitions(document), effective_view.isolation(document)
     measure_one = lambda one, folder, written: measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written)
     written = passes.run_all(chosen, repetitions, scoped, measure_one, run.options)
@@ -527,8 +529,9 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     energy = any(one.captures(captures) - {"none"} for one in chosen)
     push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
     isolation = effective_view.isolation(document)
-    warm_up(run, document, preparation)
+    # idle baseline first: after the warm-up the device is hot and the target would never be reached
     run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
+    warm_up(run, document, preparation)
     measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
 

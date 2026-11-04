@@ -25,7 +25,7 @@ def hottest(reading, sensors):
 
 
 def start(device, gate):
-    """The idle baseline, read once after the warm-up and before the first case; None leaves the run ungated."""
+    """The idle baseline, read once before the warm-up and the first case; None leaves the run ungated."""
     if gate is None:
         return None
     sensors = tuple(gate["sensors"])

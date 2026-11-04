@@ -77,7 +77,7 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 | rule | value |
 |---|---|
 | on | `run.thermalGate` set and not `enabled: false` ([config.md](../modules/config/docs/config.md)); absent, every case starts as soon as the last ends |
-| baseline | once per run, after the warm-up and before the first case: the hottest of `sensors` (`scripts/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}` |
+| baseline | once per run, before the warm-up and the first case (after the energy pre-flight's idle settle): the hottest of `sensors` (`scripts/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}` |
 | wait | before each case process (`isolation: case`), or before each process (`isolation: run`, no case boundary): read every `pollSeconds` while the hottest of `sensors` is above target or `Thermal Status` is above 0 |
 | timeout | past `timeoutSeconds` the case starts anyway; `thermal_gate_timeout: <id>: <pass>: started after <s> s at <c> C, status <n>, target <t> C` in `manifest.yaml` `problems` (`process-<n>` for `isolation: run`) |
 | sensors | names in config (device facts), never in code; one absent from a reading is skipped; none present at the baseline turns the gate off for the run with one `warning: thermal_gate_off: ...`; a poll with no gated sensor and no status does not hold a case |
@@ -89,7 +89,7 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 
 What it does not fix:
 - heat inside a case: the timed loop is untouched, so a long case still warms the device while it measures, and Jetpack's own heat pause still applies.
-- a hot idle: the baseline is the device after the warm-up, not a cold device; a run started warm gates to a warm target.
+- a hot idle: the baseline is the device before the warm-up, not a cold device; a run started warm gates to a warm target. Read after the warm-up it was 50 C while every Pixel 10 case started at 43-45 C, so the gate never waited.
 - skin and battery heat: only the named sensors and the status count; a warm battery under a cool CPU does not wait.
 - stale readings: with only `Cached temperatures` ([Temperature](#temperature)) the gate can see an old value and start or wait wrongly.
 - frequency caps: a cap the governor keeps after the device cools is recorded in `clocks.yaml`, never waited out.

@@ -80,14 +80,14 @@ def test_the_gate_is_off_by_default_and_when_disabled(tmp_path, monkeypatch, cap
     assert gate_of(results, "b") is None and gate_of(disabled, "b") is None
 
 
-def test_the_warm_up_is_not_gated_and_the_baseline_is_read_after_it(tmp_path, monkeypatch, capsys):
+def test_the_baseline_is_read_idle_before_the_warm_up_and_the_warm_up_is_not_gated(tmp_path, monkeypatch, capsys):
     heat = Heat(monkeypatch)
     run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"name": "b*"}]}, "thermalGate": GATE}
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, run)
     out = capsys.readouterr().out
-    assert out.index("warm-up:   1 cases x 10 samples") < out.index("gate:      baseline 40.0 C, the hottest of BIG")
-    assert heat.slept == [5, 5] and heat.asleep_after == [2, 2]
-    assert gate_of(results, "a")["waitedSeconds"] == 0.0 and gate_of(results, "b")["target"] == 43.0
+    assert out.index("gate:      baseline 30.0 C, the hottest of BIG") < out.index("warm-up:   1 cases x 10 samples")
+    assert heat.slept == [5, 5, 5, 5] and heat.asleep_after == [1, 1, 2, 2]
+    assert gate_of(results, "a")["waitedSeconds"] == 10.0 and gate_of(results, "b")["target"] == 33.0
 
 
 def test_with_one_process_for_every_case_the_gate_holds_the_process_and_every_case_shares_it(tmp_path, monkeypatch, capsys):
