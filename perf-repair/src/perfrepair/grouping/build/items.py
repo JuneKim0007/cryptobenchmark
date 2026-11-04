@@ -39,6 +39,16 @@ def _measured(benchmark: dict | None) -> Callable[[tuple], bool | None]:
     return lambda key: key in cases
 
 
+def _primitives(trial: dict):
+    """(service, name, entry): what the inventory and so the benchmark hold, each service and each declared transformation
+    that ran; a provider declaring modes and paddings has its transformations under no service name of their own."""
+    for s in trial["services"]:
+        yield s, s["algorithm"], s
+        for t in s.get("transformations") or []:
+            if t.get("defaultRun"):
+                yield s, t["name"], t
+
+
 def build(probe: Probe, names: Names, trial: dict, families: Families, inventory: dict | None = None,
           prepared: dict | None = None, benchmark: dict | None = None) -> tuple[list[Item], dict[int, Profile]]:
     """Probe and trial suffice; without prepared or benchmark the fields they give are null, never false."""
@@ -47,12 +57,12 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
     (kinds, sizes), measured = _prepared(prepared), _measured(benchmark)
 
     drafts = {}
-    for s in trial["services"]:
-        key = (s["provider"], s["type"], s["algorithm"])
+    for s, name, entry in _primitives(trial):
+        key = (s["provider"], s["type"], name)
         if s["type"] not in families.types or key in drafts:
             continue
-        run = s.get("defaultRun") or {}
-        attrs = probe.attributes(*key)
+        run = entry.get("defaultRun") or {}
+        attrs = probe.attributes(s["provider"], s["type"], s["algorithm"])
         formats, classes = _as_list(attrs.get("SupportedKeyFormats")), _as_list(attrs.get("SupportedKeyClasses"))
         kind, source = key_kind(Evidence(s["type"], kinds.get(key), run.get("keyAlgorithm"), formats, classes), context)
         family = families.of(s["type"], kind) or families.of(s["type"], "unknown")
@@ -61,13 +71,13 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
         inventoried = runs.get(key, {})
         contract = key_contract(formats, classes)
         drafts[key] = (family.id, run.get("providerChose"), Profile(
-            keyKind=kind, keyKindFrom=source, instantiates=bool(s.get("instantiates")),
+            keyKind=kind, keyKindFrom=source, instantiates=bool(entry.get("instantiates")),
             runs=bool(inventoried.get("runs", run.get("works", False))),
             reason=inventoried.get("reason") or run.get("error"),
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
             bareName=bool(run.get("bareName")), measured=measured(key),
             preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])),
-            keyContract=contract, signature=signature(s["type"], s["algorithm"], run.get("providerChose"), contract, names,
+            keyContract=contract, signature=signature(s["type"], name, run.get("providerChose"), contract, names,
                                                       key_material=run.get("keyMaterial"))))
 
     order = sorted(drafts, key=lambda k: (drafts[k][0], names.key_or_spelling(k[1], k[2])[0], k[0], k[2]))

@@ -46,7 +46,7 @@ flowchart TD
 
 | File | Written by | Holds |
 |---|---|---|
-| `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item |
+| `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item: each service of the trial and each declared transformation that ran, the names the inventory and the benchmark hold |
 | `screen.json` | build | schema 5: `catalog` `{source, sha256}` the verdicts came from; `built` `{items, profiles}`: sha256 of the `items.json` and `profiles.json` written with it, so a screen.json beside another build's items is refused (`validation/screen.py` `read_checked_screen`, used by assign, report and every `read_groups`); `review` `{fingerprint}` only after a model review; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |

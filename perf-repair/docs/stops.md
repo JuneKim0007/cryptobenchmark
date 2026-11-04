@@ -129,7 +129,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `no_reports` | `stop` | fixed: the input is unusable | 1 | run the guide with --device first |
 | `no_screen` | `stop` | fixed: the input is unusable | 1 | rerun grouping build, assign and report |
 | `primitive_line_collision` | `stop` | fixed: the input is unusable | 1 | rerun the inbound stage (or the guide's device stage) |
-| `primitive_not_screened` | `stop` | fixed: the input is unusable | 1 | rerun grouping build, assign and report |
+| `primitive_not_screened` | `stop` | fixed: the input is unusable | 1 | grouping/items.json and the benchmark are from different runs; rerun the device stage |
 | `review_verdict` | `stop` | fixed: the input is unusable | 1 | fill the verdict column with one of the listed values |
 | `run_context` | `stop` | fixed: the input is unusable | 1 | report it |
 | `run_unknown` | `stop` | fixed: the input is unusable | 1 | name a run log summary lists |

@@ -55,7 +55,7 @@ src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standa
 src/perfrepair/catalog/types.py : reader of types.yaml, checked whole: fields, sources, families, keyStrength maps; lookup by family and canonical name; strength at a key size
 src/perfrepair/catalog/types.yaml : data: per family and canonical name the output kind, properties, strengthBits (SP 800-57) and minSdk (Android reference), each sourced
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
-src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles; ids in (family, name, provider) order
+src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles, a declared transformation that ran being an item; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown
 src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measured → engine type → key generator → declared → unknown
 src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profiles.json, screen.json (by the resolved catalog; classify first with a reviewer), validated, then written together with screen.json's `built` digests

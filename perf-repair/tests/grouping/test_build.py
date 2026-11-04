@@ -1,6 +1,7 @@
 import pytest
 from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
+from perfrepair.device.selection import exclusions
 from perfrepair.dto.grouping import Item, items_document, profiles_document, read_items, read_profiles
 from perfrepair.grouping.build.items import build
 from perfrepair.validation.grouping.items import validate_items
@@ -38,6 +39,37 @@ def test_profile_carries_runs_reasons_and_what_was_prepared_and_measured():
     assert item.resolved == "M1 iv=16B" and p.measured and p.preparedKeySizes == (128, 256)
     _, password = rows[("PASSWORD-ALG", "P2")]
     assert not password.runs and "no provider generates" in password.reason
+
+
+def _with_transformations(*transformations):
+    service = {"provider": "P1", "type": "TypeC", "algorithm": "ALG-T", "instantiates": True, "defaultRun": {"works": True},
+               "transformations": list(transformations)}
+    return {**TRIAL, "services": [*TRIAL["services"], service]}
+
+
+def test_a_declared_transformation_that_ran_is_an_item_like_the_case_the_benchmark_measures():
+    # a host provider declaring modes and paddings: the inventory holds these names, no service does
+    ran = {"name": "ALG-T/M1/PAD", "instantiates": True, "defaultRun": {"works": True, "keyAlgorithm": "ALG-S"}}
+    refused = {"name": "ALG-T/M1/BAD", "instantiates": False}
+    items, profiles = build(PROBE, NAMES, _with_transformations(ran, refused), FAMILIES)
+    names = {i.name: i for i in items}
+    assert {"ALG-T", "ALG-T/M1/PAD"} <= set(names) and "ALG-T/M1/BAD" not in names
+    assert profiles[names["ALG-T/M1/PAD"].id].instantiates and profiles[names["ALG-T/M1/PAD"].id].runs
+    assert validate_items(items, profiles, FAMILIES) == []
+
+
+def test_a_bare_transformation_entry_adds_no_second_item_and_a_service_without_any_is_as_it_was():
+    bare = {"name": "ALG-T", "instantiates": True}
+    plain, _ = build(PROBE, NAMES, TRIAL, FAMILIES)
+    items, _ = build(PROBE, NAMES, _with_transformations(bare), FAMILIES)
+    assert sorted(i.name for i in items) == sorted([i.name for i in plain] + ["ALG-T"])
+
+
+def test_a_used_set_excludes_every_transformation_it_does_not_keep():
+    ran = {"name": "ALG-T/M1/PAD", "instantiates": True, "defaultRun": {"works": True}}
+    items, _ = build(PROBE, NAMES, _with_transformations(ran), FAMILIES)
+    keep = frozenset({next(i for i in items if i.name == "ALG-T").qualified})
+    assert {"provider": "P1", "type": "TypeC", "name": "ALG-T/M1/PAD"} in exclusions(items, None, keep)
 
 
 def test_documents_round_trip_and_validate():

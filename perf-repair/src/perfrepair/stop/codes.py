@@ -148,7 +148,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("no_reports", "run the guide with --device first"),
     _fixed("no_screen", RERUN_GROUPING),
     _fixed("primitive_line_collision", RERUN_INBOUND),
-    _fixed("primitive_not_screened", RERUN_GROUPING),
+    _fixed("primitive_not_screened", "grouping/items.json and the benchmark are from different runs; rerun the device stage"),
     _fixed("review_verdict", "fill the verdict column with one of the listed values"),
     _fixed("run_context", "report it"),
     _fixed("run_unknown", "name a run log summary lists"),

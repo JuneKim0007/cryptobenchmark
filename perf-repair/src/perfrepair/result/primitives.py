@@ -44,7 +44,7 @@ def _grouped(rows: list[PrimitiveRow], measurements: dict[str, dict[str, Summary
     for r in rows:
         name = qualified(r.type, r.algorithm, r.provider)
         if name not in status_of:
-            raise Coded(f"primitive_not_screened: {name} has no screen.json verdict; rerun grouping build")
+            raise Coded(f"primitive_not_screened: {name} has no screen.json verdict: the benchmark measured a case grouping/items.json does not hold")
         key = (*(getattr(r, f) for f in WORK_FIELDS), status_of[name])
         if r.inputSize in grouped[key]:
             raise Coded(f"primitive_line_collision: {r.rowId} repeats {key} at input size {r.inputSize}")

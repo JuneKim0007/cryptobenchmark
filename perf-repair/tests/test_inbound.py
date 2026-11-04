@@ -208,11 +208,18 @@ def _probe(*services):
         {"name": p, "services": [{"type": t, "algorithm": a, **extra}]} for p, t, a, extra in services]})
 
 
+def test_a_site_lands_on_the_spelling_the_trial_composes_from_what_the_provider_declares():
+    aes = {"attributes": {"SupportedModes": ["CBC"], "SupportedPaddings": ["PKCS5PADDING"]}}
+    index = _probe(("P", "Cipher", "AES", aes), ("Q", "Cipher", "AES", {})).index
+    assert index.registered("P", "Cipher", "AES/CBC/PKCS5Padding") == "AES/CBC/PKCS5PADDING"
+    assert index.registered("Q", "Cipher", "AES/CBC/PKCS5Padding") == "AES/CBC/PKCS5Padding"
+
+
 def test_a_transformation_resolves_through_the_base_service_like_jca():
     aes = {"attributes": {"SupportedModes": ["CBC", "ECB"], "SupportedPaddings": ["NoPadding", "PKCS5Padding"]}}
     index = _probe(("P", "Cipher", "AES", aes), ("P", "Cipher", "DES", {}),
                    ("P", "Cipher", "AES/GCM/NoPadding", {})).index
-    assert index.registered("P", "Cipher", "AES/CBC/PKCS5PADDING") == "AES/CBC/PKCS5PADDING"
+    assert index.registered("P", "Cipher", "AES/CBC/PKCS5PADDING") == "AES/CBC/PKCS5Padding"
     assert index.registered("P", "Cipher", "aes/gcm/nopadding") == "AES/GCM/NoPadding"
     assert index.registered("P", "Cipher", "DES/CBC/PKCS5Padding") == "DES/CBC/PKCS5Padding"
     assert index.registered("P", "Cipher", "AES/OFB/NoPadding") is None

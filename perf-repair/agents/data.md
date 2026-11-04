@@ -38,7 +38,7 @@ src/perfrepair/data_handler/inbound/energy.py : the invalid energy cases of each
 src/perfrepair/data_handler/inbound/manifest.py : reads manifest.yaml; resolves a files key to a path; display_units, the one reader of the units every view shows
 src/perfrepair/data_handler/inbound/primitives.py : read_primitives: the reader of primitives.tsv
 src/perfrepair/data_handler/inbound/probe/__init__.py : exports only `Probe`; the `_` modules are private to the package (`tests/test_layers.py`)
-src/perfrepair/data_handler/inbound/probe/_index.py : probe → engine types and the name each provider registers for a spelling
+src/perfrepair/data_handler/inbound/probe/_index.py : probe → engine types and the name each provider registers for a spelling, a composed transformation in the spelling the provider declares
 src/perfrepair/data_handler/inbound/probe/_names.py : the probe's aliases merged onto the catalog; contradictions recorded as conflicts
 src/perfrepair/data_handler/inbound/probe/_probe.py : Probe: the probe file parsed once; index, names, attributes, class names and generator-kind views built on first use
 src/perfrepair/data_handler/inbound/probe/_services.py : per-service lookups: the one walk of each provider's services (none without providers), declared attributes, class names, the key kind a generator makes

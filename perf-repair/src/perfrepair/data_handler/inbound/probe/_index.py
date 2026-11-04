@@ -13,12 +13,18 @@ PROBE_DOC = DocumentKind("probe", SUPPORTED_SCHEMA, "{path}: probe schemaVersion
 @dataclass(frozen=True)
 class Service:
     algorithm: str
-    modes: frozenset[str] | None = None
-    paddings: frozenset[str] | None = None
+    # folded name to the provider's spelling; None: the provider declares none, so it may support any
+    modes: dict[str, str] | None = None
+    paddings: dict[str, str] | None = None
 
     def supports(self, mode: str | None, padding: str | None) -> bool:
         return all(want is None or have is None or fold(want) in have
                    for want, have in ((mode, self.modes), (padding, self.paddings)))
+
+    def transformation(self, mode: str, padding: str) -> str:
+        """As the trial composes it from what the provider declares, so a site's spelling lands on the same item."""
+        return "/".join((self.algorithm.split("/")[0], (self.modes or {}).get(fold(mode), mode),
+                         (self.paddings or {}).get(fold(padding), padding)))
 
 
 @dataclass
@@ -42,13 +48,13 @@ class ProbeIndex:
                                               (base, mode, padding)):
             service = self.services.get((provider, engine_type, fold(name)))
             if service is not None and service.supports(need_mode, need_padding):
-                return f"{service.algorithm.split('/')[0]}/{mode}/{padding}"
+                return service.transformation(mode, padding)
         return None
 
 
-def _attribute(service: dict, key: str) -> frozenset[str] | None:
+def _attribute(service: dict, key: str) -> dict[str, str] | None:
     values = (service.get("attributes") or {}).get(key)
-    return None if values is None else frozenset(fold(str(v)) for v in values)
+    return None if values is None else {fold(str(v)): str(v) for v in values}
 
 
 def index_of(doc: dict, source: str) -> ProbeIndex:
