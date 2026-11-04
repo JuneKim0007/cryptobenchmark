@@ -17,7 +17,7 @@
 - screening: a row in `catalog/screening.yaml` cites a fetched source or says `source: unsourced`; its key is the canonical name.
 
 ## Workflow
-- add an artifact: dto → name in `src/perfrepair/run_dir.py` → validator (`agents/validation.md`) → row in `docs/artifacts.md`
+- add an artifact: dto → name in `src/perfrepair/run_dir/layout.py` → validator (`agents/validation.md`) → row in `docs/artifacts.md`
 
 ## File structure
 
@@ -115,7 +115,9 @@ src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per a
 src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last
 src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage>.log per model stage (AI_LOGS: screening, classify, grouping, supervisor, worthiness, replace), bug.log, status.log; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
-src/perfrepair/run_dir.py : device folder: finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/), not_device_results, app folders, device.yaml read and write, load_used (None without used.json), versioned and read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version), artifact names and loaders (screen.json: load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to); AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir/__init__.py : re-exports layout and read: the `run_dir` namespace every reader uses
+src/perfrepair/run_dir/layout.py : device folder: artifact names, finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/), not_device_results, app folders; AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
+src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), device.yaml read and write, load_used (None without used.json), versioned and read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version)
 src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
 src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, a `<code>: <detail>` ValueError keeping `.code`; code_of, the code a failure carries as `.code` or its message's first word
