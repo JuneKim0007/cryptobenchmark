@@ -1,0 +1,37 @@
+# The true reading of each site and link, written from the sources before the scoper ran.
+# reason: the patternReason a right reading gives; absent where no rule's reason is true, only the pattern.
+schemaVersion: 1
+sites:
+  j_held: {pattern: fixed, reason: held_in_field}
+  j_reinit: {pattern: notFixed, hard: re-init per call on a held object}
+  j_seal: {pattern: fixed, reason: held_in_field}
+  j_open: {pattern: fixed, reason: held_in_field}
+  j_local: {pattern: notFixed, reason: created_per_call}
+  j_chain: {pattern: notFixed, reason: created_per_call}
+  j_lazy: {pattern: fixed, reason: held_in_field, hard: lazy cache in a field}
+  j_escape: {pattern: notFixed, reason: unknown_default, hard: an escaping object}
+  j_generator: {pattern: notFixed, reason: created_per_call}
+  j_consumer: {pattern: notFixed, reason: created_per_call}
+  j_same_a: {pattern: notFixed, reason: created_per_call}
+  j_same_b: {pattern: notFixed, reason: created_per_call}
+  k_lazy_delegate: {pattern: fixed, reason: held_in_field, hard: lazy cache in a field}
+  k_lazy_null: {pattern: fixed, reason: held_in_field, hard: lazy cache in a field}
+  k_reinit: {pattern: notFixed, hard: re-init per call on a held object}
+  k_local: {pattern: notFixed, reason: created_per_call}
+  k_apply: {pattern: notFixed, reason: created_per_call}
+  k_escape: {pattern: notFixed, reason: unknown_default, hard: an escaping object}
+  k_sign: {pattern: notFixed, reason: created_per_call}
+  k_verify: {pattern: notFixed, reason: created_per_call}
+  k_generator: {pattern: notFixed, reason: created_per_call}
+  k_seal: {pattern: notFixed, reason: created_per_call}
+  k_open: {pattern: notFixed, reason: created_per_call}
+links:
+  - {kind: shared_key, a: j_seal, b: j_open}
+  - {kind: inverse, a: j_seal, b: j_open}
+  - {kind: producer_consumer, a: j_generator, b: j_consumer}
+  - {kind: shared_key, a: j_same_a, b: j_same_b}
+  - {kind: inverse, a: k_sign, b: k_verify}
+  - {kind: producer_consumer, a: k_generator, b: k_seal}
+  - {kind: producer_consumer, a: k_generator, b: k_open}
+  - {kind: shared_key, a: k_seal, b: k_open}
+  - {kind: inverse, a: k_seal, b: k_open}

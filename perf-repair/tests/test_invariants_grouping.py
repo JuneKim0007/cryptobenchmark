@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 from perfrepair.validation.finding import ADVISORY, BLOCKING
 from perfrepair.validation.grouping import invariants as inv
 from perfrepair.validation.invariants import load_grouping, run_invariants

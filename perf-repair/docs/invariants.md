@@ -41,3 +41,8 @@ Read from each app's `scopes.json` and `units.json` against the source under app
 | `inverse_link_sides` | blocking | the operations read from an `inverse` link's step lines (`scope/engines.yaml` operations, `scope/units/relations.yaml` steps) are not inverses in `relations.yaml` |
 
 - `undecided`: no readable source, no function around a line, a use call with no single receiver, an operation no step line spells out.
+
+## Known-answer fixtures
+
+- `tests/fixtures/scoping/`: own-written Java and Kotlin sources, one site per pattern reason and link kind, and the hard cases: a lazy cache in a field, a re-init per call on a held object, an escaping object; `expected.yaml` holds the true reading of each.
+- `validation/scoping/accuracy.py` runs the scoper over them and counts, per rule, the sites it reads right; a wrong reading is listed, never tuned away.
