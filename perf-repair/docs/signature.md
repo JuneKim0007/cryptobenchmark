@@ -47,6 +47,6 @@
 | `exportable` with the standard format: `RAW` for KeyGenerator, `PKCS#8` for KeyPairGenerator | `app_held` |
 | any other format or none, a run that failed or did not run, sizes whose keys disagree | `unknown` |
 
-- Cross-check: the same provider's consumers of that key algorithm (a run whose `keyAlgorithm` is the generator's name), by their key attributes; one known contract that differs makes it `unknown` with `keyContractConflict` and a `key_contract_conflict` finding in `checks.json`.
+- Cross-check: the same provider's consumers of that key algorithm (a run whose `keyAlgorithm` is the generator's name; a run that failed names none, so any consumer of the key's kind counts), by their key attributes; one known contract that differs makes it `unknown` with `keyContractConflict` and a `key_contract_conflict` finding in `checks.json`.
 - `unknown` joins no group: a code-made group of one (`screen/groups.py`), and gate C refuses a model answer that joins it or joins a group holding it; the failure is a missing option, never a swap that moves a key out of its provider.
 - The prompt is unchanged: the model sees only the `key:` line it already reads.

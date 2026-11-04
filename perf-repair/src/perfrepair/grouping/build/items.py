@@ -4,12 +4,11 @@ from collections import defaultdict
 from dataclasses import replace
 from typing import Callable
 
-from ...catalog.names import Names
+from ...catalog.names import Names, fold
 from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import FROM_TRIAL, Item, Profile
 from ...catalog.families import Families
 from ..signature import signature
-from ...catalog.names import fold
 from .key_contract import (
     cross_checked,
     generator_contract,
@@ -17,7 +16,7 @@ from .key_contract import (
     key_contract,
     produced_keys,
 )
-from .key_kind import Context, Evidence, key_kind
+from .key_kind import UNKNOWN, Context, Evidence, key_kind
 
 
 def _runs(inventory: dict) -> dict[tuple, dict]:
@@ -57,6 +56,14 @@ def _primitives(trial: dict):
                 yield s, t["name"], t
 
 
+def _consumers(generator: tuple, profile: Profile, drafts: dict) -> set[str]:
+    """Key contracts of the provider's consumers of this key; one whose run failed names no key algorithm, so any of the
+    key's kind counts: a consumer that refused the generated key is the very disagreement to catch."""
+    def consumes(p: Profile) -> bool:
+        return fold(p.keyAlgorithm) == fold(generator[2]) if p.keyAlgorithm else p.keyKind in (profile.keyKind, UNKNOWN)
+    return {d[2].keyContract for k, d in drafts.items() if k[0] == generator[0] and not is_generator(k[1]) and consumes(d[2])}
+
+
 def build(probe: Probe, names: Names, trial: dict, families: Families, inventory: dict | None = None,
           prepared: dict | None = None, benchmark: dict | None = None) -> tuple[list[Item], dict[int, Profile]]:
     """Probe and trial suffice; without prepared or benchmark the fields they give are null, never false."""
@@ -89,9 +96,7 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
     for key, (family, resolved, p) in drafts.items():
         provider, engine, name = key
         if is_generator(engine):
-            consumers = {d[2].keyContract for k, d in drafts.items() if k[0] == provider and not is_generator(k[1])
-                         and fold(d[2].keyAlgorithm or "") == fold(name)}
-            contract, conflict = cross_checked(generator_contract(engine, runs_of[key]), consumers)
+            contract, conflict = cross_checked(generator_contract(engine, runs_of[key]), _consumers(key, p, drafts))
             p = replace(p, keyContract=contract, keyContractFrom=FROM_TRIAL, keyContractConflict=conflict)
         drafts[key] = (family, resolved, replace(p, signature=signature(engine, name, resolved, p.keyContract, names,
                                                                         key_material=(runs_of[key] or [{}])[0].get("keyMaterial"))))

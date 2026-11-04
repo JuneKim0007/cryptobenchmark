@@ -42,13 +42,13 @@ def test_consumers_that_disagree_make_it_unknown_with_a_reason():
     assert cross_checked(KEY_UNKNOWN, {KEY_PROVIDER_HELD}) == (KEY_UNKNOWN, None)
 
 
-def _built(runs: dict, consumer_classes: dict | None = None):
+def _built(runs: dict, consumer_classes: dict | None = None, consumer_run: dict | None = None):
     consumer_classes = consumer_classes or {}
     services = []
     for p, run in runs.items():
         services.append({"provider": p, "type": "KeyGenerator", "algorithm": "AES", "instantiates": True, "defaultRun": run})
         services.append({"provider": p, "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "instantiates": True,
-                         "defaultRun": {"works": True, "keyAlgorithm": "AES", "keyProvider": p, "inputSize": 1024}})
+                         "defaultRun": consumer_run or {"works": True, "keyAlgorithm": "AES", "keyProvider": p, "inputSize": 1024}})
     probe = Probe({"providers": [{"name": p, "services": [
         {"type": "KeyGenerator", "algorithm": "AES"},
         {"type": "Cipher", "algorithm": "AES/GCM/NoPadding",
@@ -64,6 +64,13 @@ def test_build_takes_the_contract_from_the_trial_and_flags_a_conflict():
     assert profiles[gens["C"].id].keyContractConflict.startswith("key_contract_conflict")
     findings = check(Knowledge(), {i.id: i for i in gens.values()}, profiles)
     assert [(f.kind, f.items) for f in findings if f.kind == "key_contract_conflict"] == [("key_contract_conflict", (gens["C"].id,))]
+
+
+def test_a_consumer_that_refused_the_generated_key_still_cross_checks_it():
+    failed = {"works": False, "error": "InvalidKeyException: not one of its handles"}
+    gens, _, profiles = _built({"C": RAW}, {"C": "vendor.Handle"}, failed)
+    assert profiles[gens["C"].id].keyContract == KEY_UNKNOWN
+    assert profiles[gens["C"].id].keyContractConflict.startswith("key_contract_conflict")
 
 
 def test_a_size_whose_key_disagrees_makes_the_built_generator_unknown_and_a_refused_size_says_nothing():
