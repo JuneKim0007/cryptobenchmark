@@ -2,7 +2,16 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, case_isolation, cooldown_hook, effective_view, energy_stage, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_gate, thermal_hook, timeouts, variant_order, warmup
+import bundled, capture_files, effective_view, energy_stage, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, scope_generate, scope_results, timeouts
+from session import case_isolation
+from session import cooldown_hook
+from session import measure as measure_session
+from session import passes
+from session import clocks_hook, energy_hook
+from session import thermal_gate
+from session import thermal_hook
+from session import variant_order
+from session import warmup
 from device import clocks
 from device import facts
 from device.clocks import CLOCKS
@@ -117,7 +126,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     hooks = timed_hooks(run, one, isolation) if timed else []
     if captures - {"none"}:
         dry = lambda into, guarded: dry_pass(run.session, into, preparation, run.problems, guarded)
-        hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
+        hooks.insert(0, energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
 
     def converted(process):
         if timed:
@@ -145,7 +154,7 @@ def timed_hooks(run, one, isolation):
     """The cool-down, then the gate, so a case's start temperature and clocks are read after both."""
     per_case = isolation == effective_view.CASE_ISOLATION
     gate = [thermal_gate.Gate(run.gate, run.device, one.label, per_case, run.problems)] if run.gate else []
-    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), *gate, session_hooks.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
+    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), *gate, clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
 
 
 def thermal_flag(process):
@@ -396,7 +405,7 @@ def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, 
     device, captures = run.device, one.captures(captures)
     hooks = timed_hooks(run, one, isolation)
     if "measured" in captures:
-        hooks.insert(0, session_hooks.EnergyCapture(run.source, run.session, captures, run.discovery, prepared.parent, run.problems, None))
+        hooks.insert(0, energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, prepared.parent, run.problems, None))
 
     def converted(process):
         joules = process.into / "energy.json"

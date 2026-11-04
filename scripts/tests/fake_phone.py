@@ -2,7 +2,7 @@
 import contextlib, json, pathlib, sys, types
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import case_isolation  # noqa: E402
+from session import case_isolation  # noqa: E402
 from device import adb as device_module  # noqa: E402
 import gradle_runner  # noqa: E402
 import timeouts  # noqa: E402

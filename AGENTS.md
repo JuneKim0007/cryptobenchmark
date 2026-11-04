@@ -55,8 +55,6 @@ modules/settings/ : harness key table shared by config, preparation and benchmar
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 scripts/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
 scripts/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
-scripts/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
-scripts/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
 scripts/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
 scripts/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument, clear, pull, scope check
@@ -73,9 +71,7 @@ scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
-scripts/measure_session.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks
 scripts/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
-scripts/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric
 scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
 scripts/results_layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, device selection, the temporary-folder warning
@@ -90,13 +86,19 @@ scripts/scope_languages.py : per-language row for scope sources: parser, suffix,
 scripts/scope_results.py : device interop verdicts into scoped-plan.yaml; measured scopes as prepared.yaml
 scripts/scope_signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
-scripts/session_hooks.py : session hooks every device run uses: clocks around a process; the energy window, traces, dry pass and joules
+scripts/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
+scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
+scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
+scripts/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
+scripts/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
+scripts/session/measure.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks
+scripts/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric
+scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baseline once after the warm-up, then a wait before each case process while the device is hotter, one line per pass
+scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
+scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
+scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session; its output never pulled
 scripts/tests/ : pytest and standalone tests for scripts/
-scripts/thermal_gate.py : run.thermalGate session hook: the idle baseline once after the warm-up, then a wait before each case process while the device is hotter, one line per pass
-scripts/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
-scripts/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
-scripts/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session; its output never pulled
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution

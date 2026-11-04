@@ -3,7 +3,9 @@ import pathlib, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import energy_stage, measure_session, session_hooks  # noqa: E402
+import energy_stage  # noqa: E402
+from session import measure as measure_session  # noqa: E402
+from session import energy_hook  # noqa: E402
 from device.adb import DeviceError  # noqa: E402
 from fake_phone import Energy, Phone  # noqa: E402
 
@@ -31,7 +33,7 @@ def run(tmp_path, captures, failing=(), problems=None, timed=True):
     phone = Phone(tmp_path, cases=("a",))
     source = (FailingEnergy if "joules" in failing else Energy)(phone)
     dry = lambda _into, guarded: phone.log.append(f"dry guarded={guarded}")
-    hook = session_hooks.EnergyCapture(source, Session(phone, failing), captures, tmp_path, tmp_path, [] if problems is None else problems, dry, timed)
+    hook = energy_hook.EnergyCapture(source, Session(phone, failing), captures, tmp_path, tmp_path, [] if problems is None else problems, dry, timed)
     plan = measure_session.Plan("CryptoBenchmark", (), cases=("a",), timed=timed)
     measure_session.run_session(phone, plan, 1, "case", [hook], lambda _r: tmp_path / "b", [] if problems is None else problems)
     return [line for line in phone.log if line in ("window open", "window close", "joules", "pull traces") or line.startswith(("dry", "instrument"))]

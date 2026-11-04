@@ -116,7 +116,7 @@ The benchmark and the before/after run measure through one device session: [devi
 
 | piece | what it is | device time it costs |
 |---|---|---|
-| session | `scripts/measure_session.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
+| session | `scripts/session/measure.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
 | passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
 | process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
 | ABBA | the before/after run alternates the sides over `run.scopedRepetitions` (3) | 3 processes per side and pass |

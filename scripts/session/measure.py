@@ -2,7 +2,8 @@
 one for all, and hooks around the session, each process and each case."""
 import dataclasses, json, pathlib, re
 
-import case_isolation, effective_view
+import effective_view
+from session import case_isolation
 from device.adb import DeviceError
 
 PASSED = re.compile(r"^OK \(\d+ tests?\)", re.M)

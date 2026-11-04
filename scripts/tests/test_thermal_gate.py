@@ -5,7 +5,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import pipeline  # noqa: E402
 from device import thermal  # noqa: E402
-import thermal_gate  # noqa: E402
+from session import thermal_gate  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 from test_device_benchmark_flow import measured  # noqa: E402
 from test_scoped_flow import CASES, scoped  # noqa: E402

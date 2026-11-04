@@ -4,13 +4,13 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Session
 
-`scripts/measure_session.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
+`scripts/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
 
 | step | what runs |
 |---|---|
 | session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt` |
 | process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files and `cpu-pins.yaml`; convert with `ConvertKt` |
-| hooks | around the session, each process and each case: the cool-down (`scripts/cooldown_hook.py`), the thermal gate (`scripts/thermal_gate.py`, [Thermal gate](#thermal-gate)), the clock state and the energy window (`scripts/session_hooks.py`), the temperature (`scripts/thermal_hook.py`) |
+| hooks | around the session, each process and each case: the cool-down (`scripts/session/cooldown_hook.py`), the thermal gate (`scripts/session/thermal_gate.py`, [Thermal gate](#thermal-gate)), the clock state (`scripts/session/clocks_hook.py`), the energy window (`scripts/session/energy_hook.py`), the temperature (`scripts/session/thermal_hook.py`) |
 
 ## Passes
 
@@ -30,7 +30,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Variants
 
-`run.variants` ([operations.md](../modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `scripts/variant_order.py` orders the benchmark's cases, never the before/after run's (`alternating`, by scope pair).
+`run.variants` ([operations.md](../modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `scripts/session/variant_order.py` orders the benchmark's cases, never the before/after run's (`alternating`, by scope pair).
 
 | rule | value |
 |---|---|
@@ -42,7 +42,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Temperature
 
-`scripts/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `scripts/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
+`scripts/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `scripts/session/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
 
 | rule | value |
 |---|---|

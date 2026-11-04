@@ -2,7 +2,7 @@
 import json
 
 from device import thermal
-from measure_session import Hooks
+from session.measure import Hooks
 
 FILE = "thermal.json"
 SCHEMA_VERSION = 1
