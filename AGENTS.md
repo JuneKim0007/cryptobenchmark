@@ -107,7 +107,7 @@ apps/benchmark-runner/stages/took.py : the took: line of a timed step
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark-runner/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
-apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, convert, merges, interop; JCA contract tests, examples
+apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, convert, merges, interop; JCA contract tests
 apps/benchmark/gradle.properties : Gradle daemon JVM args and AndroidX flags
 apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build, its CLI build and every tools/ build
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity

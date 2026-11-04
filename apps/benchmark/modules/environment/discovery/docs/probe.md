@@ -124,7 +124,6 @@ Errors are `BundledProviderException` with a `code`. The capture stays `schemaVe
 |---|---|
 | `CaptureQuery` | `whoServes(type, nameOrAlias)` in precedence order, `serviceOf`, `namesOf`, `onlyOn(provider)`, `tree()`; names match case-folded name or alias; no JCA call |
 | `CaptureQuery.tree()` | type to algorithm to `ServiceShape(modes, paddings, providers)`, case-insensitive sorted, spellings merged by `ServiceKey` |
-| `TrialQuery` | `serviceTrial`, `transformationTrial` (Cipher, case-insensitive), `failingServices`, `failingTransformations`, `instantiationByProvider` (ok, total) |
 
 ## Limits
 

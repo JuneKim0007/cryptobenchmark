@@ -23,7 +23,6 @@
 - conflict: code is the source; a doc that disagrees with it is corrected, never followed.
 - oddities: a code oddity is never written into a doc; report it in the change.
 - read by code: before moving or deleting a doc, grep code, scripts, tests, workflows and Makefiles for its path; keep paths they name.
-- generated: `apps/benchmark/modules/environment/discovery/docs/tree.md` is stdout of `apps/benchmark/cli/src/main/kotlin/examples/Tree.kt`; regenerate it, never hand-edit it.
 - generated: `docs/shared-functions.md` and `apps/perf-repair/docs/shared-functions.md` are written by `python3 tools/shared_functions.py`; rerun it after a change to what modules import, never hand-edit them.
 - generated: `apps/perf-repair/docs/screening-list.md` is written by `python3 tools/screening_list.py`; rerun it after a change to `screening.yaml`, never hand-edit it.
 - runtime prompts: `apps/perf-repair/src/**/*.system.md` are code; keep them out of the docs graph.
