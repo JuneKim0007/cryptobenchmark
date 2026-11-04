@@ -1,4 +1,4 @@
-# What a run measures. Everything not written here takes its default: see global.reference.yaml for every key.
+# What a run measures. Everything not written here takes its default: every key is in apps/benchmark/modules/config/docs/config.md.
 schemaVersion: 1                 # required
 
 selection:                       # required

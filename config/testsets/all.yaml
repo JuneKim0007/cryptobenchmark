@@ -1,3 +1,0 @@
-# Schema and which keys are optional: see scope.yaml.
-schemaVersion: 1                 # required
-description: everything the device can run with a default key; empty include selects the whole inventory

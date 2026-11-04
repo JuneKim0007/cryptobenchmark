@@ -25,16 +25,16 @@ class GlobalDocumentTest {
 
     @Test
     fun aMissingRunSectionOrKeyKeepsDefaults() {
-        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
+        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n"))
         assertEquals(listOf(1024), minimal.run.inputSizes)
-        val partial = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {processRepetitions: 3}\n"))
+        val partial = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\nrun: {processRepetitions: 3}\n"))
         assertEquals(3, partial.run.processRepetitions)
         assertEquals(listOf(1024), partial.run.inputSizes)
     }
 
     @Test
     fun isolationDefaultsToOneProcessPerCaseAndRefusesAnythingButCaseOrRun() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals("case", run("").isolation)
         assertEquals("run", run("run: {isolation: run}\n").isolation)
         val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {isolation: process}\n") }
@@ -43,7 +43,7 @@ class GlobalDocumentTest {
 
     @Test
     fun theThrottleSleepIsUnsetUnlessWrittenAndTravelsToTheEffectiveFile() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(null, run("").thermalThrottleSleepSeconds)
         assertEquals(30, run("run: {thermalThrottleSleepSeconds: 30}\n").thermalThrottleSleepSeconds)
         assertEquals(false, "thermalThrottleSleepSeconds" in io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("")))
@@ -53,7 +53,7 @@ class GlobalDocumentTest {
 
     @Test
     fun theWarmupDefaultsToTenIterationsOfThePlansFirstCasesAndZeroTurnsItOff() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(io.github.junekim0007.cryptobench.config.global.dto.Warmup(10, emptyList()), run("").warmup)
         val chosen = run("run: {warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}}\n").warmup
         assertEquals(0, chosen.iterations)
@@ -64,7 +64,7 @@ class GlobalDocumentTest {
 
     @Test
     fun theCaseCooldownIsOffByDefaultAndTravelsToTheEffectiveFile() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(0, run("").caseCooldownSeconds)
         assertEquals(20, io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("run: {caseCooldownSeconds: 20}\n"))["caseCooldownSeconds"])
         val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {caseCooldownSeconds: -1}\n") }
@@ -73,7 +73,7 @@ class GlobalDocumentTest {
 
     @Test
     fun theThermalGateIsOffUnlessWrittenNamesItsSensorsAndTravelsToTheEffectiveFile() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(null, run("").thermalGate)
         assertEquals(false, "thermalGate" in io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("")))
         val gate = run("run: {thermalGate: {sensors: [s1, s2]}}\n").thermalGate!!
@@ -94,7 +94,7 @@ class GlobalDocumentTest {
 
     @Test
     fun variantsDefaultToBothAndRefuseAnUnknownOrRepeatedOne() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(listOf("fixed", "notFixed"), run("").variants)
         assertEquals(listOf("notFixed"), io.github.junekim0007.cryptobench.config.global.RunDocument.of(run("run: {variants: [notFixed]}\n"))["variants"])
         for (bad in listOf("[]", "[fixed, fixed]", "[cold]")) {
@@ -105,7 +105,7 @@ class GlobalDocumentTest {
 
     @Test
     fun scopedRepetitionsDefaultToThreeAndRefuseZero() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(3, run("").scopedRepetitions)
         assertEquals(4, run("run: {scopedRepetitions: 4}\n").scopedRepetitions)
         val refused = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run("run: {scopedRepetitions: 0}\n") }
@@ -114,12 +114,12 @@ class GlobalDocumentTest {
 
     @Test
     fun passesAreReadInTheirOrderAndRefuseWhatNoPassCanMeasure() {
-        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n$text")).run
+        fun run(text: String) = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n$text")).run
         assertEquals(emptyList<MeasurePass>(), run("").passes)
         val three = run("run: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 300}, energy: {samples: 100}, allocation: {samples: 100}}}\n")
         assertEquals(listOf(MeasurePass("timing", 300), MeasurePass("energy", 100), MeasurePass("allocation", 100)), three.passes)
         val reread = GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(GlobalDocument.parse(codec.load(
-            "schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\nrun: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 3}, allocation: {samples: 2}}}\n"))))))
+            "schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\nrun: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 3}, allocation: {samples: 2}}}\n"))))))
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), reread.run.passes)
         fun refused(text: String) = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { run(text) }.message
         assertEquals("invalid: run.passes.speed, known [timing, energy, allocation]", refused("run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n"))
@@ -132,7 +132,7 @@ class GlobalDocumentTest {
     /** The statistic that leads is the user's call; auto at 5% when nothing is said, and the choice is frozen into effective.yaml. */
     @Test
     fun theHeadlineStatisticDefaultsToAutoAndTravelsToTheEffectiveFile() {
-        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/all.yaml}\n"))
+        val minimal = GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n"))
         assertEquals(AnalysisSettings.Headline.AUTO, minimal.analysis.statistic.headline)
         assertEquals(5.0, minimal.analysis.statistic.meanUpToCovPercent, 0.0)
 

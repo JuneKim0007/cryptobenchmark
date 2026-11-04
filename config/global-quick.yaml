@@ -12,4 +12,4 @@ policy:                          # optional
   onFailure: skip                # optional, default skip
 analysis:                        # optional
   charts: [iqrBars, stability]   # optional, default all four — a quick run draws two
-  statistic: {headline: auto, meanUpToCovPercent: 5}   # optional — see global.reference.yaml
+  statistic: {headline: auto, meanUpToCovPercent: 5}   # optional — see apps/benchmark/modules/config/docs/config.md

@@ -28,11 +28,6 @@ class CommittedConfigTest {
             files.at(file, TestSetDocument).read()
         }
         assertEquals("testsets/scope.yaml", committed.selection.testSet)
-        // the reference lists every key, so a key renamed in the schema fails here instead of misleading a reader
-        val reference = files.at(File(root, "config/global.reference.yaml"), GlobalDocument).read()
-        assertEquals("testsets/scope.yaml", reference.selection.testSet)
-        assertEquals(50, reference.run.harness.iterations)
-        assertEquals(listOf("BIG", "MID", "LITTLE"), reference.run.thermalGate?.sensors)
     }
 
     @Test
