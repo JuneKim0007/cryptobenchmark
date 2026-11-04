@@ -39,7 +39,7 @@ HANDLE = {"SupportedKeyClasses": ["vendor.store.HandleKey"]}
 
 # pending items asked, before and after the signature; a catalog or interchange change that moves these is deliberate;
 # these trials predate keyFormat, so every generator is unknown and alone, never asked
-ASKED = {"jdk17": (154, 1), "jdk21": (161, 1), "jdk25": (175, 1), "android36": (108, 0)}
+ASKED = {"jdk17": (137, 1), "jdk21": (144, 1), "jdk25": (158, 1), "android36": (105, 0)}
 
 
 def sig(engine_type, name, resolved=None, contract=KEY_APP_HELD):

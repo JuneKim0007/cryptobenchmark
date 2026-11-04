@@ -10,10 +10,10 @@
 |---|---|---|
 | MessageDigest | 3 | 10 |
 | Mac | 3 | 12 |
-| Signature | 10 | 54 |
+| Signature | 26 | 38 |
 | Cipher | 35 | 17 |
 | KeyGenerator | 6 | 13 |
-| KeyPairGenerator | 0 | 19 |
+| KeyPairGenerator | 1 | 18 |
 | KeyAgreement | 0 | 5 |
 | SecureRandom | 0 | 1 |
 
@@ -63,6 +63,22 @@
 | `SHA1withRSA/PSS` | r2 Table 8: SHA-1 signature generation disallowed (verification legacy-only) | [R2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf) |
 | `SHA1withDSAinP1363Format` | r2 Table 8: SHA-1 signature generation disallowed (verification legacy-only) | [R2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf) |
 | `SHA1withECDSAinP1363Format` | r2 Table 8: SHA-1 signature generation disallowed (verification legacy-only) | [R2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf) |
+| `SHA224withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA224withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-224withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-224withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA256withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA384withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA512withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-256withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-384withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-512withDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA256withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA384withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA512withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-256withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-384withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
+| `SHA3-512withDSAinP1363Format` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
 | `NONEwithDSA` | FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |
 
 ## Cipher deprecated
@@ -115,3 +131,9 @@
 | `DESede` | keys TDEA | [R2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf) |
 | `Blowfish` | keys a 64-bit block cipher | [SWEET32](https://sweet32.info/) |
 | `RC2` | keys RC2 | [LINT](https://github.com/google/android-security-lints/blob/main/checks/src/main/java/com/example/lint/checks/BadCryptographyUsageDetector.kt) |
+
+## KeyPairGenerator deprecated
+
+| Name | Reason | Source |
+|---|---|---|
+| `DSA` | FIPS 186-5 no longer approves DSA for signature generation, so no new DSA key pair | [FIPS186](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) |

@@ -107,14 +107,14 @@ crypto:
     SHA1withECDSAinP1363Format: {status: deprecated, reason: 'r2 Table 8: SHA-1 signature generation disallowed (verification legacy-only)', source: R2}
     SHA224withRSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
     SHA224withECDSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
-    SHA224withDSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
+    SHA224withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
     SHA224withRSA/PSS: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
-    SHA224withDSAinP1363Format: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
+    SHA224withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
     SHA224withECDSAinP1363Format: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
     SHA3-224withRSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
     SHA3-224withECDSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
-    SHA3-224withDSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
-    SHA3-224withDSAinP1363Format: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
+    SHA3-224withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-224withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
     SHA3-224withECDSAinP1363Format: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
     SHA512/224withRSA: {status: accepted, reason: r2 Table 2/8 acceptable at >=112-bit keys, source: R2}
     SHA256withRSA: {status: accepted, reason: 'PKCS#1 v1.5 sig: RFC 8017 s8 no known attack, r2 Table 2 acceptable RSA>=2048; Android risk page disagrees', source: R2}
@@ -140,18 +140,18 @@ crypto:
     SHA3-256withECDSAinP1363Format: {status: accepted, reason: r2 Table 2 ECDSA len(n)>=224 acceptable; Android recommends SHA256withECDSA, source: R2}
     SHA3-384withECDSAinP1363Format: {status: accepted, reason: r2 Table 2 ECDSA len(n)>=224 acceptable; Android recommends SHA256withECDSA, source: R2}
     SHA3-512withECDSAinP1363Format: {status: accepted, reason: r2 Table 2 ECDSA len(n)>=224 acceptable; Android recommends SHA256withECDSA, source: R2}
-    SHA256withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA384withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA512withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA3-256withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA3-384withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA3-512withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA256withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA384withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA512withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA3-256withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA3-384withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
-    SHA3-512withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA256withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA384withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA512withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-256withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-384withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-512withDSA: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA256withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA384withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA512withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-256withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-384withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
+    SHA3-512withDSAinP1363Format: {status: deprecated, reason: FIPS 186-5 no longer approves DSA for signature generation; verification of old signatures only, source: FIPS186}
     Ed25519: {status: accepted, reason: r2 Table 2 EdDSA len(n)>=224 acceptable, source: R2}
     Ed448: {status: accepted, reason: r2 Table 2 EdDSA len(n)>=224 acceptable, source: R2}
     EdDSA: {status: accepted, reason: r2 Table 2 EdDSA len(n)>=224 acceptable, source: R2}
@@ -246,7 +246,7 @@ crypto:
     Ed448: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
     EdDSA: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
     RSASSA-PSS: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
-    DSA: {status: accepted, reason: 'r2 Table 2 acceptable at (2048,224+)', source: R2}
+    DSA: {status: deprecated, reason: "FIPS 186-5 no longer approves DSA for signature generation, so no new DSA key pair", source: FIPS186}
     ML-DSA: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
     ML-DSA-44: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
     ML-DSA-65: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
