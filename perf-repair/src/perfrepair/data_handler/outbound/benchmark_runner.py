@@ -6,7 +6,6 @@ import re
 import subprocess
 import sys
 from collections import deque
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -36,20 +35,6 @@ def benchmark_root(explicit: Path | str | None = None) -> Path:
     if not (root / PIPELINE).is_file():
         raise BenchmarkRunError(f"no {PIPELINE} under {root}: pass the benchmark root or set CRYPTOBENCH_ROOT")
     return root.resolve()
-
-
-def new_run_dir(root: Path | str) -> Path:
-    root = Path(root)
-    root.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    for n in range(1000):
-        candidate = root / (stamp if n == 0 else f"{stamp}-{n}")
-        try:
-            candidate.mkdir()
-            return candidate
-        except FileExistsError:
-            continue
-    raise BenchmarkRunError(f"could not create a run directory under {root}")
 
 
 def _chosen(config: Path | None) -> list[str]:

@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    O[outbound: run_config, benchmark_runner] -- generated_perf_repair.yaml --> B[cryptobenchmark pipeline.py]
+    O[outbound: benchmark_runner] -- global.yaml --> B[cryptobenchmark pipeline.py]
     B -- results/device_id/manifest.yaml --> I[inbound]
     B -- manifest --> G[grouping: build, assign per item, report]
     I -- rows, measurements --> E[evidence + triage: static]
@@ -26,7 +26,7 @@ flowchart LR
 
 | Stage | Command | Reads | Writes | Model |
 |---|---|---|---|---|
-| outbound | `data_handler.outbound` (library) | base `global.yaml`, `config/testsets/all.yaml` default test set | `generated_perf_repair.yaml`, benchmark `<root>/<device id>/` | no |
+| outbound | `data_handler.outbound` (library) | `global.yaml` | benchmark `<root>/<device id>/` | no |
 | inbound | `python3 -m perfrepair.data_handler.inbound --device-results <device>` | `manifest.yaml` and its files | `rows.json`, `measurements.json`, `run_log.json` | no |
 | app | `python3 -m perfrepair.app --device-results <device> --app <src>` | the manifest's probe, the app tree | `<app>/sites.json`, `app.json`, `scopes.json` | no |
 | grouping build | `python3 -m perfrepair.grouping build --device-results <device>` | `manifest.yaml`: probe and trial; inventory, prepared and benchmark when present | `grouping/items.json`, `profiles.json`, `screen.json`; with `device.screening.aiReview` `grouping/classify/`, `registry-candidates.yaml` | with `device.screening.aiReview`: one conversation per batch of 10 unknown items |
