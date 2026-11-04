@@ -44,8 +44,8 @@
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
 | `<app>/finished.json` | the guide, when an app reaches its last step | the guide's targets loop | digests compared, no validator: a mismatch only runs the app |
-| `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/run.py`: rehashed to the folder's name |
-| `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/run.py`: rehashed to `supervisor.json` `charter` |
+| `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
+| `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/device.py`: rehashed to `supervisor.json` `charter` |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
 | `log/status.log`, `log/ai/<stage>.log`, `log/bug.log` | the event sink, from the same events | people, log summary (status) | none: `log/views.py` renders them; [run-log.md](run-log.md) |
 | `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |
@@ -68,7 +68,7 @@
 - `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path); an outbox from before it gets it on its next open.
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.
 - An older `measurements.json` is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).
-- `check/run.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
+- `check/grouping.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
 
 ## `primitives.tsv`
 
