@@ -35,6 +35,10 @@ class EffectiveView(unittest.TestCase):
         self.assertEqual(1, effective_view.process_repetitions({}))
         with self.assertRaises(SystemExit):
             effective_view.process_repetitions({"run": {"processRepetitions": 0}})
+        with self.assertRaises(SystemExit):
+            effective_view.process_repetitions({"run": {"processRepetitions": True}})
+        with self.assertRaises(SystemExit):
+            effective_view.scoped_repetitions({"run": {"scopedRepetitions": True}})
 
 
 if __name__ == "__main__":

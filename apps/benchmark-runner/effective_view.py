@@ -57,15 +57,16 @@ def thermal_gate(document):
     return gate if gate and gate.get("enabled", True) else None
 
 
-def scoped_repetitions(document):
-    repetitions = (document.get("run") or {}).get("scopedRepetitions", SCOPED_REPETITIONS)
-    if not isinstance(repetitions, int) or repetitions < 1:
-        fail(f"not_positive: scopedRepetitions {repetitions}")
+def _repetitions(document, key, default):
+    repetitions = (document.get("run") or {}).get(key, default)
+    if type(repetitions) is not int or repetitions < 1:
+        fail(f"not_positive: {key} {repetitions}")
     return repetitions
+
+
+def scoped_repetitions(document):
+    return _repetitions(document, "scopedRepetitions", SCOPED_REPETITIONS)
 
 
 def process_repetitions(document):
-    repetitions = (document.get("run") or {}).get("processRepetitions", 1)
-    if not isinstance(repetitions, int) or repetitions < 1:
-        fail(f"not_positive: processRepetitions {repetitions}")
-    return repetitions
+    return _repetitions(document, "processRepetitions", 1)

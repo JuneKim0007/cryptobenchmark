@@ -67,6 +67,7 @@ def _write(tmp_path, mutate) -> Path:
     (lambda d: d["families"]["digest.none"]["rows"]["MD5"].update(strengthSource="NOWHERE"), "not a listed source"),
     (lambda d: d["families"]["digest.none"]["rows"]["MD5"].update(strengthSource="unsourced"), "unsourced strength"),
     (lambda d: d["families"]["digest.none"]["rows"]["MD5"].update(minSdk=0), "minSdk"),
+    (lambda d: d["families"]["digest.none"]["rows"]["MD5"].update(minSdk=True), "minSdk"),
     (lambda d: d["families"]["digest.none"]["rows"]["MD5"].update(colour="red"), "types_fields"),
     (lambda d: d["families"]["digest.none"]["rows"]["MD5"].update(strengthBits={"key": "rot13"}), "keyStrength map"),
     (lambda d: d["families"].update({"digest.other": d["families"]["digest.none"]}), "not a family"),

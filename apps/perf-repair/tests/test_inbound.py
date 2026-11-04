@@ -118,6 +118,7 @@ def test_the_rows_validator_refuses_a_variant_outside_the_two():
     from helpers import row
     from perfrepair.validation.rows import validate_rows
     assert validate_rows([replace(row("a", "P1"), variant="warm")]) == ["a: variant 'warm' is not one of ('fixed', 'notFixed')"]
+    assert validate_rows([replace(row("a", "P1"), keySize=True)]) == ["a: keySize True is not a positive integer"]
 
 
 def test_rows_of_an_older_schema_are_unreadable_so_the_device_stage_reruns_inbound(tmp_path):

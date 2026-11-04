@@ -74,7 +74,7 @@ def _form_problems(where: str, row: dict) -> list[str]:
 
 def _value_problems(where: str, row: dict, sources: dict) -> list[str]:
     out = []
-    if row.get("minSdk") is not None and not (isinstance(row["minSdk"], int) and row["minSdk"] > 0):
+    if row.get("minSdk") is not None and not (type(row["minSdk"]) is int and row["minSdk"] > 0):
         out.append(f"{where}: minSdk {row['minSdk']!r} is not a positive integer")
     out += [f"{where}: {k} is blank" for k in ("notes", "blocked") if k in row and not (isinstance(row[k], str) and row[k].strip())]
     bad = row.get("badVersions")

@@ -35,6 +35,7 @@ def test_a_row_entry_carries_the_apps_version_and_its_alias():
     ({"create": "Aaa"}, "create 'Aaa' is not Class or Class#factory"),
     ({"alias": "a b"}, "alias 'a b' is not a name without whitespace"),
     ({"minSdk": 0}, "minSdk 0 is not a positive integer"),
+    ({"minSdk": True}, "minSdk True is not a positive integer"),
     ({"blocked": " "}, "blocked is blank"),
     ({"source": "T"}, "source 'T' is not in sources"),
     ({"version": "1"}, "unknown key version"),

@@ -71,7 +71,7 @@ def _row(family: str, canonical: str, raw: dict) -> TypeRow:
 
 
 def _number_problems(row: TypeRow) -> list[str]:
-    bad = lambda v: v is not None and (not isinstance(v, int) or v < 1)
+    bad = lambda v: v is not None and (type(v) is not int or v < 1)
     found = [f"outputBytes {row.properties.outputBytes!r} is neither a positive integer nor null"] * bad(row.properties.outputBytes)
     return found + [f"minSdk {row.minSdk!r} is neither an API level nor null"] * bad(row.minSdk)
 
