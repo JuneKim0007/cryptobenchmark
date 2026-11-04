@@ -11,6 +11,7 @@ from helpers import captured_events, with_results, LIBRARY
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
+from perfrepair import run_dir as rd
 from perfrepair.__main__ import main as top
 from perfrepair.ai.parse.grouping_assign import command as assign_cmd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
@@ -136,6 +137,49 @@ def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeyp
     assert measured[0]["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
     assert "- inputs: input 1024 B, key 128 bits, from run" in g.paths.report_md.read_text()
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
+
+
+def _damage_yaml(path, field="schemaVersion"):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump({field: 0}))
+
+
+def _damage_manifest(path):
+    path.write_text(yaml.safe_dump({**yaml.safe_load(path.read_text()), "files": {"ghost": "no-such-file"}}))
+
+
+def _damage_json(path):
+    write_json(path, {**read_json(path), "app": "another"})
+
+
+def _damage_decision(path):
+    doc = read_json(path)
+    doc["replacements"][0]["decision"] = "swap"
+    write_json(path, doc)
+
+
+@pytest.mark.parametrize("artifact, damage, problem", [
+    (lambda g: rd.MANIFEST, _damage_manifest, "does not exist"),
+    (lambda g: rd.PRIMITIVES_MISSING, _damage_yaml, "schemaVersion"),
+    (lambda g: rd.BENCHMARK_COVERAGE, _damage_yaml, "schemaVersion"),
+    (lambda g: f"{g.app_id}/{rd.REPLACEMENTS}", _damage_decision, "is not one of"),
+    (lambda g: f"{g.app_id}/{rd.EDITS}", _damage_json, "another"),
+    (lambda g: f"{g.app_id}/{rd.HARNESS}", _damage_yaml, "schema"),
+], ids=["manifest", "primitives_missing", "benchmark_coverage", "replacements", "edits", "harness"])
+def test_the_replay_checks_each_artifact_it_used_to_skip_and_finds_it_damaged(run, artifact, damage, problem):
+    g, _ = guide(run, ScriptedConversations(first_option(run)))
+    assert run_steps(g, device=False) == 0
+    name = artifact(g)
+    assert validate_run(run, screening_catalog(None)).get(name, []) == []
+    damage(run / name)
+    assert any(problem in p for p in validate_run(run, screening_catalog(None))[name])
+
+
+def test_a_malformed_repair_file_is_its_problem_in_the_replay(run):
+    g, _ = guide(run, ScriptedConversations(first_option(run)))
+    assert run_steps(g, device=False) == 0
+    (g.paths.replacements).write_text("[1]")
+    assert "does not parse" in validate_run(run, screening_catalog(None))[f"{g.app_id}/{rd.REPLACEMENTS}"][0]
 
 
 def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):

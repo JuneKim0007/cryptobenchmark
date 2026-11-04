@@ -19,8 +19,8 @@
 ## File structure
 
 ```
-src/perfrepair/check/apps.py : each app's dossiers.json against its scopes.json, units.json, groups.json and the app's screen verdicts
-src/perfrepair/check/device.py : device-level files: measurements and run log beside rows (a malformed file is its problem), primitives.tsv against rows, measurements and screen.json, bundled-suggestions.yaml, used.json against items.json, each outbox's charter.json rehashed to its folder name, events.jsonl
+src/perfrepair/check/apps.py : each app's dossiers.json against its scopes.json, units.json, groups.json and the app's screen verdicts; replacements.json against its dossiers, edits.json against its scopes, harness.yaml against its edits
+src/perfrepair/check/device.py : device-level files: manifest.yaml, primitives_missing.yaml and benchmark_coverage.yaml, measurements and run log beside rows (a malformed file is its problem), primitives.tsv against rows, measurements and screen.json, bundled-suggestions.yaml, used.json against items.json, each outbox's charter.json rehashed to its folder name, events.jsonl
 src/perfrepair/check/grouping.py : grouping files: the outbox and knowledge rebuilt by their kind, supervisor.json against the review outbox's replay and the current groups, screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed; each worthiness-<perfMode> folder under its own perfMode
 src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder, each by its validator
 src/perfrepair/validation/__main__.py : command: validate a device folder by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
