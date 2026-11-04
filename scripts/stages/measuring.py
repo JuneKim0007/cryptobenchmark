@@ -27,7 +27,7 @@ class Measuring:
 def convert(run, arguments):
     """ConvertKt on one process; a case that did not get the samples it asked for is a problem the manifest records."""
     notices = []
-    gradle_runner.run("quick-bench", arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt", notices=notices)
+    gradle_runner.run(arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt", notices=notices)
     run.problems.extend(line for line in notices if line.startswith("iterations_not_applied:"))
 
 

@@ -8,7 +8,7 @@ from device.adb import Device, DeviceError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
 from global_file import global_config
-from repo import ROOT
+from repo import BENCHMARK, ROOT
 from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
@@ -28,7 +28,7 @@ def parse_options():
     parser.add_argument("--discovery", choices=["overwrite", "keep", "reuse"], default="overwrite",
                         help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device")
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--bench", action="store_true", help="also prepare, measure and analyse (quick-bench, JVM)")
+    mode.add_argument("--bench", action="store_true", help="also prepare, measure and analyse (the benchmark CLI on the JVM, then the analysis scripts)")
     mode.add_argument("--device", action="store_true", help="probe, prepare and measure on the attached device (adb, ANDROID_HOME)")
     parser.add_argument("--probe", action="store_true",
                         help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
@@ -83,7 +83,7 @@ def main():
     if not options.identify:
         config_check.parsed(configuration)
     dependencies.check(options, configuration)
-    device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
+    device = Device(BENCHMARK, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
     if options.identify:

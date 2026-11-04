@@ -3,9 +3,9 @@ name: jca contract
 # Fails when the JCA surface :discovery reads changes under a new Java version.
 on:
   push:
-    paths: ['modules/environment/discovery/**', 'modules/settings/**', 'modules/config/**', 'modules/preparation/**', 'modules/benchmark/**', 'apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml', 'apps/perf-repair/tests/fixtures/algorithm-names-cases.yaml', 'config/**', 'tools/**', 'gradle/wrapper/**', '.github/workflows/jca-contract.yml']
+    paths: ['apps/benchmark/modules/environment/discovery/**', 'apps/benchmark/modules/settings/**', 'apps/benchmark/modules/config/**', 'apps/benchmark/modules/preparation/**', 'apps/benchmark/modules/benchmark/**', 'apps/benchmark/cli/**', 'config/**', 'tools/android-api-check/**', 'apps/benchmark/gradle/wrapper/**', '.github/workflows/jca-contract.yml']
   pull_request:
-    paths: ['modules/environment/discovery/**', 'modules/settings/**', 'modules/config/**', 'modules/preparation/**', 'modules/benchmark/**', 'apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml', 'apps/perf-repair/tests/fixtures/algorithm-names-cases.yaml', 'config/**', 'tools/**', 'gradle/wrapper/**', '.github/workflows/jca-contract.yml']
+    paths: ['apps/benchmark/modules/environment/discovery/**', 'apps/benchmark/modules/settings/**', 'apps/benchmark/modules/config/**', 'apps/benchmark/modules/preparation/**', 'apps/benchmark/modules/benchmark/**', 'apps/benchmark/cli/**', 'config/**', 'tools/android-api-check/**', 'apps/benchmark/gradle/wrapper/**', '.github/workflows/jca-contract.yml']
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
@@ -24,13 +24,13 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
       - uses: gradle/actions/setup-gradle@v4
-      - run: ../../gradlew -p . test --no-daemon
-        working-directory: tools/jca-contract
+      - run: ../gradlew -p . test --no-daemon
+        working-directory: apps/benchmark/cli
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: capture-java-${{ matrix.java }}
-          path: tools/jca-contract/build/capture/*.yaml
+          path: apps/benchmark/cli/build/capture/*.yaml
 
   android-api:
     runs-on: ubuntu-latest
@@ -42,5 +42,5 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" > /dev/null
-      - run: ../../gradlew -p . compileKotlin --no-daemon -PandroidJar="$ANDROID_HOME/platforms/android-36/android.jar"
+      - run: ../../apps/benchmark/gradlew -p . compileKotlin --no-daemon -PandroidJar="$ANDROID_HOME/platforms/android-36/android.jar"
         working-directory: tools/android-api-check

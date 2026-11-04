@@ -5,10 +5,10 @@ plugins {
 }
 
 val moduleDirectories = mapOf(
-    "discovery" to "../../modules/environment/discovery",
-    "config" to "../../modules/config",
-    "preparation" to "../../modules/preparation",
-    "benchmark" to "../../modules/benchmark",
+    "discovery" to "../../apps/benchmark/modules/environment/discovery",
+    "config" to "../../apps/benchmark/modules/config",
+    "preparation" to "../../apps/benchmark/modules/preparation",
+    "benchmark" to "../../apps/benchmark/modules/benchmark",
 )
 
 subprojects {
@@ -27,7 +27,7 @@ subprojects {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
         val sources = listOfNotNull(
             File(moduleDirectory, "src/main/kotlin"),
-            rootDir.resolve("../../modules/settings/src/main/kotlin").takeIf { name != "discovery" },
+            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { name != "discovery" },
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)
@@ -36,15 +36,14 @@ subprojects {
 
     val resourceDirectories = listOfNotNull(File(moduleDirectory, "src/main/resources"),
         rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/resources").takeIf { name == "benchmark" })
-    extensions.configure<SourceSetContainer> { named("main") { resources.setSrcDirs(resourceDirectories) } }
+    extensions.configure<SourceSetContainer> {
+        named("main") { resources.setSrcDirs(resourceDirectories) }
+        named("test") { resources.setSrcDirs(listOf(File(moduleDirectory, "src/test/resources"))) }
+    }
 
     dependencies {
         "implementation"("org.yaml:snakeyaml:2.3")
         "testImplementation"("junit:junit:4.13.2")
-    }
-
-    if (name == "config") {
-        tasks.named<ProcessResources>("processResources") { from(rootDir.resolve("../../apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml")) }
     }
 
     tasks.withType<Test>().configureEach {

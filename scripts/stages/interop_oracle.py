@@ -20,7 +20,7 @@ def stage_plan(plan, into):
 
 
 def on_host(capture, trial, plan, out, stacktrace, stream):
-    gradle_runner.run("quick-bench", f"{capture} {trial} {plan} {out}", stacktrace, stream, main_class="InteropKt")
+    gradle_runner.run(f"{capture} {trial} {plan} {out}", stacktrace, stream, main_class="InteropKt")
 
 
 def on_device(device, effective, capture, trial, plan, out):

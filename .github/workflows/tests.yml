@@ -33,6 +33,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      # the versions modules/android/build.gradle names
+      # the versions apps/benchmark/modules/android/build.gradle names
       - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "ndk;29.0.14206865" "cmake;3.22.1" > /dev/null
       - run: ./gradlew build :android:compileReleaseAndroidTestKotlin --no-daemon
+        working-directory: apps/benchmark

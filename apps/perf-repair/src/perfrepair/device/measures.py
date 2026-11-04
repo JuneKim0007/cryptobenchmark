@@ -31,7 +31,7 @@ class Harness:
         return self.captures_energy if m is ENERGY else m.run in self.metrics
 
 
-# HostHarness.METRICS in modules/benchmark run/HostHarness.kt; JetpackConfig.METRICS in modules/android, less CPU_EVENTS no perfMode selects
+# HostHarness.METRICS in apps/benchmark/modules/benchmark run/HostHarness.kt; JetpackConfig.METRICS in apps/benchmark/modules/android, less CPU_EVENTS no perfMode selects
 HOST = Harness("host JVM harness (--bench)", ("TIME",), captures_energy=False)
 DEVICE = Harness("device harness (--device)", ("TIME", ALLOCATION_RUN), captures_energy=True)
 

@@ -4,7 +4,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Session
 
-`scripts/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
+`scripts/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../apps/benchmark/modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
 
 | step | what runs |
 |---|---|
@@ -14,7 +14,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Passes
 
-`run.passes` ([config.md](../modules/config/docs/config.md)) splits a device run into one session per metric group; without it one pass measures every metric, as before.
+`run.passes` ([config.md](../apps/benchmark/modules/config/docs/config.md)) splits a device run into one session per metric group; without it one pass measures every metric, as before.
 
 | pass | measures | samples | energy | device time per case (Pixel 10, about 0.11 s a sample) |
 |---|---|---|---|---|
@@ -30,7 +30,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Variants
 
-`run.variants` ([operations.md](../modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `scripts/session/variant_order.py` orders the benchmark's cases, never the before/after run's (`alternating`, by scope pair).
+`run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `scripts/session/variant_order.py` orders the benchmark's cases, never the before/after run's (`alternating`, by scope pair).
 
 | rule | value |
 |---|---|
@@ -68,7 +68,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | cost | `(cases - 1) x seconds` per pass; at 20 s and 50 cases about 16 min a pass |
 | caps | `clocks.yaml` `cases`: per case the online cores whose `scaling_max_freq` is below `cpuinfo_max_freq` at its start and end; `clocks:    <n> of <m> cases started or ended with a core capped below its maximum` per process |
 | what caps show | boundary snapshots, one sysfs read each (tens of ms); a cap that rose and fell inside a case is not seen; unrooted, a cap cannot be lifted, only recorded |
-| pinning | `run.harness.cpu.core` (`<index>` or `big`) pins the measuring thread on both paths ([harness.md](../modules/android/docs/harness.md#core-pinning)); a failed pin is `cpu_pin_failed` in `cpu-pins.yaml` and a warning |
+| pinning | `run.harness.cpu.core` (`<index>` or `big`) pins the measuring thread on both paths ([harness.md](../apps/benchmark/modules/android/docs/harness.md#core-pinning)); a failed pin is `cpu_pin_failed` in `cpu-pins.yaml` and a warning |
 
 ## Thermal gate
 
@@ -76,7 +76,7 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 
 | rule | value |
 |---|---|
-| on | `run.thermalGate` set and not `enabled: false` ([config.md](../modules/config/docs/config.md)); absent, every case starts as soon as the last ends |
+| on | `run.thermalGate` set and not `enabled: false` ([config.md](../apps/benchmark/modules/config/docs/config.md)); absent, every case starts as soon as the last ends |
 | baseline | once per run, before the warm-up and the first case (after the energy pre-flight's idle settle): the hottest of `sensors` (`scripts/device/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}`; with `CRYPTOBENCH_THERMAL_BASELINE` set (perf-repair's delta session) that stored baseline is used instead of a new reading |
 | wait | before each case process (`isolation: case`), or before each process (`isolation: run`, no case boundary): read every `pollSeconds` while the hottest of `sensors` is above target or `Thermal Status` is above 0 |
 | timeout | past `timeoutSeconds` the case starts anyway; `thermal_gate_timeout: <id>: <pass>: started after <s> s at <c> C, status <n>, target <t> C` in `manifest.yaml` `problems` (`process-<n>` for `isolation: run`) |
@@ -96,7 +96,7 @@ What it does not fix:
 
 ## Warm-up
 
-`run.warmup` ([config.md](../modules/config/docs/config.md)): one process before the first pass of a session, on any device path, the benchmark and the before/after run alike.
+`run.warmup` ([config.md](../apps/benchmark/modules/config/docs/config.md)): one process before the first pass of a session, on any device path, the benchmark and the before/after run alike.
 
 | rule | value |
 |---|---|
@@ -111,7 +111,7 @@ What it does not fix:
 
 ## One process per case
 
-`run.isolation` ([config.md](../modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.
+`run.isolation` ([config.md](../apps/benchmark/modules/config/docs/config.md)) decides how `CryptoBenchmark` runs; the run prints one line saying which.
 
 | `run.isolation` | printed | what runs |
 |---|---|---|

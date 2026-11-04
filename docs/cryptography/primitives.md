@@ -2,7 +2,7 @@
 
 ## Configured scope
 
-`config/testsets/scope.yaml`, the test set of `config/global.yaml`. Field rules: `modules/config/docs/config.md`.
+`config/testsets/scope.yaml`, the test set of `config/global.yaml`. Field rules: `apps/benchmark/modules/config/docs/config.md`.
 
 | JCA type | name rule | key | parameters | role |
 |---|---|---|---|---|

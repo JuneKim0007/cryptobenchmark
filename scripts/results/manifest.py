@@ -4,10 +4,10 @@ import json
 from device import clocks
 from device.identity import device_id
 from results import layout as results_layout
-from repo import ROOT
+from repo import BENCHMARK
 from results import run_inputs
 
-ENGINE_OPERATIONS = ROOT / "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml"
+ENGINE_OPERATIONS = BENCHMARK / "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml"
 
 
 def runtime(measured, probe, files):

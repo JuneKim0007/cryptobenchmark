@@ -166,7 +166,7 @@ def fake_merge_runs(phone, words):
 
 def fake_tools(monkeypatch, phone):
     """ConvertKt, MergePassesKt and MergeRunsKt: the same files as the real tools, from the fake data."""
-    def run(_project, arguments, _stacktrace, _stream=False, main_class=None, notices=None):
+    def run(arguments, _stacktrace, _stream=False, *, main_class, notices=None):
         words = arguments.split()
         if main_class == "ConvertKt":
             fake_convert(phone, arguments, words, notices)

@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - run: ../../gradlew -p . :${{ matrix.module }}:test --no-daemon
+      - run: ../../apps/benchmark/gradlew -p . :${{ matrix.module }}:test --no-daemon
         working-directory: tools/module-isolation
       - uses: actions/upload-artifact@v4
         if: failure()

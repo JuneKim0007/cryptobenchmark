@@ -128,6 +128,6 @@ def test_prepared_call_sites_join_the_session_beside_the_functions_and_convert_w
     data.write_text(json.dumps({"context": {"build": {"model": "fake", "fingerprint": "f", "version": {"sdk": 36}}, "cpuLocked": False,
                                             "sustainedPerformanceModeEnabled": False, "compilationMode": "speed"},
                                 "benchmarks": [benchmark(c) for c in cases]}))
-    gradle_runner.run("quick-bench", f"{data} {prepared} {tmp_path}", False, main_class="ConvertKt")
+    gradle_runner.run(f"{data} {prepared} {tmp_path}", False, main_class="ConvertKt")
     converted = {c["id"]: c for c in json.loads((tmp_path / "benchmark.json").read_text())["cases"]}
     assert set(converted) == set(cases) and converted["scope:1b2c3d4e5f60:callSite:after"]["operation"] == "DECRYPT"

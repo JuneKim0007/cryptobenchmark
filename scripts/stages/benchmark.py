@@ -131,7 +131,7 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     for repetition in range(1, repetitions + 1):
         into = measure_session.process_folder(benchmark, repetition, repetitions)
         measure_session.process_line(repetition, repetitions)
-        gradle_runner.run("quick-bench", f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream)
+        gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt")
         written.append(into / "benchmark.json")
         record(files, into, {"none"}, None)
     if repetitions > 1:

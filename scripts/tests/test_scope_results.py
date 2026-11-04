@@ -72,7 +72,7 @@ def test_prepared_goes_through_the_real_converter(tmp_path):
     data.write_text(json.dumps({"context": {"build": {"model": "fake", "fingerprint": "f", "version": {"sdk": 36}}, "cpuLocked": False,
                                             "sustainedPerformanceModeEnabled": False, "compilationMode": "speed"},
                                 "benchmarks": [jetpack_case(c, 100.0) for r in measured for c in r["cases"]]}))
-    gradle_runner.run("quick-bench", f"{data} {prepared} {tmp_path}", False, main_class="ConvertKt")
+    gradle_runner.run(f"{data} {prepared} {tmp_path}", False, main_class="ConvertKt")
     converted = json.loads((tmp_path / "benchmark.json").read_text())
     assert [c["id"] for c in converted["cases"]] == [c for r in measured for c in r["cases"]]
     assert converted["cases"][0]["metrics"]["timeNs"]["runs"] == [100.0, 100.0, 100.0]

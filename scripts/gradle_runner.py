@@ -1,4 +1,4 @@
-"""Runs one gradle tool and turns its failure into the few lines a person needs."""
+"""Runs one command of the benchmark's CLI build and turns its failure into the few lines a person needs."""
 import re
 import subprocess
 import sys
@@ -6,9 +6,10 @@ import sys
 import timeouts
 
 from failure import fail, one_line
-from repo import ROOT
+from repo import BENCHMARK
 
-WRAPPER = ROOT / "gradlew"
+WRAPPER = BENCHMARK / "gradlew"
+CLI = BENCHMARK / "cli"
 PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
              "not_converted:", "not_merged:", "energy_not_joined:")
 # the wrapper prints these on stdout the first time it unpacks a distribution, before the tool runs
@@ -35,13 +36,11 @@ class ToolFailed(Exception):
     pass
 
 
-def _command(project, arguments, main_class):
-    command = [str(WRAPPER), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q"]
+def _command(arguments, main_class):
+    command = [str(WRAPPER), "-p", str(CLI), "run", "--no-daemon", "-q", f"-PmainClass={main_class}"]
     # Gradle refuses an empty --args
     if arguments:
         command.append(f"--args={arguments}")
-    if main_class:
-        command.append(f"-PmainClass={main_class}")
     return command
 
 
@@ -50,23 +49,23 @@ def tool_lines(stdout):
     return [l for l in stdout.strip().splitlines() if not l.startswith(BOOTSTRAP) and not re.fullmatch(r"[.\d%]+", l.strip())]
 
 
-def output_of(project, arguments, main_class):
+def output_of(arguments, main_class):
     """The tool's stdout lines; its failure is one ToolFailed line, for a caller that goes on or words it itself."""
-    result = timeouts.run("gradle", _command(project, arguments, main_class), capture_output=True, text=True)
+    result = timeouts.run("gradle", _command(arguments, main_class), capture_output=True, text=True)
     if result.returncode != 0:
         raise ToolFailed(one_line(failure_message((result.stdout + result.stderr).splitlines())))
     return tool_lines(result.stdout)
 
 
-def run(project, arguments, stacktrace, stream=False, main_class=None, notices=None):
+def run(arguments, stacktrace, stream=False, *, main_class, notices=None):
     """notices, when given, collects every passed-on line, so a caller can record it."""
     if not WRAPPER.is_file():
         fail(f"missing_file: {WRAPPER}")
-    command = _command(project, arguments, main_class)
+    command = _command(arguments, main_class)
     if stream:
         result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:
-            fail(f"{project} failed; rerun without --stream for a filtered message")
+            fail(f"{main_class} failed; rerun without --stream for a filtered message")
         return tool_lines(result.stdout)
     result = timeouts.run("gradle", command, capture_output=True, text=True)
     output = (result.stdout + result.stderr).splitlines()

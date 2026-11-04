@@ -5,7 +5,7 @@ import posixpath
 
 ROUTERS = ("", "apps/perf-repair")
 ENTRY = "AGENTS.md"
-NOT_GRAPHED = {"modules/environment/discovery/docs/tree.md", "tools/quick-bench/tests/golden_summary.md"}
+NOT_GRAPHED = {"apps/benchmark/modules/environment/discovery/docs/tree.md", "tools/quick-bench/tests/golden_summary.md"}
 
 
 def router_of(path: str) -> str:

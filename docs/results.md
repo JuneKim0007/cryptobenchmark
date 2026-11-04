@@ -44,8 +44,8 @@ Paths relative to the device folder.
 | `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `thermal.json`, `cpu-pins.yaml` when written | `--device` |
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` with `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
-| `scoped/` | `scoped-plan.yaml`, `scoped-interop.yaml`, `benchmarkData.json`, `prepared.yaml`, `benchmark.json`, `clocks.yaml`; `energy.json`, `traces/` on measured capture | `--harness`: [scoped.md](../modules/android/docs/scoped.md) |
-| `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../modules/preparation/docs/interop.md) |
+| `scoped/` | `scoped-plan.yaml`, `scoped-interop.yaml`, `benchmarkData.json`, `prepared.yaml`, `benchmark.json`, `clocks.yaml`; `energy.json`, `traces/` on measured capture | `--harness`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
+| `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 | `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
 | `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |
 
@@ -75,7 +75,7 @@ Paths relative to the device folder.
 
 ## benchmark.json case fields
 
-Beside `metrics` and `parameters` ([measure.md](../modules/benchmark/docs/measure.md)), a device case carries:
+Beside `metrics` and `parameters` ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md)), a device case carries:
 
 | field | value |
 |---|---|
@@ -84,7 +84,7 @@ Beside `metrics` and `parameters` ([measure.md](../modules/benchmark/docs/measur
 | `thermalNote` | present when a reading is missing (its reason), cached (`source: cached`) or the process's (`scope: run`) |
 | `gate` | `{waitedSeconds: <s>, target: <C>, timedOut: <bool>}`: the host's wait before the case ([device-session.md](device-session.md#thermal-gate)); `waitedSeconds` 0 when it started at once; with `isolation: run` the process's wait on every case; merged processes add `waitedSeconds`, `timedOut` if any did, the first `target`; the merged file keeps the timing pass's, each pass's own under `benchmark/<pass>/`; absent when no gate ran |
 
-Every case (host and device) also carries `variant` ([measure.md](../modules/benchmark/docs/measure.md#benchmarkjson)): one key after `keyKind`, `"variant": "fixed"` or `"variant": "notFixed"`; `null` only in a before/after file under `scoped/`. A reader (perf-repair's side) groups by the case id without its last part `_<variant>` for the item, and never mixes the two values: `fixed` is the call with the setup the API lets a caller keep, kept (`prepared.yaml` `perCall` names exactly what it still redoes: `operation` or `initAndOperation`), `notFixed` is `getInstance` + init + operation per call. Key generation rows are `fixed` only.
+Every case (host and device) also carries `variant` ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#benchmarkjson)): one key after `keyKind`, `"variant": "fixed"` or `"variant": "notFixed"`; `null` only in a before/after file under `scoped/`. A reader (perf-repair's side) groups by the case id without its last part `_<variant>` for the item, and never mixes the two values: `fixed` is the call with the setup the API lets a caller keep, kept (`prepared.yaml` `perCall` names exactly what it still redoes: `operation` or `initAndOperation`), `notFixed` is `getInstance` + init + operation per call. Key generation rows are `fixed` only.
 
 A reader of `gate` (perf-repair's side): `timedOut: true` means the case started hotter than its target, and the manifest's `problems` carries the same case as `thermal_gate_timeout: <id>: ...`, a warning, not a lost case; `waitedSeconds` is host time outside the timed loop and never part of a metric.
 

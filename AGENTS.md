@@ -7,16 +7,16 @@
 - device runs: prerequisites, adb, `--suppress-errors`, core pinning, energy on a device → `agents/device.md`
 - docs, guides, file maps, READMEs, any `.md` change → `agents/docs/writing.md`
 - cross-module facts: architecture, run, results, energy, tools, cryptography catalogue → `docs/index.md`
-- discovery: probe, trial, capture fields → `modules/environment/discovery/docs/index.md`
-- config: authored files, inventory, effective, precedence → `modules/config/docs/index.md`
-- settings: harness key table, device support → `modules/settings/docs/index.md`
-- preparation: cases, keys, inputs, parameters → `modules/preparation/docs/index.md`
-- benchmark: plan check, measurement, `benchmark.json` → `modules/benchmark/docs/index.md`
-- android: instrumentation harness, device plan, core pinning → `modules/android/docs/index.md`
+- discovery: probe, trial, capture fields → `apps/benchmark/modules/environment/discovery/docs/index.md`
+- config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`
+- settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
+- preparation: cases, keys, inputs, parameters → `apps/benchmark/modules/preparation/docs/index.md`
+- benchmark: plan check, measurement, `benchmark.json` → `apps/benchmark/modules/benchmark/docs/index.md`
+- android: instrumentation harness, device plan, core pinning → `apps/benchmark/modules/android/docs/index.md`
 - perf-repair work → `apps/perf-repair/AGENTS.md`
 
 ## Rules
-- layout: directives live in `AGENTS.md` and `agents/`; facts live in `docs/` and `modules/<m>/docs/`; `apps/perf-repair/` keeps its own router, guides and docs.
+- layout: directives live in `AGENTS.md` and `agents/`; facts live in `docs/` and `apps/benchmark/modules/<m>/docs/`; `apps/perf-repair/` keeps its own router, guides and docs.
 - change: one file, one responsibility.
 - map: adding, moving or deleting a file updates its owning map in the same change.
 - delete/rename: grep the symbol or path and remove its references first.
@@ -29,8 +29,8 @@
 
 ## Workflow
 - module schema change: code → `-Dexamples.update=true` run → module doc
-- harness setting: `Key` in `modules/settings/src/main/kotlin/Harness.kt` (`energy.*` in `EnergySettings.kt`, `cpu.*` in `CpuSettings.kt`) → field on the typed class → `modules/settings/docs/settings.md`
-- module file added: its line in `modules/<m>/docs/index.md`
+- harness setting: `Key` in `apps/benchmark/modules/settings/src/main/kotlin/Harness.kt` (`energy.*` in `EnergySettings.kt`, `cpu.*` in `CpuSettings.kt`) → field on the typed class → `apps/benchmark/modules/settings/docs/settings.md`
+- module file added: its line in `apps/benchmark/modules/<m>/docs/index.md`
 - guide change: `python3 scripts/docs_lint.py`
 
 ## File structure
@@ -43,18 +43,20 @@
 AGENTS.md : agent router
 README.md : project entry page
 agents/ : directive guides
+apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
+apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, convert, merges, interop; JCA contract tests, examples
+apps/benchmark/gradle.properties : Gradle daemon JVM args and AndroidX flags
+apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build, its CLI build and every tools/ build
+apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
+apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
+apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
+apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run trial, capture and trial YAML
+apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
+apps/benchmark/modules/settings/ : harness key table shared by config, preparation and benchmark
+apps/benchmark/settings.gradle : Gradle projects and their directories under apps/benchmark/modules/
 apps/perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
-build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
-gradle.properties : Gradle daemon JVM args and AndroidX flags
-gradlew : the one Gradle wrapper, for the root build and every tools/ build
-modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
-modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
-modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
-modules/environment/discovery/ : provider and service probe, default-run trial, capture and trial YAML
-modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
-modules/settings/ : harness key table shared by config, preparation and benchmark
 requirements.txt : every host Python dependency
 scripts/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
@@ -132,10 +134,8 @@ scripts/stages/took.py : the took: line of a timed step
 scripts/tests/ : pytest and standalone tests for scripts/
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 settings.example.yaml : template for `settings.yaml`, the facade's root index
-settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
-tools/jca-contract/ : host probe, configure and parse-only commands, JCA contract tests, examples
 tools/module-isolation/ : per-module isolated compile and test
-tools/quick-bench/ : host prepare and measure, Jetpack result conversion, run merge, analysis
+tools/quick-bench/ : analysis of a benchmark.json: summary, charts, statistics
 ```

@@ -14,7 +14,7 @@ class ConfigCheckError(Exception):
 def parse_all(files):
     """One {global, testSet, bundled} per file; the first refusal is one ConfigCheckError line."""
     try:
-        output = gradle_runner.output_of("jca-contract", shlex.join(map(str, files)), "CheckConfigKt")
+        output = gradle_runner.output_of(shlex.join(map(str, files)), "CheckConfigKt")
     except gradle_runner.ToolFailed as e:
         raise ConfigCheckError(str(e)) from None
     return yaml.safe_load("\n".join(output))

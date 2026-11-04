@@ -25,7 +25,7 @@
 | `energy.cooldownSeconds` | ≥0 | 5 |
 | `energy.source` | `rails`, `manafa` | `rails` |
 
-- Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `modules/config/docs/config.md`.
+- Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `apps/benchmark/modules/config/docs/config.md`.
 - A test-set override sets it per case: `overrides: [{match: {type: Cipher, name: AES/GCM/NoPadding}, set: {harness: {energy: {capture: dry}}}}]`.
 
 ## Sources

@@ -27,7 +27,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/global.yaml` | the `global.yaml` to run |
 | `--results DIR` | `<repo>/results` | results root; the run writes `<DIR>/<device_id>/` ([results.md](results.md#device-folder)) |
 | `--discovery` | `overwrite` | `overwrite` clears `discovery/` first; `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
-| `--bench` | off | also prepare, measure and analyse on the JVM via quick-bench |
+| `--bench` | off | also prepare, measure and analyse on the JVM via the benchmark CLI (`BenchKt`) |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
 | `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of `scripts/scope/code_digest.py`, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
@@ -36,8 +36,8 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--stacktrace` | off | print the tool's full output on failure |
 | `--stream` | off | show each tool's progress |
-| `--harness HARNESS_YAML` | off | with `--device`: generate, install and measure perf-repair's scopes instead of the plan's cases, see [scoped.md](../modules/android/docs/scoped.md) |
-| `--interop PLAN_YAML` | off | with `--bench` or `--device`: discover, then check perf-repair's `interop_plan.yaml` pairs instead of measuring, see [interop.md](../modules/preparation/docs/interop.md) |
+| `--harness HARNESS_YAML` | off | with `--device`: generate, install and measure perf-repair's scopes instead of the plan's cases, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
+| `--interop PLAN_YAML` | off | with `--bench` or `--device`: discover, then check perf-repair's `interop_plan.yaml` pairs instead of measuring, see [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 
 | rule | result |
 |---|---|
@@ -54,7 +54,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 
 - Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`; with no kept capture that fits the JVM's runtime it probes again and prints `warning: discovery_reprobed: ...`.
 - Device discovery runs `ConfigureKt` with `--facts`. The run's capture is the one its discovery wrote: on a host the file `ProbeKt` printed, on a device the one capture the probe added to `discovery/`; its trial is the file with the same stamp. With `--discovery keep` older captures stay beside it and are never picked by their stamp, which comes from the device clock.
-- `run.processRepetitions` ([config.md](../modules/config/docs/config.md)) above 1: runs merged with `MergeRunsKt`.
+- `run.processRepetitions` ([config.md](../apps/benchmark/modules/config/docs/config.md)) above 1: runs merged with `MergeRunsKt`.
 - Tool commands: [tools.md](tools.md). Output: [results.md](results.md).
 
 ## Timeouts
@@ -103,9 +103,9 @@ python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
 
 | step | command or path |
 |---|---|
-| install | root `gradlew :android:installRelease :android:installReleaseAndroidTest`, plus `-PbundledArtifacts=<artifact>,...` when global.yaml has `providers.bundled` |
+| install | `apps/benchmark/gradlew :android:installRelease :android:installReleaseAndroidTest`, plus `-PbundledArtifacts=<artifact>,...` when global.yaml has `providers.bundled` |
 | bundled providers | `DeviceProbe` gets `-e bundledProviders '<json>'`; after configure, `effective.yaml` `bundledProviders` must equal the built list, else `bundled_mismatch` |
-| plan and androidx output directories | by API level: `modules/android/docs/harness.md#device-directories` |
+| plan and androidx output directories | by API level: `apps/benchmark/modules/android/docs/harness.md#device-directories` |
 | AOT compile | `cmd package compile -f -m speed` on both APKs, right after the plan push; with energy capture the rails pre-flight and its settle come after it, then `energy.yaml` is pushed, so dex2oat never runs inside the settle |
 | profiler | `-e androidx.benchmark.profiling.mode None` |
 | pull | whole plan directory into `discovery/` |
@@ -132,7 +132,7 @@ Androidx always runs its allocation phase, so `benchmarkData.json` holds `alloca
 
 ```
 D=results/<device_id>
-./gradlew -p tools/quick-bench run -q -PmainClass=ConvertKt \
+apps/benchmark/gradlew -p apps/benchmark/cli run -q -PmainClass=ConvertKt \
   --args="$D/benchmark/benchmarkData.json $D/preparation/prepared.yaml $D/benchmark $D/benchmark/energy.json --metrics=TIME,ALLOCATION"
 ```
 

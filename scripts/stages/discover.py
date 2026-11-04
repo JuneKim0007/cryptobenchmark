@@ -38,11 +38,11 @@ def discover(options, configuration, device, results):
         device.probe(discovery, bundled.instrumentation_arguments(shipped))
         capture, trial = capture_files.added(discovery, before)
         known = facts.gather(device, discovery, capture)
-        written = gradle_runner.run("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
+        written = gradle_runner.run(f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
         started, before = time.monotonic(), capture_files.stamped(discovery)
-        written = gradle_runner.run("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream)
+        written = gradle_runner.run(f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream, main_class="ProbeKt")
         capture, trial = capture_files.printed(written, discovery)
         if reuse:
             capture_files.reprobed(before, capture)
@@ -93,4 +93,4 @@ def device_discover(options, configuration, device, root):
 
 def host_runtime(options):
     import yaml
-    return yaml.safe_load("\n".join(gradle_runner.run("jca-contract", "", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")))
+    return yaml.safe_load("\n".join(gradle_runner.run("", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")))

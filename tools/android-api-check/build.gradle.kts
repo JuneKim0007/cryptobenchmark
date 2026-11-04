@@ -25,10 +25,10 @@ java {
 sourceSets {
     main {
         kotlin.setSrcDirs(listOf(
-            "../../modules/environment/discovery/src/main/kotlin",
-            "../../modules/settings/src/main/kotlin",
-            "../../modules/preparation/src/main/kotlin",
-            "../../modules/benchmark/src/main/kotlin",
+            "../../apps/benchmark/modules/environment/discovery/src/main/kotlin",
+            "../../apps/benchmark/modules/settings/src/main/kotlin",
+            "../../apps/benchmark/modules/preparation/src/main/kotlin",
+            "../../apps/benchmark/modules/benchmark/src/main/kotlin",
         ))
     }
 }

@@ -5,8 +5,8 @@
 - `docs/device-session.md` : the device session: passes, a process per case, temperature, warm-up
 - `docs/results.md` : results/ layout, manifest.yaml, clocks.yaml, facts.yaml
 - `docs/energy.md` : capture modes, rail pre-flight, joules output
-- `modules/android/docs/index.md` : instrumentation harness and device plan
-- `modules/settings/docs/index.md` : `cpu` and `energy` harness keys and device support
+- `apps/benchmark/modules/android/docs/index.md` : instrumentation harness and device plan
+- `apps/benchmark/modules/settings/docs/index.md` : `cpu` and `energy` harness keys and device support
 
 ## Rules
 - entry: run device work through `python3 scripts/pipeline.py --device`; never drive the adb steps of `scripts/device/adb.py` by hand.

@@ -107,7 +107,7 @@ class Charts(unittest.TestCase):
         self.assertTrue(all(c["noisy"] for c in data))
  
     def test_the_python_defaults_match_the_ones_the_config_module_writes(self):
-        example = pathlib.Path(__file__).resolve().parents[3] / "modules/config/example/config_effective_example.yaml"
+        example = pathlib.Path(__file__).resolve().parents[3] / "apps/benchmark/modules/config/example/config_effective_example.yaml"
         analysis = yaml.safe_load(example.read_text())["analysis"]
         self.assertEqual(chart_input.DEFAULTS["charts"], analysis["charts"])
         self.assertEqual(chart_input.DEFAULTS["headline"], analysis["statistic"]["headline"])

@@ -5,11 +5,11 @@ import yaml
 
 from device import clocks
 from device.adb import PACKAGE
-from repo import ROOT
+from repo import BENCHMARK
 
 FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
-APK = ROOT / "modules/android/build/outputs/apk/release/android-release.apk"
+APK = BENCHMARK / "modules/android/build/outputs/apk/release/android-release.apk"
 
 
 def rooted(device):

@@ -5,7 +5,7 @@ import yaml
 
 from perfrepair.dto.units import DisplayUnits, number
 
-EXAMPLE = Path(__file__).resolve().parents[3] / "modules/config/example/config_effective_example.yaml"
+EXAMPLE = Path(__file__).resolve().parents[3] / "apps/benchmark/modules/config/example/config_effective_example.yaml"
 
 
 def test_the_defaults_mirror_what_the_config_module_writes():

@@ -22,6 +22,6 @@ Tools that back a review with numbers. They are installed outside the repo, so n
 | unused imports, variables, args; commented-out code | `ruff check --select F401,F841,F811,ARG,ERA apps/perf-repair/src scripts tools` | any hit |
 | copy-paste, both languages | `npx -y jscpd@4 --min-tokens 60 --reporters console --ignore "**/test/**,**/tests/**,**/build/**,**/fixtures/**" apps/perf-repair/src scripts tools modules` | any clone in main code |
 | untested code | `(cd apps/perf-repair && python3 -m pytest -q --cov=perfrepair --cov-report=term-missing)` | 0% files; dead-code candidates |
-| Kotlin package dependencies | `jdeps -verbose:package -summary modules/<m>/build/classes/kotlin/main` | an edge against `agents/code.md` |
+| Kotlin package dependencies | `jdeps -verbose:package -summary apps/benchmark/modules/<m>/build/classes/kotlin/main` | an edge against `agents/code.md` |
 | change hotspots | `git log --since='30 days' --format= --name-only -- '*.py' '*.kt' \| sort \| uniq -c \| sort -rn \| head` | high churn with high CCN |
 | one file, one responsibility | lizard's per-file function list + the file's imports + `git log --format=%s -- <file>` | functions or commits falling into unrelated clusters |

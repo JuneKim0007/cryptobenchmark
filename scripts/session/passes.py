@@ -83,7 +83,7 @@ def run_all(chosen, repetitions, root, measure_one, options):
 
 
 def merge_runs(into, written, options):
-    gradle_runner.run("quick-bench", " ".join(map(str, [into, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
+    gradle_runner.run(" ".join(map(str, [into, *written])), options.stacktrace, options.stream, main_class="MergeRunsKt")
 
 
 def merged(results, root, repetitions, options):
@@ -93,7 +93,7 @@ def merged(results, root, repetitions, options):
 
     def merge(out, base_file, others):
         arguments = [str(out), str(base_file)] + [f"{key}={path}" for key, path in others]
-        gradle_runner.run("quick-bench", " ".join(arguments), options.stacktrace, options.stream, main_class="MergePassesKt")
+        gradle_runner.run(" ".join(arguments), options.stacktrace, options.stream, main_class="MergePassesKt")
         return out / "benchmark.json"
     merge(root, results[base][0], [(key, files[0]) for key, files in owned])
     if repetitions == 1:

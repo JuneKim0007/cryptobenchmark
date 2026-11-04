@@ -1,49 +1,46 @@
 # Tools
 
-- Every `tools/*` Gradle build runs through the root wrapper `gradlew`.
+- Every Gradle build, `apps/benchmark/cli` and each `tools/*` check, runs through the one wrapper `apps/benchmark/gradlew`.
 - Build layout: [architecture.md](architecture.md#tools-builds). Energy tools: [energy.md](energy.md#files).
 
-## jca-contract
+## cli
 
-| entry | command | output |
+`apps/benchmark/cli`: the benchmark's host commands, one build.
+
+| entry | command or arguments | output |
 |---|---|---|
-| `ProbeKt` (default) | `./gradlew -p tools/jca-contract run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
+| `ProbeKt` (default) | `apps/benchmark/gradlew -p apps/benchmark/cli run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
 | `ConfigureKt` | `... run -PmainClass=ConfigureKt --args="<probe> <trial> <configuration dir> [<global.yaml>] [--facts=<facts.yaml>]"` | inventory, effective |
 | `CheckConfigKt` | `... run -PmainClass=CheckConfigKt --args="<global.yaml>..."` | parses each file and its test set; prints `{global, testSet, bundled}` per file as YAML; a refusal is `error: <message>`, exit 1; nothing written |
 | `RuntimeFieldsKt` | `... run -PmainClass=RuntimeFieldsKt` | prints this JVM's runtime fields that the device id uses, as YAML |
 | `examples.ParametersKt` | no args, or one spec class | lists `AlgorithmParameterSpec` classes in `java.security.spec` and `javax.crypto.spec`; with a class, prints a parameters YAML block |
 | `examples.ReportKt` | `<type> <algorithm> <provider>`, default `Cipher AES SunJCE` | who serves the type and algorithm on this JVM |
-| `examples.TreeKt` | none | markdown tree for Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator, KeyAgreement; source of `modules/environment/discovery/docs/tree.md` |
+| `examples.TreeKt` | none | markdown tree for Cipher, MessageDigest, Mac, Signature, KeyGenerator, KeyPairGenerator, KeyAgreement; source of `apps/benchmark/modules/environment/discovery/docs/tree.md` |
+| `BenchKt` | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; prints the `benchmark.json` path |
+| `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json]` | `benchmark.json` from androidx output; a pass's metrics and samples, each case's temperature; `--metrics` alone reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
+| `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
+| `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#pass-merge)) |
+| `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
 
 - Main class comes from `-PmainClass`, default `ProbeKt`.
 - `ProbeKt` and `ConfigureKt` fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
 - `ConfigureKt`: fewer than 3 paths exits 2; a missing input prints `error: missing_file`, exits 1; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
-- Compiles discovery, settings and config sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes` (test classpath only).
-- `./gradlew -p tools/jca-contract test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
+- Compiles discovery, settings, config, preparation and benchmark sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes`.
+- `apps/benchmark/gradlew -p apps/benchmark/cli test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
 - CI `.github/workflows/jca-contract.yml` job `probe`: that test on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.
+- `BenchKt` prepares and measures with the host harness: `apps/benchmark/modules/benchmark/docs/measure.md`.
 
 ## android-api-check
 
 ```
-./gradlew -p tools/android-api-check compileKotlin -PandroidJar=<android.jar>
+apps/benchmark/gradlew -p tools/android-api-check compileKotlin -PandroidJar=<android.jar>
 ```
 
 - Default jar: `$ANDROID_HOME/platforms/android-36/android.jar`.
 - Compiles discovery, settings, preparation, benchmark sources with JVM target 1.8, `-no-jdk`, `android.jar` compileOnly.
 - CI: job `android-api` in `.github/workflows/jca-contract.yml` on Java 17 with `platforms;android-36`.
 
-## quick-bench
-
-| entry | arguments | output |
-|---|---|---|
-| `BenchKt` (default) | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; prints the `benchmark.json` path |
-| `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json]` | `benchmark.json` from androidx output; a pass's metrics and samples, each case's temperature; `--metrics` alone reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
-| `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
-| `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../modules/benchmark/docs/measure.md#pass-merge)) |
-| `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
-
-- `BenchKt` prepares and measures with the host harness: `modules/benchmark/docs/measure.md`.
-- Compiles discovery, settings, preparation, benchmark sources.
+## quick-bench analysis
 
 ### analyze.py
 
@@ -91,9 +88,9 @@ python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.
 
 | command | effect |
 |---|---|
-| `./gradlew -p tools/module-isolation test` | all subprojects |
-| `./gradlew -p tools/module-isolation :config:test` | one subproject |
-| `./gradlew -p tools/module-isolation test -Dexamples.update=true` | regenerates `example/` outputs |
+| `apps/benchmark/gradlew -p tools/module-isolation test` | all subprojects |
+| `apps/benchmark/gradlew -p tools/module-isolation :config:test` | one subproject |
+| `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true` | regenerates `example/` outputs |
 
 - Subprojects and classpaths: [architecture.md](architecture.md#isolation-build).
 

@@ -5,8 +5,8 @@
 
 ## Rules
 - scope: these rules apply to every `.md` in the repo, `apps/perf-repair/` included.
-- role: guides (`AGENTS.md`, `agents/`, `apps/perf-repair/AGENTS.md`, `apps/perf-repair/agents/`) hold directives; docs (`docs/`, `modules/<m>/docs/`, `apps/perf-repair/docs/`) hold facts.
-- placement: a cross-module fact lives in `docs/`; a fact about one module lives in `modules/<m>/docs/`; a perf-repair fact lives in `apps/perf-repair/docs/`.
+- role: guides (`AGENTS.md`, `agents/`, `apps/perf-repair/AGENTS.md`, `apps/perf-repair/agents/`) hold directives; docs (`docs/`, `apps/benchmark/modules/<m>/docs/`, `apps/perf-repair/docs/`) hold facts.
+- placement: a cross-module fact lives in `docs/`; a fact about one module lives in `apps/benchmark/modules/<m>/docs/`; a perf-repair fact lives in `apps/perf-repair/docs/`.
 - navigation: `AGENTS.md` `## Route` → guide → its `## Calls` or a `docs/**/index.md` → the file; every guide and doc is reachable that way.
 - ownership: one fact, one owner; grep for it before writing; elsewhere link it.
 - edges: guides → docs → docs; a doc never names `AGENTS.md` or a guides folder.
@@ -23,7 +23,7 @@
 - conflict: code is the source; a doc that disagrees with it is corrected, never followed.
 - oddities: a code oddity is never written into a doc; report it in the change.
 - read by code: before moving or deleting a doc, grep code, scripts, tests, workflows and Makefiles for its path; keep paths they name.
-- generated: `modules/environment/discovery/docs/tree.md` is stdout of `tools/jca-contract/src/main/kotlin/examples/Tree.kt`; regenerate it, never hand-edit it.
+- generated: `apps/benchmark/modules/environment/discovery/docs/tree.md` is stdout of `apps/benchmark/cli/src/main/kotlin/examples/Tree.kt`; regenerate it, never hand-edit it.
 - generated: `docs/shared-functions.md` and `apps/perf-repair/docs/shared-functions.md` are written by `python3 scripts/shared_functions.py`; rerun it after a change to what modules import, never hand-edit them.
 - generated: `apps/perf-repair/docs/screening-list.md` is written by `python3 scripts/screening_list.py`; rerun it after a change to `screening.yaml`, never hand-edit it.
 - runtime prompts: `apps/perf-repair/src/**/*.system.md` are code; keep them out of the docs graph.
@@ -40,5 +40,5 @@
 - guide: `## Calls` · `## Rules` · `## Workflow` · `## File structure`; omit empty sections
 - map: flat `path : responsibility` lines, sorted by path, one code block, no tree glyphs; a folder line (`dir/ : ...`) owns every file under it; a responsibility that needs "and" for two unrelated jobs marks a split
 - index (`index.md` in every docs folder): title + one map
-- module index (`modules/<m>/docs/index.md`): title + one map of the module's files, paths relative to the repo root, its own docs included
+- module index (`apps/benchmark/modules/<m>/docs/index.md`): title + one map of the module's files, paths relative to the repo root, its own docs included
 - fact doc: facts and invariants only; a flow doc starts with `## Diagram` (Mermaid)

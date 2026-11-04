@@ -17,7 +17,7 @@ while [ $# -gt 0 ]; do
     --results) shift; results="$1" ;;
     -h|--help)
       echo "usage: scripts/demo.sh [--warm] [--fast] [--reuse] [--config FILE] [--results DIR]"
-      echo "  --warm    compile both tools and exit, so the live run has nothing to build"
+      echo "  --warm    compile the benchmark CLI and exit, so the live run has nothing to build"
       echo "  --fast    three primitives, one input size (about 8s) instead of eleven (about 30s)"
       echo "  --reuse   keep this device's capture instead of probing again"
       exit 0 ;;
@@ -30,10 +30,9 @@ banner() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
 if [ "$warm_only" = yes ]; then
   banner "build"
-  "$root/gradlew" -p "$root/tools/jca-contract" classes -q --no-daemon
-  "$root/gradlew" -p "$root/tools/quick-bench" classes -q --no-daemon
+  "$root/apps/benchmark/gradlew" -p "$root/apps/benchmark/cli" classes -q --no-daemon
   banner "ready"
-  echo "both tools compiled; run: scripts/demo.sh"
+  echo "the benchmark CLI compiled; run: scripts/demo.sh"
   exit 0
 fi
 
