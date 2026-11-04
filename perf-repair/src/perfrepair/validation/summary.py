@@ -4,7 +4,8 @@ from __future__ import annotations
 from ..dto.metrics import NAMES
 from ..dto.pattern import PATTERNS
 from ..dto.perf_mode import PerfMode
-from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION, pattern_counts
+from ..dto.report import CHANGES, FUNNEL, pattern_counts
+from .report import schema_version_problems
 
 
 def _union(reports: list[dict]) -> list[str]:
@@ -14,7 +15,7 @@ def _union(reports: list[dict]) -> list[str]:
 
 def validate_summary(doc: dict, reports: list[dict]) -> list[str]:
     """`reports`: the device's <app>/report.json documents."""
-    problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
+    problems = schema_version_problems(doc)
     by_app = {r["app"]: r["funnel"] for r in reports}
     if doc.get("apps") != sorted(by_app) or doc.get("byApp") != by_app:
         problems.append(f"apps {doc.get('apps')} and byApp are not the reports' apps and funnels")

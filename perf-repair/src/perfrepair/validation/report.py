@@ -112,8 +112,12 @@ def _mode_units(doc: dict) -> tuple[tuple[str, ...], DisplayUnits, str | None]:
         return selected, DisplayUnits(), f"units: {e}"
 
 
+def schema_version_problems(doc: dict) -> list[str]:
+    return [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
+
+
 def _identity(doc: dict, app: str) -> list[str]:
-    problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
+    problems = schema_version_problems(doc)
     problems += [] if isinstance(doc.get("project"), str) and doc["project"] else [f"project {doc.get('project')!r}"]
     return problems + ([] if doc.get("app") == app else [f"app {doc.get('app')!r} is not {app!r}"])
 
