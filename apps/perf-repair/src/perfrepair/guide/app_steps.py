@@ -16,7 +16,7 @@ from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
 from ..report.command import app_report
-from ..validation.finding import blocking
+from ..validation.finding import UNDECIDED, blocking
 from ..validation.invariants import app_gate
 from .state import Guide, check_exit, halt
 
@@ -48,9 +48,12 @@ def dossiers(g: Guide) -> str:
 
 
 def replacements(g: Guide) -> str:
-    blocked = blocking(app_gate(g.device, g.app_id))
+    found = app_gate(g.device, g.app_id, g.app_root)
+    blocked, undecided = blocking(found), [v for v in found if v.severity == UNDECIDED]
     if blocked:
         halt(g, "invariant_failed", f"{len(blocked)} blocking: " + " | ".join(v.line() for v in blocked[:3]))
+    if undecided:
+        halt(g, "invariant_undecided", f"{len(undecided)} undecided: " + " | ".join(v.line() for v in undecided[:3]))
     state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo,
                     refresh=g.refresh or g.record.delta_unasked(g.app_id))
     stale = stale_problem(state)

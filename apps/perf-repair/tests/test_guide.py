@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import with_results, LIBRARY
+from helpers import captured_events, with_results, LIBRARY
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -274,11 +274,29 @@ def test_a_blocking_invariant_stops_before_the_replace_call(request, monkeypatch
     from perfrepair.validation.finding import ADVISORY, BLOCKING, Violation
     found = [Violation("key_contract_agrees", BLOCKING, "group g1", ("group g1",), "split it"),
              Violation("interop_not_run", ADVISORY, "group g2", ("group g2",), "run it")]
-    monkeypatch.setattr(app_steps, "app_gate", lambda device, app: found)
+    monkeypatch.setattr(app_steps, "app_gate", lambda device, app, root: found)
     g, lines = guide(request.getfixturevalue("run"), DRY_RUN)
     assert run_steps(g, device=False) == 1
     assert lines[-1].startswith("guide replace: stop invariant_failed: 1 blocking: blocking key_contract_agrees group g1")
     assert not g.paths.replace.exists()
+
+
+@pytest.mark.parametrize("chosen", [None, "stop"])
+def test_an_undecided_invariant_warns_by_default_and_stops_when_set(run, tmp_path, monkeypatch, chosen):
+    from perfrepair.guide import app_steps
+    from perfrepair.validation.finding import UNDECIDED, Violation
+    roots = []
+    found = [Violation("site_line_holds_call", UNDECIDED, "scope s1", ("A.java:3", "no source"), "check it by hand")]
+    monkeypatch.setattr(app_steps, "app_gate", lambda device, app, root: roots.append(root) or found)
+    if chosen:
+        (tmp_path / "perfrepair.yaml").write_text(f"stops: {{invariant_undecided: {chosen}}}\n")
+        monkeypatch.setenv("PERFREPAIR_CONFIG", str(tmp_path / "perfrepair.yaml"))
+    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    with captured_events() as events:
+        assert run_steps(g, device=False) == (1 if chosen else 0)
+    [event] = [e for e in events if e.event == "finding" and e.data.get("code") == "invariant_undecided"]
+    assert event.outcome == (chosen or "warn") and "site_line_holds_call scope s1" in event.detail
+    assert roots == [APP] and g.paths.replace.exists() is not bool(chosen)
 
 
 def test_a_decision_on_an_earlier_dossier_stops_the_guide_until_refresh(run):

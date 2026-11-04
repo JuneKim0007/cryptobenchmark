@@ -52,6 +52,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 | `several_project_roots` | app | `--app` holds several project roots; pass one of them |
 | `no_options` | dossier | no scope has an option; the line lists the `noOptions` reasons |
 | `invariant_failed` | replace | before the replace call: a blocking invariant of the app's scopes or of a group its dossiers draw from ([invariants.md](invariants.md)) |
+| `invariant_undecided` | replace | before the replace call: an undecided invariant, the source does not tell; a warning unless `stops.invariant_undecided: stop` |
 | `no_replacement` | replace | every scope is kept |
 | `dossier_changed` | replace | a decision was made on an earlier dossier; the line names the scopes; `guide --refresh` asks them again |
 | `edit_invalid`, `no_edit_applied` | edit | edits.json fails its validator; every edit is rejected, with the reasons |

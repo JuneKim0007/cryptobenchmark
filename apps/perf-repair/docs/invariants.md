@@ -11,7 +11,8 @@
 | `fix` | what to change or rerun |
 
 - Command: `python3 -m perfrepair.validation.invariants <device> [--apps <folder>] [--against <device>] [--json <file>]`; one line per finding, a count per invariant, exit 1 on any `blocking`.
-- Guide: before an app's `replace` step, a `blocking` finding of its own scopes or of a group its dossiers draw from stops with `invariant_failed`; advisory and undecided ones are only printed by the command.
+- Guide: before an app's `replace` step, a `blocking` finding of its own scopes or of a group its dossiers draw from stops with `invariant_failed`; then an `undecided` one is `invariant_undecided`, a warning by default (`stops.invariant_undecided: stop` stops); advisory ones are only printed by the command.
+- Guide: scoping rules read the source from the `--app` it was given, not app.json `root`.
 - `--apps`: the folder that holds the app trees, when app.json `root` has moved; without a readable source a scoping rule is `undecided`.
 
 ## Grouping

@@ -26,12 +26,13 @@ def load_grouping(device: Path) -> Grouping | None:
                     {str(i): v.canonical for i, v in screen.items()})
 
 
-def source_root(app: Path, apps: Path | None) -> Path | None:
-    """app.json's root and projectRoot; apps: a folder holding the app trees, when they moved since the run."""
+def source_root(app: Path, apps: Path | None, root: Path | None = None) -> Path | None:
+    """app.json's root and projectRoot; apps: a folder holding the app trees, when they moved since the run; root: the
+    app's own tree, as the guide was given it."""
     facts = read_json(app / rd.APP) if (app / rd.APP).is_file() else {}
     if not facts.get("root"):
         return None
-    root = Path(facts["root"]) if apps is None else apps / Path(facts["root"]).name
+    root = root or (Path(facts["root"]) if apps is None else apps / Path(facts["root"]).name)
     return root / (facts.get("projectRoot") or ".")
 
 
@@ -46,13 +47,14 @@ def init_per_call(device: Path) -> frozenset[tuple[str, str]]:
     return frozenset(k for k, per_call in seen.items() if per_call == {INIT_AND_OPERATION})
 
 
-def app_violations(app: Path, apps: Path | None = None, per_call: frozenset[tuple[str, str]] = frozenset()) -> list[Violation]:
+def app_violations(app: Path, apps: Path | None = None, per_call: frozenset[tuple[str, str]] = frozenset(),
+                   root: Path | None = None) -> list[Violation]:
     scopes_file, units_file = app / rd.SCOPES, app / rd.UNITS
     if not scopes_file.is_file():
         return []
     scopes = [Scope.from_json(s) for s in rd.read_scopes(scopes_file)["scopes"]]
     units = read_units(read_json(units_file)) if units_file.is_file() else []
-    return scoping_invariants(scopes, units, Sources(source_root(app, apps)), per_call)
+    return scoping_invariants(scopes, units, Sources(source_root(app, apps, root)), per_call)
 
 
 def _dossiers(device: Path, only: str | None = None) -> dict[str, dict]:
@@ -80,8 +82,9 @@ def _touched(g: Grouping, doc: dict) -> set[str]:
     return {group_of[n] for n in names if group_of.get(n)}
 
 
-def app_gate(device: Path, app: str) -> list[Violation]:
-    """What the guide checks before an app's replace step: the groups its dossiers draw from, and its own scopes."""
+def app_gate(device: Path, app: str, root: Path) -> list[Violation]:
+    """What the guide checks before an app's replace step: the groups its dossiers draw from, and its own scopes read
+    from root."""
     device = Path(device)
     found = []
     g = load_grouping(device)
@@ -89,4 +92,4 @@ def app_gate(device: Path, app: str) -> list[Violation]:
     if g is not None and app in dossiers:
         touched = {f"group {gid}" for gid in _touched(g, dossiers[app])}
         found += [v for v in grouping_invariants(g, dossiers) if v.subject.startswith(app + " ") or touched & set(v.evidence)]
-    return found + app_violations(rd.app_dir(device, app), None, init_per_call(device))
+    return found + app_violations(rd.app_dir(device, app), None, init_per_call(device), root)

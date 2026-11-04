@@ -158,7 +158,7 @@ def device_with(tmp_path, s, per_call):
 def test_a_re_init_is_accepted_when_the_fixed_variant_of_that_item_inits_per_call(tmp_path):
     device = device_with(tmp_path, fresh(), "initAndOperation")
     assert [v for v in run_invariants(device) if v.invariant == "held_in_field_setup_once"] == []
-    assert [v for v in app_gate(device, "demo") if v.invariant == "held_in_field_setup_once"] == []
+    assert [v for v in app_gate(device, "demo", F) if v.invariant == "held_in_field_setup_once"] == []
 
 
 def test_a_re_init_still_blocks_when_the_fixed_variant_does_not_init_per_call(tmp_path):
@@ -172,3 +172,10 @@ def test_a_factory_call_in_the_using_method_blocks_even_when_the_fixed_variant_i
     found = inv.held_in_field_setup_once(rebuilt, SRC.code("Ledger.java"), INIT_PER_CALL)
     assert [v.severity for v in found] == [BLOCKING]
     assert "Cipher.getInstance" in found[0].evidence[1] and "stream.init" not in found[0].evidence[1]
+
+
+def test_the_app_gate_reads_the_source_from_the_root_the_guide_passes(tmp_path):
+    device = device_with(tmp_path, fresh(), "operation")
+    write_json(device / "demo" / "app.json", {"root": str(tmp_path / "moved"), "projectRoot": "."})
+    assert [v.severity for v in run_invariants(device)] == [UNDECIDED]
+    assert [(v.invariant, v.severity) for v in app_gate(device, "demo", F)] == [("held_in_field_setup_once", BLOCKING)]

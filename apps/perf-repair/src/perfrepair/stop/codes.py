@@ -64,6 +64,8 @@ CODES_LIST: tuple[Code, ...] = (
     _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),
+    _choice("invariant_undecided", WARN, "the source does not decide a rule; run python3 -m perfrepair.validation.invariants "
+            "on the device folder and check each undecided finding by hand", (WARN, STOP)),
     _fixed("run_metrics_overridden", "remove run.metrics from the run config; apps.perfMode decides what is measured", NOTICE, WARN),
     _fixed("missing_dependency", "pip install -r requirements.txt"),
     # fixed: continuing would mix runs or devices

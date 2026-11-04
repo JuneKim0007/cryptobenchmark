@@ -73,3 +73,4 @@ stops:                     # per code, what it does when it fires (docs/stops.md
   thermal_throttled_at_end: warn   # warn | stop: a case that ended throttled; no verdict changes
   energy_unreadable: warn  # warn | stop: energy files that cannot be read
   no_required_metric: skip # skip | stop: a benchmark case with no runs of a required metric
+  invariant_undecided: warn # warn | stop: before replace, an invariant the app's source does not decide
