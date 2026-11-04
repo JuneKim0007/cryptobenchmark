@@ -6,6 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from .. import run_dir as rd
+from ..ai.runtime.engine import journal
 from ..files import write_json
 from .sheet import GROUPING, choice, read_sheet, stages
 from ..stop.halt import Coded
@@ -29,10 +30,6 @@ def _verdicts(sheet: list[dict]) -> list[dict]:
 
 def _judged(rows: list[dict]) -> dict:
     return _share(sum(r["verdict"] == OK for r in rows), len(rows))
-
-
-def _turns(path: Path) -> list[dict]:
-    return [json.loads(line) for line in path.read_text().splitlines()] if path.is_file() else []
 
 
 def _asked_choice(turn: dict) -> str:
@@ -61,7 +58,7 @@ def score(device: Path) -> dict:
     judged = _verdicts(read_sheet(rd.review_sheet(device)))
     calls, rejected, asks = defaultdict(int), defaultdict(int), defaultdict(list)
     for stage in stages(device):
-        for turn in _turns(stage.root / JOURNAL):
+        for turn in journal.read(stage.root / JOURNAL):
             calls[stage.kind] += 1
             if turn["status"] != ACCEPTED:
                 rejected[stage.kind] += 1

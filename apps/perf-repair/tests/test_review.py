@@ -13,7 +13,7 @@ from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Scope, scope_id
 from perfrepair.dto.dossier import Dossier, Option
 from perfrepair.review.__main__ import main
 from perfrepair.review.score import score
-from perfrepair.review.sheet import COLUMNS, read_sheet, write_sheet
+from perfrepair.review.sheet import COLUMNS, read_sheet, stages, write_sheet
 
 FP = "aaaaaaaaaaaa"
 AGENT = AgentIdentity("g", "m", "low")
@@ -119,6 +119,18 @@ def test_gate_rejections_per_100_calls(device):
     gate = score(device)["gateRejections"]
     assert (gate["calls"], gate["rejected"]) == (7, 2) and gate["per100"] == pytest.approx(200 / 7)
     assert gate["byKind"]["replace"]["per100"] == 50
+
+
+def test_a_journal_line_cut_by_a_crash_is_skipped_and_a_bad_whole_line_is_refused(device):
+    write_sheet(device)
+    journal = next(s.root / "journal.jsonl" for s in stages(device) if (s.root / "journal.jsonl").is_file())
+    calls = score(device)["gateRejections"]["calls"]
+    whole = journal.read_text()
+    journal.write_text(whole + '{"status": "acc')
+    assert score(device)["gateRejections"]["calls"] == calls
+    journal.write_text(whole + "not json\n")
+    with pytest.raises(ValueError, match="^journal_unreadable: "):
+        score(device)
 
 
 def test_a_verdict_outside_the_vocabulary_is_refused(device):
