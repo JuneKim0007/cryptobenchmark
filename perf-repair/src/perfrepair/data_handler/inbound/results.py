@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from ...files import read_yaml
+from ...files import read_json, read_yaml
 
-import json
 import math
 import statistics
 from dataclasses import replace
@@ -70,9 +69,9 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
                  ) -> tuple[list[PrimitiveRow], Measurements, dict[str, dict]]:
     """`process_files`: the per-process files the merged benchmark.json concatenates; they restore the process index.
     The third value: each case with no runs of a required metric, by id, left out of the rows; the stage decides."""
-    doc = json.loads(Path(benchmark_json).read_text())
+    doc = read_json(benchmark_json)
     prepared = prepared or {}
-    per_process = [{c["id"]: c for c in json.loads(Path(p).read_text()).get("cases") or []} for p in process_files]
+    per_process = [{c["id"]: c for c in read_json(p).get("cases") or []} for p in process_files]
     rows: list[PrimitiveRow] = []
     measurements: Measurements = {}
     lacking: dict[str, dict] = {}
