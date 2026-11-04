@@ -1,28 +1,23 @@
-"""What the replacement decision sees for one unit: the run warnings, its links and each inverse pair's interop, the members that stay,
-then per member with options the site, scope facts, lifecycle, requirements, current, aliased options with their
-estimates, the primitives.tsv lines of the current and the options, and source; the edit kinds once."""
+"""What the replacement decision sees for one unit: run warnings, links, the members that stay, then per member with
+options the site, scope facts, lifecycle, requirements, current, options, primitives.tsv lines, source; edit kinds once."""
 from __future__ import annotations
 
 import hashlib
-import re
-from collections import Counter
 
 from ....dto.grouping import algorithm_of, provider_of
 from ....dto.lifecycle import Requirement
 from ....dto.replacement import EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, required_risks
-from ....dto.dossier import Dossier, Option, pin_text
+from ....dto.dossier import Dossier
 from ....dto.site import Scope
 from ....dto.pattern import rule_words
 from ....dto.perf_mode import GENERIC_MODE, PerfMode
 from ....dto.primitives import PrimitivesTable
-from ....dto.unit import INVERSE, Link, UnitDossiers
+from ....dto.unit import UnitDossiers
 from ....dto.units import DisplayUnits
-from ....result.configurations import parse_label
-from ....result.gain import IMPROVED, IMPROVING_RATIO, NOISE, WORSE, WORSE_RATIO, by_change, option_label
+from ....result.gain import IMPROVING_RATIO, NOISE, WORSE_RATIO
+from .links import link_lines
+from .options import option_lines
 from .rows import render_lines
-
-UNKNOWN_PINS = "unknown (no configuration measured on both sides); this option cannot be chosen"
-TOO_FEW_RUNS = "n/a (n<2)"
 
 _EMPTY = {"provider": '""', "algorithm": '""', "parameters": "[]"}
 
@@ -35,11 +30,6 @@ def edit_meaning(kind: str) -> str:
 
 def _known(x) -> str:
     return "unknown" if x is None else str(x)
-
-
-def _interop(s: Scope, o: Option) -> str:
-    added = [r for r in required_risks(s, o) if r not in required_risks(s)]
-    return f"    interop: {o.interop}" + (f"; a replace to it must also declare {', '.join(added)}" if added else "")
 
 
 def _requirement(r: Requirement) -> str:
@@ -61,63 +51,11 @@ def _lifecycle(s: Scope) -> list[str]:
     return lines + ([] if lc.requirements else ["  none found"])
 
 
-def _change(o: Option) -> list[str]:
-    """A drop-in shows nothing, so its prompt and evidence stay what they were before change classes."""
-    if o.diff is None:
-        return []
-    return [f"    change: {o.change} | input {o.diff.input} | key {o.diff.key} | output {o.diff.output} | reach {o.diff.reach}"
-            + (" | adds a dependency" if o.diff.addsDependency else "")]
-
-
-def _option(s: Scope, o: Option) -> list[str]:
-    pins = UNKNOWN_PINS if o.pins is None else ", ".join(f"{k}={pin_text(v)}" for k, v in o.pins.items()) or "none"
-    lines = [f"  {o.alias} = {o.item} | name {algorithm_of(o.item)} | provider {provider_of(o.item)}", f"    pins: {pins}",
-             *_change(o), _interop(s, o)]
-    # a metric both sides have but no ratio is shown with its reason, never left out unexplained
-    absent = [f"    no estimate: {n.metric} at {n.configuration}: {n.reason}" for n in o.noEstimates]
-    if not o.estimates:
-        return lines + ["    estimates: none measured", *absent]
-    named = _names(o.estimates)
-    lines += _review(o)
-    cells = [f"{e.metric}{named[e.configuration]} {e.ratio:.3f} "
-             f"{TOO_FEW_RUNS if e.pImprove is None else f'{e.pImprove:.3f}'} {e.n}" for e in o.estimates]
-    # with no input size nothing is nearest: result/configurations.py nearest() keeps every measured size
-    where = "every measured input size (this site's is unknown)" if s.inputSize is None else "the configurations nearest this site"
-    return lines + [f"    estimates (ratio option ÷ current, pImprove, n), {where}: " + "; ".join(cells), *absent]
-
-
-def _review(o: Option) -> list[str]:
-    # needsReview: result/change.py's list, once it carries one
-    needs = getattr(o, "needsReview", ())
-    return [_label(o)] + ([f"    needs review: {', '.join(needs)}"] if needs else [])
-
-
-def _label(o: Option) -> str:
-    better, worse = by_change(o.estimates, IMPROVED), by_change(o.estimates, WORSE)
-    said = [f"improved {', '.join(better)}"] * bool(better) + [f"worse {', '.join(worse)}"] * bool(worse)
-    return f"    label: {option_label(o.estimates)}" + (f" ({'; '.join(said)})" if said else "")
-
-
 def rule_line(perf: PerfMode) -> str:
     """The code-computed thresholds every label above was given by."""
     rule = "overall: a trade_off may be chosen" if perf.overall else "strict: a selected metric improves and none worsens"
     return (f"PERFMODE {perf.name} | rule {rule} | improved: ratio <= {IMPROVING_RATIO} and pImprove >= {1 - NOISE:.2f}; "
             f"worse: ratio >= {WORSE_RATIO:.3f} and pImprove <= {NOISE:.2f}; n<2 is never beyond noise")
-
-
-def _names(estimates) -> dict[str, str]:
-    """Each configuration as `@<input size>`, with the operation, key and phase only where they differ; the MEASURED
-    lines carry them."""
-    parsed = {e.configuration: parse_label(e.configuration) for e in estimates}
-    if not all(parsed.values()):
-        return {c: f" at {c}:" for c in parsed}
-    varies = [f for f in ("op", "key", "phase") if len({m[f] for m in parsed.values()}) > 1]
-    return {c: _name(m, varies) for c, m in parsed.items()}
-
-
-def _name(m: re.Match, varies: list[str]) -> str:
-    shown = "".join(f" key {m[f]}" if f == "key" else f" {m[f]}" for f in varies)
-    return f"@{m['input']}{shown}" + (" (estimated)" if m["estimated"] else "")
 
 
 def _source(d: Dossier) -> list[str]:
@@ -146,45 +84,12 @@ def _member(alias: str, d: Dossier, shown: dict[tuple, str], measured: list[str]
              "", f"CURRENT {d.current} | name {algorithm_of(d.current)} | provider {provider_of(d.current)}",
              "", "OPTIONS (answer with these names)"]
     for o in d.options:
-        lines += _option(s, o)
+        lines += option_lines(s, o)
     lines += [""] + measured if measured else []
     span = (s.file, s.start, s.end)
     source = [f"FUNCTION SOURCE: as {shown[span]}"] if span in shown else _source(d)
     shown.setdefault(span, alias)
     return lines + [""] + source + [""]
-
-
-def _ends(u: UnitDossiers, member: str) -> list[tuple[str, str | None]]:
-    d = next((d for d in u.dossiers if d.key == member), None)
-    if d is None:
-        return [("current", next(s.current for s in u.stays if s.scope == member))]
-    return [(o.alias, o.item) for o in d.options]
-
-
-def _choices(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[tuple[str, str]]:
-    if not any(d.key in (k.a, k.b) for d in u.dossiers):
-        return []
-    return [(f"{alias[k.a]} {x} with {alias[k.b]} {y}", u.interop(i, j))
-            for x, i in _ends(u, k.a) for y, j in _ends(u, k.b) if i != j]
-
-
-def _pairs(u: UnitDossiers, k: Link, alias: dict[str, str]) -> list[str]:
-    """The interop of each two items a replace leaves the sides on; the commonest status once, as every other choice."""
-    found = _choices(u, k, alias)
-    if not found:
-        return []
-    common = Counter(s for _, s in found).most_common(1)[0][0]
-    rest = [f"    {choice}: interop {s}" for choice, s in found if s != common]
-    return rest + [f"    {'every other choice' if rest else 'every choice'}: interop {common}"]
-
-
-def _links(u: UnitDossiers) -> list[str]:
-    alias, lines = u.aliases(), []
-    for k in u.unit.links:
-        lines.append(f"  {alias[k.a]} {k.kind} {alias[k.b]} ({k.via}): lines {', '.join(map(str, k.aLines))} | "
-                     f"lines {', '.join(map(str, k.bLines))}")
-        lines += _pairs(u, k, alias) if k.kind == INVERSE else []
-    return ["LINKS"] + (lines or ["  none: this unit has one member"])
 
 
 def render(u: UnitDossiers, perf: PerfMode = GENERIC_MODE, table: PrimitivesTable | None = None,
@@ -194,7 +99,7 @@ def render(u: UnitDossiers, perf: PerfMode = GENERIC_MODE, table: PrimitivesTabl
     aliased, stayed = u.aliased(), u.stayed()
     members = ", ".join(u.aliases().values())
     lines = ["RUN WARNINGS:", *([f"  - {w}" for w in warnings] or ["  (none)"]), "", rule_line(perf), ""]
-    lines += [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *_links(u), ""]
+    lines += [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *link_lines(u), ""]
     if stayed:
         lines += ["STAYS (no option; these members keep what they use)"]
         lines += [f"  {a}: current {s.current or 'unknown'} | reason {s.reason}" for a, s in stayed.items()] + [""]
