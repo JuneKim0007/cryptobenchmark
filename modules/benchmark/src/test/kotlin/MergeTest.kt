@@ -24,9 +24,9 @@ class MergeTest {
 
     @Test
     fun aCaseKeepsEveryProcessSamples() {
-        val merged = Merge.merge(listOf(text("digest", listOf(10.0, 11.0)), text("digest", listOf(20.0, 21.0, 22.0))))
+        val merged = Merge.merge(listOf(text("digest", listOf(10.0, 11.0)), text("digest", listOf(20.0, 21.0))))
         assertEquals(1, merged.rows.size)
-        assertEquals(listOf(10.0, 11.0, 20.0, 21.0, 22.0), merged.rows.single().time?.runs)
+        assertEquals(listOf(10.0, 11.0, 20.0, 21.0), merged.rows.single().time?.runs)
         assertEquals(2, merged.processes)
         assertEquals(mapOf("model" to "Pixel 9"), merged.runtime)
     }
@@ -56,5 +56,19 @@ class MergeTest {
     fun aCaseMissingFromOneProcessSurvives() {
         val merged = Merge.merge(listOf(text("digest", listOf(10.0)), text("mac", listOf(20.0))))
         assertEquals(listOf("digest", "mac"), merged.rows.map { it.id })
+    }
+
+    @Test
+    fun unequalSampleCountsAreRefusedAndNamed() {
+        val merged = Merge.merge(listOf(text("digest", listOf(10.0, 11.0)), text("digest", listOf(20.0, 21.0, 22.0)), text("mac", listOf(1.0))))
+        assertEquals(listOf("mac"), merged.rows.map { it.id })
+        assertEquals(true, merged.dropped.single().startsWith("not_merged: digest: unequal_samples: digest.timeNs"))
+    }
+
+    @Test
+    fun aRuntimeValueThatDiffersIsNamed() {
+        val other = text("digest", listOf(20.0, 21.0)).replace("Pixel 9", "Pixel 8")
+        val merged = Merge.merge(listOf(text("digest", listOf(10.0, 11.0)), other))
+        assertEquals(listOf("runtime_differs: model: process 1 Pixel 9, process 2 Pixel 8"), merged.dropped)
     }
 }

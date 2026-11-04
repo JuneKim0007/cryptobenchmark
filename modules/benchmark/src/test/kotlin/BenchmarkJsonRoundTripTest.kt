@@ -62,16 +62,16 @@ class BenchmarkJsonRoundTripTest {
     fun twoWrittenProcessesMergeIntoOne() {
         val first = text(listOf(row("a", both)))
         val second = text(listOf(row("a", linkedMapOf(
-            MetricSamples.TIME to MetricSamples(listOf(1300.0), 4096),
-            MetricSamples.ALLOCATIONS to MetricSamples(listOf(4.0), 1),
+            MetricSamples.TIME to MetricSamples(listOf(1300.0, 1310.0, 1290.0), 4096),
+            MetricSamples.ALLOCATIONS to MetricSamples(listOf(4.0, 4.0, 4.0), 1),
         ))))
 
         val merged = Merge.merge(listOf(first, second))
 
         assertEquals(2, merged.processes)
         val row = merged.rows.single()
-        assertEquals(listOf(1191.0, 1180.0, 1204.0, 1300.0), row.metrics.getValue(MetricSamples.TIME).runs)
-        assertEquals(listOf(2.0, 2.0, 3.0, 4.0), row.metrics.getValue(MetricSamples.ALLOCATIONS).runs)
+        assertEquals(listOf(1191.0, 1180.0, 1204.0, 1300.0, 1310.0, 1290.0), row.metrics.getValue(MetricSamples.TIME).runs)
+        assertEquals(listOf(2.0, 2.0, 3.0, 4.0, 4.0, 4.0), row.metrics.getValue(MetricSamples.ALLOCATIONS).runs)
     }
 
     private fun variant(id: String, variant: String?) =

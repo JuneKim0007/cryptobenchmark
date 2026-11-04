@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.preparation.engine
 
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
+import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
 
 class EngineTypes private constructor(
     private val types: Map<String, List<Operation>>,
@@ -14,17 +16,19 @@ class EngineTypes private constructor(
 
     companion object {
 
-        fun standard(): EngineTypes = EngineTypes(
-            types = mapOf(
-                "Cipher" to listOf(Operation.ENCRYPT, Operation.DECRYPT),
-                "Signature" to listOf(Operation.SIGN, Operation.VERIFY),
-                "Mac" to listOf(Operation.COMPUTE_MAC),
-                "MessageDigest" to listOf(Operation.DIGEST),
-                "KeyGenerator" to listOf(Operation.GENERATE_KEY),
-                "KeyPairGenerator" to listOf(Operation.GENERATE_KEY_PAIR),
-                "KeyAgreement" to listOf(Operation.AGREE_KEY),
-            ).mapKeys { (type, _) -> EngineTypeName.fold(type) },
-            fallback = listOf(Operation.TYPE_DEFAULT),
-        )
+        // perf-repair reads the same file to know which used items the harness cannot time
+        const val RESOURCE = "engine-operations.yaml"
+
+        private val loaded: EngineTypes by lazy {
+            val text = EngineTypes::class.java.getResourceAsStream(RESOURCE)?.use { it.readBytes().toString(Charsets.UTF_8) }
+                ?: throw IllegalStateException("missing_resource: $RESOURCE beside ${EngineTypes::class.java.name}")
+            val document = YamlCodec().load(text)
+            val types = DocumentFields.section(document, "types").entries.associate { (type, _) ->
+                EngineTypeName.fold(type) to DocumentFields.strings(DocumentFields.section(document, "types"), type).map(Operation::valueOf)
+            }
+            EngineTypes(types, DocumentFields.strings(document, "fallback").map(Operation::valueOf))
+        }
+
+        fun standard(): EngineTypes = loaded
     }
 }

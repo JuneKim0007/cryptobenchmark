@@ -17,7 +17,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 | callers | `DevicePlan` on the device (`modules/android`), `Bench.kt` in `tools/quick-bench` on the host |
 | inputs | YAML only: effective.yaml, capture, trial |
 | key cache | generated key material is cached per recipe across cases |
-| registry | `EngineTypes.standard()` unless the caller passes another |
+| registry | `EngineTypes.standard()`, read from `engine/engine-operations.yaml`, unless the caller passes another |
 
 ## Inputs
 

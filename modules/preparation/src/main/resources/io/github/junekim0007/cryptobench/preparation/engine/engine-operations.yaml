@@ -1,0 +1,12 @@
+# Per JCA engine type, the operations the harness times; a type not listed falls back to TYPE_DEFAULT, which times nothing.
+# Read by engine/EngineTypes and by perf-repair's catalog/harness_operations.py, so both sides share one list.
+schemaVersion: 1
+fallback: [TYPE_DEFAULT]
+types:
+  Cipher: [ENCRYPT, DECRYPT]
+  Signature: [SIGN, VERIFY]
+  Mac: [COMPUTE_MAC]
+  MessageDigest: [DIGEST]
+  KeyGenerator: [GENERATE_KEY]
+  KeyPairGenerator: [GENERATE_KEY_PAIR]
+  KeyAgreement: [AGREE_KEY]

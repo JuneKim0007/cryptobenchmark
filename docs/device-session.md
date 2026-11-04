@@ -8,7 +8,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 | step | what runs |
 |---|---|
-| session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt` |
+| session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt`; a case whose processes hold unequal run counts of a metric is not merged (`not_merged: <id>: unequal_samples: ...`), and a runtime value another process reports differently is one `runtime_differs: <key>: ...` line, the first kept |
 | process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files and `cpu-pins.yaml`; convert with `ConvertKt` |
 | hooks | around the session, each process and each case: the cool-down (`scripts/session/cooldown_hook.py`), the thermal gate (`scripts/session/thermal_gate.py`, [Thermal gate](#thermal-gate)), the clock state (`scripts/session/clocks_hook.py`), the energy window (`scripts/session/energy_hook.py`), the temperature (`scripts/session/thermal_hook.py`) |
 

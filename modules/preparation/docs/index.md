@@ -21,7 +21,7 @@ modules/preparation/src/main/kotlin/device/ServiceName.kt : uppercase-folded (ty
 modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v2) into TrialledDevice
 modules/preparation/src/main/kotlin/device/dto/ : capture and trial DTOs as preparation reads them
 modules/preparation/src/main/kotlin/engine/EngineTypeName.kt : uppercase fold for engine type names
-modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry with TYPE_DEFAULT fallback
+modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry, read from engine-operations.yaml, with its TYPE_DEFAULT fallback
 modules/preparation/src/main/kotlin/global/GlobalReader.kt : reads run and policy sections into GlobalSettings
 modules/preparation/src/main/kotlin/global/GlobalSettings.kt : validated run-wide settings
 modules/preparation/src/main/kotlin/global/OnFailure.kt : enum STOP, SKIP
@@ -97,6 +97,7 @@ modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian exp
 modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
 modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
+modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; perf-repair's catalog/harness_operations.py reads it too
 modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type and cipher mode, what a fixed call still does; JCA contract per row
 modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
