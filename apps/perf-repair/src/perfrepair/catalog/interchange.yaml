@@ -3,6 +3,10 @@
 schemaVersion: 1
 digestComponents: [digest, mgf1]
 notSplitting: [key size, IV size, tag length, provider]
+# Which contract a component states; a component in neither list is an output fact.
+contracts:
+  input: [wrap, passwordBased, kdf, derivedBits, prehashed]
+  key: [key, keyMaterial]
 engines:
   Cipher:
     splits: [base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, derivedBits, key]

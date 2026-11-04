@@ -1,0 +1,2598 @@
+schemaVersion: 1
+source: tools/seed_groups.py over catalog/algorithm-names.yaml and catalog/types.yaml, reviewed by a person
+families:
+  agreement.peer:
+  - id: agreem-p-diffiehellman
+    description: 'Predefined KeyAgreement group. output: algorithm=DIFFIEHELLMAN, curve=BY KEY.'
+    contracts:
+      input: {}
+      output:
+        algorithm: DIFFIEHELLMAN
+        curve: BY KEY
+    members:
+    - type: KeyAgreement
+      name: DiffieHellman
+  - id: agreem-p-ecdh
+    description: 'Predefined KeyAgreement group. output: algorithm=ECDH, curve=BY KEY.'
+    contracts:
+      input: {}
+      output:
+        algorithm: ECDH
+        curve: BY KEY
+    members:
+    - type: KeyAgreement
+      name: ECDH
+  - id: agreem-p-x25519
+    description: 'Predefined KeyAgreement group. output: algorithm=XDH, curve=X25519.'
+    contracts:
+      input: {}
+      output:
+        algorithm: XDH
+        curve: X25519
+    members:
+    - type: KeyAgreement
+      name: X25519
+  - id: agreem-p-x448
+    description: 'Predefined KeyAgreement group. output: algorithm=XDH, curve=X448.'
+    contracts:
+      input: {}
+      output:
+        algorithm: XDH
+        curve: X448
+    members:
+    - type: KeyAgreement
+      name: X448
+  - id: agreem-p-xdh
+    description: 'Predefined KeyAgreement group. output: algorithm=XDH, curve=by key (assumed).'
+    contracts:
+      input: {}
+      output:
+        algorithm: XDH
+        curve: by key (assumed)
+    members:
+    - type: KeyAgreement
+      name: XDH
+  cipher.pair:
+  - id: cipher-p-rsa-ecb-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=RSA, mode=ECB, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: RSA
+        mode: ECB
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: RSA/ECB/NoPadding
+  - id: cipher-p-rsa-ecb-pkcs1padding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=RSA, mode=ECB, padding=PKCS1PADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: RSA
+        mode: ECB
+        padding: PKCS1PADDING
+    members:
+    - type: Cipher
+      name: RSA/ECB/PKCS1Padding
+  cipher.secret:
+  - id: cipher-s-aes-cbc-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=CBC, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: CBC
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/CBC/NoPadding
+  - id: cipher-s-aes-cbc-pkcs5padding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=CBC, padding=PKCS5PADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: CBC
+        padding: PKCS5PADDING
+    members:
+    - type: Cipher
+      name: AES/CBC/PKCS5Padding
+  - id: cipher-s-aes-cfb-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=CFB, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: CFB
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/CFB/NoPadding
+  - id: cipher-s-aes-ctr-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=CTR, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: CTR
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/CTR/NoPadding
+  - id: cipher-s-aes-ecb-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=ECB, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: ECB
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/ECB/NoPadding
+  - id: cipher-s-aes-ecb-pkcs5padding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=ECB, padding=PKCS5PADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: ECB
+        padding: PKCS5PADDING
+    members:
+    - type: Cipher
+      name: AES/ECB/PKCS5Padding
+  - id: cipher-s-aes-gcm-siv-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=GCM-SIV, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: GCM-SIV
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/GCM-SIV/NoPadding
+  - id: cipher-s-aes-gcm-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=GCM, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: GCM
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/GCM/NoPadding
+  - id: cipher-s-aes-kw-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=TRUE; output: base=AES, mode=KW, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'TRUE'
+      output:
+        base: AES
+        mode: KW
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/KW/NoPadding
+  - id: cipher-s-aes-kw-pkcs5padding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=TRUE; output: base=AES, mode=KW, padding=PKCS5PADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'TRUE'
+      output:
+        base: AES
+        mode: KW
+        padding: PKCS5PADDING
+    members:
+    - type: Cipher
+      name: AES/KW/PKCS5Padding
+  - id: cipher-s-aes-kwp-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=TRUE; output: base=AES, mode=KWP, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'TRUE'
+      output:
+        base: AES
+        mode: KWP
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/KWP/NoPadding
+  - id: cipher-s-aes-ofb-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=AES, mode=OFB, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        mode: OFB
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: AES/OFB/NoPadding
+  - id: cipher-s-arcfour
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=ARCFOUR, mode=STREAM.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: ARCFOUR
+        mode: STREAM
+    members:
+    - type: Cipher
+      name: ARCFOUR
+  - id: cipher-s-chacha20
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=CHACHA20, mode=STREAM.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: CHACHA20
+        mode: STREAM
+    members:
+    - type: Cipher
+      name: ChaCha20
+  - id: cipher-s-chacha20-poly1305
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=CHACHA20-POLY1305, mode=AEAD.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: CHACHA20-POLY1305
+        mode: AEAD
+    members:
+    - type: Cipher
+      name: ChaCha20-Poly1305
+  - id: cipher-s-desede-cbc-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=DESEDE, mode=CBC, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: DESEDE
+        mode: CBC
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: DESede/CBC/NoPadding
+  - id: cipher-s-desede-cbc-pkcs5padding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=DESEDE, mode=CBC, padding=PKCS5PADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: DESEDE
+        mode: CBC
+        padding: PKCS5PADDING
+    members:
+    - type: Cipher
+      name: DESede/CBC/PKCS5Padding
+  - id: cipher-s-desede-ecb-nopadding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=DESEDE, mode=ECB, padding=NOPADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: DESEDE
+        mode: ECB
+        padding: NOPADDING
+    members:
+    - type: Cipher
+      name: DESede/ECB/NoPadding
+  - id: cipher-s-desede-ecb-pkcs5padding
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=FALSE; output: base=DESEDE, mode=ECB, padding=PKCS5PADDING.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'FALSE'
+      output:
+        base: DESEDE
+        mode: ECB
+        padding: PKCS5PADDING
+    members:
+    - type: Cipher
+      name: DESede/ECB/PKCS5Padding
+  - id: cipher-s-desedewrap
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=TRUE; output: base=DESEDEWRAP, mode=WRAP.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'TRUE'
+      output:
+        base: DESEDEWRAP
+        mode: WRAP
+    members:
+    - type: Cipher
+      name: DESedeWrap
+  cipher.unknown:
+  - id: cipher-u-desedewrap
+    description: 'Predefined Cipher group. input: passwordBased=FALSE, wrap=TRUE; output: base=DESEDEWRAP, mode=WRAP.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+        wrap: 'TRUE'
+      output:
+        base: DESEDEWRAP
+        mode: WRAP
+    members:
+    - type: Cipher
+      name: DESedeWrap
+  - id: cipher-u-pbewithhmacsha1andaes-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA1AndAES_128
+  - id: cipher-u-pbewithhmacsha1andaes-256
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA1AndAES_256
+  - id: cipher-u-pbewithhmacsha224andaes-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-224.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-224
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA224AndAES_128
+  - id: cipher-u-pbewithhmacsha224andaes-256
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-224.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-224
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA224AndAES_256
+  - id: cipher-u-pbewithhmacsha256andaes-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-256.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-256
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA256AndAES_128
+  - id: cipher-u-pbewithhmacsha256andaes-256
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-256.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-256
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA256AndAES_256
+  - id: cipher-u-pbewithhmacsha384andaes-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-384.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-384
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA384AndAES_128
+  - id: cipher-u-pbewithhmacsha384andaes-256
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-384.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-384
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA384AndAES_256
+  - id: cipher-u-pbewithhmacsha512-224andaes-1
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-512/224.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-512/224
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA512/224AndAES_128
+  - id: cipher-u-pbewithhmacsha512-224andaes-2
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-512/224.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-512/224
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA512/224AndAES_256
+  - id: cipher-u-pbewithhmacsha512-256andaes-1
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-512/256.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-512/256
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA512/256AndAES_128
+  - id: cipher-u-pbewithhmacsha512-256andaes-2
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-512/256.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-512/256
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA512/256AndAES_256
+  - id: cipher-u-pbewithhmacsha512andaes-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-512.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-512
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA512AndAES_128
+  - id: cipher-u-pbewithhmacsha512andaes-256
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES, digest=SHA-512.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES
+        digest: SHA-512
+    members:
+    - type: Cipher
+      name: PBEWithHmacSHA512AndAES_256
+  - id: cipher-u-pbewithmd5and128bitaes-cbc-op
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-OPENSSL, digest=MD5.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-OPENSSL
+        digest: MD5
+    members:
+    - type: Cipher
+      name: PBEWITHMD5AND128BITAES-CBC-OPENSSL
+  - id: cipher-u-pbewithmd5and192bitaes-cbc-op
+    description: 'Predefined Cipher group. input: derivedBits=192, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-OPENSSL, digest=MD5.'
+    contracts:
+      input:
+        derivedBits: '192'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-OPENSSL
+        digest: MD5
+    members:
+    - type: Cipher
+      name: PBEWITHMD5AND192BITAES-CBC-OPENSSL
+  - id: cipher-u-pbewithmd5and256bitaes-cbc-op
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-OPENSSL, digest=MD5.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-OPENSSL
+        digest: MD5
+    members:
+    - type: Cipher
+      name: PBEWITHMD5AND256BITAES-CBC-OPENSSL
+  - id: cipher-u-pbewithmd5anddes
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=DES, digest=MD5.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: DES
+        digest: MD5
+    members:
+    - type: Cipher
+      name: PBEWithMD5AndDES
+  - id: cipher-u-pbewithmd5andrc2
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=RC2, digest=MD5.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: RC2
+        digest: MD5
+    members:
+    - type: Cipher
+      name: PBEWithMD5AndRC2
+  - id: cipher-u-pbewithmd5andtripledes
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=TRIPLEDES, digest=MD5.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: TRIPLEDES
+        digest: MD5
+    members:
+    - type: Cipher
+      name: PBEWithMD5AndTripleDES
+  - id: cipher-u-pbewithsha1anddes
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=DES, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: DES
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndDES
+  - id: cipher-u-pbewithsha1anddesede
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=DESEDE, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: DESEDE
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndDESede
+  - id: cipher-u-pbewithsha1andrc2
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=RC2, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: RC2
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndRC2
+  - id: cipher-u-pbewithsha1andrc2-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=RC2, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: RC2
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndRC2_128
+  - id: cipher-u-pbewithsha1andrc2-40
+    description: 'Predefined Cipher group. input: derivedBits=40, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=RC2, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '40'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: RC2
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndRC2_40
+  - id: cipher-u-pbewithsha1andrc4-128
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=RC4, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: RC4
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndRC4_128
+  - id: cipher-u-pbewithsha1andrc4-40
+    description: 'Predefined Cipher group. input: derivedBits=40, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=RC4, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '40'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: RC4
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWithSHA1AndRC4_40
+  - id: cipher-u-pbewithsha256and128bitaes-cbc
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-BC, digest=SHA-256.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-BC
+        digest: SHA-256
+    members:
+    - type: Cipher
+      name: PBEWITHSHA256AND128BITAES-CBC-BC
+  - id: cipher-u-pbewithsha256and192bitaes-cbc
+    description: 'Predefined Cipher group. input: derivedBits=192, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-BC, digest=SHA-256.'
+    contracts:
+      input:
+        derivedBits: '192'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-BC
+        digest: SHA-256
+    members:
+    - type: Cipher
+      name: PBEWITHSHA256AND192BITAES-CBC-BC
+  - id: cipher-u-pbewithsha256and256bitaes-cbc
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-BC, digest=SHA-256.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-BC
+        digest: SHA-256
+    members:
+    - type: Cipher
+      name: PBEWITHSHA256AND256BITAES-CBC-BC
+  - id: cipher-u-pbewithshaand128bitaes-cbc-bc
+    description: 'Predefined Cipher group. input: derivedBits=128, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-BC, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '128'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-BC
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWITHSHAAND128BITAES-CBC-BC
+  - id: cipher-u-pbewithshaand192bitaes-cbc-bc
+    description: 'Predefined Cipher group. input: derivedBits=192, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-BC, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '192'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-BC
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWITHSHAAND192BITAES-CBC-BC
+  - id: cipher-u-pbewithshaand2-keytripledes-c
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=2-KEYTRIPLEDES-CBC, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: 2-KEYTRIPLEDES-CBC
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWITHSHAAND2-KEYTRIPLEDES-CBC
+  - id: cipher-u-pbewithshaand256bitaes-cbc-bc
+    description: 'Predefined Cipher group. input: derivedBits=256, kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=AES-CBC-BC, digest=SHA-1.'
+    contracts:
+      input:
+        derivedBits: '256'
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: AES-CBC-BC
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWITHSHAAND256BITAES-CBC-BC
+  - id: cipher-u-pbewithshaandtwofish-cbc
+    description: 'Predefined Cipher group. input: kdf=provider convention (assumed), passwordBased=TRUE, wrap=FALSE; output: base=TWOFISH-CBC, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: provider convention (assumed)
+        passwordBased: 'TRUE'
+        wrap: 'FALSE'
+      output:
+        base: TWOFISH-CBC
+        digest: SHA-1
+    members:
+    - type: Cipher
+      name: PBEWITHSHAANDTWOFISH-CBC
+  digest.none:
+  - id: digest-n-gost3411
+    description: 'Predefined MessageDigest group. output: function=GOST3411.'
+    contracts:
+      input: {}
+      output:
+        function: GOST3411
+    members:
+    - type: MessageDigest
+      name: GOST3411
+  - id: digest-n-md2
+    description: 'Predefined MessageDigest group. output: function=MD2.'
+    contracts:
+      input: {}
+      output:
+        function: MD2
+    members:
+    - type: MessageDigest
+      name: MD2
+  - id: digest-n-md5
+    description: 'Predefined MessageDigest group. output: function=MD5.'
+    contracts:
+      input: {}
+      output:
+        function: MD5
+    members:
+    - type: MessageDigest
+      name: MD5
+  - id: digest-n-sha-1
+    description: 'Predefined MessageDigest group. output: function=SHA-1.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-1
+    members:
+    - type: MessageDigest
+      name: SHA-1
+  - id: digest-n-sha-224
+    description: 'Predefined MessageDigest group. output: function=SHA-224.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-224
+    members:
+    - type: MessageDigest
+      name: SHA-224
+  - id: digest-n-sha-256
+    description: 'Predefined MessageDigest group. output: function=SHA-256.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-256
+    members:
+    - type: MessageDigest
+      name: SHA-256
+  - id: digest-n-sha-384
+    description: 'Predefined MessageDigest group. output: function=SHA-384.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-384
+    members:
+    - type: MessageDigest
+      name: SHA-384
+  - id: digest-n-sha-512
+    description: 'Predefined MessageDigest group. output: function=SHA-512.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-512
+    members:
+    - type: MessageDigest
+      name: SHA-512
+  - id: digest-n-sha-512-224
+    description: 'Predefined MessageDigest group. output: function=SHA-512/224.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-512/224
+    members:
+    - type: MessageDigest
+      name: SHA-512/224
+  - id: digest-n-sha-512-256
+    description: 'Predefined MessageDigest group. output: function=SHA-512/256.'
+    contracts:
+      input: {}
+      output:
+        function: SHA-512/256
+    members:
+    - type: MessageDigest
+      name: SHA-512/256
+  - id: digest-n-sha3-224
+    description: 'Predefined MessageDigest group. output: function=SHA3-224.'
+    contracts:
+      input: {}
+      output:
+        function: SHA3-224
+    members:
+    - type: MessageDigest
+      name: SHA3-224
+  - id: digest-n-sha3-256
+    description: 'Predefined MessageDigest group. output: function=SHA3-256.'
+    contracts:
+      input: {}
+      output:
+        function: SHA3-256
+    members:
+    - type: MessageDigest
+      name: SHA3-256
+  - id: digest-n-sha3-384
+    description: 'Predefined MessageDigest group. output: function=SHA3-384.'
+    contracts:
+      input: {}
+      output:
+        function: SHA3-384
+    members:
+    - type: MessageDigest
+      name: SHA3-384
+  - id: digest-n-sha3-512
+    description: 'Predefined MessageDigest group. output: function=SHA3-512.'
+    contracts:
+      input: {}
+      output:
+        function: SHA3-512
+    members:
+    - type: MessageDigest
+      name: SHA3-512
+  - id: digest-n-shake128-256
+    description: 'Predefined MessageDigest group. output: function=SHAKE128-256.'
+    contracts:
+      input: {}
+      output:
+        function: SHAKE128-256
+    members:
+    - type: MessageDigest
+      name: SHAKE128-256
+  - id: digest-n-shake256-512
+    description: 'Predefined MessageDigest group. output: function=SHAKE256-512.'
+    contracts:
+      input: {}
+      output:
+        function: SHAKE256-512
+    members:
+    - type: MessageDigest
+      name: SHAKE256-512
+  keygen.none:
+  - id: keygen-n-aes
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=AES.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: AES
+    members:
+    - type: KeyGenerator
+      name: AES
+  - id: keygen-n-arcfour
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=ARCFOUR.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ARCFOUR
+    members:
+    - type: KeyGenerator
+      name: ARCFOUR
+  - id: keygen-n-blowfish
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=BLOWFISH.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: BLOWFISH
+    members:
+    - type: KeyGenerator
+      name: Blowfish
+  - id: keygen-n-chacha20
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=CHACHA20.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: CHACHA20
+    members:
+    - type: KeyGenerator
+      name: ChaCha20
+  - id: keygen-n-des
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=DES.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: DES
+    members:
+    - type: KeyGenerator
+      name: DES
+  - id: keygen-n-desede
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=DESEDE.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: DESEDE
+    members:
+    - type: KeyGenerator
+      name: DESede
+  - id: keygen-n-hmacmd5
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACMD5.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACMD5
+    members:
+    - type: KeyGenerator
+      name: HmacMD5
+  - id: keygen-n-hmacsha1
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA1.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA1
+    members:
+    - type: KeyGenerator
+      name: HmacSHA1
+  - id: keygen-n-hmacsha224
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA224.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA224
+    members:
+    - type: KeyGenerator
+      name: HmacSHA224
+  - id: keygen-n-hmacsha256
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA256.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA256
+    members:
+    - type: KeyGenerator
+      name: HmacSHA256
+  - id: keygen-n-hmacsha3-224
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA3-224.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA3-224
+    members:
+    - type: KeyGenerator
+      name: HmacSHA3-224
+  - id: keygen-n-hmacsha3-256
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA3-256.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA3-256
+    members:
+    - type: KeyGenerator
+      name: HmacSHA3-256
+  - id: keygen-n-hmacsha3-384
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA3-384.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA3-384
+    members:
+    - type: KeyGenerator
+      name: HmacSHA3-384
+  - id: keygen-n-hmacsha3-512
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA3-512.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA3-512
+    members:
+    - type: KeyGenerator
+      name: HmacSHA3-512
+  - id: keygen-n-hmacsha384
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA384.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA384
+    members:
+    - type: KeyGenerator
+      name: HmacSHA384
+  - id: keygen-n-hmacsha512
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA512.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA512
+    members:
+    - type: KeyGenerator
+      name: HmacSHA512
+  - id: keygen-n-hmacsha512-224
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA512/224.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA512/224
+    members:
+    - type: KeyGenerator
+      name: HmacSHA512/224
+  - id: keygen-n-hmacsha512-256
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=HMACSHA512/256.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: HMACSHA512/256
+    members:
+    - type: KeyGenerator
+      name: HmacSHA512/256
+  - id: keygen-n-rc2
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=RC2.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: RC2
+    members:
+    - type: KeyGenerator
+      name: RC2
+  - id: keygen-n-suntls12prf
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=SUNTLS12PRF.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: SUNTLS12PRF
+    members:
+    - type: KeyGenerator
+      name: SunTls12Prf
+  - id: keygen-n-suntlskeymaterial
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=SUNTLSKEYMATERIAL.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: SUNTLSKEYMATERIAL
+    members:
+    - type: KeyGenerator
+      name: SunTlsKeyMaterial
+  - id: keygen-n-suntlsmastersecret
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=SUNTLSMASTERSECRET.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: SUNTLSMASTERSECRET
+    members:
+    - type: KeyGenerator
+      name: SunTlsMasterSecret
+  - id: keygen-n-suntlsprf
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=SUNTLSPRF.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: SUNTLSPRF
+    members:
+    - type: KeyGenerator
+      name: SunTlsPrf
+  - id: keygen-n-suntlsrsapremastersecret
+    description: 'Predefined KeyGenerator group. output: consumer=consumer-defined (assumed), function=SUNTLSRSAPREMASTERSECRET.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: SUNTLSRSAPREMASTERSECRET
+    members:
+    - type: KeyGenerator
+      name: SunTlsRsaPremasterSecret
+  keypairgen.none:
+  - id: keypai-n-diffiehellman
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=DIFFIEHELLMAN.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: DIFFIEHELLMAN
+    members:
+    - type: KeyPairGenerator
+      name: DiffieHellman
+  - id: keypai-n-dsa
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=DSA.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: DSA
+    members:
+    - type: KeyPairGenerator
+      name: DSA
+  - id: keypai-n-ec
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=EC.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: EC
+    members:
+    - type: KeyPairGenerator
+      name: EC
+  - id: keypai-n-ed25519
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ED25519.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ED25519
+    members:
+    - type: KeyPairGenerator
+      name: Ed25519
+  - id: keypai-n-ed448
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ED448.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ED448
+    members:
+    - type: KeyPairGenerator
+      name: Ed448
+  - id: keypai-n-eddsa
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=EDDSA.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: EDDSA
+    members:
+    - type: KeyPairGenerator
+      name: EdDSA
+  - id: keypai-n-ml-dsa
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-DSA.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-DSA
+    members:
+    - type: KeyPairGenerator
+      name: ML-DSA
+  - id: keypai-n-ml-dsa-44
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-DSA-44.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-DSA-44
+    members:
+    - type: KeyPairGenerator
+      name: ML-DSA-44
+  - id: keypai-n-ml-dsa-65
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-DSA-65.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-DSA-65
+    members:
+    - type: KeyPairGenerator
+      name: ML-DSA-65
+  - id: keypai-n-ml-dsa-87
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-DSA-87.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-DSA-87
+    members:
+    - type: KeyPairGenerator
+      name: ML-DSA-87
+  - id: keypai-n-ml-kem
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-KEM.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-KEM
+    members:
+    - type: KeyPairGenerator
+      name: ML-KEM
+  - id: keypai-n-ml-kem-1024
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-KEM-1024.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-KEM-1024
+    members:
+    - type: KeyPairGenerator
+      name: ML-KEM-1024
+  - id: keypai-n-ml-kem-512
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-KEM-512.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-KEM-512
+    members:
+    - type: KeyPairGenerator
+      name: ML-KEM-512
+  - id: keypai-n-ml-kem-768
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=ML-KEM-768.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: ML-KEM-768
+    members:
+    - type: KeyPairGenerator
+      name: ML-KEM-768
+  - id: keypai-n-rsa
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=RSA.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: RSA
+    members:
+    - type: KeyPairGenerator
+      name: RSA
+  - id: keypai-n-rsassa-pss
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=RSASSA-PSS.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: RSASSA-PSS
+    members:
+    - type: KeyPairGenerator
+      name: RSASSA-PSS
+  - id: keypai-n-x25519
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=X25519.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: X25519
+    members:
+    - type: KeyPairGenerator
+      name: X25519
+  - id: keypai-n-x448
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=X448.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: X448
+    members:
+    - type: KeyPairGenerator
+      name: X448
+  - id: keypai-n-xdh
+    description: 'Predefined KeyPairGenerator group. output: consumer=consumer-defined (assumed), function=XDH.'
+    contracts:
+      input: {}
+      output:
+        consumer: consumer-defined (assumed)
+        function: XDH
+    members:
+    - type: KeyPairGenerator
+      name: XDH
+  mac.secret:
+  - id: mac-s-aescmac
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=AESCMAC.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: AESCMAC
+    members:
+    - type: Mac
+      name: AESCMAC
+  - id: mac-s-hmacmd5
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=MD5.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: MD5
+    members:
+    - type: Mac
+      name: HmacMD5
+  - id: mac-s-hmacpbesha1
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-1
+    members:
+    - type: Mac
+      name: HmacPBESHA1
+  - id: mac-s-hmacpbesha224
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-224.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-224
+    members:
+    - type: Mac
+      name: HmacPBESHA224
+  - id: mac-s-hmacpbesha256
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-256.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-256
+    members:
+    - type: Mac
+      name: HmacPBESHA256
+  - id: mac-s-hmacpbesha384
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-384.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-384
+    members:
+    - type: Mac
+      name: HmacPBESHA384
+  - id: mac-s-hmacpbesha512
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-512.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-512
+    members:
+    - type: Mac
+      name: HmacPBESHA512
+  - id: mac-s-hmacpbesha512-224
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-512/224.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-512/224
+    members:
+    - type: Mac
+      name: HmacPBESHA512/224
+  - id: mac-s-hmacpbesha512-256
+    description: 'Predefined Mac group. input: kdf=HmacPBE provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-512/256.'
+    contracts:
+      input:
+        kdf: HmacPBE provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-512/256
+    members:
+    - type: Mac
+      name: HmacPBESHA512/256
+  - id: mac-s-hmacsha1
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-1.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-1
+    members:
+    - type: Mac
+      name: HmacSHA1
+  - id: mac-s-hmacsha224
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-224.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-224
+    members:
+    - type: Mac
+      name: HmacSHA224
+  - id: mac-s-hmacsha256
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-256.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-256
+    members:
+    - type: Mac
+      name: HmacSHA256
+  - id: mac-s-hmacsha3-224
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA3-224.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA3-224
+    members:
+    - type: Mac
+      name: HmacSHA3-224
+  - id: mac-s-hmacsha3-256
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA3-256.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA3-256
+    members:
+    - type: Mac
+      name: HmacSHA3-256
+  - id: mac-s-hmacsha3-384
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA3-384.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA3-384
+    members:
+    - type: Mac
+      name: HmacSHA3-384
+  - id: mac-s-hmacsha3-512
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA3-512.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA3-512
+    members:
+    - type: Mac
+      name: HmacSHA3-512
+  - id: mac-s-hmacsha384
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-384.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-384
+    members:
+    - type: Mac
+      name: HmacSHA384
+  - id: mac-s-hmacsha512
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-512.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-512
+    members:
+    - type: Mac
+      name: HmacSHA512
+  - id: mac-s-hmacsha512-224
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-512/224.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-512/224
+    members:
+    - type: Mac
+      name: HmacSHA512/224
+  - id: mac-s-hmacsha512-256
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=HMAC, digest=SHA-512/256.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: HMAC
+        digest: SHA-512/256
+    members:
+    - type: Mac
+      name: HmacSHA512/256
+  - id: mac-s-pbewithhmacsha
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-1.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-1
+    members:
+    - type: Mac
+      name: PBEWITHHMACSHA
+    - type: Mac
+      name: PBEWithHmacSHA1
+  - id: mac-s-pbewithhmacsha224
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-224.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-224
+    members:
+    - type: Mac
+      name: PBEWithHmacSHA224
+  - id: mac-s-pbewithhmacsha256
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-256.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-256
+    members:
+    - type: Mac
+      name: PBEWithHmacSHA256
+  - id: mac-s-pbewithhmacsha384
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-384.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-384
+    members:
+    - type: Mac
+      name: PBEWithHmacSHA384
+  - id: mac-s-pbewithhmacsha512
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-512.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-512
+    members:
+    - type: Mac
+      name: PBEWithHmacSHA512
+  - id: mac-s-pbewithhmacsha512-224
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-512/224.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-512/224
+    members:
+    - type: Mac
+      name: PBEWithHmacSHA512/224
+  - id: mac-s-pbewithhmacsha512-256
+    description: 'Predefined Mac group. input: kdf=PBEWithHmac provider convention (assumed), passwordBased=TRUE; output: construction=HMAC, digest=SHA-512/256.'
+    contracts:
+      input:
+        kdf: PBEWithHmac provider convention (assumed)
+        passwordBased: 'TRUE'
+      output:
+        construction: HMAC
+        digest: SHA-512/256
+    members:
+    - type: Mac
+      name: PBEWithHmacSHA512/256
+  - id: mac-s-sslmacmd5
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=SSLMAC, digest=MD5.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: SSLMAC
+        digest: MD5
+    members:
+    - type: Mac
+      name: SslMacMD5
+  - id: mac-s-sslmacsha1
+    description: 'Predefined Mac group. input: passwordBased=FALSE; output: construction=SSLMAC, digest=SHA-1.'
+    contracts:
+      input:
+        passwordBased: 'FALSE'
+      output:
+        construction: SSLMAC
+        digest: SHA-1
+    members:
+    - type: Mac
+      name: SslMacSHA1
+  signature.pair:
+  - id: signat-p-ed25519
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=ED25519, scheme=EDDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: ED25519
+        scheme: EDDSA
+    members:
+    - type: Signature
+      name: Ed25519
+  - id: signat-p-ed448
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=ED448, scheme=EDDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: ED448
+        scheme: EDDSA
+    members:
+    - type: Signature
+      name: Ed448
+  - id: signat-p-eddsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=by key (assumed), scheme=EDDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: by key (assumed)
+        scheme: EDDSA
+    members:
+    - type: Signature
+      name: EdDSA
+  - id: signat-p-hss-lms
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: scheme=HSS/LMS.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        scheme: HSS/LMS
+    members:
+    - type: Signature
+      name: HSS/LMS
+  - id: signat-p-md2withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=MD2, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: MD2
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: MD2withRSA
+  - id: signat-p-md5andsha1withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=MD5ANDSHA1, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: MD5ANDSHA1
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: MD5andSHA1withRSA
+  - id: signat-p-md5withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=MD5, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: MD5
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: MD5withRSA
+  - id: signat-p-ml-dsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=by key (assumed), scheme=ML-DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: by key (assumed)
+        scheme: ML-DSA
+    members:
+    - type: Signature
+      name: ML-DSA
+  - id: signat-p-ml-dsa-44
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=44, scheme=ML-DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: '44'
+        scheme: ML-DSA
+    members:
+    - type: Signature
+      name: ML-DSA-44
+  - id: signat-p-ml-dsa-65
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=65, scheme=ML-DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: '65'
+        scheme: ML-DSA
+    members:
+    - type: Signature
+      name: ML-DSA-65
+  - id: signat-p-ml-dsa-87
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=87, scheme=ML-DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: '87'
+        scheme: ML-DSA
+    members:
+    - type: Signature
+      name: ML-DSA-87
+  - id: signat-p-nonewithdsa
+    description: 'Predefined Signature group. input: prehashed=TRUE; output: curve=BY KEY, digest=NONE, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'TRUE'
+      output:
+        curve: BY KEY
+        digest: NONE
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: NONEwithDSA
+  - id: signat-p-nonewithdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=TRUE; output: curve=BY KEY, digest=NONE, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'TRUE'
+      output:
+        curve: BY KEY
+        digest: NONE
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: NONEwithDSAinP1363Format
+  - id: signat-p-nonewithecdsa
+    description: 'Predefined Signature group. input: prehashed=TRUE; output: curve=BY KEY, digest=NONE, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'TRUE'
+      output:
+        curve: BY KEY
+        digest: NONE
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: NONEwithECDSA
+  - id: signat-p-nonewithecdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=TRUE; output: curve=BY KEY, digest=NONE, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'TRUE'
+      output:
+        curve: BY KEY
+        digest: NONE
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: NONEwithECDSAinP1363Format
+  - id: signat-p-nonewithrsa
+    description: 'Predefined Signature group. input: prehashed=TRUE; output: digest=NONE, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'TRUE'
+      output:
+        digest: NONE
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: NONEwithRSA
+  - id: signat-p-sha1withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-1, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-1
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA1withDSA
+  - id: signat-p-sha1withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-1, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-1
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA1withDSAinP1363Format
+  - id: signat-p-sha1withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-1, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-1
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA1withECDSA
+  - id: signat-p-sha1withecdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-1, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-1
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA1withECDSAinP1363Format
+  - id: signat-p-sha1withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-1, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-1
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA1withRSA
+  - id: signat-p-sha1withrsa-pss
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-1, mgf1=the digest (assumed), salt=digest length (assumed), scheme=RSA-PSS.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-1
+        mgf1: the digest (assumed)
+        salt: digest length (assumed)
+        scheme: RSA-PSS
+    members:
+    - type: Signature
+      name: SHA1withRSA/PSS
+  - id: signat-p-sha224withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-224, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-224
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA224withDSA
+  - id: signat-p-sha224withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-224, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-224
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA224withDSAinP1363Format
+  - id: signat-p-sha224withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-224, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-224
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA224withECDSA
+  - id: signat-p-sha224withecdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-224, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-224
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA224withECDSAinP1363Format
+  - id: signat-p-sha224withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-224, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-224
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA224withRSA
+  - id: signat-p-sha224withrsa-pss
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-224, mgf1=the digest (assumed), salt=digest length (assumed), scheme=RSA-PSS.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-224
+        mgf1: the digest (assumed)
+        salt: digest length (assumed)
+        scheme: RSA-PSS
+    members:
+    - type: Signature
+      name: SHA224withRSA/PSS
+  - id: signat-p-sha256withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-256, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-256
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA256withDSA
+  - id: signat-p-sha256withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-256, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-256
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA256withDSAinP1363Format
+  - id: signat-p-sha256withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-256, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-256
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA256withECDSA
+  - id: signat-p-sha256withecdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-256, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-256
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA256withECDSAinP1363Format
+  - id: signat-p-sha256withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-256, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-256
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA256withRSA
+  - id: signat-p-sha256withrsa-pss
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-256, mgf1=the digest (assumed), salt=digest length (assumed), scheme=RSA-PSS.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-256
+        mgf1: the digest (assumed)
+        salt: digest length (assumed)
+        scheme: RSA-PSS
+    members:
+    - type: Signature
+      name: SHA256withRSA/PSS
+  - id: signat-p-sha3-224withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-224, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-224
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-224withDSA
+  - id: signat-p-sha3-224withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-224, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-224
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-224withDSAinP1363Format
+  - id: signat-p-sha3-224withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-224, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-224
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-224withECDSA
+  - id: signat-p-sha3-224withecdsainp1363forma
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-224, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-224
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-224withECDSAinP1363Format
+  - id: signat-p-sha3-224withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA3-224, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA3-224
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA3-224withRSA
+  - id: signat-p-sha3-256withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-256, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-256
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-256withDSA
+  - id: signat-p-sha3-256withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-256, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-256
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-256withDSAinP1363Format
+  - id: signat-p-sha3-256withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-256, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-256
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-256withECDSA
+  - id: signat-p-sha3-256withecdsainp1363forma
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-256, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-256
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-256withECDSAinP1363Format
+  - id: signat-p-sha3-256withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA3-256, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA3-256
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA3-256withRSA
+  - id: signat-p-sha3-384withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-384, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-384
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-384withDSA
+  - id: signat-p-sha3-384withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-384, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-384
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-384withDSAinP1363Format
+  - id: signat-p-sha3-384withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-384, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-384
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-384withECDSA
+  - id: signat-p-sha3-384withecdsainp1363forma
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-384, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-384
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-384withECDSAinP1363Format
+  - id: signat-p-sha3-384withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA3-384, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA3-384
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA3-384withRSA
+  - id: signat-p-sha3-512withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-512, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-512
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-512withDSA
+  - id: signat-p-sha3-512withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-512, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-512
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA3-512withDSAinP1363Format
+  - id: signat-p-sha3-512withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-512, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-512
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-512withECDSA
+  - id: signat-p-sha3-512withecdsainp1363forma
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA3-512, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA3-512
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA3-512withECDSAinP1363Format
+  - id: signat-p-sha3-512withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA3-512, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA3-512
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA3-512withRSA
+  - id: signat-p-sha384withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-384, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-384
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA384withDSA
+  - id: signat-p-sha384withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-384, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-384
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA384withDSAinP1363Format
+  - id: signat-p-sha384withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-384, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-384
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA384withECDSA
+  - id: signat-p-sha384withecdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-384, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-384
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA384withECDSAinP1363Format
+  - id: signat-p-sha384withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-384, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-384
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA384withRSA
+  - id: signat-p-sha384withrsa-pss
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-384, mgf1=the digest (assumed), salt=digest length (assumed), scheme=RSA-PSS.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-384
+        mgf1: the digest (assumed)
+        salt: digest length (assumed)
+        scheme: RSA-PSS
+    members:
+    - type: Signature
+      name: SHA384withRSA/PSS
+  - id: signat-p-sha512-224withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-512/224, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-512/224
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA512/224withRSA
+  - id: signat-p-sha512-256withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-512/256, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-512/256
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA512/256withRSA
+  - id: signat-p-sha512withdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-512, encoding=DER, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-512
+        encoding: DER
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA512withDSA
+  - id: signat-p-sha512withdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-512, encoding=P1363, scheme=DSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-512
+        encoding: P1363
+        scheme: DSA
+    members:
+    - type: Signature
+      name: SHA512withDSAinP1363Format
+  - id: signat-p-sha512withecdsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-512, encoding=DER, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-512
+        encoding: DER
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA512withECDSA
+  - id: signat-p-sha512withecdsainp1363format
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: curve=BY KEY, digest=SHA-512, encoding=P1363, scheme=ECDSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        curve: BY KEY
+        digest: SHA-512
+        encoding: P1363
+        scheme: ECDSA
+    members:
+    - type: Signature
+      name: SHA512withECDSAinP1363Format
+  - id: signat-p-sha512withrsa
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-512, encoding=PKCS1, scheme=RSA.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-512
+        encoding: PKCS1
+        scheme: RSA
+    members:
+    - type: Signature
+      name: SHA512withRSA
+  - id: signat-p-sha512withrsa-pss
+    description: 'Predefined Signature group. input: prehashed=FALSE; output: digest=SHA-512, mgf1=the digest (assumed), salt=digest length (assumed), scheme=RSA-PSS.'
+    contracts:
+      input:
+        prehashed: 'FALSE'
+      output:
+        digest: SHA-512
+        mgf1: the digest (assumed)
+        salt: digest length (assumed)
+        scheme: RSA-PSS
+    members:
+    - type: Signature
+      name: SHA512withRSA/PSS

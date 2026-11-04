@@ -25,6 +25,7 @@
 ## Workflow
 - run: `build` (classify inside, with aiReview) → `assign` → `report [--supervisor]` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`)
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; a pair across key contracts is never planned, the plan marks it `not_checkable`; never edit a group for it.
+- change the catalog: `python3 ../../tools/seed_groups.py` → review → `catalog/groups.yaml`; a candidate is promoted by hand
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
 - change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/parse/grouping_assign.py` → `docs/grouping.md`
 
@@ -48,10 +49,13 @@ src/perfrepair/ai/review/grouping_review/run.py : supervisor: one review convers
 src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
+src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: (family, canonical name) to its catalog group, a group at each key contract
+src/perfrepair/catalog/groups.yaml : data: predefined groups per family, each with its description, the contracts it stands for and its members; the reviewed output of ../../tools/seed_groups.py; a person promotes rows from group-candidates.yaml
 src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
-src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, and what a missing key contract means
+src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own; the standard format of a generated key per generator type
 src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes, the generated key formats
+src/perfrepair/catalog/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
 src/perfrepair/catalog/types.py : reader of types.yaml, checked whole: fields, sources, families, keyStrength maps; lookup by family and canonical name; strength at a key size
 src/perfrepair/catalog/types.yaml : data: per family and canonical name the output kind, properties, strengthBits (SP 800-57) and minSdk (Android reference), each sourced
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
@@ -64,6 +68,5 @@ src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → knowledge.json, checks.json, groups.json (`notUsed` with used.json); report_documents: what they should hold, nothing written
 src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping, key_contract_conflict among them
-src/perfrepair/grouping/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
 src/perfrepair/grouping/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 ```

@@ -6,7 +6,7 @@ from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Item, Profile
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Knowledge, code_made
 from ...dto.interop import PairResult
-from ..resolved import function_parameters
+from ...catalog.resolved import function_parameters
 
 Rule = Callable[[Knowledge, dict[int, Item], dict[int, Profile]], list[Finding]]
 

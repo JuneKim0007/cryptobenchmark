@@ -7,7 +7,7 @@ from ..catalog.interchange import KEY_ASKED, KEY_NONE, Engine, Interchange, Rule
 from ..catalog.names import Names, NamesError, fold
 from ..dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
 from ..dto.signature import CONVENTION, EXPORTABLE, KEY_MATERIAL, NON_EXPORTABLE, UNKNOWN, Component, Signature
-from .resolved import digest_name, function_parameters
+from ..catalog.resolved import digest_name, function_parameters
 
 NAME, KEY = "name", "key"
 MATERIAL_OF_CONTRACT = {KEY_APP_HELD: EXPORTABLE, KEY_PROVIDER_HELD: NON_EXPORTABLE}

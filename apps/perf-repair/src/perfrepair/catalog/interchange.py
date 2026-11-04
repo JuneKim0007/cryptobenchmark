@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
@@ -13,6 +13,7 @@ CATALOG = Path(__file__).with_name("interchange.yaml")
 SCHEMA_VERSION = 1
 INTERCHANGE_DOC = DocumentKind("interchange", SCHEMA_VERSION, AT_PATH)
 KEY_NONE, KEY_ASSUMED, KEY_ASKED = "none", "assumed", "asked"
+INPUT, KEY, OUTPUT = "input", "key", "output"
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,10 @@ class Interchange:
     engines: dict[str, Engine]
     digest_components: frozenset[str]
     not_splitting: tuple[str, ...]
+    contracts: dict[str, frozenset[str]] = field(default_factory=dict)
+
+    def contract_of(self, component: str) -> str:
+        return next((c for c, names in self.contracts.items() if component in names), OUTPUT)
 
 
 def _rule(row: dict) -> Rule:
@@ -69,7 +74,7 @@ def load(path: Path = CATALOG) -> Interchange:
     doc = yaml.safe_load(Path(path).read_text())
     INTERCHANGE_DOC.check(doc, path)
     return Interchange({t: _engine(t, row) for t, row in doc["engines"].items()}, frozenset(doc["digestComponents"]),
-                       tuple(doc["notSplitting"]))
+                       tuple(doc["notSplitting"]), {c: frozenset(n) for c, n in doc["contracts"].items()})
 
 
 @cache
