@@ -4,6 +4,7 @@ import copy, hashlib, json
 import yaml
 
 import bundled
+from failure import fail
 
 
 def digest(value):
@@ -19,5 +20,7 @@ def digests(global_file):
     (document.get("providers") or {}).pop("bundled", None)
     test_set = (document.get("selection") or {}).get("testSet")
     path = global_file.parent / test_set if test_set else None
-    selected = yaml.safe_load(path.read_text()) if path and path.is_file() else None
+    if path and not path.is_file():
+        fail(f"missing_file: {path} (selection.testSet)")
+    selected = yaml.safe_load(path.read_text()) if path else None
     return {"bundled": digest(shipped), "config": digest({"global": document, "testSet": selected})}

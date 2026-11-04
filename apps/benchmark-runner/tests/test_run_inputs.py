@@ -1,6 +1,8 @@
 import pathlib
 import sys
 
+import pytest
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from results import run_inputs  # noqa: E402
 
@@ -37,3 +39,15 @@ def test_the_config_covers_its_test_set(tmp_path):
 def test_analysis_shows_results_and_reruns_nothing(tmp_path):
     first = digests(tmp_path)
     assert digests(tmp_path, BASE + "analysis: {units: {latency: us}, charts: []}\n") == first
+
+
+def test_a_named_test_set_that_is_missing_is_refused(tmp_path, capsys):
+    (tmp_path / "global.yaml").write_text(BASE)
+    with pytest.raises(SystemExit):
+        run_inputs.digests(tmp_path / "global.yaml")
+    assert f"missing_file: {tmp_path / 'sets/a.yaml'} (selection.testSet)" in capsys.readouterr().err
+
+
+def test_no_test_set_named_is_no_refusal(tmp_path):
+    (tmp_path / "global.yaml").write_text("schemaVersion: 1\n")
+    assert set(run_inputs.digests(tmp_path / "global.yaml")) == {"bundled", "config"}
