@@ -2,7 +2,7 @@
 is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 
-from ..dto.report import MEASURABLE, SCHEMA_VERSION, stayed, unit_counts
+from ..dto.report import CALL_SITE, FUNCTION, MEASURABLE, SCHEMA_VERSION, stayed, unit_counts
 from ..dto.unit import read_units, units_by_scope
 from ..dto.units import DisplayUnits
 from ..files import read_json, read_yaml
@@ -19,7 +19,7 @@ def _optional(path, read=read_json) -> dict | None:
 
 
 def _measured(row: dict) -> bool:
-    return row["interop"]["status"] in MEASURABLE and any(m["measured"] for m in row["metrics"])
+    return row["measuredBy"] == FUNCTION and row["interop"]["status"] in MEASURABLE
 
 
 def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
@@ -31,6 +31,7 @@ def funnel(sites: int, rows: list[dict], with_options: int) -> dict:
             "compiled": sum(r["compile"]["status"] == "compiled" for r in rows),
             "interopPassed": sum(r["interop"]["status"] == "passed" for r in rows),
             "measured": sum(_measured(r) for r in rows),
+            "measuredCallSite": sum(r["measuredBy"] == CALL_SITE for r in rows),
             "measuredUnchecked": sum(_measured(r) and r["interop"]["status"] == "unchecked" for r in rows)}
 
 

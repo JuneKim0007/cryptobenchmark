@@ -15,6 +15,7 @@
 - pin: a new parameter spec is a row in `specs.yaml`, never code.
 - order: scope → dossier → test-set (per-app benchmark run) → replace → edit → harness → device → report.
 - guide: `guide/device_steps.py` and `guide/app_steps.py` chain the stage functions and commands; they add no logic of their own and stop at the first failing step with a coded reason.
+- report: a number says its kind, `function` or `callSite`; the verdict uses the function's when present.
 - report: never invent a number; a metric without both runs is `not measured` with the first step that stopped it.
 - change class: code classes a candidate and offers those up to `apps.maxChange`; the model selects, the gate refuses a pick above it; the higher ones stay recommendations.
 
@@ -69,7 +70,7 @@ src/perfrepair/report/markdown.py : report.md and summary.md from their document
 src/perfrepair/report/measured.py : cryptobenchmark's scoped-plan.yaml and scoped benchmark.json for one app; refuses a plan of another harness
 src/perfrepair/report/metrics.py : before and after cases → per metric, each marked selected or not: medians, ratio, pImprove, level through compare(); the time metric's latency and throughput views in the display units
 src/perfrepair/report/recommendations.py : dossiers.json's notOffered → recommendations above maxChange, never applied, and reject counts; their sum for the summary
-src/perfrepair/report/scope_row.py : one scope's pattern, decision, edit, compile, interop, metrics, verdict, label, thermal and categoryMismatch
+src/perfrepair/report/scope_row.py : one scope's pattern, decision, edit, compile, interop; its function and call-site numbers, each with verdict, label, thermal and truth check; measuredBy, the kind the row's verdict uses
 src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, pattern counts, and per pattern apart: apps improved, unchanged, worse per selected metric, labels, swaps
 src/perfrepair/report/swaps.py : the rows of every app → one view per chosen swap across its apps, and the replace decisions per label
 src/perfrepair/report/thermal.py : a before/after pair's `thermal` blocks and sleeps, their start gap and labels

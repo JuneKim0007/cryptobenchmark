@@ -14,7 +14,7 @@
 
 ```
 src/perfrepair/result/candidates.py : Family: a scope's candidates outside its group, other canonical names of its family, classed; split into offered (up to maxChange) and not offered
-src/perfrepair/result/category.py : category_mismatch: the selected metrics whose before/after change, beyond noise, is not one the scope category's estimates gave
+src/perfrepair/result/category.py : category_mismatch: the selected metrics whose before/after change, beyond noise, is not one the scope category's estimates gave; truth: one kind of number against those estimates; at_call_site: the estimates at a call's own configuration
 src/perfrepair/result/change.py : a scope's current item against one candidate of its family: pair diff, floor, lost properties, nonce origin, availability at minSdk, measured, screening → change class or every reject reason
 src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/configurations.py : the configurations an option is estimated at: measured on both sides nearest the scope (key size, closest input size, its lifecycle operations), the pins they show, per metric an estimate or the reason compare() gives none, setup_drift across a drifted delta session; cross_session; label and parse_label: the stored configuration text and its fields back

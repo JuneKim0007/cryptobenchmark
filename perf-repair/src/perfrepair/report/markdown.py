@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from ..dto.measurement import ESTIMATED
 from ..dto.pattern import PATTERNS, rule_words
-from ..dto.report import CHANGES, FUNNEL, THERMAL_MISMATCH, THERMAL_THROTTLED
+from ..dto.report import CALL_SITE, CHANGES, FUNCTION, FUNNEL, THERMAL_MISMATCH, THERMAL_THROTTLED
 from ..dto.units import number
 
 NOT_MEASURED = "not measured"
@@ -21,7 +21,7 @@ def _step(s: dict) -> str:
 
 def _interop(s: dict) -> str:
     i = s["interop"]
-    unverified = i["status"] == "unchecked" and any(m["measured"] for m in s["metrics"])
+    unverified = i["status"] == "unchecked" and s["measuredBy"] == FUNCTION
     return (_step(i) + (f" (check {i['check']})" if i.get("check") else "")
             + (" — measured without an interop check" if unverified else ""))
 
@@ -87,6 +87,18 @@ def _thermal(s: dict) -> list[str]:
             + (f"; {', '.join(t['labels'])}" if t["labels"] else "")]
 
 
+def _measured_by(s: dict) -> list[str]:
+    """Which kind of number the table and verdict below are, and each kind against the dossier's estimate."""
+    by = s["measuredBy"]
+    said = {FUNCTION: "the function", CALL_SITE: "the swapped call alone, the function has no number; no interop check ran on it", None: NOT_MEASURED}[by]
+    lines = [f"- measured by: {by or 'none'}: {said}"]
+    for name, kind in s["measurements"].items():
+        compared = "; ".join(f"{c['metric']} {c['ratio'] if c['ratio'] is None else round(c['ratio'], 3)} {c['change']}, estimated "
+                             f"{[round(r, 3) for r in c['estimatedRatios']]}" for c in kind["truth"]["compared"])
+        lines.append(f"- {name}: {kind['verdict']}, {kind['label']}; truth check {kind['truth']['verdict']}" + (f": {compared}" if compared else ""))
+    return lines
+
+
 def _swap(s: dict) -> list[str]:
     labels = ", ".join(f"{k} {v}" for k, v in s["labels"].items())
     lines = [f"- {s['current']} → {s['option']}: {', '.join(s['apps'])}; {labels}"]
@@ -105,7 +117,7 @@ def report_markdown(doc: dict) -> str:
                 _unit(s), f"- pattern: {s['pattern']} ({s['patternReason']}: {rule_words(s['patternReason'])})"
                 + (f"; category_mismatch on {', '.join(s['categoryMismatch'])}" if s["categoryMismatch"] else ""),
                 f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
-                f"- inputs: {_inputs(s['inputs'])}",
+                f"- inputs: {_inputs(s['inputs'])}", *_measured_by(s),
                 f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}"
                 + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}",

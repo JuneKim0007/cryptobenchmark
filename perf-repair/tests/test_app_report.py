@@ -105,7 +105,7 @@ def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
     assert all(set(m) == {"metric", "unit", "selected", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
     assert [m["selected"] for m in r[B]["metrics"]] == [True, False, False]
     assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "recommend": 0, "replace": 4, "unitsReplace": 3, "applied": 3, "compiled": 2,
-                             "interopPassed": 1, "measured": 1, "measuredUnchecked": 0}
+                             "interopPassed": 1, "measured": 1, "measuredCallSite": 0, "measuredUnchecked": 0}
 
 
 def test_the_markdown_carries_the_numbers_and_the_reasons(tmp_path, app):
