@@ -142,10 +142,17 @@ def test_a_selected_metric_no_option_has_is_a_static_no_evidence_never_a_proxy(t
     assert validate_dossiers(doc, [scope()], GROUPS, None) == []
 
 
+def test_the_document_lists_the_selected_metrics_the_run_measured(tmp_path):
+    doc = build([scope()], tmp_path)
+    assert doc["measured"] == ["timeNs"]
+    assert validate_dossiers(doc, [scope()], GROUPS, None) == []
+    assert any("measured" in p for p in validate_dossiers({**doc, "measured": ["other"]}, [scope()], GROUPS, None))
+
+
 def test_the_builder_is_deterministic_and_validates(tmp_path):
     first, second = build([scope()], tmp_path), build([scope()], tmp_path)
     assert json.dumps(first) == json.dumps(second)
-    assert set(first) == {"schemaVersion", "app", "perfMode", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
+    assert set(first) == {"schemaVersion", "app", "perfMode", "measured", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
     assert validate_dossiers(first, [scope()], GROUPS, None) == []
 
 

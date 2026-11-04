@@ -60,18 +60,25 @@ flowchart LR
 
 With `device.filterByApps`, after the targets' detect and before the benchmark, a provider the targets ship that the device lacks warns or stops, and may be built in ([used-set.md](used-set.md) Bundled providers).
 
-Before any stage it checks the config `--identify` names against the perfMode (`device/measures.py`), so the device measures what the decisions read:
+Before any stage it runs `scripts/dependencies.py` (a missing module is `missing_dependency`), then decides what is measured (`device/measures.py`): perfMode alone owns `run.metrics`, its metrics within what the harness can measure.
 
-| perfMode selects | config needs | without it |
+| harness | measures | `Harness` row |
 |---|---|---|
-| `latency`, `throughput` | `TIME` in `run.metrics` (always there) | |
-| `memAlloc` | `ALLOCATION` in `run.metrics` | `perf_mode_unmeasured` before any device run, a stop unless `stops.perf_mode_unmeasured: warn` |
-| `energy` | `run.harness.energy.capture: measured` (on a device) | `perf_mode_maybe_unmeasured`, a warning: a test set may capture energy per case; a case without it is `no_evidence: energyJ` |
-| not `memAlloc` or not `energy` | that switch off | logged `perf_mode_extra`: device time no decision reads |
+| host JVM (`--bench`) | `TIME` | `HostHarness.METRICS` |
+| device (`--device`) | `TIME`, `ALLOCATION`; energy when `run.harness.energy.capture` is on | `JetpackConfig.METRICS` |
 
-- `generic` is checked like the list of every key it expands to: a config without `ALLOCATION` stops, one without energy capture warns. An existing run that lacks it: [run.md](../../docs/run.md#recover-a-metric-without-a-device).
-- The config is never rewritten: the trial runs and the real run read the same file, and a perfMode change reruns no measurement by itself. Turning a switch on or off changes `inputs.config`, so the next device stage reruns probe and benchmark.
-- Checked where the guide makes the device folder (`paths.results` set, no `--device-results` or `device.id`); a named device folder is taken as measured.
+| perfMode | metric the harness cannot measure | no energy capture on a device |
+|---|---|---|
+| `generic`, `all` | not measured, the run goes on; `dossiers.json` `measured` and the render's `RUN METRICS` line say so | not measured, no code |
+| a list | `perf_mode_unmeasured` before any run, a stop unless `stops.perf_mode_unmeasured: warn` | `perf_mode_maybe_unmeasured`, a warning: a test set may capture energy per case; a case without it is `no_evidence: energyJ` |
+| several targets | a metric is required only by a target with a list | the same |
+
+- The line `measures: <metrics> on the <harness>, perfMode <name>; not measured: <metrics>` prints before any run.
+- A base `global.yaml` that already says so is used as it is, its digest unchanged. Otherwise `<device>/metrics-global.yaml` is the base with the decided `run.metrics`, and the device stage reads it as its base: a perfMode that changes what is measured changes `inputs.config`, so the next device stage reruns probe and benchmark.
+- A `run.metrics` written in the base that differs is `run_metrics_overridden`, one warning; `perfMode` wins. The generated file also drops what the config would refuse without the metric: `run.passes.allocation`, and on a host `run.harness.energy.capture`.
+- Energy captured with `energy` not selected is logged `perf_mode_extra`: device time no decision reads.
+- The per-app device step takes the same decision with the app's own perfMode, in `<app>/metrics-global.yaml`.
+- Decided where the guide makes the device folder (`paths.results` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../docs/run.md#recover-a-metric-without-a-device).
 
 | input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
 |---|---|---|---|---|---|---|

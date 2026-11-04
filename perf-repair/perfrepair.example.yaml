@@ -66,7 +66,7 @@ timeouts:                  # seconds a child process may run before it is killed
 stops:                     # per code, what it does when it fires (docs/stops.md); a fixed code set here is warned about, ignored
   bundled_missing: warn    # warn | stop; device.bundled.onMissing is its older name, read only when this is unset
   not_on_device: warn      # warn | stop: a provider an app site names that the device lacks
-  perf_mode_unmeasured: stop        # stop | warn: a selected metric the run config does not switch on
+  perf_mode_unmeasured: stop        # stop | warn: a metric a perfMode list names that the harness cannot measure
   perf_mode_maybe_unmeasured: warn  # warn | stop: selected energy only a test set may turn on
   energy_invalid: warn     # warn | stop: an energy case its energy.json marks invalid
   thermal_mismatch: warn   # warn | stop: a before/after pair whose start temperatures differ past criteria.yaml's thermalMismatchDegrees; no verdict changes

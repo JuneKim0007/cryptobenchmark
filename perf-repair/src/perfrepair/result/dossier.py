@@ -96,5 +96,6 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
         per_call = tuple(sorted({r.perCall for r in measured[s.pattern][current].values() if r.perCall}))
         dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options), per_call))
     return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "perfMode": perf.to_json(),
+            "measured": [m for m in perf.names if any(by_metric.get(m) for by_metric in measurements.values())],
             "maxChange": family.max_change if family else DROP_IN, "dossiers": [d.to_json() for d in dossiers],
             "noOptions": none, "notOffered": kept, "units": []}

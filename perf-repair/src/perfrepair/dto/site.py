@@ -16,7 +16,8 @@ EDITS_SCHEMA_VERSION = 1
 # 4: `maxChange` and `notOffered`; an option above drop-in carries its change class and pair diff
 # 5: every option carries track, outputChanges, reach and needsReview
 # 6: estimates of the scope's pattern's variant only; perCall, what its current item's timed call redoes
-DOSSIERS_SCHEMA_VERSION = 6
+# 7: `measured`, the selected metrics the run has any measurement of
+DOSSIERS_SCHEMA_VERSION = 7
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
 # 5: pattern, patternReason and patternLines on every scope
 SCOPES_SCHEMA_VERSION = 5

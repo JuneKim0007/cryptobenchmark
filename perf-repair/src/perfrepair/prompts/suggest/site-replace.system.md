@@ -9,6 +9,7 @@ process; nothing carries over between messages.
 
 - RUN WARNINGS: conditions under which these numbers were taken that limit how far they transfer.
 - PERFMODE: the selection, its rule (`strict` or `overall`) and the thresholds the labels were computed with.
+- RUN METRICS: the selected metrics this run measured; one it did not measure is no evidence either way.
 - LINKS: why the members belong together, each with the lines on both sides: `shared_key`, `inverse` or
   `producer_consumer`. Under an `inverse` link, the interop of the two items its sides would end on, per
   choice (`S1 R1 with S2 current`).

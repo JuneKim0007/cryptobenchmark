@@ -6,7 +6,7 @@ from ...dto.dossier import NO_OPTION_REASONS, reason_code
 from ...dto.perf_mode import PerfMode
 from ...dto.site import DOSSIERS_SCHEMA_VERSION
 
-KEYS = {"schemaVersion", "app", "perfMode", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
+KEYS = {"schemaVersion", "app", "perfMode", "measured", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
 NOT_OFFERED_KEYS = {"scope", "item", "change", "diff", "reasons", "outputChanges"}
 
 
@@ -20,8 +20,11 @@ def check_header(doc) -> list[str]:
                  if not isinstance(doc.get(k), list)]
     if doc.get("maxChange") not in CHANGES:
         problems.append(f"maxChange {doc.get('maxChange')!r} is not one of {CHANGES}")
-    if perf_of(doc) is None:
+    perf = perf_of(doc)
+    if perf is None:
         problems.append(f"perfMode {doc.get('perfMode')!r} does not parse")
+    elif not isinstance(doc.get("measured"), list) or set(doc["measured"]) - set(perf.names):
+        problems.append(f"measured {doc.get('measured')!r} is not a list of the selected metrics")
     return problems + ([] if isinstance(doc.get("app"), str) else ["app is not a string"])
 
 

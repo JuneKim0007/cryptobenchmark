@@ -14,7 +14,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 
 - `apps.perfMode` (`guide --perf-mode`), and `--perf-mode` on `ai worthiness` and `report app`: `generic`, `all` or a list of keys; the CLI takes them comma-joined (`energy,latency,throughput`).
 - Selection = the registry metrics whose `selects` hold a chosen key (`dto/perf_mode.py`). Latency and throughput are one metric: one estimate, one ratio, shown in each selected unit, never two pieces of evidence.
-- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: the decision rule and what is required differ from a hand-written list naming every key: generic requires no metric and judges on what was measured. Measures check, passes, labels, render and report see the list.
+- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: the decision rule and what is required differ from a hand-written list naming every key: generic requires no metric and judges on what was measured. Passes, labels, render and report see the list; `required` is empty, so a metric the harness cannot measure never stops it.
 - A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`), or is `generic`; `worthiness-<name>/` holds its verdicts.
 - Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another. The report still shows people every measured metric, marking the selected ones.
 
@@ -35,7 +35,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 
 - Why per option, not per scope: one option measured on every selected metric is still a fair choice; dropping the whole scope for another option's gap would hide it.
 - Energy is never compared across kinds (`energy_kinds_differ`).
-- Energy measurement: [docs/energy.md](../../docs/energy.md). The device stage checks the run config measures what the perfMode selects: [pipeline.md](pipeline.md) Device stage.
+- Energy measurement: [docs/energy.md](../../docs/energy.md). perfMode owns `run.metrics`, within what the harness can measure: [pipeline.md](pipeline.md) Device stage.
 
 ## Labels
 

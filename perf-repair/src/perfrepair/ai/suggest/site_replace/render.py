@@ -58,6 +58,11 @@ def rule_line(perf: PerfMode) -> str:
             f"worse: ratio >= {WORSE_RATIO:.3f} and pImprove <= {NOISE:.2f}; n<2 is never beyond noise")
 
 
+def measured_line(measured: list[str], perf: PerfMode) -> str:
+    left = [m for m in perf.names if m not in measured]
+    return f"RUN METRICS measured: {', '.join(measured) or 'none'}" + (f" | not measured: {', '.join(left)}" if left else "")
+
+
 def _source(d: Dossier) -> list[str]:
     # the marker carries a digest of the source, so app text cannot forge the closing line
     marker = "APP-SOURCE-" + hashlib.sha256(d.source.encode()).hexdigest()[:12]
@@ -93,12 +98,13 @@ def _member(alias: str, d: Dossier, shown: dict[tuple, str], measured: list[str]
 
 
 def render(u: UnitDossiers, perf: PerfMode = GENERIC_MODE, table: PrimitivesTable | None = None,
-           units: DisplayUnits = DisplayUnits(), warnings: tuple[str, ...] = ()) -> str:
+           units: DisplayUnits = DisplayUnits(), warnings: tuple[str, ...] = (), measured: list[str] | None = None) -> str:
     """table: primitives.tsv; without one (a folder before it) the members show their estimates only; warnings: the
-    run's comparability warnings from measurements.json."""
+    run's comparability warnings from measurements.json; measured: the dossier's list of what the run measured."""
     aliased, stayed = u.aliased(), u.stayed()
     members = ", ".join(u.aliases().values())
-    lines = ["RUN WARNINGS:", *([f"  - {w}" for w in warnings] or ["  (none)"]), "", rule_line(perf), ""]
+    lines = ["RUN WARNINGS:", *([f"  - {w}" for w in warnings] or ["  (none)"]), "", rule_line(perf),
+             *([] if measured is None else [measured_line(measured, perf)]), ""]
     lines += [f"UNIT of {len(u.unit.members)} member{'s' if len(u.unit.members) > 1 else ''}: {members}", *link_lines(u), ""]
     if stayed:
         lines += ["STAYS (no option; these members keep what they use)"]

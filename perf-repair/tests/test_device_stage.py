@@ -12,6 +12,8 @@ from perfrepair.device.measures import switched_on
 from perfrepair.device.stage_pass import DEVICE_PROBES
 from perfrepair.device.stage import probe_device
 from perfrepair.dto.event import END
+from perfrepair.dto.metrics import TIME
+from perfrepair.run_dir import METRICS_CONFIG
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
 from perfrepair.config.load import load
@@ -238,19 +240,71 @@ def _with_run(config, run):
     return config
 
 
-def test_a_selected_metric_the_config_cannot_measure_stops_before_any_device_run(setup):
+def _probe(root, config, perf, on_device=False):
+    lines = []
+    made = probe_device(root, screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE,
+                        perf=PerfMode.parse(perf))
+    return made, lines
+
+
+def _measured_metrics(made):
+    generated = made.folder / METRICS_CONFIG
+    return yaml.safe_load(generated.read_text())["run"]["metrics"] if generated.is_file() else None
+
+
+def test_generic_on_a_host_measures_time_and_never_stops_and_the_config_keeps_its_digest(setup):
     root, config = setup
-    with pytest.raises(Halt, match="perf_mode_unmeasured: perfMode latency\\+memAlloc selects allocationCount"):
-        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
-                     perf=PerfMode.parse(["latency", "memAlloc"]))
+    made, lines = _probe(root, config, "generic")
+    assert _measured_metrics(made) is None and made.config == config.resolve()
+    assert any(line.startswith("measures: timeNs on the host JVM harness") and
+               "not measured: allocationCount, energyJ" in line for line in lines)
+
+
+def test_generic_on_a_device_measures_time_and_allocation_through_a_generated_config(setup):
+    root, config = setup
+    made, lines = _probe(root, config, "generic", on_device=True)
+    assert _measured_metrics(made) == ["TIME", "ALLOCATION"]
+    assert any("timeNs, allocationCount on the device harness" in line and "not measured: energyJ" in line for line in lines)
+
+
+def test_a_generated_config_is_the_base_of_the_next_run_so_nothing_reruns(setup):
+    root, config = setup
+    _probe(root, config, "generic", on_device=True)
+    made, _ = _probe(root, config, "generic", on_device=True)
+    assert made.ran == []
+
+
+def test_a_perf_mode_that_changes_what_is_measured_reruns_the_benchmark(setup):
+    root, config = setup
+    _probe(root, config, ["latency"], on_device=True)
+    made, _ = _probe(root, config, "generic", on_device=True)
+    assert "benchmark" in made.ran
+
+
+def test_generic_with_no_energy_capture_fires_no_code_whatever_stops_says(setup, tmp_path):
+    root, config = setup
+    (tmp_path / "perfrepair.yaml").write_text("stops: {perf_mode_maybe_unmeasured: stop, perf_mode_unmeasured: stop}\n")
+    install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
+    with captured_events() as events:
+        _probe(root, config, "generic", on_device=True)
+    assert not [e for e in events if str(e.data.get("code")).startswith("perf_mode")]
+
+
+@pytest.mark.parametrize("perf, metric", [(["energy"], "energyJ"), (["latency", "memAlloc"], "allocationCount")])
+def test_a_strict_metric_the_host_cannot_measure_stops_and_names_the_harness(setup, perf, metric):
+    root, config = setup
+    with pytest.raises(Halt) as stopped:
+        _probe(root, config, perf)
+    assert stopped.value.code == "perf_mode_unmeasured"
+    assert metric in stopped.value.detail and "host JVM harness" in stopped.value.detail
+    assert "run.metrics" not in stopped.value.detail and "run.metrics" not in stopped.value.next_step
     assert runs(root) == []
 
 
-def test_generic_is_checked_like_a_list_so_missing_allocation_stops(setup):
+def test_a_strict_allocation_on_a_device_is_measured_not_stopped(setup):
     root, config = setup
-    with pytest.raises(Halt, match="perf_mode_unmeasured: perfMode generic selects allocationCount"):
-        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE, perf=PerfMode.parse("generic"))
-    assert runs(root) == []
+    made, _ = _probe(root, config, ["memAlloc"], on_device=True)
+    assert _measured_metrics(made) == ["TIME", "ALLOCATION"]
 
 
 def test_stops_warn_turns_perf_mode_unmeasured_into_a_warning_and_the_device_stage_runs(setup, tmp_path):
@@ -258,18 +312,62 @@ def test_stops_warn_turns_perf_mode_unmeasured_into_a_warning_and_the_device_sta
     (tmp_path / "perfrepair.yaml").write_text("stops: {perf_mode_unmeasured: warn}\n")
     install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
     with captured_events() as events:
-        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
-                     perf=PerfMode.parse(["latency", "memAlloc"]))
+        _probe(root, config, ["latency", "memAlloc"])
     warned = [e for e in events if e.data.get("code") == "perf_mode_unmeasured"]
     assert [e.outcome for e in warned] == ["warn"] and runs(root)
 
 
-def test_unselected_measurements_and_run_level_energy_are_logged_not_refused(setup, caplog):
+def test_a_differing_user_run_metrics_warns_once_and_perf_mode_wins(setup):
     root, config = setup
     _with_run(config, "run: {metrics: [TIME, ALLOCATION]}\n")
+    with captured_events() as events:
+        made, _ = _probe(root, config, "generic")
+    warned = [e for e in events if e.data.get("code") == "run_metrics_overridden"]
+    assert [e.outcome for e in warned] == ["warn"] and "['TIME', 'ALLOCATION']" in warned[0].detail
+    assert _measured_metrics(made) == ["TIME"]
+
+
+def test_a_user_run_metrics_that_matches_is_silent_and_rewrites_nothing(setup):
+    root, config = setup
+    _with_run(config, "run: {metrics: [ALLOCATION, TIME]}\n")
+    with captured_events() as events:
+        made, _ = _probe(root, config, "generic", on_device=True)
+    assert not [e for e in events if e.data.get("code") == "run_metrics_overridden"] and _measured_metrics(made) is None
+
+
+def test_what_the_config_would_refuse_beside_the_metrics_goes_too(setup, tmp_path):
+    root, config = setup
+    _with_run(config, "run: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 3}, allocation: {samples: 2}}, "
+                      "harness: {energy: {capture: measured}}}\n")
+    made, _ = _probe(root, config, "generic")
+    run = yaml.safe_load((made.folder / METRICS_CONFIG).read_text())["run"]
+    assert run["metrics"] == ["TIME"] and list(run["passes"]) == ["timing"] and run["harness"]["energy"]["capture"] == "none"
+
+
+def test_several_apps_only_a_strict_one_makes_a_metric_required(setup):
+    root, config = setup
+    both = PerfMode.union([PerfMode.parse("generic"), PerfMode.parse(["latency"])])
+    made = probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE, perf=both, required=(TIME,))
+    assert _measured_metrics(made) is None
+
+
+def test_a_missing_module_stops_before_any_pipeline_run(setup, monkeypatch):
+    root, config = setup
+    monkeypatch.setenv("FAKE_MISSING_DEPENDENCY", "matplotlib")
+    with pytest.raises(Halt) as stopped:
+        _probe(root, config, "generic")
+    assert stopped.value.code == "missing_dependency" and stopped.value.detail == "matplotlib; pip install -r requirements.txt"
+    assert runs(root) == []
+
+
+def test_unselected_measurements_and_run_level_energy_are_logged_not_refused(setup, caplog):
+    root, config = setup
     with caplog.at_level("INFO", logger="perfrepair.event"):
-        probe_device(root, screening_catalog(None), config, echo=lambda _: None, benchmark=FAKE,
-                     perf=PerfMode.parse(["energy", "latency"]))
-    text = caplog.text
-    assert "energyJ is selected but" in text and "perf_mode_extra:" in text and "allocationCount" in text
+        _probe(root, config, ["energy", "latency"], on_device=True)
+    assert "energyJ is selected but" in caplog.text
+    _with_run(config, "run: {harness: {energy: {capture: measured}}}\n")
+    caplog.clear()
+    with caplog.at_level("INFO", logger="perfrepair.event"):
+        _probe(root, config, ["latency"], on_device=True)
+    assert "perf_mode_extra:" in caplog.text and "energyJ" in caplog.text
     assert switched_on({"run": {"metrics": ["TIME"], "harness": {"energy": {"capture": "measured"}}}}) == {"TIME", "energy"}

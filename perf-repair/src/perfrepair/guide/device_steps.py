@@ -12,6 +12,7 @@ from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
 from ..dto.coded import InputError
 from ..dto.event import END
+from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from ..failure import FAILURES
 from ..files import sha256_file
@@ -60,10 +61,20 @@ def _used(g: Guide) -> str:
     return f", used set {len(used.items)} of {used.deviceItems} items for {len(used.apps)} app folders"
 
 
+def _modes(g: Guide) -> list[PerfMode]:
+    return [g.app_modes.get(r, g.mode).perf for r in g.targets] or [g.mode.perf]
+
+
 def _measured(g: Guide) -> PerfMode:
     """What the one benchmark must measure: every key of every target's own perfMode."""
-    modes = [g.app_modes.get(r, g.mode).perf for r in g.targets] or [g.mode.perf]
+    modes = _modes(g)
     return modes[0] if len({m.name for m in modes}) == 1 else PerfMode.union(modes)
+
+
+def _required(g: Guide) -> tuple[Metric, ...]:
+    """A union reads as a strict list; only the targets that are strict make a metric required."""
+    modes = _modes(g)
+    return tuple(m for m in METRICS if any(m in mode.required for mode in modes))
 
 
 def open_record(g: Guide, folder: Path) -> None:
@@ -87,9 +98,10 @@ def prerequisites(g: Guide) -> str:
     if g.root is not None:
         detect = (lambda folder: detect_targets(g, folder)) if g.filter_by_apps else None
         # named: a stop inside it still finds the folder its log goes to
-        g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
-                                detect=detect, perf=_measured(g), bundled=g.bundled,
-                                named=lambda folder: open_record(g, folder)).folder
+        made = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
+                            detect=detect, perf=_measured(g), required=_required(g), bundled=g.bundled,
+                            named=lambda folder: open_record(g, folder))
+        g.device, g.base_config = made.folder, made.config
     if not (g.device / rd.MANIFEST).is_file():
         halt(g, "missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
     open_record(g, g.device)

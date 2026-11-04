@@ -1,7 +1,7 @@
 """probe_device(): the device's folder made current, each stage reused or rerun by its input digests (device/plan.py)."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Callable
 
@@ -12,12 +12,13 @@ from ..data_handler.outbound.benchmark_runner import check_dependencies, identif
 from ..dto.bundled import BundledPolicy
 from ..dto.device import DeviceRecord, runtime_summary
 from ..dto.event import END
+from ..dto.metrics import Metric
 from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from ..files import sha256_file
 from ..log import emit
 from ..run_dir.lock import DeviceLock
 from ..screen.catalog import Catalog
-from .measures import check_measures
+from .measures import check_measures, owned_config
 from .plan import STAGES
 from .primitives import inputs as primitive_inputs
 from .seen import seen
@@ -33,6 +34,8 @@ REUSED = "its inputs match device.yaml"
 class DeviceStage:
     folder: Path
     steps: dict[str, str | None]
+    # the global.yaml the run was named, before perfMode's run.metrics
+    config: Path | None = None
 
     @property
     def ran(self) -> list[str]:
@@ -61,20 +64,24 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
                  echo: Callable[[str], None] = print, benchmark: Path | str | None = None,
                  refresh: bool = False, detect: Callable[[Path], list[str]] | None = None,
                  perf: PerfMode = GENERIC_MODE, bundled: BundledPolicy = BundledPolicy(),
-                 named: Callable[[Path], None] = lambda _: None) -> DeviceStage:
+                 named: Callable[[Path], None] = lambda _: None, required: tuple[Metric, ...] | None = None) -> DeviceStage:
     """No model call: grouping assign stays with its caller; refresh rebuilds primitives.tsv. detect: the target apps'
     folders found on the probe (device.filterByApps); with it the benchmark measures their used set only, after the
-    device.bundled step. perf: the run config must measure what it selects, checked before any device run. named: told
-    the folder once known, so a failed first run still reports into it."""
+    device.bundled step. perf: owns run.metrics (device/measures.py); required: the metrics that stop when unmeasurable,
+    perf's own by default. named: told the folder once known, so a failed first run still reports into it."""
     check_dependencies(config, on_device, benchmark)
     identity = identify(config, on_device, benchmark)
-    check_measures(Path(identity["config"]), perf)
+    base = Path(identity["config"])
+    echo(check_measures(base, perf, on_device, required))
     folder = Path(root) / identity["deviceId"]
     named(folder)
     # a second run on the folder stops here, device_busy, before it reads or drops anything
     with DeviceLock.take(folder):
+        measured = owned_config(base, folder, perf, on_device)
+        # the plan compares the digests of the config that measures, so a perfMode that changes run.metrics reruns the benchmark
+        identity = identify(measured, on_device, benchmark) if measured != base else identity
         r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark, bundled=bundled)
-        return _made(r, identity, refresh, detect)
+        return replace(_made(r, identity, refresh, detect), config=base)
 
 
 def _made(r: Run, identity: dict, refresh: bool, detect: Callable[[Path], list[str]] | None) -> DeviceStage:

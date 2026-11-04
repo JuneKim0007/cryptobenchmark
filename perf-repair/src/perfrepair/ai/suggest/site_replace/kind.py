@@ -93,7 +93,7 @@ class SiteReplaceKind:
         return f"{first.file}:{first.line}" + (f" +{len(u.dossiers) - 1}" if len(u.dossiers) > 1 else "")
 
     def render(self, u: UnitDossiers, state: Replacements) -> TaskPrompt:
-        return TaskPrompt(NAME, render(u, self.perf, self.table, self.display, self.warnings), u.key)
+        return TaskPrompt(NAME, render(u, self.perf, self.table, self.display, self.warnings, self.doc.get("measured")), u.key)
 
     def check(self, u: UnitDossiers, text: str, state: Replacements) -> tuple[dict | None, list[str]]:
         return check_reply(text, u, self.max_change, self.perf)

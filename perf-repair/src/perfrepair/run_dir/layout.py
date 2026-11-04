@@ -11,6 +11,8 @@ PRIMITIVES = "primitives.tsv"
 USED, USED_CONFIG = "used.json", "used-global.yaml"
 # device.bundled.fromApps: the catalog rows matched to the providers the apps ship, and the config that applies them
 BUNDLED_SUGGESTIONS, BUNDLED_CONFIG = "bundled-suggestions.yaml", "bundled-global.yaml"
+# the global.yaml whose run.metrics perfMode decided, when the base says otherwise
+METRICS_CONFIG = "metrics-global.yaml"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, UNITS, DOSSIERS = "app.json", "scopes.json", "units.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"

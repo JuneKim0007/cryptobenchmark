@@ -16,15 +16,16 @@
 | `thermal_gate(document)` | `scripts/effective_view.py` | run.thermalGate as :config validated it, or None when absent or enabled false. | stages.benchmark, stages.measuring |
 | `throttle_sleep(document)` | `scripts/effective_view.py` | None keeps Jetpack's own sleep; RunSettings already refused a negative value. | stages.benchmark, stages.harness |
 | `guarded(problems, step)` | `scripts/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
-| `source(effective, python, stacktrace)` | `scripts/energy_stage.py` | A session spans the whole run, and a run compares its cases: one source. | stages.benchmark, stages.harness |
-| `fail(message)` | `scripts/failure.py` | - | effective_view, gradle_runner, pipeline, results.select +6 |
-| `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, pipeline |
+| `source(effective, python, stacktrace)` | `scripts/energy_stage.py` | `SOURCES[source_name(effective)](Host(python, stacktrace, android_home() / 'platform-tools', ...` | stages.benchmark, stages.harness |
+| `fail(message)` | `scripts/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +8 |
+| `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, pipeline, stages.benchmark |
+| `global_config(argument)` | `scripts/global_file.py` | - | dependencies, pipeline |
 | `run(project, arguments, stacktrace, stream, main_class, notices)` | `scripts/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
 | `map_blocks(path, text)` | `scripts/lint/markdown.py` | - | docs_lint, lint.tree |
 | `is_doc(path)` | `scripts/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |
 | `join(base, rel)` | `scripts/lint/paths.py` | `posixpath.normpath(posixpath.join(base, rel)) if base else posixpath.normpath(rel)` | docs_lint, lint.tree |
 | `router_of(path)` | `scripts/lint/paths.py` | `next((r for r in ROUTERS if r and path.startswith(r + '/')), '')` | docs_lint, lint.tree |
-| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | device.facts, energy_stage, explain, gradle_runner +7 |
+| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, device.facts, energy_stage, explain +9 |
 | `publish(stage, target, discovery_mode)` | `scripts/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
 | `staged(root)` | `scripts/results/layout.py` | - | stages.discover, stages.interop |
 | `warn_if_temp(path)` | `scripts/results/layout.py` | - | pipeline, stages.harness |
@@ -54,7 +55,8 @@
 | `timed_hooks(run, one, isolation)` | `scripts/stages/measuring.py` | The cool-down, then the gate, so a case's start temperature and clocks are read after both. | stages.benchmark, stages.harness |
 | `elapsed(label, started)` | `scripts/stages/took.py` | - | stages.benchmark, stages.discover, stages.harness, stages.interop +1 |
 | `run(step, command)` | `scripts/timeouts.py` | - | device.adb, gradle_runner, scope.compile, stages.benchmark |
-| `capture(node, default)` | `tools/energy/capture.py` | `_energy(node).get('capture', default)` | energy, energy_stage |
+| `capture(node, default)` | `tools/energy/capture.py` | `_energy(node).get('capture', default)` | dependencies, energy, energy_stage |
+| `source(node, default)` | `tools/energy/capture.py` | `_energy(node).get('source', default)` | dependencies, energy_stage |
 | `one_line(error)` | `tools/energy/energy.py` | `' '.join(str(error).split())[:200] or type(error).__name__` | none |
 | `one_line(error)` | `tools/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `tools/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |

@@ -35,6 +35,8 @@ class Guide:
     config: Path | None = None
     # the per-app device step; None uses config
     app_config: Path | None = None
+    # the global.yaml probe_device resolved when config is unset, for the per-app device step
+    base_config: Path | None = None
     settings: Loaded | None = None
     echo: Callable[[str], None] = print
     catalog: Catalog | None = None

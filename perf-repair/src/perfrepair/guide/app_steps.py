@@ -10,6 +10,7 @@ from ..app.facts.gate import open_apps
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.bundled_config import harness_config
 from ..device.energy import report_invalid
+from ..device.measures import owned_config
 from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
@@ -70,7 +71,8 @@ def harness(g: Guide) -> str:
 
 def measured_config(g: Guide) -> Path | None:
     """The global.yaml the app's device step runs with; None: pipeline.py's own lookup."""
-    return harness_config(g.device, g.app_config, g.paths.root) or g.config
+    config = harness_config(g.device, g.app_config, g.paths.root) or g.config or g.base_config
+    return owned_config(config, g.paths.root, g.mode.perf, on_device=True) if config else None
 
 
 def device(g: Guide) -> str:

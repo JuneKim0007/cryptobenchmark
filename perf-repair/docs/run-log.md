@@ -49,7 +49,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | `energy_invalid` | `device/energy.py`, after each device run | the case id; its reasons across process files (`short_window`, `window_uncovered`, ...); ref: the `energy.json` |
 | `energy_unreadable` | `device/energy.py` | the manifest; the run stands |
 | `pipeline_failed` | `benchmark_runner.py` | the stage; exit and last error line; ref: `pipeline/<run id>.log:<line>` of the call; the device step, the guide step and the app's target add no line |
-| `perf_mode_unmeasured`, `perf_mode_maybe_unmeasured` | `device/measures.py` | the metrics |
+| `perf_mode_unmeasured`, `perf_mode_maybe_unmeasured`, `run_metrics_overridden` | `device/measures.py` | the metrics |
 | `missing_dependency` | `benchmark_runner.py` | the module and its install line |
 | `bundled_missing` | `device/bundled.py` | each provider with its coordinates and apps |
 | a guide stop (`no_options`, `missing_device_stage`, `<step>_failed`, ...) | `guide/state.py`, `guide/run.py` | `<step>_failed` carries the inner code in `data.inner` and first in its detail |

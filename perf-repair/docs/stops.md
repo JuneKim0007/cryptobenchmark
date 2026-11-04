@@ -30,7 +30,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 |---|---|---|---|---|
 | `bundled_missing` | `warn` | `warn`, `stop` | 1 | add the providers to providers.bundled in global.yaml, or set device.bundled.fromApps |
 | `not_on_device` | `warn` | `warn`, `stop` | 1 | add it to providers.bundled in global.yaml and rerun the device stage |
-| `perf_mode_unmeasured` | `stop` | `stop`, `warn` | 1 | turn the metric on in the run config, or drop it from apps.perfMode |
+| `perf_mode_unmeasured` | `stop` | `stop`, `warn` | 1 | measure on a device (guide --device), or drop the metric from apps.perfMode |
 | `perf_mode_maybe_unmeasured` | `warn` | `warn`, `stop` | 1 | set run.harness.energy.capture: measured, or rely on the test set |
 | `energy_invalid` | `warn` | `warn`, `stop` | 1 | the case has no energy number; rerun it with a longer window or more operations |
 | `energy_unreadable` | `warn` | `warn`, `stop` | 1 | check the energy.json files the manifest lists |
@@ -38,6 +38,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `category_mismatch` | `warn` | `warn`, `stop` | 1 | the before/after disagrees with its category's estimate; check the scope's pattern against its function, or read its ratio with care |
 | `thermal_throttled_at_end` | `warn` | `warn`, `stop` | 1 | the case ended throttled; let the phone cool, or read its numbers with care |
 | `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
+| `run_metrics_overridden` | `warn` | fixed: a notice; nothing to choose | 1 | remove run.metrics from the run config; apps.perfMode decides what is measured |
 | `missing_dependency` | `stop` | fixed: the input is unusable | 1 | pip install -r requirements.txt |
 | `screening_catalog_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun grouping build, or set device.screening.catalog to the catalog screen.json names |
 | `charter_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | move the outbox aside or restore the prompts it was made with |
