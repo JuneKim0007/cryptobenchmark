@@ -1,6 +1,6 @@
 # Facade
 
-`python3 scripts/facade.py --settings <settings.yaml> [--check]`: one command for benchmark then guided repair.
+`python3 apps/cli/facade.py --settings <settings.yaml> [--check]`: one command for benchmark then guided repair.
 
 ## Settings index
 

@@ -176,5 +176,5 @@ def fake_tools(monkeypatch, phone):
             fake_merge_runs(phone, words)
         return []
     monkeypatch.setattr(gradle_runner, "run", run)
-    # the parse-only check needs the JVM; tests/test_facade_check.py runs the real one
+    # the parse-only check needs the JVM; apps/cli/tests/test_facade_check.py runs the real one
     monkeypatch.setattr(config_check, "parsed", lambda file: {"bundled": bundled.read(pathlib.Path(file))})

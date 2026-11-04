@@ -20,20 +20,20 @@
 | `fail(message)` | `scripts/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +8 |
 | `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +1 |
 | `global_config(argument)` | `scripts/global_file.py` | - | dependencies, pipeline |
-| `run(project, arguments, stacktrace, stream, main_class, notices)` | `scripts/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
+| `run(arguments, stacktrace, stream, main_class, notices)` | `scripts/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
 | `map_blocks(path, text)` | `scripts/lint/markdown.py` | - | docs_lint, lint.tree |
 | `is_doc(path)` | `scripts/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |
 | `join(base, rel)` | `scripts/lint/paths.py` | `posixpath.normpath(posixpath.join(base, rel)) if base else posixpath.normpath(rel)` | docs_lint, lint.tree |
 | `router_of(path)` | `scripts/lint/paths.py` | `next((r for r in ROUTERS if r and path.startswith(r + '/')), '')` | docs_lint, lint.tree |
-| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, device.facts, energy_stage, explain +12 |
+| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, energy_stage, explain, global_file +6 |
 | `publish(stage, target, discovery_mode)` | `scripts/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
 | `staged(root)` | `scripts/results/layout.py` | - | stages.discover, stages.interop |
 | `warn_if_temp(path)` | `scripts/results/layout.py` | - | pipeline, stages.harness |
 | `manifest(results, mode, configuration, files, problems)` | `scripts/results/manifest.py` | - | pipeline, stages.harness, stages.interop |
 | `digests(global_file)` | `scripts/results/run_inputs.py` | Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only | pipeline, results.manifest |
 | `device_folders(root)` | `scripts/results/select.py` | - | none |
-| `generate(harness_path, root, out, compiler)` | `scripts/scope/generate.py` | - | scope_generate, stages.harness |
-| `expression(parameter, scope)` | `scripts/scope/inputs.py` | - | scope.generate, scope.wrapper |
+| `generate(harness_path, root, out, compiler)` | `scripts/scope/generate.py` | No scope compiled still writes an empty catalog: the call sites are measured through the same test APK. | scope_generate, stages.harness |
+| `expression(parameter, scope, side)` | `scripts/scope/inputs.py` | `side` picks the provider a key pair is decoded by: another provider's key class is converted at every init, a cost on one side only. | scope.generate, scope.wrapper |
 | `kind(type_text)` | `scripts/scope/inputs.py` | `KINDS.get(normalised(type_text))` | scope.interop, scope.wrapper |
 | `of(name)` | `scripts/scope/languages.py` | `LANGUAGES[name]` | scope.dependencies, scope.generate, scope.wrapper |
 | `listed(output)` | `scripts/session/case_isolation.py` | The timed cases the device planned, in its order: AndroidJUnitRunner's -e log true lists them and runs none. | session.measure, stages.benchmark |

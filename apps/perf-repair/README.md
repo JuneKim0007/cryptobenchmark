@@ -18,7 +18,7 @@ Location: `apps/perf-repair/` inside the cryptobenchmark repo; the benchmark is 
 
 ## Usage
 
-Benchmark then every target app, from one settings file: `python3 scripts/facade.py --settings settings.yaml` ([facade](../../docs/facade.md)).
+Benchmark then every target app, from one settings file: `python3 apps/cli/facade.py --settings settings.yaml` ([facade](../../docs/facade.md)).
 
 The lower-level command, once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path:
 

@@ -8,9 +8,8 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from facade import phases
+from facade import ROOT, phases
 from facade.index import read_index
-from repo import ROOT
 
 FIXTURES = ROOT / "apps/perf-repair/tests/fixtures"
 FAKE_ROOT = FIXTURES / "device"
@@ -95,6 +94,6 @@ def test_a_first_phase_failure_stops_the_second(index, monkeypatch):
 
 def test_the_facade_reports_a_missing_dependency_friendly():
     probe = "import importlib.util, sys; sys.modules['yaml'] = None; importlib.util.find_spec = lambda name: None; import runpy; runpy.run_path(sys.argv[1], run_name='__main__')"
-    done = subprocess.run([sys.executable, "-c", probe, str(ROOT / "scripts/facade.py"), "--settings", "x"], capture_output=True, text=True,
-                          env={"PYTHONPATH": str(ROOT / "scripts")}, check=False)
+    done = subprocess.run([sys.executable, "-c", probe, str(ROOT / "apps/cli/facade.py"), "--settings", "x"], capture_output=True, text=True,
+                          env={"PYTHONPATH": str(ROOT / "apps/cli")}, check=False)
     assert done.returncode == 1 and done.stderr.strip() == "error: missing_dependency: yaml; pip install -r requirements.txt"

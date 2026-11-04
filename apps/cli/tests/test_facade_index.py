@@ -4,8 +4,8 @@ import sys
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+from facade import ROOT
 from facade.index import SettingsIndexError, read_index
-from repo import ROOT
 
 GOOD = "schemaVersion: 1\nresults: r\ncrypto: {config: c/global.yaml}\nllm: {config: l/p.yaml}\n"
 

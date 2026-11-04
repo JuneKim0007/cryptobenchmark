@@ -1,6 +1,6 @@
 """python3 -m perfrepair guide — apps from source to their harness (dry), or to a measured report (--device): --app runs one,
 else every apps.targets entry; the device-level steps once, then each app; exit 0 only if every app reached its last step.
-The lower-level command under `scripts/facade.py`, which runs the benchmark then this; needs `pip install -e apps/perf-repair`
+The lower-level command under `apps/cli/facade.py`, which runs the benchmark then this; needs `pip install -e apps/perf-repair`
 or PYTHONPATH=apps/perf-repair/src. Unset flags come from perfrepair.yaml (--perfrepair-config FILE); see docs/settings.md."""
 from __future__ import annotations
 

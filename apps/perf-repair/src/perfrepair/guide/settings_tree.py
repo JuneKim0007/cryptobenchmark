@@ -1,4 +1,4 @@
-"""A settings file and what it points at, through the parsers a run uses, read for `scripts/facade.py --check`; no model,
+"""A settings file and what it points at, through the parsers a run uses, read for `apps/cli/facade.py --check`; no model,
 no device, no environment layer. Strict where a run only warns: a key nothing reads is a problem here."""
 from __future__ import annotations
 

@@ -54,6 +54,13 @@ apps/benchmark/modules/environment/discovery/ : provider and service probe, defa
 apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
 apps/benchmark/modules/settings/ : harness key table shared by config, preparation and benchmark
 apps/benchmark/settings.gradle : Gradle projects and their directories under apps/benchmark/modules/
+apps/cli/facade.py : one command for benchmark then guided repair from one settings index; --check
+apps/cli/facade/__init__.py : package of the facade: index, tree check, phases; the repository root; the runner and perfrepair on the path
+apps/cli/facade/check.py : every path exists, each file through its real parser, each key where it belongs, the direction rule, the catalogs
+apps/cli/facade/index.py : the root settings file: paths and what spans a run; any key it does not know is an error
+apps/cli/facade/phases.py : the crypto and guided phases as guide children with every path named; one coded line each
+apps/cli/facade/tree.py : the resolved tree: nodes, direction rule, printed lines, the document a run record keeps
+apps/cli/tests/ : pytest for the facade
 apps/perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
@@ -72,12 +79,6 @@ scripts/effective_view.py : effective.yaml with the warnings and skips of report
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
-scripts/facade.py : one command for benchmark then guided repair from one settings index; --check
-scripts/facade/__init__.py : package of the facade: index, tree check, phases; perfrepair on the path
-scripts/facade/check.py : every path exists, each file through its real parser, each key where it belongs, the direction rule, the catalogs
-scripts/facade/index.py : the root settings file: paths and what spans a run; any key it does not know is an error
-scripts/facade/phases.py : the crypto and guided phases as guide children with every path named; one coded line each
-scripts/facade/tree.py : the resolved tree: nodes, direction rule, printed lines, the document a run record keeps
 scripts/failure.py : one error line and exit; an error as one line of at most 500 characters
 scripts/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines

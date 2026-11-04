@@ -14,7 +14,7 @@
 
 ## scripts/pipeline.py
 
-The command for both sides is `scripts/facade.py` ([facade.md](facade.md)); this one is the benchmark's own.
+The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); this one is the benchmark's own.
 ```
 python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]

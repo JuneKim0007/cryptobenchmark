@@ -11,7 +11,7 @@
 - android api: a change to discovery, settings, preparation or benchmark passes `apps/benchmark/gradlew -p tools/android-api-check compileKotlin`; pass `-PandroidJar=<android.jar>` when `$ANDROID_HOME/platforms/android-36/android.jar` is absent.
 - settings: a change to `:settings` passes `apps/benchmark/gradlew -p apps/benchmark :settings:test`.
 - examples: regenerate committed `example/` files only after a schema change: `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.
-- python: a change under `scripts/` or `tools/energy/` passes `python3 -m pytest scripts/tests tools/energy/tests tools/quick-bench/tests`.
+- python: a change under `scripts/`, `tools/energy/` or `apps/cli/` passes `python3 -m pytest scripts/tests tools/energy/tests tools/quick-bench/tests apps/cli/tests`.
 - python: a change to `scripts/pipeline.py` passes `python3 scripts/tests/test_manifest.py`.
 - analysis: a change to `tools/quick-bench/*.py` passes `python3 tools/quick-bench/tests/test_analyze.py`; `-u` rewrites `tools/quick-bench/tests/golden_summary.md` and `golden_chart_summary.md`.
 - perf-repair: a change under `apps/perf-repair/` passes `make -C apps/perf-repair check`.

@@ -1,4 +1,4 @@
-# Copy to perfrepair.yaml (git-ignored); llm.config in settings.yaml names it for scripts/facade.py.
+# Copy to perfrepair.yaml (git-ignored); llm.config in settings.yaml names it for apps/cli/facade.py.
 # Directly, name a copy with --perfrepair-config or PERFREPAIR_CONFIG. The results root, the benchmark's global.yaml and
 # the run's id are in settings.yaml, or the guide's flags: a value for one of them here is a placement error.
 # Every key is optional; a missing or null key falls through to the next layer:

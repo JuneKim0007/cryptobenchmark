@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""One command for benchmark then guided repair, from one settings index: scripts/facade.py --settings <settings.yaml> [--check]"""
+"""One command for benchmark then guided repair, from one settings index: apps/cli/facade.py --settings <settings.yaml> [--check]"""
 import argparse
 import sys
 
-import dependencies  # noqa: F401  first: it reports a missing PyYAML, which everything below needs
+import facade  # noqa: F401  first: it puts the benchmark runner on the path
+
+# isort: split
+import dependencies  # noqa: F401  next: it reports a missing PyYAML, which everything below needs
 import timeouts
 from facade import tree
 from facade.check import check

@@ -1,4 +1,4 @@
-# Copy to settings.yaml (git-ignored); run: python3 scripts/facade.py --settings settings.yaml [--check]
+# Copy to settings.yaml (git-ignored); run: python3 apps/cli/facade.py --settings settings.yaml [--check]
 # An index of paths and of what spans a whole run. Relative paths resolve against the file holding them.
 # Direction: this file -> crypto or llm -> their sub-files -> catalogs; never sideways, never upward. A key not below is an error.
 schemaVersion: 1                 # required

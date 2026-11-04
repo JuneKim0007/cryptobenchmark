@@ -8,9 +8,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 
-from repo import ROOT
-
-from facade import SOURCE
+from facade import ROOT, SOURCE
 
 RESUME = "resume"
 
