@@ -6,11 +6,6 @@ from ....dto.decision import OutboxRecord
 from ....dto.prompt import TaskPrompt
 
 
-class Item(Protocol):
-    @property
-    def key(self) -> str: ...
-
-
 class DecisionKind(Protocol):
     name: str
 

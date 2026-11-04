@@ -1,4 +1,4 @@
-"""A call in neutral terms: its receiver, name, arguments and trailing lambda; finding one by line; a scope function's inner calls."""
+"""A call in neutral terms: its receiver, name, arguments and trailing lambda; finding one by line."""
 from __future__ import annotations
 
 import re
@@ -66,10 +66,6 @@ def lambda_owner(annotated: Node) -> Call | None:
     if owner is None or owner.kind != g.CALL:
         return None
     return as_call(owner) or (as_call(owner.children[0]) if owner.children and owner.children[0].kind == g.CALL else None)
-
-
-def calls_in(root: Node) -> list[Call]:
-    return [c for n in root.walk() if (c := as_call(n)) is not None]
 
 
 def _squeezed(text: str) -> str:

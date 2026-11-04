@@ -77,7 +77,7 @@ src/perfrepair/ai/suggest/site_replace/rows.py : the primitives.tsv lines a memb
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision (replace, keep, recommend), members (member alias, option alias, edits, risks, needs), deciding, accepted, concerns, reason; all required; aliases and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope; the stale scopes
 src/perfrepair/config/__init__.py : docstring only
-src/perfrepair/config/args.py : --perfrepair-config; one settings load per command, which installs the stops reader; unset flags filled from their rows, required ones checked; positive_int, the argparse type of --turns, --sessions, --limit
+src/perfrepair/config/args.py : --perfrepair-config; one settings load per command, which installs the stops reader; unset flags filled from their rows; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/current.py : the run's settings: the first command of a run that loads them installs them, an in-process command keeps its caller's; read when a code fires or a child starts
 src/perfrepair/config/device_results.py : the device folder of a command: --device-results, else paths.results with device.id or its only device, their one reader; device_root (the root the guide hands to probe_device); not_device_results; the temporary-folder warning
 src/perfrepair/config/dotenv.py : .env reader: its PERFREPAIR_* keys as a layer; other keys fill unset environment keys

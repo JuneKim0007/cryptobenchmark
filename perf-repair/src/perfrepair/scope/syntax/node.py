@@ -35,6 +35,3 @@ class Node:
         while p is not None:
             yield p
             p = p.parent
-
-    def is_inside(self, other: "Node") -> bool:
-        return self is other or any(a is other for a in self.ancestors())

@@ -52,9 +52,3 @@ def fill(loaded: Loaded, args: argparse.Namespace, rows: Mapping[str, Row]) -> N
     """rows: argument dest → its row."""
     for dest, row in rows.items():
         setattr(args, dest, loaded.read(row, getattr(args, dest)))
-
-
-def require(parser: argparse.ArgumentParser, args: argparse.Namespace, dest: str, row: Row) -> None:
-    if getattr(args, dest) is None:
-        parser.error(f"the following arguments are required: --{dest} (or {row.key} in perfrepair.yaml)")
-

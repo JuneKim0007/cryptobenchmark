@@ -22,11 +22,6 @@ def class_chain(n: Node) -> list[Node]:
     return [p for p in n.ancestors() if p.kind == g.CLASS_BODY]
 
 
-def enclosing_class(n: Node) -> Node | None:
-    chain = class_chain(n)
-    return chain[0] if chain else None
-
-
 def outermost_class(n: Node) -> Node | None:
     """The outermost class body; the file when the code has no class around it."""
     chain = class_chain(n)
@@ -149,10 +144,3 @@ def methods_named(body: Node | None, name: str, arity: int) -> list[Node]:
         return []
     return [q for q in body.walk() if q.type in ("method_declaration", "function_declaration")
             and method_name(q) == name and len(parameters(q)) == arity]
-
-
-def class_name(body: Node) -> str | None:
-    owner = body.parent
-    if owner is None:
-        return None
-    return next((c.text for c in owner.children if c.kind == g.IDENTIFIER or c.type == "type_identifier"), None)
