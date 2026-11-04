@@ -12,6 +12,7 @@ docs/pipeline.md : stages, commands, and what each reads and writes
 docs/repair.md : call sites to before/after: steps, inputs, outputs, limits
 docs/replacement.md : app source to measured before/after per replaced call site: flow, files, contracts
 docs/run-log.md : <device>/log/: events.jsonl, its views (status, model stages, bugs), pipeline transcripts, status line kinds, watch and log summary
+docs/screening-list.md : generated: status counts per engine type and every deprecated row, with reason and source link
 docs/screening.md : screening statuses, precedence, lookup, catalog settings and identity, the model review of unknown items, the screening.yaml sections, loader codes, sources policy, limits
 docs/settings.md : perfrepair.yaml and .env: lookup, precedence, keys, roles, errors
 docs/shared-functions.md : functions three or more modules import: module, signature, rule, callers

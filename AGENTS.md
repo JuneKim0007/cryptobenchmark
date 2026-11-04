@@ -104,6 +104,7 @@ scripts/scope/results.py : device interop verdicts into scoped-plan.yaml; measur
 scripts/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
+scripts/screening_list.py : writes perf-repair/docs/screening-list.md from the screening catalog
 scripts/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
 scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml

@@ -25,6 +25,7 @@
 - read by code: before moving or deleting a doc, grep code, scripts, tests, workflows and Makefiles for its path; keep paths they name.
 - generated: `modules/environment/discovery/docs/tree.md` is stdout of `tools/jca-contract/src/main/kotlin/examples/Tree.kt`; regenerate it, never hand-edit it.
 - generated: `docs/shared-functions.md` and `perf-repair/docs/shared-functions.md` are written by `python3 scripts/shared_functions.py`; rerun it after a change to what modules import, never hand-edit them.
+- generated: `perf-repair/docs/screening-list.md` is written by `python3 scripts/screening_list.py`; rerun it after a change to `screening.yaml`, never hand-edit it.
 - runtime prompts: `perf-repair/src/**/*.system.md` are code; keep them out of the docs graph.
 - readme: a module `README.md` is 3 to 6 lines: what the module is and a link to its `docs/index.md`.
 - diagram: Mermaid code blocks inside the doc.

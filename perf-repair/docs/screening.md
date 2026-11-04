@@ -81,6 +81,8 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | `platform` | provider, then engine type and canonical names | `deprecatedApi` (compared with the app's targetSdk), `removedApi` (null while still registered), `reason`, `source` |
 | `future` | engine type, canonical name | `note`, `source` |
 
+- status counts and deprecated rows, generated: [screening-list.md](screening-list.md).
+
 ## Loader checks (`ScreeningError`, every problem at once)
 
 | Code | When |
