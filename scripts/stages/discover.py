@@ -40,9 +40,11 @@ def discover(options, configuration, device, results):
         written = gradle_runner.run("jca-contract", f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
-        started = time.monotonic()
+        started, before = time.monotonic(), capture_files.stamped(discovery)
         written = gradle_runner.run("jca-contract", f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream)
         capture, trial = capture_files.printed(written, discovery)
+        if reuse:
+            capture_files.reprobed(before, capture)
     for path in written:
         print(f"wrote:     {path}")
     effective = configured / "effective.yaml"

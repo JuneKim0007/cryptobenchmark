@@ -50,3 +50,13 @@ def test_after_a_publish_into_a_kept_discovery_the_run_reads_its_own_capture(tmp
     _, _, capture, trial, files = discover.located(tmp_path, "probe_20260301T000000Z.yaml")
     assert (capture.name, trial.name) == ("probe_20260301T000000Z.yaml", "trial_20260301T000000Z.yaml")
     assert files["probe"] == capture
+
+
+def test_reuse_that_probed_again_says_so_and_a_reused_capture_is_silent(tmp_path, capsys):
+    write(tmp_path, "20260101T000000Z")
+    before = capture_files.stamped(tmp_path)
+    capture_files.reprobed(before, tmp_path / "probe_20260101T000000Z.yaml")
+    assert capsys.readouterr().out == ""
+    capture_files.reprobed(before, tmp_path / "probe_20260102T000000Z.yaml")
+    assert capsys.readouterr().out == (f"warning: discovery_reprobed: no capture in {tmp_path} fits this JVM's runtime; "
+                                       "--discovery reuse probed again\n")

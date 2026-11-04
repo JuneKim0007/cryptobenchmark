@@ -51,7 +51,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--probe`, or neither `--bench` nor `--device` | discover and configure only, then a manifest that replaces the device's last one |
 | any failure | prints `error: <message>`, exits 1; an error with no code of its own is `subprocess_failed: <command> exited <n>` or `internal_error: <type>: <message>`, with the traceback under `--stacktrace` |
 
-- Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`.
+- Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`; with no kept capture that fits the JVM's runtime it probes again and prints `warning: discovery_reprobed: ...`.
 - The run's capture is the one its discovery wrote: on a host the file `ProbeKt` printed, on a device the one capture the probe added to `discovery/`; its trial is the file with the same stamp. With `--discovery keep` older captures stay beside it and are never picked by their stamp, which comes from the device clock.
 - Device discovery runs `ConfigureKt` with `--facts`.
 - `run.processRepetitions` ([config.md](../modules/config/docs/config.md)) above 1: runs merged with `MergeRunsKt`.

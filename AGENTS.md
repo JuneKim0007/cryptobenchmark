@@ -108,7 +108,7 @@ scripts/shared_functions.py : writes docs/shared-functions.md and perf-repair/do
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 scripts/stages/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
-scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
+scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
 scripts/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
 scripts/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts, scoped passes into measured/
 scripts/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
