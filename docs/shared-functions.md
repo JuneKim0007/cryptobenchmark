@@ -21,11 +21,7 @@
 | `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +1 |
 | `global_config(argument)` | `scripts/global_file.py` | - | dependencies, pipeline |
 | `run(arguments, stacktrace, stream, main_class, notices)` | `scripts/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
-| `map_blocks(path, text)` | `scripts/lint/markdown.py` | - | docs_lint, lint.tree |
-| `is_doc(path)` | `scripts/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |
-| `join(base, rel)` | `scripts/lint/paths.py` | `posixpath.normpath(posixpath.join(base, rel)) if base else posixpath.normpath(rel)` | docs_lint, lint.tree |
-| `router_of(path)` | `scripts/lint/paths.py` | `next((r for r in ROUTERS if r and path.startswith(r + '/')), '')` | docs_lint, lint.tree |
-| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, energy_stage, explain, global_file +6 |
+| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, energy_stage, explain, global_file +3 |
 | `publish(stage, target, discovery_mode)` | `scripts/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
 | `staged(root)` | `scripts/results/layout.py` | - | stages.discover, stages.interop |
 | `warn_if_temp(path)` | `scripts/results/layout.py` | - | pipeline, stages.harness |
@@ -60,6 +56,10 @@
 | `one_line(error)` | `tools/energy/energy.py` | `' '.join(str(error).split())[:200] or type(error).__name__` | none |
 | `one_line(error)` | `tools/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `tools/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
+| `map_blocks(path, text)` | `tools/lint/markdown.py` | - | docs_lint, lint.tree |
+| `is_doc(path)` | `tools/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |
+| `join(base, rel)` | `tools/lint/paths.py` | `posixpath.normpath(posixpath.join(base, rel)) if base else posixpath.normpath(rel)` | docs_lint, lint.tree |
+| `router_of(path)` | `tools/lint/paths.py` | `next((r for r in ROUTERS if r and path.startswith(r + '/')), '')` | docs_lint, lint.tree |
 | `load(benchmark_file, prepared_file, effective_file)` | `tools/quick-bench/chart_input.py` | - | analyze, charts |
 | `settings(effective)` | `tools/quick-bench/chart_input.py` | - | analyze, charts |
 | `count_metrics(raw_cases)` | `tools/quick-bench/chart_model.py` | The metrics a run carries besides timeNs, in the order first seen; only those with at least one run. | analyze, charts |

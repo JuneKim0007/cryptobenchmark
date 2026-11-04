@@ -1,12 +1,13 @@
 """Writes the shared-functions index of each code root: the functions other modules import, with their callers."""
 import ast
 import collections
+import pathlib
 import textwrap
 
-from repo import ROOT
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # (title, router, doc, source roots each a module search path, least importing modules a function needs to be listed)
-INDEXES = [("scripts and tools", "", "docs/shared-functions.md", ["scripts", "tools/energy", "tools/quick-bench", "apps/cli"], 2),
+INDEXES = [("scripts and tools", "", "docs/shared-functions.md", ["scripts", "tools", "tools/energy", "tools/quick-bench", "apps/cli"], 2),
            ("perf-repair", "apps/perf-repair", "docs/shared-functions.md", ["src"], 3)]
 GENERAL = {"scripts/failure.py": {"one_line", "fail"}, "scripts/device/adb.py": {"PASSED", "ONE_PASSED"},
            "scripts/repo.py": {"ROOT"}, "scripts/results/select.py": {"device_folders"},
@@ -17,9 +18,11 @@ GENERAL = {"scripts/failure.py": {"one_line", "fail"}, "scripts/device/adb.py": 
 def modules(roots):
     found = {}
     for root in roots:
+        # a root inside another is its own search path, not a package of the outer one
+        inner = [ROOT / other for other in roots if other.startswith(root + "/")]
         for path in sorted((ROOT / root).rglob("*.py")):
             relative = path.relative_to(ROOT / root)
-            if "tests" in relative.parts or "build" in relative.parts:
+            if "tests" in relative.parts or "build" in relative.parts or any(path.is_relative_to(i) for i in inner):
                 continue
             parts = relative.with_suffix("").parts
             name = ".".join(parts[:-1] if parts[-1] == "__init__" else parts)

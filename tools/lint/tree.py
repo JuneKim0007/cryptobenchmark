@@ -1,13 +1,15 @@
 """The repo's files and folders as git lists them, and the paths each guide or doc names, resolved against them."""
 from __future__ import annotations
 
+import pathlib
 import posixpath
 import re
 import subprocess
 
 from lint.markdown import BACKTICK, LINK, clean, map_blocks
 from lint.paths import ENTRY, ROUTERS, graphed, join, local, router_of
-from repo import ROOT
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 def tracked() -> list[str]:

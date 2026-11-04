@@ -23,7 +23,7 @@
 - delete/rename: re-grep and confirm zero hits.
 - conflict: code wins; a guide or doc that disagrees with the code is corrected, never followed.
 - check: after a code change, pass the commands in `agents/testing.md` for the touched area.
-- check: after a docs or guide change, pass `python3 scripts/docs_lint.py`.
+- check: after a docs or guide change, pass `python3 tools/docs_lint.py`.
 - commit: never commit `results/`, `build/` or signing keys (`*.jks`).
 - commit: no AI or tool attribution and no `Co-Authored-By` line in commit messages or PR bodies.
 
@@ -31,7 +31,7 @@
 - module schema change: code → `-Dexamples.update=true` run → module doc
 - harness setting: `Key` in `apps/benchmark/modules/settings/src/main/kotlin/Harness.kt` (`energy.*` in `EnergySettings.kt`, `cpu.*` in `CpuSettings.kt`) → field on the typed class → `apps/benchmark/modules/settings/docs/settings.md`
 - module file added: its line in `apps/benchmark/modules/<m>/docs/index.md`
-- guide change: `python3 scripts/docs_lint.py`
+- guide change: `python3 tools/docs_lint.py`
 
 ## File structure
 
@@ -74,7 +74,6 @@ scripts/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/device/facts.py : device facts into discovery/facts.yaml
 scripts/device/identity.py : device id from a capture's runtime block
 scripts/device/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
-scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
@@ -82,10 +81,6 @@ scripts/explain.py : each resolved setting of a run and the file it came from
 scripts/failure.py : one error line and exit; an error as one line of at most 500 characters
 scripts/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
-scripts/lint/__init__.py : package of the docs lint's model of the repo
-scripts/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
-scripts/lint/paths.py : routers, guides, docs and graphed files by path
-scripts/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
 scripts/repo.py : the repository root every script resolves its paths against
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
@@ -108,7 +103,6 @@ scripts/scope/results.py : device interop and call-site verdicts into scoped-pla
 scripts/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
-scripts/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
 scripts/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
 scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
@@ -120,7 +114,6 @@ scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baselin
 scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
-scripts/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
@@ -136,7 +129,15 @@ scripts/tests/ : pytest and standalone tests for scripts/
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
+tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
+tools/lint/__init__.py : package of the docs lint's model of the repo
+tools/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
+tools/lint/paths.py : routers, guides, docs and graphed files by path
+tools/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 tools/module-isolation/ : per-module isolated compile and test
 tools/quick-bench/ : analysis of a benchmark.json: summary, charts, statistics
+tools/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
+tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph
+tools/tests/ : pytest for the repo dev tools
 ```

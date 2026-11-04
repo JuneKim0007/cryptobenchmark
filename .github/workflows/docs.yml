@@ -15,4 +15,4 @@ jobs:
         with:
           python-version: '3.12'
       - name: Docs lint
-        run: python3 scripts/docs_lint.py
+        run: python3 tools/docs_lint.py

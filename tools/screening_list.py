@@ -1,9 +1,10 @@
 """Writes apps/perf-repair/docs/screening-list.md from the screening catalog: status counts per engine type, then every deprecated row."""
 import collections
+import pathlib
 
 import yaml
 
-from repo import ROOT
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 CATALOG = ROOT / "apps/perf-repair/src/perfrepair/catalog/screening.yaml"
 DOC = ROOT / "apps/perf-repair/docs/screening-list.md"
