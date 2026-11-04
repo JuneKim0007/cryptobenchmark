@@ -73,6 +73,7 @@ scripts/lint/paths.py : routers, guides, docs and graphed files by path
 scripts/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
 scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
+scripts/repo.py : the repository root every script resolves its paths against
 scripts/requirements.txt : host Python dependencies
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection
 scripts/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, the temporary-folder warning

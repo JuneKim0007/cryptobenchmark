@@ -1,17 +1,16 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
-import dataclasses, pathlib, sys, time
+import dataclasses, sys, time
 
 import effective_view, energy_stage, gradle_runner, timeouts
 from device.adb import measure_arguments
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
+from repo import ROOT
 from session import case_isolation, energy_hook, passes, thermal_gate, variant_order, warmup
 from session import measure as measure_session
 from stages import not_measured
 from stages.measuring import Measuring, convert, energy_preflight, push, record, singles, thermal_flag, timed_hooks
 from stages.took import elapsed
-
-ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):

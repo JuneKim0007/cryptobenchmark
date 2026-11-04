@@ -1,13 +1,13 @@
 """The energy steps of pipeline.py --device: capture selection and the run's one energy source."""
-import json, pathlib, sys
+import json, sys
 
 import yaml
 
 import timeouts
 from device.adb import DeviceError, android_home
 from failure import one_line
+from repo import ROOT
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT / "tools/energy"))
 from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402

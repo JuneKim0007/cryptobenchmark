@@ -1,13 +1,14 @@
 """Device facts for the settings table: what this device can support, gathered once after install and probe; nothing here decides."""
-import pathlib, zipfile
+import zipfile
 
 import yaml
 
 from device import clocks
+from repo import ROOT
 
 FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
-APK = pathlib.Path(__file__).resolve().parents[2] / "modules/android/build/outputs/apk/release/android-release.apk"
+APK = ROOT / "modules/android/build/outputs/apk/release/android-release.apk"
 PACKAGE = "io.github.junekim0007.cryptobench"
 
 

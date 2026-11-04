@@ -6,6 +6,7 @@ import energy_stage, timeouts
 from device.adb import Device, DeviceError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
+from repo import ROOT
 from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
@@ -15,8 +16,6 @@ from stages.benchmark import measure_cases
 from stages.discover import device_discover, host_runtime
 from stages.harness import harness_run, measured_folder
 from stages.interop import interop_run
-
-ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 def global_config(argument):

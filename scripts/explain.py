@@ -10,9 +10,9 @@ import sys
 import yaml
 
 import effective_view
+from repo import ROOT
 from results import select
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
 SECTIONS = ("run", "policy", "analysis")
 
 

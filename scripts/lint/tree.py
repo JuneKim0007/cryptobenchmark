@@ -4,12 +4,10 @@ from __future__ import annotations
 import posixpath
 import re
 import subprocess
-from pathlib import Path
 
 from lint.markdown import BACKTICK, LINK, clean, map_blocks
 from lint.paths import ENTRY, ROUTERS, graphed, join, local, router_of
-
-ROOT = Path(__file__).resolve().parents[2]
+from repo import ROOT
 
 
 def tracked() -> list[str]:

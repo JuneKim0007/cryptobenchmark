@@ -6,6 +6,7 @@ from device.adb import measure_arguments
 from device.identity import capture_id
 from energy_session import EnergySession
 from failure import fail
+from repo import ROOT
 from results import layout as results_layout
 from results.manifest import manifest
 from scope import generate as scope_generate
@@ -16,8 +17,6 @@ from session import measure as measure_session
 from stages.discover import discover
 from stages.measuring import Measuring, convert, energy_preflight, push, record, singles, thermal_flag, timed_hooks
 from stages.took import elapsed
-
-ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 def generate_scopes(options, scoped):
