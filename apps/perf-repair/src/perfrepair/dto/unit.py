@@ -11,7 +11,6 @@ from .interop import NOT_PLANNED
 UNITS_SCHEMA_VERSION = 1
 UNITS_DOC = DocumentKind("units", UNITS_SCHEMA_VERSION)
 SHARED_KEY, INVERSE, PRODUCER_CONSUMER = "shared_key", "inverse", "producer_consumer"
-LINK_KINDS = (SHARED_KEY, INVERSE, PRODUCER_CONSUMER)
 # what the two sides have in common: per kind, the evidence that may back it
 LINK_VIA = {SHARED_KEY: ("field", "parameter", "same_class_call", "other_call", "generated", "derived", "keystore", "decoded",
                          "storage"),

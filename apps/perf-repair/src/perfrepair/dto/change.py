@@ -9,9 +9,6 @@ CHANGES = (DROP_IN, LOCAL_EDIT, MIGRATION)
 REJECTED = "rejected"
 CLASSES = (*CHANGES, REJECTED)
 SAME = "same"
-INPUT_DIFFS = (SAME, "reshaped", "new_parameter")
-KEY_DIFFS = (SAME, "size", "type")
-OUTPUT_DIFFS = (SAME, "bytes", "kind")
 # unknown: a field takes the object or the output, or a sink is unknown; persist: the output is stored or sent
 REACHES = ("local", "return", "unknown", "persist")
 NO_GAIN = "no_gain"

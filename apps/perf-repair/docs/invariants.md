@@ -47,4 +47,4 @@ Read from each app's `scopes.json` and `units.json` against the source under app
 ## Known-answer fixtures
 
 - `tests/fixtures/scoping/`: own-written Java and Kotlin sources, one site per pattern reason and link kind, and the hard cases: a lazy cache in a field, a re-init per call on a held object, a held object whose fixed variant inits per call, an escaping object; `expected.yaml` holds the true reading of each.
-- `validation/scoping/accuracy.py` runs the scoper over them and counts, per rule, the sites it reads right; a wrong reading is listed, never tuned away.
+- `tests/test_invariants_scoping.py` runs the scoper over them and counts, per rule, the sites it reads right; a wrong reading is listed, never tuned away.

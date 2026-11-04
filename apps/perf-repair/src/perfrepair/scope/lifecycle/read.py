@@ -108,10 +108,6 @@ def _found(b: Binding, engine: Engine, same: Slice, reach: Reach, consumed: list
                  _private_field(b.name, created) if b.kind == "field" else False)
 
 
-def lifecycle_of(root: Node, site: dict, engines: Engines) -> Lifecycle:
-    return read_site(root, site, engines).lifecycle
-
-
 def read_site(root: Node, site: dict, engines: Engines) -> Reading:
     engine = engines.engines.get(site["engineType"])
     if engine is None:

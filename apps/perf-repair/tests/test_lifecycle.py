@@ -11,7 +11,7 @@ pytest.importorskip("tree_sitter")
 pytest.importorskip("tree_sitter_java")
 pytest.importorskip("tree_sitter_kotlin")
 
-from perfrepair.scope.lifecycle.read import lifecycle_of  # noqa: E402
+from perfrepair.scope.lifecycle.read import read_site  # noqa: E402
 from perfrepair.scope.syntax.parser import parse  # noqa: E402
 
 F = Path(__file__).parent / "fixtures" / "lifecycle"
@@ -23,7 +23,7 @@ def read(file: str, marker: str) -> Lifecycle:
     line = next(n for n, t in enumerate(text.splitlines(), 1) if t.rstrip().endswith(f"// site: {marker}"))
     m = CALL.search(text.splitlines()[line - 1])
     site = {"line": line, "call": m.group(0), "engineType": m.group(1)}
-    return lifecycle_of(parse(text, of_file(file)), site, read_engines())
+    return read_site(parse(text, of_file(file)), site, read_engines()).lifecycle
 
 
 def steps(lc: Lifecycle) -> list[tuple]:
@@ -85,8 +85,8 @@ def test_kotlin_scope_functions_act_on_the_object():
 
 def test_an_unread_call_is_unsupported_with_its_reason():
     text = (F / "Seal.kt").read_text()
-    lc = lifecycle_of(parse(text, of_file("Seal.kt")), {"line": 1, "call": "Cipher.getInstance(\"Z\")",
-                                                         "engineType": "Cipher"}, read_engines())
+    lc = read_site(parse(text, of_file("Seal.kt")), {"line": 1, "call": "Cipher.getInstance(\"Z\")",
+                                                     "engineType": "Cipher"}, read_engines()).lifecycle
     assert (lc.status, lc.reasons) == ("unsupported", ("call_not_found",))
 
 
@@ -100,5 +100,5 @@ def test_a_value_reassigned_from_itself_reads_back_to_its_first_definition():
            "    byte[] e = Store.readText(in).getBytes();\n    e = Codec.decode(e);\n" \
            "    return k.generatePrivate(new PKCS8EncodedKeySpec(e));\n  }\n}\n"
     site = {"line": 3, "call": "KeyFactory.getInstance(\"X\")", "engineType": "KeyFactory"}
-    lc = lifecycle_of(parse(text, of_file("A.java")), site, read_engines())
+    lc = read_site(parse(text, of_file("A.java")), site, read_engines()).lifecycle
     assert [(r.name, r.origin, r.line) for r in lc.requirements] == [("input", "storage", 4)]
