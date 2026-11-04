@@ -47,6 +47,7 @@ build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin version
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 gradle.properties : Gradle daemon JVM args and AndroidX flags
+gradlew : the one Gradle wrapper, for the root build and every tools/ build
 modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
 modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
 modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
@@ -132,7 +133,7 @@ settings.example.yaml : template for `settings.yaml`, the facade's root index
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
-tools/jca-contract/ : host probe, configure and parse-only commands, JCA contract tests, examples, shared tools Gradle wrapper
+tools/jca-contract/ : host probe, configure and parse-only commands, JCA contract tests, examples
 tools/module-isolation/ : per-module isolated compile and test
 tools/quick-bench/ : host prepare and measure, Jetpack result conversion, run merge, analysis
 ```

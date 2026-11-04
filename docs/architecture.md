@@ -79,11 +79,11 @@ config/global.yaml + config/testsets/*.yaml
 - `config` resources: `perf-repair/src/perfrepair/catalog/algorithm-names.yaml`, copied by every build that compiles `modules/config` (root, isolation, jca-contract).
 - Tests run with `workingDir` = the module directory.
 - `-Dexamples.update` is forwarded to tests.
-- CI: `.github/workflows/modules.yml` runs `../jca-contract/gradlew -p . :<m>:test` per subproject on Java 17.
+- CI: `.github/workflows/modules.yml` runs `../../gradlew -p . :<m>:test` per subproject on Java 17.
 - Commands: [tools.md](tools.md#module-isolation).
 
 ## Tools builds
 
 - Each `tools/*` build is a standalone Gradle project that compiles module sources by path.
 - No `tools/*` build is included in `settings.gradle`.
-- Pipeline, demo and CI run every `tools/` build through `tools/jca-contract/gradlew -p <dir>`.
+- Pipeline, demo and CI run every `tools/` build through the root `gradlew -p <dir>`.

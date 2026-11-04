@@ -30,8 +30,8 @@ banner() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
 if [ "$warm_only" = yes ]; then
   banner "build"
-  "$root/tools/jca-contract/gradlew" -p "$root/tools/jca-contract" classes -q --no-daemon
-  "$root/tools/jca-contract/gradlew" -p "$root/tools/quick-bench" classes -q --no-daemon
+  "$root/gradlew" -p "$root/tools/jca-contract" classes -q --no-daemon
+  "$root/gradlew" -p "$root/tools/quick-bench" classes -q --no-daemon
   banner "ready"
   echo "both tools compiled; run: scripts/demo.sh"
   exit 0

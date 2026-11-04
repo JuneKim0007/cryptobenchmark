@@ -1,6 +1,7 @@
 buildscript {
     ext.versions = [
             kotlin: '2.2.21',
+            // AGP 8 uses a Gradle internal API removed in 9.6: the wrapper stays on 9.5.
             agp: '8.13.2',
     ]
     repositories {

@@ -24,7 +24,7 @@
 - java: Java sources mirror the full package as folders under `src/main/java/`.
 - errors: messages start with a snake_case code: `<code>: <detail>`.
 - examples: discovery, config, preparation and benchmark keep `example/<module>_<responsibility>_example.(yaml|json)` and a test that compares them with what the code writes.
-- gradle: run every `tools/` build through `tools/jca-contract/gradlew -p <dir>`.
+- gradle: every Gradle build uses the root wrapper; run a `tools/` build through `./gradlew -p <dir>`.
 - python: a new host dependency goes in the root `requirements.txt`, and in `scripts/dependencies.py` when only some runs need it; `tools/energy/requirements.txt` and `requirements-manafa.txt` stay for a separate `--energy-python`.
 - comments: none by default; a kept comment is at most two lines and names a non-obvious trap or constraint.
 - comments: no KDoc or docstring essays, no author, date, ticket or changelog comments.

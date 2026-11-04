@@ -8,7 +8,7 @@ import java.security.Security
 
 /**
  * What this JVM can do, asked through CaptureQuery and TrialQuery.
- * `./gradlew run -PmainClass=examples.ReportKt --args="Cipher AES SunJCE"`
+ * `./gradlew -p tools/jca-contract run -PmainClass=examples.ReportKt --args="Cipher AES SunJCE"`
  */
 fun main(arguments: Array<String>) {
     val type = arguments.getOrNull(0) ?: "Cipher"

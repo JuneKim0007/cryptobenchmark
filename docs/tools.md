@@ -1,13 +1,13 @@
 # Tools
 
-- Every `tools/*` Gradle build runs through the shared wrapper `tools/jca-contract/gradlew`.
+- Every `tools/*` Gradle build runs through the root wrapper `gradlew`.
 - Build layout: [architecture.md](architecture.md#tools-builds). Energy tools: [energy.md](energy.md#files).
 
 ## jca-contract
 
 | entry | command | output |
 |---|---|---|
-| `ProbeKt` (default) | `tools/jca-contract/gradlew -p tools/jca-contract run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
+| `ProbeKt` (default) | `./gradlew -p tools/jca-contract run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
 | `ConfigureKt` | `... run -PmainClass=ConfigureKt --args="<probe> <trial> <configuration dir> [<global.yaml>] [--facts=<facts.yaml>]"` | inventory, effective |
 | `CheckConfigKt` | `... run -PmainClass=CheckConfigKt --args="<global.yaml>..."` | parses each file and its test set; prints `{global, testSet, bundled}` per file as YAML; a refusal is `error: <message>`, exit 1; nothing written |
 | `RuntimeFieldsKt` | `... run -PmainClass=RuntimeFieldsKt` | prints this JVM's runtime fields that the device id uses, as YAML |
@@ -19,13 +19,13 @@
 - `ProbeKt` and `ConfigureKt` fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
 - `ConfigureKt`: fewer than 3 paths exits 2; a missing input prints `error: missing_file`, exits 1; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
 - Compiles discovery, settings and config sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes` (test classpath only).
-- `./gradlew test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
-- CI `.github/workflows/jca-contract.yml` job `probe`: `./gradlew test` on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.
+- `./gradlew -p tools/jca-contract test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
+- CI `.github/workflows/jca-contract.yml` job `probe`: that test on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.
 
 ## android-api-check
 
 ```
-cd tools/android-api-check && ../jca-contract/gradlew compileKotlin -PandroidJar=<android.jar>
+./gradlew -p tools/android-api-check compileKotlin -PandroidJar=<android.jar>
 ```
 
 - Default jar: `$ANDROID_HOME/platforms/android-36/android.jar`.
@@ -89,11 +89,11 @@ python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.
 
 ## module-isolation
 
-| command (in `tools/module-isolation`) | effect |
+| command | effect |
 |---|---|
-| `../jca-contract/gradlew -p . test` | all subprojects |
-| `../jca-contract/gradlew -p . :config:test` | one subproject |
-| `../jca-contract/gradlew -p . test -Dexamples.update=true` | regenerates `example/` outputs |
+| `./gradlew -p tools/module-isolation test` | all subprojects |
+| `./gradlew -p tools/module-isolation :config:test` | one subproject |
+| `./gradlew -p tools/module-isolation test -Dexamples.update=true` | regenerates `example/` outputs |
 
 - Subprojects and classpaths: [architecture.md](architecture.md#isolation-build).
 

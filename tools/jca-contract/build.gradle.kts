@@ -1,5 +1,5 @@
-// Runs :discovery's JCA contract test on any modern JDK. The main build is pinned to Gradle 6.5
-// and Java 8 (see #11), so it cannot host a Java version matrix; this reuses the same sources.
+// The host commands and :discovery's JCA contract test on a JDK matrix, from the same sources.
+// Standalone: configuring the root build needs the Android SDK.
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

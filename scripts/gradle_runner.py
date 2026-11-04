@@ -7,6 +7,7 @@ import timeouts
 from failure import fail, one_line
 from repo import ROOT
 
+WRAPPER = ROOT / "gradlew"
 PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
              "not_converted:", "not_merged:", "energy_not_joined:")
 NOISE = ("FAILURE:", "BUILD FAILED", "* Try:", "* Get more help", "* What went wrong", "> Process 'command", "Run with --", "* Exception is:")
@@ -31,8 +32,8 @@ class ToolFailed(Exception):
     pass
 
 
-def _command(wrapper, project, arguments, main_class):
-    command = [str(wrapper), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q"]
+def _command(project, arguments, main_class):
+    command = [str(WRAPPER), "-p", str(ROOT / "tools" / project), "run", "--no-daemon", "-q"]
     # Gradle refuses an empty --args
     if arguments:
         command.append(f"--args={arguments}")
@@ -43,8 +44,7 @@ def _command(wrapper, project, arguments, main_class):
 
 def output_of(project, arguments, main_class):
     """The tool's stdout lines; its failure is one ToolFailed line, for a caller that goes on or words it itself."""
-    wrapper = ROOT / "tools/jca-contract/gradlew"
-    result = timeouts.run("gradle", _command(wrapper, project, arguments, main_class), capture_output=True, text=True)
+    result = timeouts.run("gradle", _command(project, arguments, main_class), capture_output=True, text=True)
     if result.returncode != 0:
         raise ToolFailed(one_line(failure_message((result.stdout + result.stderr).splitlines())))
     return result.stdout.strip().splitlines()
@@ -52,10 +52,9 @@ def output_of(project, arguments, main_class):
 
 def run(project, arguments, stacktrace, stream=False, main_class=None, notices=None):
     """notices, when given, collects every passed-on line, so a caller can record it."""
-    wrapper = ROOT / "tools/jca-contract/gradlew"
-    if not wrapper.is_file():
-        fail(f"missing_file: {wrapper}")
-    command = _command(wrapper, project, arguments, main_class)
+    if not WRAPPER.is_file():
+        fail(f"missing_file: {WRAPPER}")
+    command = _command(project, arguments, main_class)
     if stream:
         result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:

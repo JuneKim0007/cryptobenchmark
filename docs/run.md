@@ -132,7 +132,7 @@ Androidx always runs its allocation phase, so `benchmarkData.json` holds `alloca
 
 ```
 D=results/<device_id>
-tools/jca-contract/gradlew -p tools/quick-bench run -q -PmainClass=ConvertKt \
+./gradlew -p tools/quick-bench run -q -PmainClass=ConvertKt \
   --args="$D/benchmark/benchmarkData.json $D/preparation/prepared.yaml $D/benchmark $D/benchmark/energy.json --metrics=TIME,ALLOCATION"
 ```
 

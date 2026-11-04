@@ -6,7 +6,7 @@ import java.security.spec.AlgorithmParameterSpec
 
 /**
  * What a parameter tree may name, read from the runtime rather than from a table.
- * `./gradlew run -q -PmainClass=examples.ParametersKt` lists every spec class this JVM offers;
+ * `./gradlew -p tools/jca-contract run -q -PmainClass=examples.ParametersKt` lists every spec class this JVM offers;
  * `--args="javax.crypto.spec.GCMParameterSpec"` prints one class as a YAML block to paste into a test set.
  */
 fun main(arguments: Array<String>) {

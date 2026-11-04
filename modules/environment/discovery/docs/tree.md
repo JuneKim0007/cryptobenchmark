@@ -3,7 +3,7 @@
 Level 1 engine type, level 2 algorithm, level 3 modes, paddings, providers.
 Mode and padding names are defined by the Java Security Standard Algorithm Names specification.
 Measured on Eclipse Adoptium 25.0.3, not an Android device (#14).
-Generated: `cd tools/jca-contract && ./gradlew run -PmainClass=examples.TreeKt` — see `CaptureQuery.tree()`.
+Generated: `./gradlew -p tools/jca-contract run -PmainClass=examples.TreeKt` — see `CaptureQuery.tree()`.
 
 ## specification
 
