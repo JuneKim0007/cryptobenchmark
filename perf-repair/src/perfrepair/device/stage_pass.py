@@ -16,6 +16,7 @@ from ..run_dir import GroupingPaths
 from .bundled import check_bundled
 from .bundled_config import bundled_config, configured
 from .plan import STAGES, Seen, mapped_inputs, plan
+from .selection_adds import includes, not_runnable
 from .selection import FILTER_OFF, exclusions, lacking, measured, write_config
 from .stage_run import Run, run_probe
 from .used import write_used
@@ -45,8 +46,9 @@ def _measured_set(r: Run, keep: frozenset[str], base: Path) -> Path:
         paths = GroupingPaths(r.folder)
         items = read_items(read_json(paths.items))
         rules = exclusions(items, rd.load_screen(paths), keep)
-        path = write_config(base, r.folder, rules)
-        s.count(deviceItems=len(items), measured=len(keep), excluded=len(rules))
+        adds = includes(items, keep, not_runnable(r.folder))
+        path = write_config(base, r.folder, rules, adds)
+        s.count(deviceItems=len(items), measured=len(keep), excluded=len(rules), included=len(adds))
         s.wrote(path)
     return path
 
@@ -105,7 +107,7 @@ def scoped_pass(r: Run, before: Seen, current: dict, refresh: bool, detect: Call
     steps = _probe_current(r, steps, base)
     used = write_used(r.folder, apps)
     manifest, _ = read_manifest(r.folder / rd.MANIFEST)
-    lack = lacking(used.names, before.record, mapped_inputs(manifest.inputs, before.record).get("config"), current["config"])
+    lack = lacking(before.record, mapped_inputs(manifest.inputs, before.record).get("config"), current["config"])
     changed = APPLIED_CHANGED if applied != before.applied else None
     forced = lack or changed
     todo = _left(plan(before, current, refresh, {"benchmark": forced} if forced else None))

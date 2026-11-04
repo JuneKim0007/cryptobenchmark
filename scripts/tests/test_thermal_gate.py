@@ -120,3 +120,11 @@ def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeyp
     document = {"run": {"thermalGate": GATE}}
     benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {})
     assert capsys.readouterr().out.count("warning: thermal_gate_off: run.thermalGate: only a --device run") == 1
+
+
+def test_a_delta_session_gates_to_the_stored_baseline_not_a_new_reading(tmp_path, monkeypatch, capsys):
+    heat = Heat(monkeypatch)
+    monkeypatch.setenv(thermal_gate.STORED_BASELINE, "25.0")
+    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": GATE})
+    assert "gate:      baseline 25.0 C, the stored run's, the hottest of BIG" in capsys.readouterr().out
+    assert gate_of(results, "a")["target"] == 28.0 and heat.slept

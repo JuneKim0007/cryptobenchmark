@@ -116,9 +116,9 @@ def _stream(process: subprocess.Popen, log, last: deque[str], echo: Callable[[st
 def run_pipeline(config: Path | None, results: Path | None, stage: str = "configure",
                  benchmark: Path | str | None = None, harness: Path | None = None,
                  echo: Callable[[str], None] | None = print, tail: int = 40, extra: tuple[str, ...] = (),
-                 app: str | None = None, *, device: Path) -> Path:
+                 app: str | None = None, *, device: Path, env: dict[str, str] | None = None) -> Path:
     """results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/
-    keeps the transcript."""
+    keeps the transcript; env: variables the run adds to the child's environment."""
     if stage not in STAGES:
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")
     root = benchmark_root(benchmark)
@@ -131,7 +131,7 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
     seconds = pipeline_seconds()
     with open(log_path, "a") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
-            env=child_env(PYTHONUNBUFFERED="1"), start_new_session=True) as process, Deadline(process, seconds) as deadline:
+            env=child_env(PYTHONUNBUFFERED="1", **(env or {})), start_new_session=True) as process, Deadline(process, seconds) as deadline:
         log.write(f"# {stage}" + (f" app {app}" if app else "") + "\n$ " + " ".join(command) + "\n")
         manifest = _stream(process, log, last, echo)
         code = process.wait()

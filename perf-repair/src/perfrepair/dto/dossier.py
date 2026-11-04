@@ -16,12 +16,17 @@ NOT_ON_DEVICE_ABSENT = "absent on this device: no provider here registers it and
 NO_REAL_USE = "no_real_use"
 ENERGY_KINDS_DIFFER = "energy_kinds_differ"
 ZERO_MEDIAN = "zero_median"
-NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER, ZERO_MEDIAN)
+# the two sides come from different sessions and the delta's anchors moved: no ratio across them is evidence
+SETUP_DRIFT = "setup_drift"
+CROSS_SESSION = "cross_session"
+NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER, ZERO_MEDIAN, SETUP_DRIFT)
 PROVIDER_HELD_KEY = "provider_held_key"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing; the last is its unit's
 VARIANT_NOT_MEASURED = "variant_not_measured"
+# the current item has no measurement at all: nothing an option could be weighed against
+CURRENT_NOT_MEASURED = "current_not_measured"
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", VARIANT_NOT_MEASURED, "not_grouped", "no_alternative", "none_available", "deprecated_only",
-                     "interop_failed", NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY)
+                     "interop_failed", CURRENT_NOT_MEASURED, NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY)
 
 
 def not_on_device_sites(sites: list[dict], shipped: set[str]) -> list[tuple[str, int, bool]]:

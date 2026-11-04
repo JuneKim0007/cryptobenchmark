@@ -5,11 +5,11 @@ import re
 from typing import NamedTuple
 
 from ..dto import PrimitiveRow, Summary
-from ..dto.dossier import Estimate, NoEstimate, reason_code
+from ..dto.dossier import SETUP_DRIFT, Estimate, NoEstimate, reason_code
 from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME
 from ..dto.site import Scope
-from .estimate import compare
+from .estimate import Comparison, compare
 
 ESTIMATED_SUFFIX = ", estimated"
 LABEL = re.compile(rf"^(?P<op>\S+) key (?P<key>\S+) input (?P<input>\S+) (?P<phase>\S+)(?P<estimated>{ESTIMATED_SUFFIX})?$")
@@ -69,7 +69,18 @@ def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: d
             before = (measurements.get(current[c].rowId) or {}).get(metric)
             after = (measurements.get(option[c].rowId) or {}).get(metric)
             if before is not None and after is not None:
-                yield c, metric, compare(before, after, BY_NAME[metric].lowerIsBetter), after.kind
+                yield c, metric, _compared(current[c], option[c], before, after, metric), after.kind
+
+
+def _compared(mine: PrimitiveRow, theirs: PrimitiveRow, before: Summary, after: Summary, metric: str) -> Comparison:
+    if mine.session != theirs.session and (mine.drift or theirs.drift):
+        return Comparison(None, None, 0, f"{SETUP_DRIFT}: {mine.session or 'benchmark'} and {theirs.session or 'benchmark'}", False)
+    return compare(before, after, BY_NAME[metric].lowerIsBetter)
+
+
+def cross_session(configs: list[Config], current: dict[Config, PrimitiveRow], option: dict[Config, PrimitiveRow]) -> bool:
+    """The two sides of a shown configuration were measured in different sessions; the dossier says so."""
+    return any(current[c].session != option[c].session for c in configs)
 
 
 def _shown(c: Config, kind: str | None) -> str:

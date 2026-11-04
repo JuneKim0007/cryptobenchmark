@@ -19,13 +19,16 @@ from ..dto.primitives_missing import (
     BUNDLED_MISSING,
     HOST_CANNOT_BUILD,
     NO_DEVICE_ITEM,
+    NOT_BENCHMARKED,
     NOT_MEASURED,
     NOT_SCREENED,
     SKIPPED,
     STOPPED,
     MissingRow,
 )
+from ..dto.benchmark_coverage import CODED, Coverage
 from ..dto.run_log import RunLog
+from ..dto.used import UsedSet
 from ..dto.shipped import shipped, shipped_names
 from ..files import read_json
 from ..run_dir import AppPaths, GroupingPaths, read_sites
@@ -162,3 +165,18 @@ def variant_rows(device: Path, app: str, no_options: list[dict]) -> list[Missing
     named = Counter((s["engineType"], s.get("algorithm"), s.get("provider")) for s in scopes if s["id"] in ids)
     return [MissingRow(_primitive(engine, algorithm), provider, VARIANT_NOT_MEASURED, (app,), n, SKIPPED, (), VARIANT_NEXT)
             for (engine, algorithm, provider), n in named.items()]
+
+
+def coverage_rows(device: Path, coverage: Coverage, used: UsedSet) -> list[MissingRow]:
+    """Per used item with a gap, one row: its apps, their sites on it, and its first gap's class and reason."""
+    apps = {u.item: u.apps for u in used.items}
+    first: dict[str, object] = {}
+    for g in coverage.gaps:
+        first.setdefault(g.item, g)
+    rows = []
+    for item, g in first.items():
+        engine, algorithm, provider = parse_qualified(item)
+        sites = sum(_name(s) == item for app in apps.get(item, ()) for s in _resolved(_sites(device, app)))
+        rows.append(MissingRow(_primitive(engine, algorithm), provider, NOT_BENCHMARKED, tuple(apps.get(item, ())), sites,
+                               SKIPPED if g.action == CODED else STOPPED, (), f"{g.gap}: {g.reason}"))
+    return rows

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from helpers import ANY_EVIDENCE
+from helpers import ANY_EVIDENCE, measured_alike
 from perfrepair.catalog.families import Families
 from perfrepair.catalog.names import Names, fold
 from perfrepair.catalog.screening import Screening
@@ -109,7 +109,8 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
     sizes, pairs, refused = Counter(i.family for i in items), 0, 0
     for sdk in TARGET_SDKS:
         verdicts = PACKAGED.app_verdicts(groups, screen, sdk)
-        doc = build_dossiers("app", scopes, {"bundled": []}, groups, [], {}, tmp_path, verdicts, ANY_EVIDENCE)
+        doc = build_dossiers("app", scopes, {"bundled": []}, groups, *measured_alike([i.qualified for i in items]), tmp_path,
+                             verdicts, ANY_EVIDENCE)
         assert validate_dossiers(doc, scopes, groups, verdicts) == []
         offered = {d["current"]: {o["item"]: o["screen"] for o in d["options"]} for d in doc["dossiers"]}
         alone = {s.id for s, i in zip(scopes, items) if sizes[i.family] == 1}

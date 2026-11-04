@@ -25,10 +25,14 @@ class PrimitiveRow:
     variant: str = LEGACY_VARIANT
     # prepared.yaml's perCall: what one timed call redoes; None before variants
     perCall: str | None = None
+    # the delta session that measured it, None for the benchmark's own; drift: its anchors moved past the noise rule
+    session: str | None = None
+    drift: bool = False
 
     def to_json(self) -> dict:
         return asdict(self)
 
     @classmethod
     def from_json(cls, d: dict) -> "PrimitiveRow":
-        return cls(**{k: d[k] if k == "variant" else d.get(k) for k in cls.__dataclass_fields__})
+        return cls(**{k: d[k] if k == "variant" else d.get(k, False) if k == "drift" else d.get(k)
+                      for k in cls.__dataclass_fields__})

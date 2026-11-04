@@ -88,7 +88,7 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
             keyKind=(plan.get("key") or {}).get("kind") or c.get("keyKind"),
             # absent predates variants; null is a scoped before/after case, which the validator refuses here
             parameters=c.get("parameters"), variant=c["variant"] if "variant" in c else LEGACY_VARIANT,
-            perCall=plan.get("perCall"),
+            perCall=plan.get("perCall"), session=c.get("session"), drift=bool(c.get("sessionDrift")),
         ))
         measurements[c["id"]] = summaries
     return rows, measurements, lacking

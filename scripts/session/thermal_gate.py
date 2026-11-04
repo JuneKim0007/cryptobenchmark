@@ -1,11 +1,13 @@
 """run.thermalGate: before each case process the host waits while the device is hotter than its idle baseline; the timed loop is untouched."""
-import dataclasses, json, time
+import dataclasses, json, os, time
 
 from session import thermal_hook
 from device import thermal
 from session.measure import Hooks
 
 TIMEOUT = "thermal_gate_timeout"
+# a delta session gates to the stored run's baseline: a device already warm would otherwise set a warmer target
+STORED_BASELINE = "CRYPTOBENCH_THERMAL_BASELINE"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -31,14 +33,15 @@ def start(device, gate):
         return None
     sensors = tuple(gate["sensors"])
     reading = thermal.read(device)
-    baseline = hottest(reading, sensors)
+    stored = os.environ.get(STORED_BASELINE)
+    baseline = float(stored) if stored else hottest(reading, sensors)
     if baseline is None:
         why = reading.reason or f"none of {', '.join(sensors)} among the device's sensors ({', '.join(sorted(reading.sensors or {}))})"
         print(f"warning: thermal_gate_off: {why}; measuring without the gate")
         return None
     target = Target(sensors, baseline, baseline + gate["marginCelsius"], gate["pollSeconds"], gate["timeoutSeconds"])
     absent = [name for name in sensors if name not in reading.sensors]
-    print(f"gate:      baseline {baseline:.1f} C, the hottest of {', '.join(n for n in sensors if n not in absent)}; "
+    print(f"gate:      baseline {baseline:.1f} C, " + ("the stored run's, " if stored else "") + f"the hottest of {', '.join(n for n in sensors if n not in absent)}; "
           f"a case starts at or below {target.celsius:.1f} C and status 0" + (f"; {', '.join(absent)} absent, skipped" if absent else ""))
     return target
 

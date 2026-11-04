@@ -25,6 +25,7 @@ from ..run_dir import GroupingPaths
 from ..run_dir.run_record import RunRecord
 from ..screen.catalog import screening_catalog
 from .app_steps import app
+from .gate_steps import GROUPED, USED, gate
 from .index import write_index
 from .state import Guide, check_exit, halt
 from .target_file import write_targets
@@ -117,7 +118,9 @@ def prerequisites(g: Guide) -> str:
     problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.device)))
     if problems:
         halt(g, "screening_catalog_mismatch", problems[0].split(": ", 1)[1])
-    return f"device results {g.device}, catalog {g.catalog.source}" + _used(g)
+    said = f"device results {g.device}, catalog {g.catalog.source}" + _used(g)
+    gate(g, USED, _measured(g))
+    return said
 
 
 REUSED_GROUPING = "every item decided, saved files current"
@@ -151,7 +154,14 @@ def _not_used(seen: Coverage) -> dict:
 
 
 def grouping(g: Guide) -> str:
-    """The guide's one device-level model step: only what coverage finds missing is asked."""
+    """The guide's one device-level model step: only what coverage finds missing is asked; then the gate, since grouping
+    decides the candidates."""
+    said = _grouping(g)
+    gate(g, GROUPED, _measured(g))
+    return said
+
+
+def _grouping(g: Guide) -> str:
     paths = GroupingPaths(g.device)
     if not paths.items.is_file() and g.root is None:
         _no_decision(g, f"{paths.items} absent")

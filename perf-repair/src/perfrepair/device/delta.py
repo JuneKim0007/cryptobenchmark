@@ -1,0 +1,118 @@
+"""A delta: only the gaps and their anchors, measured by the same pipeline with the stored setup, then checked and merged
+add-only; a setup that differs or anchors that drift are said in one line each, never merged silently."""
+from __future__ import annotations
+
+import shutil
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable
+
+from .. import run_dir as rd
+from ..data_handler.inbound import manifest_file, read_manifest, read_prepared, read_results
+from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
+from ..dto.benchmark_coverage import Gap
+from ..files import read_json
+from ..result.estimate import compare
+from ..result.gain import UNCHANGED, change_of
+from ..stop.halt import Coded
+from .delta_config import DELTA, write_delta_config, write_rerun_config
+from .delta_estimate import estimate_line, planned_cases, seconds_per_case
+from .delta_merge import merge_delta
+from .setup_fingerprint import case_setups, differing, fingerprint
+
+RESULTS = "results"
+BASELINE_ENV = "CRYPTOBENCH_THERMAL_BASELINE"
+DRIFT_METRIC = "timeNs"
+
+
+@dataclass(frozen=True)
+class Delta:
+    """mismatch: the setup fields that differ, nothing merged; drift: anchor lines past the noise rule."""
+    session: str
+    cases: tuple[str, ...] = ()
+    anchors: tuple[str, ...] = ()
+    mismatch: tuple[str, ...] = ()
+    drift: tuple[str, ...] = ()
+    lines: list[str] = field(default_factory=list)
+
+    def summary(self) -> dict:
+        return {"session": self.session, "added": list(self.cases), "anchors": list(self.anchors),
+                "mismatch": list(self.mismatch), "drift": list(self.drift)}
+
+
+def _stored_baseline(folder: Path) -> str | None:
+    """The stored run's thermal gate baseline, so the delta waits for the same target."""
+    for path in sorted((Path(folder) / "benchmark").rglob("thermal.json")):
+        gate = read_json(path).get("gate") or {}
+        if gate.get("baseline") is not None:
+            return str(gate["baseline"])
+    return None
+
+
+def _measurements(folder: Path) -> dict:
+    manifest, base = read_manifest(folder / rd.MANIFEST)
+    processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
+    prepared = read_prepared(manifest_file(manifest, base, "prepared"))
+    return read_results(manifest_file(manifest, base, "benchmark"), prepared, processes)[1]
+
+
+def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[str, ...]:
+    """Each anchor case measured in both sessions whose change is beyond noise and past improvingRatio (result/gain.py)."""
+    out = []
+    for cid in sorted(anchors):
+        before, after = (stored.get(cid) or {}).get(DRIFT_METRIC), (now.get(cid) or {}).get(DRIFT_METRIC)
+        if before and after:
+            c = compare(before, after)
+            if change_of(c.ratio, c.pImprove) != UNCHANGED:
+                out.append(f"{cid}: {DRIFT_METRIC} ratio {c.ratio:.3f}, pImprove {c.pImprove}")
+    return tuple(out)
+
+
+def _case_mismatch(stored: Path, staged: Path, shared: set[str]) -> list[str]:
+    mine, theirs = case_setups(stored), case_setups(staged)
+    return [f"case {cid}.{line}" for cid in sorted(shared) for line in differing(mine.get(cid, {}), theirs.get(cid, {}))]
+
+
+def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], session: str, on_device: bool,
+              echo: Callable[[str], None], benchmark: Path | str | None = None) -> Delta:
+    folder = Path(folder)
+    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    stored_config = Path(manifest.config)
+    identity = identify(stored_config if stored_config.is_file() else None, on_device, benchmark)
+    if identity["deviceId"] != folder.name:
+        raise Coded(f"device_id_changed: the connected device is {identity['deviceId']}, the folder is {folder.name}; "
+                    "a delta measures the device the benchmark did")
+    items = {g.item for g in gaps}
+    config = write_delta_config(stored_config, folder, items | anchors)
+    planned = {}
+    for c in (read_prepared(manifest_file(manifest, folder, "prepared")) or {}).values():
+        planned[f"{c['type']}|{c['algorithm']}|{c['provider']}"] = planned.get(f"{c['type']}|{c['algorithm']}|{c['provider']}", 0) + 1
+    line = estimate_line(planned_cases(gaps, anchors, planned), len(items), len(anchors),
+                         seconds_per_case(folder, manifest.counts.get("measured", 0)))
+    echo(line)
+    root = folder / DELTA / RESULTS
+    shutil.rmtree(root, ignore_errors=True)
+    baseline = _stored_baseline(folder)
+    run_pipeline(config, root, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder,
+                 env={BASELINE_ENV: baseline} if baseline else None)
+    staged = root / folder.name
+    stored_cases = {c["id"] for c in read_json(folder / manifest.files["benchmark"]).get("cases") or []}
+    staged_doc = read_json(staged / read_manifest(staged / rd.MANIFEST)[0].files["benchmark"])
+    staged_cases = {c["id"] for c in staged_doc.get("cases") or []}
+    shared = stored_cases & staged_cases
+    mismatch = tuple(differing(fingerprint(folder), fingerprint(staged)) + _case_mismatch(folder, staged, shared))
+    if mismatch:
+        return Delta(session, anchors=tuple(sorted(shared)), mismatch=mismatch, lines=[line])
+    drift = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
+    added = staged_cases - stored_cases
+    merge_delta(folder, staged, added, session, bool(drift))
+    return Delta(session, tuple(sorted(added)), tuple(sorted(shared)), (), drift, [line])
+
+
+def rerun_whole(folder: Path, gaps: tuple[Gap, ...], on_device: bool, echo: Callable[[str], None],
+                benchmark: Path | str | None = None) -> None:
+    """Only with device.benchmark.onSetupMismatch rerun: the stored config, the gaps added, measured whole into the folder."""
+    folder = Path(folder)
+    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    config = write_rerun_config(Path(manifest.config), folder, {g.item for g in gaps})
+    run_pipeline(config, folder.parent, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder)

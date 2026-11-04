@@ -15,7 +15,7 @@ from ..dto.change import (
     PairDiff,
     output_changes,
 )
-from ..dto.dossier import OPTION_PREFIX, ZERO_MEDIAN, Option
+from ..dto.dossier import CROSS_SESSION, CURRENT_NOT_MEASURED, OPTION_PREFIX, ZERO_MEDIAN, Option
 from ..dto.grouping import provider_of, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.perf_mode import PerfMode, no_evidence
@@ -23,7 +23,7 @@ from ..dto.screen import Verdict, lowers_status
 from ..dto.site import Scope
 from .candidates import Family
 from .change import foreign_member, needs_review, reach
-from .configurations import Config, estimates, nearest, operations, pins
+from .configurations import Config, cross_session, estimates, nearest, operations, pins
 from .gain import no_gain
 
 BY_ORDER = "resolved_by_order"
@@ -54,11 +54,13 @@ def _missing(options: list[Option], perf: PerfMode) -> dict[str, tuple[str, ...]
 
 
 def _evidenced(options: list[Option], perf: PerfMode) -> tuple[list[Option], str | None]:
-    """The options with an estimate of every required metric, renumbered; else the no_evidence reason."""
+    """The options with an estimate of every required metric, and of one at least, renumbered; else the no_evidence reason.
+    Generic requires none, so an option with some metrics is weighed, one with none never reaches the model."""
     missing = _missing(options, perf)
-    kept = [o for o in options if not missing[o.alias]]
+    kept = [o for o in options if not missing[o.alias] and _weighable(o)]
     if not kept:
-        return [], no_evidence(sorted({m for names in missing.values() for m in names}, key=perf.names.index))
+        lacking = {m for names in missing.values() for m in names} or set(perf.names)
+        return [], no_evidence(sorted(lacking, key=perf.names.index))
     return [replace(o, alias=f"{OPTION_PREFIX}{n}") for n, o in enumerate(kept, 1)], None
 
 
@@ -97,7 +99,8 @@ class Joined:
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), found,
                       None if self.verdicts is None else self.verdicts[q].status, absent, **classed,
                       outputChanges=output_changes(d), reach=reach(s),
-                      needsReview=needs_review(s, d, *rows) + (BY_ORDER,) * by_order, track=self._track(current, q, change))
+                      needsReview=needs_review(s, d, *rows) + (BY_ORDER,) * by_order
+                      + (CROSS_SESSION,) * cross_session(used, mine, theirs), track=self._track(current, q, change))
 
     def others(self, current: str) -> list[str] | None:
         """The other members of the current item's group; None when it is in none."""
@@ -166,6 +169,8 @@ class Joined:
         kept += [Change(q, REJECTED, PairDiff.same(reach(s)), (SAME_ENGINE,)) for q in alias]
         if not targets and not offered:
             return current, [], reason, kept
+        if not self.measured.get(current):
+            return current, [], CURRENT_NOT_MEASURED, kept
         built = [self.option(s, current, n, q, by_order=by_order) for n, q in enumerate(targets, 1)]
         built += [self.option(s, current, n, c.item, c, by_order) for n, c in enumerate(offered, len(built) + 1)]
         gained, lost = self._gained(s, built)

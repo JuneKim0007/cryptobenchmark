@@ -64,6 +64,8 @@ CODES_LIST: tuple[Code, ...] = (
     _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),
+    _choice("not_benchmarked", STOP, "measure the gaps the line lists: rerun the guide with its device stage, or read "
+            "log/details/benchmark_coverage.yaml", (STOP, WARN)),
     _fixed("run_metrics_overridden", "remove run.metrics from the run config; apps.perfMode decides what is measured", NOTICE, WARN),
     _fixed("missing_dependency", "pip install -r requirements.txt"),
     # fixed: continuing would mix runs or devices
@@ -77,6 +79,9 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("outbox_fingerprint_invalid", "the fingerprint is not a charter hash; remove the folder", MIXES),
     _fixed("outbox_unkeyed", "remove the records the current items do not key", MIXES),
     _fixed("device_id_changed", "the device changed between identify and probe; rerun on one device", MIXES),
+    _fixed("setup_mismatch", "restore the setup the line names, or set device.benchmark.onSetupMismatch: rerun to measure "
+           "the whole benchmark again", MIXES),
+    _fixed("merge_refused", "the stored benchmark is kept whole; rerun the guide", MIXES),
     _fixed("device_not_in_results", PICK_DEVICE, MIXES),
     _fixed("several_device_results", PICK_DEVICE, MIXES),
     _fixed("no_device_results", "run the device stage, or point --results-root at a results root", MIXES),
@@ -147,6 +152,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("missing_step", "run the app's earlier steps first"),
     _fixed("invariant_failed", "run python3 -m perfrepair.validation.invariants on the device folder; fix each blocking finding it prints"),
     _fixed("no_benchmark", "rerun the benchmark"),
+    _fixed("delta_unconfigured", "restore the stored benchmark's config the line names, or rerun the device stage"),
     _fixed("no_events", "run a command against the device folder first"),
     _fixed("no_reports", "run the guide with --device first"),
     _fixed("no_screen", RERUN_GROUPING),

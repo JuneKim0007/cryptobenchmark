@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from ..catalog.screening import SCREENING
+from ..dto.benchmark_coverage import GAP_DELTA, ON_GAP, ON_SETUP_MISMATCH, SETUP_STOP
 from ..dto.bundled import OFF, ON_MISSING, WARN
 from ..dto.change import DROP_IN
 from ..dto.perf_mode import GENERIC
@@ -90,6 +91,10 @@ GROUPING_LIMIT = Row("device.grouping.limit", check_positive)
 GROUPING_NO_RERUN = Row("device.grouping.noRerun", check_bool, default=True)
 GROUPING_ASSIGN = RoleRow("device.grouping.assign", {"effort": "low"})
 GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
+# a gap the gate finds: measured in one delta, or a stop; a setup that differs never starts a whole rerun unless named
+BENCHMARK_ON_GAP = Row("device.benchmark.onGap", partial(check_one_of, choices=ON_GAP), default=GAP_DELTA)
+BENCHMARK_ON_SETUP_MISMATCH = Row("device.benchmark.onSetupMismatch", partial(check_one_of, choices=ON_SETUP_MISMATCH),
+                                  default=SETUP_STOP)
 # off is a full-device run: more device time and model calls, never a wrong result
 FILTER_BY_APPS = Row("device.filterByApps", check_bool, default=True)
 BUNDLED_ON_MISSING = Row("device.bundled.onMissing", partial(check_one_of, choices=ON_MISSING), default=WARN)

@@ -11,8 +11,10 @@ SKIPPED, STOPPED = "skipped", "stopped"
 ACTIONS = (SKIPPED, STOPPED)
 ABSENT_ON_DEVICE, BUNDLED_MISSING, HOST_CANNOT_BUILD = "absent_on_device", "bundled_missing", "host_cannot_build"
 NOT_SCREENED, NOT_MEASURED, NO_DEVICE_ITEM = "not_screened", "not_measured", "no_device_item"
+# the benchmark gate's check: a used item with a gap, its class and reason as the next step
+NOT_BENCHMARKED = "not_benchmarked"
 REASONS = (NOT_ON_DEVICE, ABSENT_ON_DEVICE, BUNDLED_MISSING, HOST_CANNOT_BUILD, NOT_SCREENED, NOT_MEASURED, NO_DEVICE_ITEM,
-           VARIANT_NOT_MEASURED)
+           VARIANT_NOT_MEASURED, NOT_BENCHMARKED)
 POINTER = "## to check primitives skipped or stopped due to not downloading them go {path}"
 
 

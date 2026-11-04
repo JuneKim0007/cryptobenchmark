@@ -115,7 +115,8 @@ def test_only_the_record_writes_the_run_record_and_the_done_marks():
     assert _writers(r"\bRUNS\b") == ["run_dir/__init__.py", "run_dir/layout.py", "run_dir/run_record.py"]
     assert _writers(r"\.finished\b") == ["run_dir/run_record.py"]
     assert _writers(r'"run_\{') == ["run_dir/run_record.py"]
-    assert _writers(r"\bwrite_device_record\b") == ["device/stage.py", "run_dir/__init__.py", "run_dir/run_record.py"]
+    assert _writers(r"\bwrite_device_record\b") == ["device/gate_after.py", "device/stage.py", "run_dir/__init__.py",
+                                                         "run_dir/run_record.py"]
     assert _writers(r"DEVICE\)\.unlink|DEVICE, yaml") == ["run_dir/run_record.py"]
 
 

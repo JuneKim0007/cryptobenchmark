@@ -1,5 +1,6 @@
 import logging
 import shutil
+from dataclasses import replace
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -65,6 +66,13 @@ def summary(median, spread=1.0, n=50):
     """One process of n runs spread evenly over median ± spread, so the median is exact."""
     runs = tuple(median + spread * (2 * i / (n - 1) - 1) for i in range(n)) if n > 1 else (float(median),)
     return Summary(median, median - spread, median + spread, 0.01, n, median - spread / 4, median + spread / 4, (runs,))
+
+
+def measured_alike(names):
+    """One row per qualified name at one configuration, every median equal: a fixture about anything but the numbers."""
+    rows = [replace(row(f"r{n}", q.split("|")[2], algorithm=q.split("|")[1], type_=q.split("|")[0], key_size=None,
+                        input_size=None), parameters={}) for n, q in enumerate(names)]
+    return rows, {r.rowId: {"timeNs": summary(100, n=1)} for r in rows}
 
 
 QUIET = {"echo": lambda _: None}

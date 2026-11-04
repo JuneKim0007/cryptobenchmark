@@ -16,7 +16,7 @@ flowchart LR
 
 ## Files
 
-Every command appends to `<device>/log/`, except `details/primitives_missing.yaml`, rewritten whole; nothing in it is read back by a stage.
+Every command appends to `<device>/log/`, except `details/primitives_missing.yaml` and `details/benchmark_coverage.yaml`, rewritten whole; nothing in it is read back by a stage.
 
 | file | holds |
 |---|---|
@@ -26,9 +26,10 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 | `bug.log` | each exception that is not a coded error, with its traceback |
 | `pipeline/<run id>.log` | the cryptobenchmark transcript of every `pipeline.py` call of one run, each headed `# <stage>[ app <app>]` and `$ <command>` |
 | `details/primitives_missing.yaml` | the primitives and providers an app uses that this guide run skipped or stopped on because they are not available ([below](#primitives-missing)) |
+| `details/benchmark_coverage.yaml` | the benchmark gate's last check (schema 1): `run`, `point` (`used`, `grouped`), `attempt` (0, 1 after a delta), `totals` (used items, items and keys measured, per gap class), `items` (per used item `measured` or its first gap class), `gaps` (item, operation, variant, key and input size, metric, class, `action` `delta` or `coded`, reason, case), `delta` (session, cases added, anchor cases, setup fields that differ, drifted anchors) ([used-set.md](used-set.md#benchmark-gate)) |
 
 - `status.log`, `ai/*.log` and `bug.log` are views: each line is a function of one event (`log/views.py`); `render()` recomputes them from `events.jsonl`.
-- `pipeline/<run id>.log`, `details/primitives_missing.yaml` and the role journals are no views; an event's `ref` points into them.
+- `pipeline/<run id>.log`, `details/*.yaml` and the role journals are no views; an event's `ref` points into them.
 - `log/screening/ai.log` and `log/grouping/ai.log` are no longer written: their lines are in `ai/classify.log`, `ai/grouping.log` and `ai/supervisor.log`; a folder written before keeps the old files, and `render()` over its `events.jsonl` gives the new ones.
 - `<results root>/pipeline.log` is no longer written; the transcript is in the device folder, one file per run.
 
@@ -84,6 +85,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | `not_measured` | a site's item the run log has as `skipped`, `unmeasured` or `not_runnable`, with no measured case | always `skipped` |
 | `no_device_item` | a site that resolved on a device provider, whose item `grouping/items.json` does not hold | always `skipped` |
 | `variant_not_measured` | a scope whose primitive was measured only in the other benchmark variant (`dossiers.json` `noOptions`) | always `skipped` |
+| `not_benchmarked` | a used item with a gap in the benchmark gate's check, `next` its class and reason | `skipped` for a coded gap, else `stopped` |
 
 - The guide holds the rows in memory: no stage reads this file back, so the rule of this folder stands.
 - `## to check primitives skipped or stopped due to not downloading them go <path>` is one `finding` event, emitted with the run's first row, so `status.log` has it once per run, among the findings it points from; none with an empty list.

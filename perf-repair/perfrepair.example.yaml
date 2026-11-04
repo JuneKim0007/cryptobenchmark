@@ -35,6 +35,9 @@ device:                    # once per device
     noRerun: true          # guide: true asks only items with no decision; false asks every item into a new outbox
     assign: {}             # role keys: gateway, model, effort; effort here sets this role only
     supervisor: {}
+  benchmark:
+    onGap: delta           # a used item the benchmark lacks: delta measures only the gaps, once | stop: not_benchmarked
+    onSetupMismatch: stop  # a delta measured under another setup: stop names the field | rerun: the whole benchmark again
   filterByApps: true       # guide: group and measure only the items the target apps use and their options; false = every item
   ## to check primitives skipped or stopped due to not downloading them go <device>/log/details/primitives_missing.yaml
   bundled:                 # guide, with filterByApps: providers the target apps ship that the device lacks
@@ -71,3 +74,4 @@ stops:                     # per code, what it does when it fires (docs/stops.md
   thermal_throttled_at_end: warn   # warn | stop: a case that ended throttled; no verdict changes
   energy_unreadable: warn  # warn | stop: energy files that cannot be read
   no_required_metric: skip # skip | stop: a benchmark case with no runs of a required metric
+  not_benchmarked: stop    # stop | warn: a used item still unmeasured before the model (log/details/benchmark_coverage.yaml)

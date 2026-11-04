@@ -9,6 +9,8 @@ ROWS, MEASUREMENTS, RUN_LOG, SITES = "rows.json", "measurements.json", "run_log.
 PRIMITIVES = "primitives.tsv"
 # the apps' items and the global.yaml that measures only them: device.filterByApps
 USED, USED_CONFIG = "used.json", "used-global.yaml"
+# the base test set with an include per used item, so the used set can add what the test set lacks
+USED_TEST_SET = "used-testset.yaml"
 # device.bundled.fromApps: the catalog rows matched to the providers the apps ship, and the config that applies them
 BUNDLED_SUGGESTIONS, BUNDLED_CONFIG = "bundled-suggestions.yaml", "bundled-global.yaml"
 # the global.yaml whose run.metrics perfMode decided, when the base says otherwise
@@ -31,6 +33,8 @@ APPS_INDEX = "apps-index.tsv"
 STATUS_LOG, BUG_LOG = "log/status.log", "log/bug.log"
 # rewritten whole each run, for people; no stage reads it back
 PRIMITIVES_MISSING = "log/details/primitives_missing.yaml"
+# the benchmark gate's last check: every used item measured or a coded gap; rewritten at each gate point
+BENCHMARK_COVERAGE = "log/details/benchmark_coverage.yaml"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
 # one file per model stage; screening's classify and grouping's supervisor apart from their stage's other turns

@@ -12,6 +12,7 @@ from ..dto.grouping import Item
 from ..dto.screen import Verdict
 from ..dto.used import names_digest
 from ..files import read_yaml, write_text
+from .selection_adds import write_test_set
 
 FILTER_OFF = "device.filterByApps off: the last benchmark measured the apps' items only"
 UNKNOWN = "device.yaml records no used-set benchmark, the manifest is not the base global.yaml's"
@@ -22,13 +23,10 @@ def measured(record: DeviceRecord | None) -> frozenset[str] | None:
     return frozenset(record.benchmark["items"]) if record and record.benchmark else None
 
 
-def lacking(used: frozenset[str], record: DeviceRecord | None, manifest_config: str | None, base_config: str) -> str | None:
-    """Why the benchmark reruns for the used set; a set that only shrank reruns nothing, its rows stay."""
-    done = measured(record)
-    if done is None:
-        return None if manifest_config == base_config else UNKNOWN
-    missing = used - done
-    return f"{len(missing)} used items not measured" if missing else None
+def lacking(record: DeviceRecord | None, manifest_config: str | None, base_config: str) -> str | None:
+    """Why the benchmark reruns for the used set: only when no used-set benchmark is recorded; a set that grew is the
+    benchmark gate's to measure in a delta (device/gate.py), so a used-set change alone reruns nothing."""
+    return None if measured(record) is not None or manifest_config == base_config else UNKNOWN
 
 
 def _canonical(item: Item, verdict: Verdict | None) -> tuple:
@@ -70,9 +68,12 @@ def generated(path: Path, base: Path, why: str, document: dict) -> Path:
     return path
 
 
-def write_config(base: Path, folder: Path, rules: list[dict]) -> Path:
+def write_config(base: Path, folder: Path, rules: list[dict], adds: list[dict] = ()) -> Path:
+    """adds: include rules the test set gains, written as its own copy (device/selection_adds.py)."""
     document = relocated(base)
     selection = {**document["selection"], "exclude": list(document["selection"].get("exclude") or []) + rules}
+    if adds and selection.get("testSet"):
+        selection["testSet"] = str(write_test_set(Path(selection["testSet"]), folder, list(adds)))
     return generated(Path(folder) / rd.USED_CONFIG, base, "device.filterByApps", {**document, "selection": selection})
 
 

@@ -29,15 +29,32 @@ def test_a_bundled_item_counts_as_named_only_when_a_site_names_its_algorithm():
     assert bundled_named(ITEMS, VERDICTS, frozenset({"P2"}), [ITEMS[2]]) == frozenset()
 
 
-def test_a_set_that_only_shrank_lacks_nothing_and_one_that_grew_names_how_many():
-    done = record({"a", "b"})
-    assert lacking(frozenset({"a"}), done, "gen", "base") is None
-    assert lacking(frozenset({"a", "c", "d"}), done, "gen", "base") == "2 used items not measured"
+def test_a_used_set_that_grew_reruns_nothing_the_gate_measures_the_gap():
+    assert lacking(record({"a", "b"}), "gen", "base") is None
 
 
 def test_without_a_section_the_base_run_measured_everything_unless_the_manifest_is_another_config():
-    assert lacking(frozenset({"a"}), record(), "base", "base") is None
-    assert lacking(frozenset({"a"}), None, "gen", "base") == UNKNOWN
+    assert lacking(record(), "base", "base") is None
+    assert lacking(None, "gen", "base") == UNKNOWN
+
+
+def test_the_used_set_adds_an_include_per_item_the_test_set_lacks_in_the_declared_spelling(tmp_path):
+    base = tmp_path / "global.yaml"
+    (tmp_path / "set.yaml").write_text("schemaVersion: 1\ninclude: [{type: T, name: A}]\noverrides: [{match: {type: T}, set: {keySizes: [1]}}]\n")
+    base.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\n")
+    adds = [{"provider": "P", "type": "T", "name": "A"}, {"provider": "P", "type": "K", "name": "hMacX"}]
+    doc = yaml.safe_load(write_config(base, tmp_path, [], adds).read_text())
+    added = yaml.safe_load(Path(doc["selection"]["testSet"]).read_text())
+    assert Path(doc["selection"]["testSet"]) == tmp_path / rd.USED_TEST_SET
+    assert added["include"] == [{"type": "T", "name": "A"}, *adds] and added["overrides"][0]["set"] == {"keySizes": [1]}
+    assert "hMacX" not in (tmp_path / "set.yaml").read_text()
+
+
+def test_an_empty_include_already_plans_everything_so_nothing_is_added(tmp_path):
+    (tmp_path / "set.yaml").write_text("schemaVersion: 1\n")
+    (tmp_path / "global.yaml").write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\n")
+    doc = yaml.safe_load(write_config(tmp_path / "global.yaml", tmp_path, [], [{"provider": "P", "type": "T", "name": "A"}]).read_text())
+    assert Path(doc["selection"]["testSet"]) == (tmp_path / "set.yaml").resolve()
 
 
 def test_the_generated_config_keeps_the_base_and_its_test_set_resolved(tmp_path):

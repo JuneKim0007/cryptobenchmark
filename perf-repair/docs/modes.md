@@ -25,7 +25,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | any perfMode | at least one selected metric's ratio `to ÷ from` ≤ `improvingRatio` (0.97), and none ≥ 1 ÷ `improvingRatio` (1.031) |
 
 - A pair is judged `improves`, `not_improving` or `not_measured`.
-- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` requires none and decides on the metrics that were measured, so a missing energy or allocation estimate never drops an option.
+- `not_measured`: a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` requires none and decides on the metrics that were measured, so a missing energy or allocation estimate never drops an option; one with no estimate at all is dropped, and a scope left with none is `no_evidence`, a current item never measured `current_not_measured`: the model never weighs an empty option.
 - A selected metric without data is the static reason `no_evidence: <metric>`, logged; never a proxy and never `no_improvement`. Levels:
 
 | Where | Unit judged | Without the metric |

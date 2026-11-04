@@ -32,16 +32,17 @@ def test_the_device_stage_says_per_stage_whether_it_ran_and_why_then_reused(tmp_
         ("probe", "ran", "no manifest.yaml"), ("screen", "ran", "probe reruns"), ("bundled.missing", "ok", ""),
         ("bundled", "ok", ""), ("used", "ok", ""),
         ("selection", "ok", ""), ("benchmark", "ran", "probe reruns"), ("inbound", "ran", "benchmark reruns"),
-        ("screen", "ran", "probe reruns"), ("primitives", "ran", "inbound reruns"), ("used", "ok", ""),
-        ("grouping", "ran", "rebuilt from the kept decisions, no item asked, 0 not used by the targets")]
+        ("screen", "ran", "probe reruns"), ("primitives", "ran", "inbound reruns"), ("used", "ok", ""), ("gate", "ok", ""),
+        ("grouping", "ran", "rebuilt from the kept decisions, no item asked, 0 not used by the targets"), ("used", "ok", ""),
+        ("gate", "ok", "")]
     warned = [e for e in events if e.event == "finding" and e.data.get("code") == "bundled_missing"]
     assert [(e.step, e.outcome, APP_ID.sub("<app>", e.detail)) for e in warned] == [("bundled", "warn", WARNED.split("; add")[0])]
     _from_root(tmp_path, capsys)
     again = [e for e in read_events(device / rd.EVENTS) if e.run != events[0].run]
     assert [(e.step, e.outcome) for e in _ends(again, "device")] == [
         ("bundled.missing", "ok"), ("bundled", "ok"), ("used", "ok")] + [(s, "reused") for s in
-                                                                    ("probe", "benchmark", "inbound", "screen", "primitives",
-                                                                     "grouping")]
+                                                                    ("probe", "benchmark", "inbound", "screen", "primitives")] + [
+        ("gate", "ok"), ("grouping", "reused"), ("used", "ok"), ("gate", "ok")]
 
 
 @pytest.mark.usefixtures("asked_by_model")

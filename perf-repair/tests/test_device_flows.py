@@ -264,13 +264,15 @@ def test_filter_nothing_changed_is_no_call_and_no_device_run(scoped):
     assert "device benchmark: reused" in lines
 
 
-def test_filter_a_new_target_asks_only_its_new_items_and_measures_what_is_missing(scoped):
+def test_filter_a_new_target_asks_only_its_new_items_and_reruns_no_benchmark_for_a_refused_one(scoped):
     run_targets(scoped, scoped.sha)
     lines = run_targets(scoped, scoped.sha, scoped.hmac)
-    assert scoped.calls() == 2 and scoped.device_runs() == 3
-    assert "device benchmark: ran: 1 used items not measured" in lines
+    # the used set grew by an item the preparation refused: a coded gap, no delta and no whole rerun
+    assert scoped.calls() == 2 and scoped.device_runs() == 2 and "device benchmark: reused" in lines
+    coverage = yaml.safe_load((scoped.device / rd.BENCHMARK_COVERAGE).read_text())
+    assert coverage["items"][HMAC] == "refused" and coverage["totals"]["refused"] == 1
     assert "guide grouping: ok: ran: 1 of 2 items asked, 2 not used by the targets" in lines
-    assert excluded(scoped) == sorted([GCM_FAST, GCM_SLOW]) and scoped.problems() == {}
+    assert scoped.problems() == {}
 
 
 def test_filter_a_target_removed_keeps_its_groups_and_rows_and_asks_nothing(scoped):

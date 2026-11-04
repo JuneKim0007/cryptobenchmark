@@ -11,6 +11,8 @@ from ..dto import Summary
 from ..dto.dossier import ENERGY_KINDS_DIFFER, ZERO_MEDIAN
 
 Processes = tuple[tuple[float, ...], ...]
+# fewer runs on a side and pImprove is unknown: the benchmark gate counts such a measurement as a gap
+MIN_RUNS = 2
 
 
 @dataclass(frozen=True)
@@ -24,7 +26,7 @@ class Comparison:
 
 
 def p_improve(before: Processes, after: Processes, resamples: int = RESAMPLES, seed: int = SEED) -> float | None:
-    if runs_of(before) < 2 or runs_of(after) < 2:
+    if runs_of(before) < MIN_RUNS or runs_of(after) < MIN_RUNS:
         return None
     rng, wins = random.Random(seed), 0.0
     for _ in range(resamples):

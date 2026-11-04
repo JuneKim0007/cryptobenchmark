@@ -5,7 +5,7 @@ import pytest
 from dataclasses import replace
 from pathlib import Path
 
-from helpers import ANY_EVIDENCE, TIMING, QUIET, row, summary
+from helpers import ANY_EVIDENCE, TIMING, QUIET, measured_alike, row, summary
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.catalog.screening import SCREENING, PlatformRule
@@ -14,7 +14,7 @@ from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.dto.screen import Verdict
 from perfrepair.result.provider_path import SiteProviders, site_providers
-from perfrepair.dto.dossier import Dossier
+from perfrepair.dto.dossier import Dossier, Option
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.dto.dossier import PROVIDER_HELD_KEY
@@ -90,13 +90,16 @@ def test_a_row_without_parameters_is_a_coded_error(tmp_path):
         build([scope()], tmp_path, rows=ROWS[:4] + [row("a64", "P3", algorithm="alg-a-alias", input_size=64)])
 
 
-def test_no_shared_configuration_gives_unknown_pins_that_survive_the_round_trip(tmp_path):
+def test_no_shared_configuration_leaves_no_estimate_so_no_option_reaches_the_model(tmp_path):
     s = scope(key_size=256)
     doc = build([s], tmp_path, perf=ANY_EVIDENCE)
-    assert [o["pins"] for o in doc["dossiers"][0]["options"]] == [None, None]
-    d = Dossier.from_json(json.loads(json.dumps(doc["dossiers"][0])))
-    assert [o.pins for o in d.options] == [None, None] and d.to_json() == doc["dossiers"][0]
+    assert doc["dossiers"] == [] and [n["reason"].split(":")[0] for n in doc["noOptions"]] == ["no_evidence"]
     assert validate_dossiers(doc, [s], GROUPS, None) == []
+
+
+def test_unknown_pins_survive_the_round_trip():
+    option = Option("R1", "Cipher|alg-a|P2", None, "unchecked")
+    assert Option.from_json(json.loads(json.dumps(option.to_json()))).pins is None
 
 
 def test_a_one_run_estimate_has_no_pimprove_and_validates(tmp_path):
@@ -297,9 +300,11 @@ MIXED_SCREEN = {1: Verdict("accepted", "r", "S", "SHA-512"), 2: Verdict("accepte
                                                           (28, [], ["deprecated_only"]),
                                                           (34, [], ["deprecated_only"])])
 def test_a_platform_deprecated_target_depends_on_the_apps_target_sdk(tmp_path, target_sdk, options, reasons):
-    s = replace(scope(provider="P", algorithm="SHA-512"), engineType="MessageDigest")
+    s = replace(scope(provider="P", algorithm="SHA-512"), engineType="MessageDigest", keySize=None, inputSize=None)
     verdicts = load_catalog(SCREENING).handler().app_verdicts(MIXED, MIXED_SCREEN, target_sdk)
-    doc = build([s], tmp_path, groups=MIXED, rows=[], verdicts=verdicts)
+    rows, measurements = measured_alike([v["qualified"] for v in MIXED["items"].values()])
+    doc = build([s], tmp_path, groups=MIXED, rows=rows, measurements=measurements,
+                verdicts=verdicts, perf=ANY_EVIDENCE)
     assert [(o["item"], o["screen"]) for d in doc["dossiers"] for o in d["options"]] == options
     assert [n["reason"] for n in doc["noOptions"]] == reasons
     assert validate_dossiers(doc, [s], MIXED, verdicts) == []

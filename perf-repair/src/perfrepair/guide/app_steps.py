@@ -51,7 +51,8 @@ def replacements(g: Guide) -> str:
     blocked = blocking(app_gate(g.device, g.app_id))
     if blocked:
         halt(g, "invariant_failed", f"{len(blocked)} blocking: " + " | ".join(v.line() for v in blocked[:3]))
-    state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo, refresh=g.refresh)
+    state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo,
+                    refresh=g.refresh or g.delta_merged)
     stale = stale_problem(state)
     if stale:
         halt(g, "dossier_changed", stale.split(": ", 1)[1] + " (guide --refresh)")
