@@ -5,12 +5,14 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from ...dto.document import DocumentKind
 from ...dto.site import Scope
 from ...files import read_yaml
-from ...stop.halt import Coded
 
 RELATIONS = Path(__file__).with_name("relations.yaml")
 SUPPORTED_SCHEMA = 1
+
+RELATIONS_DOC = DocumentKind("relations", SUPPORTED_SCHEMA, "relations_schema: {path} schemaVersion {found}, supported {version}")
 
 
 @dataclass(frozen=True)
@@ -31,7 +33,6 @@ class Relations:
 @cache
 def read_relations() -> Relations:
     raw = read_yaml(RELATIONS)
-    if raw.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise Coded(f"relations_schema: {RELATIONS} schemaVersion {raw.get('schemaVersion')}, supported {SUPPORTED_SCHEMA}")
+    RELATIONS_DOC.check(raw, RELATIONS)
     return Relations(dict(raw["inverses"]), {k: dict(v) for k, v in raw["steps"].items()},
                      {k: frozenset(v) for k, v in raw["producers"].items()})

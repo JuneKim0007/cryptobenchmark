@@ -4,10 +4,12 @@ from __future__ import annotations
 import hashlib
 from dataclasses import asdict, dataclass
 
+from .document import DocumentKind
 from .dossier import Dossier
 from .interop import NOT_PLANNED
 
 UNITS_SCHEMA_VERSION = 1
+UNITS_DOC = DocumentKind("units", UNITS_SCHEMA_VERSION)
 SHARED_KEY, INVERSE, PRODUCER_CONSUMER = "shared_key", "inverse", "producer_consumer"
 LINK_KINDS = (SHARED_KEY, INVERSE, PRODUCER_CONSUMER)
 # what the two sides have in common: per kind, the evidence that may back it
@@ -60,8 +62,7 @@ class Unit:
 
 
 def read_units(doc: dict) -> list[Unit]:
-    if doc.get("schemaVersion") != UNITS_SCHEMA_VERSION:
-        raise ValueError(f"units schemaVersion {doc.get('schemaVersion')} is not {UNITS_SCHEMA_VERSION}")
+    UNITS_DOC.check(doc)
     return [Unit.from_json(u) for u in doc["units"]]
 
 

@@ -9,6 +9,8 @@ from typing import Any
 
 import yaml
 
+from .dto.document import DocumentKind
+
 TEMP_SUFFIX = ".tmp"
 
 
@@ -26,6 +28,11 @@ def read_yaml(path: Path) -> dict:
 
 def read_document(path: Path) -> dict:
     return read_json(path) if Path(path).suffix == ".json" else read_yaml(path)
+
+
+def read_versioned(kind: DocumentKind, path: Path) -> dict:
+    """The document at path, refused with kind's InputError unless its schemaVersion is one kind accepts."""
+    return kind.check(read_document(path), path)
 
 
 def json_text(doc: dict) -> str:

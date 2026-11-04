@@ -5,6 +5,9 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.coded import InputError
+from ..dto.document import AT_PATH, DocumentKind
+
 CATALOG = Path(__file__).with_name("algorithm-names.yaml")
 SCHEMA_VERSION = 1
 NAME_CONFLICT = "name_conflict"
@@ -14,8 +17,11 @@ def fold(name: str) -> str:
     return name.upper()
 
 
-class NamesError(ValueError):
+class NamesError(InputError):
     pass
+
+
+NAMES_DOC = DocumentKind("names", SCHEMA_VERSION, "names_schema: " + AT_PATH, NamesError)
 
 
 @dataclass(frozen=True)
@@ -62,8 +68,7 @@ class Names:
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Names":
         doc = yaml.safe_load(Path(path).read_text())
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise NamesError(f"names_schema: {path}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        NAMES_DOC.check(doc, path)
         return cls(
             names={t: _folded(spellings) for t, spellings in doc["names"].items()},
             sized={t: {fold(s): Canonical(v["name"], v["keySize"]) for s, v in rows.items()}

@@ -4,10 +4,12 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.document import AT_PATH, DocumentKind
 from ..dto.grouping import Family
 
 CATALOG = Path(__file__).with_name("families.yaml")
 SCHEMA_VERSION = 1
+FAMILIES_DOC = DocumentKind("families", SCHEMA_VERSION, AT_PATH)
 
 
 class Families:
@@ -22,8 +24,7 @@ class Families:
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Families":
         doc = yaml.safe_load(Path(path).read_text())
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        FAMILIES_DOC.check(doc, path)
         return cls([Family(**f) for f in doc["families"]])
 
     @property

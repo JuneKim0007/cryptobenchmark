@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .document import DocumentKind
+
 SCHEMA_VERSION = 1
+KNOWLEDGE_DOC = DocumentKind("knowledge", SCHEMA_VERSION)
 CODE_PREFIX = "code_"
 
 
@@ -82,6 +85,5 @@ class Knowledge:
 
     @classmethod
     def from_json(cls, doc: dict) -> "Knowledge":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"knowledge schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        KNOWLEDGE_DOC.check(doc)
         return cls(int(doc["version"]), {gid: Group(**g) for gid, g in doc["groups"].items()}, list(doc["dropped"]))

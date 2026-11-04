@@ -5,6 +5,8 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.coded import InputError
+from ..dto.document import AT_PATH, DocumentKind
 from .names import Names, fold
 
 SCREENING = Path(__file__).with_name("screening.yaml")
@@ -14,8 +16,11 @@ STATUSES = (DEPRECATED, ACCEPTED)
 UNSOURCED = "unsourced"
 
 
-class ScreeningError(ValueError):
+class ScreeningError(InputError):
     pass
+
+
+SCREENING_DOC = DocumentKind("screening", SCHEMA_VERSION, "screening_schema: " + AT_PATH, ScreeningError)
 
 
 @dataclass(frozen=True)
@@ -86,9 +91,7 @@ class _Reader:
         self.doc, self.names, self.path, self.problems = doc or {}, names, path, []
 
     def screening(self) -> Screening:
-        if self.doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ScreeningError(f"screening_schema: {self.path}: schemaVersion {self.doc.get('schemaVersion')} "
-                                 f"is not {SCHEMA_VERSION}")
+        SCREENING_DOC.check(self.doc, self.path)
         self.sources = self.doc.get("sources") or {}
         built = Screening(self._crypto(), self._components(), self._platform(), self._future())
         self._contradictions(built)

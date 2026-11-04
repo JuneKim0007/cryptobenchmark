@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from ....dto.document import DocumentKind
 from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt, fill
 from ....stop.halt import Coded
 from ....files import read_yaml
@@ -17,6 +18,9 @@ class PromptError(Coded):
     pass
 
 
+REGISTRY_DOC = DocumentKind("prompts", SCHEMA_VERSION, "wrong_version: {path} schemaVersion {found} is not {version}", PromptError)
+
+
 @dataclass(frozen=True)
 class Entry:
     name: str
@@ -27,8 +31,7 @@ class Entry:
 
 def read_registry(path: Path) -> dict[str, Entry]:
     doc = read_yaml(path)
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise PromptError(f"wrong_version: {path} schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    REGISTRY_DOC.check(doc, path)
     return {name: Entry(name, e["file"], Lifetime(e["lifetime"]), tuple(e.get("values") or ()))
             for name, e in (doc.get("prompts") or {}).items()}
 

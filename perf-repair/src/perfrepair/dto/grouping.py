@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from .document import NAMED, DocumentKind
 from .signature import Signature
 
 SCHEMA_VERSION = 1
+ITEMS_DOC = DocumentKind("items", SCHEMA_VERSION)
 CURSOR_SCHEMA_VERSION = 1
 # 4: signature
 PROFILES_SCHEMA_VERSION = 4
+PROFILES_DOC = DocumentKind("profiles", PROFILES_SCHEMA_VERSION, NAMED + "; rerun grouping build")
 SEPARATOR = "|"
 KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN = "app_held", "provider_held", "unknown"
 KEY_CONTRACTS = (KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN)
@@ -113,12 +116,10 @@ def profiles_document(profiles: dict[int, Profile]) -> dict:
 
 
 def read_items(doc: dict) -> list[Item]:
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"items schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    ITEMS_DOC.check(doc)
     return [Item.from_json(d) for d in doc["items"]]
 
 
 def read_profiles(doc: dict) -> dict[int, Profile]:
-    if doc.get("schemaVersion") != PROFILES_SCHEMA_VERSION:
-        raise ValueError(f"profiles schemaVersion {doc.get('schemaVersion')} is not {PROFILES_SCHEMA_VERSION}; rerun grouping build")
+    PROFILES_DOC.check(doc)
     return {int(k): Profile.from_json(v) for k, v in doc["profiles"].items()}

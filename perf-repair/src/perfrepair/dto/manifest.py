@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .document import DocumentKind
 from .units import DisplayUnits
 
 SCHEMA_VERSION = 1
+MANIFEST_DOC = DocumentKind("manifest", SCHEMA_VERSION)
 MODES = ("host", "device")
 
 
@@ -36,8 +38,7 @@ class BenchmarkManifest:
 
     @classmethod
     def from_json(cls, doc: dict) -> "BenchmarkManifest":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"manifest schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        MANIFEST_DOC.check(doc)
         if doc.get("mode") not in MODES:
             raise ValueError(f"manifest mode {doc.get('mode')!r} is not one of {MODES}")
         if not doc.get("deviceId"):

@@ -3,10 +3,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .document import DocumentKind
 from .measurement import Summary
 
 # 2: no proxy flag; mode is the perfMode name
 SCHEMA_VERSION = 2
+VERDICTS_DOC = DocumentKind("verdicts", SCHEMA_VERSION)
 DECISIONS = ("test", "skip")
 VERDICTS = ("test", "skip", "not_comparable", "no_improvement", "not_measured")
 SOURCES = ("llm", "static", "fallback")
@@ -115,7 +117,6 @@ class Verdicts:
 
     @classmethod
     def from_json(cls, doc: dict) -> "Verdicts":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"verdicts schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        VERDICTS_DOC.check(doc)
         vs = [Verdict.from_json(v) for v in doc.get("verdicts") or []]
         return cls(doc["mode"], int(doc.get("version", 0)), {v.groupId: v for v in vs})

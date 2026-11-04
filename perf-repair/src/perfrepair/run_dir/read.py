@@ -7,24 +7,16 @@ import yaml
 
 from ..dto import Measurements, PrimitiveRow, RunLog
 from ..dto.device import DeviceRecord
-from ..dto.primitive import ROWS_SCHEMA_VERSION
+from ..dto.primitive import ROWS_DOC
 from ..dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
-from ..dto.site import (
-    DOSSIERS_SCHEMA_VERSION,
-    EDITS_SCHEMA_VERSION,
-    SCOPES_SCHEMA_VERSION,
-    SITES_SCHEMA_VERSION,
-)
+from ..dto.site import DOSSIERS_DOC, EDITS_DOC, SCOPES_DOC, SITES_DOC
 from ..dto.used import UsedSet
-from ..files import read_json, read_yaml, sha256_file, write_text
+from ..files import read_json, read_versioned, read_yaml, sha256_file, write_text
 from .layout import DEVICE, MEASUREMENTS, ROWS, RUN_LOG, USED, GroupingPaths
 
 
 def load_rows(device: Path) -> list[PrimitiveRow]:
-    doc = read_json(Path(device) / ROWS)
-    if doc.get("schemaVersion") != ROWS_SCHEMA_VERSION:
-        raise ValueError(f"rows schemaVersion {doc.get('schemaVersion')} is not {ROWS_SCHEMA_VERSION}")
-    return [PrimitiveRow.from_json(r) for r in doc["rows"]]
+    return [PrimitiveRow.from_json(r) for r in read_versioned(ROWS_DOC, Path(device) / ROWS)["rows"]]
 
 
 def load_measurements(device: Path) -> Measurements:
@@ -64,29 +56,20 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
         return None, f"{DEVICE} unreadable ({e})"
 
 
-def versioned(path: Path, version: int) -> dict:
-    """An app artifact at the schema its readers know; another is schema_version, never a field read as missing."""
-    doc = read_json(path)
-    if doc.get("schemaVersion") != version:
-        raise ValueError(f"schema_version: {path} schemaVersion {doc.get('schemaVersion')!r} is not {version}; "
-                         "rerun the step that writes it")
-    return doc
-
-
 def read_scopes(path: Path) -> dict:
-    return versioned(path, SCOPES_SCHEMA_VERSION)
+    return read_versioned(SCOPES_DOC, path)
 
 
 def read_sites(path: Path) -> dict:
-    return versioned(path, SITES_SCHEMA_VERSION)
+    return read_versioned(SITES_DOC, path)
 
 
 def read_edits(path: Path) -> dict:
-    return versioned(path, EDITS_SCHEMA_VERSION)
+    return read_versioned(EDITS_DOC, path)
 
 
 def read_dossiers(path: Path) -> dict:
-    return versioned(path, DOSSIERS_SCHEMA_VERSION)
+    return read_versioned(DOSSIERS_DOC, path)
 
 
 def load_used(device: Path) -> UsedSet | None:

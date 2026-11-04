@@ -70,13 +70,13 @@
 | `device_folders(root)` | `src/perfrepair/run_dir/layout.py` | The finished devices of a results root: a folder without a manifest is a run that did not end. | config.device_results |
 | `worthiness(device, mode)` | `src/perfrepair/run_dir/layout.py` | `Path(device) / f'{WORTHINESS_PREFIX}{mode}'` | ai.evaluate.worthiness.command, check.grouping, check.run, review.sheet |
 | `load_measurements(device)` | `src/perfrepair/run_dir/read.py` | `Measurements.from_json(read_json(Path(device) / MEASUREMENTS))` | ai.evaluate.worthiness.command, ai.suggest.site_replace.command, check.device, check.grouping +3 |
-| `load_rows(device)` | `src/perfrepair/run_dir/read.py` | - | ai.evaluate.worthiness.command, check.run, device.primitives, device.seen +1 |
+| `load_rows(device)` | `src/perfrepair/run_dir/read.py` | `[PrimitiveRow.from_json(r) for r in read_versioned(ROWS_DOC, Path(device) / ROWS)['rows']]` | ai.evaluate.worthiness.command, check.run, device.primitives, device.seen +1 |
 | `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen(read_json(paths.screen)) if paths.screen.exists() else None` | ai.evaluate.worthiness.command, check.grouping, check.run, device.primitives +2 |
 | `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, guide.device_steps, repair.dossier |
 | `load_used(device)` | `src/perfrepair/run_dir/read.py` | None without used.json: every item counts as used. | ai.parse.grouping_assign.kind, check.device, guide.device_steps |
-| `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `versioned(path, DOSSIERS_SCHEMA_VERSION)` | ai.suggest.site_replace.command, repair.__main__, review.stability |
-| `read_scopes(path)` | `src/perfrepair/run_dir/read.py` | `versioned(path, SCOPES_SCHEMA_VERSION)` | check.apps, guide.app_steps, repair.__main__, repair.dossier +1 |
-| `read_sites(path)` | `src/perfrepair/run_dir/read.py` | `versioned(path, SITES_SCHEMA_VERSION)` | device.bundled_missing, device.used, report.app_report |
+| `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(DOSSIERS_DOC, path)` | ai.suggest.site_replace.command, repair.__main__, review.stability |
+| `read_scopes(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(SCOPES_DOC, path)` | check.apps, guide.app_steps, repair.__main__, repair.dossier +1 |
+| `read_sites(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(SITES_DOC, path)` | device.bundled_missing, device.used, report.app_report |
 | `origin(e, engines, depth)` | `src/perfrepair/scope/lifecycle/origins.py` | - | scope.lifecycle.depth1, scope.lifecycle.read, scope.lifecycle.settle |
 | `as_call(n)` | `src/perfrepair/scope/syntax/calls.py` | - | scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.settle, scope.lifecycle.slice +1 |
 | `declaration_value(declaration)` | `src/perfrepair/scope/syntax/declarations.py` | What a declarator or property declaration initialises to; None when it has no initialiser. | scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.settle |

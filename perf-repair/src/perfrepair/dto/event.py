@@ -3,7 +3,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .document import DocumentKind
+
 SCHEMA_VERSION = 1
+EVENT_DOC = DocumentKind("event", SCHEMA_VERSION)
 KINDS = ("static", "model")
 # a step's start and end; a model turn and the item's decision; a command's run, its coded error or bug; a log record
 START, END, TURN, DECISION = "start", "end", "turn", "decision"
@@ -43,6 +46,5 @@ class Event:
 
     @classmethod
     def from_json(cls, d: dict) -> "Event":
-        if d.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"event schemaVersion {d.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        EVENT_DOC.check(d)
         return cls(**{k: v for k, v in d.items() if k != "schemaVersion"})

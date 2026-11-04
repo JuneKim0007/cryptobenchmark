@@ -5,11 +5,13 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from ..dto.document import AT_PATH, DocumentKind
 from ..dto.lifecycle import ORIGINS, REQUIREMENTS
 from ..files import read_yaml
 
 ENGINES = Path(__file__).with_name("engines.yaml")
 SUPPORTED_SCHEMA = 1
+ENGINES_DOC = DocumentKind("engines", SUPPORTED_SCHEMA, AT_PATH)
 _ENGINE_KEYS = {"configuration", "terminal", "optional", "requirements", "operations", "consumers"}
 _TOP_KEYS = {"schemaVersion", "factory", "engines", "origins", "specs", "accessors", "decoders"}
 
@@ -80,8 +82,7 @@ def _engine(raw: dict) -> Engine:
 @cache
 def read_engines(path: Path = ENGINES) -> Engines:
     doc = read_yaml(path)
-    if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
+    ENGINES_DOC.check(doc, path)
     problems = [f"unknown keys {sorted(set(doc) - _TOP_KEYS)}"] if set(doc) - _TOP_KEYS else []
     problems += [p for name, raw in (doc.get("engines") or {}).items() for p in _problems(name, raw)]
     problems += [f"origin {o} is not one of {ORIGINS}" for o in doc.get("origins") or {} if o not in ORIGINS]

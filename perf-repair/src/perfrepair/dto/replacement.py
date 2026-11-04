@@ -3,8 +3,11 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
 
+from .document import DocumentKind
 from .dossier import Option
 from .site import REPLACEMENTS_SCHEMA_VERSION, Scope
+
+REPLACEMENTS_DOC = DocumentKind("replacements", REPLACEMENTS_SCHEMA_VERSION)
 
 DECISIONS = ("replace", "keep", "recommend")
 RECOMMEND = "recommend"
@@ -103,6 +106,5 @@ class Replacement:
 
 
 def read_replacements(doc: dict) -> dict[str, Replacement]:
-    if doc.get("schemaVersion") != REPLACEMENTS_SCHEMA_VERSION:
-        raise ValueError(f"replacements schemaVersion {doc.get('schemaVersion')} is not {REPLACEMENTS_SCHEMA_VERSION}")
+    REPLACEMENTS_DOC.check(doc)
     return {r["scope"]: Replacement.from_json(r) for r in doc["replacements"]}

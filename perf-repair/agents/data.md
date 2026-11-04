@@ -6,7 +6,7 @@
 ## Rules
 - boundary: perf-repair reads cryptobenchmark only through `<device>/manifest.yaml` and the files it lists; that manifest must carry `deviceId`.
 - device stage: `device/` reruns a stage only when an input digest changed, its output is missing or the used set lacks rows (`docs/pipeline.md` Device stage, `docs/used-set.md`); `device.yaml` is written last and removed before any stage runs, so it never vouches for a half-made folder; `device/` never imports `app/`.
-- dto: no I/O; every file-level document carries `schemaVersion`, one constant per artifact, and every read site refuses another (`run_dir.read_scopes`, `read_sites`, `read_edits`, `read_dossiers`: `schema_version`).
+- dto: no I/O; every file-level document carries `schemaVersion`, one constant per artifact, and every read site refuses another through its `DocumentKind` (`dto/document.py`), declared beside the artifact's DTO, never a hand-written check (`run_dir.read_scopes`, `read_sites`, `read_edits`, `read_dossiers`: `schema_version`).
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
 - names: every algorithm-name comparison goes through `catalog/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.
@@ -67,8 +67,10 @@ src/perfrepair/dto/bundled.py : device.bundled's values, BundledPolicy; MissingP
 src/perfrepair/dto/change.py : PairDiff (input, key, output, reach), Change (class, diff, reject reasons); CHANGES in rank order, REJECT_REASONS, admits(maxChange, class)
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
+src/perfrepair/dto/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
 src/perfrepair/dto/decision.py : OutboxRecord: one committed decision of any kind, the AgentIdentity (gateway, model, effort) that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests, the used-set benchmark: generated config digest, measured set digest and items)
+src/perfrepair/dto/document.py : DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 src/perfrepair/dto/dossier.py : Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), NoEstimate; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, pin_text
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
@@ -97,7 +99,7 @@ src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (laten
 src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group or candidate; names_digest
 src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of several
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per selected metric), MetricComparison, PairMetrics (a comparison per selected metric), Configuration, GroupEvidence, Pair, Verdict, Verdicts
-src/perfrepair/files.py : text, JSON and YAML read; atomic JSON write; a text write that makes its parent folders; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
+src/perfrepair/files.py : text, JSON and YAML read; read_versioned (a document refused unless its DocumentKind accepts it); atomic JSON write; a text write that makes its parent folders; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`); a found default and a skipped optional input logged
@@ -117,10 +119,10 @@ src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
 src/perfrepair/run_dir/__init__.py : re-exports layout and read: the `run_dir` namespace every reader uses
 src/perfrepair/run_dir/layout.py : device folder: artifact names, finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/), not_device_results, app folders; AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included
-src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), device.yaml read and write, load_used (None without used.json), versioned and read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version)
+src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), device.yaml read and write, load_used (None without used.json), read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version, through read_versioned)
 src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
-src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, a `<code>: <detail>` ValueError keeping `.code`; code_of, the code a failure carries as `.code` or its message's first word
+src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, the name its raisers import for dto/coded.py's InputError; code_of, the code a failure carries as `.code` or its message's first word
 src/perfrepair/stop/policy.py : the stops reader the settings layer installs; a code's action, its default without one
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next, then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only

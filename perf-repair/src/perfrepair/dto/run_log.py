@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .document import DocumentKind
+
 SCHEMA_VERSION = 1
+RUN_LOG_DOC = DocumentKind("run log", SCHEMA_VERSION)
 STATUSES = ("measured", "skipped", "refused", "unmeasured", "not_runnable")
 
 
@@ -39,6 +42,5 @@ class RunLog:
 
     @classmethod
     def from_json(cls, doc: dict) -> "RunLog":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"run log schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        RUN_LOG_DOC.check(doc)
         return cls([LogEntry.from_json(e) for e in doc.get("entries") or []])

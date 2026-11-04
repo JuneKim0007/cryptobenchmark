@@ -4,7 +4,10 @@ from dataclasses import dataclass, field
 
 from ....dto.classify import ACCEPTED, SCHEMA_VERSION, UNSURE, Answer, Batch
 from ....dto.decision import OutboxRecord
+from ....dto.document import DocumentKind
 from ....dto.screen import Verdict, with_answer
+
+CLASSIFIED_DOC = DocumentKind("classified", SCHEMA_VERSION)
 
 
 @dataclass
@@ -18,8 +21,7 @@ class Classified:
 
     @classmethod
     def from_json(cls, d: dict) -> "Classified":
-        if d.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"classified schemaVersion {d.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        CLASSIFIED_DOC.check(d)
         return cls({int(k): Answer.from_json(a) for k, a in d["answers"].items()}, d["version"])
 
 

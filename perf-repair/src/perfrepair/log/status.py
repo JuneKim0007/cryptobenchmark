@@ -5,11 +5,10 @@ from __future__ import annotations
 import re
 from typing import Callable
 
+from ..dto.coded import CODE
 from ..dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
 from ..run_dir import BUG_LOG
 
-# a code holds an underscore, or is one word before a colon: prose such as "pipeline exited 1" is none
-CODE = re.compile(r"^(?:([a-z][a-z0-9]*_[a-z0-9_]+)\b|([a-z]+):)")
 DEVICE_OUTCOMES = ("ran", "reused", "failed")
 AT_STEP = re.compile(r"^at (\S+): ")
 # a first line ending in a clause that introduces the lines below it (`; last lines:`)

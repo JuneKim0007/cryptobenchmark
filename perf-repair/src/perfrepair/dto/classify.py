@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .document import DocumentKind
+
 SCHEMA_VERSION = 1
+BATCHES_DOC = DocumentKind("batches", SCHEMA_VERSION)
 DEPRECATED, ACCEPTED, UNSURE = "deprecated", "accepted", "unsure"
 ANSWERS = (DEPRECATED, ACCEPTED, UNSURE)
 SEPARATOR = ","
@@ -66,6 +69,5 @@ def batches_document(batches: list[Batch]) -> dict:
 
 
 def read_batches(doc: dict) -> list[Batch]:
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"batches schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    BATCHES_DOC.check(doc)
     return [Batch(tuple(Evidence.from_json(e) for e in b)) for b in doc["batches"]]

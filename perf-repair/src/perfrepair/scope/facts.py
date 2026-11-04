@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from ..dto.document import AT_PATH, DocumentKind
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import KEY_SOURCES, SINKS
 from ..files import read_yaml
@@ -15,6 +16,7 @@ from .extract import Function
 
 PATTERNS = Path(__file__).with_name("patterns.yaml")
 SUPPORTED_SCHEMA = 1
+PATTERNS_DOC = DocumentKind("patterns", SUPPORTED_SCHEMA, AT_PATH)
 
 
 @dataclass(frozen=True)
@@ -30,8 +32,7 @@ class Patterns:
 @cache
 def read_patterns(path: Path = PATTERNS) -> Patterns:
     doc = read_yaml(path)
-    if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
+    PATTERNS_DOC.check(doc, path)
     unknown = (set(doc["sinks"]) - set(SINKS)) | (set(doc["keySources"]) - set(KEY_SOURCES))
     if unknown:
         raise ValueError(f"{path}: kinds {sorted(unknown)} are not in the Scope contract")

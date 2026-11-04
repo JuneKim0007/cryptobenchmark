@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from .document import DocumentKind
 from .pattern import LEGACY_VARIANT
 
 # 2: every row carries its benchmark variant and perCall
 ROWS_SCHEMA_VERSION = 2
+ROWS_DOC = DocumentKind("rows", ROWS_SCHEMA_VERSION)
 
 
 @dataclass(frozen=True)

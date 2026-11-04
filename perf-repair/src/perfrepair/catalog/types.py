@@ -7,6 +7,8 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.coded import InputError
+from ..dto.document import AT_PATH, DocumentKind
 from ..dto.types import NONCES, OUTPUT_KINDS, Properties, Strength, TypeRow
 from .families import Families
 from .names import fold
@@ -18,8 +20,11 @@ PROPERTY_FIELDS = tuple(f.name for f in fields(Properties))
 ROW_FIELDS = {"outputKind", *PROPERTY_FIELDS, "strengthBits", "strengthSource", "minSdk", "minSdkSource"}
 
 
-class TypesError(ValueError):
+class TypesError(InputError):
     pass
+
+
+TYPES_DOC = DocumentKind("types", SCHEMA_VERSION, "types_schema: " + AT_PATH, TypesError)
 
 
 @dataclass(frozen=True)
@@ -112,8 +117,7 @@ def _rows(doc: dict, sources: dict, maps: dict, known) -> tuple[dict[tuple[str, 
 
 def load(path: Path = CATALOG, families: Families | None = None) -> Types:
     doc = yaml.safe_load(Path(path).read_text())
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise TypesError(f"types_schema: {path}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    TYPES_DOC.check(doc, path)
     sources = doc["sources"]
     maps = {name: {int(k): int(v) for k, v in m["bits"].items()} for name, m in doc["keyStrength"].items()}
     problems = [f"keyStrength {n}: source {m['source']!r} is not listed" for n, m in doc["keyStrength"].items()

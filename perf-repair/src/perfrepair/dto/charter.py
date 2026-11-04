@@ -1,9 +1,11 @@
 """charter.json: everything a charter's fingerprint hashes, and the file each prompt was read from."""
 from __future__ import annotations
 
+from .document import DocumentKind
 from .prompt import Charter, CorrectionPrompt, SystemPrompt
 
 SCHEMA_VERSION = 1
+CHARTER_DOC = DocumentKind("charter", SCHEMA_VERSION)
 
 
 def charter_document(charter: Charter) -> dict:
@@ -17,8 +19,7 @@ def charter_document(charter: Charter) -> dict:
 
 
 def read_charter(doc: dict) -> Charter:
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"charter schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    CHARTER_DOC.check(doc)
     system, correction = doc["system"], doc["correction"]
     return Charter(SystemPrompt(system["name"], system["text"]), doc["schema"],
                    CorrectionPrompt(correction["name"], correction["text"]), doc["inputs"],

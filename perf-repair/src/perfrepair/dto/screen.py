@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, replace
 
 from . import classify as answer
+from .document import DocumentKind
 
 SCHEMA_VERSION = 5
+SCREEN_DOC = DocumentKind("screen", SCHEMA_VERSION)
 BROKEN, PLATFORM_DEPRECATED, ACCEPTED, UNKNOWN = "broken", "platform_deprecated", "accepted", "unknown"
 UNVERIFIED = "unverified"
 STATUSES = (BROKEN, PLATFORM_DEPRECATED, UNVERIFIED, ACCEPTED, UNKNOWN)
@@ -66,8 +68,7 @@ def screen_document(verdicts: dict[int, Verdict], catalog: dict, built: dict, re
 
 
 def _checked(doc: dict) -> dict:
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"screen schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    SCREEN_DOC.check(doc)
     return doc
 
 

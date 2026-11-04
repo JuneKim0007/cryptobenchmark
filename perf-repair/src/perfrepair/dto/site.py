@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import asdict, dataclass
 
+from .document import DocumentKind
 from .lifecycle import Lifecycle
 from .metrics import NAMES
 from .pattern import NOT_FIXED, UNKNOWN_DEFAULT
@@ -24,6 +25,12 @@ SCOPES_SCHEMA_VERSION = 5
 REPLACEMENTS_SCHEMA_VERSION = 4
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe; 4: inverse, the interop partner by link
 HARNESS_SCHEMA_VERSION = 4
+# an app artifact at another schema is schema_version, never a field read as missing
+_APP_ARTIFACT = "schema_version: {path} schemaVersion {found!r} is not {version}; rerun the step that writes it"
+SCOPES_DOC = DocumentKind("scopes", SCOPES_SCHEMA_VERSION, _APP_ARTIFACT)
+SITES_DOC = DocumentKind("sites", SITES_SCHEMA_VERSION, _APP_ARTIFACT)
+EDITS_DOC = DocumentKind("edits", EDITS_SCHEMA_VERSION, _APP_ARTIFACT)
+DOSSIERS_DOC = DocumentKind("dossiers", DOSSIERS_SCHEMA_VERSION, _APP_ARTIFACT)
 NO_OPERATION = "no_operation"
 NOT_MEASURABLE_REASONS = (NO_OPERATION,)
 INPUT_SOURCES = ("app", "run")

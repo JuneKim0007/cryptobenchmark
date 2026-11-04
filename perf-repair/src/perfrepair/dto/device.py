@@ -3,7 +3,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .document import DocumentKind
+
 SCHEMA_VERSION = 1
+DEVICE_DOC = DocumentKind("device.yaml", SCHEMA_VERSION)
 INPUTS = ("bundled", "config", "names", "screening")
 RUNTIME_KEYS = ("model", "manufacturer", "sdkInt", "release", "osName", "osArch", "javaVersion", "javaVendor",
                 "javaRuntimeVersion")
@@ -28,8 +31,7 @@ class DeviceRecord:
 
     @classmethod
     def from_json(cls, doc: dict) -> "DeviceRecord":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"device.yaml schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        DEVICE_DOC.check(doc)
         missing = sorted(set(INPUTS) - set(doc.get("inputs") or {}))
         if missing or not doc.get("manifest"):
             raise ValueError(f"device.yaml lacks {', '.join(missing) or 'manifest'}")

@@ -1,7 +1,7 @@
 """Halt: the one exception terminate raises; code_of: the code any failure carries, as a field or its message's first word."""
 from __future__ import annotations
 
-from ..log.status import CODE
+from ..dto.coded import InputError, code_in
 
 
 class Halt(Exception):
@@ -13,17 +13,8 @@ class Halt(Exception):
         super().__init__(f"{code}: {detail}")
 
 
-class Coded(ValueError):
-    """A coded failure raised where no terminate decides it: `<code>: <detail>`, the code kept as `.code`."""
-
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.code = code_in(message)
-
-
-def code_in(text: str) -> str | None:
-    found = CODE.match((text or "").strip())
-    return (found.group(1) or found.group(2)) if found else None
+# a coded failure raised where no terminate decides it; the name its raisers import, one class with InputError
+Coded = InputError
 
 
 def code_of(e: BaseException) -> str | None:

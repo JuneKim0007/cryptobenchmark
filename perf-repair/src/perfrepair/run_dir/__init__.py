@@ -70,7 +70,6 @@ from .read import (
                      read_edits,
                      read_scopes,
                      read_sites,
-                     versioned,
                      write_device_record,
 )
 
@@ -142,7 +141,6 @@ __all__ = [
                      "review_score",
                      "review_sheet",
                      "review_stability",
-                     "versioned",
                      "worthiness",
                      "worthiness_modes",
                      "write_device_record",

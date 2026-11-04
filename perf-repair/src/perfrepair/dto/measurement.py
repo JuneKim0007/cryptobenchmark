@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .document import DocumentKind
 from .metrics import ESTIMATED, MEASURED
 
 __all__ = ["ESTIMATED", "MEASURED", "Measurements", "SCHEMA_VERSION", "Summary"]
 # 4: every metric under its benchmark.json name (allocations became allocationCount); one without runs is absent
 SCHEMA_VERSION = 4
+MEASUREMENTS_DOC = DocumentKind("measurements", SCHEMA_VERSION)
 
 
 @dataclass(frozen=True)
@@ -46,8 +48,7 @@ class Measurements:
 
     @classmethod
     def from_json(cls, doc: dict) -> "Measurements":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"measurements schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        MEASUREMENTS_DOC.check(doc)
         return cls(doc.get("runtime") or {}, list(doc.get("comparability") or []),
                    {rid: {k: Summary.from_json(s) for k, s in m.items()}
                     for rid, m in (doc.get("measurements") or {}).items()}, doc.get("thermal") or {})

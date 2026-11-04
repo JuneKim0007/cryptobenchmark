@@ -6,15 +6,17 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.document import AT_PATH, DocumentKind
+
 CATALOG = Path(__file__).with_name("sdk-constants.yaml")
 SCHEMA_VERSION = 1
+SDK_CONSTANTS_DOC = DocumentKind("sdk constants", SCHEMA_VERSION, AT_PATH)
 
 
 @cache
 def sdk_constants(path: Path = CATALOG) -> dict[str, str]:
     doc = yaml.safe_load(Path(path).read_text())
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    SDK_CONSTANTS_DOC.check(doc, path)
     sources = doc.get("sources") or {}
     bad = [k for k, v in (doc.get("constants") or {}).items()
            if not isinstance(v, dict) or not isinstance(v.get("value"), str) or v.get("source") not in sources]

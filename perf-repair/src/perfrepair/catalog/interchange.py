@@ -7,8 +7,11 @@ from pathlib import Path
 
 import yaml
 
+from ..dto.document import AT_PATH, DocumentKind
+
 CATALOG = Path(__file__).with_name("interchange.yaml")
 SCHEMA_VERSION = 1
+INTERCHANGE_DOC = DocumentKind("interchange", SCHEMA_VERSION, AT_PATH)
 KEY_NONE, KEY_ASSUMED, KEY_ASKED = "none", "assumed", "asked"
 
 
@@ -64,8 +67,7 @@ def _engine(engine_type: str, row: dict) -> Engine:
 
 def load(path: Path = CATALOG) -> Interchange:
     doc = yaml.safe_load(Path(path).read_text())
-    if doc.get("schemaVersion") != SCHEMA_VERSION:
-        raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    INTERCHANGE_DOC.check(doc, path)
     return Interchange({t: _engine(t, row) for t, row in doc["engines"].items()}, frozenset(doc["digestComponents"]),
                        tuple(doc["notSplitting"]))
 

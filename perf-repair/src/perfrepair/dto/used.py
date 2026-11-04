@@ -4,7 +4,10 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass, field
 
+from .document import DocumentKind
+
 SCHEMA_VERSION = 1
+USED_DOC = DocumentKind("used.json", SCHEMA_VERSION)
 # in order of strength: a site resolves to it, it shares a group with one, or it may join a pending one's group
 SITE, GROUP, CANDIDATE = "site", "group", "candidate"
 VIA = (SITE, GROUP, CANDIDATE)
@@ -43,8 +46,7 @@ class UsedSet:
 
     @classmethod
     def from_json(cls, doc: dict) -> "UsedSet":
-        if doc.get("schemaVersion") != SCHEMA_VERSION:
-            raise ValueError(f"used.json schemaVersion {doc.get('schemaVersion')} is not {SCHEMA_VERSION}")
+        USED_DOC.check(doc)
         return cls(int(doc["deviceItems"]), {a: AppUse(int(u["sites"]), int(u["matched"])) for a, u in doc["apps"].items()},
                    tuple(UsedItem(u["item"], u["via"], tuple(u["apps"])) for u in doc["items"]))
 

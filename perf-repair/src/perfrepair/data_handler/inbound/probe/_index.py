@@ -3,9 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ....catalog.names import fold
+from ....dto.document import DocumentKind
 from ._services import services
 
 SUPPORTED_SCHEMA = 1
+PROBE_DOC = DocumentKind("probe", SUPPORTED_SCHEMA, "{path}: probe schemaVersion {found} is not {version}")
 
 
 @dataclass(frozen=True)
@@ -50,8 +52,7 @@ def _attribute(service: dict, key: str) -> frozenset[str] | None:
 
 
 def index_of(doc: dict, source: str) -> ProbeIndex:
-    if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise ValueError(f"{source}: probe schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
+    PROBE_DOC.check(doc, source)
     by_name: dict[tuple[str, str, str], Service] = {}
     for p, s in services(doc):
         service = Service(s["algorithm"], _attribute(s, "SupportedModes"), _attribute(s, "SupportedPaddings"))
