@@ -52,6 +52,7 @@ def device(tmp_path, monkeypatch):
     folder = with_results(tmp_path / "results" / FOLDER)
     manifest = read_yaml(folder / rd.MANIFEST)
     manifest.update(deviceId=FOLDER, config=str(config))
+    del manifest["retried"]
     (folder / rd.MANIFEST).write_text(yaml.safe_dump(manifest, sort_keys=False))
     # the recorded lost case's item: the probe holds it, so a delta's row has a verdict
     path = folder / manifest["files"]["probe"]
@@ -74,8 +75,8 @@ def used(*items):
     return UsedSet(9, {}, tuple(UsedItem(i, "site", ("a",)) for i in items))
 
 
-def check(folder, *items, perf=TIMING, lost=None):
-    return measured_check(folder, frozenset(items), perf, lost)
+def check(folder, *items, perf=TIMING):
+    return measured_check(folder, frozenset(items), perf)
 
 
 def rewrite(folder, name, change):
@@ -97,7 +98,9 @@ def test_a_used_item_nothing_plans_is_never_planned(device):
 def test_a_planned_case_without_rows_is_lost_once_then_repeats(device):
     first = check(device, SHA_LOST)
     assert first.items() == {SHA_LOST: LOST} and first.gaps[0].case == "d_slow" and first.gaps[0].action == "delta"
-    again = check(device, SHA_LOST, lost={first.gaps[0].key})
+    manifest = read_yaml(device / rd.MANIFEST)
+    (device / rd.MANIFEST).write_text(yaml.safe_dump({**manifest, "retried": ["d_slow"]}, sort_keys=False))
+    again = check(device, SHA_LOST)
     assert again.items() == {SHA_LOST: REPEATS} and again.delta() == () and again.gaps[0].action == "coded"
 
 
@@ -238,7 +241,7 @@ def test_on_setup_mismatch_rerun_measures_the_whole_benchmark_with_the_gap_added
     (coverage, merged), lines = gate(device, SHA_LOST, policy=GatePolicy(on_mismatch="rerun"))
     assert merged and coverage.items() == {SHA_LOST: MEASURED} and any("the whole benchmark" in line for line in lines)
     manifest = read_yaml(device / rd.MANIFEST)
-    assert manifest["runtime"]["fingerprint"] == "another-build" and "deltas" not in manifest
+    assert manifest["runtime"]["fingerprint"] == "another-build" and manifest["deltas"][0]["rerun"] is True
 
 
 def test_the_estimate_ignores_a_delta_call_and_counts_the_whole_run(tmp_path):

@@ -378,7 +378,7 @@ def test_targets_yaml_is_written_and_a_path_entry_that_is_no_app_is_its_stop(bas
     lines = []
     g = Guide(base.run_dir, None, LATENCY, base.answer, LIBRARY, echo=lines.append, target_set=found)
     assert run_targets(g, [t.path for t in found.apps], False, True) == 1
-    assert lines[1] == f"guide targets: ok: {base.run_dir / 'targets.yaml'}: 1 apps, 1 skipped"
+    assert f"guide targets: ok: {base.run_dir / 'targets.yaml'}: 1 apps, 1 skipped" in lines
     assert app_lines(lines) == [f"app {path_id(readme)}: stop not_android_project: {readme}: not_android (not_android)",
                                 f"app {path_id(a)}: ok"]
     doc = yaml.safe_load((base.run_dir / "targets.yaml").read_text())

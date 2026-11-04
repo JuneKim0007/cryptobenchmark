@@ -7,12 +7,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
+import yaml
+
 from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
-from ..dto.benchmark_coverage import CHECKED, UNCHECKED, Gap
+from ..dto.benchmark_coverage import CHECKED, LOST, UNCHECKED, Gap
 from ..dto.dossier import SETUP_DRIFT
-from ..files import read_json, read_yaml
+from ..files import read_json, read_yaml, write_text_making_parents
 from ..result.estimate import compare
 from ..result.gain import UNCHANGED, change_of
 from ..stop.halt import Coded
@@ -86,6 +88,10 @@ def _case_mismatch(stored: Path, staged: Path, shared: set[str]) -> list[str]:
     return [f"case {cid}.{line}" for cid in sorted(shared) for line in differing(mine.get(cid, {}), theirs.get(cid, {}))]
 
 
+def _retried(gaps: tuple[Gap, ...]) -> list[str]:
+    return sorted({g.case for g in gaps if g.gap == LOST})
+
+
 def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], session: str, on_device: bool,
               echo: Callable[[str], None], benchmark: Path | str | None = None) -> Delta:
     folder = Path(folder)
@@ -127,14 +133,18 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     drift, compared = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
     added = staged_cases - stored_cases
     done = Delta(session, tuple(sorted(added)), tuple(sorted(shared)), (), drift, [line], compared)
-    merge_delta(folder, staged, added, session, done.comparison)
+    merge_delta(folder, staged, added, session, done.comparison, _retried(gaps))
     return done
 
 
-def rerun_whole(folder: Path, gaps: tuple[Gap, ...], on_device: bool, echo: Callable[[str], None],
+def rerun_whole(folder: Path, gaps: tuple[Gap, ...], session: str, on_device: bool, echo: Callable[[str], None],
                 benchmark: Path | str | None = None) -> None:
-    """Only with device.benchmark.onSetupMismatch rerun: the stored config, the gaps added, measured whole into the folder."""
+    """Only with device.benchmark.onSetupMismatch rerun: the stored config, the gaps added, measured whole into the folder;
+    listed among the deltas, since every dossier may have changed."""
     folder = Path(folder)
     manifest, _ = read_manifest(folder / rd.MANIFEST)
     config = write_rerun_config(Path(manifest.config), folder, {g.item for g in gaps})
     run_pipeline(config, folder.parent, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder)
+    measured = read_yaml(folder / rd.MANIFEST)
+    write_text_making_parents(folder / rd.MANIFEST, yaml.safe_dump({**measured, "retried": _retried(gaps), "deltas": [
+        {"session": session, "cases": [], "rerun": True}]}, sort_keys=False))

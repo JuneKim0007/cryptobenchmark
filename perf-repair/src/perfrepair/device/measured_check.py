@@ -23,6 +23,7 @@ from ..dto.benchmark_coverage import (
 from ..dto.grouping import parse_qualified, qualified
 from ..dto.metrics import METRICS
 from ..dto.perf_mode import PerfMode
+from ..dto.used import UsedItem, UsedSet
 from ..files import read_yaml
 from ..result.estimate import MIN_RUNS
 
@@ -30,6 +31,13 @@ NO_HARNESS_OPERATION = "no_harness_operation: the harness times no operation of 
 NOT_IN_PLAN = "not_in_plan: the selection never planned it"
 REFUSING = ("skipped", "not_runnable")
 ENERGY_CAPTURES = ("measured",)
+PLANNED = "planned"
+
+
+def planned_set(device: Path) -> UsedSet:
+    """device.filterByApps off: no app narrows the benchmark, so its own plan is what must be measured; no app, no anchor."""
+    planned = sorted(_Run(Path(device)).planned)
+    return UsedSet(len(planned), {}, tuple(UsedItem(item, PLANNED, ()) for item in planned))
 
 
 def _metrics(case: dict, perf: PerfMode) -> list[str]:
@@ -54,12 +62,14 @@ class _Run:
         self.lost_case = {i: e.reason or e.status for e in log if e.status == "unmeasured" for i in e.rowIds}
         self.refused_item = {qualified(e.type, e.algorithm, e.provider): e.reason or e.status for e in log
                              if e.status in REFUSING and e.type and e.algorithm and e.provider}
+        # a case a delta already measured again: the run that lost it twice ended, and no later run spends another delta
+        self.retried = set(read_yaml(device / rd.MANIFEST).get("retried") or ())
         self.planned: dict[str, list[dict]] = {}
         for c in cases:
             self.planned.setdefault(qualified(c["type"], c["algorithm"], c["provider"]), []).append(c)
 
 
-def _case_gaps(run: _Run, item: str, case: dict, metrics: list[str], lost_before: set) -> tuple[int, list[Gap]]:
+def _case_gaps(run: _Run, item: str, case: dict, metrics: list[str]) -> tuple[int, list[Gap]]:
     cid = case["id"]
     row = run.rows.get(cid)
     shape = (item, row.operation if row else case.get("operation") or ANY, case.get("variant") or ANY,
@@ -78,15 +88,14 @@ def _case_gaps(run: _Run, item: str, case: dict, metrics: list[str], lost_before
             cls, why = REFUSED, run.refused_case[cid]
         else:
             why = run.lost_case.get(cid) or "no_samples: planned, absent from benchmark.json"
-            cls = REPEATS if (*shape, metric) in lost_before else LOST
+            cls = REPEATS if cid in run.retried else LOST
         gaps.append(Gap(*shape, metric, cls, why, cid))
     return measured, gaps
 
 
-def measured_check(device: Path, used: frozenset[str], perf: PerfMode, lost_before: set | None = None) -> Coverage:
-    """lost_before: the keys a delta already measured again; lost a second time they repeat, and are not rerun."""
+def measured_check(device: Path, used: frozenset[str], perf: PerfMode) -> Coverage:
     device = Path(device)
-    run, lost_before = _Run(device), lost_before or set()
+    run = _Run(device)
     measured, gaps = 0, []
     for item in sorted(used):
         if not operations_of(parse_qualified(item)[0]):
@@ -98,6 +107,6 @@ def measured_check(device: Path, used: frozenset[str], perf: PerfMode, lost_befo
             gaps.append(Gap(item, ANY, ANY, None, None, ANY, REFUSED if refused else NEVER_PLANNED, refused or NOT_IN_PLAN))
             continue
         for case in cases:
-            n, found = _case_gaps(run, item, case, _metrics(case, perf), lost_before)
+            n, found = _case_gaps(run, item, case, _metrics(case, perf))
             measured, gaps = measured + n, gaps + found
     return Coverage(tuple(sorted(used)), measured, tuple(gaps))

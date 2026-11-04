@@ -47,6 +47,7 @@
 | `targets.yaml` | the guide's targets step, before grouping | people | none: written whole from `apps.targets` resolved ([targets.md](targets.md#targetsyaml)) |
 | `<app>/finished.json` | `RunRecord.app_done`, when an app is done ([replacement.md](replacement.md)); removed on the first step of its rerun | `RunRecord.is_done` | none: `{schemaVersion: 1, inputs, outcome}`; inputs compared, anything else, unreadable included, is not done |
 | `runs/run_<id>.json` | `RunRecord` (`run_dir/run_record.py`), written durably after the device stage and each app step | people | none: [Run record](#run-record) |
+| `runs/delta_asked.json` | `RunRecord`, once an app's replace asked every scope after the last merged delta | the replace step: an app behind the manifest's last `deltas` session asks its changed dossiers | none; removed with `overwrite` |
 | `.lock` | the guide and probe_device(), `fcntl.flock`, the holder's pid | a second run: `device_busy` | none |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
 | `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/device.py`: rehashed to `supervisor.json` `charter` |

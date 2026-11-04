@@ -52,8 +52,9 @@ def _same_repetitions(stored: dict, delta: dict) -> None:
         raise Coded(f"merge_refused: unequal_repetitions: the stored benchmark has {mine} process files, the delta {theirs}")
 
 
-def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, comparison: str) -> Merged:
-    """ids: the delta's cases to add; one already stored refuses the merge, never replaces a case."""
+def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, comparison: str, retried=()) -> Merged:
+    """ids: the delta's cases to add; one already stored refuses the merge, never replaces a case; retried: the lost cases
+    this delta measured again, whether or not they came back."""
     folder, staged = Path(folder), Path(staged)
     manifest, delta = read_yaml(folder / rd.MANIFEST), read_yaml(staged / rd.MANIFEST)
     _same_repetitions(manifest, delta)
@@ -79,6 +80,7 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
         counts["prepared"] = len(yaml.safe_load(texts["prepared"]).get("cases") or [])
     deltas = list(manifest.get("deltas") or []) + [{"session": session, "cases": sorted(ids), "comparison": comparison,
                                                      "from": str(staged)}]
-    write_text_making_parents(folder / rd.MANIFEST, yaml.safe_dump({**manifest, "files": files, "counts": counts,
-                                                                    "deltas": deltas}, sort_keys=False))
+    tried = sorted(set(manifest.get("retried") or ()) | set(retried))
+    write_text_making_parents(folder / rd.MANIFEST, yaml.safe_dump({**manifest, "files": files, "counts": counts, "deltas": deltas,
+                                                                    **({"retried": tried} if tried else {})}, sort_keys=False))
     return Merged(tuple(sorted(ids)), str(out))

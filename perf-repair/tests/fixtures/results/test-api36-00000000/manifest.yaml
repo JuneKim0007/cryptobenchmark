@@ -15,3 +15,4 @@ files:
   skipped: preparation/skipped.yaml
   benchmark: benchmark/benchmark.json
 counts: {prepared: 4, skipped: 3, measured: 3}
+retried: [d_slow]

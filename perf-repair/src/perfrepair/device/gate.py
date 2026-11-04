@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Callable
 
 from .. import run_dir as rd
-from ..dto.benchmark_coverage import GAP_DELTA, GAP_STOP, LOST, SETUP_RERUN, SETUP_STOP, UNCHECKED, Coverage, Gap
+from ..dto.benchmark_coverage import GAP_DELTA, GAP_STOP, SETUP_RERUN, SETUP_STOP, UNCHECKED, Coverage, Gap
 from ..dto.grouping import read_items
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedSet
@@ -84,14 +84,13 @@ def benchmark_gate(folder: Path, point: str, used: UsedSet, perf: PerfMode, poli
         if delta.mismatch and policy.on_mismatch == SETUP_RERUN:
             echo(f"device gate: setup_mismatch: {delta.mismatch[0]}; device.benchmark.onSetupMismatch rerun: the whole "
                  "benchmark is measured again")
-            rerun_whole(folder, first.delta(), on_device, echo, benchmark)
+            rerun_whole(folder, first.delta(), delta.session, on_device, echo, benchmark)
         elif delta.mismatch:
             terminate("setup_mismatch", f"the delta was measured under another setup, nothing merged: {delta.mismatch[0]}"
                       + (f" (and {len(delta.mismatch) - 1} more)" if len(delta.mismatch) > 1 else ""),
                       stage="device", step="gate", data={"fields": list(delta.mismatch)})
         rebuilt(folder, frozenset(g.item for g in first.delta()), echo)
-        lost = {g.key for g in first.delta() if g.gap == LOST}
-        after = measured_check(folder, used.names, perf, lost)
+        after = measured_check(folder, used.names, perf)
         file.write(folder, point, after, delta.summary())
         echo(f"device gate ({point}): delta {delta.session}: {len(delta.cases)} cases added, {len(delta.anchors)} anchor "
              f"cases, {len(delta.drift)} drifted, {delta.comparison}{'' if on_device else UNLOCKED}; "

@@ -19,7 +19,7 @@ flowchart LR
 | selection | `used-global.yaml`: the base `global.yaml`, its test set resolved, with one `selection.exclude` rule `{provider, type, name}` per device item (a declared transformation is one) outside the measured set; an item sharing its provider, type and canonical name with a kept one is never excluded; the base test set's includes, groups and overrides stay; `used-testset.yaml` is that test set with one `{provider, type, name}` include per used item the trial can run, in the provider's declared spelling, so a used item the test set lacks is planned (an empty include plans everything and is kept) |
 | probe digest | the manifest then carries the generated config's digest; device.yaml `benchmark.config` maps it back to the base digest, so the probe is judged by the base `global.yaml` |
 | no item | no target reaches a device item: the base selection is measured, logged `device selection`, device.yaml records no `benchmark` |
-| off | `false`: `used.json` removed, every askable item asked; a record with `benchmark` reruns the benchmark on the base config (`device.filterByApps off: ...`) |
+| off | `false`: `used.json` removed, every askable item asked; a record with `benchmark` reruns the benchmark on the base config (`device.filterByApps off: ...`); the gate checks the measured plan's items in place of the used set, with no anchors |
 
 - A changed set reruns nothing: a whole rerun is hours and discards valid data; the gate measures only the gap, under the stored setup, with anchors against cross-session drift.
 - A first run makes two pipeline runs (probe, then benchmark); later runs with the same targets make none.
@@ -34,7 +34,7 @@ flowchart LR
 |---|---|---|
 | `never_planned` | a used item no case plans (outside the test set) | the delta |
 | `lost` | a planned case absent from the rows (`no_samples`, a failed process) | the delta, once |
-| `repeats` | lost again after the delta | coded; not sent to the model |
+| `repeats` | lost again after the delta: `manifest.yaml` `retried` lists the cases a delta measured again, so no later run spends another | coded; not sent to the model |
 | `refused` | the run log has it `skipped` or `not_runnable` (provider refusal, `not_repeatable`, the keystore provisioning gap) | coded |
 | `partial` | the case has rows, not this metric | the delta |
 | `low_quality` | fewer runs than `MIN_RUNS` (`result/estimate.py`, the floor pImprove needs) | the delta |
@@ -51,7 +51,7 @@ flowchart LR
 | anchors | the used items of a gap's family sharing an app with it, measured: every case measured in both sessions is compared on `timeNs` by `change_of` (`result/gain.py`, `criteria.yaml`); one beyond noise and past `improvingRatio` is `setup_drift`, and the delta's cases carry `sessionDrift`; no case compared (no anchor, or overrides left none shared) is `unchecked`: no comparison, so not read as undrifted, a line says why and its estimates carry `cross_session`. `deltas[].comparison` holds `checked`, `setup_drift` or `unchecked`; the delta's line says drift is unreliable on a host, whose clocks are not locked |
 | fingerprint | `device/setup_fingerprint.py`, read from the stored benchmark's own files against the delta's, first after a `--probe` so a difference costs no session, again after measuring: device id, build fingerprint, compile mode, SDK or JVM, bundled providers with versions, process files, the energy mark, the effective `run` block and `prepared.yaml` `run`, and per shared case its parameters, harness, metrics and perCall; a difference stops `setup_mismatch` naming the field, nothing merged; `device.benchmark.onSetupMismatch: rerun` measures the whole benchmark again instead, the only whole rerun the gate starts |
 | merge | add-only: a case id the stored benchmark holds is refused (`merge_refused`), unequal process files too; new files under `benchmark/merged-<session>/`, `manifest.yaml` renamed in last with `deltas`, so an interrupt leaves the stored benchmark whole |
-| after | inbound and primitives again, device.yaml rewritten; `finished.json` sees new rows, the app's static steps rerun, replace asks only scopes whose dossier changed |
+| after | inbound and primitives again, device.yaml rewritten; `finished.json` sees new rows, the app's static steps rerun, replace asks only scopes whose dossier changed: `runs/delta_asked.json` holds per app the last delta session its replace asked after, so a run stopped between the merge and replace still asks, never stops `dossier_changed` |
 | dossier | a pair across sessions is `cross_session` in `needsReview`; across a drifted one its estimate is `setup_drift`, not sent |
 
 - Not recorded, so not compared: the harness APK digest and a Mainline provider update without a build fingerprint change.

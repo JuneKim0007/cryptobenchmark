@@ -2,7 +2,7 @@
 and its selection.exclude one in excluded.log.
 The device folder is the recorded test-api36 results, each providers.bundled entry adding a provider named by its alias
 or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=1 fails after the old manifest is gone;
-FAKE_VARIANTS=1 writes every case twice, `<id>_fixed` (Fast's runs times FIXED_SCALE) and `<id>_notFixed`, as the benchmark does;
+FAKE_VARIANTS=1 writes every case twice, `<id>_fixed` (Fast's runs times FIXED_SCALE) and `<id>_notFixed`, as the benchmark does, retried ids too;
 FAKE_SELECT=1 keeps only the cases the config's test set and excludes select; FAKE_HEAL=1 also measures the recorded lost case;
 FAKE_SCALE=<n> multiplies every timeNs run (anchors drift); FAKE_RENAME_CASES=1 renames every case but the healed one (no shared case); FAKE_FINGERPRINT=<text> is the runtime's build fingerprint."""
 import argparse, fnmatch, hashlib, json, os, pathlib, shutil, sys
@@ -131,6 +131,8 @@ if os.environ.get("FAKE_SELECT"):
 prepared_path.write_text(yaml.safe_dump(prepared, sort_keys=False))
 probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))
 trial_path.write_text(yaml.safe_dump(trial, sort_keys=False))
+if os.environ.get("FAKE_VARIANTS"):
+    manifest["retried"] = [f"{c}_{v}" for c in manifest.get("retried") or [] for v in ("fixed", "notFixed")]
 manifest.update(deviceId=DEVICE_ID, mode="device" if options.device else "host", config=options.config, inputs=inputs)
 if os.environ.get("FAKE_FINGERPRINT"):
     manifest["runtime"] = {**manifest["runtime"], "fingerprint": os.environ["FAKE_FINGERPRINT"]}

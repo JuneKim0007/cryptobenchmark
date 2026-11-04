@@ -75,8 +75,6 @@ class Guide:
     stop_code: str | None = None
     # finished.code_versions, read once before the apps, for each app's done mark
     code_versions: dict = field(default_factory=dict)
-    # a benchmark gate merged a delta: a scope whose dossier changed is asked again, the others keep their decision
-    delta_merged: bool = False
     # shared by every copy: the gate points' delta counts and the deltas merged, for the coverage file
     coverage: CoverageFile = field(default_factory=CoverageFile)
 

@@ -52,13 +52,15 @@ def replacements(g: Guide) -> str:
     if blocked:
         halt(g, "invariant_failed", f"{len(blocked)} blocking: " + " | ".join(v.line() for v in blocked[:3]))
     state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo,
-                    refresh=g.refresh or g.delta_merged)
+                    refresh=g.refresh or g.record.delta_unasked(g.app_id))
     stale = stale_problem(state)
     if stale:
         halt(g, "dossier_changed", stale.split(": ", 1)[1] + " (guide --refresh)")
     # a cap leaves units unasked: the app is not done, whatever its outcome
     asked = {d["scope"]["id"] for d in rd.read_dossiers(g.paths.dossiers)["dossiers"]}
     g.unasked = len(asked - set(state.replacements))
+    if not g.unasked:
+        g.record.delta_asked(g.app_id)
     chosen = sum(r.decision == "replace" for r in state.replacements.values())
     if not chosen:
         halt(g, "no_replacement", f"every one of {len(state.replacements)} scopes is kept")

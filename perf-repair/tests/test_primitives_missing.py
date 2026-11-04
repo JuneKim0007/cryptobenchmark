@@ -233,14 +233,14 @@ def test_the_pointer_is_the_last_line_when_the_guide_stops(scoped, capsys):  # n
     assert [r["action"] for r in listed(scoped.device)["missing"] if r["provider"] == "BC" and r["primitive"] is None] == [STOPPED]
 
 
-def test_a_clean_rerun_empties_the_list_and_says_nothing(scoped, capsys):  # noqa: F811
+def test_a_clean_rerun_keeps_only_the_benchmarks_coded_gap(scoped, capsys):  # noqa: F811
     _guide_out(scoped, capsys, scoped.sha)
     assert listed(scoped.device)["missing"] != []
-    # with the filter off no bundled step runs, and this app's site resolves
+    # with the filter off no bundled step runs and this app's site resolves; the gate checks the whole plan, whose
+    # lost case the fixture's delta already retried
     scoped.filter = False
-    out = _guide_out(scoped, capsys, scoped.sha)
-    assert listed(scoped.device)["missing"] == []
-    assert not any(line.startswith("## ") for line in out)
+    _guide_out(scoped, capsys, scoped.sha)
+    assert [(r["reason"], r["action"]) for r in listed(scoped.device)["missing"]] == [("not_benchmarked", "skipped")]
 
 
 def test_not_screened_stops_with_every_name_listed_and_next_naming_the_file(scoped, capsys, monkeypatch):  # noqa: F811

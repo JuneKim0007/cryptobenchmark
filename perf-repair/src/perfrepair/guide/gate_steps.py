@@ -5,6 +5,7 @@ from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..device.benchmark_coverage import clear_coverage
 from ..device.gate import GatePolicy, benchmark_gate
+from ..device.measured_check import planned_set
 from ..device.missing_rows import coverage_rows
 from ..device.used import write_used
 from ..inputs.table import BENCHMARK_ON_GAP, BENCHMARK_ON_SETUP_MISMATCH
@@ -28,14 +29,13 @@ def _policy(g: Guide) -> GatePolicy:
 
 
 def gate(g: Guide, point: str, perf) -> None:
-    """Its own line; nothing without the used set (device.filterByApps off); after grouping the set is made again from
-    today's groups."""
-    used = rd.load_used(g.device)
+    """Its own line; the used set, or with device.filterByApps off the measured plan; after grouping the set is made again
+    from today's groups."""
+    used = rd.load_used(g.device) if g.filter_by_apps else planned_set(g.device)
     if used is None or not GroupingPaths(g.device).items.is_file():
         clear_coverage(g.device)
         return
-    if point == GROUPED:
+    if point == GROUPED and g.filter_by_apps:
         used = write_used(g.device, sorted(used.apps))
-    coverage, merged = benchmark_gate(g.device, point, used, perf, _policy(g), g.on_device, g.echo, file=g.coverage)
+    coverage, _ = benchmark_gate(g.device, point, used, perf, _policy(g), g.on_device, g.echo, file=g.coverage)
     g.missing.put(f"coverage {point}", coverage_rows(g.device, coverage, used))
-    g.delta_merged = g.delta_merged or merged

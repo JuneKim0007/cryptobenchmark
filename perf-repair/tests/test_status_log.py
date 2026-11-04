@@ -104,9 +104,9 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     missing = [f"not_on_device {name} app {{}}: warn: 1 sites; next: {NOT_ON_DEVICE_STEP}" for name in ("Bundled", "KeyStore AndroidKeyStore")]
     assert last[0].startswith("run ") and last[-1].startswith("end ") and ": exit 1 (" in last[-1]
     assert last[1:-1] == [
+        pointer_line(base.run_dir / rd.PRIMITIVES_MISSING),
         "reused device grouping: every item decided, saved files current",
         *(m.format(pa) for m in missing),
-        pointer_line(base.run_dir / rd.PRIMITIVES_MISSING),
         f"energy_invalid {case} app {pa}: warn: short_window; see {pa}/measured/scoped/energy.json; "
         f"next: {CODES['energy_invalid'].next}",
         f"ok app {pa}",

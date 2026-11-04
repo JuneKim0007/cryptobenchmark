@@ -104,22 +104,50 @@ def test_a_coded_gap_does_not_stop_the_guide_and_is_listed_as_missing(flow):
     assert any(line.startswith("guide grouping: ok") for line in lines)
 
 
-def test_after_a_delta_replace_asks_changed_dossiers_again_and_never_stops_on_them(monkeypatch):
+def test_after_a_delta_replace_asks_changed_dossiers_again_and_never_stops_on_them(flow, monkeypatch):
     from dataclasses import replace as with_fields
 
     from perfrepair.guide import app_steps
     from perfrepair.guide.state import Guide
+    from perfrepair.run_dir.run_record import RunRecord
+    run(flow, flow.sha)
     seen = {}
 
     def replaced(*_, refresh, **__):
         seen["refresh"] = refresh
         raise SystemExit
     monkeypatch.setattr(app_steps, "replace", replaced)
-    base = Guide(F, F, None, None, None)
-    for merged in (False, True):
-        with pytest.raises(SystemExit):
-            app_steps.replacements(with_fields(base, app_root=F, delta_merged=merged))
-        assert seen["refresh"] is merged
+
+    def asked_in_a_new_run():
+        record = RunRecord.open(flow.device)
+        base = with_fields(Guide(flow.device, F, None, None, None), app_root=flow.sha, record=record)
+        try:
+            with pytest.raises(SystemExit):
+                app_steps.replacements(with_fields(base))
+        finally:
+            record.close()
+        return seen["refresh"]
+
+    assert asked_in_a_new_run() is False
+    # the interrupt: the merge's manifest is written, the run ends before any replace
+    run(flow, flow.sha, flow.gcm, extra=("--stop-after-device",))
+    assert read_yaml(flow.device / rd.MANIFEST)["deltas"]
+    assert asked_in_a_new_run() is True and asked_in_a_new_run() is True
+    record = RunRecord.open(flow.device)
+    record.delta_asked(with_fields(Guide(flow.device, F, None, None, None), app_root=flow.sha).app_id)
+    record.close()
+    assert asked_in_a_new_run() is False
+
+
+def test_filter_by_apps_off_still_runs_the_gate_on_the_measured_plan(flow, monkeypatch):
+    flow.filter = False
+    monkeypatch.delenv("FAKE_SELECT")
+    code, lines, _ = run(flow, flow.sha)
+    assert any(line.startswith("device gate (used):") for line in lines)
+    doc = coverage(flow)
+    assert doc["point"] in ("used", "grouped") and doc["totals"]["usedItems"] > 1
+    assert doc["items"]["MessageDigest|SHA-256|Slow"] == "repeats"
+    assert not (flow.device / rd.USED).exists()
 
 
 def test_stops_not_benchmarked_warn_cannot_fall_through_into_a_delta(flow):
