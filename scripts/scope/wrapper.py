@@ -111,12 +111,13 @@ def quoted(text):
 
 def catalog(entries):
     """entries: {scope id: Entry}, in harness order."""
-    listed = ", ".join(f"s{scope_id}()" for scope_id in entries)
+    listed = ", ".join(f'ScopeCatalog.guarded("{scope_id}") {{ s{scope_id}() }}' for scope_id in entries)
     functions = "\n".join(scope_function(entry, entries) for entry in entries.values())
     return (f"package {PACKAGE}\n\n"
             "import io.github.junekim0007.cryptobench.Scope\n"
             "import io.github.junekim0007.cryptobench.ScopeCatalog\n"
             "import io.github.junekim0007.cryptobench.ScopeInputs\n"
+            "import io.github.junekim0007.cryptobench.ScopeKeys\n"
             "import io.github.junekim0007.cryptobench.ScopeInterop\n\n"
             "@Suppress(\"UNUSED_VARIABLE\", \"USELESS_CAST\")\n"
             f"class {CATALOG} : ScopeCatalog {{\n\n"

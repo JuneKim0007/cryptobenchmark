@@ -98,7 +98,7 @@ scripts/scope/compile.py : compiles the android test sources with Gradle; the co
 scripts/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
 scripts/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
 scripts/scope/harness.py : reads perf-repair's harness.yaml
-scripts/scope/inputs.py : synthesisable parameter types and their ScopeInputs calls
+scripts/scope/inputs.py : synthesisable parameter types and the value or ScopeInputs and ScopeKeys call that builds each
 scripts/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, same output, or none
 scripts/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
 scripts/scope/results.py : device interop and call-site verdicts into scoped-plan.yaml; measured scopes and prepared call sites as prepared.yaml

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench
 
+import java.io.File
 import java.util.Random
 import javax.crypto.spec.SecretKeySpec
 
@@ -16,6 +17,9 @@ object ScopeInputs {
     }
 
     fun chars(size: Int, seed: Long): CharArray = text(size, seed).toCharArray()
+
+    // A file per call: a function that moves or deletes its input never changes the other side's.
+    fun file(size: Int, seed: Long): File = File.createTempFile("scope", ".bin").also { it.writeBytes(bytes(size, seed)) }
 
     fun secretKey(algorithm: String, bits: Int, seed: Long): SecretKeySpec = SecretKeySpec(bytes(bits / 8, seed), algorithm)
 }

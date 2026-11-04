@@ -4,7 +4,14 @@ import re
 SEED = 7
 # kind per normalised type; every other type is unsupported_parameter.
 KINDS = {"byte[]": "bytes", "ByteArray": "bytes", "String": "text", "CharSequence": "text",
-         "char[]": "chars", "CharArray": "chars", "SecretKey": "key", "Key": "key", "SecretKeySpec": "key"}
+         "char[]": "chars", "CharArray": "chars", "SecretKey": "key", "Key": "key", "SecretKeySpec": "key", "File": "file",
+         "PrivateKey": "private", "PublicKey": "public", "KeyPair": "pair"}
+# One fixed value per primitive, Java and Kotlin spellings: the wrapper's source is Kotlin; a non-zero value walks past an empty loop.
+PRIMITIVES = {"true": ("boolean", "Boolean"), "(1).toByte()": ("byte", "Byte"), "(1).toShort()": ("short", "Short"),
+              "1": ("int", "Int", "Integer"), "1L": ("long", "Long"), "1f": ("float", "Float"), "1.0": ("double", "Double"),
+              "'a'": ("char", "Char", "Character")}
+LITERALS = {name: literal for literal, names in PRIMITIVES.items() for name in names}
+PAIR_MEMBERS = {"private": ".private", "public": ".public", "pair": ""}
 KOTLIN_TYPES = {"bytes": "ByteArray", "text": "String", "chars": "CharArray"}
 
 
@@ -24,17 +31,29 @@ def kind(type_text):
     return KINDS.get(normalised(type_text))
 
 
-def key_algorithm(option):
+def item(option):
     parts = str(option or "").split("|")
     if len(parts) != 3 or not parts[1]:
         raise InputError(f"no_key_algorithm: option {option!r} is not Type|name|provider")
-    return parts[1].split("/")[0]
+    return parts
+
+
+def key_algorithm(option):
+    return item(option)[1].split("/")[0]
 
 
 def expression(parameter, scope):
+    literal = LITERALS.get(normalised(parameter.type))
+    if literal is not None:
+        return literal
     found = kind(parameter.type)
     if found is None:
         raise InputError(f"unsupported_parameter: {parameter.name}: {parameter.type}")
+    if found in PAIR_MEMBERS:
+        if scope.key_size is None:
+            raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
+        kind_of, name, provider = item(scope.option)
+        return f'ScopeKeys.pair("{kind_of}", "{name}", "{provider}", {scope.key_size}){PAIR_MEMBERS[found]}'
     if found == "key":
         if scope.key_size is None:
             raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")

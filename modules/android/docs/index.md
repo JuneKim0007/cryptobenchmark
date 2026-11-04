@@ -27,8 +27,9 @@ modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Sampled
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Scope.kt : one scope's before and after calls and its interop check
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeCatalog.kt : loads the generated GeneratedScopes catalog
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeCheck.kt : calls both variants once and runs the interop check
-modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInputs.kt : seeded bytes, text and secret keys for generated scopes
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInputs.kt : seeded bytes, text, files and secret keys for generated scopes
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInteropFile.kt : writes scoped-interop.yaml
+modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeKeys.kt : key pairs for generated scopes: from the key planner once per run, kept on the device
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedBenchmark.kt : parameterised Jetpack measurement per scope variant the host names
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedInterop.kt : the scope check in its own process: every scope's verdict into scoped-interop.yaml, every call site's into callsite-verdicts.yaml
 modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedPlan.kt : one process of the before/after run: bundled providers once, the run harness, the catalog's variants and the call sites

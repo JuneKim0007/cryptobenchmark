@@ -11,6 +11,7 @@ PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
 CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
 SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 CALL_SITE_VERDICTS = "callsite-verdicts.yaml"   # CallSitePlan.VERDICTS
+SCOPE_KEYS = "scope-keys"   # ScopeKeys.FOLDER
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
@@ -192,7 +193,7 @@ class Device:
         interop.unlink(missing_ok=True)
         into.mkdir(parents=True, exist_ok=True)
         self.shell(f"rm -f {self.files}/{SCOPED_INTEROP} {self.files}/{CALL_SITE_VERDICTS}")
-        self.shell(f"rm -rf {self.files}/callsite-*/")
+        self.shell(f"rm -rf {self.files}/callsite-*/ {self.files}/{SCOPE_KEYS}")
         output = self.instrument("ScopedInterop")
         if not ONE_PASSED.search(output):
             raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
