@@ -5,7 +5,7 @@ from ..dto.unit import UnitDossiers
 from ..dto.replacement import (RECOMMEND, DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Replacement,
                                required_risks)
 from ..dto.dossier import Dossier
-from .suggest.site_replace import required_kinds, takes
+from .suggest.site_edits import required_kinds, takes
 
 SOURCES = ("llm", "fallback", "static")
 
