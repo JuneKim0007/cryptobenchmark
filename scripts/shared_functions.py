@@ -22,7 +22,9 @@ def modules(roots):
             if "tests" in relative.parts or "build" in relative.parts:
                 continue
             parts = relative.with_suffix("").parts
-            found[".".join(parts[:-1] if parts[-1] == "__init__" else parts)] = path
+            name = ".".join(parts[:-1] if parts[-1] == "__init__" else parts)
+            # sorted, the package comes first and keeps the name, as at runtime; a script of its name has no importers
+            found[f"{name}.py" if name in found else name] = path
     return found
 
 

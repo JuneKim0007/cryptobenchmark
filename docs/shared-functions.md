@@ -18,7 +18,7 @@
 | `guarded(problems, step)` | `scripts/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `source(effective, python, stacktrace)` | `scripts/energy_stage.py` | `SOURCES[source_name(effective)](Host(python, stacktrace, android_home() / 'platform-tools', ...` | stages.benchmark, stages.harness |
 | `fail(message)` | `scripts/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +8 |
-| `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade, gradle_runner, pipeline +1 |
+| `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +1 |
 | `global_config(argument)` | `scripts/global_file.py` | - | dependencies, pipeline |
 | `run(project, arguments, stacktrace, stream, main_class, notices)` | `scripts/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
 | `map_blocks(path, text)` | `scripts/lint/markdown.py` | - | docs_lint, lint.tree |
