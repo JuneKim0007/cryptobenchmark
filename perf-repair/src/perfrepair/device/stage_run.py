@@ -55,6 +55,12 @@ def _ran(stage: str, reason: str):
         yield
 
 
+def _screen(r: Run, steps: dict) -> None:
+    if steps["screen"]:
+        with _ran("screen", steps["screen"]):
+            build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)
+
+
 def run_stages(r: Run, steps: dict) -> None:
     if steps["benchmark"]:
         with _ran("benchmark", steps["benchmark"]):
@@ -65,9 +71,7 @@ def run_stages(r: Run, steps: dict) -> None:
         with _ran("inbound", steps["inbound"]):
             for line in write_inbound(r.folder):
                 r.echo(line)
-    if steps["screen"]:
-        with _ran("screen", steps["screen"]):
-            build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)
+    _screen(r, steps)
     if steps["primitives"]:
         with _ran("primitives", steps["primitives"]):
             r.echo(write_primitives(r.folder))
@@ -78,6 +82,4 @@ def run_probe(r: Run, steps: dict) -> None:
         with _ran("probe", steps["probe"]):
             _same_folder(run_pipeline(r.config, r.root, "device" if r.on_device else "configure", benchmark=r.benchmark,
                                       echo=r.echo, extra=("--probe",), device=r.folder), r.folder)
-    if steps["screen"]:
-        with _ran("screen", steps["screen"]):
-            build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)
+    _screen(r, steps)
