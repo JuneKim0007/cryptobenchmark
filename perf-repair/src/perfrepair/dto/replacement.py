@@ -15,6 +15,8 @@ RECOMMEND = "recommend"
 MAX_CONCERNS, MAX_CONCERN_LENGTH = 5, 300
 
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
+# a replace that changes the output is refused when its own risks name one of these: callers or stored data must follow
+OUTPUT_LEAVES = ("persisted_data", "wire_format", "unknown_sink")
 # (scope or option field, value, risk it implies, plain words): the minimum risks a replace must declare
 DERIVED_RISKS = (
     ("sinks", "persist", "persisted_data", "the output is stored and read back later"),

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from ...dto.change import DROP_IN, admits
 from ...dto.perf_mode import GENERIC_MODE, PerfMode
-from ...dto.replacement import DECISIONS, RECOMMEND, RISKS, Edit, Replacement, required_risks
+from ...dto.replacement import DECISIONS, OUTPUT_LEAVES, RECOMMEND, RISKS, Edit, Replacement, required_risks
 from ...dto.dossier import Dossier, Option
 from ...dto.site import Scope
 from ...dto.unit import UnitDossiers
@@ -23,6 +23,17 @@ def _risks(risks: list, scope: Scope, option: Option | None, decision: str) -> l
         problems += [f"risks must include {r}: {' and '.join(words)}"
                      for r, words in required_risks(scope, option).items() if r not in risks]
     return problems
+
+
+def output_leaves(risks: list, option: Option | None) -> list[str]:
+    """A replace whose option changes the output, while its own risks say the output leaves the function."""
+    leaving = [r for r in OUTPUT_LEAVES if r in risks]
+    if option is None or not option.outputChanges or not leaving:
+        return []
+    problem = (f"{option.alias} changes the output and your risks {', '.join(leaving)} say the output leaves the function: "
+               "decide recommend and list in needs what must follow, or choose an option with the same output; "
+               "removing the risk does not change where the output goes")
+    return [problem]
 
 
 def _chosen(chosen: str | None, by_alias: dict[str, Option], max_change: str, found: list[str]) -> Option | None:
@@ -71,6 +82,7 @@ def _replace_member(raw: dict, alias: str, dossier: Dossier, reason: str, proble
         option, resolved = _recommend_member(raw, alias, dossier, found), []
     else:
         option, resolved = _applied(raw, dossier, edits, max_change, found)
+        found += output_leaves(risks, option)
     found += _risks(risks, dossier.scope, option, decision)
     problems += [f"{alias}: {p}" for p in found]
     if found:

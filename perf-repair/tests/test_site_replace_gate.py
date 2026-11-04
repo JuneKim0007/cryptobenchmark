@@ -3,8 +3,9 @@ import json
 import pytest
 from site_replace_data import GOOD_EDITS, KEEP, PINS, answer, dossier, edit, item, linked, member, scope
 
+from perfrepair.dto.change import PairDiff
 from perfrepair.dto.dossier import Estimate, Option
-from perfrepair.dto.replacement import Replacement, required_risks
+from perfrepair.dto.replacement import OUTPUT_LEAVES, Replacement, required_risks
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.validation.suggest.site_replace import check_reply
 
@@ -219,3 +220,33 @@ def test_a_key_whose_origin_is_not_visible_declares_key_compatibility(source):
     s = scope(sinks=("local",), key_source=source)
     assert required_risks(s) == {"key_compatibility": ["where the key comes from is not visible here"]}
     assert "key_compatibility" not in required_risks(scope(sinks=("local",), key_source="derived"))
+
+
+CHANGES_OUTPUT = Option("R1", "TypeA|ALG-B|P1", {}, "pass", (Estimate("timeNs", 0.6, 0.99, 40, "OP1 key 128 input 1024"),),
+                        change="local-edit", diff=PairDiff("same", "same", "bytes", "local"), outputChanges=True)
+LOCAL = {"sinks": ("local",), "key_source": "generated"}
+
+
+def changed(risks):
+    reply = answer(edits=[edit("set_algorithm", algorithm="ALG-B")], risks=risks)
+    return check_reply(json.dumps(reply), item(dossier((CHANGES_OUTPUT,), **LOCAL)), "local-edit")
+
+
+@pytest.mark.parametrize("risk", OUTPUT_LEAVES)
+def test_a_replace_that_changes_the_output_is_refused_when_its_own_risks_say_the_output_leaves(risk):
+    decision, problems = changed([risk])
+    assert decision is None and len(problems) == 1
+    assert "recommend" in problems[0] and risk in problems[0] and problems[0].startswith("S1: R1 changes the output")
+
+
+def test_a_replace_that_changes_the_output_inside_the_function_passes():
+    assert changed(["unverified_interop"])[1] == []
+
+
+def test_a_like_for_like_option_may_declare_the_output_leaving():
+    assert check(answer(risks=("persisted_data", "key_compatibility", "wire_format", "unknown_sink")))[1] == []
+
+
+def test_a_recommend_of_that_option_is_not_refused():
+    reply = {**answer(decision="recommend"), "members": [member(edits=[], risks=("persisted_data",), needs=["stored checksums"])]}
+    assert check_reply(json.dumps(reply), item(dossier((CHANGES_OUTPUT,), **LOCAL)), "local-edit")[1] == []
