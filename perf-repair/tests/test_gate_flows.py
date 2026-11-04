@@ -115,7 +115,7 @@ def test_after_a_delta_replace_asks_changed_dossiers_again_and_never_stops_on_th
         seen["refresh"] = refresh
         raise SystemExit
     monkeypatch.setattr(app_steps, "replace", replaced)
-    base = Guide(F, F, None, None, None, app_root=None)
+    base = Guide(F, F, None, None, None)
     for merged in (False, True):
         with pytest.raises(SystemExit):
             app_steps.replacements(with_fields(base, app_root=F, delta_merged=merged))

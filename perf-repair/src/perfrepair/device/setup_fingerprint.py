@@ -42,7 +42,8 @@ def fingerprint(folder: Path) -> dict:
     # energy: the source and kind of an estimated run, a top-level mark BenchmarkManifest does not keep
     out = {"deviceId": manifest.deviceId, "mode": manifest.mode, "bundled": _bundled(manifest, base),
            "processes": len(manifest.files.get("processes") or ()), "energy": read_yaml(base / rd.MANIFEST).get("energy")}
-    out.update({f"runtime.{k}": manifest.runtime.get(k) for k in RUNTIME})
+    # a probe writes a field it cannot know as empty, and a capture may hold a number the benchmark writes as text
+    out.update({f"runtime.{k}": str(manifest.runtime[k]) if manifest.runtime.get(k) not in (None, "") else None for k in RUNTIME})
     return _flat("prepared", planned, _flat("run", run, out))
 
 
@@ -55,8 +56,10 @@ def case_setups(folder: Path) -> dict[str, dict]:
 
 
 def before_measuring(stored: dict, probed: dict) -> list[str]:
-    """What a probe alone can already tell: only the fields it knows, so a difference costs no measuring session."""
-    known = {k: v for k, v in probed.items() if v is not None and k not in MEASURE_TIME}
+    """What a probe alone can tell, so a difference costs no session; a runtime field the benchmark's own runtime lacks is
+    the capture's (a host's sdkInt 0), and only the check after measuring, like against like, judges those."""
+    known = {k: v for k, v in probed.items() if v is not None and k not in MEASURE_TIME
+             and (not k.startswith("runtime.") or stored.get(k) is not None)}
     return differing({k: stored.get(k) for k in known}, known)
 
 

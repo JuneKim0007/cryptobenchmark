@@ -222,6 +222,9 @@ def test_a_setup_that_differs_refuses_the_delta_naming_the_field(device, monkeyp
 
 def test_a_setup_that_differs_is_refused_before_the_measuring_session(device, monkeypatch):
     monkeypatch.setenv("FAKE_FINGERPRINT", "another-build")
+    manifest = read_yaml(device / rd.MANIFEST)
+    manifest["runtime"]["fingerprint"] = "the-stored-build"
+    (device / rd.MANIFEST).write_text(yaml.safe_dump(manifest, sort_keys=False))
     with pytest.raises(Halt):
         gate(device, SHA_LOST)
     # only the probe ran: its manifest lists no benchmark
