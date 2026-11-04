@@ -102,7 +102,7 @@ scripts/session/passes.py : run.passes: one device session per metric group, its
 scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baseline once before the warm-up, then a wait before each case process while the device is hotter, one line per pass
 scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
-scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session; its output never pulled
+scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 scripts/stages/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
@@ -111,7 +111,7 @@ scripts/stages/discover.py : discover and configure: probe or host discovery, Co
 scripts/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts, scoped passes into measured/
 scripts/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
 scripts/stages/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
-scripts/stages/measuring.py : what a run's device sessions share: the Measuring context, timed hooks, plan push, ConvertKt, per-process files
+scripts/stages/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, plan push, ConvertKt, per-process files
 scripts/stages/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
 scripts/stages/took.py : the took: line of a timed step
 scripts/tests/ : pytest and standalone tests for scripts/

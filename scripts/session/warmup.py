@@ -30,12 +30,18 @@ def chosen(planned, cases, jobs):
     return [case for case in planned if any(matches(rule, by_id.get(case, {})) for rule in jobs)]
 
 
+def off(document):
+    if settings(document)[0] == 0:
+        print("warm-up:   off (run.warmup.iterations 0)")
+        return True
+    return False
+
+
 def run(device, test_class, arguments, planned, cases, document):
     """One process over the chosen cases; a failure warns and the session goes on. Returns the cases it ran."""
-    iterations, jobs = settings(document)
-    if iterations == 0:
-        print("warm-up:   off (run.warmup.iterations 0)")
+    if off(document):
         return []
+    iterations, jobs = settings(document)
     selected = chosen(planned, cases, jobs)
     if not selected:
         print("warning: WARM-UP SKIPPED: run.warmup.jobs select no planned case; measuring without a warm-up")

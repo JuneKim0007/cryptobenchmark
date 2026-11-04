@@ -1,8 +1,7 @@
 """A --harness run: perf-repair's scopes generated, interop-checked and measured on the device, original and patched."""
-import dataclasses, pathlib, time
+import pathlib, time
 
 import effective_view, energy_stage
-from device.adb import measure_arguments
 from device.identity import capture_id
 from energy_session import EnergySession
 from failure import fail
@@ -12,10 +11,11 @@ from results.manifest import manifest
 from scope import generate as scope_generate
 from scope import results as scope_results
 from scope.harness import HarnessError
-from session import energy_hook, passes, thermal_gate, warmup
+from session import energy_hook, passes, warmup
 from session import measure as measure_session
 from stages.discover import discover
-from stages.measuring import Measuring, convert, energy_preflight, push, record, singles, thermal_flag, timed_hooks
+from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
+                              thermal_flag, timed_hooks)
 from stages.took import elapsed
 
 
@@ -65,8 +65,8 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
                         effective_view.case_cooldown(document))
         cases = tuple(case for scope in measured for case in scope["cases"])
         import yaml
-        arguments = measure_arguments(options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
-        run = dataclasses.replace(run, gate=thermal_gate.start(device, effective_view.thermal_gate(document)))
+        arguments = session_arguments(run, document)
+        run = gated(run, document)
         warmup.run(device, "ScopedBenchmark", arguments, list(cases), yaml.safe_load(prepared.read_text())["cases"], document)
         scoped_passes(run, document, {run_capture}, prepared, cases, scoped)
     elapsed("interop check and measure", started)
@@ -75,7 +75,7 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
 
 def scoped_passes(run, document, captures, prepared, cases, scoped):
     if run.gate is None:
-        run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
+        run = gated(run, document)
     chosen, repetitions, isolation = passes.read(document, captures), effective_view.scoped_repetitions(document), effective_view.isolation(document)
     measure_one = lambda one, folder, written: measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written)
     written = passes.run_all(chosen, repetitions, scoped, measure_one, run.options)
@@ -99,7 +99,7 @@ def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, 
         written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
-    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
+    arguments = pass_arguments(run, one)
     plan = measure_session.Plan("ScopedBenchmark", arguments, cases=cases, named=True,
                                 order=measure_session.alternating, pull_plan=lambda process: device.pull_pins(process.into), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)

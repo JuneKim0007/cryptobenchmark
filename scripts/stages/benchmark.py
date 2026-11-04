@@ -1,15 +1,15 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
-import dataclasses, sys, time
+import sys, time
 
 import effective_view, energy_stage, gradle_runner, timeouts
-from device.adb import measure_arguments
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
 from repo import ROOT
-from session import case_isolation, energy_hook, passes, thermal_gate, variant_order, warmup
+from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
 from stages import not_measured
-from stages.measuring import Measuring, convert, energy_preflight, push, record, singles, thermal_flag, timed_hooks
+from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
+                              thermal_flag, timed_hooks)
 from stages.took import elapsed
 
 
@@ -29,7 +29,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
             written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
-    arguments = tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
+    arguments = pass_arguments(run, one)
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
@@ -85,7 +85,7 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
     isolation = effective_view.isolation(document)
     # idle baseline first: after the warm-up the device is hot and the target would never be reached
-    run = dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
+    run = gated(run, document)
     warm_up(run, document, preparation)
     measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
@@ -94,10 +94,9 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
 def warm_up(run, document, preparation):
     """Before the first pass: the device lists its plan once, and the warm-up picks from it."""
     import yaml
-    if warmup.settings(document)[0] == 0:
-        print("warm-up:   off (run.warmup.iterations 0)")
+    if warmup.off(document):
         return
-    arguments = measure_arguments(run.options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
+    arguments = session_arguments(run, document)
     planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
     run.device.pull_plan(preparation)
     cases = (yaml.safe_load((preparation / "prepared.yaml").read_text()) or {}).get("cases") or []

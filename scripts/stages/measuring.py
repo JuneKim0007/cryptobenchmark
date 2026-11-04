@@ -2,7 +2,7 @@
 import dataclasses, pathlib, time
 
 import effective_view, gradle_runner
-from device.adb import CPU_PINS, Device
+from device.adb import CPU_PINS, Device, measure_arguments
 from device.clocks import CLOCKS
 from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, thermal_gate, thermal_hook
@@ -29,6 +29,18 @@ def convert(run, arguments):
     notices = []
     gradle_runner.run("quick-bench", arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt", notices=notices)
     run.problems.extend(line for line in notices if line.startswith("iterations_not_applied:"))
+
+
+def gated(run, document):
+    return dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
+
+
+def session_arguments(run, document):
+    return measure_arguments(run.options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
+
+
+def pass_arguments(run, one):
+    return tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
 
 
 def timed_hooks(run, one, isolation):
