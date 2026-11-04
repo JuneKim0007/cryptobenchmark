@@ -9,5 +9,6 @@ docs/energy.md : energy capture modes, config keys, sources, rail pre-flight, to
 docs/index.md : this map
 docs/results.md : results/<device_id>/ layout, manifest.yaml, clocks.yaml and facts.yaml fields
 docs/run.md : prerequisites, scripts/pipeline.py flags, demo.sh, device run
+docs/shared-functions.md : scripts and tools functions other modules import: module, signature, rule, callers
 docs/tools.md : tools/ builds: commands, arguments, outputs
 ```

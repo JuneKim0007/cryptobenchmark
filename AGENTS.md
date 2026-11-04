@@ -103,6 +103,7 @@ scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baselin
 scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
+scripts/shared_functions.py : writes docs/shared-functions.md and perf-repair/docs/shared-functions.md from the import graph
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 scripts/stages/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
