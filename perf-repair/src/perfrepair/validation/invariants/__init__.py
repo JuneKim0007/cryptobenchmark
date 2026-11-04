@@ -1,0 +1,78 @@
+"""The grouping and scoping invariants of a device folder: one list of findings, for the command and the guide's gate."""
+from __future__ import annotations
+
+from pathlib import Path
+
+from ... import run_dir as rd
+from ...dto.site import Scope
+from ...dto.unit import read_units
+from ...files import read_json
+from ...run_dir import GroupingPaths
+from ..finding import Violation
+from ..grouping.invariants import Grouping, grouping_invariants
+from ..scoping.invariants import scoping_invariants
+from ..scoping.source import Sources
+
+
+def load_grouping(device: Path) -> Grouping | None:
+    paths = GroupingPaths(device)
+    if not paths.groups.is_file() or not paths.profiles.is_file():
+        return None
+    checks = read_json(paths.checks)["findings"] if paths.checks.is_file() else []
+    screen = rd.load_screen(paths) or {}
+    return Grouping(read_json(paths.groups), read_json(paths.profiles)["profiles"], checks,
+                    {str(i): v.canonical for i, v in screen.items()})
+
+
+def source_root(app: Path, apps: Path | None) -> Path | None:
+    """app.json's root and projectRoot; apps: a folder holding the app trees, when they moved since the run."""
+    facts = read_json(app / rd.APP) if (app / rd.APP).is_file() else {}
+    if not facts.get("root"):
+        return None
+    root = Path(facts["root"]) if apps is None else apps / Path(facts["root"]).name
+    return root / (facts.get("projectRoot") or ".")
+
+
+def app_violations(app: Path, apps: Path | None = None) -> list[Violation]:
+    scopes_file, units_file = app / rd.SCOPES, app / rd.UNITS
+    if not scopes_file.is_file():
+        return []
+    scopes = [Scope.from_json(s) for s in rd.read_scopes(scopes_file)["scopes"]]
+    units = read_units(read_json(units_file)) if units_file.is_file() else []
+    return scoping_invariants(scopes, units, Sources(source_root(app, apps)))
+
+
+def _dossiers(device: Path, only: str | None = None) -> dict[str, dict]:
+    return {a.name: read_json(a / rd.DOSSIERS) for a in rd.app_dirs(device)
+            if (a / rd.DOSSIERS).is_file() and only in (None, a.name)}
+
+
+def run_invariants(device: Path, apps: Path | None = None, against: Path | None = None) -> list[Violation]:
+    device = Path(device)
+    found = []
+    g = load_grouping(device)
+    if g is not None:
+        other = load_grouping(Path(against)) if against is not None else None
+        found += grouping_invariants(g, _dossiers(device), other)
+    for app in rd.app_dirs(device):
+        found += app_violations(app, apps)
+    return found
+
+
+def _touched(g: Grouping, doc: dict) -> set[str]:
+    group_of = {e["qualified"]: e["group"] for e in g.groups["items"].values()}
+    names = {d.get("current") for d in doc.get("dossiers") or []}
+    names |= {o.get("item") for d in doc.get("dossiers") or [] for o in d.get("options") or []}
+    return {group_of[n] for n in names if group_of.get(n)}
+
+
+def app_gate(device: Path, app: str) -> list[Violation]:
+    """What the guide checks before an app's replace step: the groups its dossiers draw from, and its own scopes."""
+    device = Path(device)
+    found = []
+    g = load_grouping(device)
+    dossiers = _dossiers(device, app)
+    if g is not None and app in dossiers:
+        touched = {f"group {gid}" for gid in _touched(g, dossiers[app])}
+        found += [v for v in grouping_invariants(g, dossiers) if v.subject.startswith(app + " ") or touched & set(v.evidence)]
+    return found + app_violations(rd.app_dir(device, app))

@@ -5,6 +5,7 @@ docs/artifacts.md : device folder artifacts: producer, consumers, validator; man
 docs/change-classes.md : a candidate beyond the group: type, floor, availability, pair diff, change class, reject reasons, apps.maxChange
 docs/decisions.md : the engine's retry and model defaults; the worthiness decision: input, answer, gate, fallback; static triage
 docs/grouping.md : grouping stage: files, answer contract, gates, families, findings
+docs/invariants.md : grouping and scoping invariants: the finding, each rule and its severity, the command, the known-answer fixtures
 docs/limits.md : what the measurements and the app scan cannot answer
 docs/modes.md : perfMode: the selected metrics, the one verdict rule, no_evidence; pImprove, its levels and the bootstrap method
 docs/pipeline.md : stages, commands, and what each reads and writes

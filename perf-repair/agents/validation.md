@@ -2,16 +2,19 @@
 
 ## Calls
 - `docs/artifacts.md` : which validator owns each artifact
+- `docs/invariants.md` : the grouping and scoping invariants, their severities and the command
 
 ## Rules
 - coverage: every artifact and every decision state has a validator; a validator returns every problem, never only the first.
 - gate: a stage calls `require` on its inputs and on its outputs; a failed gate stops the stage.
 - projection: a decision state must equal the projection of its outbox (each kind's `validate`); static verdicts must equal triage.
 - purity: validators read and compare; they never repair.
+- invariants: one `Violation` shape (`validation/finding.py`); blocking only where the artifact is wrong, undecided where the source does not tell, never a guess.
 
 ## Workflow
 - add a validator: `validation/<artifact>.py` → `check/run.py` → export in `validation/__init__.py` → row in `docs/artifacts.md`
 - check a device folder: `python3 -m perfrepair.validation --device-results <device>`
+- check its invariants: `python3 -m perfrepair.validation.invariants <device>`
 
 ## File structure
 
@@ -33,11 +36,15 @@ src/perfrepair/validation/dossiers/units.py : dossiers.json against units.json: 
 src/perfrepair/validation/evaluate/worthiness.py : gate C of worthiness: a reply against its group's evidence, in aliases M1..Mn; pairs must improve under the mode
 src/perfrepair/validation/events.py : log/events.jsonl through read_jsonl: every whole line JSON (a cut one skipped), schema 1, every field with its type, a known kind; a partial last line
 src/perfrepair/validation/failure.py : ValidationFailed and require: the stage gate
+src/perfrepair/validation/finding.py : the one invariant finding: id, severity (blocking, advisory, undecided), subject, evidence, fix; blocking, counts
 src/perfrepair/validation/grouping/code_groups.py : code-made groups equal the ones screen.json and the signatures imply; no item grouped by code in a model group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
+src/perfrepair/validation/grouping/invariants.py : grouping invariants: key contract, signature, no runnable member no options, interop not run, algorithm split, stability against another run
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
 src/perfrepair/validation/grouping/knowledge.py : knowledge: well-formed groups, members in one group of their family
 src/perfrepair/validation/grouping/output.py : groups.json (schema 3): one group or dropped per item, consistent index, `screen` equal to screen.json, code-made groups; read_groups reads it gated
+src/perfrepair/validation/invariants/__init__.py : run_invariants over a device folder; app_gate, the guide's check before replace; the app's source root
+src/perfrepair/validation/invariants/__main__.py : command: every invariant of a device folder, one line each and counts; exit 1 on a blocking one
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, registry metrics only, required ones present, ordered finite summaries, positive medians and kinds as the registry says
@@ -52,6 +59,9 @@ src/perfrepair/validation/report_metrics.py : a report row's metric rows: no num
 src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes, a known variant
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
+src/perfrepair/validation/scoping/__init__.py : docstring only
+src/perfrepair/validation/scoping/invariants.py : scoping invariants against the source: the call on its line, held_in_field setup once, created_per_call in one function, inverse link sides
+src/perfrepair/validation/scoping/source.py : Sources: an app's files as Code read once; line spans, the function around a line, the calls a line holds
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
 src/perfrepair/validation/suggest/site_edits.py : a member's edits against its chosen option: each kind once, the field it fills with the option's value, the kinds the option requires (`takes`, `required_kinds`, also used by the replacements check)
 src/perfrepair/validation/suggest/site_inverse.py : an inverse pair the swap leaves on two items: refused on another output or a failed interop, else unverified_interop declared
