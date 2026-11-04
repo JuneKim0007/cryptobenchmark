@@ -44,7 +44,8 @@ def check_reply(text: str, e: GroupEvidence, mode: Mode) -> tuple[dict | None, l
             problems.append(f"pairs[{i}] is not an object")
             continue
         why = p.get("reason").strip() if isinstance(p.get("reason"), str) else ""
-        if p.get("from") not in alias or p.get("to") not in alias or p.get("from") == p.get("to"):
+        ends = (p.get("from"), p.get("to"))
+        if not all(isinstance(end, str) and end in alias for end in ends) or ends[0] == ends[1]:
             problems.append(f"pairs[{i}]: {p.get('from')!r} -> {p.get('to')!r} is not two different members "
                             f"({', '.join(alias)})")
             continue

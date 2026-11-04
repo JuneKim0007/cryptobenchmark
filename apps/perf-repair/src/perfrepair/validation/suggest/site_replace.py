@@ -108,7 +108,7 @@ def _members_named(given: list, unit: UnitDossiers) -> list[str]:
 def _members(raw: list, unit: UnitDossiers, reason: str, problems: list[str], max_change: str, decision: str = "replace",
              picked: list | None = None) -> list[dict]:
     aliased = unit.aliased()
-    given = [m.get("member") if isinstance(m, dict) else None for m in raw]
+    given = [text_field(m, "member") if isinstance(m, dict) else None for m in raw]
     problems += _members_named(given, unit)
     rows = []
     for alias, m in zip(given, raw):

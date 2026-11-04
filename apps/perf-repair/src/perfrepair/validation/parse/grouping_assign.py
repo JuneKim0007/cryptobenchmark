@@ -20,8 +20,9 @@ def parse_answer(text: str) -> tuple[Answer | None, list[str]]:
     shape = []
     if not isinstance(d.get("group", ""), str):
         shape.append("group is not a string")
-    if not isinstance(d.get("newGroup") or {}, dict):
-        shape.append("newGroup is not an object")
+    new = d.get("newGroup") or {}
+    if not isinstance(new, dict) or not all(isinstance(new.get(k) or "", str) for k in ("id", "description")):
+        shape.append("newGroup is not an object of {id, description}")
     if not isinstance(d.get("amend") or [], list) or not all(
             isinstance(a, dict) and isinstance(a.get("group"), str) and isinstance(a.get("description"), str)
             for a in d.get("amend") or []):

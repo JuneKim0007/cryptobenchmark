@@ -20,6 +20,12 @@ def parse_review(text: str, groups: dict[str, list[int]]) -> tuple[list[dict] | 
             problems.append(f"{where}: not an object")
             continue
         kind, gs, its = f.get("kind"), f.get("groups") or [], f.get("items") or []
+        if not isinstance(gs, list) or not all(isinstance(g, str) for g in gs):
+            problems.append(f"{where}: groups is not a list of group ids")
+            continue
+        if not isinstance(its, list) or not all(type(i) is int for i in its):
+            problems.append(f"{where}: items is not a list of item ids")
+            continue
         if kind not in KINDS:
             problems.append(f"{where}: kind {kind!r} is not one of {KINDS}")
         problems += [f"{where}: group {g!r} is not in this family" for g in gs if g not in groups]
