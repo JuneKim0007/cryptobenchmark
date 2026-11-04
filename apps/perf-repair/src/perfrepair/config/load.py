@@ -6,8 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-import yaml
-
+from ..dto.coded import InputError
 from ..files import read_yaml
 from ..inputs.resolve import CLI, Candidate, choose
 from ..inputs.table import ROLE_KEYS, Layer, RoleRow, Row
@@ -79,18 +78,12 @@ class Loaded:
             Layer.DEFAULT: Candidate(default, "default", explicit=False)}, check, cli)
 
 
-def _one_line(e: yaml.YAMLError) -> str:
-    mark = getattr(e, "problem_mark", None)
-    where = f" at line {mark.line + 1} column {mark.column + 1}" if mark else ""
-    return f"{getattr(e, 'problem', None) or 'not YAML'}{where}"
-
-
 def load(argument: Path | None, environ: Mapping[str, str], dotenv: Mapping[str, str]) -> Loaded:
     path = config_file(argument, environ)
     try:
         settings = parse(read_yaml(path), str(path)) if path else Settings()
-    except yaml.YAMLError as e:
-        raise ConfigError(f"invalid_yaml: {path}: {_one_line(e)}") from None
     except ConfigError as e:
         raise ConfigError(f"{e} ({path})") from None
+    except InputError as e:
+        raise ConfigError(str(e), e.path) from None
     return Loaded(path, settings, _gateway_layer(environ), _gateway_layer(dotenv))

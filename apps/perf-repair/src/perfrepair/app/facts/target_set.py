@@ -74,8 +74,8 @@ def listed_entries(value: Any, settings_file: Path) -> tuple[list, Path]:
     path = (base / Path(value).expanduser()).resolve()
     if not path.is_file():
         raise Coded(f"missing_file: apps.targets file {path}")
-    entries = read_yaml(path) or []
-    if not isinstance(entries, list) or not all(target_ok(e) for e in entries):
+    entries = read_yaml(path, list)
+    if not all(target_ok(e) for e in entries):
         raise Coded(f"invalid: apps.targets file {path}, {TARGETS_EXPECTED}")
     return entries, path.parent
 

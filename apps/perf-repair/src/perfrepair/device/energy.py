@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
 from ..data_handler.inbound.energy import InvalidCase, invalid_cases
 from ..stop import terminate
 
@@ -20,7 +18,7 @@ def report_invalid(manifest: Path, app: str | None = None) -> int:
     # the measured run is already paid for: a report that cannot read its energy says so and never fails it
     try:
         cases = _per_case(invalid_cases(manifest))
-    except (OSError, ValueError, AttributeError, yaml.YAMLError) as e:
+    except (OSError, ValueError, AttributeError) as e:
         terminate("energy_unreadable", f"{type(e).__name__}: {e}", stage="device", step="energy", item=str(manifest), app=app)
         return 0
     for case, rows in cases.items():

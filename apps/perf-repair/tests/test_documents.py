@@ -55,3 +55,17 @@ def test_read_versioned_loads_then_checks(tmp_path):
         read_versioned(SCOPES_DOC, path)
     write_json(path, {"schemaVersion": 5, "scopes": []})
     assert read_versioned(SCOPES_DOC, path)["scopes"] == []
+
+
+def test_read_yaml_refuses_bad_yaml_and_a_non_mapping_with_invalid_yaml_at_its_line_and_column(tmp_path):
+    from perfrepair.files import read_yaml
+    bad = tmp_path / "bad.yaml"
+    bad.write_text("a: 1\nb: [\n")
+    with pytest.raises(InputError, match=rf"^invalid_yaml: {bad}: .* at line 3 column 1$") as e:
+        read_yaml(bad)
+    assert (code_of(e.value), e.value.path) == ("invalid_yaml", str(bad))
+    (tmp_path / "list.yaml").write_text("- a\n")
+    with pytest.raises(InputError, match=r"^invalid_yaml: .*list.yaml: a list, not a mapping$"):
+        read_yaml(tmp_path / "list.yaml")
+    from perfrepair.dto.document import parse_yaml
+    assert read_yaml(tmp_path / "list.yaml", list) == ["a"] and parse_yaml("", "x") == {}

@@ -84,7 +84,7 @@ def _targets(loaded: Loaded, tree: LlmTree) -> None:
             folder = (base / Path(target_root(entry) or target_path(entry)).expanduser()).resolve()
             tree.pointers.append(Pointer(f"{TARGETS_KEY}[{i}]", folder, "target"))
         found = resolve_targets(value, loaded.file)
-    except (ValueError, yaml.YAMLError) as e:
+    except ValueError as e:
         tree.problems.append(str(e))
         return
     if not found.apps:

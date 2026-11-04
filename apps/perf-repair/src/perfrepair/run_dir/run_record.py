@@ -28,7 +28,7 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
         return None, f"no {DEVICE}"
     try:
         return DeviceRecord.from_json(read_yaml(path)), None
-    except (ValueError, KeyError, TypeError, yaml.YAMLError) as e:
+    except (ValueError, KeyError, TypeError) as e:
         return None, f"{DEVICE} unreadable ({e})"
 
 

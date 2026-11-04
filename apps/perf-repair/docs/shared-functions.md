@@ -58,7 +58,7 @@
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.suggest.site_replace.kind, device.coverage, device.delta_merge |
 | `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +28 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
-| `read_yaml(path)` | `src/perfrepair/files.py` | `yaml.safe_load(Path(path).read_text()) or {}` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +29 |
+| `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +29 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.gate_after, device.primitives, device.seen, device.stage +4 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.review.grouping_review.kind, ai.suggest.site_replace.kind, app.facts.path_id +1 |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +16 |
