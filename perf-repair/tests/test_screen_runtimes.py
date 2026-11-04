@@ -17,6 +17,7 @@ from helpers import ANY_EVIDENCE
 from perfrepair.dto.screen import BROKEN, CODE_GROUPED, NEVER_TARGET, PLATFORM_DEPRECATED, RANK, STATUSES, lowers_status
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.files import read_document
+from perfrepair.result import estimate
 from perfrepair.grouping.build.items import build
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.screen.groups import code_group_id, code_groups
@@ -102,7 +103,9 @@ def _scope(item):
 
 
 @pytest.mark.parametrize("runtime", RUNTIMES)
-def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime, tmp_path):
+def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime, tmp_path, monkeypatch):
+    # thousands of pairs about status, not numbers: no bootstrap for each
+    monkeypatch.setattr(estimate, "p_improve", lambda *_: 0.5)
     items, screen = loaded(runtime)
     (tmp_path / "A.java").write_text("void f() {}\n")
     groups, scopes = _family_groups(items), [_scope(i) for i in items]

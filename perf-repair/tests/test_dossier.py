@@ -14,7 +14,7 @@ from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.dto.screen import Verdict
 from perfrepair.result.provider_path import SiteProviders, site_providers
-from perfrepair.dto.dossier import Dossier, Option
+from perfrepair.dto.dossier import Dossier, Option, reason_code
 from perfrepair.result.configurations import config_of, estimates
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.repair.dossier import dossier
@@ -103,11 +103,10 @@ def test_unknown_pins_survive_the_round_trip():
     assert Option.from_json(json.loads(json.dumps(option.to_json()))).pins is None
 
 
-def test_a_one_run_estimate_has_no_pimprove_and_validates(tmp_path):
+def test_a_one_run_measurement_is_no_estimate_and_no_option(tmp_path):
     one = {**M, "c64": {"timeNs": summary(100, n=1), "allocationCount": None}}
     doc = build([scope()], tmp_path, measurements=one)
-    e = doc["dossiers"][0]["options"][0]["estimates"][0]
-    assert (e["metric"], e["n"], e["pImprove"]) == ("timeNs", 1, None)
+    assert not doc["dossiers"] and [reason_code(n["reason"]) for n in doc["noOptions"]] == ["no_evidence"]
     assert validate_dossiers(doc, [scope()], GROUPS, None) == []
 
 

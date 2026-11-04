@@ -5,11 +5,11 @@ import re
 from typing import NamedTuple
 
 from ..dto import PrimitiveRow, Summary
-from ..dto.dossier import SETUP_DRIFT, Estimate, NoEstimate, reason_code
+from ..dto.dossier import SETUP_DRIFT, TOO_FEW_RUNS, Estimate, NoEstimate, reason_code
 from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME
 from ..dto.site import Scope
-from .estimate import Comparison, compare
+from .estimate import MIN_RUNS, Comparison, compare
 
 ESTIMATED_SUFFIX = ", estimated"
 LABEL = re.compile(rf"^(?P<op>\S+) key (?P<key>\S+) input (?P<input>\S+) (?P<phase>\S+)(?P<estimated>{ESTIMATED_SUFFIX})?$")
@@ -75,6 +75,8 @@ def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: d
 def _compared(mine: PrimitiveRow, theirs: PrimitiveRow, before: Summary, after: Summary, metric: str) -> Comparison:
     if mine.session != theirs.session and (mine.drift or theirs.drift):
         return Comparison(None, None, 0, f"{SETUP_DRIFT}: {mine.session or 'benchmark'} and {theirs.session or 'benchmark'}", False)
+    if min(before.n, after.n) < MIN_RUNS:
+        return Comparison(None, None, 0, f"{TOO_FEW_RUNS}: {before.n} and {after.n} runs, an estimate needs {MIN_RUNS}", False)
     return compare(before, after, BY_NAME[metric].lowerIsBetter)
 
 

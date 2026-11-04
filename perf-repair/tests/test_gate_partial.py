@@ -1,8 +1,12 @@
 """The gate's partial and low_quality classes and the merge's per-case sample check, on the recorded results and the fake
 pipeline; a real device run is not exercised here."""
+from dataclasses import replace
+
 import pytest
 import yaml
+from helpers import summary
 from perfrepair import run_dir as rd
+from perfrepair.device.delta import _drift
 from perfrepair.device.delta_config import narrowed, write_delta_config
 from perfrepair.device.delta_merge import merge_delta
 from perfrepair.device.measured_check import measured_check
@@ -61,6 +65,11 @@ def test_too_few_runs_is_coded_and_spends_no_delta(device):  # noqa: F811
     (coverage, merged), lines = gate(device, SHA)
     assert not merged and coverage.items() == {SHA: LOW_QUALITY} and coverage.delta() == ()
     assert coverage.gaps[0].action == "coded" and "1 runs" in coverage.gaps[0].reason and not any(line.startswith("delta:") for line in lines)
+
+
+def test_an_anchor_with_too_few_runs_checks_nothing():
+    one_run = replace(summary(5.0), n=1, processes=((5.0,),))
+    assert _drift({"a": {"timeNs": one_run}}, {"a": {"timeNs": summary(5.0)}}, {"a"}) == ((), 0)
 
 
 def test_a_merge_refuses_a_case_with_another_sample_count(device, tmp_path):  # noqa: F811

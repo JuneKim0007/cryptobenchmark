@@ -27,7 +27,7 @@ from ..dto.benchmark_coverage import (
 )
 from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, read_yaml, write_text_making_parents
-from ..result.estimate import compare
+from ..result.estimate import MIN_RUNS, compare
 from ..result.gain import UNCHANGED, change_of
 from ..stop.halt import Coded
 from .delta_config import DELTA, narrowed, write_delta_config, write_rerun_config
@@ -88,7 +88,7 @@ def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[tuple[str, ...],
     out, compared = [], 0
     for cid in sorted(anchors):
         before, after = (stored.get(cid) or {}).get(DRIFT_METRIC), (now.get(cid) or {}).get(DRIFT_METRIC)
-        if before and after:
+        if before and after and min(before.n, after.n) >= MIN_RUNS:
             compared += 1
             c = compare(before, after)
             if change_of(c.ratio, c.pImprove) != UNCHANGED:

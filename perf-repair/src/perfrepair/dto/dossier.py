@@ -18,8 +18,9 @@ ENERGY_KINDS_DIFFER = "energy_kinds_differ"
 ZERO_MEDIAN = "zero_median"
 # the two sides come from different sessions and the delta's anchors moved: no ratio across them is evidence
 SETUP_DRIFT = "setup_drift"
+TOO_FEW_RUNS = "too_few_runs"
 CROSS_SESSION = "cross_session"
-NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER, ZERO_MEDIAN, SETUP_DRIFT)
+NO_ESTIMATE_REASONS = (ENERGY_KINDS_DIFFER, ZERO_MEDIAN, SETUP_DRIFT, TOO_FEW_RUNS)
 PROVIDER_HELD_KEY = "provider_held_key"
 # in filter order: a scope is in noOptions under the first filter that leaves it nothing; the last is its unit's
 VARIANT_NOT_MEASURED = "variant_not_measured"
@@ -48,7 +49,7 @@ def pin_text(value) -> str:
 @dataclass(frozen=True)
 class Estimate:
     """One metric of one option against the site's current choice, at the nearest measured configuration;
-    pImprove is None when either side has fewer than two runs; kind: an energy estimate's measured or estimated."""
+    kind: an energy estimate's measured or estimated."""
     metric: str
     ratio: float
     pImprove: float | None

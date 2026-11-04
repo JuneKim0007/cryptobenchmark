@@ -18,6 +18,7 @@ from ...dto.interop import PAIR_STATUSES
 from ...dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ...dto.perf_mode import PerfMode
 from ...dto.screen import STATUSES
+from ...result.estimate import MIN_RUNS
 from ...result.gain import no_gain
 from ..app import scope_problems
 
@@ -74,10 +75,10 @@ def _estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str]:
             if not (_number(e.ratio) and e.ratio > 0):
                 problems.append(f"{at}: ratio {e.ratio!r} is not a positive number")
             p, n = e.pImprove, e.n
-            if not isinstance(n, int) or n < 1:
-                problems.append(f"{at}: n {n!r} is not a positive integer")
-            elif (p is None) != (n < 2):
-                problems.append(f"{at}: pImprove {p!r} with n {n}; only fewer than two runs leave it empty")
+            if not isinstance(n, int) or n < MIN_RUNS:
+                problems.append(f"{at}: n {n!r}; an estimate needs {MIN_RUNS} runs a side")
+            elif p is None:
+                problems.append(f"{at}: pImprove is empty with n {n}")
             if p is not None and not (_number(p) and 0 <= p <= 1):
                 problems.append(f"{at}: pImprove {p!r} is not a probability")
     return problems + _no_estimates(where, d, selected)

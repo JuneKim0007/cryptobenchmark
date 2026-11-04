@@ -72,7 +72,7 @@ def measured_alike(names):
     """One row per qualified name at one configuration, every median equal: a fixture about anything but the numbers."""
     rows = [replace(row(f"r{n}", q.split("|")[2], algorithm=q.split("|")[1], type_=q.split("|")[0], key_size=None,
                         input_size=None), parameters={}) for n, q in enumerate(names)]
-    return rows, {r.rowId: {"timeNs": summary(100, n=1)} for r in rows}
+    return rows, {r.rowId: {"timeNs": summary(100, n=2)} for r in rows}
 
 
 QUIET = {"echo": lambda _: None}
