@@ -8,7 +8,7 @@ config/global.yaml + config/testsets/*.yaml
 :environment:discovery ──probe_<stamp>.yaml, probe_classes_<stamp>.yaml, trial_<stamp>.yaml──▶ :config
 :config ──inventory.yaml, effective.yaml──▶ :preparation
 :preparation ──prepared cases in process; prepared.yaml, skipped.yaml on disk──▶ :benchmark
-:benchmark ──benchmark.json──▶ tools/quick-bench/analyze.py ──summary.md, charts
+:benchmark ──benchmark.json──▶ apps/benchmark-runner/analysis/analyze.py ──summary.md, charts
 ```
 
 | stage | reads | writes | code |
@@ -17,13 +17,13 @@ config/global.yaml + config/testsets/*.yaml
 | config | capture, trial, `global.yaml`, test set, optional `facts.yaml` | `inventory.yaml`, `effective.yaml` | `apps/benchmark/modules/config/src/main/kotlin/Configuration.kt` |
 | preparation | capture, trial, `effective.yaml` | `prepared.yaml`, `skipped.yaml` | `apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt`, `report/SkipFile.kt` |
 | benchmark | prepared cases, `energy.yaml` | `benchmark.json` | `apps/benchmark/modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt` |
-| analysis | `benchmark.json` | `summary.md`, three PNG charts | `tools/quick-bench/analyze.py` |
+| analysis | `benchmark.json` | `summary.md`, three PNG charts | `apps/benchmark-runner/analysis/analyze.py` |
 
 - Stamp format: `yyyyMMdd'T'HHmmss'Z'`, UTC.
 - `:config` reads capture and trial by key names; no discovery class is on its classpath.
 - No provider, algorithm or device name is hard-coded in module main code; selection comes from `config/`.
 - One command for both sides: `apps/cli/facade.py`, see [facade.md](facade.md): crypto (the benchmark) names nothing of the llm side (perf-repair) and the reverse; the root settings index names both.
-- Driver: `scripts/pipeline.py`, see [run.md](run.md). Output layout: [results.md](results.md).
+- Driver: `apps/benchmark-runner/pipeline.py`, see [run.md](run.md). Output layout: [results.md](results.md).
 
 ## Gradle projects
 
@@ -53,9 +53,9 @@ config/global.yaml + config/testsets/*.yaml
 |---|---|---|
 | `:environment:discovery`, `:settings`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
 | `:android` | Kotlin main (`Affinity.kt`), C (`src/main/cpp/affinity.c`, `CMakeLists.txt`), Kotlin androidTest | full package folders |
-| `scripts/` | Python 3 | commands and shared steps at the top; the other modules in one package per stage, imported with `scripts/` on the path |
-| `tools/energy/`, `tools/quick-bench/*.py` | Python 3 | flat |
-| `scripts/demo.sh` | bash | |
+| `apps/benchmark-runner/` | Python 3 | commands and shared steps at the top; the other modules in one package per stage, imported with `apps/benchmark-runner/` on the path |
+| `apps/benchmark-runner/energy/`, `apps/benchmark-runner/analysis/*.py` | Python 3 | flat |
+| `apps/benchmark-runner/demo.sh` | bash | |
 
 - No `.java` source is tracked under `apps/benchmark/modules/`.
 

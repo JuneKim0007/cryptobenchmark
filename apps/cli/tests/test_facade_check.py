@@ -146,7 +146,7 @@ def test_the_real_parser_catches_a_typo_and_a_bad_provider_before_any_build(tmp_
 def test_pipeline_refuses_a_typo_with_one_line_before_any_build(tmp_path):
     (tmp_path / "set.yaml").write_text("schemaVersion: 1\n")
     (tmp_path / "global.yaml").write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nrnu: {seed: 1}\n")
-    done = subprocess.run([sys.executable, str(ROOT / "scripts/pipeline.py"), "--config", str(tmp_path / "global.yaml"), "--device",
+    done = subprocess.run([sys.executable, str(ROOT / "apps/benchmark-runner/pipeline.py"), "--config", str(tmp_path / "global.yaml"), "--device",
                            "--results", str(tmp_path / "r")], capture_output=True, text=True, check=False)
     assert done.returncode == 1 and done.stderr.strip().startswith("error: global.yaml: unknown_section")
     assert "\n" not in done.stderr.strip() and not (tmp_path / "r").exists()

@@ -20,7 +20,7 @@ class EnergyDryBenchmark(private val caseId: String, private val prepared: Prepa
     }
 
     companion object {
-        // Paired with scripts/energy_session.py DRY_CALLS.
+        // Paired with apps/benchmark-runner/energy_session.py DRY_CALLS.
         const val CALLS = "energy-dry.yaml"
 
         @JvmStatic

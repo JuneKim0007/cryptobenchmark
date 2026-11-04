@@ -67,4 +67,4 @@ Runs first on every facade run; `--check` stops after it. No app build, no devic
 - A failed phase stops the next; the exit code is the worst.
 - Every child gets `--perfrepair-config` and `--config`, `PERFREPAIR_CONFIG` set to `llm.config`, `CRYPTOBENCH_CONFIG` unset and `CRYPTOBENCH_ROOT` set to this repository; the home folder's `global.yaml` and the package's default `perfrepair.yaml` are not read.
 - `PERFREPAIR_AGENT` and the other gateway variables keep their layer ([settings.md](../apps/perf-repair/docs/settings.md)).
-- Lower-level commands: `scripts/pipeline.py` ([run.md](run.md)), `python3 -m perfrepair guide` ([replacement.md](../apps/perf-repair/docs/replacement.md)). `scripts/demo.sh` stays crypto only.
+- Lower-level commands: `apps/benchmark-runner/pipeline.py` ([run.md](run.md)), `python3 -m perfrepair guide` ([replacement.md](../apps/perf-repair/docs/replacement.md)). `apps/benchmark-runner/demo.sh` stays crypto only.

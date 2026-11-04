@@ -47,7 +47,7 @@ kotlin {
     }
 }
 
-// -PbundledArtifacts=group:name:version,... : providers an app ships; scripts/pipeline.py reads them from global.yaml.
+// -PbundledArtifacts=group:name:version,... : providers an app ships; apps/benchmark-runner/pipeline.py reads them from global.yaml.
 def bundledArtifacts = (findProperty('bundledArtifacts') ?: '').toString().split(',').collect { it.trim() }.findAll { it }
 
 // The androidx benchmark version is set only here; harness.md and measure.md name it.

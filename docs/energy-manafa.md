@@ -4,7 +4,7 @@ The `energy.source: manafa` adapter. Shared capture modes and `energy.json`: [en
 
 ## Dependency
 
-- Optional: `tools/energy/requirements-manafa.txt` into `--energy-python`; imported lazily.
+- Optional: `apps/benchmark-runner/energy/requirements-manafa.txt` into `--energy-python`; imported lazily.
 - Missing fails with `manafa_missing: <detail>`.
 
 ## Session

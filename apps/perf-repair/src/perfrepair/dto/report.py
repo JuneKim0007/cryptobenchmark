@@ -55,7 +55,7 @@ def case_id(scope: str, side: str) -> str:
 
 
 def call_site_case_id(scope: str, side: str) -> str:
-    """Paired with scripts/scope/call_site.py case_id."""
+    """Paired with apps/benchmark-runner/scope/call_site.py case_id."""
     return f"scope:{scope}:callSite:{side}"
 
 

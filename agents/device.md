@@ -1,7 +1,7 @@
 # Device runs
 
 ## Calls
-- `docs/run.md` : prerequisites, `scripts/pipeline.py` flags, device requirements
+- `docs/run.md` : prerequisites, `apps/benchmark-runner/pipeline.py` flags, device requirements
 - `docs/device-session.md` : the device session: passes, a process per case, temperature, warm-up
 - `docs/results.md` : results/ layout, manifest.yaml, clocks.yaml, facts.yaml
 - `docs/energy.md` : capture modes, rail pre-flight, joules output
@@ -9,7 +9,7 @@
 - `apps/benchmark/modules/settings/docs/index.md` : `cpu` and `energy` harness keys and device support
 
 ## Rules
-- entry: run device work through `python3 scripts/pipeline.py --device`; never drive the adb steps of `scripts/device/adb.py` by hand.
+- entry: run device work through `python3 apps/benchmark-runner/pipeline.py --device`; never drive the adb steps of `apps/benchmark-runner/device/adb.py` by hand.
 - sdk: set `ANDROID_HOME` before a device run; `adb get-state` must report `device`.
 - serial: with several devices attached, set `ANDROID_SERIAL` to one.
 - root: a device run needs no root; never require it in code or scripts.
@@ -21,4 +21,4 @@
 - pinning: request a core through `harness.cpu` (`core: <index>|big`, `required`) in `config/`, never in code.
 - pinning: a pinned run needs `libaffinity.so` in the installed release APK; check `pinning` in `discovery/facts.yaml`.
 - pinning: report a pinned run as pinned, never as core-isolated; pinning restricts the measuring thread only.
-- energy: set `harness.energy.capture` only for `--device` runs; pass `--energy-python` an interpreter with `tools/energy/requirements.txt` installed, plus `tools/energy/requirements-manafa.txt` for `harness.energy.source: manafa`.
+- energy: set `harness.energy.capture` only for `--device` runs; pass `--energy-python` an interpreter with `apps/benchmark-runner/energy/requirements.txt` installed, plus `apps/benchmark-runner/energy/requirements-manafa.txt` for `harness.energy.source: manafa`.

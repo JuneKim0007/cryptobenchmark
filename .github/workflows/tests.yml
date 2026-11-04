@@ -17,12 +17,12 @@ jobs:
       - run: python3 -m pip install -r requirements.txt
       - name: perf-repair
         run: make -C apps/perf-repair check
-      - name: scripts and tools
-        run: python3 -m pytest scripts/tests tools/energy/tests tools/quick-bench/tests apps/cli/tests tools/tests
+      - name: runner, cli and tools
+        run: python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests
       - name: standalone
         run: |
-          python3 scripts/tests/test_manifest.py
-          python3 tools/quick-bench/tests/test_analyze.py
+          python3 apps/benchmark-runner/tests/test_manifest.py
+          python3 apps/benchmark-runner/analysis/tests/test_analyze.py
 
   root-build:
     runs-on: ubuntu-latest

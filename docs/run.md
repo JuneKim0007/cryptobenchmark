@@ -5,18 +5,18 @@
 | need | value |
 |---|---|
 | Java | 17 toolchain target; Kotlin comes from the Gradle plugin `kotlin("jvm")` 2.2.21 |
-| host Python deps | `pip install -r requirements.txt`; a missing module a run needs is `missing_dependency: <module>; pip install -r requirements.txt` and exit 1 at its start (`scripts/dependencies.py`) |
-| energy Python deps | in `requirements.txt`; `tools/energy/requirements.txt` for a separate `--energy-python`, see [energy.md](energy.md) |
+| host Python deps | `pip install -r requirements.txt`; a missing module a run needs is `missing_dependency: <module>; pip install -r requirements.txt` and exit 1 at its start (`apps/benchmark-runner/dependencies.py`) |
+| energy Python deps | in `requirements.txt`; `apps/benchmark-runner/energy/requirements.txt` for a separate `--energy-python`, see [energy.md](energy.md) |
 | `ANDROID_HOME` (`--device`) | default `~/Library/Android/sdk`; adb at `$ANDROID_HOME/platform-tools/adb` |
 | device state (`--device`) | `adb get-state` must print `device` |
 | `ANDROID_SERIAL` (`--device`) | selects one device; several attached and none selected stops with `several_devices`; a serial not attached stops with `device_not_attached` |
 | root (`--device`) | not required: the app creates its own files directory; shell reads it through group `ext_data_rw` |
 
-## scripts/pipeline.py
+## apps/benchmark-runner/pipeline.py
 
 The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); this one is the benchmark's own.
 ```
-python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
+python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--stacktrace] [--stream] [--harness HARNESS_YAML]
                             [--interop PLAN_YAML] [--probe] [--identify]
@@ -30,9 +30,9 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 | `--bench` | off | also prepare, measure and analyse on the JVM via the benchmark CLI (`BenchKt`) |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
-| `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of `scripts/scope/code_digest.py`, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
+| `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of `apps/benchmark-runner/scope/code_digest.py`, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
 | `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; the variable reaches a run the guide or facade starts |
-| `--energy-python PYTHON` | `sys.executable` | interpreter with `tools/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
+| `--energy-python PYTHON` | `sys.executable` | interpreter with `apps/benchmark-runner/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--stacktrace` | off | print the tool's full output on failure |
 | `--stream` | off | show each tool's progress |
@@ -59,7 +59,7 @@ python3 scripts/pipeline.py [--config PATH] [--results DIR] [--discovery overwri
 
 ## Timeouts
 
-Every host subprocess runs under a ceiling from `scripts/timeouts.py`; past it the process is killed and the run stops with `error: timeout: <step> ran past <s> s: <command>`. A ceiling only catches a hang: each is several times the longest real step, and none is a setting.
+Every host subprocess runs under a ceiling from `apps/benchmark-runner/timeouts.py`; past it the process is killed and the run stops with `error: timeout: <step> ran past <s> s: <command>`. A ceiling only catches a hang: each is several times the longest real step, and none is a setting.
 
 | step | ceiling | covers | why this value |
 |---|---|---|---|
@@ -69,23 +69,23 @@ Every host subprocess runs under a ceiling from `scripts/timeouts.py`; past it t
 | `instrument` | 12 h | one `am instrument`: `CryptoBenchmark` with every case (`isolation: run`), `DeviceProbe`, `EnergyDryBenchmark`, `InteropCheck` | a device benchmark of the full test set at 400 samples with thermal sleeps takes hours |
 | `gradle` | 4 h | a `tools/` Gradle run: probe, configure, host measure, convert, merge | the host measure of the full test set is the longest |
 | `compile` | 30 min | `--harness` scope compile | one compile of the android test sources |
-| `energy` | 2 h | `tools/energy` (`energy.py`, `preflight.py`), manafa's pre-flight and answer | the trace processor loads one trace per case |
+| `energy` | 2 h | `apps/benchmark-runner/energy` (`energy.py`, `preflight.py`), manafa's pre-flight and answer | the trace processor loads one trace per case |
 | `analysis` | 30 min | `analyze.py`, `charts.py` | seconds in practice |
 
 - An energy step past its ceiling is `energy_failed: timeout: ...` and the run goes on ([energy.md](energy.md#outputs)).
 - Analysis runs `analyze.py`, then `charts.py` ([tools.md](tools.md#chartspy)); a failure is `warning: charts_failed: <reason>`, the benchmark and manifest stay and the run succeeds.
 
-## scripts/explain.py
+## apps/benchmark-runner/explain.py
 
 ```
-python3 scripts/explain.py [--config PATH] [--results DIR] [--device-id ID]
+python3 apps/benchmark-runner/explain.py [--config PATH] [--results DIR] [--device-id ID]
 ```
 
 - Prints the run id, each `run`, `policy` and `analysis` key of `<results>/<device_id>/configuration/effective.yaml` with its value and source: the global file when written there, else `default`.
 - Ends with the entry count and the test set.
 - A root with several device folders needs `--device-id`, else `several_device_results`.
 
-## scripts/demo.sh
+## apps/benchmark-runner/demo.sh
 
 | flag | effect |
 |---|---|
@@ -116,7 +116,7 @@ The benchmark and the before/after run measure through one device session: [devi
 
 | piece | what it is | device time it costs |
 |---|---|---|
-| session | `scripts/session/measure.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
+| session | `apps/benchmark-runner/session/measure.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
 | passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
 | process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
 | ABBA | the before/after run alternates the sides over `run.scopedRepetitions` (3) | 3 processes per side and pass |

@@ -67,5 +67,5 @@ def run_app(g: Guide, device: bool) -> Stopped | None:
     stopped = run_sequence(g, APP_DRY + (APP_MEASURED if device else ()))
     if not stopped and not device:
         g.echo(f"guide: dry run ends at the harness; measure with --device, or run "
-               f"`python3 scripts/pipeline.py --device --harness {g.paths.harness}`")
+               f"`python3 apps/benchmark-runner/pipeline.py --device --harness {g.paths.harness}`")
     return stopped

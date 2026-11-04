@@ -28,7 +28,7 @@ data class MetricSamples(
         // An allocation pass counts inside the timed phase, one run per sample; paired with android SampledAllocations.NAME.
         const val SAMPLED_ALLOCATIONS = "allocationSamples"
 
-        // From tools/energy, not from Jetpack: one run per window, with its source and kind.
+        // From apps/benchmark-runner/energy, not from Jetpack: one run per window, with its source and kind.
         const val ENERGY = "energyJ"
     }
 }

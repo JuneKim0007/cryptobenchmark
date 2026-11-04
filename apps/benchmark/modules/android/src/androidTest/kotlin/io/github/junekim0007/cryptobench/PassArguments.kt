@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.settings.Metric
 
 /** The pass the host names (run.passes) and its samples, over a case's own settings; no pass argument keeps the settings as they are. */
 object PassArguments {
-    // Paired with scripts/session/passes.py PASS_ARGUMENT and SAMPLES_ARGUMENT.
+    // Paired with apps/benchmark-runner/session/passes.py PASS_ARGUMENT and SAMPLES_ARGUMENT.
     const val PASS = "cryptobench.pass"
     const val SAMPLES = "cryptobench.samples"
     private const val ENERGY = "energy"

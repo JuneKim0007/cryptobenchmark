@@ -10,7 +10,7 @@ import java.io.File
 
 /** The swapped calls alone: each callsite.yaml case prepared from its own effective file, as the benchmark prepares any case. */
 object CallSitePlan {
-    // Paired with scripts/scope/call_site.py PLAN and scripts/device/adb.py CALL_SITE_VERDICTS.
+    // Paired with apps/benchmark-runner/scope/call_site.py PLAN and apps/benchmark-runner/device/adb.py CALL_SITE_VERDICTS.
     const val FILE = "callsite.yaml"
     const val VERDICTS = "callsite-verdicts.yaml"
 

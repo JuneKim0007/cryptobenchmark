@@ -17,7 +17,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 
 ## Device directories
 
-`DeviceDirectory.plan` (Kotlin) and `directories(sdk)` in `scripts/device/adb.py` choose them; both read the API level.
+`DeviceDirectory.plan` (Kotlin) and `directories(sdk)` in `apps/benchmark-runner/device/adb.py` choose them; both read the API level.
 
 | API | plan directory | androidx output |
 |---|---|---|
@@ -79,7 +79,7 @@ JetpackCase.timed: counterMismatch check, then PinnedCase.run { benchmarkRule.me
 | timing | always | `timeNs` |
 | profiling | when `profiling` is set | no; trace files only |
 | allocation | always, 5 runs | `allocationCount` only when `run.metrics` has `ALLOCATION` |
-| CPU event counter | `scripts/device/adb.py` passes `androidx.benchmark.cpuEventCounter.enable=true` when `run.metrics` has `CPU_EVENTS`; config refuses it on an unrooted device: [settings.md](../../settings/docs/settings.md#device-support) | `instructions`, `cpuCycles`, `branchMisses` only when asked |
+| CPU event counter | `apps/benchmark-runner/device/adb.py` passes `androidx.benchmark.cpuEventCounter.enable=true` when `run.metrics` has `CPU_EVENTS`; config refuses it on an unrooted device: [settings.md](../../settings/docs/settings.md#device-support) | `instructions`, `cpuCycles`, `branchMisses` only when asked |
 
 ALLOCATION not requested: androidx still runs its allocation phase; it is not reported. `run.metrics` selects what is reported, not what runs; the filter is `JetpackResults`: `apps/benchmark/modules/benchmark/docs/measure.md#jetpack-conversion`.
 

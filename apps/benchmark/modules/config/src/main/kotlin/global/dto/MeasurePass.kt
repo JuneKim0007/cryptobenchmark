@@ -13,7 +13,7 @@ data class MeasurePass(val name: String, val samples: Int) {
         const val ENERGY = "energy"
         const val ALLOCATION = "allocation"
 
-        // Paired with scripts/session/passes.py NAMES.
+        // Paired with apps/benchmark-runner/session/passes.py NAMES.
         val NAMES: List<String> = listOf(TIMING, ENERGY, ALLOCATION)
     }
 }

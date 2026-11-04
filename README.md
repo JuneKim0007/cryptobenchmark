@@ -29,7 +29,7 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 | read | for |
 |---|---|
 | [docs/facade.md](docs/facade.md) | the settings index, its direction rule, the phases |
-| [docs/run.md](docs/run.md) | prerequisites, `scripts/pipeline.py` flags, `scripts/demo.sh`, device runs |
+| [docs/run.md](docs/run.md) | prerequisites, `apps/benchmark-runner/pipeline.py` flags, `apps/benchmark-runner/demo.sh`, device runs |
 | [docs/architecture.md](docs/architecture.md) | modules, dependencies, stage files |
 | [docs/results.md](docs/results.md) | `results/<device_id>/` layout and `manifest.yaml` |
 | [docs/cryptography/index.md](docs/cryptography/index.md) | configured primitives and providers |

@@ -59,7 +59,7 @@ Paths relative to the device folder.
 | `mode` | `host` or `device` |
 | `config` | path of the `global.yaml` used |
 | `deviceId` | from the probe's runtime: `<model>-api<sdk>-<hash>` on Android, `host-<os>-<arch>-jdk<major>-<hash>` on a host; hash = first 8 hex of sha256 over the build fingerprint (host: `java.vendor`, `java.runtime.version`); bundled providers and serials are not in it; a probe without these fields stops with `device_id_fields_missing` |
-| `inputs` | `bundled`: sha256 of `providers.bundled`; `config`: sha256 of `global.yaml` without that list, parsed (comments and key order change nothing), with its `selection.testSet` file, `analysis` left out since it only shows results (`scripts/results/run_inputs.py`); perf-repair's device stage compares them to decide what reruns |
+| `inputs` | `bundled`: sha256 of `providers.bundled`; `config`: sha256 of `global.yaml` without that list, parsed (comments and key order change nothing), with its `selection.testSet` file, `analysis` left out since it only shows results (`apps/benchmark-runner/results/run_inputs.py`); perf-repair's device stage compares them to decide what reruns |
 | `units` | `analysis.units` from `effective.yaml`: `{latency: ms\|us\|ns, throughput: MB/s\|MiB/s\|ops/s}`; every view of the run reads it (charts, summaries, perf-repair's report and renders); absent from a run before it existed, read as `{latency: ms, throughput: MB/s}` |
 | `runtime` | `benchmark.json` runtime if measured, else the probe runtime; `cpuLocked` added when clocks exist |
 | `providers` | `name`, `precedence`, `serviceCount`, sorted by precedence |

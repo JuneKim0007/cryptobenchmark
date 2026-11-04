@@ -16,8 +16,8 @@ from ...log import run_id
 from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
 
-PIPELINE = Path("scripts/pipeline.py")
-DEPENDENCIES = Path("scripts/dependencies.py")
+PIPELINE = Path("apps/benchmark-runner/pipeline.py")
+DEPENDENCIES = Path("apps/benchmark-runner/dependencies.py")
 MISSING_DEPENDENCY = "missing_dependency: "
 # the id is known only to the run, so the run says where its manifest went
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
@@ -43,7 +43,7 @@ def _chosen(config: Path | None) -> list[str]:
 
 
 def check_dependencies(config: Path | None, on_device: bool, benchmark: Path | str | None = None) -> None:
-    """scripts/dependencies.py: the modules this device stage's pipeline would need, before anything spawns it."""
+    """apps/benchmark-runner/dependencies.py: the modules this device stage's pipeline would need, before anything spawns it."""
     root = benchmark_root(benchmark)
     command = [sys.executable, str(root / DEPENDENCIES), *_chosen(config), "--device" if on_device else "--bench"]
     done = subprocess.run(command, cwd=root, capture_output=True, text=True, env=child_env(), check=False)

@@ -72,7 +72,7 @@ Harness settings as plain values, no androidx type.
 | rule | value |
 |---|---|
 | metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` (with `source` and `kind`) |
-| reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `tools/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
+| reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `apps/benchmark-runner/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
 | `timeNs` | required in every row |
 | `keyKind`, `variant` | `secret`, `pair`, `none`; `"fixed"` or `"notFixed"`, the prepared case's ([operations.md](../../preparation/docs/operations.md#variants)); always written, `null` for a row whose plan has none (a before/after scope) |
 | `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`apps/benchmark/modules/preparation/docs/prepared.md`); `{}` when nothing applies; required |

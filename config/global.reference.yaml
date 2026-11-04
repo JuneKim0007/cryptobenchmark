@@ -39,7 +39,7 @@ run:                             # optional — every key below falls back to it
       windowSeconds: 10          # optional, default 10
       warmupSeconds: 2           # optional, default 2
       cooldownSeconds: 5         # optional, default 5
-      source: rails              # optional, default rails — rails (measured) | manafa (estimated, tools/energy/requirements-manafa.txt)
+      source: rails              # optional, default rails — rails (measured) | manafa (estimated, apps/benchmark-runner/energy/requirements-manafa.txt)
     cpu:                         # optional — pin the measuring thread; checked against discovery/facts.yaml
       core: null                 # optional — a core index 0..63 or big
       required: false            # optional, default false — true makes an unmet pin fail config (a test-set entry: skip it)

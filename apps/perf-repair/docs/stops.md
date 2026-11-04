@@ -85,7 +85,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `summary_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `pipeline_failed` | `stop` | fixed: nothing is left to run | 1 | read the transcript line the status names |
 | `pipeline_timeout` | `stop` | fixed: nothing is left to run | 1 | raise timeouts.pipeline, or check the device |
-| `identify_failed` | `stop` | fixed: nothing is left to run | 1 | run scripts/pipeline.py --identify by hand to see why |
+| `identify_failed` | `stop` | fixed: nothing is left to run | 1 | run apps/benchmark-runner/pipeline.py --identify by hand to see why |
 | `claude_cli_failed` | `stop` | fixed: nothing is left to run | 1 | log in to the claude CLI, or check its binary and budget |
 | `claude_cli_timeout` | `stop` | fixed: nothing is left to run | 1 | raise timeouts.claude, or check the claude CLI |
 | `claude_api_failed` | `stop` | fixed: nothing is left to run | 1 | check ANTHROPIC_API_KEY and the API status |

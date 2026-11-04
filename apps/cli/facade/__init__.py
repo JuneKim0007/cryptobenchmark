@@ -4,7 +4,7 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-RUNNER = ROOT / "scripts"
+RUNNER = ROOT / "apps/benchmark-runner"
 SOURCE = ROOT / "apps/perf-repair/src"
 for path in (RUNNER, SOURCE):
     sys.path.insert(0, str(path))

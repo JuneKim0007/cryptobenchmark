@@ -7,11 +7,12 @@ import textwrap
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # (title, router, doc, source roots each a module search path, least importing modules a function needs to be listed)
-INDEXES = [("scripts and tools", "", "docs/shared-functions.md", ["scripts", "tools", "tools/energy", "tools/quick-bench", "apps/cli"], 2),
+INDEXES = [("benchmark runner, cli and tools", "", "docs/shared-functions.md",
+            ["apps/benchmark-runner", "apps/benchmark-runner/energy", "apps/benchmark-runner/analysis", "apps/cli", "tools"], 2),
            ("perf-repair", "apps/perf-repair", "docs/shared-functions.md", ["src"], 3)]
-GENERAL = {"scripts/failure.py": {"one_line", "fail"}, "scripts/device/adb.py": {"PASSED", "ONE_PASSED"},
-           "scripts/repo.py": {"ROOT"}, "scripts/results/select.py": {"device_folders"},
-           "tools/energy/energy.py": {"one_line"}, "tools/energy/manafa_estimate.py": {"one_line"},
+GENERAL = {"apps/benchmark-runner/failure.py": {"one_line", "fail"}, "apps/benchmark-runner/device/adb.py": {"PASSED", "ONE_PASSED"},
+           "apps/benchmark-runner/repo.py": {"ROOT"}, "apps/benchmark-runner/results/select.py": {"device_folders"},
+           "apps/benchmark-runner/energy/energy.py": {"one_line"}, "apps/benchmark-runner/energy/manafa_estimate.py": {"one_line"},
            "src/perfrepair/run_dir/layout.py": {"device_folders"}}
 
 

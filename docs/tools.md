@@ -40,12 +40,12 @@ apps/benchmark/gradlew -p tools/android-api-check compileKotlin -PandroidJar=<an
 - Compiles discovery, settings, preparation, benchmark sources with JVM target 1.8, `-no-jdk`, `android.jar` compileOnly.
 - CI: job `android-api` in `.github/workflows/jca-contract.yml` on Java 17 with `platforms;android-36`.
 
-## quick-bench analysis
+## analysis
 
 ### analyze.py
 
 ```
-python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml>] [<prepared.yaml>]
+python3 apps/benchmark-runner/analysis/analyze.py <benchmark.json> <out dir> [<effective.yaml>] [<prepared.yaml>]
 ```
 
 - Writes `summary.md`; `throughput.png`, `latency.png`, `stability.png` when `analysis.charts` names them.
@@ -59,7 +59,7 @@ python3 tools/quick-bench/analyze.py <benchmark.json> <out dir> [<effective.yaml
 ### charts.py
 
 ```
-python3 tools/quick-bench/charts.py <benchmark.json> <prepared.yaml> <effective.yaml> <device folder>
+python3 apps/benchmark-runner/analysis/charts.py <benchmark.json> <prepared.yaml> <effective.yaml> <device folder>
 ```
 
 - Output folder: `analysis.dir`, else `<device folder>/chart/<run-id>` (`adhoc` without a run id).

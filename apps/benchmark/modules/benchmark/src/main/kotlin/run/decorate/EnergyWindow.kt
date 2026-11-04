@@ -17,7 +17,7 @@ class EnergyWindow(private val inner: CaseRun, private val marker: WindowMarker,
     }
 
     companion object {
-        // Paired with tools/energy/rails/trace.py MARKER_PREFIX; the two change together.
+        // Paired with apps/benchmark-runner/energy/rails/trace.py MARKER_PREFIX; the two change together.
         const val PREFIX = "energy:"
 
         fun label(caseId: String): String = PREFIX + caseId

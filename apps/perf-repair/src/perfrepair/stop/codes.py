@@ -104,7 +104,7 @@ CODES_LIST: tuple[Code, ...] = (
     *(_fixed(f"{s}_failed", STEP_LINES, NOTHING) for s in GUIDE_STEPS),
     _fixed("pipeline_failed", "read the transcript line the status names", NOTHING),
     _fixed("pipeline_timeout", "raise timeouts.pipeline, or check the device", NOTHING),
-    _fixed("identify_failed", "run scripts/pipeline.py --identify by hand to see why", NOTHING),
+    _fixed("identify_failed", "run apps/benchmark-runner/pipeline.py --identify by hand to see why", NOTHING),
     _fixed("claude_cli_failed", "log in to the claude CLI, or check its binary and budget", NOTHING),
     _fixed("claude_cli_timeout", "raise timeouts.claude, or check the claude CLI", NOTHING),
     _fixed("claude_api_failed", "check ANTHROPIC_API_KEY and the API status", NOTHING),

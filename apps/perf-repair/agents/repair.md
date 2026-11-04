@@ -59,7 +59,7 @@ src/perfrepair/repair/harness.py : harness.yaml: each applied scope's original a
 src/perfrepair/repair/imports.py : the import lines a scope's functions use by name; a wildcard only while a name is unresolved
 src/perfrepair/repair/inputs.py : a scope's harness inputs: the app's static sizes, else the run's effective.yaml sizes both items share; their source
 src/perfrepair/repair/inverses.py : each applied scope's interop partner, from the inverse links of units.json
-src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names per language; java.lang of android.jar, compared with scripts/scope/languages.py by a test
+src/perfrepair/repair/names.yaml : keywords, primitive types and implicit names per language; java.lang of android.jar, compared with apps/benchmark-runner/scope/languages.py by a test
 src/perfrepair/repair/operation.py : whether a scope's function calls an operation on its primitive: `no_operation` for a factory
 src/perfrepair/repair/setup_calls.yaml : member calls that only configure a primitive; Kotlin scope-function blocks
 src/perfrepair/repair/test_set.py : dossiers.json → cryptobenchmark test set: each scope's current item and every option

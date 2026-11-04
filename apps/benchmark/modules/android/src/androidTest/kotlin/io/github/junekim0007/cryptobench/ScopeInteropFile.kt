@@ -4,7 +4,7 @@ import java.io.File
 
 /** scoped-interop.yaml: one line per scope with its interop verdict. */
 object ScopeInteropFile {
-    // Paired with scripts/device/adb.py SCOPED_INTEROP.
+    // Paired with apps/benchmark-runner/device/adb.py SCOPED_INTEROP.
     const val FILE = "scoped-interop.yaml"
 
     fun write(directory: File, verdicts: List<ScopeCheck.Verdict>) {

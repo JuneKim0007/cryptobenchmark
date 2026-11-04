@@ -68,9 +68,9 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 
-`analysis` is read by `tools/quick-bench/analyze.py` and `charts.py`; `scripts/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest, so a change reruns no measurement and applies from the next run's manifest.
+`analysis` is read by `apps/benchmark-runner/analysis/analyze.py` and `charts.py`; `apps/benchmark-runner/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest, so a change reruns no measurement and applies from the next run's manifest.
 
-`providers.bundled` is for `--device` runs. `scripts/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, so it becomes an `implementation` dependency of `apps/benchmark/modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. Fields: `apps/benchmark/modules/environment/discovery/docs/probe.md`.
+`providers.bundled` is for `--device` runs. `apps/benchmark-runner/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, so it becomes an `implementation` dependency of `apps/benchmark/modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. Fields: `apps/benchmark/modules/environment/discovery/docs/probe.md`.
 
 ## testsets/*.yaml
 

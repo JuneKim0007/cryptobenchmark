@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench
 import android.os.Trace
 import io.github.junekim0007.cryptobench.benchmark.run.energy.WindowMarker
 
-// Captured only because tools/energy/energy.pbtx lists this app in atrace_apps.
+// Captured only because apps/benchmark-runner/energy/energy.pbtx lists this app in atrace_apps.
 object TraceWindowMarker : WindowMarker {
 
     // atrace truncates longer section names, which would make two windows indistinguishable.

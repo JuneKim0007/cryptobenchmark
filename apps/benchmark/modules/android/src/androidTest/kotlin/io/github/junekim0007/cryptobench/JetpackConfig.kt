@@ -11,7 +11,7 @@ import io.github.junekim0007.cryptobench.settings.Metric
 @OptIn(ExperimentalBenchmarkConfigApi::class)
 internal object JetpackConfig {
 
-    // Paired with scripts/device/adb.py CPU_EVENTS.
+    // Paired with apps/benchmark-runner/device/adb.py CPU_EVENTS.
     private const val CPU_EVENT_COUNTER = "androidx.benchmark.cpuEventCounter.enable"
 
     val METRICS: Set<Metric> = Metric.entries.toSet()

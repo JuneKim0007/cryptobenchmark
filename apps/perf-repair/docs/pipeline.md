@@ -60,7 +60,7 @@ flowchart LR
 
 With `device.filterByApps`, after the targets' detect and before the benchmark, a provider the targets ship that the device lacks warns or stops, and may be built in ([used-set.md](used-set.md) Bundled providers).
 
-Before any stage it runs `scripts/dependencies.py` (a missing module is `missing_dependency`), then decides what is measured (`device/measures.py`): perfMode alone owns `run.metrics`, its metrics within what the harness can measure.
+Before any stage it runs `apps/benchmark-runner/dependencies.py` (a missing module is `missing_dependency`), then decides what is measured (`device/measures.py`): perfMode alone owns `run.metrics`, its metrics within what the harness can measure.
 
 | harness | measures | `Harness` row |
 |---|---|---|

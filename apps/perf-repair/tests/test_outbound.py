@@ -19,8 +19,8 @@ FAKE = Path(__file__).parent / "fixtures" / "outbound" / "fake_pipeline.py"
 @pytest.fixture
 def bench_root(tmp_path):
     root = tmp_path / "bench"
-    (root / "scripts").mkdir(parents=True)
-    shutil.copy(FAKE, root / "scripts" / "pipeline.py")
+    (root / "apps/benchmark-runner").mkdir(parents=True)
+    shutil.copy(FAKE, root / "apps/benchmark-runner" / "pipeline.py")
     return root
 
 

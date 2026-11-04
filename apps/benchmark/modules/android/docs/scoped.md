@@ -15,7 +15,7 @@ flowchart LR
 ## Run
 
 ```
-python3 scripts/pipeline.py --device --harness <harness.yaml>
+python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 ```
 
 | step | rule |
@@ -38,7 +38,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | case selection | the host names the measured cases with `-e case <id>`, or one ordered comma list when one process runs them all; `ScopedBenchmark` measures nothing else |
 | bundled providers | every `ScopedInterop` and `ScopedBenchmark` process installs `effective.yaml`'s `bundledProviders` first |
 
-`python3 scripts/scope_generate.py <harness.yaml> <out>` runs generate and compile alone and leaves the sources in place.
+`python3 apps/benchmark-runner/scope_generate.py <harness.yaml> <out>` runs generate and compile alone and leaves the sources in place.
 
 ## Order
 

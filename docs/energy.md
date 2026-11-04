@@ -10,7 +10,7 @@
 
 - Energy runs only with `--device`; any other capture without it fails.
 - `measured`: the window is Jetpack's timed phase; the case's samples (`iterations`, or the energy pass's `samples`) set its length: 100 samples at about 0.11 s is about 11 s, about 110 rail polls; `windowSeconds` does not apply. `dry` is refused with `--harness` and with `run.passes` ([device-session.md](device-session.md#passes)).
-- A case's `harness.energy.capture` overrides the run's (`tools/energy/capture.py`).
+- A case's `harness.energy.capture` overrides the run's (`apps/benchmark-runner/energy/capture.py`).
 - A `dry` case passed to the timed run fails with `not_timed`; `measured` cases run in `CryptoBenchmark`, `dry` cases in `EnergyDryBenchmark`, one test per case.
 - The `energy:<caseId>` marker closes on failure; labels over 127 chars fail with `too_long`.
 - Dry calls are appended to `energy-dry.yaml` as `"<id>": <calls>`.
@@ -36,7 +36,7 @@
 | `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | a short session |
 
 - A run has one source; entries that differ fail with `energy_sources_differ`.
-- `scripts/energy_stage.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
+- `apps/benchmark-runner/energy_stage.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
 - `manafa` facts, its pre-flight and its reasons: [energy-manafa.md](energy-manafa.md).
 
 ## Pre-flight
@@ -73,7 +73,7 @@
 | capture | source |
 |---|---|
 | `measured` | Jetpack per-case Perfetto traces, pulled from the androidx media directory |
-| `dry` | host Perfetto session around `EnergyDryBenchmark` from `tools/energy/energy.pbtx` |
+| `dry` | host Perfetto session around `EnergyDryBenchmark` from `apps/benchmark-runner/energy/energy.pbtx` |
 
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
 - Traces are pulled after every case (`traces: <case>: <n> pulled`): with one process per case, the device keeps only the latest case's trace, so a pull at the process's end would find one (seen on a Pixel 10: 41 of 42 cases `trace_not_pulled`). Large traces: Jetpack's own trace config, fixed in androidx 1.5.0, records memory counters; an allocating call floods it (seen: AES/GCM encrypt traces of 38 to 125 MB, 5.66M `mem.rss.anon` samples, rails lost as `window_uncovered`). Chosen: keep `measured` (`dry` is refused with `--harness` and with `run.passes`) and shorten the window with the energy pass's `samples` (100, a third of a 300-sample trace); a case above 32 MiB is flagged `traceLarge`, a lost window is `window_uncovered` with no number, never a wrong one; `traces:    <case>: <n> on the device` per case settles a missing trace. Every cipher call now includes `init`, so CBC and CTR allocate per call as GCM did; whether 100 samples keep their traces whole only a phone shows.
@@ -126,19 +126,19 @@
 ## Files
 
 ```
-scripts/energy_session.py : starts, stops and pulls Perfetto sessions on the device
-scripts/energy_stage.py : capture selection, the run's one source
-tools/energy/capture.py : resolves a node's capture and source against the default
-tools/energy/energy.pbtx : Perfetto config for the dry host session
-tools/energy/energy.py : rail traces to energy.json; the case windows both sources read
-tools/energy/manafa_estimate.py : joules per case window from a stopped EManafa, or not_measured
-tools/energy/manafa_session.py : the process holding one EManafa; the manafa pre-flight check
-tools/energy/preflight.py : idle and busy traces to energy.yaml
-tools/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset
-tools/energy/requirements-manafa.txt : manafa, pinned; optional
-tools/energy/requirements.txt : perfetto, pyyaml
-tools/energy/sources/ : one adapter per energy.source on the host; how the host runs tools/energy
-tools/energy/tests/ : capture, counters, window, preflight, judge and source tests; a fake manafa; recorded rails output
+apps/benchmark-runner/energy_session.py : starts, stops and pulls Perfetto sessions on the device
+apps/benchmark-runner/energy_stage.py : capture selection, the run's one source
+apps/benchmark-runner/energy/capture.py : resolves a node's capture and source against the default
+apps/benchmark-runner/energy/energy.pbtx : Perfetto config for the dry host session
+apps/benchmark-runner/energy/energy.py : rail traces to energy.json; the case windows both sources read
+apps/benchmark-runner/energy/manafa_estimate.py : joules per case window from a stopped EManafa, or not_measured
+apps/benchmark-runner/energy/manafa_session.py : the process holding one EManafa; the manafa pre-flight check
+apps/benchmark-runner/energy/preflight.py : idle and busy traces to energy.yaml
+apps/benchmark-runner/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset
+apps/benchmark-runner/energy/requirements-manafa.txt : manafa, pinned; optional
+apps/benchmark-runner/energy/requirements.txt : perfetto, pyyaml
+apps/benchmark-runner/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
+apps/benchmark-runner/energy/tests/ : capture, counters, window, preflight, judge and source tests; a fake manafa; recorded rails output
 ```
 
 | command | arguments |
@@ -147,4 +147,4 @@ tools/energy/tests/ : capture, counters, window, preflight, judge and source tes
 | `energy.py` | `--capability F -o OUT [--prepared --benchmark-data --traces] [--dry-trace --dry-calls]` |
 | `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
 
-- Missing `perfetto` fails with an error naming `pip install -r tools/energy/requirements.txt` and `--energy-python`.
+- Missing `perfetto` fails with an error naming `pip install -r apps/benchmark-runner/energy/requirements.txt` and `--energy-python`.

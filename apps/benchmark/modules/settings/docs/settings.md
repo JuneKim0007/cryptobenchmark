@@ -80,7 +80,7 @@ Only `cpu` declares `requires` and `resolve`. How config applies the result: `ap
 
 ## facts.yaml
 
-Written by `scripts/device/facts.py` into the discovery directory.
+Written by `apps/benchmark-runner/device/facts.py` into the discovery directory.
 
 | field | value |
 |---|---|
