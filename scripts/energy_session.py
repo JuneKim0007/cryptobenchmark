@@ -1,7 +1,6 @@
 """Perfetto sessions on the device for energy; rails are read by tools/energy, this only starts, stops and pulls."""
-import re
 
-from device.adb import NO_DEFAULT_PROFILER, DeviceError, instrumentation_report
+from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 
 TRACES = "/data/misc/perfetto-traces"   # where the shell user's perfetto may write
 SCRATCH = "/data/local/tmp"
@@ -52,7 +51,7 @@ class EnergySession:
             output = self.device.instrument(test_class, *NO_DEFAULT_PROFILER)
         finally:
             self.device.shell(f"kill {started}; while kill -0 {started} 2>/dev/null; do sleep 0.2; done")
-        if not re.search(r"^OK \(\d+ tests?\)", output, re.M):
+        if not PASSED.search(output):
             raise DeviceError(f"{test_class} failed on the device:\n" + instrumentation_report(output))
         trace.parent.mkdir(parents=True, exist_ok=True)
         self.device.pull(remote, trace)

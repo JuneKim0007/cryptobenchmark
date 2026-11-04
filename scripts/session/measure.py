@@ -4,9 +4,8 @@ import dataclasses, json, pathlib, re
 
 import effective_view
 from session import case_isolation
-from device.adb import DeviceError
+from device.adb import PASSED, DeviceError
 
-PASSED = re.compile(r"^OK \(\d+ tests?\)", re.M)
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 
 

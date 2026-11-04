@@ -2,10 +2,10 @@
 import json, re
 
 import timeouts
+from device.adb import ONE_PASSED
 
 CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT
 LISTED = re.compile(r"^INSTRUMENTATION_STATUS: test=measure\[(.+)\]\s*$", re.M)
-PASSED = re.compile(r"^OK \(1 test\)", re.M)
 
 
 def listed(output):
@@ -33,7 +33,7 @@ def measure_case(device, test_class, arguments, case, pulled):
         # killing adb leaves the test running on the device; the next case must not start beside it
         device.force_stop()
         return None, f"case_failed: {case}: {error}"
-    if not PASSED.search(output):
+    if not ONE_PASSED.search(output):
         return None, f"case_failed: {case}: {one_line(device.report(output))}"
     if device.run("pull", device.data, str(pulled), check=False).returncode != 0 or not pulled.is_file():
         return None, f"case_failed: {case}: no benchmarkData.json after a passing run"

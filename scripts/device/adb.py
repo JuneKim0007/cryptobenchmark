@@ -13,6 +13,8 @@ SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
 # androidx's CPU event capture is internal; only this launch argument adds it (JetpackConfig.counterMismatch).
 CPU_EVENTS = ["-e", "androidx.benchmark.cpuEventCounter.enable", "true"]
+PASSED = re.compile(r"^OK \(\d+ tests?\)", re.M)
+ONE_PASSED = re.compile(r"^OK \(1 test\)", re.M)
 
 
 THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
@@ -127,7 +129,7 @@ class Device:
                     lines.append(line)
                 process.wait()
             output = "".join(lines)
-        if self.stacktrace and not re.search(r"^OK \(\d+ tests?\)", output, re.M):
+        if self.stacktrace and not PASSED.search(output):
             print(output)
         return output
 
@@ -188,7 +190,7 @@ class Device:
         into.mkdir(parents=True, exist_ok=True)
         self.shell(f"rm -f {self.files}/{SCOPED_INTEROP}")
         output = self.instrument("ScopedInterop")
-        if not re.search(r"^OK \(1 test\)", output, re.M):
+        if not ONE_PASSED.search(output):
             raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
         self.pull(f"{self.files}/{SCOPED_INTEROP}", interop)
         return interop

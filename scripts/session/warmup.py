@@ -5,8 +5,7 @@ import timeouts
 from session import case_isolation
 from session import passes
 from device import thermal
-from device.adb import DeviceError
-from session.measure import PASSED
+from device.adb import PASSED, DeviceError
 
 DEFAULT_CASES = 3
 WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation captures no energy

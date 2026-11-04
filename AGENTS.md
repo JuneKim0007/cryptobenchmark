@@ -55,7 +55,7 @@ modules/settings/ : harness key table shared by config, preparation and benchmar
 perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
 scripts/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
-scripts/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument, clear, pull, scope check
+scripts/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument and its OK line, clear, pull, scope check
 scripts/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/device/facts.py : device facts into discovery/facts.yaml
 scripts/device/identity.py : device id from a capture's runtime block

@@ -1,11 +1,10 @@
 """The oracle steps of pipeline.py --interop: the plan's pairs on the host JVM or on the attached device."""
-import re
 import shutil
 
 import yaml
 
 import gradle_runner
-from device.adb import DeviceError, instrumentation_report
+from device.adb import ONE_PASSED, DeviceError, instrumentation_report
 
 PLAN = "interop_plan.yaml"   # InteropPlanFile.NAME
 RESULT = "interop.yaml"      # InteropFile.NAME
@@ -28,7 +27,7 @@ def on_device(device, effective, capture, trial, plan, out):
     device.shell(f"rm -f {device.files}/{RESULT}")
     device.run("push", str(effective), str(capture), str(trial), str(plan), f"{device.files}/")
     output = device.instrument("InteropCheck")
-    if not re.search(r"^OK \(1 test\)", output, re.M):
+    if not ONE_PASSED.search(output):
         raise DeviceError("InteropCheck failed on the device:\n" + instrumentation_report(output))
     device.pull(f"{device.files}/{RESULT}", out)
 
