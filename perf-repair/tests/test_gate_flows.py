@@ -28,10 +28,10 @@ def run(flow, *roots, benchmark=None, extra=()):
     path = flow.settings()
     document = yaml.safe_load(path.read_text())
     document["apps"] = {"targets": [str(r) for r in roots], "perfMode": ["latency", "throughput"]}
-    document["run"] = {"onExisting": "resume"}
-    document["device"]["benchmark"].update(benchmark or {})
+    document["device"].setdefault("benchmark", {}).update(benchmark or {})
     path.write_text(yaml.safe_dump(document))
-    code = guide(["--agent", "dry-run", "--perfrepair-config", str(path), *extra])
+    where = () if "--device-results" in extra else flow.where()
+    code = guide(["--agent", "dry-run", "--perfrepair-config", str(path), "--on-existing", "resume", *where, *extra])
     captured = flow.capsys.readouterr()
     return code, captured.out.splitlines(), captured.err
 

@@ -18,7 +18,7 @@ def rerun_command(g: Guide) -> str:
     """--device-results names a folder, not a config: the command that measures it with its own device stage."""
     manifest, _ = read_manifest(g.device / rd.MANIFEST)
     device = " --device" if manifest.mode == "device" else ""
-    return (f"`python3 -m perfrepair guide --config {manifest.config}{device}` with paths.results {g.device.parent} and "
+    return (f"`python3 -m perfrepair guide --config {manifest.config}{device} --results-root {g.device.parent}` with "
             "device.id unset, so the guide makes the device stage itself")
 
 

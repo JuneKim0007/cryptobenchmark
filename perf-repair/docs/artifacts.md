@@ -145,7 +145,6 @@ The device items the target apps need, and which app needs each; code joins site
 | Status | Means |
 |---|---|
 | `measured` | a case produced samples |
-| `skipped` | preparation or config dropped it (skipped.yaml) |
-| `refused` | allowed by the dto; inbound writes none |
+| `skipped` | preparation or config dropped it (skipped.yaml); `refused`, allowed by the dto, is one inbound never writes |
 | `unmeasured` | prepared, but no samples came back and no file says why (`no_samples`); or in `benchmark.json` without runs of a required metric (`no_required_metric`), left out of the rows |
 | `not_runnable` | the inventory marks it `runs: false` (stage `trial`) |
