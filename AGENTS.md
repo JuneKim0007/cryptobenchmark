@@ -60,13 +60,17 @@ scripts/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/device/facts.py : device facts into discovery/facts.yaml
 scripts/device/identity.py : device id from a capture's runtime block
 scripts/device/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
-scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
+scripts/docs_lint.py : command: docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
 scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
+scripts/lint/__init__.py : package of the docs lint's model of the repo
+scripts/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
+scripts/lint/paths.py : routers, guides, docs and graphed files by path
+scripts/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
 scripts/pipeline.py : command: run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
