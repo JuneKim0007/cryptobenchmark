@@ -4,12 +4,12 @@ import zipfile
 import yaml
 
 from device import clocks
+from device.adb import PACKAGE
 from repo import ROOT
 
 FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
 APK = ROOT / "modules/android/build/outputs/apk/release/android-release.apk"
-PACKAGE = "io.github.junekim0007.cryptobench"
 
 
 def rooted(device):
