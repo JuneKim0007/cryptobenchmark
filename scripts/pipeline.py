@@ -12,6 +12,7 @@ from repo import ROOT
 from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
+from scope import code_digest
 from scope import results as scope_results
 from stages import bundled, config_check
 from stages.benchmark import measure_cases
@@ -32,7 +33,7 @@ def parse_options():
     parser.add_argument("--probe", action="store_true",
                         help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
     parser.add_argument("--identify", action="store_true",
-                        help="print the device id and the digests of this run's inputs as one 'identity:' line; runs no stage, writes nothing")
+                        help="print the device id, the digests of this run's inputs and of the harness code as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
                         help="androidx.benchmark errors to suppress on --device, e.g. EMULATOR,UNLOCKED; the numbers are then not comparable")
     parser.add_argument("--energy-python", default=sys.executable, metavar="PYTHON",
@@ -66,7 +67,7 @@ def identify(options, configuration, device):
     """The device id before any probe: getprop on a device, the JVM's fields on a host; the probe's capture gives the same."""
     runtime = device.identity() if device else host_runtime(options)
     identity = {"deviceId": device_id(runtime), "mode": "device" if device else "host", "config": str(configuration),
-                "inputs": run_inputs.digests(configuration)}
+                "inputs": run_inputs.digests(configuration), "harness": code_digest.digest()}
     print(f"identity:  {json.dumps(identity, sort_keys=True)}")
 
 
@@ -101,7 +102,7 @@ def main():
 
 
 KNOWN = (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
-         scope_results.ScopeResultError, timeouts.StepTimeout)
+         scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout)
 
 
 def failure_line(error):

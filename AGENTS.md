@@ -81,7 +81,7 @@ scripts/lint/__init__.py : package of the docs lint's model of the repo
 scripts/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
 scripts/lint/paths.py : routers, guides, docs and graphed files by path
 scripts/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
-scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
+scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
 scripts/repo.py : the repository root every script resolves its paths against
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
 scripts/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
@@ -90,6 +90,7 @@ scripts/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, 
 scripts/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 scripts/results/select.py : the device folder of a results root a reader names, or the only one there
 scripts/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
+scripts/scope/code_digest.py : the digest of the code from a harness.yaml to a measured harness; a pattern matching nothing is an error
 scripts/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
 scripts/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
 scripts/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure

@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 import pytest
 
@@ -20,6 +21,12 @@ def isolated_settings(tmp_path_factory, monkeypatch):
     monkeypatch.setattr(load, "DEFAULT_FILE", empty / "perfrepair.yaml")
     for key in [k for k in os.environ if k.startswith("PERFREPAIR_")] + ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"]:
         monkeypatch.delenv(key, raising=False)
+
+
+@pytest.fixture(autouse=True)
+def fake_benchmark_root(monkeypatch):
+    """The guide reads --identify before its apps; no test reaches the real pipeline, which starts Gradle."""
+    monkeypatch.setenv("CRYPTOBENCH_ROOT", str(Path(__file__).parent / "fixtures" / "guide"))
 
 
 @pytest.fixture(autouse=True)

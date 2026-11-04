@@ -14,6 +14,7 @@ from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.app.facts.target_set import resolve_targets
+from perfrepair.data_handler.outbound.benchmark_runner import BenchmarkRunError
 from perfrepair.files import read_json
 from perfrepair.guide import app_steps as guide_steps, finished
 from perfrepair.dto.perf_mode import PerfMode
@@ -114,6 +115,40 @@ def test_changed_scopes_or_a_changed_scoper_run_the_app_again(base, monkeypatch)
     assert app_lines(lines) == [f"app {path_id(a)}: ok"]
     _, lines = base.go([a])
     assert app_lines(lines) == [f"app {path_id(a)}: reused"]
+
+
+def test_a_changed_harness_digest_runs_the_app_again(base, monkeypatch):
+    a = base.app("a")
+    base.go([a])
+    asked = base.calls(a)
+    monkeypatch.setenv("FAKE_HARNESS", "another harness")
+    _, lines = base.go([a])
+    assert app_lines(lines) == [f"app {path_id(a)}: ok"] and base.calls(a) == asked
+    _, lines = base.go([a])
+    assert app_lines(lines) == [f"app {path_id(a)}: reused"]
+
+
+def test_a_scoper_package_with_no_code_is_one_coded_error_before_any_app(base, monkeypatch):
+    a = base.app("a")
+    monkeypatch.setattr(finished, "SCOPER", ("app", "moved"))
+    with pytest.raises(ValueError, match=r"^missing_file: .*moved holds no scoper code"):
+        base.go([a])
+    assert base.calls(a) == 0
+
+
+def test_a_host_root_that_is_gone_is_one_coded_error_before_any_app(base, monkeypatch):
+    a = base.app("a")
+    monkeypatch.setenv("CRYPTOBENCH_ROOT", str(base.tmp / "gone"))
+    with pytest.raises(BenchmarkRunError, match="CRYPTOBENCH_ROOT"):
+        base.go([a])
+    assert base.calls(a) == 0
+
+
+def test_an_older_host_without_the_digest_is_one_coded_error(base, monkeypatch):
+    a = base.app("a")
+    monkeypatch.setattr(finished, "identify", lambda *_: {"deviceId": "d"})
+    with pytest.raises(BenchmarkRunError, match="^identify_failed: pipeline --identify reports no harness digest"):
+        base.go([a])
 
 
 def test_an_explicit_app_runs_even_when_nothing_changed(base):

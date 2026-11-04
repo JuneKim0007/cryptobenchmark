@@ -28,7 +28,8 @@ shipped = (document.get("providers") or {}).pop("bundled", None) or []
 inputs = {"bundled": digest(shipped), "config": digest(document)}
 if options.identify:
     print("identity:  " + json.dumps({"deviceId": DEVICE_ID, "mode": "device" if options.device else "host",
-                                      "config": options.config, "inputs": inputs}))
+                                      "config": options.config, "inputs": inputs,
+                                      "harness": os.environ.get("FAKE_HARNESS", "fake-harness")}))
     sys.exit(0)
 
 root = pathlib.Path(options.results)

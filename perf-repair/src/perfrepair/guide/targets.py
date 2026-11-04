@@ -136,6 +136,8 @@ def _targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> int:
         return 1
     if base.stop_after_device:
         return 0
+    # here, not per app: a failed read is one coded line, never a bug on an app that just finished
+    base.code_versions = finished.code_versions(base) if roots else {}
     results = _refused(base)
     halted = None
     for root in roots:

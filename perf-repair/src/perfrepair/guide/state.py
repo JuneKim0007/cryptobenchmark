@@ -72,6 +72,8 @@ class Guide:
     run_settings: dict | None = None
     # the code of the device step or the first app that stopped, for --outcome
     stop_code: str | None = None
+    # finished.code_versions, read once before the apps, for each app's done mark
+    code_versions: dict = field(default_factory=dict)
 
     @property
     def app_id(self) -> str | None:
