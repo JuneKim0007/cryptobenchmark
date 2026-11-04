@@ -1,8 +1,6 @@
 """<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then."""
 import contextlib, os, pathlib, shutil, tempfile
 
-from failure import fail
-
 MANIFEST = "manifest.yaml"
 DISCOVERY, INTEROP = "discovery", "interop"
 STAGING_PREFIX = ".staging-"
@@ -88,19 +86,3 @@ def publish_interop(stage, target):
     merge_folder(stage / DISCOVERY, target / DISCOVERY)
     replace_folder(stage / INTEROP, target / INTEROP)
 
-
-def device_folders(root):
-    root = pathlib.Path(root)
-    return sorted(p.name for p in root.iterdir() if (p / MANIFEST).is_file()) if root.is_dir() else []
-
-
-def device_folder(root, wanted=None):
-    root = pathlib.Path(root)
-    found = device_folders(root)
-    if wanted and wanted not in found:
-        fail(f"device_not_in_results: {wanted}; {root} holds {found}")
-    if not wanted and not found:
-        fail(f"no_device_results: {root} holds no <device_id>/{MANIFEST}; run the pipeline first")
-    if not wanted and len(found) > 1:
-        fail(f"several_device_results: {root} holds {', '.join(found)}; name one with --device-id")
-    return root / (wanted or found[0])

@@ -2,7 +2,13 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, effective_view, energy_stage, gradle_runner, interop_stage, not_measured, results_layout, run_inputs, timeouts
+import effective_view, energy_stage, gradle_runner, timeouts
+from stages import bundled
+from stages import capture_files
+from stages import interop_oracle as interop_stage
+from stages import not_measured
+from results import layout as results_layout
+from results import run_inputs
 from scope import generate as scope_generate
 from scope import results as scope_results
 from session import case_isolation

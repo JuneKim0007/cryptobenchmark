@@ -1,7 +1,7 @@
 import json, pathlib, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import not_measured  # noqa: E402
+from stages import not_measured  # noqa: E402
 
 
 def test_a_planned_timed_case_absent_from_the_results_is_one_line_and_one_record(tmp_path, capsys):

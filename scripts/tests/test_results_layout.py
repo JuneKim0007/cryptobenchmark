@@ -6,7 +6,8 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import pipeline  # noqa: E402
-import results_layout as layout  # noqa: E402
+from failure import fail  # noqa: E402
+from results import layout, select  # noqa: E402
 from device.identity import device_id  # noqa: E402
 
 RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}
@@ -29,7 +30,7 @@ def test_a_failed_run_leaves_no_stage(tmp_path):
     with pytest.raises(SystemExit):
         with layout.staged(tmp_path) as stage:
             write(stage / "discovery/probe.yaml")
-            layout.fail("boom")
+            fail("boom")
     assert list(tmp_path.iterdir()) == []
 
 
@@ -72,8 +73,8 @@ def test_only_a_folder_with_a_manifest_is_a_device(tmp_path):
     write(tmp_path / "a/manifest.yaml")
     write(tmp_path / "failed/discovery/probe.yaml")
     write(tmp_path / ".staging-x/discovery/probe.yaml")
-    assert layout.device_folders(tmp_path) == ["a"]
-    assert layout.device_folder(tmp_path) == tmp_path / "a"
+    assert select.device_folders(tmp_path) == ["a"]
+    assert select.device_folder(tmp_path) == tmp_path / "a"
 
 
 @pytest.mark.parametrize("wanted, code", [(None, "several_device_results: "), ("c", "device_not_in_results: c")])
@@ -81,14 +82,14 @@ def test_selection_is_one_coded_line(tmp_path, capsys, wanted, code):
     write(tmp_path / "a/manifest.yaml")
     write(tmp_path / "b/manifest.yaml")
     with pytest.raises(SystemExit):
-        layout.device_folder(tmp_path, wanted)
+        select.device_folder(tmp_path, wanted)
     message = capsys.readouterr().err
     assert message.startswith(f"error: {code}") and message.count("\n") == 1
 
 
 def test_a_root_with_no_finished_run_says_so(tmp_path, capsys):
     with pytest.raises(SystemExit):
-        layout.device_folder(tmp_path)
+        select.device_folder(tmp_path)
     assert "no_device_results" in capsys.readouterr().err
 
 

@@ -3,7 +3,7 @@ import pathlib, sys
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import capture_files  # noqa: E402
+from stages import capture_files  # noqa: E402
 import pipeline  # noqa: E402
 
 

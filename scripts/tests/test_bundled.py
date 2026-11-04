@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import bundled  # noqa: E402
+from stages import bundled  # noqa: E402
 
 CONSCRYPT = {"artifact": "org.conscrypt:conscrypt-android:2.5.3", "create": "org.conscrypt.Conscrypt#newProvider"}
 
