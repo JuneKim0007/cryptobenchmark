@@ -10,7 +10,8 @@ from perfrepair.report.command import app_report, device_summary
 from perfrepair.result.category import category_mismatch
 from perfrepair.run_dir import AppPaths
 from perfrepair.stop import Halt
-from perfrepair.validation.report import validate_report, validate_summary
+from perfrepair.validation.report import validate_report
+from perfrepair.validation.summary import validate_summary
 
 
 def _m(change, selected=True, measured=True):

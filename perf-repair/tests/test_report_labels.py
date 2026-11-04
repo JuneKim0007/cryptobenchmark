@@ -14,7 +14,8 @@ from perfrepair.report.thermal import labels, start_gap, thermal_row
 from perfrepair.result.modes import mode_of
 from perfrepair.run_dir import AppPaths
 from perfrepair.stop import Halt
-from perfrepair.validation.report import validate_report, validate_summary
+from perfrepair.validation.report import validate_report
+from perfrepair.validation.summary import validate_summary
 
 
 def row(doc, sid=A):

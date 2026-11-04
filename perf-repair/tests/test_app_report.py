@@ -18,7 +18,8 @@ from perfrepair.report.command import app_report, device_summary
 from helpers import LATENCY, LATENCY_ALLOC
 from perfrepair.run_dir import AppPaths
 from perfrepair.dto.units import DisplayUnits
-from perfrepair.validation.report import validate_report, validate_summary
+from perfrepair.validation.report import validate_report
+from perfrepair.validation.summary import validate_summary
 
 F = Path(__file__).parent / "fixtures" / "report"
 A, B, C, D, E = "a00000000001", "b00000000002", "c00000000003", "d00000000004", "e00000000005"

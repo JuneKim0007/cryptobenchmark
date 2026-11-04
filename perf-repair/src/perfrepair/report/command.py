@@ -11,7 +11,8 @@ from ..log import step
 from ..result.modes import Mode
 from ..validation import require
 from ..stop import terminate
-from ..validation.report import validate_report, validate_summary
+from ..validation.report import validate_report
+from ..validation.summary import validate_summary
 from .app_report import build_report
 from .markdown import report_markdown, summary_markdown
 from .summary import build_summary

@@ -1,26 +1,20 @@
-"""report.json and summary.json against their contract: statuses, metric rows, funnel equal to its recount."""
+"""report.json against its contract: statuses, rows, patterns, recommendations, funnel equal to its recount."""
 from __future__ import annotations
 
-import math
-
-from ..dto.report import (CHANGES, COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
-                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, THERMAL_MISMATCH, THERMAL_THROTTLED, VERDICTS, pattern_counts,
-                          stayed, unit_counts)
+from ..dto.report import (COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
+                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, THERMAL_MISMATCH, THERMAL_THROTTLED, VERDICTS, stayed, unit_counts)
 from ..dto.change import CHANGES as CHANGE_CLASSES, REJECT_REASONS, admits
-from ..dto.metrics import BY_NAME, NAMES
 from ..dto.perf_mode import PerfMode
-from ..dto.report import has_views
 from ..dto.units import DisplayUnits
-from ..result.confidence import level
-from ..result.gain import change_of, label_of, noise_of
+from ..result.gain import label_of
 from ..dto.pattern import PATTERN_REASONS, PATTERNS, pattern_of_reason
 from ..result.category import category_mismatch, checkable
 from .repair import valid_inputs
+from .report_metrics import check_metric, check_selected
 
 ROW_KEYS = ("scope", "file", "line", "function", "pattern", "patternReason", "current", "option", "inputs", "decision", "edit",
             "compile", "interop", "metrics", "verdict", "label", "thermal", "deciding", "accepted", "primitive",
             "categoryMismatch", "truthCheck", "unit", "sharedFunction", "stayed")
-MEASURED_KEYS = {"metric", "unit", "selected", "measured", "before", "after", "ratio", "pImprove", "level", "n", "noise", "change"}
 
 
 def _selection(doc: dict) -> tuple[str, ...] | None:
@@ -28,51 +22,6 @@ def _selection(doc: dict) -> tuple[str, ...] | None:
         return PerfMode.parse(doc.get("mode")).names
     except (ValueError, AttributeError):
         return None
-
-
-def _views(where: str, m: dict, units: DisplayUnits) -> list[str]:
-    """The time row's display: latency is its medians in the latency unit, throughput their inverse in its unit or null."""
-    v = m.get("views")
-    if "views" not in m:
-        return []
-    if v is None:
-        return [] if not (m["before"] > 0 and m["after"] > 0) else [f"{where}: views null for positive medians"]
-    lat, tput = v.get("latency") or {}, v.get("throughput")
-    if lat != {"unit": units.latency_label, "before": units.latency_of(m["before"]), "after": units.latency_of(m["after"])}:
-        return [f"{where}: latency view {lat} is not the medians in {units.latency_label}"]
-    if tput is not None and (tput.get("unit") != units.throughput
-                             or not math.isclose(tput["before"] * m["before"], tput["after"] * m["after"], rel_tol=1e-9)):
-        return [f"{where}: throughput view {tput} is not the medians' inverse in {units.throughput}"]
-    return []
-
-
-def _extra(m: dict) -> set[str]:
-    """The keys a measured row adds: views on the time metric, else kind when energy was estimated."""
-    metric = BY_NAME.get(m.get("metric"))
-    return {"views"} if metric and has_views(metric) else set(m) & {"kind"}
-
-
-def _selected(where: str, metrics: list[dict], selected: tuple[str, ...]) -> list[str]:
-    return [f"{where}.{m.get('metric')}: selected {m.get('selected')!r} is not whether the mode selects it"
-            for m in metrics if m.get("selected") is not (m.get("metric") in selected)]
-
-
-def _metric(where: str, m: dict, units: DisplayUnits) -> list[str]:
-    if m.get("measured") is False:
-        ok = set(m) == {"metric", "unit", "selected", "measured", "reason"} and isinstance(m["reason"], str) and m["reason"]
-        return [] if ok else [f"{where}: an unmeasured metric has exactly a non-empty reason and no numbers"]
-    if set(m) != MEASURED_KEYS | _extra(m):
-        return [f"{where}: keys {sorted(m)}"]
-    problems = []
-    if not all(isinstance(m[k], (int, float)) and math.isfinite(m[k]) and m[k] >= 0 for k in ("before", "after")):
-        problems.append(f"{where}: before and after must be finite and not negative")
-    elif m["ratio"] != (m["after"] / m["before"] if m["before"] else None):
-        problems.append(f"{where}: ratio {m['ratio']} is not after ÷ before")
-    if m["level"] != level(m["pImprove"]):
-        problems.append(f"{where}: level {m['level']} is not the grade of pImprove {m['pImprove']}")
-    if m["noise"] != noise_of(m["pImprove"]) or m["change"] != change_of(m["ratio"], m["pImprove"]):
-        problems.append(f"{where}: noise {m['noise']} or change {m['change']} is not the rule's for its ratio and pImprove")
-    return problems or _views(where, m, units)
 
 
 def _decision(where: str, d: dict) -> list[str]:
@@ -114,8 +63,8 @@ def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) ->
     if [m.get("metric") for m in r["metrics"]] != [k for k, _ in REPORTED]:
         problems.append(f"{where}: metrics are not {[k for k, _ in REPORTED]} in order")
     for m in r["metrics"]:
-        problems += _metric(f"{where}.{m.get('metric')}", m, units)
-    problems += _selected(where, r["metrics"], selected)
+        problems += check_metric(f"{where}.{m.get('metric')}", m, units)
+    problems += check_selected(where, r["metrics"], selected)
     if any(m.get("measured") for m in r["metrics"]) and r["interop"].get("status") not in MEASURABLE:
         problems.append(f"{where}: measured although interop is {r['interop'].get('status')}")
     if r["inputs"] is not None and not valid_inputs(r["inputs"]):
@@ -195,42 +144,4 @@ def validate_report(doc: dict, app: str) -> list[str]:
     f = doc.get("funnel") or {}
     if tuple(f) != FUNNEL or _recount(f, rows) != f or not f["scopes"] >= f["withOptions"] >= f["replace"]:
         problems.append(f"funnel {f} is not the recount of the scope rows")
-    return problems
-
-
-def _union(reports: list[dict]) -> list[str]:
-    chosen = {n for r in reports for n in PerfMode.parse(r["mode"]).names}
-    return [n for n in NAMES if n in chosen]
-
-
-def validate_summary(doc: dict, reports: list[dict]) -> list[str]:
-    """`reports`: the device's <app>/report.json documents."""
-    problems = [] if doc.get("schemaVersion") == SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')!r}"]
-    by_app = {r["app"]: r["funnel"] for r in reports}
-    if doc.get("apps") != sorted(by_app) or doc.get("byApp") != by_app:
-        problems.append(f"apps {doc.get('apps')} and byApp are not the reports' apps and funnels")
-    if doc.get("funnel") != {k: sum(f[k] for f in by_app.values()) for k in FUNNEL}:
-        problems.append("funnel is not the sum of byApp")
-    if doc.get("modes") != {r["app"]: r["mode"] for r in reports}:
-        problems.append("modes are not each report's own")
-    if doc.get("patterns") != pattern_counts(reports):
-        problems.append("patterns are not the count of the reports' rows per pattern")
-    by_pattern = doc.get("metrics") or {}
-    if list(by_pattern) != list(PATTERNS) or list(doc.get("labels") or {}) != list(PATTERNS):
-        return problems + [f"metrics and labels are not one block per pattern {PATTERNS}"]
-    for pattern, metrics in by_pattern.items():
-        problems += _summary_metrics(pattern, metrics, _union(reports), sorted(by_app))
-    return problems + [f"swap {s.get('current')} → {s.get('option')}: pattern {s.get('pattern')!r}"
-                       for s in doc.get("swaps") or [] if s.get("pattern") not in PATTERNS]
-
-
-def _summary_metrics(pattern: str, metrics: dict, selected: list[str], apps: list[str]) -> list[str]:
-    if list(metrics) != list(selected):
-        return [f"{pattern} metrics {list(metrics)} are not the apps' selected metrics {selected}"]
-    problems = []
-    for metric, m in metrics.items():
-        if sorted(a for c in CHANGES for a in m["apps"][c]) != apps:
-            problems.append(f"{pattern} {metric}: the change classes do not partition the apps")
-        if sorted(a for a, v in m["ratios"].items() if v is None) != m["apps"]["notMeasured"]:
-            problems.append(f"{pattern} {metric}: notMeasured is not the apps without a ratio")
     return problems

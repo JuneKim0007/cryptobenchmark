@@ -33,7 +33,8 @@ from ..validation.failure import ValidationFailed
 from ..validation.grouping.interop import validate_interop
 from ..validation.measurements import validate_measurements
 from ..validation.primitives import validate_primitives
-from ..validation.report import validate_report, validate_summary
+from ..validation.report import validate_report
+from ..validation.summary import validate_summary
 from ..validation.rows import validate_rows
 from ..validation.run_log import validate_run_log
 from ..validation.screen import validate_model_verdicts, validate_screen_document

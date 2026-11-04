@@ -55,8 +55,8 @@
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | `<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
-| `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py`, before writing |
-| `summary.json`, `summary.md` | report summary | people | `validation/report.py`, before writing |
+| `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py` and `validation/report_metrics.py`, before writing |
+| `summary.json`, `summary.md` | report summary | people | `validation/summary.py`, before writing |
 | `apps-index.tsv` | the guide's summary step, `perfrepair.guide.index` | people: find an app, what is left on it; its `fixed`, `notFixed` and `unknown_default` scope counts | none: rebuilt whole from the app folders and `log/events.jsonl` |
 | `review/decisions.tsv` | the guide's summary step, `perfrepair.review` | people, `review score` | none: a verdict is `ok`, `wrong` or empty, checked by `score` |
 | `review/score.json` | `perfrepair.review score` | people | none |
