@@ -65,7 +65,7 @@ scripts/effective_view.py : effective.yaml with the warnings and skips of report
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
-scripts/failure.py : one error line and exit
+scripts/failure.py : one error line and exit; an error as one line of at most 500 characters
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/lint/__init__.py : package of the docs lint's model of the repo
 scripts/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens

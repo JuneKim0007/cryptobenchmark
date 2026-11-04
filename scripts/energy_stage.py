@@ -5,6 +5,7 @@ import yaml
 
 import timeouts
 from device.adb import DeviceError, android_home
+from failure import one_line
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT / "tools/energy"))
@@ -51,6 +52,6 @@ def guarded(problems, step):
     try:
         step()
     except (EnergyError, DeviceError, timeouts.StepTimeout) as error:
-        line = "energy_failed: " + " ".join(str(error).split())[:500]
+        line = "energy_failed: " + one_line(error)
         print(f"error: {line}", file=sys.stderr)
         problems.append(line)

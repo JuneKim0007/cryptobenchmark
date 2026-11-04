@@ -5,7 +5,7 @@ import argparse, json, os, pathlib, subprocess, sys, traceback
 import energy_stage, timeouts
 from device.adb import Device, DeviceError
 from device.identity import DeviceIdError, device_id
-from failure import fail
+from failure import fail, one_line
 from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
@@ -116,7 +116,7 @@ def failure_line(error):
         return str(error)
     if isinstance(error, subprocess.CalledProcessError):
         return f"subprocess_failed: {' '.join(map(str, error.cmd))[:300]} exited {error.returncode}"
-    return f"internal_error: {type(error).__name__}: {' '.join(str(error).split())[:500]}"
+    return f"internal_error: {type(error).__name__}: {one_line(error)}"
 
 
 if __name__ == "__main__":
