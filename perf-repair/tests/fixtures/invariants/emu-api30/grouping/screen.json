@@ -1,0 +1,85 @@
+{
+ "schemaVersion": 5,
+ "catalog": {
+  "source": "packaged",
+  "sha256": "484fc8bd6021baf57bbe494f8eca6cabcaa9e8ed15d6c5d6edb19f9b6607f018"
+ },
+ "built": {
+  "items": "69983983a892ec7e48c82847b2148280dcd3bb3761b2ea2be7754eabababd6f8",
+  "profiles": "bde2dfa300a4b8b53e4ee9f542687926a19ece13a6d720a04047ac89f216ef2e"
+ },
+ "verdicts": {
+  "121": {
+   "status": "accepted",
+   "reason": "SP 800-131A r2 Table 8 acceptable for all uses",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "SHA-256",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "122": {
+   "status": "accepted",
+   "reason": "SP 800-131A r2 Table 8 acceptable for all uses",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "SHA-256",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "123": {
+   "status": "accepted",
+   "reason": "SP 800-131A r2 Table 8 acceptable for all uses",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "SHA-256",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "130": {
+   "status": "accepted",
+   "reason": "keys an accepted primitive; key size not in name",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "AES",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "131": {
+   "status": "accepted",
+   "reason": "keys an accepted primitive; key size not in name",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "AES",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "132": {
+   "status": "accepted",
+   "reason": "keys an accepted primitive; key size not in name",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "AES",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "133": {
+   "status": "accepted",
+   "reason": "keys an accepted primitive; key size not in name",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "AES",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "173": {
+   "status": "accepted",
+   "reason": "r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "RSA",
+   "keySize": null,
+   "providerHeld": false
+  },
+  "175": {
+   "status": "accepted",
+   "reason": "r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact",
+   "source": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf",
+   "canonical": "RSA",
+   "keySize": null,
+   "providerHeld": false
+  }
+ }
+}

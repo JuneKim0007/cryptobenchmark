@@ -1,0 +1,310 @@
+{
+ "schemaVersion": 4,
+ "profiles": {
+  "121": {
+   "keyKind": "none",
+   "keyKindFrom": "measured",
+   "instantiates": true,
+   "runs": true,
+   "reason": null,
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": true,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "function",
+      "value": "SHA-256",
+      "status": "known"
+     }
+    ]
+   }
+  },
+  "122": {
+   "keyKind": "none",
+   "keyKindFrom": "engine_type",
+   "instantiates": true,
+   "runs": false,
+   "reason": "NoSuchAlgorithmException: The BC provider no longer provides an implementation for MessageDigest.SHA-256.  Please see https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html for more details.",
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": false,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "function",
+      "value": "SHA-256",
+      "status": "known"
+     }
+    ]
+   }
+  },
+  "123": {
+   "keyKind": "none",
+   "keyKindFrom": "measured",
+   "instantiates": true,
+   "runs": true,
+   "reason": null,
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": true,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "function",
+      "value": "SHA-256",
+      "status": "known"
+     }
+    ]
+   }
+  },
+  "130": {
+   "keyKind": "none",
+   "keyKindFrom": "engine_type",
+   "instantiates": true,
+   "runs": false,
+   "reason": "IllegalStateException: Not initialized",
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": false,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "consumer",
+      "value": "consumer-defined",
+      "status": "convention"
+     },
+     {
+      "name": "function",
+      "value": "AES",
+      "status": "known"
+     },
+     {
+      "name": "key",
+      "value": null,
+      "status": "unknown"
+     },
+     {
+      "name": "keyMaterial",
+      "value": null,
+      "status": "unknown"
+     }
+    ]
+   }
+  },
+  "131": {
+   "keyKind": "none",
+   "keyKindFrom": "measured",
+   "instantiates": true,
+   "runs": true,
+   "reason": null,
+   "defaultKeySize": 128,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": true,
+   "preparedKeySizes": [
+    128,
+    192,
+    256
+   ],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "consumer",
+      "value": "consumer-defined",
+      "status": "convention"
+     },
+     {
+      "name": "function",
+      "value": "AES",
+      "status": "known"
+     },
+     {
+      "name": "key",
+      "value": null,
+      "status": "unknown"
+     },
+     {
+      "name": "keyMaterial",
+      "value": "exportable",
+      "status": "known"
+     }
+    ]
+   }
+  },
+  "132": {
+   "keyKind": "none",
+   "keyKindFrom": "engine_type",
+   "instantiates": true,
+   "runs": false,
+   "reason": "NoSuchAlgorithmException: The BC provider no longer provides an implementation for KeyGenerator.AES.  Please see https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html for more details.",
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": false,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "consumer",
+      "value": "consumer-defined",
+      "status": "convention"
+     },
+     {
+      "name": "function",
+      "value": "AES",
+      "status": "known"
+     },
+     {
+      "name": "key",
+      "value": null,
+      "status": "unknown"
+     },
+     {
+      "name": "keyMaterial",
+      "value": null,
+      "status": "unknown"
+     }
+    ]
+   }
+  },
+  "133": {
+   "keyKind": "none",
+   "keyKindFrom": "measured",
+   "instantiates": true,
+   "runs": true,
+   "reason": null,
+   "defaultKeySize": 128,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": true,
+   "preparedKeySizes": [
+    128,
+    192,
+    256
+   ],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "consumer",
+      "value": "consumer-defined",
+      "status": "convention"
+     },
+     {
+      "name": "function",
+      "value": "AES",
+      "status": "known"
+     },
+     {
+      "name": "key",
+      "value": null,
+      "status": "unknown"
+     },
+     {
+      "name": "keyMaterial",
+      "value": "exportable",
+      "status": "known"
+     }
+    ]
+   }
+  },
+  "173": {
+   "keyKind": "none",
+   "keyKindFrom": "engine_type",
+   "instantiates": true,
+   "runs": false,
+   "reason": "IllegalStateException: Not initialized",
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": false,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "consumer",
+      "value": "consumer-defined",
+      "status": "convention"
+     },
+     {
+      "name": "function",
+      "value": "RSA",
+      "status": "known"
+     },
+     {
+      "name": "key",
+      "value": null,
+      "status": "unknown"
+     },
+     {
+      "name": "keyMaterial",
+      "value": null,
+      "status": "unknown"
+     }
+    ]
+   }
+  },
+  "175": {
+   "keyKind": "none",
+   "keyKindFrom": "engine_type",
+   "instantiates": true,
+   "runs": false,
+   "reason": "NoSuchAlgorithmException: The BC provider no longer provides an implementation for KeyPairGenerator.RSA.  Please see https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html for more details.",
+   "defaultKeySize": null,
+   "keyAlgorithm": null,
+   "keyProvider": null,
+   "bareName": false,
+   "measured": false,
+   "preparedKeySizes": [],
+   "keyContract": "unknown",
+   "signature": {
+    "components": [
+     {
+      "name": "consumer",
+      "value": "consumer-defined",
+      "status": "convention"
+     },
+     {
+      "name": "function",
+      "value": "RSA",
+      "status": "known"
+     },
+     {
+      "name": "key",
+      "value": null,
+      "status": "unknown"
+     },
+     {
+      "name": "keyMaterial",
+      "value": null,
+      "status": "unknown"
+     }
+    ]
+   }
+  }
+ }
+}

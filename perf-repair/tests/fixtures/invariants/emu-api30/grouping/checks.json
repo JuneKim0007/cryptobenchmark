@@ -1,0 +1,26 @@
+{
+ "schemaVersion": 1,
+ "counts": {},
+ "findings": [
+  {
+   "kind": "no_runnable_member",
+   "severity": "warning",
+   "group": "aes-keygen",
+   "items": [
+    130,
+    132
+   ],
+   "detail": "no member runs on this device"
+  },
+  {
+   "kind": "no_runnable_member",
+   "severity": "warning",
+   "group": "rsa-keypair-gen",
+   "items": [
+    173,
+    175
+   ],
+   "detail": "no member runs on this device"
+  }
+ ]
+}
