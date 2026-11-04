@@ -4,6 +4,8 @@ import pytest
 from helpers import summary
 from test_evidence import EVIDENCE, GROUPS, M, ROWS
 
+from perfrepair import run_dir as rd
+from perfrepair.check.grouping import check_worthiness
 from perfrepair.dto import Verdicts
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.units import DisplayUnits
@@ -70,3 +72,14 @@ def test_time_is_shown_in_the_display_units_and_throughput_only_when_selected():
     text = both.render(G, Verdicts("x")).text
     assert "timeNs median us/op" in text and "throughput MiB/s (median)" in text and "| 0.2 |" in text
     assert "throughput" not in KIND.render(G, Verdicts("latency")).text.split("CONFIGURATION", 1)[1]
+
+
+def test_the_replay_tells_a_corrupt_verdicts_file_from_a_folder_before_perf_mode(tmp_path):
+    folder = rd.worthiness(tmp_path, "latency")
+    folder.mkdir()
+    (folder / rd.VERDICTS).write_text("not json")
+    [problem] = check_worthiness(tmp_path, "latency", {}, [], None)
+    assert "does not parse" in problem and "before perfMode" not in problem
+    rd.worthiness(tmp_path, "old-mode").mkdir()
+    [problem] = check_worthiness(tmp_path, "old-mode", {}, [], None)
+    assert "the folder is from before perfMode" in problem

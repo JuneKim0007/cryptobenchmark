@@ -25,15 +25,18 @@ from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.failure import ValidationFailed
 from ..validation.screen import validate_model_verdicts, validate_screen_document
+from .device import parsed
 
 
 def check_worthiness(run: Path, name: str, groups: dict, rows, screen) -> list[str]:
     directory = rd.worthiness(run, name)
     try:
         mode = mode_of(PerfMode.parse(name))
-        saved = Verdicts.from_json(read_json(directory / rd.VERDICTS))
     except ValueError as e:
         return [f"{e}; the folder is from before perfMode"]
+    saved = parsed(lambda _: Verdicts.from_json(read_json(directory / rd.VERDICTS)), run)
+    if isinstance(saved, str):
+        return [saved]
     measurements = rd.load_measurements(run)
     evidence = build_evidence(groups, rows, measurements.byRow, qualified_verdicts(groups, screen), mode.perf)
     kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
