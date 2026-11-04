@@ -265,10 +265,9 @@ def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, c
     text = yaml.safe_load(config.read_text())
     global_yaml = tmp_path / "global.yaml"
     global_yaml.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n")
-    text.update(paths={"results": str(results)}, device={"benchmark": {"config": str(global_yaml)}})
     text["apps"]["perfMode"] = ["latency", "throughput"]
     config.write_text(yaml.safe_dump(text))
-    args = ["--agent", "dry-run", "--perfrepair-config", str(config)]
+    args = ["--agent", "dry-run", "--perfrepair-config", str(config), "--results-root", str(results), "--config", str(global_yaml)]
     assert guide_main(args) == 1
     out = capsys.readouterr().out
     assert len(app_lines(out.splitlines())) == 2 and f"app {path_id(tmp_path / 'rel')}:" in out
@@ -328,10 +327,7 @@ def test_no_entry_that_is_an_app_stops_before_any_device_step(tmp_path, capsys, 
     (tmp_path / "readme").mkdir()
     (tmp_path / "readme" / "README.md").write_text("x")
     config = settings(tmp_path, targets=["readme", {"root": "readme"}])
-    text = yaml.safe_load(config.read_text())
-    text["paths"] = {"results": str(tmp_path / "results")}
-    config.write_text(yaml.safe_dump(text))
-    assert guide_main(["--agent", "dry-run", "--perfrepair-config", str(config)]) == 1
+    assert guide_main(["--agent", "dry-run", "--perfrepair-config", str(config), "--results-root", str(tmp_path / "results")]) == 1
     captured = capsys.readouterr()
     assert f"guide targets: skip {tmp_path / 'readme'} not_android: not_android" in captured.out
     assert f"warning: apps.targets root {tmp_path / 'readme'} holds no app (0 candidates, none an app)" in captured.err

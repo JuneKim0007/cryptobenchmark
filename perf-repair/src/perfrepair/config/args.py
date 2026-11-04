@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Mapping
 
 from ..dto.perf_mode import PerfMode
-from ..inputs.check import Invalid, check_positive
+from ..inputs.check import Invalid, check_positive, check_run_id
 from ..inputs.table import Row
 from .dotenv import load_env
 from .load import Loaded, load
@@ -23,6 +23,15 @@ def positive_int(text: str) -> int:
     except (ValueError, Invalid):
         raise argparse.ArgumentTypeError(f"{text!r} is not a positive integer") from None
     return value
+
+
+def run_id(text: str) -> str:
+    """The argparse type of --run-id: one path segment of runs/run_<id>.json."""
+    try:
+        check_run_id("--run-id", text)
+    except Invalid as e:
+        raise argparse.ArgumentTypeError(f"{text!r}: {e.expected}") from None
+    return text
 
 
 def perf_mode(text: str) -> str:

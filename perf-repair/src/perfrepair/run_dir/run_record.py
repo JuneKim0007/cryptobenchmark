@@ -92,21 +92,22 @@ class RunRecord:
 
     @classmethod
     def open(cls, device: Path, run_id: str | None = None, on_existing: str = OVERWRITE,
-             digests: dict | None = None) -> RunRecord:
-        """run_id None takes a new timestamp id; a named one that exists follows on_existing. device_busy, run_exists."""
+             digests: dict | None = None, settings: dict | None = None) -> RunRecord:
+        """run_id None takes a new timestamp id; a named one that exists follows on_existing. device_busy, run_exists.
+        settings: the settings tree a facade run resolved; a resumed record keeps its own when none is given."""
         lock = DeviceLock.take(device)
         try:
             run_id = run_id or _stamp(device)
             path = run_path(device, run_id)
             kept = _read(path) if path.exists() else None
             if path.exists() and on_existing == SKIP:
-                raise InputError(f"run_exists: run {run_id} has a record ({path}); run.onExisting skip runs nothing")
+                raise InputError(f"run_exists: run {run_id} has a record ({path}); onExisting skip runs nothing")
             if path.exists() and on_existing == OVERWRITE:
                 cls._clear(device)
                 kept = None
             doc = kept or {"schemaVersion": SCHEMA_VERSION, "id": run_id, "start": _now(), "apps": {}}
             record = cls(device, {**doc, "onExisting": on_existing, "digests": digests or {},
-                                  "device": {"status": RUNNING}}, lock)
+                                  "device": {"status": RUNNING}, **({"settings": settings} if settings else {})}, lock)
             record._write()
             return record
         except BaseException:

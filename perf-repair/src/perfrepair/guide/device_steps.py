@@ -79,14 +79,15 @@ def _required(g: Guide) -> tuple[Metric, ...]:
 
 
 def open_record(g: Guide, folder: Path) -> None:
-    """The run's record on the folder, once: its lock taken and run.onExisting applied before any stage reads it."""
+    """The run's record on the folder, once: its lock taken and --on-existing applied before any stage reads it."""
     g.device = folder
     if g.record is not None:
         return
     config = {"config": sha256_file(g.config) if g.config else None,
               "settings": sha256_file(g.settings.file) if g.settings and g.settings.file else None}
     try:
-        g.record = RunRecord.open(folder, g.run_id, g.on_existing, {**config, "screening": g.catalog.sha256})
+        g.record = RunRecord.open(folder, g.run_id, g.on_existing, {**config, "screening": g.catalog.sha256},
+                                  g.run_settings)
     except InputError as e:
         if e.code not in ("run_exists", "device_busy"):
             raise
@@ -160,8 +161,6 @@ def grouping(g: Guide) -> str:
         emit("device", "grouping", END, outcome="reused", detail=REUSED_GROUPING,
              data={"counts": {"items": seen.asked, **_not_used(seen)}})
         return "reused"
-    if seen.pending and g.root is None and not every:
-        _no_decision(g, f"{len(seen.pending)} of {seen.asked} items have no decision")
     return _regroup(g, seen, every)
 
 
@@ -176,3 +175,5 @@ def summary(g: Guide) -> str:
 
 
 DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping))
+# target detect, used set, benchmark, inbound: prerequisites alone calls no model
+DEVICE_STAGE = DEVICE_LEVEL[:1]

@@ -213,7 +213,7 @@ def _guide_out(flow_, capsys, root):
     document = yaml.safe_load(path.read_text())
     document["apps"] = {"targets": [str(root)], "perfMode": ["latency", "throughput"]}
     path.write_text(yaml.safe_dump(document))
-    guide(["--agent", "dry-run", "--perfrepair-config", str(path)])
+    guide(["--agent", "dry-run", "--perfrepair-config", str(path), *flow_.where()])
     return capsys.readouterr().out.splitlines()
 
 

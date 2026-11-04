@@ -5,7 +5,7 @@
   report  --device-results <dir> [--supervisor [--prompts DIR]] [--agent ...]   checks.json, groups.json [, supervisor.json]
   interop-plan --device-results <dir>                         interop_plan.yaml from groups.json
   interop-read --device-results <dir> --results <interop.yaml>  interop.yaml imported; report rerun with its findings
-Every step fills unset values from perfrepair.yaml (--perfrepair-config FILE), the folder from paths.results and device.id; see docs/settings.md."""
+Every step fills unset values from perfrepair.yaml (--perfrepair-config FILE), the folder from --results-root and device.id; see docs/settings.md."""
 from __future__ import annotations
 
 import argparse

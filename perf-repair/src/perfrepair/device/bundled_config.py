@@ -23,7 +23,7 @@ def last_applied(folder: Path) -> list[dict]:
 
 
 def harness_config(device: Path, chosen: Path | None, app_folder: Path) -> Path | None:
-    """chosen: apps.benchmarkConfig; unset, the device stage's own bundled-global.yaml already holds the entries."""
+    """chosen: --harness-config; unset, the device stage's own bundled-global.yaml already holds the entries."""
     made = Path(device) / rd.BUNDLED_CONFIG
     if not made.is_file():
         return chosen

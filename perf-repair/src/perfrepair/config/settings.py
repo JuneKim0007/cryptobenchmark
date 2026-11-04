@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from typing import Any
 
 from ..inputs.resolve import OnInvalid, unknown_key
 from ..stop.halt import Coded
@@ -14,6 +15,14 @@ LOG = logging.getLogger(__name__)
 SECRET_KEY = re.compile(r"api[_-]?key|token|secret|password", re.I)
 SECRET_VALUE = re.compile(r"^sk-ant-")
 USE = "use"
+# keys that left this file; a file still setting one would otherwise be silently ignored
+MOVED = {
+    "paths.results": "results in the settings index, or --results-root",
+    "device.benchmark.config": "crypto.config in the settings index, or guide --config",
+    "apps.benchmarkConfig": "crypto.harnessConfig in the settings index, or guide --harness-config",
+    "run.id": "run.id in the settings index, or guide --run-id",
+    "run.onExisting": "run.onExisting in the settings index, or guide --on-existing",
+}
 
 
 class ConfigError(Coded):
@@ -74,7 +83,7 @@ def _not_a_section(raw: Any, node: Mapping, path: str, origin: str) -> None:
     LOG.warning(f"invalid: {where} {raw}, a mapping; ignored ({origin})")
 
 
-def _read_section(raw: Any, node: Mapping, path: str, origin: str) -> None:
+def _read_section(raw: Any, node: Mapping, path: str, origin: str, on_unknown: Callable = unknown_key) -> None:
     if not isinstance(raw, Mapping):
         _not_a_section(raw, node, path, origin)
         return
@@ -82,16 +91,30 @@ def _read_section(raw: Any, node: Mapping, path: str, origin: str) -> None:
     for key, value in raw.items():
         where = _join(path, key)
         if key not in node and any_key is None:
-            unknown_key(where, node, origin)
+            on_unknown(where, node, origin)
             continue
         child = node.get(key, node.get(any_key))
         if isinstance(child, Mapping) and value is not None:
-            _read_section(value, child, where, origin)
+            _read_section(value, child, where, origin, on_unknown)
+
+
+def _refuse_moved(document: Any) -> None:
+    for key, place in MOVED.items():
+        if Settings(document if isinstance(document, Mapping) else {}).get(key) is not None:
+            raise ConfigError(f"placement: {key} is no perfrepair.yaml key; set {place}")
+
+
+def unknown_keys(document: Mapping) -> list[str]:
+    """Each key no row knows, for the caller that refuses what parse only warns about."""
+    found: list[str] = []
+    _read_section(document, known_tree(), "", "", lambda where, _node, _origin: found.append(where))
+    return found
 
 
 def parse(document: Any, origin: str) -> Settings:
     """origin: what a warning names as the file."""
     document = {} if document is None else document
     _refuse_secrets(document, "<root>" if isinstance(document, str) else "")
+    _refuse_moved(document)
     _read_section(document, known_tree(), "", origin)
     return Settings(document)

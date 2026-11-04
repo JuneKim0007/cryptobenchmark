@@ -14,6 +14,7 @@ modules/config/example/config_inventory_example.yaml : expected inventory output
 modules/config/example/config_report_example.yaml : expected report output
 modules/config/example/config_testset_example.yaml : example input test set
 modules/config/example/config_trial_example.yaml : example input trial
+modules/config/src/main/kotlin/AuthoredFiles.kt : a global.yaml and its test set through their parsers; nothing else read or written
 modules/config/src/main/kotlin/Configuration.kt : facade: inventory, effective with its report, readEffective
 modules/config/src/main/kotlin/effective/EffectiveBuilder.kt : global x test set x inventory x facts to EffectiveConfig
 modules/config/src/main/kotlin/effective/EffectiveDocument.kt : effective.yaml schema
@@ -68,6 +69,7 @@ modules/config/src/main/kotlin/yaml/YamlCodec.kt : SafeConstructor YAML, duplica
 modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion and .partial atomic write
 modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
 modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases shared with perf-repair, every catalogued spelling, inventory duplicates, rule names
+modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
 modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests

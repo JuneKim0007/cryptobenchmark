@@ -162,11 +162,11 @@ def test_a_run_without_grouping_says_how_to_make_it(run):
 
 
 @pytest.mark.usefixtures("asked_by_model")
-def test_a_named_folder_with_items_undecided_stops_and_names_how_many(run):
+def test_a_named_folder_with_items_undecided_asks_them(run):
     shutil.rmtree(GroupingPaths(run).root / "outbox")
     g, lines = guide(run, DRY_RUN)
-    assert run_steps(g, device=False) == 1
-    assert "stop missing_device_stage" in lines[-1] and "items have no decision" in lines[-1]
+    run_steps(g, device=False)
+    assert any(line.startswith("guide grouping: ok: ran: ") and "items asked" in line for line in lines)
 
 
 def test_a_named_folder_whose_groups_json_went_missing_is_rebuilt_with_no_call(run):
@@ -233,10 +233,10 @@ def test_a_folder_of_several_project_roots_is_a_coded_stop(run, tmp_path):
 def _from_root(tmp_path, capsys):
     settings = tmp_path / "perfrepair.yaml"
     if not settings.exists():
-        settings.write_text(f"paths: {{results: {tmp_path / 'results'}}}\n")
+        settings.write_text("{}\n")
         (tmp_path / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: []}\n")
     code = top(["guide", "--app", str(APP), "--agent", "dry-run", "--perf-mode", "latency,throughput", "--perfrepair-config", str(settings),
-                "--config", str(tmp_path / "global.yaml")])
+                "--config", str(tmp_path / "global.yaml"), "--results-root", str(tmp_path / "results")])
     return code, [l for l in capsys.readouterr().out.splitlines() if l.startswith(("device ", "guide "))]
 
 

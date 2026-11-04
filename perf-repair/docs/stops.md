@@ -52,7 +52,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `device_id_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | the device changed between identify and probe; rerun on one device |
 | `device_not_in_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |
 | `several_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |
-| `no_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage, or point paths.results at a results root |
+| `no_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage, or point --results-root at a results root |
 | `not_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass a device folder cryptobenchmark wrote |
 | `measured_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
 | `dossier_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun with --refresh to ask the changed units again |
@@ -66,7 +66,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `edit_invalid` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `harness_invalid` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `target_missing` | `stop` | fixed: nothing is left to run | 1 | fix the apps.targets entry; its earlier results stay |
-| `run_exists` | `stop` | fixed: nothing is left to run | 1 | set run.onExisting to resume or overwrite, or name another run.id |
+| `run_exists` | `stop` | fixed: nothing is left to run | 1 | set onExisting to resume or overwrite, or name another run id |
 | `no_targets` | `stop` | fixed: nothing is left to run | 1 | fix apps.targets: no entry is an app; the skip lines above say why |
 | `prerequisites_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `targets_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |

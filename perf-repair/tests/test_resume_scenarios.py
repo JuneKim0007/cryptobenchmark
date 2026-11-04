@@ -124,7 +124,7 @@ def test_s4_the_summary_holds_no_report_of_an_app_that_stopped_on_the_latest_run
 
 
 def test_s5_another_harness_config_is_another_measurement(p, monkeypatch, tmp_path):
-    """Before: a changed apps.benchmarkConfig reused the old measurement. After: the app measures again."""
+    """Before: a changed --harness-config reused the old measurement. After: the app measures again."""
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     a = p.app("a")
     p.go([a], device=True)
@@ -218,7 +218,7 @@ def test_skip_runs_nothing(p):
     p.go([a], run_id="r1")
     code, lines = p.go([a], run_id="r1", on_existing="skip")
     assert code == 1 and lines == [f"guide prerequisites: stop run_exists: run r1 has a record "
-                                   f"({p.run_dir / RUNS / 'run_r1.json'}); run.onExisting skip runs nothing"]
+                                   f"({p.run_dir / RUNS / 'run_r1.json'}); onExisting skip runs nothing"]
 
 
 def test_an_app_run_removes_an_earlier_targets_file(p):

@@ -6,7 +6,6 @@ import yaml
 from perfrepair.device.measures import owned_config
 from perfrepair.dto.perf_mode import GENERIC_MODE
 from perfrepair.guide import app_steps as steps
-from perfrepair.inputs import table
 
 
 def _device_step(monkeypatch, app_config):
@@ -19,7 +18,7 @@ def _device_step(monkeypatch, app_config):
     return seen[0]
 
 
-def test_the_app_step_runs_on_apps_benchmark_config(monkeypatch):
+def test_the_app_step_runs_on_the_harness_config(monkeypatch):
     assert _device_step(monkeypatch, Path("app.yaml")) == Path("app.yaml")
 
 
@@ -34,7 +33,3 @@ def test_the_app_step_measures_what_its_own_perf_mode_needs_on_a_device(tmp_path
     assert made == tmp_path / "app" / "metrics-global.yaml"
     run = yaml.safe_load(made.read_text())["run"]
     assert run == {"inputSizes": [64], "metrics": ["TIME", "ALLOCATION"]}
-
-
-def test_the_row_is_a_path_with_no_default():
-    assert table.APPS_BENCHMARK_CONFIG.key == "apps.benchmarkConfig" and table.APPS_BENCHMARK_CONFIG.default is None

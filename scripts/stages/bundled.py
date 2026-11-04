@@ -1,4 +1,4 @@
-"""providers.bundled of global.yaml: the app build property, the DeviceProbe argument, and the check against effective.yaml."""
+"""providers.bundled of global.yaml: the digest's raw read, the app build property, the DeviceProbe argument, the check against effective.yaml."""
 import json, shlex
 
 import yaml

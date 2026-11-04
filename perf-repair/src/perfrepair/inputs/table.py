@@ -11,7 +11,6 @@ from ..catalog.screening import SCREENING
 from ..dto.bundled import OFF, ON_MISSING, WARN
 from ..dto.change import DROP_IN
 from ..dto.perf_mode import GENERIC
-from ..run_dir.run_record import ON_EXISTING, OVERWRITE
 from ..stop.codes import CODES_LIST, OVERRIDABLE
 from .check import (
     check_any,
@@ -22,7 +21,6 @@ from .check import (
     check_path,
     check_perf_mode,
     check_positive,
-    check_run_id,
     check_targets,
     check_text,
 )
@@ -79,7 +77,6 @@ AI_GATEWAY_USE = Row("aiGateway.use", check_text, invalid=OnInvalid.ERROR, chain
 AI_GATEWAY_AUTH = Row("aiGateway.<gateway>.auth", invalid=OnInvalid.ERROR, chain=GATEWAY_CHAIN)
 AI_GATEWAY_KEY = Row("aiGateway.<gateway>.<key>", chain=GATEWAY_CHAIN)
 
-PATHS_RESULTS = _path("paths.results")
 PATHS_PROMPTS = _path("paths.prompts")
 
 SCREENING_CATALOG = _path("device.screening.catalog", invalid=OnInvalid.ERROR, need=Need.DEFAULT, packaged=SCREENING,
@@ -93,7 +90,6 @@ GROUPING_LIMIT = Row("device.grouping.limit", check_positive)
 GROUPING_NO_RERUN = Row("device.grouping.noRerun", check_bool, default=True)
 GROUPING_ASSIGN = RoleRow("device.grouping.assign", {"effort": "low"})
 GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor")
-BENCHMARK_CONFIG = _path("device.benchmark.config")
 # off is a full-device run: more device time and model calls, never a wrong result
 FILTER_BY_APPS = Row("device.filterByApps", check_bool, default=True)
 BUNDLED_ON_MISSING = Row("device.bundled.onMissing", partial(check_one_of, choices=ON_MISSING), default=WARN)
@@ -106,18 +102,11 @@ WORTHINESS = RoleRow("device.worthiness")
 APPS_TARGETS = Row("apps.targets", check_targets)
 APPS_PERF_MODE = Row("apps.perfMode", check_perf_mode, default=GENERIC)
 APPS_LIMIT = Row("apps.limit", check_positive)
-# unset falls back to the device config
-APPS_BENCHMARK_CONFIG = _path("apps.benchmarkConfig")
 APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 # the highest change class the guide may apply; a bad value falls back to drop-in, the class that changes no contract
 APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
-
-# empty takes a timestamp; a bad id or onExisting must not fall back onto another run's record or clear it
-RUN_ID = Row("run.id", check_run_id, invalid=OnInvalid.ERROR)
-RUN_ON_EXISTING = Row("run.onExisting", partial(check_one_of, choices=ON_EXISTING), default=OVERWRITE,
-                      invalid=OnInvalid.ERROR)
 
 # seconds before a hung child is killed; a device benchmark call runs for hours, a model call for minutes
 TIMEOUT_CLAUDE = Row("timeouts.claude", check_positive, default=3600)

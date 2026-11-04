@@ -36,7 +36,7 @@ Makefile : test, docs-lint, check; coverage-guide, the guide under coverage and 
 README.md : what perf-repair is, setup
 agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
-perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths, device, apps
+perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths.prompts, device, apps
 pyproject.toml : package, pyyaml dependency, optional `test`, `api` and pinned `scope` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
 targets.example.yaml : template for an apps.targets file: a root entry and a path entry

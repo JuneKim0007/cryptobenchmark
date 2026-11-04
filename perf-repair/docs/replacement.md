@@ -22,16 +22,17 @@ From an app's source to a measured before/after of each call site the model chos
 python3 -m perfrepair guide --app <root> --device-results <device> \
     [--perf-mode generic|<keys>] [--agent ...] [--auth ...] [--prompts DIR] [--limit N] [--refresh] [--device [--config <global.yaml>]]
 python3 -m perfrepair guide --device-results <device> ...   # without --app: every apps.targets entry
-python3 scripts/llm_guide.py <same arguments>      # from the cryptobenchmark root; sets the path itself
 ```
 
-- `python3 -m perfrepair` needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
+- The lower-level command under `scripts/facade.py` ([facade.md](../../docs/facade.md)); it needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
 - `--max-change` defaults to `apps.maxChange` ([change-classes.md](change-classes.md)).
-- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.measure`, `--config` to `device.benchmark.config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
+- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.measure`, `--config` to `pipeline.py`'s lookup, `--harness-config` to `--config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--refresh` asks again the replace decisions whose dossier changed, and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).
-- `--device-results` is required unless `paths.results` is set (`docs/settings.md`); keep results under `~/capstone/runs/<date>-<name>`.
-- Named folder (`--device-results`, or `device.id`): it must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/groups.json` (grouping build, assign, report): device-level stages, made once per device, never per app; a missing one stops with `missing_device_stage`.
-- `paths.results` alone: prerequisites calls probe_device() on that root (`docs/pipeline.md` Device stage; on the phone with `--device`), printing `device <stage>: reused` or `ran: <reason>`; the grouping step asks what coverage finds missing (`docs/pipeline.md` Grouping knowledge) by `grouping assign` and `grouping report`, with the guide's `--agent` and `--perfrepair-config`, and prints `reused`, or what it ran.
+- `--run-id` names the run record, unset a new timestamp; `--on-existing` is `overwrite`, `resume` or `skip` ([artifacts.md](artifacts.md#run-record)).
+- `--stop-after-device` ends after prerequisites: target detect, used set, benchmark, inbound; no model call. `--outcome FILE` writes `{device, run, exit, code}`; `--run-settings FILE` stores that JSON under `settings` in the record.
+- `--device-results` is required unless `--results-root` is set; keep results under `~/capstone/runs/<date>-<name>`.
+- Named folder (`--device-results`, or `device.id`): it must already hold `manifest.yaml`, `rows.json`, `measurements.json` (inbound) and `grouping/items.json` (grouping build): device-level stages, made once per device, never per app; a missing one stops with `missing_device_stage`; no benchmark runs; the grouping step asks the items with no decision.
+- `--results-root` alone: prerequisites calls probe_device() on that root (`docs/pipeline.md` Device stage; on the phone with `--device`), printing `device <stage>: reused` or `ran: <reason>`; the grouping step asks what coverage finds missing (`docs/pipeline.md` Grouping knowledge) by `grouping assign` and `grouping report`, with the guide's `--agent` and `--perfrepair-config`, and prints `reused`, or what it ran.
 - With `device.filterByApps` (default) prerequisites runs every target's app step on the probe before the device benchmark and writes `used.json`, so grouping and the benchmark cover only the targets' items ([used-set.md](used-set.md)); that app step is not run again.
 - Steps in order: prerequisites, targets (`<device>/targets.yaml`, [targets.md](targets.md)), grouping, app (detect and scope), dossier, replace, edit, harness; with `--device`: device (`pipeline.py --device --harness <harness.yaml>`, an attached phone; it writes `measured/` beside the harness), then report. Without `--device` the guide ends at the harness and prints the device command.
 - Each step prints `guide <step>: ok: <detail>`; the first failing step prints `guide <step>: stop <code>: <detail>`, and ends that app; a stop in prerequisites or grouping ends the run, exit 1, no app runs.

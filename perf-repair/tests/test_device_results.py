@@ -19,17 +19,18 @@ def device(root, name):
     return root / name
 
 
-def parsed(tmp_path, settings, flag=None):
+def parsed(tmp_path, settings, flag=None, root=None):
     config = tmp_path / "c.yaml"
     config.write_text(settings)
     parser = argparse.ArgumentParser()
     add_device_results_arg(parser)
     add_config_arg(parser)
-    return parser, parser.parse_args(["--perfrepair-config", str(config), *(["--device-results", str(flag)] if flag else [])])
+    return parser, parser.parse_args(["--perfrepair-config", str(config), *(["--device-results", str(flag)] if flag else []),
+                                      *(["--results-root", str(root)] if root else [])])
 
 
-def filled(tmp_path, settings, flag=None):
-    parser, args = parsed(tmp_path, settings, flag)
+def filled(tmp_path, settings, flag=None, root=None):
+    parser, args = parsed(tmp_path, settings, flag, root)
     fill_device_results(parser, args)
     return args.device_results
 
@@ -70,27 +71,27 @@ def test_an_empty_root_says_to_run_the_benchmark(tmp_path):
 def test_the_settings_reach_the_folder(tmp_path):
     device(tmp_path / "results", "a")
     wanted = device(tmp_path / "results", "b")
-    assert filled(tmp_path, "paths: {results: results}\ndevice: {id: b}\n") == wanted
+    assert filled(tmp_path, "device: {id: b}\n", root=tmp_path / "results") == wanted
 
 
 def test_the_flag_outranks_the_settings(tmp_path):
-    assert filled(tmp_path, "paths: {results: results}\ndevice: {id: b}\n", tmp_path / "mine") == tmp_path / "mine"
+    assert filled(tmp_path, "device: {id: b}\n", tmp_path / "mine", tmp_path / "results") == tmp_path / "mine"
 
 
 def test_a_bad_device_id_stops_instead_of_using_the_only_device(tmp_path):
     device(tmp_path / "results", "a")
     with pytest.raises(InputError, match=r"^invalid: device.id 3, "):
-        filled(tmp_path, "paths: {results: results}\ndevice: {id: 3}\n")
+        filled(tmp_path, "device: {id: 3}\n", root=tmp_path / "results")
 
 
 @pytest.mark.parametrize("command", [fill_device_results, lambda parser, args: device_root(parser, args, load_settings(parser, args))],
                          ids=["fill_device_results", "device_root"])
-def test_neither_the_flag_nor_paths_results_is_a_usage_error_naming_both(tmp_path, capsys, command):
+def test_neither_flag_is_a_usage_error_naming_both(tmp_path, capsys, command):
     parser, args = parsed(tmp_path, "")
     with pytest.raises(SystemExit):
         command(parser, args)
     assert capsys.readouterr().err.splitlines()[-1].endswith(
-        "error: the following arguments are required: --device-results (or paths.results in perfrepair.yaml)")
+        "error: the following arguments are required: --device-results (or --results-root)")
 
 
 def test_a_root_given_as_the_device_folder_is_one_coded_line(tmp_path):
@@ -108,9 +109,7 @@ def test_a_command_reading_a_missing_manifest_is_one_coded_line(tmp_path, capsys
 def test_a_command_reports_several_devices_as_its_error_line(tmp_path, capsys):
     device(tmp_path / "results", "a")
     device(tmp_path / "results", "b")
-    config = tmp_path / "c.yaml"
-    config.write_text("paths: {results: results}\n")
-    assert grouping(["report", "--perfrepair-config", str(config)]) == 1
+    assert grouping(["report", "--results-root", str(tmp_path / "results")]) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith("error several_device_results: ")
 
 
@@ -146,7 +145,5 @@ def test_validation_reports_several_devices_as_its_error_line(tmp_path, capsys):
     from perfrepair.validation.__main__ import main as validation
     device(tmp_path / "results", "a")
     device(tmp_path / "results", "b")
-    config = tmp_path / "c.yaml"
-    config.write_text("paths: {results: results}\n")
-    assert validation(["--perfrepair-config", str(config)]) == 1
+    assert validation(["--results-root", str(tmp_path / "results")]) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith("error several_device_results: ")

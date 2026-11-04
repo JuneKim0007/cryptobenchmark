@@ -67,6 +67,12 @@ scripts/effective_view.py : effective.yaml with the warnings and skips of report
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
+scripts/facade.py : one command for benchmark then guided repair from one settings index; --check
+scripts/facade/__init__.py : package of the facade: index, tree check, phases; perfrepair on the path
+scripts/facade/check.py : every path exists, each file through its real parser, each key where it belongs, the direction rule, the catalogs
+scripts/facade/index.py : the root settings file: paths and what spans a run; any key it does not know is an error
+scripts/facade/phases.py : the crypto and guided phases as guide children with every path named; one coded line each
+scripts/facade/tree.py : the resolved tree: nodes, direction rule, printed lines, the document a run record keeps
 scripts/failure.py : one error line and exit; an error as one line of at most 500 characters
 scripts/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
@@ -74,7 +80,6 @@ scripts/lint/__init__.py : package of the docs lint's model of the repo
 scripts/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
 scripts/lint/paths.py : routers, guides, docs and graphed files by path
 scripts/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
-scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
 scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/repo.py : the repository root every script resolves its paths against
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
@@ -109,8 +114,9 @@ scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases 
 scripts/shared_functions.py : writes docs/shared-functions.md and perf-repair/docs/shared-functions.md from the import graph
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
-scripts/stages/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
+scripts/stages/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
 scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
+scripts/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 scripts/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
 scripts/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts, scoped passes into measured/
 scripts/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
@@ -120,10 +126,11 @@ scripts/stages/not_measured.py : planned timed cases the final benchmark.json la
 scripts/stages/took.py : the took: line of a timed step
 scripts/tests/ : pytest and standalone tests for scripts/
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
+settings.example.yaml : template for `settings.yaml`, the facade's root index
 settings.gradle : Gradle projects and their directories under modules/
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
-tools/jca-contract/ : host probe and configure commands, JCA contract tests, examples, shared tools Gradle wrapper
+tools/jca-contract/ : host probe, configure and parse-only commands, JCA contract tests, examples, shared tools Gradle wrapper
 tools/module-isolation/ : per-module isolated compile and test
 tools/quick-bench/ : host prepare and measure, Jetpack result conversion, run merge, analysis
 ```

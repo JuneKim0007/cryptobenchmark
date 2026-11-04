@@ -39,15 +39,16 @@ class Flow:
 
     def settings(self, text=None):
         path = self.tmp / "perfrepair.yaml"
-        document = {"paths": {"results": str(self.root)}, "device": {"benchmark": {"config": str(self.global_yaml)},
-                                                                     "grouping": self.grouping, "filterByApps": self.filter,
-                                                                     "bundled": self.bundled},
+        document = {"device": {"grouping": self.grouping, "filterByApps": self.filter, "bundled": self.bundled},
                     "apps": {"perfMode": ["latency", "throughput"]}}
         path.write_text(text if text is not None else yaml.safe_dump(document))
         return path
 
+    def where(self):
+        return ["--results-root", str(self.root), "--config", str(self.global_yaml)]
+
     def run(self, text=None):
-        guide(["--app", str(APP), "--agent", "dry-run", "--perfrepair-config", str(self.settings(text))])
+        guide(["--app", str(APP), "--agent", "dry-run", "--perfrepair-config", str(self.settings(text)), *self.where()])
         return [line for line in self.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
 
     def calls(self):
@@ -236,7 +237,7 @@ def run_targets(flow, *roots, device=False):
     document = yaml.safe_load(path.read_text())
     document["apps"] = {"targets": [str(r) for r in roots], "perfMode": ["latency", "throughput"]}
     path.write_text(yaml.safe_dump(document))
-    guide(["--agent", "dry-run", "--perfrepair-config", str(path), *(("--device",) if device else ())])
+    guide(["--agent", "dry-run", "--perfrepair-config", str(path), *flow.where(), *(("--device",) if device else ())])
     return [line for line in flow.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
 
 
@@ -412,3 +413,42 @@ def test_a_bad_bundled_value_warns_and_takes_the_default(scoped, caplog, value):
     assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists()
     assert {m.split(" ")[1] for m in caplog.messages if m.startswith("invalid: device.bundled.")} == {
         "device.bundled.onMissing", "device.bundled.fromApps"}
+
+
+def _stage(flow, *flags):
+    path = flow.settings()
+    document = yaml.safe_load(path.read_text())
+    document["apps"] = {"targets": [str(flow.sha)], "perfMode": ["latency", "throughput"]}
+    path.write_text(yaml.safe_dump(document))
+    outcome = flow.tmp / "outcome.json"
+    code = guide(["--agent", "dry-run", "--perfrepair-config", str(path), "--config", str(flow.global_yaml), "--outcome", str(outcome), *flags])
+    lines = [line for line in flow.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
+    return code, lines, json.loads(outcome.read_text())
+
+
+def test_stop_after_device_measures_once_and_asks_no_model(scoped):
+    code, lines, outcome = _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device", "--run-id", "one")
+    assert code == 0 and scoped.device_runs() == 2 and scoped.calls() == 0
+    assert not any(line.startswith(("guide grouping", "guide targets", "guide app")) for line in lines)
+    assert outcome == {"device": str(scoped.device), "run": "one", "exit": 0, "code": None}
+    assert not scoped.paths.groups.exists()
+
+
+def test_the_named_folder_after_it_groups_and_runs_the_apps_with_no_second_benchmark(scoped):
+    _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device", "--run-id", "one")
+    code, lines, outcome = _stage(scoped, "--device-results", str(scoped.device), "--run-id", "one", "--on-existing", "resume")
+    assert scoped.device_runs() == 2 and scoped.calls() > 0 and scoped.paths.groups.is_file()
+    assert any(line.startswith("guide grouping: ok: ran: ") for line in lines) and any(line.startswith("guide app: ok") for line in lines)
+    assert outcome["device"] == str(scoped.device) and outcome["run"] == "one" and outcome["exit"] == code
+
+
+def test_a_failed_device_stage_gives_its_code(scoped, monkeypatch):
+    monkeypatch.setenv("FAKE_INTERRUPT", "1")
+    code, _lines, outcome = _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device")
+    assert code == 1 and outcome["exit"] == 1 and outcome["code"] == "pipeline_failed"
+
+
+def test_a_bad_run_id_is_a_usage_error(scoped, capsys):
+    with pytest.raises(SystemExit) as e:
+        guide(["--app", str(APP), "--agent", "dry-run", "--run-id", "a/b"])
+    assert e.value.code == 2 and "--run-id" in capsys.readouterr().err

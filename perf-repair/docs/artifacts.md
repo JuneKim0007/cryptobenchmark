@@ -8,7 +8,7 @@
 | item | rule |
 |---|---|
 | `--device-results` | the device folder, on every command |
-| `paths.results` | the root, used when the flag is unset: `device.id` names the folder, else its only device |
+| `--results-root` | the root, used when `--device-results` is unset: `device.id` names the folder, else its only device |
 | a device | a folder holding `manifest.yaml`; a run that failed and `.staging-*` are not |
 | `<app>` | `--app <path>` gives `<dirname>-<8 hex of sha256 of the absolute path>` (`app/facts/path_id.py`); `app.json` records it as `pathId`, the absolute path as `root` |
 | several project roots | one `<app>.<root dirs joined by '.'>` per root; `root` is that project root; a later command takes that root as `--app` and finds the unit by `app.json` |
@@ -36,7 +36,7 @@
 | `metrics-global.yaml` | the device stage when the base `global.yaml` does not say what perfMode decided, removed otherwise; in `<app>/` for the per-app device step | every later config of the device stage; cryptobenchmark `pipeline.py --config` | none: the base with `run.metrics` decided ([pipeline.md](pipeline.md#device-stage)) |
 | `used-global.yaml` | the device stage, before a benchmark of the used set | cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with `selection.exclude` added |
 | `bundled-suggestions.yaml` | the device stage's bundled step (`device/bundled.py`), with `device.bundled.fromApps` `suggest` or `apply`; removed with `off` | people; `device/bundled_config.py`, for the per-app harness | `validation/bundled.py`, before writing and in `check` |
-| `bundled-global.yaml` | the bundled step with `apply` and a row applied, removed otherwise; in `<app>/` when `apps.benchmarkConfig` is set | `used-global.yaml`; the per-app harness; cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with the applied entries after its own `providers.bundled` |
+| `bundled-global.yaml` | the bundled step with `apply` and a row applied, removed otherwise; in `<app>/` when `--harness-config` is set | `used-global.yaml`; the per-app harness; cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with the applied entries after its own `providers.bundled` |
 | `<app>/sites.json` | `perfrepair.app` | scope, used | none |
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
 | `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 5, every scope's lifecycle in its closed lists, its pattern the rule's for that lifecycle, cited lines inside the file |
@@ -77,16 +77,17 @@
 
 ## Run record
 
-`runs/run_<id>.json`: one guide run on the device folder; `run.id` names it ([settings.md](settings.md)), unset a new `YYYYMMDDTHHMMSSZ` (with `-<n>` when taken).
+`runs/run_<id>.json`: one guide run on the device folder; `--run-id` names it, unset a new `YYYYMMDDTHHMMSSZ` (with `-<n>` when taken).
 
 | field | holds |
 |---|---|
 | `schemaVersion`, `id`, `start`, `updated`, `onExisting` | the run |
 | `digests` | `config`, `settings` (`perfrepair.yaml`), `screening` |
+| `settings` | a facade run: `tree`, each file's key, path, kind, side, status, `sha256` and the file holding it ([facade.md](../../docs/facade.md)) |
 | `device` | `status` `running`, `done`, `failed` or `stopped`; `step` and `reason` when not done |
 | `apps.<app>` | `status` (`running`, `done`, `failed`, `stopped`), `step`, `reason`, `outcome`; `reused` |
 
-| `run.onExisting`, the named record exists | result |
+| `--on-existing`, the named record exists | result |
 |---|---|
 | `overwrite` | every `<app>/finished.json` and `device.yaml` removed: every app and the device benchmark rerun |
 | `resume` | the record kept; a done app with its inputs unchanged is reused; the device stage reruns what `device.yaml` does not vouch for |

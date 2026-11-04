@@ -78,7 +78,7 @@ Before any stage it runs `scripts/dependencies.py` (a missing module is `missing
 - A `run.metrics` written in the base that differs is `run_metrics_overridden`, one warning; `perfMode` wins. The generated file also drops what the config would refuse without the metric: `run.passes.allocation`, and on a host `run.harness.energy.capture`.
 - Energy captured with `energy` not selected is logged `perf_mode_extra`: device time no decision reads.
 - The per-app device step takes the same decision with the app's own perfMode, in `<app>/metrics-global.yaml`.
-- Decided where the guide makes the device folder (`paths.results` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../docs/run.md#recover-a-metric-without-a-device).
+- Decided where the guide makes the device folder (`--results-root` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../docs/run.md#recover-a-metric-without-a-device).
 
 | input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
 |---|---|---|---|---|---|---|

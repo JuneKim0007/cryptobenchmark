@@ -18,14 +18,16 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 
 ## Usage
 
-One app from source to a measured report, after inbound and grouping have filled the device folder:
+Benchmark then every target app, from one settings file: `python3 scripts/facade.py --settings settings.yaml` ([facade](../docs/facade.md)).
+
+The lower-level command, once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path:
 
 ```
-python3 scripts/llm_guide.py --app <app root> --device-results <results root>/<device id> [--perf-mode generic|<keys>] [--device]
-python3 scripts/llm_guide.py --device-results <results root>/<device id>   # without --app: every apps.targets entry
+python3 -m perfrepair guide --app <app root> --device-results <results root>/<device id> [--perf-mode generic|<keys>] [--device]
+python3 -m perfrepair guide --device-results <results root>/<device id>   # without --app: every apps.targets entry
 ```
 
-`python3 -m perfrepair guide` takes the same arguments once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path. Without `--device` it ends at `harness.yaml`; `--device` needs an attached phone. Steps and stop codes: `docs/replacement.md`.
+Without `--device` it ends at `harness.yaml`; `--device` needs an attached phone. Steps and stop codes: `docs/replacement.md`.
 
 ## Docs
 

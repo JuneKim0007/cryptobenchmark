@@ -13,7 +13,7 @@ from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
 from scope import results as scope_results
-from stages import bundled
+from stages import bundled, config_check
 from stages.benchmark import measure_cases
 from stages.discover import device_discover, host_runtime
 from stages.harness import harness_run, measured_folder
@@ -78,6 +78,9 @@ def main():
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
     configuration = global_config(options.config)
+    # before any build; --identify runs no stage and starts no Gradle
+    if not options.identify:
+        config_check.parsed(configuration)
     dependencies.check(options, configuration)
     device = Device(ROOT, options.stream, options.stacktrace) if options.device else None
     if device:
@@ -97,7 +100,8 @@ def main():
     manifest(results, "device" if device else "host", configuration, files, problems)
 
 
-KNOWN = (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, scope_results.ScopeResultError, timeouts.StepTimeout)
+KNOWN = (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
+         scope_results.ScopeResultError, timeouts.StepTimeout)
 
 
 def failure_line(error):

@@ -1,4 +1,4 @@
-"""RunRecord: run.id, run.onExisting, the done marks it owns, and that no other module writes them."""
+"""RunRecord: the run id, onExisting, the done marks it owns, and that no other module writes them."""
 import re
 from pathlib import Path
 
@@ -117,3 +117,12 @@ def test_only_the_record_writes_the_run_record_and_the_done_marks():
     assert _writers(r'"run_\{') == ["run_dir/run_record.py"]
     assert _writers(r"\bwrite_device_record\b") == ["device/stage.py", "run_dir/__init__.py", "run_dir/run_record.py"]
     assert _writers(r"DEVICE\)\.unlink|DEVICE, yaml") == ["run_dir/run_record.py"]
+
+
+def test_the_settings_tree_is_stored_and_a_resume_without_one_keeps_it(tmp_path):
+    record = RunRecord.open(tmp_path, "one", settings={"tree": [{"key": "settings"}]})
+    record.close()
+    assert read_json(record.path)["settings"] == {"tree": [{"key": "settings"}]}
+    record = RunRecord.open(tmp_path, "one", RESUME)
+    record.close()
+    assert read_json(record.path)["settings"] == {"tree": [{"key": "settings"}]}

@@ -11,7 +11,7 @@ from ..log import emit
 from ..run_dir.run_record import FAILED, STOPPED
 from ..stop import halt_of
 from . import finished
-from .device_steps import DEVICE_LEVEL, summary
+from .device_steps import DEVICE_LEVEL, DEVICE_STAGE, summary
 from .run import Stopped, run_app, run_sequence, run_step
 from .state import Guide
 from .target_file import refused
@@ -110,13 +110,14 @@ def _emit(result: AppResult) -> None:
 def _device_stage(base: Guide) -> bool:
     """The device-level steps and their record; True when one stopped."""
     try:
-        stopped = run_sequence(base, DEVICE_LEVEL)
+        stopped = run_sequence(base, DEVICE_STAGE if base.stop_after_device else DEVICE_LEVEL)
     except KeyboardInterrupt:
         if base.record is not None:
             base.record.device_done(STOPPED, base.step, "interrupted")
         raise
     if base.record is not None:
         base.record.device_done(*((FAILED, stopped.step, f"{stopped.code}: {stopped.detail}") if stopped else ()))
+    base.stop_code = stopped.code if stopped else None
     return stopped is not None
 
 
@@ -133,6 +134,8 @@ def run_targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> in
 def _targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> int:
     if _device_stage(base):
         return 1
+    if base.stop_after_device:
+        return 0
     results = _refused(base)
     halted = None
     for root in roots:
@@ -143,6 +146,7 @@ def _targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> int:
         if result.interrupted:
             break
     run_step(base, "summary", summary)
+    base.stop_code = next((r.code for r in results if r.code), None)
     for result in results:
         base.echo(result.line)
     if any(r.interrupted for r in results):

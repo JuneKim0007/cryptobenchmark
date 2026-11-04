@@ -9,6 +9,7 @@
 |---|---|---|
 | `ProbeKt` (default) | `tools/jca-contract/gradlew -p tools/jca-contract run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
 | `ConfigureKt` | `... run -PmainClass=ConfigureKt --args="<probe> <trial> <configuration dir> [<global.yaml>] [--facts=<facts.yaml>]"` | inventory, effective |
+| `CheckConfigKt` | `... run -PmainClass=CheckConfigKt --args="<global.yaml>..."` | parses each file and its test set; prints `{global, testSet, bundled}` per file as YAML; a refusal is `error: <message>`, exit 1; nothing written |
 | `RuntimeFieldsKt` | `... run -PmainClass=RuntimeFieldsKt` | prints this JVM's runtime fields that the device id uses, as YAML |
 | `examples.ParametersKt` | no args, or one spec class | lists `AlgorithmParameterSpec` classes in `java.security.spec` and `javax.crypto.spec`; with a class, prints a parameters YAML block |
 | `examples.ReportKt` | `<type> <algorithm> <provider>`, default `Cipher AES SunJCE` | who serves the type and algorithm on this JVM |

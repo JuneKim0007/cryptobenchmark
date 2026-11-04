@@ -6,7 +6,7 @@ from device import facts
 from device.identity import capture_id, device_id
 from failure import fail
 from results import layout as results_layout
-from stages import bundled, capture_files
+from stages import bundled, capture_files, config_check
 from stages.took import elapsed
 
 
@@ -26,7 +26,7 @@ def discover(options, configuration, device, results):
     discovery.mkdir(parents=True, exist_ok=True)
 
     print(f"config:    {configuration}")
-    shipped = bundled.read(configuration)
+    shipped = config_check.parsed(configuration)["bundled"]
     if shipped and not device:
         print("warning: providers.bundled: only a --device run builds and installs bundled providers; this run measures the platform's")
     if device:

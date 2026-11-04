@@ -48,12 +48,12 @@
 | `number(x)` | `src/perfrepair/dto/units.py` | Significant figures, so a sub-unit value never rounds to 0 (64 B AES-CBC is 0.000662 ms). | ai.evaluate.worthiness.render, ai.suggest.site_replace.rows, report.markdown |
 | `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
-| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.run, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +24 |
+| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.run, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +25 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
 | `read_yaml(path)` | `src/perfrepair/files.py` | `yaml.safe_load(Path(path).read_text()) or {}` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +23 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.primitives, device.seen, device.stage, guide.device_steps +3 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.suggest.site_replace.kind, app.facts.path_id, guide.finished |
-| `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +15 |
+| `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +16 |
 | `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.primitives +8 |
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | device.primitives_missing, repair.edit.alone, repair.edit.app, repair.harness |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |

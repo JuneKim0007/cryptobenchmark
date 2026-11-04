@@ -1,4 +1,6 @@
-# Copy to perfrepair.yaml (git-ignored) or point --perfrepair-config / PERFREPAIR_CONFIG at a copy.
+# Copy to perfrepair.yaml (git-ignored); llm.config in settings.yaml names it for scripts/facade.py.
+# Directly, name a copy with --perfrepair-config or PERFREPAIR_CONFIG. The results root, the benchmark's global.yaml and
+# the run's id are in settings.yaml, or the guide's flags: a value for one of them here is a placement error.
 # Every key is optional; a missing or null key falls through to the next layer:
 #   CLI flag > a role section here (device.grouping.assign, device.grouping.supervisor, device.screening.classify,
 #   device.worthiness, apps.agent, apps.replace) > environment (PERFREPAIR_*) > the gateway's block here > .env
@@ -6,7 +8,7 @@
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
-# A bad value here warns and uses the default, except device.id, device.screening.catalog, aiGateway.use/auth and run.*,
+# A bad value here warns and uses the default, except device.id, device.screening.catalog and aiGateway.use/auth,
 # which stop the command; a key nothing reads warns. docs/settings.md lists every key.
 
 aiGateway:                 # shared: every model-calling command
@@ -19,7 +21,6 @@ aiGateway:                 # shared: every model-calling command
     binary:                # the CLI for auth subscription; empty = claude
 
 paths:                     # shared
-  results:                 # the results root, <root>/<device id>/; every command's folder when --device-results is unset
   prompts:                 # default --prompts of every model-calling command
 
 device:                    # once per device
@@ -34,15 +35,13 @@ device:                    # once per device
     noRerun: true          # guide: true asks only items with no decision; false asks every item into a new outbox
     assign: {}             # role keys: gateway, model, effort; effort here sets this role only
     supervisor: {}
-  benchmark:
-    config:                # cryptobenchmark global.yaml for the guide's device step
   filterByApps: true       # guide: group and measure only the items the target apps use and their options; false = every item
   ## to check primitives skipped or stopped due to not downloading them go <device>/log/details/primitives_missing.yaml
   bundled:                 # guide, with filterByApps: providers the target apps ship that the device lacks
     onMissing: warn        # warn: logged, the run goes on | stop: bundled_missing before the benchmark
     # NOT RECOMMENDED: apply. Prepare providers.bundled yourself before the device run.
     fromApps: off          # off | suggest: write <device>/bundled-suggestions.yaml | apply: also build its matched rows in
-  id:                      # the folder under paths.results; needed when it holds several; a device not there is an error
+  id:                      # the folder under the results root; needed when it holds several; a device not there is an error
   worthiness: {}           # role keys of `ai worthiness`
 
 apps:                      # per app: the guide, `ai replace`
@@ -50,15 +49,10 @@ apps:                      # per app: the guide, `ai replace`
   targets: []              # without --app: [{root: dir}, {path: dir, perfMode: ...}, dir] or a file of that list (targets.example.yaml); relative to this file
   perfMode: generic        # generic or all (every metric, overall judgement) | a list of latency, throughput, memAlloc, energy (strict rule)
   limit:                   # scopes the guide asks the model about; empty = all
-  benchmarkConfig:         # global.yaml for the per-app device step; empty = device.benchmark.config
   measure: false           # true: the guide also measures the harness on the attached phone
   maxChange: drop-in       # highest change class the guide may apply: drop-in | local-edit | migration; higher ones are reported
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`
-
-run:                       # the guide's record of one run: results/<device id>/runs/run_<id>.json
-  id:                      # empty = a new timestamp id, YYYYMMDDTHHMMSSZ; a named id that has a record follows onExisting
-  onExisting: overwrite    # overwrite: every app and the device benchmark rerun | resume: done apps skipped | skip: run_exists
 
 timeouts:                  # seconds a child process may run before it is killed with its children
   claude: 3600             # one claude -p call; past it claude_cli_timeout

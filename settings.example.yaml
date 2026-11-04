@@ -1,0 +1,16 @@
+# Copy to settings.yaml (git-ignored); run: python3 scripts/facade.py --settings settings.yaml [--check]
+# An index of paths and of what spans a whole run. Relative paths resolve against the file holding them.
+# Direction: this file -> crypto or llm -> their sub-files -> catalogs; never sideways, never upward. A key not below is an error.
+schemaVersion: 1                 # required
+results: results                 # required: the results root, <root>/<device id>/; created when absent
+
+run:                             # the record of this run: <root>/<device id>/runs/run_<id>.json
+  id:                            # empty = a new timestamp id; a named id that has a record follows onExisting
+  onExisting: overwrite          # overwrite: every app and the benchmark rerun | resume: done apps skipped | skip: run_exists
+
+crypto:
+  config: config/global.yaml     # required: -> selection.testSet -> testsets/*.yaml
+  harnessConfig:                 # optional: a lighter global.yaml for the per-app before/after run
+
+llm:
+  config: perf-repair/perfrepair.yaml   # required: a copy of perfrepair.example.yaml -> apps.targets, device.screening.catalog, paths.prompts

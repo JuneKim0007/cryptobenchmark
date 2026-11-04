@@ -59,7 +59,7 @@ class Guide:
     target_set: TargetSet | None = None
     # the running step's name, set by run_step, so a stop's line says where
     step: str | None = None
-    # run.id (None: a timestamp) and run.onExisting; the record opens once the device folder is known
+    # --run-id (None: a timestamp) and --on-existing; the record opens once the device folder is known
     run_id: str | None = None
     on_existing: str = OVERWRITE
     record: RunRecord | None = None
@@ -67,6 +67,11 @@ class Guide:
     unasked: int = 0
     # shared by every app's copy: what this run found unavailable
     missing: MissingList = field(default_factory=MissingList)
+    stop_after_device: bool = False
+    # the facade's settings tree and digests, kept in the record
+    run_settings: dict | None = None
+    # the code of the device step or the first app that stopped, for --outcome
+    stop_code: str | None = None
 
     @property
     def app_id(self) -> str | None:

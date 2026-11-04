@@ -5,12 +5,10 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.effective.ReportDocument
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.Report
-import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
-import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.settings.Facts
@@ -41,11 +39,7 @@ class Configuration(
     fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null): File {
         Files.deleteIfExists(effectiveFile.toPath())
         Files.deleteIfExists(reportFile.toPath())
-        val global = files.at(globalFile, GlobalDocument).read()
-        val named = File(global.selection.testSet)
-        val testSetFile = if (named.isAbsolute) named else File(globalFile.absoluteFile.parentFile, global.selection.testSet)
-        require(testSetFile.isFile) { "missing_file: ${testSetFile.path} (${globalFile.name} selection.testSet: ${global.selection.testSet})" }
-        val testSet = files.at(testSetFile, TestSetDocument).read()
+        val (global, testSet) = AuthoredFiles(files).read(globalFile)
         val inventory = files.at(inventoryFile, InventoryDocument).read()
         val facts = factsFile?.let(::readFacts) ?: Facts.UNKNOWN
         val effective = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name), facts)

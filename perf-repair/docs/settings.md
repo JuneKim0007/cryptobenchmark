@@ -5,6 +5,7 @@
 | file | tracked | holds |
 |---|---|---|
 | `perfrepair.yaml` | no | the settings below; template `perfrepair.example.yaml` |
+| `settings.yaml` | no | at the repository root: the index of a facade run, and the keys `placement` names ([facade.md](../../docs/facade.md)) |
 | `.env` | no | `PERFREPAIR_AGENT`, `PERFREPAIR_AUTH`, `PERFREPAIR_MODEL`, `PERFREPAIR_EFFORT`, `ANTHROPIC_API_KEY`; template `.env.example` |
 
 - Settings file lookup: `--perfrepair-config FILE`, then `$PERFREPAIR_CONFIG`, then `perf-repair/perfrepair.yaml`; never the working directory. A file named by the flag or `PERFREPAIR_CONFIG` that does not exist exits 2 with `missing_file`.
@@ -30,7 +31,7 @@
 
 ## Keys
 
-- Sections: `aiGateway`, `paths` and `timeouts` are shared, `device` is once per device, `apps` is per app, `stops` per code ([stops.md](stops.md)).
+- Sections: `aiGateway`, `paths` (`prompts`) and `timeouts` are shared, `device` is once per device, `apps` is per app, `stops` per code ([stops.md](stops.md)).
 - Every key is a row in `inputs/table.py`: its chain, check, default and `OnInvalid`. A setting ships only with the code that reads it; `tests/test_settings_rows.py` fails on a row without exactly one reader and on an example key with no row.
 
 | key | values | default | on a bad value | used by |
@@ -40,25 +41,21 @@
 | `aiGateway.claude.model` | a model id | `claude-opus-5-5` | warning | `--model`; `PERFREPAIR_MODEL` |
 | `aiGateway.claude.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | warning | `--effort`; `PERFREPAIR_EFFORT` |
 | `aiGateway.claude.binary` | a command | `claude` | warning | the CLI of `auth: subscription` |
-| `paths.results` | the results root | none | warning | every command's device folder when `--device-results` is unset: `<root>/<device.id>`, else its only device; the guide without either calls probe_device() on the root (`docs/pipeline.md` Device stage); a rebuild beside later stages fails their `built` digests instead of passing silently |
 | `paths.prompts` | a folder | packaged prompts | warning | `--prompts` |
-| `device.id` | a folder under `paths.results` | its only device | error | the same; a fallback would read another device's numbers |
+| `device.id` | a folder under `--results-root` | its only device | error | every command's device folder when `--device-results` is unset; a fallback would read another device's numbers |
 | `device.screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | error | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
 | `device.screening.aiReview` | `true`, `false` | `false` | warning | `grouping build`: the model review of unknown items |
 | `device.grouping.turns`, `device.grouping.sessions` | positive integers | 3, 2 | warning | `grouping assign` |
 | `device.grouping.limit` | a positive integer | all items | warning | `grouping assign --limit` |
 | `device.grouping.noRerun` | `true`, `false` | `true` | warning | the guide's grouping step (`device/coverage.py`): `true` asks only items with no decision, `false` asks every item into a new outbox, one more each run. Coverage is computed each run, so knowledge that is missing is asked under either |
-| `device.benchmark.config` | a `global.yaml` | `pipeline.py`'s lookup | warning | `guide --config`: the device stage and the device step |
 | `device.filterByApps` | `true`, `false` | `true` | warning | the guide (`guide/device_steps.py` prerequisites): `true` detects the targets on the probe, writes `used.json` and has the device stage measure, and grouping ask, only the items they use and their options; `false` removes `used.json`, every item is asked and the base selection measured ([used-set.md](used-set.md)) |
 | `device.bundled.onMissing` | `warn`, `stop` | `warn` | warning | the device stage with `device.filterByApps` (`device/bundled.py`), the older name of `stops.bundled_missing`, read while that is unset: a provider a target app ships, neither on the device nor in `providers.bundled`; `stop` ends the guide with `bundled_missing` before the benchmark, listing each with its apps and coordinates; `warn` logs it and goes on ([used-set.md](used-set.md) Bundled providers) |
 | `device.bundled.fromApps` | `off`, `suggest`, `apply` | `off` | warning | the same step: `suggest` writes `<device>/bundled-suggestions.yaml` from `catalog/bundled-providers.yaml`; `apply` also builds its matched, unblocked rows into the generated config at the app's pinned version, on a `--device` run only. Not recommended: prepare `providers.bundled` yourself |
 | `apps.targets` | a list of `{root: ...}`, `{path: ...}` (each with an optional `perfMode`) or bare paths, relative to the file; or a string: a targets file of that list ([targets.md](targets.md)) | none | warning | `guide` without `--app`: every app the entries resolve to, in order, the rest skipped with their reason; `--app` runs one; an entry's `perfMode` (as `apps.perfMode`) is that app's for its dossier, verdict, report and `finished.json`; `--perf-mode` outranks it; the device stage checks the union |
 | `apps.perfMode` | `generic` or `all` (every registry key, overall judgement), or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers, the replace render and the report's selected marks carry; owns `run.metrics` of the benchmark and the device step ([pipeline.md](pipeline.md) Device stage), a differing `run.metrics` warns |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
-| `apps.benchmarkConfig` | a `global.yaml` | `device.benchmark.config` | warning | the guide's per-app device step (`guide/app_steps.py` device): its harness run only; the device stage keeps `device.benchmark.config`, so a lighter app config reruns no device benchmark |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
 | `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
-| `run.id`, `run.onExisting` | an id of letters, digits, `.`, `_`, `-`; `overwrite`, `resume`, `skip` | a new timestamp id; `overwrite` | error | the guide's run record `runs/run_<id>.json`; a named id whose record exists: `overwrite` reruns every app and the device benchmark, `resume` reuses done apps, `skip` stops with `run_exists` ([artifacts.md](artifacts.md#run-record)) |
 | `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.thermal_mismatch`, `stops.category_mismatch`, `stops.thermal_throttled_at_end`, `stops.no_required_metric` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires; `device.bundled.onMissing` is `stops.bundled_missing` while that is unset |
 
@@ -100,7 +97,8 @@
 | `invalid_yaml: <file>` | the file is not YAML, so no secret check is possible |
 | `missing_file: <file> (<origin>)` | the flag or `PERFREPAIR_CONFIG` names no file |
 | `missing_file: <input>: <value> (<source>)` | a set `device.screening.catalog` does not load |
-| `several_device_results`, `device_not_in_results`, `no_device_results`, `not_device_results` | `paths.results` does not name one device: [artifacts.md](artifacts.md#folders) |
+| `several_device_results`, `device_not_in_results`, `no_device_results`, `not_device_results` | `--results-root` does not name one device: [artifacts.md](artifacts.md#folders) |
+| `placement: <key> is no perfrepair.yaml key; set <place>` | `paths.results`, `device.benchmark.config`, `apps.benchmarkConfig`, `run.id` or `run.onExisting` has a value: exit 2 on every command |
 
 - A key no row knows is one warning, `unknown_key: <key>, known [...] (<file>)`, a key from before the sections (`grouping`, `guide`, `ai`, `screening`) included; a block's key is checked at spawn.
 - `secret_key`, `invalid_yaml` and a named file that is missing exit 2 through the command's argument parser, the first two ending with ` (<file>)`.

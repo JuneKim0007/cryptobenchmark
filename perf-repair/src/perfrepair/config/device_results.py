@@ -1,4 +1,4 @@
-"""Which device folder a command works on: --device-results, else paths.results with device.id or its only device."""
+"""Which device folder a command works on: --device-results, else --results-root with device.id or its only device."""
 from __future__ import annotations
 
 import argparse
@@ -8,18 +8,19 @@ import tempfile
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..inputs.table import DEVICE_ID, PATHS_RESULTS
+from ..inputs.table import DEVICE_ID
 from ..stop.halt import Coded
 from .args import load_settings
 from .load import Loaded
 
 LOG = logging.getLogger(__name__)
 TEMP_ROOTS = ("/tmp", "/var/tmp", "/var/folders")
-HELP = "the device's results folder, <results root>/<device id>; default: paths.results, with device.id when it holds several"
+HELP = "the device's results folder, <results root>/<device id>; default: --results-root, with device.id when it holds several"
 
 
 def add_device_results_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--device-results", type=Path, help=HELP)
+    parser.add_argument("--results-root", type=Path, metavar="DIR", help="the results root, <DIR>/<device id>")
 
 
 def select_device(root: Path, wanted: str | None) -> Path:
@@ -41,11 +42,10 @@ def _warn_if_temp(folder: Path) -> None:
         LOG.warning("results_in_temp: %s is under a temporary folder the system may wipe; keep results elsewhere", folder)
 
 
-def _results_root(parser: argparse.ArgumentParser, loaded: Loaded) -> Path:
-    root = loaded.read(PATHS_RESULTS)
-    if root is None:
-        parser.error(f"the following arguments are required: --device-results (or {PATHS_RESULTS.key} in perfrepair.yaml)")
-    return Path(root).expanduser()
+def _results_root(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Path:
+    if args.results_root is None:
+        parser.error("the following arguments are required: --device-results (or --results-root)")
+    return args.results_root.expanduser()
 
 
 def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded) -> Path | None:
@@ -53,7 +53,7 @@ def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loade
     if args.device_results is not None or loaded.read(DEVICE_ID):
         fill_device_results(parser, args, loaded)
         return None
-    root = _results_root(parser, loaded)
+    root = _results_root(parser, args)
     _warn_if_temp(root)
     return root
 
@@ -69,7 +69,7 @@ def _unfinished(folder: Path) -> bool:
 def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded | None = None) -> None:
     if args.device_results is None:
         loaded = loaded or load_settings(parser, args)
-        args.device_results = select_device(_results_root(parser, loaded), loaded.read(DEVICE_ID))
+        args.device_results = select_device(_results_root(parser, args), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
     if rd.device_folders(args.device_results) or _unfinished(args.device_results):
         raise Coded(rd.not_device_results(args.device_results))

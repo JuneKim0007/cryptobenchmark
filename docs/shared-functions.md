@@ -18,14 +18,14 @@
 | `guarded(problems, step)` | `scripts/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `source(effective, python, stacktrace)` | `scripts/energy_stage.py` | `SOURCES[source_name(effective)](Host(python, stacktrace, android_home() / 'platform-tools', ...` | stages.benchmark, stages.harness |
 | `fail(message)` | `scripts/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +8 |
-| `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, pipeline, stages.benchmark |
+| `one_line(error)` | `scripts/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade, gradle_runner, pipeline +1 |
 | `global_config(argument)` | `scripts/global_file.py` | - | dependencies, pipeline |
 | `run(project, arguments, stacktrace, stream, main_class, notices)` | `scripts/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
 | `map_blocks(path, text)` | `scripts/lint/markdown.py` | - | docs_lint, lint.tree |
 | `is_doc(path)` | `scripts/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |
 | `join(base, rel)` | `scripts/lint/paths.py` | `posixpath.normpath(posixpath.join(base, rel)) if base else posixpath.normpath(rel)` | docs_lint, lint.tree |
 | `router_of(path)` | `scripts/lint/paths.py` | `next((r for r in ROUTERS if r and path.startswith(r + '/')), '')` | docs_lint, lint.tree |
-| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, device.facts, energy_stage, explain +9 |
+| `ROOT` | `scripts/repo.py` | `pathlib.Path(__file__).resolve().parent.parent` | dependencies, device.facts, energy_stage, explain +10 |
 | `publish(stage, target, discovery_mode)` | `scripts/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
 | `staged(root)` | `scripts/results/layout.py` | - | stages.discover, stages.interop |
 | `warn_if_temp(path)` | `scripts/results/layout.py` | - | pipeline, stages.harness |
@@ -42,7 +42,7 @@
 | `read(document, captures)` | `scripts/session/passes.py` | The run's passes in the order written; none configured is the single pass. | stages.benchmark, stages.harness |
 | `run_all(chosen, repetitions, root, measure_one, options)` | `scripts/session/passes.py` | measure_one(pass, folder, written) runs one pass's session; returns the per-process files the manifest lists. | stages.benchmark, stages.harness |
 | `run(device, test_class, arguments, planned, cases, document)` | `scripts/session/warmup.py` | One process over the chosen cases; a failure warns and the session goes on. Returns the cases it ran. | stages.benchmark, stages.harness |
-| `read(global_file)` | `scripts/stages/bundled.py` | - | results.run_inputs, stages.discover |
+| `parsed(global_file)` | `scripts/stages/config_check.py` | `parse_all([pathlib.Path(global_file)])[0]` | pipeline, stages.discover |
 | `convert(run, arguments)` | `scripts/stages/measuring.py` | ConvertKt on one process; a case that did not get the samples it asked for is a problem the manifest records. | stages.benchmark, stages.harness |
 | `energy_preflight(options, source, session, discovery, files)` | `scripts/stages/measuring.py` | - | stages.benchmark, stages.harness |
 | `gated(run, document)` | `scripts/stages/measuring.py` | `dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))` | stages.benchmark, stages.harness |
