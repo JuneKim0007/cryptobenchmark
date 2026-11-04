@@ -16,3 +16,5 @@ files:
   benchmark: benchmark/benchmark.json
 counts: {prepared: 4, skipped: 3, measured: 3}
 retried: [d_slow]
+operations: {Cipher: [ENCRYPT, DECRYPT], Signature: [SIGN, VERIFY], Mac: [COMPUTE_MAC], MessageDigest: [DIGEST],
+  KeyGenerator: [GENERATE_KEY], KeyPairGenerator: [GENERATE_KEY_PAIR], KeyAgreement: [AGREE_KEY]}

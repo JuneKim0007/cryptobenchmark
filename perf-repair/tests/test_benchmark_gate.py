@@ -117,6 +117,12 @@ def test_a_metric_the_case_planned_and_lacks_is_partial(device):
     assert seen.items() == {GCM_SLOW: PARTIAL} and seen.gaps[0].metric == "allocationCount" and seen.measured == 1
 
 
+def test_the_operations_come_from_the_benchmarks_manifest(device):
+    manifest = read_yaml(device / rd.MANIFEST)
+    (device / rd.MANIFEST).write_text(yaml.safe_dump({**manifest, "operations": {"Cipher": ["ENCRYPT"]}}, sort_keys=False))
+    assert check(device, SHA).items() == {SHA: NO_OPERATION} and check(device, GCM).items() == {GCM: MEASURED}
+
+
 def test_a_type_with_no_harness_operation_is_coded_from_the_harness_list(device):
     seen = check(device, "SecureRandom|X|Fast")
     assert seen.items() == {"SecureRandom|X|Fast": NO_OPERATION} and seen.delta() == ()

@@ -139,6 +139,13 @@ def test_the_display_units_are_recorded_from_effective_yaml():
         assert written(results, "host", files)["units"] == {"latency": "us", "throughput": "ops/s"}
 
 
+def test_the_harness_operations_per_engine_type_are_recorded():
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        operations = written(results, "host", layout(results, measured=False))["operations"]
+        assert operations["Cipher"] == ["ENCRYPT", "DECRYPT"] and "TYPE_DEFAULT" not in str(operations)
+
+
 if __name__ == "__main__":
     tests = [value for name, value in sorted(globals().items()) if name.startswith("test_")]
     for test in tests:

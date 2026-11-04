@@ -137,7 +137,7 @@ The device items the target apps need, and which app needs each; code joins site
 | `runtime` | benchmark.json's runtime; the probe's when nothing was measured |
 | `providers[]` | `{name, precedence, serviceCount}` in precedence order |
 | `files` | paths relative to the manifest: probe, trial, inventory, effective, prepared, skipped, benchmark, processes[]; a stage that did not run is absent |
-| `counts` | prepared, skipped, measured, for the files that exist |
+| `counts`, `operations` | prepared, skipped, measured, for the files that exist; `operations`: per engine type the operations the harness times; a type absent has none (the gate's `no_operation`); absent before cryptobenchmark recorded it, the gate then skips that class |
 | `units` | `analysis.units`: `latency` (`ms`, `us`, `ns`), `throughput` (`MB/s`, `MiB/s`, `ops/s`); display only; absent before cryptobenchmark recorded it, read as `ms`, `MB/s`; another value fails the read `invalid: manifest units` |
 
 ## `run_log.json` statuses

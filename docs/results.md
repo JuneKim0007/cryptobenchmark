@@ -65,6 +65,7 @@ Paths relative to the device folder.
 | `providers` | `name`, `precedence`, `serviceCount`, sorted by precedence |
 | `files` | stage outputs, paths relative to the device folder |
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
+| `operations` | per engine type the operations the harness times, from preparation's `engine-operations.yaml`; a type absent falls back to `TYPE_DEFAULT`, which times nothing |
 
 - `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`, `scoped`; `--interop` adds `interopPlan`, `interop`.
 - A key is absent when its stage did not run.

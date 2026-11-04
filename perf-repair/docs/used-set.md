@@ -38,7 +38,7 @@ flowchart LR
 | `refused` | the run log has it `skipped` or `not_runnable` (provider refusal, `not_repeatable`, the keystore provisioning gap) | coded |
 | `partial` | the case has rows, not this metric (`metric_missing`), or another variant of it has rows, not this one (`variant_missing`) | the delta: a partial-only delta keeps of `run.variants` the gaps' variants and of `run.passes` timing and the missing metrics' passes; the merge adds the missing metric to the stored case beside its untouched runs, `deltas[].filled`, the case reading as the delta's session |
 | `low_quality` | fewer runs than `MIN_RUNS` (`result/estimate.py`, the floor pImprove needs) | coded: the run block set the samples, so a delta under the same setup measures as few; no estimate, no stop |
-| `no_operation` | the type falls back to `TYPE_DEFAULT` in the harness's `engine-operations.yaml` (`catalog/harness_operations.py`) | coded |
+| `no_operation` | the type has no operations in the benchmark's `manifest.yaml` `operations`, the harness's list per engine type; a manifest without it skips this class | coded |
 
 | step | rule |
 |---|---|

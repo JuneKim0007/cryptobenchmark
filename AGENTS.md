@@ -88,7 +88,7 @@ scripts/repo.py : the repository root every script resolves its paths against
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
 scripts/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
 scripts/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, the temporary-folder warning
-scripts/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, energy mark, problems; files added beside a finished run
+scripts/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems; files added beside a finished run
 scripts/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 scripts/results/select.py : the device folder of a results root a reader names, or the only one there
 scripts/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts

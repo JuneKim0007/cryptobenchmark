@@ -4,7 +4,10 @@ import json
 from device import clocks
 from device.identity import device_id
 from results import layout as results_layout
+from repo import ROOT
 from results import run_inputs
+
+ENGINE_OPERATIONS = ROOT / "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml"
 
 
 def runtime(measured, probe, files):
@@ -29,6 +32,12 @@ def estimated_mark(energy_files):
     documents = [json.loads(path.read_text()) for path in paths]
     sources = sorted({d["source"] for d in documents if d.get("kind") == "estimated"})
     return {"energy": {"source": ", ".join(sources), "kind": "estimated"}} if sources else {}
+
+
+def operations():
+    """Per engine type the operations the harness times, so a reader of the run needs no path into this repository."""
+    import yaml
+    return {t: list(ops) for t, ops in (yaml.safe_load(ENGINE_OPERATIONS.read_text()).get("types") or {}).items()}
 
 
 def survived(problems):
@@ -56,6 +65,7 @@ def manifest(results, mode, configuration, files, problems=()):
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
+        "operations": operations(),
     } | units(files) | estimated_mark(files.get("energy")) | survived(problems)
     path = results / results_layout.MANIFEST
     results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))

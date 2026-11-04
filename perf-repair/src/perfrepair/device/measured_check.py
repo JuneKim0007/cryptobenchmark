@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.harness_operations import operations_of
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
 from ..dto.benchmark_coverage import (
@@ -57,6 +56,7 @@ class _Run:
 
     def __init__(self, device: Path):
         manifest, base = read_manifest(device / rd.MANIFEST)
+        self.manifest = manifest
         prepared = manifest_file(manifest, base, "prepared")
         cases = (read_yaml(prepared).get("cases") or []) if prepared else []
         self.rows = {r.rowId: r for r in rd.load_rows(device)}
@@ -112,7 +112,7 @@ def measured_check(device: Path, used: frozenset[str], perf: PerfMode) -> Covera
     run = _Run(device)
     measured, gaps = 0, []
     for item in sorted(used):
-        if not operations_of(parse_qualified(item)[0]):
+        if run.manifest.operations_of(parse_qualified(item)[0]) == ():
             gaps.append(Gap(item, ANY, ANY, None, None, ANY, NO_OPERATION, NO_HARNESS_OPERATION))
             continue
         cases = run.planned.get(item)

@@ -97,7 +97,7 @@ modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian exp
 modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
 modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
-modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; perf-repair's catalog/harness_operations.py reads it too
+modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; scripts/results/manifest.py copies the types into each run's manifest.yaml `operations`
 modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type and cipher mode, what a fixed call still does; JCA contract per row
 modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
