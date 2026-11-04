@@ -1,5 +1,5 @@
 """isolation: case: one instrumentation process per case, so a case that kills its process loses only itself."""
-import json, re
+import re
 
 import timeouts
 from device.adb import ONE_PASSED
@@ -13,30 +13,21 @@ def listed(output):
     return list(dict.fromkeys(LISTED.findall(output)))
 
 
-def merged(documents):
-    """One benchmarkData.json from one per process: the first process's context, every process's benchmarks."""
-    return {"context": documents[0].get("context") or {},
-            "benchmarks": [benchmark for document in documents for benchmark in document.get("benchmarks") or []]}
-
-
 def one_line(text):
     return " ".join(text.split())[:500] or "no output"
 
 
 def measure_case(device, test_class, arguments, case, pulled):
-    """(benchmarkData document or None, failure line or None) for one case in its own process."""
+    """None, or the failure line, for one case in its own process; its benchmarkData stays at pulled."""
     device.shell(f"rm -f {device.data}")
-    pulled.unlink(missing_ok=True)
     try:
         output = device.instrument(test_class, *arguments, "-e", CASE_ARGUMENT, case, step="case")
     except timeouts.StepTimeout as error:
         # killing adb leaves the test running on the device; the next case must not start beside it
         device.force_stop()
-        return None, f"case_failed: {case}: {error}"
+        return f"case_failed: {case}: {error}"
     if not ONE_PASSED.search(output):
-        return None, f"case_failed: {case}: {one_line(device.report(output))}"
+        return f"case_failed: {case}: {one_line(device.report(output))}"
     if device.run("pull", device.data, str(pulled), check=False).returncode != 0 or not pulled.is_file():
-        return None, f"case_failed: {case}: no benchmarkData.json after a passing run"
-    document = json.loads(pulled.read_text())
-    pulled.unlink()
-    return document, None
+        return f"case_failed: {case}: no benchmarkData.json after a passing run"
+    return None

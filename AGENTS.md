@@ -75,7 +75,8 @@ scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` 
 scripts/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/repo.py : the repository root every script resolves its paths against
 scripts/requirements.txt : host Python dependencies
-scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection
+scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
+scripts/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
 scripts/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, the temporary-folder warning
 scripts/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, energy mark, problems; files added beside a finished run
 scripts/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
@@ -93,11 +94,11 @@ scripts/scope/signature.py : Java method and Kotlin function header parser; head
 scripts/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
 scripts/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
-scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
+scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
 scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 scripts/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 scripts/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
-scripts/session/measure.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks; a process repetition's folder and line
+scripts/session/measure.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
 scripts/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baseline once before the warm-up, then a wait before each case process while the device is hotter, one line per pass
 scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass

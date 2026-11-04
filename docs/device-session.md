@@ -115,9 +115,11 @@ What it does not fix:
 
 | `run.isolation` | printed | what runs |
 |---|---|---|
-| `case` (default) | `measure:   one process per case (<n> cases, isolation: case)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it and joined into one (the first process's `context`, every process's `benchmarks`) |
+| `case` (default) | `measure:   one process per case (<n> cases, isolation: case)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it to `cases/<id>.json` in the process folder and kept; the process's `benchmarkData.json` is merged from those files once every case ran (the first case's `context`, every case's `benchmarks`, in run order) |
 | `run` | `measure:   one process for every case (isolation: run)` | one `am instrument` holding every timed case |
 
+- Progress: after each case `case:      <n> of <m> <id> ok` or `... failed`.
+- `cases/`: emptied when a process starts; a stopped run keeps the files of the cases it finished.
 - Device time: a process per case costs about 1 to 2 s of instrumentation start plus the plan's preparation on the device, per case and per pass.
 
 - Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.

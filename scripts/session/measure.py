@@ -1,8 +1,9 @@
 """One measuring session on the device, shared by the benchmark and the before/after run: processes over repetitions, a process per case or
 one for all, and hooks around the session, each process and each case."""
-import dataclasses, json, pathlib, re
+import dataclasses, pathlib, re
 
 import effective_view
+from results import case_files
 from session import case_isolation
 from device.adb import PASSED, DeviceError
 
@@ -131,21 +132,23 @@ def planned(device, plan):
 def each_case(device, plan, process, hooks):
     process.cases = plan.order(process.repetition, planned(device, plan))
     print(f"measure:   one process per case ({len(process.cases)} cases, isolation: case)")
-    documents = []
-    for case in process.cases:
+    case_files.cleared(process.into)
+    measured = []
+    for number, case in enumerate(process.cases, 1):
         for hook in hooks:
             hook.before_case(process, case)
-        document, failure = case_isolation.measure_case(device, plan.test_class, plan.arguments, case, process.into / f".{case}.json")
+        failure = case_isolation.measure_case(device, plan.test_class, plan.arguments, case, case_files.path(process.into, case))
         for hook in reversed(hooks):
             hook.after_case(process, case, failure)
-        if document is not None:
-            documents.append(document)
+        print(f"case:      {number} of {len(process.cases)} {case} {'failed' if failure else 'ok'}")
         if failure:
             print(failure)
             process.failures.append(failure)
-    if not documents:
+        else:
+            measured.append(case)
+    if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))
-    process.data.write_text(json.dumps(case_isolation.merged(documents), indent=1))
+    case_files.merge(process.into, measured, process.data)
 
 
 def all_cases(device, plan, process):
