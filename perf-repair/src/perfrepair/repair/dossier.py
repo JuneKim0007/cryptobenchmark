@@ -26,8 +26,8 @@ from ..result.dossier import available_providers, build_dossiers
 from ..result.provider_path import SiteProviders, site_providers
 from ..result.unit_dossiers import by_unit
 from ..validation import require, validate_measurements
-from ..validation.dossier_units import validate_dossier_units
-from ..validation.dossiers import validate_dossiers
+from ..validation.dossiers.units import validate_dossier_units
+from ..validation.dossiers.against_run import validate_dossiers
 
 
 def _canonical(catalog: Catalog, engine_type: str, name: str) -> str | None:

@@ -28,7 +28,7 @@ from perfrepair.guide.steps import DEVICE_LEVEL, Guide
 from helpers import LATENCY
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
-from perfrepair.validation.dossiers import parse_dossiers
+from perfrepair.validation.dossiers.parse import parse_dossiers
 from perfrepair.validation.suggest.site_replace import check_reply, required_kinds, takes
 from perfrepair.screen.catalog import screening_catalog
 from perfrepair.app.facts.path_id import path_id

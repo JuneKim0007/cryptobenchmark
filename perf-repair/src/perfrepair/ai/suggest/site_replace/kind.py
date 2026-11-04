@@ -13,7 +13,9 @@ from ....dto.replacement import Replacement
 from ....dto.unit import UnitDossiers
 from ....dto.units import DisplayUnits
 from ....files import json_text, sha256_text, write_json
-from ....validation.dossiers import check_dossier, parse_dossiers, perf_of
+from ....validation.dossiers.dossier import check_dossier
+from ....validation.dossiers.parse import parse_dossiers
+from ....validation.dossiers.document import perf_of
 from ....validation.suggest.site_replace import check_reply
 from ....validation.replacements import consistent_units, validate_replacements
 from ...runtime.engine.kind import replay_problems

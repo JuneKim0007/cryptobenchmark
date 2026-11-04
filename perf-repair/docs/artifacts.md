@@ -51,7 +51,7 @@
 | `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
-| `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers.py` and `validation/dossier_units.py`, before writing: schema 6 (estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
+| `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers/`, before writing: schema 6 (estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | `<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |

@@ -11,7 +11,7 @@ from perfrepair.dto.lifecycle import Lifecycle, Step
 from perfrepair.dto.dossier import Dossier
 from perfrepair.dto.unit import Unit, UnitDossiers, unit_id
 from perfrepair.result.primitives import build_table
-from perfrepair.validation.dossiers import validate_dossiers
+from perfrepair.validation.dossiers.against_run import validate_dossiers
 
 # the fixed variant: the option halves the time, where notFixed shows 0.8
 FIXED = [replace(r, rowId=f"{r.rowId}_fixed", variant="fixed", perCall="operation") for r in ROWS]

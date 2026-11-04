@@ -25,8 +25,8 @@ from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES, OutboxError, activ
 from ..result.evidence import build_evidence
 from ..dto.perf_mode import PerfMode
 from ..result.modes import mode_of
-from ..validation.dossier_units import validate_dossier_units
-from ..validation.dossiers import validate_dossiers
+from ..validation.dossiers.units import validate_dossier_units
+from ..validation.dossiers.against_run import validate_dossiers
 from ..validation.events import validate_events
 from ..validation.app import validate_app_dir
 from ..validation.failure import ValidationFailed

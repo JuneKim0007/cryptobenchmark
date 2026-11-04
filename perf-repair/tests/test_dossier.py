@@ -21,9 +21,9 @@ from perfrepair.dto.dossier import PROVIDER_HELD_KEY
 from perfrepair.dto.unit import Link, Unit, unit_id
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.result.unit_dossiers import by_unit
-from perfrepair.validation.dossier_units import validate_dossier_units
+from perfrepair.validation.dossiers.units import validate_dossier_units
 from perfrepair.screen.catalog import load_catalog
-from perfrepair.validation.dossiers import validate_dossiers
+from perfrepair.validation.dossiers.against_run import validate_dossiers
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
 

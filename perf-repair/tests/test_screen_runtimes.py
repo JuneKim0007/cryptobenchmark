@@ -21,7 +21,7 @@ from perfrepair.grouping.build.items import build
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.screen.groups import code_group_id, code_groups
 from perfrepair.screen.handler import ScreeningHandler
-from perfrepair.validation.dossiers import validate_dossiers
+from perfrepair.validation.dossiers.against_run import validate_dossiers
 from perfrepair.validation.screen import validate_screen
 
 ROOT = Path(__file__).parent / "fixtures" / "runtimes"

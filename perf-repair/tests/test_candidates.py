@@ -18,7 +18,8 @@ from perfrepair.report.recommendations import recommendations, summed
 from perfrepair.result.candidates import Family
 from perfrepair.result.dossier import available_providers, build_dossiers
 from perfrepair.result.gain import no_gain
-from perfrepair.validation.dossiers import check_dossier, validate_dossiers
+from perfrepair.validation.dossiers.against_run import validate_dossiers
+from perfrepair.validation.dossiers.dossier import check_dossier
 from perfrepair.validation.report import _recommendations
 from perfrepair.validation.suggest.site_replace import check_reply
 

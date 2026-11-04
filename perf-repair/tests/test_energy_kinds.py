@@ -15,7 +15,7 @@ from perfrepair.dto.units import DisplayUnits
 from perfrepair.report.markdown import _metric_lines
 from perfrepair.report.metrics import metric_rows
 from perfrepair.report.summary import _estimated_in
-from perfrepair.validation.dossiers import check_dossier
+from perfrepair.validation.dossiers.dossier import check_dossier
 from perfrepair.validation.measurements import validate_measurements
 from perfrepair.validation.report import _metric
 
