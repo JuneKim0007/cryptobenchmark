@@ -4,12 +4,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-import yaml
-
 from ...catalog.groups import SCHEMA_VERSION, group_catalog, row_contracts
 from ...dto.decision import OutboxRecord
 from ...dto.grouping_state import Answer, Knowledge
 from ...dto.grouping_output import Finding
+from ...files import read_yaml
 from ...log import run_id
 
 SOURCE = "model answers of grouping assign, unreviewed; a person promotes a row into catalog/groups.yaml"
@@ -19,8 +18,8 @@ MODEL, CATALOG = "model", "catalog"
 def _stamps(path: Path) -> dict[tuple, dict]:
     """Run and date of decisions an earlier write already stamped: a rebuild keeps when and where each was made."""
     try:
-        doc = yaml.safe_load(path.read_text()) if path.exists() else None
-    except yaml.YAMLError:
+        doc = read_yaml(path) if path.exists() else None
+    except ValueError:
         return {}
     rows = [r for rows in ((doc or {}).get("families") or {}).values() for r in rows]
     return {(r["provenance"]["outbox"], d["seq"]): {"run": d["run"], "date": d["date"]}

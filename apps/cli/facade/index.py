@@ -2,7 +2,8 @@
 import pathlib
 from dataclasses import dataclass
 
-import yaml
+from perfrepair.dto.coded import InputError
+from perfrepair.dto.document import parse_yaml
 from perfrepair.inputs.check import RUN_ID_FORM
 from perfrepair.run_dir.run_record import ON_EXISTING, OVERWRITE
 
@@ -11,7 +12,7 @@ SECTIONS = {"schemaVersion": None, "results": None, "run": ("id", "onExisting"),
             "llm": ("config",)}
 
 
-class SettingsIndexError(ValueError):
+class SettingsIndexError(InputError):
     """One coded line about the index itself: nothing below it can be read."""
 
 
@@ -29,13 +30,7 @@ class Index:
 def _document(file):
     if not file.is_file():
         raise SettingsIndexError(f"missing_file: {file} (--settings)")
-    try:
-        document = yaml.safe_load(file.read_text())
-    except yaml.YAMLError as e:
-        raise SettingsIndexError(f"invalid_yaml: {file}: {' '.join(str(e).split())}") from None
-    if not isinstance(document, dict):
-        raise SettingsIndexError(f"invalid: {file}, a mapping of {list(SECTIONS)}")
-    return document
+    return parse_yaml(file.read_text(), str(file), error=SettingsIndexError)
 
 
 def _check_keys(document, file):

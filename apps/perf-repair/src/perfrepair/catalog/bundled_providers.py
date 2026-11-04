@@ -6,9 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-import yaml
-
 from ..dto.coded import InputError
+from ..dto.document import parse_yaml
 
 BUNDLED_PROVIDERS = Path(__file__).with_name("bundled-providers.yaml")
 SCHEMA_VERSION = 1
@@ -57,10 +56,7 @@ class BundledCatalog:
 
     @classmethod
     def load(cls, path: Path = BUNDLED_PROVIDERS) -> "BundledCatalog":
-        try:
-            doc = yaml.safe_load(Path(path).read_text())
-        except yaml.YAMLError as e:
-            raise BundledCatalogError(f"bundled_catalog_yaml: {path}: {e}") from None
+        doc = parse_yaml(Path(path).read_text(), str(path), "bundled_catalog_yaml", error=BundledCatalogError)
         problems = catalog_problems(doc)
         if problems:
             raise BundledCatalogError(f"bundled_catalog: {path}: " + "; ".join(problems))

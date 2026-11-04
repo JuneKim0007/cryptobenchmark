@@ -44,7 +44,7 @@ def test_a_bad_key_is_one_coded_line(tmp_path, extra, code):
     ("schemaVersion: 1\ncrypto: {config: c}\nllm: {config: l}\n", "missing_key: results"),
     ("schemaVersion: 1\nresults: r\nllm: {config: l}\n", "missing_key: crypto.config"),
     ("schemaVersion: 1\nresults: r\ncrypto: {config: c}\n", "missing_key: llm.config"),
-    ("[1]\n", "invalid:"),
+    ("[1]\n", "invalid_yaml: .* not a mapping"),
     ("a: [\n", "invalid_yaml"),
 ])
 def test_a_bad_file_is_one_coded_line(tmp_path, text, code):

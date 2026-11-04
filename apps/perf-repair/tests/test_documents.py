@@ -69,3 +69,5 @@ def test_read_yaml_refuses_bad_yaml_and_a_non_mapping_with_invalid_yaml_at_its_l
         read_yaml(tmp_path / "list.yaml")
     from perfrepair.dto.document import parse_yaml
     assert read_yaml(tmp_path / "list.yaml", list) == ["a"] and parse_yaml("", "x") == {}
+    with pytest.raises(NamesError, match="^names_schema: x: .* at line 1 column 5$"):
+        parse_yaml("a: [", "x", "names_schema", error=NamesError)

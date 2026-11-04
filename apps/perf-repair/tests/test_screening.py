@@ -79,7 +79,7 @@ def test_another_schema_version_is_refused(tmp_path):
 
 @pytest.mark.parametrize("text, code", [("a: [\n", "screening_yaml: .* at line 2"),
                                         ("schemaVersion: 1\ncrypto: 3\n", "screening_shape"),
-                                        ("- a\n", "screening_shape")])
+                                        ("- a\n", "screening_yaml: .* not a mapping")])
 def test_a_catalog_that_is_not_the_catalog_shape_is_one_coded_error(tmp_path, text, code):
     path = tmp_path / "s.yaml"
     path.write_text(text)

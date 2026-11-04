@@ -3,10 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-import yaml
-
 from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
+from ..dto.document import AT_PATH, DocumentKind, parse_yaml
 from .names import Names, fold
 
 SCREENING = Path(__file__).with_name("screening.yaml")
@@ -59,12 +57,7 @@ class Screening:
 
     @classmethod
     def load(cls, path: Path = SCREENING, names: Names | None = None) -> "Screening":
-        try:
-            doc = yaml.safe_load(Path(path).read_text())
-        except yaml.YAMLError as e:
-            mark = getattr(e, "problem_mark", None)
-            at = f" at line {mark.line + 1}" if mark else ""
-            raise ScreeningError(f"screening_yaml: {path}{at}: {getattr(e, 'problem', None) or e}") from None
+        doc = parse_yaml(Path(path).read_text(), str(path), "screening_yaml", error=ScreeningError)
         try:
             return _Reader(doc, names or Names.load(), Path(path)).screening()
         except (AttributeError, TypeError) as e:
