@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 from .. import run_dir as rd
+from ..dto.benchmark_coverage import CODED, Coverage
 from ..dto.bundled import APPLY, BundledPolicy, Suggestions
 from ..dto.dossier import (
     NOT_ON_DEVICE,
@@ -26,10 +27,9 @@ from ..dto.primitives_missing import (
     STOPPED,
     MissingRow,
 )
-from ..dto.benchmark_coverage import CODED, Coverage
 from ..dto.run_log import RunLog
-from ..dto.used import UsedSet
 from ..dto.shipped import shipped, shipped_names
+from ..dto.used import UsedSet
 from ..files import read_json
 from ..run_dir import AppPaths, GroupingPaths, read_sites
 from ..stop import CODES

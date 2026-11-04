@@ -2,8 +2,6 @@
 pipeline; a real device run is not exercised here."""
 import pytest
 import yaml
-from test_benchmark_gate import GCM, GCM_SLOW, SHA, device, gate, rewrite, staged_copy  # noqa: F401
-
 from perfrepair import run_dir as rd
 from perfrepair.device.delta_config import narrowed, write_delta_config
 from perfrepair.device.delta_merge import merge_delta
@@ -13,6 +11,15 @@ from perfrepair.dto.benchmark_coverage import LOW_QUALITY, MEASURED, PARTIAL, Ga
 from perfrepair.dto.perf_mode import GENERIC_MODE
 from perfrepair.files import read_json, read_yaml
 from perfrepair.stop.halt import Coded
+from test_benchmark_gate import (  # noqa: F401
+    GCM,
+    GCM_SLOW,
+    SHA,
+    device,
+    gate,
+    rewrite,
+    staged_copy,
+)
 
 
 def _plan_allocation(device):  # noqa: F811

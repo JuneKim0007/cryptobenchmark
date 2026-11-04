@@ -3,16 +3,28 @@ add-only; a setup that differs or anchors that drift are said in one line each, 
 from __future__ import annotations
 
 import shutil
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 import yaml
 
 from .. import run_dir as rd
-from ..data_handler.inbound import manifest_file, read_manifest, read_prepared, read_results
+from ..data_handler.inbound import (
+    manifest_file,
+    read_manifest,
+    read_prepared,
+    read_results,
+)
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
-from ..dto.benchmark_coverage import CHECKED, LOST, METRIC_MISSING, PARTIAL, UNCHECKED, Gap
+from ..dto.benchmark_coverage import (
+    CHECKED,
+    LOST,
+    METRIC_MISSING,
+    PARTIAL,
+    UNCHECKED,
+    Gap,
+)
 from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, read_yaml, write_text_making_parents
 from ..result.estimate import compare
@@ -21,7 +33,13 @@ from ..stop.halt import Coded
 from .delta_config import DELTA, narrowed, write_delta_config, write_rerun_config
 from .delta_estimate import estimate_line, planned_cases, seconds_per_case
 from .delta_merge import merge_delta
-from .setup_fingerprint import before_measuring, case_setups, differing, fingerprint, without_narrowed
+from .setup_fingerprint import (
+    before_measuring,
+    case_setups,
+    differing,
+    fingerprint,
+    without_narrowed,
+)
 
 RESULTS = "results"
 BASELINE_ENV = "CRYPTOBENCH_THERMAL_BASELINE"

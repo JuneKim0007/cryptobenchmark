@@ -2,12 +2,20 @@
 a coded gap; the gaps a delta can close measured once, then checked again; a gap left stops `not_benchmarked`."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 from .. import run_dir as rd
-from ..dto.benchmark_coverage import GAP_DELTA, GAP_STOP, SETUP_RERUN, SETUP_STOP, UNCHECKED, Coverage, Gap
+from ..dto.benchmark_coverage import (
+    GAP_DELTA,
+    GAP_STOP,
+    SETUP_RERUN,
+    SETUP_STOP,
+    UNCHECKED,
+    Coverage,
+    Gap,
+)
 from ..dto.grouping import read_items
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedSet

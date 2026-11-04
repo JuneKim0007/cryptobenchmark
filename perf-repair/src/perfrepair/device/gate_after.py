@@ -1,9 +1,9 @@
 """After a delta merged or a whole rerun: inbound and primitives made again, device.yaml rewritten to vouch for them."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
-from typing import Callable
 
 from .. import run_dir as rd
 from ..dto.used import names_digest

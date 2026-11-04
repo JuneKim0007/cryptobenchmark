@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from helpers import TIMING, with_results
 from perfrepair import run_dir as rd
 from perfrepair.device import delta_merge
@@ -168,8 +167,8 @@ def test_an_override_reaching_a_case_differs(device):
     assert any("resolvedParameters" in line for line in differing(stored["g_fast"], case_setups(device)["g_fast"]))
 
 
-def gate(folder, *items, policy=GatePolicy(), perf=TIMING):
-    lines = []
+def gate(folder, *items, policy=None, perf=TIMING):
+    lines, policy = [], policy or GatePolicy()
     return benchmark_gate(folder, "used", used(*items), perf, policy, True, lines.append, F / "device"), lines
 
 

@@ -2,11 +2,10 @@
 lacks, a delta between runs, the stop before any model call. No real device or model is exercised."""
 import pytest
 import yaml
-
 from perfrepair import run_dir as rd
 from perfrepair.files import read_json, read_yaml
 from perfrepair.guide.command import main as guide
-from test_device_flows import CALLS, GCM_FAST, HMAC, SHA, Flow, F, target
+from test_device_flows import CALLS, GCM_FAST, HMAC, SHA, F, Flow, target
 
 pytestmark = pytest.mark.usefixtures("asked_by_model")
 GCM_CALL = 'javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")'
@@ -78,7 +77,7 @@ def test_the_run_after_a_delta_changes_nothing(flow):
 def test_the_gate_stopping_makes_no_model_call(flow):
     run(flow, flow.sha)
     asked = flow.calls()
-    code, lines, err = run(flow, flow.sha, flow.gcm, benchmark={"onGap": "stop"})
+    code, lines, _ = run(flow, flow.sha, flow.gcm, benchmark={"onGap": "stop"})
     assert code == 1 and flow.calls() == asked
     assert any(line.startswith("guide prerequisites: stop not_benchmarked") and GCM_FAST in line for line in lines)
     assert not any(line.startswith("guide grouping") for line in lines)
@@ -142,7 +141,7 @@ def test_after_a_delta_replace_asks_changed_dossiers_again_and_never_stops_on_th
 def test_filter_by_apps_off_still_runs_the_gate_on_the_measured_plan(flow, monkeypatch):
     flow.filter = False
     monkeypatch.delenv("FAKE_SELECT")
-    code, lines, _ = run(flow, flow.sha)
+    _, lines, _ = run(flow, flow.sha)
     assert any(line.startswith("device gate (used):") for line in lines)
     doc = coverage(flow)
     assert doc["point"] in ("used", "grouped") and doc["totals"]["usedItems"] > 1

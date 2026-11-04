@@ -16,8 +16,8 @@ from ..run_dir import GroupingPaths
 from .bundled import check_bundled
 from .bundled_config import bundled_config, configured
 from .plan import STAGES, Seen, mapped_inputs, plan
-from .selection_adds import includes, not_runnable
 from .selection import FILTER_OFF, exclusions, lacking, measured, write_config
+from .selection_adds import includes, not_runnable
 from .stage_run import Run, run_probe
 from .used import write_used
 

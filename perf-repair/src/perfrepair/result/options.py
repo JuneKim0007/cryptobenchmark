@@ -15,7 +15,13 @@ from ..dto.change import (
     PairDiff,
     output_changes,
 )
-from ..dto.dossier import CROSS_SESSION, CURRENT_NOT_MEASURED, OPTION_PREFIX, ZERO_MEDIAN, Option
+from ..dto.dossier import (
+    CROSS_SESSION,
+    CURRENT_NOT_MEASURED,
+    OPTION_PREFIX,
+    ZERO_MEDIAN,
+    Option,
+)
 from ..dto.grouping import provider_of, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.perf_mode import PerfMode, no_evidence

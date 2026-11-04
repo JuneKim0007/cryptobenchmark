@@ -78,7 +78,7 @@ def _same_samples(mine: dict, theirs: dict, merged: set[str]) -> None:
         if expected and counts not in expected:
             what = "per process" if {c[0] for c in expected} == {counts[0]} else "runs"
             raise Coded(f"merge_refused: unequal_samples: {cid}.{m}: {what} {list(counts)} in the delta, "
-                        f"{sorted(map(list, expected))[0]} stored")
+                        f"{min(map(list, expected))} stored")
 
 
 def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, comparison: str, retried=(),
