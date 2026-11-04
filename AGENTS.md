@@ -68,10 +68,11 @@ scripts/explain.py : each resolved setting of a run and the file it came from
 scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/llm_guide.py : forwards to perf-repair's `guide` with `perf-repair/src` on the path
-scripts/pipeline.py : run driver: stages in order, results/<device_id>/manifest.yaml; --probe (discover and configure only), --identify (device id and input digests, nothing written)
+scripts/pipeline.py : command: run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id and input digests, nothing written)
 scripts/requirements.txt : host Python dependencies
 scripts/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection
 scripts/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, the temporary-folder warning
+scripts/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, energy mark, problems; files added beside a finished run
 scripts/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 scripts/results/select.py : the device folder of a results root a reader names, or the only one there
 scripts/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
@@ -98,10 +99,16 @@ scripts/session/thermal_hook.py : session hook: temperature around every process
 scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session; its output never pulled
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
+scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 scripts/stages/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
 scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
+scripts/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
+scripts/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts, scoped passes into measured/
+scripts/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
 scripts/stages/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
+scripts/stages/measuring.py : what a run's device sessions share: the Measuring context, timed hooks, plan push, ConvertKt, per-process files
 scripts/stages/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
+scripts/stages/took.py : the took: line of a timed step
 scripts/tests/ : pytest and standalone tests for scripts/
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 settings.gradle : Gradle projects and their directories under modules/

@@ -3,7 +3,7 @@ import json, pathlib, sys, types
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import pipeline  # noqa: E402
+from stages import benchmark  # noqa: E402
 from device import thermal  # noqa: E402
 from session import thermal_gate  # noqa: E402
 from fake_phone import Phone  # noqa: E402
@@ -108,7 +108,7 @@ def test_the_before_after_run_is_gated_too(tmp_path, monkeypatch, capsys):
 
 
 def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(pipeline.gradle_runner, "run", lambda *_arguments, **_options: [])
+    monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_arguments, **_options: [])
     document = {"run": {"thermalGate": GATE}}
-    pipeline.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {})
+    benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {})
     assert capsys.readouterr().out.count("warning: thermal_gate_off: run.thermalGate: only a --device run") == 1

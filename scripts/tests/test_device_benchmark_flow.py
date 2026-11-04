@@ -6,7 +6,9 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import pipeline  # noqa: E402
+from device.adb import DeviceError  # noqa: E402
+from session import cooldown_hook  # noqa: E402
+from stages import benchmark  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False)
@@ -33,12 +35,12 @@ def layout(tmp_path, run):
 def measured(tmp_path, monkeypatch, run, **phone_options):
     phone = Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
-    monkeypatch.setattr(pipeline, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
-    monkeypatch.setattr(pipeline.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
-    monkeypatch.setattr(pipeline.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
+    monkeypatch.setattr(benchmark, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
+    monkeypatch.setattr(benchmark.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
+    monkeypatch.setattr(benchmark.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
-    pipeline.measure_cases(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)
+    benchmark.measure_cases(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)
     return phone, files, problems, results
 
 
@@ -79,7 +81,7 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
-    with pytest.raises(pipeline.DeviceError, match="failed on the device for every case"):
+    with pytest.raises(DeviceError, match="failed on the device for every case"):
         measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a",), crash=("a",))
 
 
@@ -167,7 +169,7 @@ def test_a_failed_warm_up_warns_and_the_run_goes_on(tmp_path, monkeypatch, capsy
 
 def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, monkeypatch, capsys):
     slept = []
-    monkeypatch.setattr(pipeline.cooldown_hook.time, "sleep", slept.append)
+    monkeypatch.setattr(cooldown_hook.time, "sleep", slept.append)
     measured(tmp_path, monkeypatch, {"isolation": "case", "caseCooldownSeconds": 20})
     assert slept == [20]
     assert "cool-down: measure: 1 x 20 s = 20 s between cases" in capsys.readouterr().out

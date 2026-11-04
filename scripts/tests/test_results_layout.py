@@ -5,7 +5,8 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import pipeline  # noqa: E402
+from results import manifest  # noqa: E402
+from stages import harness  # noqa: E402
 from failure import fail  # noqa: E402
 from results import layout, select  # noqa: E402
 from device.identity import device_id  # noqa: E402
@@ -60,9 +61,9 @@ def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_m
     stage = stage_with(tmp_path)
     write(stage / "interop/interop.yaml")
     (target / "g.yaml").write_text("schemaVersion: 1\n")
-    pipeline.manifest(target, "host", target / "g.yaml", {"probe": probe})
+    manifest.manifest(target, "host", target / "g.yaml", {"probe": probe})
     layout.publish_interop(stage, target)
-    pipeline.add_to_manifest(target, {"interop": target / "interop/interop.yaml"})
+    manifest.add_to_manifest(target, {"interop": target / "interop/interop.yaml"})
     assert (target / "configuration/effective.yaml").read_text() == "old"
     assert (target / "discovery/probe_new.yaml").is_file()
     files = yaml.safe_load((target / layout.MANIFEST).read_text())["files"]
@@ -108,20 +109,20 @@ def harness_in(folder, device):
 
 def test_a_harness_measured_on_its_own_device_passes(tmp_path):
     capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"runtime": RUNTIME}))
-    pipeline.require_harness_device(harness_in(tmp_path / "d", device_id(RUNTIME)), capture)
+    harness.require_harness_device(harness_in(tmp_path / "d", device_id(RUNTIME)), capture)
 
 
 def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
     capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"runtime": RUNTIME}))
     with pytest.raises(SystemExit):
-        pipeline.require_harness_device(harness_in(tmp_path / "d", "other-api1-00000000"), capture)
+        harness.require_harness_device(harness_in(tmp_path / "d", "other-api1-00000000"), capture)
     assert "harness_other_device" in capsys.readouterr().err
 
 
 def test_a_harness_run_takes_no_results_root(capsys):
     options = type("Options", (), {"results": "r", "harness": "h.yaml"})
     with pytest.raises(SystemExit):
-        pipeline.measured_folder(options)
+        harness.measured_folder(options)
     assert "a --harness run writes measured/ beside its harness.yaml" in capsys.readouterr().err
 
 

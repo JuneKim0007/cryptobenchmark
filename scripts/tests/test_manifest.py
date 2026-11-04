@@ -8,7 +8,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.identity import DeviceIdError, device_id  # noqa: E402
-from pipeline import manifest  # noqa: E402
+from results.manifest import manifest  # noqa: E402
 from results import run_inputs  # noqa: E402
 
 RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}

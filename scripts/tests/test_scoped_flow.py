@@ -3,7 +3,9 @@ import json, pathlib, sys, types
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import pipeline  # noqa: E402
+from session import cooldown_hook  # noqa: E402
+from stages import harness  # noqa: E402
+from stages.measuring import Measuring  # noqa: E402
 from fake_phone import Phone, fake_tools  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False)
@@ -15,11 +17,11 @@ def scoped(tmp_path, monkeypatch, run, crash=(), cooldown=0, notices=()):
     phone.notices = list(notices)
     fake_tools(monkeypatch, phone)
     files, problems = {}, []
-    measuring = pipeline.Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems, cooldown=cooldown)
+    measuring = Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems, cooldown=cooldown)
     prepared = tmp_path / "scoped/prepared.yaml"
     prepared.parent.mkdir(parents=True)
     prepared.write_text("cases: []\n")
-    pipeline.scoped_passes(measuring, {"run": {"metrics": ["TIME"], **run}}, {"none"}, prepared, CASES, tmp_path / "scoped")
+    harness.scoped_passes(measuring, {"run": {"metrics": ["TIME"], **run}}, {"none"}, prepared, CASES, tmp_path / "scoped")
     return phone, files, problems
 
 
@@ -53,7 +55,7 @@ def test_one_process_for_every_scoped_case_names_them_in_order(tmp_path, monkeyp
 
 def test_the_cool_down_sleeps_between_scoped_cases_too(tmp_path, monkeypatch):
     slept = []
-    monkeypatch.setattr(pipeline.cooldown_hook.time, "sleep", slept.append)
+    monkeypatch.setattr(cooldown_hook.time, "sleep", slept.append)
     scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1}, cooldown=10)
     assert slept == [10, 10, 10]
 
