@@ -13,7 +13,7 @@ import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
 
 object TrialSource : DocumentReader<TrialView> {
 
-    override val schemaVersion: Int = 2
+    override val schemaVersion: Int = 3
 
     override fun parse(document: Map<String, Any>): TrialView {
         val entries = sections(document, "services").flatMap { service ->

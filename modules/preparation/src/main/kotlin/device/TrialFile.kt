@@ -15,7 +15,7 @@ import java.io.File
 
 object TrialFile {
 
-    const val SUPPORTED_SCHEMA_VERSION = 2
+    const val SUPPORTED_SCHEMA_VERSION = 3
 
     private const val SCHEMA_NAME = "trial"
 

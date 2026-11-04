@@ -37,8 +37,9 @@ RUNTIMES = Path(__file__).parents[1] / "fixtures" / "runtimes"
 RAW = {"SupportedKeyFormats": ["RAW"]}
 HANDLE = {"SupportedKeyClasses": ["vendor.store.HandleKey"]}
 
-# pending items asked, before and after the signature; a catalog or interchange change that moves these is deliberate
-ASKED = {"jdk17": (154, 28), "jdk21": (161, 28), "jdk25": (175, 36), "android36": (108, 23)}
+# pending items asked, before and after the signature; a catalog or interchange change that moves these is deliberate;
+# these trials predate keyFormat, so every generator is unknown and alone, never asked
+ASKED = {"jdk17": (154, 1), "jdk21": (161, 1), "jdk25": (175, 1), "android36": (108, 0)}
 
 
 def sig(engine_type, name, resolved=None, contract=KEY_APP_HELD):
@@ -188,8 +189,11 @@ PROBE = Probe({"providers": [
     {"name": "P3", "services": [service("Mac", "HmacSHA256", HANDLE), service("Cipher", "RSA/ECB/OAEPWithSHA-1AndMGF1Padding", RAW)]},
 ]})
 RESOLVED = {("P1", "RSA/ECB/OAEPPadding"): "digest=SHA-1 mgf1=SHA-1", ("P3", "RSA/ECB/OAEPWithSHA-1AndMGF1Padding"): "digest=SHA-1 mgf1=SHA-1"}
+# P1's generator made a RAW key it encodes: application-held; P2's recorded neither, so it is unknown and alone
+MADE = {"P1": {"keyMaterial": "exportable", "keyFormat": "RAW"}}
 TRIAL = {"services": [{"provider": p["name"], "type": s["type"], "algorithm": s["algorithm"], "instantiates": True,
-                       "defaultRun": {"works": True, "providerChose": RESOLVED.get((p["name"], s["algorithm"]))}}
+                       "defaultRun": {"works": True, "providerChose": RESOLVED.get((p["name"], s["algorithm"])),
+                                      **(MADE.get(p["name"], {}) if s["type"] == "KeyGenerator" else {})}}
                       for p in PROBE._document["providers"] for s in p["services"]]}
 
 
@@ -224,10 +228,11 @@ def members(knowledge, kind, gid_filter=code_made):
 def test_a_decided_signature_is_grouped_by_code_and_only_the_rest_is_asked(chain):
     knowledge, agent, kind = run(chain)
     asked = sorted(i.qualified for i in kind.pending())
-    assert asked == ["Cipher|RSA/ECB/OAEPPadding|P2", "KeyGenerator|AES|P1", "KeyGenerator|AES|P2"]
-    assert agent.started == 3
+    assert asked == ["Cipher|RSA/ECB/OAEPPadding|P2"]
+    assert agent.started == 1
     assert members(knowledge, kind) == [
         ["Cipher|RSA/ECB/OAEPPadding|P1", "Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding|P3"],
+        ["KeyGenerator|AES|P1"], ["KeyGenerator|AES|P2"],
         ["Mac|HMACSHA256|P2", "Mac|HmacSHA256|P1"],
         ["Mac|HmacSHA256|P3"],
         ["Signature|SHA256withRSA/PSS|P1", "Signature|SHA256withRSA/PSS|P2"]]
@@ -243,10 +248,10 @@ def test_a_signature_group_id_is_a_digest_of_family_and_signature_not_of_the_run
 
 
 def test_coverage_counts_only_what_is_asked(chain):
-    assert coverage(chain).asked == 3 and len(coverage(chain).pending) == 3
+    assert coverage(chain).asked == 1 and len(coverage(chain).pending) == 1
     run(chain)
     state = coverage(chain)
-    assert state.asked == 3 and state.pending == ()
+    assert state.asked == 1 and state.pending == ()
 
 
 def test_report_accepts_signature_groups_and_marks_what_convention_assumed(chain):
@@ -273,7 +278,7 @@ def test_validate_output_refuses_a_coded_item_in_a_model_group(chain):
     assert any("its signature groups it by code" in p for p in problems)
 
 
-def test_a_join_across_a_known_component_is_refused_and_an_unknown_one_decides_nothing(chain):
+def test_a_join_across_a_known_component_is_refused_and_an_unknown_generator_joins_nothing(chain):
     kind = GroupingKind(chain, FAMILIES)
     knowledge = kind.empty()
     p1 = next(i for i in kind.items() if i.qualified == "Cipher|RSA/ECB/OAEPPadding|P2")
@@ -284,7 +289,7 @@ def test_a_join_across_a_known_component_is_refused_and_an_unknown_one_decides_n
     assert any("key=app_held" in p and "key=provider_held" in p for p in problems)
     knowledge.groups["gen"] = Group(target.family, "d", [next(i.id for i in kind.items() if i.qualified == "KeyGenerator|AES|P2")])
     join = '{"group": "gen", "newGroup": {"id": "", "description": ""}, "amend": [], "reason": "r"}'
-    assert kind.check(target, join, knowledge)[1] == []
+    assert any("joins no group" in p for p in kind.check(target, join, knowledge)[1])
 
 
 def test_a_record_of_an_item_now_coded_adds_no_member_and_is_kept(chain):
@@ -295,7 +300,7 @@ def test_a_record_of_an_item_now_coded_adds_no_member_and_is_kept(chain):
     write_json(chain.profiles, screened_profiles)
     write_json(chain.screen, {**read_document(chain.screen), "built": built(chain)})
     first, agent, kind = run(chain)
-    assert agent.started == len(kind.items())
+    assert agent.started == len(kind.items()) - 1  # P2's generator, unknown, is never asked
     records = len(active_outbox(chain.root).records())
     profiles = read_document(chain.profiles)
     for row in profiles["profiles"].values():
@@ -305,7 +310,7 @@ def test_a_record_of_an_item_now_coded_adds_no_member_and_is_kept(chain):
     again, agent, kind = run(chain)
     assert agent.started == 0 and len(active_outbox(chain.root).records()) == records
     assert {m for g in again.groups.values() for m in g.members} == {i.id for i in kind.items()}
-    assert sum(not code_made(g) for g in again.groups) == 3
+    assert sum(not code_made(g) for g in again.groups) == 1
 
 
 def test_the_message_shows_the_signature_and_says_what_is_not_known(chain):

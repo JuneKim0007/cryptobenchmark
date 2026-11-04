@@ -41,7 +41,7 @@ modules/environment/discovery/src/main/kotlin/contract/ServiceKeyException.kt : 
 modules/environment/discovery/src/main/kotlin/contract/ServiceTrialEntry.kt : trial result for one service
 modules/environment/discovery/src/main/kotlin/contract/TransformationTrialEntry.kt : trial result for one cipher transformation
 modules/environment/discovery/src/main/kotlin/contract/TrialOutcome.kt : instantiation success or error
-modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 2
+modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 3
 modules/environment/discovery/src/main/kotlin/query/CaptureQuery.kt : read-only questions over a capture
 modules/environment/discovery/src/main/kotlin/query/ServiceIndex.kt : one provider's services by name or alias
 modules/environment/discovery/src/main/kotlin/query/ServiceShape.kt : modes, paddings, providers of one tree node

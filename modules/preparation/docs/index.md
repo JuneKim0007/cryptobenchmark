@@ -18,7 +18,7 @@ modules/preparation/src/main/kotlin/Preparation.kt : entry point; prepare(effect
 modules/preparation/src/main/kotlin/adapter/DiscoveryCapability.kt : DeviceCapability over a capture and trial pair
 modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (schema capture v1) into CapturedDevice
 modules/preparation/src/main/kotlin/device/ServiceName.kt : uppercase-folded (type, algorithm) lookup key
-modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v2) into TrialledDevice
+modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v3) into TrialledDevice
 modules/preparation/src/main/kotlin/device/dto/ : capture and trial DTOs as preparation reads them
 modules/preparation/src/main/kotlin/engine/EngineTypeName.kt : uppercase fold for engine type names
 modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry, read from engine-operations.yaml, with its TYPE_DEFAULT fallback

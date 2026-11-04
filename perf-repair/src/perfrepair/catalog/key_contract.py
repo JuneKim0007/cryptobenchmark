@@ -17,3 +17,10 @@ def standard_key_interfaces() -> tuple[str, ...]:
     doc = yaml.safe_load(CATALOG.read_text())
     KEY_CONTRACT_DOC.check(doc, CATALOG)
     return tuple(doc["standardKeyInterfaces"])
+
+
+@cache
+def generated_key_formats() -> dict[str, str]:
+    doc = yaml.safe_load(CATALOG.read_text())
+    KEY_CONTRACT_DOC.check(doc, CATALOG)
+    return dict(doc["generatedKeyFormats"])

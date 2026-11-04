@@ -30,6 +30,12 @@ def key_contract_differs(k: Knowledge, items: dict[int, Item], profiles: dict[in
             if {KEY_APP_HELD, KEY_PROVIDER_HELD} <= {profiles[m].keyContract for m in g.members}]
 
 
+def key_contract_conflict(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:
+    """A generator's trial and its provider's consumers disagree on where the key lives: it is unknown, alone."""
+    return [Finding("key_contract_conflict", "warning", k.group_of(m), (m,), f"{items[m].qualified}: {p.keyContractConflict}")
+            for m, p in sorted(profiles.items()) if p.keyContractConflict and m in items]
+
+
 def _assumed(members: list[int], profiles: dict[int, Profile]) -> list[str]:
     return sorted({a for m in members if profiles[m].signature for a in profiles[m].signature.assumed})
 
@@ -72,7 +78,7 @@ def dropped(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) 
             for m in sorted(k.dropped)]
 
 
-RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, convention_assumed, no_common_key_size, no_runnable_member, singleton, dropped)
+RULES: tuple[Rule, ...] = (resolved_parameters_differ, key_contract_differs, key_contract_conflict, convention_assumed, no_common_key_size, no_runnable_member, singleton, dropped)
 
 
 def check(k: Knowledge, items: dict[int, Item], profiles: dict[int, Profile]) -> list[Finding]:

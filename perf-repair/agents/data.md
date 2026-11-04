@@ -86,7 +86,7 @@ src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtim
 src/perfrepair/dto/document.py : DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 src/perfrepair/dto/dossier.py : Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), NoEstimate; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, pin_text; not_on_device_sites, a site list's missing names and which are absent
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
-src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile; key contract values and labels; items.json and profiles.json (schema 4) documents; provider_of, algorithm_of
+src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile (isolated: a generator of unknown key contract); key contract values, labels and sources; items.json and profiles.json (schema 5) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: model-made only; retired: memberless groups a record still names); the `code_` id prefix
 src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml with its notCheckable pairs, the groups.json interop section, failed_pairs, pair_status, PAIR_STATUSES

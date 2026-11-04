@@ -12,7 +12,7 @@ inventory.yaml + facts.yaml (optional) --------------------+-> EffectiveBuilder 
 
 | call | does |
 |---|---|
-| `inventory(captureFile, trialFile)` | deletes the old inventory; reads capture (schema 1) and trial (schema 2); writes inventory |
+| `inventory(captureFile, trialFile)` | deletes the old inventory; reads capture (schema 1) and trial (schema 3); writes inventory |
 | `effective(globalFile, inventoryFile, factsFile?)` | deletes the old effective and report; reads global and its test set; writes report, then effective |
 | `readEffective()` | reads `effective.yaml` back, with `warnings` and `skipped` of the `report.yaml` beside it when present |
 

@@ -23,7 +23,7 @@ Signature: [signature.md](signature.md): what code reads per item, and which ite
 | `SupportedKeyClasses` values, none under such a prefix | `provider_held` | `key: inside the provider` |
 | neither attribute | `unknown` | no line |
 
-- A provider registering a `KeyStore` is not evidence: a provider can register one and take raw keys.
+- A provider registering a `KeyStore` is not evidence: a provider can register one and take raw keys. A generator accepts no key, so its `keyContract` is the key its trial produced ([signature.md](signature.md) Generators); an `unknown` one joins no group.
 
 ## Diagram
 
@@ -51,7 +51,7 @@ flowchart TD
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
 | `registry-candidates.yaml` | build, with aiReview | each `accepted` answer, for a person to confirm as a sourced catalog row |
-| `profiles.json` | build | schema 4: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract, signature `{components: [{name, value, status}]}`; a schema 3 folder is refused, rerun `grouping build`; build needs only the manifest's probe and trial: `runs`, `reason` and the default-run fields come from the trial (inventory's `runs` when present, itself the trial's), `measured` is null without a benchmark and `preparedKeySizes` null without `prepared.yaml`, never false or empty, so a group's `keySizes` is `[]` and `no_common_key_size` stays silent until a benchmark exists |
+| `profiles.json` | build | schema 5: per id: keyKind and its rule, instantiates, runs, reason, default key size, key algorithm and provider, bare name, measured, prepared key sizes, keyContract with `keyContractFrom` (`attributes`, `trial`) and `keyContractConflict`, signature `{components: [{name, value, status}]}`; a schema 3 folder is refused, rerun `grouping build`; build needs only the manifest's probe and trial: `runs`, `reason` and the default-run fields come from the trial (inventory's `runs` when present, itself the trial's), `measured` is null without a benchmark and `preparedKeySizes` null without `prepared.yaml`, never false or empty, so a group's `keySizes` is `[]` and `no_common_key_size` stays silent until a benchmark exists |
 | `outbox/<fingerprint>/NNNNNN.json` | assign | one record per pending item: `decided` with the answer, or `dropped` with every problem, and the gateway, model and effort that answered; the commit (ai/runtime/engine); `<fingerprint>` is 12 hex of the charter, with `refresh <token>` as its inputs after `assign --refresh`; `item` is `Item.key`, `<family>\|<type>\|<name>\|<provider>`, never the id |
 | `outbox/active` | assign | the fingerprint of the outbox in use; records directly under `outbox/` are refused (`outbox_unversioned`); `assign --refresh` makes a new one active, every item asked, and later runs read its token from the active charter and stay in it |
 | `knowledge.json` | assign | the code-made groups, then the projection of the outbox: groups `{family, description, members}`, dropped ids, version |
@@ -123,7 +123,7 @@ flowchart TD
 | Kind | Severity |
 |---|---|
 | `resolved_parameters_differ` | error |
-| `key_contract_differs` | error |
+| `key_contract_differs`; `key_contract_conflict` (a generator's trial against its provider's consumers) | error; warning |
 | `convention_assumed` | warning |
 | `dropped` | error |
 | `no_common_key_size` | warning |

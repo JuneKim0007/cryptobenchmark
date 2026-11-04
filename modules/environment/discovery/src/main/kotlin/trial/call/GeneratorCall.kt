@@ -16,6 +16,6 @@ internal class GeneratorCall(private val pair: Boolean) : DefaultCall {
             KeyGenerator.getInstance(algorithm, provider).generateKey().let { it to it }
         }
         val material = if (secret.encoded == null) DefaultRunOutcome.NON_EXPORTABLE else DefaultRunOutcome.EXPORTABLE
-        return DefaultRunOutcome(works = true, keySize = KeyBits.of(key), keyMaterial = material)
+        return DefaultRunOutcome(works = true, keySize = KeyBits.of(key), keyMaterial = material, keyFormat = secret.format.orEmpty())
     }
 }

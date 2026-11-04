@@ -11,11 +11,12 @@ from perfrepair.grouping.build.items import build
 from perfrepair.grouping.build.key_contract import key_contract
 
 ROOT = Path(__file__).parents[1] / "fixtures" / "runtimes"
+# a generator's contract is its trial's, and these trials predate keyFormat: every generator is unknown
 EXPECTED = {
     "android36": {KEY_APP_HELD: 63, KEY_PROVIDER_HELD: 38, KEY_UNKNOWN: 67},
-    "jdk17": {KEY_APP_HELD: 103, KEY_PROVIDER_HELD: 0, KEY_UNKNOWN: 90},
-    "jdk21": {KEY_APP_HELD: 105, KEY_PROVIDER_HELD: 0, KEY_UNKNOWN: 95},
-    "jdk25": {KEY_APP_HELD: 105, KEY_PROVIDER_HELD: 0, KEY_UNKNOWN: 109},
+    "jdk17": {KEY_APP_HELD: 101, KEY_PROVIDER_HELD: 0, KEY_UNKNOWN: 92},
+    "jdk21": {KEY_APP_HELD: 103, KEY_PROVIDER_HELD: 0, KEY_UNKNOWN: 97},
+    "jdk25": {KEY_APP_HELD: 103, KEY_PROVIDER_HELD: 0, KEY_UNKNOWN: 111},
 }
 
 

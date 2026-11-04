@@ -2,3 +2,7 @@ schemaVersion: 1
 standardKeyInterfaces:
   - java.security.
   - javax.crypto.
+# the standard encoding of the key a generator hands the application: its secret key, a pair's private key
+generatedKeyFormats:
+  KeyGenerator: RAW
+  KeyPairGenerator: PKCS#8

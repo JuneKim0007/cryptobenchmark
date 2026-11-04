@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import replace
 from typing import Callable
 
 from ...catalog.names import Names
 from ...data_handler.inbound.probe import Probe
-from ...dto.grouping import Item, Profile
+from ...dto.grouping import FROM_TRIAL, Item, Profile
 from ...catalog.families import Families
 from ..signature import signature
-from .key_contract import key_contract
+from ...catalog.names import fold
+from .key_contract import cross_checked, generator_contract, is_generator, key_contract
 from .key_kind import Context, Evidence, key_kind
 
 
@@ -56,7 +58,7 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
     context = Context(families, names, probe.generator_kind(names))
     (kinds, sizes), measured = _prepared(prepared), _measured(benchmark)
 
-    drafts = {}
+    drafts, runs_of = {}, {}
     for s, name, entry in _primitives(trial):
         key = (s["provider"], s["type"], name)
         if s["type"] not in families.types or key in drafts:
@@ -76,9 +78,17 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
             reason=inventoried.get("reason") or run.get("error"),
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
             bareName=bool(run.get("bareName")), measured=measured(key),
-            preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])),
-            keyContract=contract, signature=signature(s["type"], name, run.get("providerChose"), contract, names,
-                                                      key_material=run.get("keyMaterial"))))
+            preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])), keyContract=contract))
+        runs_of[key] = [run] if run else []
+    for key, (family, resolved, p) in drafts.items():
+        provider, engine, name = key
+        if is_generator(engine):
+            consumers = {d[2].keyContract for k, d in drafts.items() if k[0] == provider and not is_generator(k[1])
+                         and fold(d[2].keyAlgorithm or "") == fold(name)}
+            contract, conflict = cross_checked(generator_contract(engine, runs_of[key]), consumers)
+            p = replace(p, keyContract=contract, keyContractFrom=FROM_TRIAL, keyContractConflict=conflict)
+        drafts[key] = (family, resolved, replace(p, signature=signature(engine, name, resolved, p.keyContract, names,
+                                                                        key_material=(runs_of[key] or [{}])[0].get("keyMaterial"))))
 
     order = sorted(drafts, key=lambda k: (drafts[k][0], names.key_or_spelling(k[1], k[2])[0], k[0], k[2]))
     items, profiles = [], {}

@@ -73,6 +73,13 @@ class DefaultRunTrialTest {
     }
 
     @Test
+    fun generatorsRecordTheirKeysFormatAndAPairItsPrivateKeys() {
+        assertEquals("RAW", service("SunJCE", "KeyGenerator", "AES")!!.keyFormat)
+        assertEquals("PKCS#8", service("SunRsaSign", "KeyPairGenerator", "RSA")!!.keyFormat)
+        assertEquals("", service("SunJCE", "Mac", "HmacSHA256")!!.keyFormat)
+    }
+
+    @Test
     fun instantiatesButDoesNotRun() {
         listOf(
             service("SunJCE", "KeyGenerator", "SunTlsPrf"),

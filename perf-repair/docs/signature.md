@@ -26,12 +26,27 @@
 | KeyGenerator, KeyPairGenerator | function, consumer, key, keyMaterial |
 
 - Group: an item not screened out with a decided signature is grouped by family and the signature's name and value pairs, so `known` and `convention` of one value share a group; id, description and rules as in [grouping.md](grouping.md) Code-made groups.
-- A generator stays asked: no attribute says whether the key it makes stays inside the provider, and on the API 30 capture the model split 8 generators on exactly that.
+- A generator's `key` is its trial's: no attribute says whether the key it makes stays inside the provider, and on the API 30 capture the model split 8 generators on exactly that.
+
 - `keyMaterial` is the trial's `defaultRun.keyMaterial`, else `exportable` for `app_held` and `non_exportable` for `provider_held`, else `unknown`; a generator whose default run failed records nothing.
-- `keyMaterial` is the one component where `unknown` decides: gate C refuses to join an unknown side to a known one; two unknown sides may join.
+- `keyMaterial` is the one component where `unknown` decides: gate C refuses to join an unknown side to a known one; a generator whose key contract is unknown joins nothing (Generators).
 - A screened-out generator group splits by `keyMaterial` too; no other screened-out group id changes.
 - A model answer joins no group across a component both sides know (gate C).
 - A model never joins a code-made group: an asked item whose function a code-made group has stays in its own model group, a false split and no false join.
 - Evidence, API 30 capture: of Haiku's 98 model groups, code makes 69 exactly and leaves the 29 others asked with no known component differing; neither side joins what the other split. The rules were written after that run, so this is consistency, not an independent test.
-- Asked items, before → after: JDK 17 155 → 28, JDK 21 162 → 28, JDK 25 176 → 36, Android 36 119 → 23, API 30 196 → 46; what stays is generators (`key: asked`), OAEP without `resolved` and `name_conflict` names.
+- Asked items, before → after, before the generator rule: JDK 17 155 → 28, JDK 21 162 → 28, JDK 25 176 → 36, Android 36 119 → 23, API 30 196 → 46; what stayed is generators (`key: asked`), OAEP without `resolved` and `name_conflict` names. With it, on the runtime fixtures, whose trials have no `keyFormat` so every generator is alone: 1, 1, 1, 0.
 - Decided: a password-based name's derived key length (`_128`/`_256`, `128BIT`) is the `derivedBits` component and splits, because the provider derives the key from the name; a key size the call passes (`AES_128/...`) does not split.
+
+## Generators
+
+`grouping/build/key_contract.py`, from the trial's `defaultRun` (one record per key size tried; the trial tries the default) and `catalog/key-contract.yaml` `generatedKeyFormats`:
+
+| the produced key (a pair: its private key) | `keyContract` |
+|---|---|
+| `keyMaterial: non_exportable` (`getEncoded()` null), any format | `provider_held` |
+| `exportable` with the standard format: `RAW` for KeyGenerator, `PKCS#8` for KeyPairGenerator | `app_held` |
+| any other format or none, a run that failed or did not run, records that disagree | `unknown` |
+
+- Cross-check: the same provider's consumers of that key algorithm (a run whose `keyAlgorithm` is the generator's name), by their key attributes; one known contract that differs makes it `unknown` with `keyContractConflict` and a `key_contract_conflict` finding in `checks.json`.
+- `unknown` joins no group: a code-made group of one (`screen/groups.py`), and gate C refuses a model answer that joins it or joins a group holding it; the failure is a missing option, never a swap that moves a key out of its provider.
+- The prompt is unchanged: the model sees only the `key:` line it already reads.

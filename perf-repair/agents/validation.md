@@ -50,7 +50,7 @@ src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
 src/perfrepair/validation/measurements.py : measurements: known rows, registry metrics only, required ones present, ordered finite summaries, positive medians and kinds as the registry says
 src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
-src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures
+src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures; an unknown generator joins no group
 src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry metric columns, screen statuses, each metric's n, and equal line for line to what rows, measurements and screen.json make
 src/perfrepair/validation/primitives_missing.py : log/details/primitives_missing.yaml: schema, run, each row a known reason and action, its lists, a next step
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check

@@ -8,13 +8,15 @@ from .signature import Signature
 SCHEMA_VERSION = 1
 ITEMS_DOC = DocumentKind("items", SCHEMA_VERSION)
 CURSOR_SCHEMA_VERSION = 1
-# 4: signature
-PROFILES_SCHEMA_VERSION = 4
+# 4: signature; 5: a generator's key contract from its trial, keyContractFrom and keyContractConflict
+PROFILES_SCHEMA_VERSION = 5
 PROFILES_DOC = DocumentKind("profiles", PROFILES_SCHEMA_VERSION, NAMED + "; rerun grouping build")
 SEPARATOR = "|"
 KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN = "app_held", "provider_held", "unknown"
 KEY_CONTRACTS = (KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN)
 KEY_LABELS = {KEY_APP_HELD: "application-held", KEY_PROVIDER_HELD: "inside the provider"}
+# where keyContract came from: the probe's key attributes, or the key a generator's trial produced
+FROM_ATTRIBUTES, FROM_TRIAL = "attributes", "trial"
 
 
 def qualified(engine_type: str, name: str, provider: str) -> str:
@@ -93,6 +95,13 @@ class Profile:
     preparedKeySizes: tuple[int, ...] | None = None
     keyContract: str = KEY_UNKNOWN
     signature: Signature | None = None
+    keyContractFrom: str = FROM_ATTRIBUTES
+    keyContractConflict: str | None = None
+
+    @property
+    def isolated(self) -> bool:
+        """A generator whose key may or may not leave its provider: it joins no group, code- or model-made."""
+        return self.keyContractFrom == FROM_TRIAL and self.keyContract == KEY_UNKNOWN
 
     def to_json(self) -> dict:
         d = asdict(self)

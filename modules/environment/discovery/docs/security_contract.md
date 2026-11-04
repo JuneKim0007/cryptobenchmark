@@ -85,7 +85,7 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 
 | field | type | description |
 |---|---|---|
-| `schemaVersion` | int | `2` |
+| `schemaVersion` | int | `3`: `keyFormat` added |
 | `capturedAtMillis` | long | the capture this trial belongs to |
 | `defaultRunInputSize` | int | the input size every default run tries first; written only when set |
 | `services` | list | one entry per captured service |
@@ -122,4 +122,5 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 | `providerChose` | string | what the provider filled in, e.g. `ivBytes=12 tagBits=128`; format in [probe.md](probe.md) |
 | `bareName` | bool | `true` when the name has no `/` |
 | `keyMaterial` | string | a generator's key, or a pair's private key: `exportable` (`getEncoded()` returned bytes) or `non_exportable` (null); absent for other types and a generator that did not run |
+| `keyFormat` | string | the same key's `getFormat()`, e.g. `RAW`, `PKCS#8`; absent when null, for other types and a generator that did not run; the one size a generator's trial tries is its default, `keySize` |
 | `error` | string | present exactly when `works` is false |

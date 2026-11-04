@@ -18,7 +18,7 @@ class TrialDocumentTest {
         services = listOf(
             ServiceTrialEntry(
                 provider = "SunJCE", type = "Cipher", algorithm = "AES", outcome = TrialOutcome.SUCCESS,
-                defaultRun = DefaultRunOutcome(works = true, keyAlgorithm = "AES", keyProvider = "SunJCE", keySize = 256, inputSize = 1024, bareName = true, keyMaterial = "exportable"),
+                defaultRun = DefaultRunOutcome(works = true, keyAlgorithm = "AES", keyProvider = "SunJCE", keySize = 256, inputSize = 1024, bareName = true, keyMaterial = "exportable", keyFormat = "RAW"),
                 transformations = listOf(
                     TransformationTrialEntry("AES/CTR/NoPadding", TrialOutcome.SUCCESS, DefaultRunOutcome(works = true, providerChose = "ivBytes=16")),
                     TransformationTrialEntry("AES/CBC/NoPadding", TrialOutcome.SUCCESS, DefaultRunOutcome(works = false, inputSize = 32, error = "IllegalBlockSizeException: x")),
@@ -41,7 +41,7 @@ class TrialDocumentTest {
         val document = LinkedHashMap(TrialDocument.of(report))
         document[TrialDocument.SCHEMA_VERSION] = TrialReport.SCHEMA_VERSION + 1
         val error = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(document) }
-        assertEquals("unsupported_schema_version: 3, this build reads 2", error.message)
+        assertEquals("unsupported_schema_version: 4, this build reads 3", error.message)
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = true, error = "x") }
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = false) }
     }

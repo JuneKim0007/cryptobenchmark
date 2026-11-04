@@ -1,6 +1,6 @@
 # Outbound. What discovery writes after calling every captured service once with a default key:
 # what really runs on this device, and what the JCA refused. Pairs with the capture by capturedAtMillis.
-schemaVersion: 2
+schemaVersion: 3
 capturedAtMillis: 1750000000000
 defaultRunInputSize: 1024
 services:
@@ -60,6 +60,8 @@ services:
     keyAlgorithm: AES
     keyProvider: SunJCE
     keySize: 256
+    keyMaterial: exportable
+    keyFormat: RAW
 - provider: SunJCE
   type: KeyGenerator
   algorithm: HmacSHA256

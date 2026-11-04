@@ -1,5 +1,5 @@
 # Discovery's trial output; pairs with the capture by capturedAtMillis.
-schemaVersion: 2
+schemaVersion: 3
 capturedAtMillis: 1750000000000
 defaultRunInputSize: 1024
 services:

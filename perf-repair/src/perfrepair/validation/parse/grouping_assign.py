@@ -57,6 +57,15 @@ def _signature_problems(group: str, item: Item, family_groups: dict[str, Group],
     return problems
 
 
+def _isolation_problems(group: str, item: Item, family_groups: dict[str, Group], profiles: dict[int, Profile]) -> list[str]:
+    """A generator of unknown key contract joins no group, and no item joins one holding it."""
+    if not group or group not in family_groups:
+        return []
+    alone = [m for m in (item.id, *family_groups[group].members) if m in profiles and profiles[m].isolated]
+    return [f"group {group!r}: item {m} joins no group: whether its generated key leaves the provider is unknown; "
+            "create another group" for m in alone]
+
+
 def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Families,
                     profiles: dict[int, Profile] | None = None) -> list[str]:
     problems = []
@@ -67,6 +76,7 @@ def validate_answer(a: Answer, item: Item, knowledge: Knowledge, families: Famil
         problems.append(f"group {a.group!r} is not a group of family {item.family} "
                         f"(its groups: {sorted(family_groups) or 'none yet'})")
     problems += _signature_problems(a.group, item, family_groups, profiles)
+    problems += _isolation_problems(a.group, item, family_groups, profiles or {})
     if a.newGroupId:
         if not SLUG.match(a.newGroupId):
             problems.append(f"newGroup.id {a.newGroupId!r} must match {SLUG.pattern}")

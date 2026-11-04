@@ -9,6 +9,8 @@ data class DefaultRunOutcome(
     val providerChose: String = "",
     val bareName: Boolean = false,
     val keyMaterial: String = "",
+    // the generated key's getFormat(), the private key's for a pair; empty when null or not a generator
+    val keyFormat: String = "",
     val error: String = "",
 ) {
 
