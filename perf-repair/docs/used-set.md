@@ -42,7 +42,7 @@ flowchart LR
 
 | step | rule |
 |---|---|
-| onGap | `device.benchmark.onGap`: `delta` (default) measures the delta gaps once per gate point; `stop` ends `not_benchmarked` listing them; a gap left after the delta stops `not_benchmarked` (`stops.not_benchmarked`) |
+| onGap | `device.benchmark.onGap`: `delta` (default) measures the delta gaps once per gate point; `stop` ends `not_benchmarked` listing them; a gap left after the delta stops `not_benchmarked`, a fixed stop: a warning would measure, or go on, against what `onGap` or `--device-results` said |
 | `--device-results` | no config to run with: `not_benchmarked` with the command that makes the device stage itself |
 | device | `--identify` before the delta: another device id than the folder's is `device_id_changed` |
 | delta config | `delta/global.yaml`: the stored benchmark's own config (`manifest.config`), run block untouched, its test set's include replaced by the gap items and their anchors, overrides kept |

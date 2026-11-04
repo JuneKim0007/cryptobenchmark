@@ -64,8 +64,6 @@ CODES_LIST: tuple[Code, ...] = (
     _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),
-    _choice("not_benchmarked", STOP, "measure the gaps the line lists: rerun the guide with its device stage, or read "
-            "log/details/benchmark_coverage.yaml", (STOP, WARN)),
     _fixed("run_metrics_overridden", "remove run.metrics from the run config; apps.perfMode decides what is measured", NOTICE, WARN),
     _fixed("missing_dependency", "pip install -r requirements.txt"),
     # fixed: continuing would mix runs or devices
@@ -81,6 +79,8 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("device_id_changed", "the device changed between identify and probe; rerun on one device", MIXES),
     _fixed("setup_mismatch", "restore the setup the line names, or set device.benchmark.onSetupMismatch: rerun to measure "
            "the whole benchmark again", MIXES),
+    _fixed("not_benchmarked", "measure the gaps the line lists: rerun the guide with its device stage, or read "
+           "log/details/benchmark_coverage.yaml", MIXES),
     _fixed("merge_refused", "the stored benchmark is kept whole; rerun the guide", MIXES),
     _fixed("device_not_in_results", PICK_DEVICE, MIXES),
     _fixed("several_device_results", PICK_DEVICE, MIXES),

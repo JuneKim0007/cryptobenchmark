@@ -39,7 +39,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `category_mismatch` | `warn` | `warn`, `stop` | 1 | the before/after disagrees with its category's estimate; check the scope's pattern against its function, or read its ratio with care |
 | `thermal_throttled_at_end` | `warn` | `warn`, `stop` | 1 | the case ended throttled; let the phone cool, or read its numbers with care |
 | `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
-| `not_benchmarked` | `stop` | `stop`, `warn` | 1 | measure the gaps the line lists: rerun the guide with its device stage, or read log/details/benchmark_coverage.yaml |
 | `run_metrics_overridden` | `warn` | fixed: a notice; nothing to choose | 1 | remove run.metrics from the run config; apps.perfMode decides what is measured |
 | `missing_dependency` | `stop` | fixed: the input is unusable | 1 | pip install -r requirements.txt |
 | `screening_catalog_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun grouping build, or set device.screening.catalog to the catalog screen.json names |
@@ -52,6 +51,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `outbox_unkeyed` | `stop` | fixed: continuing would mix runs or devices | 1 | remove the records the current items do not key |
 | `device_id_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | the device changed between identify and probe; rerun on one device |
 | `setup_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | restore the setup the line names, or set device.benchmark.onSetupMismatch: rerun to measure the whole benchmark again |
+| `not_benchmarked` | `stop` | fixed: continuing would mix runs or devices | 1 | measure the gaps the line lists: rerun the guide with its device stage, or read log/details/benchmark_coverage.yaml |
 | `merge_refused` | `stop` | fixed: continuing would mix runs or devices | 1 | the stored benchmark is kept whole; rerun the guide |
 | `device_not_in_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |
 | `several_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |

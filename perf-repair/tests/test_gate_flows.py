@@ -120,3 +120,15 @@ def test_after_a_delta_replace_asks_changed_dossiers_again_and_never_stops_on_th
         with pytest.raises(SystemExit):
             app_steps.replacements(with_fields(base, app_root=F, delta_merged=merged))
         assert seen["refresh"] is merged
+
+
+def test_stops_not_benchmarked_warn_cannot_fall_through_into_a_delta(flow):
+    run(flow, flow.sha)
+    path = flow.settings()
+    runs = flow.device_runs()
+    document = yaml.safe_load(path.read_text())
+    document["stops"] = {"not_benchmarked": "warn"}
+    flow.settings = lambda: path.write_text(yaml.safe_dump(document)) and path
+    code, lines, _ = run(flow, flow.sha, flow.gcm, benchmark={"onGap": "stop"})
+    assert code == 1 and flow.device_runs() == runs and not (flow.device / "delta").exists()
+    assert any(line.startswith("guide prerequisites: stop not_benchmarked") for line in lines)
