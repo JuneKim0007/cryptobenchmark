@@ -2,7 +2,7 @@
 import pathlib, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import thermal  # noqa: E402
+from device import thermal  # noqa: E402
 
 CACHED_ONLY = """IsStatusOverride: false
 Thermal Status: 0

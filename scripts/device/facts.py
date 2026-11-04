@@ -3,11 +3,11 @@ import pathlib, zipfile
 
 import yaml
 
-import clocks
+from device import clocks
 
 FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
-APK = pathlib.Path(__file__).resolve().parent.parent / "modules/android/build/outputs/apk/release/android-release.apk"
+APK = pathlib.Path(__file__).resolve().parents[2] / "modules/android/build/outputs/apk/release/android-release.apk"
 PACKAGE = "io.github.junekim0007.cryptobench"
 
 

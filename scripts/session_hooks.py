@@ -1,8 +1,9 @@
 """Hooks every device session can use: the clock state around a process, and the energy source's window, traces, dry pass and joules."""
 import contextlib
 
-import clocks, energy_stage
-from clocks import CLOCKS
+import energy_stage
+from device import clocks
+from device.clocks import CLOCKS
 from energy_session import DRY_CALLS
 from measure_session import Hooks
 

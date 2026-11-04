@@ -9,7 +9,7 @@
 - `modules/settings/docs/index.md` : `cpu` and `energy` harness keys and device support
 
 ## Rules
-- entry: run device work through `python3 scripts/pipeline.py --device`; never drive the adb steps of `scripts/device.py` by hand.
+- entry: run device work through `python3 scripts/pipeline.py --device`; never drive the adb steps of `scripts/device/adb.py` by hand.
 - sdk: set `ANDROID_HOME` before a device run; `adb get-state` must report `device`.
 - serial: with several devices attached, set `ANDROID_SERIAL` to one.
 - root: a device run needs no root; never require it in code or scripts.

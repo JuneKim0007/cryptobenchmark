@@ -56,17 +56,19 @@ perf-repair/ : cryptobenchmark results to crypto replacements worth testing in a
 scripts/bundled.py : providers.bundled of global.yaml: build property, DeviceProbe argument, effective check
 scripts/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp
 scripts/case_isolation.py : run.isolation case: one case's instrumentation process, the device's case listing, one data file from many
-scripts/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 scripts/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
-scripts/device.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument, clear, pull, scope check
-scripts/device_id.py : device id from a capture's runtime block
+scripts/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
+scripts/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument, clear, pull, scope check
+scripts/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
+scripts/device/facts.py : device facts into discovery/facts.yaml
+scripts/device/identity.py : device id from a capture's runtime block
+scripts/device/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 scripts/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
 scripts/effective_view.py : effective.yaml with the warnings and skips of report.yaml
 scripts/energy_session.py : Perfetto sessions on the device: start, stop, pull
 scripts/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 scripts/explain.py : each resolved setting of a run and the file it came from
-scripts/facts.py : device facts into discovery/facts.yaml
 scripts/failure.py : one error line and exit
 scripts/gradle_runner.py : runs a tools/ Gradle build; filters its failure to the tool's own lines
 scripts/interop_stage.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
@@ -90,7 +92,6 @@ scripts/scope_signature.py : Java method and Kotlin function header parser; head
 scripts/scope_wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/session_hooks.py : session hooks every device run uses: clocks around a process; the energy window, traces, dry pass and joules
 scripts/tests/ : pytest and standalone tests for scripts/
-scripts/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 scripts/thermal_gate.py : run.thermalGate session hook: the idle baseline once after the warm-up, then a wait before each case process while the device is hotter, one line per pass
 scripts/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error

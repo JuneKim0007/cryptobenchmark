@@ -2,7 +2,7 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device import selection_error  # noqa: E402
+from device.adb import selection_error  # noqa: E402
 
 ONE = "List of devices attached\nemulator-5554\tdevice\n\n"
 TWO = "* daemon started successfully\nList of devices attached\nemulator-5554\tdevice\n4A1B\toffline\n\n"

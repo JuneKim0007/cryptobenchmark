@@ -6,7 +6,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import interop_stage  # noqa: E402
-from device import DeviceError  # noqa: E402
+from device.adb import DeviceError  # noqa: E402
 
 FILES = "/sdcard/plan"
 

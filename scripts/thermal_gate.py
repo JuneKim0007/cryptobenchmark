@@ -1,7 +1,8 @@
 """run.thermalGate: before each case process the host waits while the device is hotter than its idle baseline; the timed loop is untouched."""
 import dataclasses, json, time
 
-import thermal, thermal_hook
+import thermal_hook
+from device import thermal
 from measure_session import Hooks
 
 TIMEOUT = "thermal_gate_timeout"

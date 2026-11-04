@@ -1,8 +1,9 @@
 """run.warmup: a pre-flight run of a few cases once per device session, before the first pass; its output is deleted, never pulled or converted."""
 import fnmatch, time
 
-import case_isolation, passes, thermal, timeouts
-from device import DeviceError
+import case_isolation, passes, timeouts
+from device import thermal
+from device.adb import DeviceError
 from measure_session import PASSED
 
 DEFAULT_CASES = 3

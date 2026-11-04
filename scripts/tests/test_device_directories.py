@@ -2,7 +2,7 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device import PACKAGE, directories  # noqa: E402
+from device.adb import PACKAGE, directories  # noqa: E402
 
 
 def test_from_api_29_plan_and_output_share_the_media_directory():

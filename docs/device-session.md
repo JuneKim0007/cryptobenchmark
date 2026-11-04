@@ -42,7 +42,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Temperature
 
-`scripts/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `scripts/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
+`scripts/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` is denied to it on the Pixel); `scripts/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
 
 | rule | value |
 |---|---|
@@ -77,7 +77,7 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 | rule | value |
 |---|---|
 | on | `run.thermalGate` set and not `enabled: false` ([config.md](../modules/config/docs/config.md)); absent, every case starts as soon as the last ends |
-| baseline | once per run, before the warm-up and the first case (after the energy pre-flight's idle settle): the hottest of `sensors` (`scripts/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}` |
+| baseline | once per run, before the warm-up and the first case (after the energy pre-flight's idle settle): the hottest of `sensors` (`scripts/device/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}` |
 | wait | before each case process (`isolation: case`), or before each process (`isolation: run`, no case boundary): read every `pollSeconds` while the hottest of `sensors` is above target or `Thermal Status` is above 0 |
 | timeout | past `timeoutSeconds` the case starts anyway; `thermal_gate_timeout: <id>: <pass>: started after <s> s at <c> C, status <n>, target <t> C` in `manifest.yaml` `problems` (`process-<n>` for `isolation: run`) |
 | sensors | names in config (device facts), never in code; one absent from a reading is skipped; none present at the baseline turns the gate off for the run with one `warning: thermal_gate_off: ...`; a poll with no gated sensor and no status does not hold a case |

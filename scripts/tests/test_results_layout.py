@@ -7,7 +7,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import pipeline  # noqa: E402
 import results_layout as layout  # noqa: E402
-from device_id import device_id  # noqa: E402
+from device.identity import device_id  # noqa: E402
 
 RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}
 

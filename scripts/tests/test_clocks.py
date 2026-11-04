@@ -1,6 +1,6 @@
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import clocks
+from device import clocks
 
 SCALING = "cpu0 1 sched_pixel 422000 2246000 2246000\ncpu7 1 sched_pixel 533000 3782000 3782000\n"
 PINNED = "cpu0 1 performance 2246000 2246000 2246000\ncpu1 0 - - - -\n"

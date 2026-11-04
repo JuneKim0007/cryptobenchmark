@@ -2,10 +2,12 @@
 """Runs the host pipeline in order and reports one readable failure."""
 import argparse, dataclasses, json, os, pathlib, shutil, subprocess, sys, time, traceback
 
-import bundled, capture_files, case_isolation, clocks, cooldown_hook, effective_view, energy_stage, facts, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_gate, thermal_hook, timeouts, variant_order, warmup
-from clocks import CLOCKS
-from device import CPU_PINS, Device, DeviceError, measure_arguments
-from device_id import DeviceIdError, capture_id, device_id
+import bundled, capture_files, case_isolation, cooldown_hook, effective_view, energy_stage, gradle_runner, interop_stage, measure_session, not_measured, passes, results_layout, run_inputs, scope_generate, scope_results, session_hooks, thermal_gate, thermal_hook, timeouts, variant_order, warmup
+from device import clocks
+from device import facts
+from device.clocks import CLOCKS
+from device.adb import CPU_PINS, Device, DeviceError, measure_arguments
+from device.identity import DeviceIdError, capture_id, device_id
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail
 from scope_harness import HarnessError

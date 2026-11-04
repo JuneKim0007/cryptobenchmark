@@ -6,7 +6,7 @@ import pytest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import case_isolation, measure_session  # noqa: E402
-import device as device_module  # noqa: E402
+from device import adb as device_module  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 
 

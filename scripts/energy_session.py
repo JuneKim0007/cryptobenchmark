@@ -1,7 +1,7 @@
 """Perfetto sessions on the device for energy; rails are read by tools/energy, this only starts, stops and pulls."""
 import re
 
-from device import NO_DEFAULT_PROFILER, DeviceError, instrumentation_report
+from device.adb import NO_DEFAULT_PROFILER, DeviceError, instrumentation_report
 
 TRACES = "/data/misc/perfetto-traces"   # where the shell user's perfetto may write
 SCRATCH = "/data/local/tmp"

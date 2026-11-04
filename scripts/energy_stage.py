@@ -4,7 +4,7 @@ import json, pathlib, sys
 import yaml
 
 import timeouts
-from device import DeviceError, android_home
+from device.adb import DeviceError, android_home
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT / "tools/energy"))

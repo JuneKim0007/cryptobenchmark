@@ -1,7 +1,7 @@
 """Temperature around every case and process of a session, into each process's thermal.json, and one line per pass; never a failed case."""
 import json
 
-import thermal
+from device import thermal
 from measure_session import Hooks
 
 FILE = "thermal.json"

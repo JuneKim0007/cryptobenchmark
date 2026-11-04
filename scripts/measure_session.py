@@ -3,7 +3,7 @@ one for all, and hooks around the session, each process and each case."""
 import dataclasses, json, pathlib, re
 
 import case_isolation, effective_view
-from device import DeviceError
+from device.adb import DeviceError
 
 PASSED = re.compile(r"^OK \(\d+ tests?\)", re.M)
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)

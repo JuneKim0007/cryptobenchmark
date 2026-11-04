@@ -6,7 +6,7 @@ import java.io.File
 
 /** One line per pinned case in cpu-pins.yaml: what was asked, and the core it ran on or why it did not. */
 object CorePins {
-    // Paired with scripts/device.py CPU_PINS.
+    // Paired with scripts/device/adb.py CPU_PINS.
     const val FILE = "cpu-pins.yaml"
 
     fun record(caseId: String, cpu: CpuSettings, outcome: CorePin.Outcome) {

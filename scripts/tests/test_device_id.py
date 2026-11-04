@@ -6,7 +6,7 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device_id import DeviceIdError, device_id  # noqa: E402
+from device.identity import DeviceIdError, device_id  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parent.parent.parent
 # Real block of a capture taken before the identity fields existed (~/capstone/runs/2026-11-02-fx).

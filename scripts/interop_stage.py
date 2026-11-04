@@ -5,7 +5,7 @@ import shutil
 import yaml
 
 import gradle_runner
-from device import DeviceError, instrumentation_report
+from device.adb import DeviceError, instrumentation_report
 
 PLAN = "interop_plan.yaml"   # InteropPlanFile.NAME
 RESULT = "interop.yaml"      # InteropFile.NAME

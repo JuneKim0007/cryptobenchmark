@@ -2,7 +2,7 @@
 import dataclasses, re
 
 import timeouts
-from device import DeviceError
+from device.adb import DeviceError
 
 TEMPERATURE = re.compile(r"Temperature\{mValue=([^,]+), mType=-?\d+, mName=([^,}]+), mStatus=-?\d+\}")
 STATUS = re.compile(r"^\s*Thermal Status: (-?\d+)\s*$", re.M)

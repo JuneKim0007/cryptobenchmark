@@ -7,7 +7,7 @@ import tempfile
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device_id import DeviceIdError, device_id  # noqa: E402
+from device.identity import DeviceIdError, device_id  # noqa: E402
 from pipeline import manifest  # noqa: E402
 import run_inputs  # noqa: E402
 

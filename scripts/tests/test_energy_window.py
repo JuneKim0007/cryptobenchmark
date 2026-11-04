@@ -4,7 +4,7 @@ import pathlib, sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy_stage, measure_session, session_hooks  # noqa: E402
-from device import DeviceError  # noqa: E402
+from device.adb import DeviceError  # noqa: E402
 from fake_phone import Energy, Phone  # noqa: E402
 
 
