@@ -36,6 +36,7 @@ src/perfrepair/guide/state.py : Guide settings, the running step, the run's RunR
 src/perfrepair/guide/target_file.py : the targets step: <device>/targets.yaml before any model step, removed with --app; a non-app path entry's stop
 src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its RunRecord, terminal and incomplete outcomes recorded, the report summary, one line per app (a non-app path entry's stop first), Ctrl-C after the summary, the exit rule
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--device-results --app`; `--perfrepair-config` fills the folder and the screening catalog
+src/perfrepair/repair/call_site.py : a scope's callSite for harness.yaml: the one operation from its lifecycle, else from the chosen option's estimates; its pattern as the variant
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens; a numeric literal is one token
 src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk, under the app's perfMode → <app>/dossiers.json, validated before writing; counts no_evidence scopes
 src/perfrepair/repair/edit/__init__.py : re-exports edit_app, load_specs and the source helpers harness reads: read_source, language, function_lines, import_lines

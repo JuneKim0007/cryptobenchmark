@@ -130,6 +130,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `missing_parameters` | `stop` | fixed: the input is unusable | 1 | rerun the inbound stage (or the guide's device stage) |
 | `missing_probe` | `stop` | fixed: the input is unusable | 1 | rerun the device stage |
 | `missing_step` | `stop` | fixed: the input is unusable | 1 | run the app's earlier steps first |
+| `no_dossier` | `stop` | fixed: the input is unusable | 1 | rerun repair dossier, then repair edit, for the app |
 | `invariant_failed` | `stop` | fixed: the input is unusable | 1 | run python3 -m perfrepair.validation.invariants on the device folder; fix each blocking finding it prints |
 | `no_benchmark` | `stop` | fixed: the input is unusable | 1 | rerun the benchmark |
 | `delta_unconfigured` | `stop` | fixed: the input is unusable | 1 | restore the stored benchmark's config the line names, or rerun the device stage |

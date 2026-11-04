@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..dto.site import HARNESS_SCHEMA_VERSION, INPUT_SOURCES, METRICS, NOT_MEASURABLE_REASONS, EDITS_SCHEMA_VERSION
+from ..dto.pattern import PATTERNS
 from ..source.language import NAMES
 
 EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_call", "unsupported_expression",
@@ -11,7 +12,7 @@ EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_cal
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
                 "no_change", "overlapping_edits", "unit_member_rejected")
 HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "current", "option",
-                "metrics", "dependencies", "notMeasurable", "inverse")
+                "metrics", "dependencies", "notMeasurable", "inverse", "callSite")
 
 
 def _header(doc: dict, app: str, key: str, version: int = EDITS_SCHEMA_VERSION) -> list[str]:
@@ -68,7 +69,13 @@ def _listed(where: str, s: dict) -> list[str]:
         f"{where}: metrics {s['metrics']}" if s["metrics"] != list(METRICS) else "",
         f"{where}: dependencies are not sorted and unique" if s["dependencies"] != sorted(set(s["dependencies"])) else "",
         f"{where}: notMeasurable {s['notMeasurable']!r}" if s["notMeasurable"] not in (None, *NOT_MEASURABLE_REASONS) else "",
+        f"{where}: callSite {s['callSite']}" if not _call_site(s["callSite"]) else "",
     ) if p]
+
+
+def _call_site(c) -> bool:
+    return (isinstance(c, dict) and set(c) == {"operation", "variant"} and c["variant"] in PATTERNS
+            and (c["operation"] is None or isinstance(c["operation"], str)))
 
 
 def _inverse(where: str, inverse, applied: list[str]) -> list[str]:

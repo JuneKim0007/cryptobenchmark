@@ -25,7 +25,8 @@ SCOPES_SCHEMA_VERSION = 5
 # 4: recommend with needs; deciding, accepted and concerns on every row
 REPLACEMENTS_SCHEMA_VERSION = 4
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe; 4: inverse, the interop partner by link
-HARNESS_SCHEMA_VERSION = 4
+# 5: callSite, the swapped call's operation and variant, measured alone
+HARNESS_SCHEMA_VERSION = 5
 # an app artifact at another schema is schema_version, never a field read as missing
 _APP_ARTIFACT = "schema_version: {path} schemaVersion {found!r} is not {version}; rerun the step that writes it"
 SCOPES_DOC = DocumentKind("scopes", SCOPES_SCHEMA_VERSION, _APP_ARTIFACT)

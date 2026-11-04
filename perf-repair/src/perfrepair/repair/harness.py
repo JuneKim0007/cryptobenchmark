@@ -10,6 +10,7 @@ from ..dto.unit import Unit, units_by_scope
 from ..files import write_text_making_parents
 from ..source.code import Code
 from ..stop.halt import Coded
+from .call_site import call_site
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
@@ -59,5 +60,6 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "dependencies": uses,
             "notMeasurable": None if has_operation(Code.of(original, lang), scope) else NO_OPERATION,
             "inverse": inverses.get(scope.id),
+            "callSite": call_site(scope, dossiers[scope.id], replacements[scope.id].option),
         })
     return {"schemaVersion": HARNESS_SCHEMA_VERSION, "app": out.app, "scopes": entries}

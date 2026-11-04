@@ -39,7 +39,9 @@ def setup_run(tmp_path):
     write_json(paths.replacements, {"schemaVersion": REPLACEMENTS_SCHEMA_VERSION, "app": APP, "replacements": [
         replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
         replace(TWICE, pins(tagBits=128), option=FAST).to_json(), replace(TEMPLATE, provider("Fast"), option=FAST).to_json()]})
-    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [{"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES]})
+    estimated = [{"item": FAST, "estimates": [{"metric": "timeNs", "configuration": "ENCRYPT key 256 input 1024 WARM"}]}]
+    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [
+        {"scope": {"id": s.id}, "current": CURRENT, "options": estimated if s is LITERAL else []} for s in SCOPES]})
     write_json(paths.units, {"schemaVersion": 1, "app": APP, "units": [
         {"id": unit_id(APP, [s.id]), "members": [s.id], "links": [], "sharedFunction": []} for s in SCOPES]})
     return paths
@@ -67,7 +69,8 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
         "before": f"harness/{LITERAL.id}/before.java", "after": f"harness/{LITERAL.id}/after.java",
         "imports": ["import javax.crypto.Cipher;"],
         "inputs": {"inputSize": 1024, "keySize": 256, "from": "app"}, "current": CURRENT, "option": FAST,
-        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None, "inverse": None}
+        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None, "inverse": None,
+        "callSite": {"operation": "ENCRYPT", "variant": "notFixed"}}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
@@ -76,6 +79,7 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
     nested = next(s for s in doc["scopes"] if s["id"] == NESTED.id)
     assert nested["dependencies"] == ["key", "name", "prefix"]
     assert nested["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
+    assert nested["callSite"] == {"operation": None, "variant": "notFixed"}
 
 
 def test_both_steps_are_deterministic(tmp_path):

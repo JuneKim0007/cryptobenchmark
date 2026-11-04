@@ -77,7 +77,7 @@ Before and after are measured in `run.scopedRepetitions` processes each (default
 
 ## Inputs
 
-`harness.yaml` `schemaVersion: 4`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
+`harness.yaml` `schemaVersion: 5`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`; `prepared.yaml` takes only the sizes.
 
 | parameter type | value |
 |---|---|

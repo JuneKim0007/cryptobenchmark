@@ -6,9 +6,9 @@ import yaml
 
 from scope import languages as scope_languages
 
-SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse"}
+SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse", "callSite"}
 ID = re.compile(r"^[0-9a-f]{12}$")
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 INPUT_SOURCES = ("app", "run")
 
 
@@ -33,6 +33,7 @@ class HarnessScope:
     dependencies: tuple
     not_measurable: str | None = None
     inverse: dict | None = None
+    call_site: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -82,8 +83,14 @@ def scope(entry, index, base):
         key_size=size(inputs.get("keySize"), f"{where}.inputs.keySize"), input_source=inputs["from"],
         current=entry.get("current"), option=entry.get("option"), metrics=tuple(entry.get("metrics") or ()),
         dependencies=tuple(str(name) for name in entry.get("dependencies") or ()),
-        not_measurable=entry.get("notMeasurable"), inverse=entry.get("inverse"),
+        not_measurable=entry.get("notMeasurable"), inverse=entry.get("inverse"), call_site=call_site(entry.get("callSite"), where),
     )
+
+
+def call_site(value, where):
+    if value is not None and (not isinstance(value, dict) or set(value) != {"operation", "variant"}):
+        raise HarnessError(f"invalid: {where}.callSite {value}, expected {{operation, variant}}")
+    return value
 
 
 def source(base, value, where):
