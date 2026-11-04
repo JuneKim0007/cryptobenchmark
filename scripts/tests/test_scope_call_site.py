@@ -5,6 +5,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import gradle_runner  # noqa: E402
+from session import measure as measure_session  # noqa: E402
 from scope import call_site as scope_call_site  # noqa: E402
 from scope import generate as scope_generate  # noqa: E402
 from scope import results as scope_results  # noqa: E402
@@ -58,6 +59,18 @@ def test_one_effective_per_distinct_selection_narrowed_to_the_operation_sizes_an
     digest = yaml.safe_load((tmp_path / next(c["effective"] for c in cases if c["id"] == "scope:2c3d4e5f6071:callSite:before")).read_text())
     assert digest["providers"] == {"BC": {"MessageDigest": {"SHA-256": {"operations": ["DIGEST"], "inputSizes": [1024]}}}}
     assert digest["run"]["variants"] == ["fixed"]
+
+
+def test_nothing_planned_still_pushes_an_empty_plan_that_replaces_a_last_runs(tmp_path):
+    effective = tmp_path / "effective.yaml"
+    effective.write_text(yaml.safe_dump(EFFECTIVE))
+    files = scope_call_site.write([], effective, tmp_path)
+    assert [f.name for f in files] == ["callsite.yaml"] and yaml.safe_load(files[0].read_text())["cases"] == []
+
+
+def test_each_call_sites_before_and_after_stay_a_pair_that_alternates_ab_ba():
+    cases = ("scope:a:before", "scope:a:after", "scope:a:callSite:before", "scope:a:callSite:after")
+    assert measure_session.alternating(2, cases) == ["scope:a:after", "scope:a:before", "scope:a:callSite:after", "scope:a:callSite:before"]
 
 
 def test_two_scopes_on_one_selection_share_its_effective(tmp_path):

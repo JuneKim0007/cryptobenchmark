@@ -5,7 +5,7 @@ import yaml
 
 SIDES = ("before", "after")
 PLAN = "callsite.yaml"   # CallSitePlan.FILE
-PREFIX = "callsite-"     # CallSitePlan.PREFIX: one effective per selection, its prepared.yaml in the folder of that name
+PREFIX = "callsite-"     # one effective per selection, its prepared.yaml in the folder of that name
 
 
 def case_id(scope_id, side):
@@ -64,7 +64,7 @@ def effective(document, side, operation, variant):
 
 
 def write(records, effective_path, out):
-    """callsite.yaml and one effective per distinct selection into `out`; the files to push, none when nothing is planned."""
+    """callsite.yaml, empty when nothing is planned so it replaces a last run's, and one effective per distinct selection; the files to push."""
     document = yaml.safe_load(effective_path.read_text()) or {}
     selections, cases = {}, []
     for record in records:
@@ -77,8 +77,6 @@ def write(records, effective_path, out):
             name = selections.setdefault(key, (f"{PREFIX}{len(selections) + 1}", chosen, site["operation"], site["variant"]))[0]
             cases.append({"id": case, "effective": f"{name}.yaml", "folder": name, "operation": site["operation"],
                           "variant": site["variant"], **chosen})
-    if not cases:
-        return []
     files = [out / PLAN]
     files[0].write_text(yaml.safe_dump({"schemaVersion": 1, "cases": cases}, sort_keys=False))
     for name, chosen, operation, variant in selections.values():
