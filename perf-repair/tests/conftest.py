@@ -24,6 +24,23 @@ def isolated_settings(tmp_path_factory, monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def no_real_model(monkeypatch):
+    """A test reaches no model: `claude` looked up on PATH is refused; a fake binary a test names by path still runs."""
+    from perfrepair.ai.runtime.gateway import claude_cli
+
+    real = claude_cli._run
+
+    def guarded(command, *args, **kwargs):
+        if command[0] == "claude":
+            raise AssertionError("a test reached the real claude CLI: pass a scripted conversation or --agent dry-run")
+        return real(command, *args, **kwargs)
+    monkeypatch.setattr(claude_cli, "_run", guarded)
+    defaults = claude_cli.ClaudeCliConversations.__init__.__defaults__
+    monkeypatch.setattr(claude_cli.ClaudeCliConversations.__init__, "__defaults__",
+                        tuple(guarded if d is real else d for d in defaults))
+
+
+@pytest.fixture(autouse=True)
 def fake_benchmark_root(monkeypatch):
     """The guide reads --identify before its apps; no test reaches the real pipeline, which starts Gradle."""
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(Path(__file__).parent / "fixtures" / "guide"))

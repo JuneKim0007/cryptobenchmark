@@ -22,3 +22,12 @@ class FailureMessage(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_the_wrappers_first_run_lines_are_not_the_tools_output():
+    first_run = ("Downloading https://services.gradle.org/distributions/gradle-9.5.1-bin.zip\n"
+                 "............10%.............20%\n"
+                 "Unzipping /home/u/.gradle/wrapper/dists/gradle-9.5.1-bin.zip to /home/u/.gradle/wrapper/dists\n"
+                 "Set executable permissions for: /home/u/.gradle/wrapper/dists/gradle-9.5.1/bin/gradle\n"
+                 "model: jvm\nsdkInt: 0\n")
+    assert gradle_runner.tool_lines(first_run) == ["model: jvm", "sdkInt: 0"]

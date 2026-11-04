@@ -1,4 +1,5 @@
 """Runs one gradle tool and turns its failure into the few lines a person needs."""
+import re
 import subprocess
 import sys
 
@@ -10,6 +11,8 @@ from repo import ROOT
 WRAPPER = ROOT / "gradlew"
 PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
              "not_converted:", "not_merged:", "energy_not_joined:")
+# the wrapper prints these on stdout the first time it unpacks a distribution, before the tool runs
+BOOTSTRAP = ("Downloading https://services.gradle.org/", "Set executable permissions for:", "Unzipping ", "Welcome to Gradle")
 NOISE = ("FAILURE:", "BUILD FAILED", "* Try:", "* Get more help", "* What went wrong", "> Process 'command", "Run with --", "* Exception is:")
 
 
@@ -42,12 +45,17 @@ def _command(project, arguments, main_class):
     return command
 
 
+def tool_lines(stdout):
+    """The tool's own stdout lines: the wrapper's bootstrap lines and its download progress dots dropped."""
+    return [l for l in stdout.strip().splitlines() if not l.startswith(BOOTSTRAP) and not re.fullmatch(r"[.\d%]+", l.strip())]
+
+
 def output_of(project, arguments, main_class):
     """The tool's stdout lines; its failure is one ToolFailed line, for a caller that goes on or words it itself."""
     result = timeouts.run("gradle", _command(project, arguments, main_class), capture_output=True, text=True)
     if result.returncode != 0:
         raise ToolFailed(one_line(failure_message((result.stdout + result.stderr).splitlines())))
-    return result.stdout.strip().splitlines()
+    return tool_lines(result.stdout)
 
 
 def run(project, arguments, stacktrace, stream=False, main_class=None, notices=None):
@@ -59,7 +67,7 @@ def run(project, arguments, stacktrace, stream=False, main_class=None, notices=N
         result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:
             fail(f"{project} failed; rerun without --stream for a filtered message")
-        return result.stdout.strip().splitlines()
+        return tool_lines(result.stdout)
     result = timeouts.run("gradle", command, capture_output=True, text=True)
     output = (result.stdout + result.stderr).splitlines()
     if result.returncode != 0:
@@ -67,7 +75,7 @@ def run(project, arguments, stacktrace, stream=False, main_class=None, notices=N
             print("\n".join(output), file=sys.stderr)
         fail(failure_message(output))
     pass_on(output, notices)
-    return result.stdout.strip().splitlines()
+    return tool_lines(result.stdout)
 
 
 def pass_on(output, notices):

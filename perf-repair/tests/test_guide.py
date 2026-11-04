@@ -165,6 +165,7 @@ def test_a_run_without_grouping_says_how_to_make_it(run):
 def test_a_named_folder_with_items_undecided_asks_them(run):
     shutil.rmtree(GroupingPaths(run).root / "outbox")
     g, lines = guide(run, DRY_RUN)
+    g = with_field(g, grouping_args=("--agent", "dry-run"))
     run_steps(g, device=False)
     assert any(line.startswith("guide grouping: ok: ran: ") and "items asked" in line for line in lines)
 
