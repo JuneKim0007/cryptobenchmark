@@ -24,7 +24,8 @@ def test_the_shipped_screening_loads_with_every_key_canonical():
     assert screening.crypto[("MessageDigest", "SHA-1")].status == "deprecated"
     assert screening.crypto[("Signature", "SHA256WITHRSA")].status == "accepted"
     assert screening.crypto[("Cipher", "AES/CBC/PKCS5PADDING")].status == "accepted"
-    assert screening.crypto[("Mac", "SSLMACMD5")].source == "unsourced"
+    assert screening.crypto[("Mac", "SSLMACMD5")].source.endswith("rfc7568")
+    assert [k for k, rule in screening.crypto.items() if rule.source == "unsourced"] == []
     assert screening.platform[("BC", "KeyFactory", "RSA")].removedApi is None
 
 

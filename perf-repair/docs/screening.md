@@ -100,6 +100,21 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 - a row cites a fetched source from `sources`, or says `source: unsourced`.
 - conflicts follow NIST SP 800-131A r2 (final), stricter where Android's pages say so: SHA-1 digest `deprecated`; PKCS#1 v1.5 signatures `accepted`; CBC `accepted`.
 - platform rows come from AOSP `Providers.java` `DEPRECATED_ALGORITHMS`; OIDs and aliases resolve to the canonical names listed; `AlgorithmParameters` and `CertificateFactory` are not item engine types.
+- `NONEwithDSA` follows FIPS 186-5 (final), which r2 predates; the digest-named DSA rows follow r2.
+- a row needs a `catalog/types.yaml` row for its family engine and a name in `algorithm-names.yaml`.
+
+## Names with no row
+
+| Names | What the fetched sources say |
+|---|---|
+| `AES/GCM-SIV/NoPadding` | RFC 8452 is IRTF research output; r2 and the r3 draft do not name it; Android lists it as supported only |
+| `NONEwithRSA`, `NONEwithECDSA` and P1363 form | no digest in the name; the caller's digest decides |
+| Mac `PBEWithHmacSHA*` | PBMAC1 on SunJCE, the PKCS12 KDF on BC: one key for two schemes |
+| Mac `HmacPBESHA*`, `PBEWITHHMACSHA` | RFC 7292 App B deprecates password privacy mode and says integrity mode still uses it |
+| `HSS/LMS` | SP 800-208: not suitable for general use, generation in hardware only |
+| `SHAKE128-256`, `SHAKE256-512` | FIPS 202: approved XOFs, not approved as hash functions |
+| `AES/PCBC/*`, `AES/CTS/NoPadding`, `SunTls*` | no fetched source judges them |
+| AES CFB and OFB with a padding or a bit count outside `CFB8`, `CFB128`, `OFB128` | no fetched source judges the padding; other bit counts are not catalog modes |
 
 ## Limits
 
@@ -110,6 +125,6 @@ The key cannot express:
 | key size, curve, group size | `RSA` with a 1024-bit key and with a 4096-bit key get one verdict |
 | sign vs verify | a SHA-1 signature is `broken` for verification too |
 | collision vs non-collision use | a SHA-1 digest is `broken` for any purpose |
-| KDF iterations and salt | password-based AES ciphers and PBKDF2 names stay `unknown`; a PBE name is judged by its cipher alone |
+| KDF iterations and salt | PBES2 ciphers and PBKDF2 names stay `unknown`; any other PBE name is judged by its cipher or its KDF |
 | OAEP and MGF1 digests | a listed OAEP padding is `accepted` whatever MGF1 digest the provider uses |
 | bare-name defaults | `AES` and `RSA` are judged by documented defaults, not by what the provider chose |

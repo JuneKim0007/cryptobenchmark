@@ -38,7 +38,7 @@ RAW = {"SupportedKeyFormats": ["RAW"]}
 HANDLE = {"SupportedKeyClasses": ["vendor.store.HandleKey"]}
 
 # pending items asked, before and after the signature; a catalog or interchange change that moves these is deliberate
-ASKED = {"jdk17": (155, 28), "jdk21": (162, 28), "jdk25": (176, 36), "android36": (119, 23)}
+ASKED = {"jdk17": (154, 28), "jdk21": (161, 28), "jdk25": (175, 36), "android36": (108, 23)}
 
 
 def sig(engine_type, name, resolved=None, contract=KEY_APP_HELD):

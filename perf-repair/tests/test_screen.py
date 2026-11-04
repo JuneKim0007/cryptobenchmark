@@ -86,8 +86,24 @@ def test_a_platform_row_without_a_crypto_row_is_unknown_until_gated():
     assert status("KeyFactory", "RSA", "BC", 28) == "platform_deprecated"
 
 
-@pytest.mark.parametrize("engine_type, name", [("Cipher", "PBEWithHmacSHA256AndAES_256"),
-                                               ("MessageDigest", "SHAKE128-256"), ("KeyStore", "PKCS12")])
+@pytest.mark.parametrize("engine_type, name, want, cited", [
+    ("Cipher", "PBEWITHSHA256AND128BITAES-CBC-BC", "broken", "rfc7292"),
+    ("Cipher", "PBEWITHSHA1AND256BITAES-CBC-BC", "broken", "rfc7292"),
+    ("Cipher", "PBEWITHSHAANDTWOFISH-CBC", "broken", "rfc7292"),
+    ("Cipher", "PBEWITHMD5AND192BITAES-CBC-OPENSSL", "broken", "rfc8018"),
+    ("Cipher", "DESedeWrap/CBC/NoPadding", "broken", "800-131Ar2.pdf"),
+    ("Signature", "NONEWITHDSA", "broken", "186-5.pdf"),
+    ("Signature", "ML-DSA-65", "accepted", "FIPS.204.pdf"),
+    ("KeyPairGenerator", "ML-KEM-768", "accepted", "FIPS.203.pdf")])
+def test_a_scheme_is_judged_by_what_its_source_says(engine_type, name, want, cited):
+    verdict = HANDLER.verdict(engine_type, name, "P")
+    assert verdict.status == want and verdict.source.endswith(cited)
+
+
+@pytest.mark.parametrize("engine_type, name", [
+    ("Cipher", "PBEWithHmacSHA256AndAES_256"), ("MessageDigest", "SHAKE128-256"), ("KeyStore", "PKCS12"),
+    ("Cipher", "AES/GCM-SIV/NoPadding"), ("Cipher", "AES_256/GCM-SIV/NoPadding"), ("Signature", "NONEwithRSA"),
+    ("Signature", "NONEwithECDSA"), ("Signature", "HSS/LMS"), ("Mac", "PBEWithHmacSHA1"), ("Mac", "HmacPBESHA256")])
 def test_an_unlisted_name_is_unknown_without_a_source(engine_type, name):
     verdict = HANDLER.verdict(engine_type, name, "P")
     assert (verdict.status, verdict.reason, verdict.source) == ("unknown", "no screening row", None)

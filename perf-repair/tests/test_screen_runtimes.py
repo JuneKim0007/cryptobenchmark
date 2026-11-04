@@ -33,14 +33,14 @@ PACKAGED = ScreeningHandler(SCREENING, CATALOG)
 
 # a catalog change that moves these is deliberate: recompute, review, then pin
 EXPECTED = {
-    "android36": {"items": 168, "broken": 49, "accepted": 99, "unknown": 20, "codeGroups": 44, "multiProvider": 1,
+    "android36": {"items": 168, "broken": 60, "accepted": 99, "unknown": 9, "codeGroups": 55, "multiProvider": 1,
                   "pairs": 25116, "refused": 10686},
-    "jdk17": {"items": 193, "broken": 38, "accepted": 123, "unknown": 32, "codeGroups": 36, "multiProvider": 0,
+    "jdk17": {"items": 193, "broken": 39, "accepted": 123, "unknown": 31, "codeGroups": 37, "multiProvider": 0,
               "pairs": 39084, "refused": 12264},
-    "jdk21": {"items": 200, "broken": 38, "accepted": 123, "unknown": 39, "codeGroups": 36, "multiProvider": 0,
+    "jdk21": {"items": 200, "broken": 39, "accepted": 123, "unknown": 38, "codeGroups": 37, "multiProvider": 0,
               "pairs": 41316, "refused": 14088},
-    "jdk25": {"items": 214, "broken": 38, "accepted": 123, "unknown": 53, "codeGroups": 36, "multiProvider": 0,
-              "pairs": 45984, "refused": 17004},
+    "jdk25": {"items": 214, "broken": 39, "accepted": 135, "unknown": 40, "codeGroups": 37, "multiProvider": 0,
+              "pairs": 45984, "refused": 14628},
 }
 
 
