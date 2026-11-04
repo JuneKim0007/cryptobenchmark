@@ -1,5 +1,5 @@
 """A --harness run: perf-repair's scopes generated, interop-checked and measured on the device, original and patched."""
-import pathlib, time
+import pathlib, shutil, time
 
 import effective_view, energy_stage
 from device.identity import capture_id
@@ -18,14 +18,17 @@ from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_
                               thermal_flag, timed_hooks)
 from stages.took import elapsed
 
+# beside scoped/, which a failed run rolls back: the plan a failure line points at
+FAILED_PLAN = "scoped-plan.failed.yaml"
+
 
 def generate_scopes(options, scoped):
     started = time.monotonic()
     plan, compiled = scope_generate.generate(options.harness, ROOT, scoped)
     elapsed(f"generate and compile {len(compiled)} scopes", started)
-    print(f"wrote:     {plan}")
     if not compiled:
-        fail(f"no_scope_compiled: every scope is not_compilable or not_measurable, see {plan}")
+        fail(f"no_scope_compiled: every scope is not_compilable or not_measurable, see {scoped.parent / FAILED_PLAN}")
+    print(f"wrote:     {plan}")
     return plan
 
 
@@ -104,14 +107,27 @@ def measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, 
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
 
+def keep_failed_plan(scoped):
+    """The rollback removes scoped/; the plan of the failed run is kept beside it."""
+    plan, kept = scoped / scope_generate.PLAN, scoped.parent / FAILED_PLAN
+    if plan.is_file():
+        shutil.copyfile(plan, kept)
+        print(f"kept:      {kept}")
+
+
 def harness_run(options, configuration, device, results):
+    (results / FAILED_PLAN).unlink(missing_ok=True)
     try:
         with results_layout.kept_until_replaced(results / "scoped") as scoped:
             try:
                 plan = generate_scopes(options, scoped)
                 files, problems = measure_scopes(options, configuration, device, results, scoped, plan)
             except (HarnessError, scope_generate.GenerateError) as error:
+                keep_failed_plan(scoped)
                 fail(str(error))
+            except BaseException:
+                keep_failed_plan(scoped)
+                raise
             manifest(results, "device", configuration, files, problems)
     finally:
         scope_generate.clean(ROOT)

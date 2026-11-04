@@ -1,6 +1,8 @@
 """The before/after run on the device session, on a fake phone: the scope check first, then the measured cases like any device case."""
 import json, pathlib, sys, types
 
+import pytest
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from session import cooldown_hook  # noqa: E402
@@ -65,3 +67,18 @@ def test_a_case_short_of_its_samples_is_recorded_as_a_problem(tmp_path, monkeypa
     short = "iterations_not_applied: scope:s:before asked for 100, timeNs has 50 runs"
     _phone, _files, problems = scoped(tmp_path, monkeypatch, {"isolation": "run", "scopedRepetitions": 1}, notices=(short, "warning: other"))
     assert problems == [short]
+
+
+def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monkeypatch, capsys):
+    def generate(_harness, _root, out):
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "scoped-plan.yaml").write_text("scopes: []\n")
+        return out / "scoped-plan.yaml", []
+    monkeypatch.setattr(harness.scope_generate, "generate", generate)
+    monkeypatch.setattr(harness.scope_generate, "clean", lambda _root: None)
+    results = tmp_path / "measured"
+    with pytest.raises(SystemExit):
+        harness.harness_run(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, None, results)
+    named = capsys.readouterr().err.split("see ")[-1].strip()
+    assert named == str(results / harness.FAILED_PLAN) and pathlib.Path(named).read_text() == "scopes: []\n"
+    assert not (results / "scoped").exists()

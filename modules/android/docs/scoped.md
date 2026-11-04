@@ -30,6 +30,7 @@ python3 scripts/pipeline.py --device --harness <harness.yaml>
 | settings | `run.harness` of the pushed `effective.yaml`; provider and entry overrides do not apply |
 | energy capture | `none` and `measured`; `dry` fails `not_supported` |
 | cleanup | generated sources are removed after the run, on success and on failure |
+| failed run's plan | a run that fails after generate copies its `scoped-plan.yaml` to `measured/scoped-plan.failed.yaml`, the file its failure line names; the next run removes it |
 | last run kept | the previous `scoped/` is set aside as `scoped.previous/` and restored when the new run fails or is interrupted; dropped once the new manifest is written; a `scoped.previous/` a killed run left comes back first |
 | normal runs | unchanged; `ScopedBenchmark` and `ScopedInterop` run only by class name |
 | interop check | `ScopedInterop`, one process before any case: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |
