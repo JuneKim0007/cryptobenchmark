@@ -5,7 +5,7 @@
 
 ## Rules
 - scope: these rules apply to every `.md` in the repo, `apps/perf-repair/` included.
-- role: guides (`AGENTS.md`, `agents/`, `apps/perf-repair/AGENTS.md`, `apps/perf-repair/agents/`) hold directives; docs (`docs/`, `apps/benchmark/modules/<m>/docs/`, `apps/perf-repair/docs/`) hold facts.
+- role: guides (`AGENTS.md`, `docs/contributing/`, `apps/perf-repair/AGENTS.md`, `apps/perf-repair/agents/`) hold directives; docs (the rest of `docs/`, `apps/benchmark/modules/<m>/docs/`, `apps/perf-repair/docs/`) hold facts.
 - placement: a cross-module fact lives in `docs/`; a fact about one module lives in `apps/benchmark/modules/<m>/docs/`; a perf-repair fact lives in `apps/perf-repair/docs/`.
 - navigation: `AGENTS.md` `## Route` → guide → its `## Calls` or a `docs/**/index.md` → the file; every guide and doc is reachable that way.
 - ownership: one fact, one owner; grep for it before writing; elsewhere link it.

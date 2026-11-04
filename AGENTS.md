@@ -1,11 +1,11 @@
 # cryptobenchmark
 
 ## Route
-- Kotlin, Python and shell code, module dependencies, comments → `agents/code.md`
-- Gradle tests, module isolation, Android API check, Python tests, perf-repair check → `agents/testing.md`
-- reviews and refactors: complexity, dead code, duplication, coverage, dependency commands → `agents/review.md`
-- device runs: prerequisites, adb, `--suppress-errors`, core pinning, energy on a device → `agents/device.md`
-- docs, guides, file maps, READMEs, any `.md` change → `agents/docs/writing.md`
+- Kotlin, Python and shell code, module dependencies, comments → `docs/contributing/code.md`
+- Gradle tests, module isolation, Android API check, Python tests, perf-repair check → `docs/contributing/testing.md`
+- reviews and refactors: complexity, dead code, duplication, coverage, dependency commands → `docs/contributing/review.md`
+- device runs: prerequisites, adb, `--suppress-errors`, core pinning, energy on a device → `docs/contributing/device.md`
+- docs, guides, file maps, READMEs, any `.md` change → `docs/contributing/writing.md`
 - cross-module facts: architecture, run, results, energy, tools, cryptography catalogue → `docs/index.md`
 - discovery: probe, trial, capture fields → `apps/benchmark/modules/environment/discovery/docs/index.md`
 - config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`
@@ -16,13 +16,13 @@
 - perf-repair work → `apps/perf-repair/AGENTS.md`
 
 ## Rules
-- layout: directives live in `AGENTS.md` and `agents/`; facts live in `docs/` and `apps/benchmark/modules/<m>/docs/`; `apps/perf-repair/` keeps its own router, guides and docs.
+- layout: directives live in `AGENTS.md` and `docs/contributing/`; facts live in the rest of `docs/` and `apps/benchmark/modules/<m>/docs/`; `apps/perf-repair/` keeps its own router, guides and docs.
 - change: one file, one responsibility.
 - map: adding, moving or deleting a file updates its owning map in the same change.
 - delete/rename: grep the symbol or path and remove its references first.
 - delete/rename: re-grep and confirm zero hits.
 - conflict: code wins; a guide or doc that disagrees with the code is corrected, never followed.
-- check: after a code change, pass the commands in `agents/testing.md` for the touched area.
+- check: after a code change, pass the commands in `docs/contributing/testing.md` for the touched area.
 - check: after a docs or guide change, pass `python3 tools/docs_lint.py`.
 - commit: never commit `results/`, `build/` or signing keys (`*.jks`).
 - commit: no AI or tool attribution and no `Co-Authored-By` line in commit messages or PR bodies.
@@ -42,7 +42,6 @@
 .github/workflows/tests.yml : CI Python suites and the root Gradle build: settings tests, androidTest compile
 AGENTS.md : agent router
 README.md : project entry page
-agents/ : directive guides
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
 apps/benchmark-runner/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
@@ -128,6 +127,7 @@ apps/cli/tests/ : pytest for the facade
 apps/perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
+docs/contributing/ : directive guides
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK

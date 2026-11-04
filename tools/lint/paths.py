@@ -5,6 +5,7 @@ import posixpath
 
 ROUTERS = ("", "apps/perf-repair")
 ENTRY = "AGENTS.md"
+GUIDES = {"": "docs/contributing/", "apps/perf-repair": "agents/"}
 NOT_GRAPHED = {"apps/benchmark/modules/environment/discovery/docs/tree.md", "apps/benchmark-runner/analysis/tests/golden_summary.md"}
 
 
@@ -23,7 +24,7 @@ def join(base: str, rel: str) -> str:
 
 def is_guide(path: str) -> bool:
     rel = local(path)
-    return rel == ENTRY or rel.startswith("agents/")
+    return rel == ENTRY or rel.startswith(GUIDES[router_of(path)])
 
 
 def is_doc(path: str) -> bool:

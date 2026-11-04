@@ -14,7 +14,7 @@ LINE_LIMIT = 150
 UNMAPPED_OK = {".gitignore", "gradlew", "gradlew.bat"}
 GENERATED = {"build", ".gradle", ".venv", "node_modules", ".kotlin", "__pycache__"}
 BANNED = [(re.compile(r"20\d\d-\d\d-\d\d"), "date"), (re.compile(r"TODO"), "TODO"), (re.compile("—"), "em dash")]
-GUIDE_EDGE = re.compile(r"(^|[^A-Za-z0-9_-])agents/|AGENTS\.md")
+GUIDE_EDGE = re.compile(r"(^|[^A-Za-z0-9_-])(agents|docs/contributing)/|AGENTS\.md")
 
 
 def entries() -> list[str]:
