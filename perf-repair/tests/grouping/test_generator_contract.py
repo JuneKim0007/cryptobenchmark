@@ -11,6 +11,7 @@ from perfrepair.grouping.build.items import build
 from perfrepair.grouping.build.key_contract import cross_checked, generator_contract
 from perfrepair.grouping.report.rules import check
 from perfrepair.screen.groups import code_groups, grouped_by_code
+from perfrepair.validation.grouping.invariants import Grouping, key_contract_agrees
 from perfrepair.validation.parse.grouping_assign import validate_answer
 
 FAMILIES = Families.load()
@@ -100,3 +101,19 @@ def test_gate_c_refuses_an_unknown_generator_in_any_model_group():
     assert any("joins no group" in p for p in validate_answer(join, d, knowledge, FAMILIES, profiles))
     knowledge = Knowledge(groups={"aes-keygen": Group(d.family, "AES generators", [d.id])})
     assert any("joins no group" in p for p in validate_answer(join, a, knowledge, FAMILIES, profiles))
+
+
+def _invariant(items, profiles, groups):
+    entries = {str(i.id): {"qualified": i.qualified, "keyContract": profiles[i.id].keyContract, "screen": "accepted"} for i in items}
+    document = {"items": entries, "groups": [{"id": gid, "members": g.members} for gid, g in groups.items()]}
+    return key_contract_agrees(Grouping(document, {str(k): p.to_json() for k, p in profiles.items()}, [], {}), {})
+
+
+def test_key_contract_agrees_passes_the_code_made_generator_groups_and_refuses_an_unknown_one_in_a_group():
+    gens, items, profiles = _built({"A": RAW, "B": RAW, "C": HELD, "D": HELD, "E": {"works": False, "error": "x"}})
+    verdicts = {i.id: Verdict("unknown", "r", canonical="AES") for i in items}
+    groups = {gid: g for gid, g in code_groups(items, verdicts, profiles).items() if g.family == gens["A"].family}
+    assert sorted(len(g.members) for g in groups.values()) == [1, 2, 2]
+    assert _invariant(items, profiles, groups) == []
+    forced = {"wrong": Group(gens["A"].family, "d", [gens["A"].id, gens["E"].id])}
+    assert [v.subject for v in _invariant(items, profiles, forced)] == ["group wrong"]
