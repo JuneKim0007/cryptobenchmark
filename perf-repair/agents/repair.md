@@ -24,13 +24,14 @@
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
 src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and its code's exit; a Halt adds no event (terminate wrote it), another coded failure one error event with data.code, none when run in-process (last_failure hands it to the caller)
 src/perfrepair/guide/app_steps.py : the steps for one app: app, dossier, replace, edit, harness, device, report; their stop codes
-src/perfrepair/guide/command.py : guide arguments; `--app` or apps.targets, the one reader of that row; device.filterByApps's reader
-src/perfrepair/guide/device_steps.py : the device-level steps: prerequisites (probe_device when no folder is named; with device.filterByApps the targets' detect and used.json, else used.json removed), detect_targets, grouping (coverage: reused, or assign and report for what is missing), summary; their stop codes
+src/perfrepair/guide/command.py : guide arguments; `--app` or apps.targets, the one reader of that row, resolved by `app/facts/target_set.py`: skip lines, root warnings, no_targets; device.filterByApps's reader
+src/perfrepair/guide/device_steps.py : the device-level steps: prerequisites (probe_device when no folder is named; with device.filterByApps the targets' detect and used.json, else used.json removed), detect_targets, targets (target_file.py), grouping (coverage: reused, or assign and report for what is missing), summary; their stop codes
 src/perfrepair/guide/finished.py : <app>/finished.json: an app that reached its last step and the digests of its inputs, its scopes and the code from tree to measured harness
 src/perfrepair/guide/index.py : <device>/apps-index.tsv, written by the summary step and on demand: per app folder its project (rootProject.name, else its path under the apps' common folder), source, sites, scopes, scopes per pattern and unknown_default, stage reached (its files in guide order, none older than the one before), the latest run's stop code and reason, options per change class and track, notOffered, chosen replaces, measured
 src/perfrepair/guide/run.py : one status line and event per step, the first stop ends the sequence, the dry-run ending; Stopped (halts: a provider failure)
 src/perfrepair/guide/state.py : Guide settings and the running step; halt and check_exit, a step's coded stop
-src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app, the exit rule
+src/perfrepair/guide/target_file.py : the targets step: <device>/targets.yaml before any model step; a non-app path entry's stop
+src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app (a non-app path entry's stop first), the exit rule
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--device-results --app`; `--perfrepair-config` fills the folder and the screening catalog
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens; a numeric literal is one token
 src/perfrepair/repair/dossier.py : command step: scopes + groups + measurements + the given screening Catalog (refused unless screen.json recorded it) at app.json's targetSdk, under the app's perfMode → <app>/dossiers.json, validated before writing; counts no_evidence scopes

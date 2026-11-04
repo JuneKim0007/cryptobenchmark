@@ -16,5 +16,6 @@ docs/settings.md : perfrepair.yaml and .env: lookup, precedence, keys, roles, er
 docs/shared-functions.md : functions three or more modules import: module, signature, rule, callers
 docs/signature.md : what code reads per item, per engine type; known, convention, unknown; which items it groups
 docs/stops.md : every stop, warn and skip code: default action, overridable or fixed, exit, next step; terminate, Halt, stops.<code>
+docs/targets.md : apps.targets: root and path entries, the targets file, app kinds from Android metadata, merging, targets.yaml
 docs/used-set.md : device.filterByApps: the two-pass device stage, used.json, the measured set and its selection, the numbers on the API 30 capture
 ```

@@ -213,6 +213,8 @@ def target(flow, name, *items, ships=""):
     """The demo app's build files around one class calling only these items; ships: one more dependency it declares."""
     root = flow.tmp / "apps" / name
     shutil.copytree(APP, root, ignore=shutil.ignore_patterns("java", "kotlin"))
+    # one applicationId per target, else apps.targets merges them
+    (root / "src/main/AndroidManifest.xml").write_text(f'<manifest package="demo.{name}" />')
     if ships:
         build = root / "build.gradle"
         build.write_text(build.read_text().replace("dependencies {", f"dependencies {{\n    implementation '{ships}'"))

@@ -13,12 +13,13 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.app.facts.path_id import path_id
+from perfrepair.app.facts.target_set import resolve_targets
 from perfrepair.files import read_json
 from perfrepair.guide import app_steps as guide_steps, finished
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.guide.command import main as guide_main
 from perfrepair.guide.device_steps import _measured as measured_by_targets
-from perfrepair.inputs.check import target_path, target_perf
+from perfrepair.inputs.check import TARGETS_EXPECTED, target_path, target_perf
 from perfrepair.result.modes import mode_of
 from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
@@ -249,16 +250,23 @@ def test_no_app_and_no_targets_is_a_usage_error(tmp_path, capsys):
 
 def test_malformed_targets_warn_then_count_as_none(tmp_path, capsys):
     with pytest.raises(SystemExit) as e:
-        guide_main(command(tmp_path, settings(tmp_path, targets="one")))
+        guide_main(command(tmp_path, settings(tmp_path, targets=3)))
     err = capsys.readouterr().err
-    assert e.value.code == 2 and "invalid: apps.targets one, a list of paths or {path: ..., perfMode: ...}; ignored" in err
+    assert e.value.code == 2 and f"invalid: apps.targets 3, {TARGETS_EXPECTED}; ignored" in err
+
+
+def test_a_string_target_is_a_targets_file_and_a_missing_one_is_a_coded_error(tmp_path, capsys):
+    assert guide_main(command(tmp_path, settings(tmp_path, targets="one"))) == 1
+    assert f"error missing_file: apps.targets file {tmp_path.resolve() / 'one'}" in capsys.readouterr().err
 
 
 def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
-    (tmp_path / "rel").mkdir()
+    shutil.copytree(APP, tmp_path / "rel")
     absolute = tmp_path / "abs"
-    absolute.mkdir()
+    shutil.copytree(APP, absolute)
+    # the same applicationId twice would merge them into one target
+    (absolute / "src" / "main" / "AndroidManifest.xml").write_text('<manifest package="other" />')
     config = settings(tmp_path, targets=["rel", {"path": str(absolute)}, "rel"])
     results = tmp_path / "results"
     text = yaml.safe_load(config.read_text())
@@ -319,3 +327,34 @@ def test_a_bad_target_perf_mode_warns_like_any_bad_targets(tmp_path, capsys):
     with pytest.raises(SystemExit):
         guide_main(command(tmp_path, settings(tmp_path, targets=[{"path": "x", "perfMode": "fast"}])))
     assert "invalid: apps.targets" in capsys.readouterr().err
+
+
+def test_no_entry_that_is_an_app_stops_before_any_device_step(tmp_path, capsys, monkeypatch):
+    monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
+    (tmp_path / "readme").mkdir()
+    (tmp_path / "readme" / "README.md").write_text("x")
+    config = settings(tmp_path, targets=["readme", {"root": "readme"}])
+    text = yaml.safe_load(config.read_text())
+    text["paths"] = {"results": str(tmp_path / "results")}
+    config.write_text(yaml.safe_dump(text))
+    assert guide_main(["--agent", "dry-run", "--perfrepair-config", str(config)]) == 1
+    captured = capsys.readouterr()
+    assert f"guide targets: skip {tmp_path / 'readme'} not_android: not_android" in captured.out
+    assert f"warning: apps.targets root {tmp_path / 'readme'} holds no app (0 candidates, none an app)" in captured.err
+    assert "error no_targets: 1 candidates skipped, none an app" in captured.err
+    assert not (tmp_path / "results").exists()
+
+
+def test_targets_yaml_is_written_and_a_path_entry_that_is_no_app_is_its_stop(base):
+    a = base.app("a")
+    readme = base.tmp / "readme"
+    readme.mkdir()
+    found = resolve_targets([str(a), str(readme)], base.tmp / "perfrepair.yaml")
+    lines = []
+    g = Guide(base.run_dir, None, LATENCY, base.answer, LIBRARY, echo=lines.append, target_set=found)
+    assert run_targets(g, [t.path for t in found.apps], False, True) == 1
+    assert lines[1] == f"guide targets: ok: {base.run_dir / 'targets.yaml'}: 1 apps, 1 skipped"
+    assert app_lines(lines) == [f"app {path_id(readme)}: stop not_android_project: {readme}: not_android (not_android)",
+                                f"app {path_id(a)}: ok"]
+    doc = yaml.safe_load((base.run_dir / "targets.yaml").read_text())
+    assert doc == found.document() and doc["skipped"][0]["entry"] == {"path": str(readme)}

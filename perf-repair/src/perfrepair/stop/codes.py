@@ -11,7 +11,7 @@ NOTHING = "nothing is left to run"
 UNUSABLE = "the input is unusable"
 NOTICE = "a notice; nothing to choose"
 # the guide's step names: a step's coded failure is `<step>_failed`, the inner code kept beside it
-GUIDE_STEPS = ("prerequisites", "grouping", "detect", "app", "dossier", "replace", "edit", "harness", "device", "report",
+GUIDE_STEPS = ("prerequisites", "targets", "grouping", "detect", "app", "dossier", "replace", "edit", "harness", "device", "report",
                "summary")
 
 
@@ -91,6 +91,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("edit_invalid", STEP_LINES, NOTHING),
     _fixed("harness_invalid", STEP_LINES, NOTHING),
     _fixed("target_missing", "fix the apps.targets entry; its earlier results stay", NOTHING),
+    _fixed("no_targets", "fix apps.targets: no entry is an app; the skip lines above say why", NOTHING),
     *(_fixed(f"{s}_failed", STEP_LINES, NOTHING) for s in GUIDE_STEPS),
     _fixed("pipeline_failed", "read the transcript line the status names", NOTHING),
     _fixed("pipeline_timeout", "raise timeouts.pipeline, or check the device", NOTHING),

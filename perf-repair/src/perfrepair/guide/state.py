@@ -10,6 +10,7 @@ from ..ai.runtime.agent import Conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
 from ..app.facts.path_id import path_id
+from ..app.facts.target_set import TargetSet
 from ..config.load import Loaded
 from ..dto.bundled import BundledPolicy
 from ..dto.change import DROP_IN
@@ -50,6 +51,8 @@ class Guide:
     max_change: str = DROP_IN
     # the targets that name their own perfMode, by root; the others take mode
     app_modes: dict = field(default_factory=dict)
+    # apps.targets resolved (app/facts/target_set.py); None with --app
+    target_set: TargetSet | None = None
     # the running step's name, set by run_step, so a stop's line says where
     step: str | None = None
 

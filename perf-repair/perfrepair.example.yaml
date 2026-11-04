@@ -45,7 +45,8 @@ device:                    # once per device
   worthiness: {}           # role keys of `ai worthiness`
 
 apps:                      # per app: the guide, `ai replace`
-  targets: []              # the guide's apps without --app: paths or {path: ..., perfMode: ...}, its own perfMode over apps.perfMode; relative to this file
+  ## NOT GUARANTEED TO CHECK PARTIAL, OR NON GUARANTEED APPS AND DIRS REQUIRE ANDROID META DATA!!!
+  targets: []              # without --app: [{root: dir}, {path: dir, perfMode: ...}, dir] or a file of that list (targets.example.yaml); relative to this file
   perfMode: generic        # generic or all (every metric, overall judgement) | a list of latency, throughput, memAlloc, energy (strict rule)
   limit:                   # scopes the guide asks the model about; empty = all
   benchmarkConfig:         # global.yaml for the per-app device step; empty = device.benchmark.config

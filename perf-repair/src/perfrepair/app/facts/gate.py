@@ -6,7 +6,8 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from ...source.language import NAMES, SOURCE_SUFFIXES
-from .roots import BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, project_roots
+from .roots import (BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, is_legacy,
+                    project_roots)
 from ..find.sources import IGNORED_DIRS
 
 PROJECT_FILES = SETTINGS_FILES + BUILD_FILES
@@ -48,6 +49,12 @@ def _readable_dir(root: Path) -> None:
         raise GateError("not_readable", str(root))
 
 
+def _project_files(root: Path) -> None:
+    if not any((root / f).is_file() for f in PROJECT_FILES) and not is_legacy(root):
+        raise GateError("not_android_project", f"{root}: no settings.gradle(.kts), build.gradle(.kts) or Ant "
+                                               f"project.properties beside {MANIFEST}")
+
+
 def open_apps(folder: Path, max_files: int = MAX_FILES, max_source_bytes: int = MAX_SOURCE_BYTES) -> list[AppRoot]:
     """One AppRoot per outermost Android project root under folder, in path order."""
     folder = Path(folder)
@@ -57,8 +64,8 @@ def open_apps(folder: Path, max_files: int = MAX_FILES, max_source_bytes: int = 
     except EscapingLink as e:
         raise GateError("escapes_root", str(e)) from None
     if not rels:
-        raise GateError("not_android_project", f"{folder}: no settings.gradle(.kts), or build.gradle(.kts) beside "
-                                               f"an Android source set, within {MAX_ROOT_DEPTH} levels")
+        raise GateError("not_android_project", f"{folder}: no settings.gradle(.kts), build.gradle(.kts) beside "
+                                               f"an Android source set, or Ant project, within {MAX_ROOT_DEPTH} levels")
     return [replace(open_app(folder / rel, max_files, max_source_bytes), projectRoot=rel) for rel in rels]
 
 
@@ -66,8 +73,7 @@ def open_app(root: Path, max_files: int = MAX_FILES, max_source_bytes: int = MAX
     root = Path(root)
     _readable_dir(root)
     real = root.resolve()
-    if not any((root / f).is_file() for f in PROJECT_FILES):
-        raise GateError("not_android_project", f"{root}: no settings.gradle(.kts) or build.gradle(.kts)")
+    _project_files(root)
     files = source_bytes = 0
     android = False
     for here, dirs, names in os.walk(root):

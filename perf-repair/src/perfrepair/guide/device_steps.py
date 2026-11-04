@@ -1,4 +1,5 @@
-"""The guide's device-level steps, once per device: prerequisites (the probe and the used set), grouping, the summary."""
+"""The guide's device-level steps, once per device: prerequisites (the probe and the used set), targets, grouping, the
+summary."""
 from __future__ import annotations
 
 from dataclasses import replace as with_fields
@@ -21,6 +22,7 @@ from ..screen.catalog import screening_catalog
 from .app_steps import app
 from .index import write_index
 from .state import Guide, check_exit, halt
+from .target_file import write_targets
 
 INBOUND = "python3 -m perfrepair.data_handler.inbound --device-results <device>"
 GROUPING = ("python3 -m perfrepair.grouping build --device-results <device>, then "
@@ -138,4 +140,4 @@ def summary(g: Guide) -> str:
     return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured"
 
 
-DEVICE_LEVEL = (("prerequisites", prerequisites), ("grouping", grouping))
+DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping))

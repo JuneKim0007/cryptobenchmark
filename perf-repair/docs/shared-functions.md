@@ -13,6 +13,7 @@
 | `load_prompts(parser, args, settings)` | `src/perfrepair/ai/runtime/prompt/args.py` | - | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `charter(library, inputs)` | `src/perfrepair/ai/suggest/site_replace/kind.py` | `library.charter(NAME, SCHEMA, inputs)` | ai.suggest.site_replace.command, guide.finished, review.stability |
 | `app_id(device, path)` | `src/perfrepair/app/facts/path_id.py` | The folder for --app: its own id, else the unit of a multi-root folder that recorded this path as its root. | ai.__main__, repair.__main__, report.__main__ |
+| `path_id(path)` | `src/perfrepair/app/facts/path_id.py` | - | app.__main__, guide.state, guide.target_file |
 | `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.screening, catalog.types, data_handler.inbound.probe._index, data_handler.inbound.probe._names +4 |
 | `add_config_arg(parser)` | `src/perfrepair/config/args.py` | - | ai.runtime.gateway.args, app.__main__, data_handler.inbound.__main__, grouping.__main__ +3 |
 | `load_settings(parser, args)` | `src/perfrepair/config/args.py` | - | ai.__main__, app.__main__, config.device_results, data_handler.inbound.__main__ +5 |
@@ -48,11 +49,11 @@
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.run, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +23 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
-| `read_yaml(path)` | `src/perfrepair/files.py` | `yaml.safe_load(Path(path).read_text()) or {}` | ai.runtime.prompt.library, app.facts.dependencies, app.find.sources, check.device +22 |
+| `read_yaml(path)` | `src/perfrepair/files.py` | `yaml.safe_load(Path(path).read_text()) or {}` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +23 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.primitives, device.seen, device.stage, guide.finished +2 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.suggest.site_replace.kind, app.facts.path_id, guide.finished |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +15 |
-| `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.primitives +7 |
+| `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.primitives +8 |
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | repair.edit.alone, repair.edit.app, repair.harness |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `elapsed_ms(started)` | `src/perfrepair/log/emit.py` | `int((time.monotonic() - started) * 1000)` | ai.runtime.engine.decide, guide.run, log.attach |
@@ -89,10 +90,12 @@
 | `resolve_field(name, at)` | `src/perfrepair/scope/syntax/resolve.py` | - | scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.read, scope.lifecycle.settle |
 | `resolve_local(name, at)` | `src/perfrepair/scope/syntax/resolve.py` | The nearest local or parameter visible at `at`; stops at the class boundary. | scope.lifecycle.binding, scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.read |
 | `screening_catalog(loaded)` | `src/perfrepair/screen/catalog.py` | None stands for no perfrepair.yaml; a set catalog that does not load is missing_file, never the packaged one. | grouping.__main__, guide.device_steps, repair.__main__, validation.__main__ |
-| `matching(masked, i)` | `src/perfrepair/source/brackets.py` | Offset of the bracket closing the one at i, in masked text. | app.facts.sdk, app.find.constants, repair.edit.init, repair.operation +2 |
+| `matching(masked, i)` | `src/perfrepair/source/brackets.py` | Offset of the bracket closing the one at i, in masked text. | app.facts.kind, app.facts.sdk, app.find.constants, repair.edit.init +3 |
+| `of_build_file(name)` | `src/perfrepair/source/language.py` | Groovy and properties build files are lexed by Java's comment and string rules. | app.facts.dependencies, app.facts.kind, app.facts.sdk |
 | `of_file(name)` | `src/perfrepair/source/language.py` | - | app.find.sources, repair.edit.plan, scope.build, scope.units.shapes |
-| `mask(text, language, strings)` | `src/perfrepair/source/lexer.py` | Comments always, and string contents when `strings`, become spaces; newlines and quotes stay. | app.facts.dependencies, app.facts.sdk, repair.dependencies, repair.edit.lines +1 |
-| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out. | ai.runtime.engine.journal, app.__main__, data_handler.outbound.benchmark_runner, device.bundled +5 |
+| `mask(text, language, strings)` | `src/perfrepair/source/lexer.py` | Comments always, and string contents when `strings`, become spaces; newlines and quotes stay. | app.facts.dependencies, app.facts.kind, app.facts.sdk, repair.dependencies +2 |
+| `halt_of(code, detail)` | `src/perfrepair/stop/terminate.py` | A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it. | guide.run, guide.target_file, guide.targets |
+| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out. | ai.runtime.engine.journal, app.__main__, data_handler.outbound.benchmark_runner, device.bundled +6 |
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |
 | `check_dossier(raw, app, perf, max_change)` | `src/perfrepair/validation/dossiers/dossier.py` | One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels, estimates of | ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |
 | `require(what, problems)` | `src/perfrepair/validation/failure.py` | - | ai.evaluate.worthiness.command, ai.runtime.engine.decide, ai.suggest.site_replace.command, app.__main__ +11 |

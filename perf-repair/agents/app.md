@@ -31,13 +31,15 @@ src/perfrepair/app/detect.py : the detect step: non-test sources → import-chec
 src/perfrepair/app/facts/__init__.py : docstring only
 src/perfrepair/app/facts/app_facts.py : the app.json document: project root, bundled, registers, SDK levels
 src/perfrepair/app/facts/dependencies.py : declared crypto libraries from Gradle and the version catalog; Security provider registrations with their call and position
-src/perfrepair/app/facts/gate.py : app gate: directory, readable, project roots found, per root Android project, no escaping symlink, size caps; coded reasons
+src/perfrepair/app/facts/gate.py : app gate: directory, readable, project roots found, per root Android project (Gradle or legacy Ant), no escaping symlink, size caps; coded reasons
+src/perfrepair/app/facts/kind.py : app, library, unknown_layout or not_android from build files, the version catalog's plugins and manifests; applicationId
 src/perfrepair/app/facts/libraries.yaml : artifact group and name prefix → JCA provider name
 src/perfrepair/app/facts/path_id.py : the app's id from its absolute path; a multi-root unit's id; the folder for --app
 src/perfrepair/app/facts/project.py : the project name people read beside an app's id: Gradle rootProject.name (gradle_name), else the folder
-src/perfrepair/app/facts/roots.py : outermost Android project roots under a folder, depth 4, symlinks not followed
+src/perfrepair/app/facts/roots.py : outermost Android project roots under a folder (Gradle, legacy Ant, or with manifests any manifest folder), depth 4, symlinks not followed
 src/perfrepair/app/facts/sdk.py : minSdk and targetSdk of the application module
-src/perfrepair/app/facts/versions.py : per group:name the pinned version the build files hold: a literal coordinate, a Gradle map, a version catalog entry; newest wins; a variable or a range is none
+src/perfrepair/app/facts/target_set.py : apps.targets entries, inline or a targets file, to the apps the guide runs and the candidates skipped with their reason; merged by path, then applicationId; targets.yaml's document
+src/perfrepair/app/facts/versions.py : per group:name the pinned version the build files hold: a literal coordinate, a Gradle map, a version catalog entry; newest wins; a variable or a range is none; a catalog table's entries
 src/perfrepair/app/find/__init__.py : docstring only
 src/perfrepair/app/find/constants.py : same-file string constants folded: const val, top-level or object val, static final String under their declaring type, a local assigned once in the site's function, Kotlin templates, '+', platform constants from catalog/sdk-constants.yaml
 src/perfrepair/app/find/ignored.yaml : folders no app step enters: tooling, and stale source copies counted when skipped

@@ -395,3 +395,17 @@ def test_a_name_no_provider_registers_in_an_app_shipping_none_is_absent_not_a_bu
     out = [l for l in capsys.readouterr().out.splitlines() if l.startswith("not_on_device: KeyStore")]
     assert out == ["not_on_device: KeyStore AndroidKeyStore (1 sites); absent on this device: no provider here registers it "
                    "and the app ships no provider for it"]
+
+
+def test_a_legacy_ant_app_passes_the_gate_and_is_scanned(tmp_path):
+    root = tmp_path / "ant"
+    (root / "src" / "x").mkdir(parents=True)
+    (root / "AndroidManifest.xml").write_text('<manifest package="legacy.app" />')
+    (root / "project.properties").write_text("target=android-19\n")
+    (root / "src" / "x" / "A.java").write_text("import javax.crypto.Cipher;\nclass A { void f() throws Exception "
+                                              "{ Cipher.getInstance(\"AES/GCM/NoPadding\"); } }\n")
+    assert project_roots(tmp_path) == ["ant"] and [a.projectRoot for a in open_apps(root)] == ["."]
+    device = with_results(tmp_path / "d")
+    assert main(["--device-results", str(device), "--app", str(root)]) == 0
+    sites = json.loads((device / path_id(root) / "sites.json").read_text())["sites"]
+    assert [s["engineType"] for s in sites] == ["Cipher"]

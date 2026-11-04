@@ -20,7 +20,7 @@
 - delete/rename: grep the symbol or path, remove its references first, re-grep returns nothing.
 - check: `make check` green before a change is done.
 - docs: kebab-case `.md` names; root standards (`AGENTS.md`, `README.md`) stay UPPER.
-- commit: never `.env`, `perfrepair.yaml` or `runs/`.
+- commit: never `.env`, `perfrepair.yaml`, `targets.yaml` or `runs/`.
 
 ## Workflow
 - guide change: edit `AGENTS.md` → `make docs-lint`
@@ -30,7 +30,7 @@
 
 ```
 .env.example : template for `.env`: PERFREPAIR_AGENT, PERFREPAIR_AUTH, PERFREPAIR_MODEL, PERFREPAIR_EFFORT, ANTHROPIC_API_KEY
-.gitignore : local state kept out of git: caches, `runs/`, `.venv/`, `.env`, `perfrepair.yaml`
+.gitignore : local state kept out of git: caches, `runs/`, `.venv/`, `.env`, `perfrepair.yaml`, `targets.yaml`
 AGENTS.md : agent entry: route, rules, file map
 Makefile : test, docs-lint, check
 README.md : what perf-repair is, setup
@@ -39,6 +39,7 @@ docs/ : facts; map in docs/index.md
 perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths, device, apps
 pyproject.toml : package, pyyaml dependency, optional `test`, `api` and pinned `scope` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
+targets.example.yaml : template for an apps.targets file: a root entry and a path entry
 tests/ : pytest suites, one per module or stage; `helpers.py` shared builders; `conftest.py` isolates every test from local settings
 tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py; `lifecycle/` own-written Java and Kotlin sources, one site per binding kind and status; `units/` own-written sources, one class per kind of link; `runtimes/<runtime>/` probe and trial of JDK 17, 21, 25 and Android API 36, trimmed to what grouping build and screening read
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data

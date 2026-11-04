@@ -1,0 +1,5 @@
+## NOT GUARANTEED TO CHECK PARTIAL, OR NON GUARANTEED APPS AND DIRS REQUIRE ANDROID META DATA!!!
+# apps.targets file: set `apps: {targets: targets.yaml}` in perfrepair.yaml; paths are relative to this file
+- root: <targeted_path>/       # every app under it, depth 4; libraries and the rest are skipped with their reason
+- path: <targeted_path>/one-app   # exactly this folder, also outside every root; a library is allowed here
+  perfMode: [latency]          # optional, on a root or a path: over apps.perfMode

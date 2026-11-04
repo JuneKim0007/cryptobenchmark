@@ -41,11 +41,22 @@ def check_bool(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, bool), "true or false")
 
 
-def target_path(entry: Any) -> str | None:
-    """The path of one apps.targets entry: a bare string, or a mapping of `path` and optionally `perfMode`."""
-    if isinstance(entry, Mapping) and "path" in entry and set(entry) <= {"path", "perfMode"}:
-        entry = entry["path"]
+def _entry(entry: Any, key: str) -> str | None:
+    if isinstance(entry, Mapping) and key in entry and set(entry) <= {key, "perfMode"}:
+        entry = entry[key]
+    elif key == "root":
+        return None
     return entry if isinstance(entry, str) and entry else None
+
+
+def target_path(entry: Any) -> str | None:
+    """The path of one apps.targets path entry: a bare string, or a mapping of `path` and optionally `perfMode`."""
+    return _entry(entry, "path")
+
+
+def target_root(entry: Any) -> str | None:
+    """The folder of one apps.targets root entry: a mapping of `root` and optionally `perfMode`."""
+    return _entry(entry, "root")
 
 
 def target_perf(entry: Any) -> PerfMode | None:
@@ -54,16 +65,20 @@ def target_perf(entry: Any) -> PerfMode | None:
     return None if value is None else PerfMode.parse(value)
 
 
-def _target_ok(entry: Any) -> bool:
+def target_ok(entry: Any) -> bool:
     try:
         target_perf(entry)
-        return bool(target_path(entry))
+        return bool(target_path(entry) or target_root(entry))
     except ValueError:
         return False
 
 
+TARGETS_EXPECTED = "a list of paths, {path: ...} or {root: ...} each with an optional perfMode, or a targets file"
+
+
 def check_targets(name: str, value: Any) -> None:
-    _check(name, value, isinstance(value, list) and all(_target_ok(e) for e in value), "a list of paths or {path: ..., perfMode: ...}")
+    listed = isinstance(value, list) and all(target_ok(e) for e in value)
+    _check(name, value, listed or (isinstance(value, str) and value != ""), TARGETS_EXPECTED)
 
 
 def check_path(name: str, value: Any) -> None:

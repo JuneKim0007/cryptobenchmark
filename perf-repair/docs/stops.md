@@ -62,7 +62,9 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `edit_invalid` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `harness_invalid` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `target_missing` | `stop` | fixed: nothing is left to run | 1 | fix the apps.targets entry; its earlier results stay |
+| `no_targets` | `stop` | fixed: nothing is left to run | 1 | fix apps.targets: no entry is an app; the skip lines above say why |
 | `prerequisites_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `targets_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `grouping_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `detect_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `app_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |

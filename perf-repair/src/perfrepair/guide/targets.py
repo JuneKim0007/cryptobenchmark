@@ -12,6 +12,7 @@ from . import finished
 from .device_steps import DEVICE_LEVEL, summary
 from .run import Stopped, run_app, run_sequence, run_step
 from .state import Guide
+from .target_file import refused
 
 OK, REUSED, STOP, NOT_RUN = "ok", "reused", "stop", "not_run"
 
@@ -68,19 +69,34 @@ def _not_run(base: Guide, root: Path, halted: AppResult) -> AppResult:
     return AppResult(replace(base, app_root=root).app_id, NOT_RUN, f"{halted.app} hit a provider failure, which any app would")
 
 
+def _refused(base: Guide) -> list[AppResult]:
+    """Each path entry that is no app, as its stop; a root's skipped candidates are no app's result."""
+    results = []
+    for s in base.target_set.skipped if base.target_set else ():
+        if s.stops:
+            app, h = refused(s)
+            results.append(AppResult(app, STOP, str(h), code=h.code))
+            _emit(results[-1])
+    return results
+
+
+def _emit(result: AppResult) -> None:
+    # a stopped app's line is the one its terminate or bug event wrote
+    emit("guide", "target", END, app=result.app, outcome=result.status, detail=result.detail,
+         data={k: v for k, v in (("code", result.code), ("step", result.step), ("reported", result.status == STOP)) if v})
+
+
 def run_targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> int:
     """reuse: an app whose inputs match its record is not run again. Exit 0 only if every app reached its last step."""
     if run_sequence(base, DEVICE_LEVEL):
         return 1
-    results: list[AppResult] = []
+    results = _refused(base)
     halted = None
     for root in roots:
         result = _not_run(base, root, halted) if halted else _one(base, root, device, reuse)
         results.append(result)
         halted = halted or (result if result.halts else None)
-        # a stopped app's line is the one its terminate or bug event wrote
-        emit("guide", "target", END, app=result.app, outcome=result.status, detail=result.detail,
-             data={k: v for k, v in (("code", result.code), ("step", result.step), ("reported", result.status == STOP)) if v})
+        _emit(result)
     run_step(base, "summary", summary)
     for result in results:
         base.echo(result.line)

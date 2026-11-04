@@ -43,6 +43,7 @@
 | `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
+| `targets.yaml` | the guide's targets step, before grouping | people | none: written whole from `apps.targets` resolved ([targets.md](targets.md#targetsyaml)) |
 | `<app>/finished.json` | the guide, when an app reaches its last step | the guide's targets loop | digests compared, no validator: a mismatch only runs the app |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
 | `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/device.py`: rehashed to `supervisor.json` `charter` |

@@ -12,18 +12,23 @@ _VERSION = r"""(?:version\s*[:=]\s*["']([^"']+)["']|version\.ref\s*=\s*["']([^"'
 _MAP = re.compile(r"""group\s*[:=]\s*["']([\w.\-]+)["']\s*,\s*name\s*[:=]\s*["']([\w.\-]+)["']\s*,\s*""" + _VERSION)
 _MODULE = re.compile(r"""module\s*=\s*["']([\w.\-]+):([\w.\-]+)["']\s*,\s*""" + _VERSION)
 _TABLE = re.compile(r"^\s*\[(\w+)\]\s*$")
-_ENTRY = re.compile(r"""^\s*([\w.\-]+)\s*=\s*["']([^"']+)["']""")
+_ENTRY = re.compile(r"""^\s*([\w.\-]+)\s*=\s*(.+?)\s*$""")
+_STRING = re.compile(r"""["']([^"']+)["']""")
 
 
-def _catalog_versions(text: str) -> dict[str, str]:
-    """The [versions] table of a libs.versions.toml."""
+def catalog_table(text: str, name: str) -> dict[str, str]:
+    """One table of a libs.versions.toml: each one-line key and its raw value."""
     out, table = {}, None
     for line in text.splitlines():
         if m := _TABLE.match(line):
             table = m.group(1)
-        elif table == "versions" and (m := _ENTRY.match(line)):
+        elif table == name and (m := _ENTRY.match(line)):
             out[m.group(1)] = m.group(2)
     return out
+
+
+def _catalog_versions(text: str) -> dict[str, str]:
+    return {k: m.group(1) for k, v in catalog_table(text, "versions").items() if (m := _STRING.match(v))}
 
 
 def _declared(text: str, refs: dict[str, str]) -> list[tuple[str, str | None]]:

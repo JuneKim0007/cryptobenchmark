@@ -5,19 +5,20 @@ Unset flags come from perfrepair.yaml (--perfrepair-config FILE); see docs/setti
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from pathlib import Path
 
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
+from ..app.facts.target_set import TargetSet, resolve_targets
 from ..ai.suggest.site_replace import command as replace_cmd
 from ..config.args import fill, load_settings, perf_mode, positive_int
 from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
 from ..dto.bundled import BundledPolicy
 from ..dto.perf_mode import PerfMode
-from ..inputs.check import target_path, target_perf
 from ..dto.change import CHANGES
 from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
                             APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, BUNDLED_FROM_APPS,
@@ -25,8 +26,11 @@ from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASUR
 from ..failure import reported
 from ..log import attach
 from ..result.modes import Mode, mode_of
+from ..stop import terminate
 from .state import Guide
 from .targets import run_targets
+
+LOG = logging.getLogger(__name__)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -74,38 +78,40 @@ def _grouping_args(a: argparse.Namespace) -> tuple[str, ...]:
             *(("--perfrepair-config", str(a.perfrepair_config)) if a.perfrepair_config else ()))
 
 
-def _roots(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> list[Path]:
+def _targets(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> TargetSet | None:
+    """None with --app; else apps.targets resolved, every skip echoed; no app is a stop before any device step."""
     if a.app is not None:
-        return [a.app.expanduser().resolve()]
+        return None
     listed = settings.read(APPS_TARGETS)
     if not listed:
         ap.error(f"the following arguments are required: --app (or {APPS_TARGETS.key} in perfrepair.yaml)")
-    # one app named twice runs once
-    return list(dict.fromkeys(_root(settings, e) for e in listed))
+    found = resolve_targets(listed, settings.file)
+    for warning in found.warnings:
+        LOG.warning(f"warning: {warning}")
+    for s in found.skipped:
+        print(f"guide targets: skip {s.path} {s.kind}: {s.reason}")
+    if not found.apps:
+        terminate("no_targets", f"{len(found.skipped)} candidates skipped, none an app", stage="guide", step="targets")
+    return found
 
 
-def _app_modes(a: argparse.Namespace, settings: Loaded) -> dict[Path, Mode]:
-    """Each target root naming its own perfMode, by root; an app run alone or under --perf-mode takes the flag or default."""
-    if a.app is not None or a.perf_mode_named:
+def _app_modes(a: argparse.Namespace, found: TargetSet | None) -> dict[Path, Mode]:
+    """Each target naming its own perfMode, by path; an app run alone or under --perf-mode takes the flag or default."""
+    if found is None or a.perf_mode_named:
         return {}
-    listed = settings.read(APPS_TARGETS) or []
-    return {_root(settings, e): mode_of(target_perf(e)) for e in listed if target_perf(e) is not None}
-
-
-def _root(settings: Loaded, entry) -> Path:
-    # relative to the settings file, as its paths are
-    return (settings.file.parent / Path(target_path(entry)).expanduser()).resolve()
+    return {t.path: mode_of(t.perfMode) for t in found.apps if t.perfMode is not None}
 
 
 def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> int:
-    roots = _roots(ap, a, settings)
+    found = _targets(ap, a, settings)
+    roots = [a.app.expanduser().resolve()] if found is None else [t.path for t in found.apps]
     root = device_root(ap, a, settings)
     base = Guide(a.device_results, None, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, replace_cmd.DRY_RUN),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG),
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
-                 max_change=a.max_change, app_modes=_app_modes(a, settings))
+                 max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

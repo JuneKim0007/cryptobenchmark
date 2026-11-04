@@ -1,4 +1,5 @@
-"""Android project roots under a folder: a settings file, or a build file beside an Android source set or at the top."""
+"""Android project roots under a folder: a settings file, a build file beside an Android source set or at the top, or a
+legacy Ant project (a manifest beside project.properties)."""
 from __future__ import annotations
 
 import os
@@ -10,6 +11,7 @@ from ..find.sources import IGNORED_DIRS
 SETTINGS_FILES = ("settings.gradle", "settings.gradle.kts")
 BUILD_FILES = ("build.gradle", "build.gradle.kts")
 MANIFEST = "AndroidManifest.xml"
+ANT_PROPERTIES = "project.properties"
 MAX_DEPTH = 4
 
 
@@ -27,22 +29,27 @@ def _has_source_set(d: Path) -> bool:
                                 for s in src.iterdir() if s.is_dir())
 
 
-def _is_root(d: Path, top: bool) -> bool:
-    if any((d / f).is_file() for f in SETTINGS_FILES):
+def is_legacy(d: Path) -> bool:
+    return (d / MANIFEST).is_file() and (d / ANT_PROPERTIES).is_file()
+
+
+def _is_root(d: Path, top: bool, manifests: bool = False) -> bool:
+    if any((d / f).is_file() for f in SETTINGS_FILES) or is_legacy(d) or (manifests and (d / MANIFEST).is_file()):
         return True
     # the folder itself keeps the original rule, any build file, so top-level projects scan as before
     return any((d / f).is_file() for f in BUILD_FILES) and (top or _has_source_set(d))
 
 
-def project_roots(folder: Path, max_depth: int = MAX_DEPTH) -> list[str]:
-    """Relative roots, outermost only: a root inside another is one of its modules; '.' is the folder itself."""
+def project_roots(folder: Path, max_depth: int = MAX_DEPTH, manifests: bool = False) -> list[str]:
+    """Relative roots, outermost only: a root inside another is one of its modules; '.' is the folder itself.
+    manifests: a folder holding an AndroidManifest.xml counts too, so a tree without build files is still a candidate."""
     folder = Path(folder)
     real = folder.resolve()
     found: list[str] = []
     pending = [(folder, 0)]
     while pending:
         d, depth = pending.pop()
-        if _is_root(d, depth == 0):
+        if _is_root(d, depth == 0, manifests):
             found.append(d.relative_to(folder).as_posix() or ".")
             continue
         if depth == max_depth:

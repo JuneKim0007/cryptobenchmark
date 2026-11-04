@@ -50,7 +50,7 @@ flowchart LR
 - A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own; `grouping assign --refresh` starts a new one on purpose. `ai replace` asks only what has no record; a decision whose dossier changed is `stale` and stops with `dossier_changed` until `ai replace --refresh` (or `guide --refresh`) asks those scopes again (`docs/decisions.md` Site replace). An item change keeps the assign outbox and asks only what has no record (`docs/grouping.md` Record key).
 - `--prompts DIR`: `docs/decisions.md`.
 - `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`; a bad value there warns and uses the default, a bad flag errors: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `device.screening.catalog` from it (`docs/screening.md` Settings).
-- The guide runs `--app`, else every `apps.targets` entry, the device-level steps once before them; without `--device-results` it calls probe_device() first, which makes the device folder current (below); its grouping step then reads coverage (below). Steps, stop codes and the report: `docs/replacement.md`.
+- The guide runs `--app`, else every app `apps.targets` resolves to ([targets.md](targets.md)), the device-level steps once before them; without `--device-results` it calls probe_device() first, which makes the device folder current (below); its grouping step then reads coverage (below). Steps, stop codes and the report: `docs/replacement.md`.
 
 ## Device stage
 
