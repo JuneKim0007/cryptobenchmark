@@ -5,6 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
+from ...dto.screen import CODE_GROUPED
 from ..finding import ADVISORY, BLOCKING, Violation
 
 UNKNOWN = "unknown"
@@ -39,11 +40,20 @@ def _stored(g: Grouping, invariant: str, fix: str) -> list[Violation]:
             for f in g.checks if STORED.get(f.get("kind")) == invariant and f.get("group")]
 
 
-def key_contract_agrees(g: Grouping) -> list[Violation]:
+def _never_offered(g: Grouping, dossiers: dict[str, dict]) -> set[str]:
+    """Groups every member screened out and no dossier offers; a screened-out item stays an option of its own algorithm."""
+    offered = {o.get("item") for doc in dossiers.values() for d in doc.get("dossiers") or [] for o in d.get("options") or []}
+    return {x["id"] for x in g.groups["groups"]
+            if all(g.groups["items"][str(m)].get("screen") in CODE_GROUPED for m in x["members"])
+            and not any(_qualified(g, m) in offered for m in x["members"])}
+
+
+def key_contract_agrees(g: Grouping, dossiers: dict[str, dict]) -> list[Violation]:
     """Both key contracts in one group, or a member whose key component nothing recorded: `unknown` decides nothing."""
     fix = "split the group by key contract; record each member's key contract before it is grouped"
-    out = _stored(g, "key_contract_agrees", fix)
-    for x in _multi(g):
+    exempt = _never_offered(g, dossiers)
+    out = [v for v in _stored(g, "key_contract_agrees", fix) if v.subject.removeprefix("group ") not in exempt]
+    for x in (x for x in _multi(g) if x["id"] not in exempt):
         contracts = {m: g.groups["items"][str(m)].get("keyContract") for m in x["members"]}
         asked = [m for m in x["members"] if (_components(g, m).get("key") or {}).get("status") == UNKNOWN]
         mixed = {KEY_APP_HELD, KEY_PROVIDER_HELD} <= set(contracts.values())
@@ -154,5 +164,5 @@ def grouping_stable(g: Grouping, other: Grouping) -> list[Violation]:
 
 
 def grouping_invariants(g: Grouping, dossiers: dict[str, dict], other: Grouping | None = None) -> list[Violation]:
-    found = key_contract_agrees(g) + signature_agrees(g) + no_runnable_no_options(g, dossiers) + interop_not_run(g)
+    found = key_contract_agrees(g, dossiers) + signature_agrees(g) + no_runnable_no_options(g, dossiers) + interop_not_run(g)
     return found + algorithm_split(g) + (grouping_stable(g, other) if other is not None else [])

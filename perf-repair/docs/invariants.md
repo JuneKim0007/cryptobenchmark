@@ -20,13 +20,14 @@ Read from `grouping/groups.json`, `profiles.json`, `checks.json`, `screen.json` 
 
 | Invariant | Severity | Fails when |
 |---|---|---|
-| `key_contract_agrees` | blocking | a group of two or more holds `app_held` and `provider_held` members (`checks.json` `key_contract_differs`), or a member whose signature `key` component is `unknown`: nothing recorded whether its key leaves the provider |
+| `key_contract_agrees` | blocking | a group of two or more holds `app_held` and `provider_held` members (`checks.json` `key_contract_differs`), or a member whose signature `key` component is `unknown`: nothing recorded whether its key leaves the provider; a group whose every member is `broken` or `platform_deprecated` and which no dossier offers is exempt |
 | `signature_agrees` | blocking | two members know different values of one signature component (`known` or `convention`), or `checks.json` holds `resolved_parameters_differ` for the group |
 | `no_runnable_no_options` | blocking | a dossier option names a member of a group with no runnable member |
 | `interop_not_run` | advisory | a group with two or more runnable members while `interop.status` is `not_run` |
 | `algorithm_split` | advisory | one canonical name of `screen.json` in several groups of a family, with members of equal screen status, key contract and signature in each |
 | `grouping_stable` | blocking | with `--against`: two items whose key contract, key kind, runs and signature are equal in both runs are together in one run and apart in the other |
 
+- A screened-out item is still an option of its own algorithm (`lowers_status`, `dto/screen.py`), so a screened-out group a dossier offers stays under `key_contract_agrees`: its swap is a real one.
 - A failed interop pair is never an option: `validation/dossiers/dossier.py` refuses it; no invariant repeats it.
 - `algorithm_split` is advisory: a false split loses options and joins nothing wrong; whether to merge is the model's call.
 

@@ -26,7 +26,7 @@ def subjects(found, invariant):
 
 
 def test_the_emulator_run_fails_both_mixed_generator_groups_and_the_all_unknown_one(g):
-    found = inv.key_contract_agrees(g)
+    found = inv.key_contract_agrees(g, {})
     # aes-keygen-exportable: every member unknown too; #98's key contracts are what make it pass
     assert subjects(found, "key_contract_agrees") == ["group aes-keygen", "group aes-keygen-exportable", "group rsa-keypair-gen"]
     assert all(v.severity == BLOCKING for v in found)
@@ -44,7 +44,7 @@ def test_the_command_exits_1_on_the_emulator_run(capsys):
 
 def test_mixed_contracts_are_reported_from_report_s_own_finding(g):
     g.checks.append({"kind": "key_contract_differs", "group": DIGEST, "detail": "members hold both", "items": []})
-    assert "group code_d3c08f376c" in subjects(inv.key_contract_agrees(g), "key_contract_agrees")
+    assert "group code_d3c08f376c" in subjects(inv.key_contract_agrees(g, {}), "key_contract_agrees")
 
 
 def test_a_component_two_members_know_differently_breaks_the_signature(g):
@@ -109,3 +109,30 @@ def test_an_input_that_changed_is_not_compared(g):
 def test_run_invariants_reads_a_device_folder_with_no_apps(tmp_path):
     shutil.copytree(EMU, tmp_path / "d")
     assert {v.invariant for v in run_invariants(tmp_path / "d")} == {"key_contract_agrees", "interop_not_run"}
+
+
+def screened_out(g, gid):
+    for m in group(g, gid)["members"]:
+        g.groups["items"][str(m)]["screen"] = "broken"
+
+
+def offering(g, gid):
+    item = g.groups["items"][str(group(g, gid)["members"][0])]["qualified"]
+    return {"app": {"dossiers": [{"scope": {"id": "s1"}, "current": "x", "options": [{"alias": "R1", "item": item}]}]}}
+
+
+def test_a_group_every_member_screened_out_and_offered_nowhere_is_exempt_from_the_key_contract(g):
+    screened_out(g, "aes-keygen")
+    g.checks.append({"kind": "key_contract_differs", "group": "aes-keygen", "detail": "members hold both", "items": []})
+    assert "group aes-keygen" not in subjects(inv.grouping_invariants(g, {}), "key_contract_agrees")
+
+
+def test_a_screened_out_group_a_dossier_offers_still_answers_to_the_key_contract(g):
+    screened_out(g, "aes-keygen")
+    assert "group aes-keygen" in subjects(inv.key_contract_agrees(g, offering(g, "aes-keygen")), "key_contract_agrees")
+
+
+def test_one_member_not_screened_out_keeps_the_group_under_the_key_contract(g):
+    g.groups["items"][str(group(g, "aes-keygen")["members"][0])]["screen"] = "broken"
+    g.groups["items"][str(group(g, "aes-keygen")["members"][1])]["screen"] = "accepted"
+    assert "group aes-keygen" in subjects(inv.key_contract_agrees(g, {}), "key_contract_agrees")

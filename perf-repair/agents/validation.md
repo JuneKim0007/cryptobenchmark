@@ -39,7 +39,7 @@ src/perfrepair/validation/failure.py : ValidationFailed and require: the stage g
 src/perfrepair/validation/finding.py : the one invariant finding: id, severity (blocking, advisory, undecided), subject, evidence, fix; blocking, counts
 src/perfrepair/validation/grouping/code_groups.py : code-made groups equal the ones screen.json and the signatures imply; no item grouped by code in a model group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options
-src/perfrepair/validation/grouping/invariants.py : grouping invariants: key contract, signature, no runnable member no options, interop not run, algorithm split, stability against another run
+src/perfrepair/validation/grouping/invariants.py : grouping invariants: key contract (a screened-out group no dossier offers exempt), signature, no runnable member no options, interop not run, algorithm split, stability against another run
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
 src/perfrepair/validation/grouping/knowledge.py : knowledge: well-formed groups, members in one group of their family
 src/perfrepair/validation/grouping/output.py : groups.json (schema 3): one group or dropped per item, consistent index, `screen` equal to screen.json, code-made groups; read_groups reads it gated
