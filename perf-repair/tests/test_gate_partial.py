@@ -82,7 +82,7 @@ def test_a_merge_refuses_a_case_with_another_sample_count(device, tmp_path):  # 
         merge_delta(device, staged, {"added"}, "s", "checked")
 
 
-def _added_item(device, staged, harness, stored_harness=None):
+def _added_item(device, staged, harness, stored_harness=None):  # noqa: F811
     """A case of an item the stored benchmark has no case of, planned with `harness`."""
     doc = read_json(staged / "benchmark/benchmark.json")
     doc["cases"].append({**doc["cases"][0], "id": "new", "provider": "New"})
