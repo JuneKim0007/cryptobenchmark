@@ -67,3 +67,16 @@ def differing(stored: dict, now: dict) -> list[str]:
     """`<field>: <stored> stored, <now> now` per field that differs, in field order."""
     return [f"{k}: {stored.get(k)!r} stored, {now.get(k)!r} now" for k in sorted(set(stored) | set(now))
             if stored.get(k) != now.get(k)]
+
+
+def without_narrowed(stored: dict, now: dict) -> tuple[dict, dict]:
+    """A partial-only delta: the passes it left out and its variants, when a subset of the stored ones, are not differences."""
+    stored, now = dict(stored), dict(now)
+    for block in ("run", "prepared"):
+        key = f"{block}.variants"
+        if now.get(key) and stored.get(key) and set(now[key]) <= set(stored[key]):
+            stored.pop(key), now.pop(key)
+        kept = {k.split(".")[2] for k in now if k.startswith(f"{block}.passes.")}
+        for k in [k for k in stored if k.startswith(f"{block}.passes.") and k.split(".")[2] not in kept]:
+            stored.pop(k)
+    return stored, now

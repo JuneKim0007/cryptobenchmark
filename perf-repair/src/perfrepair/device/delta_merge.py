@@ -21,20 +21,31 @@ class Merged:
     folder: str
 
 
-def _tag(cases: list[dict], session: str, comparison: str) -> list[dict]:
-    return [{**c, "session": session, **({"sessionDrift": True} if comparison == SETUP_DRIFT else {})} for c in cases]
+def _tag(case: dict, session: str, comparison: str) -> dict:
+    return {**case, "session": session, **({"sessionDrift": True} if comparison == SETUP_DRIFT else {})}
 
 
-def _added(stored: list[dict], delta: list[dict], ids: set[str], session: str, comparison: str) -> list[dict]:
+def _filled(case: dict, theirs: dict | None, metrics, session: str, comparison: str) -> dict:
+    """The delta's runs of the metrics the stored case lacks, beside its own untouched; the case reads as the delta's
+    session, so a comparison through it says cross_session."""
+    new = {m: theirs["metrics"][m] for m in metrics if theirs and m in theirs["metrics"] and m not in case["metrics"]}
+    if not new:
+        return case
+    return _tag({**case, "metrics": {**case["metrics"], **new}, "filled": sorted(new)}, session, comparison)
+
+
+def _added(stored: list[dict], delta: list[dict], ids: set[str], fill: dict, session: str, comparison: str) -> list[dict]:
     present = {c["id"] for c in stored}
     clash = sorted(ids & present)
     if clash:
         raise Coded(f"merge_refused: {', '.join(clash)} already in the stored benchmark; a merge only adds")
-    return stored + _tag([c for c in delta if c["id"] in ids], session, comparison)
+    theirs = {c["id"]: c for c in delta}
+    kept = [_filled(c, theirs.get(c["id"]), fill.get(c["id"], ()), session, comparison) for c in stored]
+    return kept + [_tag(c, session, comparison) for c in delta if c["id"] in ids]
 
 
-def _benchmarks(stored: dict, delta: dict, ids: set[str], session: str, comparison: str) -> dict:
-    return {**stored, "cases": _added(stored.get("cases") or [], delta.get("cases") or [], ids, session, comparison)}
+def _benchmarks(stored: dict, delta: dict, ids: set[str], fill: dict, session: str, comparison: str) -> dict:
+    return {**stored, "cases": _added(stored.get("cases") or [], delta.get("cases") or [], ids, fill, session, comparison)}
 
 
 def _plan_file(key: str, stored: dict, delta: dict) -> dict:
@@ -46,24 +57,45 @@ def _plan_file(key: str, stored: dict, delta: dict) -> dict:
     return {**stored, field: have + new}
 
 
-def _same_repetitions(stored: dict, delta: dict) -> None:
-    mine, theirs = len(stored["files"].get("processes") or ()), len(delta["files"].get("processes") or ())
-    if mine != theirs:
-        raise Coded(f"merge_refused: unequal_repetitions: the stored benchmark has {mine} process files, the delta {theirs}")
+def _samples(docs: list[dict]) -> dict[tuple[str, str, str], tuple[int, ...]]:
+    """Per (item, case, metric) its run count in each document: the merged benchmark first, then each process file."""
+    out: dict[tuple[str, str, str], list[int]] = {}
+    for n, doc in enumerate(docs):
+        for c in doc.get("cases") or []:
+            item = f"{c.get('type')}|{c.get('algorithm')}|{c.get('provider')}"
+            for m, v in (c.get("metrics") or {}).items():
+                out.setdefault((item, c["id"], m), [0] * len(docs))[n] = len(v.get("runs") or ())
+    return {k: tuple(v) for k, v in out.items()}
 
 
-def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, comparison: str, retried=()) -> Merged:
+def _same_samples(mine: dict, theirs: dict, merged: set[str]) -> None:
+    """A shared case is held to its own counts, an added or filled one to the stored cases' of its item and metric."""
+    by_item: dict[tuple[str, str], set] = {}
+    for (item, _, m), counts in mine.items():
+        by_item.setdefault((item, m), set()).add(counts)
+    for (item, cid, m), counts in sorted(theirs.items(), key=lambda kv: kv[0][1:]):
+        expected = {mine[item, cid, m]} if (item, cid, m) in mine else by_item.get((item, m)) if cid in merged else None
+        if expected and counts not in expected:
+            what = "per process" if {c[0] for c in expected} == {counts[0]} else "runs"
+            raise Coded(f"merge_refused: unequal_samples: {cid}.{m}: {what} {list(counts)} in the delta, "
+                        f"{sorted(map(list, expected))[0]} stored")
+
+
+def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, comparison: str, retried=(),
+                fill: dict | None = None) -> Merged:
     """ids: the delta's cases to add; one already stored refuses the merge, never replaces a case; retried: the lost cases
-    this delta measured again, whether or not they came back."""
-    folder, staged = Path(folder), Path(staged)
+    this delta measured again; fill: per stored case the metrics it lacks, taken from the delta's same case."""
+    folder, staged, fill = Path(folder), Path(staged), fill or {}
     manifest, delta = read_yaml(folder / rd.MANIFEST), read_yaml(staged / rd.MANIFEST)
-    _same_repetitions(manifest, delta)
-    out = Path("benchmark") / f"merged-{session}"
     files = dict(manifest["files"])
-    texts = {"benchmark": json_text(_benchmarks(read_json(folder / files["benchmark"]),
-                                                read_json(staged / delta["files"]["benchmark"]), ids, session, comparison))}
-    for n, (mine, theirs) in enumerate(zip(files.get("processes") or (), delta["files"].get("processes") or ()), 1):
-        texts[f"process-{n}"] = json_text(_benchmarks(read_json(folder / mine), read_json(staged / theirs), ids, session, comparison))
+    mine = [read_json(folder / p) for p in [files["benchmark"], *(files.get("processes") or ())]]
+    theirs = [read_json(staged / p) for p in [delta["files"]["benchmark"], *(delta["files"].get("processes") or ())]]
+    _same_samples(_samples(mine), _samples(theirs), ids | set(fill))
+    out = Path("benchmark") / f"merged-{session}"
+    merged = _benchmarks(mine[0], theirs[0], ids, fill, session, comparison)
+    texts = {"benchmark": json_text(merged)}
+    for n, (a, b) in enumerate(zip(mine[1:], theirs[1:]), 1):
+        texts[f"process-{n}"] = json_text(_benchmarks(a, b, ids, fill, session, comparison))
     for key in PLANNED:
         if files.get(key) and delta["files"].get(key):
             texts[key] = yaml.safe_dump(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta["files"][key])),
@@ -78,8 +110,9 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     counts["measured"] = counts.get("measured", 0) + len(ids)
     if "prepared" in texts:
         counts["prepared"] = len(yaml.safe_load(texts["prepared"]).get("cases") or [])
+    filled = {c["id"]: c["filled"] for c in merged["cases"] if c["id"] in fill and c.get("session") == session and c.get("filled")}
     deltas = list(manifest.get("deltas") or []) + [{"session": session, "cases": sorted(ids), "comparison": comparison,
-                                                     "from": str(staged)}]
+                                                     "from": str(staged), **({"filled": filled} if filled else {})}]
     tried = sorted(set(manifest.get("retried") or ()) | set(retried))
     write_text_making_parents(folder / rd.MANIFEST, yaml.safe_dump({**manifest, "files": files, "counts": counts, "deltas": deltas,
                                                                     **({"retried": tried} if tried else {})}, sort_keys=False))

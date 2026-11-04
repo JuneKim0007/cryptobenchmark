@@ -12,11 +12,13 @@ from ..dto.benchmark_coverage import (
     ANY,
     LOST,
     LOW_QUALITY,
+    METRIC_MISSING,
     NEVER_PLANNED,
     NO_OPERATION,
     PARTIAL,
     REFUSED,
     REPEATS,
+    VARIANT_MISSING,
     Coverage,
     Gap,
 )
@@ -32,6 +34,8 @@ NOT_IN_PLAN = "not_in_plan: the selection never planned it"
 REFUSING = ("skipped", "not_runnable")
 ENERGY_CAPTURES = ("measured",)
 PLANNED = "planned"
+# what differs between the variants of one planned case
+SIBLING_FIELDS = ("id", "variant", "perCall")
 
 
 def planned_set(device: Path) -> UsedSet:
@@ -69,6 +73,14 @@ class _Run:
             self.planned.setdefault(qualified(c["type"], c["algorithm"], c["provider"]), []).append(c)
 
 
+def _sibling_measured(run: _Run, item: str, case: dict) -> bool:
+    """Another variant of the same planned case has rows: only this variant is missing."""
+    def same(c):
+        return {k: v for k, v in c.items() if k not in SIBLING_FIELDS}
+    return bool(case.get("variant")) and any(c["id"] in run.rows for c in run.planned.get(item, ())
+                                             if c.get("variant") != case["variant"] and same(c) == same(case))
+
+
 def _case_gaps(run: _Run, item: str, case: dict, metrics: list[str]) -> tuple[int, list[Gap]]:
     cid = case["id"]
     row = run.rows.get(cid)
@@ -83,9 +95,11 @@ def _case_gaps(run: _Run, item: str, case: dict, metrics: list[str]) -> tuple[in
         if summary:
             cls, why = LOW_QUALITY, f"too_few_runs: {summary.n} runs, the estimate needs {MIN_RUNS}"
         elif row:
-            cls, why = PARTIAL, f"metric_missing: the case has no {metric} runs"
+            cls, why = PARTIAL, f"{METRIC_MISSING}: the case has no {metric} runs"
         elif cid in run.refused_case:
             cls, why = REFUSED, run.refused_case[cid]
+        elif cid not in run.retried and _sibling_measured(run, item, case):
+            cls, why = PARTIAL, f"{VARIANT_MISSING}: another variant of the case was measured, not {case['variant']}"
         else:
             why = run.lost_case.get(cid) or "no_samples: planned, absent from benchmark.json"
             cls = REPEATS if cid in run.retried else LOST

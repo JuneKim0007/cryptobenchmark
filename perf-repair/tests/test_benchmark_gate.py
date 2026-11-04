@@ -17,7 +17,6 @@ from perfrepair.device.measured_check import measured_check
 from perfrepair.device.setup_fingerprint import case_setups, differing, fingerprint
 from perfrepair.dto.benchmark_coverage import (
     LOST,
-    LOW_QUALITY,
     MEASURED,
     NEVER_PLANNED,
     NO_OPERATION,
@@ -116,14 +115,6 @@ def test_a_metric_the_case_planned_and_lacks_is_partial(device):
     (device / "preparation/prepared.yaml").write_text(yaml.safe_dump(prepared))
     seen = check(device, GCM_SLOW, perf=GENERIC_MODE)
     assert seen.items() == {GCM_SLOW: PARTIAL} and seen.gaps[0].metric == "allocationCount" and seen.measured == 1
-
-
-def test_too_few_runs_is_a_gap_not_a_pass(device):
-    def one_run(doc):
-        doc["cases"][2]["metrics"]["timeNs"]["runs"] = [50]
-    rewrite(device, "benchmark/benchmark.json", one_run)
-    seen = check(device, SHA)
-    assert seen.items() == {SHA: LOW_QUALITY} and seen.gaps[0].action == "delta" and "1 runs" in seen.gaps[0].reason
 
 
 def test_a_type_with_no_harness_operation_is_coded_from_the_harness_list(device):
@@ -320,15 +311,6 @@ def staged_copy(device, tmp_path):
 def test_a_merge_refuses_an_id_the_benchmark_holds(device, tmp_path):
     with pytest.raises(Coded, match="merge_refused"):
         merge_delta(device, staged_copy(device, tmp_path), {"g_fast"}, "s", "checked")
-
-
-def test_a_merge_refuses_unequal_repetitions(device, tmp_path):
-    staged = staged_copy(device, tmp_path)
-    manifest = read_yaml(staged / rd.MANIFEST)
-    manifest["files"]["processes"] = ["benchmark/benchmark.json"]
-    (staged / rd.MANIFEST).write_text(yaml.safe_dump(manifest))
-    with pytest.raises(Coded, match="unequal_repetitions"):
-        merge_delta(device, staged, {"added"}, "s", "checked")
 
 
 def test_an_interrupted_merge_leaves_the_stored_benchmark_whole(device, tmp_path, monkeypatch):

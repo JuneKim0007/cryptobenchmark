@@ -11,7 +11,8 @@ NEVER_PLANNED, LOST, PARTIAL, LOW_QUALITY = "never_planned", "lost", "partial", 
 REPEATS, REFUSED, NO_OPERATION = "repeats", "refused", "no_operation"
 DELTA, CODED = "delta", "coded"
 # the design's table: what each gap class does; a delta one is measured again, a coded one keeps its reason
-ACTIONS = {NEVER_PLANNED: DELTA, LOST: DELTA, PARTIAL: DELTA, LOW_QUALITY: DELTA, REPEATS: CODED, REFUSED: CODED,
+# low_quality: the run block set its samples, so a delta under the same setup measures as few again
+ACTIONS = {NEVER_PLANNED: DELTA, LOST: DELTA, PARTIAL: DELTA, LOW_QUALITY: CODED, REPEATS: CODED, REFUSED: CODED,
            NO_OPERATION: CODED}
 CLASSES = tuple(ACTIONS)
 POINTS = ("used", "grouped")
@@ -21,6 +22,8 @@ ON_GAP, ON_SETUP_MISMATCH = (GAP_DELTA, GAP_STOP), (SETUP_STOP, SETUP_RERUN)
 ANY = "*"
 # a delta against the stored run: its anchors agreed, moved (dossier's setup_drift), or nothing was compared
 CHECKED, UNCHECKED = "checked", "unchecked"
+# partial: a case absent while another variant was measured, or one with rows and not this metric
+VARIANT_MISSING, METRIC_MISSING = "variant_missing", "metric_missing"
 
 
 @dataclass(frozen=True)

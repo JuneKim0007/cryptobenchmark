@@ -19,12 +19,15 @@ class Metric:
     positive: bool
     # what cryptobenchmark's run.metrics or harness.energy.capture turns on to measure it
     run: str
+    # the run.passes session that measures it
+    passName: str = "timing"
 
 
 TIME = Metric("timeNs", "ns/op", True, (), ("latency", "throughput"), required=True, positive=True, run="TIME")
 ALLOCATIONS = Metric("allocationCount", "allocations/op", True, (), ("memAlloc",), required=False, positive=False,
-                     run="ALLOCATION")
-ENERGY = Metric("energyJ", "J/op", True, (MEASURED, ESTIMATED), ("energy",), required=False, positive=False, run="energy")
+                     run="ALLOCATION", passName="allocation")
+ENERGY = Metric("energyJ", "J/op", True, (MEASURED, ESTIMATED), ("energy",), required=False, positive=False, run="energy",
+                passName="energy")
 METRICS = (TIME, ALLOCATIONS, ENERGY)
 NAMES = tuple(m.name for m in METRICS)
 BY_NAME = {m.name: m for m in METRICS}

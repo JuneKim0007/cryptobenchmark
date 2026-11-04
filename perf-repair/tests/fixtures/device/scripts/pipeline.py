@@ -4,7 +4,8 @@ The device folder is the recorded test-api36 results, each providers.bundled ent
 or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=1 fails after the old manifest is gone;
 FAKE_VARIANTS=1 writes every case twice, `<id>_fixed` (Fast's runs times FIXED_SCALE) and `<id>_notFixed`, as the benchmark does, retried ids too;
 FAKE_SELECT=1 keeps only the cases the config's test set and excludes select; FAKE_HEAL=1 also measures the recorded lost case;
-FAKE_SCALE=<n> multiplies every timeNs run (anchors drift); FAKE_RENAME_CASES=1 renames every case but the healed one (no shared case); FAKE_FINGERPRINT=<text> is the runtime's build fingerprint."""
+FAKE_SCALE=<n> multiplies every timeNs run (anchors drift); FAKE_RENAME_CASES=1 renames every case but the healed one (no shared case); FAKE_FINGERPRINT=<text> is the runtime's build fingerprint;
+FAKE_METRICS=1 plans every case with TIME and ALLOCATION; FAKE_FILL=1 gives a case without allocationCount another case's."""
 import argparse, fnmatch, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -96,6 +97,10 @@ if os.environ.get("FAKE_RENAME_CASES"):
     bench["cases"] = [{**c, "id": c["id"] if c["id"] == "d_slow" else c["id"] + "_override"} for c in bench["cases"]]
 if os.environ.get("FAKE_SELECT"):
     bench["cases"] = selected(bench["cases"])
+if os.environ.get("FAKE_FILL"):
+    runs = next(c["metrics"]["allocationCount"] for c in bench["cases"] if "allocationCount" in c["metrics"])
+    for c in bench["cases"]:
+        c["metrics"].setdefault("allocationCount", runs)
 FIXED_SCALE = 4
 PER_CALL = {"fixed": "initAndOperation", "notFixed": "getInstanceInitAndOperation"}
 
@@ -128,6 +133,8 @@ if os.environ.get("FAKE_VARIANTS"):
                          for c in prepared["cases"] for v in ("fixed", "notFixed")]
 if os.environ.get("FAKE_SELECT"):
     prepared["cases"] = selected(prepared["cases"])
+if os.environ.get("FAKE_METRICS"):
+    prepared["cases"] = [{**c, "metrics": ["TIME", "ALLOCATION"]} for c in prepared["cases"]]
 prepared_path.write_text(yaml.safe_dump(prepared, sort_keys=False))
 probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))
 trial_path.write_text(yaml.safe_dump(trial, sort_keys=False))

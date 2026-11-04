@@ -12,16 +12,16 @@ import yaml
 from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
-from ..dto.benchmark_coverage import CHECKED, LOST, UNCHECKED, Gap
+from ..dto.benchmark_coverage import CHECKED, LOST, METRIC_MISSING, PARTIAL, UNCHECKED, Gap
 from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, read_yaml, write_text_making_parents
 from ..result.estimate import compare
 from ..result.gain import UNCHANGED, change_of
 from ..stop.halt import Coded
-from .delta_config import DELTA, write_delta_config, write_rerun_config
+from .delta_config import DELTA, narrowed, write_delta_config, write_rerun_config
 from .delta_estimate import estimate_line, planned_cases, seconds_per_case
 from .delta_merge import merge_delta
-from .setup_fingerprint import before_measuring, case_setups, differing, fingerprint
+from .setup_fingerprint import before_measuring, case_setups, differing, fingerprint, without_narrowed
 
 RESULTS = "results"
 BASELINE_ENV = "CRYPTOBENCH_THERMAL_BASELINE"
@@ -92,6 +92,15 @@ def _retried(gaps: tuple[Gap, ...]) -> list[str]:
     return sorted({g.case for g in gaps if g.gap == LOST})
 
 
+def _fill(gaps: tuple[Gap, ...]) -> dict[str, list[str]]:
+    """Per stored case with rows, the metrics a partial gap found missing."""
+    out: dict[str, list[str]] = {}
+    for g in gaps:
+        if g.gap == PARTIAL and g.case and g.reason.startswith(METRIC_MISSING):
+            out.setdefault(g.case, []).append(g.metric)
+    return out
+
+
 def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], session: str, on_device: bool,
               echo: Callable[[str], None], benchmark: Path | str | None = None) -> Delta:
     folder = Path(folder)
@@ -102,7 +111,9 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
         raise Coded(f"device_id_changed: the connected device is {identity['deviceId']}, the folder is {folder.name}; "
                     "a delta measures the device the benchmark did")
     items = {g.item for g in gaps}
-    config = write_delta_config(stored_config, folder, items | anchors)
+    run = narrowed((read_yaml(stored_config).get("run") or {}) if stored_config.is_file() else {}, gaps)
+    config = write_delta_config(stored_config, folder, items | anchors, run)
+    alike = without_narrowed if run is not None else (lambda a, b: (a, b))
     planned = {}
     for c in (read_prepared(manifest_file(manifest, folder, "prepared")) or {}).values():
         planned[f"{c['type']}|{c['algorithm']}|{c['provider']}"] = planned.get(f"{c['type']}|{c['algorithm']}|{c['provider']}", 0) + 1
@@ -118,7 +129,7 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     # a setup that differs is refused before the session, not after hours of it
     run_pipeline(config, root, "device" if on_device else "configure", benchmark=benchmark, echo=echo, device=folder,
                  extra=("--probe",))
-    early = tuple(before_measuring(fingerprint(folder), fingerprint(staged)))
+    early = tuple(before_measuring(*alike(fingerprint(folder), fingerprint(staged))))
     if early:
         return Delta(session, mismatch=early, lines=[line])
     run_pipeline(config, root, stage, benchmark=benchmark, echo=echo, device=folder,
@@ -127,13 +138,13 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     staged_doc = read_json(staged / read_manifest(staged / rd.MANIFEST)[0].files["benchmark"])
     staged_cases = {c["id"] for c in staged_doc.get("cases") or []}
     shared = stored_cases & staged_cases
-    mismatch = tuple(differing(fingerprint(folder), fingerprint(staged)) + _case_mismatch(folder, staged, shared))
+    mismatch = tuple(differing(*alike(fingerprint(folder), fingerprint(staged))) + _case_mismatch(folder, staged, shared))
     if mismatch:
         return Delta(session, anchors=tuple(sorted(shared)), mismatch=mismatch, lines=[line])
     drift, compared = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
     added = staged_cases - stored_cases
     done = Delta(session, tuple(sorted(added)), tuple(sorted(shared)), (), drift, [line], compared)
-    merge_delta(folder, staged, added, session, done.comparison, _retried(gaps))
+    merge_delta(folder, staged, added, session, done.comparison, _retried(gaps), _fill(gaps))
     return done
 
 
