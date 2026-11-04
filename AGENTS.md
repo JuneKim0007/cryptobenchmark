@@ -39,6 +39,7 @@
 .github/workflows/docs.yml : CI docs lint
 .github/workflows/jca-contract.yml : CI JCA contract tests on Java 17, 21, 25 and the Android API compile check
 .github/workflows/modules.yml : CI isolated build and test per module
+.github/workflows/tests.yml : CI Python suites and the root Gradle build: settings tests, androidTest compile
 AGENTS.md : agent router
 README.md : project entry page
 agents/ : directive guides

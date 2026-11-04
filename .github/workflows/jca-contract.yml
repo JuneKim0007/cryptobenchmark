@@ -3,9 +3,9 @@ name: jca contract
 # Fails when the JCA surface :discovery reads changes under a new Java version.
 on:
   push:
-    paths: ['modules/environment/discovery/**', 'modules/config/**', 'modules/preparation/**', 'config/**', 'tools/**', '.github/workflows/jca-contract.yml']
+    paths: ['modules/environment/discovery/**', 'modules/settings/**', 'modules/config/**', 'modules/preparation/**', 'modules/benchmark/**', 'perf-repair/src/perfrepair/catalog/algorithm-names.yaml', 'perf-repair/tests/fixtures/algorithm-names-cases.yaml', 'config/**', 'tools/**', '.github/workflows/jca-contract.yml']
   pull_request:
-    paths: ['modules/environment/discovery/**', 'modules/config/**', 'modules/preparation/**', 'config/**', 'tools/**']
+    paths: ['modules/environment/discovery/**', 'modules/settings/**', 'modules/config/**', 'modules/preparation/**', 'modules/benchmark/**', 'perf-repair/src/perfrepair/catalog/algorithm-names.yaml', 'perf-repair/tests/fixtures/algorithm-names-cases.yaml', 'config/**', 'tools/**', '.github/workflows/jca-contract.yml']
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:

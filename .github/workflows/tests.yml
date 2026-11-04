@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: ['master']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r requirements.txt
+      - name: perf-repair
+        run: make -C perf-repair check
+      - name: scripts and tools
+        run: python3 -m pytest scripts/tests tools/energy/tests tools/quick-bench/tests
+      - name: standalone
+        run: |
+          python3 scripts/tests/test_manifest.py
+          python3 tools/quick-bench/tests/test_analyze.py
+
+  root-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      # the versions modules/android/build.gradle names
+      - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "ndk;29.0.14206865" "cmake;3.22.1" > /dev/null
+      - run: ./gradlew build :android:compileReleaseAndroidTestKotlin --no-daemon

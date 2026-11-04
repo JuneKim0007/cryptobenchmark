@@ -16,5 +16,5 @@
 - analysis: a change to `tools/quick-bench/*.py` passes `python3 tools/quick-bench/tests/test_analyze.py`; `-u` rewrites `tools/quick-bench/tests/golden_summary.md` and `golden_chart_summary.md`.
 - perf-repair: a change under `perf-repair/` passes `make -C perf-repair check`.
 - docs: a change to any guide or doc passes `python3 scripts/docs_lint.py`.
-- ci: no workflow runs the Python tests or `make -C perf-repair check`; run them locally.
+- ci: a Gradle or Python test command added here gets its step in `.github/workflows/tests.yml`.
 - fixtures: tests may name devices, providers and algorithms; main code may not.
