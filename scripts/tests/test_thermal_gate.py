@@ -107,6 +107,14 @@ def test_the_before_after_run_is_gated_too(tmp_path, monkeypatch, capsys):
     assert "gate:      measure: 3 of 4 cases gated, 30 s waited, max 10 s, 0 timed out" in capsys.readouterr().out
 
 
+def test_an_unavailable_gate_is_read_and_warned_about_once_in_the_before_after_run(tmp_path, monkeypatch, capsys):
+    heat = Heat(monkeypatch, sensors=("skin",))
+    reads = []
+    monkeypatch.setattr(thermal_gate.thermal, "read", lambda device: reads.append(device) or heat.read(device))
+    scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1, "thermalGate": GATE})
+    assert capsys.readouterr().out.count("warning: thermal_gate_off:") == 1 and len(reads) == 1 and heat.slept == []
+
+
 def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_arguments, **_options: [])
     document = {"run": {"thermalGate": GATE}}

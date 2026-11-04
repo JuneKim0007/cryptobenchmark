@@ -5,7 +5,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from session import cooldown_hook  # noqa: E402
 from stages import harness  # noqa: E402
-from stages.measuring import Measuring  # noqa: E402
+from stages.measuring import Measuring, gated  # noqa: E402
 from fake_phone import Phone, fake_tools  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False)
@@ -17,11 +17,12 @@ def scoped(tmp_path, monkeypatch, run, crash=(), cooldown=0, notices=()):
     phone.notices = list(notices)
     fake_tools(monkeypatch, phone)
     files, problems = {}, []
-    measuring = Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems, cooldown=cooldown)
+    document = {"run": {"metrics": ["TIME"], **run}}
+    measuring = gated(Measuring(phone, None, None, OPTIONS, tmp_path / "discovery", files, problems, cooldown=cooldown), document)
     prepared = tmp_path / "scoped/prepared.yaml"
     prepared.parent.mkdir(parents=True)
     prepared.write_text("cases: []\n")
-    harness.scoped_passes(measuring, {"run": {"metrics": ["TIME"], **run}}, {"none"}, prepared, CASES, tmp_path / "scoped")
+    harness.scoped_passes(measuring, document, {"none"}, prepared, CASES, tmp_path / "scoped")
     return phone, files, problems
 
 

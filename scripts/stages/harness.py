@@ -74,8 +74,7 @@ def measure_scopes(options, configuration, device, results, scoped, plan):
 
 
 def scoped_passes(run, document, captures, prepared, cases, scoped):
-    if run.gate is None:
-        run = gated(run, document)
+    """run.gate is the thermal gate measure_scopes started, or None when it is off or unavailable."""
     chosen, repetitions, isolation = passes.read(document, captures), effective_view.scoped_repetitions(document), effective_view.isolation(document)
     measure_one = lambda one, folder, written: measure_scoped(run, one, captures, prepared, cases, isolation, repetitions, folder, written)
     written = passes.run_all(chosen, repetitions, scoped, measure_one, run.options)
