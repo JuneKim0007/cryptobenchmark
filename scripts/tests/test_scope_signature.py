@@ -63,3 +63,9 @@ def test_interop_pairs_by_link_never_by_name():
     plan = scope_interop.plan({"a": encrypt, "b": other}, linked)
     assert (plan["a"].check, plan["a"].partner, plan["b"].role) == ("round_trip", "b", "consume")
     assert scope_interop.plan({"a": encrypt}, {"a": {"partner": "gone", "role": "produce"}})["a"].check == "same_output"
+
+
+def test_a_java_wrapper_lets_any_exception_leave_so_a_swap_that_adds_a_checked_one_still_compiles():
+    declared = "byte[] f(byte[] a)\n    throws A,\n    B {\n  return a;\n}\n"
+    assert scope_signature.java(declared).member == "public static byte[] f(byte[] a) throws Exception {\n  return a;\n}"
+    assert scope_signature.java("void g() { }\n").member == "public static void g() throws Exception { }"

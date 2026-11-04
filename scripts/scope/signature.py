@@ -69,6 +69,12 @@ def bare_type(text):
     return ANNOTATION.sub(" ", text).strip()
 
 
+def measured_throws(tail):
+    """A swap can add a checked exception its function does not declare; the wrapper is called only by the harness, so any may leave it."""
+    body = tail.find("{")
+    return tail if body < 0 else f" throws Exception {tail[body:]}"
+
+
 def java(source):
     text, opened, closed = header(source)
     prefix = ANNOTATION.sub(" ", text[:opened]).split()
@@ -89,7 +95,7 @@ def java(source):
             raise SignatureError(f"vararg_parameter: {raw}")
         parameters.append(Parameter(tokens[-1], " ".join(tokens[:-1])))
     rendered = ", ".join(f"{p.type} {p.name}" for p in parameters)
-    member = f"public static {returns} {name}({rendered}){text[closed + 1:]}"
+    member = f"public static {returns} {name}({rendered}){measured_throws(text[closed + 1:])}"
     return Signature(name, tuple(parameters), None if returns == "void" else returns, member)
 
 

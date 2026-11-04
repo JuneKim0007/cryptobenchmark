@@ -69,7 +69,7 @@ Every swap is also measured as its call alone, so no swap goes unmeasured when i
 | item | value |
 |---|---|
 | package | `io.github.junekim0007.cryptobench.scoped.s<id>.before` and `.after` |
-| Java | `public final class ScopeFunction`; the method becomes `public static`; annotations dropped |
+| Java | `public final class ScopeFunction`; the method becomes `public static ... throws Exception`, since a swap can add a checked exception; annotations dropped |
 | Kotlin | `object ScopeFunction`; visibility, `override`, `open`, `final`, `inline` dropped |
 | catalog | `scoped.GeneratedScopes`, loaded by name through `ScopeCatalog`; absent: `missing_class` |
 | imports | `imports` lines, terminated per language |
