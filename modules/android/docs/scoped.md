@@ -97,7 +97,7 @@ Every swap is also measured as its call alone, so no swap goes unmeasured when i
 | `String`, `CharSequence` | `inputSize` alphanumeric characters, seed 7 |
 | `char[]`, `CharArray` | same characters as an array |
 | `SecretKey`, `Key`, `SecretKeySpec` | `SecretKeySpec` of `keySize / 8` random bytes, seed 8; algorithm = the option's name up to `/` |
-| `PrivateKey`, `PublicKey`, `KeyPair` | `ScopeKeys`: the key planner's pair for the option's item at `keySize`, generated once and kept in `scope-keys/` on the device, so before, after and every process share it; a key that cannot be built is that scope's `call_failed` |
+| `PrivateKey`, `PublicKey`, `KeyPair` | `ScopeKeys`: the key planner's pair for the option's item at `keySize`, generated once and kept in `scope-keys/` on the device, every process has the same bytes, each side decodes them through its own provider (another provider's key class is converted at every init); a key that cannot be built is that scope's `call_failed` |
 | `File` | a new temp file of `inputSize` random bytes, seed 7, per call |
 | `boolean`, `byte`, `short`, `int`, `long`, `float`, `double`, `char`, in Java or Kotlin spelling | one fixed value: `true`, `1`, `1L`, `1f`, `1.0`, `'a'`; nothing says what the function does with it, so a function that fails or takes a short path on it is `call_failed` or dilutes the ratio |
 

@@ -42,7 +42,8 @@ def key_algorithm(option):
     return item(option)[1].split("/")[0]
 
 
-def expression(parameter, scope):
+def expression(parameter, scope, side="after"):
+    """`side` picks the provider a key pair is decoded by: another provider's key class is converted at every init, a cost on one side only."""
     literal = LITERALS.get(normalised(parameter.type))
     if literal is not None:
         return literal
@@ -53,7 +54,8 @@ def expression(parameter, scope):
         if scope.key_size is None:
             raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
         kind_of, name, provider = item(scope.option)
-        return f'ScopeKeys.pair("{kind_of}", "{name}", "{provider}", {scope.key_size}){PAIR_MEMBERS[found]}'
+        decoder = item(scope.current if side == "before" else scope.option)[2]
+        return f'ScopeKeys.pair("{kind_of}", "{name}", "{provider}", {scope.key_size}, "{decoder}"){PAIR_MEMBERS[found]}'
     if found == "key":
         if scope.key_size is None:
             raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")

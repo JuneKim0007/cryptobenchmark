@@ -9,7 +9,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from scope import generate as scope_generate  # noqa: E402
 from scope import inputs as scope_inputs  # noqa: E402
 
-SCOPE = SimpleNamespace(key_size=2048, input_size=64, input_source="run", option="Cipher|RSA/ECB/OAEPPadding|BC")
+SCOPE = SimpleNamespace(key_size=2048, input_size=64, input_source="run", current="Cipher|RSA/ECB/OAEPPadding|A", option="Cipher|RSA/ECB/OAEPPadding|BC")
 
 
 def expression(type_text, scope=SCOPE):
@@ -20,18 +20,23 @@ def expression(type_text, scope=SCOPE):
                                                ("int", "Int", "1"), ("long", "Long", "1L"), ("float", "Float", "1f"),
                                                ("double", "Double", "1.0"), ("char", "Char", "'a'")])
 def test_each_primitive_has_one_value_under_both_spellings_and_needs_no_size(java, kotlin, value):
-    empty = SimpleNamespace(key_size=None, input_size=None, input_source="run", option=None)
+    empty = SimpleNamespace(key_size=None, input_size=None, input_source="run", current=None, option=None)
     assert expression(java, empty) == value and expression(f"{kotlin}?", empty) == value
 
 
 def test_key_pair_parameters_come_from_one_pair_at_the_options_item_and_size():
-    made = 'ScopeKeys.pair("Cipher", "RSA/ECB/OAEPPadding", "BC", 2048)'
+    made = 'ScopeKeys.pair("Cipher", "RSA/ECB/OAEPPadding", "BC", 2048, "BC")'
     assert expression("java.security.KeyPair") == made
     assert expression("PrivateKey") == made + ".private" and expression("PublicKey") == made + ".public"
 
 
+def test_each_side_decodes_the_one_generated_pair_through_its_own_provider():
+    before = scope_inputs.expression(SimpleNamespace(name="p", type="PrivateKey"), SCOPE, "before")
+    assert before == 'ScopeKeys.pair("Cipher", "RSA/ECB/OAEPPadding", "BC", 2048, "A").private'
+
+
 def test_a_key_pair_without_a_size_and_a_file_without_a_size_say_which_input_is_missing():
-    empty = SimpleNamespace(key_size=None, input_size=None, input_source="app", option="Cipher|RSA|BC")
+    empty = SimpleNamespace(key_size=None, input_size=None, input_source="app", current=None, option="Cipher|RSA|BC")
     with pytest.raises(scope_inputs.InputError, match="missing_input: keySize for p, none from app"):
         expression("PrivateKey", empty)
     with pytest.raises(scope_inputs.InputError, match="missing_input: inputSize for p, none from app"):
@@ -55,4 +60,5 @@ def test_a_function_of_every_new_kind_is_generated_and_a_failing_input_stays_in_
     assert compiled == ["aaaaaaaaaaaa"], plan.read_text()
     catalog = (tmp_path / "root" / scope_generate.scope_wrapper.FOLDER / "GeneratedScopes.kt").read_text()
     assert 'ScopeCatalog.guarded("aaaaaaaaaaaa") { saaaaaaaaaaaa() }' in catalog
-    assert "ScopeInputs.file(64, 7)" in catalog and 'ScopeKeys.pair("Cipher", "RSA", "B", 2048).private' in catalog
+    assert 'ScopeKeys.pair("Cipher", "RSA", "B", 2048, "A").private' in catalog
+    assert "ScopeInputs.file(64, 7)" in catalog and 'ScopeKeys.pair("Cipher", "RSA", "B", 2048, "B").private' in catalog

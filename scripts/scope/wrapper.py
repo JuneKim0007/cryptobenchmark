@@ -47,11 +47,11 @@ def call(scope_id, variant, signature, arguments):
     return f"{owner(scope_id, variant)}.{signature.name}({', '.join(arguments)})"
 
 
-def arguments(entry, prefix):
+def arguments(entry, prefix, side="after"):
     names, lines = [], []
     for index, parameter in enumerate(entry.signatures["before"].parameters):
         names.append(f"{prefix}{index}")
-        lines.append(f"val {prefix}{index} = {scope_inputs.expression(parameter, entry.scope)}")
+        lines.append(f"val {prefix}{index} = {scope_inputs.expression(parameter, entry.scope, side)}")
     return names, lines
 
 
@@ -75,7 +75,7 @@ def scope_function(entry, entries):
     if plan.check != "round_trip":
         lines, variants = [], {}
         for variant in VARIANTS:
-            names, made = arguments(entry, variant[0])
+            names, made = arguments(entry, variant[0], variant)
             lines += made
             variants[variant] = f"{{ {call(entry.scope.id, variant, signature, names)} }}"
         interop = "ScopeInterop.SameOutput" if plan.check == "same_output" else f"ScopeInterop.Unchecked({quoted(plan.reason)})"
@@ -93,11 +93,11 @@ def scope_function(entry, entries):
 
 def side_call(entry, producer, consumer, variant, lines):
     """One side of a round-trip scope on its own inputs; a consumer's artifact comes from the before producer on that side's inputs."""
-    produced, produce_lines = arguments(producer, f"p{variant[0]}")
+    produced, produce_lines = arguments(producer, f"p{variant[0]}", variant)
     lines += produce_lines
     if entry is producer:
         return f"{{ {call(entry.scope.id, variant, entry.signatures['before'], produced)} }}"
-    consumed, consume_lines = arguments(consumer, f"c{variant[0]}")
+    consumed, consume_lines = arguments(consumer, f"c{variant[0]}", variant)
     artifact = f"artifact{variant[0].upper()}"
     cast = scope_inputs.KOTLIN_TYPES[scope_inputs.kind(producer.signatures["before"].returns)]
     lines += consume_lines + [f"val {artifact} = lazy {{ {call(producer.scope.id, 'before', producer.signatures['before'], produced)} }}"]
