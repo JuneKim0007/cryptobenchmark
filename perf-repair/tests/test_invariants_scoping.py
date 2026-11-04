@@ -6,10 +6,13 @@ from pathlib import Path
 import pytest
 import yaml
 from perfrepair.dto.lifecycle import Step
+from perfrepair.dto.site import SCOPES_SCHEMA_VERSION
 from perfrepair.dto.unit import Link, Unit
+from perfrepair.files import write_json
 from perfrepair.scope.build import build_scopes
 from perfrepair.scope.units.build import build_units
 from perfrepair.validation.finding import BLOCKING, UNDECIDED
+from perfrepair.validation.invariants import app_gate, run_invariants
 from perfrepair.validation.scoping import invariants as inv
 from perfrepair.validation.scoping.accuracy import link_accuracy, pattern_accuracy
 from perfrepair.validation.scoping.source import Sources
@@ -67,7 +70,7 @@ SCOPER_WRONG = [
 
 def test_the_invariants_on_the_known_answers(read, capsys):
     by_marker, units, sources = read
-    found = inv.scoping_invariants([s for s in by_marker.values() if s], units, sources)
+    found = inv.scoping_invariants([s for s in by_marker.values() if s], units, sources, INIT_PER_CALL)
     marker = {s.id: m for m, s in by_marker.items() if s}
     with capsys.disabled():
         print("\n" + "\n".join(f"{v.severity} {v.invariant} {marker.get(v.subject.split()[-1], v.subject)}" for v in found))
@@ -75,7 +78,8 @@ def test_the_invariants_on_the_known_answers(read, capsys):
     assert flagged == EXPECTED_FLAGGED
 
 
-# held_in_field_setup_once catches the re-init; the lazy caches and the parameter links pass every source rule
+# held_in_field_setup_once catches the re-init of an item whose fixed variant does not init per call;
+# j_fresh's does, and the lazy caches and the parameter links pass every source rule
 EXPECTED_FLAGGED = {"j_reinit"}
 
 
@@ -88,6 +92,7 @@ def scope(line, reason, *steps, call='Cipher.getInstance("ALG-A/X")', engine="Ci
 
 
 SRC = Sources(F)
+INIT_PER_CALL = frozenset({("Cipher", "ALG-C/Z")})
 LOCAL = scope(59, "created_per_call", ("configure", "init", 60, "same"), ("use", "doFinal", 61, "same"))
 
 
@@ -128,3 +133,42 @@ def test_an_inverse_link_between_two_encrypting_sides_blocks():
 
 def test_no_source_is_undecided_never_a_guess():
     assert [(v.invariant, v.severity) for v in inv.scoping_invariants([LOCAL], [], Sources(None))] == [("site_line_holds_call", UNDECIDED)]
+
+
+def fresh(class_name="FreshIv"):
+    lines = (F / "Ledger.java").read_text().splitlines()
+    start = lines.index(f"class {class_name} {{")
+    site = next(n for n, text in enumerate(lines[start:], start + 1) if "Cipher.getInstance" in text)
+    use = next(n for n, text in enumerate(lines[start:], start + 1) if "stream.doFinal" in text)
+    return scope(site, "held_in_field", ("configure", "init", use - 1, "depth1"), ("use", "doFinal", use, "depth1"),
+                 call='Cipher.getInstance("ALG-C/Z")')
+
+
+def device_with(tmp_path, s, per_call):
+    app = tmp_path / "device" / "demo"
+    app.mkdir(parents=True)
+    write_json(app / "app.json", {"root": str(F), "projectRoot": "."})
+    doc = {"schemaVersion": SCOPES_SCHEMA_VERSION, "app": "demo", "scopes": [dataclasses.replace(s, algorithm="ALG-C/Z").to_json()]}
+    write_json(app / "scopes.json", doc)
+    row = {"type": "Cipher", "algorithm": "ALG-C/Z", "provider": "P1", "variant": "fixed", "perCall": per_call}
+    write_json(tmp_path / "device" / "rows.json", {"schemaVersion": 2, "rows": [row]})
+    return tmp_path / "device"
+
+
+def test_a_re_init_is_accepted_when_the_fixed_variant_of_that_item_inits_per_call(tmp_path):
+    device = device_with(tmp_path, fresh(), "initAndOperation")
+    assert [v for v in run_invariants(device) if v.invariant == "held_in_field_setup_once"] == []
+    assert [v for v in app_gate(device, "demo") if v.invariant == "held_in_field_setup_once"] == []
+
+
+def test_a_re_init_still_blocks_when_the_fixed_variant_does_not_init_per_call(tmp_path):
+    found = run_invariants(device_with(tmp_path, fresh(), "operation"))
+    assert [(v.invariant, v.severity) for v in found] == [("held_in_field_setup_once", BLOCKING)]
+    assert "stream.init" in found[0].evidence[1]
+
+
+def test_a_factory_call_in_the_using_method_blocks_even_when_the_fixed_variant_inits_per_call():
+    rebuilt = dataclasses.replace(fresh(class_name="Rebuilt"), algorithm="ALG-C/Z")
+    found = inv.held_in_field_setup_once(rebuilt, SRC.code("Ledger.java"), INIT_PER_CALL)
+    assert [v.severity for v in found] == [BLOCKING]
+    assert "Cipher.getInstance" in found[0].evidence[1] and "stream.init" not in found[0].evidence[1]

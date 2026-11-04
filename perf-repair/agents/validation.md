@@ -43,7 +43,7 @@ src/perfrepair/validation/grouping/invariants.py : grouping invariants: key cont
 src/perfrepair/validation/grouping/items.py : items.json and profiles.json
 src/perfrepair/validation/grouping/knowledge.py : knowledge: well-formed groups, members in one group of their family
 src/perfrepair/validation/grouping/output.py : groups.json (schema 3): one group or dropped per item, consistent index, `screen` equal to screen.json, code-made groups; read_groups reads it gated
-src/perfrepair/validation/invariants/__init__.py : run_invariants over a device folder; app_gate, the guide's check before replace; the app's source root
+src/perfrepair/validation/invariants/__init__.py : run_invariants over a device folder; app_gate, the guide's check before replace; the app's source root; the items rows.json's fixed variant inits per call
 src/perfrepair/validation/invariants/__main__.py : command: every invariant of a device folder, one line each and counts; exit 1 on a blocking one
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object
 src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
@@ -61,7 +61,7 @@ src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/scoping/__init__.py : docstring only
 src/perfrepair/validation/scoping/accuracy.py : known-answer accuracy of the scoper: per pattern rule and link kind, the right readings and the wrong ones
-src/perfrepair/validation/scoping/invariants.py : scoping invariants against the source: the call on its line, held_in_field setup once, created_per_call in one function, inverse link sides
+src/perfrepair/validation/scoping/invariants.py : scoping invariants against the source: the call on its line, held_in_field setup once (a re-init accepted where the fixed variant inits per call), created_per_call in one function, inverse link sides
 src/perfrepair/validation/scoping/source.py : Sources: an app's files as Code read once; line spans, the function around a line, the calls a line holds
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
 src/perfrepair/validation/suggest/site_edits.py : a member's edits against its chosen option: each kind once, the field it fills with the option's value, the kinds the option requires (`takes`, `required_kinds`, also used by the replacements check)

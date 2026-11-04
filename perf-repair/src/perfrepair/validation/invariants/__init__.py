@@ -1,9 +1,11 @@
 """The grouping and scoping invariants of a device folder: one list of findings, for the command and the guide's gate."""
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
 
 from ... import run_dir as rd
+from ...dto.pattern import FIXED, INIT_AND_OPERATION
 from ...dto.site import Scope
 from ...dto.unit import read_units
 from ...files import read_json
@@ -33,13 +35,24 @@ def source_root(app: Path, apps: Path | None) -> Path | None:
     return root / (facts.get("projectRoot") or ".")
 
 
-def app_violations(app: Path, apps: Path | None = None) -> list[Violation]:
+def init_per_call(device: Path) -> frozenset[tuple[str, str]]:
+    """rows.json's (type, algorithm) whose fixed rows all redo init per call; none without rows.json."""
+    if not (device / rd.ROWS).is_file():
+        return frozenset()
+    seen: dict[tuple[str, str], set] = defaultdict(set)
+    for r in read_json(device / rd.ROWS)["rows"]:
+        if r.get("variant") == FIXED:
+            seen[(r["type"], r["algorithm"])].add(r.get("perCall"))
+    return frozenset(k for k, per_call in seen.items() if per_call == {INIT_AND_OPERATION})
+
+
+def app_violations(app: Path, apps: Path | None = None, per_call: frozenset[tuple[str, str]] = frozenset()) -> list[Violation]:
     scopes_file, units_file = app / rd.SCOPES, app / rd.UNITS
     if not scopes_file.is_file():
         return []
     scopes = [Scope.from_json(s) for s in rd.read_scopes(scopes_file)["scopes"]]
     units = read_units(read_json(units_file)) if units_file.is_file() else []
-    return scoping_invariants(scopes, units, Sources(source_root(app, apps)))
+    return scoping_invariants(scopes, units, Sources(source_root(app, apps)), per_call)
 
 
 def _dossiers(device: Path, only: str | None = None) -> dict[str, dict]:
@@ -54,8 +67,9 @@ def run_invariants(device: Path, apps: Path | None = None, against: Path | None 
     if g is not None:
         other = load_grouping(Path(against)) if against is not None else None
         found += grouping_invariants(g, _dossiers(device), other)
+    per_call = init_per_call(device)
     for app in rd.app_dirs(device):
-        found += app_violations(app, apps)
+        found += app_violations(app, apps, per_call)
     return found
 
 
@@ -75,4 +89,4 @@ def app_gate(device: Path, app: str) -> list[Violation]:
     if g is not None and app in dossiers:
         touched = {f"group {gid}" for gid in _touched(g, dossiers[app])}
         found += [v for v in grouping_invariants(g, dossiers) if v.subject.startswith(app + " ") or touched & set(v.evidence)]
-    return found + app_violations(rd.app_dir(device, app))
+    return found + app_violations(rd.app_dir(device, app), None, init_per_call(device))

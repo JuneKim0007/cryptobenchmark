@@ -13,6 +13,8 @@ PATTERN_RULES = {
     UNKNOWN_DEFAULT: (NOT_FIXED, "the reading leaves open where the setup runs, so the default applies"),
 }
 PATTERN_REASONS = tuple(PATTERN_RULES)
+# prepared.yaml's perCall when one timed call redoes init: in the fixed variant, a re-init per call is still fixed
+INIT_AND_OPERATION = "initAndOperation"
 
 
 def pattern_of_reason(reason: str) -> str:

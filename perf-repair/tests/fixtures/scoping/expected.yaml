@@ -4,6 +4,7 @@ schemaVersion: 1
 sites:
   j_held: {pattern: fixed, reason: held_in_field}
   j_reinit: {pattern: notFixed, hard: re-init per call on a held object}
+  j_fresh: {pattern: fixed, reason: held_in_field, hard: a held object whose fixed variant inits per call}
   j_seal: {pattern: fixed, reason: held_in_field}
   j_open: {pattern: fixed, reason: held_in_field}
   j_local: {pattern: notFixed, reason: created_per_call}

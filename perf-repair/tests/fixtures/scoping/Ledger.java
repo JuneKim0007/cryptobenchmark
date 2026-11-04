@@ -120,3 +120,36 @@ class Twice {
         return c.doFinal(data);
     }
 }
+
+class FreshIv {
+    private final SecretKey key;
+    private final Cipher stream;
+    private final byte[] iv = new byte[16];
+
+    FreshIv(SecretKey key) throws Exception {
+        this.key = key;
+        stream = Cipher.getInstance("ALG-C/Z"); // site: j_fresh
+    }
+
+    byte[] next(byte[] data) throws Exception {
+        iv[0]++;
+        stream.init(Cipher.ENCRYPT_MODE, key, new javax.crypto.spec.IvParameterSpec(iv));
+        return stream.doFinal(data);
+    }
+}
+
+class Rebuilt {
+    private final SecretKey key;
+    private Cipher stream;
+
+    Rebuilt(SecretKey key) throws Exception {
+        this.key = key;
+        stream = Cipher.getInstance("ALG-C/Z");
+    }
+
+    byte[] next(byte[] data) throws Exception {
+        stream = Cipher.getInstance("ALG-C/Z");
+        stream.init(Cipher.ENCRYPT_MODE, key);
+        return stream.doFinal(data);
+    }
+}

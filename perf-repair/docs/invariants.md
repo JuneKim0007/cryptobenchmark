@@ -32,12 +32,12 @@ Read from `grouping/groups.json`, `profiles.json`, `checks.json`, `screen.json` 
 
 ## Scoping
 
-Read from each app's `scopes.json` and `units.json` against the source under app.json `root` and `projectRoot`.
+Read from each app's `scopes.json` and `units.json` against the source under app.json `root` and `projectRoot`; `held_in_field_setup_once` also reads the device's `rows.json`.
 
 | Invariant | Severity | Fails when |
 |---|---|---|
 | `site_line_holds_call` | blocking | the cited line does not start the recorded `call` (whitespace ignored, the call may run on over its lines) |
-| `held_in_field_setup_once` | blocking | a `held_in_field` scope's use one method away sits in a function that calls the engine's configuration on the same receiver, or the factory of the engine type |
+| `held_in_field_setup_once` | blocking | a `held_in_field` scope's use one method away sits in a function that calls the factory of the engine type, or the engine's configuration on the same receiver; a configuration call is accepted when every `fixed` row of the scope's type and algorithm in `rows.json` has `perCall` `initAndOperation`: that variant measures a re-init per call, so the pattern is right |
 | `created_per_call_one_function` | blocking | a `created_per_call` scope's use line holds no call of that name, or no use is inside the function around the site |
 | `inverse_link_sides` | blocking | the operations read from an `inverse` link's step lines (`scope/engines.yaml` operations, `scope/units/relations.yaml` steps) are not inverses in `relations.yaml` |
 
@@ -45,5 +45,5 @@ Read from each app's `scopes.json` and `units.json` against the source under app
 
 ## Known-answer fixtures
 
-- `tests/fixtures/scoping/`: own-written Java and Kotlin sources, one site per pattern reason and link kind, and the hard cases: a lazy cache in a field, a re-init per call on a held object, an escaping object; `expected.yaml` holds the true reading of each.
+- `tests/fixtures/scoping/`: own-written Java and Kotlin sources, one site per pattern reason and link kind, and the hard cases: a lazy cache in a field, a re-init per call on a held object, a held object whose fixed variant inits per call, an escaping object; `expected.yaml` holds the true reading of each.
 - `validation/scoping/accuracy.py` runs the scoper over them and counts, per rule, the sites it reads right; a wrong reading is listed, never tuned away.

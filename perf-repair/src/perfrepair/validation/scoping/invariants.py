@@ -41,17 +41,18 @@ def _uses(s: Scope) -> list:
     return [t for t in s.lifecycle.steps if t.role in _USES] if s.lifecycle else []
 
 
-def _setup_in(code: Code, text: str, receiver: str, s: Scope, engine: Engine) -> list[str]:
+def _setup_in(code: Code, text: str, receiver: str, s: Scope, engine: Engine, init_per_call: bool = False) -> list[str]:
     factory = read_engines().factory
-    found = [f"{receiver}.{c}" for c in sorted(engine.configuration)
+    found = [] if init_per_call else [f"{receiver}.{c}" for c in sorted(engine.configuration)
              if re.search(rf"\b{re.escape(receiver)}\s*\??\.\s*{re.escape(c)}\s*\(", text)]
     if re.search(rf"\b{re.escape(s.engineType)}\s*\.\s*{re.escape(factory)}\s*\(", text):
         found.append(f"{s.engineType}.{factory}")
     return found
 
 
-def held_in_field_setup_once(s: Scope, code: Code) -> list[Violation]:
-    """held_in_field: no method that uses the held object creates or configures it again."""
+def held_in_field_setup_once(s: Scope, code: Code, init_per_call: frozenset[tuple[str, str]] = frozenset()) -> list[Violation]:
+    """held_in_field: no method that uses the held object creates it again, nor configures it again unless the item's
+    fixed variant itself inits per call; init_per_call holds those items as (engine type, algorithm)."""
     if s.patternReason != HELD_IN_FIELD:
         return []
     engine = read_engines().engines.get(s.engineType)
@@ -65,7 +66,7 @@ def held_in_field_setup_once(s: Scope, code: Code) -> list[Violation]:
             continue
         if own is not None and f.start == own.start:
             continue
-        found = _setup_in(code, body(code, f), receivers.pop(), s, engine)
+        found = _setup_in(code, body(code, f), receivers.pop(), s, engine, (s.engineType, s.algorithm) in init_per_call)
         if found:
             out.append(Violation("held_in_field_setup_once", BLOCKING, f"scope {s.id}",
                                  (_at(s, t.line), f"function {f.name} also calls {', '.join(found)}"),
@@ -137,16 +138,17 @@ def inverse_link_sides(unit: Unit, scopes: dict[str, Scope], sources: Sources) -
     return out
 
 
-SCOPE_RULES = (site_line_holds_call, held_in_field_setup_once, created_per_call_one_function)
+SCOPE_RULES = (site_line_holds_call, created_per_call_one_function)
 
 
-def scoping_invariants(scopes: list[Scope], units: list[Unit], sources: Sources) -> list[Violation]:
+def scoping_invariants(scopes: list[Scope], units: list[Unit], sources: Sources,
+                       init_per_call: frozenset[tuple[str, str]] = frozenset()) -> list[Violation]:
     out = []
     for s in scopes:
         code = sources.code(s.file)
         if code is None:
             out.append(_undecided("site_line_holds_call", s, sources.why_not(s.file)))
             continue
-        out += [v for rule in SCOPE_RULES for v in rule(s, code)]
+        out += [v for rule in SCOPE_RULES for v in rule(s, code)] + held_in_field_setup_once(s, code, init_per_call)
     by_id = {s.id: s for s in scopes}
     return out + [v for u in units for v in inverse_link_sides(u, by_id, sources)]
