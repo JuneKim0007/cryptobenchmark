@@ -8,13 +8,17 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..dto.bundled import applied_entries
 from ..files import read_yaml
+from ..stop.halt import Coded
 from .selection import generated, relocated
 
 
 def configured(base: Path) -> frozenset[str]:
     """The group:name of each providers.bundled entry the base config holds."""
     entries = ((read_yaml(base) or {}).get("providers") or {}).get("bundled") or []
-    return frozenset(e["artifact"].rsplit(":", 1)[0] for e in entries if isinstance(e, dict) and e.get("artifact"))
+    for e in entries:
+        if not (isinstance(e, dict) and e.get("artifact") and isinstance(e["artifact"], str)):
+            raise Coded(f"invalid: providers.bundled in {base}: {e!r} names no artifact")
+    return frozenset(e["artifact"].rsplit(":", 1)[0] for e in entries)
 
 
 def last_applied(folder: Path) -> list[dict]:

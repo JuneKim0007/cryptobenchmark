@@ -7,7 +7,7 @@ import yaml
 
 from perfrepair.dto.site import SITES_SCHEMA_VERSION
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
-from perfrepair.device.bundled_config import bundled_config, harness_config
+from perfrepair.device.bundled_config import bundled_config, configured, harness_config
 from perfrepair.device.bundled_missing import missing_set
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
@@ -116,6 +116,14 @@ def applied_folder(tmp_path):
     device.mkdir()
     base.write_text("selection: {testSet: t.yaml}\nproviders: {bundled: [{artifact: 'g:own:1', create: Own}]}\n")
     return device, base
+
+
+@pytest.mark.parametrize("entry", ["g:own:1", {"create": "X"}, {"artifact": ""}, {"artifact": 7}])
+def test_a_providers_bundled_entry_with_no_artifact_is_refused_never_dropped(tmp_path, entry):
+    base = tmp_path / "global.yaml"
+    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "g:own:1"}, entry]}}))
+    with pytest.raises(ValueError, match=rf"^invalid: providers.bundled in {base}: .* names no artifact"):
+        configured(base)
 
 
 def test_applied_entries_append_to_the_base_and_none_use_it_as_it_is(tmp_path):
