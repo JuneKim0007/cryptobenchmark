@@ -1,14 +1,13 @@
 """Which kind each number is: the function when it has one, else the swapped call alone, each against the dossier's estimate."""
 import yaml
 from helpers import LATENCY, QUIET
-from test_app_report import A, B, make_app, rows
-
 from perfrepair.dto.report import CALL_SITE, FUNCTION
 from perfrepair.files import read_json, read_yaml, write_json
 from perfrepair.report.command import app_report
 from perfrepair.result.category import at_call_site, truth
 from perfrepair.run_dir import AppPaths
 from perfrepair.validation.report import validate_report
+from test_app_report import A, B, make_app, rows
 
 
 def with_call_sites(tmp_path, scale=1.0):

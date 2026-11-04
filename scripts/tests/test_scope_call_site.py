@@ -1,14 +1,16 @@
 """Call-site measurement: every swap's current and option item as prepared benchmark cases, whether or not its function compiles."""
-import json, pathlib, sys
+import json
+import pathlib
+import sys
 
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import gradle_runner  # noqa: E402
-from session import measure as measure_session  # noqa: E402
-from scope import call_site as scope_call_site  # noqa: E402
-from scope import generate as scope_generate  # noqa: E402
-from scope import results as scope_results  # noqa: E402
+import gradle_runner
+from scope import call_site as scope_call_site
+from scope import generate as scope_generate
+from scope import results as scope_results
+from session import measure as measure_session
 
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures/scoped"
 EFFECTIVE = {"run": {"inputSizes": [64, 1024], "phases": ["WARM", "COLD"], "variants": ["fixed", "notFixed"], "metrics": ["TIME"],

@@ -99,7 +99,7 @@ def device(g: Guide) -> str:
 
 def report(g: Guide) -> str:
     doc = app_report(g.device, g.app_id, g.mode, echo=lambda _: None)
-    return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured"
+    return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone"
 
 
 APP_DRY = (("app", app), ("dossier", dossiers), ("replace", replacements), ("edit", edits), ("harness", harness))

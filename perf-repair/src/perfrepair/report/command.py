@@ -49,7 +49,7 @@ def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
         s.wrote(paths.report, paths.report_md)
     f = doc["funnel"]
     echo(f"{paths.report}: {f['scopes']} scopes in {f['units']} units, {f['replace']} replace in {f['unitsReplace']} units, {f['applied']} applied, "
-         f"{f['compiled']} compiled, {f['measured']} measured")
+         f"{f['compiled']} compiled, {f['measured']} measured, {f['measuredCallSite']} by call site alone")
     return doc
 
 
@@ -63,5 +63,5 @@ def device_summary(device: Path, echo=print) -> dict:
         write_text(device / rd.SUMMARY_MD, summary_markdown(doc))
         s.count(apps=len(doc["apps"]), measured=doc["funnel"]["measured"])
         s.wrote(device / rd.SUMMARY, device / rd.SUMMARY_MD)
-    echo(f"{device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured")
+    echo(f"{device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone")
     return doc

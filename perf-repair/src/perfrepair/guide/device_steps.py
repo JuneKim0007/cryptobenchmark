@@ -181,7 +181,7 @@ def summary(g: Guide) -> str:
     if not any((d / rd.REPORT).is_file() for d in rd.app_dirs(g.device)):
         return "no app has a report yet"
     doc = device_summary(g.device, echo=lambda _: None)
-    return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured"
+    return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone"
 
 
 DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping))

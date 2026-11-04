@@ -3,7 +3,14 @@ from __future__ import annotations
 
 from ..dto.measurement import ESTIMATED
 from ..dto.pattern import PATTERNS, rule_words
-from ..dto.report import CALL_SITE, CHANGES, FUNCTION, FUNNEL, THERMAL_MISMATCH, THERMAL_THROTTLED
+from ..dto.report import (
+    CALL_SITE,
+    CHANGES,
+    FUNCTION,
+    FUNNEL,
+    THERMAL_MISMATCH,
+    THERMAL_THROTTLED,
+)
 from ..dto.units import number
 
 NOT_MEASURED = "not measured"
