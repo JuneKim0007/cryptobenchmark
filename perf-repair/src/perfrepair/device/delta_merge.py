@@ -2,6 +2,7 @@
 manifest.yaml, renamed in last, is the one switch, so an interrupted merge leaves the stored benchmark whole."""
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from ..stop.halt import Coded
 
 PLANNED = ("prepared", "skipped")
+NO_PLAN = "null"
 
 
 @dataclass(frozen=True)
@@ -57,24 +59,30 @@ def _plan_file(key: str, stored: dict, delta: dict) -> dict:
     return {**stored, field: have + new}
 
 
-def _samples(docs: list[dict]) -> dict[tuple[str, str, str], tuple[int, ...]]:
-    """Per (item, case, metric) its run count in each document: the merged benchmark first, then each process file."""
-    out: dict[tuple[str, str, str], list[int]] = {}
+def _samples(docs: list[dict]) -> dict[tuple[str, str], tuple[int, ...]]:
+    """Per (case, metric) its run count in each document: the merged benchmark first, then each process file."""
+    out: dict[tuple[str, str], list[int]] = {}
     for n, doc in enumerate(docs):
         for c in doc.get("cases") or []:
-            item = f"{c.get('type')}|{c.get('algorithm')}|{c.get('provider')}"
             for m, v in (c.get("metrics") or {}).items():
-                out.setdefault((item, c["id"], m), [0] * len(docs))[n] = len(v.get("runs") or ())
+                out.setdefault((c["id"], m), [0] * len(docs))[n] = len(v.get("runs") or ())
     return {k: tuple(v) for k, v in out.items()}
 
 
-def _same_samples(mine: dict, theirs: dict, merged: set[str]) -> None:
-    """A shared case is held to its own counts, an added or filled one to the stored cases' of its item and metric."""
-    by_item: dict[tuple[str, str], set] = {}
-    for (item, _, m), counts in mine.items():
-        by_item.setdefault((item, m), set()).add(counts)
-    for (item, cid, m), counts in sorted(theirs.items(), key=lambda kv: kv[0][1:]):
-        expected = {mine[item, cid, m]} if (item, cid, m) in mine else by_item.get((item, m)) if cid in merged else None
+def _planned_alike(folder: Path, files: dict) -> dict[str, str]:
+    """Per planned case its harness block: what sets its samples, an override included; a case no plan holds has none."""
+    plan = read_yaml(folder / files["prepared"]) if files.get("prepared") else {}
+    return {c["id"]: json.dumps(c.get("harness"), sort_keys=True) for c in plan.get("cases") or []}
+
+
+def _same_samples(mine: dict, theirs: dict, merged: set[str], setup: dict, their_setup: dict) -> None:
+    """A shared case is held to its own counts, an added or filled one to the stored cases' planned alike, whatever the item."""
+    alike: dict[tuple[str | None, str], set] = {}
+    for (cid, m), counts in mine.items():
+        alike.setdefault((setup.get(cid, NO_PLAN), m), set()).add(counts)
+    for (cid, m), counts in sorted(theirs.items()):
+        added = alike.get((their_setup.get(cid, NO_PLAN), m)) if cid in merged else None
+        expected = {mine[cid, m]} if (cid, m) in mine else added
         if expected and counts not in expected:
             what = "per process" if {c[0] for c in expected} == {counts[0]} else "runs"
             raise Coded(f"merge_refused: unequal_samples: {cid}.{m}: {what} {list(counts)} in the delta, "
@@ -90,7 +98,8 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     files = dict(manifest["files"])
     mine = [read_json(folder / p) for p in [files["benchmark"], *(files.get("processes") or ())]]
     theirs = [read_json(staged / p) for p in [delta["files"]["benchmark"], *(delta["files"].get("processes") or ())]]
-    _same_samples(_samples(mine), _samples(theirs), ids | set(fill))
+    _same_samples(_samples(mine), _samples(theirs), ids | set(fill), _planned_alike(folder, files),
+                  _planned_alike(staged, delta["files"]))
     out = Path("benchmark") / f"merged-{session}"
     merged = _benchmarks(mine[0], theirs[0], ids, fill, session, comparison)
     texts = {"benchmark": json_text(merged)}

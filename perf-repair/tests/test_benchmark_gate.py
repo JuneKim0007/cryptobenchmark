@@ -310,6 +310,9 @@ def staged_copy(device, tmp_path):
     doc = read_json(staged / "benchmark/benchmark.json")
     doc["cases"].append({**doc["cases"][0], "id": "added"})
     (staged / "benchmark/benchmark.json").write_text(json.dumps(doc))
+    plan = read_yaml(staged / "preparation/prepared.yaml")
+    plan["cases"].append({**plan["cases"][0], "id": "added"})
+    (staged / "preparation/prepared.yaml").write_text(yaml.safe_dump(plan))
     return staged
 
 

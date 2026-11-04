@@ -1,5 +1,6 @@
 """The gate's partial and low_quality classes and the merge's per-case sample check, on the recorded results and the fake
 pipeline; a real device run is not exercised here."""
+import json
 from dataclasses import replace
 
 import pytest
@@ -76,9 +77,36 @@ def test_a_merge_refuses_a_case_with_another_sample_count(device, tmp_path):  # 
     staged = staged_copy(device, tmp_path)
     doc = read_json(staged / "benchmark/benchmark.json")
     doc["cases"][-1]["metrics"]["timeNs"]["runs"] = [1.0] * 7
-    (staged / "benchmark/benchmark.json").write_text(__import__("json").dumps(doc))
+    (staged / "benchmark/benchmark.json").write_text(json.dumps(doc))
     with pytest.raises(Coded, match="unequal_samples: added.timeNs"):
         merge_delta(device, staged, {"added"}, "s", "checked")
+
+
+def _added_item(device, staged, harness, stored_harness=None):
+    """A case of an item the stored benchmark has no case of, planned with `harness`."""
+    doc = read_json(staged / "benchmark/benchmark.json")
+    doc["cases"].append({**doc["cases"][0], "id": "new", "provider": "New"})
+    doc["cases"][-1]["metrics"] = {"timeNs": {**doc["cases"][0]["metrics"]["timeNs"], "runs": [1.0] * 7}}
+    (staged / "benchmark/benchmark.json").write_text(json.dumps(doc))
+    for folder, setup in ((device, stored_harness), (staged, stored_harness)):
+        plan = read_yaml(folder / "preparation/prepared.yaml")
+        plan["cases"] = [{**c, "harness": setup} for c in plan["cases"]]
+        if folder == staged:
+            plan["cases"].append({"id": "new", "harness": harness})
+        (folder / "preparation/prepared.yaml").write_text(yaml.safe_dump(plan))
+
+
+def test_a_merge_holds_a_new_items_case_to_the_stored_cases_planned_alike(device, tmp_path):  # noqa: F811
+    staged = staged_copy(device, tmp_path)
+    _added_item(device, staged, {"iterations": 50}, {"iterations": 50})
+    with pytest.raises(Coded, match=r"unequal_samples: new\.timeNs"):
+        merge_delta(device, staged, {"new"}, "s", "checked")
+
+
+def test_a_merge_takes_a_new_items_own_override_of_its_samples(device, tmp_path):  # noqa: F811
+    staged = staged_copy(device, tmp_path)
+    _added_item(device, staged, {"iterations": 7}, {"iterations": 50})
+    assert merge_delta(device, staged, {"new"}, "s", "checked").added == ("new",)
 
 
 def test_a_merge_takes_another_process_file_count_by_its_cases_samples(device, tmp_path):  # noqa: F811
