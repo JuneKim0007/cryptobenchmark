@@ -65,10 +65,11 @@ src/perfrepair/scope/pattern.py : a scope's pattern, patternReason and evidence 
 src/perfrepair/scope/patterns.yaml : sink and key-source patterns
 src/perfrepair/scope/syntax/__init__.py : docstring only
 src/perfrepair/scope/syntax/calls.py : a call's receiver, name, arguments and trailing lambda; the factory call at a line; a lambda's parameter and owner
-src/perfrepair/scope/syntax/declarations.py : enclosing method and class, parameters, fields, what a name resolves to at a point
+src/perfrepair/scope/syntax/declarations.py : enclosing method and class, parameters, the locals a statement and the fields a class body declare
 src/perfrepair/scope/syntax/grammar.py : the grammars' node types mapped to neutral kinds; language facts (scope functions, inline calls)
 src/perfrepair/scope/syntax/node.py : Node: a parsed node as plain data
 src/perfrepair/scope/syntax/parser.py : the one tree-sitter adapter, lazily imported; ParserMissing; source → Node tree
+src/perfrepair/scope/syntax/resolve.py : what a name resolves to at a point: the nearest local or parameter, an enclosing class's field, a constructor parameter
 src/perfrepair/scope/syntax/usage.py : what the code around a value does with it; when a node runs later than it is written
 src/perfrepair/scope/units/__init__.py : docstring only
 src/perfrepair/scope/units/build.py : connected components of the links as Units; units.json's document; counts

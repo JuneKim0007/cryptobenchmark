@@ -10,7 +10,8 @@ from ..engines import Engines
 from ..syntax import grammar as g
 from ..syntax.calls import as_call
 from ..syntax.declarations import (declaration_value, enclosing_method, field_owner, is_private, method_body,
-                                   methods_named, outermost_class, resolve_field)
+                                   methods_named, outermost_class)
+from ..syntax.resolve import resolve_field
 from ..syntax.node import Node
 from ..syntax.usage import unwrapped
 from .depth1 import same_class_calls

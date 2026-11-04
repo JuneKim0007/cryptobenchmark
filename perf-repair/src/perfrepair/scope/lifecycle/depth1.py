@@ -8,7 +8,8 @@ from ..engines import Engines
 from ..syntax import grammar as g
 from ..syntax.calls import Call, as_call
 from ..syntax.declarations import (declaration_value, enclosing_method, is_private, method_body, method_name,
-                                   methods_named, outermost_class, parameters, resolve_field, resolve_local)
+                                   methods_named, outermost_class, parameters)
+from ..syntax.resolve import resolve_field, resolve_local
 from ..syntax.node import Node
 from .binding import bind
 from .origins import Source, origin, written_values

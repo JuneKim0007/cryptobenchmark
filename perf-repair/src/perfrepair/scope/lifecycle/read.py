@@ -7,7 +7,8 @@ from dataclasses import dataclass, field
 from ...dto.lifecycle import Lifecycle, Requirement, Step
 from ..engines import Engine, Engines
 from ..syntax.calls import Call, find_call
-from ..syntax.declarations import enclosing_method, method_body, resolve_field, resolve_local
+from ..syntax.declarations import enclosing_method, method_body
+from ..syntax.resolve import resolve_field, resolve_local
 from ..syntax.node import Node
 from ..syntax.usage import executable_root
 from .binding import Binding, bind

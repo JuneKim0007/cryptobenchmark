@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from ..syntax import grammar as g
 from ..syntax.calls import Call
-from ..syntax.declarations import LOCAL, PARAMETER, resolve_local
+from ..syntax.resolve import LOCAL, PARAMETER, resolve_local
 from ..syntax.node import Node
 from ..syntax.usage import ARGUMENT, ASSIGNED, DECLARED, DISCARDED, MEMBER_READ, RECEIVER, RETURNED, use_of
 

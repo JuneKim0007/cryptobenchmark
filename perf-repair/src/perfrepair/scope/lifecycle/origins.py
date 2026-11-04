@@ -7,8 +7,9 @@ from dataclasses import dataclass
 from ..engines import Engines
 from ..syntax import grammar as g
 from ..syntax.calls import as_call
-from ..syntax.declarations import (LAMBDA_PARAMETER, LOCAL, PARAMETER, declaration_value, methods_named, outermost_class,
-                                   parameters, resolve_constructor_parameter, resolve_field, resolve_local)
+from ..syntax.resolve import (LAMBDA_PARAMETER, LOCAL, PARAMETER, resolve_constructor_parameter, resolve_field,
+                              resolve_local)
+from ..syntax.declarations import declaration_value, methods_named, outermost_class, parameters
 from ..syntax.node import Node
 from ..syntax.usage import assignment_sides, refers_to, unwrapped
 
