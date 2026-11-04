@@ -7,7 +7,7 @@ from repo import ROOT
 
 # (title, router, doc, source roots each a module search path, least importing modules a function needs to be listed)
 INDEXES = [("scripts and tools", "", "docs/shared-functions.md", ["scripts", "tools/energy", "tools/quick-bench"], 2),
-           ("perf-repair", "perf-repair", "docs/shared-functions.md", ["src"], 3)]
+           ("perf-repair", "apps/perf-repair", "docs/shared-functions.md", ["src"], 3)]
 GENERAL = {"scripts/failure.py": {"one_line", "fail"}, "scripts/device/adb.py": {"PASSED", "ONE_PASSED"},
            "scripts/repo.py": {"ROOT"}, "scripts/results/select.py": {"device_folders"},
            "tools/energy/energy.py": {"one_line"}, "tools/energy/manafa_estimate.py": {"one_line"},

@@ -35,7 +35,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 
 - Why per option, not per scope: one option measured on every selected metric is still a fair choice; dropping the whole scope for another option's gap would hide it.
 - Energy is never compared across kinds (`energy_kinds_differ`).
-- Energy measurement: [docs/energy.md](../../docs/energy.md). perfMode owns `run.metrics`, within what the harness can measure: [pipeline.md](pipeline.md) Device stage.
+- Energy measurement: [docs/energy.md](../../../docs/energy.md). perfMode owns `run.metrics`, within what the harness can measure: [pipeline.md](pipeline.md) Device stage.
 
 ## Labels
 

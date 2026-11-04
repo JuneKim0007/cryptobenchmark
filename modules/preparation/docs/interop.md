@@ -30,7 +30,7 @@ flowchart LR
 
 ## interop_plan.yaml
 
-Schema `interop_plan` v1, written by perf-repair (`perf-repair/docs/grouping.md`).
+Schema `interop_plan` v1, written by perf-repair (`apps/perf-repair/docs/grouping.md`).
 
 | key | rule |
 |---|---|

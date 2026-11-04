@@ -22,7 +22,7 @@ class AlgorithmNamesTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun theCasesSharedWithPerfRepairResolveAlike() {
-        val path = "perf-repair/tests/fixtures/algorithm-names-cases.yaml"
+        val path = "apps/perf-repair/tests/fixtures/algorithm-names-cases.yaml"
         val root = generateSequence(File("").absoluteFile) { it.parentFile }.firstOrNull { File(it, path).exists() }
             ?: error("no $path above ${File("").absolutePath}")
         val cases = YamlCodec().load(File(root, path).readText())["cases"] as List<Map<String, Any?>>

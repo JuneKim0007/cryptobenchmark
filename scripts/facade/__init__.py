@@ -3,5 +3,5 @@ import sys
 
 from repo import ROOT
 
-SOURCE = ROOT / "perf-repair" / "src"
+SOURCE = ROOT / "apps/perf-repair/src"
 sys.path.insert(0, str(SOURCE))

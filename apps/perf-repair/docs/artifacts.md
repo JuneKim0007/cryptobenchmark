@@ -1,6 +1,6 @@
 # Artifacts
 
-- One device folder, `<results root>/<device id>/`, holds every artifact and the benchmark's own files ([results.md](../../docs/results.md)), except the `repair test-set` YAML (its `-o` path).
+- One device folder, `<results root>/<device id>/`, holds every artifact and the benchmark's own files ([results.md](../../../docs/results.md)), except the `repair test-set` YAML (its `-o` path).
 - Device-level artifacts sit in the folder; per-app ones in `<device>/<app>/`.
 
 ## Folders
@@ -84,7 +84,7 @@
 |---|---|
 | `schemaVersion`, `id`, `start`, `updated`, `onExisting` | the run |
 | `digests` | `config`, `settings` (`perfrepair.yaml`), `screening` |
-| `settings` | a facade run: `tree`, each file's key, path, kind, side, status, `sha256` and the file holding it ([facade.md](../../docs/facade.md)) |
+| `settings` | a facade run: `tree`, each file's key, path, kind, side, status, `sha256` and the file holding it ([facade.md](../../../docs/facade.md)) |
 | `device` | `status` `running`, `done`, `failed` or `stopped`; `step` and `reason` when not done |
 | `apps.<app>` | `status` (`running`, `done`, `failed`, `stopped`), `step`, `reason`, `outcome`; `reused` |
 

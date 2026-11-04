@@ -80,6 +80,11 @@ def test_benchmark_root_lookup(bench_root, tmp_path, monkeypatch):
         run_pipeline(tmp_path / "c.yaml", tmp_path / "out", "measure", bench_root, device=tmp_path)
 
 
+def test_without_cryptobench_root_the_checkout_holding_perf_repair_is_the_benchmark(monkeypatch):
+    monkeypatch.delenv("CRYPTOBENCH_ROOT")
+    assert benchmark_root() == Path(__file__).resolve().parents[3]
+
+
 def test_the_child_never_sees_the_model_secrets(bench_root, tmp_path, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
     monkeypatch.setenv("KEEP_ME", "1")

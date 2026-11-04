@@ -78,7 +78,7 @@ Before any stage it runs `scripts/dependencies.py` (a missing module is `missing
 - A `run.metrics` written in the base that differs is `run_metrics_overridden`, one warning; `perfMode` wins. The generated file also drops what the config would refuse without the metric: `run.passes.allocation`, and on a host `run.harness.energy.capture`.
 - Energy captured with `energy` not selected is logged `perf_mode_extra`: device time no decision reads.
 - The per-app device step takes the same decision with the app's own perfMode, in `<app>/metrics-global.yaml`.
-- Decided where the guide makes the device folder (`--results-root` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../docs/run.md#recover-a-metric-without-a-device).
+- Decided where the guide makes the device folder (`--results-root` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../../docs/run.md#recover-a-metric-without-a-device).
 
 | input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
 |---|---|---|---|---|---|---|
@@ -95,7 +95,7 @@ Before any stage it runs `scripts/dependencies.py` (a missing module is `missing
 - A stage also runs when its output is missing: no manifest (probe), no `files.benchmark` (benchmark), no `rows.json` (inbound), no `grouping/screen.json` (screen), no `primitives.tsv` (primitives); and when a stage it reads from reruns.
 - Probe and benchmark are one `pipeline.py --bench` (`--device` on a phone); on a host a kept probe is passed `--discovery reuse`; a phone always probes again, logged `ran: a device benchmark probes the device it measures`.
 - Without device.yaml (or unreadable), inbound and screen rerun; probe and benchmark are judged by the manifest's `inputs`, so a `pipeline.py --probe` run is kept. A fresh root runs everything.
-- `device.yaml` is removed before the first stage runs and written after the last, so an interrupted call leaves no record and the next call reruns what the record would have vouched for; a failed pipeline run leaves no manifest ([results.md](../../docs/results.md)).
+- `device.yaml` is removed before the first stage runs and written after the last, so an interrupted call leaves no record and the next call reruns what the record would have vouched for; a failed pipeline run leaves no manifest ([results.md](../../../docs/results.md)).
 - The device id is the build fingerprint only, so adding a bundled provider keeps the folder; the digests, not the id, trigger the rerun.
 - Each stage prints `device <stage>: reused` or `device <stage>: ran: <reason>`; a probe writing another folder than `--identify` named is `device_id_changed`.
 - With `device.screening.aiReview` on, probe_device builds without the review; run `grouping build` for it.

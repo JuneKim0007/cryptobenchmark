@@ -16,7 +16,7 @@ jobs:
           python-version: '3.12'
       - run: python3 -m pip install -r requirements.txt
       - name: perf-repair
-        run: make -C perf-repair check
+        run: make -C apps/perf-repair check
       - name: scripts and tools
         run: python3 -m pytest scripts/tests tools/energy/tests tools/quick-bench/tests
       - name: standalone

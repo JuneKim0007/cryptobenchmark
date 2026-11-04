@@ -1,10 +1,10 @@
-# every host Python dependency: scripts/, tools/ and perf-repair/src
+# every host Python dependency: scripts/, tools/ and apps/perf-repair/src
 PyYAML>=6
 matplotlib>=3.7
 # energy capture on a device: rails and manafa sources (tools/energy)
 perfetto
 manafa==0.4.14
-# perf-repair: a scope's lifecycle; pinned as in perf-repair/pyproject.toml, grammar node types are read by name
+# perf-repair: a scope's lifecycle; pinned as in apps/perf-repair/pyproject.toml, grammar node types are read by name
 tree-sitter==0.26.0
 tree-sitter-java==0.23.5
 tree-sitter-kotlin==1.1.0

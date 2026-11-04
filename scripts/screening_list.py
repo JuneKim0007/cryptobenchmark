@@ -1,12 +1,12 @@
-"""Writes perf-repair/docs/screening-list.md from the screening catalog: status counts per engine type, then every deprecated row."""
+"""Writes apps/perf-repair/docs/screening-list.md from the screening catalog: status counts per engine type, then every deprecated row."""
 import collections
 
 import yaml
 
 from repo import ROOT
 
-CATALOG = ROOT / "perf-repair/src/perfrepair/catalog/screening.yaml"
-DOC = ROOT / "perf-repair/docs/screening-list.md"
+CATALOG = ROOT / "apps/perf-repair/src/perfrepair/catalog/screening.yaml"
+DOC = ROOT / "apps/perf-repair/docs/screening-list.md"
 UNSOURCED = "unsourced"
 
 

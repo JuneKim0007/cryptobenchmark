@@ -59,4 +59,4 @@ def test_no_file_is_missing_file(tmp_path):
 
 def test_the_example_is_a_good_index():
     found = read_index(ROOT / "settings.example.yaml")
-    assert found.crypto_config == ROOT / "config/global.yaml" and found.llm_config == ROOT / "perf-repair/perfrepair.yaml"
+    assert found.crypto_config == ROOT / "config/global.yaml" and found.llm_config == ROOT / "apps/perf-repair/perfrepair.yaml"

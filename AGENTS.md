@@ -13,10 +13,10 @@
 - preparation: cases, keys, inputs, parameters → `modules/preparation/docs/index.md`
 - benchmark: plan check, measurement, `benchmark.json` → `modules/benchmark/docs/index.md`
 - android: instrumentation harness, device plan, core pinning → `modules/android/docs/index.md`
-- perf-repair work → `perf-repair/AGENTS.md`
+- perf-repair work → `apps/perf-repair/AGENTS.md`
 
 ## Rules
-- layout: directives live in `AGENTS.md` and `agents/`; facts live in `docs/` and `modules/<m>/docs/`; `perf-repair/` keeps its own router, guides and docs.
+- layout: directives live in `AGENTS.md` and `agents/`; facts live in `docs/` and `modules/<m>/docs/`; `apps/perf-repair/` keeps its own router, guides and docs.
 - change: one file, one responsibility.
 - map: adding, moving or deleting a file updates its owning map in the same change.
 - delete/rename: grep the symbol or path and remove its references first.
@@ -43,6 +43,7 @@
 AGENTS.md : agent router
 README.md : project entry page
 agents/ : directive guides
+apps/perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
@@ -54,7 +55,6 @@ modules/config/ : capture and trial to inventory.yaml; inventory and config/ to 
 modules/environment/discovery/ : provider and service probe, default-run trial, capture and trial YAML
 modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
 modules/settings/ : harness key table shared by config, preparation and benchmark
-perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
 requirements.txt : every host Python dependency
 scripts/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
 scripts/demo.sh : one-command host demo run into results/demo/<device_id>
@@ -105,7 +105,7 @@ scripts/scope/results.py : device interop and call-site verdicts into scoped-pla
 scripts/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 scripts/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 scripts/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
-scripts/screening_list.py : writes perf-repair/docs/screening-list.md from the screening catalog
+scripts/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
 scripts/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 scripts/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
 scripts/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
@@ -117,7 +117,7 @@ scripts/session/thermal_gate.py : run.thermalGate session hook: the idle baselin
 scripts/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 scripts/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 scripts/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
-scripts/shared_functions.py : writes docs/shared-functions.md and perf-repair/docs/shared-functions.md from the import graph
+scripts/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph
 scripts/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 scripts/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 scripts/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again

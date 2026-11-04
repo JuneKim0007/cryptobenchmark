@@ -12,7 +12,7 @@
   <path_id>/ sites.json app.json ... harness.yaml measured/ report.json report.md
 ```
 
-perf-repair writes the second and third lines: [artifacts.md](../perf-repair/docs/artifacts.md).
+perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repair/docs/artifacts.md).
 
 | rule | value |
 |---|---|

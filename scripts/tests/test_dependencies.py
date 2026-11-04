@@ -12,7 +12,7 @@ import dependencies
 from stages import benchmark
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-SCANNED = ("scripts", "tools", "perf-repair/src")
+SCANNED = ("scripts", "tools", "apps/perf-repair/src")
 # import name to the name requirements.txt installs it under
 INSTALLED_AS = {"yaml": "pyyaml", "tree_sitter": "tree-sitter", "tree_sitter_java": "tree-sitter-java",
                 "tree_sitter_kotlin": "tree-sitter-kotlin"}
@@ -52,7 +52,7 @@ def test_every_third_party_module_the_repo_imports_is_in_requirements():
 
 
 def test_the_scope_pins_are_the_ones_pyproject_names():
-    pyproject = (ROOT / "perf-repair/pyproject.toml").read_text()
+    pyproject = (ROOT / "apps/perf-repair/pyproject.toml").read_text()
     for pin in ("tree-sitter==", "tree-sitter-java==", "tree-sitter-kotlin=="):
         line = next(r for r in requirements() if r.startswith(pin))
         assert f'"{line}"' in pyproject

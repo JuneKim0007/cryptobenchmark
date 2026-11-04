@@ -19,7 +19,7 @@ dependencies {
 }
 
 processResources {
-    from rootProject.file('perf-repair/src/perfrepair/catalog/algorithm-names.yaml')
+    from rootProject.file('apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml')
 }
 
 tasks.withType(Test).configureEach {

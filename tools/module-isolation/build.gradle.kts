@@ -44,7 +44,7 @@ subprojects {
     }
 
     if (name == "config") {
-        tasks.named<ProcessResources>("processResources") { from(rootDir.resolve("../../perf-repair/src/perfrepair/catalog/algorithm-names.yaml")) }
+        tasks.named<ProcessResources>("processResources") { from(rootDir.resolve("../../apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml")) }
     }
 
     tasks.withType<Test>().configureEach {

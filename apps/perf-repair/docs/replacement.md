@@ -24,7 +24,7 @@ python3 -m perfrepair guide --app <root> --device-results <device> \
 python3 -m perfrepair guide --device-results <device> ...   # without --app: every apps.targets entry
 ```
 
-- The lower-level command under `scripts/facade.py` ([facade.md](../../docs/facade.md)); it needs `pip install -e perf-repair` or `PYTHONPATH=perf-repair/src`.
+- The lower-level command under `scripts/facade.py` ([facade.md](../../../docs/facade.md)); it needs `pip install -e apps/perf-repair` or `PYTHONPATH=apps/perf-repair/src`.
 - `--max-change` defaults to `apps.maxChange` ([change-classes.md](change-classes.md)).
 - `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.measure`, `--config` to `pipeline.py`'s lookup, `--harness-config` to `--config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--refresh` asks again the replace decisions whose dossier changed, and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).

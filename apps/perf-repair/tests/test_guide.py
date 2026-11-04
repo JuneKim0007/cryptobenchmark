@@ -37,7 +37,7 @@ from perfrepair.app.facts.path_id import path_id
 
 F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results" / "test-api36-00000000", F / "guide"
-SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
+SCRIPTS = Path(__file__).resolve().parents[3] / "scripts"
 FIELD = {"set_provider": "provider", "set_algorithm": "algorithm"}
 
 

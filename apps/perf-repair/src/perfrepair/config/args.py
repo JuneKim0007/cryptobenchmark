@@ -45,7 +45,7 @@ def perf_mode(text: str) -> str:
 
 def add_config_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--perfrepair-config", type=Path, metavar="FILE",
-                        help="settings file; default: $PERFREPAIR_CONFIG, then perf-repair/perfrepair.yaml")
+                        help="settings file; default: $PERFREPAIR_CONFIG, then apps/perf-repair/perfrepair.yaml")
 
 
 def load_settings(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Loaded:

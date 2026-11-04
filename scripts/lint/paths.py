@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import posixpath
 
-ROUTERS = ("", "perf-repair")
+ROUTERS = ("", "apps/perf-repair")
 ENTRY = "AGENTS.md"
 NOT_GRAPHED = {"modules/environment/discovery/docs/tree.md", "tools/quick-bench/tests/golden_summary.md"}
 

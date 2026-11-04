@@ -9,7 +9,7 @@
 - app source: detect call sites, libraries, scopes (function, sinks, key source) → `agents/app.md`
 - repair: app call sites, replacements, edits, harness, before/after → `agents/repair.md`
 - validation: artifact validators, outbox projection, the stage gate, stage replay (`check/`) → `agents/validation.md`
-- docs, guides and file maps: writing or changing any .md → `../agents/docs/writing.md`
+- docs, guides and file maps: writing or changing any .md → `../../agents/docs/writing.md`
 - facts: pipeline, artifacts, decisions, grouping, modes, repair, settings, limits → `docs/index.md`
 
 ## Rules

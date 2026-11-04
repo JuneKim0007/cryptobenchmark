@@ -30,7 +30,7 @@ sourceSets {
     }
 }
 
-tasks.processResources { from("../../perf-repair/src/perfrepair/catalog/algorithm-names.yaml") }
+tasks.processResources { from("../../apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml") }
 
 dependencies {
     implementation("org.yaml:snakeyaml:2.3")

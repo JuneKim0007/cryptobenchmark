@@ -52,7 +52,7 @@ def test_only_the_build_identity_is_hashed():
 
 
 def test_an_existing_android_capture_is_refused():
-    runtime = yaml.safe_load((REPO / "perf-repair/tests/fixtures/runtimes/android36/probe.yaml").read_text())["runtime"]
+    runtime = yaml.safe_load((REPO / "apps/perf-repair/tests/fixtures/runtimes/android36/probe.yaml").read_text())["runtime"]
     with pytest.raises(DeviceIdError, match="device_id_fields_missing: runtime lacks model, fingerprint;"):
         device_id(runtime)
 

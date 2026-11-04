@@ -39,7 +39,7 @@ def test_every_shipped_row_holds_only_status_reason_and_source():
 
 
 def test_the_generated_list_is_current_and_within_the_docs_limit(monkeypatch):
-    scripts = Path(__file__).parents[2] / "scripts"
+    scripts = Path(__file__).parents[3] / "scripts"
     monkeypatch.syspath_prepend(str(scripts))
     spec = importlib.util.spec_from_file_location("screening_list", scripts / "screening_list.py")
     module = importlib.util.module_from_spec(spec)

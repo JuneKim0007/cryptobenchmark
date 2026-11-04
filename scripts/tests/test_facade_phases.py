@@ -12,7 +12,7 @@ from facade import phases
 from facade.index import read_index
 from repo import ROOT
 
-FIXTURES = ROOT / "perf-repair/tests/fixtures"
+FIXTURES = ROOT / "apps/perf-repair/tests/fixtures"
 FAKE_ROOT = FIXTURES / "device"
 APP = FIXTURES / "app"
 DEVICE = "fake-api36-00000000"

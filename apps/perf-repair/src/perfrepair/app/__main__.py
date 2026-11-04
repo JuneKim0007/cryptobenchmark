@@ -105,7 +105,7 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
           f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function; lifecycle "
           + (", ".join(f"{k} {n}" for k, n in scoping.statuses().items()) or "none"))
     if any(s.lifecycle is not None and "parser_missing" in s.lifecycle.reasons for s in scoping.scopes):
-        print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'perf-repair[scope]'")
+        print("lifecycle unsupported: parser_missing; install the scope extra: pip install -e 'apps/perf-repair[scope]'")
     _write_units(name, app, out_dir, scoping)
     # after every file is written, so a stop leaves a whole app folder
     for missing, n, absent in not_on_device_sites(found.sites, shipped_names(facts)):

@@ -11,7 +11,7 @@ Template: `settings.example.yaml`. Relative paths resolve against the file holdi
 | `schemaVersion` | `1` |
 | `results` | the results root, `<results>/<device id>/`; created when absent, its parent must exist |
 | `run.id` | names `runs/run_<id>.json`; empty: a new timestamp id |
-| `run.onExisting` | `overwrite`, `resume`, `skip` ([artifacts.md](../perf-repair/docs/artifacts.md#run-record)) |
+| `run.onExisting` | `overwrite`, `resume`, `skip` ([artifacts.md](../apps/perf-repair/docs/artifacts.md#run-record)) |
 | `crypto.config` | the `global.yaml` of the benchmark |
 | `crypto.harnessConfig` | optional: a lighter `global.yaml` for the per-app before/after run |
 | `llm.config` | the `perfrepair.yaml` of the guided repair; `perfMode` stays there |
@@ -66,5 +66,5 @@ Runs first on every facade run; `--check` stops after it. No app build, no devic
 
 - A failed phase stops the next; the exit code is the worst.
 - Every child gets `--perfrepair-config` and `--config`, `PERFREPAIR_CONFIG` set to `llm.config`, `CRYPTOBENCH_CONFIG` unset and `CRYPTOBENCH_ROOT` set to this repository; the home folder's `global.yaml` and the package's default `perfrepair.yaml` are not read.
-- `PERFREPAIR_AGENT` and the other gateway variables keep their layer ([settings.md](../perf-repair/docs/settings.md)).
-- Lower-level commands: `scripts/pipeline.py` ([run.md](run.md)), `python3 -m perfrepair guide` ([replacement.md](../perf-repair/docs/replacement.md)). `scripts/demo.sh` stays crypto only.
+- `PERFREPAIR_AGENT` and the other gateway variables keep their layer ([settings.md](../apps/perf-repair/docs/settings.md)).
+- Lower-level commands: `scripts/pipeline.py` ([run.md](run.md)), `python3 -m perfrepair guide` ([replacement.md](../apps/perf-repair/docs/replacement.md)). `scripts/demo.sh` stays crypto only.

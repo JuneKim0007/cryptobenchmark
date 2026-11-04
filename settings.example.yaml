@@ -13,4 +13,4 @@ crypto:
   harnessConfig:                 # optional: a lighter global.yaml for the per-app before/after run
 
 llm:
-  config: perf-repair/perfrepair.yaml   # required: a copy of perfrepair.example.yaml -> apps.targets, device.screening.catalog, paths.prompts
+  config: apps/perf-repair/perfrepair.yaml # required: a copy of perfrepair.example.yaml -> apps.targets, device.screening.catalog, paths.prompts

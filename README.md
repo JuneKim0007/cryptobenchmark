@@ -21,7 +21,7 @@ pip install -r requirements.txt
 
 ```
 cp settings.example.yaml settings.yaml
-cp perf-repair/perfrepair.example.yaml perf-repair/perfrepair.yaml   # set apps.targets
+cp apps/perf-repair/perfrepair.example.yaml apps/perf-repair/perfrepair.yaml   # set apps.targets
 python3 scripts/facade.py --settings settings.yaml --check           # the resolved tree; no app build, device or model
 python3 scripts/facade.py --settings settings.yaml                   # benchmark, then guided repair
 ```
@@ -34,4 +34,4 @@ python3 scripts/facade.py --settings settings.yaml                   # benchmark
 | [docs/results.md](docs/results.md) | `results/<device_id>/` layout and `manifest.yaml` |
 | [docs/cryptography/index.md](docs/cryptography/index.md) | configured primitives and providers |
 | [docs/index.md](docs/index.md) | every cross-module doc |
-| [perf-repair/README.md](perf-repair/README.md) | crypto replacements worth testing in an app |
+| [apps/perf-repair/README.md](apps/perf-repair/README.md) | crypto replacements worth testing in an app |

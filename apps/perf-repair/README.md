@@ -1,7 +1,7 @@
 # perf-repair
 
 Reads cryptobenchmark results for one device and decides which crypto replacements are worth testing in an app, for the metrics its perfMode selects (latency, throughput, memAlloc, energy, or generic).
-Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found one level up, `CRYPTOBENCH_ROOT` overrides.
+Location: `apps/perf-repair/` inside the cryptobenchmark repo; the benchmark is found two levels up, `CRYPTOBENCH_ROOT` overrides.
 
 ## Setup
 
@@ -18,7 +18,7 @@ Location: `perf-repair/` inside the cryptobenchmark repo; the benchmark is found
 
 ## Usage
 
-Benchmark then every target app, from one settings file: `python3 scripts/facade.py --settings settings.yaml` ([facade](../docs/facade.md)).
+Benchmark then every target app, from one settings file: `python3 scripts/facade.py --settings settings.yaml` ([facade](../../docs/facade.md)).
 
 The lower-level command, once `pip install -e .` (or `PYTHONPATH=src`) puts the package on the path:
 
