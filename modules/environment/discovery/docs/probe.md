@@ -90,7 +90,7 @@ Errors are `BundledProviderException` with a `code`. The capture stays `schemaVe
 | Cipher `providerChose` | space-separated `key=value`, keys as prepared.yaml `resolvedParameters`: `ivBytes=<n> tagBits=<n>` for GCM; `digest=<d> mgf1=<d> labelBytes=<n>` for OAEP; else `ivBytes=<n>` when a second init fills in a different value, `fixedValueBytes=<n>` when it fills in the same one (a key-wrap integrity check value); `""` without parameters; `bareName` when the name has no `/` |
 | Signature | key algorithm = text after the last `with`, minus `inP1363Format`, `ECDSA` to `EC` |
 | KeyAgreement | `ECDH` to `EC`; peer pair generated with the same EC or DH parameters |
-| KeyGenerator, KeyPairGenerator | provider default size; records key size only |
+| KeyGenerator, KeyPairGenerator | provider default size: key size, whether the key (a pair's private key) encodes, its format; then the other sizes in `triedKeys` ([security_contract.md](security_contract.md)) |
 
 | default key rule | value |
 |---|---|

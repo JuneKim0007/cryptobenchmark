@@ -39,13 +39,13 @@
 
 ## Generators
 
-`grouping/build/key_contract.py`, from the trial's `defaultRun` (one record per key size tried; the trial tries the default) and `catalog/key-contract.yaml` `generatedKeyFormats`:
+`grouping/build/key_contract.py`, from the trial's `defaultRun` and its `triedKeys` (each other size asked; a refused one made no key) and `catalog/key-contract.yaml` `generatedKeyFormats`:
 
 | the produced key (a pair: its private key) | `keyContract` |
 |---|---|
 | `keyMaterial: non_exportable` (`getEncoded()` null), any format | `provider_held` |
 | `exportable` with the standard format: `RAW` for KeyGenerator, `PKCS#8` for KeyPairGenerator | `app_held` |
-| any other format or none, a run that failed or did not run, records that disagree | `unknown` |
+| any other format or none, a run that failed or did not run, sizes whose keys disagree | `unknown` |
 
 - Cross-check: the same provider's consumers of that key algorithm (a run whose `keyAlgorithm` is the generator's name), by their key attributes; one known contract that differs makes it `unknown` with `keyContractConflict` and a `key_contract_conflict` finding in `checks.json`.
 - `unknown` joins no group: a code-made group of one (`screen/groups.py`), and gate C refuses a model answer that joins it or joins a group holding it; the failure is a missing option, never a swap that moves a key out of its provider.

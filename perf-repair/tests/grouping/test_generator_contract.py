@@ -66,6 +66,15 @@ def test_build_takes_the_contract_from_the_trial_and_flags_a_conflict():
     assert [(f.kind, f.items) for f in findings if f.kind == "key_contract_conflict"] == [("key_contract_conflict", (gens["C"].id,))]
 
 
+def test_a_size_whose_key_disagrees_makes_the_built_generator_unknown_and_a_refused_size_says_nothing():
+    sized = {**RAW, "triedKeys": [{"size": 256, "keyMaterial": "non_exportable"}]}
+    other_format = {**RAW, "triedKeys": [{"size": 256, "keyMaterial": "exportable", "keyFormat": "PKCS#8"}]}
+    refused = {**RAW, "triedKeys": [{"size": 192, "refused": True}, {"size": 256, "keyMaterial": "exportable", "keyFormat": "RAW"}]}
+    gens, _, profiles = _built({"A": sized, "B": other_format, "C": refused})
+    assert {p: profiles[i.id].keyContract for p, i in gens.items()} == {"A": KEY_UNKNOWN, "B": KEY_UNKNOWN, "C": KEY_APP_HELD}
+    assert profiles[gens["A"].id].isolated and not profiles[gens["C"].id].isolated
+
+
 def test_an_unknown_generator_is_a_code_made_group_of_its_own():
     gens, items, profiles = _built({"A": RAW, "B": RAW, "D": {"works": False, "error": "x"}, "E": {"works": False, "error": "x"}})
     verdicts = {i.id: Verdict("unknown", "r", canonical="AES") for i in items}

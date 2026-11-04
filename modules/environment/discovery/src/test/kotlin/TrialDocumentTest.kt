@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
+import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import org.junit.Assert.assertEquals
@@ -18,7 +19,8 @@ class TrialDocumentTest {
         services = listOf(
             ServiceTrialEntry(
                 provider = "SunJCE", type = "Cipher", algorithm = "AES", outcome = TrialOutcome.SUCCESS,
-                defaultRun = DefaultRunOutcome(works = true, keyAlgorithm = "AES", keyProvider = "SunJCE", keySize = 256, inputSize = 1024, bareName = true, keyMaterial = "exportable", keyFormat = "RAW"),
+                defaultRun = DefaultRunOutcome(works = true, keyAlgorithm = "AES", keyProvider = "SunJCE", keySize = 256, inputSize = 1024, bareName = true, keyMaterial = "exportable", keyFormat = "RAW",
+                    triedKeys = listOf(TriedKey(128, "exportable", "RAW"), TriedKey(192, "non_exportable"), TriedKey(512, refused = true))),
                 transformations = listOf(
                     TransformationTrialEntry("AES/CTR/NoPadding", TrialOutcome.SUCCESS, DefaultRunOutcome(works = true, providerChose = "ivBytes=16")),
                     TransformationTrialEntry("AES/CBC/NoPadding", TrialOutcome.SUCCESS, DefaultRunOutcome(works = false, inputSize = 32, error = "IllegalBlockSizeException: x")),

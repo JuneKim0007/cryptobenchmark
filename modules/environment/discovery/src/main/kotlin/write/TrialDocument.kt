@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
+import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.boolean
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.number
 import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalBoolean
@@ -40,6 +41,9 @@ object TrialDocument {
     private const val BARE_NAME = "bareName"
     private const val KEY_MATERIAL = "keyMaterial"
     private const val KEY_FORMAT = "keyFormat"
+    private const val TRIED_KEYS = "triedKeys"
+    private const val SIZE = "size"
+    private const val REFUSED = "refused"
 
     fun of(report: TrialReport): Map<String, Any> = linkedMapOf<String, Any>(
         SCHEMA_VERSION to report.schemaVersion,
@@ -109,6 +113,7 @@ object TrialDocument {
         if (run.bareName) document[BARE_NAME] = true
         if (run.keyMaterial.isNotEmpty()) document[KEY_MATERIAL] = run.keyMaterial
         if (run.keyFormat.isNotEmpty()) document[KEY_FORMAT] = run.keyFormat
+        if (run.triedKeys.isNotEmpty()) document[TRIED_KEYS] = run.triedKeys.map { triedKeyDocument(it) }
         if (!run.works) document[ERROR] = run.error
         return document
     }
@@ -123,7 +128,23 @@ object TrialDocument {
         bareName = optionalBoolean(document, BARE_NAME),
         keyMaterial = optionalString(document, KEY_MATERIAL),
         keyFormat = optionalString(document, KEY_FORMAT),
+        triedKeys = optionalSections(document, TRIED_KEYS).map { triedKeyEntry(it) },
         error = optionalString(document, ERROR),
+    )
+
+    private fun triedKeyDocument(key: TriedKey): Map<String, Any> {
+        val document = linkedMapOf<String, Any>(SIZE to key.size)
+        if (key.keyMaterial.isNotEmpty()) document[KEY_MATERIAL] = key.keyMaterial
+        if (key.keyFormat.isNotEmpty()) document[KEY_FORMAT] = key.keyFormat
+        if (key.refused) document[REFUSED] = true
+        return document
+    }
+
+    private fun triedKeyEntry(document: Map<String, Any>): TriedKey = TriedKey(
+        size = number(document, SIZE).toInt(),
+        keyMaterial = optionalString(document, KEY_MATERIAL),
+        keyFormat = optionalString(document, KEY_FORMAT),
+        refused = optionalBoolean(document, REFUSED),
     )
 
     private fun outcome(document: MutableMap<String, Any>, outcome: TrialOutcome) {

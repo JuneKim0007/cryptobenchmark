@@ -24,6 +24,11 @@ def _of_run(run: dict, standard: str) -> str:
     return KEY_APP_HELD if run.get("keyMaterial") == EXPORTABLE and run.get("keyFormat") == standard else KEY_UNKNOWN
 
 
+def produced_keys(run: dict) -> list[dict]:
+    """The default run and each size the trial also asked for; a size the provider refused made no key."""
+    return [run, *({**t, "works": True} for t in run.get("triedKeys") or () if not t.get("refused"))] if run else []
+
+
 def generator_contract(engine_type: str, runs: list[dict]) -> str:
     """runs: the trial's, one per key size tried; a pair's private key decides. Any doubt or disagreement is unknown."""
     seen = {_of_run(r, generated_key_formats()[engine_type]) for r in runs}

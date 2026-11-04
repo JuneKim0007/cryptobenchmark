@@ -62,6 +62,13 @@ services:
     keySize: 256
     keyMaterial: exportable
     keyFormat: RAW
+    triedKeys:
+    - size: 128
+      keyMaterial: exportable
+      keyFormat: RAW
+    - size: 192
+      keyMaterial: exportable
+      keyFormat: RAW
 - provider: SunJCE
   type: KeyGenerator
   algorithm: HmacSHA256

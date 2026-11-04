@@ -1,5 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.contract
 
+/** One key size a generator was asked for beside its default; refused: it would not make that size. */
+data class TriedKey(val size: Int, val keyMaterial: String = "", val keyFormat: String = "", val refused: Boolean = false)
+
 data class DefaultRunOutcome(
     val works: Boolean,
     val keyAlgorithm: String = "",
@@ -11,6 +14,7 @@ data class DefaultRunOutcome(
     val keyMaterial: String = "",
     // the generated key's getFormat(), the private key's for a pair; empty when null or not a generator
     val keyFormat: String = "",
+    val triedKeys: List<TriedKey> = emptyList(),
     val error: String = "",
 ) {
 

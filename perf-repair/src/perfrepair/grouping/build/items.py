@@ -10,7 +10,13 @@ from ...dto.grouping import FROM_TRIAL, Item, Profile
 from ...catalog.families import Families
 from ..signature import signature
 from ...catalog.names import fold
-from .key_contract import cross_checked, generator_contract, is_generator, key_contract
+from .key_contract import (
+    cross_checked,
+    generator_contract,
+    is_generator,
+    key_contract,
+    produced_keys,
+)
 from .key_kind import Context, Evidence, key_kind
 
 
@@ -79,7 +85,7 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
             defaultKeySize=run.get("keySize"), keyAlgorithm=run.get("keyAlgorithm"), keyProvider=run.get("keyProvider"),
             bareName=bool(run.get("bareName")), measured=measured(key),
             preparedKeySizes=None if sizes is None else tuple(sorted(sizes[key])), keyContract=contract))
-        runs_of[key] = [run] if run else []
+        runs_of[key] = produced_keys(run)
     for key, (family, resolved, p) in drafts.items():
         provider, engine, name = key
         if is_generator(engine):
