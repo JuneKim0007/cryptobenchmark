@@ -31,11 +31,11 @@ components:
   Cipher:
     base:
       DES: {status: deprecated, reason: FIPS 46-3 withdrawn 2005; Android names DES weak, source: FIPS46}
-      DESede: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn 2024-01-01', source: R2}
+      DESede: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn January 2024', source: R2}
       DESedeWrap: {status: deprecated, reason: 'r2 s7: TDEA key wrapping disallowed after 2023', source: R2}
       RC2: {status: deprecated, reason: Android security lint VULNERABLE_BLOCK_CIPHER_ALGORITHMS, source: LINT}
       ARCFOUR: {status: deprecated, reason: keystream biases; RFC 7465 MUST NOT in TLS; Android names RC4 weak, source: RFC7465}
-      Blowfish: {status: deprecated, reason: 64-bit block, birthday-bound at ~32 GB independent of key length, source: SWEET32}
+      Blowfish: {status: deprecated, reason: '64-bit block, birthday-bound at ~32 GB independent of key length', source: SWEET32}
     mode:
       ECB: {status: deprecated, reason: ECB leaks plaintext structure; r3 draft disallows ECB for confidentiality; Android lint GetInstance flags ECB, source: LINTGI}
 # AOSP DEPRECATED_ALGORITHMS throws at targetSdk >= deprecatedApi. Left out: OIDs, non-item types, Mac PBEWITHHMACSHA*
@@ -96,8 +96,8 @@ crypto:
     SslMacMD5: {status: deprecated, reason: 'SSL 3.0 MAC (JDK SslMacCore); RFC 7568: SSLv3 MUST NOT be used', source: RFC7568}
     SslMacSHA1: {status: deprecated, reason: 'SSL 3.0 MAC (JDK SslMacCore); RFC 7568: SSLv3 MUST NOT be used', source: RFC7568}
   Signature:
-    MD2withRSA: {status: deprecated, reason: MD5/MD2 must not be used for signatures (RFC 6151 s2, RFC 6149 s6), source: RFC6151}
-    MD5withRSA: {status: deprecated, reason: MD5/MD2 must not be used for signatures (RFC 6151 s2, RFC 6149 s6), source: RFC6151}
+    MD2withRSA: {status: deprecated, reason: 'MD5/MD2 must not be used for signatures (RFC 6151 s2, RFC 6149 s6)', source: RFC6151}
+    MD5withRSA: {status: deprecated, reason: 'MD5/MD2 must not be used for signatures (RFC 6151 s2, RFC 6149 s6)', source: RFC6151}
     MD5andSHA1withRSA: {status: deprecated, reason: TLS<=1.1 MD5||SHA-1 signature; MD5 not acceptable for signatures, source: RFC6151}
     SHA1withRSA: {status: deprecated, reason: 'r2 Table 8: SHA-1 signature generation disallowed (verification legacy-only)', source: R2}
     SHA1withECDSA: {status: deprecated, reason: 'r2 Table 8: SHA-1 signature generation disallowed (verification legacy-only)', source: R2}
@@ -140,18 +140,18 @@ crypto:
     SHA3-256withECDSAinP1363Format: {status: accepted, reason: r2 Table 2 ECDSA len(n)>=224 acceptable; Android recommends SHA256withECDSA, source: R2}
     SHA3-384withECDSAinP1363Format: {status: accepted, reason: r2 Table 2 ECDSA len(n)>=224 acceptable; Android recommends SHA256withECDSA, source: R2}
     SHA3-512withECDSAinP1363Format: {status: accepted, reason: r2 Table 2 ECDSA len(n)>=224 acceptable; Android recommends SHA256withECDSA, source: R2}
-    SHA256withDSA: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA384withDSA: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA512withDSA: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA3-256withDSA: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA3-384withDSA: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA3-512withDSA: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA256withDSAinP1363Format: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA384withDSAinP1363Format: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA512withDSAinP1363Format: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA3-256withDSAinP1363Format: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA3-384withDSAinP1363Format: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
-    SHA3-512withDSAinP1363Format: {status: accepted, reason: r2 Table 2 DSA (2048,224/256),(3072,256) acceptable, source: R2}
+    SHA256withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA384withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA512withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA3-256withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA3-384withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA3-512withDSA: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA256withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA384withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA512withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA3-256withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA3-384withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
+    SHA3-512withDSAinP1363Format: {status: accepted, reason: 'r2 Table 2 DSA (2048,224/256),(3072,256) acceptable', source: R2}
     Ed25519: {status: accepted, reason: r2 Table 2 EdDSA len(n)>=224 acceptable, source: R2}
     Ed448: {status: accepted, reason: r2 Table 2 EdDSA len(n)>=224 acceptable, source: R2}
     EdDSA: {status: accepted, reason: r2 Table 2 EdDSA len(n)>=224 acceptable, source: R2}
@@ -162,12 +162,12 @@ crypto:
     ML-DSA-87: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
   Cipher:
     DES: {status: deprecated, reason: FIPS 46-3 withdrawn 2005; Android names DES weak, source: FIPS46}
-    DESede: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn 2024-01-01', source: R2}
-    DESede/CBC/NoPadding: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn 2024-01-01', source: R2}
-    DESede/CBC/PKCS5Padding: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn 2024-01-01', source: R2}
+    DESede: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn January 2024', source: R2}
+    DESede/CBC/NoPadding: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn January 2024', source: R2}
+    DESede/CBC/PKCS5Padding: {status: deprecated, reason: 'r2 Table 1: 3-key TDEA encryption disallowed after 2023; SP 800-67r2 withdrawn January 2024', source: R2}
     DESedeWrap: {status: deprecated, reason: 'r2 s7: TDEA key wrapping disallowed after 2023', source: R2}
     ARCFOUR: {status: deprecated, reason: keystream biases; RFC 7465 MUST NOT in TLS; Android names RC4 weak, source: RFC7465}
-    Blowfish: {status: deprecated, reason: 64-bit block, birthday-bound at ~32 GB independent of key length, source: SWEET32}
+    Blowfish: {status: deprecated, reason: '64-bit block, birthday-bound at ~32 GB independent of key length', source: SWEET32}
     RC2: {status: deprecated, reason: Android security lint VULNERABLE_BLOCK_CIPHER_ALGORITHMS, source: LINT}
     AES: {status: deprecated, reason: 'bare name: SunJCE and Android default to ECB/PKCS5Padding', source: ORACLE}
     AES/ECB/NoPadding: {status: deprecated, reason: ECB leaks plaintext structure; r3 draft disallows ECB for confidentiality; Android lint GetInstance flags ECB, source: LINTGI}
@@ -236,17 +236,17 @@ crypto:
     HmacSHA512/224: {status: accepted, reason: keys an accepted primitive; key size not in name, source: R2}
     HmacSHA512/256: {status: accepted, reason: keys an accepted primitive; key size not in name, source: R2}
   KeyPairGenerator:
-    RSA: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    EC: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    DiffieHellman: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    XDH: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    X25519: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    X448: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    Ed25519: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    Ed448: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    EdDSA: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    RSASSA-PSS: {status: accepted, reason: r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name, source: R2}
-    DSA: {status: accepted, reason: r2 Table 2 acceptable at (2048,224+), source: R2}
+    RSA: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    EC: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    DiffieHellman: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    XDH: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    X25519: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    X448: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    Ed25519: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    Ed448: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    EdDSA: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    RSASSA-PSS: {status: accepted, reason: 'r2 Tables 2/4/5 acceptable at >=112-bit strength; strength is a key-size fact, not in the name', source: R2}
+    DSA: {status: accepted, reason: 'r2 Table 2 acceptable at (2048,224+)', source: R2}
     ML-DSA: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
     ML-DSA-44: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
     ML-DSA-65: {status: accepted, reason: 'FIPS 204: parameter sets approved for use', source: FIPS204}
