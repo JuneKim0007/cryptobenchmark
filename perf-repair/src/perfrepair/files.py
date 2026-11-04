@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,9 @@ import yaml
 from .dto.document import DocumentKind
 
 TEMP_SUFFIX = ".tmp"
+# mkstemp makes 0600; a staged file keeps the mode a plain open would give
+_UMASK = os.umask(0)
+os.umask(_UMASK)
 
 
 def read_text(path: Path) -> str:
@@ -111,12 +115,19 @@ def write_json(path: Path, doc: dict, durable: bool = False, exclusive: bool = F
 
 
 def _staged(path: Path, text: str, durable: bool) -> Path:
-    tmp = path.with_name(path.name + TEMP_SUFFIX)
-    with tmp.open("w") as f:
-        f.write(text)
-        if durable:
-            f.flush()
-            os.fsync(f.fileno())
+    # a name of its own per writer: a shared `<name>.tmp` let two writers rename each other's file away (#78)
+    handle, name = tempfile.mkstemp(prefix=path.name + ".", suffix=TEMP_SUFFIX, dir=path.parent)
+    tmp = Path(name)
+    try:
+        os.fchmod(handle, 0o666 & ~_UMASK)
+        with os.fdopen(handle, "w") as f:
+            f.write(text)
+            if durable:
+                f.flush()
+                os.fsync(f.fileno())
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
     return tmp
 
 
@@ -136,7 +147,12 @@ def write_text(path: Path, text: str, durable: bool = False, exclusive: bool = F
     path = Path(path)
     if exclusive and path.exists():
         raise FileExistsError(f"{path}: already written")
-    os.replace(_staged(path, text, durable), path)
+    tmp = _staged(path, text, durable)
+    try:
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
     if durable:
         directory = os.open(path.parent, os.O_RDONLY)
         try:

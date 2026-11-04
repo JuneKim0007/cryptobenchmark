@@ -20,7 +20,7 @@ from perfrepair.dto.perf_mode import PerfMode
 
 SRC = Path(table.__file__).parents[1]
 EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
-ERROR_ROWS = {"aiGateway.use", "aiGateway.<gateway>.auth", "device.screening.catalog", "device.id"}
+ERROR_ROWS = {"aiGateway.use", "aiGateway.<gateway>.auth", "device.screening.catalog", "device.id", "run.id", "run.onExisting"}
 
 
 def row_names():

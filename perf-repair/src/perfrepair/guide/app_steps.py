@@ -1,6 +1,8 @@
 """The guide's steps for one app, in order; each returns its status detail or ends through terminate with its code."""
 from __future__ import annotations
 
+from pathlib import Path
+
 from .. import run_dir as rd
 from ..ai.suggest.site_replace.command import replace, stale_problem
 from ..app.__main__ import main as app_main
@@ -40,6 +42,9 @@ def replacements(g: Guide) -> str:
     stale = stale_problem(state)
     if stale:
         halt(g, "dossier_changed", stale.split(": ", 1)[1] + " (guide --refresh)")
+    # a cap leaves units unasked: the app is not done, whatever its outcome
+    asked = {d["scope"]["id"] for d in rd.read_dossiers(g.paths.dossiers)["dossiers"]}
+    g.unasked = len(asked - set(state.replacements))
     chosen = sum(r.decision == "replace" for r in state.replacements.values())
     if not chosen:
         halt(g, "no_replacement", f"every one of {len(state.replacements)} scopes is kept")
@@ -63,8 +68,13 @@ def harness(g: Guide) -> str:
     return str(g.paths.harness)
 
 
+def measured_config(g: Guide) -> Path | None:
+    """The global.yaml the app's device step runs with; None: pipeline.py's own lookup."""
+    return harness_config(g.device, g.app_config, g.paths.root) or g.config
+
+
 def device(g: Guide) -> str:
-    config = harness_config(g.device, g.app_config, g.paths.root) or g.config
+    config = measured_config(g)
     manifest = run_pipeline(config, None, "device", harness=g.paths.harness, echo=g.echo, app=g.app_id, device=g.device)
     invalid = report_invalid(manifest, g.app_id)
     return str(manifest) + (f", {invalid} energy cases invalid" if invalid else "")

@@ -44,7 +44,9 @@
 | `worthiness-<mode>/evidence.json` | worthiness | audit | none |
 | `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
 | `targets.yaml` | the guide's targets step, before grouping | people | none: written whole from `apps.targets` resolved ([targets.md](targets.md#targetsyaml)) |
-| `<app>/finished.json` | the guide, when an app reaches its last step | the guide's targets loop | digests compared, no validator: a mismatch only runs the app |
+| `<app>/finished.json` | `RunRecord.app_done`, when an app is done ([replacement.md](replacement.md)); removed on the first step of its rerun | `RunRecord.is_done` | none: `{schemaVersion: 1, inputs, outcome}`; inputs compared, anything else, unreadable included, is not done |
+| `runs/run_<id>.json` | `RunRecord` (`run_dir/run_record.py`), written durably after the device stage and each app step | people | none: [Run record](#run-record) |
+| `.lock` | the guide and probe_device(), `fcntl.flock`, the holder's pid | a second run: `device_busy` | none |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
 | `grouping/supervisor.charter.json` | grouping report --supervisor | validation | `check/device.py`: rehashed to `supervisor.json` `charter` |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
@@ -70,6 +72,23 @@
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.
 - An older `measurements.json` is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).
 - `check/grouping.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
+
+## Run record
+
+`runs/run_<id>.json`: one guide run on the device folder; `run.id` names it ([settings.md](settings.md)), unset a new `YYYYMMDDTHHMMSSZ` (with `-<n>` when taken).
+
+| field | holds |
+|---|---|
+| `schemaVersion`, `id`, `start`, `updated`, `onExisting` | the run |
+| `digests` | `config`, `settings` (`perfrepair.yaml`), `screening` |
+| `device` | `status` `running`, `done`, `failed` or `stopped`; `step` and `reason` when not done |
+| `apps.<app>` | `status` (`running`, `done`, `failed`, `stopped`), `step`, `reason`, `outcome`; `reused` |
+
+| `run.onExisting`, the named record exists | result |
+|---|---|
+| `overwrite` | every `<app>/finished.json` and `device.yaml` removed: every app and the device benchmark rerun |
+| `resume` | the record kept; a done app with its inputs unchanged is reused; the device stage reruns what `device.yaml` does not vouch for |
+| `skip` | the stop `run_exists`; nothing runs |
 
 ## `primitives.tsv`
 

@@ -32,7 +32,7 @@ def _probe_current(r: Run, steps: dict, base: Path) -> dict:
     harness = RunContext.load(r.folder / rd.MANIFEST).probe.harness_artifacts()
     if set(harness.values()) == set(configured(base)):
         return steps
-    (r.folder / rd.DEVICE).unlink(missing_ok=True)
+    rd.drop_device_record(r.folder)
     run_probe(replace(r, config=base), {"probe": BUNDLED_UNPROBED, "screen": BUNDLED_UNPROBED})
     return {**steps, "probe": steps["probe"] or BUNDLED_UNPROBED, "screen": steps["screen"] or BUNDLED_UNPROBED}
 
@@ -65,7 +65,7 @@ class Pass:
 def drop_record(folder: Path, steps: dict) -> None:
     # a record exists only while every stage it vouches for is whole, so an interrupted run reruns them
     if any(steps.values()):
-        (folder / rd.DEVICE).unlink(missing_ok=True)
+        rd.drop_device_record(folder)
 
 
 def whole_pass(r: Run, before: Seen, current: dict, refresh: bool) -> Pass:

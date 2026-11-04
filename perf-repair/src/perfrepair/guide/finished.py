@@ -1,15 +1,15 @@
-"""An app that reached its last step, and the inputs it did so with: the same inputs on a later run of the targets need no step."""
+"""The inputs an app ran with: the same inputs on a later run of the targets need no step (run_dir/run_record.py)."""
 from __future__ import annotations
 
 from pathlib import Path
 
 from ..ai.suggest.site_replace.kind import charter
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
-from ..files import read_json, sha256_file, sha256_text, write_json
+from ..files import sha256_file, sha256_text
 from ..run_dir import MEASUREMENTS, ROWS, GroupingPaths
 from ..source.language import SOURCE_SUFFIXES
+from .app_steps import measured_config
 from .state import Guide
-
 
 PACKAGE = Path(__file__).resolve().parents[1]
 REPO = PACKAGE.parents[2]
@@ -35,13 +35,13 @@ def inputs(g: Guide, measured: bool) -> dict:
             "groups": sha256_file(GroupingPaths(g.device).groups),
             "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
             "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint, "perfMode": g.mode.name, "measured": measured,
-            "maxChange": g.max_change}
+            "maxChange": g.max_change, **_measured_with(g, measured)}
 
 
-def unchanged(g: Guide, now: dict) -> bool:
-    # a cap leaves scopes unasked, which the next run should reach
-    return g.limit is None and g.paths.finished.is_file() and read_json(g.paths.finished) == now
+def _measured_with(g: Guide, measured: bool) -> dict:
+    """A measured app also ran on its harness config: another config is another measurement."""
+    if not measured:
+        return {}
+    config = measured_config(g)
+    return {"benchmarkConfig": sha256_file(config) if config else None}
 
-
-def record(g: Guide, now: dict) -> None:
-    write_json(g.paths.finished, now)

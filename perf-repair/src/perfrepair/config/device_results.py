@@ -9,9 +9,9 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..inputs.table import DEVICE_ID, PATHS_RESULTS
+from ..stop.halt import Coded
 from .args import load_settings
 from .load import Loaded
-from ..stop.halt import Coded
 
 LOG = logging.getLogger(__name__)
 TEMP_ROOTS = ("/tmp", "/var/tmp", "/var/folders")
@@ -58,11 +58,19 @@ def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loade
     return root
 
 
+# a benchmark that did not end removed the manifest first; these files of the earlier run stay behind
+STAGE_FILES = (rd.DEVICE, rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG, rd.PRIMITIVES)
+
+
+def _unfinished(folder: Path) -> bool:
+    return not (folder / rd.MANIFEST).is_file() and any((folder / f).exists() for f in STAGE_FILES)
+
+
 def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded | None = None) -> None:
     if args.device_results is None:
         loaded = loaded or load_settings(parser, args)
         args.device_results = select_device(_results_root(parser, loaded), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
-    if rd.device_folders(args.device_results) and not (args.device_results / rd.MANIFEST).is_file():
+    if rd.device_folders(args.device_results) or _unfinished(args.device_results):
         raise Coded(rd.not_device_results(args.device_results))
     _warn_if_temp(args.device_results)

@@ -7,6 +7,7 @@ from pathlib import Path
 from ..dto.event import END
 from ..failure import record_bug
 from ..log import emit
+from ..run_dir.run_record import FAILED, STOPPED
 from ..stop import halt_of
 from . import finished
 from .device_steps import DEVICE_LEVEL, summary
@@ -15,6 +16,8 @@ from .state import Guide
 from .target_file import refused
 
 OK, REUSED, STOP, NOT_RUN = "ok", "reused", "stop", "not_run"
+# the pipeline reached an answer for the app: done, and an unchanged rerun skips it
+TERMINAL = ("no_options", "no_replacement")
 
 
 @dataclass(frozen=True)
@@ -25,6 +28,7 @@ class AppResult:
     halts: bool = False
     code: str | None = None
     step: str | None = None
+    interrupted: bool = False
 
     @property
     def line(self) -> str:
@@ -35,16 +39,24 @@ def _stopped(app: str, s: Stopped) -> AppResult:
     return AppResult(app, STOP, f"{s.code} at {s.step}: {s.detail}", s.halts, s.code, s.step)
 
 
+def _reused(g: Guide) -> AppResult:
+    outcome = g.record.app_reused(g.app_id)
+    return AppResult(g.app_id, REUSED, f"({outcome})" if outcome not in ("", OK) else "")
+
+
 def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
-    now = finished.inputs(g, device)
-    if reuse and finished.unchanged(g, now):
-        return AppResult(g.app_id, REUSED)
+    # --refresh asks stale scopes again, which a reused app would never reach
+    if reuse and not g.refresh and g.record.is_done(g.app_id, finished.inputs(g, device)):
+        return _reused(g)
     stopped = run_app(g, device)
-    if stopped:
-        return _stopped(g.app_id, stopped)
-    # read again: the run wrote the scopes it ended with
-    finished.record(g, finished.inputs(g, device))
-    return AppResult(g.app_id, OK)
+    if g.unasked:
+        g.record.app_failed(g.app_id, "replace", f"apps.limit left {g.unasked} scopes unasked", STOPPED)
+    elif stopped is None or stopped.code in TERMINAL:
+        # read again: the run wrote the scopes it ended with
+        g.record.app_done(g.app_id, finished.inputs(g, device), stopped.code if stopped else OK)
+    else:
+        g.record.app_failed(g.app_id, stopped.step, f"{stopped.code}: {stopped.detail}")
+    return _stopped(g.app_id, stopped) if stopped else AppResult(g.app_id, OK)
 
 
 def _missing(g: Guide, root: Path) -> AppResult:
@@ -54,15 +66,20 @@ def _missing(g: Guide, root: Path) -> AppResult:
 
 
 def _one(base: Guide, root: Path, device: bool, reuse: bool) -> AppResult:
-    g = replace(base, app_root=root, mode=base.app_modes.get(root, base.mode))
+    g = replace(base, app_root=root, mode=base.app_modes.get(root, base.mode), step=None, unasked=0)
     if not root.is_dir():
         return _missing(g, root)
     try:
         return _attempt(g, device, reuse)
+    except KeyboardInterrupt:
+        g.record.app_failed(g.app_id, g.step or "app", "interrupted", STOPPED)
+        return AppResult(g.app_id, STOP, f"interrupted at {g.step or 'app'}", step=g.step, interrupted=True)
     except Exception as e:
         # no step codes this: a bug in this app's handling, logged with its traceback; the others still run
         record_bug(e)
-        return _stopped(g.app_id, Stopped("app", "bug", f"{type(e).__name__}: {e}"))
+        stopped = Stopped(g.step or "app", "bug", f"{type(e).__name__}: {e}")
+        g.record.app_failed(g.app_id, stopped.step, f"bug: {stopped.detail}")
+        return _stopped(g.app_id, stopped)
 
 
 def _not_run(base: Guide, root: Path, halted: AppResult) -> AppResult:
@@ -86,9 +103,31 @@ def _emit(result: AppResult) -> None:
          data={k: v for k, v in (("code", result.code), ("step", result.step), ("reported", result.status == STOP)) if v})
 
 
+def _device_stage(base: Guide) -> bool:
+    """The device-level steps and their record; True when one stopped."""
+    try:
+        stopped = run_sequence(base, DEVICE_LEVEL)
+    except KeyboardInterrupt:
+        if base.record is not None:
+            base.record.device_done(STOPPED, base.step, "interrupted")
+        raise
+    if base.record is not None:
+        base.record.device_done(*((FAILED, stopped.step, f"{stopped.code}: {stopped.detail}") if stopped else ()))
+    return stopped is not None
+
+
 def run_targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> int:
-    """reuse: an app whose inputs match its record is not run again. Exit 0 only if every app reached its last step."""
-    if run_sequence(base, DEVICE_LEVEL):
+    """reuse: an app whose inputs match its record is not run again. Exit 0 only if every app reached its last step.
+    Ctrl-C ends the loop at that app; the summary, index and its line are still written, then it is raised again."""
+    try:
+        return _targets(base, roots, device, reuse)
+    finally:
+        if base.record is not None:
+            base.record.close()
+
+
+def _targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> int:
+    if _device_stage(base):
         return 1
     results = _refused(base)
     halted = None
@@ -97,7 +136,11 @@ def run_targets(base: Guide, roots: list[Path], device: bool, reuse: bool) -> in
         results.append(result)
         halted = halted or (result if result.halts else None)
         _emit(result)
+        if result.interrupted:
+            break
     run_step(base, "summary", summary)
     for result in results:
         base.echo(result.line)
+    if any(r.interrupted for r in results):
+        raise KeyboardInterrupt
     return 0 if all(r.status in (OK, REUSED) for r in results) else 1

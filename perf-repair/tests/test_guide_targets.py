@@ -123,16 +123,6 @@ def test_an_explicit_app_runs_even_when_nothing_changed(base):
     assert app_lines(lines) == [f"app {path_id(a)}: ok"] and any(line.startswith("guide harness:") for line in lines)
 
 
-def test_a_capped_app_is_never_reused(base):
-    a = base.app("a")
-    lines = []
-    capped = Guide(base.run_dir, None, LATENCY, base.answer, LIBRARY, echo=lines.append, limit=1)
-    run_targets(capped, [a], False, True)
-    lines.clear()
-    run_targets(capped, [a], False, True)
-    assert app_lines(lines) != [f"app {path_id(a)}: reused"]
-
-
 def test_a_missing_target_says_why_and_the_others_go_on_and_its_results_stay(base):
     a, b = base.app("a"), base.app("b")
     base.go([b])
@@ -150,7 +140,10 @@ def test_a_stop_code_is_recorded_and_the_loop_continues(base):
     code, lines = base.go([a, b], conversations=DRY_RUN)
     assert code == 1
     assert [line.split(":")[1].split()[:2] for line in app_lines(lines)] == [["stop", "no_replacement"]] * 2
-    assert not AppPaths(base.run_dir, path_id(a)).finished.exists()
+    # a terminal stop is done: the rerun repeats no static step and exits 0
+    assert read_json(AppPaths(base.run_dir, path_id(a)).finished)["outcome"] == "no_replacement"
+    code, lines = base.go([a, b], conversations=DRY_RUN)
+    assert code == 0 and app_lines(lines) == [f"app {path_id(r)}: reused (no_replacement)" for r in (a, b)]
 
 
 def test_a_gate_rejection_is_recorded_and_the_loop_continues(base, monkeypatch):
@@ -172,7 +165,7 @@ def test_a_bug_in_one_app_is_logged_and_the_others_go_on(base, monkeypatch, caps
 
     monkeypatch.setattr(guide_steps, "dossier", buggy)
     code, lines = base.go([a, b])
-    assert code == 1 and "stop bug at app: TypeError: a bug" in app_lines(lines)[0] and app_lines(lines)[1].endswith(": ok")
+    assert code == 1 and "stop bug at dossier: TypeError: a bug" in app_lines(lines)[0] and app_lines(lines)[1].endswith(": ok")
     assert "error bug: TypeError: a bug" in capsys.readouterr().err
 
 
@@ -306,7 +299,8 @@ def test_a_target_with_its_own_perf_mode_uses_it_in_its_dossier_and_its_record(b
     assert code == 0
     of = {r: AppPaths(base.run_dir, path_id(r)) for r in (a, b)}
     assert read_json(of[a].dossiers)["perfMode"] == ["latency"] and read_json(of[b].dossiers)["perfMode"] == ["throughput"]
-    assert read_json(of[a].finished)["perfMode"] == "latency" and read_json(of[b].finished)["perfMode"] == "throughput"
+    assert read_json(of[a].finished)["inputs"]["perfMode"] == "latency"
+    assert read_json(of[b].finished)["inputs"]["perfMode"] == "throughput"
 
 
 def test_the_benchmark_must_measure_every_targets_selection():

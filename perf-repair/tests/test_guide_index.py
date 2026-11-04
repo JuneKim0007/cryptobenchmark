@@ -2,7 +2,7 @@
 import csv
 import shutil
 
-from test_guide import APP
+from test_guide import APP, FAKE_ROOT
 from test_guide_targets import base  # noqa: F401  the recorded run and two-app loop
 from test_stages import run  # noqa: F401
 
@@ -64,3 +64,23 @@ def test_a_later_run_that_stops_nowhere_clears_the_stop_and_the_command_rewrites
     assert (base.run_dir / path_id(a) / EDITS).is_file()
     (base.run_dir / APPS_INDEX).unlink()
     assert index_main(["--device-results", str(base.run_dir)]) == 0 and path_id(a) in _rows(base.run_dir)
+
+
+def test_a_measured_app_reaches_its_report_and_is_measured(base, monkeypatch):  # noqa: F811
+    monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
+    a = _android(base, "x")
+    assert _go(base, [a], device=True) == 0
+    row = _rows(base.run_dir)[path_id(a)]
+    assert (row["stage"], row["measured"]) == ("report", "yes")
+
+
+def test_columns_of_a_step_past_the_reached_stage_stay_empty(base, monkeypatch):  # noqa: F811
+    a = _android(base, "x")
+    assert _go(base, [a]) == 0 and int(_rows(base.run_dir)[path_id(a)]["replace"]) > 0
+    source = sorted((a / "src").rglob("*.java"))[0]
+    source.write_text(source.read_text() + "\n")
+    # the rerun stops before its dossier: the earlier dossiers.json and replacements.json stay, older than scopes.json
+    monkeypatch.setattr(guide_steps, "dossier", lambda *_, **__: (_ for _ in ()).throw(ValueError("no_dossier: x")))
+    assert _go(base, [a]) == 1
+    row = _rows(base.run_dir)[path_id(a)]
+    assert (row["stage"], row["replace"], row["notOffered"], row["measured"]) == ("app", "0", "0", "no")

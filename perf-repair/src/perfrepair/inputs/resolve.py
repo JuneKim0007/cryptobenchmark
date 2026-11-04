@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Iterable
 
+from ..dto.coded import InputError as CodedInputError
 from .check import Invalid
 
 LOG = logging.getLogger("perfrepair.inputs")
@@ -23,10 +24,11 @@ class OnInvalid(Enum):
     ERROR = "error"
 
 
-class InputError(ValueError):
+class InputError(CodedInputError):
+    """dto/coded.py's InputError built from its code and detail; the message and `.code` are the same."""
 
     def __init__(self, code: str, detail: str):
-        super().__init__(f"{code}: {detail}")
+        super().__init__(f"{code}: {detail}", detail=detail)
         self.code = code
 
 

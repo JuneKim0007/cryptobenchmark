@@ -19,6 +19,7 @@ from .layout import (
                      FINISHED,
                      GROUPING,
                      HARNESS,
+                     LOCK,
                      LOG,
                      MANIFEST,
                      MEASURED,
@@ -32,6 +33,7 @@ from .layout import (
                      REVIEW,
                      ROWS,
                      RUN_LOG,
+                     RUNS,
                      SCOPED_BENCHMARK,
                      SCOPED_PLAN,
                      SCOPES,
@@ -59,7 +61,6 @@ from .layout import (
 )
 from .read import (
                      built,
-                     load_device_record,
                      load_measurements,
                      load_rows,
                      load_run_log,
@@ -71,8 +72,8 @@ from .read import (
                      read_edits,
                      read_scopes,
                      read_sites,
-                     write_device_record,
 )
+from .run_record import drop_device_record, load_device_record, write_device_record
 
 __all__ = [
                      "AI_CLASSIFY_LOG",
@@ -95,6 +96,7 @@ __all__ = [
                      "FINISHED",
                      "GROUPING",
                      "HARNESS",
+                     "LOCK",
                      "LOG",
                      "MANIFEST",
                      "MEASURED",
@@ -107,6 +109,7 @@ __all__ = [
                      "REPORT_MD",
                      "REVIEW",
                      "ROWS",
+                     "RUNS",
                      "RUN_LOG",
                      "SCOPED_BENCHMARK",
                      "SCOPED_PLAN",
@@ -126,6 +129,7 @@ __all__ = [
                      "app_dir",
                      "app_dirs",
                      "built",
+                     "drop_device_record",
                      "device_folders",
                      "load_device_record",
                      "load_measurements",

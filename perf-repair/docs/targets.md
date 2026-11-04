@@ -44,7 +44,7 @@ apps:
 
 ## `targets.yaml`
 
-Written to `<device>/targets.yaml` by the guide's targets step, after prerequisites and before grouping; `--app` writes none.
+Written to `<device>/targets.yaml` by the guide's targets step, after prerequisites and before grouping; `--app` writes none and removes an earlier one.
 
 | field | holds |
 |---|---|

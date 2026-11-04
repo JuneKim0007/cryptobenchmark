@@ -10,14 +10,17 @@ from ..ai.parse.grouping_assign.rekey import rekey
 from ..device.coverage import Coverage, coverage, no_rerun
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
+from ..dto.coded import InputError
 from ..dto.event import END
 from ..dto.perf_mode import PerfMode
 from ..failure import FAILURES
+from ..files import sha256_file
 from ..grouping.__main__ import main as grouping_main
 from ..log import emit, step
 from ..report.command import device_summary
 from ..review.sheet import write_sheet
 from ..run_dir import GroupingPaths
+from ..run_dir.run_record import RunRecord
 from ..screen.catalog import screening_catalog
 from .app_steps import app
 from .index import write_index
@@ -63,6 +66,21 @@ def _measured(g: Guide) -> PerfMode:
     return modes[0] if len({m.name for m in modes}) == 1 else PerfMode.union(modes)
 
 
+def open_record(g: Guide, folder: Path) -> None:
+    """The run's record on the folder, once: its lock taken and run.onExisting applied before any stage reads it."""
+    g.device = folder
+    if g.record is not None:
+        return
+    config = {"config": sha256_file(g.config) if g.config else None,
+              "settings": sha256_file(g.settings.file) if g.settings and g.settings.file else None}
+    try:
+        g.record = RunRecord.open(folder, g.run_id, g.on_existing, {**config, "screening": g.catalog.sha256})
+    except InputError as e:
+        if e.code not in ("run_exists", "device_busy"):
+            raise
+        halt(g, e.code, str(e).split(": ", 1)[1])
+
+
 def prerequisites(g: Guide) -> str:
     # resolved and checked before any step runs, so a bad catalog stops the guide first
     g.catalog = screening_catalog(g.settings)
@@ -71,9 +89,10 @@ def prerequisites(g: Guide) -> str:
         # named: a stop inside it still finds the folder its log goes to
         g.device = probe_device(g.root, g.catalog, g.config, g.on_device, echo=g.echo, refresh=g.refresh,
                                 detect=detect, perf=_measured(g), bundled=g.bundled,
-                                named=lambda folder: setattr(g, "device", folder)).folder
+                                named=lambda folder: open_record(g, folder)).folder
     if not (g.device / rd.MANIFEST).is_file():
         halt(g, "missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
+    open_record(g, g.device)
     for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):
         if not path.is_file():
             halt(g, "missing_device_stage", f"{path} absent; inbound is a device-level stage, made once per device: "

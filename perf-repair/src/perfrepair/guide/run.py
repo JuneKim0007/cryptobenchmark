@@ -32,6 +32,8 @@ def _failed(g: Guide, name: str, e: Exception) -> Stopped:
 def run_step(g: Guide, name: str, step) -> Stopped | None:
     started, stopped, detail = time.monotonic(), None, ""
     g.step = name
+    if g.record is not None and g.app_id:
+        g.record.app_step(g.app_id, name)
     try:
         detail = step(g)
     except Halt as e:

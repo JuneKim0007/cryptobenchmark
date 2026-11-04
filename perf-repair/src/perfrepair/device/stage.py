@@ -12,13 +12,14 @@ from ..data_handler.outbound.benchmark_runner import identify
 from ..dto.bundled import BundledPolicy
 from ..dto.device import DeviceRecord, runtime_summary
 from ..dto.event import END
+from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from ..files import sha256_file
 from ..log import emit
+from ..run_dir.lock import DeviceLock
 from ..screen.catalog import Catalog
-from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from .measures import check_measures
-from .primitives import inputs as primitive_inputs
 from .plan import STAGES
+from .primitives import inputs as primitive_inputs
 from .seen import seen
 from .selection import section
 from .stage_pass import Pass, drop_record, scoped_pass, whole_pass, with_device_probe
@@ -69,9 +70,16 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
     check_measures(Path(identity["config"]), perf)
     folder = Path(root) / identity["deviceId"]
     named(folder)
-    current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": catalog.sha256}
+    # a second run on the folder stops here, device_busy, before it reads or drops anything
+    with DeviceLock.take(folder):
+        r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark, bundled=bundled)
+        return _made(r, identity, refresh, detect)
+
+
+def _made(r: Run, identity: dict, refresh: bool, detect: Callable[[Path], list[str]] | None) -> DeviceStage:
+    folder, echo, on_device = r.folder, r.echo, r.on_device
+    current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": r.catalog.sha256}
     before = seen(folder)
-    r = Run(Path(root), folder, catalog, Path(identity["config"]), on_device, echo, benchmark, bundled=bundled)
     done = scoped_pass(r, before, current, refresh, detect) if detect else whole_pass(r, before, current, refresh)
     drop_record(folder, done.todo)
     steps = _reused(done, on_device)

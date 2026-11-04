@@ -21,7 +21,8 @@ from ..log.read import read_events
 
 # the step an app reached: the last of an unbroken run of files in guide order, each no older than the one before
 STAGES = (("app", rd.SCOPES), ("dossier", rd.DOSSIERS), ("replace", rd.REPLACEMENTS), ("edit", rd.EDITS),
-          ("harness", rd.HARNESS), ("device", rd.SCOPED_BENCHMARK), ("report", rd.REPORT))
+          ("harness", rd.HARNESS), ("device", f"{rd.MEASURED}/{rd.SCOPED_BENCHMARK}"), ("report", rd.REPORT))
+ORDER = [name for name, _ in STAGES]
 COLUMNS = ("app", "project", "source", "sites", "scopes", *PATTERNS, UNKNOWN_DEFAULT, "stage", "stop", "reason", *CHANGES,
            *TRACKS, "notOffered", "replace", "measured")
 
@@ -64,19 +65,24 @@ def _patterns(path: Path) -> dict:
             UNKNOWN_DEFAULT: sum(s["patternReason"] == UNKNOWN_DEFAULT for s in scopes)}
 
 
+def _reached(stage: str, step: str) -> bool:
+    return bool(stage) and ORDER.index(stage) >= ORDER.index(step)
+
+
 def _row(folder: Path, project: str, stops: dict) -> dict:
+    """A column read from a later step's file counts only when the reached stage covers that step."""
     paths, facts = rd.AppPaths(folder.parent, folder.name), read_json(folder / rd.APP)
     stage = _stage(folder)
-    dossiers = read_json(paths.dossiers) if paths.dossiers.is_file() else {"dossiers": [], "notOffered": []}
+    dossiers = read_json(paths.dossiers) if _reached(stage, "dossier") else {"dossiers": [], "notOffered": []}
     options = [o for d in dossiers["dossiers"] for o in d["options"]]
     changes, tracks = Counter(o.get("change", "drop-in") for o in options), Counter(o.get("track") for o in options)
-    chosen = read_json(paths.replacements)["replacements"] if paths.replacements.is_file() else []
+    chosen = read_json(paths.replacements)["replacements"] if _reached(stage, "replace") else []
     code, reason = stops.get(folder.name, ("", ""))
     return {"app": folder.name, "project": project, "source": facts["root"], "sites": _count(paths.sites, "sites"),
             "scopes": _count(paths.scopes, "scopes"), **_patterns(paths.scopes), "stage": stage, "stop": code, "reason": reason,
             **{c: changes[c] for c in CHANGES}, **{t: tracks[t] for t in TRACKS},
             "notOffered": len(dossiers["notOffered"]), "replace": sum(r["decision"] == "replace" for r in chosen),
-            "measured": "yes" if (folder / rd.SCOPED_BENCHMARK).is_file() else "no"}
+            "measured": "yes" if _reached(stage, "device") else "no"}
 
 
 def _cell(value) -> str:

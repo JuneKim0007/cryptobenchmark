@@ -14,6 +14,8 @@ from .state import Guide
 
 def write_targets(g: Guide) -> str:
     if g.target_set is None:
+        # an earlier targets run's file would list apps this run does not run
+        (g.device / rd.TARGETS).unlink(missing_ok=True)
         return "--app runs one app; no targets.yaml"
     path = write_text(g.device / rd.TARGETS, yaml.safe_dump(g.target_set.document(), sort_keys=False))
     return f"{path}: {len(g.target_set.apps)} apps, {len(g.target_set.skipped)} skipped"

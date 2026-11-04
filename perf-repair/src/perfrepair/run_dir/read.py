@@ -1,18 +1,15 @@
-"""Typed reads of a device folder's artifacts at the schema their readers know; device.yaml written."""
+"""Typed reads of a device folder's artifacts at the schema their readers know."""
 from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
 from ..dto import Measurements, PrimitiveRow, RunLog
-from ..dto.device import DeviceRecord
 from ..dto.primitive import ROWS_DOC
 from ..dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
 from ..dto.site import DOSSIERS_DOC, EDITS_DOC, SCOPES_DOC, SITES_DOC
 from ..dto.used import UsedSet
-from ..files import read_json, read_versioned, read_yaml, sha256_file, write_text
-from .layout import DEVICE, MEASUREMENTS, ROWS, RUN_LOG, USED, GroupingPaths
+from ..files import read_json, read_versioned, sha256_file
+from .layout import MEASUREMENTS, ROWS, RUN_LOG, USED, GroupingPaths
 
 
 def load_rows(device: Path) -> list[PrimitiveRow]:
@@ -45,17 +42,6 @@ def load_screen_review(paths: GroupingPaths) -> str | None:
     return read_screen_review(read_json(paths.screen)) if paths.screen.exists() else None
 
 
-def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
-    """The record, or None and why: absent, or unreadable; either means every stage it would vouch for reruns."""
-    path = Path(device) / DEVICE
-    if not path.is_file():
-        return None, f"no {DEVICE}"
-    try:
-        return DeviceRecord.from_json(read_yaml(path)), None
-    except (ValueError, KeyError, TypeError, yaml.YAMLError) as e:
-        return None, f"{DEVICE} unreadable ({e})"
-
-
 def read_scopes(path: Path) -> dict:
     return read_versioned(SCOPES_DOC, path)
 
@@ -77,6 +63,3 @@ def load_used(device: Path) -> UsedSet | None:
     path = Path(device) / USED
     return UsedSet.from_json(read_json(path)) if path.is_file() else None
 
-
-def write_device_record(device: Path, record: DeviceRecord) -> Path:
-    return write_text(Path(device) / DEVICE, yaml.safe_dump(record.to_json(), sort_keys=False))

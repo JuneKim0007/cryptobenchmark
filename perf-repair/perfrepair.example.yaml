@@ -6,8 +6,8 @@
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
-# A bad value here warns and uses the default, except device.id, device.screening.catalog and aiGateway.use/auth, which stop the
-# command; a key nothing reads warns. docs/settings.md lists every key.
+# A bad value here warns and uses the default, except device.id, device.screening.catalog, aiGateway.use/auth and run.*,
+# which stop the command; a key nothing reads warns. docs/settings.md lists every key.
 
 aiGateway:                 # shared: every model-calling command
   use:                     # claude | dry-run; empty = claude           (PERFREPAIR_AGENT)
@@ -54,6 +54,10 @@ apps:                      # per app: the guide, `ai replace`
   maxChange: drop-in       # highest change class the guide may apply: drop-in | local-edit | migration; higher ones are reported
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`
+
+run:                       # the guide's record of one run: results/<device id>/runs/run_<id>.json
+  id:                      # empty = a new timestamp id, YYYYMMDDTHHMMSSZ; a named id that has a record follows onExisting
+  onExisting: overwrite    # overwrite: every app and the device benchmark rerun | resume: done apps skipped | skip: run_exists
 
 timeouts:                  # seconds a child process may run before it is killed with its children
   claude: 3600             # one claude -p call; past it claude_cli_timeout

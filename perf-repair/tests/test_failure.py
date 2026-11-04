@@ -45,6 +45,7 @@ def test_a_bad_input_is_one_error_line_and_exit_1(n, tmp_path, capsys):
 
 
 def test_a_malformed_rows_json_is_a_reported_problem(tmp_path, capsys):
+    (tmp_path / "manifest.yaml").write_text("{}")
     (tmp_path / "rows.json").write_text("{not json")
     assert validation(["--device-results", str(tmp_path)]) == 1
     assert capsys.readouterr().out.startswith("rows.json: 1 problem(s)\n  - does not parse: JSONDecodeError")

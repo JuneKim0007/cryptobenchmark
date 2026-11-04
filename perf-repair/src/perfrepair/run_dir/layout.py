@@ -16,6 +16,8 @@ APP, SCOPES, UNITS, DOSSIERS = "app.json", "scopes.json", "units.json", "dossier
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
 FINISHED = "finished.json"
+# one guide run per device folder at a time; its record runs/run_<id>.json
+LOCK, RUNS = ".lock", "runs"
 # apps.targets resolved: every app the guide runs and every candidate it left out
 TARGETS = "targets.yaml"
 # cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`

@@ -1,6 +1,7 @@
 """The checks a row or a gateway's settings class names: a set value that fails raises Invalid."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -35,6 +36,15 @@ def check_text(name: str, value: Any) -> None:
 
 def check_positive(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, int) and not isinstance(value, bool) and value > 0, "a positive integer")
+
+
+# a run id names runs/run_<id>.json: one path segment
+RUN_ID_FORM = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+
+
+def check_run_id(name: str, value: Any) -> None:
+    _check(name, value, isinstance(value, str) and bool(RUN_ID_FORM.fullmatch(value)),
+           "letters, digits, '.', '_' or '-', not starting with a symbol")
 
 
 def check_bool(name: str, value: Any) -> None:

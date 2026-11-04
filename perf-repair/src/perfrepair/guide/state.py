@@ -16,6 +16,7 @@ from ..dto.bundled import BundledPolicy
 from ..dto.change import DROP_IN
 from ..failure import last_failure
 from ..result.modes import Mode
+from ..run_dir.run_record import OVERWRITE, RunRecord
 from ..screen.catalog import Catalog
 from ..stop import terminate
 
@@ -55,6 +56,12 @@ class Guide:
     target_set: TargetSet | None = None
     # the running step's name, set by run_step, so a stop's line says where
     step: str | None = None
+    # run.id (None: a timestamp) and run.onExisting; the record opens once the device folder is known
+    run_id: str | None = None
+    on_existing: str = OVERWRITE
+    record: RunRecord | None = None
+    # units the replace step left unasked under apps.limit
+    unasked: int = 0
 
     @property
     def app_id(self) -> str | None:

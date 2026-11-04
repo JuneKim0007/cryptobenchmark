@@ -50,7 +50,7 @@
 | `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.run, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +23 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
 | `read_yaml(path)` | `src/perfrepair/files.py` | `yaml.safe_load(Path(path).read_text()) or {}` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +23 |
-| `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.primitives, device.seen, device.stage, guide.finished +2 |
+| `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.primitives, device.seen, device.stage, guide.device_steps +3 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.suggest.site_replace.kind, app.facts.path_id, guide.finished |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +15 |
 | `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.primitives +8 |
@@ -67,7 +67,7 @@
 | `change_of(ratio, pImprove)` | `src/perfrepair/result/gain.py` | - | report.metrics, report.swaps, result.category, validation.report_metrics |
 | `criteria()` | `src/perfrepair/result/modes.py` | `read_yaml(CRITERIA)` | report.summary, report.thermal, result.confidence, result.gain |
 | `mode_of(perf)` | `src/perfrepair/result/modes.py` | `Mode(perf, criteria()['rule'], float(criteria()['improvingRatio']))` | ai.__main__, check.grouping, guide.command, report.__main__ |
-| `app_dirs(device)` | `src/perfrepair/run_dir/layout.py` | Device-level folders sit beside the apps, so an app's folder is the one holding app.json. | app.facts.path_id, check.run, guide.device_steps, guide.index +3 |
+| `app_dirs(device)` | `src/perfrepair/run_dir/layout.py` | Device-level folders sit beside the apps, so an app's folder is the one holding app.json. | app.facts.path_id, check.run, guide.device_steps, guide.index +4 |
 | `device_folders(root)` | `src/perfrepair/run_dir/layout.py` | The finished devices of a results root: a folder without a manifest is a run that did not end. | config.device_results |
 | `worthiness(device, mode)` | `src/perfrepair/run_dir/layout.py` | `Path(device) / f'{WORTHINESS_PREFIX}{mode}'` | ai.evaluate.worthiness.command, check.grouping, check.run, review.sheet |
 | `load_measurements(device)` | `src/perfrepair/run_dir/read.py` | `Measurements.from_json(read_json(Path(device) / MEASUREMENTS))` | ai.evaluate.worthiness.command, ai.suggest.site_replace.command, check.device, check.grouping +3 |
@@ -75,7 +75,7 @@
 | `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen(read_json(paths.screen)) if paths.screen.exists() else None` | ai.evaluate.worthiness.command, check.grouping, check.run, device.primitives +2 |
 | `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, guide.device_steps, repair.dossier |
 | `load_used(device)` | `src/perfrepair/run_dir/read.py` | None without used.json: every item counts as used. | ai.parse.grouping_assign.kind, check.device, guide.device_steps |
-| `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(DOSSIERS_DOC, path)` | ai.suggest.site_replace.command, repair.__main__, review.stability |
+| `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(DOSSIERS_DOC, path)` | ai.suggest.site_replace.command, guide.app_steps, repair.__main__, review.stability |
 | `read_scopes(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(SCOPES_DOC, path)` | check.apps, guide.app_steps, repair.__main__, repair.dossier +1 |
 | `read_sites(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(SITES_DOC, path)` | device.bundled_missing, device.used, report.app_report |
 | `origin(e, engines, depth)` | `src/perfrepair/scope/lifecycle/origins.py` | - | scope.lifecycle.depth1, scope.lifecycle.read, scope.lifecycle.settle |

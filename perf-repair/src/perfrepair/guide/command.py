@@ -12,18 +12,29 @@ from pathlib import Path
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
-from ..app.facts.target_set import TargetSet, resolve_targets
 from ..ai.suggest.site_replace import command as replace_cmd
+from ..app.facts.target_set import TargetSet, resolve_targets
 from ..config.args import fill, load_settings, perf_mode, positive_int
 from ..config.device_results import add_device_results_arg, device_root
 from ..config.load import Loaded
 from ..dto.bundled import BundledPolicy
-from ..dto.perf_mode import PerfMode
 from ..dto.change import CHANGES
-from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASURE, APPS_PERF_MODE, APPS_TARGETS,
-                            APPS_BENCHMARK_CONFIG, BENCHMARK_CONFIG, BUNDLED_FROM_APPS,
-                            FILTER_BY_APPS)
+from ..dto.perf_mode import PerfMode
 from ..failure import reported
+from ..inputs.table import (
+    APPS_AGENT,
+    APPS_BENCHMARK_CONFIG,
+    APPS_LIMIT,
+    APPS_MAX_CHANGE,
+    APPS_MEASURE,
+    APPS_PERF_MODE,
+    APPS_TARGETS,
+    BENCHMARK_CONFIG,
+    BUNDLED_FROM_APPS,
+    FILTER_BY_APPS,
+    RUN_ID,
+    RUN_ON_EXISTING,
+)
 from ..log import attach
 from ..result.modes import Mode, mode_of
 from ..stop import terminate
@@ -111,7 +122,8 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -
                  on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=settings.read(APPS_BENCHMARK_CONFIG),
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
-                 max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found)
+                 max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found,
+                 run_id=settings.read(RUN_ID), on_existing=settings.read(RUN_ON_EXISTING))
     return run_targets(base, roots, a.device, reuse=a.app is None)
 
 

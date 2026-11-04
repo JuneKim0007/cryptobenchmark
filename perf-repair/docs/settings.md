@@ -9,8 +9,7 @@
 
 - Settings file lookup: `--perfrepair-config FILE`, then `$PERFREPAIR_CONFIG`, then `perf-repair/perfrepair.yaml`; never the working directory. A file named by the flag or `PERFREPAIR_CONFIG` that does not exist exits 2 with `missing_file`.
 - Relative paths in the file resolve against the file's folder.
-- `.env` keys outside `PERFREPAIR_*` fill unset environment keys; its `PERFREPAIR_*` keys are a layer below `perfrepair.yaml`.
-- `PERFREPAIR_CONFIG` is read from the environment only, never from `.env`.
+- `.env` keys outside `PERFREPAIR_*` fill unset environment keys; its `PERFREPAIR_*` keys are a layer below `perfrepair.yaml`; `PERFREPAIR_CONFIG` is read from the environment only, never from `.env`.
 
 ## Precedence
 
@@ -59,6 +58,7 @@
 | `apps.benchmarkConfig` | a `global.yaml` | `device.benchmark.config` | warning | the guide's per-app device step (`guide/app_steps.py` device): its harness run only; the device stage keeps `device.benchmark.config`, so a lighter app config reruns no device benchmark |
 | `apps.measure` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
 | `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
+| `run.id`, `run.onExisting` | an id of letters, digits, `.`, `_`, `-`; `overwrite`, `resume`, `skip` | a new timestamp id; `overwrite` | error | the guide's run record `runs/run_<id>.json`; a named id whose record exists: `overwrite` reruns every app and the device benchmark, `resume` reuses done apps, `skip` stops with `run_exists` ([artifacts.md](artifacts.md#run-record)) |
 | `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.thermal_mismatch`, `stops.category_mismatch`, `stops.thermal_throttled_at_end`, `stops.no_required_metric` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires; `device.bundled.onMissing` is `stops.bundled_missing` while that is unset |
 

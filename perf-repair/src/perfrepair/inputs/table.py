@@ -11,9 +11,21 @@ from ..catalog.screening import SCREENING
 from ..dto.bundled import OFF, ON_MISSING, WARN
 from ..dto.change import DROP_IN
 from ..dto.perf_mode import GENERIC
+from ..run_dir.run_record import ON_EXISTING, OVERWRITE
 from ..stop.codes import CODES_LIST, OVERRIDABLE
-from .check import (check_any, check_bool, check_from_apps, check_max_change, check_one_of, check_path, check_perf_mode,
-                    check_positive, check_targets, check_text)
+from .check import (
+    check_any,
+    check_bool,
+    check_from_apps,
+    check_max_change,
+    check_one_of,
+    check_path,
+    check_perf_mode,
+    check_positive,
+    check_run_id,
+    check_targets,
+    check_text,
+)
 from .resolve import Candidate, Need, OnInvalid, Resolved, resolve
 
 
@@ -101,6 +113,11 @@ APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent")
 APPS_REPLACE = RoleRow("apps.replace")
+
+# empty takes a timestamp; a bad id or onExisting must not fall back onto another run's record or clear it
+RUN_ID = Row("run.id", check_run_id, invalid=OnInvalid.ERROR)
+RUN_ON_EXISTING = Row("run.onExisting", partial(check_one_of, choices=ON_EXISTING), default=OVERWRITE,
+                      invalid=OnInvalid.ERROR)
 
 # seconds before a hung child is killed; a device benchmark call runs for hours, a model call for minutes
 TIMEOUT_CLAUDE = Row("timeouts.claude", check_positive, default=3600)
