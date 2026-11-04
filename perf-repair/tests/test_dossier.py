@@ -15,6 +15,7 @@ from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.dto.screen import Verdict
 from perfrepair.result.provider_path import SiteProviders, site_providers
 from perfrepair.dto.dossier import Dossier, Option
+from perfrepair.result.configurations import config_of, estimates
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.repair.dossier import dossier
 from perfrepair.dto.dossier import PROVIDER_HELD_KEY
@@ -475,3 +476,42 @@ def test_an_added_provider_or_one_at_another_position_moves_no_default_site():
 def _source(tmp_path):
     (tmp_path / "A.java").write_text("void f() {\n  TypeA.getInstance(\"ALG-A\", \"P1\");\n}\nvoid g() {}\n")
     return tmp_path
+
+
+def _generic(tmp_path, measurements, rows=ROWS):
+    return build([scope()], tmp_path, rows=rows, measurements=measurements, perf=ANY_EVIDENCE)
+
+
+def test_an_option_missing_some_metrics_is_still_weighed_under_generic(tmp_path):
+    doc = _generic(tmp_path, {**M, "o64": {"timeNs": summary(80)}})
+    [option] = [o for o in doc["dossiers"][0]["options"] if o["item"].endswith("P2")]
+    assert [e["metric"] for e in option["estimates"]] == ["timeNs"]
+
+
+def test_an_option_with_no_measurement_never_reaches_the_model(tmp_path):
+    doc = _generic(tmp_path, M, rows=ROWS[:2])
+    assert doc["dossiers"] == [] and doc["noOptions"][0]["reason"].startswith("no_")
+
+
+def test_a_current_primitive_never_measured_is_a_coded_no_options_reason(tmp_path):
+    doc = _generic(tmp_path, M, rows=ROWS[2:])
+    assert doc["dossiers"] == [] and doc["noOptions"][0]["reason"] == "current_not_measured"
+
+
+def _sessions(session, drift=False):
+    return [replace(r, session=session, drift=drift) if r.provider == "P2" else r for r in ROWS]
+
+
+def test_two_sessions_show_in_the_dossier_and_keep_their_estimate(tmp_path):
+    doc = _generic(tmp_path, M, rows=_sessions("delta-1"))
+    [option] = [o for o in doc["dossiers"][0]["options"] if o["item"].endswith("P2")]
+    assert "cross_session" in option["needsReview"] and option["estimates"]
+
+
+def test_a_drifted_session_gives_no_estimate_across_sessions(tmp_path):
+    doc = _generic(tmp_path, M, rows=_sessions("delta-1", True))
+    assert all(not o["item"].endswith("P2") for d in doc["dossiers"] for o in d["options"])
+    p1, p2 = ROWS[0], _sessions("delta-1", True)[2]
+    config = config_of(p1)
+    found, absent = estimates([config], {config: p1}, {config: p2}, M, ("timeNs",))
+    assert found == () and [n.reason for n in absent] == ["setup_drift"]

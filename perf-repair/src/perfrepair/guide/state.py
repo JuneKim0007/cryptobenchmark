@@ -12,6 +12,7 @@ from ..ai.runtime.prompt import PromptLibrary
 from ..app.facts.path_id import path_id
 from ..app.facts.target_set import TargetSet
 from ..config.load import Loaded
+from ..device.benchmark_coverage import CoverageFile
 from ..device.primitives_missing import MissingList
 from ..dto.bundled import BundledPolicy
 from ..dto.change import DROP_IN
@@ -76,6 +77,8 @@ class Guide:
     code_versions: dict = field(default_factory=dict)
     # a benchmark gate merged a delta: a scope whose dossier changed is asked again, the others keep their decision
     delta_merged: bool = False
+    # shared by every copy: the gate points' delta counts and the deltas merged, for the coverage file
+    coverage: CoverageFile = field(default_factory=CoverageFile)
 
     @property
     def app_id(self) -> str | None:

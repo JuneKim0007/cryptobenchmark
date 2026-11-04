@@ -14,12 +14,11 @@ from ..dto.used import UsedSet
 from ..files import read_json
 from ..log import run_id, step
 from ..stop import terminate
-from .benchmark_coverage import write_coverage
+from .benchmark_coverage import CoverageFile
 from .delta import rerun_whole, run_delta
 from .gate_after import rebuilt
 from .measured_check import measured_check
 
-SHOWN = 20
 
 
 @dataclass(frozen=True)
@@ -40,9 +39,8 @@ def anchors(folder: Path, used: UsedSet, gaps: tuple[Gap, ...]) -> frozenset[str
 
 
 def _listed(gaps: tuple[Gap, ...]) -> str:
-    shown = [f"{g.item} {g.operation} {g.variant} k{g.keySize} i{g.inputSize} {g.metric}: {g.gap} ({g.reason})" for g in gaps]
-    more = f"; and {len(shown) - SHOWN} more in {rd.BENCHMARK_COVERAGE}" if len(shown) > SHOWN else ""
-    return "; ".join(shown[:SHOWN]) + more
+    return "; ".join(f"{g.item} {g.operation} {g.variant} k{g.keySize} i{g.inputSize} {g.metric}: {g.gap} ({g.reason})"
+                     for g in gaps)
 
 
 def _stop(gaps: tuple[Gap, ...], why: str, next_step: str | None = None) -> None:
@@ -51,25 +49,29 @@ def _stop(gaps: tuple[Gap, ...], why: str, next_step: str | None = None) -> None
 
 
 def benchmark_gate(folder: Path, point: str, used: UsedSet, perf: PerfMode, policy: GatePolicy, on_device: bool,
-                   echo: Callable[[str], None], benchmark: Path | str | None = None) -> tuple[Coverage, bool]:
+                   echo: Callable[[str], None], benchmark: Path | str | None = None,
+                   file: CoverageFile | None = None) -> tuple[Coverage, bool]:
     """The coverage left and whether a delta merged; a stop ends through terminate."""
-    folder = Path(folder)
+    folder, file = Path(folder), file or CoverageFile()
     with step("device", "gate", detail=point) as s:
         first = measured_check(folder, used.names, perf)
-        write_coverage(folder, point, 0, first)
+        file.write(folder, point, first)
         s.count(**{k: v for k, v in first.totals().items() if v})
         echo(f"device gate ({point}): {first.totals()['itemsMeasured']} of {len(used.names)} used items measured, "
              f"{len(first.delta())} gaps to measure, {len(first.coded())} coded")
         if not first.delta():
             return first, False
         if policy.command:
-            _stop(first.delta(), "and --device-results cannot measure", f"measure them: {policy.command}")
+            _stop(first.delta(), f"and --device-results cannot measure them; run {policy.command}", policy.command)
         if policy.on_gap == GAP_STOP:
             _stop(first.delta(), "and device.benchmark.onGap is stop")
         delta = run_delta(folder, first.delta(), anchors(folder, used, first.delta()), f"{run_id()}-{point}", on_device,
                           echo, benchmark)
         for line in delta.drift:
             echo(f"device gate: setup_drift: {line}")
+        if delta.drift:
+            echo(f"device gate: setup_drift: comparisons across session {delta.session} are not sent as estimates; a whole "
+                 "rerun in one session is your choice")
         if delta.mismatch and policy.on_mismatch == SETUP_RERUN:
             echo(f"device gate: setup_mismatch: {delta.mismatch[0]}; device.benchmark.onSetupMismatch rerun: the whole "
                  "benchmark is measured again")
@@ -81,7 +83,7 @@ def benchmark_gate(folder: Path, point: str, used: UsedSet, perf: PerfMode, poli
         rebuilt(folder, frozenset(g.item for g in first.delta()), echo)
         lost = {g.key for g in first.delta() if g.gap == LOST}
         after = measured_check(folder, used.names, perf, lost)
-        write_coverage(folder, point, 1, after, delta.summary())
+        file.write(folder, point, after, delta.summary())
         echo(f"device gate ({point}): delta {delta.session}: {len(delta.cases)} cases added, {len(delta.anchors)} anchor "
              f"cases, {len(delta.drift)} drifted; {after.totals()['itemsMeasured']} of {len(used.names)} used items measured")
         if after.delta():

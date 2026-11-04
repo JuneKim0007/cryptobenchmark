@@ -11,14 +11,14 @@ from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
 from ..dto.benchmark_coverage import Gap
-from ..files import read_json
+from ..files import read_json, read_yaml
 from ..result.estimate import compare
 from ..result.gain import UNCHANGED, change_of
 from ..stop.halt import Coded
 from .delta_config import DELTA, write_delta_config, write_rerun_config
 from .delta_estimate import estimate_line, planned_cases, seconds_per_case
 from .delta_merge import merge_delta
-from .setup_fingerprint import case_setups, differing, fingerprint
+from .setup_fingerprint import before_measuring, case_setups, differing, fingerprint
 
 RESULTS = "results"
 BASELINE_ENV = "CRYPTOBENCH_THERMAL_BASELINE"
@@ -68,6 +68,11 @@ def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[str, ...]:
     return tuple(out)
 
 
+def _whole_run_cases(folder: Path, measured: int) -> int:
+    """The cases the whole benchmark's took: line timed: the measured count without what deltas added."""
+    return measured - sum(len(d.get("cases") or ()) for d in read_yaml(folder / rd.MANIFEST).get("deltas") or ())
+
+
 def _case_mismatch(stored: Path, staged: Path, shared: set[str]) -> list[str]:
     mine, theirs = case_setups(stored), case_setups(staged)
     return [f"case {cid}.{line}" for cid in sorted(shared) for line in differing(mine.get(cid, {}), theirs.get(cid, {}))]
@@ -88,14 +93,22 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     for c in (read_prepared(manifest_file(manifest, folder, "prepared")) or {}).values():
         planned[f"{c['type']}|{c['algorithm']}|{c['provider']}"] = planned.get(f"{c['type']}|{c['algorithm']}|{c['provider']}", 0) + 1
     line = estimate_line(planned_cases(gaps, anchors, planned), len(items), len(anchors),
-                         seconds_per_case(folder, manifest.counts.get("measured", 0)))
+                         seconds_per_case(folder, _whole_run_cases(folder, manifest.counts.get("measured", 0))))
     echo(line)
     root = folder / DELTA / RESULTS
     shutil.rmtree(root, ignore_errors=True)
+    root.mkdir(parents=True)
     baseline = _stored_baseline(folder)
-    run_pipeline(config, root, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder,
-                 env={BASELINE_ENV: baseline} if baseline else None)
+    stage = "device" if on_device else "bench"
     staged = root / folder.name
+    # a setup that differs is refused before the session, not after hours of it
+    run_pipeline(config, root, "device" if on_device else "configure", benchmark=benchmark, echo=echo, device=folder,
+                 extra=("--probe",))
+    early = tuple(before_measuring(fingerprint(folder), fingerprint(staged)))
+    if early:
+        return Delta(session, mismatch=early, lines=[line])
+    run_pipeline(config, root, stage, benchmark=benchmark, echo=echo, device=folder,
+                 extra=() if on_device else ("--discovery", "reuse"), env={BASELINE_ENV: baseline} if baseline else None)
     stored_cases = {c["id"] for c in read_json(folder / manifest.files["benchmark"]).get("cases") or []}
     staged_doc = read_json(staged / read_manifest(staged / rd.MANIFEST)[0].files["benchmark"])
     staged_cases = {c["id"] for c in staged_doc.get("cases") or []}

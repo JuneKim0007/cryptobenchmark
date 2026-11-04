@@ -72,6 +72,6 @@ class Coverage:
                 "keysMeasured": self.measured, "gaps": len(self.gaps), **{c: classes.get(c, 0) for c in CLASSES}}
 
 
-def coverage_document(run: str, point: str, attempt: int, coverage: Coverage, delta: dict | None = None) -> dict:
-    return {"schemaVersion": SCHEMA_VERSION, "run": run, "point": point, "attempt": attempt, "totals": coverage.totals(),
-            "items": coverage.items(), "gaps": [g.to_json() for g in coverage.gaps], "delta": delta or {}}
+def coverage_document(run: str, point: str, attempts: dict[str, int], coverage: Coverage, deltas: list[dict]) -> dict:
+    return {"schemaVersion": SCHEMA_VERSION, "run": run, "point": point, "attempts": attempts, "totals": coverage.totals(),
+            "items": coverage.items(), "gaps": [g.to_json() for g in coverage.gaps], "deltas": deltas}

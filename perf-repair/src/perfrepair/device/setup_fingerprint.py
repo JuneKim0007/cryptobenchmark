@@ -13,6 +13,8 @@ from ..files import read_yaml
 RUNTIME = ("fingerprint", "compilationMode", "sdkInt", "javaRuntimeVersion")
 # the run block minus selection: everything a case's numbers depend on
 CASE_FIELDS = ("resolvedParameters", "harness", "metrics", "perCall")
+# a probe has neither process files nor an energy mark yet
+MEASURE_TIME = ("processes", "energy")
 
 
 def _flat(prefix: str, value, out: dict) -> dict:
@@ -37,8 +39,9 @@ def fingerprint(folder: Path) -> dict:
     prepared = manifest_file(manifest, base, "prepared")
     run = (read_yaml(effective).get("run") or {}) if effective else {}
     planned = (read_yaml(prepared).get("run") or {}) if prepared else {}
+    # energy: the source and kind of an estimated run, a top-level mark BenchmarkManifest does not keep
     out = {"deviceId": manifest.deviceId, "mode": manifest.mode, "bundled": _bundled(manifest, base),
-           "processes": len(manifest.files.get("processes") or ())}
+           "processes": len(manifest.files.get("processes") or ()), "energy": read_yaml(base / rd.MANIFEST).get("energy")}
     out.update({f"runtime.{k}": manifest.runtime.get(k) for k in RUNTIME})
     return _flat("prepared", planned, _flat("run", run, out))
 
@@ -49,6 +52,12 @@ def case_setups(folder: Path) -> dict[str, dict]:
     prepared = manifest_file(manifest, base, "prepared")
     cases = (read_yaml(prepared).get("cases") or []) if prepared else []
     return {c["id"]: {k: c.get(k) for k in CASE_FIELDS} for c in cases}
+
+
+def before_measuring(stored: dict, probed: dict) -> list[str]:
+    """What a probe alone can already tell: only the fields it knows, so a difference costs no measuring session."""
+    known = {k: v for k, v in probed.items() if v is not None and k not in MEASURE_TIME}
+    return differing({k: stored.get(k) for k in known}, known)
 
 
 def differing(stored: dict, now: dict) -> list[str]:

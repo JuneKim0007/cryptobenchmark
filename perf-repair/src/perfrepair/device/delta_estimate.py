@@ -9,13 +9,25 @@ from .. import run_dir as rd
 from ..dto.benchmark_coverage import Gap
 from ..dto.grouping import parse_qualified
 
+DELTA_RESULTS = "/delta/results"
 TOOK = re.compile(r"^took:\s+prepare and measure in (?P<s>[0-9.]+)s$")
 
 
+def _whole_run_took(lines: list[str]) -> list[float]:
+    """The took: lines of calls into the results root; a delta's call times a few cases, so it would read far too fast."""
+    took, delta = [], False
+    for line in lines:
+        if line.startswith("$ "):
+            delta = DELTA_RESULTS in line
+        elif (m := TOOK.match(line)) and not delta:
+            took.append(float(m["s"]))
+    return took
+
+
 def seconds_per_case(folder: Path, measured: int) -> float | None:
-    """The last benchmark's measuring time over its measured cases; None without a took: line."""
+    """The last whole benchmark's measuring time over its cases; None without a took: line."""
     logs = sorted((Path(folder) / rd.PIPELINE_LOGS).glob("*.log")) if (Path(folder) / rd.PIPELINE_LOGS).is_dir() else []
-    took = [float(m["s"]) for p in logs for line in p.read_text(errors="replace").splitlines() if (m := TOOK.match(line))]
+    took = [t for p in logs for t in _whole_run_took(p.read_text(errors="replace").splitlines())]
     return took[-1] / measured if took and measured else None
 
 

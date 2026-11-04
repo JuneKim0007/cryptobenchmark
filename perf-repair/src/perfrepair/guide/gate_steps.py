@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
+from ..device.benchmark_coverage import clear_coverage
 from ..device.gate import GatePolicy, benchmark_gate
 from ..device.missing_rows import coverage_rows
-from ..device.used import used_set, write_used
+from ..device.used import write_used
 from ..inputs.table import BENCHMARK_ON_GAP, BENCHMARK_ON_SETUP_MISMATCH
 from ..run_dir import GroupingPaths
 from .state import Guide
@@ -31,10 +32,10 @@ def gate(g: Guide, point: str, perf) -> None:
     today's groups."""
     used = rd.load_used(g.device)
     if used is None or not GroupingPaths(g.device).items.is_file():
+        clear_coverage(g.device)
         return
     if point == GROUPED:
-        apps = sorted(used.apps)
-        used = write_used(g.device, apps) if g.root is not None else used_set(g.device, apps)
-    coverage, merged = benchmark_gate(g.device, point, used, perf, _policy(g), g.on_device, g.echo)
+        used = write_used(g.device, sorted(used.apps))
+    coverage, merged = benchmark_gate(g.device, point, used, perf, _policy(g), g.on_device, g.echo, file=g.coverage)
     g.missing.put(f"coverage {point}", coverage_rows(g.device, coverage, used))
     g.delta_merged = g.delta_merged or merged

@@ -1,5 +1,5 @@
-"""The one writer of log/details/benchmark_coverage.yaml: the gate's last check, rewritten whole and atomically at each
-gate point, with the attempt and the delta it ran; no stage reads it back."""
+"""CoverageFile: the one writer of log/details/benchmark_coverage.yaml. The gate's last check, rewritten whole and atomically,
+with each point's delta count and the deltas this run merged held in memory; no stage reads the file back."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -14,7 +14,20 @@ from ..validation import require
 from ..validation.benchmark_coverage import validate_coverage
 
 
-def write_coverage(device: Path, point: str, attempt: int, coverage: Coverage, delta: dict | None = None) -> Path:
-    doc = coverage_document(run_id(), point, attempt, coverage, delta)
-    require(rd.BENCHMARK_COVERAGE, validate_coverage(doc))
-    return write_text_making_parents(Path(device) / rd.BENCHMARK_COVERAGE, yaml.safe_dump(doc, sort_keys=False))
+class CoverageFile:
+    def __init__(self):
+        self.attempts: dict[str, int] = {}
+        self.deltas: list[dict] = []
+
+    def write(self, device: Path, point: str, coverage: Coverage, delta: dict | None = None) -> Path:
+        """delta: the one this point just ran."""
+        self.attempts[point] = self.attempts.get(point, 0) + bool(delta)
+        self.deltas += [delta] if delta else []
+        doc = coverage_document(run_id(), point, self.attempts, coverage, self.deltas)
+        require(rd.BENCHMARK_COVERAGE, validate_coverage(doc))
+        return write_text_making_parents(Path(device) / rd.BENCHMARK_COVERAGE, yaml.safe_dump(doc, sort_keys=False))
+
+
+def clear_coverage(device: Path) -> None:
+    """No used set, so no check ran: nothing an earlier run left may read as this run's."""
+    (Path(device) / rd.BENCHMARK_COVERAGE).unlink(missing_ok=True)
