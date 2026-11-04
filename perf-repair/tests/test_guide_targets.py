@@ -14,13 +14,13 @@ from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.files import read_json
-from perfrepair.guide import finished, steps as guide_steps
+from perfrepair.guide import app_steps as guide_steps, finished
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.guide.command import main as guide_main
-from perfrepair.guide.steps import _measured as measured_by_targets
+from perfrepair.guide.device_steps import _measured as measured_by_targets
 from perfrepair.inputs.check import target_path, target_perf
 from perfrepair.result.modes import mode_of
-from perfrepair.guide.steps import Guide
+from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
 from perfrepair.log import attach
 from perfrepair.log.read import read_events

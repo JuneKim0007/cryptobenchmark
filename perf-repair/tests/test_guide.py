@@ -24,7 +24,8 @@ from perfrepair.files import read_json, write_json
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.guide.run import run_app, run_sequence
-from perfrepair.guide.steps import DEVICE_LEVEL, Guide
+from perfrepair.guide.device_steps import DEVICE_LEVEL
+from perfrepair.guide.state import Guide
 from helpers import LATENCY
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run

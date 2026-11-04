@@ -9,7 +9,7 @@ from test_stages import run  # noqa: F401
 from perfrepair import failure
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
 from perfrepair.app.facts.path_id import path_id
-from perfrepair.guide import steps as guide_steps
+from perfrepair.guide import app_steps as guide_steps
 from perfrepair.guide.index import main as index_main
 from perfrepair.log import attach
 from perfrepair.run_dir import APPS_INDEX, EDITS

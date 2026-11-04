@@ -51,7 +51,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | `pipeline_failed` | `benchmark_runner.py` | the stage; exit and last error line; ref: `pipeline/<run id>.log:<line>` of the call; the device step, the guide step and the app's target add no line |
 | `perf_mode_unmeasured`, `perf_mode_maybe_unmeasured` | `device/measures.py` | the metrics |
 | `bundled_missing` | `device/bundled.py` | each provider with its coordinates and apps |
-| a guide stop (`no_options`, `missing_device_stage`, `<step>_failed`, ...) | `guide/steps.py`, `guide/run.py` | `<step>_failed` carries the inner code in `data.inner` and first in its detail |
+| a guide stop (`no_options`, `missing_device_stage`, `<step>_failed`, ...) | `guide/state.py`, `guide/run.py` | `<step>_failed` carries the inner code in `data.inner` and first in its detail |
 
 - The code is `data.code`; an event written before it has its detail's first word holding an underscore, or one word before a colon.
 - A step that ends in a `Halt` records `data.code` and `data.reported`; its own line is left out.

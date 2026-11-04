@@ -8,7 +8,7 @@ from ..app.find.sources import BUILD_NAMES, CATALOG, walk
 from ..files import read_json, sha256_file, sha256_text, write_json
 from ..run_dir import MEASUREMENTS, ROWS, GroupingPaths
 from ..source.language import SOURCE_SUFFIXES
-from .steps import Guide
+from .state import Guide
 
 
 PACKAGE = Path(__file__).resolve().parents[1]

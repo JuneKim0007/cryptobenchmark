@@ -25,7 +25,7 @@ from ..inputs.table import (APPS_AGENT, APPS_LIMIT, APPS_MAX_CHANGE, APPS_MEASUR
 from ..failure import reported
 from ..log import attach
 from ..result.modes import Mode, mode_of
-from .steps import Guide
+from .state import Guide
 from .targets import run_targets
 
 

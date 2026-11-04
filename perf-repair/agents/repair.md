@@ -14,7 +14,7 @@
 - edit: a new reason code goes in `EDIT_REASONS` (`validation/repair.py`) and the limits table of `docs/repair.md`.
 - pin: a new parameter spec is a row in `specs.yaml`, never code.
 - order: scope → dossier → test-set (per-app benchmark run) → replace → edit → harness → device → report.
-- guide: `guide/steps.py` chains the stage functions and commands; it adds no logic of its own and stops at the first failing step with a coded reason.
+- guide: `guide/device_steps.py` and `guide/app_steps.py` chain the stage functions and commands; they add no logic of their own and stop at the first failing step with a coded reason.
 - report: never invent a number; a metric without both runs is `not measured` with the first step that stopped it.
 - change class: code classes a candidate and offers those up to `apps.maxChange`; the model selects, the gate refuses a pick above it; the higher ones stay recommendations.
 
@@ -23,11 +23,13 @@
 ```
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
 src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and its code's exit; a Halt adds no event (terminate wrote it), another coded failure one error event with data.code, none when run in-process (last_failure hands it to the caller)
+src/perfrepair/guide/app_steps.py : the steps for one app: app, dossier, replace, edit, harness, device, report; their stop codes
 src/perfrepair/guide/command.py : guide arguments; `--app` or apps.targets, the one reader of that row; device.filterByApps's reader
+src/perfrepair/guide/device_steps.py : the device-level steps: prerequisites (probe_device when no folder is named; with device.filterByApps the targets' detect and used.json, else used.json removed), detect_targets, grouping (coverage: reused, or assign and report for what is missing), summary; their stop codes
 src/perfrepair/guide/finished.py : <app>/finished.json: an app that reached its last step and the digests of its inputs, its scopes and the code from tree to measured harness
 src/perfrepair/guide/index.py : <device>/apps-index.tsv, written by the summary step and on demand: per app folder its project (rootProject.name, else its path under the apps' common folder), source, sites, scopes, scopes per pattern and unknown_default, stage reached (its files in guide order, none older than the one before), the latest run's stop code and reason, options per change class and track, notOffered, chosen replaces, measured
 src/perfrepair/guide/run.py : one status line and event per step, the first stop ends the sequence, the dry-run ending; Stopped (halts: a provider failure)
-src/perfrepair/guide/steps.py : Guide settings and the steps: prerequisites (probe_device when no folder is named; with device.filterByApps the targets' detect and used.json, else used.json removed), detect_targets, grouping (coverage: reused, or assign and report for what is missing), app, dossier, replace, edit, harness, device, report; Stop codes
+src/perfrepair/guide/state.py : Guide settings and the running step; halt and check_exit, a step's coded stop
 src/perfrepair/guide/targets.py : the loop: device-level steps once, each app isolated and reused by its inputs, the report summary, one line per app, the exit rule
 src/perfrepair/repair/__main__.py : command: dossier | test-set | edit | harness, each `--device-results --app`; `--perfrepair-config` fills the folder and the screening catalog
 src/perfrepair/repair/dependencies.py : identifiers a function uses but does not define, from tokens; a numeric literal is one token

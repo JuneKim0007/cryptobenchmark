@@ -9,8 +9,9 @@ from ..failure import record_bug
 from ..log import emit
 from ..stop import halt_of
 from . import finished
+from .device_steps import DEVICE_LEVEL, summary
 from .run import Stopped, run_app, run_sequence, run_step
-from .steps import DEVICE_LEVEL, Guide, summary
+from .state import Guide
 
 OK, REUSED, STOP, NOT_RUN = "ok", "reused", "stop", "not_run"
 

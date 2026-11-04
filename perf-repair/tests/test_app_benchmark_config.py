@@ -1,7 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
-from perfrepair.guide import steps
+from perfrepair.guide import app_steps as steps
 from perfrepair.inputs import table
 
 

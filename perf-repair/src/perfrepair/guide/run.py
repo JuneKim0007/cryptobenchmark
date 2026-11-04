@@ -10,7 +10,8 @@ from ..failure import FAILURES
 from ..log import attach, emit
 from ..log.emit import elapsed_ms
 from ..stop import Halt, code_of, halt_of
-from .steps import APP_DRY, APP_MEASURED, Guide
+from .app_steps import APP_DRY, APP_MEASURED
+from .state import Guide
 
 
 @dataclass(frozen=True)
