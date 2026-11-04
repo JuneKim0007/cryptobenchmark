@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.discovery.bundled.ProviderFactory
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -69,6 +70,17 @@ class BundledInstallerTest {
     }
 
     @Test
+    fun anAliasedLookupRebindsAServiceOnceAndKeepsItsAttributes() {
+        installer.install(listOf(BundledProvider("test:clash:1", ClashingProvider::class.java.name, "SUN-bundled")))
+
+        val aliased = Security.getProvider("SUN-bundled")
+        val first = aliased.getService("MessageDigest", "FIX")
+        assertSame(first, aliased.getService("MessageDigest", "fix"))
+        assertSame(first, aliased.services.single { it.algorithm == "FIX" })
+        assertEquals("yes", first?.getAttribute("Fixture"))
+    }
+
+    @Test
     fun aTakenAliasFailsWithACode() {
         val error = assertThrows(BundledProviderException::class.java) {
             installer.install(listOf(BundledProvider("test:clash:1", ClashingProvider::class.java.name, before.first())))
@@ -121,6 +133,7 @@ open class FixtureProvider(name: String = NAME) : Provider(name, 1.0, "test fixt
     init {
         put("MessageDigest.FIX", FixtureDigest::class.java.name)
         put("Alg.Alias.MessageDigest.FIXED", "FIX")
+        put("MessageDigest.FIX Fixture", "yes")
     }
 
     companion object {
