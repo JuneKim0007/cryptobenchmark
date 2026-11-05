@@ -15,7 +15,7 @@ from perfrepair.ai.runtime.engine.outbox import activate, active_fingerprint, ac
 from perfrepair.dto.grouping import Item, items_document, read_items, read_profiles, profiles_document
 from perfrepair.files import read_json, write_json
 from perfrepair.grouping.report.checks import report
-from perfrepair.screen.groups import screened_out
+from perfrepair.probe.identified import screened_out
 from perfrepair.validation.parse.grouping_assign import validate_answer
 from perfrepair.dto.grouping_state import Answer
 

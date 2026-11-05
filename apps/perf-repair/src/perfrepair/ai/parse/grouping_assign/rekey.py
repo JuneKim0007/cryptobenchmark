@@ -6,8 +6,8 @@ import logging
 from dataclasses import replace
 
 from ....log import step
+from ....probe.identified import screened_out
 from ....run_dir import GroupingPaths
-from ....screen.groups import screened_out
 from ...runtime.engine.outbox import active_outbox, carry
 from ...runtime.prompt import PromptLibrary
 from .kind import GroupingKind, charter

@@ -1,6 +1,7 @@
 """A generator's key contract from the key its trial produced, the cross-check with the provider's consumers, and the rule
 that an unknown generator joins no group; the providers are made up."""
 import pytest
+
 from perfrepair.catalog.families import Families
 from perfrepair.catalog.names import Names
 from perfrepair.data_handler.inbound.probe import Probe
@@ -10,7 +11,8 @@ from perfrepair.dto.screen import Verdict
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.build.key_contract import cross_checked, generator_contract
 from perfrepair.grouping.report.rules import check
-from perfrepair.screen.groups import code_groups, identified
+from perfrepair.probe.identified import identified
+from perfrepair.screen.groups import code_groups
 from perfrepair.validation.grouping.invariants import Grouping, key_contract_agrees
 from perfrepair.validation.parse.grouping_assign import validate_answer
 
@@ -91,7 +93,7 @@ def test_an_unknown_generator_is_a_code_made_group_of_its_own():
     assert group_of[gens["A"].id] == group_of[gens["B"].id]
     assert groups[group_of[gens["D"].id]].members == [gens["D"].id] != groups[group_of[gens["E"].id]].members
     assert code_made(group_of[gens["D"].id]) and code_made(group_of[gens["E"].id]) and not code_made(group_of[gens["A"].id])
-    assert identified(gens["D"], verdicts, profiles)
+    assert identified(gens["D"], verdicts)
 
 
 def test_gate_c_refuses_an_unknown_generator_in_any_model_group():

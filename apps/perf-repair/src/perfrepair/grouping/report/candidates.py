@@ -6,8 +6,8 @@ from pathlib import Path
 
 from ...catalog.groups import group_catalog, row_contracts
 from ...dto.decision import OutboxRecord
-from ...dto.grouping_state import Answer, Knowledge
 from ...dto.grouping_output import Finding
+from ...dto.grouping_state import Answer, Knowledge
 from ...files import read_yaml
 from ...log import run_id
 

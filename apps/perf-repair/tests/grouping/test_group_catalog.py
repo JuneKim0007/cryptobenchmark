@@ -2,6 +2,7 @@
 import pytest
 import yaml
 from conftest import LIBRARY, QUIET
+from helpers import CATALOG as SCREEN_CATALOG
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
@@ -9,13 +10,22 @@ from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.kind import project
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.catalog import groups as catalog_file
-from perfrepair.catalog.families import Families
 from perfrepair.catalog.algorithms import Algorithms, algorithms
-from perfrepair.catalog.groups import CATALOG, GroupsError, group_catalog, load, row_contracts, _describe, _row_id
+from perfrepair.catalog.families import Families
+from perfrepair.catalog.groups import (
+    CATALOG,
+    GroupsError,
+    _describe,
+    _row_id,
+    group_catalog,
+    load,
+    row_contracts,
+)
 from perfrepair.catalog.interchange import interchange
-from perfrepair.catalog.types import types
 from perfrepair.catalog.names import Names
 from perfrepair.catalog.screening import Screening
+from perfrepair.catalog.signature import signature
+from perfrepair.catalog.types import types
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.device.coverage import coverage
 from perfrepair.dto.grouping import KEY_PROVIDER_HELD, items_document, profiles_document
@@ -26,12 +36,9 @@ from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check
-from perfrepair.catalog.signature import signature
 from perfrepair.run_dir import GroupingPaths, built
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.parse.grouping_assign import SLUG
-
-from helpers import CATALOG as SCREEN_CATALOG
 
 NAMES, FAMILIES = Names.load(), Families.load()
 SCREENING = Screening.load(names=NAMES)

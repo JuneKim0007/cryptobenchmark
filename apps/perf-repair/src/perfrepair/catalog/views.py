@@ -3,7 +3,13 @@ from __future__ import annotations
 
 import copy
 
-from .algorithms import Algorithms, AlgorithmsError, algorithm_id, algorithms, override_parent
+from .algorithms import (
+    Algorithms,
+    AlgorithmsError,
+    algorithm_id,
+    algorithms,
+    override_parent,
+)
 from .families import Families
 from .groups import GroupCatalog, group_catalog
 from .names import fold

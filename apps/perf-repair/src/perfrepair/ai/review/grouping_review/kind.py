@@ -4,12 +4,12 @@ from dataclasses import dataclass
 
 from ....catalog.groups import group_catalog
 from ....dto.decision import OutboxRecord
-from ....dto.grouping import read_items, read_profiles
+from ....dto.grouping import read_items
 from ....dto.grouping_state import code_made
 from ....dto.prompt import Charter, TaskPrompt
 from ....files import read_json, sha256_text
+from ....probe.identified import identified
 from ....run_dir import GroupingPaths
-from ....screen.groups import identified
 from ....validation.grouping.output import read_groups
 from ....validation.review.grouping_review import parse_review
 from ....validation.screen import read_checked_screen
@@ -38,13 +38,12 @@ def _model_decided(paths: GroupingPaths):
     """A catalog group holding only what the catalog placed has no model decision to review; code-made groups neither."""
     screen = read_checked_screen(paths)
     items = {i.id: i for i in read_items(read_json(paths.items))}
-    profiles = read_profiles(read_json(paths.profiles))
 
     def decided(group: dict) -> bool:
         if code_made(group["id"]):
             return False
         return group_catalog().variant_of(group["id"]) is None or any(
-            not identified(items[m], screen, profiles) for m in group["members"])
+            not identified(items[m], screen) for m in group["members"])
     return decided
 
 

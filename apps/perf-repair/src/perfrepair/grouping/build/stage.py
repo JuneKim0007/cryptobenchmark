@@ -3,20 +3,20 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+from ...ai.parse.algorithm_classify.command import Reviewer, classify
+from ...catalog.families import Families
 from ...data_handler.inbound import RunContext
 from ...dto.grouping import items_document, profiles_document
 from ...dto.screen import CODE_GROUPED, screen_document
 from ...files import json_text, sha256_text, write_texts
 from ...log import step
-from ...validation import require, validate_screen
-from ...validation.grouping.items import validate_items
-from ...catalog.families import Families
+from ...probe.identified import identified
 from ...run_dir import GroupingPaths
 from ...screen.catalog import Catalog
-from ...screen.groups import identified
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
-from ...ai.parse.algorithm_classify.command import Reviewer, classify
+from ...validation import require, validate_screen
+from ...validation.grouping.items import validate_items
 from .items import build
 
 INPUTS = ("probe", "trial")
@@ -27,10 +27,10 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
                 families: Families | None = None, echo=print) -> GroupingPaths:
     """reviewer: given only with device.screening.aiReview; it classifies the unknown items before screen.json is written."""
     with step("grouping", "build") as s:
-        paths, items, verdicts, profiles = _build(manifest_path, run, catalog, reviewer, families, echo)
+        paths, items, verdicts, _ = _build(manifest_path, run, catalog, reviewer, families, echo)
         s.count(items=len(items), verdicts=len(verdicts),
                 codeGrouped=sum(1 for v in verdicts.values() if v.status in CODE_GROUPED),
-                catalogGrouped=sum(1 for i in items if identified(i, verdicts, profiles)
+                catalogGrouped=sum(1 for i in items if identified(i, verdicts)
                                    and verdicts[i.id].status not in CODE_GROUPED))
         s.wrote(paths.screen, paths.profiles, paths.items)
     return paths

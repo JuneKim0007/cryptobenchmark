@@ -5,8 +5,18 @@ from dataclasses import dataclass
 from functools import cache
 
 from ..dto.types import Properties, Strength, TypeRow
-from .algorithms import (AUTHENTICATED, DETERMINISTIC, MIN_SDK, NONCE, OUTPUT, PARAMETERS, STRENGTH, Algorithms, Entry,
-                         algorithms)
+from .algorithms import (
+    AUTHENTICATED,
+    DETERMINISTIC,
+    MIN_SDK,
+    NONCE,
+    OUTPUT,
+    PARAMETERS,
+    STRENGTH,
+    Algorithms,
+    Entry,
+    algorithms,
+)
 from .names import fold
 
 

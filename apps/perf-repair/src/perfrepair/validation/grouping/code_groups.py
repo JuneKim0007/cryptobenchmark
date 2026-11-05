@@ -4,7 +4,8 @@ from ...catalog.groups import group_catalog
 from ...dto.grouping import Item, Profile
 from ...dto.grouping_state import Group, code_made
 from ...dto.screen import Verdict
-from ...screen.groups import code_groups, identified, screened_out
+from ...probe.identified import identified, screened_out
+from ...screen.groups import code_groups
 
 
 def _code_made_problems(gid: str, g: Group, want: Group | None) -> list[str]:
@@ -30,7 +31,7 @@ def _member_problems(gid: str, g: Group, want: Group | None, items: dict[int, It
     for m in g.members:
         if screened_out(verdicts.get(m)):
             problems.append(f"item {m}: screened {verdicts[m].status}, but in group {gid}; rerun assign")
-        elif m in items and identified(items[m], verdicts, profiles) and m not in (want.members if want else ()):
+        elif m in items and identified(items[m], verdicts) and m not in (want.members if want else ()):
             problems.append(f"item {m}: the catalog places it elsewhere, but in group {gid}; rerun assign")
     return problems
 

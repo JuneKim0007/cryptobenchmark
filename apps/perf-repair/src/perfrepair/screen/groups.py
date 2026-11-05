@@ -3,34 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 
-from ..catalog.groups import CatalogGroup, group_catalog, variant
-from ..catalog.interchange import OUTPUT
-from ..catalog.resolved import function_parameters
+from ..catalog.groups import group_catalog, variant
 from ..dto.grouping import KEY_PROVIDER_HELD, Item, Profile
 from ..dto.grouping_state import CODE_PREFIX, Group
-from ..dto.screen import CODE_GROUPED, Verdict
+from ..dto.screen import Verdict
 from ..dto.signature import KEY_MATERIAL
-
-
-def screened_out(verdict: Verdict | None) -> bool:
-    return verdict is not None and verdict.status in CODE_GROUPED
-
-
-def _resolved_agrees(item: Item, group: CatalogGroup) -> bool:
-    """A name is not its parameters: what the trial resolved must be what the row states, else the model decides."""
-    stated = group.contracts.get(OUTPUT) or {}
-    return all(stated.get(name) == value for name, value in function_parameters(item.resolved))
-
-
-def listed(item: Item, verdict: Verdict | None) -> CatalogGroup | None:
-    group = group_catalog().of(item.family, verdict.canonical) if verdict is not None else None
-    return group if group is not None and _resolved_agrees(item, group) else None
-
-
-def identified(item: Item, verdicts: dict[int, Verdict] | None, profiles: dict[int, Profile]) -> bool:
-    """Never asked: screened out, or listed in the catalog; never without screen.json: runs built before screening ask every item."""
-    verdict = (verdicts or {}).get(item.id)
-    return verdict is not None and (screened_out(verdict) or listed(item, verdict) is not None)
+from ..probe.identified import listed, screened_out
 
 
 def _key(item: Item, verdict: Verdict, profile: Profile | None) -> tuple:
