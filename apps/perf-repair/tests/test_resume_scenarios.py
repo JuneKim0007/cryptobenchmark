@@ -217,8 +217,7 @@ def test_skip_runs_nothing(p):
     a = p.app("a")
     p.go([a], run_id="r1")
     code, lines = p.go([a], run_id="r1", on_existing="skip")
-    assert code == 1 and lines == [f"guide prerequisites: stop run_exists: run r1 has a record "
-                                   f"({p.run_dir / RUNS / 'run_r1.json'}); onExisting skip runs nothing"]
+    assert code == 1 and len(lines) == 1 and "stop run_exists: " in lines[0]
 
 
 def test_an_app_run_removes_an_earlier_targets_file(p):

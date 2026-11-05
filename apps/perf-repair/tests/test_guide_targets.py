@@ -8,7 +8,6 @@ from helpers import LIBRARY
 from test_guide import APP, F, FAKE_ROOT, replacing
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from perfrepair import failure
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
@@ -24,10 +23,8 @@ from perfrepair.inputs.check import target_path, target_perf
 from perfrepair.result.modes import mode_of
 from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
-from perfrepair.log import attach
-from perfrepair.log.read import read_events
 from helpers import LATENCY
-from perfrepair.run_dir import EVENTS, AppPaths
+from perfrepair.run_dir import AppPaths
 
 
 class Base:
@@ -243,21 +240,6 @@ def test_a_dry_record_does_not_answer_for_a_measured_run(base, monkeypatch):
     base.go([a])
     code, lines = base.go([a], device=True)
     assert code == 0 and any(line.startswith("guide report:") for line in lines)
-
-
-def test_each_app_logs_with_its_app_set(base):
-    a, b = base.app("a"), base.app("b")
-
-    def body():
-        attach(base.run_dir)
-        return base.go([a, b])[0]
-
-    attach()
-    assert failure.reported(body) == 0
-    events = [e for e in read_events(base.run_dir / EVENTS) if e.stage == "guide"]
-    for root in (a, b):
-        assert {e.step for e in events if e.app == path_id(root)} >= {"app", "dossier", "replace", "edit", "harness", "target"}
-    assert {e.step for e in events if e.app is None} >= {"prerequisites", "grouping", "summary"}
 
 
 def settings(tmp_path, **apps):

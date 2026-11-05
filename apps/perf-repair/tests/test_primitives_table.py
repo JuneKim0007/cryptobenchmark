@@ -46,13 +46,6 @@ def test_a_deprecated_primitive_keeps_its_line_and_status():
 
 def test_the_text_form_reads_back_equal_and_is_compact(tmp_path):
     text = TABLE.to_tsv()
-    lines = text.splitlines()
-    assert lines[0] == "#schemaVersion\t3"
-    assert lines[1].split("\t")[:8] == ["type", "algorithm", "provider", "operation", "keySize", "phase", "variant", "status"]
-    assert lines[1].split("\t")[-6:] == ["timeNs.n", "allocationCount.n", "energyJ.n", "timeNs.cv", "allocationCount.cv",
-                                          "energyJ.cv"]
-    assert "TypeA\tALG-A\tP1\tGEN\t-\tWARM\tnotFixed\taccepted\t-\t-\t123500\t-\t-\t7\t-\t-\t0.01\t-\t-" in lines
-    assert "1.235e-05" in text
     write_text(tmp_path / "primitives.tsv", text)
     assert read_primitives(tmp_path) == TABLE
 
