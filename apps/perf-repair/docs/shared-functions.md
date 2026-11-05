@@ -26,10 +26,9 @@
 | `add_device_results_arg(parser)` | `src/perfrepair/config/device_results.py` | - | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +5 |
 | `fill_device_results(parser, args, loaded)` | `src/perfrepair/config/device_results.py` | - | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +4 |
 | `display_units(device)` | `src/perfrepair/data_handler/inbound/manifest.py` | The units every view of this device folder shows; a folder without a manifest (a test, a hand-made one) the defaults. | ai.evaluate.worthiness.command, ai.suggest.site_replace.command, report.command |
-| `manifest_file(manifest, base, key)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | data_handler.inbound.run_context, device.delta, device.inbound, device.measured_check +3 |
-| `read_manifest(path)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | check.device, data_handler.inbound.run_context, device.delta, device.inbound +8 |
-| `identify(config, on_device, benchmark)` | `src/perfrepair/data_handler/outbound/benchmark_runner.py` | pipeline.py --identify: deviceId, mode, config and input digests, before any probe; nothing is written. | device.delta, device.stage, guide.finished |
-| `run_pipeline(config, results, stage, benchmark, harness, echo, tail, extra, app, device, env)` | `src/perfrepair/data_handler/outbound/benchmark_runner.py` | results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/ | device.delta, device.stage_run, guide.app_steps |
+| `manifest_file(manifest, base, key)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | data_handler.inbound.run_context, device.delta, device.inbound, device.interop +4 |
+| `read_manifest(path)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | check.device, data_handler.inbound.run_context, device.delta, device.inbound +9 |
+| `run_pipeline(config, results, stage, benchmark, harness, echo, tail, extra, app, device, env)` | `src/perfrepair/data_handler/outbound/benchmark_runner.py` | results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/ | device.delta, device.interop, device.stage_run, guide.app_steps |
 | `write_inbound(device)` | `src/perfrepair/device/inbound.py` | The lines to print: a count, then each comparability warning. | data_handler.inbound.__main__, device.gate_after, device.stage_run |
 | `measured_rows(device, app)` | `src/perfrepair/device/missing_rows.py` | A site's item the run log says was never measured: skipped, not runnable, or planned with no samples. | guide.app_steps, guide.device_steps, guide.targets |
 | `inputs(device)` | `src/perfrepair/device/primitives.py` | The digests the table is made from; items.json is bound into screen.json's own `built`. | device.gate_after, device.seen, device.stage |
@@ -40,7 +39,7 @@
 | `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon, `person_judges` its reject reasons. | ai.repair.upgrade.kind, repair.dossier, result.configurations, validation.dossiers.document |
 | `algorithm_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[1]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades +1 |
 | `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.review.grouping_review.render, ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate +8 |
-| `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.candidates +5 |
+| `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, catalog.names +6 |
 | `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | device.measured_check, device.missing_rows, device.selection_adds, device.used +7 |
 | `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, check.device, check.grouping +8 |
 | `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, grouping.interop_plan, review.sheet +1 |
@@ -58,13 +57,13 @@
 | `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, device.coverage, device.delta_merge |
-| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +28 |
+| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +29 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
-| `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +31 |
-| `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.gate_after, device.primitives, device.seen, device.stage +4 |
+| `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +32 |
+| `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.gate_after, device.primitives, device.seen, device.stage +5 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.repair.upgrade.kind, ai.review.grouping_review.kind, ai.suggest.site_replace.kind +2 |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +17 |
-| `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.primitives +10 |
+| `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.interop +11 |
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | device.benchmark_coverage, device.delta, device.delta_config, device.delta_merge +4 |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `run_id()` | `src/perfrepair/log/attach.py` | The attached run's id; a call outside any command run gets one of its own. | data_handler.outbound.benchmark_runner, device.benchmark_coverage, device.gate, device.primitives_missing +1 |
@@ -117,7 +116,7 @@
 | `of_file(name)` | `src/perfrepair/source/language.py` | - | app.find.sources, repair.edit.plan, scope.build, scope.units.shapes +1 |
 | `mask(text, language, strings)` | `src/perfrepair/source/lexer.py` | Comments always, and string contents when `strings`, become spaces; newlines and quotes stay. | app.facts.dependencies, app.facts.kind, app.facts.sdk, repair.dependencies +2 |
 | `halt_of(code, detail)` | `src/perfrepair/stop/terminate.py` | A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it. | guide.run, guide.target_file, guide.targets |
-| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | ai.runtime.engine.journal, app.__main__, data_handler.outbound.benchmark_runner, device.bundled +7 |
+| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | ai.runtime.engine.journal, app.__main__, data_handler.outbound.benchmark_runner, device.bundled +8 |
 | `alias_pattern(prefix)` | `src/perfrepair/validation/answer_text.py` | `f'^{prefix}[1-9][0-9]*$'` | ai.evaluate.worthiness.schema, ai.repair.upgrade.schema, ai.suggest.site_replace.schema |
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |
 | `check_dossier(raw, app, perf, max_change, gained)` | `src/perfrepair/validation/dossiers/dossier.py` | One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels, estimates of | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |

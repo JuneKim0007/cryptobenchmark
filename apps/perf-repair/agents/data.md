@@ -10,8 +10,7 @@
 - dto: no I/O; every file-level document carries `schemaVersion`, one constant per artifact, and every read site refuses another through its `DocumentKind` (`dto/document.py`), declared beside the artifact's DTO, never a hand-written check (`run_dir.read_scopes`, `read_sites`, `read_edits`, `read_dossiers`: `schema_version`).
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
-- names: every algorithm-name comparison goes through `catalog/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.
-- names: a spelling goes in `catalog/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
+- names: every algorithm-name comparison goes through `catalog/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.; a spelling goes in `catalog/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
 - names: the benchmark owns both name files (`apps/benchmark/modules/config/src/`); change them there and copy them here, `tests/test_names.py` fails until both match.
 - names: a probe alias the catalog or another provider contradicts is `name_conflict` where it is used, never a pick.
 - inputs: every setting is chosen by `inputs/resolve.py` from its `inputs/table.py` row; library code logs, only a `__main__` attaches a handler.
