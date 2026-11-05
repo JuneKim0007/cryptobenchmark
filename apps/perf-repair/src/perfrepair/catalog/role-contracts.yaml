@@ -17,7 +17,7 @@ roles:
     charter: "f86357f95b6f"
     folder: grouping
     required: [grouping/items.json, grouping/profiles.json, catalog/families.yaml, catalog/groups.yaml, catalog/interchange.yaml]
-    optional: [grouping/screen.json, used.json, catalog/algorithm-names.yaml]
+    optional: [grouping/screen.json, used.json, catalog/algorithm-names.yaml, "catalog/algorithms/*"]
     tools: []
     writes: [grouping/knowledge.json, grouping/cursor.json]
   grouping.supervisor:
@@ -26,7 +26,7 @@ roles:
     charter: "528cf3d7bbd5"
     folder: grouping/review
     required: [grouping/groups.json, grouping/checks.json, grouping/items.json, grouping/profiles.json, catalog/groups.yaml]
-    optional: [grouping/screen.json, catalog/algorithm-names.yaml, catalog/families.yaml, catalog/interchange.yaml]
+    optional: [grouping/screen.json, "catalog/algorithms/*", catalog/algorithm-names.yaml, catalog/families.yaml, catalog/interchange.yaml]
     tools: []
     writes: [grouping/supervisor.json]
   worthiness:
@@ -35,7 +35,7 @@ roles:
     charter: "40a95eb16068"
     folder: "worthiness-{mode}"
     required: [rows.json, measurements.json, grouping/groups.json, grouping/items.json, grouping/profiles.json]
-    optional: [grouping/screen.json, manifest.yaml, catalog/groups.yaml, catalog/algorithm-names.yaml, catalog/families.yaml, catalog/interchange.yaml]
+    optional: [grouping/screen.json, manifest.yaml, catalog/groups.yaml, "catalog/algorithms/*", catalog/algorithm-names.yaml, catalog/families.yaml, catalog/interchange.yaml]
     tools: []
     writes: ["worthiness-{mode}/evidence.json", "worthiness-{mode}/verdicts.json"]
   apps.replace:

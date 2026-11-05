@@ -370,7 +370,9 @@ def test_a_name_providers_disagree_on_is_kept_as_name_conflict_not_a_stop(run):
     manifest, probe, names = run
     cipher = next(s for s in detect(open_app(APP), probe.index.engine_types, lambda s: s).sites
                   if s.engineType == "Cipher" and s.algorithm.literal)
-    conflicted = with_fields(names, conflicts={("Cipher", cipher.algorithm.literal.upper()): "P says one, Q another"})
+    # the catalog's name wins over any alias, so only an uncatalogued spelling can conflict
+    cipher = with_fields(cipher, algorithm=with_fields(cipher.algorithm, literal="NOPE/CBC/PKCS5Padding"))
+    conflicted = with_fields(names, conflicts={("Cipher", "NOPE/CBC/PKCS5PADDING"): "P says one, Q another"})
     site = resolve(cipher, probe, conflicted, manifest.providers)
     assert site["resolution"] == "name_conflict" and site["resolvedProvider"] is None
 

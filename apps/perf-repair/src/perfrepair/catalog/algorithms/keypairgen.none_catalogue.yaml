@@ -1,0 +1,405 @@
+# keypairgen.none: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+schemaVersion: 1
+family: keypairgen.none
+algorithms:
+  KeyPairGenerator|DiffieHellman:
+    key: {type: DH, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: DIFFIEHELLMAN}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|DSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|EC:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: EC}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc}, source: SP80057T2}
+    - {fact: minSdk, value: 11, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|Ed25519:
+    key: {type: Ed25519, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ED25519}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: RFC8032}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|Ed448:
+    key: {type: Ed448, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ED448}
+    sourcedOnly:
+    - {fact: strengthBits, value: 224, source: RFC8032}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|EdDSA:
+    key: {type: EdDSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: EDDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-DSA:
+    key: {type: ML-DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-DSA-44:
+    key: {type: ML-DSA-44, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA-44}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-DSA-65:
+    key: {type: ML-DSA-65, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA-65}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-DSA-87:
+    key: {type: ML-DSA-87, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA-87}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-KEM:
+    key: {type: ML-KEM, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-KEM-1024:
+    key: {type: ML-KEM-1024, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM-1024}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-KEM-512:
+    key: {type: ML-KEM-512, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM-512}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|ML-KEM-768:
+    key: {type: ML-KEM-768, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM-768}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|RSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|RSASSA-PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: RSASSA-PSS}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|X25519:
+    key: {type: X25519, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: X25519}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: RFC7748}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|X448:
+    key: {type: X448, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: X448}
+    sourcedOnly:
+    - {fact: strengthBits, value: 224, source: RFC7748}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyPairGenerator|XDH:
+    key: {type: XDH, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: XDH}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 33, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  # FIPS 205 s10.1: key generation draws its seeds from an approved RBG; Table 2: category 1
+  KeyPairGenerator|SLH-DSA-SHA2-128S:
+    key: {type: SLH-DSA-SHA2-128S, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: FIPS205}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SLH-DSA-SHA2-128S}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: FIPS205}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}
+  # X-Wing draft -11: ML-KEM-768 with X25519; GenerateKeyPair draws a fresh 32-byte seed; aims at 128 bits (NIST level 1)
+  KeyPairGenerator|XWING:
+    key: {type: XWING, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: key_pair, bytes: null, source: inferred}
+      deterministic: {value: false, source: XWINGKEM}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: XWING}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: XWINGKEM}
+    - {fact: minSdk, value: null, source: AKEYPAIRGEN}
+    providers: {}
+    provenance: {by: person}

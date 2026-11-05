@@ -31,7 +31,7 @@ One algorithm keeps one identity across the stages (`validation/boundary.py`, `c
 | `used_is_measured` | advisory | a used item with no measurement has no options |
 | `names_agree` | advisory | screening's canonical name is the names catalog's |
 | `name_is_in_its_group` | advisory | a named algorithm is listed in its family's group |
-| `name_has_facts` | advisory | a named algorithm has a `types.yaml` row |
+| `name_has_facts` | advisory | a named algorithm's catalogue entry has its type facts |
 
 ## Grouping
 

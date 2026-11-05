@@ -1,6 +1,7 @@
 # Docs
 
 ```
+docs/algorithm-catalogue.md : catalog/algorithms/: one catalogue per family, entry fields, provenance, provider overrides, the agent views, the static entry checks
 docs/artifacts.md : device folder artifacts: producer, consumers, validator; manifest fields; run log statuses
 docs/change-classes.md : a candidate beyond the group: type, floor, availability, pair diff, change class, reject reasons, apps.maxChange
 docs/decisions.md : the engine's retry and model defaults; the worthiness decision: input, answer, gate, fallback; static triage

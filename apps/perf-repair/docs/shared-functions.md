@@ -15,11 +15,13 @@
 | `charter(library, inputs)` | `src/perfrepair/ai/suggest/site_replace/kind.py` | `library.charter(NAME, SCHEMA, inputs)` | ai.suggest.site_replace.command, guide.finished, review.stability |
 | `app_id(device, path)` | `src/perfrepair/app/facts/path_id.py` | The folder for --app: its own id, else the unit of a multi-root folder that recorded this path as its root. | ai.__main__, repair.__main__, report.__main__ |
 | `path_id(path)` | `src/perfrepair/app/facts/path_id.py` | - | app.__main__, guide.state, guide.target_file |
-| `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, ai.review.grouping_review.kind, catalog.identity, grouping.report.candidates +5 |
+| `algorithm_id(engine_type, canonical)` | `src/perfrepair/catalog/algorithms.py` | `f'{engine_type}{SEPARATOR}{canonical}'` | catalog.groups, catalog.views, probe.identified, validation.catalogue_entry |
+| `algorithms()` | `src/perfrepair/catalog/algorithms.py` | `load()` | catalog.groups, catalog.types, catalog.views |
+| `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, ai.review.grouping_review.kind, catalog.identity, catalog.views +7 |
 | `interchange()` | `src/perfrepair/catalog/interchange.py` | `load()` | ai.parse.grouping_assign.render, catalog.groups, catalog.signature |
-| `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.groups, catalog.screening, catalog.signature, catalog.types +7 |
-| `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | catalog.signature, grouping.report.rules, screen.groups |
-| `types()` | `src/perfrepair/catalog/types.py` | `load()` | catalog.upgrades, repair.dossier, validation.boundary |
+| `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.algorithms, catalog.groups, catalog.screening, catalog.signature +10 |
+| `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | catalog.signature, grouping.report.rules, probe.identified |
+| `types()` | `src/perfrepair/catalog/types.py` | `of_catalogues(algorithms())` | catalog.upgrades, repair.dossier, validation.boundary |
 | `parsed(load, run)` | `src/perfrepair/check/device.py` | The loaded document, or the problem a malformed file is. | check.apps, check.grouping, check.run |
 | `add_config_arg(parser)` | `src/perfrepair/config/args.py` | - | ai.runtime.gateway.args, app.__main__, data_handler.inbound.__main__, grouping.__main__ +3 |
 | `load_settings(parser, args)` | `src/perfrepair/config/args.py` | - | ai.__main__, app.__main__, config.device_results, data_handler.inbound.__main__ +5 |
@@ -44,7 +46,7 @@
 | `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, catalog.names +6 |
 | `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | catalog.identity, device.measured_check, device.missing_rows, device.selection_adds +9 |
 | `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, check.device, check.grouping +8 |
-| `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, grouping.interop_plan, review.sheet +1 |
+| `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, grouping.interop_plan, review.sheet, validation.grouping.output |
 | `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, ai.review.grouping_review.kind, grouping.report.rules, validation.grouping.code_groups +1 |
 | `pair_status(groups, a, b)` | `src/perfrepair/dto/interop.py` | - | result.evidence, result.options, result.unit_dossiers, validation.dossiers.against_run |
 | `required_risks(scope, option)` | `src/perfrepair/dto/replacement.py` | Each risk the scope facts, and the chosen option's when given, imply, with the plain words that imply it. | ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades, validation.replacements +1 |
@@ -73,6 +75,8 @@
 | `emit(stage, step, event, kind, item, app, outcome, durationMs, tokens, costUsd, ref, detail, data, level)` | `src/perfrepair/log/emit.py` | - | ai.evaluate.worthiness.command, ai.runtime.engine.decide, ai.runtime.engine.events, ai.suggest.site_replace.command +12 |
 | `step(stage, name, kind, item, app, detail, data)` | `src/perfrepair/log/emit.py` | - | app.__main__, device.bundled, device.gate, device.inbound +9 |
 | `status_line(e)` | `src/perfrepair/log/status.py` | - | log.progress, log.summary, log.views |
+| `identified(item, verdicts)` | `src/perfrepair/probe/identified.py` | Never asked: screened out, or listed; never without screen.json: runs built before screening ask every item. | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, validation.grouping.code_groups |
+| `screened_out(verdict)` | `src/perfrepair/probe/identified.py` | `verdict is not None and verdict.status in CODE_GROUPED` | screen.groups, validation.grouping.code_groups |
 | `string_literal(value, language)` | `src/perfrepair/repair/edit/literal.py` | - | repair.edit.algorithm, repair.edit.provider, repair.edit.specs |
 | `apply(text, splices)` | `src/perfrepair/repair/edit/splice.py` | Newlines inside a replaced span follow the new text, so a scope's lines `start..end` stay put in the copy. | repair.edit.alone, repair.edit.app, repair.edit.plan |
 | `reach(scope)` | `src/perfrepair/result/change.py` | A field keeps the object past the function, so where its output goes is not read: unknown, never local. | ai.repair.upgrade.render, result.options, result.upgrades |
@@ -112,7 +116,6 @@
 | `unwrapped(n)` | `src/perfrepair/scope/syntax/usage.py` | - | scope.lifecycle.origins, scope.lifecycle.output, scope.lifecycle.settle |
 | `use_of(n)` | `src/perfrepair/scope/syntax/usage.py` | Follows the value out through parentheses, casts and branches to what finally receives it. | scope.lifecycle.binding, scope.lifecycle.output, scope.lifecycle.slice |
 | `screening_catalog(loaded)` | `src/perfrepair/screen/catalog.py` | None stands for no perfrepair.yaml; a set catalog that does not load is missing_file, never the packaged one. | grouping.__main__, guide.device_steps, repair.__main__, validation.__main__ |
-| `identified(item, verdicts, profiles)` | `src/perfrepair/screen/groups.py` | Never asked: screened out, or listed in the catalog; never without screen.json: runs built before screening ask every item. | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, validation.grouping.code_groups |
 | `matching(masked, i)` | `src/perfrepair/source/brackets.py` | Offset of the bracket closing the one at i, in masked text. | app.facts.kind, app.facts.sdk, app.find.constants, repair.edit.init +3 |
 | `of_build_file(name)` | `src/perfrepair/source/language.py` | Groovy and properties build files are lexed by Java's comment and string rules. | app.facts.dependencies, app.facts.kind, app.facts.sdk |
 | `of_file(name)` | `src/perfrepair/source/language.py` | - | app.find.sources, repair.edit.plan, scope.build, scope.units.shapes +1 |

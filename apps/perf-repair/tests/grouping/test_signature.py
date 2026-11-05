@@ -9,24 +9,42 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.catalog.families import Families
-from perfrepair.catalog.interchange import CATALOG as INTERCHANGE, interchange, load
+from perfrepair.catalog.interchange import CATALOG as INTERCHANGE
+from perfrepair.catalog.interchange import interchange, load
 from perfrepair.catalog.names import CATALOG, Names
 from perfrepair.catalog.screening import Screening
+from perfrepair.catalog.signature import signature
 from perfrepair.data_handler.inbound.probe import Probe
-from perfrepair.dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, Item, Profile, items_document, profiles_document
+from perfrepair.dto.grouping import (
+    KEY_APP_HELD,
+    KEY_PROVIDER_HELD,
+    KEY_UNKNOWN,
+    Item,
+    Profile,
+    items_document,
+    profiles_document,
+)
 from perfrepair.dto.grouping_state import Group, code_made
 from perfrepair.dto.screen import Verdict, screen_document
-from perfrepair.dto.signature import CONVENTION, EXPORTABLE, KEY_MATERIAL, NON_EXPORTABLE, UNKNOWN
+from perfrepair.dto.signature import (
+    CONVENTION,
+    EXPORTABLE,
+    KEY_MATERIAL,
+    NON_EXPORTABLE,
+    UNKNOWN,
+)
 from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
-from perfrepair.catalog.signature import signature
+from perfrepair.probe.identified import identified, screened_out
 from perfrepair.run_dir import GroupingPaths, built
-from perfrepair.screen.groups import code_group_id, code_groups, identified, screened_out
+from perfrepair.screen.groups import code_group_id, code_groups
 from perfrepair.screen.handler import ScreeningHandler
-from perfrepair.validation.parse.grouping_assign import _signature_problems
 from perfrepair.validation.grouping.output import validate_output
-from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION
+from perfrepair.validation.parse.grouping_assign import (
+    MAX_DESCRIPTION,
+    _signature_problems,
+)
 
 NAMES, FAMILIES = Names.load(), Families.load()
 SCREENING = Screening.load(names=NAMES)
@@ -123,11 +141,14 @@ def test_an_unrecorded_key_material_never_joins_a_recorded_one_and_two_unrecorde
     assert made.differing(held) == [KEY_MATERIAL]
 
 
-def test_an_unknown_name_and_a_conflict_are_unknown():
+def test_an_unknown_name_and_an_uncatalogued_conflict_are_unknown():
     assert sig("Mac", "NOT-CATALOGUED").known() == {"key": KEY_APP_HELD} and not sig("Mac", "NOT-CATALOGUED").decided
-    conflicted = Probe({"providers": [{"name": "P", "services": [{"type": "Mac", "algorithm": "HmacSHA256",
-                                                                  "aliases": ["PBEWITHHMACSHA256"]}]}]}).names(NAMES)
-    assert not signature("Mac", "PBEWITHHMACSHA256", None, KEY_APP_HELD, conflicted).decided
+    conflicted = Probe({"providers": [
+        {"name": "P", "services": [{"type": "Mac", "algorithm": "HmacSHA256", "aliases": ["FOOMAC", "PBEWITHHMACSHA256"]}]},
+        {"name": "Q", "services": [{"type": "Mac", "algorithm": "HmacSHA512", "aliases": ["FOOMAC"]}]}]}).names(NAMES)
+    assert not signature("Mac", "FOOMAC", None, KEY_APP_HELD, conflicted).decided
+    # the catalog's name wins over the alias
+    assert signature("Mac", "PBEWITHHMACSHA256", None, KEY_APP_HELD, conflicted) == sig("Mac", "PBEWithHmacSHA256")
 
 
 def test_every_catalogued_name_of_a_family_engine_has_a_rule():
@@ -156,9 +177,9 @@ def runtime(name):
 
 @pytest.mark.parametrize("name", sorted(ASKED))
 def test_each_runtime_asks_what_the_catalog_leaves_open(name):
-    items, profiles, verdicts = runtime(name)
+    items, _, verdicts = runtime(name)
     before = [i for i in items if not screened_out(verdicts[i.id])]
-    after = [i for i in items if not identified(i, verdicts, profiles)]
+    after = [i for i in items if not identified(i, verdicts)]
     assert (len(before), len(after)) == ASKED[name]
 
 
@@ -167,7 +188,7 @@ def test_each_runtimes_code_groups_place_each_coded_item_once_and_stay_within_a_
     items, profiles, verdicts = runtime(name)
     groups = code_groups(items, verdicts, profiles)
     placed = [m for g in groups.values() for m in g.members]
-    assert sorted(placed) == [i.id for i in items if identified(i, verdicts, profiles)]
+    assert sorted(placed) == [i.id for i in items if identified(i, verdicts)]
     assert all(len(g.description) <= MAX_DESCRIPTION for g in groups.values())
     for g in groups.values():
         assert len({profiles[m].signature.identity for m in g.members if not screened_out(verdicts[m])}) <= 1

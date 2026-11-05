@@ -65,6 +65,8 @@ engines:
         convention: {curve: by key}
       - match: 'ML-DSA-(?P<set>\d+)'
         set: {scheme: ML-DSA, curve: $set}
+      - match: 'SLH-DSA-(?P<set>(SHA2|SHAKE)-\d+[SF])'
+        set: {scheme: SLH-DSA, curve: $set}
       - match: 'NONEwithRSA'
         set: {scheme: RSA, digest: NONE, prehashed: 'true', encoding: PKCS1}
       - match: 'NONEwith(?P<scheme>ECDSA|DSA)inP1363Format'

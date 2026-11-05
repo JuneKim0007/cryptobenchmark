@@ -74,9 +74,9 @@ def test_a_registered_name_holding_the_separator_is_blocking(device):
 
 
 def test_catalog_gaps_are_advisory_and_a_used_item_with_no_measurement_is_reported(device):
-    write_json(GroupingPaths(device).items, {"items": [ITEM, {**ITEM, "id": 2, "name": "XWING", "type": "KeyPairGenerator", "family": "keypairgen.none"},
+    write_json(GroupingPaths(device).items, {"items": [ITEM, {**ITEM, "id": 2, "name": "FUTURE-KEM", "type": "KeyPairGenerator", "family": "keypairgen.none"},
                                                        {**ITEM, "id": 3, "name": "AES/GCM/NoPadding"}]})
-    write_json(GroupingPaths(device).screen, {"verdicts": {"1": VERDICT, "2": {"canonical": "XWING"}, "3": {"canonical": "AES/GCM/NoPadding"}}})
+    write_json(GroupingPaths(device).screen, {"verdicts": {"1": VERDICT, "2": {"canonical": "FUTURE-KEM"}, "3": {"canonical": "AES/GCM/NoPadding"}}})
     write_json(device / rd.USED, {"items": [{"item": "Cipher|AES/CBC/PKCS5Padding|AndroidOpenSSL"}, {"item": "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"}]})
     found = boundary_violations(device, NAMES)
     assert {"names_agree", "name_is_in_its_group", "used_is_measured"} <= invariants(found, ADVISORY)
