@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -9,7 +10,8 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.dto.interop import failed_pairs, member, pair_status
-from perfrepair.grouping.interop_plan import write_plan
+from perfrepair.dto.screen import Verdict
+from perfrepair.grouping.interop_plan import plan, write_plan
 from perfrepair.grouping.interop_read import import_results
 from perfrepair.grouping.report.checks import report
 from perfrepair.validation import ValidationFailed
@@ -100,3 +102,35 @@ def test_a_stale_groups_section_is_a_problem(grouped, tmp_path):
     problems = validate_interop(groups, paths.interop_plan, paths.interop)
     assert problems["grouping/groups.json interop"] == [
         "groups.json interop section differs from grouping/interop.yaml; rerun grouping report"]
+
+
+
+def _group(*names: str) -> dict:
+    return {"groups": [{"id": "g", "runnable": list(range(1, len(names) + 1))}],
+            "items": {str(n): {"qualified": q, "keyContract": "app_held"} for n, q in enumerate(names, 1)}}
+
+
+AES, AES_128, AES_256 = "Cipher|AES/GCM/NoPadding|P", "Cipher|AES_128/GCM/NoPadding|P", "Cipher|AES_256/GCM/NoPadding|P"
+
+
+def _named(*fixed: int | None) -> dict[int, Verdict]:
+    return {n: Verdict("accepted", "r", canonical="AES/GCM/NoPadding", keySize=k) for n, k in enumerate(fixed, 1)}
+
+
+def _prepared(*sizes: list[int]) -> dict[int, SimpleNamespace]:
+    return {n: SimpleNamespace(preparedKeySizes=s) for n, s in enumerate(sizes, 1)}
+
+
+def test_a_group_of_one_engine_plans_no_pair_as_none_is_ever_an_option():
+    assert plan(_group(AES, AES_128, AES_256), _prepared([128, 256], [128], [256]), _named(None, 128, 256)) == []
+
+
+def test_an_unknown_canonical_name_is_never_the_same_engine_so_the_pair_is_planned():
+    assert [(p.a, p.b) for p in plan(_group(AES, AES_128), _prepared([128], [128]), {1: _named(None)[1]})] == [(AES, AES_128)]
+
+
+def test_a_swappable_group_keeps_its_spellings_for_a_links_end_each_pair_at_its_own_key_size():
+    other, unmeasured = "Cipher|AES/GCM/NoPadding|Q", "Cipher|AES_256/GCM/NoPadding|Q"
+    planned = plan(_group(AES, AES_128, AES_256, other, unmeasured), _prepared([128, 256], [128], [256], [128, 256], []),
+                   _named(None, 128, 256, None, 256), frozenset({AES}))
+    assert {p.b: p.keySize for p in planned} == {AES_128: 128, AES_256: 256, other: 128, unmeasured: 256}

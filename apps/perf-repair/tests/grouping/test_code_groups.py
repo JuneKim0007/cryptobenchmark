@@ -14,7 +14,7 @@ from helpers import CATALOG
 from perfrepair.dto.screen import Verdict, screen_document
 from perfrepair.files import write_json
 from perfrepair.run_dir import built
-from perfrepair.grouping.interop_plan import plan
+from perfrepair.grouping.interop_plan import write_plan
 from perfrepair.grouping.report.checks import report
 from perfrepair.validation import ValidationFailed
 from perfrepair.validation.grouping.output import read_groups, validate_output
@@ -67,7 +67,7 @@ def test_groups_json_carries_code_groups_and_each_items_screen(paths):
     coded = [g for g in document["groups"] if code_made(g["id"])]
     assert sorted(g["members"] for g in coded) == [[3, 4], [6]]
     assert all(g["description"].startswith("Code-made group of one algorithm") for g in coded)
-    assert [p.group for p in plan(read_groups(paths))].count(next(g["id"] for g in coded if g["members"] == [3, 4])) == 1
+    assert [p.group for p in write_plan(paths)].count(next(g["id"] for g in coded if g["members"] == [3, 4])) == 1
 
 
 def test_the_supervisor_reviews_model_groups_only(paths):

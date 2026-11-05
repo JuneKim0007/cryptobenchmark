@@ -97,7 +97,7 @@ The deliverable is a recommendation study and, apart from it, the provider path;
 | `recommendation` | any other option | a swap and what would have to change; deliberately loose, never claimed as an app improvement |
 
 - The provider a site is on (`result/provider_path.py`): the one it names; a name the app ships and the harness measures under its alias (`app.json` `bundled`, the probe's `artifact`) is that alias's item; a `default` site in an app that inserts a provider it ships at position 1 (`registers` `call`, `position`, matched to `catalog/bundled-providers.yaml` `create`) is on that provider's item when it registers the name, so the platform member is its provider path back; any `default` site's options carry `resolved_by_order`.
-- A same-canonical member from the current item's own provider is `same_engine`, never an option.
+- A same-canonical member from the current item's own provider is `same_engine`, never an option; a group of nothing else plans no interop pair.
 
 ## Review facts
 

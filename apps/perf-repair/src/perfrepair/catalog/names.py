@@ -7,6 +7,7 @@ import yaml
 
 from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
+from ..dto.grouping import provider_of
 
 CATALOG = Path(__file__).with_name("algorithm-names.yaml")
 SCHEMA_VERSION = 1
@@ -15,6 +16,11 @@ NAME_CONFLICT = "name_conflict"
 
 def fold(name: str) -> str:
     return name.upper()
+
+
+def same_engine(a: str, b: str, canonical_a: str | None, canonical_b: str | None) -> bool:
+    """One provider, one canonical name: two spellings of one implementation; an unknown name is never the same."""
+    return provider_of(a) == provider_of(b) and None not in (canonical_a, canonical_b) and fold(canonical_a) == fold(canonical_b)
 
 
 class NamesError(InputError):

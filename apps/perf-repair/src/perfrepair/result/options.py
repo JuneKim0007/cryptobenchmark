@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from ..catalog.names import fold
+from ..catalog.names import fold, same_engine
 from ..dto import PrimitiveRow, Summary
 from ..dto.change import (
     NO_GAIN,
@@ -143,8 +143,7 @@ class Joined:
         return v.canonical if v is not None else None
 
     def same_engine(self, current: str, q: str) -> bool:
-        mine, theirs = self._canonical(current), self._canonical(q)
-        return provider_of(q) == provider_of(current) and None not in (mine, theirs) and fold(mine) == fold(theirs)
+        return same_engine(current, q, self._canonical(current), self._canonical(q))
 
     def _refused(self, current: str, q: str) -> bool:
         v = self.verdicts or {}
