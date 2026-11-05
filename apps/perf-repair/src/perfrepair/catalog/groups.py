@@ -11,9 +11,9 @@ from pathlib import Path
 from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
 from ..dto.signature import CONVENTION, UNKNOWN, Signature
-from .algorithms import CONTRACT_SIDES, Algorithms, algorithm_id, algorithms, split_id
+from .algorithms import CONTRACT_KEY, CONTRACT_SIDES, KEY_NONE, Algorithms, algorithm_id, algorithms, split_id
 from .families import Families
-from .interchange import INPUT, KEY, KEY_NONE, OUTPUT, interchange
+from .interchange import INPUT, KEY, OUTPUT, interchange
 from .names import Names, fold
 
 CATALOG = Path(__file__).with_name("groups.yaml")
@@ -109,7 +109,7 @@ def _describe(engine_type: str, stands: dict) -> str:
 
 
 def _same(contract: dict) -> tuple:
-    return tuple((side, tuple(sorted(contract[side].items()))) for side in CONTRACT_SIDES)
+    return (contract[CONTRACT_KEY], *((side, tuple(sorted(contract[side].items()))) for side in CONTRACT_SIDES))
 
 
 def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) -> list[CatalogGroup]:
@@ -119,9 +119,12 @@ def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) 
         contract = catalogue.of(family, algorithm_id(engine_type, name)).contract
         if contract is not None:
             alike[_same(contract)].append((name, contract))
-    keyless = interchange().engines[engine_type].key == KEY_NONE
-    return [CatalogGroup(_row_id(family, row[0][0]), family, _describe(engine_type, row[0][1]), row[0][1],
-                         tuple((engine_type, n) for n, _ in row), keyless) for row in alike.values()]
+    return [CatalogGroup(_row_id(family, row[0][0]), family, _describe(engine_type, row[0][1]), _sides(row[0][1]),
+                         tuple((engine_type, n) for n, _ in row), row[0][1][CONTRACT_KEY] == KEY_NONE) for row in alike.values()]
+
+
+def _sides(contract: dict) -> dict:
+    return {side: contract[side] for side in CONTRACT_SIDES}
 
 
 def _member_problems(family: str, member, engine_type: str, names: Names, catalogue: Algorithms) -> list[str]:

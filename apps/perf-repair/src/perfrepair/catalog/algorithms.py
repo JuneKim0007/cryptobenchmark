@@ -21,6 +21,9 @@ PERSON, AGENT = "person", "agent"
 ENTRY_FIELDS = {"required", "optional", "conditions", "sourcedOnly", "providers", "provenance"}
 OPTIONAL_FIELDS = {"aliases", "key", "contract"}
 CONTRACT_SIDES = ("input", "output")
+CONTRACT_KEY = "key"
+KEY_APP, KEY_PROVIDER, KEY_NONE = "app", "provider", "none"
+KEY_CONTRACTS = (KEY_APP, KEY_PROVIDER, KEY_NONE)
 PARAMETERS, NONCE = "parameters", "nonce"
 OUTPUT, DETERMINISTIC, AUTHENTICATED = "output", "deterministic", "authenticated"
 STRENGTH, MIN_SDK = "strengthBits", "minSdk"
@@ -150,10 +153,11 @@ def _leaf_problems(entry: Entry, common: Common) -> list[str]:
 def _contract_problems(contract) -> list[str]:
     if contract is None:
         return []
-    if not isinstance(contract, dict) or set(contract) != set(CONTRACT_SIDES):
-        return [f"contract {contract!r} is not {{input, output}}"]
-    return [f"contract {side} is not a mapping of strings" for side in CONTRACT_SIDES
-            if not isinstance(contract[side], dict) or not all(isinstance(v, str) for v in contract[side].values())]
+    if not isinstance(contract, dict) or set(contract) != {*CONTRACT_SIDES, CONTRACT_KEY}:
+        return [f"contract {contract!r} is not {{key, input, output}}"]
+    found = [f"contract key {contract[CONTRACT_KEY]!r} is not one of {KEY_CONTRACTS}"] * (contract[CONTRACT_KEY] not in KEY_CONTRACTS)
+    return found + [f"contract {side} is not a mapping of strings" for side in CONTRACT_SIDES
+                    if not isinstance(contract[side], dict) or not all(isinstance(v, str) for v in contract[side].values())]
 
 
 def _shape_problems(raw) -> list[str]:

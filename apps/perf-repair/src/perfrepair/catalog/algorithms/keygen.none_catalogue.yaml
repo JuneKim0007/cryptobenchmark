@@ -13,6 +13,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: AES}
     sourcedOnly:
@@ -31,6 +32,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ARCFOUR}
     sourcedOnly:
@@ -49,6 +51,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: BLOWFISH}
     sourcedOnly:
@@ -67,6 +70,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: CHACHA20}
     sourcedOnly:
@@ -85,6 +89,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: DES}
     sourcedOnly:
@@ -103,6 +108,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: DESEDE}
     sourcedOnly:
@@ -121,6 +127,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACMD5}
     sourcedOnly:
@@ -139,6 +146,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA1}
     sourcedOnly:
@@ -157,6 +165,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA224}
     sourcedOnly:
@@ -175,6 +184,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA256}
     sourcedOnly:
@@ -193,6 +203,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA3-224}
     sourcedOnly:
@@ -211,6 +222,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA3-256}
     sourcedOnly:
@@ -229,6 +241,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA3-384}
     sourcedOnly:
@@ -247,6 +260,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA3-512}
     sourcedOnly:
@@ -265,6 +279,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA384}
     sourcedOnly:
@@ -283,6 +298,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA512}
     sourcedOnly:
@@ -301,6 +317,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA512/224}
     sourcedOnly:
@@ -319,6 +336,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: HMACSHA512/256}
     sourcedOnly:
@@ -337,6 +355,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: RC2}
     sourcedOnly:
@@ -349,6 +368,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: SUNTLS12PRF}
     sourcedOnly: []
@@ -359,6 +379,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: SUNTLSKEYMATERIAL}
     sourcedOnly: []
@@ -369,6 +390,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: SUNTLSMASTERSECRET}
     sourcedOnly: []
@@ -379,6 +401,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: SUNTLSPRF}
     sourcedOnly: []
@@ -389,6 +412,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: SUNTLSRSAPREMASTERSECRET}
     sourcedOnly: []

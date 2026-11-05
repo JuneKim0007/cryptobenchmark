@@ -13,6 +13,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {algorithm: DIFFIEHELLMAN, curve: BY KEY}
     sourcedOnly:
@@ -31,6 +32,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {algorithm: ECDH, curve: BY KEY}
     sourcedOnly:
@@ -49,6 +51,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {algorithm: XDH, curve: X25519}
     sourcedOnly:
@@ -67,6 +70,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {algorithm: XDH, curve: X448}
     sourcedOnly:
@@ -85,6 +89,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {algorithm: XDH, curve: by key (assumed)}
     sourcedOnly:

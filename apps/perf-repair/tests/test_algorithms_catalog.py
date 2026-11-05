@@ -95,6 +95,8 @@ def _fact(name: str, **values):
     ("digest.none_catalogue.yaml", _fact("strengthBits", value={"key": "rot13"}), "keyStrength map"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["sourcedOnly"].pop()), "type facts missing"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e.update(contract={"output": {}})), "contract"),
+    ("digest.none_catalogue.yaml", _md5(lambda e: e["contract"].pop("key")), "is not \\{key, input, output\\}"),
+    ("digest.none_catalogue.yaml", _md5(lambda e: e["contract"].update(key="keystore")), "contract key 'keystore'"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["key"].update(source="hearsay")), "hearsay"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["provenance"].update(by="nobody")), "provenance"),
     ("digest.none_catalogue.yaml", lambda d: d["algorithms"].update({"MD4": d["algorithms"][MD5]}), "is not <type>"),

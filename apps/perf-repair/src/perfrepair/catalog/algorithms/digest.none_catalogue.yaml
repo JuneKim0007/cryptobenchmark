@@ -7,6 +7,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: none
       input: {}
       output: {function: GOST3411}
     sourcedOnly: []
@@ -23,6 +24,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: MD2}
     sourcedOnly:
@@ -41,6 +43,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: MD5}
     sourcedOnly:
@@ -60,6 +63,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-1}
     sourcedOnly:
@@ -78,6 +82,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-224}
     sourcedOnly:
@@ -96,6 +101,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-256}
     sourcedOnly:
@@ -114,6 +120,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-384}
     sourcedOnly:
@@ -132,6 +139,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-512}
     sourcedOnly:
@@ -150,6 +158,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-512/224}
     sourcedOnly:
@@ -168,6 +177,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA-512/256}
     sourcedOnly:
@@ -186,6 +196,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA3-224}
     sourcedOnly:
@@ -204,6 +215,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA3-256}
     sourcedOnly:
@@ -222,6 +234,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA3-384}
     sourcedOnly:
@@ -240,6 +253,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: none
       input: {}
       output: {function: SHA3-512}
     sourcedOnly:
@@ -252,6 +266,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: none
       input: {}
       output: {function: SHAKE128-256}
     sourcedOnly: []
@@ -262,6 +277,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: none
       input: {}
       output: {function: SHAKE256-512}
     sourcedOnly: []

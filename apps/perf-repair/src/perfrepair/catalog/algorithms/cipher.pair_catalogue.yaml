@@ -28,6 +28,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {passwordBased: 'FALSE', wrap: 'FALSE'}
       output: {base: RSA, mode: ECB, padding: NOPADDING}
     sourcedOnly:
@@ -136,6 +137,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {passwordBased: 'FALSE', wrap: 'FALSE'}
       output: {base: RSA, mode: ECB, padding: PKCS1PADDING}
     sourcedOnly:

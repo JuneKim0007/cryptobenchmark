@@ -13,6 +13,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: DIFFIEHELLMAN}
     sourcedOnly:
@@ -31,6 +32,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: DSA}
     sourcedOnly:
@@ -49,6 +51,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: EC}
     sourcedOnly:
@@ -67,6 +70,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ED25519}
     sourcedOnly:
@@ -85,6 +89,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ED448}
     sourcedOnly:
@@ -103,6 +108,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: EDDSA}
     sourcedOnly:
@@ -121,6 +127,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-DSA}
     sourcedOnly:
@@ -139,6 +146,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-DSA-44}
     sourcedOnly:
@@ -157,6 +165,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-DSA-65}
     sourcedOnly:
@@ -175,6 +184,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-DSA-87}
     sourcedOnly:
@@ -193,6 +203,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-KEM}
     sourcedOnly:
@@ -211,6 +222,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-KEM-1024}
     sourcedOnly:
@@ -229,6 +241,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-KEM-512}
     sourcedOnly:
@@ -247,6 +260,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: ML-KEM-768}
     sourcedOnly:
@@ -265,6 +279,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: RSA}
     sourcedOnly:
@@ -283,6 +298,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: RSASSA-PSS}
     sourcedOnly:
@@ -301,6 +317,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: X25519}
     sourcedOnly:
@@ -319,6 +336,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: X448}
     sourcedOnly:
@@ -337,6 +355,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: XDH}
     sourcedOnly:
@@ -356,6 +375,7 @@ algorithms:
       deterministic: {value: false, source: FIPS205}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: SLH-DSA-SHA2-128S}
     sourcedOnly:
@@ -375,6 +395,7 @@ algorithms:
       deterministic: {value: false, source: XWINGKEM}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {}
       output: {consumer: consumer-defined (assumed), function: XWING}
     sourcedOnly:

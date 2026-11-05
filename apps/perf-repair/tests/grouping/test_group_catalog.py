@@ -316,6 +316,12 @@ def test_contract_rows_from_the_catalogue_equal_the_221_the_signature_derived():
     assert [(g.id, g.description, g.family, g.contracts, g.members) for g in catalog.groups] == _signature_rows()
 
 
+def test_a_row_is_keyless_by_its_contract_key_as_the_engine_s_interchange_key_was():
+    keyless = {g.family: g.keyless for g in group_catalog().groups}
+    assert keyless == {f: interchange().engines[FAMILIES.by_id[f].type].key == "none" for f in keyless}
+    assert {f for f, k in keyless.items() if k} == {"digest.none"}
+
+
 def test_a_group_member_only_shares_a_row_when_its_contracts_are_equal():
     catalog = group_catalog()
     assert catalog.of("digest.none", "MD5") is not catalog.of("digest.none", "SHA-256")

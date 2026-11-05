@@ -8,6 +8,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-1}
     sourcedOnly: []
@@ -18,6 +19,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-1}
     sourcedOnly: []
@@ -28,6 +30,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-224}
     sourcedOnly: []
@@ -38,6 +41,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-224}
     sourcedOnly: []
@@ -48,6 +52,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-256}
     sourcedOnly: []
@@ -58,6 +63,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-256}
     sourcedOnly: []
@@ -68,6 +74,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-384}
     sourcedOnly: []
@@ -78,6 +85,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-384}
     sourcedOnly: []
@@ -88,6 +96,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-512/224}
     sourcedOnly: []
@@ -98,6 +107,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-512/224}
     sourcedOnly: []
@@ -108,6 +118,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-512/256}
     sourcedOnly: []
@@ -118,6 +129,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-512/256}
     sourcedOnly: []
@@ -128,6 +140,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-512}
     sourcedOnly: []
@@ -138,6 +151,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES, digest: SHA-512}
     sourcedOnly: []
@@ -154,6 +168,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-OPENSSL, digest: MD5}
     sourcedOnly:
@@ -172,6 +187,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '192', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-OPENSSL, digest: MD5}
     sourcedOnly:
@@ -190,6 +206,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-OPENSSL, digest: MD5}
     sourcedOnly:
@@ -208,6 +225,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: DES, digest: MD5}
     sourcedOnly:
@@ -226,6 +244,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: RC2, digest: MD5}
     sourcedOnly:
@@ -244,6 +263,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: TRIPLEDES, digest: MD5}
     sourcedOnly:
@@ -262,6 +282,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: DES, digest: SHA-1}
     sourcedOnly:
@@ -280,6 +301,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: DESEDE, digest: SHA-1}
     sourcedOnly:
@@ -298,6 +320,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: RC2, digest: SHA-1}
     sourcedOnly:
@@ -316,6 +339,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: RC2, digest: SHA-1}
     sourcedOnly:
@@ -334,6 +358,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '40', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: RC2, digest: SHA-1}
     sourcedOnly:
@@ -352,6 +377,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: RC4, digest: SHA-1}
     sourcedOnly:
@@ -370,6 +396,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '40', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: RC4, digest: SHA-1}
     sourcedOnly:
@@ -388,6 +415,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-BC, digest: SHA-256}
     sourcedOnly:
@@ -406,6 +434,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '192', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-BC, digest: SHA-256}
     sourcedOnly:
@@ -424,6 +453,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-BC, digest: SHA-256}
     sourcedOnly:
@@ -442,6 +472,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '128', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-BC, digest: SHA-1}
     sourcedOnly:
@@ -460,6 +491,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '192', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-BC, digest: SHA-1}
     sourcedOnly:
@@ -478,6 +510,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: 2-KEYTRIPLEDES-CBC, digest: SHA-1}
     sourcedOnly:
@@ -496,6 +529,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {derivedBits: '256', kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: AES-CBC-BC, digest: SHA-1}
     sourcedOnly:
@@ -514,6 +548,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: false, source: inferred}
     contract:
+      key: app
       input: {kdf: provider convention (assumed), passwordBased: 'TRUE', wrap: 'FALSE'}
       output: {base: TWOFISH-CBC, digest: SHA-1}
     sourcedOnly:

@@ -14,6 +14,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: ED25519, scheme: EDDSA}
     sourcedOnly:
@@ -32,6 +33,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: ED448, scheme: EDDSA}
     sourcedOnly:
@@ -50,6 +52,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: by key (assumed), scheme: EDDSA}
     sourcedOnly:
@@ -68,6 +71,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {scheme: HSS/LMS}
     sourcedOnly:
@@ -86,6 +90,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: MD2, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -104,6 +109,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: MD5ANDSHA1, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -122,6 +128,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: MD5, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -140,6 +147,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: by key (assumed), scheme: ML-DSA}
     sourcedOnly:
@@ -158,6 +166,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: '44', scheme: ML-DSA}
     sourcedOnly:
@@ -176,6 +185,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: '65', scheme: ML-DSA}
     sourcedOnly:
@@ -194,6 +204,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: '87', scheme: ML-DSA}
     sourcedOnly:
@@ -212,6 +223,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'TRUE'}
       output: {curve: BY KEY, digest: NONE, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -224,6 +236,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {prehashed: 'TRUE'}
       output: {curve: BY KEY, digest: NONE, encoding: P1363, scheme: DSA}
     sourcedOnly: []
@@ -240,6 +253,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'TRUE'}
       output: {curve: BY KEY, digest: NONE, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -252,6 +266,7 @@ algorithms:
     optional: []
     conditions: {}
     contract:
+      key: app
       input: {prehashed: 'TRUE'}
       output: {curve: BY KEY, digest: NONE, encoding: P1363, scheme: ECDSA}
     sourcedOnly: []
@@ -268,6 +283,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'TRUE'}
       output: {digest: NONE, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -301,6 +317,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-1, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -319,6 +336,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-1, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -337,6 +355,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-1, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -355,6 +374,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-1, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -373,6 +393,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-1, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -391,6 +412,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-1, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
     sourcedOnly:
@@ -409,6 +431,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-224, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -427,6 +450,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-224, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -445,6 +469,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-224, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -463,6 +488,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-224, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -481,6 +507,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-224, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -499,6 +526,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-224, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
     sourcedOnly:
@@ -517,6 +545,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-256, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -535,6 +564,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-256, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -553,6 +583,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-256, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -571,6 +602,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-256, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -589,6 +621,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-256, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -607,6 +640,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-256, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
     sourcedOnly:
@@ -625,6 +659,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-224, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -643,6 +678,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-224, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -661,6 +697,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-224, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -679,6 +716,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-224, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -697,6 +735,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA3-224, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -715,6 +754,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-256, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -733,6 +773,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-256, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -751,6 +792,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-256, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -769,6 +811,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-256, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -787,6 +830,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA3-256, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -805,6 +849,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-384, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -823,6 +868,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-384, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -841,6 +887,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-384, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -859,6 +906,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-384, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -877,6 +925,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA3-384, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -895,6 +944,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-512, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -913,6 +963,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-512, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -931,6 +982,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-512, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -949,6 +1001,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA3-512, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -967,6 +1020,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA3-512, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -985,6 +1039,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-384, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -1003,6 +1058,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-384, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -1021,6 +1077,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-384, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -1039,6 +1096,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-384, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -1057,6 +1115,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-384, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -1075,6 +1134,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-384, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
     sourcedOnly:
@@ -1093,6 +1153,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-512/224, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -1111,6 +1172,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-512/256, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -1129,6 +1191,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-512, encoding: DER, scheme: DSA}
     sourcedOnly:
@@ -1147,6 +1210,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-512, encoding: P1363, scheme: DSA}
     sourcedOnly:
@@ -1165,6 +1229,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-512, encoding: DER, scheme: ECDSA}
     sourcedOnly:
@@ -1183,6 +1248,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: BY KEY, digest: SHA-512, encoding: P1363, scheme: ECDSA}
     sourcedOnly:
@@ -1201,6 +1267,7 @@ algorithms:
       deterministic: {value: true, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-512, encoding: PKCS1, scheme: RSA}
     sourcedOnly:
@@ -1219,6 +1286,7 @@ algorithms:
       deterministic: {value: false, source: inferred}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {digest: SHA-512, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
     sourcedOnly:
@@ -1238,6 +1306,7 @@ algorithms:
       deterministic: {value: false, source: FIPS205}
       authenticated: {value: true, source: inferred}
     contract:
+      key: app
       input: {prehashed: 'FALSE'}
       output: {curve: SHA2-128S, scheme: SLH-DSA}
     sourcedOnly:
