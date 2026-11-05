@@ -7,7 +7,7 @@ from perfrepair.ai.runtime.gateway.args import add_agent_args
 from perfrepair.ai.runtime.gateway.claude import ClaudeSettings
 from perfrepair.config import load as load_module
 from perfrepair.ai.__main__ import main as ai_main
-from perfrepair.config.args import fill, load_settings
+from perfrepair.config.args import fill, load_settings, positive_int
 from perfrepair.config.load import config_file, load
 from perfrepair.config.settings import ConfigError
 from perfrepair.grouping.__main__ import main as grouping_main
@@ -142,4 +142,4 @@ def test_a_count_flag_takes_only_a_positive_integer(command, flag, value):
     main, arguments = command
     with pytest.raises(SystemExit) as e:
         main([*arguments, f"{flag}={value}"])
-    assert e.value.code == 2
+    assert e.value.code == 2 and positive_int("3") == 3

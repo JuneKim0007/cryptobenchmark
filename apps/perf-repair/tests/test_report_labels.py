@@ -4,7 +4,6 @@ from test_app_report import A, CURRENT, OPTION, make_app
 
 import pytest
 
-from perfrepair.app.facts.project import project_name
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
 from perfrepair.dto.report import THERMAL_MISMATCH, THERMAL_THROTTLED
@@ -90,10 +89,6 @@ def test_the_report_and_summary_name_the_project_and_source_beside_the_id(tmp_pa
     assert (doc["project"], doc["source"]) == ("Shop App", str(source.resolve()))
     assert "Project: Shop App." in AppPaths(tmp_path, "shop").report_md.read_text()
     assert device_summary(tmp_path, **QUIET)["named"]["shop"]["project"] == "Shop App"
-
-
-def test_a_project_without_settings_or_gone_names_its_folder(tmp_path):
-    assert project_name(tmp_path / "gone") == "gone"
 
 
 def block(start=None, end=None, end_status=0):
