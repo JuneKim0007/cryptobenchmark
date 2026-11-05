@@ -33,7 +33,7 @@ Paths relative to the device folder.
 | path | files | when |
 |---|---|---|
 | `manifest.yaml` | run index | every run |
-| `discovery/` | `probe_<stamp>.yaml`, `probe_classes_<stamp>.yaml`, `trial_<stamp>.yaml` | every run |
+| `discovery/` | `probe_<stamp>.yaml`, `trial_<stamp>.yaml` | every run |
 | `discovery/` | `facts.yaml`; the whole device plan directory | `--device` |
 | `discovery/` | `energy.yaml`, `energy-preflight/{rails.pbtx,idle.pftrace,busy.pftrace}` (rails), `energy-preflight/` power profile (manafa) | energy capture |
 | `configuration/` | `inventory.yaml`, `effective.yaml`, `report.yaml` | every run |

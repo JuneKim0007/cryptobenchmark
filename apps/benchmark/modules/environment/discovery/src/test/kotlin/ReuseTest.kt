@@ -5,7 +5,6 @@ import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -21,7 +20,6 @@ class ReuseTest {
 
     private fun written(capturedAtMillis: Long, runtime: RuntimeInfo = RUNTIME, withTrial: Boolean = true): File {
         val capture = CAPTURE.copy(runtime = runtime, capturedAtMillis = capturedAtMillis)
-        ProviderClassNameWriter(directory).write(capture)
         if (withTrial) TrialYamlWriter(directory).write(TrialReport(capturedAtMillis))
         return EnvironmentYamlWriter(directory).write(capture)
     }
@@ -32,7 +30,7 @@ class ReuseTest {
         written(FIRST)
         val reused = discovery.reusable(RUNTIME)!!
         assertEquals(RUNTIME, reused.capture.runtime)
-        listOf(reused.captureFile, reused.classesFile, reused.trialFile).forEach { assertEquals(true, it.isFile) }
+        listOf(reused.captureFile, reused.trialFile).forEach { assertEquals(true, it.isFile) }
         assertNull(discovery.reusable(RUNTIME.copy(model = "Pixel 10")))
         assertNull(discovery.reusable())
     }

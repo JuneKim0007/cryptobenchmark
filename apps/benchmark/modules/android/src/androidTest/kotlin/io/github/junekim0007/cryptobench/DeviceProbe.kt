@@ -32,7 +32,6 @@ class DeviceProbe {
         probe.capture.providers.forEach { println("provider=${it.precedence}:${it.name} origin=${it.origin.key} ${it.artifact}".trimEnd()) }
         println("services=" + probe.capture.providers.sumOf { it.services.size })
         println("wrote=" + probe.captureFile.path)
-        println("wrote=" + probe.classesFile.path)
         println("wrote=" + trialFile.path)
         assertTrue("no provider registered on this device", providers.isNotEmpty())
         assertTrue("capture was not written: " + probe.captureFile.path, probe.captureFile.isFile)

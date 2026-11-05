@@ -7,11 +7,11 @@ File fields: [security_contract.md](security_contract.md). File map: [index.md](
 ## Flow
 
 ```
-Discovery(directory).probe(providers)          -> DiscoveryRun: capture, probe_<utc>.yaml, probe_classes_<utc>.yaml
+Discovery(directory).probe(providers)          -> DiscoveryRun: capture, probe_<utc>.yaml
 Discovery(directory).trial(capture, providers) -> trial_<utc>.yaml
 Discovery(directory).reusable(runtime)         -> ReusedRun or null
 
-Provider[] -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter, ProviderClassNameWriter
+Provider[] -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter
 CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYamlWriter
 ```
 
@@ -102,7 +102,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 
 | rule | value |
 |---|---|
-| names | `probe_<utc>.yaml`, `probe_classes_<utc>.yaml`, `trial_<utc>.yaml` |
+| names | `probe_<utc>.yaml`, `trial_<utc>.yaml` |
 | stamp | `yyyyMMdd'T'HHmmss'Z'`, UTC, from `capturedAtMillis` |
 | create | `ProbeDirectory.create` makes the directory and writes `CREATE_NEW` |
 | existing name | `FileAlreadyExistsException`: `probe_exists: a capture is never overwritten; probe again after a second, or remove the file` |
@@ -115,7 +115,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 |---|
 | newest `probe_<stamp>.yaml` parses |
 | its `runtime` equals the given runtime |
-| sibling `probe_classes_` and `trial_` files exist |
+| sibling `trial_` file exists |
 | the trial parses and its `capturedAtMillis` equals the capture's |
 
 ## Limits
@@ -136,6 +136,6 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 
 | test | asserts |
 |---|---|
-| `JcaContractTest` | precedence `1..n`; Cipher AES, MessageDigest SHA-256, Mac HmacSHA256, Signature SHA256withRSA, KeyPairGenerator RSA resolve; SunJCE AES instantiates; `AES/CBC/PKCS5Padding` tried; some declared transformation fails; the facade writes the three files |
+| `JcaContractTest` | precedence `1..n`; Cipher AES, MessageDigest SHA-256, Mac HmacSHA256, Signature SHA256withRSA, KeyPairGenerator RSA resolve; SunJCE AES instantiates; `AES/CBC/PKCS5Padding` tried; some declared transformation fails; the facade writes the files |
 
 `apps/benchmark/cli` compiles the discovery, settings, config, preparation and benchmark sources and runs the discovery, config and its own tests except `*ExampleFilesTest`. The `jca contract` workflow runs it on push and PR to those paths, weekly (`0 6 * * 1`), on Java 17, 21 and 25.

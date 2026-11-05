@@ -58,7 +58,6 @@ object DevicePlan {
     private fun energyCapability(): EnergyCapability? =
         File(directory, EnergyCapability.FILE).takeIf { it.isFile }?.let { EnergyCapability.parse(it.readText()) }
 
-    // Discovery's rule, not a plain prefix match: "probe_" would pick probe_classes_* ('c' sorts above a digit).
     private fun newest(prefix: String): File =
         ProbeDirectory(directory).newest(prefix)
             ?: throw IllegalStateException("missing_file: ${directory.absolutePath}/${prefix}_<stamp>.yaml")

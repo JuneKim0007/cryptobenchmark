@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -37,15 +36,11 @@ class JcaContractTest {
 
     /** Written out so a workflow can attach them and drift can be diffed instead of guessed. */
     @Test
-    fun theFacadeWritesTheCaptureTheClassListAndTheTrial() {
+    fun theFacadeWritesTheCaptureAndTheTrial() {
         val discovery = Discovery(DIRECTORY)
         val run = discovery.probe(Security.getProviders())
         assertTrue("capture not written", run.captureFile.length() > 0 && run.captureFile.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
-        assertTrue("class list not written", run.classesFile.length() > 0 && run.classesFile.name.matches(Regex("probe_classes_\\d{8}T\\d{6}Z\\.yaml")))
         assertTrue("the capture written differs from the capture returned", run.capture == CAPTURE.copy(capturedAtMillis = run.capture.capturedAtMillis))
-        ProviderClassNameWriter(DIRECTORY).toDocument(CAPTURE).forEach { (provider, names) ->
-            assertTrue("$provider lists a class twice or out of order", names == names.distinct().sorted())
-        }
         val trial = discovery.trial(run.capture, Security.getProviders())
         assertTrue("unexpected name ${trial.name}", trial.name.matches(Regex("trial_\\d{8}T\\d{6}Z\\.yaml")))
     }

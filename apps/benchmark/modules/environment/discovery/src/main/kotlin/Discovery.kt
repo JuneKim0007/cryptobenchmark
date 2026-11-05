@@ -10,7 +10,6 @@ import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
@@ -27,8 +26,6 @@ class Discovery(
 
     private val captureWriter = EnvironmentYamlWriter(directory, codec)
 
-    private val classNameWriter = ProviderClassNameWriter(directory, codec)
-
     private val trialWriter = TrialYamlWriter(directory, codec)
 
     fun probe(
@@ -41,7 +38,6 @@ class Discovery(
         return DiscoveryRun(
             capture = capture,
             captureFile = captureWriter.write(capture),
-            classesFile = classNameWriter.write(capture),
         )
     }
 
@@ -51,13 +47,12 @@ class Discovery(
         if (capture.runtime != runtime) {
             return null
         }
-        val classesFile = directory.named("probe_classes", captureFile)
         val trialFile = directory.named("trial", captureFile)
-        if (!classesFile.isFile || !trialFile.isFile) {
+        if (!trialFile.isFile) {
             return null
         }
         val trial = runCatching { TrialDocument.parse(codec.load(trialFile.readText())) }.getOrNull() ?: return null
-        return if (trial.capturedAtMillis == capture.capturedAtMillis) ReusedRun(capture, captureFile, classesFile, trialFile) else null
+        return if (trial.capturedAtMillis == capture.capturedAtMillis) ReusedRun(capture, captureFile, trialFile) else null
     }
 
     fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): File =

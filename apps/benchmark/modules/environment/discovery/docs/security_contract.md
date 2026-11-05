@@ -77,10 +77,6 @@ Every runtime field is required on read.
 | `MechanismType` | string | as declared |
 | any other | string | vendor attribute, raw |
 
-## probe_classes
-
-Provider name to its sorted, distinct, non-blank implementing class names.
-
 ## trial
 
 | field | type | description |

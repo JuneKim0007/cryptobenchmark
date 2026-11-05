@@ -6,6 +6,5 @@ import java.io.File
 data class ReusedRun(
     val capture: CapturedEnvironment,
     val captureFile: File,
-    val classesFile: File,
     val trialFile: File,
 )

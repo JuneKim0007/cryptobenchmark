@@ -6,12 +6,12 @@ apps/benchmark/modules/environment/discovery/README.md : module summary and link
 apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3; passes examples.update to tests
 apps/benchmark/modules/environment/discovery/docs/index.md : this map
 apps/benchmark/modules/environment/discovery/docs/probe.md : probe, trial and reuse behaviour
-apps/benchmark/modules/environment/discovery/docs/security_contract.md : fields of probe_, probe_classes_ and trial_ files
+apps/benchmark/modules/environment/discovery/docs/security_contract.md : fields of probe_ and trial_ files
 apps/benchmark/modules/environment/discovery/example/discovery_capture_example.yaml : sample probe_<utc>.yaml (SUN, SunJCE)
 apps/benchmark/modules/environment/discovery/example/discovery_trial_example.yaml : sample trial_<utc>.yaml for the same capture
 apps/benchmark/modules/environment/discovery/src/main/kotlin/Discovery.kt : facade: probe, reusable, trial over one ProbeDirectory
-apps/benchmark/modules/environment/discovery/src/main/kotlin/DiscoveryRun.kt : probe result: capture, capture file, classes file
-apps/benchmark/modules/environment/discovery/src/main/kotlin/ReusedRun.kt : reusable result: capture and its three files
+apps/benchmark/modules/environment/discovery/src/main/kotlin/DiscoveryRun.kt : probe result: capture, capture file
+apps/benchmark/modules/environment/discovery/src/main/kotlin/ReusedRun.kt : reusable result: capture and its files
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/AttributeKind.kt : attribute name to LIST, INT, BOOL or STRING
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/AttributeValueParser.kt : attribute value to its kind
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/DeclaredAlias.kt : one Alg.Alias declaration and its target
@@ -51,7 +51,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/write/DocumentField
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/EnvironmentYamlWriter.kt : writes probe_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProbeDirectory.kt : output directory: create-new, newest, sibling lookup
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProbeFileName.kt : <prefix>_<yyyyMMddTHHmmssZ>.yaml naming
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProviderClassNameWriter.kt : writes probe_classes_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialDocument.kt : trial YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialYamlWriter.kt : writes trial_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/YamlCodec.kt : snakeyaml dump and load, block style, indent 2

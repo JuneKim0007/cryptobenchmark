@@ -10,7 +10,6 @@ from stages import discover  # noqa: E402
 def write(directory, stamp, trial=True):
     directory.mkdir(parents=True, exist_ok=True)
     (directory / f"probe_{stamp}.yaml").write_text("x")
-    (directory / f"probe_classes_{stamp}.yaml").write_text("x")
     if trial:
         (directory / f"trial_{stamp}.yaml").write_text("x")
 
@@ -38,8 +37,7 @@ def test_a_probe_that_added_no_capture_stops(tmp_path):
 def test_the_host_capture_is_the_one_probekt_printed(tmp_path):
     write(tmp_path, "20270101T000000Z")
     write(tmp_path, "20260301T000000Z")
-    lines = [str(tmp_path / "probe_20260301T000000Z.yaml"), str(tmp_path / "probe_classes_20260301T000000Z.yaml"),
-             str(tmp_path / "trial_20260301T000000Z.yaml"), "/c/inventory.yaml"]
+    lines = [str(tmp_path / "probe_20260301T000000Z.yaml"), str(tmp_path / "trial_20260301T000000Z.yaml"), "/c/inventory.yaml"]
     assert capture_files.printed(lines, tmp_path)[0].name == "probe_20260301T000000Z.yaml"
 
 

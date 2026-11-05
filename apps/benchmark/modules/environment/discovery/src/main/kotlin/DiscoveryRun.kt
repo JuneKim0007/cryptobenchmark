@@ -6,5 +6,4 @@ import java.io.File
 data class DiscoveryRun(
     val capture: CapturedEnvironment,
     val captureFile: File,
-    val classesFile: File,
 )

@@ -30,23 +30,19 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
     val discovery = Discovery(ProbeDirectory(discoveryDirectory))
     val reused = if (reuse) discovery.reusable() else null
     val captureFile: File
-    val classesFile: File
     val trialFile: File
     if (reused != null) {
         captureFile = reused.captureFile
-        classesFile = reused.classesFile
         trialFile = reused.trialFile
         System.err.println("reused: ${reused.captureFile.name}")
     } else {
         val probe = discovery.probe(Security.getProviders())
         captureFile = probe.captureFile
-        classesFile = probe.classesFile
         trialFile = discovery.trial(probe.capture, Security.getProviders())
     }
     val configuration = Configuration(configurationDirectory)
     val inventoryFile = configuration.inventory(captureFile, trialFile)
     println(captureFile)
-    println(classesFile)
     println(trialFile)
     println(inventoryFile)
     if (globalFile == null) {
