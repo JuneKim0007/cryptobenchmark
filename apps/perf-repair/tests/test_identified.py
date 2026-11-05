@@ -1,5 +1,6 @@
 """The one identified test's alias policy: a device alias the catalog names otherwise is reported and never followed."""
 import pytest
+
 from perfrepair.catalog.names import Names, NamesError
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.probe.identified import alias_conflicts

@@ -111,17 +111,17 @@ def _strength_problems(raw, source: str, key_strength: dict) -> list[str]:
 def _type_fact_problems(entry: Entry) -> list[str]:
     """The type facts come whole or not at all: key, parameters, nonce, output, determinism, authentication, strength, minSdk."""
     raw, conditions = entry.raw, entry.raw["conditions"]
-    present = {"key": "key" in raw, PARAMETERS: entry.required(PARAMETERS) is not None, NONCE: entry.required(NONCE) is not None,
-               OUTPUT: OUTPUT in conditions, DETERMINISTIC: DETERMINISTIC in conditions, AUTHENTICATED: AUTHENTICATED in conditions,
+    parameters, nonce = entry.required(PARAMETERS), entry.required(NONCE)
+    present = {"key": "key" in raw, PARAMETERS: parameters is not None, NONCE: nonce is not None,
+               **{k: k in conditions for k in (OUTPUT, DETERMINISTIC, AUTHENTICATED)},
                STRENGTH: entry.sourced(STRENGTH) is not None, MIN_SDK: entry.sourced(MIN_SDK) is not None}
     if not any(present.values()):
         return []
     if not all(present.values()):
         return [f"type facts missing {sorted(k for k, v in present.items() if not v)}"]
     found = [f"key type {raw['key'].get('type')!r} is not a string"] * (not isinstance(raw["key"].get("type"), str))
-    found += [f"parameters {entry.required(PARAMETERS).get('value')!r} is not a string"] \
-        * (not isinstance(entry.required(PARAMETERS).get("value"), str))
-    found += [f"nonce {entry.required(NONCE).get('value')!r} is not one of {NONCES}"] * (entry.required(NONCE).get("value") not in NONCES)
+    found += [f"parameters {parameters.get('value')!r} is not a string"] * (not isinstance(parameters.get("value"), str))
+    found += [f"nonce {nonce.get('value')!r} is not one of {NONCES}"] * (nonce.get("value") not in NONCES)
     output = conditions[OUTPUT]
     found += [f"output kind {output.get('kind')!r} is not one of {OUTPUT_KINDS}"] * (output.get("kind") not in OUTPUT_KINDS)
     found += [f"output bytes {output.get('bytes')!r} is neither a positive integer nor null"] * _not_positive(output.get("bytes"))
