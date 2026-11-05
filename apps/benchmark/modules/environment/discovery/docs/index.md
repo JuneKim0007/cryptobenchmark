@@ -41,8 +41,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceTri
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TransformationTrialEntry.kt : trial result for one cipher transformation
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialOutcome.kt : instantiation success or error
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 3
-apps/benchmark/modules/environment/discovery/src/main/kotlin/query/ServiceIndex.kt : one provider's services by name or alias
-apps/benchmark/modules/environment/discovery/src/main/kotlin/query/TransformationFailure.kt : one failed transformation row
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/Attempt.kt : runs a block, maps Exception or LinkageError to TrialOutcome
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : bare algorithm plus every declared mode x padding
