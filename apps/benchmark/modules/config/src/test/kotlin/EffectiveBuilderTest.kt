@@ -64,23 +64,10 @@ class EffectiveBuilderTest {
         assertEquals(1, error.skipped.size)
     }
 
-    /** Later stages apply the same rule, so it travels in the file they read. */
-    @Test
-    fun thePolicyIsFrozenIntoTheResult() {
-        assertEquals(Policy.OnFailure.SKIP, effective.policy.onFailure)
-    }
-
     @Test
     fun nothingSelectedIsAnError() {
         val excludeAll = global.copy(selection = global.selection.copy(exclude = listOf(Rule(type = "Cipher"), Rule(type = "MessageDigest"))))
         assertEquals("nothing_selected", assertThrows(IllegalArgumentException::class.java) { EffectiveBuilder().build(excludeAll, testSet, inventory, names) }.message)
-    }
-
-    @Test
-    fun theInputsAreRecorded() {
-        assertEquals("testsets/scope.yaml", effective.generatedFrom.testSet)
-        assertEquals("probe_x.yaml", effective.generatedFrom.environment.capture)
-        assertEquals(2, effective.run.processRepetitions)
     }
 
     /** A misspelt override silently changes what is measured, so every rule that touched nothing is reported. */

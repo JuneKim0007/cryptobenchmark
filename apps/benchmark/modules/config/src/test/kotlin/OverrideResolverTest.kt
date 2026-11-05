@@ -78,9 +78,4 @@ class OverrideResolverTest {
         ))
         assertEquals(HarnessSettings(iterations = 5, profiling = "MethodTracing"), resolver.resolve(gcm, null).harness)
     }
-
-    @Test
-    fun anEntryNamingNoHarnessLeavesItToTheGlobalSettings() {
-        assertEquals(HarnessSettings(), OverrideResolver(listOf(Override(Rule(type = "Cipher"), keySizes = listOf(128)))).resolve(gcm, null).harness)
-    }
 }

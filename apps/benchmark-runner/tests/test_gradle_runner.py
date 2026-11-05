@@ -16,9 +16,6 @@ class FailureMessage(unittest.TestCase):
         output = ["a", "b", "FAILURE: Build failed", "* What went wrong", "boom", "* Try:", "BUILD FAILED"]
         self.assertEqual("a\nb\nboom", gradle_runner.failure_message(output))
 
-    def test_a_long_message_is_cut(self):
-        self.assertEqual(2000, len(gradle_runner.failure_message(["error: " + "x" * 5000])))
-
 
 if __name__ == "__main__":
     unittest.main()

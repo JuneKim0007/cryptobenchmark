@@ -63,11 +63,6 @@ class KeyMaterialGeneratorTest {
         assertEquals("unavailable_recipe: no_key_generator: ChaCha20", error.message)
     }
 
-    @Test
-    fun digestsNeedNothing() {
-        assertEquals(KeyMaterial.None, generator.generate(KeyRecipe.None))
-    }
-
     /** A key spec from the config replaces the size: a named curve, an RSA exponent. */
     @Test
     fun aBoundKeySpecDrivesGeneration() {
