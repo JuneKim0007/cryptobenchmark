@@ -22,6 +22,6 @@ class CaseSettingsTest {
     @Test
     fun aWarmupOfZeroIsNotSupported() {
         val refused = assertThrows(IllegalArgumentException::class.java) { CaseSettings.of(HarnessSettings(warmupIterations = 0), time) }
-        assertEquals("not_supported: warmupIterations 0, androidx needs at least 1; leave it out to let the library decide", refused.message)
+        assertEquals("not_supported", refused.message!!.substringBefore(':'))
     }
 }

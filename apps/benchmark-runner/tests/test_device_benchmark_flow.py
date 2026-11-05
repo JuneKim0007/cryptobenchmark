@@ -6,7 +6,6 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device.adb import DeviceError  # noqa: E402
 from session import cooldown_hook  # noqa: E402
 from stages import benchmark  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402

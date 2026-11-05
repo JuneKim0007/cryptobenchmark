@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

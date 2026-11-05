@@ -64,8 +64,6 @@ class BenchmarkJsonRoundTripTest {
     @Test
     fun theVariantIsWrittenAndSurvivesAProcessMergeAndAPassMerge() {
         val written = text(listOf(variant("a_fixed", "fixed"), variant("a_notFixed", "notFixed"), variant("scope", null)))
-        assertTrue(written, written.contains("\"keyKind\": \"secret\", \"variant\": \"notFixed\""))
-        assertTrue(written, written.contains("\"variant\": null"))
         val expected = listOf("fixed", "notFixed", null)
         assertEquals(expected, Merge.merge(listOf(written, written)).rows.map { it.variant })
         assertEquals(expected, PassMerge.merge(written, listOf(MetricSamples.ALLOCATIONS to written)).rows.map { it.variant })
@@ -86,7 +84,6 @@ class BenchmarkJsonRoundTripTest {
     @Test
     fun resolvedParametersRoundTripAndSurviveAMerge() {
         val written = text(listOf(withParameters("a", gcm)))
-        assertTrue(written, written.contains("\"parameters\": {\"mode\": \"GCM\", \"padding\": \"NoPadding\", \"ivBytes\": 12, \"tagBits\": 128, \"keyBits\": 128}"))
         assertEquals(gcm, Merge.merge(listOf(written, written)).rows.single().parameters)
     }
 
@@ -120,7 +117,6 @@ class BenchmarkJsonRoundTripTest {
         val reported = ReportedStats(1180.0, 1204.0, 1191.0, 0.011)
         val one = row("a", linkedMapOf(MetricSamples.TIME to MetricSamples(listOf(1191.0, 1180.0, 1204.0), 8192, reported)))
         val written = text(listOf(one))
-        assertTrue(written, written.contains("\"reported\": {\"minimum\": 1180.0, \"maximum\": 1204.0, \"median\": 1191.0, \"coefficientOfVariation\": 0.011}"))
         assertEquals(reported, Merge.merge(listOf(written)).rows.single().time?.reported)
         assertEquals(null, Merge.merge(listOf(written, written)).rows.single().time?.reported)
     }

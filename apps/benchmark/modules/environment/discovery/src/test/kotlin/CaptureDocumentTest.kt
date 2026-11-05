@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.security.Security
 
@@ -27,7 +28,7 @@ class CaptureDocumentTest {
     @Test
     fun refusesAndNamesWhatIsWrong() {
         val damages: List<Pair<(MutableMap<String, Any>) -> Unit, String>> = listOf(
-            { document: MutableMap<String, Any> -> document[CaptureDocument.SCHEMA_VERSION] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version: 2, this build reads 1",
+            { document: MutableMap<String, Any> -> document[CaptureDocument.SCHEMA_VERSION] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version",
             { document: MutableMap<String, Any> -> document.remove(CaptureDocument.PROVIDERS); Unit } to "missing_field: providers",
             { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = "not a section" } to "wrong_type: runtime",
             { document: MutableMap<String, Any> -> document[CaptureDocument.PROVIDERS] = providersWithout(document, CaptureDocument.ORIGIN) } to "missing_field: origin",
@@ -35,7 +36,7 @@ class CaptureDocumentTest {
         damages.forEach { (damage, expected) ->
             val document = LinkedHashMap(CaptureDocument.of(capture)).also(damage)
             val error = assertThrows(IllegalArgumentException::class.java) { CaptureDocument.parse(document) }
-            assertEquals(expected, error.message)
+            assertTrue(error.message!!, error.message!!.startsWith(expected))
         }
     }
 

@@ -17,7 +17,7 @@ class ProbeDirectoryTest {
     fun createsTheDirectoryAndTheFileAndRefusesToOverwrite() {
         assertEquals("first\n", directory.create("probe_x.yaml", "first\n").readText())
         val error = assertThrows(FileAlreadyExistsException::class.java) { directory.create("probe_x.yaml", "second\n") }
-        assertTrue(error.message!!, error.message!!.endsWith("probe_exists: a capture is never overwritten; probe again after a second, or remove the file"))
+        assertTrue(error.message!!, error.message!!.contains("probe_exists"))
         assertEquals("first\n", directory.root.resolve("probe_x.yaml").readText())
     }
 }

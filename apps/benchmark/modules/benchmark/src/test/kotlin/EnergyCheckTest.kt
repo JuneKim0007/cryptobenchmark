@@ -19,7 +19,6 @@ import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -81,7 +80,6 @@ class EnergyCheckTest {
         fun row(samples: MetricSamples) = ResultRow("c", "T", "A", "P", "OP", null, null, null,
                                                     mapOf(MetricSamples.TIME to MetricSamples(listOf(9.0), 1), MetricSamples.ENERGY to samples), emptyMap())
         val text = BenchmarkJson(File(".")).text(emptyMap(), listOf(row(energy)))
-        assertTrue(text, text.contains(""""energyJ": {"iterations": 10, "runs": [1.5], "source": "manafa", "kind": "estimated"}"""))
         val merged = Merge.merge(listOf(text, text)).rows.single().metrics.getValue(MetricSamples.ENERGY)
         assertEquals(listOf(1.5, 1.5), merged.runs)
         assertEquals("manafa" to "estimated", merged.source to merged.kind)

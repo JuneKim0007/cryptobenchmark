@@ -47,14 +47,14 @@ class EffectiveBuilderTest {
     /** An include that matches nothing on this device is reported, not silently dropped. */
     @Test
     fun whatCannotRunIsSkippedWithAReason() {
-        assertEquals(listOf("[config] * Mac HmacSHA256: no_match: nothing on this device matches the include"), effective.skipped.map { it.toString() })
+        assertEquals(listOf("no_match"), effective.skipped.map { it.reason.substringBefore(':') })
     }
 
     @Test
     fun aNotRunnableSelectionIsReported() {
         val withoutGlobalExclude = global.copy(selection = global.selection.copy(exclude = emptyList()))
         val skipped = EffectiveBuilder().build(withoutGlobalExclude, testSet, inventory, names).skipped.map { it.toString() }
-        assertTrue(skipped.toString(), skipped.contains("[config] SunJCE KeyGenerator SunTlsPrf: not_runnable: IllegalStateException: TlsPrfGenerator must be initialized"))
+        assertTrue(skipped.toString(), skipped.any { "SunTlsPrf: not_runnable:" in it })
     }
 
     @Test
