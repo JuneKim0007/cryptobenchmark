@@ -62,8 +62,8 @@ class LabelKind:
     def validate(self, state, records):
         return [] if project(self, records) == state else ["state differs from the replay"]
 
-    def write(self, state, records):
-        pass
+    def documents(self, state, records):
+        return {}
 
 
 CHARTER = label_charter({"type": "object"})

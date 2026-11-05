@@ -42,6 +42,8 @@ PIPELINE_LOGS = "log/pipeline"
 AI_SCREENING_LOG, AI_CLASSIFY_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/classify.log", "log/ai/grouping.log"
 AI_SUPERVISOR_LOG, AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/supervisor.log", "log/ai/worthiness.log", "log/ai/replace.log"
 CHARTER = "charter.json"
+ROLE_WRITES = "writes.json"
+JOURNAL = "journal.jsonl"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
@@ -106,7 +108,7 @@ class GroupingPaths:
     screen = property(lambda self: self.root / "screen.json")
     cursor = property(lambda self: self.root / "cursor.json")
     knowledge = property(lambda self: self.root / "knowledge.json")
-    journal = property(lambda self: self.root / "journal.jsonl")
+    journal = property(lambda self: self.root / JOURNAL)
     errors = property(lambda self: self.root / "errors.jsonl")
     checks = property(lambda self: self.root / "checks.json")
     supervisor = property(lambda self: self.root / "supervisor.json")
@@ -141,6 +143,10 @@ def review_score(device: Path) -> Path:
 
 def review_stability(device: Path) -> Path:
     return Path(device) / REVIEW / "stability.json"
+
+
+def review_stability_folder(device: Path) -> Path:
+    return Path(device) / REVIEW / "stability"
 
 
 WORTHINESS_PREFIX = "worthiness-"

@@ -1,0 +1,22 @@
+SITE A.java:2 | call MessageDigest.getInstance | function f
+  engine type MessageDigest | key size unknown | input size 64
+
+SCOPE FACTS
+  sinks: return
+  reach: return
+
+CURRENT MessageDigest|MD5|P1 | screening: r
+
+OPTIONS (best measured performance first)
+  R1 = MessageDigest|SHA-224|P1 | name SHA-224 | provider P1
+    change: local-edit | input same | key same | output bytes
+    measured medians at this site: timeNs 50
+    label: improves | ratio to the current: timeNs 0.500 at OP1 key None input 64 WARM
+  R2 = MessageDigest|SHA-512|P1 | name SHA-512 | provider P1
+    change: local-edit | input same | key same | output bytes
+    measured medians at this site: timeNs 200
+    label: worse | ratio to the current: timeNs 2.000 at OP1 key None input 64 WARM
+  R3 = MessageDigest|SHA-256|P1 | name SHA-256 | provider P1
+    change: local-edit | input same | key same | output bytes
+    measured medians at this site: timeNs 300
+    label: worse | ratio to the current: timeNs 3.000 at OP1 key None input 64 WARM

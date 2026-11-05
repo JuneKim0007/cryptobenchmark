@@ -10,7 +10,7 @@ from ....dto.dossier import NO_SECURE_OPTION, PERSON_JUDGES, reason_code
 from ....dto.perf_mode import GENERIC_MODE
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.upgrade import FALLBACK_SOURCE, LIST_SOURCE, MODEL_SOURCE, NEEDS_MIGRATION, NO_SECURE, NOT_REACHED, STATIC_SOURCE, Upgrade, UpgradeItem
-from ....files import json_text, sha256_text, write_json
+from ....files import json_text, sha256_text
 from ....result.upgrades import settled
 from ....validation.dossiers.document import perf_of
 from ....validation.dossiers.dossier import check_dossier
@@ -103,5 +103,5 @@ class UpgradeKind:
     def validate(self, state: UpgradeState, records: list[OutboxRecord]) -> list[str]:
         return validate_upgrades(list(state.rows.values()), self.by_key) + replay_problems(self, state, records)
 
-    def write(self, state: UpgradeState, records: list[OutboxRecord]) -> None:
-        write_json(self.directory / rd.UPGRADES, state.to_json())
+    def documents(self, state: UpgradeState, records: list[OutboxRecord]) -> dict:
+        return {self.directory / rd.UPGRADES: state.to_json()}

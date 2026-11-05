@@ -6,6 +6,7 @@ from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
 from ...runtime.engine.events import Where
+from ...runtime.engine.tracking import role_run
 from ...runtime.prompt import PromptLibrary
 from .kind import GroupingReviewKind
 
@@ -14,6 +15,7 @@ DRY_RUN = ScriptedConversations(lambda *_: {"findings": []})
 
 def review(paths: GroupingPaths, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
            echo=print) -> dict:
-    kind = GroupingReviewKind(paths, library)
-    return kind.document(decide(kind, kind.charter, conversations, paths.review, limits, echo=echo,
-                                where=Where("grouping", "review")))
+    with role_run("grouping.supervisor", paths.root.parent):
+        kind = GroupingReviewKind(paths, library)
+        return kind.document(decide(kind, kind.charter, conversations, paths.review, limits, echo=echo,
+                                    where=Where("grouping", "review")))

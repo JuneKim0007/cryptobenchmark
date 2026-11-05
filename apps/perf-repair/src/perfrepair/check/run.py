@@ -14,7 +14,8 @@ from ..validation.grouping.interop import validate_interop
 from ..validation.report import validate_report
 from ..validation.summary import validate_summary
 from ..validation.rows import validate_rows
-from .apps import check_dossiers, check_repair
+from .apps import check_dossiers, check_repair, check_stability
+from .contracts import check_contracts
 from .device import (check_beside_rows, check_charters, check_details, check_events, check_manifest, check_primitives,
                      check_suggestions, check_used, parsed)
 from .grouping import check_grouping, check_screen, check_supervisor, check_worthiness
@@ -29,8 +30,8 @@ def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
         return {rd.ROWS: [rows]}
     out[rd.ROWS] = validate_rows(rows)
     out |= check_beside_rows(run, rows)
-    out |= check_manifest(run) | check_details(run) | check_repair(run)
-    out |= check_charters(run) | check_events(run) | check_suggestions(run)
+    out |= check_manifest(run) | check_details(run) | check_repair(run) | check_stability(run)
+    out |= check_charters(run) | check_contracts(run) | check_events(run) | check_suggestions(run)
     reports = []
     for directory in rd.app_dirs(run):
         out |= validate_app_dir(directory)

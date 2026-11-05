@@ -18,6 +18,7 @@ from ...runtime.engine.decide import decide
 from ...runtime.engine.events import Where
 from ...runtime.engine.kind import project
 from ...runtime.engine.outbox import active_outbox, carry
+from ...runtime.engine.tracking import role_run
 from ...runtime.engine.refresh import kept_inputs, refresh_inputs
 from ...runtime.prompt import PromptLibrary
 from .kind import SiteReplaceKind, charter
@@ -58,20 +59,27 @@ def _refreshed(kind: SiteReplaceKind, root: Path, library: PromptLibrary, echo) 
     return inputs
 
 
+def site_kind(run_path: Path, app: str) -> SiteReplaceKind:
+    """The kind over an app's dossiers and the device's table, units and warnings: what any replace message is made from."""
+    paths = rd.AppPaths(run_path, app)
+    table = read_primitives(run_path) if (Path(run_path) / rd.PRIMITIVES).is_file() else None
+    # a folder before measurements.json has no run warnings to show
+    warnings = tuple(rd.load_measurements(run_path).comparability) if (Path(run_path) / rd.MEASUREMENTS).is_file() else ()
+    return SiteReplaceKind(app, rd.read_dossiers(paths.dossiers), paths.root, table, display_units(run_path), warnings)
+
+
 def replace(run_path: Path, app: str, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
             limit: int | None = None, echo=print, refresh: bool = False) -> Replacements:
     """refresh: the scopes whose dossier changed since their decision are asked again; by default they stay, flagged stale."""
     paths = rd.AppPaths(run_path, app)
-    table = read_primitives(run_path) if (Path(run_path) / rd.PRIMITIVES).is_file() else None
-    if table is None:
-        emit("replace", "site-replace", LOG, app=app, detail=f"no {rd.PRIMITIVES}: the members show their estimates only")
-    # a folder before measurements.json has no run warnings to show
-    warnings = tuple(rd.load_measurements(run_path).comparability) if (Path(run_path) / rd.MEASUREMENTS).is_file() else ()
-    kind = SiteReplaceKind(app, rd.read_dossiers(paths.dossiers), paths.root, table, display_units(run_path), warnings)
-    require(str(paths.dossiers), kind.problems)
-    inputs = _refreshed(kind, paths.replace, library, echo) if refresh else kept_inputs(paths.replace)
-    state = decide(kind, charter(library, inputs), conversations, paths.replace, limits, limit, echo,
-                   Where("replace", "site-replace", app))
+    with role_run("apps.replace", run_path, app=app):
+        kind = site_kind(run_path, app)
+        if kind.table is None:
+            emit("replace", "site-replace", LOG, app=app, detail=f"no {rd.PRIMITIVES}: the members show their estimates only")
+        require(str(paths.dossiers), kind.problems)
+        inputs = _refreshed(kind, paths.replace, library, echo) if refresh else kept_inputs(paths.replace)
+        state = decide(kind, charter(library, inputs), conversations, paths.replace, limits, limit, echo,
+                       Where("replace", "site-replace", app))
     for scope, r in state.replacements.items():
         if r.concerns:
             emit("replace", "site-replace", LOG, app=app, item=scope, detail="concerns: " + "; ".join(r.concerns))

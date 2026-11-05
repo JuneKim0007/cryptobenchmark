@@ -66,11 +66,11 @@
 | `apps-index.tsv` | the guide's summary step, `perfrepair.guide.index` | people: find an app, what is left on it; its `fixed`, `notFixed` and `unknown_default` scope counts | none: rebuilt whole from the app folders and `log/events.jsonl` |
 | `review/decisions.tsv` | the guide's summary step, `perfrepair.review` | people, `review score` | none: a verdict is `ok`, `wrong` or empty, checked by `score` |
 | `review/score.json` | `perfrepair.review score` | people | none |
-| `review/stability.json` | `perfrepair.review stability` | people | none |
+| `review/stability.json`, `review/stability/` | `perfrepair.review stability` | people | `check/apps.py`: the rebuild of its outbox |
 | test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 4 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process; 4 keys every metric by its benchmark.json name, `allocations` became `allocationCount`), `worthiness-<mode>/evidence.json` at 3 (2: a member's summary per metric, a pair's comparison per metric; 3: only the perfMode's metrics), `<app>/dossiers.json` at 7 and `report.json`, `summary.json` at 6 (`selected` per metric row; summary metrics are the selected ones; `maxChange`, `recommendations`, `rejected`).
-- A journal is append-only, one line per model turn with its `durationMs`, audit only; state is the projection of the outbox.
+- A journal is append-only, one line per model turn with its `durationMs`, `role` and `inputs` (`{file, digest}`), audit only; state is the projection of the outbox; `writes.json` beside it lists what the charter's runs wrote; `check/contracts.py` holds both to `catalog/role-contracts.yaml`.
 - `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path); an outbox from before it gets it on its next open.
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.
 - An older `measurements.json` is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).

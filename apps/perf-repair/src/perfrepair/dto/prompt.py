@@ -56,6 +56,8 @@ class Charter:
     inputs: str = ""
     # each prompt's file, `packaged` or the override path: recorded in charter.json, never hashed
     sources: tuple[tuple[str, str], ...] = field(default=(), compare=False)
+    # the tools the model is offered; none hashes as before tools existed
+    tools: tuple[str, ...] = ()
 
     @property
     def prompts(self) -> tuple[str, ...]:
@@ -69,5 +71,6 @@ class Charter:
     def fingerprint(self) -> str:
         parts = [self.system.text, json.dumps(self.schema, sort_keys=True), self.correction.text]
         # empty inputs hash as before, so a charter without them keeps its outbox
-        body = "\0".join(parts + [self.inputs] if self.inputs else parts)
+        parts += [self.inputs] if self.inputs else []
+        body = "\0".join(parts + [json.dumps(self.tools)] if self.tools else parts)
         return hashlib.sha256(body.encode()).hexdigest()[:12]

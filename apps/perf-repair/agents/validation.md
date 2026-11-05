@@ -9,6 +9,7 @@
 - gate: a stage calls `require` on its inputs and on its outputs; a failed gate stops the stage.
 - projection: a decision state must equal the projection of its outbox (each kind's `validate`); static verdicts must equal triage.
 - purity: validators read and compare; they never repair.
+- rebuild: a role's file equals the rebuild of its outbox byte for byte (`rebuild_problems`); no parallel validator, the replay holds it.
 - invariants: one `Violation` shape (`validation/finding.py`); blocking only where the artifact is wrong, undecided where the source does not tell, never a guess.
 
 ## Workflow
@@ -19,7 +20,8 @@
 ## File structure
 
 ```
-src/perfrepair/check/apps.py : each app's dossiers.json against its scopes.json, units.json, groups.json and the app's screen verdicts; replacements.json against its dossiers, edits.json against its scopes, harness.yaml against its edits
+src/perfrepair/check/apps.py : each app's dossiers.json against its scopes.json, units.json, groups.json and the app's screen verdicts; replacements.json against its dossiers and outbox, upgrades.json against its outbox, review/stability.json against its outbox, edits.json against its scopes, harness.yaml against its edits
+src/perfrepair/check/contracts.py : each role's folder against its row of catalog/role-contracts.yaml: prompt, schema, charter pin, tools; each call's inputs; each file written
 src/perfrepair/check/device.py : device-level files: manifest.yaml, primitives_missing.yaml and benchmark_coverage.yaml, measurements and run log beside rows (a malformed file is its problem), primitives.tsv against rows, measurements and screen.json, bundled-suggestions.yaml, used.json against items.json, each outbox's charter.json rehashed to its folder name, events.jsonl
 src/perfrepair/check/grouping.py : grouping files: the outbox and knowledge rebuilt by their kind, supervisor.json against the review outbox's replay and the current groups, screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed; each worthiness-<perfMode> folder under its own perfMode
 src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder, each by its validator

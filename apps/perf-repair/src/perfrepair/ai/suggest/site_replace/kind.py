@@ -12,7 +12,7 @@ from ....dto.primitives import PrimitivesTable
 from ....dto.replacement import Replacement
 from ....dto.unit import UnitDossiers
 from ....dto.units import DisplayUnits
-from ....files import json_text, sha256_text, write_json
+from ....files import json_text, sha256_text
 from ....validation.dossiers.dossier import check_dossier
 from ....validation.dossiers.parse import parse_dossiers
 from ....validation.dossiers.document import perf_of
@@ -119,5 +119,5 @@ class SiteReplaceKind:
                                                                 self.no_options, state.stale)
         return problems + consistent_units(state.replacements, self.units) + replay_problems(self, state, records)
 
-    def write(self, state: Replacements, records: list[OutboxRecord]) -> None:
-        write_json(self.directory / rd.REPLACEMENTS, state.to_json())
+    def documents(self, state: Replacements, records: list[OutboxRecord]) -> dict:
+        return {self.directory / rd.REPLACEMENTS: state.to_json()}

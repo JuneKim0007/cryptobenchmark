@@ -145,7 +145,7 @@ def test_the_command_writes_the_sheet_and_prints_the_score(device, capsys):
     assert json.loads(capsys.readouterr().out)["decisions"] == 3 and rd.review_sheet(device).is_file()
 
 
-def test_stability_asks_each_sampled_unit_k_times_and_commits_nothing(tmp_path):
+def test_stability_asks_each_sampled_unit_k_times_and_leaves_the_replace_decisions_alone(tmp_path):
     from helpers import LIBRARY
     from site_replace_data import APP, KEEP, doc, dossier
     from perfrepair.ai.runtime.agent import ScriptedConversations

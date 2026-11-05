@@ -78,5 +78,5 @@ src/perfrepair/review/__init__.py : docstring only
 src/perfrepair/review/__main__.py : command: `sheet|score <device>`, `stability <device> --sample N --asks K`
 src/perfrepair/review/score.py : the sheet's verdicts and the journals' turns → grouping precision, pick accuracy, stability across asks of one message, gate rejections per 100 calls; review/score.json
 src/perfrepair/review/sheet.py : one row per model decision from the active outboxes with its scope pattern and patternReason, code facts, pick, reason, empty verdict and note: review/decisions.tsv; a rebuild keeps what a person filled
-src/perfrepair/review/stability.py : N sampled replace units asked K times each, no commit → review/stability.json
+src/perfrepair/review/stability.py : StabilityKind: N sampled replace units asked K times each on the engine, on the message `ai replace` sends → review/stability.json, its outbox in review/stability
 ```

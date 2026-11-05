@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from .. import run_dir as rd
 from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.parse.algorithm_classify.kind import ClassifyKind
@@ -11,6 +13,7 @@ from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.review.grouping_review.kind import GroupingReviewKind
 from ..ai.review.grouping_review.state import Reviews
 from ..ai.runtime.engine import charter_file
+from ..ai.runtime.engine.kind import rebuild_problems
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..dto import Verdicts
 from ..dto.classify import read_batches
@@ -18,7 +21,7 @@ from ..dto.grouping import read_items
 from ..dto.grouping_state import Knowledge
 from ..dto.perf_mode import PerfMode
 from ..dto.screen import qualified_verdicts
-from ..files import read_json, read_yaml
+from ..files import read_json
 from ..result.evidence import build_evidence
 from ..result.modes import mode_of
 from ..run_dir import GroupingPaths
@@ -44,12 +47,13 @@ def check_worthiness(run: Path, name: str, groups: dict, rows, screen) -> list[s
         records = active_outbox(directory).records()
     except OutboxError as e:
         return [str(e)]
-    return kind.validate(saved, records)
+    return kind.validate(saved, records) + rebuild_problems(kind, records)
 
 
 def check_grouping(grouping: GroupingPaths) -> list[str]:
     try:
-        records = active_outbox(grouping.root).records()
+        outbox = active_outbox(grouping.root)
+        records = outbox.records()
     except OutboxError as e:
         return [str(e)]
     if not grouping.knowledge.exists():
@@ -62,7 +66,8 @@ def check_grouping(grouping: GroupingPaths) -> list[str]:
         kind = GroupingKind(grouping)
     except ValidationFailed as e:
         return e.problems
-    return kind.validate(saved, records)
+    # with nothing asked, `grouping report` alone writes knowledge.json: no outbox to rebuild from
+    return kind.validate(saved, records) + ([] if outbox.fingerprint is None else rebuild_problems(kind, records))
 
 
 def check_supervisor(grouping: GroupingPaths) -> dict[str, list[str]]:
@@ -74,7 +79,7 @@ def check_supervisor(grouping: GroupingPaths) -> dict[str, list[str]]:
         saved = read_json(grouping.supervisor)
         outbox = active_outbox(grouping.review)
         records = outbox.records()
-        kind = GroupingReviewKind(grouping)
+        kind = GroupingReviewKind(grouping, saved=saved)
         inputs = charter_file.inputs(outbox.directory / rd.CHARTER) if outbox.fingerprint else None
     except ValidationFailed as e:
         return {name: e.problems}
@@ -83,7 +88,8 @@ def check_supervisor(grouping: GroupingPaths) -> dict[str, list[str]]:
     problems = [] if saved.get("charter") == outbox.fingerprint else [
         f"supervisor.json names charter {saved.get('charter')}, the active review outbox is {outbox.fingerprint}"]
     problems += [] if inputs == kind.inputs else ["the groups changed since this review; rerun grouping report --supervisor"]
-    return {name: problems + kind.validate(Reviews(len(records), saved.get("families", {})), records)}
+    return {name: problems + kind.validate(Reviews(len(records), saved.get("families", {})), records)
+            + rebuild_problems(kind, records)}
 
 
 def check_screen(grouping: GroupingPaths, catalog: Catalog) -> dict[str, list[str]]:
@@ -105,13 +111,14 @@ def _classify(grouping: GroupingPaths) -> dict[str, list[str]]:
         outbox = active_outbox(grouping.classify)
         records = outbox.records()
         saved = Classified.from_json(read_json(grouping.classified))
-        proposals = read_yaml(grouping.registry_candidates)
+        proposals = grouping.registry_candidates.read_text()
     except (OSError, KeyError, TypeError, ValueError) as e:
         return {"grouping/classify": [f"does not read: {e}"]}
     problems = [] if outbox.fingerprint == review else [
         f"screen.json was reviewed under {review}, the active classify outbox is {outbox.fingerprint}"]
-    problems += ClassifyKind(batches, grouping).validate(saved, records)
+    kind = ClassifyKind(batches, grouping)
+    problems += kind.validate(saved, records) + rebuild_problems(kind, records)
     problems += validate_model_verdicts(rd.load_screen(grouping), saved.answers, review)
-    if proposals != candidates(saved, batches, review):
+    if proposals != yaml.safe_dump(candidates(saved, batches, review), sort_keys=False):
         problems.append(f"{grouping.registry_candidates.name} differs from the accepted answers")
     return {"grouping/classify": problems}

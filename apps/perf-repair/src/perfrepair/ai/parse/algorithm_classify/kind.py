@@ -5,7 +5,6 @@ import json
 from ....dto.classify import Batch
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
-from ....files import write_json
 from ....run_dir import GroupingPaths
 from ....validation.classified import validate_classified
 from ....validation.parse.algorithm_classify import check_reply
@@ -61,5 +60,5 @@ class ClassifyKind:
     def validate(self, state: Classified, records: list[OutboxRecord]) -> list[str]:
         return validate_classified(state.answers, self.batches) + replay_problems(self, state, records)
 
-    def write(self, state: Classified, records: list[OutboxRecord]) -> None:
-        write_json(self.paths.classified, state.to_json())
+    def documents(self, state: Classified, records: list[OutboxRecord]) -> dict:
+        return {self.paths.classified: state.to_json()}

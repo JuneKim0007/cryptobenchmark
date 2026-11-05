@@ -22,8 +22,8 @@ class SavedKind(LabelKind):
         super().__init__()
         self.root = root
 
-    def write(self, state, records):
-        (self.root / "state.json").write_text(json.dumps(state.seen))
+    def documents(self, state, records):
+        return {self.root / "state.json": state.seen}
 
 
 def run(root, charter, answer=label_of, limit=None, crash_at=None):

@@ -8,14 +8,16 @@ from pathlib import Path
 from ....dto.decision import AgentIdentity, OutboxRecord
 from ....dto.event import END, START
 from ....dto.prompt import Charter
+from ....files import write_json
 from ....log import emit
+from ....run_dir import JOURNAL
 from ....log.emit import elapsed_ms
 from ....validation import require
-from . import journal
+from . import journal, tracking
 from ..agent import Conversations
 from .ask import Asked, Limits, ask
 from .events import TurnEvents, Where
-from .kind import DecisionKind, evidence_of, item_of, narrower_of, project
+from .kind import DecisionKind, admit_problems, evidence_of, item_of, narrower_of, project
 from .outbox import Outbox, activate
 
 LOG = logging.getLogger(__name__)
@@ -64,18 +66,20 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
     pending = kind.pending()
     outbox, replaced = activate(root, charter)
     records = outbox.records()
+    tracking.opened(outbox.fingerprint)
     if replaced is not None:
         echo(f"charter changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "
              f"({len(replaced.records())} records kept in {replaced.fingerprint}, {len(records)} resumed)")
     agent = getattr(conversations, "identity", AgentIdentity())
     _warn_if_mixed(outbox, records, agent, pending)
     _started(where, outbox, replaced, records, pending, agent, limit)
-    path = root / "journal.jsonl"
+    path = root / JOURNAL
     events = TurnEvents(where, path, journal.count(path), outbox.fingerprint)
     state, started, counts = project(kind, records), time.monotonic(), {"decided": 0, "dropped": 0}
     while True:
         require(kind.name, kind.validate(state, records))
-        kind.write(state, records)
+        for file, document in kind.documents(state, records).items():
+            write_json(file, document)
         (root / "errors.jsonl").write_text(_errors(kind, records, by_key))
         done = {r.item for r in records}
         left = [i for i in pending if i.key not in done]
@@ -83,10 +87,10 @@ def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, r
             _ended(where, started, counts, records, len(left), outbox)
             return state
         item = left[0]
-        require(f"{kind.name} item {item.key}", kind.admit(item))
+        require(f"{kind.name} item {item.key}", admit_problems(kind, item))
 
         def on_turn(turn, key=item.key):
-            journal.append(path, {"charter": outbox.fingerprint, "item": key, **turn.to_json()})
+            journal.append(path, {"charter": outbox.fingerprint, "item": key, **tracking.stamp(), **turn.to_json()})
             events.turn(key, turn)
 
         asked = ask(conversations, charter, kind.render(item, state), lambda text: kind.check(item, text, state), limits,

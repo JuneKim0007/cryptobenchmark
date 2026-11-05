@@ -10,6 +10,7 @@ from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
 from ...runtime.engine.events import Where
+from ...runtime.engine.tracking import role_run
 from ...runtime.prompt import PromptLibrary
 from .kind import UpgradeKind, charter
 from .state import UpgradeState
@@ -27,8 +28,9 @@ def counts(state: UpgradeState) -> str:
 def upgrade(run_path: Path, app: str, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
             limit: int | None = None, echo=print) -> UpgradeState:
     paths = rd.AppPaths(run_path, app)
-    kind = UpgradeKind(app, rd.read_dossiers(paths.dossiers), paths.root)
-    state = decide(kind, charter(library, kind.inputs()), conversations, paths.upgrade, limits, limit, echo,
-                   Where("repair", "upgrade", app))
+    with role_run("repair-upgrade", run_path, app=app):
+        kind = UpgradeKind(app, rd.read_dossiers(paths.dossiers), paths.root)
+        state = decide(kind, charter(library, kind.inputs()), conversations, paths.upgrade, limits, limit, echo,
+                       Where("repair", "upgrade", app))
     echo(f"{app}: {counts(state)}")
     return state

@@ -19,7 +19,8 @@
 - unit: a decision over coupled scopes is one item keyed by unit; its members with options are replaced together or kept together, a member without options stays; apply writes one row per member with options.
 - select, never aggregate: code reads, joins and stores the data (scopes, benchmark rows, groups, dossiers); a model chooses among the stored options by alias for one item and never reads raw benchmark data or computes a number.
 - commit: the outbox record is the only commit; state is `project(kind, records)` and `validate` must check it equals the saved state.
-- journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint; audit only.
+- journal: every turn is appended to `<dir>/journal.jsonl` with its `charter` fingerprint, its `role` and each `{file, digest}` the run read; audit only.
+- contract: a role has one row in `catalog/role-contracts.yaml`; its command opens `tracking.role_run`, the one reader; `check/contracts.py` holds the run to the row.
 - settings: a key in `perfrepair.yaml` is a row in `inputs/table.py` with exactly one reader, and ships only with the code that reads it; a role default lives in its `RoleRow`, never in a command.
 - settings: `OnInvalid.ERROR` only where a fallback is unsafe; a bad flag always errors.
 - settings: secrets stay in the environment or `.env`; the child of `auth: subscription` never receives `ANTHROPIC_API_KEY`.
@@ -30,15 +31,16 @@
 
 ## Workflow
 - add a role: copy the layout of `ai/suggest/site_replace/` into `ai/<role-kind>/<name>/`, one file per job:
-  - `kind.py`: the DecisionKind (name, items, pending, empty, admit, label, render, check, apply, validate, write) and `charter(library)`; render calls `render.py`, check calls the gate, validate ends with `replay_problems`
+  - `kind.py`: the DecisionKind (name, items, pending, empty, label, render, check, apply, validate, documents; admit only when the popped item can be broken) and `charter(library)`; render calls `render.py`, check calls the gate, validate ends with `replay_problems`
   - `render.py`: the message text only
   - `schema.py`: the answer's JSON schema only; every limit its gate checks (length, pattern, enum) read from the gate's constants
   - `state.py`: the role's projection type, when no dto type fits
   - `command.py`: the stage function the CLI calls, and its `DRY_RUN` conversations
   - gate C: `validation/<role-kind>/<name>.py`, and the state validator (`agents/validation.md`)
   - prompt file under `prompts/<role-kind>/` and its `prompts.yaml` entry
+  - `catalog/role-contracts.yaml` row, a `tests/role_runs.py` role, its golden render
   - CLI subcommand → map lines → `docs/decisions.md`
-- change a prompt: its gate and `docs/decisions.md` in the same change
+- change a prompt: its gate, `docs/decisions.md` and the `charter` pin in `catalog/role-contracts.yaml` in the same change
 - add a provider: `ai/runtime/gateway/<name>.py` with a `Gateway` (settings dataclass, secret, spawn) → its row in `registry.py` → map line → `docs/settings.md`
 
 ## File structure
@@ -62,9 +64,10 @@ src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: wri
 src/perfrepair/ai/runtime/engine/decide.py : the engine loop: pops pending items; gates, ask, durable commit, projections, journal, errors, --limit, `mixed_agents`; start, turn, decision and end events
 src/perfrepair/ai/runtime/engine/events.py : Where (stage, step, app); TurnEvents: each model turn and decision as an event with tokens, cost, latency and its journal line or outbox record
 src/perfrepair/ai/runtime/engine/journal.py : journal.jsonl append (append_repaired after a cut line), line count and read through read_jsonl; audit only
-src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, optional gone, evidence_digest and narrowed), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality
+src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, documents to write, optional gone, admit, evidence_digest and narrowed), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality; rebuild_problems: each file byte for byte
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer; carry: another outbox's records into a charter's
 src/perfrepair/ai/runtime/engine/refresh.py : --refresh run inputs (`refresh <token>`) and the active outbox's kept ones
+src/perfrepair/ai/runtime/engine/tracking.py : the one tracking reader: `role_run` hears each file a role's run opens from the interpreter's audit events; `missing_input` before any call; `stamp` for the journal; writes.json
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
 src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth, the CLI with timeouts.claude
 src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
@@ -83,6 +86,8 @@ src/perfrepair/ai/suggest/site_replace/render.py : message: the run warnings, th
 src/perfrepair/ai/suggest/site_replace/rows.py : the primitives.tsv lines a member is shown (current and options at its key size and operations, its pattern's variant only), their columns in the display units, and the stored numbers its evidence digest hashes
 src/perfrepair/ai/suggest/site_replace/schema.py : answer schema: decision (replace, keep, recommend), members (member alias, option alias, edits, risks, needs), deciding, accepted, concerns, reason; all required; aliases and non-blank reason as patterns
 src/perfrepair/ai/suggest/site_replace/state.py : Replacements: one Replacement and its source (llm, fallback, static) per scope; the stale scopes
+src/perfrepair/catalog/role-contracts.yaml : one row per AI role: prompt, schema, charter pin, folder, required and optional inputs, tools, writes
+src/perfrepair/catalog/role_contracts.py : reader of role-contracts.yaml, checked whole: a row bound to an app or mode, what it declares and may write
 src/perfrepair/config/__init__.py : docstring only
 src/perfrepair/config/args.py : --perfrepair-config; one settings load per command, which installs the stops reader; unset flags filled from their rows; positive_int, the argparse type of --turns, --sessions, --limit
 src/perfrepair/config/current.py : the run's settings: the first command of a run that loads them installs them, an in-process command keeps its caller's; read when a code fires or a child starts

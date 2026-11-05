@@ -15,7 +15,8 @@ def charter_document(charter: Charter) -> dict:
         return {"name": p.name, "text": p.text, "source": sources.get(p.name)}
 
     return {"schemaVersion": SCHEMA_VERSION, "fingerprint": charter.fingerprint, "system": prompt(charter.system),
-            "schema": charter.schema, "correction": prompt(charter.correction), "inputs": charter.inputs}
+            "schema": charter.schema, "correction": prompt(charter.correction), "inputs": charter.inputs,
+            **({"tools": list(charter.tools)} if charter.tools else {})}
 
 
 def read_charter(doc: dict) -> Charter:
@@ -23,4 +24,5 @@ def read_charter(doc: dict) -> Charter:
     system, correction = doc["system"], doc["correction"]
     return Charter(SystemPrompt(system["name"], system["text"]), doc["schema"],
                    CorrectionPrompt(correction["name"], correction["text"]), doc["inputs"],
-                   tuple((p["name"], p["source"]) for p in (system, correction) if p.get("source") is not None))
+                   tuple((p["name"], p["source"]) for p in (system, correction) if p.get("source") is not None),
+                   tuple(doc.get("tools", ())))

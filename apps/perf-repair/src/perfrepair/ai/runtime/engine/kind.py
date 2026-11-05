@@ -4,6 +4,7 @@ from typing import Any, Callable, Protocol
 
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import TaskPrompt
+from ....files import json_text
 
 
 class DecisionKind(Protocol):
@@ -13,15 +14,13 @@ class DecisionKind(Protocol):
         """Every item a record may name: the lookup list of projections and replay; a kind whose items can leave between
         runs also has gone(key), the stand-in for a record's item that left; a kind whose items' evidence can change has
         evidence_digest(item), the digest each record carries; a kind that can show less when over budget has
-        narrowed(item, state), a TaskPrompt hiding only what gate C would refuse."""
+        narrowed(item, state), a TaskPrompt hiding only what gate C would refuse; a kind whose popped item can be broken
+        has admit(item), gate B: every problem with it."""
 
     def pending(self) -> list:
         """The items to ask, a subset of items(); a kind that settles none in code returns items()."""
 
     def empty(self) -> Any: ...
-
-    def admit(self, item) -> list[str]:
-        """Gate B: the popped item is whole."""
 
     def label(self, item) -> str:
         """How the item is named in the errors file and progress lines."""
@@ -35,7 +34,12 @@ class DecisionKind(Protocol):
 
     def validate(self, state, records: list[OutboxRecord]) -> list[str]: ...
 
-    def write(self, state, records: list[OutboxRecord]) -> None: ...
+    def documents(self, state, records: list[OutboxRecord]) -> dict:
+        """Each file the state makes, path to JSON document: the engine writes them, the replay rebuilds them."""
+
+
+def admit_problems(kind: DecisionKind, item) -> list[str]:
+    return kind.admit(item) if hasattr(kind, "admit") else []
 
 
 def evidence_of(kind: DecisionKind, item) -> str | None:
@@ -70,3 +74,13 @@ def replay_problems(kind: DecisionKind, state, records: list[OutboxRecord]) -> l
     except (KeyError, ValueError, TypeError) as e:
         problems.append(f"outbox does not replay: {e!r}")
     return problems
+
+
+def rebuild_problems(kind: DecisionKind, records: list[OutboxRecord]) -> list[str]:
+    """Each file the kind writes, rebuilt from the outbox, equals the file on disk byte for byte."""
+    try:
+        documents = kind.documents(project(kind, records), records)
+    except (KeyError, ValueError, TypeError) as e:
+        return [f"outbox does not rebuild: {e!r}"]
+    return [f"{path.name} differs from the rebuild of the outbox, byte for byte" for path, doc in documents.items()
+            if not path.is_file() or path.read_bytes() != json_text(doc).encode()]

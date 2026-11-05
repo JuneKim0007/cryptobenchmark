@@ -7,7 +7,7 @@ from ....dto.decision import OutboxRecord
 from ....dto.grouping import read_items, read_profiles
 from ....dto.grouping_state import code_made
 from ....dto.prompt import Charter, TaskPrompt
-from ....files import read_json, sha256_text, write_json
+from ....files import read_json, sha256_text
 from ....run_dir import GroupingPaths
 from ....screen.groups import identified
 from ....validation.grouping.output import read_groups
@@ -64,11 +64,12 @@ class GroupingReviewKind:
     name = "supervisor"
     schema = SCHEMA
 
-    def __init__(self, paths: GroupingPaths, library: PromptLibrary | None = None):
-        """library: what a run writes with; a replay needs none."""
-        self.paths, self.families = paths, _families(paths)
+    def __init__(self, paths: GroupingPaths, library: PromptLibrary | None = None, saved: dict | None = None):
+        """library: what a run writes with; saved: the document a replay rebuilds, its charter and prompts as recorded."""
+        self.paths, self.families, saved = paths, _families(paths), saved or {}
         self.charter = charter(library, self.inputs) if library else None
-        self.prompts = library.provenance(self.charter) if library else {}
+        self.fingerprint = self.charter.fingerprint if library else saved.get("charter")
+        self.prompts = library.provenance(self.charter) if library else saved.get("prompts", {})
 
     @property
     def inputs(self) -> str:
@@ -107,8 +108,8 @@ class GroupingReviewKind:
         return replay_problems(self, state, records)
 
     def document(self, state: Reviews) -> dict:
-        return {"schemaVersion": SCHEMA_VERSION, "charter": self.charter.fingerprint, "prompts": self.prompts,
+        return {"schemaVersion": SCHEMA_VERSION, "charter": self.fingerprint, "prompts": self.prompts,
                 "families": state.families}
 
-    def write(self, state: Reviews, records: list[OutboxRecord]) -> None:
-        write_json(self.paths.supervisor, self.document(state))
+    def documents(self, state: Reviews, records: list[OutboxRecord]) -> dict:
+        return {self.paths.supervisor: self.document(state)}

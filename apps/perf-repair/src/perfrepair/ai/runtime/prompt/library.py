@@ -12,6 +12,7 @@ PACKAGED = Path(__file__).resolve().parents[3] / "prompts"
 REGISTRY = "prompts.yaml"
 CORRECTION = "shared/rejection"
 SCHEMA_VERSION = 1
+PACKAGED_ORIGIN = "packaged"
 
 
 class PromptError(Coded):
@@ -78,7 +79,7 @@ class PromptLibrary:
     def origin(self, name: str) -> str:
         """`packaged`, or the override file the prompt was read from."""
         path = self.sources[name]
-        return "packaged" if path == PACKAGED / self.entries[name].file else str(path)
+        return PACKAGED_ORIGIN if path == PACKAGED / self.entries[name].file else str(path)
 
     def provenance(self, charter: Charter) -> dict[str, str]:
         return {name: str(self.sources[name]) for name in charter.prompts}

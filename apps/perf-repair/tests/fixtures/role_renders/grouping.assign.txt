@@ -1,0 +1,15 @@
+family:
+  id: cipher.secret
+  description: 'Symmetric ciphers: one secret key encrypts and decrypts. Interchangeable only with the same mode, padding, IV/nonce contract and authentication (AEAD or not).'
+groups: []
+item:
+  id: 1
+  type: Cipher
+  name: AES/GCM/NoPadding
+  provider: Fast
+  resolved:
+    iv: 12B
+    text: GCM iv=12B
+  facts:
+    output:
+      name: not known

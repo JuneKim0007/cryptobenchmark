@@ -7,7 +7,7 @@ from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict
-from ....files import read_json, write_json
+from ....files import read_json
 from ...runtime.engine import charter_file
 from ...runtime.engine.kind import replay_problems
 from ...runtime.engine.outbox import active_outbox
@@ -121,6 +121,5 @@ class GroupingKind:
         problems += validate_code_groups(knowledge.groups, self.by_id, self.screen, self.profiles)
         return problems + replay_problems(self, knowledge, records)
 
-    def write(self, knowledge: Knowledge, records: list[OutboxRecord]) -> None:
-        write_json(self.paths.knowledge, knowledge.to_json())
-        write_json(self.paths.cursor, cursor(self.pending(), records).to_json())
+    def documents(self, knowledge: Knowledge, records: list[OutboxRecord]) -> dict:
+        return {self.paths.knowledge: knowledge.to_json(), self.paths.cursor: cursor(self.pending(), records).to_json()}

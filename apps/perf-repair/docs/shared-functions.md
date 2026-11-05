@@ -3,10 +3,11 @@
 | function | module | rule | callers |
 |---|---|---|---|
 | `inputs(path)` | `src/perfrepair/ai/runtime/engine/charter_file.py` | The run inputs of a recorded charter; none when it has no charter.json. | ai.parse.grouping_assign.kind, ai.runtime.engine.refresh, check.grouping |
-| `decide(kind, charter, conversations, root, limits, limit, echo, where)` | `src/perfrepair/ai/runtime/engine/decide.py` | - | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +2 |
-| `project(kind, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | - | ai.runtime.engine.decide, ai.suggest.site_replace.command, device.used, grouping.report.checks |
-| `replay_problems(kind, state, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | The state is one version per committed record and equals the projection of the outbox. | ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.kind, ai.parse.grouping_assign.kind, ai.repair.upgrade.kind +2 |
-| `active_outbox(root)` | `src/perfrepair/ai/runtime/engine/outbox.py` | The run's outbox, for every reader; NoOutbox when nothing was ever committed. | ai.parse.grouping_assign.kind, ai.parse.grouping_assign.rekey, ai.runtime.engine.refresh, ai.suggest.site_replace.command +5 |
+| `decide(kind, charter, conversations, root, limits, limit, echo, where)` | `src/perfrepair/ai/runtime/engine/decide.py` | - | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +3 |
+| `project(kind, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | - | ai.runtime.engine.decide, ai.suggest.site_replace.command, check.apps, device.used +1 |
+| `replay_problems(kind, state, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | The state is one version per committed record and equals the projection of the outbox. | ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.kind, ai.parse.grouping_assign.kind, ai.repair.upgrade.kind +3 |
+| `active_outbox(root)` | `src/perfrepair/ai/runtime/engine/outbox.py` | The run's outbox, for every reader; NoOutbox when nothing was ever committed. | ai.parse.grouping_assign.kind, ai.parse.grouping_assign.rekey, ai.runtime.engine.refresh, ai.suggest.site_replace.command +7 |
+| `role_run(role, device)` | `src/perfrepair/ai/runtime/engine/tracking.py` | A role's whole run; refused before any call when a required input is missing. A required catalog counts as read | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +3 |
 | `add_agent_args(parser, role)` | `src/perfrepair/ai/runtime/gateway/args.py` | Unset flags resolve per role in `spawn` (docs/settings.md). | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `spawn(args, settings, dry_run)` | `src/perfrepair/ai/runtime/gateway/spawn.py` | dry_run: the role's stand-in answers, for the gateway that answers without a model. | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `add_prompt_args(parser)` | `src/perfrepair/ai/runtime/prompt/args.py` | - | ai.__main__, grouping.__main__, guide.command, review.__main__ |
@@ -56,13 +57,13 @@
 | `number(x)` | `src/perfrepair/dto/units.py` | Significant figures, so a sub-unit value never rounds to 0 (64 B AES-CBC is 0.000662 ms). | ai.evaluate.worthiness.render, ai.suggest.site_replace.rows, report.markdown |
 | `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
-| `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, device.coverage, device.delta_merge |
-| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +29 |
+| `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.repair.upgrade.kind, ai.runtime.engine.kind, ai.suggest.site_replace.kind, device.coverage +1 |
+| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file +32 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
-| `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +32 |
-| `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.gate_after, device.primitives, device.seen, device.stage +5 |
-| `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.repair.upgrade.kind, ai.review.grouping_review.kind, ai.suggest.site_replace.kind +2 |
-| `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.command, ai.parse.algorithm_classify.kind +17 |
+| `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +31 |
+| `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | ai.runtime.engine.tracking, device.gate_after, device.primitives, device.seen +6 |
+| `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.repair.upgrade.kind, ai.review.grouping_review.kind, ai.suggest.site_replace.kind +3 |
+| `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.runtime.engine.charter_file, ai.runtime.engine.decide +12 |
 | `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.interop +11 |
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | device.benchmark_coverage, device.delta, device.delta_config, device.delta_merge +4 |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
@@ -91,7 +92,7 @@
 | `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, guide.device_steps, repair.dossier |
 | `load_upgrades(path)` | `src/perfrepair/run_dir/read.py` | What each broken use became; none before the upgrade step ran. | guide.app_steps, repair.__main__, report.app_report |
 | `load_used(device)` | `src/perfrepair/run_dir/read.py` | None without used.json: every item counts as used. | ai.parse.grouping_assign.kind, check.device, guide.device_steps, guide.gate_steps |
-| `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(DOSSIERS_DOC, path)` | ai.repair.upgrade.command, ai.suggest.site_replace.command, check.apps, guide.app_steps +2 |
+| `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(DOSSIERS_DOC, path)` | ai.repair.upgrade.command, ai.suggest.site_replace.command, check.apps, guide.app_steps +1 |
 | `read_edits(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(EDITS_DOC, path)` | check.apps, guide.app_steps, repair.__main__ |
 | `read_scopes(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(SCOPES_DOC, path)` | check.apps, device.missing_rows, guide.app_steps, repair.__main__ +2 |
 | `read_sites(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(SITES_DOC, path)` | device.bundled_missing, device.missing_rows, device.used, report.app_report |

@@ -13,7 +13,6 @@ from ..stop.halt import Coded
 
 OK, WRONG = "ok", "wrong"
 ACCEPTED = "accepted"
-JOURNAL = "journal.jsonl"
 
 
 def _share(right: int, judged: int) -> dict:
@@ -58,7 +57,7 @@ def score(device: Path) -> dict:
     judged = _verdicts(read_sheet(rd.review_sheet(device)))
     calls, rejected, asks = defaultdict(int), defaultdict(int), defaultdict(list)
     for stage in stages(device):
-        for turn in journal.read(stage.root / JOURNAL):
+        for turn in journal.read(stage.root / rd.JOURNAL):
             calls[stage.kind] += 1
             if turn["status"] != ACCEPTED:
                 rejected[stage.kind] += 1

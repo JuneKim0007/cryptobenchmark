@@ -114,9 +114,17 @@ The role that moves a broken use off its algorithm: [upgrade.md](upgrade.md).
 
 - A group with an improving pair always reaches the model, whatever its pImprove.
 
+## Role contracts
+
+`catalog/role-contracts.yaml` holds one row per role. `tracking.role_run` hears what the role's run opens, whichever loader opens it, and each journal line names its `inputs`; `check/contracts.py` fails a required input that never reached a call, an input or a written file outside the row, or a charter off its prompt, schema, pin or tools. A prompt a person overrode is held to its name and schema, not the pin. A journal line from before contracts has no record, and fails.
+
+Limits: a file read is what is proven, not that a fact in it reached the message (the golden renders in `tests/fixtures/role_renders/` cover that); a catalog an earlier role cached is heard only when the row requires it.
+
+On demand, never in CI: `python3 tools/role_checks.py --device-results <pixel-10 folder> --apps a,b,c --runs 3 --mode <perfMode> --plan plan.yaml --out <dir> --agent claude --model claude-haiku-5-5`.
+
 ## Accuracy sheet
 
-`python3 -m perfrepair.review sheet|score <device>`; `python3 -m perfrepair.review stability <device> --sample N --asks K [--agent ...] [--prompts DIR]` asks N units drawn with a fixed seed across the apps K times each on their unchanged message, gated as usual, commits nothing and writes `review/stability.json` (per unit the picks, free text left out, and `stable`).
+`python3 -m perfrepair.review sheet|score <device>`; `python3 -m perfrepair.review stability <device> --sample N --asks K [--agent ...] [--prompts DIR]` asks N units drawn with a fixed seed across the apps K times each on the message `ai replace` sends, gated as usual, each ask an engine item in `review/stability/`, so an identical rerun makes no call and no replace decision changes; it writes `review/stability.json` (per unit the picks, free text left out, and `stable`).
 
 - Rows are sorted riskiest first: a `recommend` or a replace whose option's code label is `trade_off`, then other replaces, keeps, then the other kinds.
 

@@ -7,7 +7,6 @@ from ....dto import GroupEvidence, Verdict, Verdicts
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.units import DisplayUnits
-from ....files import write_json
 from ....result.modes import Mode
 from ....result.triage import triage
 from ....validation.evaluate.worthiness import check_reply
@@ -42,9 +41,6 @@ class WorthinessKind:
     def empty(self) -> Verdicts:
         return Verdicts(self.mode.name, 0, {v.groupId: v for v in self.static})
 
-    def admit(self, e: GroupEvidence) -> list[str]:
-        return []
-
     def label(self, e: GroupEvidence) -> str:
         return e.groupId
 
@@ -63,5 +59,5 @@ class WorthinessKind:
     def validate(self, verdicts: Verdicts, records: list[OutboxRecord]) -> list[str]:
         return validate_verdicts(verdicts, self.evidence, self.mode) + replay_problems(self, verdicts, records)
 
-    def write(self, verdicts: Verdicts, records: list[OutboxRecord]) -> None:
-        write_json(self.directory / rd.VERDICTS, verdicts.to_json())
+    def documents(self, verdicts: Verdicts, records: list[OutboxRecord]) -> dict:
+        return {self.directory / rd.VERDICTS: verdicts.to_json()}

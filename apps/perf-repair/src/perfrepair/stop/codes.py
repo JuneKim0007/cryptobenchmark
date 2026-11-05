@@ -139,6 +139,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("names_catalog_duplicate", FIX_CATALOG),
     _fixed("names_schema", FIX_CATALOG),
     _fixed("groups_invalid", FIX_CATALOG),
+    _fixed("contracts_invalid", FIX_CATALOG),
     _fixed("groups_schema", FIX_CATALOG),
     _fixed("screening_schema", FIX_CATALOG),
     _fixed("screening_shape", FIX_CATALOG),

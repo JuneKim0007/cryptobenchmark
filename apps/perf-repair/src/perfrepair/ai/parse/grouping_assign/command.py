@@ -9,6 +9,7 @@ from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
 from ...runtime.engine.events import Where
+from ...runtime.engine.tracking import role_run
 from ...runtime.prompt import PromptLibrary
 from .kind import GroupingKind, charter, refresh_inputs
 from .rekey import rekey
@@ -25,10 +26,11 @@ DRY_RUN = ScriptedConversations(_dry_run)
 def assign(paths: GroupingPaths, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
            limit: int | None = None, echo=print, refresh: bool = False) -> Knowledge:
     """refresh: every item asked again into a new outbox; the old one stays."""
-    rekey(paths, library)
-    kind = GroupingKind(paths)
-    knowledge = decide(kind, charter(library, refresh_inputs() if refresh else kind.inputs), conversations, paths.root, limits,
-                       limit, where=Where("grouping", "assign"))
+    with role_run("grouping.assign", paths.root.parent):
+        rekey(paths, library)
+        kind = GroupingKind(paths)
+        knowledge = decide(kind, charter(library, refresh_inputs() if refresh else kind.inputs), conversations, paths.root,
+                           limits, limit, where=Where("grouping", "assign"))
     coded = sum(code_made(g) for g in knowledge.groups)
     echo(f"{len(knowledge.groups)} groups ({coded} made by code), {len(knowledge.dropped)} dropped, "
          f"knowledge version {knowledge.version}")
