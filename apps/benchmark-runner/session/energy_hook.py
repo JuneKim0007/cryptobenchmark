@@ -9,7 +9,7 @@ from session.measure import Hooks
 class EnergyCapture(Hooks):
     """The window spans the device run; a failed energy step costs that process its energy, never its timing."""
 
-    def __init__(self, source, session, captures, discovery, preparation, problems, dry_pass, timed=True):
+    def __init__(self, source, session, captures, discovery, preparation, problems, dry_pass, timed):
         self.source, self.session, self.captures = source, session, captures
         self.discovery, self.preparation, self.problems = discovery, preparation, problems
         self.dry_pass, self.timed, self.stack, self.opened = dry_pass, timed, None, False
