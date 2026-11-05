@@ -23,7 +23,6 @@ services:
   instantiates: true
   defaultRun: {works: true, keyAlgorithm: AES, keyProvider: SunJCE, keySize: 256, inputSize: 1024, bareName: true}
   transformations:
-  - {name: AES, instantiates: true}
   - name: AES/CBC/PKCS5PADDING
     instantiates: true
     defaultRun: {works: true, keyAlgorithm: AES, keyProvider: SunJCE, keySize: 256, inputSize: 1024, providerChose: AES iv=16B}

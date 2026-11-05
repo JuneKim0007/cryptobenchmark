@@ -57,13 +57,6 @@ def test_a_declared_transformation_that_ran_is_an_item_like_the_case_the_benchma
     assert validate_items(items, profiles, FAMILIES) == []
 
 
-def test_a_bare_transformation_entry_adds_no_second_item_and_a_service_without_any_is_as_it_was():
-    bare = {"name": "ALG-T", "instantiates": True}
-    plain, _ = build(PROBE, NAMES, TRIAL, FAMILIES)
-    items, _ = build(PROBE, NAMES, _with_transformations(bare), FAMILIES)
-    assert sorted(i.name for i in items) == sorted([i.name for i in plain] + ["ALG-T"])
-
-
 def test_a_used_set_excludes_every_transformation_it_does_not_keep():
     ran = {"name": "ALG-T/M1/PAD", "instantiates": True, "defaultRun": {"works": True}}
     items, _ = build(PROBE, NAMES, _with_transformations(ran), FAMILIES)

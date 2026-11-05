@@ -31,11 +31,7 @@ class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
         return service.copy(
             defaultRun = run(call, provider, service.algorithm, keys),
             transformations = service.transformations.map { transformation ->
-                if (!transformation.outcome.instantiates || transformation.name.equals(service.algorithm, ignoreCase = true)) {
-                    transformation
-                } else {
-                    transformation.copy(defaultRun = run(call, provider, transformation.name, keys))
-                }
+                if (transformation.outcome.instantiates) transformation.copy(defaultRun = run(call, provider, transformation.name, keys)) else transformation
             },
         )
     }

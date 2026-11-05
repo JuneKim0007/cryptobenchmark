@@ -98,7 +98,7 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 | `instantiates` | bool | instantiation succeeded |
 | `error` | string | present exactly when `instantiates` is false |
 | `defaultRun` | object | absent when the type has no call, the provider is not installed, or instantiation failed |
-| `transformations` | list | Cipher only; omitted when empty; first entry is the bare algorithm, then each declared `alg/mode/padding` |
+| `transformations` | list | Cipher only; omitted when empty; each declared `alg/mode/padding` |
 
 ## transformations[]
 
@@ -107,7 +107,7 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 | `name` | string | transformation name |
 | `instantiates` | bool | `Cipher.getInstance(name, provider)` succeeded |
 | `error` | string | present exactly when `instantiates` is false |
-| `defaultRun` | object | absent for the bare algorithm entry and when instantiation failed |
+| `defaultRun` | object | absent when instantiation failed |
 
 ## defaultRun
 

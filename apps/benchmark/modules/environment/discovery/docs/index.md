@@ -43,7 +43,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialOutco
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/Attempt.kt : runs a block, maps Exception or LinkageError to TrialOutcome
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : bare algorithm plus every declared mode x padding
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key names and key bits
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/CaptureDocument.kt : capture YAML schema (of, parse)

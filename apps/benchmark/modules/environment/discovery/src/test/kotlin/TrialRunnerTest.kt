@@ -27,7 +27,7 @@ class TrialRunnerTest {
         val ghost = report.services.single()
         assertFalse(ghost.outcome.instantiates)
         assertTrue(ghost.outcome.error, ghost.outcome.error.startsWith("NoSuchAlgorithmException"))
-        assertEquals(listOf("GHOST", "GHOST/ECB/NOPADDING", "GHOST/CBC/NOPADDING"), ghost.transformations.map { it.name })
+        assertEquals(listOf("GHOST/ECB/NOPADDING", "GHOST/CBC/NOPADDING"), ghost.transformations.map { it.name })
         assertTrue(ghost.transformations.none { it.outcome.instantiates })
         assertEquals("the report belongs to the capture it was run on", capture.capturedAtMillis, report.capturedAtMillis)
     }

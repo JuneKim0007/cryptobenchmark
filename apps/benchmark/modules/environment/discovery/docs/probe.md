@@ -70,16 +70,16 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 | level | class | does |
 |---|---|---|
 | 1 | `TrialRunner` | each captured service: `provider.getService(type, alg).newInstance(null)`; provider absent from the live list: `provider_not_installed` |
-| 1 | `TrialRunner` | Cipher services also try every `TransformationSet` name with `Cipher.getInstance(name, provider)` |
+| 1 | `TrialRunner` | Cipher services also try every declared `TransformationSet` name with `Cipher.getInstance(name, provider)`; a provider declaring no modes and paddings has none |
 | 2 | `DefaultRunTrial` | one real call per instantiated service and transformation with a default key |
 
 | rule | value |
 |---|---|
-| `TransformationSet` | bare algorithm first, then `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
+| `TransformationSet` | `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
 | `Attempt` | catches `Exception` and `LinkageError`; error text `<SimpleName>: <message>` |
 | types with a default call | Cipher, Signature, Mac, MessageDigest, KeyGenerator, KeyPairGenerator, KeyAgreement (case-folded) |
 | no default run | type has no call, provider not installed, or instantiation failed |
-| transformation default run | skipped when it failed to instantiate or equals the bare algorithm |
+| transformation default run | skipped when it failed to instantiate |
 | input-taking calls | Cipher, Signature, Mac, MessageDigest; KeyAgreement and generators take none (`inputSize` absent) |
 | input sizes | tried in order; first working size returns, else the first failure is recorded |
 | trial file stamp | the capture's `capturedAtMillis` |
