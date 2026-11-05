@@ -20,6 +20,7 @@ object RequirementDocument {
     private const val MILLIS = "millis"
     private const val KEY_CACHE = "keyCache"
     private const val GENERATED = "generated"
+    private const val REFUSED = "refused"
     private const val REUSED = "reused"
     private const val GENERATION_MILLIS = "generationMillis"
     private const val SERVICES = "services"
@@ -44,7 +45,7 @@ object RequirementDocument {
         CAPTURED_AT_MILLIS to report.capturedAtMillis,
         DEVICE_CLOCK_MILLIS to report.deviceClockMillis,
         MILLIS to report.millis,
-        KEY_CACHE to linkedMapOf(GENERATED to report.keyCache.generated, REUSED to report.keyCache.reused, GENERATION_MILLIS to report.keyCache.generationMillis),
+        KEY_CACHE to linkedMapOf(GENERATED to report.keyCache.generated, REFUSED to report.keyCache.refused, REUSED to report.keyCache.reused, GENERATION_MILLIS to report.keyCache.generationMillis),
         SERVICES to report.services.map { serviceDocument(it) },
     )
 
@@ -59,7 +60,7 @@ object RequirementDocument {
             deviceClockMillis = number(document, DEVICE_CLOCK_MILLIS).toLong(),
             services = sections(document, SERVICES).map { serviceEntry(it) },
             millis = number(document, MILLIS).toLong(),
-            keyCache = KeyCacheStats(number(cache, GENERATED).toInt(), number(cache, REUSED).toInt(), number(cache, GENERATION_MILLIS).toLong()),
+            keyCache = KeyCacheStats(number(cache, GENERATED).toInt(), number(cache, REFUSED).toInt(), number(cache, REUSED).toInt(), number(cache, GENERATION_MILLIS).toLong()),
             schemaVersion = schemaVersion,
         )
     }

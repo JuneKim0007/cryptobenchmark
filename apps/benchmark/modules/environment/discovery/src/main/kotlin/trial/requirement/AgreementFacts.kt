@@ -7,6 +7,10 @@ import javax.crypto.KeyAgreement
 
 internal object AgreementFacts : RequirementCall {
 
+    override fun instance(service: ProbedService) {
+        KeyAgreement.getInstance(service.algorithm, service.provider)
+    }
+
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val tried = mutableListOf<Map<String, Any>>()
         var detail = ""

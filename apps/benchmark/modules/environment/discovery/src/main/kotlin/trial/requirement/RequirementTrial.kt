@@ -60,6 +60,9 @@ class RequirementTrial {
         val classRun = if (transformationOf.isEmpty()) ClassRun.of(provider, service.type, service.algorithm) else ""
         val call = RequirementCalls.of(service.type) ?: return base.copy(classRun = classRun)
         val probed = ProbedService(provider, service.type, service.algorithm, service, attempt, sources, live, digests, secretNames)
+        ErrorText.refusal { call.instance(probed) }?.let {
+            return base.copy(status = ServiceRequirement.NOT_RUNNABLE, classRun = classRun, reason = ServiceRequirement.INSTANCE_REFUSED, detail = it)
+        }
         val sheet = FactSheet()
         val result = runCatching { call.measure(probed, sheet) }
             .getOrElse { CallResult(ServiceRequirement.PROBE_FAILED, ErrorText.of(it)) }

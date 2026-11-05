@@ -8,6 +8,10 @@ internal object DigestFacts : RequirementCall {
     private val INPUTS = listOf(0, 1, 1 shl 20)
     private const val PREFIX_BYTES = 8
 
+    override fun instance(service: ProbedService) {
+        MessageDigest.getInstance(service.algorithm, service.provider)
+    }
+
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val message = ParameterSpecs.random(64)
         val output = runCatching { digest(service.algorithm, service, message) }

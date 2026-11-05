@@ -1,12 +1,12 @@
 # security_contract
 
-Fields of the files discovery writes. Key names live on `CaptureDocument` and `TrialDocument`. Config and preparation read these files by key name; no discovery class is on their classpath.
+Fields of the files discovery writes. Key names live on `CaptureDocument`, `TrialDocument` and `RequirementDocument`. Config and preparation read these files by key name; no discovery class is on their classpath.
 
 | rule | value |
 |---|---|
 | version check | each `parse` rejects another `schemaVersion`: `unsupported_schema_version: <v>, this build reads <n>` |
 | read failures | `missing_field: <key>`, `wrong_type: <key>` |
-| pairing | a trial belongs to the capture with the same `capturedAtMillis`; config refuses a mismatch with `mismatched_trial: capture <a>, trial <b>` |
+| pairing | a trial or requirements file belongs to the capture with the same `capturedAtMillis`; config refuses a mismatch with `mismatched_trial: capture <a>, trial <b>` |
 
 ## capture
 
@@ -120,3 +120,5 @@ Every runtime field is required on read.
 | `keyFormat` | string | the same key's `getFormat()`, e.g. `RAW`, `PKCS#8`; absent when null, for other types and a generator that did not run |
 | `triedKeys` | list | a generator whose default ran: each other size asked of it, `size` with that key's `keyMaterial` and `keyFormat`, or `refused: true`; secret keys 128, 192, 256; a pair 256, 384, 1024, 2048 below its default, none without a default size |
 | `error` | string | present exactly when `works` is false |
+
+Fields of `requirements_<utc>.yaml`: [requirements.md](requirements.md).

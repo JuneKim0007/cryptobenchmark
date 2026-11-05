@@ -33,6 +33,7 @@ data class ServiceRequirement(
 
         const val PROVIDER_NOT_INSTALLED = "provider_not_installed"
         const val INSTANTIATION_FAILED = "instantiation_failed"
+        const val INSTANCE_REFUSED = "instance_refused"
         const val NO_CALL_FOR_TYPE = "no_call_for_type"
         const val NO_KEY = "no_key"
         const val KEY_REFUSED = "key_refused"

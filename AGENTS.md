@@ -94,7 +94,7 @@ apps/benchmark-runner/session/variant_order.py : run.variants on a device: an it
 apps/benchmark-runner/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
 apps/benchmark-runner/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
 apps/benchmark-runner/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
-apps/benchmark-runner/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
+apps/benchmark-runner/stages/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
 apps/benchmark-runner/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 apps/benchmark-runner/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
 apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into checked/
@@ -112,7 +112,7 @@ apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build,
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
 apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
-apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run trial, capture and trial YAML
+apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML
 apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
 apps/benchmark/modules/settings/ : harness key table shared by config, preparation and benchmark
 apps/benchmark/settings.gradle : Gradle projects and their directories under apps/benchmark/modules/

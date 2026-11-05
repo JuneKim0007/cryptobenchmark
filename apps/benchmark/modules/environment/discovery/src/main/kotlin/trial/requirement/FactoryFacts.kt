@@ -9,6 +9,10 @@ internal object FactoryFacts : RequirementCall {
 
     private const val RAW_BYTES = 16
 
+    override fun instance(service: ProbedService) {
+        SecretKeyFactory.getInstance(service.algorithm, service.provider)
+    }
+
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val password = service.keys.password(service.provider, service.algorithm)
         password.getOrNull()?.let { key ->

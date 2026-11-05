@@ -1,6 +1,6 @@
 # probe
 
-Captures registered JCA providers and services, writes them as YAML, and calls each service once.
+Captures registered JCA providers and services, writes them as YAML, calls each service once, then measures what each requires.
 
 File fields: [security_contract.md](security_contract.md). File map: [index.md](index.md).
 
@@ -8,11 +8,12 @@ File fields: [security_contract.md](security_contract.md). File map: [index.md](
 
 ```
 Discovery(directory).probe(providers)          -> DiscoveryRun: capture, probe_<utc>.yaml
-Discovery(directory).trial(capture, providers) -> trial_<utc>.yaml
+Discovery(directory).trial(capture, providers) -> TrialFiles: trial_<utc>.yaml, requirements_<utc>.yaml
 Discovery(directory).reusable(runtime)         -> ReusedRun or null
 
 Provider[] -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter
 CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYamlWriter
+CapturedEnvironment, TrialReport -> RequirementTrial -> RequirementReport -> RequirementYamlWriter
 ```
 
 | entry | caller |
@@ -72,14 +73,14 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 | 1 | `TrialRunner` | each captured service: `provider.getService(type, alg).newInstance(null)`; provider absent from the live list: `provider_not_installed` |
 | 1 | `TrialRunner` | Cipher services also try every declared `TransformationSet` name with `Cipher.getInstance(name, provider)`; a provider declaring no modes and paddings has none |
 | 2 | `DefaultRunTrial` | one real call per instantiated service and transformation with a default key |
+| 3 | `RequirementTrial` | per registered service and declared transformation, one guarded call per fact ([requirements.md](requirements.md)) |
 
 | rule | value |
 |---|---|
 | `TransformationSet` | `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
 | `Attempt` | catches `Exception` and `LinkageError`; error text `<SimpleName>: <message>` |
 | types with a default call | Cipher, Signature, Mac, MessageDigest, KeyGenerator, KeyPairGenerator, KeyAgreement (case-folded) |
-| no default run | type has no call, provider not installed, or instantiation failed |
-| transformation default run | skipped when it failed to instantiate |
+| no default run | type has no call, provider not installed, or the service or transformation failed to instantiate |
 | input-taking calls | Cipher, Signature, Mac, MessageDigest; KeyAgreement and generators take none (`inputSize` absent) |
 | input sizes | tried in order; first working size returns, else the first failure is recorded |
 | trial file stamp | the capture's `capturedAtMillis` |
@@ -102,8 +103,8 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 
 | rule | value |
 |---|---|
-| names | `probe_<utc>.yaml`, `trial_<utc>.yaml` |
-| stamp | `yyyyMMdd'T'HHmmss'Z'`, UTC, from `capturedAtMillis` |
+| names | `probe_<utc>.yaml`, `trial_<utc>.yaml`, `requirements_<utc>.yaml` |
+| stamp | `yyyyMMdd'T'HHmmss'Z'`, UTC, from `capturedAtMillis`: on a device the host's time, passed as the instrumentation argument `hostMillis` |
 | create | `ProbeDirectory.create` makes the directory and writes `CREATE_NEW` |
 | existing name | `FileAlreadyExistsException`: `probe_exists: a capture is never overwritten; probe again after a second, or remove the file` |
 | newest | greatest file name matching `<prefix>_\d{8}T\d{6}Z.yaml` |
@@ -115,8 +116,8 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 |---|
 | newest `probe_<stamp>.yaml` parses |
 | its `runtime` equals the given runtime |
-| sibling `trial_` file exists |
-| the trial parses and its `capturedAtMillis` equals the capture's |
+| sibling `trial_` and `requirements_` files exist |
+| both parse and their `capturedAtMillis` equals the capture's |
 
 ## Limits
 

@@ -12,6 +12,10 @@ internal object SignatureFacts : RequirementCall {
     private const val LENGTH_SAMPLES = 16
     private val INPUTS = listOf(0, 1, 1 shl 20)
 
+    override fun instance(service: ProbedService) {
+        Signature.getInstance(service.algorithm, service.provider)
+    }
+
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val tried = mutableListOf<Map<String, Any>>()
         var detail = ""

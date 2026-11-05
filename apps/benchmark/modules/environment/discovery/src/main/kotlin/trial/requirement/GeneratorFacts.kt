@@ -1,9 +1,17 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import java.security.KeyPairGenerator
+import javax.crypto.KeyGenerator
 
 // Level 2 already called the generator at its default and beside it: this reads that record instead of paying for the keys twice.
 internal object GeneratorFacts : RequirementCall {
+
+    override fun instance(service: ProbedService) {
+        if (ServiceKey.fold(service.type) == PAIR) KeyPairGenerator.getInstance(service.algorithm, service.provider)
+        else KeyGenerator.getInstance(service.algorithm, service.provider)
+    }
 
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val run = service.trial.defaultRun ?: return CallResult(ServiceRequirement.GENERATION_REFUSED, "no default run")
@@ -18,4 +26,6 @@ internal object GeneratorFacts : RequirementCall {
         }
         return CallResult(runWith = mapOf("operation" to "generate"))
     }
+
+    private val PAIR = ServiceKey.fold("KeyPairGenerator")
 }

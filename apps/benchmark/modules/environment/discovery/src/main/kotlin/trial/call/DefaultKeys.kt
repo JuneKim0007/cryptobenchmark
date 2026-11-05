@@ -28,6 +28,8 @@ internal class DefaultKeys(private val providers: List<Provider>) {
 
     private var generated = 0
 
+    private var refused = 0
+
     private var reused = 0
 
     private var generationNanos = 0L
@@ -70,7 +72,7 @@ internal class DefaultKeys(private val providers: List<Provider>) {
         return generator.generateKeyPair()
     }
 
-    fun stats(): KeyCacheStats = KeyCacheStats(generated, reused, generationNanos / 1_000_000)
+    fun stats(): KeyCacheStats = KeyCacheStats(generated, refused, reused, generationNanos / 1_000_000)
 
     private fun <T> cached(cache: HashMap<String, Result<T>>, key: String, make: () -> T): Result<T> {
         cache[key]?.let {
@@ -86,7 +88,7 @@ internal class DefaultKeys(private val providers: List<Provider>) {
             Result.failure(linkageError)
         }
         generationNanos += System.nanoTime() - started
-        generated++
+        if (made.isSuccess) generated++ else refused++
         cache[key] = made
         return made
     }

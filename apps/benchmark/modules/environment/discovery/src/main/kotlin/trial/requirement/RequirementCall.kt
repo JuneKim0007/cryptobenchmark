@@ -29,5 +29,8 @@ internal class CallResult(
 
 internal interface RequirementCall {
 
+    /** The engine by name: a provider can register a service and still refuse to hand it out. */
+    fun instance(service: ProbedService)
+
     fun measure(service: ProbedService, sheet: FactSheet): CallResult
 }

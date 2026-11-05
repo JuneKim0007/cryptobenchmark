@@ -11,6 +11,10 @@ internal object CipherFacts : RequirementCall {
     private val INPUTS = listOf(0, 1, 2, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 100, 1024)
     private const val MAX_INPUT_SEARCH = 1024
 
+    override fun instance(service: ProbedService) {
+        Cipher.getInstance(service.algorithm, service.provider)
+    }
+
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val engine = CipherEngine(service.provider, service.algorithm)
         val search = CipherBase.find(service, engine)
@@ -51,7 +55,7 @@ internal object CipherFacts : RequirementCall {
             runWith = runWith,
             keysTried = search.tried,
             aliasRuns = { alias -> check(CipherEngine(service.provider, alias).decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext).contentEquals(message)) { "decrypts_differently" } },
-            aliasAcceptsKey = { alias, other -> engine(service, alias).encrypting(other.encrypting, ParameterSpecs.fresh(like)) },
+            aliasAcceptsKey = { alias, other -> engine(service, alias).encrypt(other.encrypting, ParameterSpecs.fresh(like), message) },
         )
     }
 
@@ -76,19 +80,31 @@ internal object CipherFacts : RequirementCall {
         return out
     }
 
+    // Ignored: taken at init, yet two runs on that one spec differ, so the provider made its own parameters instead.
     private fun specClasses(engine: CipherEngine, base: CipherBase): Map<String, Any> {
-        val accepted = ParameterSpecs.candidates().filter { (_, spec) -> ErrorText.refusal { engine.encrypting(base.key.encrypting, spec) } == null }
-        return mapOf("accepted" to accepted.map { it.first })
+        val accepted = ParameterSpecs.candidates().filter { (_, spec) ->
+            ErrorText.refusal { if (base.wrapOnly) engine.encrypting(base.key.encrypting, spec) else engine.encrypt(base.key.encrypting, spec, base.message) } == null
+        }
+        val out = linkedMapOf<String, Any>("accepted" to accepted.map { it.first })
+        if (!base.wrapOnly && deterministicFixed(engine, base)) {
+            out["ignored"] = accepted.filter { (_, spec) ->
+                !engine.encrypt(base.key.encrypting, spec, base.message).contentEquals(engine.encrypt(base.key.encrypting, spec, base.message))
+            }.map { it.first }
+        }
+        return out
     }
 
     private fun ivBytes(engine: CipherEngine, base: CipherBase, like: AlgorithmParameterSpec): Map<String, Any> =
-        Sweep.of(0..32) { engine.encrypting(base.key.encrypting, ParameterSpecs.withIv(like, ParameterSpecs.random(it))) }
+        Sweep.of(0..32) { engine.encrypt(base.key.encrypting, ParameterSpecs.withIv(like, ParameterSpecs.random(it)), base.message) }
 
     private fun tagBits(engine: CipherEngine, base: CipherBase, like: GCMParameterSpec): Map<String, Any> =
-        Sweep.of(0..256 step 8) { engine.encrypting(base.key.encrypting, GCMParameterSpec(it, ParameterSpecs.random(like.iv.size))) }
+        Sweep.of(0..256 step 8) { engine.encrypt(base.key.encrypting, GCMParameterSpec(it, ParameterSpecs.random(like.iv.size)), base.message) }
 
     private fun keyBytes(engine: CipherEngine, base: CipherBase): Map<String, Any> =
-        Sweep.of(1..64) { engine.encrypting(SecretKeySpec(ParameterSpecs.random(it), base.key.encrypting.algorithm), ParameterSpecs.fresh(base.like)) }
+        Sweep.of(1..64) {
+            val cipher = engine.encrypting(SecretKeySpec(ParameterSpecs.random(it), base.key.encrypting.algorithm), ParameterSpecs.fresh(base.like))
+            if (!base.wrapOnly) cipher.doFinal(base.message)
+        }
 
     private fun pairBits(service: ProbedService, engine: CipherEngine, base: CipherBase): Map<String, Any> {
         val generator = service.keys.generatorOf(base.key) ?: return emptyMap()

@@ -14,7 +14,7 @@ internal object AliasRuns {
 
     private fun ownNameKey(service: ProbedService, alias: String, result: CallResult, accepts: (String, ProbeKey) -> Unit): Map<String, Any>? {
         val own = service.keys.of(service.type, alias, service.provider).firstOrNull { it.source != ProbeKey.RAW } ?: return null
-        if (own.algorithm.equals(result.key?.algorithm, ignoreCase = true)) return null
+        if (own.source == result.key?.source) return null
         return own.describe() + ("result" to (ErrorText.refusal { accepts(alias, own) } ?: "accepted"))
     }
 }
