@@ -1,4 +1,4 @@
-"""compare(): the one before/after comparison the report, the evidence and the dossier estimates use; pImprove, the
+"""compare(): the one from/to comparison the evidence and the dossier estimates use; pImprove, the
 probability that the candidate's median is better, by the process- and block-aware bootstrap."""
 from __future__ import annotations
 

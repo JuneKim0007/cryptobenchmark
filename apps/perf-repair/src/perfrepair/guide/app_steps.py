@@ -10,8 +10,6 @@ from ..app.__main__ import main as app_main
 from ..app.facts.gate import open_apps
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..device.bundled_config import harness_config
-from ..device.energy import report_invalid
-from ..device.measures import owned_config
 from ..device.missing_rows import measured_rows, site_rows, variant_rows
 from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
 from ..dto.upgrade import UPGRADED
@@ -100,20 +98,17 @@ def harness(g: Guide) -> str:
 
 def measured_config(g: Guide) -> Path | None:
     """The global.yaml the app's device step runs with; None: pipeline.py's own lookup."""
-    config = harness_config(g.device, g.app_config, g.paths.root) or g.config or g.base_config
-    return owned_config(config, g.paths.root, g.mode.perf, on_device=True) if config else None
+    return harness_config(g.device, g.app_config, g.paths.root) or g.config or g.base_config
 
 
 def device(g: Guide) -> str:
     config = measured_config(g)
-    manifest = run_pipeline(config, None, "device", harness=g.paths.harness, echo=g.echo, app=g.app_id, device=g.device)
-    invalid = report_invalid(manifest, g.app_id)
-    return str(manifest) + (f", {invalid} energy cases invalid" if invalid else "")
+    return str(run_pipeline(config, None, "device", harness=g.paths.harness, echo=g.echo, app=g.app_id, device=g.device))
 
 
 def report(g: Guide) -> str:
     doc = app_report(g.device, g.app_id, g.mode, echo=lambda _: None)
-    return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone"
+    return f"{g.paths.report}: {doc['funnel']['interopPassed']} of {doc['funnel']['scopes']} scopes interop passed"
 
 
 APP_DRY = (("app", app), ("dossier", dossiers), ("upgrade", upgrades), ("replace", replacements), ("edit", edits), ("harness", harness))

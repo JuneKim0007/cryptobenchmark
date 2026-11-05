@@ -99,7 +99,6 @@ GROUPING_LIMIT = Row("device.grouping.limit", check_positive)
 # knowledge that is missing is asked either way, so a bad value is never unsafe
 GROUPING_NO_RERUN = Row("device.grouping.noRerun", check_bool, default=True)
 GROUPING_ASSIGN = RoleRow("device.grouping.assign", 8500, {"effort": "low"})
-GROUPING_SUPERVISOR = RoleRow("device.grouping.supervisor", 6500)
 # a gap the gate finds: measured in one delta, or a stop; a setup that differs never starts a whole rerun unless named
 BENCHMARK_ON_GAP = Row("device.benchmark.onGap", partial(check_one_of, choices=ON_GAP), default=GAP_DELTA)
 BENCHMARK_ON_SETUP_MISMATCH = Row("device.benchmark.onSetupMismatch", partial(check_one_of, choices=ON_SETUP_MISMATCH),

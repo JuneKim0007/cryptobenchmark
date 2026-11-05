@@ -26,7 +26,7 @@ LOCK, RUNS = ".lock", "runs"
 # apps.targets resolved: every app the guide runs and every candidate it left out
 TARGETS = "targets.yaml"
 # cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`
-SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
+SCOPED_PLAN = "scoped/scoped-plan.yaml"
 GROUPING = "grouping"
 # the run log: events.jsonl is the record; the .log files are views of it
 LOG, EVENTS = "log", "log/events.jsonl"
@@ -38,9 +38,9 @@ PRIMITIVES_MISSING = "log/details/primitives_missing.yaml"
 BENCHMARK_COVERAGE = "log/details/benchmark_coverage.yaml"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
-# one file per model stage; screening's classify and grouping's supervisor apart from their stage's other turns
+# one file per model stage; screening's classify apart from its stage's other turns
 AI_SCREENING_LOG, AI_CLASSIFY_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/classify.log", "log/ai/grouping.log"
-AI_SUPERVISOR_LOG, AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/supervisor.log", "log/ai/worthiness.log", "log/ai/replace.log"
+AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/worthiness.log", "log/ai/replace.log"
 CHARTER = "charter.json"
 ROLE_WRITES = "writes.json"
 JOURNAL = "journal.jsonl"
@@ -88,7 +88,6 @@ class AppPaths:
     extracts = property(lambda self: self.root / "harness")
     measured = property(lambda self: self.root / MEASURED)
     scoped_plan = property(lambda self: self.root / MEASURED / SCOPED_PLAN)
-    scoped_benchmark = property(lambda self: self.root / MEASURED / SCOPED_BENCHMARK)
     report = property(lambda self: self.root / REPORT)
     report_md = property(lambda self: self.root / REPORT_MD)
     finished = property(lambda self: self.root / FINISHED)
@@ -111,8 +110,6 @@ class GroupingPaths:
     journal = property(lambda self: self.root / JOURNAL)
     errors = property(lambda self: self.root / "errors.jsonl")
     checks = property(lambda self: self.root / "checks.json")
-    supervisor = property(lambda self: self.root / "supervisor.json")
-    review = property(lambda self: self.root / "review")
     groups = property(lambda self: self.root / "groups.json")
     interop_plan = property(lambda self: self.root / "interop_plan.yaml")
     interop = property(lambda self: self.root / "interop.yaml")

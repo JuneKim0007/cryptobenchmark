@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import secrets
-
 from ....catalog.families import Families
 from ....dto.decision import OutboxRecord
 from ....dto.grouping import Item, read_items, read_profiles
@@ -10,7 +8,7 @@ from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict
 from ....files import read_json
 from ....probe.identified import identified
-from ....run_dir import CHARTER, GroupingPaths, load_used
+from ....run_dir import GroupingPaths, load_used
 from ....screen.groups import code_groups, reserved_catalog_groups
 from ....validation.grouping.code_groups import validate_code_groups
 from ....validation.grouping.items import validate_items
@@ -22,25 +20,18 @@ from ....validation.parse.grouping_assign import (
     validate_answer,
 )
 from ....validation.screen import read_checked_screen
-from ...runtime.engine import charter_file
 from ...runtime.engine.kind import replay_problems
-from ...runtime.engine.outbox import active_outbox
+from ...runtime.engine.refresh import kept_inputs
 from ...runtime.prompt import PromptLibrary
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
 
 NAME = "parse/grouping-assign"
-REFRESH = "refresh "
 
 
 def charter(library: PromptLibrary, inputs: str = "") -> Charter:
     return library.charter(NAME, SCHEMA, inputs, id_pattern=SLUG.pattern, max_description=MAX_DESCRIPTION)
-
-
-def refresh_inputs() -> str:
-    """Run inputs no outbox holds yet, so every item is asked into a new one."""
-    return REFRESH + secrets.token_hex(6)
 
 
 class GroupingKind:
@@ -64,11 +55,7 @@ class GroupingKind:
     @property
     def inputs(self) -> str:
         """The active outbox's refresh, kept so a later run stays in it; what is screened out is no input: its records just add no member."""
-        active = active_outbox(self.paths.root)
-        if active.fingerprint is None:
-            return ""
-        kept = charter_file.inputs(active.directory / CHARTER)
-        return kept if kept.startswith(REFRESH) else ""
+        return kept_inputs(self.paths.root)
 
     def items(self) -> list[Item]:
         return self._items
@@ -101,7 +88,6 @@ class GroupingKind:
             return [f"{item.id}: does not parse into Item: {e}"]
         return [p for p in (
             f"{item.id}: differs from the item the run was built with" if popped != item else "",
-            f"{item.id}: carries group {popped.group!r}" if popped.group is not None else "",
             f"{item.id}: family {popped.family!r} unknown" if popped.family not in self.families.by_id else "",
             f"{item.id}: no profile" if item.id not in self.profiles else "",
         ) if p]

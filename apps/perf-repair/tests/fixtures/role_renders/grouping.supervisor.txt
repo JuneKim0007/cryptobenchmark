@@ -1,8 +1,0 @@
-FAMILY cipher.secret — Symmetric ciphers: one secret key encrypts and decrypts. Interchangeable only with the same mode, padding, IV/nonce contract and authentication (AEAD or not).
-
-GROUP g-1 — the function AES/GCM/NoPadding
-  1 · AES/GCM/NoPadding · Fast · resolved: GCM iv=12B
-  2 · AES/GCM/NoPadding · Slow · resolved: GCM iv=12B
-
-STATIC FINDINGS
-  (none)

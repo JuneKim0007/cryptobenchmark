@@ -6,7 +6,6 @@ import pytest
 from perfrepair.ai.evaluate.worthiness.schema import SCHEMA as WORTHINESS
 from perfrepair.ai.parse.algorithm_classify.schema import SCHEMA as CLASSIFY
 from perfrepair.ai.parse.grouping_assign.schema import SCHEMA as ASSIGN
-from perfrepair.ai.review.grouping_review.schema import SCHEMA as REVIEW
 from perfrepair.ai.runtime.gateway.claude_api import API_UNSUPPORTED, api_schema
 from perfrepair.ai.suggest.site_replace.schema import SCHEMA as REPLACE
 from perfrepair.dto.dossier import OPTION_PREFIX
@@ -16,7 +15,7 @@ from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG
 
 # What the role schemas may send the Messages API; a new keyword is checked against the API before it joins this.
 API_KEYWORDS = {"type", "properties", "required", "additionalProperties", "items", "enum"}
-SCHEMAS = {"assign": ASSIGN, "worthiness": WORTHINESS, "review": REVIEW, "replace": REPLACE, "classify": CLASSIFY}
+SCHEMAS = {"assign": ASSIGN, "worthiness": WORTHINESS, "replace": REPLACE, "classify": CLASSIFY}
 
 
 def nodes(node):

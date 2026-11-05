@@ -2,7 +2,7 @@
 # Directly, name a copy with --perfrepair-config or PERFREPAIR_CONFIG. The results root, the benchmark's global.yaml and
 # the run's id are in settings.yaml, or the guide's flags: a value for one of them here is a placement error.
 # Every key is optional; a missing or null key falls through to the next layer:
-#   CLI flag > a role section here (device.grouping.assign, device.grouping.supervisor, device.screening.classify,
+#   CLI flag > a role section here (device.grouping.assign, device.screening.classify,
 #   device.worthiness, apps.agent, apps.replace, apps.upgrade) > environment (PERFREPAIR_*) > the gateway's block here > .env
 #   > the role's code default > the general code default.
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
@@ -29,13 +29,12 @@ device:                    # once per device
     aiReview: false        # true: grouping build asks screening's classify role about the items no row decides
     classify: {}           # role keys: gateway, model, effort, budget (tokens by chars/4 of the system prompt plus one
                            # message; over it, a coded stop, docs/settings.md)
-  grouping:                # grouping assign, grouping report --supervisor
+  grouping:                # grouping assign
     turns:                 # empty = the code default
     sessions:              # empty = the code default
     limit:                 # items per `grouping assign` call; empty = all
     noRerun: true          # guide: true asks only items with no decision; false asks every item into a new outbox
     assign: {}             # role keys: gateway, model, effort, budget; effort here sets this role only
-    supervisor: {}
   benchmark:
     onGap: delta           # a used item the benchmark lacks: delta measures only the gaps, once | stop: not_benchmarked
     onSetupMismatch: stop  # a delta measured under another setup: stop names the field | rerun: the whole benchmark again
@@ -68,8 +67,6 @@ stops:                     # per code, what it does when it fires (docs/stops.md
   perf_mode_unmeasured: stop        # stop | warn: a metric a perfMode list names that the harness cannot measure
   perf_mode_maybe_unmeasured: warn  # warn | stop: selected energy only a test set may turn on
   energy_invalid: warn     # warn | stop: an energy case its energy.json marks invalid
-  thermal_mismatch: warn   # warn | stop: a before/after pair whose start temperatures differ past criteria.yaml's thermalMismatchDegrees; no verdict changes
-  category_mismatch: warn   # warn | stop: a scope's before/after change, beyond noise, is not one its category's estimates gave
   thermal_throttled_at_end: warn   # warn | stop: a case that ended throttled; no verdict changes
   energy_unreadable: warn  # warn | stop: energy files that cannot be read
   no_required_metric: skip # skip | stop: a benchmark case with no runs of a required metric

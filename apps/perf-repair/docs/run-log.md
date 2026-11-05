@@ -22,7 +22,7 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 |---|---|
 | `events.jsonl` | one JSON line per event, every field on every line (`dto/event.py`, schema 1); the only stream commands write |
 | `status.log` | one line per outcome a person acts on, a `run` header and `end` line per run |
-| `ai/screening.log`, `ai/classify.log`, `ai/grouping.log`, `ai/supervisor.log`, `ai/worthiness.log`, `ai/replace.log` | one model stage's events, one line each, problems indented; `classify` is screening's classify role, `supervisor` grouping's review role |
+| `ai/screening.log`, `ai/classify.log`, `ai/grouping.log`, `ai/worthiness.log`, `ai/replace.log` | one model stage's events, one line each, problems indented; `classify` is screening's classify role |
 | `bug.log` | each exception that is not a coded error, with its traceback |
 | `pipeline/<run id>.log` | the cryptobenchmark transcript of every `pipeline.py` call of one run, each headed `# <stage>[ app <app>]` and `$ <command>` |
 | `details/primitives_missing.yaml` | the primitives and providers an app uses that this guide run skipped or stopped on because they are not available ([below](#primitives-missing)) |
@@ -30,7 +30,7 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 
 - `status.log`, `ai/*.log` and `bug.log` are views: each line is a function of one event (`log/views.py`); `render()` recomputes them from `events.jsonl`.
 - `pipeline/<run id>.log`, `details/*.yaml` and the role journals are no views; an event's `ref` points into them.
-- `log/screening/ai.log` and `log/grouping/ai.log` are no longer written: their lines are in `ai/classify.log`, `ai/grouping.log` and `ai/supervisor.log`; a folder written before keeps the old files, and `render()` over its `events.jsonl` gives the new ones.
+- `log/screening/ai.log` and `log/grouping/ai.log` are no longer written: their lines are in `ai/classify.log` and `ai/grouping.log`; a folder written before keeps the old files, and `render()` over its `events.jsonl` gives the new ones.
 - `<results root>/pipeline.log` is no longer written; the transcript is in the device folder, one file per run.
 
 ## Status lines

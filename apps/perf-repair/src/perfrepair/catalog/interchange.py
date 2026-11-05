@@ -49,7 +49,6 @@ class Engine:
 class Interchange:
     engines: dict[str, Engine]
     digest_components: frozenset[str]
-    not_splitting: tuple[str, ...]
     contracts: dict[str, frozenset[str]] = field(default_factory=dict)
 
     def contract_of(self, component: str) -> str:
@@ -75,7 +74,7 @@ def load(path: Path = CATALOG) -> Interchange:
     doc = yaml.safe_load(Path(path).read_text())
     INTERCHANGE_DOC.check(doc, path)
     return Interchange({t: _engine(t, row) for t, row in doc["engines"].items()}, frozenset(doc["digestComponents"]),
-                       tuple(doc["notSplitting"]), {c: frozenset(n) for c, n in doc["contracts"].items()})
+                       {c: frozenset(n) for c, n in doc["contracts"].items()})
 
 
 @cache

@@ -20,15 +20,6 @@ roles:
     optional: [grouping/screen.json, used.json, catalog/algorithm-names.yaml, "catalog/algorithms/*"]
     tools: []
     writes: [grouping/knowledge.json, grouping/cursor.json]
-  grouping.supervisor:
-    prompt: review/grouping-review
-    schema: ai.review.grouping_review.schema
-    charter: "528cf3d7bbd5"
-    folder: grouping/review
-    required: [grouping/groups.json, grouping/checks.json, grouping/items.json, grouping/profiles.json, catalog/groups.yaml]
-    optional: [grouping/screen.json, "catalog/algorithms/*", catalog/algorithm-names.yaml, catalog/families.yaml, catalog/interchange.yaml]
-    tools: []
-    writes: [grouping/supervisor.json]
   worthiness:
     prompt: evaluate/worthiness
     schema: ai.evaluate.worthiness.schema

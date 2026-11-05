@@ -12,7 +12,7 @@ from .library import PromptError, PromptLibrary
 def add_prompt_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--prompts", type=Path, metavar="DIR",
                         help="replace packaged prompts with the files in DIR, matched by their path relative to DIR "
-                             "(e.g. DIR/review/grouping-review.system.md); a file matching no prompt is an error")
+                             "(e.g. DIR/parse/grouping-assign.system.md); a file matching no prompt is an error")
 
 
 def load_prompts(parser: argparse.ArgumentParser, args: argparse.Namespace, settings: Loaded) -> PromptLibrary:

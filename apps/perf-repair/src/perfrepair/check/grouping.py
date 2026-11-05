@@ -10,9 +10,6 @@ from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.parse.algorithm_classify.kind import ClassifyKind
 from ..ai.parse.algorithm_classify.state import Classified, candidates
 from ..ai.parse.grouping_assign.kind import GroupingKind
-from ..ai.review.grouping_review.kind import GroupingReviewKind
-from ..ai.review.grouping_review.state import Reviews
-from ..ai.runtime.engine import charter_file
 from ..ai.runtime.engine.kind import rebuild_problems
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..dto import Verdicts
@@ -68,28 +65,6 @@ def check_grouping(grouping: GroupingPaths) -> list[str]:
         return e.problems
     # with nothing asked, `grouping report` alone writes knowledge.json: no outbox to rebuild from
     return kind.validate(saved, records) + ([] if outbox.fingerprint is None else rebuild_problems(kind, records))
-
-
-def check_supervisor(grouping: GroupingPaths) -> dict[str, list[str]]:
-    """supervisor.json against the review outbox's replay and the groups it reviewed."""
-    if not grouping.supervisor.is_file():
-        return {}
-    name = f"{rd.GROUPING}/{grouping.supervisor.name}"
-    try:
-        saved = read_json(grouping.supervisor)
-        outbox = active_outbox(grouping.review)
-        records = outbox.records()
-        kind = GroupingReviewKind(grouping, saved=saved)
-        inputs = charter_file.inputs(outbox.directory / rd.CHARTER) if outbox.fingerprint else None
-    except ValidationFailed as e:
-        return {name: e.problems}
-    except (OSError, KeyError, TypeError, ValueError) as e:
-        return {name: [f"does not read: {e}"]}
-    problems = [] if saved.get("charter") == outbox.fingerprint else [
-        f"supervisor.json names charter {saved.get('charter')}, the active review outbox is {outbox.fingerprint}"]
-    problems += [] if inputs == kind.inputs else ["the groups changed since this review; rerun grouping report --supervisor"]
-    return {name: problems + kind.validate(Reviews(len(records), saved.get("families", {})), records)
-            + rebuild_problems(kind, records)}
 
 
 def check_screen(grouping: GroupingPaths, catalog: Catalog) -> dict[str, list[str]]:

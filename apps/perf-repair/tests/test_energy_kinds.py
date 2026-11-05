@@ -1,4 +1,4 @@
-"""energyJ's kind from benchmark.json to the dossier and the report: estimated is labelled, never compared with measured."""
+"""energyJ's kind from benchmark.json to the dossier: estimated is labelled, never compared with measured."""
 import json
 from dataclasses import replace
 
@@ -11,13 +11,8 @@ from perfrepair.ai.suggest.site_replace.render import render
 from perfrepair.dto.measurement import Measurements
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.dossier import Dossier
-from perfrepair.dto.units import DisplayUnits
-from perfrepair.report.markdown import _metric_lines
-from perfrepair.report.metrics import metric_rows
-from perfrepair.report.summary import _estimated_in
 from perfrepair.validation.dossiers.dossier import check_dossier
 from perfrepair.validation.measurements import validate_measurements
-from perfrepair.validation.report_metrics import check_metric
 
 
 def benchmark(tmp_path, block):
@@ -88,29 +83,3 @@ def test_a_zero_median_current_has_no_estimate_and_the_dossier_and_render_say_wh
     assert check_dossier(document["dossiers"][0], "app", PerfMode(("latency", "memAlloc")))[1] == []
     assert "no estimate: allocationCount at OP1 key 128 input 64 WARM: zero_median" in render(
         item(Dossier.from_json(document["dossiers"][0])))
-
-
-def case(kind, runs=(0.5, 0.6)):
-    block = {"iterations": 1, "runs": list(runs)} | ({"kind": kind} if kind else {})
-    return {"inputSize": None, "metrics": {"timeNs": {"runs": [10.0, 11.0]}, "energyJ": block}}
-
-
-def energy_row(before, after):
-    return metric_rows(before, after, PerfMode(("latency", "energy")), DisplayUnits())[2]
-
-
-def test_the_report_labels_an_estimate_and_validates_it():
-    m = energy_row(case("estimated"), case("estimated"))
-    assert m["kind"] == "estimated" and m["measured"] is True and check_metric("r", m, DisplayUnits()) == []
-    assert "| energyJ * (J/op, estimated) |" in _metric_lines(m, DisplayUnits().to_json())[0]
-
-
-def test_the_report_refuses_a_ratio_across_kinds():
-    m = energy_row(case("measured"), case("estimated"))
-    assert m["measured"] is False and m["reason"] == "energy_kinds_differ: measured before, estimated after" and check_metric("r", m, DisplayUnits()) == []
-
-
-def test_the_summary_names_the_apps_with_estimates():
-    reports = [{"app": "a", "scopes": [{"metrics": [{"metric": "energyJ", "kind": "estimated"}]}]},
-               {"app": "b", "scopes": [{"metrics": [{"metric": "energyJ", "measured": True}]}]}]
-    assert _estimated_in(reports, "energyJ") == {"estimatedIn": ["a"]} and _estimated_in(reports, "timeNs") == {}

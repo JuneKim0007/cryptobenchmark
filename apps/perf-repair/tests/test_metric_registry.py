@@ -7,8 +7,6 @@ import pytest
 from perfrepair.data_handler.inbound.results import read_results
 from perfrepair.dto.measurement import Measurements
 from perfrepair.dto.metrics import BY_NAME, METRICS, NAMES
-from perfrepair.dto.report import REPORTED
-from perfrepair.dto.site import METRICS as DOSSIER_METRICS
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.result.evidence import build_evidence
 from perfrepair.validation.measurements import validate_measurements
@@ -62,5 +60,4 @@ def test_a_kind_outside_the_registry_is_refused(chain):
 
 
 def test_every_kept_metric_list_is_the_registry():
-    assert DOSSIER_METRICS == NAMES and tuple(name for name, _ in REPORTED) == NAMES
     assert len({key for m in METRICS for key in m.selects}) == sum(len(m.selects) for m in METRICS)

@@ -145,7 +145,7 @@ def _regroup(g: Guide, seen: Coverage, every: bool) -> str:
         if every or seen.pending:
             check_exit(g, grouping_main(["assign", "--device-results", str(g.device), *g.grouping_args,
                                          *(("--refresh",) if every else ())]), "grouping_failed", "grouping assign")
-        check_exit(g, grouping_main(["report", "--device-results", str(g.device), *g.grouping_args]), "grouping_failed",
+        check_exit(g, grouping_main(["report", "--device-results", str(g.device), *g.config_args]), "grouping_failed",
                    "grouping report")
         s.outcome, s.detail = "ran", said.removeprefix("ran: ")
         s.count(items=seen.asked, asked=seen.asked if every else len(seen.pending), **_not_used(seen))
@@ -201,7 +201,7 @@ def summary(g: Guide) -> str:
     if not any((d / rd.REPORT).is_file() for d in rd.app_dirs(g.device)):
         return "no app has a report yet"
     doc = device_summary(g.device, echo=lambda _: None)
-    return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone"
+    return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['interopPassed']} scopes interop passed"
 
 
 DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping), ("interop", interop))

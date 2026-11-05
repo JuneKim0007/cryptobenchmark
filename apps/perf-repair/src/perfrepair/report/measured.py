@@ -1,19 +1,18 @@
-"""cryptobenchmark's --harness output for one app: each scope's scoped-plan record and its measured cases."""
+"""cryptobenchmark's --harness output for one app: each scope's scoped-plan record, its compile and interop verdict."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..files import read_json, read_yaml
+from ..files import read_yaml
 from ..run_dir import AppPaths
 from ..stop.halt import Coded
 
 
 @dataclass(frozen=True)
 class Measured:
-    """`absent` says why there is no plan; `cases` is keyed by case id and empty when nothing was measured."""
+    """`absent` says why there is no plan."""
     absent: str | None
     plan: dict[str, dict] = field(default_factory=dict)
-    cases: dict[str, dict] = field(default_factory=dict)
 
 
 def read_measured(paths: AppPaths, harness_ids: list[str]) -> Measured:
@@ -23,7 +22,4 @@ def read_measured(paths: AppPaths, harness_ids: list[str]) -> Measured:
     if sorted(plan) != sorted(harness_ids):
         raise Coded(f"measured_mismatch: {paths.scoped_plan} lists scopes {sorted(plan)}, "
                          f"harness.yaml lists {sorted(harness_ids)}; rerun the device step on this harness")
-    cases = {}
-    if paths.scoped_benchmark.is_file():
-        cases = {c["id"]: c for c in read_json(paths.scoped_benchmark).get("cases") or []}
-    return Measured(None, plan, cases)
+    return Measured(None, plan)

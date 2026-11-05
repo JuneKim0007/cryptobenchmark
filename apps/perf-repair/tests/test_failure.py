@@ -30,7 +30,6 @@ def _commands(d: Path):
         (ai, ["worthiness", "--device-results", run, "--perf-mode", "latency", "--agent", "dry-run"]),
         (ai, ["replace", "--device-results", run, "--app", "x", "--agent", "dry-run"]),
         (repair, ["dossier", "--device-results", run, "--app", app_dir]),
-        (repair, ["test-set", "--device-results", run, "--app", "x", "-o", str(d / "t.yaml")]),
         (repair, ["edit", "--device-results", run, "--app", app_dir]),
         (repair, ["harness", "--device-results", run, "--app", "x"]),
         (app, ["--device-results", run, "--app", app_dir]),

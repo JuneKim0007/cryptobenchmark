@@ -39,14 +39,14 @@ flowchart TD
     R --> GC
     GC -- accepted / sessions exhausted --> O[outbox record] --> GD{gate D}
     GD --> K[knowledge, cursor, errors rebuilt] --> A
-    A -- no item left --> X[report: checks.json, groups.json] --> S[supervisor.json, optional]
+    A -- no item left --> X[report: checks.json, groups.json]
 ```
 
 ## Files (`<device>/grouping/`)
 
 | File | Written by | Holds |
 |---|---|---|
-| `items.json` | build | `{id, type, name, provider, family, resolved, group: null}` per item: each service of the trial and each declared transformation that ran, the names the inventory and the benchmark hold |
+| `items.json` | build | `{id, type, name, provider, family, resolved}` per item: each service of the trial and each declared transformation that ran, the names the inventory and the benchmark hold |
 | `screen.json` | build | schema 5: `catalog` `{source, sha256}` the verdicts came from; `built` `{items, profiles}`: sha256 of the `items.json` and `profiles.json` written with it, so a screen.json beside another build's items is refused (`validation/screen.py` `read_checked_screen`, used by assign, report and every `read_groups`); `review` `{fingerprint}` only after a model review; per id: a screening verdict `{status, reason, source, canonical, keySize}` ([screening.md](screening.md)) |
 | `classify/batches.json`, `classify/classified.json` | build, with aiReview | the batched evidence; the projection of the classify outbox: one answer per asked id |
 | `classify/outbox/`, `classify/journal.jsonl`, `classify/errors.jsonl` | build, with aiReview | the classify commit, turns and dropped batches ([screening.md](screening.md) Model review) |
@@ -63,8 +63,6 @@ flowchart TD
 | `groups.json` | report | schema 3: families, groups with members, runnable members, common key sizes, findings; items index with each item's `keyContract` and `screen` status (null without screen.json); dropped; with `used.json`, `notUsed`: askable items outside it with no record, left unasked and never dropped; `interop` |
 | `interop_plan.yaml` | interop-plan, the guide's interop step (only pairs with a member a site resolves to, with `used.json`) | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once, none from a group whose members are all one engine (`same_engine`: no pair of it is ever an option or an inverse link's end); `keySize` the size a member's name fixes (`screen.json`), else the two's smallest common prepared size (`profiles.json`); `notCheckable[]` `{id, group, a, b, reason}`, present when a pair crosses key contracts: never sent to the oracle, which reads only `pairs` |
 | `interop.yaml` | interop-read, the guide's interop step | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions; from the guide also `setup`, the fields of `device/setup_fingerprint.py` `provider_setup`: a verdict of the same setup is not run again, by the pair's two members in plan order and its `keySize`; `interop_pending.yaml` holds the pairs it hands `pipeline.py --interop`, for that call only |
-| `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings; a projection of `review/outbox/`, `charter` its fingerprint |
-| `review/outbox/`, `review/journal.jsonl`, `review/errors.jsonl` | report --supervisor | the review's commit, turns and dropped families; a second run asks nothing, other groups or another prompt open a new outbox, reverting resumes the old |
 
 ## Identified items
 
@@ -77,7 +75,7 @@ flowchart TD
 | build write | everything, the classify review included, is computed first; then screen.json, profiles.json and items.json are staged as temp files and renamed in that order: a failure before the renames leaves the previous build whole, a partial rename fails screen.json's `built` digests, and screen.json first means its absence never follows a new items.json |
 | key | family, status, the canonical name `screen.json` recorded, and whether the key lives inside the provider (`providerHeld`: key contract `provider_held`; `unknown` and `app_held` share a group); key size is the call's, as in model groups; one group per key across providers |
 | id, description | `code_` + 10 hex of the key's SHA-256: stable across runs; `_` is outside the model's id pattern, so no collision; fixed: code-made group of one algorithm: its canonical name, any key size, who holds the keys, and status |
-| model, groups.json | the model never sees, joins or amends a code-made group; the supervisor reviews neither them nor a catalog group with only listed members; static findings, interop pairs and dossiers treat them as groups. A screened-out item is in exactly one code-made group; a code-made group is exactly the one its key implies |
+| model, groups.json | the model never sees, joins or amends a code-made group; static findings, interop pairs and dossiers treat them as groups. A screened-out item is in exactly one code-made group; a code-made group is exactly the one its key implies |
 | screen change | what is screened out is no charter input, since the model never sees code groups: every change keeps the outbox. A newly screened-out item's record adds no member and it joins its code group; one no longer screened out with no record is asked, one with a record goes back to its group. Gate A and `report` recompute the code-made groups from screen.json |
 | record key | ids are positional in the sorted items, so any added or removed item moves them; a record names `Item.key` and replay resolves it to today's id, so moved ids change nothing. A record whose item left (or is screened out) adds no member, and its answer still creates and amends groups, later answers may name them; a group with no member left is out of `knowledge.json` and `groups.json`, and its id stays taken for that outbox. A changed family is another key, so that item is asked again. Other facts of a name (`resolved`, the key contract) are not in the key: same name, same device id |
 | bare name | a screened-out name without mode or padding is its own canonical name, so its own code-made group, until discovery records what it resolves to |

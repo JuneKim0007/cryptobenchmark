@@ -14,7 +14,7 @@ LAYERS = [
     ("app", "scope", "screen", "source", "probe"),
     ("validation",),
     ("ai/runtime",),
-    ("ai", "ai/evaluate", "ai/parse", "ai/repair", "ai/review", "ai/suggest"),
+    ("ai", "ai/evaluate", "ai/parse", "ai/repair", "ai/suggest"),
     ("grouping", "repair", "command"),
     ("device",),
     ("report", "review", "failure"),

@@ -4,13 +4,12 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from ..dto.site import HARNESS_SCHEMA_VERSION, METRICS, NO_OPERATION, Scope
+from ..dto.site import HARNESS_SCHEMA_VERSION, NO_OPERATION, Scope
 from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope
 from ..files import write_text_making_parents
 from ..source.code import Code
 from ..stop.halt import Coded
-from .call_site import call_site
 from .dependencies import dependencies, load
 from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
@@ -57,11 +56,9 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "inputs": scope_inputs(scope, current, replacements[scope.id].option, effective),
             "current": current,
             "option": replacements[scope.id].option,
-            "metrics": list(METRICS),
             "dependencies": uses,
             "notMeasurable": None if has_operation(Code.of(original, lang), scope) else NO_OPERATION,
             "inverse": inverses.get(scope.id),
-            "callSite": call_site(scope, dossiers[scope.id], replacements[scope.id].option),
             "upgrade": scope.id in upgraded,
         })
     return {"schemaVersion": HARNESS_SCHEMA_VERSION, "app": out.app, "scopes": entries}

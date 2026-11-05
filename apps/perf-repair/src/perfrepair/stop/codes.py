@@ -11,7 +11,7 @@ NOTHING = "nothing is left to run"
 UNUSABLE = "the input is unusable"
 NOTICE = "a notice; nothing to choose"
 # the guide's step names: a step's coded failure is `<step>_failed`, the inner code kept beside it
-GUIDE_STEPS = ("prerequisites", "targets", "grouping", "interop", "detect", "app", "dossier", "replace", "edit", "harness", "device", "report",
+GUIDE_STEPS = ("prerequisites", "targets", "grouping", "interop", "app", "dossier", "replace", "edit", "harness", "device", "report",
                "summary")
 
 
@@ -58,9 +58,6 @@ CODES_LIST: tuple[Code, ...] = (
     _choice("energy_invalid", WARN, "the case has no energy number; rerun it with a longer window or more operations",
             (WARN, STOP)),
     _choice("energy_unreadable", WARN, "check the energy.json files the manifest lists", (WARN, STOP)),
-    _choice("thermal_mismatch", WARN, "the sides of a pair started at different temperatures; rerun the pair, or read its ratio with care", (WARN, STOP)),
-    _choice("category_mismatch", WARN, "the before/after disagrees with its category's estimate; check the scope's "
-            "pattern against its function, or read its ratio with care", (WARN, STOP)),
     _choice("thermal_throttled_at_end", WARN, "the case ended throttled; let the phone cool, or read its numbers with care", (WARN, STOP)),
     _choice("no_required_metric", SKIP, "the case has no required metric runs; check the benchmark transcript",
             (SKIP, STOP)),

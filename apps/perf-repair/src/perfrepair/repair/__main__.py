@@ -1,4 +1,4 @@
-"""python3 -m perfrepair.repair — scopes → dossiers → test set; replacements → edits → harness."""
+"""python3 -m perfrepair.repair — scopes → dossiers; replacements → edits → harness."""
 from __future__ import annotations
 
 import argparse
@@ -28,20 +28,18 @@ from .dossier import dossier
 from .edit import edit_app, load_specs
 from .harness import harness
 from .inputs import read_effective
-from .test_set import build_test_set
 
 
 def main(argv: list[str] | None = None) -> int:
     attach()
     ap = argparse.ArgumentParser(prog="perfrepair.repair")
     sub = ap.add_subparsers(dest="command", required=True)
-    for name in ("dossier", "test-set", "edit", "harness"):
+    for name in ("dossier", "edit", "harness"):
         p = sub.add_parser(name)
         add_device_results_arg(p)
         add_config_arg(p)
         p.add_argument("--app", type=Path, required=True,
                        help="the app's source root, only read; its path gives the app's id, scope files are relative to it")
-    sub.choices["test-set"].add_argument("-o", "--out", type=Path, required=True)
     sub.choices["dossier"].add_argument("--perf-mode", type=perf_mode, default=GENERIC, metavar="KEYS")
     sub.choices["dossier"].add_argument("--max-change", choices=CHANGES, default=DROP_IN)
     a = ap.parse_args(argv)
@@ -58,13 +56,6 @@ def _located(ap: argparse.ArgumentParser, a: argparse.Namespace) -> argparse.Nam
 def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
     dossier(a.device_results, a.app, a.source, screening_catalog(load_settings(ap, a)), PerfMode.parse(a.perf_mode),
             max_change=a.max_change)
-
-
-def _test_set(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    doc = build_test_set(rd.read_dossiers(AppPaths(a.device_results, a.app).dossiers), a.app)
-    write_text(a.out, yaml.safe_dump(doc, sort_keys=False))
-    print(f"{a.out}: {len(doc['include'])} primitives")
-    return 0
 
 
 def _load(paths: AppPaths) -> tuple[dict[str, Scope], dict[str, Replacement]]:
@@ -118,7 +109,7 @@ def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     return 0
 
 
-STEPS = {"dossier": _dossier, "test-set": _test_set, "edit": _edit, "harness": _harness}
+STEPS = {"dossier": _dossier, "edit": _edit, "harness": _harness}
 
 
 if __name__ == "__main__":

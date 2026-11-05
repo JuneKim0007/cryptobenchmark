@@ -67,7 +67,7 @@ class GroupVariant:
     description: str
 
 
-def _variant(group: CatalogGroup, provider_held: bool) -> GroupVariant:
+def variant(group: CatalogGroup, provider_held: bool) -> GroupVariant:
     if group.keyless:
         return GroupVariant(group.id, group.family, group.description)
     gid = group.id + (PROVIDER_HELD_SUFFIX if provider_held else "")
@@ -79,7 +79,7 @@ class GroupCatalog:
     def __init__(self, source: str, groups: tuple[CatalogGroup, ...], families: tuple[FamilyGroup, ...] = ()):
         self.source, self.groups, self.families = source, groups, families
         self._listed = {(g.family, fold(name)): g for g in groups for _, name in g.members}
-        self._variants = {v.id: v for g in groups for v in (_variant(g, False), _variant(g, True))}
+        self._variants = {v.id: v for g in groups for v in (variant(g, False), variant(g, True))}
 
     def of(self, family: str, canonical: str | None) -> CatalogGroup | None:
         return self._listed.get((family, fold(canonical))) if canonical else None
@@ -89,10 +89,6 @@ class GroupCatalog:
 
     def variants(self) -> list[GroupVariant]:
         return list(self._variants.values())
-
-
-def variant(group: CatalogGroup, provider_held: bool) -> GroupVariant:
-    return _variant(group, provider_held)
 
 
 def row_contracts(signatures: list[Signature]) -> dict:

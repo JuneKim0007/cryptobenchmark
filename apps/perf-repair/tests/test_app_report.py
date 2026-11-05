@@ -1,4 +1,4 @@
-"""The report on a hand-built device result: one measured scope, one primitive-only, one interop failure,
+"""The report on a hand-built device result: one checked scope, one primitive-only, one interop failure,
 one kept, one rejected edit; the summary over two such apps."""
 import json
 import shutil
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import QUIET
+from helpers import LATENCY, LATENCY_ALLOC, QUIET
 
 from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION,
                                  SITES_SCHEMA_VERSION)
@@ -15,9 +15,7 @@ from perfrepair.report.__main__ import main
 from perfrepair.report.app_report import build_report
 from perfrepair.report.markdown import report_markdown
 from perfrepair.report.command import app_report, device_summary
-from helpers import LATENCY
 from perfrepair.run_dir import AppPaths
-from perfrepair.dto.units import DisplayUnits
 from perfrepair.validation.report import validate_report
 from perfrepair.validation.summary import validate_summary
 
@@ -32,7 +30,7 @@ def _scope(sid, line, pattern="notFixed", reason="unknown_default"):
             "patternReason": reason}
 
 
-def make_app(run, name="shop", after_scale=1.0, measured=True):
+def make_app(run, name="shop", checked=True):
     paths = AppPaths(run, name)
     paths.root.mkdir(parents=True)
     write_json(paths.facts, {"root": str((run / f"{name}-source").resolve())})
@@ -54,14 +52,9 @@ def make_app(run, name="shop", after_scale=1.0, measured=True):
     write_json(paths.edits, {"schemaVersion": EDITS_SCHEMA_VERSION, "edits": [{"scope": s, "status": "applied", "reason": None, "diff": "x"} for s in (A, B, C)]
                              + [{"scope": E, "status": "rejected", "reason": "call_moved", "diff": ""}]})
     write_text(paths.harness, yaml.safe_dump({"scopes": [{"id": s} for s in (A, B, C)]}))
-    if measured:
+    if checked:
         paths.scoped_plan.parent.mkdir(parents=True)
         shutil.copy(F / "scoped-plan.yaml", paths.scoped_plan)
-        bench = read_json(F / "benchmark.json")
-        for case in bench["cases"]:
-            if case["id"].endswith(":after"):
-                case["metrics"]["timeNs"]["runs"] = [v * after_scale for v in case["metrics"]["timeNs"]["runs"]]
-        write_json(paths.scoped_benchmark, bench)
     return paths
 
 
@@ -69,52 +62,34 @@ def rows(doc):
     return {s["scope"]: s for s in doc["scopes"]}
 
 
-def test_a_measured_scope_reports_before_after_per_metric(tmp_path):
-    doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
-    a = rows(doc)[A]
-    assert a["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "stale": False,
-                             "needs": [], "concerns": []}
-    assert (a["current"], a["option"], a["edit"]["status"], a["compile"]["status"]) == (CURRENT, OPTION, "applied",
-                                                                                        "compiled")
-    assert a["interop"] == {"status": "passed", "reason": None, "check": "same_output"}
-    time, alloc, energy = a["metrics"]
-    assert (time["before"], time["after"], time["ratio"], time["level"]) == (1000, 800, 0.8, "ok")
-    assert time["views"]["latency"] == {"unit": "ms/op", "before": 0.001, "after": 0.0008}
-    assert time["views"]["throughput"] == {"unit": "MB/s", "before": 1024.0, "after": 1280.0}
-    assert doc["units"] == {"latency": "ms", "throughput": "MB/s"}
-    assert (alloc["ratio"], alloc["level"]) == (1.0, "weak")
-    assert (energy["before"], energy["after"], energy["pImprove"], energy["level"]) == (0.002, 0.0015, None, "too_few_runs")
-    assert a["verdict"] == "improves" and a["primitive"] == [ESTIMATE]
-
-
 @pytest.fixture(autouse=True)
 def app(tmp_path):
     return make_app(tmp_path)
 
 
-def test_every_unmeasured_scope_says_why_and_shows_no_number(tmp_path):
+def test_each_scope_reports_its_steps_and_no_number(tmp_path):
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
     r = rows(doc)
+    assert r[A]["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "stale": False,
+                                "needs": [], "concerns": []}
+    assert (r[A]["current"], r[A]["option"], r[A]["edit"]["status"], r[A]["compile"]["status"]) == (CURRENT, OPTION, "applied",
+                                                                                                 "compiled")
+    assert r[A]["interop"] == {"status": "passed", "reason": None, "check": "same_output"} and r[A]["primitive"] == [ESTIMATE]
     assert r[B]["compile"] == {"status": "primitive_only", "reason": "missing_input: inputSize for in"}
     assert r[C]["interop"] == {"status": "interop_failed", "reason": "outputs_differ", "check": "same_output"}
     assert r[D]["decision"]["source"] == "static" and r[D]["edit"]["status"] == "skipped"
     assert r[E]["edit"] == {"status": "rejected", "reason": "call_moved"}
-    reasons = {s: r[s]["metrics"][0]["reason"] for s in (B, C, D, E)}
-    assert reasons == {B: "primitive_only: missing_input: inputSize for in", C: "interop_failed: outputs_differ",
-                       D: "not replaced: keep (no_alternative)", E: "rejected: call_moved"}
-    assert all(set(m) == {"metric", "unit", "selected", "measured", "reason"} for s in (B, C, D, E) for m in r[s]["metrics"])
-    assert [m["selected"] for m in r[B]["metrics"]] == [True, False, False]
-    assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "recommend": 0, "replace": 4, "unitsReplace": 3, "applied": 3, "compiled": 2,
-                             "interopPassed": 1, "measured": 1, "measuredCallSite": 0, "measuredUnchecked": 0}
+    assert not {"metrics", "verdict", "label", "thermal", "measuredBy"} & set(r[A])
+    assert doc["funnel"] == {"sites": 6, "scopes": 5, "units": 4, "withOptions": 4, "recommend": 0, "replace": 4, "unitsReplace": 3,
+                             "applied": 3, "compiled": 2, "interopPassed": 1}
+    assert validate_report(doc, "shop") == []
 
 
-def test_the_markdown_carries_the_numbers_and_the_reasons(tmp_path, app):
+def test_the_markdown_carries_the_steps_and_the_primitive_evidence(tmp_path, app):
     app_report(tmp_path, "shop", LATENCY, **QUIET)
     text = app.report_md.read_text()
-    assert "| timeNs * (ms/op) | 0.001 → 0.0008 | 0.800 |" in text and "| throughput (MB/s) | 1,024 → 1,280 |" in text
-    assert "| energyJ (J/op) | 0.002 → 0.0015 | 0.750 | n/a (n<2) | 1 |" in text
-    assert "not measured: primitive_only: missing_input: inputSize for in" in text
-    assert "Primitive-only evidence" in text and "ratio 0.700, pImprove 0.99" in text
+    assert "- compile: primitive_only: missing_input: inputSize for in" in text
+    assert "Primitive evidence" in text and "ratio 0.700, pImprove 0.99" in text
 
 
 def _plan(app, change):
@@ -124,27 +99,24 @@ def _plan(app, change):
     write_text(app.scoped_plan, yaml.safe_dump(plan))
 
 
-def test_a_measured_scope_without_an_interop_check_says_so(tmp_path, app):
+def test_an_unchecked_or_not_comparable_interop_says_so(tmp_path, app):
     reason = "nondeterministic_output: two calls of before differ on one input"
     _plan(app, {A: {"interop": {"check": "same_output", "result": "unchecked", "reason": reason}},
                 B: {"status": "not_measurable", "reason": "no_operation"},
                 C: {"status": "not_comparable", "interop": {"check": "same_output", "result": "not_comparable",
                                                             "reason": "identity_only_output: X has no value equality"}}})
-    doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
-    r = rows(doc)
-    assert r[A]["interop"]["status"] == "unchecked" and r[A]["metrics"][0]["measured"]
+    r = rows(app_report(tmp_path, "shop", LATENCY, **QUIET))
+    assert r[A]["interop"]["status"] == "unchecked"
     assert r[B]["compile"] == {"status": "not_measurable", "reason": "no_operation"}
-    assert r[C]["interop"]["status"] == "not_comparable" and not r[C]["metrics"][0]["measured"]
-    assert (doc["funnel"]["measured"], doc["funnel"]["measuredUnchecked"]) == (1, 1)
-    assert f"interop: unchecked: {reason} (check same_output) — measured without an interop check" in app.report_md.read_text()
+    assert r[C]["interop"]["status"] == "not_comparable"
+    assert f"interop: unchecked: {reason} (check same_output)" in app.report_md.read_text()
 
 
-def test_without_a_device_run_nothing_is_measured(tmp_path):
+def test_without_a_device_run_nothing_is_checked(tmp_path):
     shutil.rmtree(AppPaths(tmp_path, "shop").measured)
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
-    a = rows(doc)[A]
-    assert a["compile"] == {"status": "not_run", "reason": "no_device_run: measured/scoped/scoped-plan.yaml absent"}
-    assert doc["measuredFrom"] is None and doc["funnel"]["measured"] == 0
+    assert rows(doc)[A]["compile"] == {"status": "not_run", "reason": "no_device_run: measured/scoped/scoped-plan.yaml absent"}
+    assert doc["funnel"]["interopPassed"] == 0
 
 
 def test_a_plan_of_another_harness_is_refused(tmp_path, app):
@@ -153,51 +125,51 @@ def test_a_plan_of_another_harness_is_refused(tmp_path, app):
         app_report(tmp_path, "shop", LATENCY, **QUIET)
 
 
-def test_the_manifest_units_are_what_the_report_shows(tmp_path):
-    (tmp_path / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\ndeviceId: d\nunits: {latency: us, throughput: ops/s}\n")
-    doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
-    views = rows(doc)[A]["metrics"][0]["views"]
-    assert views == {"latency": {"unit": "us/op", "before": 1.0, "after": 0.8},
-                     "throughput": {"unit": "ops/s", "before": 1e6, "after": 1.25e6}}
-    assert validate_report(doc, "shop") == []
-    bad = json.loads(json.dumps(doc))
-    rows(bad)[A]["metrics"][0]["views"]["latency"]["before"] = 2.0
-    assert any("latency view" in p for p in validate_report(bad, "shop"))
-
-
-def test_the_validator_refuses_an_invented_number(tmp_path):
+def test_the_validator_refuses_a_bad_row_and_a_wrong_funnel(tmp_path):
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
     bad = json.loads(json.dumps(doc))
-    rows(bad)[B]["metrics"][0] = {**rows(bad)[A]["metrics"][0]}
-    rows(bad)[A]["metrics"][0]["ratio"] = 0.5
     rows(bad)[C]["inputs"] = {"inputSize": 1024, "keySize": None, "from": "guess"}
-    problems = validate_report(bad, "shop")
-    assert any("inputs {'inputSize': 1024, 'keySize': None, 'from': 'guess'}" in p for p in problems)
-    assert any("measured although interop is skipped" in p for p in problems)
-    assert any("ratio 0.5 is not after ÷ before" in p for p in problems)
+    assert any("inputs {'inputSize': 1024, 'keySize': None, 'from': 'guess'}" in p for p in validate_report(bad, "shop"))
     bad = json.loads(json.dumps(doc))
-    bad["funnel"]["measured"] = 2
+    bad["funnel"]["compiled"] = 3
     assert validate_report(bad, "shop") == [f"funnel {bad['funnel']} is not the recount of the scope rows"]
-    bad = json.loads(json.dumps(doc))
-    rows(bad)[A]["metrics"][1]["selected"] = True
-    assert any("selected True is not whether the mode selects it" in p for p in validate_report(bad, "shop"))
 
 
-def test_the_summary_counts_apps_per_metric_and_sums_the_funnel(tmp_path):
-    make_app(tmp_path, "slow", after_scale=1.5)
-    for name in ("shop", "slow"):
-        app_report(tmp_path, name, LATENCY, **QUIET)
+def test_the_summary_sums_the_funnel_and_keeps_each_apps_mode(tmp_path):
+    make_app(tmp_path, "slow")
+    app_report(tmp_path, "shop", LATENCY, **QUIET)
+    app_report(tmp_path, "slow", LATENCY_ALLOC, **QUIET)
     doc = device_summary(tmp_path, **QUIET)
-    time = doc["metrics"]["notFixed"]["timeNs"]
-    assert time["apps"] == {"improved": ["shop"], "unchanged": [], "worse": ["slow"], "notMeasured": []}
-    assert time["medianChange"] == pytest.approx(0.0)
-    assert list(doc["metrics"]["notFixed"]) == ["timeNs"]
-    assert doc["funnel"]["sites"] == 12 and doc["funnel"]["measured"] == 2
-    text = (tmp_path / "summary.md").read_text()
-    assert "| timeNs (ns/op) | 1 | 0 | 1 | 0 | +0.0% |" in text
+    assert doc["funnel"]["sites"] == 12 and doc["funnel"]["interopPassed"] == 2
+    assert doc["modes"] == {"shop": "latency", "slow": "latency+memAlloc"}
     reports = [read_json(AppPaths(tmp_path, n).report) for n in ("shop", "slow")]
     assert validate_summary(doc, reports) == []
     assert validate_summary({**doc, "funnel": {**doc["funnel"], "sites": 1}}, reports) == ["funnel is not the sum of byApp"]
+    assert validate_summary({**doc, "modes": {}}, reports) == ["modes are not each report's own"]
+
+
+def test_rows_carry_the_pattern_and_the_summary_counts_each(tmp_path):
+    paths = AppPaths(tmp_path, "shop")
+    scopes = read_json(paths.scopes)
+    for s in scopes["scopes"]:
+        if s["id"] == A:
+            s.update(pattern="fixed", patternReason="held_in_field")
+    write_json(paths.scopes, scopes)
+    r = rows(app_report(tmp_path, "shop", LATENCY, **QUIET))
+    assert (r[A]["pattern"], r[A]["patternReason"]) == ("fixed", "held_in_field")
+    doc = device_summary(tmp_path, **QUIET)
+    assert doc["patterns"]["byApp"]["shop"] == {"fixed": 1, "notFixed": 4, "unknownDefault": 4}
+    assert "| shop | 1 | 4 | 4 |" in (tmp_path / "summary.md").read_text()
+
+
+def test_the_report_and_summary_name_the_project_and_source_beside_the_id(tmp_path):
+    source = tmp_path / "shop-source"
+    source.mkdir()
+    (source / "settings.gradle.kts").write_text('rootProject.name = "Shop App"\n')
+    doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
+    assert (doc["project"], doc["source"]) == ("Shop App", str(source.resolve()))
+    assert "Project: Shop App." in AppPaths(tmp_path, "shop").report_md.read_text()
+    assert device_summary(tmp_path, **QUIET)["named"]["shop"]["project"] == "Shop App"
 
 
 def test_the_summary_refuses_an_empty_run(tmp_path):
@@ -211,12 +183,11 @@ def test_the_command_writes_both_files(tmp_path, app):
 
 def test_rows_carry_their_unit_and_the_units_their_function_shares(tmp_path):
     paths = AppPaths(tmp_path, "shop")
-    doc = build_report(paths, LATENCY, DisplayUnits())
+    doc = build_report(paths, LATENCY)
     rows = {r["scope"]: r for r in doc["scopes"]}
     assert (rows[A]["unit"], rows[B]["unit"], rows[A]["sharedFunction"]) == ("u-ab", "u-ab", ["u-c"])
     assert rows[D]["sharedFunction"] == [] and len(doc["scopes"]) == 5
-    md = report_markdown(doc)
-    assert "- unit: u-ab; its function also holds u-c, measured with only this unit swapped" in md
+    assert "- unit: u-ab; its function also holds u-c" in report_markdown(doc)
 
 
 def test_a_row_names_the_members_that_stayed_while_its_unit_was_replaced(tmp_path):
@@ -225,7 +196,7 @@ def test_a_row_names_the_members_that_stayed_while_its_unit_was_replaced(tmp_pat
     units["units"] = [u for u in units["units"] if u["id"] not in ("u-c", "u-d")] + [
         {"id": "u-cd", "members": [C, D], "links": [], "sharedFunction": []}]
     write_json(paths.units, units)
-    doc = build_report(paths, LATENCY, DisplayUnits())
+    doc = build_report(paths, LATENCY)
     rows = {r["scope"]: r for r in doc["scopes"]}
     assert rows[C]["stayed"] == rows[D]["stayed"] == [D] and rows[A]["stayed"] == [] and rows[E]["stayed"] == []
     assert validate_report(doc, "shop") == []
@@ -240,7 +211,7 @@ def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
         if row["scope"] == A:
             row.update(status="rejected", reason="unit_member_rejected", diff="", blockedBy=f"{B}: call_moved")
     write_json(paths.edits, edits)
-    row = next(r for r in build_report(paths, LATENCY, DisplayUnits())["scopes"] if r["scope"] == A)
+    row = next(r for r in build_report(paths, LATENCY)["scopes"] if r["scope"] == A)
     assert row["edit"] == {"status": "rejected", "reason": f"unit_member_rejected: {B}: call_moved"}
 
 
@@ -248,5 +219,4 @@ def test_a_report_without_units_says_which_step_to_run(tmp_path):
     paths = AppPaths(tmp_path, "shop")
     paths.units.unlink()
     with pytest.raises(ValueError, match="missing_step"):
-        build_report(paths, LATENCY, DisplayUnits())
-
+        build_report(paths, LATENCY)

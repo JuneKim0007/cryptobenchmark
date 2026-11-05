@@ -1,6 +1,6 @@
 # Artifacts
 
-- One device folder, `<results root>/<device id>/`, holds every artifact and the benchmark's own files ([results.md](../../../docs/results.md)), except the `repair test-set` YAML (its `-o` path).
+- One device folder, `<results root>/<device id>/`, holds every artifact and the benchmark's own files ([results.md](../../../docs/results.md)).
 - Device-level artifacts sit in the folder; per-app ones in `<device>/<app>/`.
 
 ## Folders
@@ -49,7 +49,6 @@
 | `runs/run_<id>.json` | `RunRecord` (`run_dir/run_record.py`), written durably after the device stage and each app step | people | none: [Run record](#run-record) |
 | `.lock` | the guide and probe_device(), `fcntl.flock`, the holder's pid | a second run: `device_busy` | none |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
-| `grouping/supervisor.json` | grouping report --supervisor | people, validation | `check/grouping.py`: its `charter` is the active `grouping/review` outbox, its families the outbox's replay, the outbox's inputs the current messages |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
 | `log/status.log`, `log/ai/<stage>.log`, `log/bug.log` | the event sink, from the same events | people, log summary (status) | none: `log/views.py` renders them; [run-log.md](run-log.md) |
 | `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |
@@ -57,17 +56,16 @@
 | `delta/`, `benchmark/merged-<session>/` | the benchmark gate's delta (`device/delta.py`, `device/delta_merge.py`): its config, test set and pipeline results; the merged files beside the stored ones | the merge; `manifest.yaml` then names the merged files and lists `deltas` | the setup fingerprint and an add-only merge ([used-set.md](used-set.md#benchmark-gate)) |
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
-| `<app>/dossiers.json` | repair dossier | replace, repair test-set | `validation/dossiers/`, before writing: schema 8 (`upgrades` and `brokenUnreached`: the broken uses; estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `measured` the selected metrics the run has a measurement of, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
+| `<app>/dossiers.json` | repair dossier | replace | `validation/dossiers/`, before writing: schema 8 (`upgrades` and `brokenUnreached`: the broken uses; estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `measured` the selected metrics the run has a measurement of, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
 | `<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
-| `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py` and `validation/report_metrics.py`, before writing |
+| `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py`, before writing |
 | `summary.json`, `summary.md` | report summary | people | `validation/summary.py`, before writing |
 | `apps-index.tsv` | the guide's summary step, `perfrepair.guide.index` | people: find an app, what is left on it; its `fixed`, `notFixed` and `unknown_default` scope counts | none: rebuilt whole from the app folders and `log/events.jsonl` |
 | `review/decisions.tsv` | the guide's summary step, `perfrepair.review` | people, `review score` | none: a verdict is `ok`, `wrong` or empty, checked by `score` |
 | `review/score.json` | `perfrepair.review score` | people | none |
 | `review/stability.json`, `review/stability/` | `perfrepair.review stability` | people | `check/apps.py`: the rebuild of its outbox |
-| test-set YAML (`-o`) | repair test-set | cryptobenchmark | none |
 
 - Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 4 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process; 4 keys every metric by its benchmark.json name, `allocations` became `allocationCount`), `worthiness-<mode>/evidence.json` at 3 (2: a member's summary per metric, a pair's comparison per metric; 3: only the perfMode's metrics), `<app>/dossiers.json` at 7 and `report.json`, `summary.json` at 6 (`selected` per metric row; summary metrics are the selected ones; `maxChange`, `recommendations`, `rejected`).
 - A journal is append-only, one line per model turn with its `durationMs`, `role` and `inputs` (`{file, digest}`), audit only; state is the projection of the outbox; `writes.json` beside it lists what the charter's runs wrote; `check/contracts.py` holds both to `catalog/role-contracts.yaml`.

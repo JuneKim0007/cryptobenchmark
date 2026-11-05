@@ -45,6 +45,7 @@ class Guide:
     root: Path | None = None
     on_device: bool = False
     grouping_args: tuple[str, ...] = ()
+    config_args: tuple[str, ...] = ()
     refresh: bool = False
     targets: tuple[Path, ...] = ()
     # the command sets it from device.filterByApps

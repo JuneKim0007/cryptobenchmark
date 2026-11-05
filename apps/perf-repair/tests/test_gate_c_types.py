@@ -9,12 +9,9 @@ from test_worthiness_kind import G, KIND, P1, P2
 
 from perfrepair.dto import Verdicts
 from perfrepair.validation.parse.grouping_assign import parse_answer
-from perfrepair.validation.review.grouping_review import parse_review
 from perfrepair.validation.suggest.site_replace import check_reply
 
 WRONG = ([], [[]], [{}], {}, {"a": 1}, 1, 1.5, True, None, "x")
-GROUPS = {"a": [1], "b": [2]}
-FINDING = {"findings": [{"kind": "merge", "groups": ["a", "b"], "items": [1, 2], "reason": "r"}]}
 ANSWER = {"group": "", "newGroup": {"id": "new-group", "description": "d"},
           "amend": [{"group": "a", "description": "d"}], "reason": "r"}
 PAIRS = {"decision": "test", "pairs": [{"from": P1, "to": P2, "reason": "r"}], "reason": "r"}
@@ -39,7 +36,6 @@ def swapped(doc, path, wrong):
 
 
 GATES = {
-    "review": (lambda text: parse_review(text, GROUPS), FINDING),
     "worthiness": (lambda text: KIND.check(G, text, Verdicts("latency")), PAIRS),
     "replace": (lambda text: check_reply(text, UNIT), answer()),
     "recommend": (lambda text: check_reply(text, UNIT), answer("recommend")),
@@ -57,8 +53,6 @@ def test_a_wrong_type_anywhere_in_a_reply_is_a_result_never_a_raise(gate):
 
 
 @pytest.mark.parametrize("check, reply", [
-    (GATES["review"][0], {"findings": [{"kind": "merge", "groups": [["a"], "b"], "items": [], "reason": "r"}]}),
-    (GATES["review"][0], {"findings": [{"kind": "misplaced", "groups": ["a", "b"], "items": [[1]], "reason": "r"}]}),
     (GATES["worthiness"][0], {"decision": "test", "pairs": [{"from": [P1], "to": P2, "reason": "r"}], "reason": "r"}),
     (GATES["replace"][0], {"decision": "replace", "members": [{"member": ["S1"]}], "reason": "r"}),
     (parse_answer, {"newGroup": {"id": 7, "description": "d"}, "reason": "r"}),

@@ -13,13 +13,13 @@ class ScreeningHandler:
     def __init__(self, screening: Screening, names: Names):
         self.screening, self.names = screening, names
 
-    def verdict(self, engine_type: str, name: str, provider: str, target_sdk: int | None = None) -> Verdict:
+    def verdict(self, engine_type: str, name: str) -> Verdict:
+        """The run-level verdict: never platform_deprecated, which needs an app's targetSdk (for_app)."""
         try:
             found = self.names.canonical(engine_type, name)
         except NamesError as e:
             return Verdict(UNKNOWN, str(e))
-        recorded = replace(self._screen(engine_type, found.name), canonical=found.name, keySize=found.keySize)
-        return self.for_app(recorded, engine_type, provider, target_sdk)
+        return replace(self._screen(engine_type, found.name), canonical=found.name, keySize=found.keySize)
 
     def for_app(self, verdict: Verdict, engine_type: str, provider: str, target_sdk: int | None) -> Verdict:
         """A run-level verdict raised to platform_deprecated when the app's targetSdk passes the provider's gate."""

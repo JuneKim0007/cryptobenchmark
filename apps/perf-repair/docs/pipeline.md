@@ -15,11 +15,10 @@ flowchart LR
     A[app: detect, scope] -- app/scopes.json --> D[repair dossier]
     G -- grouping/groups.json --> D
     I -- rows, measurements --> D
-    D -- app/dossiers.json --> T[repair test-set]
     D -- app/dossiers.json --> P[ai replace: model per unit]
     P -- app/replacements.json --> R[repair: edit, harness]
     R -- app/harness.yaml --> M[cryptobenchmark pipeline.py --device --harness]
-    M -- app/measured/scoped/ --> Q[report: app, summary]
+    M -- app/measured/scoped/scoped-plan.yaml --> Q[report: app, summary]
 ```
 
 ## Stages
@@ -31,13 +30,13 @@ flowchart LR
 | app | `python3 -m perfrepair.app --device-results <device> --app <src>` | the manifest's probe, the app tree | `<app>/sites.json`, `app.json`, `scopes.json` | no |
 | grouping build | `python3 -m perfrepair.grouping build --device-results <device>` | `manifest.yaml`: probe and trial; inventory, prepared and benchmark when present | `grouping/items.json`, `profiles.json`, `screen.json`; with `device.screening.aiReview` `grouping/classify/`, `registry-candidates.yaml` | with `device.screening.aiReview`: one conversation per batch of 10 unknown items |
 | grouping assign | `python3 -m perfrepair.grouping assign --device-results <device> [--refresh]` | `grouping/` | `grouping/` (`docs/grouping.md`) | one conversation per item, up to turns × sessions |
-| grouping report | `python3 -m perfrepair.grouping report --device-results <device> [--supervisor]` | `grouping/` | `knowledge.json`, `checks.json`, `groups.json`; `supervisor.json`, `review/` | supervisor: one conversation per family, none for a family already decided |
+| grouping report | `python3 -m perfrepair.grouping report --device-results <device>` | `grouping/` | `knowledge.json`, `checks.json`, `groups.json` | no |
 | guide interop step | `guide/device_steps.py` `interop` (`device/interop.py`): the three interop rows below, for the pairs a site reaches | `grouping/groups.json`, `used.json` | `grouping/interop_plan.yaml`, `interop.yaml`, `groups.json` | no |
 | grouping interop-plan | `python3 -m perfrepair.grouping interop-plan --device-results <device>` | `grouping/groups.json` | `grouping/interop_plan.yaml` | no |
 | interop check | cryptobenchmark `pipeline.py --bench\|--device --interop <plan>` | the plan, the capture | `<device>/interop/interop.yaml`, added to its manifest | no |
 | grouping interop-read | `python3 -m perfrepair.grouping interop-read --device-results <device> --results <interop.yaml>` | `interop.yaml`, `grouping/` | `grouping/interop.yaml`; reruns report | no |
 | worthiness | `python3 -m perfrepair.ai worthiness --device-results <device> --perf-mode generic\|<keys>` | `rows.json`, `measurements.json`, `grouping/groups.json` | `worthiness-<perfMode name>/` (evidence.json, outbox/, verdicts.json, journal.jsonl, errors.jsonl) | one per group with an improving pair |
-| repair | `python3 -m perfrepair.repair dossier\|test-set\|edit\|harness --device-results <device> --app <src>` | `docs/repair.md` | `<app>/`; test-set at `-o` | no |
+| repair | `python3 -m perfrepair.repair dossier\|edit\|harness --device-results <device> --app <src>` | `docs/repair.md` | `<app>/` | no |
 | device | cryptobenchmark `pipeline.py --device --harness <device>/<app>/harness.yaml`, writing `measured/` beside it | `harness.yaml`, the phone | `<app>/measured/` | no |
 | report | `python3 -m perfrepair.report app --device-results <device> --app <src> [--perf-mode]` ; `report summary --device-results <device>` | `<app>/` | `report.json`, `report.md`; `summary.json`, `summary.md` | no |
 | guide | `python3 -m perfrepair guide [--app <src>] --device-results <device> [--device]` | the device folder, each app tree | app, dossier, replace, edit, harness per app (`apps.targets`, or `--app`), `<app>/finished.json`; with `--device` measured and report, `summary.json` | the replace step, per app |

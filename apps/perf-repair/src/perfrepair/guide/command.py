@@ -105,8 +105,11 @@ def main(argv: list[str] | None = None) -> int:
 
 def _grouping_args(a: argparse.Namespace) -> tuple[str, ...]:
     # a gateway named on the guide reaches every model step it runs; other keys resolve per role from the settings
-    return (*(("--agent", a.agent) if a.agent else ()),
-            *(("--perfrepair-config", str(a.perfrepair_config)) if a.perfrepair_config else ()))
+    return (*(("--agent", a.agent) if a.agent else ()), *_config_args(a))
+
+
+def _config_args(a: argparse.Namespace) -> tuple[str, ...]:
+    return ("--perfrepair-config", str(a.perfrepair_config)) if a.perfrepair_config else ()
 
 
 def _targets(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded) -> TargetSet | None:
@@ -139,7 +142,7 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded, m
     root = device_root(ap, a, settings)
     base = Guide(a.device_results, None, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, replace_cmd.DRY_RUN),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
-                 on_device=bool(a.device), grouping_args=_grouping_args(a), refresh=a.refresh, targets=tuple(roots),
+                 on_device=bool(a.device), grouping_args=_grouping_args(a), config_args=_config_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=a.harness_config,
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
                  max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found,

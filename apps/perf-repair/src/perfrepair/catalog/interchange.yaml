@@ -2,7 +2,7 @@
 # A rule reads a catalogued canonical name, first full match wins, case-insensitive; no match is an unknown name.
 schemaVersion: 1
 digestComponents: [digest, mgf1]
-notSplitting: [key size, IV size, tag length, provider]
+# never a split: key size, IV size, tag length, provider
 # Which contract a component states; a component in neither list is an output fact.
 contracts:
   input: [wrap, passwordBased, kdf, derivedBits, prehashed]

@@ -53,7 +53,6 @@ class Item:
     provider: str
     family: str
     resolved: str | None = None
-    group: str | None = None
 
     @property
     def qualified(self) -> str:
@@ -78,7 +77,7 @@ class Item:
 
     @classmethod
     def from_json(cls, d: dict) -> "Item":
-        return cls(int(d["id"]), d["type"], d["name"], d["provider"], d["family"], d.get("resolved"), d.get("group"))
+        return cls(int(d["id"]), d["type"], d["name"], d["provider"], d["family"], d.get("resolved"))
 
 
 @dataclass(frozen=True)
