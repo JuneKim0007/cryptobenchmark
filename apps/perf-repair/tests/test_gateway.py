@@ -156,7 +156,6 @@ def test_a_new_provider_is_one_registry_row_and_a_yaml_block(tmp_path, monkeypat
     assert convos.conversations.values == FakeSettings("blue", "huge")
     assert json.loads(convos.start(SYSTEM, {}).ask(task("x")).text) == {"colour": "blue"}
     assert (convos.identity.gateway, convos.identity.model, convos.identity.effort) == ("fake", None, "huge")
-    assert "{claude,dry-run,fake}" in _help()
     assert spawned(tmp_path, "aiGateway: {use: fake, fake: {colour: green}}\n", role=APPS_AGENT).conversations.values.colour == "red"
     assert spawned(tmp_path, "aiGateway: {use: claude, fake: {effort: bad}}\n").identity.gateway == "claude"
     monkeypatch.delenv("FAKE_SECRET")

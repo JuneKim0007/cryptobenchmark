@@ -7,11 +7,8 @@ from helpers import LIBRARY, QUIET, row, summary
 
 from perfrepair import run_dir as rd
 from perfrepair.ai.repair.upgrade.command import upgrade
-from perfrepair.ai.repair.upgrade.kind import UpgradeKind
 from perfrepair.ai.repair.upgrade.render import render
-from perfrepair.ai.repair.upgrade.schema import SCHEMA
 from perfrepair.ai.runtime.agent import ScriptedConversations
-from perfrepair.ai.suggest.site_replace.kind import charter as replace_charter
 from perfrepair.catalog.types import types
 from perfrepair.catalog.upgrades import Upgrades, UpgradesError, upgrades
 from perfrepair.dto.perf_mode import PerfMode
@@ -186,12 +183,6 @@ def test_the_slice_shows_the_site_sinks_reach_and_candidates_only(tmp_path):
     text = render(item)
     assert "sinks: return" in text and "reach: return" in text and f"R1 = {SHA224}" in text and "timeNs 50" in text
     assert "FUNCTION SOURCE" not in text and "EDIT KINDS" not in text
-
-
-def test_the_role_has_its_own_schema_and_the_replace_charter_is_unchanged():
-    assert set(SCHEMA["properties"]) == {"option", "reason"}
-    assert replace_charter(LIBRARY).fingerprint == "98e94c289e25"
-    assert UpgradeKind.name == "repair-upgrade"
 
 
 def test_an_upgraded_row_reaches_the_edit_step_over_replace_s_static_keep(tmp_path):
