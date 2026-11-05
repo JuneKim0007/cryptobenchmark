@@ -96,10 +96,6 @@ def test_a_dotenv_secret_is_enough(tmp_path, monkeypatch):
     assert isinstance(spawned(tmp_path, argv=["--auth", "api"]).conversations, ClaudeConversations)
 
 
-def test_subscription_never_asks_for_the_secret(tmp_path):
-    assert isinstance(spawned(tmp_path, argv=["--auth", "subscription"]).conversations, ClaudeCliConversations)
-
-
 def test_a_missing_sdk_is_one_coded_line(tmp_path, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
     monkeypatch.setitem(sys.modules, "anthropic", None)

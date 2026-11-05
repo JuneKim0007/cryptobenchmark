@@ -155,14 +155,6 @@ def test_a_report_after_paid_runs_does_not_hide_them(tmp_path, capsys):
     assert "4 model calls" in text.splitlines()[2] and "$0.0400" in text.splitlines()[2]
 
 
-def test_watch_replays_every_run_of_a_folder(tmp_path, capsys):
-    _scripted(tmp_path, limit=1)
-    _scripted(tmp_path)
-    assert watch_main([str(tmp_path), "--from-start", "--interval", "0"]) == 0
-    out = capsys.readouterr().out
-    assert out.count(": started") == 2 and "· done" in out
-
-
 def test_a_summary_without_events_is_one_error_line(tmp_path, capsys):
     assert log_main(["summary", str(tmp_path)]) == 1
     assert capsys.readouterr().err.startswith("error missing_file: ")

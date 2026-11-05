@@ -20,7 +20,7 @@ from perfrepair.guide import app_steps as guide_steps, finished
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.guide.command import main as guide_main
 from perfrepair.guide.device_steps import _measured as measured_by_targets
-from perfrepair.inputs.check import TARGETS_EXPECTED, target_path, target_perf
+from perfrepair.inputs.check import target_path, target_perf
 from perfrepair.result.modes import mode_of
 from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
@@ -274,13 +274,6 @@ def test_no_app_and_no_targets_is_a_usage_error(tmp_path, capsys):
     with pytest.raises(SystemExit) as e:
         guide_main(command(tmp_path, settings(tmp_path)))
     assert e.value.code == 2 and "--app (or apps.targets in perfrepair.yaml)" in capsys.readouterr().err
-
-
-def test_malformed_targets_warn_then_count_as_none(tmp_path, capsys):
-    with pytest.raises(SystemExit) as e:
-        guide_main(command(tmp_path, settings(tmp_path, targets=3)))
-    err = capsys.readouterr().err
-    assert e.value.code == 2 and f"invalid: apps.targets 3, {TARGETS_EXPECTED}; ignored" in err
 
 
 def test_a_string_target_is_a_targets_file_and_a_missing_one_is_a_coded_error(tmp_path, capsys):

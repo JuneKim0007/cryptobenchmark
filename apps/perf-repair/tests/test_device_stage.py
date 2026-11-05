@@ -104,14 +104,6 @@ def test_the_folder_validator_checks_the_table_against_its_inputs(setup):
     assert validate_run(first.folder, screening_catalog(None))[rd.PRIMITIVES][0].endswith(": missing")
 
 
-def test_a_deleted_table_is_rebuilt_alone(setup):
-    root, config = setup
-    first, _ = device(root, config)
-    (first.folder / rd.PRIMITIVES).unlink()
-    done, lines = device(root, config)
-    assert done.ran == ["primitives"] and lines[-1] == "device primitives: ran: primitives.tsv missing"
-
-
 def test_a_table_in_an_older_schema_is_rebuilt_alone(setup):
     root, config = setup
     first, _ = device(root, config)

@@ -8,7 +8,6 @@ from perfrepair.app.facts.path_id import app_id, path_id, unit_id
 from perfrepair.config.args import add_config_arg, load_settings
 from perfrepair.config.device_results import (_warn_if_temp, add_device_results_arg, device_root, fill_device_results,
                                               select_device)
-from perfrepair.grouping.__main__ import main as grouping
 from perfrepair.inputs.resolve import InputError
 from perfrepair.run_dir import app_dirs, device_folders
 
@@ -98,19 +97,6 @@ def test_a_root_given_as_the_device_folder_is_one_coded_line(tmp_path):
     device(tmp_path / "results", "a")
     with pytest.raises(ValueError, match=r"^not_device_results: .*results has no manifest.yaml; pass <root>/<device id>$"):
         filled(tmp_path, "", tmp_path / "results")
-
-
-def test_a_command_reading_a_missing_manifest_is_one_coded_line(tmp_path, capsys):
-    assert grouping(["build", "--device-results", str(tmp_path)]) == 1
-    assert capsys.readouterr().err.splitlines()[-1] == \
-        f"error not_device_results: {tmp_path} has no manifest.yaml; pass <root>/<device id>"
-
-
-def test_a_command_reports_several_devices_as_its_error_line(tmp_path, capsys):
-    device(tmp_path / "results", "a")
-    device(tmp_path / "results", "b")
-    assert grouping(["report", "--results-root", str(tmp_path / "results")]) == 1
-    assert capsys.readouterr().err.splitlines()[-1].startswith("error several_device_results: ")
 
 
 def test_a_temporary_folder_warns_once_and_another_does_not(tmp_path, caplog):

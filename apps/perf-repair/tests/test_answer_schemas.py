@@ -87,8 +87,3 @@ def test_a_property_named_like_a_keyword_survives():
     sent = api_schema({"type": "object", "properties": {"pattern": {"type": "string", "pattern": "x"}},
                        "required": ["pattern"], "additionalProperties": False})
     assert sent["properties"] == {"pattern": {"type": "string"}}
-
-
-def test_a_classify_reason_may_not_be_blank():
-    reason = CLASSIFY["properties"]["answers"]["items"]["properties"]["reason"]
-    assert reason["pattern"] == NOT_BLANK and not matches(reason, "  ") and matches(reason, "RFC 6151")

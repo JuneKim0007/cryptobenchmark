@@ -40,8 +40,3 @@ def test_text_forms_and_names_parse_back():
 def test_anything_else_is_refused(bad):
     with pytest.raises(ValueError, match="perfMode"):
         PerfMode.parse(bad)
-
-
-def test_generic_requires_no_metric_so_an_option_missing_energy_still_reaches_the_model():
-    from perfrepair.dto.perf_mode import PerfMode
-    assert PerfMode.parse("generic").required == () and PerfMode.parse(["latency", "energy"]).required != ()

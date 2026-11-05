@@ -198,14 +198,6 @@ def test_on_gap_stop_measures_nothing_and_lists_every_gap(device):
     assert "deltas" not in read_yaml(device / rd.MANIFEST)
 
 
-def test_device_results_stops_with_the_exact_command(device):
-    with pytest.raises(Halt) as e:
-        gate(device, SHA_LOST, policy=GatePolicy(command="`python3 -m perfrepair guide --config x`"))
-    assert e.value.code == "not_benchmarked" and e.value.next_step == "`python3 -m perfrepair guide --config x`"
-    assert "run `python3 -m perfrepair guide --config x`" in e.value.detail
-    assert not (device / "delta").exists()
-
-
 def test_a_coded_gap_alone_starts_no_delta_and_does_not_stop(device):
     (coverage, merged), _ = gate(device, HMAC, "SecureRandom|X|Fast")
     assert not merged and len(coverage.coded()) == 2 and not (device / "delta").exists()

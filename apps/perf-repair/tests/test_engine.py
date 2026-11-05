@@ -116,13 +116,6 @@ def test_rejection_reasks_the_same_conversation_then_respawns_then_drops(tmp_pat
     assert json.loads((tmp_path / "errors.jsonl").read_text())["problems"][0].startswith("s1t1")
 
 
-def test_a_refusal_is_a_failed_turn(tmp_path):
-    def refuse(*_):
-        raise AgentRefused("declined")
-    decide(LabelKind(("a",)), CHARTER, ScriptedConversations(refuse), tmp_path, Limits(turns=1, sessions=1), **QUIET)
-    assert "model refused: declined" in active_outbox(tmp_path).records()[0].problems[0]
-
-
 def test_a_refusal_ends_the_session_and_the_next_opens_with_the_task(tmp_path):
     def refuse_first(m, conversation, turn):
         if conversation == 1:

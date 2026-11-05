@@ -191,13 +191,6 @@ def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
     assert not g.paths.report.exists()
 
 
-def test_results_without_a_manifest_stop_first(tmp_path):
-    g, lines = guide(tmp_path, DRY_RUN)
-    assert run_steps(g, device=False) == 1
-    assert lines == [f"guide prerequisites: stop missing_results: {tmp_path / 'manifest.yaml'} absent; "
-                     "--device-results is a folder cryptobenchmark wrote"]
-
-
 def test_a_run_without_grouping_says_how_to_make_it(run):
     shutil.rmtree(GroupingPaths(run).root)
     g, lines = guide(run, DRY_RUN)

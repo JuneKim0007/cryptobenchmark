@@ -34,7 +34,6 @@ NAMES, FAMILIES = Names.load(), Families.load()
 SCREENING = Screening.load(names=NAMES)
 RAW, HANDLE = {"SupportedKeyFormats": ["RAW"]}, {"SupportedKeyClasses": ["vendor.store.HandleSecretKey"]}
 OAEP = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-UNLISTED = "RSA/ECB/OAEPPadding"
 HMAC, GCM = "HmacSHA256", "AES/GCM/NoPadding"
 DIGEST = "MD5"
 RESOLVED = {("P1", OAEP): "digest=SHA-256 mgf1=SHA-1", ("P2", OAEP): "digest=SHA-256 mgf1=SHA-256"}

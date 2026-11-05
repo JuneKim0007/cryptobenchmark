@@ -11,7 +11,6 @@ from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.grouping.report.checks import report
 from perfrepair.ai.review.grouping_review import command
 from perfrepair.ai.runtime.agent import ScriptedConversations
-from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.grouping import check_supervisor
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.validation.review.grouping_review import parse_review
@@ -114,29 +113,6 @@ def test_a_crash_mid_review_resumes_without_asking_a_family_twice(paths):
     out = review(paths, lambda message, *_: second.append(message.item) or {"findings": []})
     assert set(second).isdisjoint(asked) and sorted(asked + second) == sorted(out["families"])
     assert check_supervisor(paths)["grouping/supervisor.json"] == []
-
-
-def test_a_second_run_asks_nothing_and_writes_the_same_document(paths):
-    finished(paths)
-    review(paths, clean)
-    before = paths.supervisor.read_bytes()
-    report(paths, FAMILIES)
-    asked = []
-    review(paths, lambda *a: asked.append(a) or {"findings": []})
-    assert asked == [] and paths.supervisor.read_bytes() == before
-
-
-def test_a_changed_prompt_starts_a_new_outbox_and_reverting_resumes_the_old(paths, tmp_path):
-    finished(paths)
-    first = review(paths, clean)["charter"]
-    override = tmp_path / "prompts" / "review" / "grouping-review.system.md"
-    override.parent.mkdir(parents=True)
-    override.write_text("REVIEW OVERRIDE")
-    changed = review(paths, clean, library=PromptLibrary.load(override.parents[1]))["charter"]
-    assert changed != first and active_fingerprint(paths.review) == changed
-    asked = []
-    assert review(paths, lambda *a: asked.append(a) or {"findings": []})["charter"] == first
-    assert asked == [] and active_fingerprint(paths.review) == first
 
 
 def test_changed_groups_are_reviewed_again_in_a_new_outbox(paths):

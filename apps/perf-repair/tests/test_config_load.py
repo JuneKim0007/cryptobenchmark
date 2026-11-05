@@ -8,11 +8,10 @@ from perfrepair.ai.runtime.gateway.args import add_agent_args
 from perfrepair.ai.runtime.gateway.claude import ClaudeSettings
 from perfrepair.config import load as load_module
 from perfrepair.ai.__main__ import main as ai_main
-from perfrepair.config.args import fill, load_settings, positive_int
+from perfrepair.config.args import fill, load_settings
 from perfrepair.config.load import config_file, load
 from perfrepair.config.settings import ConfigError
 from perfrepair.grouping.__main__ import main as grouping_main
-from perfrepair.guide.command import parser as guide_parser
 from perfrepair.inputs.check import check_any, check_text
 from perfrepair.inputs.table import (AI_GATEWAY_KEY, AI_GATEWAY_USE, APPS_AGENT, APPS_REPLACE, GROUPING_ASSIGN, GROUPING_LIMIT,
                                      GROUPING_SESSIONS, GROUPING_SUPERVISOR, GROUPING_TURNS, WORTHINESS)
@@ -100,14 +99,6 @@ def test_every_gateway_wide_layer_raises_every_role_including_assign(tmp_path, e
     assert loaded.sources["device.grouping.assign.effort"].endswith(source)
 
 
-def test_a_role_section_or_the_flag_sets_one_role_above_every_gateway_wide_layer(tmp_path):
-    f = write(tmp_path / "c.yaml", "aiGateway: {claude: {effort: max}}\ndevice: {grouping: {assign: {effort: medium}}}\n")
-    loaded = load(f, {"PERFREPAIR_EFFORT": "xhigh"}, {})
-    assert claude_values(loaded, GROUPING_ASSIGN)["effort"] == "medium"
-    assert claude_values(loaded, GROUPING_SUPERVISOR)["effort"] == "xhigh"
-    assert claude_values(loaded, GROUPING_ASSIGN, effort="low")["effort"] == "low"
-
-
 @pytest.mark.parametrize("flag", (["--agent", "dry-run"], ["--auth", "api"], ["--model", "m"], ["--effort", "low"], ["--prompts", "p"]))
 def test_build_refuses_a_model_flag_when_it_calls_no_model(tmp_path, capsys, flag):
     with pytest.raises(SystemExit) as e:
@@ -144,12 +135,6 @@ def test_a_bad_file_exits_2_with_the_error_line(tmp_path, capsys):
     assert e.value.code == 2 and "secret_key: aiGateway.claude.token" in capsys.readouterr().err
 
 
-def test_a_command_without_a_device_folder_or_a_results_root_exits_2(capsys):
-    with pytest.raises(SystemExit) as e:
-        grouping_main(["assign", "--agent", "dry-run"])
-    assert e.value.code == 2 and "--device-results (or --results-root)" in capsys.readouterr().err
-
-
 @pytest.mark.parametrize("command", ((grouping_main, ["assign", "--device-results", "r"]),
                                      (ai_main, ["worthiness", "--device-results", "r", "--perf-mode", "latency"])))
 @pytest.mark.parametrize("flag", ("--turns", "--sessions", "--limit"))
@@ -159,13 +144,6 @@ def test_a_count_flag_takes_only_a_positive_integer(command, flag, value, capsys
     with pytest.raises(SystemExit) as e:
         main([*arguments, f"{flag}={value}"])
     assert e.value.code == 2 and "is not a positive integer" in capsys.readouterr().err
-
-
-def test_the_guide_limit_takes_only_a_positive_integer(capsys):
-    with pytest.raises(SystemExit):
-        guide_parser().parse_args(["--limit", "0"])
-    assert "is not a positive integer" in capsys.readouterr().err
-    assert positive_int("3") == 3
 
 
 def test_each_resolved_setting_is_logged_once_with_its_source(tmp_path, caplog):

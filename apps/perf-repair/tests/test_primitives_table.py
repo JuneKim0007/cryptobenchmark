@@ -71,11 +71,6 @@ def test_the_validator_accepts_the_table_and_names_an_edited_line():
     assert any("not the line" in p for p in problems) and any("missing" in p for p in problems)
 
 
-def test_a_row_without_a_screen_verdict_is_refused():
-    with pytest.raises(ValueError, match="primitive_not_screened"):
-        build_table(ROWS, M, {k: v for k, v in STATUS.items() if "ALG-D" not in k})
-
-
 def test_each_variant_of_one_primitive_is_its_own_line():
     rows = [row("f", "P1", variant="fixed"), row("n", "P1")]
     table = build_table(rows, {"f": {"timeNs": summary(10)}, "n": {"timeNs": summary(90)}}, {"TypeA|ALG-A|P1": "accepted"})

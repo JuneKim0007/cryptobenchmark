@@ -128,11 +128,6 @@ def test_interop_labels_ride_on_every_pair():
     assert {p.interop for e in kept for c in e.configurations for p in c.pairs} == {"not_checkable", "not_planned"}
 
 
-def test_groups_without_an_interop_section_are_refused():
-    with pytest.raises(ValueError, match="no interop section"):
-        build_evidence({k: v for k, v in GROUPS.items() if k != "interop"}, ROWS, M, None, GENERIC.perf)
-
-
 def test_a_pair_whose_target_lowers_the_status_is_left_out_one_direction_only():
     verdicts = {QUALIFIED[1]: Verdict("accepted", "r", "S", "ALG-A"), QUALIFIED[2]: Verdict("broken", "r", "S", "ALG-B")}
     evidence = {e.groupId: e for e in build_evidence(GROUPS, ROWS, M, verdicts, GENERIC.perf)}

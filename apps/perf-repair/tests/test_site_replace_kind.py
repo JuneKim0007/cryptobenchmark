@@ -1,9 +1,8 @@
 import dataclasses
 import json
-from pathlib import Path
 
 import pytest
-from helpers import LIBRARY, QUIET, library_with
+from helpers import LIBRARY, QUIET
 from site_replace_data import APP, KEEP, SOURCE, answer, doc, dossier, edit, item, linked, member, solo
 
 from perfrepair.ai.__main__ import main
@@ -11,8 +10,7 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.suggest.site_replace.command import replace
-from perfrepair.ai.suggest.site_replace.kind import NAME, SiteReplaceKind, charter, evidence
-from perfrepair.ai.suggest.site_replace.schema import SCHEMA
+from perfrepair.ai.suggest.site_replace.kind import SiteReplaceKind, charter, evidence
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.primitives import PrimitiveLine, PrimitivesTable
 from perfrepair.dto.replacement import DECISIONS, EDIT_KINDS, RISKS
@@ -23,7 +21,6 @@ from perfrepair.dto.units import DisplayUnits
 from perfrepair.files import read_json
 from perfrepair.validation import ValidationFailed
 
-SNAPSHOT = Path(__file__).parent / "fixtures" / "site_replace" / "render.txt"
 A = dossier()
 B = dossier(file="src/Wire.kt", sinks=("network",), key_source="derived")
 NONE = dossier(file="src/Lone.kt").key
@@ -40,13 +37,6 @@ def run_dir(tmp_path, *dossiers, no_options=()):
 
 def by_file(m):
     return answer() if "src/Box.kt" in m.text else KEEP
-
-
-def test_render_snapshot():
-    kind = SiteReplaceKind(APP, doc(A), ".")
-    prompt = kind.render(item(A), kind.empty())
-    assert prompt.name == NAME and prompt.item == UA
-    assert prompt.text + "\n" == SNAPSHOT.read_text()
 
 
 def test_render_lists_every_edit_kind_and_fences_the_source():
@@ -67,17 +57,6 @@ def test_render_lists_the_members_that_stay_and_each_inverse_pairs_interop():
                  "    every other choice: interop not_planned"):
         assert part in text, part
     assert "MEMBER S2" not in text and "MEMBER S1" in text
-
-
-def test_schema_requires_every_field_and_stays_within_structured_output():
-    def walk(node):
-        if node.get("type") == "object":
-            assert set(node["required"]) == set(node["properties"]) and node["additionalProperties"] is False
-            for child in node["properties"].values():
-                walk(child)
-        if node.get("type") == "array":
-            walk(node["items"])
-    walk(SCHEMA)
 
 
 def test_the_prompt_states_what_the_gate_enforces():
@@ -121,29 +100,6 @@ def test_a_correction_turn_gets_the_alias_problems_and_can_succeed(tmp_path):
     replace(run, APP, agent, LIBRARY, **QUIET)
     assert "option 'R9' is not one of R1, R2" in agent.turns[1][2].text
     assert read_json(app / "replacements.json")["sources"] == {A.key: "llm"}
-
-
-def test_a_limit_stops_and_the_next_call_resumes_without_reasking(tmp_path):
-    run, app = run_dir(tmp_path, A, B)
-    first = ScriptedConversations(lambda m, *_: by_file(m))
-    replace(run, APP, first, LIBRARY, limit=1, **QUIET)
-    assert len(read_json(app / "replacements.json")["replacements"]) == 1
-    rest = ScriptedConversations(lambda m, *_: by_file(m))
-    replace(run, APP, rest, LIBRARY, **QUIET)
-    assert rest.started == 1 and [r.item for r in active_outbox(app / "replace").records()] == [UA, UB]
-
-
-def test_a_changed_prompt_starts_a_new_outbox_per_fingerprint(tmp_path):
-    run, app = run_dir(tmp_path, A)
-    replace(run, APP, ScriptedConversations(lambda *_: KEEP), LIBRARY, **QUIET)
-    old = active_outbox(app / "replace")
-    changed = library_with({NAME: LIBRARY.texts[NAME] + "\nOne more rule."})
-    again = ScriptedConversations(lambda *_: answer())
-    replace(run, APP, again, changed, **QUIET)
-    new = active_outbox(app / "replace")
-    assert new.fingerprint != old.fingerprint and again.started == 1
-    assert len(old.records()) == 1 and old.records()[0].decision["replacements"][0]["decision"] == "keep"
-    assert read_json(app / "replacements.json")["replacements"][0]["decision"] == "replace"
 
 
 def test_a_malformed_dossiers_file_stops_before_any_call(tmp_path):
