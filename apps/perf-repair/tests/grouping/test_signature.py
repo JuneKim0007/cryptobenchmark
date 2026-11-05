@@ -172,7 +172,7 @@ def runtime(name):
     names = probe.names(NAMES)
     items, profiles = build(probe, names, read_document(RUNTIMES / name / "trial.yaml"), FAMILIES)
     handler = ScreeningHandler(SCREENING, names)
-    return items, profiles, {i.id: handler.verdict(i.type, i.name, i.provider) for i in items}
+    return items, profiles, {i.id: handler.verdict(i.type, i.name) for i in items}
 
 
 @pytest.mark.parametrize("name", sorted(ASKED))
@@ -223,7 +223,7 @@ def chain(tmp_path):
     write_json(paths.items, items_document(items))
     write_json(paths.profiles, profiles_document(profiles))
     handler = ScreeningHandler(SCREENING, names)
-    write_json(paths.screen, screen_document({i.id: handler.verdict(i.type, i.name, i.provider) for i in items},
+    write_json(paths.screen, screen_document({i.id: handler.verdict(i.type, i.name) for i in items},
                                              SCREEN_CATALOG, built(paths)))
     return paths
 

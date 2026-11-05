@@ -72,7 +72,7 @@ def paths(tmp_path):
     write_json(paths.items, items_document(items))
     write_json(paths.profiles, profiles_document(profiles))
     handler = ScreeningHandler(SCREENING, names)
-    write_json(paths.screen, screen_document({i.id: handler.verdict(i.type, i.name, i.provider) for i in items},
+    write_json(paths.screen, screen_document({i.id: handler.verdict(i.type, i.name) for i in items},
                                              SCREEN_CATALOG, built(paths)))
     return paths
 

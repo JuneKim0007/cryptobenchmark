@@ -51,7 +51,7 @@ def load(runtime):
     names = probe.names(CATALOG)
     items, profiles = build(probe, names, read_document(ROOT / runtime / "trial.yaml"), FAMILIES)
     handler = ScreeningHandler(SCREENING, names)
-    return items, {i.id: replace(handler.verdict(i.type, i.name, i.provider),
+    return items, {i.id: replace(handler.verdict(i.type, i.name),
                                  providerHeld=profiles[i.id].keyContract == KEY_PROVIDER_HELD) for i in items}
 
 

@@ -11,5 +11,5 @@ from .handler import ScreeningHandler
 
 def screen_items(screening: Screening, names: Names, items: list[Item], profiles: dict[int, Profile]) -> dict[int, Verdict]:
     handler = ScreeningHandler(screening, names)
-    return {i.id: replace(handler.verdict(i.type, i.name, i.provider),
+    return {i.id: replace(handler.verdict(i.type, i.name),
                           providerHeld=profiles[i.id].keyContract == KEY_PROVIDER_HELD) for i in items}

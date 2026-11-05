@@ -23,7 +23,7 @@ HANDLER = ScreeningHandler(Screening.load(names=NAMES), NAMES)
 
 
 def status(engine_type, name, provider="P", target_sdk=None):
-    return HANDLER.verdict(engine_type, name, provider, target_sdk).status
+    return HANDLER.for_app(HANDLER.verdict(engine_type, name), engine_type, provider, target_sdk).status
 
 
 @pytest.mark.parametrize("engine_type, name, expected", [
@@ -46,13 +46,13 @@ def test_component_rules_deprecate_a_base_or_a_chaining_mode(name, expected):
 
 
 def test_a_verdict_records_the_canonical_key_it_was_screened_by():
-    verdict = HANDLER.verdict("Cipher", "AES_256/ECB/NoPadding", "P")
+    verdict = HANDLER.verdict("Cipher", "AES_256/ECB/NoPadding")
     assert (verdict.status, verdict.canonical, verdict.keySize) == ("broken", "AES/ECB/NoPadding", 256)
     assert validate_screen({1: replace(verdict, canonical=None)}, ITEMS[:1])
 
 
 def test_a_component_verdict_cites_its_rule():
-    verdict = HANDLER.verdict("Cipher", "ARCFOUR/ECB/NoPadding", "P")
+    verdict = HANDLER.verdict("Cipher", "ARCFOUR/ECB/NoPadding")
     assert verdict.status == "broken" and "rfc7465" in verdict.source
 
 
@@ -95,7 +95,7 @@ def test_a_platform_row_without_a_crypto_row_is_unknown_until_gated():
     ("Signature", "ML-DSA-65", "accepted", "FIPS.204.pdf"),
     ("KeyPairGenerator", "ML-KEM-768", "accepted", "FIPS.203.pdf")])
 def test_a_scheme_is_judged_by_what_its_source_says(engine_type, name, want, cited):
-    verdict = HANDLER.verdict(engine_type, name, "P")
+    verdict = HANDLER.verdict(engine_type, name)
     assert verdict.status == want and verdict.source.endswith(cited)
 
 
@@ -104,13 +104,13 @@ def test_a_scheme_is_judged_by_what_its_source_says(engine_type, name, want, cit
     ("Cipher", "AES/GCM-SIV/NoPadding"), ("Cipher", "AES_256/GCM-SIV/NoPadding"), ("Signature", "NONEwithRSA"),
     ("Signature", "NONEwithECDSA"), ("Signature", "HSS/LMS"), ("Mac", "PBEWithHmacSHA1"), ("Mac", "HmacPBESHA256")])
 def test_an_unlisted_name_is_unknown_without_a_source(engine_type, name):
-    verdict = HANDLER.verdict(engine_type, name, "P")
+    verdict = HANDLER.verdict(engine_type, name)
     assert (verdict.status, verdict.reason, verdict.source) == ("unknown", "no screening row", None)
 
 
 def test_a_name_conflict_is_unknown_with_its_code():
     names = replace(NAMES, conflicts={("MessageDigest", "FOO5"): "P says MD5, Q says MD4"})
-    verdict = ScreeningHandler(HANDLER.screening, names).verdict("MessageDigest", "foo5", "P")
+    verdict = ScreeningHandler(HANDLER.screening, names).verdict("MessageDigest", "foo5")
     assert verdict.status == "unknown" and verdict.reason.startswith("name_conflict:")
     assert _verdict_problems(1, verdict, None) == []
     assert _verdict_problems(1, replace(verdict, reason="no screening row"), None)
@@ -182,8 +182,8 @@ def test_a_screened_out_target_never_lowers_the_status(current, target, lowers):
 
 
 def test_for_app_raises_a_recorded_verdict_only_at_the_gate():
-    recorded = HANDLER.verdict("MessageDigest", "SHA-256", "BC")
+    recorded = HANDLER.verdict("MessageDigest", "SHA-256")
     assert HANDLER.for_app(recorded, "MessageDigest", "BC", 27) == recorded
-    assert HANDLER.for_app(recorded, "MessageDigest", "BC", 28) == HANDLER.verdict("MessageDigest", "SHA-256", "BC", 28)
-    broken = HANDLER.verdict("MessageDigest", "MD5", "BC")
+    assert HANDLER.for_app(recorded, "MessageDigest", "BC", 28).status == "platform_deprecated"
+    broken = HANDLER.verdict("MessageDigest", "MD5")
     assert HANDLER.for_app(broken, "MessageDigest", "BC", 36) == broken
