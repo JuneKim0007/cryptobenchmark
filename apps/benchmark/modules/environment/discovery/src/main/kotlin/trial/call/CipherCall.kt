@@ -26,17 +26,18 @@ internal object CipherCall : DefaultCall {
             keyAlgorithm = key.algorithm,
             keyProvider = key.provider,
             keySize = KeyBits.of(key.key),
+            fixedKeySize = key.fixedSize,
             providerChose = chosenParameters(cipher, key.key),
             bareName = !algorithm.contains('/'),
         )
     }
 
-    private class EncryptionKey(val algorithm: String, val provider: String, val key: Key)
+    private class EncryptionKey(val algorithm: String, val provider: String, val key: Key, val fixedSize: Int? = null)
 
     private fun encryptionKey(provider: Provider, algorithm: String, keys: DefaultKeys): EncryptionKey {
         for ((name, size) in KeyNames.cipherCandidates(algorithm)) {
             val secret = runCatching { keys.secret(provider, name, size) }.getOrNull() ?: continue
-            return EncryptionKey(secret.algorithm, secret.provider, secret.key)
+            return EncryptionKey(secret.algorithm, secret.provider, secret.key, size)
         }
         val pair = keys.pair(provider, KeyNames.cipherBase(algorithm))
         return EncryptionKey(pair.algorithm, pair.provider, pair.keys.public)

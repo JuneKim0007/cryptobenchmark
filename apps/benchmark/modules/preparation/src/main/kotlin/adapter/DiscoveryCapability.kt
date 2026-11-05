@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedService
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledService
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import java.io.File
@@ -63,13 +64,11 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
         return availability(transformation?.instantiates, transformation?.error, "transformation_fails")
     }
 
-    override fun measuredKeyAlgorithm(provider: String, type: String, algorithm: String): String? {
+    override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? {
         val registered = serviceOf(provider, type, algorithm)
         if (registered != null) {
-            return trialsByProvider[provider]
-                ?.get(ServiceName.of(type, registered.algorithm))
-                ?.keyAlgorithm
-                ?.takeIf { it.isNotBlank() }
+            return trialsByProvider[provider]?.get(ServiceName.of(type, registered.algorithm))
+                ?.let { candidate(it.keyAlgorithm, it.fixedKeySize) }
         }
         val base = algorithm.substringBefore('/', missingDelimiterValue = "")
         val baseService = if (base.isEmpty()) null else serviceOf(provider, type, base)
@@ -77,9 +76,11 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
             ?.get(ServiceName.of(CIPHER, (baseService ?: return null).algorithm))
             ?.transformations
             ?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
-            ?.keyAlgorithm
-            ?.takeIf { it.isNotBlank() }
+            ?.let { candidate(it.keyAlgorithm, it.fixedKeySize) }
     }
+
+    private fun candidate(algorithm: String, fixedSize: Int?): KeyCandidate? =
+        algorithm.takeIf { it.isNotBlank() }?.let { KeyCandidate(it, fixedSize) }
 
     private fun serviceOf(provider: String, type: String, algorithmOrAlias: String): CapturedService? =
         servicesByProvider[provider]?.get(ServiceName.of(type, algorithmOrAlias))

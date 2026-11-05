@@ -35,7 +35,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/key/generate/DefaultKeyInitia
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyInitializer.kt : per-provider key-init port
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterial.kt : sealed key material: None, Secret, Pairs
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGenerator.kt : builds KeyMaterial from a KeyRecipe
-apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyAlgorithmName.kt : key-algorithm candidates from type and algorithm name
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyCandidate.kt : candidate key algorithm and optional size
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyRecipe for a case
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable
@@ -113,8 +112,6 @@ apps/benchmark/modules/preparation/src/test/kotlin/GlobalReaderTest.kt : run and
 apps/benchmark/modules/preparation/src/test/kotlin/InboundFileTest.kt : effective.yaml section and schema tests
 apps/benchmark/modules/preparation/src/test/kotlin/InteropOracleTest.kt : interop verdict and plan-file tests
 apps/benchmark/modules/preparation/src/test/kotlin/InvocationTest.kt : invocation repeatability, IV reuse, both variants, fresh IV under fixed
-apps/benchmark/modules/preparation/src/test/kotlin/KeyAlgorithmContractTest.kt : derived key names against a device trial's keyAlgorithm (-Dtrial)
-apps/benchmark/modules/preparation/src/test/kotlin/KeyAlgorithmNameTest.kt : key name derivation tests
 apps/benchmark/modules/preparation/src/test/kotlin/KeyMaterialGeneratorTest.kt : key generation tests
 apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recipe planning tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests

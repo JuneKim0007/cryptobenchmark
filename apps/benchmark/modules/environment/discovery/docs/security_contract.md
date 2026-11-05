@@ -111,6 +111,7 @@ Every runtime field is required on read.
 | `works` | bool | the call returned |
 | `keyAlgorithm`, `keyProvider` | string | the key used |
 | `keySize` | int | key size in bits, `> 0` |
+| `fixedKeySize` | int | the size the service name fixes, e.g. a `<base>_<n>` name; preparation asks for it; absent otherwise |
 | `inputSize` | int | bytes passed, `>= 0`; absent for KeyAgreement and generators |
 | `providerChose` | string | what the provider filled in, e.g. `ivBytes=12 tagBits=128`; format in [probe.md](probe.md) |
 | `bareName` | bool | `true` when the name has no `/` |

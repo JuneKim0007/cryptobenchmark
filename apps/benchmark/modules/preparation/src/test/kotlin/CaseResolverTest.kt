@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.port.Availability
@@ -26,6 +27,8 @@ class CaseResolverTest {
             "$type/$algorithm" in serves.getValue(provider) -> Availability.Available
             else -> Availability.Unavailable("not_registered")
         }
+
+        override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? = KeyCandidate(algorithm.substringBefore('/'))
     }
 
     private val resolver = CaseResolver(device)

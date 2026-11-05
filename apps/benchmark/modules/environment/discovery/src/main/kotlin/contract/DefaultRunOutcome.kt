@@ -8,6 +8,8 @@ data class DefaultRunOutcome(
     val keyAlgorithm: String = "",
     val keyProvider: String = "",
     val keySize: Int? = null,
+    // a size written into the service name: a contract of that name, not the provider's default
+    val fixedKeySize: Int? = null,
     val inputSize: Int? = null,
     val providerChose: String = "",
     val bareName: Boolean = false,

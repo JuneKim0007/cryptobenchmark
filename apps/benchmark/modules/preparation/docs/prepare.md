@@ -25,7 +25,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 |---|---|---|
 | effective.yaml | `config` v1 | sections `run`, `policy`, `providers`, all required |
 | capture | `capture` v1 | `capturedAtMillis`, `providers[].name`, `precedence`, `services[].type`, `algorithm`, `aliases` |
-| trial | `trial` v3 | `services[].provider`, `type`, `algorithm`, `instantiates`, `error`, `transformations[]`; `keyAlgorithm` from `defaultRun.keyAlgorithm` |
+| trial | `trial` v3 | `services[].provider`, `type`, `algorithm`, `instantiates`, `error`, `transformations[]`; `keyAlgorithm` and `fixedKeySize` from `defaultRun` |
 
 | error | text |
 |---|---|
@@ -105,7 +105,7 @@ Type names match case-insensitively.
 | lookup | registered algorithm or alias, case-insensitive |
 | name with `/` | when not registered, checked as a transformation of the base Cipher service in the trial |
 | reasons | `provider_not_installed`, `not_registered`, `not_tried`, `instantiation_fails: <error>`, `transformation_fails: <error>` |
-| `measuredKeyAlgorithm` | the trial's `keyAlgorithm` for the service or transformation |
+| `measuredKey` | the trial's `keyAlgorithm` and `fixedKeySize` for the service or transformation |
 
 ## Failures
 

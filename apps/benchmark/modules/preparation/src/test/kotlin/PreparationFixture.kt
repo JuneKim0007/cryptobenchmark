@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
@@ -21,6 +22,10 @@ internal class PreparationFixture {
         override fun providers(): List<String> = listOf("SunJCE", "SUN")
         override fun check(provider: String, type: String, algorithm: String): Availability =
             if ("$type/$algorithm" in serves[provider].orEmpty()) Availability.Available else Availability.Unavailable("not_registered")
+        override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? = when (algorithm) {
+            "AES_128/GCM/NoPadding" -> KeyCandidate("AES", 128)
+            else -> KeyCandidate(algorithm.substringBefore('/'))
+        }
     }
 
     fun effective(onFailure: String) = File(directory, "effective.yaml").apply {

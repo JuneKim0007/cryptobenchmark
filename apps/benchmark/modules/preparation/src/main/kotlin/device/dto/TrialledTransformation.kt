@@ -5,4 +5,5 @@ data class TrialledTransformation(
     val instantiates: Boolean,
     val error: String = "",
     val keyAlgorithm: String = "",
+    val fixedKeySize: Int? = null,
 )

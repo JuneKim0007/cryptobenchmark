@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.interop.InteropOracle
 import io.github.junekim0007.cryptobench.preparation.interop.InteropRun
 import io.github.junekim0007.cryptobench.preparation.interop.plan.InteropPair
@@ -87,8 +88,10 @@ class InteropOracleTest {
             val registered = names.any { Security.getProvider(provider)?.getService(type, it) != null }
             return if (registered) Availability.Available else Availability.Unavailable("not_registered")
         }
-        override fun measuredKeyAlgorithm(provider: String, type: String, algorithm: String): String? =
-            if (algorithm == PSS_NAME) "RSA" else null
+        override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? = when {
+            algorithm == PSS_NAME || type == "Signature" -> KeyCandidate(algorithm.substringAfter("with").substringBefore('/').replace("ECDSA", "EC"))
+            else -> KeyCandidate(algorithm.substringBefore('/'))
+        }
     }
     private val oracle = InteropOracle(jvm)
 

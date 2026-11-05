@@ -36,6 +36,7 @@ object TrialDocument {
     private const val KEY_ALGORITHM = "keyAlgorithm"
     private const val KEY_PROVIDER = "keyProvider"
     private const val KEY_SIZE = "keySize"
+    private const val FIXED_KEY_SIZE = "fixedKeySize"
     private const val INPUT_SIZE = "inputSize"
     private const val PROVIDER_CHOSE = "providerChose"
     private const val BARE_NAME = "bareName"
@@ -108,6 +109,7 @@ object TrialDocument {
         if (run.keyAlgorithm.isNotEmpty()) document[KEY_ALGORITHM] = run.keyAlgorithm
         if (run.keyProvider.isNotEmpty()) document[KEY_PROVIDER] = run.keyProvider
         run.keySize?.let { document[KEY_SIZE] = it }
+        run.fixedKeySize?.let { document[FIXED_KEY_SIZE] = it }
         run.inputSize?.let { document[INPUT_SIZE] = it }
         if (run.providerChose.isNotEmpty()) document[PROVIDER_CHOSE] = run.providerChose
         if (run.bareName) document[BARE_NAME] = true
@@ -123,6 +125,7 @@ object TrialDocument {
         keyAlgorithm = optionalString(document, KEY_ALGORITHM),
         keyProvider = optionalString(document, KEY_PROVIDER),
         keySize = optionalNumber(document, KEY_SIZE)?.toInt(),
+        fixedKeySize = optionalNumber(document, FIXED_KEY_SIZE)?.toInt(),
         inputSize = optionalNumber(document, INPUT_SIZE)?.toInt(),
         providerChose = optionalString(document, PROVIDER_CHOSE),
         bareName = optionalBoolean(document, BARE_NAME),

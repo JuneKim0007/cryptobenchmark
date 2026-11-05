@@ -11,25 +11,20 @@ class KeyPlanner(
 ) {
 
     fun plan(case: BenchmarkCase): KeyRecipe {
-        val names = candidates(case)
-        val algorithm = names.first().algorithm
-        return when (OperationDefinitions.of(case.operation).keyShape) {
+        val shape = OperationDefinitions.of(case.operation).keyShape
+        if (shape == KeyShape.NONE) {
+            return KeyRecipe.None
+        }
+        val key = capability.measuredKey(case.provider, case.type, case.algorithm)
+            ?: return KeyRecipe.Unavailable("no_measured_key: ${case.type}.${case.algorithm}")
+        return when (shape) {
             KeyShape.NONE -> KeyRecipe.None
-            KeyShape.SECRET -> names.firstNotNullOfOrNull { secret(case, it) } ?: unavailable(SECRET_GENERATOR, algorithm)
-            KeyShape.PAIR -> names.firstNotNullOfOrNull { pair(case, it, count = 1) } ?: unavailable(PAIR_GENERATOR, algorithm)
-            KeyShape.PEER_PAIRS -> names.firstNotNullOfOrNull { pair(case, it, count = 2) } ?: unavailable(PAIR_GENERATOR, algorithm)
-            KeyShape.DEVICE_DECIDES -> names.firstNotNullOfOrNull { secret(case, it) } ?: names.firstNotNullOfOrNull { pair(case, it, count = 1) }
-                ?: KeyRecipe.Unavailable("no_key_generator: $algorithm")
+            KeyShape.SECRET -> secret(case, key) ?: unavailable(SECRET_GENERATOR, key.algorithm)
+            KeyShape.PAIR -> pair(case, key, count = 1) ?: unavailable(PAIR_GENERATOR, key.algorithm)
+            KeyShape.PEER_PAIRS -> pair(case, key, count = 2) ?: unavailable(PAIR_GENERATOR, key.algorithm)
+            KeyShape.DEVICE_DECIDES -> secret(case, key) ?: pair(case, key, count = 1)
+                ?: KeyRecipe.Unavailable("no_key_generator: ${key.algorithm}")
         }
-    }
-
-    private fun candidates(case: BenchmarkCase): List<KeyCandidate> {
-        val derived = KeyAlgorithmName.candidates(case.type, case.algorithm)
-        val measured = capability.measuredKeyAlgorithm(case.provider, case.type, case.algorithm)
-        if (measured.isNullOrBlank()) {
-            return derived
-        }
-        return listOf(KeyCandidate(measured)) + derived.filterNot { it.algorithm.equals(measured, ignoreCase = true) }
     }
 
     private fun secret(case: BenchmarkCase, candidate: KeyCandidate): KeyRecipe.Secret? =

@@ -76,9 +76,7 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | DECRYPT input | seeded message encrypted once; carries ciphertext and spec (provider `AlgorithmParameters` when no spec); round trip checked, `round_trip_failed` |
 | VERIFY input | seeded message signed once and verified; carries message and signature |
 | asymmetric cipher | encrypt with the first pair's public key, decrypt with its private key |
-| key candidates | trial `keyAlgorithm` first, then names derived from the algorithm |
-| Cipher derivation | part before `/`; `<base>_<n>` gives base and size `n`; part before `-` |
-| Signature derivation | part after `with`, minus `inP1363Format`, `ECDSA` to `EC`; KeyAgreement `ECDH` to `EC` |
+| key | the trial's `keyAlgorithm` and `fixedKeySize`: discovery's `KeyNames` is the one naming rule; none recorded: `no_measured_key: <type>.<alg>` |
 | generator provider | the case's provider, then all providers in precedence order; first with an available generator |
 | DEVICE_DECIDES | secret `KeyGenerator` first, then a one-pair `KeyPairGenerator` |
 | PEER_PAIRS | two key pairs |

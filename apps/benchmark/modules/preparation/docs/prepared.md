@@ -87,4 +87,4 @@ No key bytes and no input bytes are written. Input bytes are reproducible from `
 | `example/preparation_capture_example.yaml`, `preparation_trial_example.yaml`, `preparation_effective_example.yaml` | inputs |
 | `example/preparation_prepared_example.yaml`, `preparation_skipped_example.yaml` | expected outputs |
 
-`ExampleFilesTest` prepares the example against the JVM and compares both outputs; `apps/benchmark/gradlew -p apps/benchmark :preparation:test -Dexamples.update` rewrites them. `-Dtrial=<file>` points `KeyAlgorithmContractTest` at a device trial.
+`ExampleFilesTest` prepares the example against the JVM and compares both outputs; `apps/benchmark/gradlew -p apps/benchmark :preparation:test -Dexamples.update` rewrites them.

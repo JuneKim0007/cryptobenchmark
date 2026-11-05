@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
@@ -24,8 +25,7 @@ class KeyPlannerTest {
         override fun check(provider: String, type: String, algorithm: String): Availability =
             if ("$type/$algorithm" in serves[provider].orEmpty()) Availability.Available else Availability.Unavailable("not_registered")
 
-        override fun measuredKeyAlgorithm(provider: String, type: String, algorithm: String): String? =
-            if (algorithm == "SHA256withNEWSIG") "EC" else null
+        override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? = MEASURED[algorithm]
     }
 
     private val planner = KeyPlanner(device)
@@ -54,7 +54,7 @@ class KeyPlannerTest {
     }
 
     @Test
-    fun aCipherFamilyGeneratorIsUsedWhenTheNameHasNone() {
+    fun theTrialsKeyIsUsedWhateverTheNameSays() {
         assertEquals(KeyRecipe.Secret("ChaCha20", 256, "AndroidOpenSSL"), plan("Cipher", "ChaCha20-Poly1305", keySize = 256))
     }
 
@@ -71,13 +71,31 @@ class KeyPlannerTest {
     }
 
     @Test
-    fun aSizeInTheNameBecomesTheKeySize() {
+    fun aSizeTheTrialRecordsAsFixedBecomesTheKeySize() {
         assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES_128/GCM/NoPadding"))
         assertEquals(KeyRecipe.Secret("AES", 256, "AndroidOpenSSL"), plan("Cipher", "AES_128/GCM/NoPadding", keySize = 256))
     }
 
     @Test
-    fun aNameTheDerivationDoesNotCoverStillRuns() {
+    fun aNameWithNoMeasuredKeyHasNoRecipe() {
         assertEquals(KeyRecipe.Pair("EC", 256, "AndroidOpenSSL"), plan("Signature", "SHA256withNEWSIG", keySize = 256))
+        assertEquals(KeyRecipe.Unavailable("no_measured_key: Signature.SHA256withUNSEEN"), plan("Signature", "SHA256withUNSEEN"))
+    }
+
+    private companion object {
+        val MEASURED = mapOf(
+            "AES/GCM/NoPadding" to KeyCandidate("AES"),
+            "AES/CBC/PKCS5Padding" to KeyCandidate("AES"),
+            "AES_128/GCM/NoPadding" to KeyCandidate("AES", 128),
+            "RSA/ECB/OAEPPadding" to KeyCandidate("RSA"),
+            "ChaCha20-Poly1305" to KeyCandidate("ChaCha20"),
+            "Serpent/CBC/NoPadding" to KeyCandidate("Serpent"),
+            "HmacSHA256" to KeyCandidate("HmacSHA256"),
+            "HmacSHA512" to KeyCandidate("HmacSHA512"),
+            "SHA256withRSA" to KeyCandidate("RSA"),
+            "SHA256withECDSA" to KeyCandidate("EC"),
+            "ECDH" to KeyCandidate("EC"),
+            "SHA256withNEWSIG" to KeyCandidate("EC"),
+        )
     }
 }

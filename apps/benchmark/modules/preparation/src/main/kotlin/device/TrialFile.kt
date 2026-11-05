@@ -35,12 +35,14 @@ object TrialFile {
                 instantiates = boolean(service, "instantiates"),
                 error = optionalString(service, "error"),
                 keyAlgorithm = measuredKeyAlgorithm(service),
+                fixedKeySize = fixedKeySize(service),
                 transformations = optionalSections(service, "transformations").map { transformation ->
                     TrialledTransformation(
                         name = string(transformation, "name"),
                         instantiates = boolean(transformation, "instantiates"),
                         error = optionalString(transformation, "error"),
                         keyAlgorithm = measuredKeyAlgorithm(transformation),
+                        fixedKeySize = fixedKeySize(transformation),
                     )
                 },
             )
@@ -49,4 +51,7 @@ object TrialFile {
 
     private fun measuredKeyAlgorithm(trialled: Map<String, Any>): String =
         optionalString(optionalSection(trialled, "defaultRun"), "keyAlgorithm")
+
+    private fun fixedKeySize(trialled: Map<String, Any>): Int? =
+        (optionalSection(trialled, "defaultRun")["fixedKeySize"] as? Number)?.toInt()
 }
