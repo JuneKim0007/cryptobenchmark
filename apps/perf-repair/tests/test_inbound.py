@@ -21,7 +21,8 @@ from perfrepair.data_handler.inbound.run_log import (
 )
 from perfrepair.data_handler.inbound.results import ended_throttled, thermal_of
 from perfrepair.dto import Measurements
-from helpers import with_results
+from perfrepair.validation.rows import validate_rows
+from helpers import row, with_results
 
 F = Path(__file__).parent / "fixtures"
 MANIFEST = F / "results" / "test-api36-00000000" / "manifest.yaml"
@@ -242,3 +243,7 @@ def test_thermal_blocks_join_measurements_and_only_ended_throttled_cases_are_nam
     assert ended_throttled(thermal) == ["a"]
     kept = Measurements({}, [], {}, thermal)
     assert Measurements.from_json(kept.to_json()).thermal == thermal and "thermal" not in Measurements({}, []).to_json()
+
+
+def test_a_case_without_a_variant_is_refused():
+    assert validate_rows([row("a", "P", variant=None)]) == ["a: variant None is not one of ('fixed', 'notFixed')"]

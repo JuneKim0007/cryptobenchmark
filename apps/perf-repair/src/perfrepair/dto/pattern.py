@@ -3,8 +3,7 @@ from __future__ import annotations
 
 FIXED, NOT_FIXED = "fixed", "notFixed"
 PATTERNS = (FIXED, NOT_FIXED)
-# a benchmark case without a variant predates them: the one variant it measured is notFixed
-VARIANTS, LEGACY_VARIANT = PATTERNS, NOT_FIXED
+VARIANTS = PATTERNS
 CREATED_PER_CALL, HELD_IN_FIELD, UNKNOWN_DEFAULT = "created_per_call", "held_in_field", "unknown_default"
 # reason → (the pattern it gives, the rule in plain words)
 PATTERN_RULES = {

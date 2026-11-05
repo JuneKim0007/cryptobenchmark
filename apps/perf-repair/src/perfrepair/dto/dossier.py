@@ -114,7 +114,7 @@ class Dossier:
     source: str
     current: str
     options: tuple[Option, ...]
-    # prepared.yaml perCall of the current item's rows in the scope's variant; empty before variants
+    # prepared.yaml perCall of the current item's rows in the scope's variant
     perCall: tuple[str, ...] = ()
 
     @property

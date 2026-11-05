@@ -10,7 +10,6 @@ from pathlib import Path
 
 from ...dto import PrimitiveRow, Summary
 from ...dto.metrics import METRICS
-from ...dto.pattern import LEGACY_VARIANT
 from .bootstrap import median_interval
 
 Measurements = dict[str, dict[str, Summary]]
@@ -86,8 +85,7 @@ def read_results(benchmark_json: Path, prepared: dict[str, dict] | None = None, 
             operation=c["operation"], keySize=c.get("keySize"), inputSize=c.get("inputSize"),
             phase=plan.get("phase"),
             keyKind=(plan.get("key") or {}).get("kind") or c.get("keyKind"),
-            # absent predates variants; null is a scoped before/after case, which the validator refuses here
-            parameters=c.get("parameters"), variant=c["variant"] if "variant" in c else LEGACY_VARIANT,
+            parameters=c.get("parameters"), variant=c.get("variant"),
             perCall=plan.get("perCall"), session=c.get("session"), drift=bool(c.get("sessionDrift")),
         ))
         measurements[c["id"]] = summaries

@@ -140,10 +140,7 @@ def scaled(case):
 
 
 def both(case, variant):
-    """The key right after keyKind, as the benchmark writes it."""
-    keyed = list({**case, "id": f"{case['id']}_{variant}"}.items())
-    at = [k for k, _ in keyed].index("keyKind") + 1
-    out = dict(keyed[:at] + [("variant", variant)] + keyed[at:])
+    out = {**case, "id": f"{case['id']}_{variant}", "variant": variant}
     return scaled(out) if variant == "fixed" else out
 
 

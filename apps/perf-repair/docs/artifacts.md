@@ -28,7 +28,7 @@
 |---|---|---|---|
 | `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the report and both renders (absent: ms, MB/s) | `validation/manifest.py` |
 | `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark or a merged delta: the generated config's digest, the measured set's digest and items; `bundled`, with `device.bundled.fromApps: apply`: the applied entries' digest and the manifest's `bundled` and `config` digests they produced; unreadable counts as absent |
-| `rows.json` | inbound | worthiness, validation | `validation/rows.py`: schema 2, a delta's rows with their `session` and `drift`, every row's `variant` `fixed` or `notFixed` (a benchmark case without one is the legacy `notFixed`; `null`, a scoped before/after case, is refused) and `perCall` from `prepared.yaml` |
+| `rows.json` | inbound | worthiness, validation | `validation/rows.py`: schema 2, a delta's rows with their `session` and `drift`, every row's `variant` `fixed` or `notFixed` (any other value, or none, is refused) and `perCall` from `prepared.yaml` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |

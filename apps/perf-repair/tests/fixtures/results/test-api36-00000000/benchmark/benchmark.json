@@ -14,6 +14,7 @@
    "keySize": 128,
    "inputSize": 1024,
    "keyKind": "secret",
+   "variant": "notFixed",
    "parameters": {
     "mode": "GCM",
     "padding": "NoPadding",
@@ -51,6 +52,7 @@
    "keySize": 128,
    "inputSize": 1024,
    "keyKind": "secret",
+   "variant": "notFixed",
    "parameters": {
     "mode": "GCM",
     "padding": "NoPadding",
@@ -80,6 +82,7 @@
    "keySize": null,
    "inputSize": 1024,
    "keyKind": "secret",
+   "variant": "notFixed",
    "parameters": {},
    "metrics": {
     "timeNs": {

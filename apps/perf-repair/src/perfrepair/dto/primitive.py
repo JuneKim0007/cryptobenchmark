@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 from .document import DocumentKind
-from .pattern import LEGACY_VARIANT
 
 # 2: every row carries its benchmark variant and perCall
 ROWS_SCHEMA_VERSION = 2
@@ -22,8 +21,9 @@ class PrimitiveRow:
     phase: str | None
     keyKind: str | None = None
     parameters: dict | None = None
-    variant: str = LEGACY_VARIANT
-    # prepared.yaml's perCall: what one timed call redoes; None before variants
+    # validation/rows.py refuses a case without one
+    variant: str | None = field(kw_only=True)
+    # prepared.yaml's perCall: what one timed call redoes
     perCall: str | None = None
     # the delta session that measured it, None for the benchmark's own; drift: its anchors moved past the noise rule
     session: str | None = None
