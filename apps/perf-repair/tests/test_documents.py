@@ -50,10 +50,10 @@ def test_several_accepted_versions_and_an_absent_one():
 
 
 def test_read_versioned_loads_then_checks(tmp_path):
-    path = write_json(tmp_path / "scopes.json", {"schemaVersion": "5"})
-    with pytest.raises(InputError, match=r"^schema_version: .*scopes.json schemaVersion '5' is not 5; rerun"):
+    path = write_json(tmp_path / "scopes.json", {"schemaVersion": "6"})
+    with pytest.raises(InputError, match=r"^schema_version: .*scopes.json schemaVersion '6' is not 6; rerun"):
         read_versioned(SCOPES_DOC, path)
-    write_json(path, {"schemaVersion": 5, "scopes": []})
+    write_json(path, {"schemaVersion": 6, "scopes": []})
     assert read_versioned(SCOPES_DOC, path)["scopes"] == []
 
 

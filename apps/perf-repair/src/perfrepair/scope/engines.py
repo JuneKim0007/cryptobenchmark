@@ -13,7 +13,7 @@ ENGINES = Path(__file__).with_name("engines.yaml")
 SUPPORTED_SCHEMA = 1
 ENGINES_DOC = DocumentKind("engines", SUPPORTED_SCHEMA, AT_PATH)
 _ENGINE_KEYS = {"configuration", "terminal", "optional", "requirements", "operations", "consumers"}
-_TOP_KEYS = {"schemaVersion", "factory", "engines", "origins", "specs", "accessors", "decoders"}
+_TOP_KEYS = {"schemaVersion", "factory", "engines", "origins", "specs", "accessors", "decoders", "comparisons"}
 
 
 @dataclass(frozen=True)
@@ -41,6 +41,7 @@ class Engines:
     specs: dict[str, int]
     accessors: frozenset[str]
     decoders: frozenset[str]
+    comparisons: frozenset[str] = frozenset()
 
     def origin_of_call(self, name: str) -> str | None:
         return next((o for o in ORIGINS if name in self.origins.get(o, ())), None)
@@ -92,4 +93,4 @@ def read_engines(path: Path = ENGINES) -> Engines:
         raise ValueError(f"{path}: " + "; ".join(problems))
     return Engines(doc["factory"], {n: _engine(r) for n, r in doc["engines"].items()},
                    {o: frozenset(v) for o, v in doc["origins"].items()}, dict(doc["specs"]),
-                   frozenset(doc["accessors"]), frozenset(doc["decoders"]))
+                   frozenset(doc["accessors"]), frozenset(doc["decoders"]), frozenset(doc["comparisons"]))

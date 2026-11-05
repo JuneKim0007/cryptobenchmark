@@ -24,6 +24,7 @@ from perfrepair.report.markdown import _broken_uses
 from perfrepair.result.candidates import Family
 from perfrepair.result.dossier import build_dossiers
 from perfrepair.result.unit_dossiers import by_unit
+from perfrepair.result.upgrades import needs_person
 from perfrepair.validation.dossiers.against_run import validate_dossiers
 from perfrepair.validation.upgrade import check_reply
 
@@ -105,7 +106,7 @@ def test_the_validator_refuses_a_broken_option_in_an_upgrades_row(tmp_path):
 
 
 def test_a_listed_upgrade_is_the_lists_targets_best_first_whatever_no_gain_says_and_asks_no_model(tmp_path):
-    doc = _doc(tmp_path)
+    doc = _doc(tmp_path, _scope(sinks=("local",)))
     [row_] = doc["upgrades"]
     # SHA-224 is the fastest accepted one, but the list leaves it out; both listed are slower than MD5
     assert [o["item"] for o in row_["options"]] == [SHA512, SHA256] and row_["identified"]
@@ -227,3 +228,97 @@ def test_the_list_refuses_a_target_that_is_not_accepted_or_a_name_that_is_not_br
 def test_every_listed_row_has_a_source_and_targets():
     assert upgrades().rows and all(targets and all(t.source for t in targets) for targets in upgrades().rows.values())
     assert upgrades().targets("digest.none", "md5") == upgrades().targets("digest.none", "MD5")
+
+
+def _scoped(tmp_path, source, line):
+    """The scope code reads from the source itself: its sinks and its lifecycle's facts, never written by hand."""
+    pytest.importorskip("tree_sitter")
+    from perfrepair.scope.build import build_scopes
+    (tmp_path / "A.java").write_text(source)
+    site = {"file": "A.java", "line": line, "call": 'MessageDigest.getInstance("MD5", "P1")', "engineType": "MessageDigest",
+            "resolvedAlgorithm": "MD5", "resolvedProvider": "P1", "resolution": "explicit"}
+    return build_scopes(APP, tmp_path, [site]).scopes[0]
+
+
+# threema MasterKey.calcVerification: the digest is returned, stored by one caller and compared by others
+CALC_VERIFICATION = """class A {
+  private static byte[] calcVerification(byte[] key) {
+    MessageDigest md = MessageDigest.getInstance("MD5", "P1");
+    md.update(key);
+    byte[] digest = md.digest();
+    byte[] verification = new byte[4];
+    System.arraycopy(digest, 0, verification, 0, 4);
+    return verification;
+  }
+}
+"""
+COMPARED_HERE = """class A {
+  static boolean same(byte[] a, byte[] b) {
+    MessageDigest md = MessageDigest.getInstance("MD5", "P1");
+    byte[] x = md.digest(a);
+    byte[] y = md.digest(b);
+    return Arrays.equals(x, y);
+  }
+}
+"""
+AGAINST_A_STORED_ONE = """class A {
+  boolean check(byte[] key) {
+    MessageDigest md = MessageDigest.getInstance("MD5", "P1");
+    byte[] mine = md.digest(key);
+    return Arrays.equals(mine, verification);
+  }
+}
+"""
+
+
+def test_a_returned_output_on_the_calc_verification_shape_is_a_persons(tmp_path):
+    s = _scoped(tmp_path, CALC_VERIFICATION, 3)
+    assert s.sinks == ("return",) and not s.lifecycle.outputCompared
+    [u] = _state(tmp_path, _doc(tmp_path, s)).rows.values()
+    assert (u.status, u.edits, u.option) == ("needs_migration", (), SHA512) and u.needs == ("reach_return_unverified",)
+
+
+def test_a_returned_output_is_a_persons_even_when_the_option_lists_no_review(tmp_path):
+    item = UpgradeItem.from_json(_doc(tmp_path)["upgrades"][0])
+    assert needs_person(item, replace(item.dossier.options[0], needsReview=())) == ("reach_return_unverified",)
+
+
+def test_a_comparison_with_a_reference_from_elsewhere_is_a_persons(tmp_path):
+    s = _scoped(tmp_path, AGAINST_A_STORED_ONE, 3)
+    assert s.sinks == ("return",) and not s.lifecycle.outputCompared
+    [u] = _state(tmp_path, _doc(tmp_path, s)).rows.values()
+    assert u.status == "needs_migration" and "reach_return_unverified" in u.needs
+
+
+def test_an_output_compared_and_discarded_in_its_function_is_an_edit(tmp_path):
+    s = _scoped(tmp_path, COMPARED_HERE, 3)
+    assert s.sinks == ("return",) and s.lifecycle.outputCompared
+    [u] = _state(tmp_path, _doc(tmp_path, s)).rows.values()
+    assert (u.status, u.needs) == ("upgraded", ()) and "reach_return_unverified" in u.review
+
+
+@pytest.mark.parametrize("reason", ["deterministic_lost", "strength_unknown"])
+def test_a_refused_accepted_measured_member_is_a_persons_with_that_reason(tmp_path, reason, monkeypatch):
+    import perfrepair.result.candidates as candidates
+    real = candidates.classify
+
+    def refuse(types_, s, mine, c, min_sdk):
+        found = real(types_, s, mine, c, min_sdk)
+        return replace(found, change="rejected", reasons=(reason,))
+    monkeypatch.setattr(candidates, "classify", refuse)
+    doc = _doc(tmp_path)
+    assert doc["upgrades"] == [] and doc["noOptions"] == [{"scope": _scope().id, "reason": f"person_judges: {reason}"}]
+    assert validate_dossiers(doc, [_scope()], GROUPS, VERDICTS) == []
+    [u] = _state(tmp_path, doc).rows.values()
+    assert (u.status, u.needs, u.option, u.source) == ("needs_migration", (reason,), None, "static")
+
+
+def test_no_secure_option_only_when_the_family_has_no_accepted_measured_member(tmp_path, monkeypatch):
+    import perfrepair.result.candidates as candidates
+    real = candidates.classify
+
+    def refuse(types_, s, mine, c, min_sdk):
+        return replace(real(types_, s, mine, c, min_sdk), change="rejected", reasons=("deterministic_lost",))
+    monkeypatch.setattr(candidates, "classify", refuse)
+    doc = _doc(tmp_path, names=(MD5, MD5_OTHER, SHA1))
+    assert [n["reason"] for n in doc["noOptions"]] == ["no_secure_option"]

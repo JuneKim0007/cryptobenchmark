@@ -102,3 +102,5 @@ accessors: [getPublic, getPrivate, getPublicKey, public, private, publicKey, pri
             toByteArray, getBytes, clone, copyOf, copyOfRange, getIV, iv, toCharArray]
 decoders: [decode, decodeBase64, hexStringToByteArray, hexToBytes, hexToByteArray, fromHex, decodeHex, parseHex,
            base64Decode, digest, copyOf, copyOfRange, getBytes, toByteArray, wrap]
+# the calls that compare two values and keep neither
+comparisons: [equals, contentEquals, isEqual]

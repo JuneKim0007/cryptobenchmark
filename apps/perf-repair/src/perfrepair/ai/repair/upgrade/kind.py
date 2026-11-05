@@ -6,7 +6,7 @@ from pathlib import Path
 from .... import run_dir as rd
 from ....dto.change import MIGRATION
 from ....dto.decision import OutboxRecord
-from ....dto.dossier import NO_SECURE_OPTION
+from ....dto.dossier import NO_SECURE_OPTION, PERSON_JUDGES, reason_code
 from ....dto.perf_mode import GENERIC_MODE
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.upgrade import FALLBACK_SOURCE, LIST_SOURCE, MODEL_SOURCE, NEEDS_MIGRATION, NO_SECURE, NOT_REACHED, STATIC_SOURCE, Upgrade, UpgradeItem
@@ -28,6 +28,15 @@ MODEL_DROPPED = "model_dropped"
 
 def charter(library: PromptLibrary, inputs: str = "") -> Charter:
     return library.charter(NAME, SCHEMA, inputs)
+
+
+def _unreached(n: dict) -> Upgrade:
+    """A broken use with no option: a person's when accepted, measured members were refused, else its reason's status."""
+    if reason_code(n["reason"]) == PERSON_JUDGES:
+        needs = tuple(n["reason"].split(": ", 1)[1].split(", "))
+        return Upgrade(n["scope"], n["current"], NEEDS_MIGRATION, None, STATIC_SOURCE, n["reason"], needs=needs)
+    status = NO_SECURE if n["reason"] == NO_SECURE_OPTION else NOT_REACHED
+    return Upgrade(n["scope"], n["current"], status, None, STATIC_SOURCE, n["reason"])
 
 
 @dataclass(frozen=True)
@@ -66,8 +75,7 @@ class UpgradeKind:
             if u.identified:
                 state.rows[u.key] = settled(u, u.dossier.options[0], LIST_SOURCE, LISTED_REASON)
         for n in self.doc["brokenUnreached"]:
-            status = NO_SECURE if n["reason"] == NO_SECURE_OPTION else NOT_REACHED
-            state.rows[n["scope"]] = Upgrade(n["scope"], n["current"], status, None, STATIC_SOURCE, n["reason"])
+            state.rows[n["scope"]] = _unreached(n)
         return state
 
     def admit(self, a: Asked) -> list[str]:

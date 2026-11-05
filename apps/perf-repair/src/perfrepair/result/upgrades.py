@@ -6,17 +6,19 @@ import math
 import statistics
 
 from ..dto import PrimitiveRow, Summary
-from ..dto.change import MIGRATION
+from ..dto.change import MIGRATION, REACH_REVIEW
 from ..dto.dossier import Option
 from ..dto.grouping import algorithm_of, provider_of
 from ..dto.perf_mode import PerfMode
 from ..dto.replacement import OUTPUT_LEAVES, Edit, required_risks
 from ..dto.site import Scope
 from ..dto.upgrade import NEEDS_MIGRATION, UPGRADED, Upgrade, UpgradeItem
+from .change import reach
 from .configurations import Config, operations
 
 LINKED, KEY_HELD, PARAMETERS_UNKNOWN = "linked_members", "provider_held_key", "parameters_unknown"
-# what a set_algorithm or pin_parameters edit cannot carry; a returned or local output's reach alone is not on it
+# what a set_algorithm or pin_parameters edit cannot carry; a local output's reach alone is not on it
+REACH_RETURNED = REACH_REVIEW["return"]
 BLOCKS_EDIT = ("reach_persist", "reach_unknown", "field_bound", "key_changes", "parameter_changes", "adds_dependency")
 
 
@@ -59,11 +61,16 @@ def edits_of(current: str, option: Option) -> tuple[Edit, ...]:
     return tuple(found)
 
 
+def _returned(s: Scope) -> bool:
+    """Its callers are not read, so a returned output may be stored; only its own function's comparisons show it stays."""
+    return reach(s) == "return" and not (s.lifecycle is not None and s.lifecycle.outputCompared)
+
+
 def needs_person(item: UpgradeItem, option: Option) -> tuple[str, ...]:
     """Why this upgrade cannot be an automatic edit; stored or sent output comes from the scope's sinks and reach."""
     found = [r for r in required_risks(item.dossier.scope) if r in OUTPUT_LEAVES]
     found += [LINKED] * bool(item.linked) + [KEY_HELD] * item.providerHeld + [PARAMETERS_UNKNOWN] * (option.pins is None)
-    found += [r for r in option.needsReview if r in BLOCKS_EDIT]
+    found += [REACH_RETURNED] * _returned(item.dossier.scope) + [r for r in option.needsReview if r in BLOCKS_EDIT]
     return tuple(found or ([MIGRATION] if option.change == MIGRATION else ()))
 
 

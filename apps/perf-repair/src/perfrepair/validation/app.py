@@ -16,7 +16,7 @@ from .units import validate_units
 _SCOPE_TYPES = {"id": str, "app": str, "file": str, "line": int, "call": str, "function": str, "start": int,
                 "end": int, "engineType": str, "resolution": str, "sinks": list, "keySource": str, "pattern": str,
                 "patternReason": str, "patternLines": list}
-_LIFECYCLE_KEYS = {"status", "reasons", "binding", "steps", "requirements", "operations"}
+_LIFECYCLE_KEYS = {"status", "reasons", "binding", "steps", "requirements", "operations", "outputCompared"}
 _STATUS_REASONS = {UNSUPPORTED: UNSUPPORTED_REASONS, PARTIALLY_BOUNDED: PARTIAL_REASONS}
 _OPTIONAL = {"algorithm": str, "provider": str, "keySize": int, "inputSize": int}
 

@@ -63,13 +63,15 @@ class Requirement:
 
 @dataclass(frozen=True)
 class Lifecycle:
-    """operations: the benchmark operations the steps perform; empty when unknown."""
+    """operations: the benchmark operations the steps perform; empty when unknown; outputCompared: every output of the
+    object is only compared with another of its own outputs in this function, so none leaves it."""
     status: str
     reasons: tuple[str, ...] = ()
     binding: str | None = None
     steps: tuple[Step, ...] = ()
     requirements: tuple[Requirement, ...] = ()
     operations: tuple[str, ...] = ()
+    outputCompared: bool = False
 
     @classmethod
     def unsupported(cls, reason: str) -> "Lifecycle":
@@ -79,12 +81,12 @@ class Lifecycle:
         return {"status": self.status, "reasons": list(self.reasons), "binding": self.binding,
                 "steps": [vars(s) for s in self.steps],
                 "requirements": [r.to_json() for r in self.requirements],
-                "operations": list(self.operations)}
+                "operations": list(self.operations), "outputCompared": self.outputCompared}
 
     @classmethod
     def from_json(cls, d: dict) -> "Lifecycle":
         return cls(d["status"], tuple(d["reasons"]), d["binding"], tuple(Step(**s) for s in d["steps"]),
-                   tuple(Requirement.from_json(r) for r in d["requirements"]), tuple(d["operations"]))
+                   tuple(Requirement.from_json(r) for r in d["requirements"]), tuple(d["operations"]), d["outputCompared"])
 
     def origin_of(self, name: str) -> Requirement | None:
         return next((r for r in self.requirements if r.name == name), None)

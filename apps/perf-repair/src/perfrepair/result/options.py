@@ -22,6 +22,7 @@ from ..dto.dossier import (
     CURRENT_NOT_MEASURED,
     NO_SECURE_OPTION,
     OPTION_PREFIX,
+    PERSON_JUDGES,
     ZERO_MEDIAN,
     Option,
 )
@@ -198,6 +199,14 @@ class Joined:
             return offered, rejected
         return listed, rejected + [Change(c.item, REJECTED, c.diff, (NOT_LISTED,)) for c in offered if c not in listed]
 
+    def _nothing_ranked(self, s: Scope, kept: list[Change]) -> str:
+        """An accepted, measured member under a reject reason is a person's to weigh; only with none is there no secure option."""
+        def weighable(c: Change) -> bool:
+            return (self._accepted(c.item) and self._measured_here(c.item)
+                    and measured_enough(rank(s, self.measured[c.item], self.measurements, self.perf), self.perf))
+        reasons = sorted({r for c in kept if weighable(c) for r in c.reasons})
+        return f"{PERSON_JUDGES}: {', '.join(reasons)}" if reasons else NO_SECURE_OPTION
+
     def _upgrade(self, s: Scope, current: str, by_order: bool) -> tuple[str, list[Option], str | None, list[Change]]:
         """A broken current: its candidates by measured performance in the mode's metrics; no_gain never applies."""
         if self.family is None:
@@ -209,7 +218,7 @@ class Joined:
         ranked = sorted((c for c in offered if c not in unmeasured),
                         key=lambda c: (c.diff.addsDependency, keys[c.item], c.item))
         if not ranked:
-            return current, [], NO_SECURE_OPTION, kept
+            return current, [], self._nothing_ranked(s, kept), kept
         return current, [self.option(s, current, n, c.item, c, by_order) for n, c in enumerate(ranked, 1)], None, kept
 
     def options(self, s: Scope, on: str | None = None, by_order: bool = False) -> tuple[str, list[Option], str | None, list[Change]]:

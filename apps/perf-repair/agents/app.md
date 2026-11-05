@@ -59,7 +59,8 @@ src/perfrepair/scope/lifecycle/__init__.py : docstring only
 src/perfrepair/scope/lifecycle/binding.py : where the created object goes first: chain, local, field, returned, argument, discarded
 src/perfrepair/scope/lifecycle/depth1.py : one method away in the class: a field's other methods, a helper's callers, a callee; METHOD_BUDGET; requirement origins one away
 src/perfrepair/scope/lifecycle/origins.py : a value's origin in the closed list, read back through same-method definitions, with its line
-src/perfrepair/scope/lifecycle/read.py : one site's Reading: its Lifecycle (binding, steps, requirements, operations, status) and each requirement's argument
+src/perfrepair/scope/lifecycle/output.py : whether a site's outputs are only compared with each other in its function, so none leaves it
+src/perfrepair/scope/lifecycle/read.py : one site's Reading: its Lifecycle (binding, steps, requirements, operations, status, outputCompared) and each requirement's argument
 src/perfrepair/scope/lifecycle/settle.py : code settlement: field writes, in-class call arguments, returned values, a branch's operands; the budget; whether every path closes to one origin
 src/perfrepair/scope/lifecycle/slice.py : calls on one named object in one scope from a point on, shadowing-aware; its escapes
 src/perfrepair/scope/lifecycle/status.py : status and reasons from what the slice found

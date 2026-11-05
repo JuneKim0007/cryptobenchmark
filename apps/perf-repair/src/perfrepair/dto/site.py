@@ -17,10 +17,11 @@ EDITS_SCHEMA_VERSION = 1
 # 5: every option carries track, outputChanges, reach and needsReview
 # 6: estimates of the scope's pattern's variant only; perCall, what its current item's timed call redoes
 # 7: `measured`, the selected metrics the run has any measurement of
-DOSSIERS_SCHEMA_VERSION = 8
+# 8: `upgrades` and `brokenUnreached`; 9: a scope's lifecycle carries outputCompared
+DOSSIERS_SCHEMA_VERSION = 9
 # 2: each scope carries its lifecycle; 3: requirements and the use carry their completion; 4: a requirement carries only what code settled
-# 5: pattern, patternReason and patternLines on every scope
-SCOPES_SCHEMA_VERSION = 5
+# 5: pattern, patternReason and patternLines on every scope; 6: a lifecycle carries outputCompared
+SCOPES_SCHEMA_VERSION = 6
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
 # 4: recommend with needs; deciding, accepted and concerns on every row
 REPLACEMENTS_SCHEMA_VERSION = 4

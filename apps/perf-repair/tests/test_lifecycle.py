@@ -102,3 +102,36 @@ def test_a_value_reassigned_from_itself_reads_back_to_its_first_definition():
     site = {"line": 3, "call": "KeyFactory.getInstance(\"X\")", "engineType": "KeyFactory"}
     lc = read_site(parse(text, of_file("A.java")), site, read_engines()).lifecycle
     assert [(r.name, r.origin, r.line) for r in lc.requirements] == [("input", "storage", 4)]
+
+
+def _compared(text: str, file: str = "A.java") -> bool:
+    line = next(n for n, t in enumerate(text.splitlines(), 1) if "getInstance" in t)
+    site = {"line": line, "call": 'MessageDigest.getInstance("X")', "engineType": "MessageDigest"}
+    return read_site(parse(text, of_file(file)), site, read_engines()).lifecycle.outputCompared
+
+
+def _java(body: str) -> str:
+    return f'class A {{\n  boolean f(byte[] a, byte[] b, byte[] kept) throws Exception {{\n    MessageDigest m = MessageDigest.getInstance("X");\n{body}\n  }}\n}}\n'
+
+
+@pytest.mark.parametrize("body, compared", [
+    ("    byte[] x = m.digest(a);\n    byte[] y = m.digest(b);\n    return Arrays.equals(x, y);", True),
+    ("    return MessageDigest.isEqual(m.digest(a), m.digest(b));", True),
+    ("    byte[] x = m.digest(a);\n    return x.equals(m.digest(b));", True),
+    # a reference from elsewhere was made by the current algorithm: the swap breaks it
+    ("    return Arrays.equals(m.digest(a), kept);", False),
+    ("    byte[] x = m.digest(a);\n    return Arrays.equals(x, this.kept);", False),
+    ("    byte[] x = m.digest(a);\n    byte[] y = m.digest(b);\n    this.kept = y;\n    return Arrays.equals(x, y);", False),
+    ("    byte[] x = m.digest(a);\n    byte[] y = m.digest(b);\n    log(y[0]);\n    return Arrays.equals(x, y);", False),
+    ("    byte[] x = m.digest(a);\n    byte[] y = m.digest(b);\n    return Arrays.equals(x, y) || y.length > 0;", False),
+    ("    return m.digest(a);", False),
+    ("    pass(m);\n    return Arrays.equals(m.digest(a), m.digest(b));", False),
+])
+def test_output_compared_only_with_its_own_outputs_in_the_function(body, compared):
+    assert _compared(_java(body)) is compared
+
+
+def test_output_compared_reads_kotlin_too():
+    head = 'class A {\n  fun f(a: ByteArray, b: ByteArray, kept: ByteArray): Boolean {\n    val m = MessageDigest.getInstance("X")\n'
+    assert _compared(head + "    val x = m.digest(a)\n    val y = m.digest(b)\n    return x.contentEquals(y)\n  }\n}\n", "A.kt")
+    assert not _compared(head + "    val x = m.digest(a)\n    return x.contentEquals(kept)\n  }\n}\n", "A.kt")

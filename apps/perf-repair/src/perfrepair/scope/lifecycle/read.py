@@ -14,6 +14,7 @@ from ..syntax.usage import executable_root
 from .binding import Binding, bind
 from .depth1 import Reach, callees, callers, field_calls, requirement_depth1
 from .origins import origin
+from .output import compared_only
 from .slice import ALIAS, PASSED, RETURN, STORED, Escape, Slice, scan, scope_calls
 from .status import Found, status
 
@@ -127,5 +128,7 @@ def read_site(root: Node, site: dict, engines: Engines) -> Reading:
     state, reasons = status(found)
     calls = same.calls + reach.calls
     values = _requirements(engine, calls, engines)
+    kept = found.escapes or found.wrapper or bool(reach.calls)
+    compared = not kept and compared_only([c for c in same.calls if c.name in engine.terminal], method_body(method), engines.comparisons)
     return Reading(Lifecycle(state, reasons, b.kind, _steps(engine, same.calls, reach, consumed), tuple(values),
-                             _operations(engine, calls)), values)
+                             _operations(engine, calls), compared), values)

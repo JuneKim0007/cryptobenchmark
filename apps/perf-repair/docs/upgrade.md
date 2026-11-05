@@ -15,8 +15,11 @@ Role `apps.upgrade`, kind `repair-upgrade`, prompt `repair/upgrade`, its own cha
 | status | holds when |
 |---|---|
 | `upgraded` | none below: `edits` (`set_provider`, `set_algorithm`, `pin_parameters`, what differs) reach `edit` as a `replace` over replace's static keep |
-| `needs_migration` | `needs` holds any of: `persisted_data`, `wire_format`, `unknown_sink` from the scope's sinks; `linked_members` (a unit of more than one: the others must follow); `provider_held_key`; `parameters_unknown`; `reach_persist`, `reach_unknown`, `field_bound`, `key_changes`, `parameter_changes`, `adds_dependency` from the option; else `migration` for its class |
-| `no_secure_option` | no accepted, measured candidate; a report line, the run goes on |
+| `needs_migration` | `needs` holds any of: `persisted_data`, `wire_format`, `unknown_sink` from the scope's sinks; `linked_members` (a unit of more than one: the others must follow); `provider_held_key`; `parameters_unknown`; `reach_return_unverified` (below); `reach_persist`, `reach_unknown`, `field_bound`, `key_changes`, `parameter_changes`, `adds_dependency` from the option; a member's reject reason under `person_judges` (below), with no `option`; else `migration` for its class |
+| `no_secure_option` | the family has no accepted, measured member; a report line, the run goes on |
 | `not_reached` | another `noOptions` reason came first, named in `reason` |
 
-- Code decides edit or person from these facts; the model's risk list plays no part. A `return` reach is not on the list: its callers are not read, so it is an edit, with `reach_return_unverified` in `review`.
+- Code decides edit or person from these facts; the model's risk list plays no part. A `return` reach is a person's: its callers are not read, and a caller may store the value (threema `calcVerification` is stored and compared later). Only the lifecycle's `outputCompared` lifts it: the function reads its outputs only to compare them with each other and keeps none (`scope/lifecycle/output.py`).
+- A `local` reach stays an edit, with `reach_local_unverified` in `review`: `sinks` are patterns over the body, so a store they do not name reads `local`.
+- `person_judges: <reasons>` in `noOptions`: every accepted, measured member is refused by a reject reason, such as `deterministic_lost` or `strength_unknown`; the row's `needs` are those reasons.
+- An upgrade's swap gets no `same_output` check: `harness.yaml` marks it `upgrade: true`, the plan records `output_changes` and the scope is measured unchecked. A partner in the harness keeps `round_trip`, each side on its own variant's artifact.
