@@ -109,5 +109,5 @@ def test_a_stray_catalogue_a_missing_one_and_an_old_schema_are_refused(tmp_path)
     (target / "digest.none_catalogue.yaml").rename(target / "digest.other_catalogue.yaml")
     with pytest.raises(AlgorithmsError, match="digest.other_catalogue.yaml: not a family.*no digest.none_catalogue.yaml"):
         load(target)
-    with pytest.raises(AlgorithmsError, match="algorithms_schema"):
+    with pytest.raises(AlgorithmsError, match="algorithms_invalid: .*schemaVersion 0 is not 1"):
         load(_copy(tmp_path / "v", "common.yaml", lambda d: d.update(schemaVersion=0)))

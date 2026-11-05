@@ -103,7 +103,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 - conflicts follow NIST SP 800-131A r2 (final), stricter where Android's pages say so: SHA-1 digest `deprecated`; PKCS#1 v1.5 signatures `accepted`; CBC `accepted`.
 - platform rows come from AOSP `Providers.java` `DEPRECATED_ALGORITHMS`; OIDs and aliases resolve to the canonical names listed; `AlgorithmParameters` and `CertificateFactory` are not item engine types.
 - DSA follows FIPS 186-5 (final), which r2 predates: signature rows and DSA key pairs are `deprecated`; a final standard that is stricter than r2 wins over r2.
-- a row needs a `catalog/types.yaml` row for its family engine and a name in `algorithm-names.yaml`.
+- a row needs type facts in its family's `catalog/algorithms/` catalogue and a name in `algorithm-names.yaml`.
 
 ## Names with no row
 

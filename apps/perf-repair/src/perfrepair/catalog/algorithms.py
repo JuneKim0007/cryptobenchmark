@@ -31,7 +31,7 @@ class AlgorithmsError(InputError):
 
 
 INVALID = "algorithms_invalid"
-CATALOGUE_DOC = DocumentKind("algorithms", SCHEMA_VERSION, "algorithms_schema: " + AT_PATH, AlgorithmsError)
+CATALOGUE_DOC = DocumentKind("algorithms", SCHEMA_VERSION, INVALID + ": " + AT_PATH, AlgorithmsError)
 
 
 @dataclass(frozen=True)

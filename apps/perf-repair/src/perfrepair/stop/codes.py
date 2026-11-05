@@ -145,7 +145,6 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("screening_shape", FIX_CATALOG),
     _fixed("screening_yaml", FIX_CATALOG),
     _fixed("algorithms_invalid", FIX_CATALOG),
-    _fixed("algorithms_schema", FIX_CATALOG),
     _fixed("algorithm_unknown", "name an algorithm or group id the catalogues hold"),
     _fixed("relations_schema", FIX_CATALOG),
     _fixed("events_unreadable", "move the unreadable events.jsonl aside"),
