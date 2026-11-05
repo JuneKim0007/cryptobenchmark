@@ -18,11 +18,16 @@ import org.junit.rules.TemporaryFolder
 import org.yaml.snakeyaml.Yaml
 import java.security.AlgorithmParameters
 import java.security.Key
+import java.security.PrivateKey
 import java.security.Provider
+import java.security.PublicKey
 import java.security.SecureRandom
 import java.security.Security
+import java.security.Signature
+import java.security.SignatureSpi
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.MGF1ParameterSpec
+import java.security.spec.PSSParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.CipherSpi
 import javax.crypto.spec.OAEPParameterSpec
@@ -52,6 +57,23 @@ class Mgf1Sha256Oaep : CipherSpi() {
         if (input == null) inner.doFinal(output, outputOffset) else inner.doFinal(input, offset, length, output, outputOffset)
 }
 
+const val PSS_NAME = "SHA256withRSA/PSS"
+
+// SunRsaSign's RSASSA-PSS has no default parameters; this one fixes them, as a provider naming the digest does.
+class FixedPss : SignatureSpi() {
+    private val inner = Signature.getInstance("RSASSA-PSS", "SunRsaSign")
+    private val spec = PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1)
+
+    override fun engineInitVerify(key: PublicKey) { inner.setParameter(spec); inner.initVerify(key) }
+    override fun engineInitSign(key: PrivateKey) { inner.setParameter(spec); inner.initSign(key) }
+    override fun engineUpdate(b: Byte) = inner.update(b)
+    override fun engineUpdate(b: ByteArray, off: Int, len: Int) = inner.update(b, off, len)
+    override fun engineSign(): ByteArray = inner.sign()
+    override fun engineVerify(sig: ByteArray): Boolean = inner.verify(sig)
+    @Deprecated("the JCA abstract member") override fun engineSetParameter(param: String?, value: Any?) = Unit
+    @Deprecated("the JCA abstract member") override fun engineGetParameter(param: String?): Any? = null
+}
+
 class InteropOracleTest {
 
     @get:Rule
@@ -65,6 +87,8 @@ class InteropOracleTest {
             val registered = names.any { Security.getProvider(provider)?.getService(type, it) != null }
             return if (registered) Availability.Available else Availability.Unavailable("not_registered")
         }
+        override fun measuredKeyAlgorithm(provider: String, type: String, algorithm: String): String? =
+            if (algorithm == PSS_NAME) "RSA" else null
     }
     private val oracle = InteropOracle(jvm)
 
@@ -80,6 +104,18 @@ class InteropOracleTest {
         Security.addProvider(fake)
         try {
             return block()
+        } finally {
+            Security.removeProvider(fake.name)
+        }
+    }
+
+    private fun withFakePss(block: () -> Unit) {
+        val fake = object : Provider("FakePss", "1", "PSS at fixed parameters") {
+            init { put("Signature.$PSS_NAME", FixedPss::class.java.name) }
+        }
+        Security.addProvider(fake)
+        try {
+            block()
         } finally {
             Security.removeProvider(fake.name)
         }
@@ -113,6 +149,15 @@ class InteropOracleTest {
     fun signaturesCrossVerifyOnlyForTheSameDigest() {
         assertEquals("pass/produce_consume", verdict(pair("Signature", "SunRsaSign", "SHA256withRSA", "SHA256withRSA", 2048)))
         assertEquals("fail/produce_consume", verdict(pair("Signature", "SunRsaSign", "SHA256withRSA", "SHA512withRSA", 2048)))
+    }
+
+    // Each call's bytes differ: the mode comes from the type's operations, so these pass by crossing, never by equality.
+    @Test
+    fun randomizedOutputsCrossVerifyOrCrossDecrypt() {
+        assertEquals("pass/produce_consume", verdict(pair("Signature", "SunEC", "SHA256withECDSA", "SHA256withECDSA", 256)))
+        withFakePss { assertEquals("pass/produce_consume", verdict(pair("Signature", "FakePss", PSS_NAME, PSS_NAME, 2048))) }
+        assertEquals("pass/produce_consume", verdict(pair("Cipher", "SunJCE", "RSA/ECB/OAEPPadding", "RSA/ECB/OAEPPadding", 2048)))
+        assertEquals("pass/produce_consume", verdict(pair("Cipher", "SunJCE", "AES/GCM/NoPadding", "AES/GCM/NoPadding", 128)))
     }
 
     @Test

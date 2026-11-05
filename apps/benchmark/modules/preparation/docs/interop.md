@@ -1,6 +1,6 @@
 # interop
 
-`InteropOracle.check(pair)`: whether two members of one perf-repair group interoperate. `InteropRun.run(capability, plan, capture, out)` checks every plan pair and writes `interop.yaml`. Code under `src/main/kotlin/interop/`; covered by `InteropOracleTest`.
+`InteropOracle.check(pair)`: whether two members of one perf-repair group interoperate. `InteropRun.run(capability, plan, capture, out)` checks every plan pair and writes `interop.yaml`. perf-repair's guide runs it after grouping, before options. Code under `src/main/kotlin/interop/`; covered by `InteropOracleTest`.
 
 ## Diagram
 
@@ -19,7 +19,7 @@ flowchart LR
 | rule | value |
 |---|---|
 | member unavailable | both directions `not_checkable`, `not_registered: ...`; mode `none` |
-| mode `produce_consume` | the type has an artifact-consuming operation (DECRYPT, VERIFY): A produces, B consumes, then B produces, A consumes |
+| mode `produce_consume` | the type has an artifact-consuming operation (DECRYPT, VERIFY): A produces, B consumes, then B produces, A consumes; so a randomized output is crossed, never compared; the rule reads `OperationDefinitions`, no algorithm name |
 | mode `same_output` | otherwise: both outputs for the same key and input compared |
 | key | one key per direction, planned and generated for the producer, shared by both sides |
 | parameters | each member at its own defaults; only IV and GCM parameters travel with the ciphertext |
