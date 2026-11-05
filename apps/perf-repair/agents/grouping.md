@@ -53,6 +53,7 @@ src/perfrepair/catalog/families.py : the family catalog and (engine type, key ki
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
 src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: one group per family, contract rows derived from its names, a row at each key contract
 src/perfrepair/catalog/groups.yaml : data: one predefined group per family: description and canonical algorithm names; a person adds names from group-candidates.yaml
+src/perfrepair/catalog/identity.py : one algorithm's ids: the registered item, the canonical algorithm, its contract row; a case id read back from its fields
 src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own; the standard format of a generated key per generator type

@@ -15,10 +15,11 @@
 | `charter(library, inputs)` | `src/perfrepair/ai/suggest/site_replace/kind.py` | `library.charter(NAME, SCHEMA, inputs)` | ai.suggest.site_replace.command, guide.finished, review.stability |
 | `app_id(device, path)` | `src/perfrepair/app/facts/path_id.py` | The folder for --app: its own id, else the unit of a multi-root folder that recorded this path as its root. | ai.__main__, repair.__main__, report.__main__ |
 | `path_id(path)` | `src/perfrepair/app/facts/path_id.py` | - | app.__main__, guide.state, guide.target_file |
-| `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, ai.review.grouping_review.kind, grouping.report.candidates, grouping.report.rules +3 |
+| `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, ai.review.grouping_review.kind, catalog.identity, grouping.report.candidates +5 |
 | `interchange()` | `src/perfrepair/catalog/interchange.py` | `load()` | ai.parse.grouping_assign.render, catalog.groups, catalog.signature |
 | `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.groups, catalog.screening, catalog.signature, catalog.types +7 |
 | `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | catalog.signature, grouping.report.rules, screen.groups |
+| `types()` | `src/perfrepair/catalog/types.py` | `load()` | catalog.upgrades, repair.dossier, validation.boundary |
 | `parsed(load, run)` | `src/perfrepair/check/device.py` | The loaded document, or the problem a malformed file is. | check.apps, check.grouping, check.run |
 | `add_config_arg(parser)` | `src/perfrepair/config/args.py` | - | ai.runtime.gateway.args, app.__main__, data_handler.inbound.__main__, grouping.__main__ +3 |
 | `load_settings(parser, args)` | `src/perfrepair/config/args.py` | - | ai.__main__, app.__main__, config.device_results, data_handler.inbound.__main__ +5 |
@@ -28,7 +29,7 @@
 | `fill_device_results(parser, args, loaded)` | `src/perfrepair/config/device_results.py` | - | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +4 |
 | `display_units(device)` | `src/perfrepair/data_handler/inbound/manifest.py` | The units every view of this device folder shows; a folder without a manifest (a test, a hand-made one) the defaults. | ai.evaluate.worthiness.command, ai.suggest.site_replace.command, report.command |
 | `manifest_file(manifest, base, key)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | data_handler.inbound.run_context, device.delta, device.inbound, device.interop +4 |
-| `read_manifest(path)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | check.device, data_handler.inbound.run_context, device.delta, device.inbound +9 |
+| `read_manifest(path)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | check.device, data_handler.inbound.run_context, device.delta, device.inbound +10 |
 | `run_pipeline(config, results, stage, benchmark, harness, echo, tail, extra, app, device, env)` | `src/perfrepair/data_handler/outbound/benchmark_runner.py` | results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/ | device.delta, device.interop, device.stage_run, guide.app_steps |
 | `write_inbound(device)` | `src/perfrepair/device/inbound.py` | The lines to print: a count, then each comparability warning. | data_handler.inbound.__main__, device.gate_after, device.stage_run |
 | `measured_rows(device, app)` | `src/perfrepair/device/missing_rows.py` | A site's item the run log says was never measured: skipped, not runnable, or planned with no samples. | guide.app_steps, guide.device_steps, guide.targets |
@@ -41,7 +42,7 @@
 | `algorithm_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[1]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades +1 |
 | `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.review.grouping_review.render, ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate +8 |
 | `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, catalog.names +6 |
-| `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | device.measured_check, device.missing_rows, device.selection_adds, device.used +7 |
+| `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | catalog.identity, device.measured_check, device.missing_rows, device.selection_adds +9 |
 | `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, check.device, check.grouping +8 |
 | `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, grouping.interop_plan, review.sheet +1 |
 | `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, ai.review.grouping_review.kind, grouping.report.rules, validation.grouping.code_groups +1 |
@@ -58,7 +59,7 @@
 | `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.repair.upgrade.kind, ai.runtime.engine.kind, ai.suggest.site_replace.kind, device.coverage +1 |
-| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file +32 |
+| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file +33 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
 | `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +31 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | ai.runtime.engine.tracking, device.gate_after, device.primitives, device.seen +6 |

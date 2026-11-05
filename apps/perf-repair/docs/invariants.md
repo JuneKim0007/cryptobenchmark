@@ -15,6 +15,24 @@
 - Guide: scoping rules read the source from the `--app` it was given, not app.json `root`.
 - `--apps`: the folder that holds the app trees, when app.json `root` has moved; without a readable source a scoping rule is `undecided`.
 
+## Boundaries
+
+One algorithm keeps one identity across the stages (`validation/boundary.py`, `catalog/identity.py`). The item id is what `java.security` registers: `type|algorithm|provider`. A file not written yet is skipped.
+
+| Invariant | Severity | Holds |
+|---|---|---|
+| `case_id_reads_back` | blocking | a row's id is built from its own type, algorithm, operation, provider, sizes, phase and variant |
+| `case_ids_unique` | blocking | no two rows share an id |
+| `ids_agree` | blocking | rows, `measurements.json` and `benchmark.json` hold one set of ids |
+| `primitives_cell_is_one_row` | blocking | no two rows land in one cell of `primitives.tsv` |
+| `measured_case_is_an_item` | blocking | each measured case is an item of `items.json` |
+| `item_id_parses` | blocking | no registered name holds the id's separator |
+| `used_is_an_item` | blocking | each `used.json` item is an item |
+| `used_is_measured` | advisory | a used item with no measurement has no options |
+| `names_agree` | advisory | screening's canonical name is the names catalog's |
+| `name_is_in_its_group` | advisory | a named algorithm is listed in its family's group |
+| `name_has_facts` | advisory | a named algorithm has a `types.yaml` row |
+
 ## Grouping
 
 Read from `grouping/groups.json`, `profiles.json`, `checks.json`, `screen.json` and each app's `dossiers.json`.

@@ -10,6 +10,7 @@ from ...dto.site import Scope
 from ...dto.unit import read_units
 from ...files import read_json
 from ...run_dir import GroupingPaths
+from ..boundary import boundary_violations
 from ..finding import UNDECIDED, Violation
 from ..grouping.invariants import Grouping, grouping_invariants
 from ..scoping.invariants import scoping_invariants
@@ -79,6 +80,7 @@ def run_invariants(device: Path, apps: Path | None = None, against: Path | None 
     if g is not None:
         other = load_grouping(Path(against)) if against is not None else None
         found += grouping_invariants(g, _dossiers(device), other)
+    found += boundary_violations(device)
     per_call = init_per_call(device)
     for app in rd.app_dirs(device):
         found += app_violations(app, apps, per_call)
@@ -102,4 +104,5 @@ def app_gate(device: Path, app: str, root: Path) -> list[Violation]:
     if g is not None and app in dossiers:
         touched = {f"group {gid}" for gid in _touched(g, dossiers[app])}
         found += [v for v in grouping_invariants(g, dossiers) if v.subject.startswith(app + " ") or touched & set(v.evidence)]
+    found += boundary_violations(device)
     return found + app_violations(rd.app_dir(device, app), None, init_per_call(device), root)
