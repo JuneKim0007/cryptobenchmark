@@ -13,14 +13,13 @@ from .declarations import (
 )
 from .node import Node
 
-LOCAL, PARAMETER, LAMBDA_PARAMETER, FIELD, CONSTRUCTOR_PARAMETER = (
-    "local", "parameter", "lambda_parameter", "field", "constructor_parameter")
+LOCAL, PARAMETER, LAMBDA_PARAMETER, FIELD = "local", "parameter", "lambda_parameter", "field"
 
 
 @dataclass(frozen=True)
 class Resolved:
     """kind: LOCAL (node its declaration, scope the block holding it), PARAMETER (node its method, index its position),
-    LAMBDA_PARAMETER, FIELD (node its declaration, scope the class body), CONSTRUCTOR_PARAMETER."""
+    LAMBDA_PARAMETER, FIELD (node its declaration, scope the class body)."""
     kind: str
     node: Node
     scope: Node | None = None
