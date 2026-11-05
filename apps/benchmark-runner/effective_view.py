@@ -8,7 +8,6 @@ from failure import fail
 CASE_ISOLATION = "case"
 ISOLATIONS = (CASE_ISOLATION, "run")
 DEFAULT_ISOLATION = CASE_ISOLATION
-SCOPED_REPETITIONS = 3   # RunSettings.scopedRepetitions
 
 
 def read(effective_file):
@@ -61,10 +60,6 @@ def _repetitions(document, key, default):
     if type(repetitions) is not int or repetitions < 1:
         fail(f"not_positive: {key} {repetitions}")
     return repetitions
-
-
-def scoped_repetitions(document):
-    return _repetitions(document, "scopedRepetitions", SCOPED_REPETITIONS)
 
 
 def process_repetitions(document):

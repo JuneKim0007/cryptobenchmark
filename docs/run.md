@@ -36,7 +36,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--stacktrace` | off | print the tool's full output on failure |
 | `--stream` | off | show each tool's progress |
-| `--harness HARNESS_YAML` | off | with `--device`: generate, install and measure perf-repair's scopes instead of the plan's cases, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
+| `--harness HARNESS_YAML` | off | with `--device`: generate, install and interop-check perf-repair's scopes instead of the plan's cases, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
 | `--interop PLAN_YAML` | off | with `--bench` or `--device`: discover, then check perf-repair's `interop_plan.yaml` pairs instead of measuring, see [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 
 | rule | result |
@@ -119,7 +119,6 @@ The benchmark and the before/after run measure through one device session: [devi
 | session | `apps/benchmark-runner/session/measure.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
 | passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
 | process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
-| ABBA | the before/after run alternates the sides over `run.scopedRepetitions` (3) | 3 processes per side and pass |
 | temperature | `dumpsys thermalservice` before and after every process and case, into `benchmark.json` per case | two `dumpsys` calls per case, under a second |
 | warm-up | `run.warmup`: a pre-flight of a few cases once per session, never measured | about 2 s plus 1 s per case at 10 samples, once per run |
 | cool-down | `run.caseCooldownSeconds`: host sleep between measured cases | `(cases - 1) x seconds` per pass |

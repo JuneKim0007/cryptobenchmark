@@ -8,7 +8,6 @@ from device import thermal  # noqa: E402
 from session import thermal_gate  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 from test_device_benchmark_flow import measured  # noqa: E402
-from test_scoped_flow import CASES, scoped  # noqa: E402
 
 GATE = {"enabled": True, "sensors": ["BIG", "MID"], "marginCelsius": 3.0, "pollSeconds": 5, "timeoutSeconds": 300}
 
@@ -90,21 +89,6 @@ def test_with_one_process_for_every_case_the_gate_holds_the_process_and_every_ca
     assert heat.slept == [5, 5]
     assert gate_of(results, "a", "benchmark/process-2") == gate_of(results, "b", "benchmark/process-2") == {
         "waitedSeconds": 10.0, "target": 33.0, "timedOut": False}
-
-
-def test_the_before_after_run_is_gated_too(tmp_path, monkeypatch):
-    heat = Heat(monkeypatch)
-    _phone, _files, problems = scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1, "thermalGate": GATE})
-    assert heat.slept == [5, 5] * (len(CASES) - 1) and problems == []
-    assert gate_of(tmp_path, CASES[-1], "scoped")["waitedSeconds"] == 10.0
-
-
-def test_an_unavailable_gate_is_read_and_warned_about_once_in_the_before_after_run(tmp_path, monkeypatch, capsys):
-    heat = Heat(monkeypatch, sensors=("skin",))
-    reads = []
-    monkeypatch.setattr(thermal_gate.thermal, "read", lambda device: reads.append(device) or heat.read(device))
-    scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1, "thermalGate": GATE})
-    assert capsys.readouterr().out.count("thermal_gate_off") == 1 and len(reads) == 1 and heat.slept == []
 
 
 def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeypatch, capsys):

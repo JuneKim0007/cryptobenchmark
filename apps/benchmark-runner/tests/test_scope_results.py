@@ -1,17 +1,16 @@
-import json, pathlib, sys
+import pathlib, sys
 
 import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-import gradle_runner  # noqa: E402
 from scope import results as scope_results  # noqa: E402
 
 PLAN = {"schemaVersion": 1, "app": "fixture", "seed": 7, "scopes": [
     {"id": "aaaaaaaaaaaa", "function": "f", "inputs": {"inputSize": 64, "keySize": None}, "status": "compiled",
-     "interop": {"check": "same_output"}, "cases": ["scope:aaaaaaaaaaaa:before", "scope:aaaaaaaaaaaa:after"]},
+     "interop": {"check": "same_output"}},
     {"id": "bbbbbbbbbbbb", "function": "g", "inputs": {"inputSize": 64, "keySize": None}, "status": "compiled",
-     "interop": {"check": "same_output"}, "cases": ["scope:bbbbbbbbbbbb:before", "scope:bbbbbbbbbbbb:after"]},
+     "interop": {"check": "same_output"}},
     {"id": "cccccccccccc", "function": "h", "status": "not_compilable", "reason": "unsupported_parameter: c: Context"},
 ]}
 
@@ -26,14 +25,9 @@ def files(tmp_path, interop):
 def test_failed_interop_is_recorded_and_left_out(tmp_path):
     plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: passed, check: same_output}\n'
                                      '"bbbbbbbbbbbb": {interop: interop_failed, check: same_output, reason: "outputs_differ: x"}\n')
-    document, measured, _sites = scope_results.merge(plan, verdicts)
+    scope_results.merge(plan, verdicts)
     statuses = {s["id"]: s["status"] for s in yaml.safe_load(plan.read_text())["scopes"]}
     assert statuses == {"aaaaaaaaaaaa": "measured", "bbbbbbbbbbbb": "interop_failed", "cccccccccccc": "not_compilable"}
-    assert [r["id"] for r in measured] == ["aaaaaaaaaaaa"]
-    effective = tmp_path / "effective.yaml"
-    effective.write_text("run: {harness: {iterations: 5}}\n")
-    prepared = yaml.safe_load(scope_results.prepared(document, measured, effective, tmp_path / "prepared.yaml").read_text())
-    assert [c["id"] for c in prepared["cases"]] == ["scope:aaaaaaaaaaaa:before", "scope:aaaaaaaaaaaa:after"]
 
 
 def test_a_compiled_scope_without_a_verdict_fails(tmp_path):
@@ -45,31 +39,7 @@ def test_a_compiled_scope_without_a_verdict_fails(tmp_path):
 def test_an_identity_only_output_is_not_measured_and_a_randomized_one_is_unchecked(tmp_path):
     plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: not_comparable, check: same_output, reason: "identity_only_output: X"}\n'
                                      '"bbbbbbbbbbbb": {interop: unchecked, check: same_output, reason: "nondeterministic_output: y"}\n')
-    _, measured, _sites = scope_results.merge(plan, verdicts)
+    scope_results.merge(plan, verdicts)
     scopes = {s["id"]: s for s in yaml.safe_load(plan.read_text())["scopes"]}
     assert scopes["aaaaaaaaaaaa"]["status"] == "not_comparable"
     assert (scopes["bbbbbbbbbbbb"]["status"], scopes["bbbbbbbbbbbb"]["interop"]["result"]) == ("measured", "unchecked")
-    assert [r["id"] for r in measured] == ["bbbbbbbbbbbb"]
-
-
-def jetpack_case(case, nanos):
-    return {"name": f"measure[{case}]", "repeatIterations": 10, "thermalThrottleSleepSeconds": 0,
-            "metrics": {"timeNs": {"minimum": nanos, "maximum": nanos, "median": nanos, "coefficientOfVariation": 0.0, "runs": [nanos] * 3}}}
-
-
-def test_prepared_goes_through_the_real_converter(tmp_path):
-    """The contract the stubbed tests missed: JetpackResults needs metrics and resolvedParameters on every case."""
-    plan, verdicts = files(tmp_path, '"aaaaaaaaaaaa": {interop: passed, check: same_output}\n'
-                                     '"bbbbbbbbbbbb": {interop: unchecked, check: none, reason: x}\n')
-    document, measured, _sites = scope_results.merge(plan, verdicts)
-    effective = tmp_path / "effective.yaml"
-    effective.write_text("run: {metrics: [TIME], harness: {iterations: 3}}\n")
-    prepared = scope_results.prepared(document, measured, effective, tmp_path / "prepared.yaml")
-    data = tmp_path / "benchmarkData.json"
-    data.write_text(json.dumps({"context": {"build": {"model": "fake", "fingerprint": "f", "version": {"sdk": 36}}, "cpuLocked": False,
-                                            "sustainedPerformanceModeEnabled": False, "compilationMode": "speed"},
-                                "benchmarks": [jetpack_case(c, 100.0) for r in measured for c in r["cases"]]}))
-    gradle_runner.run(f"{data} {prepared} {tmp_path}", False, main_class="ConvertKt")
-    converted = json.loads((tmp_path / "benchmark.json").read_text())
-    assert [c["id"] for c in converted["cases"]] == [c for r in measured for c in r["cases"]]
-    assert converted["cases"][0]["metrics"]["timeNs"]["runs"] == [100.0, 100.0, 100.0]

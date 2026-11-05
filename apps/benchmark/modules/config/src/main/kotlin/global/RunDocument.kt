@@ -25,7 +25,6 @@ object RunDocument {
     private const val PROCESS_REPETITIONS = "processRepetitions"
     private const val ISOLATION = "isolation"
     private const val SEED = "seed"
-    private const val SCOPED_REPETITIONS = "scopedRepetitions"
     private const val PASSES = "passes"
     private const val THROTTLE_SLEEP = "thermalThrottleSleepSeconds"
     private const val CASE_COOLDOWN = "caseCooldownSeconds"
@@ -44,7 +43,6 @@ object RunDocument {
         PROCESS_REPETITIONS to run.processRepetitions,
         ISOLATION to run.isolation,
         SEED to run.seed,
-        SCOPED_REPETITIONS to run.scopedRepetitions,
     ).apply {
         run.thermalThrottleSleepSeconds?.let { put(THROTTLE_SLEEP, it) }
         put(CASE_COOLDOWN, run.caseCooldownSeconds)
@@ -54,7 +52,7 @@ object RunDocument {
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, ISOLATION, SEED, SCOPED_REPETITIONS, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, HARNESS), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, ISOLATION, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
@@ -64,7 +62,6 @@ object RunDocument {
             processRepetitions = optionalNumber(document, PROCESS_REPETITIONS)?.toInt() ?: defaults.processRepetitions,
             isolation = optionalString(document, ISOLATION).ifEmpty { defaults.isolation },
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
-            scopedRepetitions = optionalNumber(document, SCOPED_REPETITIONS)?.toInt() ?: defaults.scopedRepetitions,
             thermalThrottleSleepSeconds = optionalNumber(document, THROTTLE_SLEEP)?.toInt(),
             caseCooldownSeconds = optionalNumber(document, CASE_COOLDOWN)?.toInt() ?: defaults.caseCooldownSeconds,
             warmup = optionalSection(document, WARMUP)?.let { warmup(it, "$path.$WARMUP") } ?: defaults.warmup,

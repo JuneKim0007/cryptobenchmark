@@ -43,7 +43,7 @@ def parse_options():
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
     parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
     parser.add_argument("--harness", metavar="HARNESS_YAML",
-                        help="with --device: measure perf-repair's scopes, original and patched, instead of the plan's cases")
+                        help="with --device: interop-check perf-repair's scopes, original against patched, instead of the plan's cases")
     parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
     options = parser.parse_args()
     for refused, message in REFUSED:
@@ -55,7 +55,7 @@ def parse_options():
 REFUSED = (
     (lambda o: (o.probe or o.identify) and (o.bench or o.harness or o.interop),
      "--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop"),
-    (lambda o: o.harness and not o.device, "--harness: scopes are measured only on a --device run"),
+    (lambda o: o.harness and not o.device, "--harness: scopes are checked only on a --device run"),
     (lambda o: o.device and o.discovery == "reuse", "--discovery reuse: a device run probes the device it measures"),
     (lambda o: o.suppress_errors and not o.device, "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (lambda o: o.energy_accept_unresponsive and not o.device,

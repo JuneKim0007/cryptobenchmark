@@ -55,7 +55,7 @@ def test_rails_calls_its_tools_with_the_arguments_it_always_had(tmp_path, monkey
                       "--traces", str(t), "--dry-trace", str(t / "dry.pftrace"), "--dry-calls", "calls")]
 
 
-def test_scoped_runs_pass_no_dry_calls():
+def test_a_run_without_dry_passes_no_dry_calls():
     assert case_arguments({"measured"}, "c", pathlib.Path("s"), "d", pathlib.Path("t"), None, "o")[:4] == ["--capability", "c", "-o", "o"]
 
 

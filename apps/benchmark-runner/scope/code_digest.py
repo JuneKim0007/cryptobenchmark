@@ -1,10 +1,9 @@
-"""The digest of the code from a harness.yaml to a measured harness: perf-repair reads it from --identify, and a change reruns its apps."""
+"""The digest of the code from a harness.yaml to a checked harness: perf-repair reads it from --identify, and a change reruns its apps."""
 import hashlib
 
 from repo import ROOT
 
-CODE = ("apps/benchmark-runner/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt",
-        "apps/benchmark/modules/android/src/androidTest/**/CallSite*.kt")
+CODE = ("apps/benchmark-runner/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
 
 
 class CodeDigestError(Exception):

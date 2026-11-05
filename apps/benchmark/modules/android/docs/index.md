@@ -5,11 +5,10 @@ apps/benchmark/modules/android/.gitignore : ignores /build
 apps/benchmark/modules/android/build.gradle : app module: SDK, NDK and CMake versions, androidx benchmark dependencies, -PbundledArtifacts implementation dependencies, release test build type
 apps/benchmark/modules/android/docs/harness.md : instrumentation harness, device plan, core pinning
 apps/benchmark/modules/android/docs/index.md : this map
-apps/benchmark/modules/android/docs/scoped.md : scoped benchmark: generated scopes, interop check, before/after measurement
+apps/benchmark/modules/android/docs/scoped.md : scoped interop check: generated scopes, original against patched
 apps/benchmark/modules/android/proguard-rules.pro : Android Studio template, all rules commented out
 apps/benchmark/modules/android/src/androidTest/java/.gitignore : ignores the generated scoped/ sources
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Bundled.kt : installs the bundledProviders of a pushed effective.yaml into the process
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CallSitePlan.kt : each swap's call site alone: callsite.yaml's cases prepared from their own effective files, their verdicts into callsite-verdicts.yaml
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CaseFilter.kt : the `case` argument: one id or an ordered comma list; absent keeps every case
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePin.kt : pins the measuring thread to one core and restores on close
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePins.kt : appends one line per pinned case to cpu-pins.yaml
@@ -30,9 +29,7 @@ apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryp
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInputs.kt : seeded bytes, text, files and secret keys for generated scopes
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeInteropFile.kt : writes scoped-interop.yaml
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopeKeys.kt : key pairs for generated scopes: from the key planner once per run, kept on the device, decoded per side
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedBenchmark.kt : parameterised Jetpack measurement per scope variant the host names
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedInterop.kt : the scope check in its own process: every scope's verdict into scoped-interop.yaml, every call site's into callsite-verdicts.yaml
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedPlan.kt : one process of the before/after run: bundled providers once, the run harness, the catalog's variants and the call sites
+apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/ScopedInterop.kt : the scope check in its own process: every scope's verdict into scoped-interop.yaml
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/TraceWindowMarker.kt : WindowMarker over android.os.Trace sections
 apps/benchmark/modules/android/src/main/AndroidManifest.xml : app manifest (allowBackup false)
 apps/benchmark/modules/android/src/main/cpp/CMakeLists.txt : builds shared library affinity

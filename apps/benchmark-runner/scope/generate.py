@@ -3,7 +3,6 @@ import pathlib, shutil
 
 import yaml
 
-from scope import call_site as scope_call_site
 from scope import compile as scope_compile
 from scope import dependencies as scope_dependencies
 from scope import harness as scope_harness
@@ -79,7 +78,7 @@ def record_of(scope):
             "option": scope.option,
             "inputs": {"inputSize": scope.input_size, "keySize": scope.key_size, "from": scope.input_source},
             "metrics": list(scope.metrics),
-            "status": "compiled", "callSite": scope_call_site.planned(scope)}
+            "status": "compiled"}
 
 
 def admitted(scope, record):
@@ -101,12 +100,8 @@ def admitted(scope, record):
     return candidate
 
 
-def call_sites(plan):
-    return [r for r in plan["scopes"] if (r.get("callSite") or {}).get("status") == "planned"]
-
-
 def generate(harness_path, root, out, compiler=scope_compile.gradle):
-    """No scope compiled still writes an empty catalog: the call sites are measured through the same test APK."""
+    """No scope compiled still writes an empty catalog, so no failed scope's source is left to break the test APK."""
     root, out = pathlib.Path(root), pathlib.Path(out)
     harness = scope_harness.read(harness_path)
     records, candidates, scopes = {}, {}, {}
@@ -121,7 +116,7 @@ def generate(harness_path, root, out, compiler=scope_compile.gradle):
         write(root, final)
     for scope_id, entry in final.items():
         plan = {key: value for key, value in vars(entry.interop).items() if value is not None and key != "index"}
-        records[scope_id].update(interop=plan, cases=[f"scope:{scope_id}:{v}" for v in scope_wrapper.VARIANTS])
+        records[scope_id].update(interop=plan)
     out.mkdir(parents=True, exist_ok=True)
     document = {"schemaVersion": 1, "app": harness.app, "harness": str(pathlib.Path(harness_path).resolve()),
                 "seed": scope_inputs.SEED, "scopes": list(records.values())}

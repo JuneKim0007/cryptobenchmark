@@ -57,7 +57,6 @@ class GlobalDocumentTest {
               isolation: run
               metrics: [TIME, ALLOCATION]
               variants: [notFixed]
-              scopedRepetitions: 4
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
               warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}
@@ -89,7 +88,6 @@ class GlobalDocumentTest {
             "run: {variants: []}\n" to "invalid: run.variants",
             "run: {variants: [fixed, fixed]}\n" to "invalid: run.variants",
             "run: {variants: [cold]}\n" to "invalid: run.variants",
-            "run: {scopedRepetitions: 0}\n" to "not_positive: scopedRepetitions",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
             "run: {passes: {energy: {samples: 5}}}\n" to "missing_pass: run.passes [energy]",

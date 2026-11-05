@@ -13,8 +13,6 @@ data class RunSettings(
     // case: one device process per measured case, so a case that kills its process loses only itself
     val isolation: String = CASE,
     val seed: Long = 0L,
-    // before/after runs: processes per side, run in alternating order so linear drift does not land on one side
-    val scopedRepetitions: Int = 3,
     // empty: one pass measures every metric; else one device session per metric group, merged per metric
     val passes: List<MeasurePass> = emptyList(),
     // androidx.benchmark.thermalThrottle.sleepDurationSeconds on the device; null keeps Jetpack's default
@@ -35,7 +33,6 @@ data class RunSettings(
             "invalid: run.variants $variants, expected distinct values of $VARIANTS"
         }
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
-        require(scopedRepetitions >= 1) { "not_positive: scopedRepetitions $scopedRepetitions" }
         require(passes.map { it.name }.toSet().size == passes.size) { "duplicate: run.passes ${passes.map { it.name }}" }
         require(passes.isEmpty() || passes.any { it.name == MeasurePass.TIMING }) {
             "missing_pass: run.passes ${passes.map { it.name }}, timing is the pass every other merges into"

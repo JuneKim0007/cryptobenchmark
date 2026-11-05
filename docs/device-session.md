@@ -4,7 +4,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Session
 
-`apps/benchmark-runner/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`) and the before/after run (`ScopedBenchmark`, [scoped.md](../apps/benchmark/modules/android/docs/scoped.md)); a path gives only its plan: the test class, the cases, how a process's files are pulled and converted.
+`apps/benchmark-runner/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`); it gives only its plan: the test class, the cases, how a process's files are pulled and converted.
 
 | step | what runs |
 |---|---|
@@ -126,5 +126,5 @@ What it does not fix:
 - Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device prepares the whole plan again in every process (`DevicePlan` has no per-case preparation), so a plan whose keys are slow to generate pays that per case too.
 - A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](run.md#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises.
 - `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
-- Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedBenchmark`, `InteropCheck` and `DeviceProbe` stay one process each.
+- Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedInterop`, `InteropCheck` and `DeviceProbe` stay one process each.
 

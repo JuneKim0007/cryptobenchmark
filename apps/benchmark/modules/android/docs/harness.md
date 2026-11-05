@@ -40,7 +40,6 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, then prepares and checks the plan on the device |
 | `CryptoBenchmark` | one parameterised test per timed case; test name = case id; `-e case <id>` keeps that case only (`run.isolation: case` starts one process per case: [device-session.md](../../../../../docs/device-session.md#one-process-per-case)) |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
-| `ScopedBenchmark` | one parameterised test per scope variant the `case` argument names: [scoped.md](scoped.md) |
 | `ScopedInterop` | the scope interop check, alone in its process: [scoped.md](scoped.md) |
 
 ## DevicePlan

@@ -69,8 +69,7 @@ apps/benchmark-runner/results/manifest.py : results/<device_id>/manifest.yaml: f
 apps/benchmark-runner/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 apps/benchmark-runner/results/select.py : the device folder of a results root a reader names, or the only one there
 apps/benchmark-runner/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
-apps/benchmark-runner/scope/call_site.py : each swap's call site alone: the current and option item at the scope's sizes, operation and variant; one effective per selection and callsite.yaml for the device
-apps/benchmark-runner/scope/code_digest.py : the digest of the code from a harness.yaml to a measured harness; a pattern matching nothing is an error
+apps/benchmark-runner/scope/code_digest.py : the digest of the code from a harness.yaml to a checked harness; a pattern matching nothing is an error
 apps/benchmark-runner/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
 apps/benchmark-runner/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
 apps/benchmark-runner/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
@@ -78,7 +77,7 @@ apps/benchmark-runner/scope/harness.py : reads perf-repair's harness.yaml
 apps/benchmark-runner/scope/inputs.py : synthesisable parameter types and the value or ScopeInputs and ScopeKeys call that builds each
 apps/benchmark-runner/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, output_changes for an upgrade, same output, or none
 apps/benchmark-runner/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
-apps/benchmark-runner/scope/results.py : device interop and call-site verdicts into scoped-plan.yaml; measured scopes and prepared call sites as prepared.yaml
+apps/benchmark-runner/scope/results.py : device interop verdicts into scoped-plan.yaml
 apps/benchmark-runner/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 apps/benchmark-runner/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 apps/benchmark-runner/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
@@ -98,7 +97,7 @@ apps/benchmark-runner/stages/benchmark.py : the plain run's benchmark: device pa
 apps/benchmark-runner/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
 apps/benchmark-runner/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 apps/benchmark-runner/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
-apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts, scoped passes into measured/
+apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into measured/
 apps/benchmark-runner/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
 apps/benchmark-runner/stages/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 apps/benchmark-runner/stages/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, plan push, ConvertKt, per-process files

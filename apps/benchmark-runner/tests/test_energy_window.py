@@ -34,7 +34,7 @@ def run(tmp_path, captures, failing=(), problems=None, timed=True):
     source = (FailingEnergy if "joules" in failing else Energy)(phone)
     dry = lambda _into, guarded: phone.log.append(f"dry guarded={guarded}")
     hook = energy_hook.EnergyCapture(source, Session(phone, failing), captures, tmp_path, tmp_path, [] if problems is None else problems, dry, timed)
-    plan = measure_session.Plan("CryptoBenchmark", (), cases=("a",), timed=timed)
+    plan = measure_session.Plan("CryptoBenchmark", (), timed=timed)
     measure_session.run_session(phone, plan, 1, "case", [hook], lambda _r: tmp_path / "b", [] if problems is None else problems)
     return [line for line in phone.log if line in ("window open", "window close", "joules", "pull traces") or line.startswith(("dry", "instrument"))]
 

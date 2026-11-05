@@ -16,7 +16,6 @@ run:
   processRepetitions: 1
   isolation: case
   seed: 42
-  scopedRepetitions: 3
   caseCooldownSeconds: 0
   warmup:
     iterations: 10

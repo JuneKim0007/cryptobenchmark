@@ -1,5 +1,5 @@
-"""One measuring session on the device, shared by the benchmark and the before/after run: processes over repetitions, a process per case or
-one for all, and hooks around the session, each process and each case."""
+"""One measuring session on the device: processes over repetitions, a process per case or one for all, and hooks around the session,
+each process and each case."""
 import dataclasses, pathlib, re
 
 import effective_view
@@ -14,20 +14,11 @@ def in_plan_order(_repetition, cases):
     return list(cases)
 
 
-def alternating(repetition, cases):
-    """Pairs (before, after) as AB in odd repetitions, BA in even ones: never a fixed order, so linear drift does not land on one side."""
-    pairs = [cases[i:i + 2] for i in range(0, len(cases), 2)]
-    return [case for pair in pairs for case in (pair if repetition % 2 else pair[::-1])]
-
-
 @dataclasses.dataclass(frozen=True)
 class Plan:
-    """cases None lists them on the device in each process; named passes them as one ordered filter when one process runs them all."""
     test_class: str
     arguments: tuple
-    cases: tuple | None = None
     order: object = in_plan_order
-    named: bool = False
     timed: bool = True
     cleared: tuple = ()
     stale: tuple = ()
@@ -124,8 +115,6 @@ def measure(device, plan, process, isolation, hooks):
 
 
 def planned(device, plan):
-    if plan.cases is not None:
-        return list(plan.cases)
     return case_isolation.listed(device.instrument(plan.test_class, *plan.arguments, "-e", "log", "true"))
 
 
@@ -153,9 +142,7 @@ def each_case(device, plan, process, hooks):
 
 def all_cases(device, plan, process):
     print("measure:   one process for every case (isolation: run)")
-    process.cases = plan.order(process.repetition, plan.cases) if plan.cases is not None else []
-    named = ("-e", case_isolation.CASE_ARGUMENT, ",".join(process.cases)) if plan.named and process.cases else ()
-    output = device.instrument(plan.test_class, *plan.arguments, *named)
+    output = device.instrument(plan.test_class, *plan.arguments)
     if not PASSED.search(output):
         counted = COUNTED.search(output)
         if not counted or counted.group(1) == counted.group(2):

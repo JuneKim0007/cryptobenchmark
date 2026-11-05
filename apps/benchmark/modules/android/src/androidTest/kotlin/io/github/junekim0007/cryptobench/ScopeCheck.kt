@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench
 
-/** Calls each variant once and runs the scope's interop check; only passed and unchecked scopes are measured. */
+/** Calls each variant once and runs the scope's interop check. */
 object ScopeCheck {
 
     const val PASSED = "passed"
@@ -9,9 +9,7 @@ object ScopeCheck {
     const val CALL_FAILED = "call_failed"
     const val NOT_COMPARABLE = "not_comparable"
 
-    data class Verdict(val id: String, val interop: String, val check: String, val reason: String?) {
-        val measurable: Boolean get() = interop == PASSED || interop == UNCHECKED
-    }
+    data class Verdict(val id: String, val interop: String, val check: String, val reason: String?)
 
     fun of(scope: Scope): Verdict {
         val check = when (scope.interop) {
@@ -50,7 +48,7 @@ object ScopeCheck {
         return verdict(PASSED, null)
     }
 
-    // identity equality would read every two calls as different: a false nondeterministic_output, then measured
+    // identity equality would read every two calls as different: a false nondeterministic_output
     fun comparable(value: Any): Boolean = when {
         value is ByteArray || value is CharArray || value is Array<*> -> true
         value.javaClass.isArray -> false
