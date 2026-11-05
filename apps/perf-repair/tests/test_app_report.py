@@ -15,7 +15,7 @@ from perfrepair.report.__main__ import main
 from perfrepair.report.app_report import build_report
 from perfrepair.report.markdown import report_markdown
 from perfrepair.report.command import app_report, device_summary
-from helpers import LATENCY, LATENCY_ALLOC
+from helpers import LATENCY
 from perfrepair.run_dir import AppPaths
 from perfrepair.dto.units import DisplayUnits
 from perfrepair.validation.report import validate_report

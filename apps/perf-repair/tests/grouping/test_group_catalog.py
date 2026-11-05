@@ -17,7 +17,7 @@ from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.device.coverage import coverage
 from perfrepair.dto.grouping import KEY_PROVIDER_HELD, items_document, profiles_document
 from perfrepair.dto.grouping_state import Group, code_made
-from perfrepair.dto.screen import Verdict, screen_document
+from perfrepair.dto.screen import screen_document
 from perfrepair.dto.signature import UNKNOWN
 from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build

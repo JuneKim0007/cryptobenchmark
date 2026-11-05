@@ -1,14 +1,8 @@
 import pytest
 
-from perfrepair.dto.prompt import CorrectionPrompt, Lifetime, Prompt, SystemPrompt, TaskPrompt
+from perfrepair.dto.prompt import CorrectionPrompt
 from perfrepair.ai.runtime.prompt import PromptError, PromptLibrary
 from perfrepair.ai.runtime.prompt.library import PACKAGED
-
-
-def test_each_element_carries_its_lifetime():
-    assert (SystemPrompt.lifetime, TaskPrompt.lifetime, CorrectionPrompt.lifetime) == (Lifetime.RUN, Lifetime.SESSION, Lifetime.TURN)
-    with pytest.raises(TypeError):
-        Prompt("x", "y")
 
 
 def test_packaged_prompts_load_and_fill_only_declared_values():

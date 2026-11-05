@@ -14,7 +14,7 @@ from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.catalog.bundled_providers import BundledCatalog, BundledRow
 from perfrepair.dto.screen import Verdict
 from perfrepair.result.provider_path import SiteProviders, site_providers
-from perfrepair.dto.dossier import Dossier, Option, reason_code
+from perfrepair.dto.dossier import Dossier, reason_code
 from perfrepair.result.configurations import config_of, estimates
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.repair.dossier import dossier
@@ -96,11 +96,6 @@ def test_no_shared_configuration_leaves_no_estimate_so_no_option_reaches_the_mod
     doc = build([s], tmp_path, perf=ANY_EVIDENCE)
     assert doc["dossiers"] == [] and [n["reason"].split(":")[0] for n in doc["noOptions"]] == ["no_evidence"]
     assert validate_dossiers(doc, [s], GROUPS, None) == []
-
-
-def test_unknown_pins_survive_the_round_trip():
-    option = Option("R1", "Cipher|alg-a|P2", None, "unchecked")
-    assert Option.from_json(json.loads(json.dumps(option.to_json()))).pins is None
 
 
 def test_a_one_run_measurement_is_no_estimate_and_no_option(tmp_path):

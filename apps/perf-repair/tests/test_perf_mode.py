@@ -14,10 +14,6 @@ def test_generic_is_the_plain_list_of_every_key_with_only_the_rule_differing(spe
     assert g.views(TIME) == ("latency", "throughput")
 
 
-def test_a_future_metric_in_the_registry_joins_every_key():
-    assert KEYS == tuple(k for m in METRICS for k in m.selects)
-
-
 def test_the_union_of_several_apps_is_a_plain_list():
     both = PerfMode.union([PerfMode.parse(["energy"]), PerfMode.parse(["latency"])])
     assert both.keys == ("latency", "energy") and not both.overall

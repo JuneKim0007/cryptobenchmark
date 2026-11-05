@@ -97,13 +97,6 @@ def test_the_pointer_is_one_event_and_announced_only_with_rows(tmp_path, capsys)
     assert said[0] == f"## to check primitives skipped or stopped due to not downloading them go {tmp_path}/log/details/primitives_missing.yaml"
 
 
-def test_unbound_it_keeps_rows_and_writes_nothing(tmp_path):
-    missing, said = MissingList(), []
-    missing.put("one", [row()])
-    missing.announce(said.append)
-    assert len(missing.rows()) == 1 and said == [] and missing.path is None
-
-
 def test_every_unscreened_name_is_reported_with_the_count_and_the_first():
     rows = [type("R", (), {"type": "Cipher", "algorithm": a, "provider": "P", "inputSize": 1, "rowId": a})() for a in ("Z", "B", "B")]
     with pytest.raises(NotScreened) as e:

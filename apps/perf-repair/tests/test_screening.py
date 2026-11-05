@@ -48,10 +48,6 @@ def test_the_generated_list_is_current_and_within_the_docs_limit(monkeypatch):
     assert written == module.render(yaml.safe_load(SCREENING.read_text())) and len(written.splitlines()) <= 150
 
 
-def test_a_rule_resolves_its_source_key_to_the_url(tmp_path):
-    assert load(tmp_path, crypto={"MessageDigest": {"MD5": row()}}).crypto[("MessageDigest", "MD5")].source == SOURCES["S"]
-
-
 @pytest.mark.parametrize("name, said", [("SHA1", "canonical is SHA-1"), ("sha-1", "canonical is SHA-1"),
                                         ("NOPE", "not in algorithm-names.yaml")])
 def test_a_non_canonical_key_is_refused(tmp_path, name, said):

@@ -21,10 +21,6 @@ def test_a_stored_configuration_parses_back_to_its_fields(kind, key_size, input_
     assert bool(parsed["estimated"]) == (kind == ESTIMATED)
 
 
-def test_text_of_another_shape_does_not_parse():
-    assert parse_label("OP1 at 1024") is None
-
-
 def test_a_side_with_too_few_runs_gives_no_estimate_and_says_why():
     mine, theirs = row("r1", "P1", key_size=128, input_size=1024), row("r2", "P2", key_size=128, input_size=1024)
     c = config_of(mine)

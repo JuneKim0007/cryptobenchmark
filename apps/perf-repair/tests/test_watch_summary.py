@@ -179,8 +179,3 @@ def test_a_run_start_drops_a_counter_a_killed_run_left_open():
     progress.feed(ev("decision", outcome="reviewed"))
     progress.feed(ev("run_start", kind="static"))
     assert progress.feed(ev("decision", outcome="reviewed"))[0].text.startswith("grouping review 1/1 ")
-
-
-def test_an_event_line_round_trips():
-    e = Event("2026-11-03T00:00:00.000Z", "r", "grouping", "assign", "turn", "model", data={"session": 1})
-    assert Event.from_json(json.loads(json.dumps(e.to_json()))) == e

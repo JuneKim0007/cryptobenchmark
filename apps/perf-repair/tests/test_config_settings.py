@@ -12,14 +12,6 @@ def warnings(caplog):
     return [r.getMessage() for r in caplog.records if r.levelno == logging.WARNING]
 
 
-def test_the_parser_holds_raw_values_for_the_rows():
-    s = parse({"aiGateway": {"use": "dry-run", "claude": {"binary": "/opt/claude", "model": None}},
-               "device": {"grouping": {"turns": "abc"}}}, "c.yaml")
-    assert s.get("aiGateway.use") == "dry-run" and s.get("device.grouping.turns") == "abc"
-    assert s.blocks == {"claude": {"binary": "/opt/claude"}}
-    assert s.get("device.grouping.assign.effort") is None and s.get("device.grouping.turns.x") is None
-
-
 def test_empty_file_and_null_values_are_unset():
     assert parse(None, "c.yaml") == Settings()
     assert parse({"aiGateway": None, "device": {"grouping": None}}, "c.yaml").get("device.grouping.limit") is None

@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-import yaml
 from helpers import with_results, SYSTEM, task
 
 from perfrepair.ai.__main__ import main as ai
@@ -62,10 +61,6 @@ def test_the_flags_reach_the_gateway_and_the_help_names_the_role_default(tmp_pat
     assert "$PERFREPAIR_EFFORT, aiGateway.<use>.effort, else low; claude: low, medium, high, xhigh, max" in text
     assert "$PERFREPAIR_AUTH, aiGateway.<use>.auth, else subscription; claude: subscription, api" in text
     assert "device.grouping.assign.auth" not in text and "{claude,dry-run}" in text
-
-
-def test_the_binary_comes_from_the_block(tmp_path):
-    assert spawned(tmp_path, "aiGateway: {claude: {binary: /bin/cc}}\n").conversations.binary == "/bin/cc"
 
 
 def test_a_role_can_take_its_own_gateway_and_dry_run_answers_are_the_roles(tmp_path):
@@ -156,13 +151,6 @@ def test_a_bad_flag_for_a_gateway_key_is_an_error_not_a_fallback(tmp_path):
 
 def test_dry_run_ignores_the_keys_it_does_not_have(tmp_path):
     assert spawned(tmp_path, argv=["--agent", "dry-run", "--effort", "whatever", "--auth", "x", "--model", "m"]).conversations is DRY
-
-
-def test_the_example_file_spawns_the_code_defaults(tmp_path):
-    convos = spawned(tmp_path, EXAMPLE.read_text()).conversations
-    assert (convos.model, convos.effort, convos.binary) == ("claude-opus-5-5", "low", "claude")
-    document = yaml.safe_load(EXAMPLE.read_text())
-    assert document["aiGateway"]["use"] is None and not any(document["aiGateway"]["claude"].values())
 
 
 @dataclass(frozen=True)

@@ -11,7 +11,6 @@ from test_stages import run  # noqa: F401  the recorded run, grouped
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
 from perfrepair.config.load import load
-from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.inputs.resolve import InputError
 from perfrepair.repair.__main__ import main as repair_main

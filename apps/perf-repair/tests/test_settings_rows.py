@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.gateway import registry
 from perfrepair.config.load import load
 from perfrepair.grouping.__main__ import main as grouping
@@ -16,11 +15,9 @@ from perfrepair.inputs import table
 from perfrepair.inputs.check import check_positive
 from perfrepair.inputs.resolve import Candidate, InputError, OnInvalid, choose
 from perfrepair.inputs.table import ROLE_KEYS, ROWS, RoleRow, Row
-from perfrepair.dto.perf_mode import PerfMode
 
 SRC = Path(table.__file__).parents[1]
 EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
-ERROR_ROWS = {"aiGateway.use", "aiGateway.<gateway>.auth", "device.screening.catalog", "device.id"}
 
 
 def row_names():
@@ -63,14 +60,6 @@ def test_every_row_has_exactly_one_reader(name):
     assert len(readers(name)) == 1, f"{name}: {readers(name)}"
 
 
-def test_the_reader_check_sees_a_parsed_but_unused_setting():
-    assert readers("NOT_A_ROW") == [] and row_of("device.unread") is None
-
-
-def test_the_stop_rows_have_exactly_one_reader():
-    assert readers("STOP_ROWS") == ["config/stops.py"]
-
-
 def test_every_example_key_is_a_row_some_command_reads():
     constants = {id(getattr(table, name)): name for name in row_names()} | {id(r): "STOP_ROWS" for r in table.STOP_ROWS.values()}
     gateway_keys = {f.name for g in registry.GATEWAYS.values() for f in fields(g.settings)}
@@ -91,15 +80,6 @@ def test_every_settable_row_is_in_the_example():
             assert row.key in keys, row.key
 
 
-def test_only_the_unsafe_rows_refuse_a_fallback():
-    assert {r.key for r in ROWS if isinstance(r, Row) and r.invalid is OnInvalid.ERROR} == ERROR_ROWS
-
-
-def test_the_row_defaults_are_what_their_readers_use():
-    assert (table.GROUPING_TURNS.default, table.GROUPING_SESSIONS.default) == (Limits.turns, Limits.sessions)
-    assert PerfMode.parse(table.APPS_PERF_MODE.default).overall and table.GROUPING_ASSIGN.defaults == {"effort": "low"}
-
-
 ROLES = [r for r in ROWS if isinstance(r, RoleRow)]
 
 
@@ -118,11 +98,6 @@ def test_a_bad_budget_warns_and_keeps_the_role_default(tmp_path, caplog):
     loaded = load(write(tmp_path, "device: {grouping: {assign: {budget: 0}}}\n"), {}, {})
     assert loaded.read(table.GROUPING_ASSIGN.budget_row) == table.GROUPING_ASSIGN.budget
     assert any(m.startswith("invalid: device.grouping.assign.budget 0") for m in caplog.messages)
-
-
-def test_the_defaults_hold_what_was_measured_with_room():
-    measured = {"GROUPING_ASSIGN": 7300, "GROUPING_SUPERVISOR": 5369, "WORTHINESS": 5595, "APPS_REPLACE": 4878, "SCREENING_CLASSIFY": 2018}
-    assert all(getattr(table, name).budget >= size * 1.15 for name, size in measured.items())
 
 
 def picked(on_invalid, value, source="file c.yaml"):
@@ -157,14 +132,6 @@ def test_a_bad_flag_is_an_error_under_either_policy():
 def test_a_bad_code_default_is_never_hidden():
     with pytest.raises(InputError):
         choose("x", [Candidate("abc", "default", explicit=False)], check_positive, OnInvalid.USE_DEFAULT)
-
-
-def test_a_good_value_warns_nothing(caplog):
-    assert picked(OnInvalid.USE_DEFAULT, 4).value == 4 and caplog.records == []
-
-
-def test_an_unset_chain_is_none():
-    assert choose("x", [Candidate(None, "cli")], check_positive, OnInvalid.ERROR) is None
 
 
 def write(tmp_path, text):

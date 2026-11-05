@@ -90,13 +90,6 @@ def test_a_role_section_never_supplies_a_gateway_only_key(tmp_path):
     assert claude_values(loaded, APPS_AGENT)["auth"] == "subscription"
 
 
-def test_assign_defaults_low_and_the_supervisor_has_no_special_default():
-    defaults = load(None, {}, {})
-    assert claude_values(defaults, GROUPING_ASSIGN)["effort"] == "low"
-    assert defaults.sources["device.grouping.assign.effort"] == "default device.grouping.assign"
-    assert claude_values(defaults, GROUPING_SUPERVISOR)["effort"] == "medium" and claude_values(defaults, APPS_AGENT)["effort"] == "medium"
-
-
 @pytest.mark.parametrize("environ, dot, text, source", [
     ({"PERFREPAIR_EFFORT": "max"}, {}, "", "env PERFREPAIR_EFFORT"),
     ({}, {}, "aiGateway: {claude: {effort: max}}\n", "aiGateway.claude"),

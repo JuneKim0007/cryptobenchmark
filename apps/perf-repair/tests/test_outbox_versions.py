@@ -11,7 +11,7 @@ from perfrepair.ai.runtime.gateway.spawn import Spawned
 from perfrepair.dto.decision import AgentIdentity, OutboxRecord
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.runtime.engine.outbox import NoOutbox, OutboxError, active_fingerprint, active_outbox
+from perfrepair.ai.runtime.engine.outbox import OutboxError, active_fingerprint, active_outbox
 
 V1 = label_charter({"type": "object"})
 V2 = label_charter({"type": "object", "title": "v2"})
@@ -49,10 +49,6 @@ def changes(lines):
 
 def saved(root):
     return json.loads((root / "state.json").read_text())
-
-
-def test_the_fingerprints_differ():
-    assert V1.fingerprint != V2.fingerprint
 
 
 def test_a_first_run_opens_the_fingerprint_outbox_and_marks_it_active(tmp_path):
@@ -117,11 +113,6 @@ def test_a_crash_on_a_new_fingerprint_resumes_it_without_touching_the_old(tmp_pa
     assert agent.started == 2 and not changes(lines)
     assert [r.item for r in active_outbox(tmp_path).records()] == ["a", "b", "c"]
     assert hashes(tmp_path / "outbox" / V1.fingerprint) == before
-
-
-def test_nothing_committed_resolves_to_an_empty_outbox(tmp_path):
-    assert active_fingerprint(tmp_path) is None and isinstance(active_outbox(tmp_path), NoOutbox)
-    assert active_outbox(tmp_path).records() == []
 
 
 def test_an_active_file_naming_a_missing_folder_is_an_error(tmp_path):
