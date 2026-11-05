@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from perfrepair import run_dir as rd
 from perfrepair.catalog.groups import group_catalog
 from perfrepair.catalog.identity import UNSAFE, case_id_pattern, resolve

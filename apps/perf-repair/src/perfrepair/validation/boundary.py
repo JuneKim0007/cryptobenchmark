@@ -25,7 +25,8 @@ def _found(invariant: str, severity: str, subject: str, lines: list[str], fix: s
 
 
 def _rows(device: Path) -> list[dict]:
-    return read_json(device / rd.ROWS)["rows"] if (device / rd.ROWS).is_file() else []
+    rows = read_json(device / rd.ROWS)["rows"] if (device / rd.ROWS).is_file() else []
+    return [r for r in rows if "rowId" in r]
 
 
 def _results_cases(device: Path) -> list[dict] | None:
@@ -105,10 +106,11 @@ def used_items_exist(device: Path, rows: list[dict], items: set[str]) -> list[Vi
     return found
 
 
-def boundary_violations(device: Path, names: Names | None = None) -> list[Violation]:
+def stage_violations(device: Path, names: Names | None = None) -> list[Violation]:
+    """What the guide's gate checks: the ids of one stage against the next."""
     device, paths = Path(device), GroupingPaths(device)
     rows = _rows(device)
-    found = case_ids_read_back(rows) + ids_agree(device, rows) + compaction_keeps_rows_apart(rows)
+    found = ids_agree(device, rows) + compaction_keeps_rows_apart(rows)
     if not paths.items.is_file():
         return found
     items = read_json(paths.items)["items"]
@@ -117,3 +119,8 @@ def boundary_violations(device: Path, names: Names | None = None) -> list[Violat
     if paths.screen.is_file():
         found += catalogs_agree(items, read_json(paths.screen)["verdicts"], names or Names.load())
     return found
+
+
+def boundary_violations(device: Path, names: Names | None = None) -> list[Violation]:
+    """The command's whole check: also each case id against its fields, a rule that changes with the case id itself (#111)."""
+    return case_ids_read_back(_rows(Path(device))) + stage_violations(device, names)

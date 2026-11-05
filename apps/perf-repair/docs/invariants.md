@@ -17,7 +17,7 @@
 
 ## Boundaries
 
-One algorithm keeps one identity across the stages (`validation/boundary.py`, `catalog/identity.py`). The item id is what `java.security` registers: `type|algorithm|provider`. A file not written yet is skipped.
+One algorithm keeps one identity across the stages (`validation/boundary.py`, `catalog/identity.py`). The item id is what `java.security` registers: `type|algorithm|provider`. A file not written yet is skipped. The guide gate checks all but `case_id_reads_back`, which the command runs.
 
 | Invariant | Severity | Holds |
 |---|---|---|
