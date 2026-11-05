@@ -19,6 +19,8 @@ sources:
   AKEYGEN: https://developer.android.com/reference/javax/crypto/KeyGenerator
   AKEYPAIRGEN: https://developer.android.com/reference/java/security/KeyPairGenerator
   AAGREEMENT: https://developer.android.com/reference/javax/crypto/KeyAgreement
+  FIPS205: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.205.pdf
+  XWINGKEM: https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-xwing-kem-11
 # SP 800-57 Part 1 r5 Table 2: comparable strengths by key size; a size between rows takes the row below it
 keyStrength:
   aes: {source: SP80057T2, bits: {128: 128, 192: 192, 256: 256}}

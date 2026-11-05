@@ -22,12 +22,8 @@ def _sha(family="digest.none", identifier=SHA, change=None) -> Entry:
     return Entry(identifier, family, raw)
 
 
-def test_the_packaged_catalogues_hold_only_today_s_known_gaps():
-    # SLH-DSA and XWING have facts but no name yet
-    assert catalogue_check(algorithms(), group_catalog(), FAMILIES) == [
-        "signature.pair Signature|SLH-DSA-SHA2-128S: id is in 0 groups, not one",
-        "keypairgen.none KeyPairGenerator|SLH-DSA-SHA2-128S: id is in 0 groups, not one",
-        "keypairgen.none KeyPairGenerator|XWING: id is in 0 groups, not one"]
+def test_the_packaged_catalogues_pass_every_static_check():
+    assert catalogue_check(algorithms(), group_catalog(), FAMILIES) == []
 
 
 def test_a_listed_entry_passes():

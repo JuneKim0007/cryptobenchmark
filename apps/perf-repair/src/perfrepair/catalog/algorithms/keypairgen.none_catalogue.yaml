@@ -344,6 +344,7 @@ algorithms:
     - {fact: minSdk, value: 33, source: AKEYPAIRGEN}
     providers: {}
     provenance: {by: person}
+  # FIPS 205 s10.1: key generation draws its seeds from an approved RBG; Table 2: category 1
   KeyPairGenerator|SLH-DSA-SHA2-128S:
     key: {type: SLH-DSA-SHA2-128S, source: inferred}
     required:
@@ -352,13 +353,17 @@ algorithms:
     optional: []
     conditions:
       output: {kind: key_pair, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      deterministic: {value: false, source: FIPS205}
       authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: SLH-DSA-SHA2-128S}
     sourcedOnly:
-    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: strengthBits, value: 128, source: FIPS205}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
     providers: {}
     provenance: {by: person}
+  # X-Wing draft -11: ML-KEM-768 with X25519; GenerateKeyPair draws a fresh 32-byte seed; aims at 128 bits (NIST level 1)
   KeyPairGenerator|XWING:
     key: {type: XWING, source: inferred}
     required:
@@ -367,10 +372,13 @@ algorithms:
     optional: []
     conditions:
       output: {kind: key_pair, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      deterministic: {value: false, source: XWINGKEM}
       authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: XWING}
     sourcedOnly:
-    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: strengthBits, value: 128, source: XWINGKEM}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
     providers: {}
     provenance: {by: person}

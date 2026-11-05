@@ -1226,6 +1226,7 @@ algorithms:
     - {fact: minSdk, value: 23, source: ASIGNATURE}
     providers: {}
     provenance: {by: person}
+  # FIPS 205 Table 2: category 1, 7856-byte signature; s9.2: the hedged (randomized) variant is the default
   Signature|SLH-DSA-SHA2-128S:
     key: {type: SLH-DSA-SHA2-128S, source: inferred}
     required:
@@ -1233,11 +1234,14 @@ algorithms:
     - {name: nonce, value: none, source: inferred}
     optional: []
     conditions:
-      output: {kind: signature, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: signature, bytes: 7856, source: FIPS205}
+      deterministic: {value: false, source: FIPS205}
       authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: SHA2-128S, scheme: SLH-DSA}
     sourcedOnly:
-    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: strengthBits, value: 128, source: FIPS205}
     - {fact: minSdk, value: null, source: ASIGNATURE}
     providers: {}
     provenance: {by: person}

@@ -149,9 +149,11 @@ groups:
     - KeyPairGenerator|ML-KEM-768
     - KeyPairGenerator|RSA
     - KeyPairGenerator|RSASSA-PSS
+    - KeyPairGenerator|SLH-DSA-SHA2-128S
     - KeyPairGenerator|X25519
     - KeyPairGenerator|X448
     - KeyPairGenerator|XDH
+    - KeyPairGenerator|XWING
   mac.secret:
     algorithms:
     - Mac|AESCMAC
@@ -255,3 +257,4 @@ groups:
     - Signature|SHA512withECDSAinP1363Format
     - Signature|SHA512withRSA
     - Signature|SHA512withRSA/PSS
+    - Signature|SLH-DSA-SHA2-128S

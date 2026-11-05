@@ -31,4 +31,4 @@ Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `catalog/a
 
 ## Static checks (`validation/catalogue_entry.py`)
 
-An entry's form, its engine type against its family's, its id in exactly one catalogue and one group. Known gaps of the packaged catalogues: `SLH-DSA-SHA2-128S` and `XWING` in no group (not in `algorithm-names.yaml`).
+An entry's form, its engine type against its family's, its id in exactly one catalogue and one group.

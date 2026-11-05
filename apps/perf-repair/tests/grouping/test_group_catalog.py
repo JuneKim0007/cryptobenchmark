@@ -289,11 +289,9 @@ def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
 def test_the_catalog_is_one_group_per_family_and_lists_every_typed_name():
     catalog = group_catalog()
     assert {g.family for g in catalog.families} == set(FAMILIES.by_id)
-    # known gap: typed and screened, not yet in algorithm-names.yaml, so in no group
-    not_named = {"SLH-DSA-SHA2-128S", "XWING"}
     for group in catalog.families:
         typed = {name for (family, name) in types().rows if family == group.family}
-        assert typed - not_named <= {n.upper() for n in group.algorithms}
+        assert typed <= {n.upper() for n in group.algorithms}
 
 
 def _signature_rows() -> list[tuple]:
@@ -311,10 +309,10 @@ def _signature_rows() -> list[tuple]:
     return rows
 
 
-def test_contract_rows_from_the_catalogue_equal_the_218_the_signature_derived():
+def test_contract_rows_from_the_catalogue_equal_the_221_the_signature_derived():
     catalog = group_catalog()
-    # 219 before DESedeWrap left cipher.unknown
-    assert len(catalog.groups) == 218
+    # 219, less DESedeWrap's cipher.unknown row, plus SLH-DSA-SHA2-128S twice and XWING
+    assert len(catalog.groups) == 221
     assert [(g.id, g.description, g.family, g.contracts, g.members) for g in catalog.groups] == _signature_rows()
 
 
