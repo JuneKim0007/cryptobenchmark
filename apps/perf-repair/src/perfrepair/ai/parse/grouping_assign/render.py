@@ -5,7 +5,7 @@ import yaml
 
 from ....catalog.groups import group_catalog
 from ....catalog.interchange import KEY, interchange
-from ....dto.grouping import KEY_APP_HELD, KEY_LABELS, Family, Item, Profile
+from ....dto.grouping import KEY_LABELS, Family, Item, Profile
 from ....dto.grouping_state import Knowledge
 from ....dto.signature import CONVENTION, UNKNOWN, Component, Signature
 
