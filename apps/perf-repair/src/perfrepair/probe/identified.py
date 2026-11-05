@@ -27,7 +27,8 @@ def listed(item: Item, verdict: Verdict | None) -> CatalogGroup | None:
 
 
 def alias_conflicts(names: Names) -> list[tuple[str, str]]:
-    """Each device alias the catalog names otherwise, as (Type|alias, both sides): never followed; an item so spelt is asked."""
+    """Each device alias the catalog or another provider names otherwise, as (Type|alias, both sides): a catalogued name keeps
+    the catalog's function; an uncatalogued one is asked."""
     return sorted((algorithm_id(engine_type, alias), why) for (engine_type, alias), why in names.conflicts.items())
 
 

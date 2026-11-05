@@ -96,11 +96,14 @@ class Names:
         return self._transformation(engine_type, name)
 
     def canonical(self, engine_type: str, name: str) -> Canonical:
+        """The catalog's name wins over any device alias; only an uncatalogued name the providers disagree on conflicts."""
+        found = self.catalogued(engine_type, name)
+        if found.known:
+            return found
         conflict = self.conflicts.get((engine_type, fold(name)))
         if conflict is not None:
             raise NamesError(f"{NAME_CONFLICT}: {engine_type} {name}: {conflict}")
-        found = self.catalogued(engine_type, name)
-        return found if found.known else self.probe.get((engine_type, fold(name)), found)
+        return self.probe.get((engine_type, fold(name)), found)
 
     def key_or_spelling(self, engine_type: str, name: str) -> tuple[str, int | None]:
         """A name_conflict keys by its own spelling: an item to ask, never a stop."""

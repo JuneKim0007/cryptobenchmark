@@ -109,8 +109,8 @@ def test_an_unlisted_name_is_unknown_without_a_source(engine_type, name):
 
 
 def test_a_name_conflict_is_unknown_with_its_code():
-    names = replace(NAMES, conflicts={("MessageDigest", "MD5"): "P says MD5, Q says MD4"})
-    verdict = ScreeningHandler(HANDLER.screening, names).verdict("MessageDigest", "md5", "P")
+    names = replace(NAMES, conflicts={("MessageDigest", "FOO5"): "P says MD5, Q says MD4"})
+    verdict = ScreeningHandler(HANDLER.screening, names).verdict("MessageDigest", "foo5", "P")
     assert verdict.status == "unknown" and verdict.reason.startswith("name_conflict:")
     assert _verdict_problems(1, verdict, None) == []
     assert _verdict_problems(1, replace(verdict, reason="no screening row"), None)
