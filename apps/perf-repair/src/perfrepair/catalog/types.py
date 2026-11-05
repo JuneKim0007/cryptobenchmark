@@ -25,7 +25,6 @@ class Types:
     rows: dict[tuple[str, str], TypeRow]
     key_strength: dict[str, dict[int, int]]
     deterministic_relied: frozenset[str]
-    sources: dict[str, str]
 
     def of(self, family: str, canonical: str | None) -> TypeRow | None:
         return self.rows.get((family, fold(canonical))) if canonical else None
@@ -63,7 +62,7 @@ def of_catalogues(catalogues: Algorithms) -> Types:
     """An entry without type facts has no row: the catalogue checked they come whole."""
     rows = {(e.family, fold(e.canonical)): _row(e) for e in catalogues.entries if e.sourced(STRENGTH) is not None}
     common = catalogues.common
-    return Types(rows, common.key_strength, common.deterministic_relied, common.sources)
+    return Types(rows, common.key_strength, common.deterministic_relied)
 
 
 @cache

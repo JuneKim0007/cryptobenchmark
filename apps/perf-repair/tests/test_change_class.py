@@ -9,7 +9,7 @@ from perfrepair.dto.site import Scope, scope_id
 from perfrepair.dto.types import Properties, Strength, TypeRow
 from perfrepair.result.change import Candidate, classify, reach
 
-TYPES = Types({}, {"blockKey": {128: 128, 256: 256}}, frozenset({"digest", "ciphertext"}), {"S": "x"})
+TYPES = Types({}, {"blockKey": {128: 128, 256: 256}}, frozenset({"digest", "ciphertext"}))
 
 
 def row(name, kind="digest", *, auth=False, det=True, nonce="none", params="none", out=32, key="none",

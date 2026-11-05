@@ -31,7 +31,7 @@ def type_row(name, bits, min_sdk=1, out=32) -> TypeRow:
 
 
 TYPES = Types({("fam", n.upper()): type_row(n, b, s) for n, b, s in
-               (("WEAK", 0, 1), ("STRONG", 128, 1), ("LATE", 256, 28), ("GONE", 128, 1))}, {}, frozenset({"digest"}), {"S": "x"})
+               (("WEAK", 0, 1), ("STRONG", 128, 1), ("LATE", 256, 28), ("GONE", 128, 1))}, {}, frozenset({"digest"}))
 GROUPS = {"groups": [], "interop": {"status": "checked", "pairs": []},
           "items": {str(n): {"qualified": q, "group": None, "runs": q != D} for n, q in enumerate((A, B, C, D), 1)}}
 ROWS = [replace(row(f"r{n}", "P1", algorithm=name), parameters=PARAMS) for n, name in enumerate(("WEAK", "STRONG", "LATE"))]
