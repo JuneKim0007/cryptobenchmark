@@ -70,7 +70,7 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
         "imports": ["import javax.crypto.Cipher;"],
         "inputs": {"inputSize": 1024, "keySize": 256, "from": "app"}, "current": CURRENT, "option": FAST,
         "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None, "inverse": None,
-        "callSite": {"operation": "ENCRYPT", "variant": "notFixed"}}
+        "callSite": {"operation": "ENCRYPT", "variant": "notFixed"}, "upgrade": False}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
@@ -80,6 +80,18 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
     assert nested["dependencies"] == ["key", "name", "prefix"]
     assert nested["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
     assert nested["callSite"] == {"operation": None, "variant": "notFixed"}
+
+
+def test_harness_marks_a_broken_use_as_an_upgrade_and_no_other_scope(tmp_path):
+    paths = setup_run(tmp_path)
+    doc = read_json(paths.dossiers)
+    doc["upgrades"] = [d for d in doc["dossiers"] if d["scope"]["id"] == LITERAL.id]
+    doc["dossiers"] = [d for d in doc["dossiers"] if d["scope"]["id"] != LITERAL.id]
+    write_json(paths.dossiers, doc)
+    assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
+    assert main(["harness", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
+    entries = {e["id"]: e["upgrade"] for e in yaml.safe_load(paths.harness.read_text())["scopes"]}
+    assert entries[LITERAL.id] is True and not any(v for k, v in entries.items() if k != LITERAL.id)
 
 
 def test_both_steps_are_deterministic(tmp_path):

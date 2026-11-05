@@ -76,7 +76,7 @@ apps/benchmark-runner/scope/dependencies.py : a scope's dependencies: imported, 
 apps/benchmark-runner/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
 apps/benchmark-runner/scope/harness.py : reads perf-repair's harness.yaml
 apps/benchmark-runner/scope/inputs.py : synthesisable parameter types and the value or ScopeInputs and ScopeKeys call that builds each
-apps/benchmark-runner/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, same output, or none
+apps/benchmark-runner/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, output_changes for an upgrade, same output, or none
 apps/benchmark-runner/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
 apps/benchmark-runner/scope/results.py : device interop and call-site verdicts into scoped-plan.yaml; measured scopes and prepared call sites as prepared.yaml
 apps/benchmark-runner/scope/signature.py : Java method and Kotlin function header parser; header as a public static member

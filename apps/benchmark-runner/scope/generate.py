@@ -36,7 +36,8 @@ def checked(scope):
 
 
 def entries(scopes, candidates):
-    plans = scope_interop.plan({i: candidates[i][0]["before"] for i in scopes}, {i: scopes[i].inverse for i in scopes})
+    plans = scope_interop.plan({i: candidates[i][0]["before"] for i in scopes}, {i: scopes[i].inverse for i in scopes},
+                              {i for i in scopes if scopes[i].upgrade})
     return {i: scope_wrapper.Entry(scopes[i], candidates[i][0], candidates[i][1].stubs, plans[i]) for i in scopes}
 
 

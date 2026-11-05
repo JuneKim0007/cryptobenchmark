@@ -37,7 +37,7 @@
 | `admits(max_change, change)` | `src/perfrepair/dto/change.py` | `change in CHANGES and CHANGES.index(change) <= CHANGES.index(max_change)` | result.candidates, validation.dossiers.document, validation.dossiers.dossier, validation.report +1 |
 | `output_changes(diff)` | `src/perfrepair/dto/change.py` | `diff is not None and diff.output != SAME` | result.change, result.options, validation.dossiers.dossier |
 | `parse_yaml(text, where, code, shape, error)` | `src/perfrepair/dto/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | catalog.bundled_providers, catalog.screening, files |
-| `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon. | repair.dossier, result.configurations, validation.dossiers.document |
+| `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon, `person_judges` its reject reasons. | ai.repair.upgrade.kind, repair.dossier, result.configurations, validation.dossiers.document |
 | `algorithm_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[1]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades +1 |
 | `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.review.grouping_review.render, ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate +8 |
 | `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.candidates +5 |
@@ -74,6 +74,7 @@
 | `status_line(e)` | `src/perfrepair/log/status.py` | - | log.progress, log.summary, log.views |
 | `string_literal(value, language)` | `src/perfrepair/repair/edit/literal.py` | - | repair.edit.algorithm, repair.edit.provider, repair.edit.specs |
 | `apply(text, splices)` | `src/perfrepair/repair/edit/splice.py` | Newlines inside a replaced span follow the new text, so a scope's lines `start..end` stay put in the copy. | repair.edit.alone, repair.edit.app, repair.edit.plan |
+| `reach(scope)` | `src/perfrepair/result/change.py` | A field keeps the object past the function, so where its output goes is not read: unknown, never local. | ai.repair.upgrade.render, result.options, result.upgrades |
 | `level(p_improve)` | `src/perfrepair/result/confidence.py` | - | report.metrics, result.evidence, validation.report_metrics |
 | `operations(scope)` | `src/perfrepair/result/configurations.py` | The operations the lifecycle performs; empty, meaning every one, when it does not know. | ai.suggest.site_replace.rows, repair.call_site, result.options, result.upgrades |
 | `parse_label(text)` | `src/perfrepair/result/configurations.py` | label()'s fields back from a stored configuration; `estimated` when the side's energy is estimated. | ai.suggest.site_replace.options, repair.call_site, result.category |
@@ -107,6 +108,8 @@
 | `parameters(method)` | `src/perfrepair/scope/syntax/declarations.py` | - | scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.slice, scope.syntax.resolve +1 |
 | `resolve_field(name, at)` | `src/perfrepair/scope/syntax/resolve.py` | - | scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.read, scope.lifecycle.settle |
 | `resolve_local(name, at)` | `src/perfrepair/scope/syntax/resolve.py` | The nearest local or parameter visible at `at`; stops at the class boundary. | scope.lifecycle.binding, scope.lifecycle.depth1, scope.lifecycle.origins, scope.lifecycle.read |
+| `unwrapped(n)` | `src/perfrepair/scope/syntax/usage.py` | - | scope.lifecycle.origins, scope.lifecycle.output, scope.lifecycle.settle |
+| `use_of(n)` | `src/perfrepair/scope/syntax/usage.py` | Follows the value out through parentheses, casts and branches to what finally receives it. | scope.lifecycle.binding, scope.lifecycle.output, scope.lifecycle.slice |
 | `screening_catalog(loaded)` | `src/perfrepair/screen/catalog.py` | None stands for no perfrepair.yaml; a set catalog that does not load is missing_file, never the packaged one. | grouping.__main__, guide.device_steps, repair.__main__, validation.__main__ |
 | `identified(item, verdicts, profiles)` | `src/perfrepair/screen/groups.py` | Never asked: screened out, or listed in the catalog; never without screen.json: runs built before screening ask every item. | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, validation.grouping.code_groups |
 | `matching(masked, i)` | `src/perfrepair/source/brackets.py` | Offset of the bracket closing the one at i, in masked text. | app.facts.kind, app.facts.sdk, app.find.constants, repair.edit.init +3 |

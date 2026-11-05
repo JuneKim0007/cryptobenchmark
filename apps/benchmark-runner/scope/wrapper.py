@@ -55,6 +55,11 @@ def arguments(entry, prefix, side="after"):
     return names, lines
 
 
+def swapped_together(producer, consumer):
+    """An upgrade replaces a broken algorithm, so neither side reads what the other variant made."""
+    return producer.scope.upgrade or consumer.scope.upgrade
+
+
 def round_trip(producer, consumer, produced, consumed):
     signature = consumer.signatures["before"]
     artifact = consumer.interop.index
@@ -64,7 +69,9 @@ def round_trip(producer, consumer, produced, consumed):
         return f"{{ x -> {call(consumer.scope.id, variant, signature, values)} }}"
     produce = {v: f"{{ {call(producer.scope.id, v, producer.signatures['before'], produced)} }}" for v in VARIANTS}
     expected = produced[producer.interop.index]
-    return (f"ScopeInterop.RoundTrip({expected}, {produce['before']}, {produce['after']}, "
+    # the check crosses produce and consume; handing it the sides crossed makes an upgrade's pair run after to after, before to before
+    first, second = ("after", "before") if swapped_together(producer, consumer) else ("before", "after")
+    return (f"ScopeInterop.RoundTrip({expected}, {produce[first]}, {produce[second]}, "
             f"{consume('before')}, {consume('after')})")
 
 
@@ -100,7 +107,8 @@ def side_call(entry, producer, consumer, variant, lines):
     consumed, consume_lines = arguments(consumer, f"c{variant[0]}", variant)
     artifact = f"artifact{variant[0].upper()}"
     cast = scope_inputs.KOTLIN_TYPES[scope_inputs.kind(producer.signatures["before"].returns)]
-    lines += consume_lines + [f"val {artifact} = lazy {{ {call(producer.scope.id, 'before', producer.signatures['before'], produced)} }}"]
+    made_by = variant if swapped_together(producer, consumer) else "before"
+    lines += consume_lines + [f"val {artifact} = lazy {{ {call(producer.scope.id, made_by, producer.signatures['before'], produced)} }}"]
     names = [f"{artifact}.value as {cast}" if i == consumer.interop.index else name for i, name in enumerate(consumed)]
     return f"{{ {call(entry.scope.id, variant, entry.signatures['before'], names)} }}"
 

@@ -106,7 +106,7 @@ def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     dossiers = {d["scope"]["id"]: d for d in doc["dossiers"] + doc["upgrades"]}
     with step("repair", "harness", app=a.app) as s:
         doc = harness(paths, scopes, replacements, edits, dossiers, read_effective(a.device_results / rd.MANIFEST),
-                      read_units(read_json(paths.units)))
+                      read_units(read_json(paths.units)), frozenset(r["scope"]["id"] for r in doc["upgrades"]))
         problems = validate_harness(doc, a.app, paths.root, edits)
         if problems:
             s.outcome = "invalid"

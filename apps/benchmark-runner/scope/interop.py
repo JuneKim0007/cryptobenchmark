@@ -1,7 +1,10 @@
-"""Chooses each scope's interop check from the function shapes: round trip with its partner by inverse link, same output, or none."""
+"""Chooses each scope's interop check from the function shapes: round trip with its partner by inverse link, same output, or none;
+an upgrade's swap changes the output by definition, so without a partner it is recorded and compares nothing."""
 from dataclasses import dataclass
 
 from scope import inputs as scope_inputs
+
+OUTPUT_CHANGES = "output_changes"
 
 
 @dataclass(frozen=True)
@@ -29,8 +32,8 @@ def round_trip(producer, consumer):
     return artifact, plaintext
 
 
-def plan(signatures, inverses):
-    """signatures: {scope id: before Signature}, in harness order; inverses: {scope id: its link's partner and role}."""
+def plan(signatures, inverses, upgrades=frozenset()):
+    """signatures: {scope id: before Signature}, in harness order; inverses: {scope id: its link's partner and role}; upgrades: the scopes that replace a broken algorithm."""
     plans = {}
     for scope_id, signature in signatures.items():
         link = inverses.get(scope_id) or {}
@@ -42,7 +45,9 @@ def plan(signatures, inverses):
     for scope_id, signature in signatures.items():
         if scope_id in plans:
             continue
-        if signature.returns is None:
+        if scope_id in upgrades:
+            plans[scope_id] = InteropPlan(OUTPUT_CHANGES, reason=f"{OUTPUT_CHANGES}: an upgrade replaces a broken algorithm, so its output differs by definition")
+        elif signature.returns is None:
             plans[scope_id] = InteropPlan("none", reason="no_output: the function returns nothing to compare")
         else:
             plans[scope_id] = InteropPlan("same_output")

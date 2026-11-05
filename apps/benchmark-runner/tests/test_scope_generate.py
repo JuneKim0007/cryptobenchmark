@@ -124,3 +124,46 @@ def test_a_not_measurable_scope_is_recorded_and_never_generated(tmp_path):
     record = yaml.safe_load(plan.read_text())["scopes"][2]
     assert (record["status"], record["reason"]) == ("not_measurable", "no_operation")
     assert "2c3d4e5f6071" not in compiled and not (tmp_path / "root" / GENERATED / "s2c3d4e5f6071").exists()
+
+
+def upgraded_fixture(tmp_path, *ids):
+    """The fixture's harness with these scopes marked as upgrades; its sources stay beside it."""
+    document = yaml.safe_load((FIXTURES / "harness.yaml").read_text())
+    for entry in document["scopes"]:
+        entry["upgrade"] = entry["id"] in ids
+        entry["before"], entry["after"] = (str(FIXTURES / entry[side]) for side in ("before", "after"))
+    path = tmp_path / "harness.yaml"
+    path.write_text(yaml.safe_dump(document))
+    return path
+
+
+def test_an_upgrade_is_planned_with_no_same_output_and_recorded_as_output_changes(tmp_path):
+    path = upgraded_fixture(tmp_path, "2c3d4e5f6071")
+    plan, _ = scope_generate.generate(path, tmp_path / "root", tmp_path / "out", compiler=lambda root: [])
+    record = next(s for s in yaml.safe_load(plan.read_text())["scopes"] if s["id"] == "2c3d4e5f6071")
+    assert record["interop"]["check"] == "output_changes" and record["interop"]["reason"].startswith("output_changes: ")
+    function = generated(tmp_path)["GeneratedScopes.kt"].split("private fun s2c3d4e5f6071")[1].split("private fun")[0]
+    assert "ScopeInterop.Unchecked(" in function and "ScopeInterop.SameOutput" not in function
+
+
+def test_an_upgrade_swapped_with_its_partner_keeps_the_round_trip(tmp_path):
+    path = upgraded_fixture(tmp_path, "0a1b2c3d4e5f", "1b2c3d4e5f60")
+    plan, _ = scope_generate.generate(path, tmp_path / "root", tmp_path / "out", compiler=lambda root: [])
+    interop = {s["id"]: s["interop"] for s in yaml.safe_load(plan.read_text())["scopes"]}
+    assert interop["0a1b2c3d4e5f"] == {"check": "round_trip", "partner": "1b2c3d4e5f60", "role": "produce"}
+    assert interop["1b2c3d4e5f60"]["check"] == "round_trip" and interop["2c3d4e5f6071"] == {"check": "same_output"}
+    # the broken side's artifact never reaches the upgraded consumer: the check's crossed order runs after to after
+    kt = generated(tmp_path)["GeneratedScopes.kt"]
+    pair = kt.split("private fun s0a1b2c3d4e5f")[1].split("private fun")[0]
+    check = pair.split("ScopeInterop.RoundTrip(")[1]
+    assert check.index("s0a1b2c3d4e5f.after.") < check.index("s0a1b2c3d4e5f.before.")
+    consumer = kt.split("private fun s1b2c3d4e5f60")[1].split("private fun")[0]
+    assert "lazy { io.github.junekim0007.cryptobench.scoped.s0a1b2c3d4e5f.after." in consumer
+
+
+def test_a_round_trip_with_no_upgrade_still_crosses_the_two_variants(tmp_path):
+    plan, _ = scope_generate.generate(FIXTURES / "harness.yaml", tmp_path / "root", tmp_path / "out", compiler=lambda root: [])
+    kt = generated(tmp_path)["GeneratedScopes.kt"]
+    check = kt.split("private fun s0a1b2c3d4e5f")[1].split("private fun")[0].split("ScopeInterop.RoundTrip(")[1]
+    assert check.index("s0a1b2c3d4e5f.before.") < check.index("s0a1b2c3d4e5f.after.")
+    assert "after.ScopeFunction" not in kt.split("private fun s1b2c3d4e5f60")[1].split("private fun")[0].split("lazy {")[1].split("\n")[0]

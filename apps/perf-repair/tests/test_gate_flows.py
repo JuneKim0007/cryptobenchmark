@@ -159,3 +159,16 @@ def test_stops_not_benchmarked_warn_cannot_fall_through_into_a_delta(flow):
     code, lines, _ = run(flow, flow.sha, flow.gcm, benchmark={"onGap": "stop"})
     assert code == 1 and flow.device_runs() == runs and not (flow.device / "delta").exists()
     assert any(line.startswith("guide prerequisites: stop not_benchmarked") for line in lines)
+
+
+def test_a_broken_use_grows_the_used_set_by_its_upgrade_targets_and_that_runs_a_delta(flow, monkeypatch):
+    md5 = "MessageDigest|MD5|Aaa"
+    monkeypatch.setitem(CALLS, md5, 'java.security.MessageDigest.getInstance("MD5", "Aaa")')
+    flow.add_provider()
+    run(flow, flow.hmac)
+    runs = flow.device_runs()
+    assert SHA not in measured(flow)
+    _, lines, _ = run(flow, flow.hmac, target(flow, "md5", md5, ships="g:a:1"))
+    used = read_json(flow.device / rd.USED)["items"]
+    assert {u["item"]: u["via"] for u in used if u["item"] == SHA} == {SHA: "upgrade"}
+    assert flow.device_runs() == runs and any(line.startswith("delta:     ") for line in lines) and SHA in measured(flow)

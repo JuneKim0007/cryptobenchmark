@@ -12,7 +12,7 @@ EDIT_REASONS = ("call_moved", "ambiguous_call", "function_span", "unbalanced_cal
                 "unknown_parameters", "unsupported_kind", "unsupported_language", "file_missing", "no_edits",
                 "no_change", "overlapping_edits", "unit_member_rejected")
 HARNESS_KEYS = ("id", "language", "function", "before", "after", "imports", "inputs", "current", "option",
-                "metrics", "dependencies", "notMeasurable", "inverse", "callSite")
+                "metrics", "dependencies", "notMeasurable", "inverse", "callSite", "upgrade")
 
 
 def _header(doc: dict, app: str, key: str, version: int = EDITS_SCHEMA_VERSION) -> list[str]:

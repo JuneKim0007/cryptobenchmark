@@ -65,11 +65,13 @@ scopes:
     notMeasurable: null|no_operation
     inverse: null|{partner: <scope id>, role: produce|consume}
     callSite: {operation: <the benchmark operation or null>, variant: fixed|notFixed}
+    upgrade: true|false
 ```
 
 - Paths are relative to the folder of `harness.yaml`; only applied scopes are listed.
 - `inverse` is the scope's partner by an `inverse` link of `units.json`, both sides applied; cryptobenchmark's round trip takes it, never a name.
 - `callSite` is the swapped call alone, as cryptobenchmark measures it beside the function: `operation` is the scope's one lifecycle operation, else the one operation the chosen option's estimates are at, else null (several or none, so no call site is measured); `variant` is the scope's `pattern`.
+- `upgrade`: the swap replaces a broken algorithm, so its output differs by definition; see [upgrade.md](upgrade.md).
 - `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
 - `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
 - `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim. When two units applied edits in one function, `after` comes from `patched-alone/<unit>/`, that unit's edits only: the function is measured as original, A swapped only, B swapped only, never with both, so no change is counted twice.

@@ -6,9 +6,9 @@ import yaml
 
 from scope import languages as scope_languages
 
-SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse", "callSite"}
+SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse", "callSite", "upgrade"}
 ID = re.compile(r"^[0-9a-f]{12}$")
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 INPUT_SOURCES = ("app", "run")
 
 
@@ -34,6 +34,7 @@ class HarnessScope:
     not_measurable: str | None = None
     inverse: dict | None = None
     call_site: dict | None = None
+    upgrade: bool = False
 
 
 @dataclass(frozen=True)
@@ -84,6 +85,7 @@ def scope(entry, index, base):
         current=entry.get("current"), option=entry.get("option"), metrics=tuple(entry.get("metrics") or ()),
         dependencies=tuple(str(name) for name in entry.get("dependencies") or ()),
         not_measurable=entry.get("notMeasurable"), inverse=entry.get("inverse"), call_site=call_site(entry.get("callSite"), where),
+        upgrade=entry.get("upgrade") is True,
     )
 
 

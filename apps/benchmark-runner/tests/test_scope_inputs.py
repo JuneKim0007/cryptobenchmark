@@ -52,7 +52,7 @@ def test_a_function_of_every_new_kind_is_generated_and_a_failing_input_stays_in_
     source = tmp_path / "before.java"
     source.write_text("int all(boolean a, byte b, short c, int d, long e, float f, double g, char h, File i, PrivateKey j, PublicKey k, KeyPair l) { return d; }\n")
     harness = tmp_path / "harness.yaml"
-    harness.write_text(yaml.safe_dump({"schemaVersion": 5, "app": "a", "scopes": [{
+    harness.write_text(yaml.safe_dump({"schemaVersion": 6, "app": "a", "scopes": [{
         "id": "aaaaaaaaaaaa", "language": "java", "function": "all", "before": "before.java", "after": "before.java",
         "imports": ["import java.io.File;", "import java.security.PrivateKey;", "import java.security.PublicKey;", "import java.security.KeyPair;"],
         "inputs": {"inputSize": 64, "keySize": 2048, "from": "run"}, "current": "Cipher|RSA|A", "option": "Cipher|RSA|B",

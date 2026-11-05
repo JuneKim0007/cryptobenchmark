@@ -27,8 +27,9 @@ def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
 
 
 def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
-            dossiers: dict[str, dict], effective: dict, units: list[Unit]) -> dict:
-    """Paths in the document are relative to harness.yaml's folder; `dossiers` is each scope's dossier by scope id."""
+            dossiers: dict[str, dict], effective: dict, units: list[Unit], upgraded: frozenset[str] = frozenset()) -> dict:
+    """Paths in the document are relative to harness.yaml's folder; `dossiers` is each scope's dossier by scope id; `upgraded`:
+    the broken uses' scopes, whose output changes by definition."""
     shutil.rmtree(out.extracts, ignore_errors=True)
     entries = []
     applied = sorted((e for e in edits["edits"] if e["status"] == "applied"), key=lambda e: e["scope"])
@@ -61,5 +62,6 @@ def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Rep
             "notMeasurable": None if has_operation(Code.of(original, lang), scope) else NO_OPERATION,
             "inverse": inverses.get(scope.id),
             "callSite": call_site(scope, dossiers[scope.id], replacements[scope.id].option),
+            "upgrade": scope.id in upgraded,
         })
     return {"schemaVersion": HARNESS_SCHEMA_VERSION, "app": out.app, "scopes": entries}
