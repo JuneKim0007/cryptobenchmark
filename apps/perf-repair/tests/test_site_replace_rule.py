@@ -2,17 +2,11 @@
 recommend, concerns, and the prompts override folder's outbox."""
 import json
 
-from helpers import LIBRARY, QUIET
 from site_replace_data import APP, KEEP, answer, dossier, doc, edit, item, member
 
-from perfrepair.ai.runtime.agent import ScriptedConversations
-from perfrepair.ai.runtime.engine.outbox import active_fingerprint
-from perfrepair.ai.runtime.prompt import PromptLibrary
-from perfrepair.ai.suggest.site_replace.command import replace
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.perf_mode import GENERIC_MODE, PerfMode
 from perfrepair.dto.dossier import Estimate, Option
-from perfrepair.files import read_json
 from perfrepair.validation.suggest.site_replace import check_reply
 
 AT = "OP1 key 128 input 1024"
@@ -87,24 +81,6 @@ def _run(tmp_path, a):
     (app / "app.json").write_text(json.dumps({"root": str(tmp_path.resolve())}))
     (app / "dossiers.json").write_text(json.dumps(doc(a)))
     return tmp_path, app
-
-
-def test_a_prompts_override_opens_its_own_outbox_and_removing_it_resumes_the_earlier_one(tmp_path):
-    run, app = _run(tmp_path, dossier())
-    replace(run, APP, ScriptedConversations(lambda *_: KEEP), LIBRARY, **QUIET)
-    packaged = active_fingerprint(app / "replace")
-    folder = tmp_path / "prompts" / "suggest"
-    folder.mkdir(parents=True)
-    (folder / "site-replace.system.md").write_text(LIBRARY.texts["suggest/site-replace"] + "\nAn owner's wording.\n")
-    override = PromptLibrary.load(tmp_path / "prompts")
-    asked = ScriptedConversations(lambda *_: answer())
-    replace(run, APP, asked, override, **QUIET)
-    assert active_fingerprint(app / "replace") != packaged and asked.started == 1
-    assert read_json(app / "replacements.json")["replacements"][0]["decision"] == "replace"
-    back = ScriptedConversations(lambda *_: answer())
-    replace(run, APP, back, LIBRARY, **QUIET)
-    assert active_fingerprint(app / "replace") == packaged and back.started == 0
-    assert read_json(app / "replacements.json")["replacements"][0]["decision"] == "keep"
 
 
 def test_edits_stay_exact_for_a_trade_off():

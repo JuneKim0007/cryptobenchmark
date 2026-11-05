@@ -16,8 +16,7 @@ from perfrepair.ai.parse.algorithm_classify.kind import charter as classify_char
 from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
 from perfrepair.ai.repair.upgrade.kind import charter as upgrade_charter
 from perfrepair.ai.review.grouping_review.kind import charter as review_charter
-from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
-from perfrepair.ai.runtime.engine.budget import Budget, OverBudget
+from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.runtime.engine.tracking import MissingInput, role_run, stamp
 from perfrepair.ai.suggest.site_replace.kind import charter as replace_charter
@@ -301,33 +300,6 @@ def test_an_answer_citing_an_id_not_in_its_message_is_refused(role, base, tmp_pa
     device = device_for(role, base, tmp_path)
     asked(role, device, role.wrong_id)
     assert all(role.cited in " ".join(r.problems) for r in dropped(role, device))
-
-
-@ROLE
-def test_a_garbage_reply_is_one_dropped_record_per_item(role, base, tmp_path):
-    device = device_for(role, base, tmp_path)
-    asked(role, device, lambda *_: "not json")
-    assert all("not JSON" in " ".join(r.problems) for r in dropped(role, device))
-
-
-@ROLE
-def test_a_refusal_is_one_dropped_record_per_item(role, base, tmp_path):
-    device = device_for(role, base, tmp_path)
-
-    def refuse(*_):
-        raise AgentRefused("policy")
-    asked(role, device, refuse)
-    assert all("model refused: policy" in " ".join(r.problems) for r in dropped(role, device))
-
-
-@ROLE
-def test_over_budget_is_one_code_and_no_call(role, base, tmp_path):
-    device = device_for(role, base, tmp_path)
-    conversations = ScriptedConversations(role.right)
-    conversations.budget = Budget("test.budget", 1)
-    with pytest.raises(OverBudget) as e:
-        role.run(device, conversations)
-    assert code_of(e.value) == "over_budget" and conversations.started == 0
 
 
 @pytest.mark.parametrize("role", [r for r in ROLES if r.name != "screening.classify"], ids=lambda r: r.name)

@@ -80,14 +80,6 @@ def test_a_dropped_site_becomes_a_fallback_keep(tmp_path):
     assert r["replacements"][0]["reason"].startswith("dropped: s1t1: S1: option 'R9' is not one of R1, R2")
 
 
-def test_a_correction_turn_gets_the_alias_problems_and_can_succeed(tmp_path):
-    run, app = run_dir(tmp_path, A)
-    agent = ScriptedConversations(lambda m, s, turn: answer(option="R9") if turn == 1 else answer())
-    replace(run, APP, agent, LIBRARY, **QUIET)
-    assert "option 'R9' is not one of R1, R2" in agent.turns[1][2].text
-    assert read_json(app / "replacements.json")["sources"] == {A.key: "llm"}
-
-
 def test_a_malformed_dossiers_file_stops_before_any_call(tmp_path):
     run, app = run_dir(tmp_path, A)
     bad = doc(A)

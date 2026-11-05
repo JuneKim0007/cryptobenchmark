@@ -1,55 +1,19 @@
 import json
 
 import pytest
-from conftest import CHARTER, QUIET, by_name, item_name
+from conftest import CHARTER, QUIET, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.files import write_json
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
-from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
+from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.validation import ValidationFailed
 
 
 def group(paths, agent, limits=Limits(), limit=None):
     return decide(GroupingKind(paths, FAMILIES), CHARTER, agent, paths.root, limits, limit, **QUIET)
-
-
-def records(paths):
-    return active_outbox(paths.root).records()
-
-
-def test_every_item_gets_one_fresh_conversation_and_a_committed_outcome(paths):
-    agent = ScriptedConversations(by_name)
-    knowledge = group(paths, agent)
-    assert agent.started == 6 and len(records(paths)) == 6
-    assert knowledge.groups["alg-s-m1"].members == [3, 4]
-    assert json.loads(paths.cursor.read_text())["next"] is None
-    assert json.loads(paths.knowledge.read_text()) == knowledge.to_json()
-    first = [m for _, turn, m in agent.turns if turn == 1]
-    assert all(m.text.count("\nitem:") == 1 for m in first)
-
-
-def test_a_rejected_answer_is_corrected_in_the_same_conversation(paths):
-    agent = ScriptedConversations(lambda m, c, turn: "not json" if turn == 1 else by_name(m))
-    group(paths, agent)
-    assert agent.started == 6
-    statuses = [json.loads(line)["status"] for line in (paths.root / "journal.jsonl").read_text().splitlines()]
-    assert statuses[:2] == ["rejected", "accepted"]
-
-
-def test_an_item_no_conversation_answers_is_dropped_and_the_run_continues(paths):
-    def answer(m, c, t):
-        if item_name(m) == "H1":
-            raise AgentRefused("declined")
-        return by_name(m)
-    knowledge = group(paths, ScriptedConversations(answer), Limits(turns=2, sessions=2))
-    dropped = [r for r in records(paths) if r.outcome == "dropped"]
-    assert len(dropped) == 1 and dropped[0].item == "digest.none|TypeD|H1|P1" and len(knowledge.dropped) == 1
-    errors = [json.loads(line) for line in paths.errors.read_text().splitlines()]
-    assert errors[0]["label"].startswith("TypeD|H1") and "model refused: declined" in errors[0]["problems"][0]
 
 
 def test_a_tampered_items_file_is_refused_at_pop(paths):

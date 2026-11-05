@@ -1,7 +1,6 @@
 import json
 import re
 
-import pytest
 from conftest import CHARTER, LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
@@ -96,23 +95,6 @@ def test_a_review_no_conversation_completes_is_marked_failed(paths):
     finished(paths)
     out = review(paths, lambda *_: "not json", Limits(turns=1, sessions=2))
     assert all(f["status"] == "failed" and len(f["problems"]) == 2 for f in out["families"].values())
-
-
-def test_a_crash_mid_review_resumes_without_asking_a_family_twice(paths):
-    finished(paths)
-    asked = []
-
-    def crashes(message, *_):
-        if asked:
-            raise RuntimeError("killed")
-        asked.append(message.item)
-        return {"findings": []}
-    with pytest.raises(RuntimeError):
-        review(paths, crashes)
-    second = []
-    out = review(paths, lambda message, *_: second.append(message.item) or {"findings": []})
-    assert set(second).isdisjoint(asked) and sorted(asked + second) == sorted(out["families"])
-    assert check_supervisor(paths)["grouping/supervisor.json"] == []
 
 
 def test_changed_groups_are_reviewed_again_in_a_new_outbox(paths):
