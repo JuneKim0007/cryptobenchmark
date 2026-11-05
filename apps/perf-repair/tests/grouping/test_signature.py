@@ -141,11 +141,14 @@ def test_an_unrecorded_key_material_never_joins_a_recorded_one_and_two_unrecorde
     assert made.differing(held) == [KEY_MATERIAL]
 
 
-def test_an_unknown_name_and_a_conflict_are_unknown():
+def test_an_unknown_name_and_an_uncatalogued_conflict_are_unknown():
     assert sig("Mac", "NOT-CATALOGUED").known() == {"key": KEY_APP_HELD} and not sig("Mac", "NOT-CATALOGUED").decided
-    conflicted = Probe({"providers": [{"name": "P", "services": [{"type": "Mac", "algorithm": "HmacSHA256",
-                                                                  "aliases": ["PBEWITHHMACSHA256"]}]}]}).names(NAMES)
-    assert not signature("Mac", "PBEWITHHMACSHA256", None, KEY_APP_HELD, conflicted).decided
+    conflicted = Probe({"providers": [
+        {"name": "P", "services": [{"type": "Mac", "algorithm": "HmacSHA256", "aliases": ["FOOMAC", "PBEWITHHMACSHA256"]}]},
+        {"name": "Q", "services": [{"type": "Mac", "algorithm": "HmacSHA512", "aliases": ["FOOMAC"]}]}]}).names(NAMES)
+    assert not signature("Mac", "FOOMAC", None, KEY_APP_HELD, conflicted).decided
+    # the catalog's name wins over the alias
+    assert signature("Mac", "PBEWITHHMACSHA256", None, KEY_APP_HELD, conflicted) == sig("Mac", "PBEWithHmacSHA256")
 
 
 def test_every_catalogued_name_of_a_family_engine_has_a_rule():
