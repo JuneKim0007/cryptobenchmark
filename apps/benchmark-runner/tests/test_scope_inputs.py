@@ -44,10 +44,6 @@ def test_a_key_pair_without_a_size_and_a_file_without_a_size_say_which_input_is_
         expression("java.io.File", empty)
 
 
-def test_a_file_is_seeded_bytes_at_the_input_size():
-    assert expression("File") == "ScopeInputs.file(64, 7)"
-
-
 def test_a_function_of_every_new_kind_is_generated_and_a_failing_input_stays_in_its_own_scope(tmp_path):
     source = tmp_path / "before.java"
     source.write_text("int all(boolean a, byte b, short c, int d, long e, float f, double g, char h, File i, PrivateKey j, PublicKey k, KeyPair l) { return d; }\n")

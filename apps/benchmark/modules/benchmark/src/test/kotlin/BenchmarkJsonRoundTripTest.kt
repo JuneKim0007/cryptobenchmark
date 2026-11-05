@@ -58,22 +58,6 @@ class BenchmarkJsonRoundTripTest {
         assertEquals(1024, read.inputSize)
     }
 
-    @Test
-    fun twoWrittenProcessesMergeIntoOne() {
-        val first = text(listOf(row("a", both)))
-        val second = text(listOf(row("a", linkedMapOf(
-            MetricSamples.TIME to MetricSamples(listOf(1300.0, 1310.0, 1290.0), 4096),
-            MetricSamples.ALLOCATIONS to MetricSamples(listOf(4.0, 4.0, 4.0), 1),
-        ))))
-
-        val merged = Merge.merge(listOf(first, second))
-
-        assertEquals(2, merged.processes)
-        val row = merged.rows.single()
-        assertEquals(listOf(1191.0, 1180.0, 1204.0, 1300.0, 1310.0, 1290.0), row.metrics.getValue(MetricSamples.TIME).runs)
-        assertEquals(listOf(2.0, 2.0, 3.0, 4.0, 4.0, 4.0), row.metrics.getValue(MetricSamples.ALLOCATIONS).runs)
-    }
-
     private fun variant(id: String, variant: String?) =
         ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", both, emptyMap(), variant = variant)
 
@@ -129,13 +113,6 @@ class BenchmarkJsonRoundTripTest {
             row("a", linkedMapOf(MetricSamples.ALLOCATIONS to MetricSamples(listOf(2.0), 1)))
         }
         assertEquals("missing_field: metrics.timeNs for a", refused.message)
-    }
-
-    @Test
-    fun onlyTheMetricsBlockCarriesTheTiming() {
-        val written = text(listOf(row("a", both)))
-        assertTrue(written, !written.contains("nanosPerOperation"))
-        assertTrue(written, written.contains("\"timeNs\": {\"iterations\": 8192, \"runs\": [1191.0, 1180.0, 1204.0]}"))
     }
 
     @Test

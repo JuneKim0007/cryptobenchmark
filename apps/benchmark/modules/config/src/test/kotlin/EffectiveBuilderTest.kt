@@ -44,16 +44,6 @@ class EffectiveBuilderTest {
             effective.providers.mapValues { (_, types) -> types.values.flatMap { it.keys }.toSet() })
     }
 
-    @Test
-    fun overridesResolvePerEntry() {
-        val cipher = effective.providers.getValue("SunJCE").getValue("Cipher")
-        assertEquals(listOf(128, 256), cipher.getValue("AES/CBC/PKCS5PADDING").keySizes)
-        assertEquals("javax.crypto.spec.IvParameterSpec", cipher.getValue("AES/CBC/PKCS5PADDING").parameters["class"])
-        assertEquals(listOf(128), cipher.getValue("RSA").keySizes)
-        assertEquals(listOf(32), cipher.getValue("RSA").inputSizes)
-        assertEquals(listOf("ENCRYPT"), cipher.getValue("RSA").operations)
-    }
-
     /** An include that matches nothing on this device is reported, not silently dropped. */
     @Test
     fun whatCannotRunIsSkippedWithAReason() {

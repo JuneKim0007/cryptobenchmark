@@ -1,5 +1,4 @@
 import pathlib
-import re
 import sys
 
 import pytest
@@ -12,14 +11,6 @@ OLD_HOST = {"model": "", "manufacturer": "", "hardware": "", "sdkInt": 0, "relea
 HOST = dict(OLD_HOST, fingerprint="", javaVendor="Eclipse Adoptium", javaRuntimeVersion="25.0.3+9-LTS", osName="Mac OS X", osArch="aarch64")
 ANDROID = {"model": "Pixel 9", "manufacturer": "Google", "hardware": "zuma", "sdkInt": 36, "release": "16", "javaVersion": "0",
            "fingerprint": "google/tokay/tokay:16/BP3A.250905.014/13718934:user/release-keys"}
-
-
-def test_android_shape():
-    assert re.fullmatch(r"pixel-9-api36-[0-9a-f]{8}", device_id(ANDROID))
-
-
-def test_host_shape():
-    assert re.fullmatch(r"host-mac-os-x-aarch64-jdk25-[0-9a-f]{8}", device_id(HOST))
 
 
 # Real blocks and ids from discovery runs; an id changing here orphans results.

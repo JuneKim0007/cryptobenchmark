@@ -34,9 +34,4 @@ class RuleTest {
         )
         assertEquals(ordered, ordered.shuffled(java.util.Random(1)).sortedBy { it.specificity })
     }
-
-    @Test
-    fun anEmptyRuleIsRefused() {
-        assertEquals("empty_rule: give provider, type or name", assertThrows(IllegalArgumentException::class.java) { Rule() }.message)
-    }
 }

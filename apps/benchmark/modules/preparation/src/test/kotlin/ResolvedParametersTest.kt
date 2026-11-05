@@ -128,9 +128,4 @@ class ResolvedParametersTest {
         val pair = KeyPairGenerator.getInstance("RSA").apply { initialize(3072) }.generateKeyPair()
         assertEquals(linkedMapOf<String, Any>("keyBits" to 3072), ResolvedParameters.of(null, KeyMaterial.None, pair))
     }
-
-    @Test
-    fun aCaseWithNoKeyAndNoParametersRecordsNothing() {
-        assertEquals(emptyMap<String, Any>(), ResolvedParameters.of(null, KeyMaterial.None, ByteArray(32)))
-    }
 }

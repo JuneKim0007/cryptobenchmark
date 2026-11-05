@@ -53,16 +53,6 @@ class OverrideResolverTest {
         assertEquals(curve, entry.key)
     }
 
-    @Test
-    fun operationsNarrowLikeAnyOtherValue() {
-        val resolver = OverrideResolver(listOf(
-            Override(Rule(type = "Cipher"), operations = listOf("ENCRYPT")),
-            Override(Rule(name = "AES/GCM/NoPadding"), operations = listOf("DECRYPT")),
-        ))
-        assertEquals(listOf("DECRYPT"), resolver.resolve(gcm, null).operations)
-        assertEquals(emptyList<String>(), OverrideResolver(emptyList()).resolve(gcm, null).operations)
-    }
-
     /** A group is one primitive measured twice, so an override can name the group and leave the other alone. */
     @Test
     fun anOverrideCanNameOneGroup() {

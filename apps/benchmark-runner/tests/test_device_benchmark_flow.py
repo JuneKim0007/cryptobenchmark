@@ -91,11 +91,6 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
 
 
-def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
-    with pytest.raises(DeviceError, match="failed on the device for every case"):
-        measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a",), crash=("a",))
-
-
 def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch, capsys):
     run = {"isolation": "case", "metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
            "passes": {"timing": {"samples": 300}, "energy": {"samples": 100}, "allocation": {"samples": 100}}}

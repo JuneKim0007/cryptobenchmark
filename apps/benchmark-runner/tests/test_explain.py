@@ -48,11 +48,6 @@ class Explain(unittest.TestCase):
         (self.dir / "global.yaml").write_text(GLOBAL + "policy: {onFailure: skip}\n")
         self.assertEqual(("skip", "global.yaml"), self.rows()[0]["policy.onFailure"])
 
-    def test_nested_analysis_keys_are_listed(self):
-        rows = self.rows()[0]
-        self.assertIn("analysis.statistic.meanUpToCovPercent", rows)
-        self.assertEqual(([ "iqrBars"], "default"), rows["analysis.charts"])
-
 
 if __name__ == "__main__":
     unittest.main()

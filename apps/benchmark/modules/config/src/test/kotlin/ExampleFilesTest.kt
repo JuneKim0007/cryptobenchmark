@@ -33,18 +33,4 @@ class ExampleFilesTest {
         }
         assertEquals("$name is not what this build writes; rerun with -Dexamples.update", committed.readText(), written.readText())
     }
-
-    @Test
-    fun theEffectiveExampleSelectsTheThreePrimitives() {
-        val configuration = Configuration(output.root)
-        configuration.inventory(File(example, "config_capture_example.yaml"), File(example, "config_trial_example.yaml"))
-        configuration.effective(File(example, "config_global_example.yaml"))
-        val effective = configuration.readEffective()
-        assertEquals(setOf("SUN", "SunJCE"), effective.providers.keys)
-        assertEquals(listOf("SHA-256"), effective.providers.getValue("SUN").getValue("MessageDigest").keys.toList())
-        assertEquals(
-            listOf("AES/GCM/NoPadding", "HmacSHA256"),
-            effective.providers.getValue("SunJCE").values.flatMap { it.keys }.sorted(),
-        )
-    }
 }

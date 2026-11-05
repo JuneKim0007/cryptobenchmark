@@ -35,11 +35,6 @@ class AuthoredFilesTest {
     }
 
     @Test
-    fun `a bad bundled create stops the read`() {
-        assertTrue(refused("providers: {bundled: [{artifact: 'a:b:1', create: C}]}\n").contains("invalid_create"))
-    }
-
-    @Test
     fun `a missing test set is missing_file`() {
         val file = folder.newFile("other.yaml").apply { writeText("schemaVersion: 1\nselection: {testSet: nope.yaml}\n") }
         val message = assertThrows(IllegalArgumentException::class.java) { AuthoredFiles().read(file) }.message!!

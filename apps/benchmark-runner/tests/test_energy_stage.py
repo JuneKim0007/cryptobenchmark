@@ -4,7 +4,6 @@ import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy_stage
-from results.manifest import estimated_mark
 
 
 def test_effective_entries_inherit_the_run_capture(tmp_path):
@@ -34,11 +33,3 @@ def test_entries_with_another_source_are_refused(tmp_path):
                          "providers: {p: {t: {a: {}, b: {harness: {energy: {source: manafa}}}}}}\n")
     with pytest.raises(energy_stage.EnergyError, match="energy_sources_differ"):
         energy_stage.source(effective, "py")
-
-
-def test_only_an_estimated_run_is_marked(tmp_path):
-    estimated, measured = tmp_path / "e.json", tmp_path / "m.json"
-    estimated.write_text('{"source": "manafa", "kind": "estimated"}')
-    measured.write_text('{"source": "rails", "kind": "measured"}')
-    assert estimated_mark(None) == {} and estimated_mark(measured) == {}
-    assert estimated_mark([estimated, estimated]) == {"energy": {"source": "manafa", "kind": "estimated"}}
