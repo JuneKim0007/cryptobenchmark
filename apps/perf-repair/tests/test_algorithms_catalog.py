@@ -91,6 +91,8 @@ def _fact(name: str, **values):
     ("digest.none_catalogue.yaml", _fact("minSdk", value=True), "minSdk"),
     ("digest.none_catalogue.yaml", _fact("minSdk", source="unsourced"), "not a listed source"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e.update(colour="red")), "unknown \\['colour'\\]"),
+    # spellings live only in algorithm-names.yaml
+    ("digest.none_catalogue.yaml", _md5(lambda e: e.update(aliases=["MD-5"])), "unknown \\['aliases'\\]"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e.pop("providers")), "missing \\['providers'\\]"),
     ("digest.none_catalogue.yaml", _fact("strengthBits", value={"key": "rot13"}), "keyStrength map"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["sourcedOnly"].pop()), "type facts missing"),

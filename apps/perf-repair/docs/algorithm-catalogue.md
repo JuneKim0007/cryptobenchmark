@@ -4,7 +4,7 @@
 
 ## Entry
 
-Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `catalog/algorithm-names.yaml`. `catalog/groups.yaml` lists the same ids per family.
+Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `catalog/algorithm-names.yaml`. Spellings live only there, never in an entry. `catalog/groups.yaml` lists the same ids per family.
 
 | Field | Holds |
 |---|---|
@@ -16,7 +16,6 @@ Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `catalog/a
 | `sourcedOnly` | `{fact, value, source}`: `strengthBits` (bits, `{key}` or `{key, cap}` of a `keyStrength` map, null) and `minSdk` |
 | `providers` | `<provider>: {<path>: <value>}`: only what differs; a path walks mappings by key and lists by `name` or `fact` |
 | `provenance` | `{by: person}`, or `{by: agent, model, run, date}` |
-| `aliases` | optional spellings |
 
 - Every leaf's `source` is `measured`, `inferred` or a `common.yaml` source id; `strengthBits` may be `unsourced` and then null.
 - The type facts (`key`, `parameters`, `nonce`, `output`, `deterministic`, `authenticated`, `strengthBits`, `minSdk`) come whole or not at all; `catalog/types.py` reads them as the rows of [change-classes.md](change-classes.md) Type.
