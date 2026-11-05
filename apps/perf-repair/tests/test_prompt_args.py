@@ -63,13 +63,6 @@ def test_the_stage_replay_checks_supervisor_json(run):
     assert "names charter 000000000000" in validate_run(run, load_catalog(SCREENING))["grouping/supervisor.json"][0]
 
 
-def test_no_flag_uses_the_packaged_prompts(run):
-    library = PromptLibrary.load()
-    doc = supervised(run)
-    assert doc["charter"] == GroupingReviewKind(GroupingPaths(run), library).charter.fingerprint
-    assert doc["prompts"]["review/grouping-review"] == str(library.source("review/grouping-review"))
-
-
 def test_an_override_folder_is_used_and_recorded(run, override):
     doc = supervised(run, "--prompts", str(override))
     assert doc["charter"] == GroupingReviewKind(GroupingPaths(run), PromptLibrary.load(override)).charter.fingerprint

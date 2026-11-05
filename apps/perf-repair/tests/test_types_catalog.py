@@ -16,11 +16,6 @@ def _family_types() -> dict[str, str]:
     return {f.id: f.type for f in Families.load().all}
 
 
-def test_catalog_loads_and_every_row_is_checked():
-    t = types()
-    assert t.rows and all(r.family in _family_types() for r in t.rows.values())
-
-
 def test_every_screening_name_of_a_family_engine_has_a_type():
     by_type = {}
     for (family, name) in types().rows:

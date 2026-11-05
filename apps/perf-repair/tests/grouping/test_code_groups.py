@@ -1,6 +1,5 @@
 import json
 
-import pytest
 from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
@@ -16,8 +15,7 @@ from perfrepair.files import write_json
 from perfrepair.run_dir import built
 from perfrepair.grouping.interop_plan import write_plan
 from perfrepair.grouping.report.checks import report
-from perfrepair.validation import ValidationFailed
-from perfrepair.validation.grouping.output import read_groups, validate_output
+from perfrepair.validation.grouping.output import validate_output
 from perfrepair.validation.parse.grouping_assign import SLUG
 
 BROKEN = {3: "ALG-S/M1", 4: "ALG-S/M1", 6: "H1"}

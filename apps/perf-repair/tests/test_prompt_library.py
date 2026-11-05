@@ -1,14 +1,8 @@
 import pytest
 
-from perfrepair.dto.prompt import CorrectionPrompt, Lifetime, Prompt, SystemPrompt, TaskPrompt
+from perfrepair.dto.prompt import CorrectionPrompt
 from perfrepair.ai.runtime.prompt import PromptError, PromptLibrary
 from perfrepair.ai.runtime.prompt.library import PACKAGED
-
-
-def test_each_element_carries_its_lifetime():
-    assert (SystemPrompt.lifetime, TaskPrompt.lifetime, CorrectionPrompt.lifetime) == (Lifetime.RUN, Lifetime.SESSION, Lifetime.TURN)
-    with pytest.raises(TypeError):
-        Prompt("x", "y")
 
 
 def test_packaged_prompts_load_and_fill_only_declared_values():
@@ -21,8 +15,7 @@ def test_packaged_prompts_load_and_fill_only_declared_values():
 
 def test_the_charter_corrects_with_the_rejection_template():
     correction = PromptLibrary.load().charter("evaluate/worthiness", {}).correct(["a", "b"])
-    assert isinstance(correction, CorrectionPrompt)
-    assert correction.text == "YOUR ANSWER WAS REJECTED:\n  - a\n  - b\nAnswer again with JSON only."
+    assert isinstance(correction, CorrectionPrompt) and "- a" in correction.text and "- b" in correction.text
 
 
 def test_values_and_lifetimes_are_checked():

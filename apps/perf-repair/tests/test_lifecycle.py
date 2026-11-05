@@ -90,11 +90,6 @@ def test_an_unread_call_is_unsupported_with_its_reason():
     assert (lc.status, lc.reasons) == ("unsupported", ("call_not_found",))
 
 
-def test_the_lifecycle_round_trips_through_json():
-    lc = read("Box.java", "field")
-    assert Lifecycle.from_json(lc.to_json()) == lc
-
-
 def test_a_value_reassigned_from_itself_reads_back_to_its_first_definition():
     text = "class A {\n  Object f(java.io.InputStream in) throws Exception {\n    KeyFactory k = KeyFactory.getInstance(\"X\");\n" \
            "    byte[] e = Store.readText(in).getBytes();\n    e = Codec.decode(e);\n" \

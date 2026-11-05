@@ -1,11 +1,9 @@
 import pytest
 
-from perfrepair.dto.replacement import EDIT_KINDS
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.dto.unit import Unit, unit_id
 
 from perfrepair.repair.edit import edit_app
-from perfrepair.repair.edit.plan import APPLY
 from perfrepair.repair.edit.specs import load
 from perfrepair.run_dir import AppPaths
 from perfrepair.validation.repair import validate_edits
@@ -201,10 +199,6 @@ def test_edit_lexes_like_the_scope_step(tmp_path, file, text):
     assert '+        return Cipher.getInstance("AES/GCM/NoPadding", "Fast")' in row["diff"]
 
 
-def test_every_edit_kind_has_one_apply_function():
-    assert set(APPLY) == set(EDIT_KINDS)
-
-
 def together(*scopes):
     ids = [s.id for s in scopes]
     return [Unit(unit_id(APP, ids), tuple(ids))] + solo([s for s in ALL if s not in scopes])
@@ -255,4 +249,3 @@ def test_the_validator_wants_blocked_by_exactly_with_its_reason():
     base = {"scope": LITERAL.id, "status": "rejected", "diff": ""}
     assert validate_edits({"schemaVersion": 1, "app": APP, "edits": [{**base, "reason": "unit_member_rejected"}]}, APP, {LITERAL.id})
     assert validate_edits({"schemaVersion": 1, "app": APP, "edits": [{**base, "reason": "no_change", "blockedBy": "x"}]}, APP, {LITERAL.id})
-

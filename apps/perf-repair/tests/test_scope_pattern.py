@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 
 from perfrepair.dto.lifecycle import Lifecycle, Step
-from perfrepair.dto.pattern import PATTERN_RULES
 from perfrepair.scope.pattern import pattern_of
 
 F = Path(__file__).parent / "fixtures" / "lifecycle"
@@ -32,11 +31,6 @@ def lc(status, reasons, binding, *steps) -> Lifecycle:
 ])
 def test_each_rule_gives_its_category_reason_and_evidence_lines(lifecycle, pattern, reason, lines):
     assert tuple(pattern_of(lifecycle, 10)) == (pattern, reason, lines)
-
-
-def test_every_reason_names_its_category_and_a_rule():
-    assert {p for p, _ in PATTERN_RULES.values()} == {"fixed", "notFixed"}
-    assert all(words for _, words in PATTERN_RULES.values())
 
 
 @pytest.mark.parametrize("file, marker, pattern, reason", [

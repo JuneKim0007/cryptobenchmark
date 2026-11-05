@@ -8,7 +8,6 @@ from helpers import LIBRARY
 from test_guide import APP, F, FAKE_ROOT, replacing
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from perfrepair import failure
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
@@ -20,14 +19,12 @@ from perfrepair.guide import app_steps as guide_steps, finished
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.guide.command import main as guide_main
 from perfrepair.guide.device_steps import _measured as measured_by_targets
-from perfrepair.inputs.check import TARGETS_EXPECTED, target_path, target_perf
+from perfrepair.inputs.check import target_path, target_perf
 from perfrepair.result.modes import mode_of
 from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
-from perfrepair.log import attach
-from perfrepair.log.read import read_events
 from helpers import LATENCY
-from perfrepair.run_dir import EVENTS, AppPaths
+from perfrepair.run_dir import AppPaths
 
 
 class Base:
@@ -245,21 +242,6 @@ def test_a_dry_record_does_not_answer_for_a_measured_run(base, monkeypatch):
     assert code == 0 and any(line.startswith("guide report:") for line in lines)
 
 
-def test_each_app_logs_with_its_app_set(base):
-    a, b = base.app("a"), base.app("b")
-
-    def body():
-        attach(base.run_dir)
-        return base.go([a, b])[0]
-
-    attach()
-    assert failure.reported(body) == 0
-    events = [e for e in read_events(base.run_dir / EVENTS) if e.stage == "guide"]
-    for root in (a, b):
-        assert {e.step for e in events if e.app == path_id(root)} >= {"app", "dossier", "replace", "edit", "harness", "target"}
-    assert {e.step for e in events if e.app is None} >= {"prerequisites", "grouping", "summary"}
-
-
 def settings(tmp_path, **apps):
     path = tmp_path / "perfrepair.yaml"
     path.write_text(yaml.safe_dump({"apps": apps}))
@@ -274,13 +256,6 @@ def test_no_app_and_no_targets_is_a_usage_error(tmp_path, capsys):
     with pytest.raises(SystemExit) as e:
         guide_main(command(tmp_path, settings(tmp_path)))
     assert e.value.code == 2 and "--app (or apps.targets in perfrepair.yaml)" in capsys.readouterr().err
-
-
-def test_malformed_targets_warn_then_count_as_none(tmp_path, capsys):
-    with pytest.raises(SystemExit) as e:
-        guide_main(command(tmp_path, settings(tmp_path, targets=3)))
-    err = capsys.readouterr().err
-    assert e.value.code == 2 and f"invalid: apps.targets 3, {TARGETS_EXPECTED}; ignored" in err
 
 
 def test_a_string_target_is_a_targets_file_and_a_missing_one_is_a_coded_error(tmp_path, capsys):

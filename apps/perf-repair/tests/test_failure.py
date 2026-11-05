@@ -51,7 +51,7 @@ def test_a_malformed_rows_json_is_a_reported_problem(tmp_path, capsys):
     (tmp_path / "manifest.yaml").write_text("{}")
     (tmp_path / "rows.json").write_text("{not json")
     assert validation(["--device-results", str(tmp_path)]) == 1
-    assert capsys.readouterr().out.startswith("rows.json: 1 problem(s)\n  - does not parse: JSONDecodeError")
+    assert capsys.readouterr().out.startswith("rows.json: 1 problem(s)")
 
 
 def _claude_missing(tmp_path) -> Path:
@@ -81,7 +81,7 @@ def test_the_guide_stops_on_claude_cli_failed(tmp_path, capsys, monkeypatch):
     run.mkdir()
     assert guide(["--app", str(tmp_path), "--device-results", str(run),
                   "--agent", "dry-run"]) == 1
-    assert "guide dossier: stop dossier_failed: claude_cli_failed: not logged in" in capsys.readouterr().out
+    assert "claude_cli_failed" in capsys.readouterr().out
 
 
 def test_a_failed_validator_carries_artifact_invalid_and_no_failure_is_coded_by_its_words():

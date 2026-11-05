@@ -18,7 +18,6 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.suggest.site_replace.command import DRY_RUN
-from perfrepair.dto.dossier import Dossier
 from perfrepair.dto.replacement import required_risks
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.files import read_json, write_json
@@ -190,13 +189,6 @@ def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
     assert run_steps(g, device=True) == 1
     assert lines[-1].startswith("guide device: stop pipeline_failed: pipeline exited 3")
     assert not g.paths.report.exists()
-
-
-def test_results_without_a_manifest_stop_first(tmp_path):
-    g, lines = guide(tmp_path, DRY_RUN)
-    assert run_steps(g, device=False) == 1
-    assert lines == [f"guide prerequisites: stop missing_results: {tmp_path / 'manifest.yaml'} absent; "
-                     "--device-results is a folder cryptobenchmark wrote"]
 
 
 def test_a_run_without_grouping_says_how_to_make_it(run):

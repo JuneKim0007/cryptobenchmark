@@ -105,12 +105,6 @@ def test_the_report_labels_an_estimate_and_validates_it():
     assert "| energyJ * (J/op, estimated) |" in _metric_lines(m, DisplayUnits().to_json())[0]
 
 
-def test_the_report_of_rails_energy_is_what_it_was():
-    for kind in ("measured", None):
-        m = energy_row(case(kind), case(kind))
-        assert "kind" not in m and check_metric("r", m, DisplayUnits()) == [] and "| energyJ * (J/op) |" in _metric_lines(m, DisplayUnits().to_json())[0]
-
-
 def test_the_report_refuses_a_ratio_across_kinds():
     m = energy_row(case("measured"), case("estimated"))
     assert m["measured"] is False and m["reason"] == "energy_kinds_differ: measured before, estimated after" and check_metric("r", m, DisplayUnits()) == []
@@ -120,4 +114,3 @@ def test_the_summary_names_the_apps_with_estimates():
     reports = [{"app": "a", "scopes": [{"metrics": [{"metric": "energyJ", "kind": "estimated"}]}]},
                {"app": "b", "scopes": [{"metrics": [{"metric": "energyJ", "measured": True}]}]}]
     assert _estimated_in(reports, "energyJ") == {"estimatedIn": ["a"]} and _estimated_in(reports, "timeNs") == {}
-

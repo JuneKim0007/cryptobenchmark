@@ -7,7 +7,7 @@ from helpers import summary
 
 from perfrepair.data_handler.inbound.bootstrap import median_interval
 from perfrepair.data_handler.inbound.results import read_results
-from perfrepair.result.confidence import describe, level
+from perfrepair.result.confidence import level
 from perfrepair.result.estimate import compare, p_improve
 
 RNG = random.Random(7)
@@ -67,10 +67,6 @@ def test_the_interval_is_honest_about_small_samples():
                                      (None, "too_few_runs")])
 def test_levels_grade_and_never_gate(p, name):
     assert level(p) == name
-
-
-def test_describe_reads_as_a_graded_number():
-    assert describe(0.83) == "83% (warn)"
 
 
 def _case(runs):

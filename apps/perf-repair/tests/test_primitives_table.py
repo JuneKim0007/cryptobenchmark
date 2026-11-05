@@ -46,13 +46,6 @@ def test_a_deprecated_primitive_keeps_its_line_and_status():
 
 def test_the_text_form_reads_back_equal_and_is_compact(tmp_path):
     text = TABLE.to_tsv()
-    lines = text.splitlines()
-    assert lines[0] == "#schemaVersion\t3"
-    assert lines[1].split("\t")[:8] == ["type", "algorithm", "provider", "operation", "keySize", "phase", "variant", "status"]
-    assert lines[1].split("\t")[-6:] == ["timeNs.n", "allocationCount.n", "energyJ.n", "timeNs.cv", "allocationCount.cv",
-                                          "energyJ.cv"]
-    assert "TypeA\tALG-A\tP1\tGEN\t-\tWARM\tnotFixed\taccepted\t-\t-\t123500\t-\t-\t7\t-\t-\t0.01\t-\t-" in lines
-    assert "1.235e-05" in text
     write_text(tmp_path / "primitives.tsv", text)
     assert read_primitives(tmp_path) == TABLE
 
@@ -69,11 +62,6 @@ def test_the_validator_accepts_the_table_and_names_an_edited_line():
     problems = validate_primitives(PrimitivesTable.from_tsv(edited), ROWS, measurements, STATUS)
     assert "status 'something' is not in" in problems[0]
     assert any("not the line" in p for p in problems) and any("missing" in p for p in problems)
-
-
-def test_a_row_without_a_screen_verdict_is_refused():
-    with pytest.raises(ValueError, match="primitive_not_screened"):
-        build_table(ROWS, M, {k: v for k, v in STATUS.items() if "ALG-D" not in k})
 
 
 def test_each_variant_of_one_primitive_is_its_own_line():

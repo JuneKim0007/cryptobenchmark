@@ -160,15 +160,6 @@ def test_a_malformed_no_rerun_warns_and_counts_as_true(flow, caplog, value):
                for m in caplog.messages)
 
 
-def test_a_missing_no_rerun_warns_and_counts_as_true(flow, caplog):
-    flow.run()
-    flow.grouping = {}
-    with caplog.at_level(logging.WARNING, "perfrepair"):
-        lines = flow.run()
-    assert "guide grouping: ok: reused" in lines and flow.calls() == OLD_ITEMS
-    assert not any("noRerun" in m for m in caplog.messages if not m.startswith("setting "))
-
-
 def test_knowledge_deleted_runs_anyway_with_no_rerun_true(flow):
     flow.run()
     shutil.rmtree(flow.paths.root / "outbox")

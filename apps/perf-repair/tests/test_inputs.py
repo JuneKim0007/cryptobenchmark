@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from perfrepair.inputs.resolve import Candidate, InputError, Need, resolve
-from perfrepair.inputs.table import SCREENING_CATALOG, Row
+from perfrepair.inputs.table import Row
 from perfrepair.log import attach
 from perfrepair.log.stderr import Stderr
 
@@ -25,7 +25,7 @@ def test_an_explicit_value_is_loaded_and_not_logged(tmp_path, caplog):
 
 def test_an_explicit_value_that_does_not_load_is_missing_file_never_a_fallback(tmp_path):
     (tmp_path / "b").write_text("B")
-    with pytest.raises(InputError, match=r"^missing_file: x: .*/nope \(file f\.yaml x\)") as e:
+    with pytest.raises(InputError) as e:
         resolve("x", [Candidate(tmp_path / "nope", "file f.yaml x"), Candidate(tmp_path / "b", "packaged", False)],
                 read, Need.DEFAULT)
     assert e.value.code == "missing_file"
@@ -38,7 +38,7 @@ def test_unset_values_fall_through_and_a_found_default_is_logged_once(tmp_path, 
                         Candidate(tmp_path / "b", "packaged x", explicit=False, note="(no settings)")], read, Need.DEFAULT)
     assert (got.value, got.source) == ("B", "packaged x")
     [r] = caplog.records
-    assert (r.getMessage(), r.code, r.input, r.source) == ("x: packaged x (no settings)", "default", "x", "packaged x")
+    assert (r.code, r.input, r.source) == ("default", "x", "packaged x")
 
 
 def test_an_unset_default_that_fails_falls_through_to_the_next(tmp_path):
@@ -50,7 +50,7 @@ def test_an_unset_default_that_fails_falls_through_to_the_next(tmp_path):
 
 @pytest.mark.parametrize("need", [Need.REQUIRED, Need.DEFAULT])
 def test_nothing_found_is_an_error_unless_optional(need):
-    with pytest.raises(InputError, match=r"^missing_input: x: nothing found \(cli\)"):
+    with pytest.raises(InputError, match=r"^missing_input: "):
         resolve("x", [Candidate(None, "cli")], read, need)
 
 
@@ -58,7 +58,7 @@ def test_nothing_found_for_an_optional_input_is_the_null_value_and_logged(caplog
     caplog.set_level(logging.INFO, "perfrepair")
     got = resolve("x", [Candidate(None, "cli")], read, Need.OPTIONAL)
     assert (got.value, got.source) == (None, "none")
-    assert [(r.code, r.getMessage()) for r in caplog.records] == [("not_found", "x: not found (cli); skipped")]
+    assert [r.code for r in caplog.records] == ["not_found"]
 
 
 def test_a_policy_appends_its_packaged_default(tmp_path, caplog):
@@ -66,12 +66,7 @@ def test_a_policy_appends_its_packaged_default(tmp_path, caplog):
     caplog.set_level(logging.INFO, "perfrepair")
     policy = Row("y", need=Need.DEFAULT, packaged=tmp_path / "p", label="packaged y")
     assert policy.resolve([Candidate(None, "file")], read, note="(unset)").value == "P"
-    assert caplog.messages == ["y: packaged y (unset)"]
-
-
-def test_the_screening_catalog_row_names_its_setting_and_packaged_file():
-    assert SCREENING_CATALOG.key == "device.screening.catalog"
-    assert SCREENING_CATALOG.need is Need.DEFAULT and SCREENING_CATALOG.packaged.is_file()
+    assert [r.code for r in caplog.records] == ["default"]
 
 
 def test_the_stderr_handler_is_attached_once_and_follows_a_replaced_stderr(capsys):

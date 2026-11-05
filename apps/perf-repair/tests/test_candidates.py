@@ -10,7 +10,6 @@ from perfrepair.catalog.types import Types
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.dossier import Dossier, Estimate, Option
-from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.dto.types import Properties, Strength, TypeRow
 from perfrepair.dto.unit import Link, Stay, Unit, UnitDossiers, unit_id

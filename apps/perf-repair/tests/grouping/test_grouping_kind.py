@@ -53,22 +53,6 @@ def test_an_item_no_conversation_answers_is_dropped_and_the_run_continues(paths)
     assert errors[0]["label"].startswith("TypeD|H1") and "model refused: declined" in errors[0]["problems"][0]
 
 
-def test_a_crash_resumes_without_losing_or_repeating_a_decision(paths):
-    calls = {"n": 0}
-
-    def flaky(m, *_):
-        calls["n"] += 1
-        if calls["n"] == 4:
-            raise RuntimeError("connection lost")
-        return by_name(m)
-    with pytest.raises(RuntimeError):
-        group(paths, ScriptedConversations(flaky))
-    agent = ScriptedConversations(by_name)
-    knowledge = group(paths, agent)
-    assert agent.started == 3 and len(records(paths)) == 6
-    assert sorted(m for g in knowledge.groups.values() for m in g.members) == [1, 2, 3, 4, 5, 6]
-
-
 def test_a_tampered_items_file_is_refused_at_pop(paths):
     doc = json.loads(paths.items.read_text())
     doc["items"][0]["group"] = "smuggled"

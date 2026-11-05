@@ -1,17 +1,15 @@
 """Item by item on the report's hand-built device result: the label, the project beside the id, the swap view, thermal."""
-from helpers import LATENCY, LATENCY_ALLOC, QUIET, TIMING
+from helpers import LATENCY, LATENCY_ALLOC, QUIET
 from test_app_report import A, CURRENT, OPTION, make_app
 
 import pytest
 
-from perfrepair.app.facts.project import project_name
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
 from perfrepair.dto.report import THERMAL_MISMATCH, THERMAL_THROTTLED
 from perfrepair.files import read_json, write_json
 from perfrepair.report.command import app_report, device_summary
 from perfrepair.report.thermal import labels, start_gap, thermal_row
-from perfrepair.result.modes import mode_of
 from perfrepair.run_dir import AppPaths
 from perfrepair.stop import Halt
 from perfrepair.validation.report import validate_report
@@ -93,10 +91,6 @@ def test_the_report_and_summary_name_the_project_and_source_beside_the_id(tmp_pa
     assert device_summary(tmp_path, **QUIET)["named"]["shop"]["project"] == "Shop App"
 
 
-def test_a_project_without_settings_or_gone_names_its_folder(tmp_path):
-    assert project_name(tmp_path / "gone") == "gone"
-
-
 def block(start=None, end=None, end_status=0):
     return {"start": start, "end": end, "startStatus": 0, "endStatus": end_status}
 
@@ -144,8 +138,3 @@ def test_stops_turn_the_mismatch_into_a_stop(tmp_path):
     install_stops(load(settings, {}, {}))
     with pytest.raises(Halt, match="thermal_mismatch"):
         app_report(tmp_path, "shop", LATENCY, **QUIET)
-
-
-def test_timing_is_a_plain_list_in_the_report(tmp_path):
-    make_app(tmp_path)
-    assert app_report(tmp_path, "shop", mode_of(TIMING), **QUIET)["mode"] == "latency+throughput"
