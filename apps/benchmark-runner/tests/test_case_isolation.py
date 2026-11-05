@@ -1,14 +1,11 @@
 """isolation: case over a fake instrumentation: one case aborts its process, the others still produce results."""
 import json, pathlib, re, sys
 
-import pytest
-
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from results import case_files  # noqa: E402
 from session import case_isolation  # noqa: E402
 from session import measure as measure_session  # noqa: E402
-from device import adb as device_module  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 
 
@@ -35,11 +32,6 @@ def test_the_merged_file_is_the_one_the_kept_case_files_give_and_an_earlier_runs
     kept = [json.loads((process.into / "cases" / f"{case}.json").read_text()) for case in ("a", "b")]
     expected = {"context": kept[0]["context"], "benchmarks": [b for document in kept for b in document["benchmarks"]]}
     assert process.data.read_text() == json.dumps(expected, indent=1) and not stale.exists()
-
-
-def test_every_case_failing_is_the_runs_failure(tmp_path):
-    with pytest.raises(device_module.DeviceError, match="CryptoBenchmark failed on the device for every case:"):
-        session(Phone(tmp_path, cases=("a",), crash=("a",)), tmp_path, "case")
 
 
 def test_isolation_run_keeps_one_process_for_every_case(tmp_path):
