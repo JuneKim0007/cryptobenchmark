@@ -27,8 +27,8 @@ src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per e
 src/perfrepair/catalog/bundled-providers.yaml : data: per Gradle group:name an app ships, the provider it registers, create, alias, minSdk, notes, a known blocker, and its source
 src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: every row's forms, keys and source checked, every problem at once; a row's providers.bundled entry at the app's pinned version; whether an app's registration expression builds the row's provider
 src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
-src/perfrepair/catalog/screening.py : the screening reader: crypto, component, platform and future rules; every key canonical, statuses and sources checked; component match
-src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
+src/perfrepair/catalog/screening.py : the screening reader: crypto, component and platform rules; every key canonical, statuses and sources checked; component match
+src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk
 src/perfrepair/catalog/upgrades.py : reader of upgrades.yaml, checked whole: per family a broken canonical name, its accepted targets, each target's source; every name canonical with a type row, screened as said
 src/perfrepair/catalog/upgrades.yaml : the upgrade list, hand-curated and never seeded: broken name → accepted upgrade targets per family, source keys from screening.yaml
 src/perfrepair/child/__init__.py : docstring only

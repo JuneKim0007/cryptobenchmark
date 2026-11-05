@@ -2,7 +2,6 @@
 schemaVersion: 1
 sources:
   R2: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf
-  R3: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar3.ipd.pdf
   RFC6151: https://www.rfc-editor.org/rfc/rfc6151
   RFC6194: https://www.rfc-editor.org/rfc/rfc6194
   RFC7465: https://www.rfc-editor.org/rfc/rfc7465
@@ -263,60 +262,3 @@ crypto:
     X448: {status: accepted, reason: r2 Table 4 key agreement acceptable at >=112-bit strength; curve/group size not in name, source: R2}
   SecureRandom:
     SHA1PRNG: {status: accepted, reason: AndroidOpenSSL SHA1PRNG is what getInstanceStrong returns (Crypto provider removed API 28), source: APRNG}
-# SP 800-131A r3 is a draft: recorded for review, never enforced.
-future:
-  MessageDigest:
-    SHAKE128-256: {note: 'R3 Table 13: SHAKE acceptable as specified in approved applications', source: R3}
-    SHAKE256-512: {note: 'R3 Table 13: SHAKE acceptable as specified in approved applications', source: R3}
-    SHA-1: {note: 'R3: deprecated through 2030, disallowed after', source: R3}
-    SHA-224: {note: 'R3: deprecated through 2030', source: R3}
-    SHA-512/224: {note: 'R3: deprecated through 2030', source: R3}
-    SHA3-224: {note: 'R3: deprecated through 2030', source: R3}
-  Mac:
-    HmacSHA1: {note: 'R3: HMAC-SHA-1 deprecated through 2030', source: R3}
-    HmacSHA224: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    HmacSHA512/224: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    HmacSHA3-224: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-  Signature:
-    ML-DSA: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-DSA-44: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-DSA-65: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-DSA-87: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    HSS/LMS: {note: 'R3: parameter sets in SP 800-208 acceptable', source: R3}
-    SHA224withRSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA224withECDSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA224withDSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA224withRSA/PSS: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA224withDSAinP1363Format: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA224withECDSAinP1363Format: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA3-224withRSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA3-224withECDSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA3-224withDSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA3-224withDSAinP1363Format: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA3-224withECDSAinP1363Format: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA512/224withRSA: {note: 'R3: 224-bit hash deprecated through 2030', source: R3}
-    SHA256withDSA: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA384withDSA: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA512withDSA: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA3-256withDSA: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA3-384withDSA: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA3-512withDSA: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA256withDSAinP1363Format: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA384withDSAinP1363Format: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA512withDSAinP1363Format: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA3-256withDSAinP1363Format: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA3-384withDSAinP1363Format: {note: 'R3: DSA signature generation disallowed', source: R3}
-    SHA3-512withDSAinP1363Format: {note: 'R3: DSA signature generation disallowed', source: R3}
-  Cipher:
-    AES/ECB/NoPadding: {note: R3 (draft) makes it NIST-sourced, source: R3}
-    AES/ECB/PKCS5Padding: {note: R3 (draft) makes it NIST-sourced, source: R3}
-  KeyPairGenerator:
-    ML-DSA: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-DSA-44: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-DSA-65: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-DSA-87: {note: 'R3: parameter sets in FIPS 204 acceptable', source: R3}
-    ML-KEM: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
-    ML-KEM-512: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
-    ML-KEM-768: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
-    ML-KEM-1024: {note: 'R3: parameter sets of FIPS 203 acceptable for key establishment', source: R3}
-    DSA: {note: 'R3: DSA signature generation disallowed', source: R3}

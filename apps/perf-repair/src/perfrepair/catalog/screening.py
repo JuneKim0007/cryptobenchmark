@@ -37,12 +37,6 @@ class PlatformRule:
 
 
 @dataclass(frozen=True)
-class Note:
-    note: str
-    source: str
-
-
-@dataclass(frozen=True)
 class Components:
     bases: dict[str, Rule]
     modes: dict[str, Rule]
@@ -53,7 +47,6 @@ class Screening:
     crypto: dict[tuple[str, str], Rule]
     components: dict[str, Components]
     platform: dict[tuple[str, str, str], PlatformRule]
-    future: dict[tuple[str, str], Note]
     sources: dict[str, str]
 
     @classmethod
@@ -87,7 +80,7 @@ class _Reader:
     def screening(self) -> Screening:
         SCREENING_DOC.check(self.doc, self.path)
         self.sources = self.doc.get("sources") or {}
-        built = Screening(self._crypto(), self._components(), self._platform(), self._future(), self.sources)
+        built = Screening(self._crypto(), self._components(), self._platform(), self.sources)
         self._contradictions(built)
         if self.problems:
             raise ScreeningError("; ".join(self.problems))
@@ -117,10 +110,6 @@ class _Reader:
     def _crypto(self) -> dict[tuple[str, str], Rule]:
         return {self._key("crypto", t, n): self._rule(f"crypto {t} {n}", raw)
                 for t, rows in (self.doc.get("crypto") or {}).items() for n, raw in rows.items()}
-
-    def _future(self) -> dict[tuple[str, str], Note]:
-        return {self._key("future", t, n): Note(raw.get("note") or "", self._source(f"future {t} {n}", raw.get("source")))
-                for t, rows in (self.doc.get("future") or {}).items() for n, raw in rows.items()}
 
     def _components(self) -> dict[str, Components]:
         out = {}
