@@ -114,7 +114,7 @@ WORTHINESS = RoleRow("device.worthiness", 6500)
 APPS_TARGETS = Row("apps.targets", check_targets)
 APPS_PERF_MODE = Row("apps.perfMode", check_perf_mode, default=GENERIC)
 APPS_LIMIT = Row("apps.limit", check_positive)
-APPS_MEASURE = Row("apps.measure", check_bool, default=False)
+APPS_DEVICE = Row("apps.device", check_bool, default=False)
 # the highest change class the guide may apply; a bad value falls back to drop-in, the class that changes no contract
 APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent", REPLACE_BUDGET)

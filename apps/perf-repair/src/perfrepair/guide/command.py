@@ -28,7 +28,7 @@ from ..inputs.table import (
     APPS_AGENT,
     APPS_LIMIT,
     APPS_MAX_CHANGE,
-    APPS_MEASURE,
+    APPS_DEVICE,
     APPS_PERF_MODE,
     APPS_TARGETS,
     BUNDLED_FROM_APPS,
@@ -55,8 +55,8 @@ def parser() -> argparse.ArgumentParser:
                     help="the metrics the model is given: generic or all (every metric, overall judgement), or a comma list of latency, throughput, memAlloc, "
                          "energy; default: apps.perfMode, else generic")
     ap.add_argument("--device", action="store_true", default=None,
-                    help="also measure the harness on the attached phone (cryptobenchmark pipeline.py), then report; "
-                         "default: apps.measure")
+                    help="also compile and interop-check the harness on the attached phone (cryptobenchmark pipeline.py), then report; "
+                         "default: apps.device")
     ap.add_argument("--config", type=Path, help="global.yaml for the device stage and the device step; default: "
                                                 "pipeline.py's own lookup")
     ap.add_argument("--harness-config", type=Path, metavar="FILE",
@@ -90,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = load_settings(ap, a)
     # a flag outranks an entry's own perfMode as it outranks apps.perfMode
     a.perf_mode_named = a.perf_mode is not None
-    fill(settings, a, {"device": APPS_MEASURE, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE,
+    fill(settings, a, {"device": APPS_DEVICE, "limit": APPS_LIMIT, "perf_mode": APPS_PERF_MODE,
                          "max_change": APPS_MAX_CHANGE})
     missing, held = MissingList(), []
     try:

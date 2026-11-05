@@ -51,7 +51,7 @@ apps:                      # per app: the guide, `ai replace`
   targets: []              # without --app: [{root: dir}, {path: dir, perfMode: ...}, dir] or a file of that list (targets.example.yaml); relative to this file
   perfMode: generic        # generic or all (every metric, overall judgement) | a list of latency, throughput, memAlloc, energy (strict rule)
   limit:                   # scopes the guide asks the model about; empty = all
-  measure: false           # true: the guide also measures the harness on the attached phone
+  device: false            # true: the guide also compiles and interop-checks the harness on the attached phone
   maxChange: drop-in       # highest change class the guide may apply: drop-in | local-edit | migration; higher ones are reported
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`

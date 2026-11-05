@@ -1,7 +1,7 @@
 """After ScopedInterop: the device's verdicts into scoped-plan.yaml."""
 import yaml
 
-MEASURABLE = ("passed", "unchecked")
+CHECKED = ("passed", "unchecked")
 
 
 class ScopeResultError(Exception):
@@ -20,6 +20,6 @@ def merge(plan_path, interop_path):
         record["interop"]["result"] = verdict["interop"]
         if verdict.get("reason"):
             record["interop"]["reason"] = verdict["reason"]
-        record["status"] = "measured" if verdict["interop"] in MEASURABLE else verdict["interop"]
+        record["status"] = "checked" if verdict["interop"] in CHECKED else verdict["interop"]
     plan_path.write_text(yaml.safe_dump(plan, sort_keys=False))
     return plan

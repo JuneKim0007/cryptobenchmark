@@ -47,7 +47,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `several_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass --device-results or set device.id |
 | `no_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage, or point --results-root at a results root |
 | `not_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass a device folder cryptobenchmark wrote |
-| `measured_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
+| `scoped_plan_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
 | `dossier_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun with --refresh to ask the changed units again |
 | `schema_version` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the step that writes the file |
 | `device_busy` | `stop` | fixed: continuing would mix runs or devices | 1 | wait for the other run on the device folder to end |

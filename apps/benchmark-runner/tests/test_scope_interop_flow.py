@@ -30,7 +30,7 @@ def test_a_harness_run_writes_the_verdicts_into_the_plan_and_times_nothing(tmp_p
     files = harness.check_scopes(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, phone, tmp_path, scoped, plan)
     assert capture in pushed and phone.ran == [] and files["scopedPlan"] == plan
     record = yaml.safe_load(plan.read_text())["scopes"][0]
-    assert (record["status"], record["interop"]["result"]) == ("measured", "passed")
+    assert (record["status"], record["interop"]["result"]) == ("checked", "passed")
 
 
 def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monkeypatch, capsys):

@@ -8,7 +8,7 @@ import pytest
 
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
-from perfrepair.guide.app_steps import APP_DRY, APP_MEASURED
+from perfrepair.guide.app_steps import APP_DEVICE, APP_DRY
 from perfrepair.guide.device_steps import DEVICE_LEVEL
 from perfrepair.dto.event import FINDING
 from perfrepair.inputs.table import STOP_ROWS
@@ -76,7 +76,7 @@ def test_a_raised_code_is_carried_by_its_exception_type_never_only_by_its_words(
 
 
 def test_every_guide_step_has_its_failed_code():
-    steps = [name for name, _ in DEVICE_LEVEL + APP_DRY + APP_MEASURED] + ["summary"]
+    steps = [name for name, _ in DEVICE_LEVEL + APP_DRY + APP_DEVICE] + ["summary"]
     assert [s for s in steps if f"{s}_failed" not in CODES] == []
 
 

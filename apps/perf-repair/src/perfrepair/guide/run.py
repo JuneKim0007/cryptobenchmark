@@ -11,7 +11,7 @@ from ..log import attach, emit
 from ..log.emit import elapsed_ms
 from ..result.primitives import NotScreened
 from ..stop import CODES, Halt, code_of, halt_of
-from .app_steps import APP_DRY, APP_MEASURED
+from .app_steps import APP_DEVICE, APP_DRY
 from .state import Guide
 
 
@@ -64,7 +64,7 @@ def run_sequence(g: Guide, steps: tuple) -> Stopped | None:
 
 def run_app(g: Guide, device: bool) -> Stopped | None:
     """One app's steps; the device-level ones have run."""
-    stopped = run_sequence(g, APP_DRY + (APP_MEASURED if device else ()))
+    stopped = run_sequence(g, APP_DRY + (APP_DEVICE if device else ()))
     if not stopped and not device:
         g.echo(f"guide: dry run ends at the harness; measure with --device, or run "
                f"`python3 apps/benchmark-runner/pipeline.py --device --harness {g.paths.harness}`")

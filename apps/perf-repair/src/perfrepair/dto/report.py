@@ -20,7 +20,6 @@ DECISION_STATUSES = ("replace", "keep", "recommend", "not_run")
 EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")
 COMPILE_STATUSES = ("compiled", "primitive_only", "not_measurable", "skipped", "not_run")
 INTEROP_STATUSES = ("passed", "unchecked", "not_comparable", "interop_failed", "call_failed", "skipped", "not_run")
-MEASURABLE = ("passed", "unchecked")
 FUNNEL = ("sites", "scopes", "units", "withOptions", "recommend", "replace", "unitsReplace", "applied", "compiled", "interopPassed")
 
 

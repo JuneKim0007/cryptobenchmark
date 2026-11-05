@@ -12,7 +12,7 @@ from ..files import sha256_file, sha256_text
 from ..run_dir import MEASUREMENTS, ROWS, GroupingPaths
 from ..source.language import SOURCE_SUFFIXES
 from ..stop.halt import Coded
-from .app_steps import measured_config
+from .app_steps import device_config
 from .state import Guide
 
 PACKAGE = Path(__file__).resolve().parents[1]
@@ -50,19 +50,19 @@ def _tree_digest(g: Guide) -> str:
     return sha256_text("\n".join(f"{p.relative_to(g.app_root)} {sha256_file(p)}" for p in files))
 
 
-def inputs(g: Guide, measured: bool) -> dict:
+def inputs(g: Guide, device: bool) -> dict:
     return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "units": sha256_file(g.paths.units), **g.code_versions,
             "groups": sha256_file(GroupingPaths(g.device).groups),
             "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
             "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint,
-            "upgrade": upgrade_charter(g.library).fingerprint, "upgrades": sha256_file(UPGRADES), "perfMode": g.mode.name, "measured": measured,
-            "maxChange": g.max_change, **_measured_with(g, measured)}
+            "upgrade": upgrade_charter(g.library).fingerprint, "upgrades": sha256_file(UPGRADES), "perfMode": g.mode.name, "device": device,
+            "maxChange": g.max_change, **_device_config(g, device)}
 
 
-def _measured_with(g: Guide, measured: bool) -> dict:
-    """A measured app also ran on its harness config: another config is another measurement."""
-    if not measured:
+def _device_config(g: Guide, device: bool) -> dict:
+    """An app checked on the device also ran on its harness config: another config is another check."""
+    if not device:
         return {}
-    config = measured_config(g)
+    config = device_config(g)
     return {"benchmarkConfig": sha256_file(config) if config else None}
 

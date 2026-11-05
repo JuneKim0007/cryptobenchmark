@@ -27,7 +27,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 
 - The lower-level command under `apps/cli/facade.py` ([facade.md](../../../docs/facade.md)); it needs `pip install -e apps/perf-repair` or `PYTHONPATH=apps/perf-repair/src`.
 - `--max-change` defaults to `apps.maxChange` ([change-classes.md](change-classes.md)).
-- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.measure`, `--config` to `pipeline.py`'s lookup, `--harness-config` to `--config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
+- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.device`, `--config` to `pipeline.py`'s lookup, `--harness-config` to `--config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
 - `--refresh` asks again the replace decisions whose dossier changed, and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).
 - `--run-id` names the run record, unset a new timestamp; `--on-existing` is `overwrite`, `resume` or `skip` ([artifacts.md](artifacts.md#run-record)).
 - `--stop-after-device` ends after prerequisites: target detect, used set, benchmark, inbound; no model call. `--outcome FILE` writes `{device, run, exit, code}`; `--run-settings FILE` stores that JSON under `settings` in the record.
@@ -79,7 +79,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 - `brokenUses`: `counts` per status and `rows`, each broken use and what it became ([upgrade.md](upgrade.md)), a section of report.md; summed in summary.json `brokenUses`.
 - One row per scope stays; `funnel` adds `units` (all of them) and `unitsReplace` (those replaced).
 - `funnel`: sites → scopes → units → withOptions → replace → unitsReplace → applied → compiled → interopPassed.
-- A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.
+- A scoped-plan.yaml whose scopes are not harness.yaml's is `scoped_plan_mismatch`.
 - report.json names the app's project (Gradle `rootProject.name`, else its folder) and source path beside its id; a row carries the scope's `pattern` and `patternReason` and the model's `deciding` and `accepted`.
 - summary.json: `modes` and `named` per app, the funnel summed and per app, `patterns` (`all` and `byApp`: `fixed`, `notFixed`, `unknownDefault` counts).
 

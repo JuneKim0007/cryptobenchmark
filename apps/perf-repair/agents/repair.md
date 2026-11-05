@@ -63,8 +63,8 @@ src/perfrepair/repair/setup_calls.yaml : member calls that only configure a prim
 src/perfrepair/report/__main__.py : command: `app --device-results --app [--perf-mode]` | `summary --device-results`
 src/perfrepair/report/app_report.py : an app's step files → report.json: a row per scope with its unit and the members that stayed, the funnel
 src/perfrepair/report/command.py : stage: report.json and .md, summary.json and .md, validated before writing
+src/perfrepair/report/device_check.py : cryptobenchmark's scoped-plan.yaml for one app: compile and interop per scope; refuses a plan of another harness
 src/perfrepair/report/markdown.py : report.md and summary.md from their documents; each row's steps and pattern; the summary's funnel and categories table
-src/perfrepair/report/measured.py : cryptobenchmark's scoped-plan.yaml for one app: compile and interop per scope; refuses a plan of another harness
 src/perfrepair/report/recommendations.py : dossiers.json's notOffered → recommendations above maxChange, never applied, and reject counts; their sum for the summary
 src/perfrepair/report/scope_row.py : one scope's pattern, decision, edit, compile, interop and the chosen option's primitive estimates
 src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, modes, pattern counts, broken uses, candidates not offered

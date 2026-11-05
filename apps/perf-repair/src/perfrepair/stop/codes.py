@@ -85,7 +85,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("several_device_results", PICK_DEVICE, MIXES),
     _fixed("no_device_results", "run the device stage, or point --results-root at a results root", MIXES),
     _fixed("not_device_results", "pass a device folder cryptobenchmark wrote", MIXES),
-    _fixed("measured_mismatch", "rerun the app's device step", MIXES),
+    _fixed("scoped_plan_mismatch", "rerun the app's device step", MIXES),
     _fixed("dossier_changed", "rerun with --refresh to ask the changed units again", MIXES),
     _fixed("schema_version", "rerun the step that writes the file", MIXES),
     _fixed("device_busy", "wait for the other run on the device folder to end", MIXES),

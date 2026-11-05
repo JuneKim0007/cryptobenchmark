@@ -27,7 +27,7 @@ def test_failed_interop_is_recorded_and_left_out(tmp_path):
                                      '"bbbbbbbbbbbb": {interop: interop_failed, check: same_output, reason: "outputs_differ: x"}\n')
     scope_results.merge(plan, verdicts)
     statuses = {s["id"]: s["status"] for s in yaml.safe_load(plan.read_text())["scopes"]}
-    assert statuses == {"aaaaaaaaaaaa": "measured", "bbbbbbbbbbbb": "interop_failed", "cccccccccccc": "not_compilable"}
+    assert statuses == {"aaaaaaaaaaaa": "checked", "bbbbbbbbbbbb": "interop_failed", "cccccccccccc": "not_compilable"}
 
 
 def test_a_compiled_scope_without_a_verdict_fails(tmp_path):
@@ -42,4 +42,4 @@ def test_an_identity_only_output_is_not_measured_and_a_randomized_one_is_uncheck
     scope_results.merge(plan, verdicts)
     scopes = {s["id"]: s for s in yaml.safe_load(plan.read_text())["scopes"]}
     assert scopes["aaaaaaaaaaaa"]["status"] == "not_comparable"
-    assert (scopes["bbbbbbbbbbbb"]["status"], scopes["bbbbbbbbbbbb"]["interop"]["result"]) == ("measured", "unchecked")
+    assert (scopes["bbbbbbbbbbbb"]["status"], scopes["bbbbbbbbbbbb"]["interop"]["result"]) == ("checked", "unchecked")

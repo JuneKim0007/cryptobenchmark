@@ -92,7 +92,7 @@ Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), 
 | `same_output` | a function with a value | two calls of before agree and after equals before |
 | `none` | void or `Unit` | never checked |
 
-| verdict | plan status `measured` | when |
+| verdict | plan status `checked` | when |
 |---|---|---|
 | `passed` | yes | the check passed |
 | `unchecked` | yes | `none`, `no_output`, or `nondeterministic_output` (a randomized primitive with no partner) |
@@ -114,5 +114,5 @@ Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), 
 |---|---|
 | `not_measurable` | `notMeasurable` in `harness.yaml` (`no_operation`): recorded with `reason`, never generated |
 | `compiled` | generated; replaced after the device run |
-| `measured` | interop `passed` or `unchecked`; the name perf-repair reads, nothing is timed |
+| `checked` | interop `passed` or `unchecked` |
 | `not_compilable`, `not_comparable`, `interop_failed`, `call_failed` | excluded with `reason` |

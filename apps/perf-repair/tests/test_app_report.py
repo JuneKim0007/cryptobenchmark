@@ -121,7 +121,7 @@ def test_without_a_device_run_nothing_is_checked(tmp_path):
 
 def test_a_plan_of_another_harness_is_refused(tmp_path, app):
     write_text(app.harness, yaml.safe_dump({"scopes": [{"id": A}]}))
-    with pytest.raises(ValueError, match="measured_mismatch"):
+    with pytest.raises(ValueError, match="scoped_plan_mismatch"):
         app_report(tmp_path, "shop", LATENCY, **QUIET)
 
 

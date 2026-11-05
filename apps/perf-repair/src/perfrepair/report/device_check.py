@@ -9,17 +9,17 @@ from ..stop.halt import Coded
 
 
 @dataclass(frozen=True)
-class Measured:
+class DeviceCheck:
     """`absent` says why there is no plan."""
     absent: str | None
     plan: dict[str, dict] = field(default_factory=dict)
 
 
-def read_measured(paths: AppPaths, harness_ids: list[str]) -> Measured:
+def read_device_check(paths: AppPaths, harness_ids: list[str]) -> DeviceCheck:
     if not paths.scoped_plan.is_file():
-        return Measured(f"no_device_run: {paths.scoped_plan.relative_to(paths.root)} absent")
+        return DeviceCheck(f"no_device_run: {paths.scoped_plan.relative_to(paths.root)} absent")
     plan = {r["id"]: r for r in read_yaml(paths.scoped_plan).get("scopes") or []}
     if sorted(plan) != sorted(harness_ids):
-        raise Coded(f"measured_mismatch: {paths.scoped_plan} lists scopes {sorted(plan)}, "
+        raise Coded(f"scoped_plan_mismatch: {paths.scoped_plan} lists scopes {sorted(plan)}, "
                          f"harness.yaml lists {sorted(harness_ids)}; rerun the device step on this harness")
-    return Measured(None, plan)
+    return DeviceCheck(None, plan)

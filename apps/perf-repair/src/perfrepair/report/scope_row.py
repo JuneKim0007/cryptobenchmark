@@ -1,19 +1,18 @@
 """One scope's report row: each step's status and reason, joined by scope id."""
 from __future__ import annotations
 
-from ..dto.report import MEASURABLE
-from .measured import Measured
+from .device_check import DeviceCheck
 
 
 def _step(status: str, reason: str | None = None, **extra) -> dict:
     return {"status": status, "reason": reason, **extra}
 
 
-def _compile(record: dict | None, measured: Measured, applied: bool) -> dict:
+def _compile(record: dict | None, check: DeviceCheck, applied: bool) -> dict:
     if not applied:
         return _step("skipped", "no applied edit")
-    if measured.absent:
-        return _step("not_run", measured.absent)
+    if check.absent:
+        return _step("not_run", check.absent)
     if record["status"] == "not_measurable":
         return _step("not_measurable", record.get("reason"))
     if record["status"] == "not_compilable":
@@ -30,8 +29,7 @@ def _interop(record: dict | None, compiled: dict) -> dict:
     result = (record.get("interop") or {}).get("result")
     if result is None:
         return _step("not_run", "no_verdict: the device run ended before the interop check", check=check)
-    status = result if result in MEASURABLE else record["status"]
-    return _step(status, (record.get("interop") or {}).get("reason"), check=check)
+    return _step(result, (record.get("interop") or {}).get("reason"), check=check)
 
 
 def _decision(replacement: dict | None, source: str | None, stale: bool) -> dict:
@@ -52,13 +50,13 @@ def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
 
 
 def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, source: str | None, edit: dict | None,
-              has_edits: bool, measured: Measured, inputs: dict | None, stale: bool = False) -> dict:
+              has_edits: bool, check: DeviceCheck, inputs: dict | None, stale: bool = False) -> dict:
     """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness.
     `stale`: the decision was made on an earlier dossier."""
     decision = _decision(replacement, source, stale)
     edited = _edit(edit, decision, has_edits)
-    record = measured.plan.get(scope["id"])
-    compiled = _compile(record, measured, edited["status"] == "applied")
+    record = check.plan.get(scope["id"])
+    compiled = _compile(record, check, edited["status"] == "applied")
     option = replacement["option"] if replacement else None
     primitive = next((o["estimates"] for o in (dossier or {}).get("options") or [] if o["item"] == option), [])
     return {"scope": scope["id"], "file": scope["file"], "line": scope["line"], "function": scope["function"],

@@ -10,7 +10,7 @@ from ..result.modes import Mode
 from ..app.facts.project import project_name
 from ..run_dir import AppPaths, load_upgrades, read_scopes, read_sites
 from ..stop.halt import Coded
-from .measured import read_measured
+from .device_check import read_device_check
 from .recommendations import recommendations
 from .scope_row import scope_row
 
@@ -72,9 +72,9 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     edits = {e["scope"]: e for e in (edits_doc or {}).get("edits") or []}
     harness = _optional(paths.harness, read_yaml) or {}
     inputs = {s["id"]: s.get("inputs") for s in harness.get("scopes") or []}
-    measured = read_measured(paths, list(inputs))
+    check = read_device_check(paths, list(inputs))
     rows = _with_units([scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
-                                  edits.get(s["id"]), edits_doc is not None, measured, inputs.get(s["id"]), s["id"] in stale)
+                                  edits.get(s["id"]), edits_doc is not None, check, inputs.get(s["id"]), s["id"] in stale)
                         for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))], of_unit)
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, **_named(paths), "mode": mode.name,
             "funnel": funnel(len(sites), rows, len(dossiers)), **recommendations(dossiers_doc), BROKEN_USES: _broken_uses(upgrades, scopes),

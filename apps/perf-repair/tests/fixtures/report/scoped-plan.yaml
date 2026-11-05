@@ -10,7 +10,7 @@ scopes:
   option: Cipher|AES/GCM/NoPadding|Fast
   inputs: {inputSize: 1024, keySize: 128}
   metrics: [timeNs, allocationCount, energyJ]
-  status: measured
+  status: checked
   interop: {check: same_output, result: passed}
   cases: ['scope:a00000000001:before', 'scope:a00000000001:after']
 - id: b00000000002

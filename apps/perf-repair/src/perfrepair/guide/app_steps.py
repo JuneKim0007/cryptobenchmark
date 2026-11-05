@@ -96,13 +96,13 @@ def harness(g: Guide) -> str:
     return str(g.paths.harness)
 
 
-def measured_config(g: Guide) -> Path | None:
+def device_config(g: Guide) -> Path | None:
     """The global.yaml the app's device step runs with; None: pipeline.py's own lookup."""
     return harness_config(g.device, g.app_config, g.paths.root) or g.config or g.base_config
 
 
 def device(g: Guide) -> str:
-    config = measured_config(g)
+    config = device_config(g)
     return str(run_pipeline(config, None, "device", harness=g.paths.harness, echo=g.echo, app=g.app_id, device=g.device))
 
 
@@ -112,4 +112,4 @@ def report(g: Guide) -> str:
 
 
 APP_DRY = (("app", app), ("dossier", dossiers), ("upgrade", upgrades), ("replace", replacements), ("edit", edits), ("harness", harness))
-APP_MEASURED = (("device", device), ("report", report))
+APP_DEVICE = (("device", device), ("report", report))

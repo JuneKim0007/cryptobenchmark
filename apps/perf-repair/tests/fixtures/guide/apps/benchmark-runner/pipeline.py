@@ -23,7 +23,7 @@ measured = pathlib.Path(options.harness).resolve().parent / "measured"
 scoped = measured / "scoped"
 scoped.mkdir(parents=True, exist_ok=True)
 records = [{"id": s["id"], "function": s["function"], "language": s["language"], "current": s["current"],
-            "option": s["option"], "inputs": s["inputs"], "status": "measured",
+            "option": s["option"], "inputs": s["inputs"], "status": "checked",
             "interop": {"check": "same_output", "result": "passed"}} for s in harness["scopes"]]
 (scoped / "scoped-plan.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "app": harness["app"], "scopes": records}))
 (measured / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")

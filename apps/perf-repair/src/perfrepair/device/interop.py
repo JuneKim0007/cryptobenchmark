@@ -44,7 +44,7 @@ def unreachable(folder: Path, on_device: bool) -> str | None:
     """Why this run cannot run the oracle on the folder's target; None when it can."""
     manifest, _ = read_manifest(folder / rd.MANIFEST)
     if manifest.mode == DEVICE_MODE and not on_device:
-        return "a device folder's pairs need --device or apps.measure"
+        return "a device folder's pairs need --device or apps.device"
     return None if Path(manifest.config).is_file() else f"the config the benchmark ran with is gone: {manifest.config}"
 
 
