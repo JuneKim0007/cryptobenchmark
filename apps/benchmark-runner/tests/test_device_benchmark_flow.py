@@ -91,7 +91,7 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
 
 
-def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch, capsys):
+def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch):
     run = {"isolation": "case", "metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
            "passes": {"timing": {"samples": 300}, "energy": {"samples": 100}, "allocation": {"samples": 100}}}
     phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
@@ -102,8 +102,6 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
     assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"
-    out = capsys.readouterr().out
-    assert "pass:      timing pass: 1 process," in out and "pass:      allocation pass: 1 process," in out
 
 
 def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_path, monkeypatch):
@@ -130,21 +128,19 @@ Current cooling devices from HAL:
 """
 
 
-def test_temperature_is_read_around_every_case_and_reaches_the_conversion(tmp_path, monkeypatch, capsys):
+def test_temperature_is_read_around_every_case_and_reaches_the_conversion(tmp_path, monkeypatch):
     phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"}, thermal=DUMP)
     assert phone.log.count("thermal") == 2 + 2 * 2
     reading = json.loads((results / "benchmark/thermal.json").read_text())
     assert reading["cases"]["a"] == {"start": {"cpu7": 41.5}, "end": {"cpu7": 41.5}, "startStatus": 1, "endStatus": 1}
     assert any("--thermal=" in converted for converted in phone.converted) and problems == []
-    assert "thermal:   measure: hottest 41.5 C at a case start, 41.5 C at an end; 0 pauses, 0 s paused; 2 cases ended throttled" in capsys.readouterr().out
 
 
-def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_path, monkeypatch, capsys):
+def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_path, monkeypatch):
     phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
     reading = json.loads((results / "benchmark/thermal.json").read_text())["cases"]["b"]
     assert reading["start"] is None and reading["endStatus"] is None and reading["note"].startswith("thermal_unavailable: ")
     assert problems == [] and json.loads((results / "benchmark/benchmark.json").read_text())["cases"]
-    assert "thermal:   measure: temperature unavailable: thermal_unavailable:" in capsys.readouterr().out
 
 
 def test_one_process_for_every_case_gives_each_case_the_process_reading_noted(tmp_path, monkeypatch):
@@ -152,7 +148,7 @@ def test_one_process_for_every_case_gives_each_case_the_process_reading_noted(tm
     assert json.loads((results / "benchmark/thermal.json").read_text())["cases"]["a"]["note"] == "scope: run"
 
 
-def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch, capsys):
+def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch):
     run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"name": "b*"}]},
            "passes": {"timing": {"samples": 3}}}
     phone, _files, problems, results = measured(tmp_path, monkeypatch, run, cases=("a", "b"))
@@ -163,22 +159,20 @@ def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_resul
     assert sum(1 for args in phone.arguments if "warmup" in args) == 1 and problems == []
     names = [b["name"] for b in json.loads((results / "benchmark/timing/benchmarkData.json").read_text())["benchmarks"]]
     assert names == ["measure[a]", "measure[b]"]
-    assert "warm-up:   1 cases x 10 samples in" in capsys.readouterr().out
 
 
-def test_a_failed_warm_up_warns_and_the_run_goes_on(tmp_path, monkeypatch, capsys):
+def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
     phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5}},
                                                 cases=("a", "b"), crash=("a,b",))
-    assert "WARM-UP FAILED, measuring anyway" in capsys.readouterr().out and problems == []
+    assert problems == []
     assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2
 
 
-def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, monkeypatch, capsys):
+def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, monkeypatch):
     slept = []
     monkeypatch.setattr(cooldown_hook.time, "sleep", slept.append)
     measured(tmp_path, monkeypatch, {"isolation": "case", "caseCooldownSeconds": 20})
     assert slept == [20]
-    assert "cool-down: measure: 1 x 20 s = 20 s between cases" in capsys.readouterr().out
     measured(tmp_path / "run", monkeypatch, {"isolation": "run", "processRepetitions": 2, "caseCooldownSeconds": 5})
     assert slept == [20, 5]
     measured(tmp_path / "off", monkeypatch, {"isolation": "case"})

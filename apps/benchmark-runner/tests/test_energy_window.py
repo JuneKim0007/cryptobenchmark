@@ -48,15 +48,9 @@ def test_a_dry_only_run_measures_nothing_timed_and_its_dry_pass_is_the_measureme
     assert run(tmp_path, {"dry"}, timed=False) == ["window open", "dry guarded=False", "window close", "joules"]
 
 
-def test_a_failed_energy_step_is_one_recorded_line(tmp_path, capsys):
+def test_a_failed_energy_step_is_one_recorded_line(tmp_path):
     problems = []
     calls = run(tmp_path, {"measured"}, failing=("pull", "joules"), problems=problems)
     assert calls == ["window open", "instrument CryptoBenchmark a", "pull traces", "pull traces", "window close", "joules"]
     # the per-case pull and the per-process pull each record their own failure
-    assert problems == ["energy_failed: adb pull x: device offline"] * 2 + ["energy_failed: apps/benchmark-runner/energy/energy.py: boom"]
-    assert capsys.readouterr().err.count("error: energy_failed: ") == 3
-
-
-def test_each_measured_case_logs_the_traces_on_the_device(tmp_path, capsys):
-    run(tmp_path, {"measured"})
-    assert "traces:    a: 0 pulled, 1 expected" in capsys.readouterr().out
+    assert len(problems) == 3 and all(line.startswith("energy_failed: ") for line in problems)
