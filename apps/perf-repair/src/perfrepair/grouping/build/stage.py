@@ -32,7 +32,7 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
         paths, items, verdicts, names = _build(manifest_path, run, catalog, reviewer, families, echo)
         conflicts = alias_conflicts(names)
         for alias, why in conflicts:
-            terminate("alias_conflict", f"{alias}: {why}", stage="grouping", step="build", item=alias)
+            terminate("alias_conflict", why, stage="grouping", step="build", item=alias)
         s.count(items=len(items), verdicts=len(verdicts), aliasConflicts=len(conflicts),
                 codeGrouped=sum(1 for v in verdicts.values() if v.status in CODE_GROUPED),
                 catalogGrouped=sum(1 for i in items if identified(i, verdicts)

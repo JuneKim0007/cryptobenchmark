@@ -171,7 +171,7 @@ CODES_LIST: tuple[Code, ...] = (
     # notices: warned, never a choice
     _fixed("unknown_key", "remove the key, or fix its spelling", NOTICE, action=WARN),
     _fixed("mixed_agents", "nothing; the records name each gateway", NOTICE, action=WARN),
-    _fixed("alias_conflict", "nothing; the item is asked; settle the alias in algorithm-names.yaml to place it", NOTICE,
+    _fixed("alias_conflict", "nothing; a name so spelt is asked; settle the alias in algorithm-names.yaml to place it", NOTICE,
            action=WARN),
     _fixed("perf_mode_extra", "drop the measurement from the run config to save device time", NOTICE, action=WARN),
     _fixed("append_repaired", "nothing; the partial line stays and readers skip it", NOTICE, action=WARN),
