@@ -85,7 +85,7 @@ def _model_step(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args
     # the spawn's errors come before the report's work
     supervisor = spawn(args, settings, review_cmd.DRY_RUN) if args.supervisor else None
     document = report(paths)
-    print(f"{len(document['groups'])} groups, {len(document['dropped'])} dropped -> {paths.groups}")
+    print(f"{len(document['groups'])} contract rows, {len(document['dropped'])} dropped -> {paths.groups}")
     if supervisor:
         review_cmd.review(paths, supervisor, library)
 
