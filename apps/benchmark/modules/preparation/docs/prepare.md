@@ -73,7 +73,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 | KeyAgreement | AGREE_KEY |
 | any other | TYPE_DEFAULT |
 
-Type names match case-insensitively. `with(type, operations)` returns a new registry.
+Type names match case-insensitively.
 
 ## Resolution
 

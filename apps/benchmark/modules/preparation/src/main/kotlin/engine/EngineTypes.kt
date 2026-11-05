@@ -11,9 +11,6 @@ class EngineTypes private constructor(
 
     fun operationsOf(type: String): List<Operation> = types[EngineTypeName.fold(type)] ?: fallback
 
-    fun with(type: String, operations: List<Operation>): EngineTypes =
-        EngineTypes(types + (EngineTypeName.fold(type) to operations), fallback)
-
     companion object {
 
         // perf-repair reads the same file to know which used items the harness cannot time
