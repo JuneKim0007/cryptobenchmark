@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
 import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
-import io.github.junekim0007.cryptobench.discovery.contract.AliasEntry
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
@@ -41,18 +40,11 @@ class ProviderProbe {
             )
         }.sortedWith(compareBy({ it.type }, { it.algorithm }))
 
-        val present = services.mapTo(HashSet()) { ServiceKey(it.type, it.algorithm) }
-
         return ProviderEntry(
             name = provider.name,
             precedence = precedence,
             version = index.version,
-            info = provider.info ?: "",
             services = services,
-            unresolvedAliases = index.aliases
-                .filterNot { it.targetKey in present }
-                .map { AliasEntry(it.type, it.name, it.target) }
-                .sortedWith(compareBy({ it.type }, { it.name })),
             origin = if (artifact == null) ProviderOrigin.PLATFORM else ProviderOrigin.BUNDLED,
             artifact = artifact.orEmpty(),
         )

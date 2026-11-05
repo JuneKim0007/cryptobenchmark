@@ -27,7 +27,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProv
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/InstalledProvider.kt : registered name and artifact of one installed provider
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/AliasEntry.kt : unresolved alias record
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/DefaultRunOutcome.kt : one default-run result
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record with origin and artifact

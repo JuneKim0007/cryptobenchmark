@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
-import io.github.junekim0007.cryptobench.discovery.contract.AliasEntry
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
@@ -39,20 +38,15 @@ object CaptureDocument {
     private const val NAME = "name"
     private const val VERSION = "version"
     private const val PRECEDENCE = "precedence"
-    private const val INFO = "info"
-    private const val USABLE = "usable"
     internal const val ORIGIN = "origin"
     private const val ARTIFACT = "artifact"
     private const val SERVICES = "services"
-    private const val UNRESOLVED_ALIASES = "unresolvedAliases"
 
     private const val TYPE = "type"
     private const val ALGORITHM = "algorithm"
     private const val CLASS_NAME = "className"
     private const val ALIASES = "aliases"
     private const val ATTRIBUTES = "attributes"
-    private const val ALIAS = "alias"
-    private const val TARGET = "target"
 
     fun of(environment: CapturedEnvironment): Map<String, Any> = linkedMapOf(
         SCHEMA_VERSION to environment.schemaVersion,
@@ -110,17 +104,10 @@ object CaptureDocument {
             VERSION to provider.version,
             PRECEDENCE to provider.precedence,
             ORIGIN to provider.origin.key,
-            INFO to provider.info,
-            USABLE to provider.usable,
             SERVICES to provider.services.map { serviceDocument(it) },
         )
         if (provider.artifact.isNotEmpty()) {
             document[ARTIFACT] = provider.artifact
-        }
-        if (provider.unresolvedAliases.isNotEmpty()) {
-            document[UNRESOLVED_ALIASES] = provider.unresolvedAliases.map { alias ->
-                linkedMapOf(TYPE to alias.type, ALIAS to alias.name, TARGET to alias.target)
-            }
         }
         return document
     }
@@ -129,17 +116,9 @@ object CaptureDocument {
         name = string(document, NAME),
         precedence = number(document, PRECEDENCE).toInt(),
         version = string(document, VERSION),
-        info = string(document, INFO),
         services = sections(document, SERVICES).map { serviceEntry(it) },
-        unresolvedAliases = optionalSections(document, UNRESOLVED_ALIASES).map { aliasEntry(it) },
         origin = ProviderOrigin.of(string(document, ORIGIN)),
         artifact = optionalString(document, ARTIFACT),
-    )
-
-    private fun aliasEntry(document: Map<String, Any>): AliasEntry = AliasEntry(
-        type = string(document, TYPE),
-        name = string(document, ALIAS),
-        target = string(document, TARGET),
     )
 
     private fun serviceDocument(service: ServiceEntry): Map<String, Any> {

@@ -85,7 +85,7 @@ probe, trial = yaml.safe_load(probe_path.read_text()), yaml.safe_load(trial_path
 for n, entry in enumerate(shipped):
     name = entry.get("alias") or entry["create"]
     services = [{"type": t, "algorithm": a, "className": f"{name}.{i}"} for i, (t, a) in enumerate(ADDED)]
-    probe["providers"].append({"name": name, "version": "1", "precedence": 3 + n, "origin": "bundled", "usable": True,
+    probe["providers"].append({"name": name, "version": "1", "precedence": 3 + n, "origin": "bundled",
                                "artifact": entry["artifact"],
                                "services": services})
     trial["services"] += [{"provider": name, "type": t, "algorithm": a, "instantiates": True,

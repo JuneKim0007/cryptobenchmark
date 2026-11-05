@@ -24,8 +24,6 @@ providers:
   version: '17'
   precedence: 1
   origin: platform
-  info: SUN (SHA-2 digests; SecureRandom; X.509 certificates)
-  usable: true
   services:
   - type: MessageDigest
     algorithm: SHA-256
@@ -44,8 +42,6 @@ providers:
   version: '17'
   precedence: 2
   origin: platform
-  info: SunJCE (AES, HmacSHA256)
-  usable: true
   services:
   - type: Cipher
     algorithm: AES

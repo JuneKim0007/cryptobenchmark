@@ -23,8 +23,6 @@ providers:
 - name: SUN
   version: '17'
   precedence: 1
-  info: SUN (SHA-2 digests; SecureRandom; X.509 certificates)
-  usable: true
   services:
   - type: MessageDigest
     algorithm: SHA-256
@@ -42,8 +40,6 @@ providers:
 - name: SunJCE
   version: '17'
   precedence: 2
-  info: SunJCE (AES, HmacSHA256)
-  usable: true
   services:
   - type: Cipher
     algorithm: AES

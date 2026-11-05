@@ -26,7 +26,7 @@ CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYam
 | API | gives |
 |---|---|
 | `Security.getProviders()` (caller) | providers; precedence = 1-based array index, `>= 1` enforced |
-| `Provider.getName()`, `getInfo()` (`""` when null), property `Provider.id version` | provider identity |
+| `Provider.getName()`, property `Provider.id version` | provider identity |
 | `Provider.getServices()` | type, algorithm, class name (`""` when null); sorted by (type, algorithm) |
 | `Provider.stringPropertyNames()`, `getProperty()` | aliases, attributes; blank values skipped |
 
@@ -35,7 +35,7 @@ CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYam
 | raw property | `PropertyKey` | captured as |
 |---|---|---|
 | `Provider.<field>` | `ProviderMeta` | meta; `id version` is the provider version |
-| `Alg.Alias.<type>.<name>` | `Alias` | alias on the service whose case-folded (type, target) matches; else `unresolvedAliases`, sorted by (type, name) |
+| `Alg.Alias.<type>.<name>` | `Alias` | alias on the service whose case-folded (type, target) matches; else dropped |
 | `<type>.<alg> <attr>` | `Attribute` | typed attribute |
 | `<type>.<alg>` | `ServiceImpl` | ignored; services come from `getServices()` |
 | anything else | `Malformed` | dropped |

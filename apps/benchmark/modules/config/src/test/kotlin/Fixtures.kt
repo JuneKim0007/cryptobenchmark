@@ -8,8 +8,8 @@ schemaVersion: 1
 capturedAtMillis: 1700000000000
 runtime: {model: Pixel 9, manufacturer: Google, hardware: zuma, sdkInt: 37, release: '17', javaVersion: '0'}
 providers:
-- {name: SunJCE, version: '25', precedence: 2, info: x, usable: true, services: []}
-- {name: SUN, version: '25', precedence: 1, info: x, usable: true, services: []}
+- {name: SunJCE, version: '25', precedence: 2, services: []}
+- {name: SUN, version: '25', precedence: 1, services: []}
 """
 
     const val TRIAL = """

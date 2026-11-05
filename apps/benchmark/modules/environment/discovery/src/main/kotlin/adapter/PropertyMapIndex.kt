@@ -5,7 +5,7 @@ import java.security.Provider
 
 internal class PropertyMapIndex private constructor(
     private val meta: Map<String, String>,
-    val aliases: List<DeclaredAlias>,
+    aliases: List<DeclaredAlias>,
     val attributesByService: Map<ServiceKey, Map<String, Any>>,
 ) {
 
