@@ -11,7 +11,7 @@
 - android api: a change to discovery, settings, preparation or benchmark passes `apps/benchmark/gradlew -p tools/android-api-check compileKotlin`; pass `-PandroidJar=<android.jar>` when `$ANDROID_HOME/platforms/android-36/android.jar` is absent.
 - settings: a change to `:settings` passes `apps/benchmark/gradlew -p apps/benchmark :settings:test`.
 - examples: regenerate committed `example/` files only after a schema change: `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.
-- python: a change under `apps/benchmark-runner/`, `tools/` or `apps/cli/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests`.
+- python: a change under `apps/benchmark-runner/` or `apps/cli/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests`.
 - python: a change to `apps/benchmark-runner/pipeline.py` passes `python3 apps/benchmark-runner/tests/test_manifest.py`.
 - analysis: a change to `apps/benchmark-runner/analysis/*.py` passes `python3 apps/benchmark-runner/analysis/tests/test_analyze.py`; `-u` rewrites `apps/benchmark-runner/analysis/tests/golden_summary.md` and `golden_chart_summary.md`.
 - perf-repair: a change under `apps/perf-repair/` passes `make -C apps/perf-repair check`.

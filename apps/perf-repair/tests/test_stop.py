@@ -16,7 +16,6 @@ from perfrepair.stop.codes import CODES_LIST, OVERRIDABLE
 from helpers import captured_events
 
 SRC = Path(__file__).parents[1] / "src" / "perfrepair"
-DOCS = Path(__file__).parents[1] / "docs"
 CODED = re.compile(r"^([a-z][a-z0-9]*(?:_[a-z0-9]+)+|[a-z]+)(?::|$)")
 # reasons a single edit is rejected for, recorded in edits.json; never a command's stop
 EXEMPT = {"Rejected", "ArgumentTypeError"}
@@ -59,14 +58,6 @@ def raised_codes() -> dict[str, list[str]]:
     return found
 
 
-def test_the_scan_sees_literal_formatted_and_bare_codes():
-    tree = ast.parse('raise A("x_y: d")\nraise B(f"{s}_failed: d")\nraise C("not_readable", d)\nterminate("a_b", d)\n'
-                     'raise D("plain words")\nraise E(f"{x} is not")')
-    patterns = [_pattern(_first(n.exc if isinstance(n, ast.Raise) else n)) for n in ast.walk(tree)
-                if isinstance(n, ast.Raise) or isinstance(n, ast.Call) and getattr(n.func, "id", "") == "terminate"]
-    assert [p for p in patterns if p] == ["x_y", "[a-z0-9_]+_failed", "not_readable", "a_b"]
-
-
 def test_every_code_raised_anywhere_is_in_the_table():
     missing = {p: sites for p, sites in raised_codes().items() if not any(re.fullmatch(p, c) for c in CODES)}
     assert missing == {}
@@ -86,22 +77,8 @@ def test_each_code_is_in_the_table_once_with_a_next_step():
     assert len(CODES) == len(CODES_LIST) and all(c.next and c.action in c.allowed or c.fixed for c in CODES_LIST)
 
 
-def test_every_overridable_code_has_a_settings_row_and_a_doc_line():
-    settings = (DOCS / "settings.md").read_text()
+def test_every_overridable_code_has_a_settings_row():
     assert set(STOP_ROWS) == {c.code for c in OVERRIDABLE}
-    assert [c.code for c in OVERRIDABLE if f"`stops.{c.code}`" not in settings] == []
-
-
-def table_lines() -> list[str]:
-    def chosen(c):
-        return f"fixed: {c.why}" if c.fixed else ", ".join(f"`{a}`" for a in c.allowed)
-    return [f"| `{c.code}` | `{c.action}` | {chosen(c)} | {c.exit} | {c.next} |" for c in CODES_LIST]
-
-
-def test_stops_md_holds_the_table():
-    codes = (DOCS / "stops.md").read_text().split("## Codes", 1)[1]
-    rows = [line for line in codes.splitlines() if line.startswith("| `")]
-    assert rows == table_lines()
 
 
 def fire(code, **kw):

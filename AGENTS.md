@@ -139,5 +139,4 @@ tools/lint/tree.py : the files git lists, their folders and markdown, and each n
 tools/module-isolation/ : per-module isolated compile and test
 tools/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
 tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph
-tools/tests/ : pytest for the repo dev tools
 ```

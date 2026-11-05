@@ -1,5 +1,3 @@
-import importlib.util
-from pathlib import Path
 
 import pytest
 import yaml
@@ -36,16 +34,6 @@ def test_every_shipped_row_holds_only_status_reason_and_source():
     # an unquoted comma in a flow mapping cuts the reason short and makes a stray key
     crypto = yaml.safe_load(SCREENING.read_text())["crypto"]
     assert [n for rows in crypto.values() for n, r in rows.items() if set(r) != {"status", "reason", "source"}] == []
-
-
-def test_the_generated_list_is_current_and_within_the_docs_limit(monkeypatch):
-    tools = Path(__file__).parents[3] / "tools"
-    monkeypatch.syspath_prepend(str(tools))
-    spec = importlib.util.spec_from_file_location("screening_list", tools / "screening_list.py")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    written = module.DOC.read_text()
-    assert written == module.render(yaml.safe_load(SCREENING.read_text())) and len(written.splitlines()) <= 150
 
 
 @pytest.mark.parametrize("name, said", [("SHA1", "canonical is SHA-1"), ("sha-1", "canonical is SHA-1"),

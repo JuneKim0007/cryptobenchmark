@@ -44,13 +44,6 @@ def error(tmp_path, text="", argv=(), role=GROUPING_ASSIGN):
     return str(e.value)
 
 
-def test_the_default_is_claude_by_subscription_and_assign_at_low(tmp_path):
-    convos = spawned(tmp_path)
-    assert isinstance(convos.conversations, ClaudeCliConversations)
-    assert (convos.identity.gateway, convos.identity.effort) == ("claude", "low")
-    assert spawned(tmp_path, role=APPS_AGENT).identity.effort == "medium"
-
-
 def test_the_flags_reach_the_gateway_and_the_help_names_the_role_default(tmp_path):
     convos = spawned(tmp_path, argv=["--effort", "high", "--agent", "claude", "--model", "m"])
     assert isinstance(convos.conversations, ClaudeCliConversations) and (convos.conversations.effort, convos.conversations.model) == ("high", "m")

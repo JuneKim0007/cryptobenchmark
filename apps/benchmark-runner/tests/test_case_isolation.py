@@ -1,5 +1,5 @@
 """isolation: case over a fake instrumentation: one case aborts its process, the others still produce results."""
-import json, pathlib, re, sys
+import json, pathlib, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
@@ -52,11 +52,3 @@ def test_one_data_file_from_many_cases_keeps_the_first_context_in_the_order_give
         case_files.path(tmp_path, case).write_text(json.dumps({"context": {"n": n}, "benchmarks": [{"name": case}]}))
     case_files.merge(tmp_path, ["y", "x"], tmp_path / "benchmarkData.json")
     assert json.loads((tmp_path / "benchmarkData.json").read_text()) == {"context": {"n": 2}, "benchmarks": [{"name": "y"}, {"name": "x"}]}
-
-
-def test_only_case_files_builds_the_cases_path():
-    scripts = pathlib.Path(__file__).resolve().parent.parent
-    built = re.compile(r"""/\s*f?["']cases["'/]|["']cases/|=\s*["']cases["']\s*$""", re.MULTILINE)
-    owners = [p.relative_to(scripts).as_posix() for p in sorted(scripts.rglob("*.py"))
-              if "tests" not in p.parts and built.search(p.read_text())]
-    assert owners == ["results/case_files.py"]

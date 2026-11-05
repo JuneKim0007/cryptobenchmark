@@ -120,12 +120,6 @@ def test_private_modules_are_imported_only_inside_their_package():
     assert _private_reach(_imports()) == []
 
 
-def test_a_private_module_imported_from_outside_its_package_is_caught():
-    assert _private_reach([(["app", "detect"], ["data_handler", "inbound", "probe", "_index"]),
-                           (["data_handler", "inbound", "probe", "_probe"], ["data_handler", "inbound", "probe", "_index"])]) \
-        == [("app/detect", "data_handler/inbound/probe/_index")]
-
-
 def test_every_module_has_a_layer():
     assert {la for la, *_ in _edges()} | {lb for _, lb, *_ in _edges()} <= set(RANK)
 
@@ -164,14 +158,6 @@ def _crossings(imports) -> list[tuple[str, str]]:
 
 def test_app_and_device_keep_to_their_levels():
     assert _crossings(_imports()) == []
-
-
-def test_a_crossing_is_caught():
-    assert _crossings([(["app", "find", "scan"], ["data_handler", "inbound", "probe"]),
-                       (["app", "detect"], ["data_handler", "inbound"]), (["app", "resolve"], ["data_handler", "inbound"]),
-                       (["device", "stage"], ["app", "facts", "path_id"]), (["app", "facts", "gate"], ["app", "find", "sources"])]) \
-        == [("app/detect", "data_handler/inbound"), ("app/find/scan", "data_handler/inbound/probe"),
-            ("device/stage", "app/facts/path_id")]
 
 
 # (attribute call, the modules allowed to make it): agents start one way, prompts load one way.

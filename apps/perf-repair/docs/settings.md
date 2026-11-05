@@ -32,7 +32,7 @@
 ## Keys
 
 - Sections: `aiGateway`, `paths` (`prompts`) and `timeouts` are shared, `device` is once per device, `apps` is per app, `stops` per code ([stops.md](stops.md)).
-- Every key is a row in `inputs/table.py`: its chain, check, default and `OnInvalid`. A setting ships only with the code that reads it; `tests/test_settings_rows.py` fails on a row without exactly one reader and on an example key with no row.
+- Every key is a row in `inputs/table.py`: its chain, check, default and `OnInvalid`. A setting ships only with the code that reads it.
 
 | key | values | default | on a bad value | used by |
 |---|---|---|---|---|

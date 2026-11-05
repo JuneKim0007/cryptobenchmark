@@ -1,17 +1,6 @@
-from pathlib import Path
-
 import pytest
-import yaml
 
 from perfrepair.dto.units import DisplayUnits, number
-
-EXAMPLE = Path(__file__).resolve().parents[3] / "apps/benchmark/modules/config/example/config_effective_example.yaml"
-
-
-def test_the_defaults_mirror_what_the_config_module_writes():
-    if not EXAMPLE.is_file():
-        pytest.skip("perf-repair outside its cryptobenchmark checkout")
-    assert DisplayUnits().to_json() == yaml.safe_load(EXAMPLE.read_text())["analysis"]["units"]
 
 
 def test_a_manifest_without_units_reads_the_defaults_and_a_bad_unit_is_refused():

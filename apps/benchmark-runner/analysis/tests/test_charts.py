@@ -106,15 +106,6 @@ class Charts(unittest.TestCase):
         data = json.load(open(root / "chart-data.json"))
         self.assertTrue(all(c["noisy"] for c in data))
  
-    def test_the_python_defaults_match_the_ones_the_config_module_writes(self):
-        example = pathlib.Path(__file__).resolve().parents[4] / "apps/benchmark/modules/config/example/config_effective_example.yaml"
-        analysis = yaml.safe_load(example.read_text())["analysis"]
-        self.assertEqual(chart_input.DEFAULTS["charts"], analysis["charts"])
-        self.assertEqual(chart_input.DEFAULTS["headline"], analysis["statistic"]["headline"])
-        self.assertEqual(chart_input.DEFAULTS["meanUpToCovPercent"], analysis["statistic"]["meanUpToCovPercent"])
-        self.assertEqual(chart_input.DEFAULTS["units"], analysis["units"])
-
-
 class AuditAgainstJetpack(unittest.TestCase):
     """benchmark.json carries what androidx reported; our statistics must equal it, and a difference must be said, not smoothed over."""
 

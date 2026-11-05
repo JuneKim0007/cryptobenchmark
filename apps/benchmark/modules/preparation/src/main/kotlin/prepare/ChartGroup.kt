@@ -10,7 +10,6 @@ enum class ChartGroup(val id: Int, val label: String) {
     SIGNATURE(3, "signature"),
     HASH(4, "hash"),
     MAC(5, "mac"),
-    KEM(6, "kem"),
     KEY_AGREEMENT(7, "key-agreement"),
     KEYGEN_SYMMETRIC(8, "keygen-symmetric"),
     KEYGEN_ASYMMETRIC(9, "keygen-asymmetric");
@@ -27,7 +26,6 @@ enum class ChartGroup(val id: Int, val label: String) {
             "SIGNATURE" -> SIGNATURE
             "MESSAGEDIGEST" -> HASH
             "MAC" -> MAC
-            "KEM" -> KEM
             "KEYAGREEMENT" -> KEY_AGREEMENT
             "KEYGENERATOR" -> KEYGEN_SYMMETRIC
             "KEYPAIRGENERATOR" -> KEYGEN_ASYMMETRIC

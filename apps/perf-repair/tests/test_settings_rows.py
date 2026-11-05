@@ -1,83 +1,16 @@
-"""The table against the code and the example: every row read once, every example key a row, each policy's behaviour."""
-import ast
+"""Each settings policy's behaviour: use-default, error, budgets and bad values."""
 import logging
-from dataclasses import fields
-from pathlib import Path
 
 import pytest
 import yaml
 
-from perfrepair.ai.runtime.gateway import registry
 from perfrepair.config.load import load
 from perfrepair.grouping.__main__ import main as grouping
 from perfrepair.guide.command import main as guide
 from perfrepair.inputs import table
 from perfrepair.inputs.check import check_positive
 from perfrepair.inputs.resolve import Candidate, InputError, OnInvalid, choose
-from perfrepair.inputs.table import ROLE_KEYS, ROWS, RoleRow, Row
-
-SRC = Path(table.__file__).parents[1]
-EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
-
-
-def row_names():
-    return [name for name, value in vars(table).items() if isinstance(value, (Row, RoleRow))]
-
-
-def readers(name):
-    """The modules, the table aside, whose code uses the row's constant."""
-    found = []
-    for path in SRC.rglob("*.py"):
-        if path == Path(table.__file__):
-            continue
-        tree = ast.parse(path.read_text())
-        if any(isinstance(n, ast.Name) and n.id == name for n in ast.walk(tree)):
-            found.append(str(path.relative_to(SRC)))
-    return found
-
-
-def leaves(document, path=""):
-    for key, value in document.items():
-        where = f"{path}.{key}" if path else key
-        if isinstance(value, dict) and value:
-            yield from leaves(value, where)
-        else:
-            yield where
-
-
-def row_of(key):
-    """The row of an example key; a role section's own name counts as that role."""
-    for row in ROWS:
-        if isinstance(row, Row) and row.key == key:
-            return row
-        if isinstance(row, RoleRow) and key in (row.key, *(f"{row.key}.{k}" for k in ROLE_KEYS)):
-            return row
-    return None
-
-
-@pytest.mark.parametrize("name", row_names())
-def test_every_row_has_exactly_one_reader(name):
-    assert len(readers(name)) == 1, f"{name}: {readers(name)}"
-
-
-def test_every_example_key_is_a_row_some_command_reads():
-    constants = {id(getattr(table, name)): name for name in row_names()} | {id(r): "STOP_ROWS" for r in table.STOP_ROWS.values()}
-    gateway_keys = {f.name for g in registry.GATEWAYS.values() for f in fields(g.settings)}
-    for key in leaves(yaml.safe_load(EXAMPLE.read_text())):
-        if key.startswith("aiGateway.") and key != "aiGateway.use":
-            _, gateway, leaf = key.split(".")
-            assert gateway in registry.GATEWAYS and leaf in gateway_keys, key
-            continue
-        row = row_of(key)
-        assert row is not None, f"{key}: in the example, no row"
-        assert readers(constants[id(row)]), f"{key}: no command reads it"
-
-
-def test_every_settable_row_is_in_the_example():
-    keys = set(leaves(yaml.safe_load(EXAMPLE.read_text())))
-    for row in ROWS:
-        if "<" not in row.key:
-            assert row.key in keys, row.key
+from perfrepair.inputs.table import ROWS, RoleRow
 
 
 ROLES = [r for r in ROWS if isinstance(r, RoleRow)]

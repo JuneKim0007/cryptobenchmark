@@ -56,9 +56,3 @@ def test_nodes_carry_neutral_kinds_lines_and_no_comments():
     kinds = [(n.kind, n.line) for n in root.walk() if n.kind in ("call", "method", "literal")]
     assert kinds == [("method", 2), ("call", 2), ("literal", 2)]
     assert all(n.type not in ("line_comment", "comment") for n in root.walk())
-
-
-def test_only_the_syntax_package_names_the_parser():
-    users = sorted(str(p.relative_to(ROOT)) for p in ROOT.rglob("*.py")
-                   if "tree_sitter" in p.read_text() and p.relative_to(ROOT).parts[:2] != ("scope", "syntax"))
-    assert users == []

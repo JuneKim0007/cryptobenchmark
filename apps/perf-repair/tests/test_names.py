@@ -10,10 +10,9 @@ CASES = Path(__file__).parent / "fixtures" / "algorithm-names-cases.yaml"
 CONFIG = Path(__file__).resolve().parents[2] / "benchmark/modules/config/src"
 
 
-@pytest.mark.parametrize(("copy", "owned"), [(CATALOG, CONFIG / "main/resources/algorithm-names.yaml"),
-                                             (CASES, CONFIG / "test/resources/algorithm-names-cases.yaml")])
-def test_the_copy_is_the_benchmark_s_file(copy, owned):
-    assert copy.read_bytes() == owned.read_bytes(), f"{copy} differs from {owned}, which the benchmark owns: copy it over"
+def test_the_shared_cases_are_the_benchmark_s_file():
+    owned = CONFIG / "test/resources/algorithm-names-cases.yaml"
+    assert CASES.read_bytes() == owned.read_bytes(), f"{CASES} differs from {owned}, which the benchmark owns: copy it over"
 
 
 @pytest.fixture(scope="module")

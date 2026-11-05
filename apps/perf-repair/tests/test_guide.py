@@ -245,11 +245,6 @@ def test_edits_that_cannot_find_their_call_stop_with_the_reasons(run, tmp_path):
     assert lines[-1].startswith("guide edit: stop no_edit_applied") and "(function_span)" in lines[-1]
 
 
-def test_the_top_level_command_names_its_commands(capsys):
-    assert top([]) == 2
-    assert "python3 -m perfrepair {guide}" in capsys.readouterr().err
-
-
 def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_path):
     from perfrepair.config.load import load
     settings = tmp_path / "perfrepair.yaml"

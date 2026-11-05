@@ -37,7 +37,6 @@ apps/benchmark/modules/benchmark/src/main/kotlin/run/decorate/Rewarm.kt : TimedL
 apps/benchmark/modules/benchmark/src/main/kotlin/run/energy/Energy.kt : energy settings with defaults
 apps/benchmark/modules/benchmark/src/main/kotlin/run/energy/WindowMarker.kt : begin and end marker port
 apps/benchmark/modules/benchmark/src/test/kotlin/BenchmarkJsonRoundTripTest.kt : benchmark.json write, read and merge round-trip tests
-apps/benchmark/modules/benchmark/src/test/kotlin/BlackHoleTest.kt : sink test
 apps/benchmark/modules/benchmark/src/test/kotlin/CaseDocumentTest.kt : case document reader tests
 apps/benchmark/modules/benchmark/src/test/kotlin/CaseSettingsTest.kt : HarnessSettings to CaseSettings tests
 apps/benchmark/modules/benchmark/src/test/kotlin/EnergyCheckTest.kt : energy refusal and energyJ join tests

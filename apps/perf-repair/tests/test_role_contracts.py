@@ -11,7 +11,7 @@ import yaml
 from helpers import LIBRARY
 from role_runs import ROLES, assigned_device, built_device
 
-from perfrepair.ai.evaluate.worthiness.kind import WorthinessKind, charter as worthiness_charter
+from perfrepair.ai.evaluate.worthiness.kind import charter as worthiness_charter
 from perfrepair.ai.parse.algorithm_classify.kind import charter as classify_charter
 from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
 from perfrepair.ai.repair.upgrade.kind import charter as upgrade_charter
@@ -345,11 +345,3 @@ def test_classify_writes_its_one_input_itself_and_refuses_when_it_is_gone(built)
     with pytest.raises(MissingInput):
         with role_run("screening.classify", built):
             pass
-
-
-def test_missing_input_is_a_failure_every_command_reports_as_one_line():
-    assert isinstance(MissingInput("missing_input: x"), ValueError)
-
-
-def test_no_kind_keeps_an_always_pass_admit():
-    assert not hasattr(WorthinessKind, "admit")

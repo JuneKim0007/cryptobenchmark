@@ -32,7 +32,7 @@
 .env.example : template for `.env`: PERFREPAIR_AGENT, PERFREPAIR_AUTH, PERFREPAIR_MODEL, PERFREPAIR_EFFORT, ANTHROPIC_API_KEY
 .gitignore : local state kept out of git: caches, `runs/`, `.venv/`, `.env`, `perfrepair.yaml`, `targets.yaml`
 AGENTS.md : agent entry: route, rules, file map
-Makefile : test, docs-lint, check; coverage-guide, the guide under coverage and the functions no run entered
+Makefile : test, docs-lint, check
 README.md : what perf-repair is, setup
 agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
@@ -45,5 +45,4 @@ tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.p
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data
 tools/role-checks.example.yaml : plan of tools/role_checks.py: facts to flip, known answers
 tools/role_checks.py : on demand, a real model, never in CI: each role's flips, removed input, rerun and known answers; a report with cost
-tools/unrun.py : the functions a coverage data file shows no run entered, one `<file>:<line> <name>` line each; needs `coverage`
 ```

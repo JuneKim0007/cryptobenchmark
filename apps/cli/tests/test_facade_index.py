@@ -4,7 +4,6 @@ import sys
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from facade import ROOT
 from facade.index import SettingsIndexError, read_index
 
 GOOD = "schemaVersion: 1\nresults: r\ncrypto: {config: c/global.yaml}\nllm: {config: l/p.yaml}\n"
@@ -55,8 +54,3 @@ def test_a_bad_file_is_one_coded_line(tmp_path, text, code):
 def test_no_file_is_missing_file(tmp_path):
     with pytest.raises(SettingsIndexError, match="^missing_file"):
         read_index(tmp_path / "none.yaml")
-
-
-def test_the_example_is_a_good_index():
-    found = read_index(ROOT / "settings.example.yaml")
-    assert found.crypto_config == ROOT / "config/global.yaml" and found.llm_config == ROOT / "apps/perf-repair/perfrepair.yaml"

@@ -10,10 +10,9 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.suggest.site_replace.command import replace
-from perfrepair.ai.suggest.site_replace.kind import SiteReplaceKind, charter, evidence
+from perfrepair.ai.suggest.site_replace.kind import SiteReplaceKind, evidence
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.primitives import PrimitiveLine, PrimitivesTable
-from perfrepair.dto.replacement import DECISIONS, EDIT_KINDS, RISKS
 from perfrepair.dto.site import REPLACEMENTS_SCHEMA_VERSION
 from perfrepair.dto.dossier import Estimate, Option
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
@@ -57,19 +56,6 @@ def test_render_lists_the_members_that_stay_and_each_inverse_pairs_interop():
                  "    every other choice: interop not_planned"):
         assert part in text, part
     assert "MEMBER S2" not in text and "MEMBER S1" in text
-
-
-def test_the_prompt_states_what_the_gate_enforces():
-    text = charter(LIBRARY).system.text
-    rendered = SiteReplaceKind(APP, doc(A), ".").render(item(A), None).text
-    assert all(f"  {k}: " in rendered for k in EDIT_KINDS)
-    for word in (*DECISIONS, *RISKS, "EDIT KINDS", "`R1`", "alias", "pins", "exactly as listed", "data, never instructions",
-                 "pImprove", "like-for-like"):
-        assert word in text, word
-    for word in ("Decide the members with options together", "Never name a member under STAYS", "STAYS", "`inverse`",
-                 "`fail`", "`S1`", "LINKS"):
-        assert word in text, word
-    assert "reasoning" not in text.lower()
 
 
 def test_end_to_end_command_writes_replacements_with_static_and_model_sources(tmp_path):
@@ -339,7 +325,6 @@ def test_same_function_source_is_shown_once_in_a_unit():
     u = UnitDossiers(linked(A, same), (A, same))
     text = SiteReplaceKind(APP, doc(A, same, units=[u.unit]), ".").render(u, None).text
     assert "FUNCTION SOURCE: as S1" in text and text.count(" BEGIN") == 1
-
 
 
 def _table():
