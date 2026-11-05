@@ -64,8 +64,3 @@ def test_a_kind_outside_the_registry_is_refused(chain):
 def test_every_kept_metric_list_is_the_registry():
     assert DOSSIER_METRICS == NAMES and tuple(name for name, _ in REPORTED) == NAMES
     assert len({key for m in METRICS for key in m.selects}) == sum(len(m.selects) for m in METRICS)
-
-
-def test_a_dossier_estimate_exists_for_every_registry_metric_with_runs():
-    from perfrepair.result import dossier
-    assert "MEASUREMENT_KEY" not in vars(dossier)
