@@ -76,4 +76,4 @@ def no_group_catalog(monkeypatch, tmp_path_factory):
 @pytest.fixture
 def asked_by_model(monkeypatch, no_group_catalog):
     """No interchange rule and no catalog, so every item not screened out is asked: for tests of asking, whatever the fixture's names."""
-    monkeypatch.setattr(signature, "interchange", lambda: Interchange({}, frozenset(), ()))
+    monkeypatch.setattr(signature, "interchange", lambda: Interchange({}, frozenset()))
