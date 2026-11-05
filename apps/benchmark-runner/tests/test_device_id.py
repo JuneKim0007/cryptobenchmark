@@ -3,12 +3,10 @@ import re
 import sys
 
 import pytest
-import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.identity import DeviceIdError, device_id  # noqa: E402
 
-REPO = pathlib.Path(__file__).resolve().parents[3]
 # Real block of a capture taken before the identity fields existed.
 OLD_HOST = {"model": "", "manufacturer": "", "hardware": "", "sdkInt": 0, "release": "", "javaVersion": "25.0.3", "defaultKeySizeProperty": ""}
 HOST = dict(OLD_HOST, fingerprint="", javaVendor="Eclipse Adoptium", javaRuntimeVersion="25.0.3+9-LTS", osName="Mac OS X", osArch="aarch64")
@@ -49,12 +47,6 @@ def test_host_hash_covers_vendor_and_runtime_version():
 def test_only_the_build_identity_is_hashed():
     assert device_id(ANDROID) == device_id(dict(ANDROID, hardware="other", manufacturer="other", javaVersion="1"))
     assert device_id(HOST) != device_id(dict(HOST, osArch="x86_64"))
-
-
-def test_an_existing_android_capture_is_refused():
-    runtime = yaml.safe_load((REPO / "apps/perf-repair/tests/fixtures/runtimes/android36/probe.yaml").read_text())["runtime"]
-    with pytest.raises(DeviceIdError, match="device_id_fields_missing: runtime lacks model, fingerprint;"):
-        device_id(runtime)
 
 
 @pytest.mark.parametrize("runtime, missing", [

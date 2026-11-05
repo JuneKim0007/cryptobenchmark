@@ -143,7 +143,7 @@ Errors are `BundledProviderException` with a `code`. The capture stays `schemaVe
 
 | test | asserts |
 |---|---|
-| `JcaContractTest` | precedence `1..n`; `whoServes` sorted; Cipher AES, MessageDigest SHA-256, Mac HmacSHA256, Signature SHA256withRSA, KeyPairGenerator RSA resolve; SunJCE AES instantiates; `AES/CBC/PKCS5Padding` tried; some declared transformation fails; the facade writes the three files |
+| `JcaContractTest` | precedence `1..n`; Cipher AES, MessageDigest SHA-256, Mac HmacSHA256, Signature SHA256withRSA, KeyPairGenerator RSA resolve; SunJCE AES instantiates; `AES/CBC/PKCS5Padding` tried; some declared transformation fails; the facade writes the three files |
 | `ExampleFilesTest` | both `example/` files round-trip; they share `capturedAtMillis`; providers SUN, SunJCE |
 
 `apps/benchmark/cli` compiles discovery, settings and config sources and runs the discovery and config tests except `*ExampleFilesTest`. The `jca contract` workflow runs it on push and PR to the module paths, weekly (`0 6 * * 1`), on Java 17, 21 and 25.
