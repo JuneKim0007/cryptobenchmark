@@ -43,7 +43,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialOutco
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/query/ServiceIndex.kt : one provider's services by name or alias
 apps/benchmark/modules/environment/discovery/src/main/kotlin/query/ServiceShape.kt : modes, paddings, providers of one tree node
-apps/benchmark/modules/environment/discovery/src/main/kotlin/query/ServiceTree.kt : builds CaptureQuery.tree()
 apps/benchmark/modules/environment/discovery/src/main/kotlin/query/TransformationFailure.kt : one failed transformation row
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/Attempt.kt : runs a block, maps Exception or LinkageError to TrialOutcome
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
