@@ -23,8 +23,12 @@ def imported(paths: GroupingPaths) -> list[PairResult] | None:
 
 def import_results(paths: GroupingPaths, source: Path) -> list[PairResult]:
     plan = _plan(paths)
-    results = read_yaml(source)
-    require(str(source), validate_results(results, plan))
+    return write_results(paths, read_yaml(source), str(source), plan)
+
+
+def write_results(paths: GroupingPaths, results: dict, where: str = "grouping/interop.yaml",
+                  plan: dict | None = None) -> list[PairResult]:
+    require(where, validate_results(results, plan or _plan(paths)))
     write_text(paths.interop, yaml.safe_dump(results, sort_keys=False))
     return imported(paths)
 

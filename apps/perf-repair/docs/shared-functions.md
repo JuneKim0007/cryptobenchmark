@@ -43,7 +43,7 @@
 | `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.candidates +5 |
 | `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | device.measured_check, device.missing_rows, device.selection_adds, device.used +7 |
 | `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, check.device, check.grouping +8 |
-| `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, review.sheet, validation.grouping.output |
+| `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, grouping.interop_plan, review.sheet +1 |
 | `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, ai.review.grouping_review.kind, grouping.report.rules, validation.grouping.code_groups +1 |
 | `pair_status(groups, a, b)` | `src/perfrepair/dto/interop.py` | - | result.evidence, result.options, result.unit_dossiers, validation.dossiers.against_run |
 | `required_risks(scope, option)` | `src/perfrepair/dto/replacement.py` | Each risk the scope facts, and the chosen option's when given, imply, with the plain words that imply it. | ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades, validation.replacements +1 |
@@ -88,7 +88,7 @@
 | `worthiness(device, mode)` | `src/perfrepair/run_dir/layout.py` | `Path(device) / f'{WORTHINESS_PREFIX}{mode}'` | ai.evaluate.worthiness.command, check.grouping, check.run, review.sheet |
 | `load_measurements(device)` | `src/perfrepair/run_dir/read.py` | `Measurements.from_json(read_json(Path(device) / MEASUREMENTS))` | ai.evaluate.worthiness.command, ai.suggest.site_replace.command, check.device, check.grouping +5 |
 | `load_rows(device)` | `src/perfrepair/run_dir/read.py` | `[PrimitiveRow.from_json(r) for r in read_versioned(ROWS_DOC, Path(device) / ROWS)['rows']]` | ai.evaluate.worthiness.command, check.run, device.measured_check, device.primitives +2 |
-| `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen(read_json(paths.screen)) if paths.screen.exists() else None` | ai.evaluate.worthiness.command, check.grouping, check.run, device.primitives +2 |
+| `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen(read_json(paths.screen)) if paths.screen.exists() else None` | ai.evaluate.worthiness.command, check.grouping, check.run, device.primitives +3 |
 | `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, guide.device_steps, repair.dossier |
 | `load_upgrades(path)` | `src/perfrepair/run_dir/read.py` | What each broken use became; none before the upgrade step ran. | guide.app_steps, repair.__main__, report.app_report |
 | `load_used(device)` | `src/perfrepair/run_dir/read.py` | None without used.json: every item counts as used. | ai.parse.grouping_assign.kind, check.device, guide.device_steps, guide.gate_steps |

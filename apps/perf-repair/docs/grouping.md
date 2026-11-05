@@ -61,8 +61,8 @@ flowchart TD
 | `errors.jsonl` | assign | projection of dropped records: seq, item, label (qualified name), problems |
 | `checks.json` | report | static findings with severity; counts |
 | `groups.json` | report | schema 3: families, groups with members, runnable members, common key sizes, findings; items index with each item's `keyContract` and `screen` status (null without screen.json); dropped; with `used.json`, `notUsed`: askable items outside it with no record, left unasked and never dropped; `interop` |
-| `interop_plan.yaml` | interop-plan | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once; `keySize` the smallest common key size; `notCheckable[]` `{id, group, a, b, reason}`, present when a pair crosses key contracts: never sent to the oracle, which reads only `pairs` |
-| `interop.yaml` | interop-read | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions |
+| `interop_plan.yaml` | interop-plan, the guide's interop step (only pairs with a member a site resolves to, with `used.json`) | schema 1: `pairs[]` `{id, group, a, b, keySize?}`; members `{type, algorithm, provider}`; every two runnable members of a group once, none from a group whose members are all one engine (`same_engine`: no pair of it is ever an option or an inverse link's end); `keySize` the size a member's name fixes (`screen.json`), else the two's smallest common prepared size (`profiles.json`); `notCheckable[]` `{id, group, a, b, reason}`, present when a pair crosses key contracts: never sent to the oracle, which reads only `pairs` |
+| `interop.yaml` | interop-read, the guide's interop step | cryptobenchmark's result, checked against the plan: same ids, groups and members; result agrees with directions; from the guide also `setup`, the fields of `device/setup_fingerprint.py` `provider_setup`: a verdict of the same setup is not run again, by the pair's two members in plan order and its `keySize`; `interop_pending.yaml` holds the pairs it hands `pipeline.py --interop`, for that call only |
 | `supervisor.json` | report --supervisor | schemaVersion 2: `charter`, `prompts` {name: source path}, per family: reviewed or failed, problems, findings; a projection of `review/outbox/`, `charter` its fingerprint |
 | `review/outbox/`, `review/journal.jsonl`, `review/errors.jsonl` | report --supervisor | the review's commit, turns and dropped families; a second run asks nothing, other groups or another prompt open a new outbox, reverting resumes the old |
 
@@ -136,13 +136,13 @@ flowchart TD
 
 | key or label | meaning |
 |---|---|
-| `groups.json` `interop.status` | `checked` after interop-read; `not_run` before |
+| `groups.json` `interop.status` | `checked` after interop-read or the guide's interop step; `not_run` before |
 | `interop.pairs[]` | `{id, group, a, b, result, reason}`; `a`, `b` qualified names |
 | `fail` | the pair is out of evidence pairs and dossier options; finding `interop_failed` |
 | `not_checkable` | the pair stays; evidence and dossier carry the label; finding `interop_not_checkable`; from the oracle, or from the plan for a pair across key contracts, in the section once results are imported |
 | `pass` | the pair stays, labelled |
 | `not_planned` | checked run, pair absent from the plan (a member does not run) |
-| `not_run` | no interop.yaml imported |
+| `not_run` | no interop.yaml imported; the guide then warns `interop_unverified` |
 
 - A dossier option labelled anything but `pass` makes a `replace` to it declare `unverified_interop`.
 

@@ -11,7 +11,7 @@ NOTHING = "nothing is left to run"
 UNUSABLE = "the input is unusable"
 NOTICE = "a notice; nothing to choose"
 # the guide's step names: a step's coded failure is `<step>_failed`, the inner code kept beside it
-GUIDE_STEPS = ("prerequisites", "targets", "grouping", "detect", "app", "dossier", "replace", "edit", "harness", "device", "report",
+GUIDE_STEPS = ("prerequisites", "targets", "grouping", "interop", "detect", "app", "dossier", "replace", "edit", "harness", "device", "report",
                "summary")
 
 
@@ -175,6 +175,8 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("append_repaired", "nothing; the partial line stays and readers skip it", NOTICE, action=WARN),
     _fixed("log_dropped", "name the device folder earlier in the command", NOTICE, action=WARN),
     _fixed("stop_fixed", "remove the stops.<code> entry", NOTICE, action=WARN),
+    _fixed("interop_unverified", "the option stays and a replace to it declares unverified_interop; only a line naming a missing device or config has a fix: make it and rerun the guide",
+           NOTICE, action=WARN),
 )
 CODES: dict[str, Code] = {c.code: c for c in CODES_LIST}
 OVERRIDABLE = tuple(c for c in CODES_LIST if not c.fixed)

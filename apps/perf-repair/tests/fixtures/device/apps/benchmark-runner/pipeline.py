@@ -5,7 +5,9 @@ or `create`, of the same primitives and MD5, measured like Fast; FAKE_INTERRUPT=
 FAKE_VARIANTS=1 writes every case twice, `<id>_fixed` (Fast's runs times FIXED_SCALE) and `<id>_notFixed`, as the benchmark does, retried ids too;
 FAKE_SELECT=1 keeps only the cases the config's test set and excludes select; FAKE_HEAL=1 also measures the recorded lost case;
 FAKE_SCALE=<n> multiplies every timeNs run (anchors drift); FAKE_RENAME_CASES=1 renames every case but the healed one (no shared case); FAKE_FINGERPRINT=<text> is the runtime's build fingerprint;
-FAKE_METRICS=1 plans every case with TIME and ALLOCATION; FAKE_FILL=1 gives a case without allocationCount another case's."""
+FAKE_METRICS=1 plans every case with TIME and ALLOCATION; FAKE_FILL=1 gives a case without allocationCount another case's;
+--interop answers each planned pair `pass`, or the result FAKE_INTEROP=<result>:<provider>,... names for a member's provider,
+one line in <root>/interop.log, the benchmark files untouched."""
 import argparse, fnmatch, hashlib, json, os, pathlib, shutil, sys
 
 import yaml
@@ -17,6 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--config", required=True)
 parser.add_argument("--results")
 parser.add_argument("--discovery")
+parser.add_argument("--interop")
 for flag in ("--bench", "--device", "--probe", "--identify"):
     parser.add_argument(flag, action="store_true")
 options = parser.parse_args()
@@ -36,6 +39,31 @@ if options.identify:
     sys.exit(0)
 
 root = pathlib.Path(options.results)
+
+
+def interop(plan_path):
+    """What InteropFile writes for the plan; the run's other files stay."""
+    rules = dict(reversed(r.split(":", 1)) for r in os.environ.get("FAKE_INTEROP", "").split(",") if r)
+    rows = []
+    for p in (yaml.safe_load(pathlib.Path(plan_path).read_text()) or {}).get("pairs") or []:
+        result = next((rules[m["provider"]] for m in (p["a"], p["b"]) if m["provider"] in rules), "pass")
+        rows.append({**p, "result": result, "mode": "produce_consume", "directions": {"aToB": result, "bToA": "pass"},
+                     "reason": "" if result == "pass" else f"aToB: {result} by FAKE_INTEROP"})
+    folder = root / DEVICE_ID
+    (folder / "interop").mkdir(exist_ok=True)
+    shutil.copyfile(plan_path, folder / "interop" / "interop_plan.yaml")
+    (folder / "interop" / "interop.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "pairs": rows}, sort_keys=False))
+    manifest = yaml.safe_load((folder / "manifest.yaml").read_text())
+    manifest["files"].update(interopPlan="interop/interop_plan.yaml", interop="interop/interop.yaml")
+    (folder / "manifest.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False))
+    with open(root / "interop.log", "a") as log:
+        log.write(f"{len(rows)}\n")
+    print(f"wrote:     {folder / 'manifest.yaml'}")
+
+
+if options.interop:
+    interop(options.interop)
+    sys.exit(0)
 with open(root / "runs.log", "a") as log:
     log.write(" ".join(sys.argv[1:]) + "\n")
 excluded = sorted(f"{r['type']}|{r['name']}|{r['provider']}" for r in (document.get("selection") or {}).get("exclude") or [])

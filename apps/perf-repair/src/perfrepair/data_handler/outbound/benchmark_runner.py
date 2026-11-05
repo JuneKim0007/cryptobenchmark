@@ -12,7 +12,7 @@ from typing import Callable
 from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
-from ...dto.coded import code_in
+from ...dto.coded import InputError, code_in
 from ...log import run_id
 from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
@@ -76,6 +76,13 @@ def identify(config: Path | None, on_device: bool, benchmark: Path | str | None 
         raise BenchmarkRunError(f"identify_failed: pipeline --identify exited {process.returncode}; last lines:\n"
                                 + "\n".join(lines[-10:]))
     return json.loads(found[-1])
+
+
+def require_connected(folder: Path, config: Path | None, on_device: bool, doing: str, benchmark: Path | str | None = None) -> None:
+    """The attached device is the one the folder holds; `doing` says what must run on it."""
+    connected = identify(config, on_device, benchmark)["deviceId"]
+    if connected != folder.name:
+        raise InputError(f"device_id_changed: the connected device is {connected}, the folder is {folder.name}; {doing}")
 
 
 def transcript(device: Path) -> Path:

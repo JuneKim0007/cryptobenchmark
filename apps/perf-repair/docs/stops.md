@@ -2,11 +2,9 @@
 
 ## Terminate
 
-- `stop/codes.py` holds every stop, warn and skip code once; `stop/terminate.py` `terminate(code, detail, ...)` is where an overridable code's action is decided.
-- `terminate` resolves the action, emits one `finding` event with `data.code`, `data.action` and `data.next` (its `status.log` line), then raises `Halt(code, detail, next_step)` on `stop`, or returns `warn` (the item kept) or `skip` (left out and counted) to its caller.
+- `stop/codes.py` holds every stop, warn and skip code once; `stop/terminate.py` `terminate(code, detail, ...)` is where an overridable code's action is decided. `terminate` resolves the action, emits one `finding` event with `data.code`, `data.action` and `data.next` (its `status.log` line), then raises `Halt(code, detail, next_step)` on `stop`, or returns `warn` (the item kept) or `skip` (left out and counted) to its caller.
 - `failure.py` maps a `Halt` to its code's exit; any other coded failure is one `error` event with `data.code`; a step that ends in a `Halt` records `data.reported` on its end, and `status.log` shows the `terminate` line only.
-- A guide step's other coded failure is `<step>_failed`, the inner code in `data.inner` and first in the detail; a command another one runs in-process writes no `error` event of its own, and its caller's `<step>_failed` line carries its code. When that inner code is `primitive_not_screened`, `data.next` is `read <device>/log/details/primitives_missing.yaml; ` and that code's own next, in place of the generic one below ([run-log.md](run-log.md)).
-- A code with no `Halt` yet is a coded exception whose `.code` `failure.py` records; a failure with no `.code` has no code.
+- A guide step's other coded failure is `<step>_failed`, the inner code in `data.inner` and first in the detail; a command another one runs in-process writes no `error` event of its own, and its caller's `<step>_failed` line carries its code. When that inner code is `primitive_not_screened`, `data.next` is `read <device>/log/details/primitives_missing.yaml; ` and that code's own next, in place of the generic one below ([run-log.md](run-log.md)). A code with no `Halt` yet is a coded exception whose `.code` `failure.py` records; a failure with no `.code` has no code.
 
 ## Settings
 
@@ -70,6 +68,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `prerequisites_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `targets_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `grouping_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `interop_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `detect_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `app_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `dossier_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
@@ -148,3 +147,4 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `append_repaired` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the partial line stays and readers skip it |
 | `log_dropped` | `warn` | fixed: a notice; nothing to choose | 1 | name the device folder earlier in the command |
 | `stop_fixed` | `warn` | fixed: a notice; nothing to choose | 1 | remove the stops.<code> entry |
+| `interop_unverified` | `warn` | fixed: a notice; nothing to choose | 1 | the option stays and a replace to it declares unverified_interop; only a line naming a missing device or config has a fix: make it and rerun the guide |

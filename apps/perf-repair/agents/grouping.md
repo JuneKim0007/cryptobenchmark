@@ -24,7 +24,7 @@
 - checks: a static finding is one function in `grouping/report/rules.py`.
 
 ## Workflow
-- run: `build` (classify inside, with aiReview) → `assign` → `report [--supervisor]` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`)
+- run: `build` (classify inside, with aiReview) → `assign` → `report [--supervisor]` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`); the guide's interop step does the last three through `device/interop.py`
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; a pair across key contracts is never planned, the plan marks it `not_checkable`; never edit a group for it.
 - change the catalog: `python3 ../../tools/seed_groups.py` → review → `catalog/groups.yaml`; a candidate is promoted by hand
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
@@ -65,8 +65,8 @@ src/perfrepair/grouping/build/items.py : benchmark documents → items and profi
 src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown; a generator's from its trial (standard format and encoded → app_held, no encoding → provider_held, else unknown) and cross_checked with its consumers
 src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measured → engine type → key generator → declared → unknown
 src/perfrepair/grouping/build/stage.py : stage: manifest → items.json, profiles.json, screen.json (by the resolved catalog; classify first with a reviewer), validated, then written together with screen.json's `built` digests
-src/perfrepair/grouping/interop_plan.py : groups.json → interop_plan.yaml: every two runnable members of a group, once; a pair across key contracts as not_checkable
-src/perfrepair/grouping/interop_read.py : cryptobenchmark's interop.yaml checked against the plan and imported into grouping/
+src/perfrepair/grouping/interop_plan.py : groups.json, profiles.json, screen.json → interop_plan.yaml: every two runnable members of a group with two engines, once, at its own key size; with sites only those with a member a site resolves to; a pair across key contracts as not_checkable
+src/perfrepair/grouping/interop_read.py : verdicts checked against the plan and written into grouping/: cryptobenchmark's interop.yaml, or the guide's merged document
 src/perfrepair/grouping/report/candidates.py : group-candidates.yaml at report: model answers in groups.yaml's row shape plus provenance (model, run, item, date, checks); rebuilt from the outbox; nothing writes the catalog at run time
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → knowledge.json, checks.json, groups.json, group-candidates.yaml (`notUsed` with used.json); report_documents: what they should hold, nothing written
 src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status

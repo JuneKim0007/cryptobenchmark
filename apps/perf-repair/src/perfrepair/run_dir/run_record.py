@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import json
 import time
+from dataclasses import replace
 from pathlib import Path
 
 import yaml
 
 from ..dto.coded import InputError
 from ..dto.device import DeviceRecord
-from ..files import read_json, read_yaml, write_json, write_text
+from ..files import read_json, read_yaml, sha256_file, write_json, write_text
 from .layout import DEVICE, MANIFEST, REPORT, REPORT_MD, RUNS, AppPaths, app_dirs
 from .lock import DeviceLock
 
@@ -34,6 +35,13 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
 
 def write_device_record(device: Path, record: DeviceRecord) -> Path:
     return write_text(Path(device) / DEVICE, yaml.safe_dump(record.to_json(), sort_keys=False), durable=True)
+
+
+def vouch_manifest(device: Path) -> None:
+    """A step that only added files to manifest.yaml: device.yaml records its digest again, so no stage reruns for it."""
+    record, _ = load_device_record(device)
+    if record is not None:
+        write_device_record(device, replace(record, manifest=sha256_file(Path(device) / MANIFEST)))
 
 
 def drop_device_record(device: Path) -> None:

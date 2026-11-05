@@ -1,5 +1,5 @@
 """The guide's device-level steps, once per device: prerequisites (the probe and the used set), targets, grouping, the
-summary."""
+pair interop check, the summary."""
 from __future__ import annotations
 
 from dataclasses import replace as with_fields
@@ -8,17 +8,21 @@ from pathlib import Path
 from .. import run_dir as rd
 from ..ai.parse.grouping_assign.rekey import rekey
 from ..device.coverage import Coverage, coverage, no_rerun
+from ..device.interop import check_pairs, unreachable
 from ..device.missing_rows import measured_rows
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
 from ..dto.coded import InputError
 from ..dto.event import END
+from ..dto.interop import NOT_CHECKABLE
+from ..dto.used import SITE
 from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from ..failure import FAILURES
 from ..files import sha256_file
 from ..grouping.__main__ import main as grouping_main
 from ..log import emit, step
+from ..stop import terminate
 from ..report.command import device_summary
 from ..review.sheet import write_sheet
 from ..run_dir import GroupingPaths
@@ -174,6 +178,24 @@ def _grouping(g: Guide) -> str:
     return _regroup(g, seen, every)
 
 
+def interop(g: Guide) -> str:
+    """The pairs app sites reach, checked before any option is built."""
+    used = rd.load_used(g.device) if g.filter_by_apps else None
+    sites = frozenset(u.item for u in used.items if u.via == SITE) if used else None
+    why = unreachable(g.device, g.on_device)
+    done = check_pairs(g.device, sites, why is None, g.echo)
+    said = f"{done.planned} pairs, {done.reused} reused, {done.ran} checked"
+    if done.pending:
+        terminate("interop_unverified", f"{done.pending} of {done.planned} pairs have no verdict for this setup: {why}",
+                  stage="guide", step="interop")
+        return said + f", {done.pending} not run"
+    for r in done.results:
+        if r.result == NOT_CHECKABLE:
+            terminate("interop_unverified", f"{r.a} and {r.b}: {NOT_CHECKABLE}: {r.reason}", stage="guide", step="interop", item=r.group)
+    counts = {k: sum(r.result == k for r in done.results) for k in sorted({r.result for r in done.results})}
+    return said + "".join(f", {n} {k}" for k, n in counts.items())
+
+
 def summary(g: Guide) -> str:
     # the accuracy sheet covers every decision this run made, also when no app reached its report
     write_sheet(g.device)
@@ -184,6 +206,6 @@ def summary(g: Guide) -> str:
     return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone"
 
 
-DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping))
+DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping), ("interop", interop))
 # target detect, used set, benchmark, inbound: prerequisites alone calls no model
 DEVICE_STAGE = DEVICE_LEVEL[:1]

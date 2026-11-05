@@ -80,7 +80,7 @@ from .read import (
                      read_scopes,
                      read_sites,
 )
-from .run_record import drop_device_record, load_device_record, write_device_record
+from .run_record import drop_device_record, load_device_record, vouch_manifest, write_device_record
 
 __all__ = [
                      "AI_CLASSIFY_LOG",
@@ -163,5 +163,6 @@ __all__ = [
                      "review_stability",
                      "worthiness",
                      "worthiness_modes",
+                     "vouch_manifest",
                      "write_device_record",
 ]

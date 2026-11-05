@@ -101,7 +101,7 @@ def interop_not_run(g: Grouping) -> list[Violation]:
     if (g.groups.get("interop") or {}).get("status") != "not_run":
         return []
     return [Violation("interop_not_run", ADVISORY, f"group {x['id']}", (f"group {x['id']}", f"{len(x['runnable'])} runnable members"),
-                      "run the interop check (grouping interop-plan, cryptobenchmark --interop, interop-read)")
+                      "run the guide with --device, or grouping interop-plan, cryptobenchmark --interop, interop-read")
             for x in g.groups["groups"] if len(x.get("runnable") or ()) > 1]
 
 

@@ -47,6 +47,11 @@ def fingerprint(folder: Path) -> dict:
     return _flat("prepared", planned, _flat("run", run, out))
 
 
+def provider_setup(folder: Path) -> dict:
+    """What a verdict between two providers rests on: the device, its runtime and the bundled providers, not the run block."""
+    return {k: v for k, v in fingerprint(folder).items() if not k.startswith(("run.", "prepared.")) and k not in MEASURE_TIME}
+
+
 def case_setups(folder: Path) -> dict[str, dict]:
     """Per planned case, what the test set's overrides set on it; an anchor must have been planned alike."""
     manifest, base = read_manifest(Path(folder) / rd.MANIFEST)

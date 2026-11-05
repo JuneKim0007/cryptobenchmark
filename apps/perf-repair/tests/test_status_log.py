@@ -106,6 +106,8 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     assert last[1:-1] == [
         pointer_line(base.run_dir / rd.PRIMITIVES_MISSING),
         "reused device grouping: every item decided, saved files current",
+        "interop_unverified guide interop: warn: 1 of 1 pairs have no verdict for this setup: a device folder's pairs need "
+        f"--device or apps.measure; next: {CODES['interop_unverified'].next}",
         *(m.format(pa) for m in missing),
         f"energy_invalid {case} app {pa}: warn: short_window; see {pa}/measured/scoped/energy.json; "
         f"next: {CODES['energy_invalid'].next}",

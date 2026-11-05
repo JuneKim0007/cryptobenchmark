@@ -16,7 +16,7 @@ from ..data_handler.inbound import (
     read_prepared,
     read_results,
 )
-from ..data_handler.outbound.benchmark_runner import identify, run_pipeline
+from ..data_handler.outbound.benchmark_runner import require_connected, run_pipeline
 from ..dto.benchmark_coverage import (
     CHECKED,
     LOST,
@@ -29,7 +29,6 @@ from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, read_yaml, write_text_making_parents
 from ..result.estimate import MIN_RUNS, compare
 from ..result.gain import UNCHANGED, change_of
-from ..stop.halt import Coded
 from .delta_config import DELTA, narrowed, write_delta_config, write_rerun_config
 from .delta_estimate import estimate_line, planned_cases, seconds_per_case
 from .delta_merge import merge_delta
@@ -124,10 +123,8 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     folder = Path(folder)
     manifest, _ = read_manifest(folder / rd.MANIFEST)
     stored_config = Path(manifest.config)
-    identity = identify(stored_config if stored_config.is_file() else None, on_device, benchmark)
-    if identity["deviceId"] != folder.name:
-        raise Coded(f"device_id_changed: the connected device is {identity['deviceId']}, the folder is {folder.name}; "
-                    "a delta measures the device the benchmark did")
+    require_connected(folder, stored_config if stored_config.is_file() else None, on_device,
+                      "a delta measures the device the benchmark did", benchmark)
     items = {g.item for g in gaps}
     run = narrowed((read_yaml(stored_config).get("run") or {}) if stored_config.is_file() else {}, gaps)
     config = write_delta_config(stored_config, folder, items | anchors, run)

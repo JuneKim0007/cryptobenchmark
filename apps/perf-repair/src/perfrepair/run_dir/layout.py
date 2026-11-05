@@ -114,6 +114,7 @@ class GroupingPaths:
     groups = property(lambda self: self.root / "groups.json")
     interop_plan = property(lambda self: self.root / "interop_plan.yaml")
     interop = property(lambda self: self.root / "interop.yaml")
+    interop_pending = property(lambda self: self.root / "interop_pending.yaml")
     classify = property(lambda self: self.root / "classify")
     classify_batches = property(lambda self: self.root / "classify" / "batches.json")
     classified = property(lambda self: self.root / "classify" / "classified.json")
