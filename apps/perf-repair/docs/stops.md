@@ -67,6 +67,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `interop_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `app_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `dossier_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
+| `upgrade_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `replace_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `edit_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |
 | `harness_failed` | `stop` | fixed: nothing is left to run | 1 | read the lines the step printed above; fix and rerun the guide |

@@ -11,7 +11,7 @@ NOTHING = "nothing is left to run"
 UNUSABLE = "the input is unusable"
 NOTICE = "a notice; nothing to choose"
 # the guide's step names: a step's coded failure is `<step>_failed`, the inner code kept beside it
-GUIDE_STEPS = ("prerequisites", "targets", "grouping", "interop", "app", "dossier", "replace", "edit", "harness", "device", "report",
+GUIDE_STEPS = ("prerequisites", "targets", "grouping", "interop", "app", "dossier", "upgrade", "replace", "edit", "harness", "device", "report",
                "summary")
 
 
