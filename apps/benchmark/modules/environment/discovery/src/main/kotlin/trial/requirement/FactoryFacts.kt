@@ -7,7 +7,7 @@ import javax.crypto.spec.SecretKeySpec
 // The key path a password-based service runs on: does this factory make a key from a password, or only translate raw bytes.
 internal object FactoryFacts : RequirementCall {
 
-    private const val RAW_BYTES = 16
+    private val RAW_BYTES = listOf(16, 24, 32, 8)
 
     override fun instance(service: ProbedService) {
         SecretKeyFactory.getInstance(service.algorithm, service.provider)
@@ -22,11 +22,12 @@ internal object FactoryFacts : RequirementCall {
             }
             return CallResult(key = key, runWith = mapOf("operation" to "generateSecret", "spec" to "PBEKeySpec"))
         }
-        val raw = ErrorText.refusal {
-            SecretKeyFactory.getInstance(service.algorithm, service.provider).generateSecret(SecretKeySpec(ParameterSpecs.random(RAW_BYTES), service.algorithm))
-        }
         sheet.measure("fromPasswordRefused") { ErrorText.of(password.exceptionOrNull()!!) }
-        if (raw != null) return CallResult(ServiceRequirement.PARAMETERS_UNKNOWN, raw)
+        val raw = Sweep.of(RAW_BYTES) {
+            SecretKeyFactory.getInstance(service.algorithm, service.provider).generateSecret(SecretKeySpec(ParameterSpecs.random(it), service.algorithm))
+        }
+        sheet.measure("rawKeyBytes") { raw }
+        if (raw["accepted"] == "") return CallResult(ServiceRequirement.PARAMETERS_UNKNOWN, raw["firstRefusal"].toString())
         return CallResult(runWith = mapOf("operation" to "generateSecret", "spec" to "SecretKeySpec"))
     }
 }

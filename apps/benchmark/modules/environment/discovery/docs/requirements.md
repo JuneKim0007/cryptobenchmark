@@ -12,7 +12,7 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 | MessageDigest | `digestBytes`, `lengthDeclared`, `deterministic`, `inputBytes`, `cloneable`, `emptyInputPrefix` |
 | KeyAgreement | `secretBytes`, `bothSidesAgree`, `deterministic`, `withoutPeer`, `secretAsKey`, `keyBits`, `peerOfOtherSize`, `foreignKeys` |
 | KeyGenerator, KeyPairGenerator | read from the default run: `defaultBits`, `keyMaterial`, `keyFormat`, `sizes` |
-| SecretKeyFactory | `fromPassword`, or `fromPasswordRefused` and a raw key |
+| SecretKeyFactory | `fromPassword`, or `fromPasswordRefused` and `rawKeyBytes` |
 | any other type | the record with `no_call_for_type` |
 
 | rule | value |
@@ -24,7 +24,7 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 | one key cache | `DefaultKeys`, one per run across levels 2 and 3, keyed by generating provider, name and size; a refused generation is cached too; counts in `keyCache` |
 | one call per fact | `FactSheet.measure` catches any `Throwable` per fact; a whole call failing is `probe_failed`; nothing aborts the file |
 | error text | `ErrorText`: whitespace folded, hex or decimal runs of 32 and base64 runs of 48 characters become `<removed>`, then capped at 200 |
-| keystore-born | `KeyOrigin`: a provider none of whose key-using services or generators ran, with at least one refusing, has `keystore_born_key` and the condition `keystore-born key` on each refusing service |
+| keystore-born | `KeyOrigin`: a provider none of whose key-using services or generators ran, with at least one refusing, has `keystore_born_key` and the condition `keystore-born key` on each refusing service; a cipher that encrypts on a public key and refuses the private one counts as refusing |
 | API guard | `ChaCha20ParameterSpec` by name only; no class newer than API 26 is referenced |
 | aliases | per declared alias: `classRun`, `sameClass`, `behaviour` (the same call under the alias gives the same result), `ownNameKey` when the key its own name suggests comes from another source |
 

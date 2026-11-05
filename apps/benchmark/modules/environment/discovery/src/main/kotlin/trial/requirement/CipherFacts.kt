@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
+import java.security.InvalidKeyException
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
@@ -50,6 +52,9 @@ internal object CipherFacts : RequirementCall {
         sheet.measure("effects") { CipherEffects(service, engine, base).measure() }
         val fixed = ParameterSpecs.fresh(like)
         val ciphertext = engine.encrypt(key.encrypting, fixed, message)
+        privateKeyRefused(engine, base, fixed, ciphertext)?.let {
+            return CallResult(ServiceRequirement.KEY_REFUSED, it, key, runWith, search.tried)
+        }
         return CallResult(
             key = key,
             runWith = runWith,
@@ -57,6 +62,13 @@ internal object CipherFacts : RequirementCall {
             aliasRuns = { alias -> check(CipherEngine(service.provider, alias).decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext).contentEquals(message)) { "decrypts_differently" } },
             aliasAcceptsKey = { alias, other -> engine(service, alias).encrypt(other.encrypting, ParameterSpecs.fresh(like), message) },
         )
+    }
+
+    // Encrypting takes any public key; the private side decides whether a software key really runs here.
+    private fun privateKeyRefused(engine: CipherEngine, base: CipherBase, fixed: AlgorithmParameterSpec?, ciphertext: ByteArray): String? {
+        if (base.key.pair == null) return null
+        val thrown = runCatching { engine.decrypt(base.key.decrypting, CipherEngine.Sent(fixed), ciphertext) }.exceptionOrNull()
+        return if (thrown is InvalidKeyException) ErrorText.of(thrown) else null
     }
 
     private fun engine(service: ProbedService, name: String) = CipherEngine(service.provider, name)

@@ -29,14 +29,14 @@ internal class CipherBase private constructor(
                 val specs = listOf<Pair<String, AlgorithmParameterSpec?>>("" to null) + ParameterSpecs.candidates()
                 var refusedOtherThanKey: String? = null
                 for ((_, spec) in specs) {
+                    runnable(engine, key, spec)?.let { return Search(it, "", "", tried) }
                     val initRefused = runCatching { engine.encrypting(key.encrypting, spec) }.exceptionOrNull()
-                    if (initRefused != null) {
-                        if (initRefused !is InvalidKeyException && refusedOtherThanKey == null) refusedOtherThanKey = ErrorText.of(initRefused)
-                        if (firstDetail.isEmpty()) firstDetail = ErrorText.of(initRefused)
+                    if (initRefused == null) {
+                        keyAccepted = true
                         continue
                     }
-                    keyAccepted = true
-                    runnable(engine, key, spec)?.let { return Search(it, "", "", tried) }
+                    if (initRefused !is InvalidKeyException && refusedOtherThanKey == null) refusedOtherThanKey = ErrorText.of(initRefused)
+                    if (firstDetail.isEmpty()) firstDetail = ErrorText.of(initRefused)
                 }
                 tried += key.describe() + ("refused" to (refusedOtherThanKey ?: firstDetail))
             }
