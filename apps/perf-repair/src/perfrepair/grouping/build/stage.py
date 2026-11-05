@@ -43,14 +43,14 @@ def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Revi
 
 def _screened(context: RunContext, items, profiles, catalog: Catalog) -> dict:
     with step("screening", "screen", detail=f"catalog {catalog.source}") as s:
-        verdicts = screen_items(context, items, profiles)
+        verdicts = screen_items(catalog.screening, context.names, items, profiles)
         s.count(**dict(sorted(Counter(v.status for v in verdicts.values()).items())))
     return verdicts
 
 
 def _build(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None, families: Families | None,
            echo) -> tuple[GroupingPaths, list, dict, Names]:
-    context = RunContext.load(manifest_path, families=families, screening=catalog.screening)
+    context = RunContext.load(manifest_path, families=families)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])
     present = {k: getattr(context, k) for k in OPTIONAL if context.file(k) is not None}
