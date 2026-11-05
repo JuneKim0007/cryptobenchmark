@@ -141,15 +141,6 @@ def test_an_edited_screening_catalog_rescreens_only(setup, tmp_path):
     assert yaml.safe_load((done.folder / "device.yaml").read_text())["inputs"]["screening"] == load_catalog(edited).sha256
 
 
-def test_a_deleted_device_yaml_keeps_the_measured_run_and_redoes_the_rest(setup):
-    root, config = setup
-    first, _ = device(root, config)
-    (first.folder / rd.DEVICE).unlink()
-    done, lines = device(root, config)
-    assert done.ran == ["inbound", "screen", "primitives"] and len(runs(root)) == 1
-    assert lines[2].startswith("device inbound: ran")
-
-
 def test_measurements_of_an_older_schema_rerun_inbound_without_a_device_run(setup):
     root, config = setup
     first, _ = device(root, config)

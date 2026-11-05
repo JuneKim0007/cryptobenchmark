@@ -75,6 +75,13 @@ class Flow:
     def remove_provider(self):
         self.global_yaml.write_text(self.global_yaml.read_text().replace(BUNDLED_FIRST, "bundled: []"))
 
+    def ended(self, step):
+        """The device step's outcome and counts in the last run."""
+        events = [json.loads(e) for e in (self.device / "log" / "events.jsonl").read_text().splitlines()]
+        last = [e for e in events if e["run"] == events[-1]["run"] and e["stage"] == "device" and e["step"] == step
+                and e["event"] == "end"]
+        return (last[-1]["outcome"], last[-1]["data"].get("counts", {})) if last else (None, {})
+
     def problems(self):
         out = validate_run(self.device, screening_catalog(None))
         return {k: v for k, v in out.items() if v}
@@ -95,14 +102,6 @@ def test_a_first_run_asks_every_item_once(flow):
     lines = flow.run()
     assert f"guide grouping: ok: ran: {OLD_ITEMS} of {OLD_ITEMS} items asked" in lines
     assert flow.calls() == OLD_ITEMS and flow.device_runs() == 1 and flow.problems() == {}
-
-
-def test_nothing_changed_is_no_call_no_device_run_and_grouping_reused(flow):
-    flow.run()
-    before = flow.paths.groups.stat().st_mtime_ns
-    lines = flow.run()
-    assert "guide grouping: ok: reused" in lines and flow.calls() == OLD_ITEMS and flow.device_runs() == 1
-    assert flow.paths.groups.stat().st_mtime_ns == before
 
 
 def test_a_provider_added_asks_only_its_new_items_and_rebuilds_the_groups(flow):
@@ -199,10 +198,12 @@ def test_back_to_no_rerun_true_stays_on_the_refreshed_outbox(flow):
     assert flow.calls() == 2 * OLD_ITEMS
 
 
-def test_a_deleted_device_yaml_redoes_the_static_stages_and_still_asks_nothing(flow):
+def test_a_deleted_device_yaml_keeps_the_measured_run_redoes_the_rest_and_asks_nothing(flow):
     flow.run()
     (flow.device / rd.DEVICE).unlink()
-    assert "guide grouping: ok: reused" in flow.run() and flow.calls() == OLD_ITEMS
+    flow.run()
+    assert flow.ended("benchmark")[0] == "reused" and flow.ended("inbound")[0] == "ran" and flow.device_runs() == 1
+    assert flow.ended("grouping")[0] == "reused" and flow.calls() == OLD_ITEMS and flow.problems() == {}
 
 
 SHA = "MessageDigest|SHA-256|Fast"
@@ -258,11 +259,12 @@ def test_filter_a_first_target_groups_and_measures_only_what_it_uses(scoped):
     assert len(read_json(scoped.paths.groups)["notUsed"]) == 3 and scoped.problems() == {}
 
 
-def test_filter_nothing_changed_is_no_call_and_no_device_run(scoped):
+def test_filter_nothing_changed_is_no_call_no_device_run_and_grouping_reused(scoped):
     run_targets(scoped, scoped.sha)
-    lines = run_targets(scoped, scoped.sha)
-    assert "guide grouping: ok: reused" in lines and scoped.calls() == 1 and scoped.device_runs() == 2
-    assert "device benchmark: reused" in lines
+    before = scoped.paths.groups.stat().st_mtime_ns
+    run_targets(scoped, scoped.sha)
+    assert scoped.ended("grouping")[0] == "reused" and scoped.calls() == 1 and scoped.device_runs() == 2
+    assert scoped.ended("benchmark")[0] == "reused" and scoped.paths.groups.stat().st_mtime_ns == before
 
 
 def test_filter_a_new_target_asks_only_its_new_items_and_reruns_no_benchmark_for_a_refused_one(scoped):

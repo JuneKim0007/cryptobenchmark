@@ -203,22 +203,16 @@ def test_a_coded_gap_alone_starts_no_delta_and_does_not_stop(device):
     assert not merged and len(coverage.coded()) == 2 and not (device / "delta").exists()
 
 
-def test_a_setup_that_differs_refuses_the_delta_naming_the_field(device, monkeypatch):
+def test_a_setup_that_differs_refuses_the_delta_naming_the_field_before_the_measuring_session(device, monkeypatch):
     monkeypatch.setenv("FAKE_FINGERPRINT", "another-build")
+    manifest = read_yaml(device / rd.MANIFEST)
+    manifest["runtime"]["fingerprint"] = "the-stored-build"
+    (device / rd.MANIFEST).write_text(yaml.safe_dump(manifest, sort_keys=False))
     before = (device / rd.MANIFEST).read_bytes()
     with pytest.raises(Halt) as e:
         gate(device, SHA_LOST)
     assert e.value.code == "setup_mismatch" and "runtime.fingerprint" in e.value.detail
     assert (device / rd.MANIFEST).read_bytes() == before
-
-
-def test_a_setup_that_differs_is_refused_before_the_measuring_session(device, monkeypatch):
-    monkeypatch.setenv("FAKE_FINGERPRINT", "another-build")
-    manifest = read_yaml(device / rd.MANIFEST)
-    manifest["runtime"]["fingerprint"] = "the-stored-build"
-    (device / rd.MANIFEST).write_text(yaml.safe_dump(manifest, sort_keys=False))
-    with pytest.raises(Halt):
-        gate(device, SHA_LOST)
     # only the probe ran: its manifest lists no benchmark
     assert "benchmark" not in read_yaml(device / "delta/results" / FOLDER / rd.MANIFEST)["files"]
 
