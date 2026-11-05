@@ -118,13 +118,6 @@ Errors are `BundledProviderException` with a `code`. The capture stays `schemaVe
 | sibling `probe_classes_` and `trial_` files exist |
 | the trial parses and its `capturedAtMillis` equals the capture's |
 
-## Queries
-
-| class | questions |
-|---|---|
-| `CaptureQuery` | `whoServes(type, nameOrAlias)` in precedence order, `serviceOf`, `namesOf`, `onlyOn(provider)`, `tree()`; names match case-folded name or alias; no JCA call |
-| `CaptureQuery.tree()` | type to algorithm to `ServiceShape(modes, paddings, providers)`, case-insensitive sorted, spellings merged by `ServiceKey` |
-
 ## Limits
 
 - only what a provider registers and declares is captured; JNI crypto, unregistered providers and hardware are not visible
