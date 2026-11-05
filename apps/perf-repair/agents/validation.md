@@ -64,7 +64,6 @@ src/perfrepair/validation/report_metrics.py : a report row's metric rows: no num
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes, a known variant
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/scoping/__init__.py : docstring only
-src/perfrepair/validation/scoping/accuracy.py : known-answer accuracy of the scoper: per pattern rule and link kind, the right readings and the wrong ones
 src/perfrepair/validation/scoping/invariants.py : scoping invariants against the source: the call on its line, held_in_field setup once (a re-init accepted where the fixed variant inits per call), created_per_call in one function, inverse link sides
 src/perfrepair/validation/scoping/source.py : Sources: an app's files as Code read once; line spans, the function around a line, the calls a line holds
 src/perfrepair/validation/screen.py : screen.json: built from this run's items.json and profiles.json (`built` digests), its catalog identity `{source, sha256}`, one verdict per item id, statuses in the set, a source for every status but unknown, a canonical name for a never-target one, a model source for unverified, and a model source only as `model:<review fingerprint>`; validate_model_verdicts: model-sourced verdicts equal the classify answers; read_checked_screen: the gated reader assign and read_groups use
