@@ -313,3 +313,9 @@ def test_no_secure_option_only_when_the_family_has_no_accepted_measured_member(t
     monkeypatch.setattr(candidates, "classify", refuse)
     doc = _doc(tmp_path, names=(MD5, MD5_OTHER, SHA1))
     assert [n["reason"] for n in doc["noOptions"]] == ["no_secure_option"]
+
+
+def test_an_unparseable_reply_is_refused_with_its_problem():
+    from perfrepair.validation.upgrade import check_reply
+    decision, problems = check_reply("not json", None)
+    assert decision is None and problems

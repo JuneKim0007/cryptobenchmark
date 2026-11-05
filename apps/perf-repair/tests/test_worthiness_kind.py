@@ -83,3 +83,9 @@ def test_the_replay_tells_a_corrupt_verdicts_file_from_a_folder_before_perf_mode
     rd.worthiness(tmp_path, "old-mode").mkdir()
     [problem] = check_worthiness(tmp_path, "old-mode", {}, [], None)
     assert "the folder is from before perfMode" in problem
+
+
+def test_an_unparseable_reply_is_refused_with_its_problem():
+    from perfrepair.validation.evaluate.worthiness import check_reply
+    decision, problems = check_reply("not json", None, None)
+    assert decision is None and problems
