@@ -5,12 +5,9 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 | Step | Flags | Input | Output |
 |---|---|---|---|
 | dossier | | `scopes.json`, `units.json`, `app.json`, `grouping/groups.json`, `rows.json`, `measurements.json` | `dossiers.json`, validated before writing |
-| test-set | `-o` | `dossiers.json` | YAML test set at `-o`: each scope's current item and every option, once each |
 | edit | | `scopes.json`, `replacements.json`, `upgrades.json`'s `upgraded` rows, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
 | harness | | `scopes.json`, `replacements.json`, `edits.json`, `dossiers.json`, `original/`, `patched/`, the manifest's `effective.yaml` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
 
-- test-set refuses a `dossiers.json` of another app, and one with no scope that has an option.
-- A per-app benchmark run on the test set measures only what the app uses and its swap candidates.
 
 ## Edit kinds
 
@@ -60,23 +57,19 @@ scopes:
     inputs: {inputSize: <bytes or null>, keySize: <bits or null>, from: app|run}
     current: <the dossier's current item>
     option: <the chosen item>
-    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [<identifiers used but not defined in the function>]
     notMeasurable: null|no_operation
     inverse: null|{partner: <scope id>, role: produce|consume}
-    callSite: {operation: <the benchmark operation or null>, variant: fixed|notFixed}
     upgrade: true|false
 ```
 
 - Paths are relative to the folder of `harness.yaml`; only applied scopes are listed.
 - `inverse` is the scope's partner by an `inverse` link of `units.json`, both sides applied; cryptobenchmark's round trip takes it, never a name.
-- `callSite` is the swapped call alone, as cryptobenchmark measures it beside the function: `operation` is the scope's one lifecycle operation, else the one operation the chosen option's estimates are at, else null (several or none, so no call site is measured); `variant` is the scope's `pattern`.
 - `upgrade`: the swap replaces a broken algorithm, so its output differs by definition; see [upgrade.md](upgrade.md).
 - `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
-- `metrics` names `benchmark.json` keys; energy is `energyJ`, joules per operation.
-- `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim. When two units applied edits in one function, `after` comes from `patched-alone/<unit>/`, that unit's edits only: the function is measured as original, A swapped only, B swapped only, never with both, so no change is counted twice.
+- `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim. When two units applied edits in one function, `after` comes from `patched-alone/<unit>/`, that unit's edits only: the function is checked as original, A swapped only, B swapped only, never with both.
 - `imports` keeps a line whose simple name or alias a function's text uses (Kotlin: in any position, since an extension reads as a member; an operator or delegate convention name always); a header annotation's import is dropped with the annotation; a wildcard stays only while a dependency is unresolved.
-- `notMeasurable: no_operation`: the function only creates, configures or hands back its primitive (`repair/operation.py`, setup names in `repair/setup_calls.yaml`); cryptobenchmark records it and never generates it, so no number describes a factory. A form the check cannot read counts as an operation.
+- `notMeasurable: no_operation`: the function only creates, configures or hands back its primitive (`repair/operation.py`, setup names in `repair/setup_calls.yaml`); cryptobenchmark records it and never generates it. A form the check cannot read counts as an operation.
 - `dependencies` is the union over both functions: identifiers not declared in the function, not after another receiver's `.`, not a keyword, not imported, and not in `repair/names.yaml`.
 - `inputs` is one entry per scope, never one per size; `from` says where its sizes came from:
 

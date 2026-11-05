@@ -77,7 +77,6 @@ def logger():
 def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  # noqa: F811
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     a, b = base.app("a"), base.app("b")
-    monkeypatch.setenv("FAKE_ENERGY_INVALID", "1")
     monkeypatch.setenv("FAKE_FAIL_APP", path_id(b))
     attach()
     assert failure.reported(lambda: (attach(base.run_dir), base.go([a, b], device=True)[0])[1]) == 1
@@ -87,7 +86,7 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     pa, pb = path_id(a), path_id(b)
     assert ": exit 1 (" in last[-1]
     words = {line.split()[0] for line in last}
-    assert {"interop_unverified", "not_on_device", "energy_invalid", "ok", "pipeline_failed"} <= words
+    assert {"interop_unverified", "not_on_device", "ok", "pipeline_failed"} <= words
     failed = next(line for line in last if line.startswith("pipeline_failed "))
     assert f"app {pb}" in failed and f"ok app {pa}" in last
     # the failure line points at the transcript line where its device run starts

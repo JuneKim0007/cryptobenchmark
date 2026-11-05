@@ -43,7 +43,7 @@ def test_two_trees_of_one_folder_name_differ_and_a_stop_is_their_code(base):  # 
     rows = _rows(base.run_dir)
     assert code == 1 and (rows[path_id(a)]["project"], rows[path_id(b)]["project"]) == ("x/android", "Named")
     ra = rows[path_id(a)]
-    assert (ra["source"], ra["stage"], ra["stop"], ra["measured"], ra["replace"]) == (str(a), "replace", "no_replacement",
+    assert (ra["source"], ra["stage"], ra["stop"], ra["checked"], ra["replace"]) == (str(a), "replace", "no_replacement",
                                                                                       "no", "0")
     assert int(ra["sites"]) >= int(ra["scopes"]) > 0 and int(ra["drop-in"]) + int(ra["local-edit"]) > 0
     assert int(ra["fixed"]) + int(ra["notFixed"]) == int(ra["scopes"]) and int(ra["unknown_default"]) <= int(ra["notFixed"])
@@ -66,12 +66,12 @@ def test_a_later_run_that_stops_nowhere_clears_the_stop_and_the_command_rewrites
     assert index_main(["--device-results", str(base.run_dir)]) == 0 and path_id(a) in _rows(base.run_dir)
 
 
-def test_a_measured_app_reaches_its_report_and_is_measured(base, monkeypatch):  # noqa: F811
+def test_a_device_app_reaches_its_report_and_is_checked(base, monkeypatch):  # noqa: F811
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     a = _android(base, "x")
     assert _go(base, [a], device=True) == 0
     row = _rows(base.run_dir)[path_id(a)]
-    assert (row["stage"], row["measured"]) == ("report", "yes")
+    assert (row["stage"], row["checked"]) == ("report", "yes")
 
 
 def test_columns_of_a_step_past_the_reached_stage_stay_empty(base, monkeypatch):  # noqa: F811
@@ -83,4 +83,4 @@ def test_columns_of_a_step_past_the_reached_stage_stay_empty(base, monkeypatch):
     monkeypatch.setattr(guide_steps, "dossier", lambda *_, **__: (_ for _ in ()).throw(ValueError("no_dossier: x")))
     assert _go(base, [a]) == 1
     row = _rows(base.run_dir)[path_id(a)]
-    assert (row["stage"], row["replace"], row["notOffered"], row["measured"]) == ("app", "0", "0", "no")
+    assert (row["stage"], row["replace"], row["notOffered"], row["checked"]) == ("app", "0", "0", "no")

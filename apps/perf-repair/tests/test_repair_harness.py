@@ -69,8 +69,7 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
         "before": f"harness/{LITERAL.id}/before.java", "after": f"harness/{LITERAL.id}/after.java",
         "imports": ["import javax.crypto.Cipher;"],
         "inputs": {"inputSize": 1024, "keySize": 256, "from": "app"}, "current": CURRENT, "option": FAST,
-        "metrics": ["timeNs", "allocationCount", "energyJ"], "dependencies": ["key"], "notMeasurable": None, "inverse": None,
-        "callSite": {"operation": "ENCRYPT", "variant": "notFixed"}, "upgrade": False}
+        "dependencies": ["key"], "notMeasurable": None, "inverse": None, "upgrade": False}
     original = (ROOT / JAVA).read_text().splitlines(keepends=True)
     assert (paths.root / entry["before"]).read_text() == "".join(original[LITERAL.start - 1:LITERAL.end])
     assert '"Fast"' in (paths.root / entry["after"]).read_text()
@@ -79,7 +78,6 @@ def test_edit_then_harness_lists_each_applied_scope_with_both_functions(tmp_path
     nested = next(s for s in doc["scopes"] if s["id"] == NESTED.id)
     assert nested["dependencies"] == ["key", "name", "prefix"]
     assert nested["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
-    assert nested["callSite"] == {"operation": None, "variant": "notFixed"}
 
 
 def test_harness_marks_a_broken_use_as_an_upgrade_and_no_other_scope(tmp_path):
@@ -114,10 +112,10 @@ def test_validators_refuse_broken_documents(tmp_path):
     bad = {**edits, "edits": edits["edits"] + [{"scope": "x", "status": "rejected", "reason": "guess", "diff": ""}]}
     assert len(validate_edits(bad, APP, {s.id for s in SCOPES})) == 2
     doc = yaml.safe_load(paths.harness.read_text())
-    doc["scopes"][0]["metrics"] = ["timeNs"]
+    doc["scopes"][0]["dependencies"] = ["z", "a"]
     doc["scopes"] = doc["scopes"][:2]
     problems = validate_harness(doc, APP, paths.root, edits)
-    assert any("applied edits" in p for p in problems) and any("metrics" in p for p in problems)
+    assert any("applied edits" in p for p in problems) and any("dependencies are not sorted" in p for p in problems)
     doc["scopes"][0]["notMeasurable"] = "factory"
     assert any("notMeasurable 'factory'" in p for p in validate_harness(doc, APP, paths.root, edits))
     doc["scopes"][1]["current"] = doc["scopes"][1]["option"]

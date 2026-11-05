@@ -26,8 +26,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `perf_mode_maybe_unmeasured` | `warn` | `warn`, `stop` | 1 | set run.harness.energy.capture: measured, or rely on the test set |
 | `energy_invalid` | `warn` | `warn`, `stop` | 1 | the case has no energy number; rerun it with a longer window or more operations |
 | `energy_unreadable` | `warn` | `warn`, `stop` | 1 | check the energy.json files the manifest lists |
-| `thermal_mismatch` | `warn` | `warn`, `stop` | 1 | the sides of a pair started at different temperatures; rerun the pair, or read its ratio with care |
-| `category_mismatch` | `warn` | `warn`, `stop` | 1 | the before/after disagrees with its category's estimate; check the scope's pattern against its function, or read its ratio with care |
 | `thermal_throttled_at_end` | `warn` | `warn`, `stop` | 1 | the case ended throttled; let the phone cool, or read its numbers with care |
 | `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
 | `invariant_undecided` | `warn` | `warn`, `stop` | 1 | the source does not decide a rule; run python3 -m perfrepair.validation.invariants on the device folder and check each undecided finding by hand |

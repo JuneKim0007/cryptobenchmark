@@ -1,6 +1,6 @@
 # Replacement
 
-From an app's source to a measured before/after of each call site the model chose to replace. Types: `src/perfrepair/dto/site.py`, `src/perfrepair/dto/dossier.py`, `src/perfrepair/dto/replacement.py`.
+From an app's source to a compiled and interop-checked replacement of each call site the model chose to replace; nothing is measured after a recommendation. Types: `src/perfrepair/dto/site.py`, `src/perfrepair/dto/dossier.py`, `src/perfrepair/dto/replacement.py`.
 
 ## Flow
 
@@ -14,7 +14,7 @@ From an app's source to a measured before/after of each call site the model chos
 | replace | model | one unit, the `Dossier` of each member with options and the members that stay, per conversation | `<app>/replace/` outbox, `replacements.json` (`Replacement`) |
 | edit | static | replacements, units, app source | `<app>/patched/` (a copy; the app is never edited), `edits.json` |
 | harness | static | scopes, dossiers, the original and patched function, the results' `effective.yaml` | `<app>/harness.yaml` for cryptobenchmark; inputs with their source (`docs/repair.md`) |
-| measure | device | `harness.yaml` | `<app>/measured/scoped/`: `scoped-plan.yaml` (compile and interop per scope), `benchmark.json` (cases `scope:<id>:before`, `:after`: `timeNs`, `allocationCount`, `energyJ`) |
+| check | device | `harness.yaml` | `<app>/measured/scoped/scoped-plan.yaml`: compile and interop per scope |
 | report | static | every file above (`units.json` required) | `<app>/report.json`, `report.md`; `summary.json`, `summary.md` across apps |
 
 ## Guide
@@ -67,33 +67,21 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 
 | report.json row field | value |
 |---|---|
-| `unit`, `sharedFunction`, `stayed` | the scope's unit id; the other units with a member in its function, whose edits its measured `after` leaves out; the unit's members a static keep left on what they use while another member is replaced, [] otherwise |
+| `unit`, `sharedFunction`, `stayed` | the scope's unit id; the other units with a member in its function, whose edits its patched function leaves out; the unit's members a static keep left on what they use while another member is replaced, [] otherwise |
 | `inputs` | the scope's harness.yaml `inputs`: `inputSize`, `keySize`, `from` (`app` or `run`); null when the scope is not in the harness |
 | `decision` | `replace`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static`; `stale` true when replacements.json lists the scope as decided on an earlier dossier, marked in report.md |
 | `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
 | `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `not_measurable` with its reason (`no_operation`: a factory, never generated); `skipped`; `not_run` (no device run) |
-| `interop` | `passed`, `unchecked`, `not_comparable` (an identity-only output, not measured), `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |
-| `metrics` | every registry metric, measured or not, each with `selected` (the perfMode chose it; `*` in report.md): `timeNs` (stored ns/op; `views`: `latency` and `throughput` in the report's `units`, the manifest's `analysis.units`, throughput null where MB/s or MiB/s has no input size; report.md shows one row in the latency unit and a throughput line, never two metrics), `allocationCount`, `energyJ`: median before and after, ratio (after ÷ before; null when before is 0), pImprove and its level, n; `kind: estimated` on an estimated `energyJ`, labelled in report.md and summary.md |
-| `verdict` | the mode's rule on the measured ratios: `improves`, `not_improving`, `not_measured` |
-| `primitive` | the chosen option's dossier estimates: the benchmark's evidence when the function itself is not measured |
-| `measuredBy` | `function` when the function has a number, else `callSite`, else null; `metrics`, `verdict`, `label`, `thermal`, `categoryMismatch` are that kind's, and report.md says which |
-| `measurements` | `function` and `callSite`, each: `metrics`, `label`, `verdict`, `thermal`, `truth`; `callSite` adds `operation` |
-| `truth` | `verdict` (`agrees`, `contradicts`, `no_estimate`, `not_measured`, `not_applicable`), `category` (the pattern), `mismatch`, `compared` (per selected metric: ratio, change, the estimates' ratios and changes) |
+| `interop` | `passed`, `unchecked`, `not_comparable` (an identity-only output), `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |
+| `primitive` | the chosen option's dossier estimates: the benchmark's evidence, measured before the recommendation |
 
-- `energyJ` of different kinds before and after is `{"measured": false, "reason": "energy_kinds_differ: ..."}`.
-- A metric without runs on both sides is `{"measured": false, "reason"}`: the first step that stopped, e.g. `primitive_only: missing_input: inputSize for in`. No number is ever filled in.
 - `maxChange`, `recommendations` (each candidate above it: `scope`, `item`, `change`, `diff`) and `rejected` (a count per reason), summed per class and reason in summary.json; a recommendation is never applied.
 - `brokenUses`: `counts` per status and `rows`, each broken use and what it became ([upgrade.md](upgrade.md)), a section of report.md; summed in summary.json `brokenUses`.
 - One row per scope stays; `funnel` adds `units` (all of them) and `unitsReplace` (those replaced).
-- `funnel`: sites → scopes → units → withOptions → replace → unitsReplace → applied → compiled → interopPassed → measured; `measured` is the function's number and includes interop `unchecked`, counted again in `measuredUnchecked` (not a stage); `measuredCallSite` counts the scopes with only the call's number (not a stage); report.md marks each such scope "measured without an interop check", e.g. a randomized encrypt with no decrypt partner (`nondeterministic_output`).
+- `funnel`: sites → scopes → units → withOptions → replace → unitsReplace → applied → compiled → interopPassed.
 - A scoped-plan.yaml whose scopes are not harness.yaml's is `measured_mismatch`.
-- report.json names the app's project (Gradle `rootProject.name`, else its folder) and source path beside its id; a row carries each metric's `noise` and `change`, the overall `label`, the model's `deciding` and `accepted`, and `thermal` (see [modes.md](modes.md#labels)).
-- A report row carries the scope's `pattern` and `patternReason`, and `categoryMismatch`: the selected metrics whose before/after change, beyond noise, is not a change the chosen option's estimates (its category's variant) gave; a measured `unchanged` never counts, since the function's other work dilutes the ratio. Each such row is `category_mismatch` through the stop table (`warn`; `stops.category_mismatch: stop` stops).
-- A `callSite` number is the swapped call alone at the scope's variant, so it is compared with the estimates at its own operation and sizes (else its operation, else all), and a measured `unchanged` against an improved estimate is a mismatch: nothing dilutes it. No interop check runs on it, and report.md says so.
-- `truthCheck`: `per_call` when the before/after times the per-call path; a `fixed` scope's function is its setup (constructor or initializer), so its `function` truth is `not_applicable` and it gets no `categoryMismatch` from it; its `callSite` is still checked.
-- summary.json: `patterns` (`all` and `byApp`: `fixed`, `notFixed`, `unknownDefault`, `categoryMismatch` counts); `metrics` and `labels` hold one block per pattern and every `swaps` entry names its `pattern`: the two categories are never summed or mixed.
-- summary.json: `modes` and `named` per app, `labels` (`improves`, `tradeOffAccepted`, `worse`, `unchanged`, `notMeasured` over the replace decisions), `swaps` (each chosen current → option: its apps, labels and per metric ratios), `thermal` (pairs per label); each app counts under its own perfMode.
-- summary.json: the funnel summed and per app; per selected metric (the reports' perfMode) each app's ratio is the median over its measured scopes, `improved` at or below `improvingRatio` (`result/criteria.yaml`), `worse` at or above its inverse, else `unchanged` or `notMeasured`; `medianChange` is the median app ratio − 1. Reports of different modes are `mixed_modes`.
+- report.json names the app's project (Gradle `rootProject.name`, else its folder) and source path beside its id; a row carries the scope's `pattern` and `patternReason` and the model's `deciding` and `accepted`.
+- summary.json: `modes` and `named` per app, the funnel summed and per app, `patterns` (`all` and `byApp`: `fixed`, `notFixed`, `unknownDefault` counts).
 
 ## Contracts
 
@@ -116,7 +104,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 - An option's estimates cover only the configurations of the lifecycle's `operations` when it knows them; its pins come from every operation, since parameters do not depend on it.
 
 - The app gate finds the outermost Android project roots under `--app`, down to 4 levels: a folder with `settings.gradle(.kts)`, with `build.gradle(.kts)` beside an Android source set (at `--app` itself, any build file), or a legacy Ant project (`AndroidManifest.xml` beside `project.properties`, scanned like any other); the folders of `app/find/ignored.yaml` are skipped (tooling, and stale source copies such as `NONE_TRANSFORMED_`, counted as `skippedCopies` on `app detect`) and symlinks are not followed. One root is `<path id>`; several become units `<path id>.<root dirs joined by '.'>`. `app.json` `projectRoot` is the root relative to `--app`, and site files are relative to it, so a later `--app`, that project root, reads them.
-- A unit is the objects decided, swapped and measured together: the connected components of the links; a scope with none is a unit of one. Only `bounded` and `partially_bounded` scopes link: an object never used or never read has nothing to keep in step. Its `id` is `unit_id(app, members)`. (A multi-root app's `<path id>.<root>` folders are another thing, one per project root.)
+- A unit is the objects decided and swapped together: the connected components of the links; a scope with none is a unit of one. Only `bounded` and `partially_bounded` scopes link: an object never used or never read has nothing to keep in step. Its `id` is `unit_id(app, members)`. (A multi-root app's `<path id>.<root>` folders are another thing, one per project root.)
 - A link names its lines on both sides, and they come from that side's lifecycle. `shared_key`: two key requirements with one origin and one line (a field, a parameter both steps name, one call), never `unknown` or `literal`. `producer_consumer`: an output of a `producers` call (`relations.yaml`) reaching a key requirement: `line`, the requirement's origin is that very line; in one outermost class, `call` (the line calls the producer's function, which returns), `field` (the output is written to the field the requirement reads) or `parameter` (the parameter the step names has the type the producer's method returns, and the names' first segments agree when both are known). `inverse`: one engine type, one algorithm, operations inverse in `relations.yaml`, and `key` or `input` (one origin and one line), `producer` (one producer feeds both) or `parameter` (both take their key from their caller, in one class: the same contract, though no caller is seen; the weakest evidence, kept because it pairs a wrapper's encrypt and decrypt).
 - A scope's `id` is `scope_id(app, file, function, line, call)`, so rerunning detection and scoping on the same source gives the same ids, and every later step refers to a scope only by id.
 - An `Option` is a candidate up to `maxChange`: a member of the site's group available in the app's process (from the platform or bundled by the app), or a candidate of [change-classes.md](change-classes.md). Its `pins` are the parameters that make the swap like-for-like (IV length, tag length, OAEP digests); `null` means unknown (no configuration measured on both sides), and the gate refuses a `replace` to it. A benchmark row without `parameters` is the coded error `missing_parameters`.

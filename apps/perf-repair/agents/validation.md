@@ -59,8 +59,7 @@ src/perfrepair/validation/primitives.py : primitives.tsv: unique lines, registry
 src/perfrepair/validation/primitives_missing.py : log/details/primitives_missing.yaml: schema, run, each row a known reason and action, its lists, a next step
 src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason codes, applied scopes only; EDIT_REASONS; `valid_inputs`, also used by the report check
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; consistent_units
-src/perfrepair/validation/report.py : report.json: statuses, rows, funnel recount, each row's pattern, measuredBy, truth checks and categoryMismatch recomputed, recommendations above maxChange; schema_version_problems, shared with summary.json
-src/perfrepair/validation/report_metrics.py : a report row's metric rows: no number without a measurement, selected as the mode says, ratio, level, noise and change by the rule, the time row's views
+src/perfrepair/validation/report.py : report.json: statuses, rows, funnel recount, each row's pattern, recommendations above maxChange; schema_version_problems, shared with summary.json
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes, a known variant
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/scoping/__init__.py : docstring only
@@ -71,7 +70,7 @@ src/perfrepair/validation/suggest/site_edits.py : a member's edits against its c
 src/perfrepair/validation/suggest/site_inverse.py : an inverse pair the swap leaves on two items: refused on another output or a failed interop, else unverified_interop declared
 src/perfrepair/validation/suggest/site_performance.py : the replacement gate's performance part: a listed perfMode's strict rule, generic's named deciding metrics and accepted losses over the code labels; recommend's change line and needs; concerns' length
 src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its unit, member by member in their aliases; the members with options all replaced or all kept, none that stays named; refuses an option with unknown pins, and a replace that changes the output while its own risks say the output leaves; risks from scope and option
-src/perfrepair/validation/summary.py : summary.json against the reports: apps and funnels, modes, pattern counts, app partition per pattern
+src/perfrepair/validation/summary.py : summary.json against the reports: apps and funnels, modes, pattern counts
 src/perfrepair/validation/units.py : units.json: every scope in one unit, ids recomputed, members connected, each cited line in that side's lifecycle
 src/perfrepair/validation/upgrade.py : gate C of repair-upgrade: an offered alias and a reason, resolved to the item; upgrades.json rows against their items, none on an item not accepted
 src/perfrepair/validation/used.py : used.json: each item a device item named once, a known via, apps it lists, matched within sites, deviceItems equal to items.json

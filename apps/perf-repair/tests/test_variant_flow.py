@@ -91,6 +91,3 @@ def test_both_variants_reach_every_stage_apart_and_a_scope_reads_its_own(flow):
     assert flow.problems() == {}
 
 
-def test_a_fixed_scope_has_no_truth_check_because_its_function_is_the_setup():
-    from perfrepair.result.category import checkable
-    assert not checkable({"pattern": "fixed"}) and checkable({"pattern": "notFixed"})

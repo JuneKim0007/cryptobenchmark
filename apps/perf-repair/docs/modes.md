@@ -55,13 +55,12 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | `unchanged`, `not_measured` | no change beyond noise; no metric to label |
 
 - Selected metrics only. `noise` per metric: `beyond`, `within`, `unknown` (n < 2).
-- A report's `verdict` stays the ratio rule above; `label` is what the summary counts.
 - A zero median before keeps the option: it shows `no estimate: zero_median`, and the metric has no change.
 
 ## Temperature
 
-- A scoped case of `benchmark.json` carries `thermal: {start: {sensor: value}, end: {sensor: value}, startStatus, endStatus}` and `thermalThrottleSleepSeconds`; inbound keeps them per row in `measurements.json` (`thermal`), the report per pair (`thermal`).
-- `thermal_mismatch`: the two start readings differ by more than `thermalMismatchDegrees` (`criteria.yaml`, 5) on a sensor both name. `thermal_throttled_at_end`: a side's `endStatus` is above 0. Both go through `stops.<code>`, warn by default, and change no verdict or label; inbound fires the second too, once with its cases.
+- A case of `benchmark.json` carries `thermal: {start: {sensor: value}, end: {sensor: value}, startStatus, endStatus}` and `thermalThrottleSleepSeconds`; inbound keeps them per row in `measurements.json` (`thermal`).
+- `thermal_throttled_at_end`: a case's `endStatus` is above 0; inbound fires it once with its cases through `stops.<code>`, warn by default, and it changes no verdict or label.
 
 ## Confidence: pImprove
 

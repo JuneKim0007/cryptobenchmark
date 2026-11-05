@@ -5,7 +5,6 @@ from dataclasses import asdict, dataclass
 
 from .document import DocumentKind
 from .lifecycle import Lifecycle
-from .metrics import NAMES
 from .pattern import NOT_FIXED, UNKNOWN_DEFAULT
 
 # one per artifact, so a change to one file never moves another's reader
@@ -39,7 +38,6 @@ NOT_MEASURABLE_REASONS = (NO_OPERATION,)
 INPUT_SOURCES = ("app", "run")
 SINKS = ("persist", "network", "return", "local", "unknown")
 KEY_SOURCES = ("keystore", "generated", "derived", "storage", "literal", "parameter", "unknown")
-METRICS = NAMES
 
 
 def scope_id(app: str, file: str, function: str, line: int, call: str) -> str:

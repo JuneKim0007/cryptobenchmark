@@ -5,12 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..data_handler.inbound.manifest import display_units
 from ..files import read_json, write_json, write_text
 from ..log import step
 from ..result.modes import Mode
 from ..validation import require
-from ..stop import terminate
 from ..validation.report import validate_report
 from ..validation.summary import validate_summary
 from .app_report import build_report
@@ -18,38 +16,18 @@ from .markdown import report_markdown, summary_markdown
 from .summary import build_summary
 
 
-def _thermal(doc: dict) -> None:
-    """Each pair's labels through the terminator: warned by default, a verdict never changes."""
-    for s in doc["scopes"]:
-        for code in (s["thermal"] or {}).get("labels") or ():
-            terminate(code, f"{s['scope']}: start gap {s['thermal']['startGap']} degrees, before and after "
-                            f"{s['thermal']['before']['thermal']} and {s['thermal']['after']['thermal']}",
-                      stage="report", step="app", app=doc["app"], item=s["scope"])
-
-
-def _category(doc: dict) -> None:
-    """A row whose before/after contradicts its category's estimate, through the terminator: warned by default."""
-    for s in doc["scopes"]:
-        if s["categoryMismatch"]:
-            terminate("category_mismatch", f"{s['scope']}: {', '.join(s['categoryMismatch'])}: the before/after change is "
-                      f"not the {s['pattern']} ({s['patternReason']}) estimate's", stage="report", step="app",
-                      app=doc["app"], item=s["scope"])
-
-
 def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
     paths = rd.AppPaths(device, app)
     with step("report", "app", app=app) as s:
-        doc = build_report(paths, mode, display_units(device))
+        doc = build_report(paths, mode)
         require(rd.REPORT, validate_report(doc, app))
         write_json(paths.report, doc)
         write_text(paths.report_md, report_markdown(doc))
-        _thermal(doc)
-        _category(doc)
         s.count(**doc["funnel"])
         s.wrote(paths.report, paths.report_md)
     f = doc["funnel"]
     echo(f"{paths.report}: {f['scopes']} scopes in {f['units']} units, {f['replace']} replace in {f['unitsReplace']} units, {f['applied']} applied, "
-         f"{f['compiled']} compiled, {f['measured']} measured, {f['measuredCallSite']} by call site alone")
+         f"{f['compiled']} compiled, {f['interopPassed']} interop passed")
     return doc
 
 
@@ -61,7 +39,7 @@ def device_summary(device: Path, echo=print) -> dict:
         require(rd.SUMMARY, validate_summary(doc, reports))
         write_json(device / rd.SUMMARY, doc)
         write_text(device / rd.SUMMARY_MD, summary_markdown(doc))
-        s.count(apps=len(doc["apps"]), measured=doc["funnel"]["measured"])
+        s.count(apps=len(doc["apps"]), interopPassed=doc["funnel"]["interopPassed"])
         s.wrote(device / rd.SUMMARY, device / rd.SUMMARY_MD)
-    echo(f"{device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['measured']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone")
+    echo(f"{device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['interopPassed']} scopes interop passed")
     return doc

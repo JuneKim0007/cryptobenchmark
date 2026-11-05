@@ -127,18 +127,15 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     assert by_function == {"seal": [("compiled", None)]}
 
 
-def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeypatch):
+def test_the_device_guide_checks_through_the_pipeline_and_reports(run, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=True) == 0
     assert {("device", "ok", None), ("report", "ok", None)} <= set(ENDS)
     doc = read_json(g.paths.report)
-    measured = [s for s in doc["scopes"] if s["interop"]["status"] == "passed"]
-    assert measured and doc["funnel"]["measured"] == len(measured)
-    time = measured[0]["metrics"][0]
-    assert (time["metric"], time["before"], time["after"], time["ratio"]) == ("timeNs", 1000, 800, 0.8)
-    assert measured[0]["verdict"] == "improves"
-    assert measured[0]["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
+    passed = [s for s in doc["scopes"] if s["interop"]["status"] == "passed"]
+    assert passed and doc["funnel"]["interopPassed"] == len(passed)
+    assert passed[0]["inputs"] == {"inputSize": 1024, "keySize": 128, "from": "run"}
     assert "- inputs: input 1024 B, key 128 bits, from run" in g.paths.report_md.read_text()
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
 

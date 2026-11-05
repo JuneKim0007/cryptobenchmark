@@ -1,27 +1,15 @@
 """report.json against its contract: statuses, rows, patterns, recommendations, funnel equal to its recount."""
 from __future__ import annotations
 
-from ..dto.report import (CALL_SITE, COMPILE_STATUSES, FUNCTION, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES,
-                          MEASURABLE, REPORTED, SCHEMA_VERSION, SOURCES, THERMAL_MISMATCH, THERMAL_THROTTLED, VERDICTS, stayed, unit_counts)
+from ..dto.report import (COMPILE_STATUSES, DECISION_STATUSES, EDIT_STATUSES, FUNNEL, INTEROP_STATUSES, SCHEMA_VERSION, SOURCES,
+                          stayed, unit_counts)
 from ..dto.change import CHANGES as CHANGE_CLASSES, REJECT_REASONS, admits
 from ..dto.perf_mode import PerfMode
-from ..dto.units import DisplayUnits
-from ..result.gain import label_of
 from ..dto.pattern import PATTERN_REASONS, PATTERNS, pattern_of_reason
-from ..result.category import at_call_site, truth
 from .repair import valid_inputs
-from .report_metrics import check_metric, check_selected
 
 ROW_KEYS = ("scope", "file", "line", "function", "pattern", "patternReason", "current", "option", "inputs", "decision", "edit",
-            "compile", "interop", "metrics", "verdict", "label", "thermal", "deciding", "accepted", "primitive",
-            "categoryMismatch", "truthCheck", "measuredBy", "measurements", "unit", "sharedFunction", "stayed")
-
-
-def _selection(doc: dict) -> tuple[str, ...] | None:
-    try:
-        return PerfMode.parse(doc.get("mode")).names
-    except (ValueError, AttributeError):
-        return None
+            "compile", "interop", "deciding", "accepted", "primitive", "unit", "sharedFunction", "stayed")
 
 
 def _decision(where: str, d: dict) -> list[str]:
@@ -37,97 +25,40 @@ def _unit(where: str, r: dict) -> list[str]:
     return [f"{where}: unit {r['unit']!r} or sharedFunction {r['sharedFunction']!r}"]
 
 
-def _thermal(where: str, t: dict | None) -> list[str]:
-    if t is None:
-        return []
-    return [] if set(t["labels"]) <= {THERMAL_MISMATCH, THERMAL_THROTTLED} else [f"{where}: thermal labels {t['labels']}"]
-
-
 def _pattern(where: str, r: dict) -> list[str]:
     if r["patternReason"] not in PATTERN_REASONS or r["pattern"] not in PATTERNS:
         return [f"{where}: pattern {r['pattern']!r} / patternReason {r['patternReason']!r}"]
-    out = [] if r["pattern"] == pattern_of_reason(r["patternReason"]) else [
+    return [] if r["pattern"] == pattern_of_reason(r["patternReason"]) else [
         f"{where}: pattern {r['pattern']} is not its reason {r['patternReason']}'s"]
-    function, site = r["measurements"][FUNCTION], r["measurements"][CALL_SITE]
-    if (function["truth"] != truth(FUNCTION, r["pattern"], function["metrics"], r["primitive"])
-            or site["truth"] != truth(CALL_SITE, r["pattern"], site["metrics"], at_call_site(r["primitive"], site["operation"], r["inputs"]))):
-        out.append(f"{where}: a truth check is not the rule's over its metrics and estimates")
-    expected = r["measurements"][r["measuredBy"] or FUNCTION]["truth"]["mismatch"]
-    return out + ([] if r["categoryMismatch"] == expected else [
-        f"{where}: categoryMismatch {r['categoryMismatch']} is not the rule's over its metrics and estimates"])
 
 
-def _kinds(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
-    """The verdict's kind is the function when it has a number, else the call alone; only the function's number needs an interop pass."""
-    kinds = r["measurements"]
-    if set(kinds) != {FUNCTION, CALL_SITE}:
-        return [f"{where}: measurements {list(kinds)}"]
-    problems = [p for name, kind in kinds.items() if name != (r["measuredBy"] or FUNCTION)
-                for m in kind["metrics"] for p in check_metric(f"{where}.{name}.{m.get('metric')}", m, units)]
-    expected = next((n for n in (FUNCTION, CALL_SITE) if any(m.get("measured") for m in kinds[n]["metrics"])), None)
-    if r["measuredBy"] != expected or r["metrics"] != kinds[expected or FUNCTION]["metrics"]:
-        problems.append(f"{where}: measuredBy {r['measuredBy']} is not the rule's over its measurements")
-    if r["measuredBy"] != CALL_SITE and any(m.get("measured") for m in r["metrics"]) and r["interop"].get("status") not in MEASURABLE:
-        problems.append(f"{where}: measured although interop is {r['interop'].get('status')}")
-    return problems
-
-
-def _row(where: str, r: dict, selected: tuple[str, ...], units: DisplayUnits) -> list[str]:
+def _row(where: str, r: dict) -> list[str]:
     if tuple(r) != ROW_KEYS:
         return [f"{where}: keys {list(r)}"]
     problems = _decision(where, r["decision"])
     for step, allowed in (("edit", EDIT_STATUSES), ("compile", COMPILE_STATUSES), ("interop", INTEROP_STATUSES)):
         if r[step].get("status") not in allowed:
             problems.append(f"{where}: {step} status {r[step].get('status')!r}")
-    if [m.get("metric") for m in r["metrics"]] != [k for k, _ in REPORTED]:
-        problems.append(f"{where}: metrics are not {[k for k, _ in REPORTED]} in order")
-    for m in r["metrics"]:
-        problems += check_metric(f"{where}.{m.get('metric')}", m, units)
-    problems += check_selected(where, r["metrics"], selected)
-    problems += _kinds(where, r, selected, units)
     if r["inputs"] is not None and not valid_inputs(r["inputs"]):
         problems.append(f"{where}: inputs {r['inputs']}")
-    problems += _unit(where, r)
-    if r["verdict"] not in VERDICTS:
-        problems.append(f"{where}: verdict {r['verdict']!r}")
-    problems += _thermal(where, r["thermal"])
-    if r["label"] != label_of([m["change"] for m in r["metrics"] if m.get("measured") and m.get("selected")]):
-        problems.append(f"{where}: label {r['label']!r} is not the rule's over its selected metrics")
-    return problems
-
-
-def _status(r: dict) -> tuple:
-    return (r["decision"]["decision"], r["edit"]["status"], r["compile"]["status"], r["interop"]["status"],
-            r["measuredBy"] == FUNCTION, r["measuredBy"] == CALL_SITE)
+    return problems + _unit(where, r) + _pattern(where, r)
 
 
 def _recount(f: dict, rows: list[dict]) -> dict:
-    statuses = [_status(r) for r in rows]
     units = unit_counts(rows)
 
-    def count(at: int, value) -> int:
-        return sum(s[at] == value for s in statuses)
+    def count(step: str, key: str, value: str) -> int:
+        return sum(r[step][key] == value for r in rows)
     return {"sites": f["sites"], "scopes": len(rows), "units": units["units"], "withOptions": f["withOptions"],
-            "recommend": count(0, "recommend"), "replace": count(0, "replace"), "unitsReplace": units["unitsReplace"],
-            "applied": count(1, "applied"), "compiled": count(2, "compiled"), "interopPassed": count(3, "passed"),
-            "measured": count(4, True), "measuredCallSite": count(5, True), "measuredUnchecked": sum(s[4] and s[3] == "unchecked" for s in statuses)}
+            "recommend": count("decision", "decision", "recommend"), "replace": count("decision", "decision", "replace"),
+            "unitsReplace": units["unitsReplace"], "applied": count("edit", "status", "applied"),
+            "compiled": count("compile", "status", "compiled"), "interopPassed": count("interop", "status", "passed")}
 
 
 def _stayed(rows: list[dict]) -> list[str]:
     stays = stayed(rows)
     return [f"{r['scope']}: stayed {r['stayed']} is not its unit's static keeps beside a replace {stays[r['unit']]}"
             for r in rows if r["stayed"] != stays[r["unit"]]]
-
-
-def _mode_units(doc: dict) -> tuple[tuple[str, ...], DisplayUnits, str | None]:
-    """The selection and display units a report was built with, or the problem that stops its check."""
-    selected = _selection(doc)
-    if selected is None:
-        return (), DisplayUnits(), f"mode {doc.get('mode')!r} is not a perfMode"
-    try:
-        return selected, DisplayUnits.parse(doc["units"]), None
-    except (KeyError, ValueError) as e:
-        return selected, DisplayUnits(), f"units: {e}"
 
 
 def schema_version_problems(doc: dict) -> list[str]:
@@ -137,6 +68,10 @@ def schema_version_problems(doc: dict) -> list[str]:
 def _identity(doc: dict, app: str) -> list[str]:
     problems = schema_version_problems(doc)
     problems += [] if isinstance(doc.get("project"), str) and doc["project"] else [f"project {doc.get('project')!r}"]
+    try:
+        PerfMode.parse(doc.get("mode"))
+    except (ValueError, AttributeError):
+        problems.append(f"mode {doc.get('mode')!r} is not a perfMode")
     return problems + ([] if doc.get("app") == app else [f"app {doc.get('app')!r} is not {app!r}"])
 
 
@@ -152,16 +87,11 @@ def _recommendations(doc: dict) -> list[str]:
 
 def validate_report(doc: dict, app: str) -> list[str]:
     problems = _identity(doc, app)
-    selected, units, stop = _mode_units(doc)
-    if stop:
-        return problems + [stop]
     rows = doc.get("scopes") or []
     for r in rows:
-        problems += _row(str(r.get("scope")), r, selected, units)
+        problems += _row(str(r.get("scope")), r)
     if problems:
         return problems
-    # read only over metric rows already found well formed
-    problems += [p for r in rows for p in _pattern(str(r["scope"]), r)]
     problems += _stayed(rows) + _recommendations(doc)
     f = doc.get("funnel") or {}
     if tuple(f) != FUNNEL or _recount(f, rows) != f or not f["scopes"] >= f["withOptions"] >= f["replace"]:

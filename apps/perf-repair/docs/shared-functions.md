@@ -28,7 +28,6 @@
 | `positive_int(text)` | `src/perfrepair/config/args.py` | The argparse type of --turns, --sessions, --limit: the check their perfrepair.yaml keys get. | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `add_device_results_arg(parser)` | `src/perfrepair/config/device_results.py` | - | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +5 |
 | `fill_device_results(parser, args, loaded)` | `src/perfrepair/config/device_results.py` | - | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +4 |
-| `display_units(device)` | `src/perfrepair/data_handler/inbound/manifest.py` | The units every view of this device folder shows; a folder without a manifest (a test, a hand-made one) the defaults. | ai.evaluate.worthiness.command, ai.suggest.site_replace.command, report.command |
 | `manifest_file(manifest, base, key)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | data_handler.inbound.run_context, device.delta, device.inbound, device.interop +4 |
 | `read_manifest(path)` | `src/perfrepair/data_handler/inbound/manifest.py` | - | check.device, data_handler.inbound.run_context, device.delta, device.inbound +10 |
 | `run_pipeline(config, results, stage, benchmark, harness, echo, tail, extra, app, device, env)` | `src/perfrepair/data_handler/outbound/benchmark_runner.py` | results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/ | device.delta, device.interop, device.stage_run, guide.app_steps |
@@ -41,7 +40,7 @@
 | `parse_yaml(text, where, code, shape, error)` | `src/perfrepair/dto/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | catalog.bundled_providers, catalog.screening, files |
 | `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon, `person_judges` its reject reasons. | ai.repair.upgrade.kind, repair.dossier, result.configurations, validation.dossiers.document |
 | `algorithm_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[1]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades +1 |
-| `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate, device.measured_check +7 |
+| `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate, device.measured_check +6 |
 | `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, catalog.names +6 |
 | `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | catalog.identity, device.measured_check, device.missing_rows, device.selection_adds +9 |
 | `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, check.device, check.grouping, device.gate +7 |
@@ -49,18 +48,16 @@
 | `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, grouping.report.rules, validation.grouping.code_groups, validation.grouping.knowledge |
 | `pair_status(groups, a, b)` | `src/perfrepair/dto/interop.py` | - | result.evidence, result.options, result.unit_dossiers, validation.dossiers.against_run |
 | `required_risks(scope, option)` | `src/perfrepair/dto/replacement.py` | Each risk the scope facts, and the chosen option's when given, imply, with the plain words that imply it. | ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades, validation.replacements +1 |
-| `has_views(metric)` | `src/perfrepair/dto/report.py` | A metric throughput selects is time: its row carries latency and throughput in the display units. | ai.evaluate.worthiness.render, ai.suggest.site_replace.rows, report.metrics, validation.report_metrics |
 | `qualified_verdicts(groups, screen)` | `src/perfrepair/dto/screen.py` | screen.json's verdicts keyed by groups.json's qualified names; None without screen.json. | ai.evaluate.worthiness.command, check.grouping, screen.handler |
 | `refused_target(current, target)` | `src/perfrepair/dto/screen.py` | A broken target is refused always; another status short of accepted only as the current item's own algorithm. | result.evidence, result.options, validation.dossiers.against_run |
 | `shipped(app_doc)` | `src/perfrepair/dto/shipped.py` | `tuple((Shipped(b['artifact'], b.get('providerName'), b.get('version')) for b in app_doc.get('bundled') or []))` | device.bundled_missing, device.missing_rows, result.dossier, result.provider_path |
 | `shipped_names(app_doc)` | `src/perfrepair/dto/shipped.py` | `{s.providerName for s in shipped(app_doc) if s.providerName}` | app.__main__, device.missing_rows, repair.dossier, result.dossier |
 | `read_units(doc)` | `src/perfrepair/dto/unit.py` | - | check.apps, repair.__main__, repair.dossier, report.app_report |
 | `units_by_scope(units)` | `src/perfrepair/dto/unit.py` | `{member: u for u in units for member in u.members}` | repair.edit.app, repair.harness, report.app_report, result.unit_dossiers |
-| `number(x)` | `src/perfrepair/dto/units.py` | Significant figures, so a sub-unit value never rounds to 0 (64 B AES-CBC is 0.000662 ms). | ai.evaluate.worthiness.render, ai.suggest.site_replace.rows, report.markdown |
 | `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.repair.upgrade.kind, ai.runtime.engine.kind, ai.suggest.site_replace.kind, device.coverage +1 |
-| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +32 |
+| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +31 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
 | `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +31 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | ai.runtime.engine.tracking, device.gate_after, device.primitives, device.seen +6 |
@@ -77,13 +74,9 @@
 | `string_literal(value, language)` | `src/perfrepair/repair/edit/literal.py` | - | repair.edit.algorithm, repair.edit.provider, repair.edit.specs |
 | `apply(text, splices)` | `src/perfrepair/repair/edit/splice.py` | Newlines inside a replaced span follow the new text, so a scope's lines `start..end` stay put in the copy. | repair.edit.alone, repair.edit.app, repair.edit.plan |
 | `reach(scope)` | `src/perfrepair/result/change.py` | A field keeps the object past the function, so where its output goes is not read: unknown, never local. | ai.repair.upgrade.render, result.options, result.upgrades |
-| `level(p_improve)` | `src/perfrepair/result/confidence.py` | - | report.metrics, result.evidence, validation.report_metrics |
-| `operations(scope)` | `src/perfrepair/result/configurations.py` | The operations the lifecycle performs; empty, meaning every one, when it does not know. | ai.suggest.site_replace.rows, repair.call_site, result.options, result.upgrades |
-| `parse_label(text)` | `src/perfrepair/result/configurations.py` | label()'s fields back from a stored configuration; `estimated` when the side's energy is estimated. | ai.suggest.site_replace.options, repair.call_site, result.category |
-| `compare(before, after, lower_is_better)` | `src/perfrepair/result/estimate.py` | `after` against `before`, oriented so a ratio below 1 and a high pImprove are better: after ÷ before of the | device.delta, report.metrics, result.configurations, result.evidence |
-| `change_of(ratio, pImprove)` | `src/perfrepair/result/gain.py` | - | device.delta, report.metrics, report.swaps, result.category +1 |
+| `operations(scope)` | `src/perfrepair/result/configurations.py` | The operations the lifecycle performs; empty, meaning every one, when it does not know. | ai.suggest.site_replace.rows, result.options, result.upgrades |
+| `compare(before, after, lower_is_better)` | `src/perfrepair/result/estimate.py` | `after` against `before`, oriented so a ratio below 1 and a high pImprove are better: after ÷ before of the | device.delta, result.configurations, result.evidence |
 | `option_label(estimates)` | `src/perfrepair/result/gain.py` | `label_of([change_of(e.ratio, e.pImprove) for e in estimates])` | ai.repair.upgrade.render, ai.suggest.site_replace.options, review.sheet |
-| `criteria()` | `src/perfrepair/result/modes.py` | `read_yaml(CRITERIA)` | report.summary, report.thermal, result.confidence, result.gain |
 | `mode_of(perf)` | `src/perfrepair/result/modes.py` | `Mode(perf, criteria()['rule'], float(criteria()['improvingRatio']))` | ai.__main__, check.grouping, guide.command, report.__main__ |
 | `app_dirs(device)` | `src/perfrepair/run_dir/layout.py` | Device-level folders sit beside the apps, so an app's folder is the one holding app.json. | app.facts.path_id, check.apps, check.run, guide.device_steps +5 |
 | `device_folders(root)` | `src/perfrepair/run_dir/layout.py` | The finished devices of a results root: a folder without a manifest is a run that did not end. | config.device_results |
@@ -118,7 +111,7 @@
 | `of_file(name)` | `src/perfrepair/source/language.py` | - | app.find.sources, repair.edit.plan, scope.build, scope.units.shapes +1 |
 | `mask(text, language, strings)` | `src/perfrepair/source/lexer.py` | Comments always, and string contents when `strings`, become spaces; newlines and quotes stay. | app.facts.dependencies, app.facts.kind, app.facts.sdk, repair.dependencies +2 |
 | `halt_of(code, detail)` | `src/perfrepair/stop/terminate.py` | A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it. | guide.run, guide.target_file, guide.targets |
-| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | ai.runtime.engine.journal, app.__main__, data_handler.outbound.benchmark_runner, device.bundled +8 |
+| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | ai.runtime.engine.journal, app.__main__, data_handler.outbound.benchmark_runner, device.bundled +7 |
 | `alias_pattern(prefix)` | `src/perfrepair/validation/answer_text.py` | `f'^{prefix}[1-9][0-9]*$'` | ai.evaluate.worthiness.schema, ai.repair.upgrade.schema, ai.suggest.site_replace.schema |
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |
 | `check_dossier(raw, app, perf, max_change, gained)` | `src/perfrepair/validation/dossiers/dossier.py` | One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels, estimates of | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |

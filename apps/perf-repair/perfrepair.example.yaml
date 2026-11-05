@@ -67,8 +67,6 @@ stops:                     # per code, what it does when it fires (docs/stops.md
   perf_mode_unmeasured: stop        # stop | warn: a metric a perfMode list names that the harness cannot measure
   perf_mode_maybe_unmeasured: warn  # warn | stop: selected energy only a test set may turn on
   energy_invalid: warn     # warn | stop: an energy case its energy.json marks invalid
-  thermal_mismatch: warn   # warn | stop: a before/after pair whose start temperatures differ past criteria.yaml's thermalMismatchDegrees; no verdict changes
-  category_mismatch: warn   # warn | stop: a scope's before/after change, beyond noise, is not one its category's estimates gave
   thermal_throttled_at_end: warn   # warn | stop: a case that ended throttled; no verdict changes
   energy_unreadable: warn  # warn | stop: energy files that cannot be read
   no_required_metric: skip # skip | stop: a benchmark case with no runs of a required metric

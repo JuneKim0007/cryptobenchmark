@@ -1,7 +1,7 @@
-"""Vocabulary of report.json and summary.json: step statuses, reported metrics, funnel stages."""
+"""Vocabulary of report.json and summary.json: step statuses, funnel stages."""
 from __future__ import annotations
 
-from .metrics import METRICS, Metric
+from .metrics import Metric
 from .pattern import PATTERNS, UNKNOWN_DEFAULT
 
 # 3: compile not_measurable, interop not_comparable, funnel measuredUnchecked, decision stale; 4: rows carry unit,
@@ -11,10 +11,9 @@ from .pattern import PATTERNS, UNKNOWN_DEFAULT
 # 8: rows carry pattern, patternReason, categoryMismatch; summary metrics, labels and swaps per pattern, never mixed
 # 9: rows carry measuredBy and measurements, each kind's numbers and truth check; funnel measuredCallSite, after measured
 # 10: brokenUses, each broken use and what it became; summary brokenUses
-SCHEMA_VERSION = 10
+# 11: nothing measured after a recommendation: no metrics, verdict, label, thermal or truth check; funnel ends at interopPassed
+SCHEMA_VERSION = 11
 BROKEN_USES = "brokenUses"
-FUNCTION, CALL_SITE = "function", "callSite"
-THERMAL_MISMATCH, THERMAL_THROTTLED = "thermal_mismatch", "thermal_throttled_at_end"
 THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static", "list")
 DECISION_STATUSES = ("replace", "keep", "recommend", "not_run")
@@ -22,13 +21,7 @@ EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")
 COMPILE_STATUSES = ("compiled", "primitive_only", "not_measurable", "skipped", "not_run")
 INTEROP_STATUSES = ("passed", "unchecked", "not_comparable", "interop_failed", "call_failed", "skipped", "not_run")
 MEASURABLE = ("passed", "unchecked")
-VERDICTS = ("improves", "not_improving", "not_measured")
-# (benchmark.json metric key, unit per operation)
-REPORTED = tuple((m.name, m.unit) for m in METRICS)
-# measured: the function itself; measuredCallSite: only the swapped call alone; measuredUnchecked: of measured, those with no interop check; not stages
-FUNNEL = ("sites", "scopes", "units", "withOptions", "recommend", "replace", "unitsReplace", "applied", "compiled", "interopPassed", "measured",
-          "measuredCallSite", "measuredUnchecked")
-CHANGES = ("improved", "unchanged", "worse", "notMeasured")
+FUNNEL = ("sites", "scopes", "units", "withOptions", "recommend", "replace", "unitsReplace", "applied", "compiled", "interopPassed")
 
 
 def has_views(metric: Metric) -> bool:
@@ -51,24 +44,8 @@ def stayed(rows: list[dict]) -> dict[str, list[str]]:
     return out
 
 
-def case_id(scope: str, side: str) -> str:
-    """cryptobenchmark's scoped case id; side is before or after."""
-    return f"scope:{scope}:{side}"
-
-
-def call_site_case_id(scope: str, side: str) -> str:
-    """Paired with apps/benchmark-runner/scope/call_site.py case_id."""
-    return f"scope:{scope}:callSite:{side}"
-
-
-def of_pattern(reports: list[dict], pattern: str) -> list[dict]:
-    """Each report with only the rows of one category, so no count or ratio mixes the two."""
-    return [{**r, "scopes": [s for s in r["scopes"] if s["pattern"] == pattern]} for r in reports]
-
-
 def pattern_counts(reports: list[dict]) -> dict:
     def counts(rows: list[dict]) -> dict:
         return {**{p: sum(s["pattern"] == p for s in rows) for p in PATTERNS},
-                "unknownDefault": sum(s["patternReason"] == UNKNOWN_DEFAULT for s in rows),
-                "categoryMismatch": sum(bool(s["categoryMismatch"]) for s in rows)}
+                "unknownDefault": sum(s["patternReason"] == UNKNOWN_DEFAULT for s in rows)}
     return {"all": counts([s for r in reports for s in r["scopes"]]), "byApp": {r["app"]: counts(r["scopes"]) for r in reports}}

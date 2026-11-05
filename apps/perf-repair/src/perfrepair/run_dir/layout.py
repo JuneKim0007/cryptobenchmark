@@ -26,7 +26,7 @@ LOCK, RUNS = ".lock", "runs"
 # apps.targets resolved: every app the guide runs and every candidate it left out
 TARGETS = "targets.yaml"
 # cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`
-SCOPED_PLAN, SCOPED_BENCHMARK = "scoped/scoped-plan.yaml", "scoped/benchmark.json"
+SCOPED_PLAN = "scoped/scoped-plan.yaml"
 GROUPING = "grouping"
 # the run log: events.jsonl is the record; the .log files are views of it
 LOG, EVENTS = "log", "log/events.jsonl"
@@ -88,7 +88,6 @@ class AppPaths:
     extracts = property(lambda self: self.root / "harness")
     measured = property(lambda self: self.root / MEASURED)
     scoped_plan = property(lambda self: self.root / MEASURED / SCOPED_PLAN)
-    scoped_benchmark = property(lambda self: self.root / MEASURED / SCOPED_BENCHMARK)
     report = property(lambda self: self.root / REPORT)
     report_md = property(lambda self: self.root / REPORT_MD)
     finished = property(lambda self: self.root / FINISHED)

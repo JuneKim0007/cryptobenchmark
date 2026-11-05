@@ -11,7 +11,6 @@ from perfrepair.guide import app_steps as steps
 def _device_step(monkeypatch, app_config):
     seen = []
     monkeypatch.setattr(steps, "run_pipeline", lambda config, *a, **k: seen.append(config) or Path("m.yaml"))
-    monkeypatch.setattr(steps, "report_invalid", lambda manifest, app: 0)
     g = SimpleNamespace(config=Path("device.yaml"), app_config=app_config, echo=print, app_id="a", device=Path("no-such-device"),
                         paths=SimpleNamespace(root=Path("r"), harness=Path("h.yaml")), mode=SimpleNamespace(perf=GENERIC_MODE))
     steps.device(g)
