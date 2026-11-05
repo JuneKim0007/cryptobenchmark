@@ -52,12 +52,11 @@ def test_probe_aliases_add_names_the_catalog_lacks(names):
     assert merged.canonical("Cipher", "gcm") == Canonical("AES/GCM/NoPadding")
 
 
-def test_a_probe_alias_the_catalog_disagrees_with_is_a_coded_error_where_used(names):
+def test_a_probe_alias_the_catalog_names_otherwise_keeps_the_catalog_name(names):
     merged = _probe(("P", "Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding",
                      ["RSA/None/OAEPWithSHA-224AndMGF1Padding"])).names(names)
-    assert merged.canonical("Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding").known
-    with pytest.raises(NamesError, match="name_conflict: Cipher RSA/None/OAEPWithSHA-224AndMGF1Padding: catalog says"):
-        merged.canonical("Cipher", "RSA/None/OAEPWithSHA-224AndMGF1Padding")
+    assert merged.conflicts[("Cipher", "RSA/NONE/OAEPWITHSHA-224ANDMGF1PADDING")].startswith("catalog says")
+    assert merged.canonical("Cipher", "RSA/None/OAEPWithSHA-224AndMGF1Padding").name == "RSA/ECB/OAEPWithSHA-224AndMGF1Padding"
 
 
 def test_two_providers_that_alias_one_spelling_apart_conflict(names):

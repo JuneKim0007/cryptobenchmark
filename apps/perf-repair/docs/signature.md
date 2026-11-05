@@ -2,7 +2,7 @@
 
 `catalog/signature.py` derives each item's signature at build, into its profile: `catalog/interchange.yaml` reads the canonical name (`catalog/algorithm-names.yaml`, probe aliases included), `catalog/resolved.py` the trial's digest and MGF1, the profile the key contract.
 
-The signature is best effort and exists only to reduce model calls: it derives the contract rows of the names `catalog/groups.yaml` lists, shows the model its facts, and checks groups (gate C, static findings); it never places an item at run time ([grouping.md](grouping.md) Identified items).
+The signature is best effort and exists only to reduce model calls: it derived the `contract` of each catalogue entry once ([algorithm-catalogue.md](algorithm-catalogue.md)), from which the rows are read on load, shows the model its facts, and checks groups (gate C, static findings); it never places an item at run time ([grouping.md](grouping.md) Identified items).
 
 | Component status | Meaning | Contract row of a listed name |
 |---|---|---|

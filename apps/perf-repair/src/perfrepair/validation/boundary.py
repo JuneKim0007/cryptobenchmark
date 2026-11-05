@@ -91,7 +91,7 @@ def catalogs_agree(items: list[dict], verdicts: dict[str, dict], names: Names) -
             untyped.append(f"{i['family']} {said}")
     return (_found("names_agree", ADVISORY, "catalogs", conflict, "settle the name in screening.yaml or algorithm-names.yaml")
             + _found("name_is_in_its_group", ADVISORY, "catalogs", unlisted, "add it to catalog/groups.yaml")
-            + _found("name_has_facts", ADVISORY, "catalogs", untyped, "add its row to catalog/types.yaml"))
+            + _found("name_has_facts", ADVISORY, "catalogs", untyped, "add its type facts to its catalog/algorithms/ entry"))
 
 
 def used_items_exist(device: Path, rows: list[dict], items: set[str]) -> list[Violation]:

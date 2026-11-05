@@ -124,6 +124,7 @@ names:
     ML-DSA-44: []
     ML-DSA-65: []
     ML-DSA-87: []
+    SLH-DSA-SHA2-128S: []
   Cipher:
     AES: [Rijndael]
     DES: []
@@ -228,6 +229,8 @@ names:
     ML-KEM-512: []
     ML-KEM-768: []
     ML-KEM-1024: []
+    SLH-DSA-SHA2-128S: []
+    XWING: []
   KeyFactory:
     RSA: []
     EC: []

@@ -1,0 +1,99 @@
+# agreement.peer: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+schemaVersion: 1
+family: agreement.peer
+algorithms:
+  KeyAgreement|DiffieHellman:
+    key: {type: DH, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: shared_secret, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {algorithm: DIFFIEHELLMAN, curve: BY KEY}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: AAGREEMENT}
+    providers: {}
+    provenance: {by: person}
+  KeyAgreement|ECDH:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: shared_secret, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {algorithm: ECDH, curve: BY KEY}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc}, source: SP80057T2}
+    - {fact: minSdk, value: 11, source: AAGREEMENT}
+    providers: {}
+    provenance: {by: person}
+  KeyAgreement|X25519:
+    key: {type: X25519, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: shared_secret, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {algorithm: XDH, curve: X25519}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: RFC7748}
+    - {fact: minSdk, value: null, source: AAGREEMENT}
+    providers: {}
+    provenance: {by: person}
+  KeyAgreement|X448:
+    key: {type: X448, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: shared_secret, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {algorithm: XDH, curve: X448}
+    sourcedOnly:
+    - {fact: strengthBits, value: 224, source: RFC7748}
+    - {fact: minSdk, value: null, source: AAGREEMENT}
+    providers: {}
+    provenance: {by: person}
+  KeyAgreement|XDH:
+    key: {type: XDH, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: shared_secret, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      key: app
+      input: {}
+      output: {algorithm: XDH, curve: {value: by key, assumed: true}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 33, source: AAGREEMENT}
+    providers: {}
+    provenance: {by: person}

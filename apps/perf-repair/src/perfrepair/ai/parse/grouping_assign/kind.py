@@ -2,24 +2,30 @@ from __future__ import annotations
 
 import secrets
 
+from ....catalog.families import Families
 from ....dto.decision import OutboxRecord
 from ....dto.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict
 from ....files import read_json
+from ....probe.identified import identified
+from ....run_dir import CHARTER, GroupingPaths, load_used
+from ....screen.groups import code_groups, reserved_catalog_groups
+from ....validation.grouping.code_groups import validate_code_groups
+from ....validation.grouping.items import validate_items
+from ....validation.grouping.knowledge import validate_knowledge
+from ....validation.parse.grouping_assign import (
+    MAX_DESCRIPTION,
+    SLUG,
+    parse_answer,
+    validate_answer,
+)
+from ....validation.screen import read_checked_screen
 from ...runtime.engine import charter_file
 from ...runtime.engine.kind import replay_problems
 from ...runtime.engine.outbox import active_outbox
 from ...runtime.prompt import PromptLibrary
-from ....validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG, parse_answer, validate_answer
-from ....validation.grouping.code_groups import validate_code_groups
-from ....validation.grouping.items import validate_items
-from ....validation.grouping.knowledge import validate_knowledge
-from ....validation.screen import read_checked_screen
-from ....catalog.families import Families
-from ....run_dir import CHARTER, GroupingPaths, load_used
-from ....screen.groups import code_groups, identified, reserved_catalog_groups
 from .render import render
 from .schema import SCHEMA
 from .state import apply, cursor
@@ -49,7 +55,7 @@ class GroupingKind:
         self.by_id = {i.id: i for i in self._items}
         self.profiles = read_profiles(read_json(paths.profiles))
         self.screen: dict[int, Verdict] | None = read_checked_screen(paths)
-        self._askable = [i for i in self._items if not identified(i, self.screen, self.profiles)]
+        self._askable = [i for i in self._items if not identified(i, self.screen)]
         self._asked = {i.key for i in self._askable}
         used = load_used(paths.root.parent)
         # used.json narrows what is asked, never what a record adds: an item outside it keeps its group

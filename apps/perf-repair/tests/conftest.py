@@ -66,7 +66,7 @@ def detached_log():
 def no_group_catalog(monkeypatch, tmp_path_factory):
     """An empty catalog/groups.yaml, so a fixture's names are all unidentified."""
     empty = tmp_path_factory.mktemp("no-group-catalog") / "groups.yaml"
-    empty.write_text('{schemaVersion: 2, source: test, groups: {}}')
+    empty.write_text('{schemaVersion: 3, source: test, groups: {}}')
     monkeypatch.setattr(group_catalog_file, "CATALOG", empty)
     group_catalog_file.group_catalog.cache_clear()
     yield

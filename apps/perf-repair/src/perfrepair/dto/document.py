@@ -46,3 +46,7 @@ class DocumentKind:
             raise self.error(self.message.format(name=self.name, found=found, version=self.version, path=path), path,
                              f"schemaVersion {found!r} is not {self.version}")
         return doc
+
+    def read(self, path: Path | str, code: str = "invalid_yaml") -> dict:
+        """The mapping at path through parse_yaml, refused with this kind's error on bad YAML or another schemaVersion."""
+        return self.check(parse_yaml(Path(path).read_text(), str(path), code, error=self.error), path)

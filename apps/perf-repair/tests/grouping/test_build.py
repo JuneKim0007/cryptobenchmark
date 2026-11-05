@@ -116,9 +116,9 @@ def test_a_probe_only_device_folder_builds_and_reports_no_key_sizes(tmp_path):
     assert common_key_sizes(list(profiles), profiles) == []
 
 
-def test_a_name_two_providers_mean_differently_is_built_not_stopped():
+def test_a_catalogued_name_a_provider_aliases_otherwise_keeps_the_catalog_name():
     from perfrepair.catalog.families import Families
-    from perfrepair.catalog.names import Names, NamesError
+    from perfrepair.catalog.names import Names
     from perfrepair.data_handler.inbound.probe import Probe
     probe = Probe({"providers": [
         {"name": "P1", "services": [{"type": "Mac", "algorithm": "HmacSHA256", "aliases": ["PBEWITHHMACSHA256"]}]},
@@ -126,8 +126,8 @@ def test_a_name_two_providers_mean_differently_is_built_not_stopped():
     names = probe.names(Names.load())
     trial = {"services": [{"provider": "P2", "type": "Mac", "algorithm": "PBEWITHHMACSHA256", "instantiates": True},
                           {"provider": "P1", "type": "Mac", "algorithm": "HmacSHA256", "instantiates": True}]}
-    with pytest.raises(NamesError, match="name_conflict"):
-        names.canonical("Mac", "PBEWITHHMACSHA256")
+    assert ("Mac", "PBEWITHHMACSHA256") in names.conflicts
+    assert names.canonical("Mac", "PBEWITHHMACSHA256").name == "PBEWithHmacSHA256"
     items, _ = build(probe, names, trial, Families.load())
     assert [i.name for i in items] == ["HmacSHA256", "PBEWITHHMACSHA256"]
 
