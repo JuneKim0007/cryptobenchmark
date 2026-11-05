@@ -1,4 +1,3 @@
-import pytest
 from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
 from perfrepair.device.selection import exclusions
