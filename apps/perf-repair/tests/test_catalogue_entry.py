@@ -23,12 +23,8 @@ def _sha(family="digest.none", identifier=SHA, change=None) -> Entry:
 
 
 def test_the_packaged_catalogues_hold_only_today_s_known_gaps():
-    # DESedeWrap sits in two families, as the old type catalog and groups.yaml had it; SLH-DSA and XWING have facts but no name yet
+    # SLH-DSA and XWING have facts but no name yet
     assert catalogue_check(algorithms(), group_catalog(), FAMILIES) == [
-        "cipher.secret Cipher|DESedeWrap: id is in 2 catalogues: ['cipher.secret', 'cipher.unknown']",
-        "cipher.secret Cipher|DESedeWrap: id is in 2 groups, not one",
-        "cipher.unknown Cipher|DESedeWrap: id is in 2 catalogues: ['cipher.secret', 'cipher.unknown']",
-        "cipher.unknown Cipher|DESedeWrap: id is in 2 groups, not one",
         "signature.pair Signature|SLH-DSA-SHA2-128S: id is in 0 groups, not one",
         "keypairgen.none KeyPairGenerator|SLH-DSA-SHA2-128S: id is in 0 groups, not one",
         "keypairgen.none KeyPairGenerator|XWING: id is in 0 groups, not one"]

@@ -311,9 +311,10 @@ def _signature_rows() -> list[tuple]:
     return rows
 
 
-def test_contract_rows_from_the_catalogue_equal_the_219_the_signature_derived():
+def test_contract_rows_from_the_catalogue_equal_the_218_the_signature_derived():
     catalog = group_catalog()
-    assert len(catalog.groups) == 219
+    # 219 before DESedeWrap left cipher.unknown
+    assert len(catalog.groups) == 218
     assert [(g.id, g.description, g.family, g.contracts, g.members) for g in catalog.groups] == _signature_rows()
 
 

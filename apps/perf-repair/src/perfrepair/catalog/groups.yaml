@@ -52,7 +52,6 @@ groups:
     - Cipher|RC2
   cipher.unknown:
     algorithms:
-    - Cipher|DESedeWrap
     - Cipher|PBEWithHmacSHA1AndAES_128
     - Cipher|PBEWithHmacSHA1AndAES_256
     - Cipher|PBEWithHmacSHA224AndAES_128

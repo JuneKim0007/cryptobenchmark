@@ -1,26 +1,8 @@
 # cipher.unknown: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
 schemaVersion: 1
 family: cipher.unknown
-# password-based and wrap names: a password's strength is no key-size fact
+# password-based names: a password's strength is no key-size fact
 algorithms:
-  Cipher|DESedeWrap:
-    key: {type: DESede, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
-    conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
-      authenticated: {value: true, source: inferred}
-    contract:
-      input: {passwordBased: 'FALSE', wrap: 'TRUE'}
-      output: {base: DESEDEWRAP, mode: WRAP}
-    sourcedOnly:
-    - {fact: strengthBits, value: 112, source: SP80057T2}
-    - {fact: minSdk, value: null, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
   Cipher|PBEWithHmacSHA1AndAES_128:
     required: []
     optional: []

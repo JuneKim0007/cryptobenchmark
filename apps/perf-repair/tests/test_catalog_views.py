@@ -5,7 +5,7 @@ import shutil
 import pytest
 import yaml
 
-from perfrepair.catalog.algorithms import DIRECTORY, AlgorithmsError, load
+from perfrepair.catalog.algorithms import DIRECTORY, Algorithms, AlgorithmsError, Entry, algorithms, load
 from perfrepair.catalog.families import Families
 from perfrepair.catalog.groups import CATALOG as GROUPS
 from perfrepair.catalog.views import group_view, view_for
@@ -69,10 +69,18 @@ def test_a_view_is_a_copy_the_caller_cannot_change_the_catalogue_through(with_pr
     assert view_for(GCM, "BC", catalogue)["optional"][0]["accepted"] == BC_TAGS
 
 
-@pytest.mark.parametrize("identifier,where", [("Cipher|NOPE", "in no catalogue"), ("Cipher|DESedeWrap", "in 2 catalogues")])
-def test_an_unknown_or_ambiguous_id_is_a_coded_error(identifier, where):
-    with pytest.raises(AlgorithmsError, match=f"algorithm_unknown: .*{where}"):
-        view_for(identifier, "BC")
+def test_an_unknown_id_is_a_coded_error():
+    with pytest.raises(AlgorithmsError, match="algorithm_unknown: .*in no catalogue"):
+        view_for("Cipher|NOPE", "BC")
+
+
+def test_an_id_in_two_catalogues_is_a_coded_error():
+    catalogue, wrap = algorithms(), "Cipher|DESedeWrap"
+    entry = catalogue.of("cipher.secret", wrap)
+    twice = Algorithms((*catalogue.entries, Entry(entry.id, "cipher.unknown", entry.raw)), catalogue.common)
+    assert view_for(wrap, "BC") == {k: v for k, v in entry.raw.items() if k != "providers"}
+    with pytest.raises(AlgorithmsError, match="algorithm_unknown: .*in 2 catalogues"):
+        view_for(wrap, "BC", twice)
 
 
 def test_an_override_naming_no_field_is_refused(tmp_path, with_providers):
