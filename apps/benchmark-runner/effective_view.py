@@ -18,9 +18,8 @@ def read(effective_file):
     report = (yaml.safe_load(report_file.read_text()) or {}) if report_file.is_file() else {}
     return {
         "document": document,
-        # older effective files carry these inline
-        "warnings": (report.get("warnings") or []) + (document.get("warnings") or []),
-        "skipped": (report.get("skipped") or []) + (document.get("skipped") or []),
+        "warnings": report.get("warnings") or [],
+        "skipped": report.get("skipped") or [],
     }
 
 

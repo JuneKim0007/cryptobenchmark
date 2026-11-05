@@ -105,7 +105,6 @@ def activate(root: Path, charter: Charter) -> tuple[Outbox, Outbox | None]:
         raise OutboxError(f"outbox_fingerprint_invalid: {fingerprint!r}")
     previous = active_fingerprint(root)
     outbox = _outbox(root, fingerprint).open()
-    # an outbox made before charter.json existed gets it on its next open: its fingerprint vouches for the text
     charter_file.record(outbox.directory / CHARTER, charter)
     if previous == fingerprint:
         return outbox, None

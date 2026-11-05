@@ -21,11 +21,6 @@ class EffectiveView(unittest.TestCase):
         self.assertEqual(2, effective_view.entry_count(view["document"]))
         self.assertEqual(3, effective_view.process_repetitions(view["document"]))
 
-    def test_an_older_effective_file_that_holds_them_inline_is_still_read(self):
-        self.effective.write_text("warnings: [old]\nskipped: [{reason: r}]\nproviders: {}\n")
-        view = effective_view.read(self.effective)
-        self.assertEqual((["old"], 1), (view["warnings"], len(view["skipped"])))
-
     def test_metrics_are_read_and_their_absence_fails(self):
         self.assertEqual(["TIME", "CPU_EVENTS"], effective_view.metrics({"run": {"metrics": ["TIME", "CPU_EVENTS"]}}))
         with self.assertRaises(SystemExit):

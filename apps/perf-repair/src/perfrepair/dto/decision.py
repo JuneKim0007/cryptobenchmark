@@ -5,9 +5,7 @@ from dataclasses import dataclass
 from .document import DocumentKind
 
 SCHEMA_VERSION = 2
-# version 1 records carry no gateway, model or effort
-READABLE_VERSIONS = (1, SCHEMA_VERSION)
-OUTBOX_RECORD_DOC = DocumentKind("outbox record", READABLE_VERSIONS, "{name} schemaVersion {found} is not one of {version}")
+OUTBOX_RECORD_DOC = DocumentKind("outbox record", SCHEMA_VERSION, "{name} schemaVersion {found} is not {version}")
 OUTCOMES = ("decided", "dropped")
 
 

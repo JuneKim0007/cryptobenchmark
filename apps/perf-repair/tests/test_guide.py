@@ -282,7 +282,7 @@ def _from_root(tmp_path, capsys):
 def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     code, first = _from_root(tmp_path, capsys)
-    # device.bundled.onMissing warn: the demo app ships a provider the fake device lacks, and the run goes on
+    # stops.bundled_missing warn: the demo app ships a provider the fake device lacks, and the run goes on
     assert code == 1 and first[0].startswith("device bundled_missing: warn: BC (org.bouncycastle:bcprov-jdk18on:1.78; ")
     assert first[1] == "device probe: ran: no manifest.yaml"
     assert any(l.startswith("guide grouping: ok: ran: ") and "items asked" in l for l in first)

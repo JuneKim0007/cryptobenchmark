@@ -42,7 +42,6 @@ device:                    # once per device
   filterByApps: true       # guide: group and measure only the items the target apps use and their options; false = every item
   ## to check primitives skipped or stopped due to not downloading them go <device>/log/details/primitives_missing.yaml
   bundled:                 # guide, with filterByApps: providers the target apps ship that the device lacks
-    onMissing: warn        # warn: logged, the run goes on | stop: bundled_missing before the benchmark
     # NOT RECOMMENDED: apply. Prepare providers.bundled yourself before the device run.
     fromApps: off          # off | suggest: write <device>/bundled-suggestions.yaml | apply: also build its matched rows in
   id:                      # the folder under the results root; needed when it holds several; a device not there is an error
@@ -64,7 +63,7 @@ timeouts:                  # seconds a child process may run before it is killed
   pipeline: 86400          # one pipeline.py call; a device benchmark runs for hours; past it pipeline_timeout
 
 stops:                     # per code, what it does when it fires (docs/stops.md); a fixed code set here is warned about, ignored
-  bundled_missing: warn    # warn | stop; device.bundled.onMissing is its older name, read only when this is unset
+  bundled_missing: warn    # warn: logged, the run goes on | stop: before the benchmark, listing each provider
   not_on_device: warn     # warn | stop: a provider an app site names that the device lacks
   perf_mode_unmeasured: stop        # stop | warn: a metric a perfMode list names that the harness cannot measure
   perf_mode_maybe_unmeasured: warn  # warn | stop: selected energy only a test set may turn on

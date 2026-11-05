@@ -31,14 +31,14 @@ AT_PATH = "{path}: schemaVersion {found} is not {version}"
 
 @dataclass(frozen=True)
 class DocumentKind:
-    """message is each reader's own wording, kept until one shape is chosen (backlog R51); version may be a tuple."""
+    """message is each reader's own wording, kept until one shape is chosen (backlog R51)."""
     name: str
-    version: int | tuple[int, ...]
+    version: int
     message: str = NAMED
     error: type[InputError] = InputError
 
     def accepts(self, found: object) -> bool:
-        return found in self.version if isinstance(self.version, tuple) else found == self.version
+        return found == self.version
 
     def check(self, doc: dict, path: Path | str | None = None) -> dict:
         found = doc.get("schemaVersion")

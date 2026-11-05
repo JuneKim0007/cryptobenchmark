@@ -32,6 +32,7 @@ class CaptureDocumentTest {
             { document: MutableMap<String, Any> -> document.remove(CaptureDocument.PROVIDERS); Unit } to "missing_field: providers",
             { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = "not a section" } to "wrong_type: runtime",
             { document: MutableMap<String, Any> -> document[CaptureDocument.PROVIDERS] = providersWithout(document, CaptureDocument.ORIGIN) } to "missing_field: origin",
+            { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.FINGERPRINT) } } to "missing_field: fingerprint",
         )
         damages.forEach { (damage, expected) ->
             val document = LinkedHashMap(CaptureDocument.of(capture)).also(damage)
@@ -40,9 +41,9 @@ class CaptureDocumentTest {
         }
     }
 
-    /** jdk.security.defaultKeySize changes default key sizes per machine with no code change, so the capture records it; older captures without it still read. */
+    /** jdk.security.defaultKeySize changes default key sizes per machine with no code change, so the capture records it. */
     @Test
-    fun theDefaultKeySizePropertyIsRecordedAndOptional() {
+    fun theDefaultKeySizePropertyIsRecorded() {
         val before = System.getProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY)
         try {
             System.setProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY, "RSA:2048,EC:256")
@@ -53,13 +54,10 @@ class CaptureDocumentTest {
         } finally {
             if (before == null) System.clearProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY) else System.setProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY, before)
         }
-        val document = LinkedHashMap(CaptureDocument.of(capture))
-        document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY) }
-        assertEquals("", CaptureDocument.parse(document).runtime.defaultKeySizeProperty)
     }
 
     @Test
-    fun theBuildIdentityIsReadOnAJvmAndOptionalInAnOlderCapture() {
+    fun theBuildIdentityIsReadOnAJvmAndRecorded() {
         val runtime = DeviceRuntimeReader.read()
         assertEquals("", runtime.fingerprint)
         assertEquals(System.getProperty("java.vendor"), runtime.javaVendor)
@@ -68,8 +66,6 @@ class CaptureDocumentTest {
         assertEquals(System.getProperty("os.arch"), runtime.osArch)
         val document = LinkedHashMap(CaptureDocument.of(capture.copy(runtime = runtime.copy(fingerprint = "a/b/c:17/X/1:user/release-keys"))))
         assertEquals("a/b/c:17/X/1:user/release-keys", CaptureDocument.parse(document).runtime.fingerprint)
-        document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.FINGERPRINT) }
-        assertEquals("", CaptureDocument.parse(document).runtime.fingerprint)
     }
 
     @Test

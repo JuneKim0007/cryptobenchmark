@@ -2,11 +2,11 @@
 
 | function | module | rule | callers |
 |---|---|---|---|
-| `inputs(path)` | `src/perfrepair/ai/runtime/engine/charter_file.py` | The run inputs of a recorded charter; none when it has no charter.json. | ai.parse.grouping_assign.kind, ai.runtime.engine.refresh, check.grouping |
+| `inputs(path)` | `src/perfrepair/ai/runtime/engine/charter_file.py` | The run inputs of a recorded charter. | ai.parse.grouping_assign.kind, ai.runtime.engine.refresh, check.grouping |
 | `decide(kind, charter, conversations, root, limits, limit, echo, where)` | `src/perfrepair/ai/runtime/engine/decide.py` | - | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +3 |
 | `project(kind, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | - | ai.runtime.engine.decide, ai.suggest.site_replace.command, check.apps, device.used +1 |
 | `replay_problems(kind, state, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | The state is one version per committed record and equals the projection of the outbox. | ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.kind, ai.parse.grouping_assign.kind, ai.repair.upgrade.kind +3 |
-| `active_outbox(root)` | `src/perfrepair/ai/runtime/engine/outbox.py` | The run's outbox, for every reader; NoOutbox when nothing was ever committed. | ai.parse.grouping_assign.kind, ai.parse.grouping_assign.rekey, ai.runtime.engine.refresh, ai.suggest.site_replace.command +7 |
+| `active_outbox(root)` | `src/perfrepair/ai/runtime/engine/outbox.py` | The run's outbox, for every reader; NoOutbox when nothing was ever committed. | ai.parse.grouping_assign.kind, ai.runtime.engine.refresh, ai.suggest.site_replace.command, check.apps +6 |
 | `role_run(role, device)` | `src/perfrepair/ai/runtime/engine/tracking.py` | A role's whole run; refused before any call when a required input is missing. A required catalog counts as read | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +3 |
 | `add_agent_args(parser, role)` | `src/perfrepair/ai/runtime/gateway/args.py` | Unset flags resolve per role in `spawn` (docs/settings.md). | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `spawn(args, settings, dry_run)` | `src/perfrepair/ai/runtime/gateway/spawn.py` | dry_run: the role's stand-in answers, for the gateway that answers without a model. | ai.__main__, grouping.__main__, guide.command, review.__main__ |
@@ -71,7 +71,7 @@
 | `run_id()` | `src/perfrepair/log/attach.py` | The attached run's id; a call outside any command run gets one of its own. | data_handler.outbound.benchmark_runner, device.benchmark_coverage, device.gate, device.primitives_missing +1 |
 | `elapsed_ms(started)` | `src/perfrepair/log/emit.py` | `int((time.monotonic() - started) * 1000)` | ai.runtime.engine.decide, guide.run, log.attach |
 | `emit(stage, step, event, kind, item, app, outcome, durationMs, tokens, costUsd, ref, detail, data, level)` | `src/perfrepair/log/emit.py` | - | ai.evaluate.worthiness.command, ai.runtime.engine.decide, ai.runtime.engine.events, ai.suggest.site_replace.command +12 |
-| `step(stage, name, kind, item, app, detail, data)` | `src/perfrepair/log/emit.py` | - | ai.parse.grouping_assign.rekey, app.__main__, device.bundled, device.gate +10 |
+| `step(stage, name, kind, item, app, detail, data)` | `src/perfrepair/log/emit.py` | - | app.__main__, device.bundled, device.gate, device.inbound +9 |
 | `status_line(e)` | `src/perfrepair/log/status.py` | - | log.progress, log.summary, log.views |
 | `string_literal(value, language)` | `src/perfrepair/repair/edit/literal.py` | - | repair.edit.algorithm, repair.edit.provider, repair.edit.specs |
 | `apply(text, splices)` | `src/perfrepair/repair/edit/splice.py` | Newlines inside a replaced span follow the new text, so a scope's lines `start..end` stay put in the copy. | repair.edit.alone, repair.edit.app, repair.edit.plan |

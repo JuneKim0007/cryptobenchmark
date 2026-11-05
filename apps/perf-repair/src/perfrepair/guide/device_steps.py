@@ -6,7 +6,6 @@ from dataclasses import replace as with_fields
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..ai.parse.grouping_assign.rekey import rekey
 from ..device.coverage import Coverage, coverage, no_rerun
 from ..device.interop import check_pairs, unreachable
 from ..device.missing_rows import measured_rows
@@ -169,7 +168,6 @@ def _grouping(g: Guide) -> str:
     paths = GroupingPaths(g.device)
     if not paths.items.is_file() and g.root is None:
         _no_decision(g, f"{paths.items} absent")
-    rekey(paths, g.library)
     seen, every = coverage(paths), not no_rerun(g.settings)
     if seen.current and not every:
         emit("device", "grouping", END, outcome="reused", detail=REUSED_GROUPING,

@@ -10,7 +10,6 @@ from .version import newest
 
 SCHEMA_VERSION = 1
 WARN, STOP = "warn", "stop"
-ON_MISSING = (WARN, STOP)
 OFF, SUGGEST, APPLY = "off", "suggest", "apply"
 FROM_APPS = (OFF, SUGGEST, APPLY)
 NO_CATALOG_ROW, NO_COORDINATES, NO_PINNED_VERSION, NAME_TAKEN = ("no_catalog_row", "no_coordinates", "no_pinned_version",

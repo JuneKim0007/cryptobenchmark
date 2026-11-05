@@ -69,7 +69,7 @@ class Item:
         """An item a record names that items.json no longer holds; id 0 is no item."""
         parts = key.split(SEPARATOR)
         if len(parts) != 4:
-            raise InputError(f"outbox_unkeyed: a record names item {key!r}; run grouping assign to rekey its outbox")
+            raise InputError(f"outbox_unkeyed: a record names item {key!r}; not family|type|name|provider")
         family, engine_type, name, provider = parts
         return cls(0, engine_type, name, provider, family)
 

@@ -1,4 +1,4 @@
-"""Records name items by Item.key, so ids moving, items leaving and old positional outboxes all replay correctly."""
+"""Records name items by Item.key, so ids moving and items leaving replay correctly."""
 import json
 from dataclasses import replace
 
@@ -7,15 +7,12 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter, refresh_inputs
-from perfrepair.ai.parse.grouping_assign.rekey import rekey
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.runtime.engine.kind import project
-from perfrepair.ai.runtime.engine.outbox import activate, active_fingerprint, active_outbox
+from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
 from perfrepair.dto.grouping import Item, items_document, read_items, read_profiles, profiles_document
 from perfrepair.files import read_json, write_json
 from perfrepair.grouping.report.checks import report
-from perfrepair.screen.groups import screened_out
 from perfrepair.validation.parse.grouping_assign import validate_answer
 from perfrepair.dto.grouping_state import Answer
 
@@ -121,46 +118,3 @@ def test_refresh_asks_every_item_into_a_new_outbox_and_later_runs_stay_in_it(pat
     assert GroupingKind(paths, FAMILIES).inputs.startswith("refresh ")
     _, again = assign(paths)
     assert again.started == 0 and active_fingerprint(paths.root) == new
-
-
-def _positional_outbox(paths, kind):
-    """The folder as the engine left it when records named positions and the inputs were the screened-out ids."""
-    inputs = "\n".join(str(k) for k, v in sorted((kind.screen or {}).items()) if screened_out(v))
-    assign(paths)
-    decided = active_outbox(paths.root).records()
-    old = charter(LIBRARY, inputs)
-    if old.fingerprint == active_fingerprint(paths.root):
-        return old, decided
-    outbox, _ = activate(paths.root, old)
-    for r in decided:
-        item = next(i for i in kind.items() if i.key == r.item)
-        outbox.append(replace(r, item=str(item.id)))
-    return old, decided
-
-
-def test_a_positional_outbox_moves_to_keys_with_no_call_and_stays_behind(paths):
-    from helpers import CATALOG
-    from perfrepair.dto.screen import Verdict, screen_document
-    from perfrepair.run_dir import built
-    verdicts = {n: Verdict("broken", "r", "s", "H1") if n == 6 else Verdict("accepted", "r", "s", f"A{n}") for n in range(1, 7)}
-    write_json(paths.screen, screen_document(verdicts, CATALOG, built(paths)))
-    old, decided = _positional_outbox(paths, GroupingKind(paths, FAMILIES))
-    assert rekey(paths, LIBRARY) is True
-    assert [r.item for r in active_outbox(paths.root).records()] == [r.item for r in decided]
-    assert (paths.root / "outbox" / old.fingerprint / "000001.json").is_file()
-    assert active_fingerprint(paths.root) != old.fingerprint and rekey(paths, LIBRARY) is False
-    kind = GroupingKind(paths, FAMILIES)
-    assert project(kind, active_outbox(paths.root).records()).version == len(decided)
-
-
-def test_a_positional_outbox_whose_positions_moved_is_left_and_asked(paths, caplog):
-    from helpers import CATALOG
-    from perfrepair.dto.screen import Verdict, screen_document
-    from perfrepair.run_dir import built
-    verdicts = {n: Verdict("broken", "r", "s", "H1") if n == 6 else Verdict("accepted", "r", "s", f"A{n}") for n in range(1, 7)}
-    write_json(paths.screen, screen_document(verdicts, CATALOG, built(paths)))
-    old, decided = _positional_outbox(paths, GroupingKind(paths, FAMILIES))
-    verdicts[6], verdicts[5] = verdicts[5], verdicts[6]
-    write_json(paths.screen, screen_document(verdicts, CATALOG, built(paths)))
-    assert rekey(paths, LIBRARY) is False and "outbox_not_rekeyed" in caplog.text
-    assert active_fingerprint(paths.root) == old.fingerprint

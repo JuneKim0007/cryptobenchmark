@@ -45,11 +45,12 @@ class Flow:
         self.grouping = {"noRerun": True}
         self.filter = False
         self.bundled = {}
+        self.stops = {}
 
     def settings(self, text=None):
         path = self.tmp / "perfrepair.yaml"
         document = {"device": {"grouping": self.grouping, "filterByApps": self.filter, "bundled": self.bundled},
-                    "apps": {"perfMode": ["latency", "throughput"]}}
+                    "apps": {"perfMode": ["latency", "throughput"]}, "stops": self.stops}
         path.write_text(text if text is not None else yaml.safe_dump(document))
         return path
 
@@ -311,7 +312,7 @@ def applied(flow):
 
 
 def test_bundled_stop_halts_before_the_benchmark_naming_each_provider(scoped):
-    scoped.bundled = {"onMissing": "stop"}
+    scoped.stops = {"bundled_missing": "stop"}
     lines = run_targets(scoped, scoped.sha)
     stop = [line for line in lines if line.startswith("guide prerequisites: stop bundled_missing: ")]
     assert len(stop) == 1 and "BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-" in stop[0]
@@ -408,13 +409,12 @@ def test_a_shipped_provider_is_a_provider_path_in_both_directions(scoped, monkey
 
 @pytest.mark.parametrize("value", ["always", 1])
 def test_a_bad_bundled_value_warns_and_takes_the_default(scoped, caplog, value):
-    scoped.bundled = {"onMissing": value, "fromApps": value}
+    scoped.bundled = {"fromApps": value}
     with caplog.at_level(logging.WARNING, "perfrepair"):
         lines = run_targets(scoped, scoped.sha)
     assert any(line.startswith(WARNED) for line in lines) and scoped.device_runs() == 2
     assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists()
-    assert {m.split(" ")[1] for m in caplog.messages if m.startswith("invalid: device.bundled.")} == {
-        "device.bundled.onMissing", "device.bundled.fromApps"}
+    assert {m.split(" ")[1] for m in caplog.messages if m.startswith("invalid: device.bundled.")} == {"device.bundled.fromApps"}
 
 
 def _stage(flow, *flags):

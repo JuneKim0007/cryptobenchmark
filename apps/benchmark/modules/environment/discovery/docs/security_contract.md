@@ -29,14 +29,14 @@ Top-level keys, in this order.
 | `sdkInt` | int | Android API level; `0` on a JVM |
 | `release` | string | Android version |
 | `javaVersion` | string | `java.version` |
-| `defaultKeySizeProperty` | string | system property `jdk.security.defaultKeySize`; `''` when unset; optional on read (absent = `''`) |
-| `fingerprint` | string | `Build.FINGERPRINT`; `''` on a JVM; optional on read (absent = `''`) |
-| `javaVendor` | string | `java.vendor`; optional on read (absent = `''`) |
-| `javaRuntimeVersion` | string | `java.runtime.version`; optional on read (absent = `''`) |
-| `osName` | string | `os.name`; optional on read (absent = `''`) |
-| `osArch` | string | `os.arch`; optional on read (absent = `''`) |
+| `defaultKeySizeProperty` | string | system property `jdk.security.defaultKeySize`; `''` when unset |
+| `fingerprint` | string | `Build.FINGERPRINT`; `''` on a JVM |
+| `javaVendor` | string | `java.vendor` |
+| `javaRuntimeVersion` | string | `java.runtime.version` |
+| `osName` | string | `os.name` |
+| `osArch` | string | `os.arch` |
 
-All other runtime fields are required on read.
+Every runtime field is required on read.
 
 ## providers[]
 

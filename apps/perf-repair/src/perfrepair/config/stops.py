@@ -1,18 +1,17 @@
-"""The one reader of `stops.<code>` and its alias `device.bundled.onMissing`: each read from the run's settings when its
+"""The one reader of `stops.<code>`: each read from the run's settings when its
 code fires, through the row's resolver (unset: the default; bad: one warning, then the default); a fixed code set is
 one warning, ignored."""
 from __future__ import annotations
 
 import logging
 
-from ..inputs.table import BUNDLED_ON_MISSING, STOP_ROWS
+from ..inputs.table import STOP_ROWS
 from ..stop import policy
 from ..stop.codes import Code
 from . import current
 from .load import Loaded
 
 LOG = logging.getLogger(__name__)
-ALIASES = {"bundled_missing": BUNDLED_ON_MISSING}
 
 
 def read_stop(code: Code) -> str | None:
@@ -22,13 +21,7 @@ def read_stop(code: Code) -> str | None:
     if code.fixed:
         _fixed(loaded, code)
         return None
-    row = STOP_ROWS[code.code]
-    value = loaded.read(row)
-    alias = ALIASES.get(code.code)
-    # the stops key wins; the older key is read only when the stops key is unset
-    if alias is not None and loaded.sources.get(row.key) == "default":
-        return loaded.read(alias)
-    return value
+    return loaded.read(STOP_ROWS[code.code])
 
 
 def _fixed(loaded: Loaded, code: Code) -> None:

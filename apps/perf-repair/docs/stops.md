@@ -11,7 +11,6 @@
 |---|---|---|
 | `stops.<code>` of an overridable code | the code's allowed actions below | one warning `invalid: stops.<code> <value>, one of [...]; using the default <default>`, then the default |
 | `stops.<code>` of a fixed code | none | one warning `stop_fixed: stops.<code> <value>, <code> is fixed (<why>); ignored` when the code fires |
-| `device.bundled.onMissing` | `warn`, `stop` | the same as `stops.bundled_missing`; read only when `stops.bundled_missing` is unset |
 
 - Each key is read when its code fires, through its `inputs/table.py` row (`STOP_ROWS`), by `config/stops.py`; the first command of a run that loads settings installs the reader; a command it runs in-process keeps it; without one each code takes its default.
 

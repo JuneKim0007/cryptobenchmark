@@ -207,7 +207,7 @@ def _guide_out(flow_, capsys, root):
 
 
 def test_the_pointer_is_the_last_line_when_the_guide_stops(scoped, capsys):  # noqa: F811
-    scoped.bundled = {"onMissing": "stop"}
+    scoped.stops = {"bundled_missing": "stop"}
     _guide_out(scoped, capsys, scoped.sha)
     assert len(_pointers(scoped)) == 1
     assert [r["action"] for r in listed(scoped.device)["missing"] if r["provider"] == "BC" and r["primitive"] is None] == [STOPPED]

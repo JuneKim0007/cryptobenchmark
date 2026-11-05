@@ -96,12 +96,12 @@ object CaptureDocument {
         sdkInt = number(document, SDK_INT).toInt(),
         release = string(document, RELEASE),
         javaVersion = string(document, JAVA_VERSION),
-        defaultKeySizeProperty = optionalString(document, DEFAULT_KEY_SIZE_PROPERTY),
-        fingerprint = optionalString(document, FINGERPRINT),
-        javaVendor = optionalString(document, JAVA_VENDOR),
-        javaRuntimeVersion = optionalString(document, JAVA_RUNTIME_VERSION),
-        osName = optionalString(document, OS_NAME),
-        osArch = optionalString(document, OS_ARCH),
+        defaultKeySizeProperty = string(document, DEFAULT_KEY_SIZE_PROPERTY),
+        fingerprint = string(document, FINGERPRINT),
+        javaVendor = string(document, JAVA_VENDOR),
+        javaRuntimeVersion = string(document, JAVA_RUNTIME_VERSION),
+        osName = string(document, OS_NAME),
+        osArch = string(document, OS_ARCH),
     )
 
     private fun providerDocument(provider: ProviderEntry): Map<String, Any> {

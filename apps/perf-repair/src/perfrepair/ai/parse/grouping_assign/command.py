@@ -12,7 +12,6 @@ from ...runtime.engine.events import Where
 from ...runtime.engine.tracking import role_run
 from ...runtime.prompt import PromptLibrary
 from .kind import GroupingKind, charter, refresh_inputs
-from .rekey import rekey
 
 
 def _dry_run(task: TaskPrompt, *_):
@@ -27,7 +26,6 @@ def assign(paths: GroupingPaths, conversations: Conversations, library: PromptLi
            limit: int | None = None, echo=print, refresh: bool = False) -> Knowledge:
     """refresh: every item asked again into a new outbox; the old one stays."""
     with role_run("grouping.assign", paths.root.parent):
-        rekey(paths, library)
         kind = GroupingKind(paths)
         knowledge = decide(kind, charter(library, refresh_inputs() if refresh else kind.inputs), conversations, paths.root,
                            limits, limit, where=Where("grouping", "assign"))

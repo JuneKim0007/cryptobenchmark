@@ -171,19 +171,8 @@ def test_a_resume_with_the_same_values_or_nothing_left_to_ask_is_silent(tmp_path
     assert caplog.messages == []
 
 
-def test_old_records_without_the_fields_stay_readable_and_do_not_warn(tmp_path, caplog):
-    decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
-    path = active_outbox(tmp_path).path(1)
-    old = {k: v for k, v in json.loads(path.read_text()).items() if k not in ("gateway", "model", "effort")}
-    path.write_text(json.dumps({**old, "schemaVersion": 1}))
-    assert records(tmp_path)[0].agent == AgentIdentity()
-    with caplog.at_level(logging.WARNING, logger="perfrepair"):
-        decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, echo=lambda _: None)
-    assert caplog.messages == [] and records(tmp_path)[-1].agent == HAIKU
-
-
 def test_an_unknown_record_version_is_refused():
-    with pytest.raises(ValueError, match="schemaVersion 3 is not one of"):
+    with pytest.raises(ValueError, match="schemaVersion 3 is not"):
         OutboxRecord.from_json({"schemaVersion": 3, "outcome": "dropped", "seq": 1})
 
 
@@ -207,11 +196,3 @@ def test_a_resume_keeps_a_matching_charter_json_and_refuses_a_changed_one(tmp_pa
     path.write_text(json.dumps({**doc, "inputs": "tampered"}))
     with pytest.raises(CharterMismatch, match="charter_mismatch"):
         run(tmp_path, V1)
-
-
-def test_an_outbox_from_before_charter_json_gets_it_on_its_next_open(tmp_path):
-    run(tmp_path, V1, limit=1)
-    path = tmp_path / "outbox" / V1.fingerprint / "charter.json"
-    path.unlink()
-    run(tmp_path, V1)
-    assert json.loads(path.read_text())["fingerprint"] == V1.fingerprint

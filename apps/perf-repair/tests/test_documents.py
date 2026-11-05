@@ -41,8 +41,7 @@ def test_a_wrong_version_raises_the_kind_s_error_with_its_wording(tmp_path):
     assert (e.value.code, e.value.path) == ("names_schema", tmp_path / "n.yaml")
 
 
-def test_several_accepted_versions_and_an_absent_one():
-    assert OUTBOX_RECORD_DOC.check({"schemaVersion": 1}) == {"schemaVersion": 1}
+def test_an_absent_version_is_refused():
     with pytest.raises(InputError):
         OUTBOX_RECORD_DOC.check({})
 

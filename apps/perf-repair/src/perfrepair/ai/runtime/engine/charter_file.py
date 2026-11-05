@@ -33,9 +33,8 @@ def record(path: Path, charter: Charter) -> None:
 
 
 def inputs(path: Path) -> str:
-    """The run inputs of a recorded charter; none when it has no charter.json."""
-    path = Path(path)
-    return read_json(path)["inputs"] if path.is_file() else ""
+    """The run inputs of a recorded charter."""
+    return read_json(Path(path))["inputs"]
 
 
 def problems(path: Path, fingerprint: str) -> list[str]:
