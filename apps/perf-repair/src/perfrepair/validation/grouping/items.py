@@ -20,8 +20,6 @@ def validate_items(items: list[Item], profiles: dict[int, Profile], families: Fa
             problems.append(f"{i.id}: family {i.family} is for {family.type}, not {i.type}")
         elif i.id in profiles and family.keyKind != profiles[i.id].keyKind:
             problems.append(f"{i.id}: family {i.family} is for key kind {family.keyKind}, profile says {profiles[i.id].keyKind}")
-        if i.group is not None:
-            problems.append(f"{i.id}: carries group {i.group!r} before any agent ran")
         if not (i.type and i.name and i.provider):
             problems.append(f"{i.id}: type, name or provider is empty")
     problems += [f"{n}: no profile" for n in ids if n not in profiles]

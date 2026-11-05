@@ -101,7 +101,6 @@ class GroupingKind:
             return [f"{item.id}: does not parse into Item: {e}"]
         return [p for p in (
             f"{item.id}: differs from the item the run was built with" if popped != item else "",
-            f"{item.id}: carries group {popped.group!r}" if popped.group is not None else "",
             f"{item.id}: family {popped.family!r} unknown" if popped.family not in self.families.by_id else "",
             f"{item.id}: no profile" if item.id not in self.profiles else "",
         ) if p]

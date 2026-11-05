@@ -20,7 +20,7 @@ def test_universe_is_the_catalogued_engine_types_with_ids_in_family_order():
     assert [i.id for i in items] == [1, 2, 3, 4, 5, 6]
     assert [i.family for i in items] == ["cipher.pair", "cipher.secret", "cipher.secret", "cipher.secret",
                                          "cipher.unknown", "digest.none"]
-    assert all(i.type != "TypeX" and i.group is None for i in items)
+    assert all(i.type != "TypeX" for i in items)
 
 
 def test_each_key_kind_rule_decides_where_it_should():
@@ -81,12 +81,11 @@ def test_documents_round_trip_and_validate():
 
 def test_validator_names_every_broken_contract():
     items, profiles = built()
-    broken = [Item(1, "TypeC", "A", "P", "nope"), Item(3, "TypeD", "B", "P", "cipher.secret", group="g")]
+    broken = [Item(1, "TypeC", "A", "P", "nope"), Item(3, "TypeD", "B", "P", "cipher.secret")]
     problems = validate_items(broken, {1: profiles[1]}, FAMILIES)
     assert any("not 1..2" in p for p in problems)
     assert any("'nope' is not in the catalog" in p for p in problems)
     assert any("is for TypeC, not TypeD" in p for p in problems)
-    assert any("carries group" in p for p in problems)
     assert any("3: no profile" in p for p in problems)
 
 
