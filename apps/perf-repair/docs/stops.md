@@ -143,6 +143,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `run_unknown` | `stop` | fixed: the input is unusable | 1 | name a run log summary lists |
 | `unknown_key` | `warn` | fixed: a notice; nothing to choose | 1 | remove the key, or fix its spelling |
 | `mixed_agents` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the records name each gateway |
+| `alias_conflict` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the item is asked; settle the alias in algorithm-names.yaml to place it |
 | `perf_mode_extra` | `warn` | fixed: a notice; nothing to choose | 1 | drop the measurement from the run config to save device time |
 | `append_repaired` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the partial line stays and readers skip it |
 | `log_dropped` | `warn` | fixed: a notice; nothing to choose | 1 | name the device folder earlier in the command |

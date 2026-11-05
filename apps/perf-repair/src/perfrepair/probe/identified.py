@@ -1,8 +1,10 @@
 """The one test of identified: an item code places without a model, because screening put it out or the catalogue lists it."""
 from __future__ import annotations
 
+from ..catalog.algorithms import algorithm_id
 from ..catalog.groups import CatalogGroup, group_catalog
 from ..catalog.interchange import OUTPUT
+from ..catalog.names import Names
 from ..catalog.resolved import function_parameters
 from ..dto.grouping import Item
 from ..dto.screen import CODE_GROUPED, Verdict
@@ -22,6 +24,11 @@ def listed(item: Item, verdict: Verdict | None) -> CatalogGroup | None:
     """The item's contract row: its canonical name has one in its family, and the trial agrees with it."""
     group = group_catalog().of(item.family, verdict.canonical) if verdict is not None else None
     return group if group is not None and _resolved_agrees(item, group) else None
+
+
+def alias_conflicts(names: Names) -> list[tuple[str, str]]:
+    """Each device alias the catalog names otherwise, as (Type|alias, both sides): never followed; an item so spelt is asked."""
+    return sorted((algorithm_id(engine_type, alias), why) for (engine_type, alias), why in names.conflicts.items())
 
 
 def identified(item: Item, verdicts: dict[int, Verdict] | None) -> bool:
