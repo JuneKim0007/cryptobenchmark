@@ -71,6 +71,7 @@ src/perfrepair/validation/suggest/site_performance.py : the replacement gate's p
 src/perfrepair/validation/suggest/site_replace.py : gate C of site-replace: a reply against its unit, member by member in their aliases; the members with options all replaced or all kept, none that stays named; refuses an option with unknown pins, and a replace that changes the output while its own risks say the output leaves; risks from scope and option
 src/perfrepair/validation/summary.py : summary.json against the reports: apps and funnels, modes, pattern counts, app partition per pattern
 src/perfrepair/validation/units.py : units.json: every scope in one unit, ids recomputed, members connected, each cited line in that side's lifecycle
+src/perfrepair/validation/upgrade.py : gate C of repair-upgrade: an offered alias and a reason, resolved to the item; upgrades.json rows against their items, none on an item not accepted
 src/perfrepair/validation/used.py : used.json: each item a device item named once, a known via, apps it lists, matched within sites, deviceItems equal to items.json
 src/perfrepair/validation/verdicts.py : verdicts: known groups, static equal triage, pairs are members
 ```

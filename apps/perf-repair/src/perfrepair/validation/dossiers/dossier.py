@@ -90,9 +90,10 @@ def _no_estimates(where: str, d: Dossier, selected: tuple[str, ...]) -> list[str
             if n.reason not in NO_ESTIMATE_REASONS or n.metric not in selected]
 
 
-def check_dossier(raw, app: str | None, perf: PerfMode, max_change: str = DROP_IN) -> tuple[Dossier | None, list[str]]:
+def check_dossier(raw, app: str | None, perf: PerfMode, max_change: str = DROP_IN,
+                  gained: bool = True) -> tuple[Dossier | None, list[str]]:
     """One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels, estimates of
-    perf's metrics only and change classes within max_change."""
+    perf's metrics only and change classes within max_change; gained False: a broken use's, no_gain never applies."""
     where = f"dossier {raw_scope_id(raw)}"
     if not isinstance(raw, dict):
         return None, [f"{where}: is not an object"]
@@ -117,7 +118,7 @@ def check_dossier(raw, app: str | None, perf: PerfMode, max_change: str = DROP_I
         problems.append(f"{where}: an option repeats the current item or another option")
     problems += [f"{where} {o.alias}: screen {o.screen!r} is neither one of {STATUSES} nor null"
                  for o in d.options if o.screen is not None and o.screen not in STATUSES]
-    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change) + _gained(where, d) + _review(where, d)
+    return d, problems + _labels(where, d) + _estimates(where, d, perf.names) + _changes(where, d, max_change) + (_gained(where, d) if gained else []) + _review(where, d)
 
 
 def _labels(where: str, d: Dossier) -> list[str]:

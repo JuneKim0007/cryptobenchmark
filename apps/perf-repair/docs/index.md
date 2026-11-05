@@ -19,5 +19,6 @@ docs/shared-functions.md : functions three or more modules import: module, signa
 docs/signature.md : what code reads per item, per engine type; known, convention, unknown; which items it groups
 docs/stops.md : every stop, warn and skip code: default action, overridable or fixed, exit, next step; terminate, Halt, stops.<code>
 docs/targets.md : apps.targets: root and path entries, the targets file, app kinds from Android metadata, merging, targets.yaml
+docs/upgrade.md : the repair upgrade role: a broken use's list target or model choice, edit or person, its statuses
 docs/used-set.md : device.filterByApps: the two-pass device stage, used.json, the measured set and its selection
 ```

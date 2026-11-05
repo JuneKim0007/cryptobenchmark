@@ -155,7 +155,8 @@ def test_the_document_lists_the_selected_metrics_the_run_measured(tmp_path):
 def test_the_builder_is_deterministic_and_validates(tmp_path):
     first, second = build([scope()], tmp_path), build([scope()], tmp_path)
     assert json.dumps(first) == json.dumps(second)
-    assert set(first) == {"schemaVersion", "app", "perfMode", "measured", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
+    assert set(first) == {"schemaVersion", "app", "perfMode", "measured", "maxChange", "dossiers", "noOptions", "notOffered", "units",
+                          "upgrades", "brokenUnreached"}
     assert validate_dossiers(first, [scope()], GROUPS, None) == []
 
 
@@ -255,11 +256,11 @@ def _verdicts(**by_provider):
     return out
 
 
-def test_a_deprecated_target_of_the_current_algorithm_is_an_option(tmp_path):
-    verdicts = _verdicts(P1=("broken", "ALG-A"), P2=("broken", "ALG-A"), P3=("broken", "ALG-A"))
+def test_a_platform_deprecated_target_of_the_current_algorithm_stays_an_option(tmp_path):
+    verdicts = _verdicts(P1=("platform_deprecated", "ALG-A"), P2=("platform_deprecated", "ALG-A"), P3=("platform_deprecated", "ALG-A"))
     doc = build([scope()], tmp_path, verdicts=verdicts)
     assert [(o["item"], o["screen"]) for o in doc["dossiers"][0]["options"]] == [
-        ("TypeA|ALG-A|P2", "broken"), ("TypeA|alg-a-alias|P3", "broken")]
+        ("TypeA|ALG-A|P2", "platform_deprecated"), ("TypeA|alg-a-alias|P3", "platform_deprecated")]
     assert validate_dossiers(doc, [scope()], GROUPS, verdicts) == []
 
 
@@ -285,7 +286,7 @@ def test_the_validator_refuses_an_option_that_lowers_the_status(tmp_path):
     doc = build([scope()], tmp_path, verdicts=_verdicts())
     problems = validate_dossiers(doc, [scope()], GROUPS, _verdicts(P2=("broken", "ALG-X")))
     assert any("R1: screen 'accepted' is not this app's status 'broken'" in p for p in problems)
-    assert any("R1: TypeA|ALG-A|P2 is broken and lowers the status of TypeA|ALG-A|P1" in p for p in problems)
+    assert any("R1: TypeA|ALG-A|P2 is broken, refused as a target of TypeA|ALG-A|P1" in p for p in problems)
     assert any("without screen.json" in p for p in validate_dossiers(doc, [scope()], GROUPS, None))
 
 

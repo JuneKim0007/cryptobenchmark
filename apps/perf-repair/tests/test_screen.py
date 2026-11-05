@@ -10,7 +10,7 @@ from perfrepair.check.run import validate_run
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.dto.grouping import Item, read_items
 from helpers import with_results, CATALOG
-from perfrepair.dto.screen import Verdict, lowers_status, read_screen, screen_document
+from perfrepair.dto.screen import Verdict, refused_target, read_screen, screen_document
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.screen import validate_screen, validate_screen_document
@@ -181,10 +181,10 @@ PLATFORM = replace(A, status="platform_deprecated")
 
 
 @pytest.mark.parametrize("current, target, lowers", [
-    (A, A, False), (A, B, True), (B, B, False), (B, replace(B, keySize=128), False), (None, B, True), (B, None, False),
+    (A, A, False), (A, B, True), (B, B, True), (B, replace(B, keySize=128), True), (None, B, True), (B, None, False),
     (A, PLATFORM, True), (PLATFORM, PLATFORM, False), (PLATFORM, A, False)])
 def test_a_screened_out_target_never_lowers_the_status(current, target, lowers):
-    assert lowers_status(current, target) is lowers
+    assert refused_target(current, target) is lowers
 
 
 def test_for_app_raises_a_recorded_verdict_only_at_the_gate():

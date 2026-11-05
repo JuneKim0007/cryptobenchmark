@@ -6,7 +6,8 @@ from ...dto.dossier import NO_OPTION_REASONS, reason_code
 from ...dto.perf_mode import PerfMode
 from ...dto.site import DOSSIERS_SCHEMA_VERSION
 
-KEYS = {"schemaVersion", "app", "perfMode", "measured", "maxChange", "dossiers", "noOptions", "notOffered", "units"}
+KEYS = {"schemaVersion", "app", "perfMode", "measured", "maxChange", "dossiers", "noOptions", "notOffered", "units", "upgrades",
+        "brokenUnreached"}
 NOT_OFFERED_KEYS = {"scope", "item", "change", "diff", "reasons", "outputChanges"}
 
 
@@ -16,7 +17,7 @@ def check_header(doc) -> list[str]:
     problems = [] if set(doc) == KEYS else [f"keys {sorted(doc)} are not {sorted(KEYS)}"]
     if doc.get("schemaVersion") != DOSSIERS_SCHEMA_VERSION:
         problems.append(f"schemaVersion {doc.get('schemaVersion')} is not {DOSSIERS_SCHEMA_VERSION}")
-    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions", "notOffered", "units")
+    problems += [f"{k} is not a list" for k in ("dossiers", "noOptions", "notOffered", "units", "upgrades", "brokenUnreached")
                  if not isinstance(doc.get(k), list)]
     if doc.get("maxChange") not in CHANGES:
         problems.append(f"maxChange {doc.get('maxChange')!r} is not one of {CHANGES}")

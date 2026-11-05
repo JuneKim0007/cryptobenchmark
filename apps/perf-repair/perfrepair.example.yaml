@@ -3,7 +3,7 @@
 # the run's id are in settings.yaml, or the guide's flags: a value for one of them here is a placement error.
 # Every key is optional; a missing or null key falls through to the next layer:
 #   CLI flag > a role section here (device.grouping.assign, device.grouping.supervisor, device.screening.classify,
-#   device.worthiness, apps.agent, apps.replace) > environment (PERFREPAIR_*) > the gateway's block here > .env
+#   device.worthiness, apps.agent, apps.replace, apps.upgrade) > environment (PERFREPAIR_*) > the gateway's block here > .env
 #   > the role's code default > the general code default.
 # aiGateway stays empty below: a value there would outrank .env and raise every role, so a plain copy changes nothing.
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
@@ -57,6 +57,7 @@ apps:                      # per app: the guide, `ai replace`
   maxChange: drop-in       # highest change class the guide may apply: drop-in | local-edit | migration; higher ones are reported
   agent: {}                # role keys of the guide
   replace: {}              # role keys of `ai replace`
+  upgrade: {}              # role keys of `ai upgrade` and the guide's upgrade step
 
 timeouts:                  # seconds a child process may run before it is killed with its children
   claude: 3600             # one claude -p call; past it claude_cli_timeout

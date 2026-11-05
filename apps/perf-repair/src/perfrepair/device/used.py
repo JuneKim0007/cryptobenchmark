@@ -8,10 +8,13 @@ from .. import run_dir as rd
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.kind import project
 from ..ai.runtime.engine.outbox import active_outbox
+from ..catalog.names import fold
+from ..catalog.upgrades import upgrades
 from ..data_handler.inbound import RunContext
 from ..dto.grouping import Item, qualified
 from ..dto.grouping_state import Knowledge
-from ..dto.used import CANDIDATE, GROUP, SITE, VIA, AppUse, UsedItem, UsedSet
+from ..dto.screen import ACCEPTED, BROKEN
+from ..dto.used import CANDIDATE, GROUP, SITE, UPGRADE, VIA, AppUse, UsedItem, UsedSet
 from ..files import write_json
 from ..log import step
 from ..run_dir import AppPaths, GroupingPaths
@@ -49,8 +52,20 @@ class _Reach:
         fits = [i for i in self.kind.askable() if self._fits(item, i)]
         return [m for i in fits for m in (i.id, *self._members(i.id))]
 
+    def _upgrades(self, item: Item) -> list[int]:
+        """A broken item's accepted family members, narrowed to the upgrade list's when it names any of them."""
+        screen = self.kind.screen or {}
+        v = screen.get(item.id)
+        if v is None or v.status != BROKEN:
+            return []
+        accepted = [i for i in self.kind.items() if i.family == item.family and i.id in screen
+                    and screen[i.id].status == ACCEPTED]
+        listed = upgrades().targets(item.family, v.canonical)
+        return [i.id for i in [i for i in accepted if fold(screen[i.id].canonical or i.name) in listed] or accepted]
+
     def of(self, item: Item) -> list[tuple[int, str]]:
         reached = [(m, GROUP) for m in self._members(item.id)] + [(m, CANDIDATE) for m in self._candidates(item)]
+        reached += [(m, UPGRADE) for m in self._upgrades(item)]
         return [(m, how) for m, how in reached if m != item.id]
 
 

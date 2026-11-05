@@ -14,7 +14,7 @@ from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.interop import interop_section
 from perfrepair.dto.grouping import KEY_PROVIDER_HELD
 from helpers import ANY_EVIDENCE
-from perfrepair.dto.screen import BROKEN, CODE_GROUPED, NEVER_TARGET, PLATFORM_DEPRECATED, RANK, STATUSES, lowers_status
+from perfrepair.dto.screen import BROKEN, CODE_GROUPED, PLATFORM_DEPRECATED, RANK, STATUSES, refused_target
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.files import read_document
 from perfrepair.result import estimate
@@ -36,13 +36,13 @@ PACKAGED = ScreeningHandler(SCREENING, CATALOG)
 # a catalog change that moves these is deliberate: recompute, review, then pin
 EXPECTED = {
     "android36": {"items": 168, "broken": 63, "accepted": 96, "unknown": 9, "codeGroups": 58, "multiProvider": 1,
-                  "pairs": 25116, "refused": 11220},
+                  "pairs": 25116, "refused": 11448},
     "jdk17": {"items": 193, "broken": 56, "accepted": 106, "unknown": 31, "codeGroups": 54, "multiProvider": 0,
-              "pairs": 39084, "refused": 17892},
+              "pairs": 39084, "refused": 17928},
     "jdk21": {"items": 200, "broken": 56, "accepted": 106, "unknown": 38, "codeGroups": 54, "multiProvider": 0,
-              "pairs": 41316, "refused": 19812},
+              "pairs": 41316, "refused": 19848},
     "jdk25": {"items": 214, "broken": 56, "accepted": 118, "unknown": 40, "codeGroups": 54, "multiProvider": 0,
-              "pairs": 45984, "refused": 20784},
+              "pairs": 45984, "refused": 20820},
 }
 
 
@@ -122,7 +122,7 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
         assert validate_dossiers(doc, scopes, groups, verdicts) == []
         offered = {d["current"]: {o["item"]: o["screen"] for o in d["options"]} for d in doc["dossiers"]}
         alone = {s.id for s, i in zip(scopes, items) if sizes[i.family] == 1}
-        assert all(n["reason"] in (("no_alternative",) if n["scope"] in alone else ("deprecated_only", "no_alternative"))
+        assert all(n["reason"] in (("no_alternative", "no_secure_option") if n["scope"] in alone else ("deprecated_only", "no_alternative", "no_secure_option"))
                    for n in doc["noOptions"])
         for i in items:
             current = verdicts[i.qualified]
@@ -130,17 +130,19 @@ def test_no_dossier_option_lowers_the_status_over_the_real_provider_mix(runtime,
             for o in others:
                 target, shown = verdicts[o.qualified], offered.get(i.qualified, {}).get(o.qualified)
                 pairs += 1
-                refused += lowers_status(current, target)
+                refused += refused_target(current, target)
+                if current.status == BROKEN:
+                    assert shown is None, "a broken current goes to the upgrade role, never to replace"
+                    continue
                 if o.provider == i.provider and fold(target.canonical) == fold(current.canonical):
                     assert shown is None, "another spelling of one engine is never an option"
                     continue
-                if target.status not in NEVER_TARGET:
+                if target.status == "accepted":
                     assert shown == target.status
                     continue
                 own = target.canonical == current.canonical
-                allowed = own and RANK[target.status] >= RANK[current.status]
+                allowed = own and target.status != BROKEN and RANK[target.status] >= RANK[current.status]
                 assert (shown is not None) == allowed, (sdk, i.qualified, o.qualified)
-                assert target.status != BROKEN or shown is None or own
     assert (pairs, refused) == (EXPECTED[runtime]["pairs"], EXPECTED[runtime]["refused"])
 
 

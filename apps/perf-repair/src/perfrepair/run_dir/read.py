@@ -7,6 +7,7 @@ from ..dto import Measurements, PrimitiveRow, RunLog
 from ..dto.primitive import ROWS_DOC
 from ..dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review
 from ..dto.site import DOSSIERS_DOC, EDITS_DOC, SCOPES_DOC, SITES_DOC
+from ..dto.upgrade import Upgrade, read_upgrades
 from ..dto.used import UsedSet
 from ..files import read_json, read_versioned, sha256_file
 from .layout import MEASUREMENTS, ROWS, RUN_LOG, USED, GroupingPaths
@@ -52,6 +53,11 @@ def read_sites(path: Path) -> dict:
 
 def read_edits(path: Path) -> dict:
     return read_versioned(EDITS_DOC, path)
+
+
+def load_upgrades(path: Path) -> list[Upgrade]:
+    """What each broken use became; none before the upgrade step ran."""
+    return read_upgrades(read_json(path)) if Path(path).is_file() else []
 
 
 def read_dossiers(path: Path) -> dict:

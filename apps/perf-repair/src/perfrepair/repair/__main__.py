@@ -12,6 +12,7 @@ from ..app.facts.path_id import absolute, app_id
 from ..dto.replacement import Replacement, read_replacements
 from ..dto.site import Scope
 from ..dto.unit import read_units
+from ..dto.upgrade import UPGRADED
 from ..files import read_json, write_json, write_text
 from .. import run_dir as rd
 from ..run_dir import AppPaths
@@ -69,7 +70,8 @@ def _test_set(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
 def _load(paths: AppPaths) -> tuple[dict[str, Scope], dict[str, Replacement]]:
     scopes = {s["id"]: Scope.from_json(s) for s in rd.read_scopes(paths.scopes)["scopes"]}
     replacements = read_replacements(read_json(paths.replacements))
-    return scopes, replacements
+    # an upgraded broken use is applied like a replace; replacements.json holds its static keep
+    return scopes, replacements | {u.scope: u.replacement() for u in rd.load_upgrades(paths.upgrades) if u.status == UPGRADED}
 
 
 def _report(path: Path, problems: list[str]) -> int:
@@ -100,7 +102,8 @@ def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     paths = AppPaths(a.device_results, a.app)
     scopes, replacements = _load(paths)
     edits = rd.read_edits(paths.edits)
-    dossiers = {d["scope"]["id"]: d for d in rd.read_dossiers(paths.dossiers)["dossiers"]}
+    doc = rd.read_dossiers(paths.dossiers)
+    dossiers = {d["scope"]["id"]: d for d in doc["dossiers"] + doc["upgrades"]}
     with step("repair", "harness", app=a.app) as s:
         doc = harness(paths, scopes, replacements, edits, dossiers, read_effective(a.device_results / rd.MANIFEST),
                       read_units(read_json(paths.units)))

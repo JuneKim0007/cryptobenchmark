@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
+from ..ai.repair.upgrade.command import DRY_RUN as UPGRADE_DRY_RUN, counts, upgrade
 from ..ai.suggest.site_replace.command import replace, stale_problem
 from ..app.__main__ import main as app_main
 from ..app.facts.gate import open_apps
@@ -13,6 +14,7 @@ from ..device.energy import report_invalid
 from ..device.measures import owned_config
 from ..device.missing_rows import measured_rows, site_rows, variant_rows
 from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_STEP
+from ..dto.upgrade import UPGRADED
 from ..repair.__main__ import main as repair_main
 from ..repair.dossier import dossier
 from ..report.command import app_report
@@ -40,11 +42,18 @@ def dossiers(g: Guide) -> str:
     doc = dossier(g.device, g.app_id, g.app_root, g.catalog, g.mode.perf, echo=lambda _: None, max_change=g.max_change)
     g.missing.put(f"measured {g.app_id}", measured_rows(g.device, g.app_id))
     g.missing.put(f"variants {g.app_id}", variant_rows(g.device, g.app_id, doc["noOptions"]))
-    if not doc["dossiers"]:
+    if not doc["dossiers"] and not doc["upgrades"]:
+        # a broken use with no option is still reported, and asks no model
+        upgrades(g)
         reasons = sorted({n["reason"] for n in doc["noOptions"]})
         step = f"; {NOT_ON_DEVICE}: {NOT_ON_DEVICE_STEP}" if NOT_ON_DEVICE in reasons else ""
         halt(g, "no_options", f"none of {len(doc['noOptions'])} scopes has an option ({', '.join(reasons)}){step}")
     return f"{len(doc['dossiers'])} with options, {len(doc['noOptions'])} without"
+
+
+def upgrades(g: Guide) -> str:
+    state = upgrade(g.device, g.app_id, g.upgrader or UPGRADE_DRY_RUN, g.library, g.limits, g.limit, echo=g.echo)
+    return counts(state)
 
 
 def replacements(g: Guide) -> str:
@@ -61,10 +70,12 @@ def replacements(g: Guide) -> str:
         halt(g, "dossier_changed", stale.split(": ", 1)[1] + " (guide --refresh)")
     # a cap leaves units unasked: the app is not done, whatever its outcome
     asked = {d["scope"]["id"] for d in rd.read_dossiers(g.paths.dossiers)["dossiers"]}
-    g.unasked = len(asked - set(state.replacements))
+    upgraded = rd.load_upgrades(g.paths.upgrades)
+    wanted = {r["scope"]["id"] for r in rd.read_dossiers(g.paths.dossiers)["upgrades"]}
+    g.unasked = len(asked - set(state.replacements)) + len(wanted - {u.scope for u in upgraded})
     if not g.unasked:
         g.record.delta_asked(g.app_id)
-    chosen = sum(r.decision == "replace" for r in state.replacements.values())
+    chosen = sum(r.decision == "replace" for r in state.replacements.values()) + sum(u.status == UPGRADED for u in upgraded)
     if not chosen:
         halt(g, "no_replacement", f"every one of {len(state.replacements)} scopes is kept")
     return f"{chosen} replace of {len(state.replacements)}"
@@ -105,5 +116,5 @@ def report(g: Guide) -> str:
     return f"{g.paths.report}: {doc['funnel']['measured']} of {doc['funnel']['scopes']} scopes measured, {doc['funnel']['measuredCallSite']} by call site alone"
 
 
-APP_DRY = (("app", app), ("dossier", dossiers), ("replace", replacements), ("edit", edits), ("harness", harness))
+APP_DRY = (("app", app), ("dossier", dossiers), ("upgrade", upgrades), ("replace", replacements), ("edit", edits), ("harness", harness))
 APP_MEASURED = (("device", device), ("report", report))

@@ -10,10 +10,11 @@ from ..dto.screen import Verdict
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode
 from ..dto.site import DOSSIERS_SCHEMA_VERSION, Scope
-from ..dto.dossier import NO_REAL_USE, NOT_ON_DEVICE, VARIANT_NOT_MEASURED, Dossier
+from ..dto.dossier import BROKEN_USE, NO_REAL_USE, NOT_ON_DEVICE, VARIANT_NOT_MEASURED, Dossier
 from ..dto.pattern import VARIANTS
 from ..dto.shipped import shipped, shipped_names
 from ..dto.change import DROP_IN
+from ..dto.upgrade import UpgradeItem
 from .candidates import Family
 from .configurations import Config, config_of
 from .options import Joined
@@ -82,7 +83,7 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
         available = _probed_or_shipped(groups, app_doc)
     measured = _measured(rows)
     joined = {v: Joined(groups, m, measurements, verdicts, perf, available, family) for v, m in measured.items()}
-    dossiers, none, kept = [], [], []
+    dossiers, none, kept, upgrades, unreached = [], [], [], [], []
     items = {v["qualified"] for v in groups["items"].values()}
     for s in scopes:
         on, by_order = providers.on(s, items) if providers else (s.provider, s.resolution == "default")
@@ -90,12 +91,22 @@ def build_dossiers(app: str, scopes: list[Scope], app_doc: dict, groups: dict, r
             s, qualified(s.engineType, s.algorithm, on or s.provider), measured)
         current, options, reason, others = (None, [], unresolved, []) if unresolved else joined[s.pattern].options(s, on, by_order)
         kept += [{"scope": s.id, **c.to_json()} for c in others]
+        item = current or (qualified(s.engineType, s.algorithm, on or s.provider) if s.algorithm and (on or s.provider) else None)
+        broken = joined[s.pattern].broken(item)
         if reason is not None:
             none.append({"scope": s.id, "reason": reason})
+            unreached += [{"scope": s.id, "current": item, "reason": reason}] * broken
             continue
         per_call = tuple(sorted({r.perCall for r in measured[s.pattern][current].values() if r.perCall}))
-        dossiers.append(Dossier(s, function_source(source_root, s), current, tuple(options), per_call))
+        built = Dossier(s, function_source(source_root, s), current, tuple(options), per_call)
+        if broken:
+            none.append({"scope": s.id, "reason": BROKEN_USE})
+            upgrades.append(UpgradeItem(built, joined[s.pattern].identified(current, options),
+                                        measured=joined[s.pattern].own_numbers(s, options),
+                                        screenReason=verdicts[current].reason).to_json())
+        else:
+            dossiers.append(built)
     return {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "app": app, "perfMode": perf.to_json(),
             "measured": [m for m in perf.names if any(by_metric.get(m) for by_metric in measurements.values())],
             "maxChange": family.max_change if family else DROP_IN, "dossiers": [d.to_json() for d in dossiers],
-            "noOptions": none, "notOffered": kept, "units": []}
+            "noOptions": none, "notOffered": kept, "units": [], "upgrades": upgrades, "brokenUnreached": unreached}

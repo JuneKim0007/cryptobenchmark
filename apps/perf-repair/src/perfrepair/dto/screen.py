@@ -13,7 +13,6 @@ STATUSES = (BROKEN, PLATFORM_DEPRECATED, UNVERIFIED, ACCEPTED, UNKNOWN)
 # unverified and unknown tie: a model's accepted is not evidence, so a swap between them lowers nothing.
 RANK = {BROKEN: 0, PLATFORM_DEPRECATED: 1, UNVERIFIED: 2, UNKNOWN: 2, ACCEPTED: 3}
 CODE_GROUPED = (BROKEN, PLATFORM_DEPRECATED)
-NEVER_TARGET = (*CODE_GROUPED, UNVERIFIED, UNKNOWN)
 MODEL_SOURCE = "model:"
 MODEL_STATUS = {answer.DEPRECATED: BROKEN, answer.ACCEPTED: UNVERIFIED}
 
@@ -43,10 +42,12 @@ def with_answer(verdict: Verdict, answer: str, reason: str, fingerprint: str) ->
                                                    source=MODEL_SOURCE + fingerprint)
 
 
-def lowers_status(current: Verdict | None, target: Verdict | None) -> bool:
-    """A never-target status is allowed only as the current item's own algorithm, never at a worse status."""
-    if target is None or target.status not in NEVER_TARGET:
+def refused_target(current: Verdict | None, target: Verdict | None) -> bool:
+    """A broken target is refused always; another status short of accepted only as the current item's own algorithm."""
+    if target is None or target.status == ACCEPTED:
         return False
+    if target.status == BROKEN:
+        return True
     same = current is not None and target.canonical is not None and target.canonical == current.canonical
     return not same or RANK[target.status] < RANK[current.status]
 

@@ -72,9 +72,10 @@ flowchart TD
 | `unavailable` | the app's `minSdk` is below the candidate's and its provider is not bundled |
 | `availability_unknown` | the candidate's `minSdk` is null, or above API 1 with the app's unread, and its provider is not bundled |
 | `not_measured` | it does not run, its provider is absent, or `rows.json` has no line of it |
-| `deprecated` | screening refuses it for this app (`lowers_status`) |
+| `deprecated` | screening refuses it for this app (`refused_target`), or a broken current's candidate is not `accepted` |
 | `same_engine` | a member of the current item's group from its own provider under the same canonical name (`AES/...` and `AES_128/...`): one engine, no signal to measure, and the key size that tells them apart is never known at the site; kept in `notOffered`, never offered |
-| `no_gain` | of any class: one estimate proven worse (ratio at or above `1 / improvingRatio`, `pImprove` at or below 1 minus the top level's floor, `result/criteria.yaml`) and no estimate at or below `improvingRatio`; an estimate with `pImprove` null proves nothing and saves nothing unless its ratio improves |
+| `not_listed` | a broken current's accepted candidate the upgrade list leaves out while it has a measured target |
+| `no_gain` | of a current that is not broken, of any class: one estimate proven worse (ratio at or above `1 / improvingRatio`, `pImprove` at or below 1 minus the top level's floor, `result/criteria.yaml`) and no estimate at or below `improvingRatio`; an estimate with `pImprove` null proves nothing and saves nothing unless its ratio improves |
 
 - Every reason found is listed, not the first.
 - A candidate of the current item's canonical name is left to grouping: it is a drop-in or nothing.

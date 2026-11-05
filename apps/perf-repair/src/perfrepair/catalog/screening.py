@@ -54,6 +54,7 @@ class Screening:
     components: dict[str, Components]
     platform: dict[tuple[str, str, str], PlatformRule]
     future: dict[tuple[str, str], Note]
+    sources: dict[str, str]
 
     @classmethod
     def load(cls, path: Path = SCREENING, names: Names | None = None) -> "Screening":
@@ -86,7 +87,7 @@ class _Reader:
     def screening(self) -> Screening:
         SCREENING_DOC.check(self.doc, self.path)
         self.sources = self.doc.get("sources") or {}
-        built = Screening(self._crypto(), self._components(), self._platform(), self._future())
+        built = Screening(self._crypto(), self._components(), self._platform(), self._future(), self.sources)
         self._contradictions(built)
         if self.problems:
             raise ScreeningError("; ".join(self.problems))

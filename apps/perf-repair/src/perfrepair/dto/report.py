@@ -10,11 +10,13 @@ from .pattern import PATTERNS, UNKNOWN_DEFAULT
 # 7: rows carry label and thermal, measured metric rows change and noise; a report names its project and source; summary modes, labels, swaps, thermal
 # 8: rows carry pattern, patternReason, categoryMismatch; summary metrics, labels and swaps per pattern, never mixed
 # 9: rows carry measuredBy and measurements, each kind's numbers and truth check; funnel measuredCallSite, after measured
-SCHEMA_VERSION = 9
+# 10: brokenUses, each broken use and what it became; summary brokenUses
+SCHEMA_VERSION = 10
+BROKEN_USES = "brokenUses"
 FUNCTION, CALL_SITE = "function", "callSite"
 THERMAL_MISMATCH, THERMAL_THROTTLED = "thermal_mismatch", "thermal_throttled_at_end"
 THROUGHPUT = "throughput"
-SOURCES = ("llm", "fallback", "static")
+SOURCES = ("llm", "fallback", "static", "list")
 DECISION_STATUSES = ("replace", "keep", "recommend", "not_run")
 EDIT_STATUSES = ("applied", "rejected", "skipped", "not_run")
 COMPILE_STATUSES = ("compiled", "primitive_only", "not_measurable", "skipped", "not_run")

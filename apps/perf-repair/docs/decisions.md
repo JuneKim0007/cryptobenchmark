@@ -92,6 +92,10 @@
 - A `replace` of an option with `outputChanges` is refused, with a correction naming `recommend`, when its own risks include one of `OUTPUT_LEAVES` (`dto/replacement.py`): `persisted_data`, `wire_format`, `unknown_sink`. The gate reads the reply's risks, so it holds for new replies only; a saved decision is not asked again.
 - A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore, literal or storage → `key_compatibility`, and unknown or parameter too (where the key comes from is not visible here: scoping stays local, a default-provider call may pick a key store's provider at `init`, and the harness uses a synthetic key, so the swap stays allowed and the risk is declared and reported) (the key source is the lifecycle's key origin when it knows one); the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
 
+## Repair upgrade
+
+The role that moves a broken use off its algorithm: [upgrade.md](upgrade.md).
+
 ## Prompt override
 
 - `paths.prompts` (or `--prompts DIR`) points at a folder holding `suggest/site-replace.system.md`: it replaces the packaged prompt for `ai replace`, the guide and `review stability`.

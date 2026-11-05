@@ -45,6 +45,7 @@ ROLE_KEYS = ("gateway", "model", "effort")
 BUDGET_KEY = "budget"
 DEFAULT_TURNS, DEFAULT_SESSIONS = 3, 2
 REPLACE_BUDGET = 6000
+UPGRADE_BUDGET = 6000
 
 
 @dataclass(frozen=True)
@@ -120,6 +121,7 @@ APPS_MEASURE = Row("apps.measure", check_bool, default=False)
 APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)
 APPS_AGENT = RoleRow("apps.agent", REPLACE_BUDGET)
 APPS_REPLACE = RoleRow("apps.replace", REPLACE_BUDGET)
+APPS_UPGRADE = RoleRow("apps.upgrade", UPGRADE_BUDGET)
 
 # seconds before a hung child is killed; a device benchmark call runs for hours, a model call for minutes
 TIMEOUT_CLAUDE = Row("timeouts.claude", check_positive, default=3600)

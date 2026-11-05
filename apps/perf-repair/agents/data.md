@@ -30,6 +30,8 @@ src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: ever
 src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component, platform and future rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk; draft future notes
+src/perfrepair/catalog/upgrades.py : reader of upgrades.yaml, checked whole: per family a broken canonical name, its accepted targets, each target's source; every name canonical with a type row, screened as said
+src/perfrepair/catalog/upgrades.yaml : the upgrade list, hand-curated and never seeded: broken name → accepted upgrade targets per family, source keys from screening.yaml
 src/perfrepair/child/__init__.py : docstring only
 src/perfrepair/child/deadline.py : Deadline: kills a child's process group (started in its own session) when its seconds pass, `expired` set, or when its caller fails
 src/perfrepair/child/env.py : child_env: the environment of every child process, ANTHROPIC_API_KEY and ANTHROPIC_AUTH_TOKEN withheld
@@ -104,14 +106,15 @@ src/perfrepair/dto/prompt.py : Prompt base and its lifetimes: SystemPrompt (run)
 src/perfrepair/dto/replacement.py : Replacement, Edit, the edit-kind table; DECISIONS, RISKS, DERIVED_RISKS (scope and option rows) and required_risks; read_replacements
 src/perfrepair/dto/report.py : report.json and summary.json vocabulary: of_pattern and pattern_counts (rows per category, never mixed); step statuses, reported metrics and units, has_views (the time metric throughput selects), funnel stages, the members a unit left staying, scoped case ids
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
-src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED, NEVER_TARGET; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and lowers_status (the don't-lower-the-status rule); verdicts by qualified name; screen.json document (schema 4, with the catalog identity and the `built` items and profiles digests)
+src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and refused_target (a broken target always, another short of accepted unless the current item's own algorithm at no worse a status); verdicts by qualified name; screen.json document (schema 4, with the catalog identity and the `built` items and profiles digests)
 src/perfrepair/dto/shipped.py : Shipped: one app.json `bundled` entry (artifact, providerName, version); shipped, shipped_names: the one reader of what the app ships
 src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 src/perfrepair/dto/site.py : Scope, scope_id; each app artifact's schema version; harness input sources and notMeasurable reasons
 src/perfrepair/dto/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
 src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (latency ms|us|ns, throughput MB/s|MiB/s|ops/s), parsed and checked, defaults mirroring :config; ns/op to each; significant-figure numbers
-src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group or candidate; names_digest
+src/perfrepair/dto/upgrade.py : UpgradeItem (dossiers.json `upgrades` row: a broken use's dossier, identified, linked, providerHeld, its options' own medians, the screening reason); Upgrade and upgrades.json (schema 1): upgraded, needs_migration, no_secure_option, not_reached; as a Replacement for the edit step
+src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group, candidate or upgrade; names_digest
 src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of several
 src/perfrepair/dto/worthiness.py : MemberStats (a Summary per selected metric), MetricComparison, PairMetrics (a comparison per selected metric), Configuration, GroupEvidence, Pair, Verdict, Verdicts
 src/perfrepair/files.py : text, JSON and YAML read (YAML through parse_yaml); read_versioned (a document refused unless its DocumentKind accepts it); atomic JSON write through a temp file of its own (mkstemp), fsync when durable; a text write that makes its parent folders; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file

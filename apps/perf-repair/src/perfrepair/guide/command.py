@@ -12,6 +12,7 @@ from pathlib import Path
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
+from ..ai.repair.upgrade import command as upgrade_cmd
 from ..ai.suggest.site_replace import command as replace_cmd
 from ..app.facts.target_set import TargetSet, resolve_targets
 from ..config.args import fill, load_settings, perf_mode, positive_int, run_id
@@ -143,7 +144,8 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded, m
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
                  max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found,
                  run_id=a.run_id, on_existing=a.on_existing, missing=missing, stop_after_device=a.stop_after_device,
-                 run_settings=read_json(a.run_settings) if a.run_settings else None)
+                 run_settings=read_json(a.run_settings) if a.run_settings else None,
+                 upgrader=spawn(argparse.Namespace(**{**vars(a), "agent_role": upgrade_cmd.ROLE}), settings, upgrade_cmd.DRY_RUN))
     held.append(base)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 

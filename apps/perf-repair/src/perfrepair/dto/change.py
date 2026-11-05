@@ -14,9 +14,11 @@ REACHES = ("local", "return", "unknown", "persist")
 NO_GAIN = "no_gain"
 # another spelling of the current item's canonical name from its own provider: one engine, nothing to measure
 SAME_ENGINE = "same_engine"
+# an accepted member of a broken current's family the upgrade list leaves out, while the list has a measured target
+NOT_LISTED = "not_listed"
 REJECT_REASONS = ("type_unknown", "strength_below", "strength_unknown", "authenticated_lost", "deterministic_lost",
                   "nonce_not_generated", "unavailable", "availability_unknown", "not_measured", "deprecated", NO_GAIN,
-                  SAME_ENGINE)
+                  SAME_ENGINE, NOT_LISTED)
 
 
 # facts a person checks before a recommendation is applied; never a verdict that it is fine

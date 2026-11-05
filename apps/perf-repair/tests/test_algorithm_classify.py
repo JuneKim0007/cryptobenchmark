@@ -13,7 +13,7 @@ from perfrepair.catalog.screening import SCREENING, PlatformRule
 from perfrepair.check.run import validate_run
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.dto.classify import Batch, Evidence
-from perfrepair.dto.screen import UNKNOWN, Verdict, lowers_status, read_screen, with_answer
+from perfrepair.dto.screen import UNKNOWN, Verdict, refused_target, read_screen, with_answer
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.grouping.build import stage
 from perfrepair.grouping.build.stage import build_stage
@@ -70,17 +70,17 @@ def test_trust_is_asymmetric_deprecated_is_broken_accepted_only_unverified_unsur
 def test_an_unverified_target_is_allowed_only_as_the_same_algorithm():
     current = Verdict("accepted", "r", "s", "Y")
     same, other = Verdict("unverified", "r", "model:x", "X"), Verdict("unverified", "r", "model:x", "Z")
-    assert lowers_status(current, other)
-    assert not lowers_status(same, replace(same, reason="from another provider"))
-    assert lowers_status(current, Verdict("unverified", "r", "model:x", "Y"))
+    assert refused_target(current, other)
+    assert not refused_target(same, replace(same, reason="from another provider"))
+    assert refused_target(current, Verdict("unverified", "r", "model:x", "Y"))
 
 
 def test_unverified_and_unknown_rank_equal_under_accepted_for_the_same_algorithm():
     unknown, unverified = Verdict("unknown", "r", None, "X"), Verdict("unverified", "r", "model:x", "X")
-    assert not lowers_status(unknown, unverified) and not lowers_status(unverified, unknown)
-    assert lowers_status(Verdict("accepted", "r", "s", "X"), unknown)
-    assert lowers_status(Verdict("accepted", "r", "s", "X"), unverified)
-    assert lowers_status(unknown, Verdict("broken", "r", "s", "X"))
+    assert not refused_target(unknown, unverified) and not refused_target(unverified, unknown)
+    assert refused_target(Verdict("accepted", "r", "s", "X"), unknown)
+    assert refused_target(Verdict("accepted", "r", "s", "X"), unverified)
+    assert refused_target(unknown, Verdict("broken", "r", "s", "X"))
 
 
 def test_the_app_gate_raises_an_unverified_verdict_to_platform_deprecated():

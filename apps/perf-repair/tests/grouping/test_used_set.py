@@ -50,7 +50,7 @@ def assign(paths):
 def test_a_site_brings_its_code_group_and_nothing_else(paths):
     screen(paths)
     used = used_set(paths.root.parent, [app(paths, "a1", S_M1_P1, unresolved=2)])
-    assert via(used) == {S_M1_P1: "site", S_M1_P2: "group"}
+    assert via(used) == {S_M1_P1: "site", S_M1_P2: "group", RAW: "upgrade"}
     assert used.apps["a1"].sites == 3 and used.apps["a1"].matched == 1 and used.deviceItems == 6
 
 

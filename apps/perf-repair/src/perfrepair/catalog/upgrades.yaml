@@ -1,0 +1,67 @@
+# Hand-curated, never seeded: per family, a broken canonical name and the accepted names it upgrades to, each sourced.
+# A name not listed goes to the model, among the family's accepted, measured items. Source keys: screening.yaml.
+schemaVersion: 1
+targets:
+  digest: &digest
+    - {name: SHA-256, source: R2}
+    - {name: SHA-384, source: R2}
+    - {name: SHA-512, source: R2}
+    - {name: SHA-512/256, source: R2}
+    - {name: SHA3-256, source: R2}
+  hmac: &hmac
+    - {name: HmacSHA256, source: R2}
+    - {name: HmacSHA384, source: R2}
+    - {name: HmacSHA512, source: R2}
+  rsaSignature: &rsaSignature
+    - {name: SHA256withRSA, source: R2}
+    - {name: SHA384withRSA, source: R2}
+    - {name: SHA512withRSA, source: R2}
+    - {name: SHA256withRSA/PSS, source: RFC8017}
+  ecdsaSignature: &ecdsaSignature
+    - {name: SHA256withECDSA, source: R2}
+    - {name: SHA384withECDSA, source: R2}
+    - {name: SHA512withECDSA, source: R2}
+  aead: &aead
+    - {name: AES/GCM/NoPadding, source: ARISK}
+    - {name: ChaCha20-Poly1305, source: ARISK}
+  oaep: &oaep
+    - {name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding, source: RFC8017}
+    - {name: RSA/ECB/OAEPPadding, source: RFC8017}
+  aesKey: &aesKey
+    - {name: AES, source: R2}
+families:
+  digest.none:
+    MD2: *digest
+    MD5: *digest
+    SHA-1: *digest
+  mac.secret:
+    HmacMD5: *hmac
+  signature.pair:
+    MD2withRSA: *rsaSignature
+    MD5withRSA: *rsaSignature
+    SHA1withRSA: *rsaSignature
+    SHA1withECDSA: *ecdsaSignature
+  cipher.secret:
+    AES: *aead
+    AES/ECB/NoPadding: *aead
+    AES/ECB/PKCS5Padding: *aead
+    DES: *aead
+    DESede: *aead
+    DESede/CBC/NoPadding: *aead
+    DESede/CBC/PKCS5Padding: *aead
+    Blowfish: *aead
+    RC2: *aead
+    ARCFOUR: *aead
+  cipher.pair:
+    RSA: *oaep
+    RSA/ECB/NoPadding: *oaep
+    RSA/ECB/PKCS1Padding: *oaep
+  keygen.none:
+    HmacMD5:
+      - {name: HmacSHA256, source: R2}
+      - {name: HmacSHA512, source: R2}
+    DES: *aesKey
+    DESede: *aesKey
+    Blowfish: *aesKey
+    RC2: *aesKey
+    ARCFOUR: *aesKey

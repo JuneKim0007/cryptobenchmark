@@ -18,6 +18,7 @@ METRICS_CONFIG = "metrics-global.yaml"
 EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, UNITS, DOSSIERS = "app.json", "scopes.json", "units.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
+UPGRADE, UPGRADES = "upgrade", "upgrades.json"
 MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
 FINISHED = "finished.json"
 # one guide run per device folder at a time; its record runs/run_<id>.json
@@ -75,6 +76,8 @@ class AppPaths:
     dossiers = property(lambda self: self.root / DOSSIERS)
     replace = property(lambda self: self.root / REPLACE)
     replacements = property(lambda self: self.root / REPLACEMENTS)
+    upgrade = property(lambda self: self.root / UPGRADE)
+    upgrades = property(lambda self: self.root / UPGRADES)
     edits = property(lambda self: self.root / EDITS)
     original = property(lambda self: self.root / "original")
     patched = property(lambda self: self.root / "patched")

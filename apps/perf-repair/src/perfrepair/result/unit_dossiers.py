@@ -9,7 +9,7 @@ from ..dto.grouping import KEY_PROVIDER_HELD, qualified
 from ..dto.interop import pair_status
 from ..dto.dossier import PROVIDER_HELD_KEY
 from ..dto.site import Scope
-from ..dto.unit import INVERSE, PairInterop, Stay, Unit, unit_entry
+from ..dto.unit import INVERSE, PairInterop, Stay, Unit, unit_entry, units_by_scope
 
 def current_item(s: Scope) -> str | None:
     return qualified(s.engineType, s.algorithm, s.provider) if s.algorithm and s.provider else None
@@ -65,8 +65,16 @@ def _entry(u: Unit, dossiers: dict[str, dict], reasons: dict[str, str], by_id: d
     return unit_entry(u, stays, pairs(u, dossiers, by_id, groups))
 
 
+def _with_unit(row: dict, of_scope: dict[str, Unit], contracts: dict[str, str | None]) -> dict:
+    """A broken use's unit: its other members must follow an output or key it changes, and a provider-held key cannot move."""
+    sid, unit = row["scope"]["id"], of_scope.get(row["scope"]["id"])
+    return {**row, "linked": [m for m in unit.members if m != sid] if unit else [],
+            "providerHeld": contracts.get(row["current"]) == KEY_PROVIDER_HELD}
+
+
 def by_unit(doc: dict, units: list[Unit], scopes: list[Scope], groups: dict) -> dict:
     entries, held = asked(doc, units, scopes, groups)
+    of_scope, contracts = units_by_scope(units), key_contracts(groups)
     return {**doc, "dossiers": [d for d in doc["dossiers"] if d["scope"]["id"] not in held],
             "noOptions": doc["noOptions"] + [{"scope": s, "reason": PROVIDER_HELD_KEY} for s in sorted(held)],
-            "units": entries}
+            "units": entries, "upgrades": [_with_unit(r, of_scope, contracts) for r in doc["upgrades"]]}

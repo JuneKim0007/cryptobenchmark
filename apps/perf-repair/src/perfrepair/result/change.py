@@ -22,12 +22,12 @@ FIRST_API = 1
 
 @dataclass(frozen=True)
 class Candidate:
-    """bundled: its provider ships in the app, so the platform's minSdk does not bound it; lowers: screening refuses it."""
+    """bundled: its provider ships in the app, so the platform's minSdk does not bound it; refused: screening refuses it."""
     item: str
     row: TypeRow | None
     measured: bool
     bundled: bool
-    lowers: bool
+    refused: bool
     # the provider is only the harness's; offering it adds a dependency to the app
     foreign: bool = False
 
@@ -105,7 +105,7 @@ def rejects(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, m
     if current is None or c.row is None:
         return ["type_unknown"]
     found = _floor(types, scope, current, c.row) + _lost(types, current, c.row) + _nonce(scope, current, c.row)
-    found += _available(c, min_sdk) + ["not_measured"] * (not c.measured) + ["deprecated"] * c.lowers
+    found += _available(c, min_sdk) + ["not_measured"] * (not c.measured) + ["deprecated"] * c.refused
     return found
 
 

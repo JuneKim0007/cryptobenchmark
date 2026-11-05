@@ -64,6 +64,8 @@ class Guide:
     run_id: str | None = None
     on_existing: str = OVERWRITE
     record: RunRecord | None = None
+    # the upgrade role's conversations; unset: its dry-run stand-in
+    upgrader: Conversations | None = None
     # units the replace step left unasked under apps.limit
     unasked: int = 0
     # shared by every app's copy: what this run found unavailable

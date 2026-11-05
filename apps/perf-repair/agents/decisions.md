@@ -44,11 +44,16 @@
 ## File structure
 
 ```
-src/perfrepair/ai/__main__.py : command: the worthiness and replace stages
+src/perfrepair/ai/__main__.py : command: the worthiness, replace and upgrade stages
 src/perfrepair/ai/evaluate/worthiness/command.py : stage: groups.json + measurements → evidence, triage, WorthinessKind on the engine
 src/perfrepair/ai/evaluate/worthiness/kind.py : decision: test or skip a group's improving pairs; triage statics, apply, dropped → fallback skip
 src/perfrepair/ai/evaluate/worthiness/render.py : message: mode, run warnings, members M1..Mn, per-configuration member and pair tables; time in the display units, a throughput column when selected
 src/perfrepair/ai/evaluate/worthiness/schema.py : answer schema: decision, pairs (from, to, reason), reason; all required; member aliases and non-blank reasons as patterns
+src/perfrepair/ai/repair/upgrade/command.py : stage: <app>/dossiers.json's upgrades → UpgradeKind on the engine → upgrades.json; the charter's inputs hash the asked items, so a changed candidate list opens a new outbox; dry run takes R1
+src/perfrepair/ai/repair/upgrade/kind.py : decision: which accepted option an unlisted broken use upgrades to; a listed one and each with nothing to offer settled by code; dropped → a person's
+src/perfrepair/ai/repair/upgrade/render.py : message: the site, sinks and reach, the current and why it is refused, the ranked options with their medians and any ratio
+src/perfrepair/ai/repair/upgrade/schema.py : answer schema: option alias, reason; no answer keeps the current
+src/perfrepair/ai/repair/upgrade/state.py : UpgradeState: one Upgrade per broken use
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
 src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: the budget check, turns in a conversation, then fresh conversations; each turn's model latency and size
@@ -91,6 +96,7 @@ src/perfrepair/prompts/evaluate/worthiness.system.md : system prompt: test-worth
 src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: deprecated, accepted or unsure per listed id; when in doubt unsure; reason each
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
+src/perfrepair/prompts/repair/upgrade.system.md : system prompt: choose the secure option with the best performance; moving off a broken algorithm is no performance decision; code decides edit or person
 src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: the three contracts; findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer
 src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace, keep or recommend a unit's members with options together, the others stay; the strict or overall rule over code labels, security a floor, inverse pairs interoperate, risks (unverified interop is one), deciding and accepted metrics, needs, concerns

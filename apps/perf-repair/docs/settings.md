@@ -67,6 +67,7 @@
 | `ai worthiness` | `device.worthiness` | none | 6500; 5595, one group of a host run |
 | `guide` | `apps.agent` | none | 6000, as `ai replace` |
 | `ai replace` | `apps.replace` | none | 6000; 4878, the largest of 53 units across real runs |
+| `ai upgrade`, the guide's upgrade step | `apps.upgrade` | none | UPGRADE_BUDGET_ROW |
 
 - A role section takes the keys `gateway`, `model`, `effort`, `budget`. Its `gateway` is an error when bad; `model`, `effort` and `budget` warn.
 - `budget` is read from the file only, a positive integer: tokens by chars/4 of the system prompt plus one task message, the largest measured plus 15%, up to the next 500. The engine checks it before each item's first call: [decisions.md](decisions.md).

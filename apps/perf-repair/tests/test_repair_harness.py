@@ -40,7 +40,7 @@ def setup_run(tmp_path):
         replace(LITERAL, provider("Fast"), option=FAST).to_json(), replace(NESTED, provider("Fast"), option=FAST).to_json(),
         replace(TWICE, pins(tagBits=128), option=FAST).to_json(), replace(TEMPLATE, provider("Fast"), option=FAST).to_json()]})
     estimated = [{"item": FAST, "estimates": [{"metric": "timeNs", "configuration": "ENCRYPT key 256 input 1024 WARM"}]}]
-    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [
+    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "upgrades": [], "dossiers": [
         {"scope": {"id": s.id}, "current": CURRENT, "options": estimated if s is LITERAL else []} for s in SCOPES]})
     write_json(paths.units, {"schemaVersion": 1, "app": APP, "units": [
         {"id": unit_id(APP, [s.id]), "members": [s.id], "links": [], "sharedFunction": []} for s in SCOPES]})
@@ -114,7 +114,7 @@ def test_validators_refuse_broken_documents(tmp_path):
 
 def test_an_applied_scope_without_a_dossier_is_a_coded_refusal(tmp_path, capsys):
     paths = setup_run(tmp_path)
-    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "dossiers": [
+    write_json(paths.dossiers, {"schemaVersion": DOSSIERS_SCHEMA_VERSION, "upgrades": [], "dossiers": [
         {"scope": {"id": s.id}, "current": CURRENT} for s in SCOPES if s is not LITERAL]})
     assert main(["edit", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 0
     assert main(["harness", "--device-results", str(tmp_path), "--app", str(ROOT)]) == 1

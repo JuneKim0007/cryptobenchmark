@@ -8,7 +8,7 @@ from ..dto.grouping import parse_qualified, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
-from ..dto.screen import Verdict, lowers_status
+from ..dto.screen import Verdict, refused_target
 from .confidence import level
 from .estimate import compare
 
@@ -29,7 +29,7 @@ def _pair(a: MemberStats, b: MemberStats, interop: str, perf: PerfMode) -> PairM
 
 
 def _kept(a: str, b: str, failed: set, verdicts: dict[str, Verdict]) -> bool:
-    return a != b and frozenset((a, b)) not in failed and not lowers_status(verdicts.get(a), verdicts.get(b))
+    return a != b and frozenset((a, b)) not in failed and not refused_target(verdicts.get(a), verdicts.get(b))
 
 
 def _measured(s: MemberStats) -> bool:
@@ -54,7 +54,7 @@ def _configurations(groups: dict, rows: list[PrimitiveRow], measurements: dict[s
 
 def build_evidence(groups: dict, rows: list[PrimitiveRow], measurements: dict[str, dict],
                    verdicts: dict[str, Verdict] | None, perf: PerfMode) -> list[GroupEvidence]:
-    """verdicts: the run-level screen verdicts by qualified name; a pair whose target lowers the status is left out.
+    """verdicts: the run-level screen verdicts by qualified name; a pair whose target is refused is left out.
     Only perf's metrics reach the evidence, so a decision never sees another."""
     v = verdicts or {}
     configs = _configurations(groups, rows, measurements)

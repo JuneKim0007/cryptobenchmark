@@ -8,6 +8,7 @@ from .. import run_dir as rd
 from ..catalog.bundled_providers import BundledCatalog
 from ..catalog.names import NamesError
 from ..catalog.types import types
+from ..catalog.upgrades import upgrades
 from ..data_handler.inbound import RunContext
 from ..dto.change import DROP_IN
 from ..dto.grouping import read_items
@@ -58,7 +59,7 @@ def family(grouping: GroupingPaths, catalog: Catalog, facts: dict, max_change: s
         q = i.qualified
         family_of[q] = i.family
         canonical_of[q] = screen[i.id].canonical if i.id in screen else _canonical(catalog, i.type, i.name)
-    return Family(family_of, canonical_of, types(), facts.get("minSdk"), bundled, max_change)
+    return Family(family_of, canonical_of, types(), facts.get("minSdk"), bundled, max_change, upgrades())
 
 
 def dossier(run: Path, app: str, source: Path, catalog: Catalog, perf: PerfMode, echo=print,
@@ -87,7 +88,8 @@ def dossier(run: Path, app: str, source: Path, catalog: Catalog, perf: PerfMode,
                 byChange=dict(Counter(o.get("change", DROP_IN) for d in doc["dossiers"] for o in d["options"])),
                 byTrack=dict(Counter(o["track"] for d in doc["dossiers"] for o in d["options"])),
                 needsReview=dict(Counter(r for d in doc["dossiers"] for o in d["options"] for r in o["needsReview"])),
-                notOffered=dict(Counter(n["change"] for n in doc["notOffered"])))
+                notOffered=dict(Counter(n["change"] for n in doc["notOffered"])), upgrades=len(doc["upgrades"]),
+                brokenUnreached=len(doc["brokenUnreached"]))
         s.wrote(paths.dossiers)
     echo(f"{app}: {len(doc['dossiers'])} dossiers, {len(doc['noOptions'])} scopes without options")
     return doc

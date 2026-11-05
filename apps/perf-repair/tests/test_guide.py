@@ -100,7 +100,7 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     g, lines = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
     assert statuses(lines) == ["guide prerequisites: ok", "guide targets: ok", "guide grouping: ok", "guide app: ok", "guide dossier: ok",
-                               "guide replace: ok", "guide edit: ok", "guide harness: ok"]
+                               "guide upgrade: ok", "guide replace: ok", "guide edit: ok", "guide harness: ok"]
     assert digests(APP) == before
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
     harness = yaml.safe_load(g.paths.harness.read_text())

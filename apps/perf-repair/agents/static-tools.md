@@ -29,6 +29,7 @@ src/perfrepair/result/primitives.py : rows + measurements + run-level screen sta
 src/perfrepair/result/provider_path.py : the provider a site is on for one app: named, or by default order with a shipped provider the app inserts at position 1 ahead; the run name of each provider the app ships
 src/perfrepair/result/triage.py : not_comparable, not_measured (no_evidence: <metric>) and no_improvement verdicts; every group with an improving pair asked
 src/perfrepair/result/unit_dossiers.py : a dossiers document grouped by unit: units with a member with options asked, the others' members staying, inverse pairs' interop; a provider-held key contract keeps the unit
+src/perfrepair/result/upgrades.py : a broken use's upgrade from code's facts: rank by a candidate's own medians at the site, the edits an option requires, needs_person (sinks, reach, links, held key), settled into an Upgrade
 src/perfrepair/screen/__init__.py : the screening package
 src/perfrepair/screen/catalog.py : screening_catalog: the catalog every screening step judges by, resolved from `device.screening.catalog` or the packaged file (logged); Catalog (path, sha256, identity, handler, mismatch: `screening_catalog_mismatch`); ai_review
 src/perfrepair/screen/evidence.py : unknown items with a canonical name → classify Evidence from the trial and probe; fixed-size batches (BATCH)

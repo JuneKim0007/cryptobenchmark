@@ -28,7 +28,7 @@ Read from `grouping/groups.json`, `profiles.json`, `checks.json`, `screen.json` 
 | `algorithm_split` | advisory | one canonical name of `screen.json` in several groups of a family, with members of equal screen status, key contract and signature in each |
 | `grouping_stable` | blocking | with `--against`: two items whose key contract, key kind, runs and signature are equal in both runs are together in one run and apart in the other |
 
-- A screened-out item is still an option of its own algorithm (`lowers_status`, `dto/screen.py`), so a screened-out group a dossier offers stays under `key_contract_agrees`: its swap is a real one.
+- A `platform_deprecated` item is still an option of its own algorithm (`refused_target`, `dto/screen.py`), so a screened-out group a dossier offers stays under `key_contract_agrees`: its swap is a real one.
 - A failed interop pair is never an option: `validation/dossiers/dossier.py` refuses it; no invariant repeats it.
 - `algorithm_split` is advisory: a false split loses options and joins nothing wrong; whether to merge is the model's call.
 

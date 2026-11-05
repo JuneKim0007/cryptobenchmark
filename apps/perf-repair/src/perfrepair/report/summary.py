@@ -6,7 +6,7 @@ import statistics
 
 from ..dto.measurement import ESTIMATED
 from ..dto.metrics import BY_NAME, NAMES
-from ..dto.report import CHANGES, FUNNEL, SCHEMA_VERSION, THERMAL_MISMATCH, THERMAL_THROTTLED, of_pattern, pattern_counts
+from ..dto.report import BROKEN_USES, CHANGES, FUNNEL, SCHEMA_VERSION, THERMAL_MISMATCH, THERMAL_THROTTLED, of_pattern, pattern_counts
 from ..dto.pattern import PATTERNS
 from ..dto.perf_mode import PerfMode
 from ..result.modes import criteria
@@ -53,6 +53,12 @@ def _thermal(reports: list[dict]) -> dict:
     return {THERMAL_MISMATCH: sum(THERMAL_MISMATCH in x for x in rows), THERMAL_THROTTLED: sum(THERMAL_THROTTLED in x for x in rows)}
 
 
+def _broken(reports: list[dict]) -> dict:
+    by_app = {r["app"]: r[BROKEN_USES]["counts"] for r in reports}
+    statuses = sorted({s for counts in by_app.values() for s in counts})
+    return {"all": {s: sum(c[s] for c in by_app.values()) for s in statuses}, "byApp": by_app}
+
+
 def build_summary(reports: list[dict]) -> dict:
     if not reports:
         raise Coded("no_reports: no <app>/report.json in the device folder; run `python3 -m perfrepair.report app` first")
@@ -66,4 +72,4 @@ def build_summary(reports: list[dict]) -> dict:
             "metrics": {p: _metrics(of_pattern(reports, p), improving, selected) for p in PATTERNS},
             "labels": {p: label_counts(of_pattern(reports, p)) for p in PATTERNS},
             "swaps": [{"pattern": p, **s} for p in PATTERNS for s in swaps(of_pattern(reports, p))],
-            "thermal": _thermal(reports), **summed(reports)}
+            "thermal": _thermal(reports), BROKEN_USES: _broken(reports), **summed(reports)}

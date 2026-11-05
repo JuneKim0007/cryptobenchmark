@@ -8,9 +8,10 @@ from .document import DocumentKind
 
 SCHEMA_VERSION = 1
 USED_DOC = DocumentKind("used.json", SCHEMA_VERSION)
-# in order of strength: a site resolves to it, it shares a group with one, or it may join a pending one's group
-SITE, GROUP, CANDIDATE = "site", "group", "candidate"
-VIA = (SITE, GROUP, CANDIDATE)
+# in order of strength: a site resolves to it, it shares a group with one, it may join a pending one's group, or a
+# broken one may upgrade to it
+SITE, GROUP, CANDIDATE, UPGRADE = "site", "group", "candidate", "upgrade"
+VIA = (SITE, GROUP, CANDIDATE, UPGRADE)
 
 
 @dataclass(frozen=True)

@@ -138,7 +138,18 @@ def report_markdown(doc: dict) -> str:
             out += ["", "Primitive-only evidence (the benchmark's cases, not this function):"]
             out += [f"- {e['metric']} at {e['configuration']}: ratio {e['ratio']:.3f}, pImprove "
                     f"{'n/a (n<2)' if e['pImprove'] is None else format(e['pImprove'], '.2f')}" for e in s["primitive"]]
-    return "\n".join(out) + "\n"
+    return "\n".join(out + _broken_uses(doc)) + "\n"
+
+
+def _broken_uses(doc: dict) -> list[str]:
+    """Each broken use found and what it became; an upgraded row's returned output is still a reading, shown as review."""
+    uses = doc["brokenUses"]
+    if not uses["rows"]:
+        return []
+    return ["", "## Broken uses", "", ", ".join(f"{k} {v}" for k, v in uses["counts"].items()) + ".", "",
+            "| site | current | became | option | source | needs | review |", "|---|---|---|---|---|---|---|",
+            *(f"| {r['file']}:{r['line']} {r['function']} | {r['current']} | {r['status']} | {r['option'] or '-'} | {r['source']} "
+              f"| {', '.join(r['needs']) or r['reason'] if r['status'] != 'upgraded' else '-'} | {', '.join(r['review']) or '-'} |" for r in uses["rows"])]
 
 
 def _apps(doc: dict) -> list[str]:
@@ -183,6 +194,9 @@ def summary_markdown(doc: dict) -> str:
     out += _apps(doc) + _patterns(doc["patterns"])
     for pattern in PATTERNS:
         out += _category(doc, pattern)
+    broken = doc["brokenUses"]["all"]
+    if any(broken.values()):
+        out += ["", "## Broken uses", "", ", ".join(f"{k} {v}" for k, v in broken.items()) + "."]
     if doc.get("recommendations") or doc.get("rejected"):
         counts = ", ".join(f"{k} {v}" for k, v in {**doc["recommendations"], **doc["rejected"]}.items())
         out += ["", "## Candidates not offered", "", f"Recommended above maxChange, never applied, and rejected: {counts}."]

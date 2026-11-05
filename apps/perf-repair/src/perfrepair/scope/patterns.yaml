@@ -16,6 +16,7 @@ sinks:
     - '\.\s*(?:execSQL|insertOrThrow|insertWithOnConflict|updateWithOnConflict)\s*\('
     - '\bContentValues\b'
     - '\bDataStore\b'
+    - '\.\s*writeEntity(?:Header|Data)\s*\('
   network:
     - '\bSocket\b'
     - '\bDatagramPacket\b'

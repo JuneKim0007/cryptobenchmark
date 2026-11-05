@@ -5,4 +5,5 @@ prompts:
   evaluate/worthiness: {file: evaluate/worthiness.system.md, lifetime: run, values: []}
   review/grouping-review: {file: review/grouping-review.system.md, lifetime: run, values: []}
   suggest/site-replace: {file: suggest/site-replace.system.md, lifetime: run, values: []}
+  repair/upgrade: {file: repair/upgrade.system.md, lifetime: run, values: []}
   shared/rejection: {file: shared/rejection.turn.md, lifetime: turn, values: [problems]}

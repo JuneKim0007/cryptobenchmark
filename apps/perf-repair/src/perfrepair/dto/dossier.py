@@ -26,8 +26,10 @@ PROVIDER_HELD_KEY = "provider_held_key"
 VARIANT_NOT_MEASURED = "variant_not_measured"
 # the current item has no measurement at all: nothing an option could be weighed against
 CURRENT_NOT_MEASURED = "current_not_measured"
+# a broken current goes to the upgrade role, never to replace; with no accepted, measured candidate: no_secure_option
+BROKEN_USE, NO_SECURE_OPTION = "broken_use", "no_secure_option"
 NO_OPTION_REASONS = (NO_REAL_USE, NOT_ON_DEVICE, "unresolved", VARIANT_NOT_MEASURED, "not_grouped", "no_alternative", "none_available", "deprecated_only",
-                     "interop_failed", CURRENT_NOT_MEASURED, NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY)
+                     "interop_failed", CURRENT_NOT_MEASURED, NO_GAIN, NO_EVIDENCE, PROVIDER_HELD_KEY, BROKEN_USE, NO_SECURE_OPTION)
 
 
 def not_on_device_sites(sites: list[dict], shipped: set[str]) -> list[tuple[str, int, bool]]:
