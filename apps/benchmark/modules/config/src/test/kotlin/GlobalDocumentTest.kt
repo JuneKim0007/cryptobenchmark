@@ -64,7 +64,7 @@ class GlobalDocumentTest {
               thermalGate: {sensors: [s1, s2]}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
-        assertEquals(ThermalGate(true, listOf("s1", "s2"), 3.0, 5, 300), written.thermalGate)
+        assertEquals(ThermalGate(true, listOf("s1", "s2"), 5.0, 5, 300), written.thermalGate)
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(global("").copy(run = written))))).run)
     }

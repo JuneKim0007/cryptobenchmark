@@ -24,7 +24,7 @@ run:
   thermalGate:
     enabled: true
     sensors: [BIG, MID, LITTLE]
-    marginCelsius: 3.0
+    marginCelsius: 5.0
     pollSeconds: 5
     timeoutSeconds: 120
 policy: {onFailure: skip}

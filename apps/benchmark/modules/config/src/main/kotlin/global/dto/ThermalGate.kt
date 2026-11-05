@@ -18,7 +18,7 @@ data class ThermalGate(
     }
 
     companion object {
-        const val MARGIN_CELSIUS = 3.0
+        const val MARGIN_CELSIUS = 5.0
         const val POLL_SECONDS = 5
         const val TIMEOUT_SECONDS = 300
     }
