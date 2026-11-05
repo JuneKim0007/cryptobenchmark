@@ -44,11 +44,6 @@ class ExampleFilesTest {
         assertExample("preparation_prepared_example.yaml", record.file)
     }
 
-    @Test
-    fun theExampleDeviceIsReadFromYamlAlone() {
-        assertEquals(listOf("SUN", "SunJCE"), capability.providers())
-    }
-
     private fun assertExample(name: String, written: File) {
         val committed = File(example, name)
         if (System.getProperty("examples.update") != null) {

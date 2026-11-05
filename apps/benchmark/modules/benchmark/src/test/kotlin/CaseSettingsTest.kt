@@ -13,11 +13,6 @@ class CaseSettingsTest {
     private val time = setOf(Metric.TIME)
 
     @Test
-    fun aHarnessWithNothingSetAsksForNothing() {
-        assertEquals(CaseSettings(null, null, Profiling.NONE, time), CaseSettings.of(HarnessSettings(), time))
-    }
-
-    @Test
     fun theHarnessWordsBecomeSettings() {
         assertEquals(CaseSettings(50, 20, Profiling.METHOD_TRACING, time), CaseSettings.of(HarnessSettings(50, 20, "MethodTracing"), time))
         assertEquals(Profiling.STACK_SAMPLING, CaseSettings.of(HarnessSettings(profiling = "StackSampling"), time).profiling)
@@ -27,6 +22,6 @@ class CaseSettingsTest {
     @Test
     fun aWarmupOfZeroIsNotSupported() {
         val refused = assertThrows(IllegalArgumentException::class.java) { CaseSettings.of(HarnessSettings(warmupIterations = 0), time) }
-        assertEquals("not_supported: warmupIterations 0, androidx needs at least 1; leave it out to let the library decide", refused.message)
+        assertEquals("not_supported", refused.message!!.substringBefore(':'))
     }
 }

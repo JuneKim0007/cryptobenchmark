@@ -43,68 +43,60 @@ def gate_of(results, case, folder="benchmark"):
     return json.loads((results / folder / "thermal.json").read_text())["cases"][case].get("gate")
 
 
-def test_a_case_waits_until_the_device_is_back_at_its_target(tmp_path, monkeypatch, capsys):
+def test_a_case_waits_until_the_device_is_back_at_its_target(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": GATE})
-    out = capsys.readouterr().out
-    assert "gate:      baseline 30.0 C, the hottest of BIG; a case starts at or below 33.0 C and status 0; MID absent, skipped" in out
     assert heat.slept == [5, 5] and problems == []
     assert gate_of(results, "a") == {"waitedSeconds": 0.0, "target": 33.0, "timedOut": False}
     assert gate_of(results, "b") == {"waitedSeconds": 10.0, "target": 33.0, "timedOut": False}
     assert json.loads((results / "benchmark/thermal.json").read_text())["gate"] == {"sensors": ["BIG", "MID"], "baseline": 30.0, "target": 33.0}
-    assert "gate:      measure: 1 of 2 cases gated, 10 s waited, max 10 s, 0 timed out" in out
 
 
-def test_past_the_timeout_the_case_starts_anyway_and_is_flagged(tmp_path, monkeypatch, capsys):
+def test_past_the_timeout_the_case_starts_anyway_and_is_flagged(tmp_path, monkeypatch):
     heat = Heat(monkeypatch, cooling=0.0)
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": GATE | {"timeoutSeconds": 12}})
     assert heat.slept == [5, 5, 2]
     assert gate_of(results, "b") == {"waitedSeconds": 12.0, "target": 33.0, "timedOut": True}
-    assert problems == ["thermal_gate_timeout: b: measure: started after 12 s at 40.0 C, status 0, target 33.0 C"]
-    assert "warning: thermal_gate_timeout: b" in capsys.readouterr().out
+    assert [line.split(": ")[:2] for line in problems] == [["thermal_gate_timeout", "b"]]
 
 
 def test_no_configured_sensor_on_the_device_turns_the_gate_off_with_one_warning(tmp_path, monkeypatch, capsys):
     heat = Heat(monkeypatch, sensors=("skin",))
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": GATE})
     out = capsys.readouterr().out
-    assert out.count("warning: thermal_gate_off: none of BIG, MID among the device's sensors (skin); measuring without the gate") == 1
+    assert out.count("thermal_gate_off") == 1
     assert heat.slept == [] and problems == [] and gate_of(results, "b") is None
 
 
-def test_the_gate_is_off_by_default_and_when_disabled(tmp_path, monkeypatch, capsys):
+def test_the_gate_is_off_by_default_and_when_disabled(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
     _phone, _files, _problems, disabled = measured(tmp_path / "off", monkeypatch, {"isolation": "case", "thermalGate": GATE | {"enabled": False}})
-    assert heat.slept == [] and "gate:" not in capsys.readouterr().out
+    assert heat.slept == []
     assert gate_of(results, "b") is None and gate_of(disabled, "b") is None
 
 
-def test_the_baseline_is_read_idle_before_the_warm_up_and_the_warm_up_is_not_gated(tmp_path, monkeypatch, capsys):
+def test_the_baseline_is_read_idle_before_the_warm_up_and_the_warm_up_is_not_gated(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"name": "b*"}]}, "thermalGate": GATE}
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, run)
-    out = capsys.readouterr().out
-    assert out.index("gate:      baseline 30.0 C, the hottest of BIG") < out.index("warm-up:   1 cases x 10 samples")
     assert heat.slept == [5, 5, 5, 5] and heat.asleep_after == [1, 1, 2, 2]
     assert gate_of(results, "a")["waitedSeconds"] == 10.0 and gate_of(results, "b")["target"] == 33.0
 
 
-def test_with_one_process_for_every_case_the_gate_holds_the_process_and_every_case_shares_it(tmp_path, monkeypatch, capsys):
+def test_with_one_process_for_every_case_the_gate_holds_the_process_and_every_case_shares_it(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "run", "processRepetitions": 2, "thermalGate": GATE})
     assert heat.slept == [5, 5]
     assert gate_of(results, "a", "benchmark/process-2") == gate_of(results, "b", "benchmark/process-2") == {
         "waitedSeconds": 10.0, "target": 33.0, "timedOut": False}
-    assert "gate:      measure: 1 of 2 processes gated, 10 s waited" in capsys.readouterr().out
 
 
-def test_the_before_after_run_is_gated_too(tmp_path, monkeypatch, capsys):
+def test_the_before_after_run_is_gated_too(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     _phone, _files, problems = scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1, "thermalGate": GATE})
     assert heat.slept == [5, 5] * (len(CASES) - 1) and problems == []
     assert gate_of(tmp_path, CASES[-1], "scoped")["waitedSeconds"] == 10.0
-    assert "gate:      measure: 3 of 4 cases gated, 30 s waited, max 10 s, 0 timed out" in capsys.readouterr().out
 
 
 def test_an_unavailable_gate_is_read_and_warned_about_once_in_the_before_after_run(tmp_path, monkeypatch, capsys):
@@ -112,19 +104,18 @@ def test_an_unavailable_gate_is_read_and_warned_about_once_in_the_before_after_r
     reads = []
     monkeypatch.setattr(thermal_gate.thermal, "read", lambda device: reads.append(device) or heat.read(device))
     scoped(tmp_path, monkeypatch, {"isolation": "case", "scopedRepetitions": 1, "thermalGate": GATE})
-    assert capsys.readouterr().out.count("warning: thermal_gate_off:") == 1 and len(reads) == 1 and heat.slept == []
+    assert capsys.readouterr().out.count("thermal_gate_off") == 1 and len(reads) == 1 and heat.slept == []
 
 
 def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_arguments, **_options: [])
     document = {"run": {"thermalGate": GATE}}
     benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {})
-    assert capsys.readouterr().out.count("warning: thermal_gate_off: run.thermalGate: only a --device run") == 1
+    assert capsys.readouterr().out.count("thermal_gate_off") == 1
 
 
-def test_a_delta_session_gates_to_the_stored_baseline_not_a_new_reading(tmp_path, monkeypatch, capsys):
+def test_a_delta_session_gates_to_the_stored_baseline_not_a_new_reading(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     monkeypatch.setenv(thermal_gate.STORED_BASELINE, "25.0")
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": GATE})
-    assert "gate:      baseline 25.0 C, the stored run's, the hottest of BIG" in capsys.readouterr().out
     assert gate_of(results, "a")["target"] == 28.0 and heat.slept

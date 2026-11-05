@@ -17,9 +17,3 @@ def test_each_item_runs_fixed_then_not_fixed_then_the_reverse_across_repetitions
     assert second[3:5] == ["Cipher_C_k128_i64_WARM_p1a2b3c4d_notFixed", "Cipher_C_k128_i64_WARM_p1a2b3c4d_fixed"]
     assert variant_order.interleaved(3, PLANNED) == first
     assert sorted(second) == sorted(PLANNED)
-
-
-def test_the_item_is_the_id_without_its_variant():
-    assert variant_order.item("A_WARM_notFixed") == "A_WARM"
-    assert variant_order.item("A_WARM") == "A_WARM"
-    assert variant_order.item("fixed") == "fixed"

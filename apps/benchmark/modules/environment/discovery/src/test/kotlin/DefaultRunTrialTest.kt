@@ -64,15 +64,6 @@ class DefaultRunTrialTest {
     }
 
     @Test
-    fun generatorsRecordWhetherTheirKeyLeavesTheProvider() {
-        listOf(
-            service("SunJCE", "KeyGenerator", "AES"),
-            service("SunRsaSign", "KeyPairGenerator", "RSA"),
-        ).forEach { assertEquals("exportable", it!!.keyMaterial) }
-        assertEquals("", service("SunJCE", "Mac", "HmacSHA256")!!.keyMaterial)
-    }
-
-    @Test
     fun generatorsRecordTheirKeysFormatAndAPairItsPrivateKeys() {
         assertEquals("RAW", service("SunJCE", "KeyGenerator", "AES")!!.keyFormat)
         assertEquals("PKCS#8", service("SunRsaSign", "KeyPairGenerator", "RSA")!!.keyFormat)

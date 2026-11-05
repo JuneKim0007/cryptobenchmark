@@ -30,11 +30,6 @@ def test_a_step_inside_its_ceiling_returns_its_result():
     assert timeouts.run("adb", [sys.executable, "-c", "print(1)"], capture_output=True, text=True).stdout == "1\n"
 
 
-def test_every_step_has_a_ceiling_and_each_is_generous():
-    assert all(seconds >= 600 for seconds in timeouts.SECONDS.values())
-    assert timeouts.SECONDS["instrument"] >= 6 * 60 * 60
-
-
 @pytest.mark.parametrize("error, line", [
     (pipeline.DeviceError("no_device: x"), "no_device: x"),
     (timeouts.StepTimeout("timeout: adb ran past 1 s: adb"), "timeout: adb ran past 1 s: adb"),

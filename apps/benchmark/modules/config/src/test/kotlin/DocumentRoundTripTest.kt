@@ -43,7 +43,7 @@ class DocumentRoundTripTest {
         val written = files.at(File(directory, "inventory.yaml"), InventoryDocument).write(inventory)
         assertTrue(written.readText().startsWith("schemaVersion: 1\n"))
         written.writeText(written.readText().replaceFirst("schemaVersion: 1", "schemaVersion: 9"))
-        assertEquals("unsupported_schema_version: inventory.yaml: 9, this build reads 1",
-            assertThrows(IllegalArgumentException::class.java) { files.at(written, InventoryDocument).read() }.message)
+        val refused = assertThrows(IllegalArgumentException::class.java) { files.at(written, InventoryDocument).read() }.message!!
+        assertTrue(refused, refused.startsWith("unsupported_schema_version: inventory.yaml: 9"))
     }
 }

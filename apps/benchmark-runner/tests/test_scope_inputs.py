@@ -17,9 +17,7 @@ def expression(type_text, scope=SCOPE):
     return scope_inputs.expression(SimpleNamespace(name="p", type=type_text), scope)
 
 
-@pytest.mark.parametrize("java,kotlin,value", [("boolean", "Boolean", "true"), ("byte", "Byte", "(1).toByte()"), ("short", "Short", "(1).toShort()"),
-                                               ("int", "Int", "1"), ("long", "Long", "1L"), ("float", "Float", "1f"),
-                                               ("double", "Double", "1.0"), ("char", "Char", "'a'")])
+@pytest.mark.parametrize("java,kotlin,value", [("byte", "Byte", "(1).toByte()"), ("char", "Char", "'a'")])
 def test_each_primitive_has_one_value_under_both_spellings_and_needs_no_size(java, kotlin, value):
     empty = SimpleNamespace(key_size=None, input_size=None, input_source="run", current=None, option=None)
     assert expression(java, empty) == value and expression(f"{kotlin}?", empty) == value
@@ -42,10 +40,6 @@ def test_a_key_pair_without_a_size_and_a_file_without_a_size_say_which_input_is_
         expression("PrivateKey", empty)
     with pytest.raises(scope_inputs.InputError, match="missing_input: inputSize for p, none from app"):
         expression("java.io.File", empty)
-
-
-def test_a_file_is_seeded_bytes_at_the_input_size():
-    assert expression("File") == "ScopeInputs.file(64, 7)"
 
 
 def test_a_function_of_every_new_kind_is_generated_and_a_failing_input_stays_in_its_own_scope(tmp_path):

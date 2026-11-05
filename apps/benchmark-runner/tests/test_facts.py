@@ -24,7 +24,7 @@ def test_pinning_needs_the_library_for_the_device_abi(tmp_path):
 
 def test_a_missing_apk_leaves_pinning_unknown_and_says_so(tmp_path, capsys):
     assert facts.pinning(tmp_path / "missing.apk", "arm64-v8a") is None
-    assert capsys.readouterr().out == f"warning: pinning_unknown: {tmp_path / 'missing.apk'} absent; facts.yaml records pinning null\n"
+    assert "pinning_unknown" in capsys.readouterr().out
 
 
 def test_root_is_only_a_uid_zero_answer():

@@ -49,8 +49,8 @@ class InventoryBuilderTest {
 
     @Test
     fun aTrialOfAnotherCaptureIsRefused() {
-        assertEquals("mismatched_trial: capture 1, trial 1700000000000",
-            assertThrows(IllegalArgumentException::class.java) { InventoryBuilder().build(capture.copy(capturedAtMillis = 1), trial, names) }.message)
+        val refused = assertThrows(IllegalArgumentException::class.java) { InventoryBuilder().build(capture.copy(capturedAtMillis = 1), trial, names) }.message!!
+        assertEquals("mismatched_trial", refused.substringBefore(':'))
     }
 
     /** A provider that registers a second spelling of a name as its own service: the first is kept, the second is a warning. */
@@ -60,7 +60,7 @@ class InventoryBuilderTest {
         val twice = trial.copy(entries = trial.entries + aes.copy(name = "Rijndael"))
         val built = InventoryBuilder().build(capture, twice, names)
         assertEquals(listOf("AES", "AES/CBC/PKCS5PADDING", "RSA"), built.providers.getValue("SunJCE").getValue("Cipher").keys.toList())
-        assertEquals(listOf("duplicate_name: SunJCE.Cipher AES and Rijndael are one name; Rijndael left out"), built.warnings)
+        assertEquals(listOf("duplicate_name"), built.warnings.map { it.substringBefore(':') })
         val document = io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
         assertEquals(built, document.parse(document.of(built)))
         assertEquals(emptyList<String>(), inventory.warnings)

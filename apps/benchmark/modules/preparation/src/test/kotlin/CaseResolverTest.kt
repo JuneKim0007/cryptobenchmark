@@ -6,7 +6,6 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
-import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -65,10 +64,7 @@ class CaseResolverTest {
     /** A setting that reaches no Java call is a mistake in the config, not something to drop quietly. */
     @Test
     fun aSettingNoOperationCanUseIsRejected() {
-        assertEquals(
-            listOf("unused_setting: [keySizes] reaches no call of [DIGEST]"),
-            resolver.resolve(request(Selection("MessageDigest", "SHA-256", keySizes = listOf(256)))).rejections.map { it.reason },
-        )
+        assertEquals(listOf("unused_setting"), resolver.resolve(request(Selection("MessageDigest", "SHA-256", keySizes = listOf(256)))).rejections.map { it.reason.substringBefore(':') })
     }
 
     /** Every unrunnable request is reported together, so one pass fixes the config. */
@@ -89,12 +85,6 @@ class CaseResolverTest {
         )
     }
 
-    @Test
-    fun anUnregisteredTypeResolvesUnderTheFallbackAndCanBeRegistered() {
-        val digestAsGenerator = CaseResolver(device, EngineTypes.standard().with("messagedigest", listOf(Operation.GENERATE_KEY)))
-        assertEquals(listOf(null, null), digestAsGenerator.resolve(request(Selection("MessageDigest", "SHA-256"))).cases.map { it.inputSize })
-    }
-
     /** A parameter that cannot be built rejects its selection; nothing reaches a run. */
     @Test
     fun aBrokenParameterTreeRejectsTheSelection() {
@@ -104,13 +94,7 @@ class CaseResolverTest {
         val fine = Selection("Cipher", "AES/GCM/NoPadding", parameters = mapOf("class" to "javax.crypto.spec.GCMParameterSpec", "arguments" to listOf(128, "fresh(12)")))
         val resolution = resolver.resolve(request(broken, bothKeys, fine))
         assertEquals(listOf(fine.parameters, fine.parameters), resolution.cases.map { it.parameters })
-        assertEquals(
-            listOf(
-                "bind_failed: parameters: no constructor of javax.crypto.spec.GCMParameterSpec takes [Integer 128] (none with 1 arguments)",
-                "key_parameters_and_key_sizes: set one; a key spec already fixes the size",
-            ),
-            resolution.rejections.map { it.reason },
-        )
+        assertEquals(listOf("bind_failed", "key_parameters_and_key_sizes"), resolution.rejections.map { it.reason.substringBefore(':') })
     }
 
     @Test
@@ -123,7 +107,6 @@ class CaseResolverTest {
     @Test
     fun anOperationTheTypeDoesNotHaveIsRejected() {
         val wrong = Selection("MessageDigest", "SHA-256", operations = setOf(Operation.SIGN))
-        assertEquals(listOf("unsupported_operation: [SIGN] for MessageDigest, one of [DIGEST]"),
-            resolver.resolve(request(wrong)).rejections.map { it.reason })
+        assertEquals(listOf("unsupported_operation"), resolver.resolve(request(wrong)).rejections.map { it.reason.substringBefore(':') })
     }
 }

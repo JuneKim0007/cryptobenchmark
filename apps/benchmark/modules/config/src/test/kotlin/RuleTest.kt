@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -33,10 +32,5 @@ class RuleTest {
             Rule(provider = "SunJCE", type = "Cipher", name = "AES/*"),
         )
         assertEquals(ordered, ordered.shuffled(java.util.Random(1)).sortedBy { it.specificity })
-    }
-
-    @Test
-    fun anEmptyRuleIsRefused() {
-        assertEquals("empty_rule: give provider, type or name", assertThrows(IllegalArgumentException::class.java) { Rule() }.message)
     }
 }

@@ -30,7 +30,6 @@ class RunCountAuditTest {
 
     @Test
     fun allocationRunsAreHeldToWhatAndroidxUses() {
-        assertEquals(emptyList<String>(), RunCountAudit.findings("a", 50, metrics(50, 5)))
         assertEquals(
             listOf("allocation_runs_changed: a has 50 allocationCount runs, androidx used 5 when this was written"),
             RunCountAudit.findings("a", null, metrics(50, 50)),

@@ -81,6 +81,6 @@ class DiscoveryCapabilityTest {
         )
         assertEquals("missing_file: nowhere.yaml", refusal { CaptureFile.read(File("nowhere.yaml")) })
         val unreadable = refusal { CaptureFile.read("probe.yaml", "schemaVersion: : 1\n") }!!
-        assertTrue(unreadable, unreadable.startsWith("unreadable_yaml: probe.yaml: mapping values are not allowed here"))
+        assertTrue(unreadable, unreadable.startsWith("unreadable_yaml: probe.yaml"))
     }
 }

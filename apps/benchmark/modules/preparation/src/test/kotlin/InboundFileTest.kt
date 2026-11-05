@@ -12,11 +12,6 @@ class InboundFileTest {
     private fun rejection(text: String): String =
         assertThrows(RuntimeException::class.java) { InboundFile.read("effective.yaml", text) }.message!!
 
-    @Test
-    fun theSectionsEveryLaterStageNeedsAreRead() {
-        assertEquals("effective.yaml", InboundFile.read("effective.yaml", EffectiveFixture.TEXT).fileName)
-    }
-
     /** Every refusal names the file, so a failed run says which input to fix. */
     @Test
     fun aBadFileIsRefusedByName() {

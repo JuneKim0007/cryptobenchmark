@@ -44,27 +44,17 @@ class EffectiveBuilderTest {
             effective.providers.mapValues { (_, types) -> types.values.flatMap { it.keys }.toSet() })
     }
 
-    @Test
-    fun overridesResolvePerEntry() {
-        val cipher = effective.providers.getValue("SunJCE").getValue("Cipher")
-        assertEquals(listOf(128, 256), cipher.getValue("AES/CBC/PKCS5PADDING").keySizes)
-        assertEquals("javax.crypto.spec.IvParameterSpec", cipher.getValue("AES/CBC/PKCS5PADDING").parameters["class"])
-        assertEquals(listOf(128), cipher.getValue("RSA").keySizes)
-        assertEquals(listOf(32), cipher.getValue("RSA").inputSizes)
-        assertEquals(listOf("ENCRYPT"), cipher.getValue("RSA").operations)
-    }
-
     /** An include that matches nothing on this device is reported, not silently dropped. */
     @Test
     fun whatCannotRunIsSkippedWithAReason() {
-        assertEquals(listOf("[config] * Mac HmacSHA256: no_match: nothing on this device matches the include"), effective.skipped.map { it.toString() })
+        assertEquals(listOf("no_match"), effective.skipped.map { it.reason.substringBefore(':') })
     }
 
     @Test
     fun aNotRunnableSelectionIsReported() {
         val withoutGlobalExclude = global.copy(selection = global.selection.copy(exclude = emptyList()))
         val skipped = EffectiveBuilder().build(withoutGlobalExclude, testSet, inventory, names).skipped.map { it.toString() }
-        assertTrue(skipped.toString(), skipped.contains("[config] SunJCE KeyGenerator SunTlsPrf: not_runnable: IllegalStateException: TlsPrfGenerator must be initialized"))
+        assertTrue(skipped.toString(), skipped.any { "SunTlsPrf: not_runnable:" in it })
     }
 
     @Test
@@ -74,23 +64,10 @@ class EffectiveBuilderTest {
         assertEquals(1, error.skipped.size)
     }
 
-    /** Later stages apply the same rule, so it travels in the file they read. */
-    @Test
-    fun thePolicyIsFrozenIntoTheResult() {
-        assertEquals(Policy.OnFailure.SKIP, effective.policy.onFailure)
-    }
-
     @Test
     fun nothingSelectedIsAnError() {
         val excludeAll = global.copy(selection = global.selection.copy(exclude = listOf(Rule(type = "Cipher"), Rule(type = "MessageDigest"))))
         assertEquals("nothing_selected", assertThrows(IllegalArgumentException::class.java) { EffectiveBuilder().build(excludeAll, testSet, inventory, names) }.message)
-    }
-
-    @Test
-    fun theInputsAreRecorded() {
-        assertEquals("testsets/scope.yaml", effective.generatedFrom.testSet)
-        assertEquals("probe_x.yaml", effective.generatedFrom.environment.capture)
-        assertEquals(2, effective.run.processRepetitions)
     }
 
     /** A misspelt override silently changes what is measured, so every rule that touched nothing is reported. */

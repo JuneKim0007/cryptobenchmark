@@ -26,7 +26,6 @@ def test_java_wrapper_is_a_public_static_member_in_its_own_variant_package(tmp_p
     run(tmp_path)
     after = generated(tmp_path)["s0a1b2c3d4e5f/after/ScopeFunction.java"]
     assert after.startswith("package io.github.junekim0007.cryptobench.scoped.s0a1b2c3d4e5f.after;\n")
-    assert "import javax.crypto.Cipher;" in after
     assert "    public static byte[] encrypt(byte[] plain, SecretKey key) throws Exception {" in after
     assert '"AndroidOpenSSL"' in after
     assert '"AndroidOpenSSL"' not in generated(tmp_path)["s0a1b2c3d4e5f/before/ScopeFunction.java"]

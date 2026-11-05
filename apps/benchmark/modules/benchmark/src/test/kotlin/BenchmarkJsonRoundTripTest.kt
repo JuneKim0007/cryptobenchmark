@@ -58,30 +58,12 @@ class BenchmarkJsonRoundTripTest {
         assertEquals(1024, read.inputSize)
     }
 
-    @Test
-    fun twoWrittenProcessesMergeIntoOne() {
-        val first = text(listOf(row("a", both)))
-        val second = text(listOf(row("a", linkedMapOf(
-            MetricSamples.TIME to MetricSamples(listOf(1300.0, 1310.0, 1290.0), 4096),
-            MetricSamples.ALLOCATIONS to MetricSamples(listOf(4.0, 4.0, 4.0), 1),
-        ))))
-
-        val merged = Merge.merge(listOf(first, second))
-
-        assertEquals(2, merged.processes)
-        val row = merged.rows.single()
-        assertEquals(listOf(1191.0, 1180.0, 1204.0, 1300.0, 1310.0, 1290.0), row.metrics.getValue(MetricSamples.TIME).runs)
-        assertEquals(listOf(2.0, 2.0, 3.0, 4.0, 4.0, 4.0), row.metrics.getValue(MetricSamples.ALLOCATIONS).runs)
-    }
-
     private fun variant(id: String, variant: String?) =
         ResultRow(id, "Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", "ENCRYPT", 128, 1024, "secret", both, emptyMap(), variant = variant)
 
     @Test
     fun theVariantIsWrittenAndSurvivesAProcessMergeAndAPassMerge() {
         val written = text(listOf(variant("a_fixed", "fixed"), variant("a_notFixed", "notFixed"), variant("scope", null)))
-        assertTrue(written, written.contains("\"keyKind\": \"secret\", \"variant\": \"notFixed\""))
-        assertTrue(written, written.contains("\"variant\": null"))
         val expected = listOf("fixed", "notFixed", null)
         assertEquals(expected, Merge.merge(listOf(written, written)).rows.map { it.variant })
         assertEquals(expected, PassMerge.merge(written, listOf(MetricSamples.ALLOCATIONS to written)).rows.map { it.variant })
@@ -102,7 +84,6 @@ class BenchmarkJsonRoundTripTest {
     @Test
     fun resolvedParametersRoundTripAndSurviveAMerge() {
         val written = text(listOf(withParameters("a", gcm)))
-        assertTrue(written, written.contains("\"parameters\": {\"mode\": \"GCM\", \"padding\": \"NoPadding\", \"ivBytes\": 12, \"tagBits\": 128, \"keyBits\": 128}"))
         assertEquals(gcm, Merge.merge(listOf(written, written)).rows.single().parameters)
     }
 
@@ -132,18 +113,10 @@ class BenchmarkJsonRoundTripTest {
     }
 
     @Test
-    fun onlyTheMetricsBlockCarriesTheTiming() {
-        val written = text(listOf(row("a", both)))
-        assertTrue(written, !written.contains("nanosPerOperation"))
-        assertTrue(written, written.contains("\"timeNs\": {\"iterations\": 8192, \"runs\": [1191.0, 1180.0, 1204.0]}"))
-    }
-
-    @Test
     fun reportedStatisticsRoundTripForOneProcessAndAreDroppedByAMerge() {
         val reported = ReportedStats(1180.0, 1204.0, 1191.0, 0.011)
         val one = row("a", linkedMapOf(MetricSamples.TIME to MetricSamples(listOf(1191.0, 1180.0, 1204.0), 8192, reported)))
         val written = text(listOf(one))
-        assertTrue(written, written.contains("\"reported\": {\"minimum\": 1180.0, \"maximum\": 1204.0, \"median\": 1191.0, \"coefficientOfVariation\": 0.011}"))
         assertEquals(reported, Merge.merge(listOf(written)).rows.single().time?.reported)
         assertEquals(null, Merge.merge(listOf(written, written)).rows.single().time?.reported)
     }

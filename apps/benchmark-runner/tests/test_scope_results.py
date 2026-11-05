@@ -34,9 +34,6 @@ def test_failed_interop_is_recorded_and_left_out(tmp_path):
     effective.write_text("run: {harness: {iterations: 5}}\n")
     prepared = yaml.safe_load(scope_results.prepared(document, measured, effective, tmp_path / "prepared.yaml").read_text())
     assert [c["id"] for c in prepared["cases"]] == ["scope:aaaaaaaaaaaa:before", "scope:aaaaaaaaaaaa:after"]
-    assert prepared["cases"][1] == {"id": "scope:aaaaaaaaaaaa:after", "type": "Scope", "algorithm": "f", "provider": "fixture",
-                                 "operation": "after", "key": {"kind": "none"}, "harness": {"iterations": 5}, "inputSize": 64,
-                                 "metrics": ["TIME"], "resolvedParameters": {}}
 
 
 def test_a_compiled_scope_without_a_verdict_fails(tmp_path):

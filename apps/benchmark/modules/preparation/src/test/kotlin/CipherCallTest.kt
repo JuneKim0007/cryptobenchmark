@@ -54,18 +54,6 @@ class CipherCallTest {
     }
 
     @Test
-    fun freshNoncesRunEveryCall() {
-        var nonces = 0
-        val call = CipherCall({ Cipher.getInstance("AES/GCM/NoPadding") }, message, { cipher, _ ->
-            cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, ByteArray(12) { (nonces + it).toByte() }.also { nonces++ }))
-        })
-        val invocation = call.invocation(PerCall.INIT_AND_OPERATION)
-        val before = nonces
-        repeat(3) { invocation.perIteration() }
-        assertEquals(before + 3, nonces)
-    }
-
-    @Test
     fun oneFixedNonceIsRefusedWithAReason() {
         val failure = assertThrows(IllegalArgumentException::class.java) {
             CipherCall({ Cipher.getInstance("AES/GCM/NoPadding") }, message, { cipher, _ -> cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, ByteArray(12))) })

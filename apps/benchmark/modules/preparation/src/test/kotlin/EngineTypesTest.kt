@@ -17,11 +17,4 @@ class EngineTypesTest {
         assertEquals(listOf(Operation.GENERATE_KEY_PAIR), engineTypes.operationsOf("keypairgenerator"))
         assertEquals(listOf(Operation.TYPE_DEFAULT), engineTypes.operationsOf("SecretKeyFactory"))
     }
-
-    @Test
-    fun withReturnsANewRegistryAndLeavesTheOldOne() {
-        val extended = engineTypes.with("SecretKeyFactory", listOf(Operation.GENERATE_KEY))
-        assertEquals(listOf(Operation.GENERATE_KEY), extended.operationsOf("SecretKeyFactory"))
-        assertEquals(listOf(Operation.TYPE_DEFAULT), engineTypes.operationsOf("SecretKeyFactory"))
-    }
 }

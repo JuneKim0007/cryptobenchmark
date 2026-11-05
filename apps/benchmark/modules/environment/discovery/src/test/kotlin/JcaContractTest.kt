@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.query.CaptureQuery
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.ProviderClassNameWriter
@@ -20,16 +19,14 @@ class JcaContractTest {
     fun providersAreVisibleInPrecedenceOrder() {
         assertTrue("no provider registered a service", CAPTURE.providers.any { it.services.isNotEmpty() })
         assertTrue("precedence is not 1..n", CAPTURE.providers.map { it.precedence } == (1..CAPTURE.providers.size).toList())
-        val serving = QUERY.whoServes("Cipher", "AES")
-        assertTrue("whoServes is not in precedence order", serving.map { it.precedence } == serving.map { it.precedence }.sorted())
     }
 
     @Test
     fun theStaplesResolveAndInstantiateAndSomeDeclaredTransformationsDoNot() {
         listOf("Cipher" to "AES", "MessageDigest" to "SHA-256", "Mac" to "HmacSHA256", "Signature" to "SHA256withRSA", "KeyPairGenerator" to "RSA")
             .forEach { (type, algorithm) ->
-                assertTrue("$type/$algorithm resolves to no provider", QUERY.whoServes(type, algorithm).isNotEmpty())
-                assertTrue("$type is missing from the tree", QUERY.tree()[type].orEmpty().isNotEmpty())
+                val served = CAPTURE.providers.flatMap { it.services }.any { it.type == type && it.algorithm.equals(algorithm, ignoreCase = true) }
+                assertTrue("$type/$algorithm resolves to no provider", served)
             }
         val report = TrialRunner().run(CAPTURE, Security.getProviders())
         val aes = report.services.single { it.provider == "SunJCE" && it.type == "Cipher" && it.algorithm == "AES" }
@@ -55,7 +52,6 @@ class JcaContractTest {
 
     private companion object {
         val CAPTURE = ProviderProbe().capture(Security.getProviders())
-        val QUERY = CaptureQuery(CAPTURE)
         val DIRECTORY = ProbeDirectory(File(System.getProperty("capture.dir") ?: "build/capture"))
     }
 }

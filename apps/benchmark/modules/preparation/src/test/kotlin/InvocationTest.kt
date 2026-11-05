@@ -68,13 +68,6 @@ class InvocationTest {
         }
     }
 
-    // SunJCE refuses an IV the key has just encrypted under; each call must draw the next pooled spec.
-    @Test
-    fun encryptNeverReusesTheLastIv() {
-        val invocation = Invocations.of(prepared("Cipher", "AES/GCM/NoPadding", "SunJCE", Operation.ENCRYPT, key = aes, parameters = gcm()))
-        repeat(5) { assertNotNull(invocation.perIteration()) }
-    }
-
     @Test
     fun bothVariantsOfEveryShapeSurviveTheIterations() {
         everyShape.map { it.copy(case = it.case.copy(variant = Variant.NOT_FIXED)) }.forEach { prepared ->

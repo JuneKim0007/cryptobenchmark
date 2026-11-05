@@ -63,7 +63,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/write/YamlCodec.kt 
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
 apps/benchmark/modules/environment/discovery/src/test/kotlin/CaptureDocumentTest.kt : capture schema tests
-apps/benchmark/modules/environment/discovery/src/test/kotlin/CaptureQueryTest.kt : CaptureQuery tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest.kt : default runs against the live JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ExampleFilesTest.kt : round-trips example/
 apps/benchmark/modules/environment/discovery/src/test/kotlin/JcaContractTest.kt : JCA-surface drift checks on the running JVM

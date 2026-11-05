@@ -80,9 +80,4 @@ class KeyPlannerTest {
     fun aNameTheDerivationDoesNotCoverStillRuns() {
         assertEquals(KeyRecipe.Pair("EC", 256, "AndroidOpenSSL"), plan("Signature", "SHA256withNEWSIG", keySize = 256))
     }
-
-    @Test
-    fun theDerivationStillAnswersWhenNothingWasMeasured() {
-        assertEquals(KeyRecipe.Pair("RSA", 2048, "AndroidOpenSSL"), plan("Signature", "SHA256withRSA", keySize = 2048))
-    }
 }

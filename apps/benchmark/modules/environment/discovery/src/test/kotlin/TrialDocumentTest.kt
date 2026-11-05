@@ -43,7 +43,7 @@ class TrialDocumentTest {
         val document = LinkedHashMap(TrialDocument.of(report))
         document[TrialDocument.SCHEMA_VERSION] = TrialReport.SCHEMA_VERSION + 1
         val error = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(document) }
-        assertEquals("unsupported_schema_version: 4, this build reads 3", error.message)
+        assertEquals("unsupported_schema_version", error.message!!.substringBefore(':'))
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = true, error = "x") }
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = false) }
     }

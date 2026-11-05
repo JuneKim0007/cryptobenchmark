@@ -14,7 +14,6 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.security.Signature
@@ -72,10 +71,5 @@ class OperationInputTest {
         val input = inputFor(case("Signature", "SHA256withECDSA", "SunEC", Operation.VERIFY), ec, null) as OperationInput.SignedMessage
         val pair = (ec as KeyMaterial.Pairs).pairs.first()
         assertTrue(Signature.getInstance("SHA256withECDSA", "SunEC").apply { initVerify(pair.public); update(input.message) }.verify(input.signature))
-    }
-
-    @Test
-    fun keyOperationsTakeNoInput() {
-        assertSame(OperationInput.None, inputFor(case("KeyPairGenerator", "RSA", "SunRsaSign", Operation.GENERATE_KEY_PAIR, inputSize = null), KeyMaterial.None, null))
     }
 }

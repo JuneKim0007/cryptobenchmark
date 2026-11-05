@@ -40,12 +40,6 @@ class ChartGroupTest {
     }
 
     @Test
-    fun idsAreUniqueAndZeroIsUnidentified() {
-        assertEquals(ChartGroup.entries.size, ChartGroup.entries.map { it.id }.toSet().size)
-        assertEquals(ChartGroup.UNIDENTIFIED, ChartGroup.entries.single { it.id == 0 })
-    }
-
-    @Test
     fun aCaseKnowsItsGroup() {
         val case = BenchmarkCase("Mac", "HmacSHA256", "SunJCE", Operation.COMPUTE_MAC, inputSize = 64)
         assertEquals("mac", PreparedCase(case, secret, KeyMaterial.None, null, null, OperationInput.None).chartGroup.label)

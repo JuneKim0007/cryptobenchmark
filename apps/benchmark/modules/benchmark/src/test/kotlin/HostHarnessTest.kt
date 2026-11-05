@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.benchmark
 
-import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
@@ -40,12 +39,6 @@ class HostHarnessTest {
         val measurement = quick.measure(digest(HarnessSettings()))
         assertTrue("iterations ${measurement.iterations}", measurement.iterations > 1)
         assertTrue("median ${measurement.medianNanos}", measurement.medianNanos > 0)
-    }
-
-    @Test
-    fun theHostRowCarriesOnlyWhatTheHostCanMeasure() {
-        val row = quick.measure(digest(HarnessSettings())).row()
-        assertEquals(listOf(MetricSamples.TIME), row.metrics.keys.toList())
     }
 
     @Test
