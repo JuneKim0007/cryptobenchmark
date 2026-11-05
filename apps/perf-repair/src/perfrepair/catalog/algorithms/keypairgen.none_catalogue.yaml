@@ -15,7 +15,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: DIFFIEHELLMAN}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: DIFFIEHELLMAN}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
@@ -34,7 +34,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: DSA}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: DSA}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
@@ -53,7 +53,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: EC}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: EC}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc}, source: SP80057T2}
     - {fact: minSdk, value: 11, source: AKEYPAIRGEN}
@@ -72,7 +72,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ED25519}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ED25519}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: RFC8032}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -91,7 +91,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ED448}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ED448}
     sourcedOnly:
     - {fact: strengthBits, value: 224, source: RFC8032}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -110,7 +110,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: EDDSA}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: EDDSA}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -129,7 +129,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-DSA}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -148,7 +148,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-DSA-44}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA-44}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -167,7 +167,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-DSA-65}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA-65}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -186,7 +186,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-DSA-87}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-DSA-87}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -205,7 +205,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-KEM}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -224,7 +224,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-KEM-1024}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM-1024}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -243,7 +243,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-KEM-512}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM-512}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -262,7 +262,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ML-KEM-768}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ML-KEM-768}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -281,7 +281,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: RSA}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: RSA}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
@@ -300,7 +300,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: RSASSA-PSS}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: RSASSA-PSS}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -319,7 +319,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: X25519}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: X25519}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: RFC7748}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -338,7 +338,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: X448}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: X448}
     sourcedOnly:
     - {fact: strengthBits, value: 224, source: RFC7748}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -357,7 +357,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: XDH}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: XDH}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 33, source: AKEYPAIRGEN}
@@ -377,7 +377,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: SLH-DSA-SHA2-128S}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SLH-DSA-SHA2-128S}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: FIPS205}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
@@ -397,7 +397,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: XWING}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: XWING}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: XWINGKEM}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}

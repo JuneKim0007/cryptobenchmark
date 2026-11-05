@@ -15,7 +15,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: AES}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: AES}
     sourcedOnly:
     - {fact: strengthBits, value: {key: aes}, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -34,7 +34,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: ARCFOUR}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: ARCFOUR}
     sourcedOnly:
     - {fact: strengthBits, value: 0, source: RFC7465}
     - {fact: minSdk, value: 14, source: AKEYGEN}
@@ -53,7 +53,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: BLOWFISH}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: BLOWFISH}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 10, source: AKEYGEN}
@@ -72,7 +72,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: CHACHA20}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: CHACHA20}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: RFC8439}
     - {fact: minSdk, value: 28, source: AKEYGEN}
@@ -91,7 +91,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: DES}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: DES}
     sourcedOnly:
     - {fact: strengthBits, value: 56, source: FIPS46}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -110,7 +110,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: DESEDE}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: DESEDE}
     sourcedOnly:
     - {fact: strengthBits, value: 112, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -129,7 +129,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACMD5}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACMD5}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -148,7 +148,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA1}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA1}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: SP80057T3}
     - {fact: minSdk, value: 11, source: AKEYGEN}
@@ -167,7 +167,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA224}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA224}
     sourcedOnly:
     - {fact: strengthBits, value: 192, source: SP80057T3}
     - {fact: minSdk, value: 22, source: AKEYGEN}
@@ -186,7 +186,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA256}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA256}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -205,7 +205,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA3-224}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-224}
     sourcedOnly:
     - {fact: strengthBits, value: 192, source: SP80057T3}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -224,7 +224,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA3-256}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-256}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -243,7 +243,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA3-384}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-384}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -262,7 +262,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA3-512}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-512}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -281,7 +281,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA384}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA384}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -300,7 +300,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA512}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA512}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: 1, source: AKEYGEN}
@@ -319,7 +319,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA512/224}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA512/224}
     sourcedOnly:
     - {fact: strengthBits, value: 192, source: SP80057T3}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -338,7 +338,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: HMACSHA512/256}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA512/256}
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -357,7 +357,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: RC2}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: RC2}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: AKEYGEN}
@@ -370,7 +370,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: SUNTLS12PRF}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLS12PRF}
     sourcedOnly: []
     providers: {}
     provenance: {by: person}
@@ -381,7 +381,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: SUNTLSKEYMATERIAL}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSKEYMATERIAL}
     sourcedOnly: []
     providers: {}
     provenance: {by: person}
@@ -392,7 +392,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: SUNTLSMASTERSECRET}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSMASTERSECRET}
     sourcedOnly: []
     providers: {}
     provenance: {by: person}
@@ -403,7 +403,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: SUNTLSPRF}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSPRF}
     sourcedOnly: []
     providers: {}
     provenance: {by: person}
@@ -414,7 +414,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {consumer: consumer-defined (assumed), function: SUNTLSRSAPREMASTERSECRET}
+      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSRSAPREMASTERSECRET}
     sourcedOnly: []
     providers: {}
     provenance: {by: person}

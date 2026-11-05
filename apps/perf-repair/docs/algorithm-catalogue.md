@@ -12,7 +12,7 @@ Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `catalog/a
 | `required` | `{name, value, source}`: `parameters` (`none`, `iv`, `gcm`, `chacha`, `pbe`) and `nonce` (`none`, `unpredictable`, `unique`) |
 | `optional` | arguments with what each changes; empty until measured |
 | `conditions` | `output: {kind, bytes, source}`, `deterministic: {value, source}`, `authenticated: {value, source}` |
-| `contract` | `{key, input, output}`: `key` is `app`, `provider` or `none` (a `none` row has no `.p` variant); `input` and `output` the components a swap must keep; absent when the name leaves one open, so it has no contract row |
+| `contract` | `{key, input, output}`: `key` is `app`, `provider` or `none` (a `none` row has no `.p` variant); `input` and `output` the components a swap must keep, each a string or `{value, assumed: true}` for a provider convention nothing recorded confirms (rows compare `value`; the description shows `(assumed)`); absent when the name leaves one open, so it has no contract row |
 | `sourcedOnly` | `{fact, value, source}`: `strengthBits` (bits, `{key}` or `{key, cap}` of a `keyStrength` map, null) and `minSdk` |
 | `providers` | `<provider>: {<path>: <value>}`: only what differs; a path walks mappings by key and lists by `name` or `fact` |
 | `provenance` | `{by: person}`, or `{by: agent, model, run, date}` |

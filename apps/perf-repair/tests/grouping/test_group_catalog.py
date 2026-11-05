@@ -304,9 +304,14 @@ def _signature_rows() -> list[tuple]:
             if read.decided:
                 key = tuple(i for i in read.identity if interchange().contract_of(i[0]) != "key")
                 alike.setdefault(key, []).append((name, read))
-        rows += [(_row_id(group.family, row[0][0]), _describe(engine_type, c := row_contracts([row[0][1]])), group.family, c,
-                  tuple((engine_type, n) for n, _ in row)) for row in alike.values()]
+        rows += [(_row_id(group.family, row[0][0]), _describe(engine_type, c := row_contracts([row[0][1]])), group.family,
+                  _values(c), tuple((engine_type, n) for n, _ in row)) for row in alike.values()]
     return rows
+
+
+def _values(contracts: dict) -> dict:
+    """A row states values only: the signature's `(assumed)` mark is the catalogue's `assumed` flag."""
+    return {side: {k: v.removesuffix(" (assumed)") for k, v in values.items()} for side, values in contracts.items()}
 
 
 def test_contract_rows_from_the_catalogue_equal_the_221_the_signature_derived():
@@ -314,6 +319,12 @@ def test_contract_rows_from_the_catalogue_equal_the_221_the_signature_derived():
     # 219, less DESedeWrap's cipher.unknown row, plus SLH-DSA-SHA2-128S twice and XWING
     assert len(catalog.groups) == 221
     assert [(g.id, g.description, g.family, g.contracts, g.members) for g in catalog.groups] == _signature_rows()
+
+
+def test_an_assumed_value_is_a_row_s_value_and_its_description_says_assumed():
+    row = group_catalog().of("mac.secret", "PBEWithHmacSHA256")
+    assert row.contracts["input"]["kdf"] == "PBEWithHmac provider convention"
+    assert "kdf=PBEWithHmac provider convention (assumed)" in row.description
 
 
 def test_a_row_is_keyless_by_its_contract_key_as_the_engine_s_interchange_key_was():

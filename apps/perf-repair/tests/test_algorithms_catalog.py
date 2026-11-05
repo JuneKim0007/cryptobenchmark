@@ -97,6 +97,8 @@ def _fact(name: str, **values):
     ("digest.none_catalogue.yaml", _md5(lambda e: e.update(contract={"output": {}})), "contract"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["contract"].pop("key")), "is not \\{key, input, output\\}"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["contract"].update(key="keystore")), "contract key 'keystore'"),
+    ("digest.none_catalogue.yaml", _md5(lambda e: e["contract"]["output"].update(function={"value": "MD5", "assumed": False})),
+     "contract output is not a mapping"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["key"].update(source="hearsay")), "hearsay"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e["provenance"].update(by="nobody")), "provenance"),
     ("digest.none_catalogue.yaml", lambda d: d["algorithms"].update({"MD4": d["algorithms"][MD5]}), "is not <type>"),

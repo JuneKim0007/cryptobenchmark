@@ -24,6 +24,7 @@ CONTRACT_SIDES = ("input", "output")
 CONTRACT_KEY = "key"
 KEY_APP, KEY_PROVIDER, KEY_NONE = "app", "provider", "none"
 KEY_CONTRACTS = (KEY_APP, KEY_PROVIDER, KEY_NONE)
+VALUE, ASSUMED = "value", "assumed"
 PARAMETERS, NONCE = "parameters", "nonce"
 OUTPUT, DETERMINISTIC, AUTHENTICATED = "output", "deterministic", "authenticated"
 STRENGTH, MIN_SDK = "strengthBits", "minSdk"
@@ -156,8 +157,21 @@ def _contract_problems(contract) -> list[str]:
     if not isinstance(contract, dict) or set(contract) != {*CONTRACT_SIDES, CONTRACT_KEY}:
         return [f"contract {contract!r} is not {{key, input, output}}"]
     found = [f"contract key {contract[CONTRACT_KEY]!r} is not one of {KEY_CONTRACTS}"] * (contract[CONTRACT_KEY] not in KEY_CONTRACTS)
-    return found + [f"contract {side} is not a mapping of strings" for side in CONTRACT_SIDES
-                    if not isinstance(contract[side], dict) or not all(isinstance(v, str) for v in contract[side].values())]
+    return found + [f"contract {side} is not a mapping of strings or {{{VALUE}, {ASSUMED}: true}}" for side in CONTRACT_SIDES
+                    if not isinstance(contract[side], dict) or not all(map(_contract_value_form, contract[side].values()))]
+
+
+def _contract_value_form(value) -> bool:
+    return isinstance(value, str) or (isinstance(value, dict) and set(value) == {VALUE, ASSUMED}
+                                      and isinstance(value[VALUE], str) and value[ASSUMED] is True)
+
+
+def contract_value(value) -> str:
+    return value[VALUE] if isinstance(value, dict) else value
+
+
+def contract_assumed(value) -> bool:
+    return isinstance(value, dict) and value[ASSUMED]
 
 
 def _shape_problems(raw) -> list[str]:

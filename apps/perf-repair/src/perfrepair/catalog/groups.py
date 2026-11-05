@@ -11,7 +11,17 @@ from pathlib import Path
 from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
 from ..dto.signature import CONVENTION, UNKNOWN, Signature
-from .algorithms import CONTRACT_KEY, CONTRACT_SIDES, KEY_NONE, Algorithms, algorithm_id, algorithms, split_id
+from .algorithms import (
+    CONTRACT_KEY,
+    CONTRACT_SIDES,
+    KEY_NONE,
+    Algorithms,
+    algorithm_id,
+    algorithms,
+    contract_assumed,
+    contract_value,
+    split_id,
+)
 from .families import Families
 from .interchange import INPUT, KEY, OUTPUT, interchange
 from .names import Names, fold
@@ -103,13 +113,22 @@ def _row_id(family: str, name: str) -> str:
     return f"{engine[:6]}-{kind[0]}-{slug}"[:ID_LENGTH].rstrip("-.")
 
 
+def _shown(value) -> str:
+    return f"{contract_value(value)} (assumed)" if contract_assumed(value) else value
+
+
 def _describe(engine_type: str, stands: dict) -> str:
-    facts = "; ".join(f"{c}: " + ", ".join(f"{k}={v}" for k, v in sorted(stands[c].items())) for c in (INPUT, OUTPUT) if stands[c])
+    facts = "; ".join(f"{c}: " + ", ".join(f"{k}={_shown(v)}" for k, v in sorted(stands[c].items())) for c in (INPUT, OUTPUT)
+                      if stands[c])
     return f"Predefined {engine_type} group. {facts}."
 
 
+def _sides(contract: dict) -> dict:
+    return {side: {k: contract_value(v) for k, v in contract[side].items()} for side in CONTRACT_SIDES}
+
+
 def _same(contract: dict) -> tuple:
-    return (contract[CONTRACT_KEY], *((side, tuple(sorted(contract[side].items()))) for side in CONTRACT_SIDES))
+    return (contract[CONTRACT_KEY], *((side, tuple(sorted(values.items()))) for side, values in _sides(contract).items()))
 
 
 def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) -> list[CatalogGroup]:
@@ -121,10 +140,6 @@ def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) 
             alike[_same(contract)].append((name, contract))
     return [CatalogGroup(_row_id(family, row[0][0]), family, _describe(engine_type, row[0][1]), _sides(row[0][1]),
                          tuple((engine_type, n) for n, _ in row), row[0][1][CONTRACT_KEY] == KEY_NONE) for row in alike.values()]
-
-
-def _sides(contract: dict) -> dict:
-    return {side: contract[side] for side in CONTRACT_SIDES}
 
 
 def _member_problems(family: str, member, engine_type: str, names: Names, catalogue: Algorithms) -> list[str]:

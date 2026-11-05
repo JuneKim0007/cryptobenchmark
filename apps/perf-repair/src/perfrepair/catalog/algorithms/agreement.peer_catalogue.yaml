@@ -91,7 +91,7 @@ algorithms:
     contract:
       key: app
       input: {}
-      output: {algorithm: XDH, curve: by key (assumed)}
+      output: {algorithm: XDH, curve: {value: by key, assumed: true}}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 33, source: AAGREEMENT}

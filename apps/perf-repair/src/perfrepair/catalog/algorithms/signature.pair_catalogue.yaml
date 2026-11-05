@@ -54,7 +54,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {curve: by key (assumed), scheme: EDDSA}
+      output: {curve: {value: by key, assumed: true}, scheme: EDDSA}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: ASIGNATURE}
@@ -149,7 +149,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {curve: by key (assumed), scheme: ML-DSA}
+      output: {curve: {value: by key, assumed: true}, scheme: ML-DSA}
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: null, source: ASIGNATURE}
@@ -414,7 +414,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {digest: SHA-1, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+      output: {digest: SHA-1, mgf1: {value: the digest, assumed: true}, salt: {value: digest length, assumed: true}, scheme: RSA-PSS}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
@@ -528,7 +528,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {digest: SHA-224, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+      output: {digest: SHA-224, mgf1: {value: the digest, assumed: true}, salt: {value: digest length, assumed: true}, scheme: RSA-PSS}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
@@ -642,7 +642,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {digest: SHA-256, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+      output: {digest: SHA-256, mgf1: {value: the digest, assumed: true}, salt: {value: digest length, assumed: true}, scheme: RSA-PSS}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
@@ -1136,7 +1136,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {digest: SHA-384, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+      output: {digest: SHA-384, mgf1: {value: the digest, assumed: true}, salt: {value: digest length, assumed: true}, scheme: RSA-PSS}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
@@ -1288,7 +1288,7 @@ algorithms:
     contract:
       key: app
       input: {prehashed: 'FALSE'}
-      output: {digest: SHA-512, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+      output: {digest: SHA-512, mgf1: {value: the digest, assumed: true}, salt: {value: digest length, assumed: true}, scheme: RSA-PSS}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
