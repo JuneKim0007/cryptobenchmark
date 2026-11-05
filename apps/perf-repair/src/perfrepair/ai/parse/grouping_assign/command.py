@@ -9,9 +9,10 @@ from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
 from ...runtime.engine.events import Where
+from ...runtime.engine.refresh import refresh_inputs
 from ...runtime.engine.tracking import role_run
 from ...runtime.prompt import PromptLibrary
-from .kind import GroupingKind, charter, refresh_inputs
+from .kind import GroupingKind, charter
 
 
 def _dry_run(task: TaskPrompt, *_):

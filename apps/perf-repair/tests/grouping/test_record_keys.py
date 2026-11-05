@@ -6,7 +6,8 @@ import pytest
 from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
-from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter, refresh_inputs
+from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
+from perfrepair.ai.runtime.engine.refresh import refresh_inputs
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
