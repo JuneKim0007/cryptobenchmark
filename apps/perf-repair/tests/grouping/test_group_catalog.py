@@ -23,7 +23,7 @@ from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check
-from perfrepair.grouping.signature import signature
+from perfrepair.catalog.signature import signature
 from perfrepair.run_dir import GroupingPaths, built
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.parse.grouping_assign import SLUG
@@ -147,7 +147,7 @@ def test_a_call_chosen_resolved_parameter_keeps_a_listed_name_listed(paths):
     assert item(kind, f"Cipher|{GCM}|P1") not in kind.pending()
 
 
-def test_candidates_are_groups_yaml_rows_with_provenance_and_nothing_is_promoted(paths, tmp_path):
+def test_candidates_carry_provenance_and_nothing_is_promoted(paths):
     before = CATALOG.read_bytes()
     run(paths)
     report(paths, FAMILIES)
@@ -159,10 +159,6 @@ def test_candidates_are_groups_yaml_rows_with_provenance_and_nothing_is_promoted
         decision = row["provenance"]["decisions"][0]
         assert row["provenance"]["source"] == "model" and {"model", "run", "date", "seq"} <= set(decision)
         assert "findings" in row["provenance"]["checks"]
-        bare = {k: v for k, v in row.items() if k != "provenance"}
-        path = tmp_path / f"{row['id']}.yaml"
-        path.write_text(yaml.safe_dump({**document, "families": {family: [bare]}}))
-        assert load(path).of(family, OAEP).id == row["id"]
     assert CATALOG.read_bytes() == before
     group_catalog.cache_clear()
     assert group_catalog().of(family, OAEP) is None
@@ -245,27 +241,49 @@ def test_the_committed_catalog_loads_and_each_row_agrees_with_the_signature():
         assert all(c.status != UNKNOWN for _, n in group.members for c in signature(engine_type, n, None, "app_held", NAMES).components)
 
 
-@pytest.mark.parametrize("row, code", [
-    ({"id": "a-b", "description": "d", "contracts": {}, "members": [{"type": "Mac", "name": "HmacSHA256"}], "extra": 1}, "unknown"),
-    ({"id": "A B", "description": "d", "contracts": {}, "members": [{"type": "Mac", "name": "HmacSHA256"}]}, "id does not match"),
-    ({"id": "a-b", "description": "d", "contracts": {}, "members": [{"type": "Mac", "name": "HMAC-SHA256"}]}, "no canonical"),
-    ({"id": "a-b", "description": "d", "contracts": {}, "members": [{"type": "Cipher", "name": "AES"}]}, "its family holds"),
+@pytest.mark.parametrize("group, code", [
+    ({"description": "d", "algorithms": ["HmacSHA256"], "extra": 1}, "unknown"),
+    ({"algorithms": ["HmacSHA256"]}, "missing"),
+    ({"description": "", "algorithms": ["HmacSHA256"]}, "description is empty"),
+    ({"description": "d", "algorithms": ["HMAC-SHA256"]}, "no canonical"),
+    ({"description": "d", "algorithms": ["AES"]}, "no canonical"),
+    ({"description": "d", "algorithms": ["HmacSHA256", "HMACSHA256"]}, "no canonical|listed twice"),
 ])
-def test_a_bad_row_is_refused(tmp_path, row, code):
+def test_a_bad_group_is_refused(tmp_path, group, code):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 1, "source": "t", "families": {"mac.secret": [row]}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {"mac.secret": group}}))
     with pytest.raises(GroupsError, match=code):
         load(path)
 
 
-def test_a_name_listed_twice_in_a_family_and_a_stray_family_are_refused(tmp_path):
-    member = {"type": "Mac", "name": "HmacSHA256"}
-    rows = [{"id": n, "description": "d", "contracts": {}, "members": [member]} for n in ("a-a", "b-b")]
+def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 1, "source": "t", "families": {"mac.secret": rows, "nope": []}}))
-    with pytest.raises(GroupsError, match="listed twice.*|not a family"):
+    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {"nope": {"description": "d", "algorithms": []}}}))
+    with pytest.raises(GroupsError, match="not a family"):
         load(path)
-    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "families": {}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 1, "source": "t", "families": {}}))
     with pytest.raises(GroupsError, match="groups_schema"):
         load(path)
     assert catalog_file.CATALOG == CATALOG
+
+
+def test_the_catalog_is_one_group_per_family_and_lists_every_typed_name():
+    catalog = group_catalog()
+    assert {g.family for g in catalog.families} == set(FAMILIES.by_id)
+    typed = yaml.safe_load((CATALOG.parent / "types.yaml").read_text())["families"]
+    # known gap: in types.yaml and screening, not yet in algorithm-names.yaml
+    not_named = {"SLH-DSA-SHA2-128S", "XWING"}
+    for group in catalog.families:
+        assert set(typed[group.family]["rows"]) - not_named <= set(group.algorithms)
+
+
+def test_a_group_member_only_shares_a_row_when_its_contracts_are_equal():
+    catalog = group_catalog()
+    assert catalog.of("digest.none", "MD5") is not catalog.of("digest.none", "SHA-256")
+    assert catalog.of("cipher.secret", "AES/CBC/PKCS5Padding") is not catalog.of("cipher.secret", "AES/GCM/NoPadding")
+
+
+def test_a_listed_name_with_an_open_contract_has_no_row_so_the_model_decides():
+    catalog = group_catalog()
+    assert "RSA/ECB/OAEPPadding" in next(g for g in catalog.families if g.family == "cipher.pair").algorithms
+    assert catalog.of("cipher.pair", "RSA/ECB/OAEPPadding") is None

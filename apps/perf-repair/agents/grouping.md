@@ -14,8 +14,8 @@
 - key contract: derived in `grouping/build/key_contract.py` from probe attributes, a generator's from its trial's produced key cross-checked with its provider's consumers; never from a provider name or a registered `KeyStore`; doubt is `unknown`, never a guess, and an unknown generator joins no group.
 - classify: with `device.screening.aiReview` the build asks the classify model about unknown items only, before screen.json is written; `docs/screening.md` Model review.
 - identified: a screened-out item or a name listed in `catalog/groups.yaml` is placed without a model and never asked (`screen/groups.py`); every other item is one model call; `docs/grouping.md` Identified items.
-- catalog: it and the signature exist only to reduce model calls; nothing writes it at run time; a person promotes rows from `group-candidates.yaml`.
-- signature: evidence, never the decision: it seeds the catalog offline (`../../tools/seed_groups.py`) and checks groups; what splits a group is data in `catalog/interchange.yaml`, derived in `grouping/signature.py`; missing evidence is `unknown`, never the name's default.
+- catalog: it and the signature exist only to reduce model calls; nothing writes it at run time; a person adds names from `group-candidates.yaml`.
+- signature: evidence, never the decision: it derives the contract rows of listed names and checks groups; what splits a row is data in `catalog/interchange.yaml`, derived in `catalog/signature.py`; missing evidence is `unknown`, never the name's default.
 - items: ids `1..n` per run; `items.json` is never edited after build; the agent sees one YAML block: the family, its groups (catalog and this run's) and the item, facts under input, key and output.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
 - gates: A before every pop, B after it, C on every answer, D after every write; a failed gate stops the stage.
@@ -26,7 +26,7 @@
 ## Workflow
 - run: `build` (classify inside, with aiReview) → `assign` → `report [--supervisor]` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`); the guide's interop step does the last three through `device/interop.py`
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; a pair across key contracts is never planned, the plan marks it `not_checkable`; never edit a group for it.
-- change the catalog: `python3 ../../tools/seed_groups.py` → review → `catalog/groups.yaml`; a candidate is promoted by hand
+- change the catalog: add the canonical name to its family in `catalog/groups.yaml` and its facts to `catalog/types.yaml`; a candidate is promoted by hand
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
 - change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/parse/grouping_assign.py` → `docs/grouping.md`
 
@@ -51,13 +51,14 @@ src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schem
 src/perfrepair/ai/review/grouping_review/state.py : Reviews: one result per reviewed family
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions
-src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: (family, canonical name) to its catalog group, a group at each key contract
-src/perfrepair/catalog/groups.yaml : data: predefined groups per family, each with its description, the contracts it stands for and its members; the reviewed output of ../../tools/seed_groups.py; a person promotes rows from group-candidates.yaml
+src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: one group per family, contract rows derived from its names, a row at each key contract
+src/perfrepair/catalog/groups.yaml : data: one predefined group per family: description and canonical algorithm names; a person adds names from group-candidates.yaml
 src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own; the standard format of a generated key per generator type
 src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes, the generated key formats
 src/perfrepair/catalog/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
+src/perfrepair/catalog/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 src/perfrepair/catalog/types.py : reader of types.yaml, checked whole: fields, sources, families, keyStrength maps; lookup by family and canonical name; strength at a key size
 src/perfrepair/catalog/types.yaml : data: per family and canonical name the output kind, properties, strengthBits (SP 800-57) and minSdk (Android reference), each sourced
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
@@ -71,5 +72,4 @@ src/perfrepair/grouping/report/candidates.py : group-candidates.yaml at report: 
 src/perfrepair/grouping/report/checks.py : stage: finished grouping → knowledge.json, checks.json, groups.json, group-candidates.yaml (`notUsed` with used.json); report_documents: what they should hold, nothing written
 src/perfrepair/grouping/report/output.py : groups.json assembly; each item's screen status
 src/perfrepair/grouping/report/rules.py : static checks over a finished grouping, key_contract_conflict among them
-src/perfrepair/grouping/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 ```

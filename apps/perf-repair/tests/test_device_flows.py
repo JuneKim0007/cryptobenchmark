@@ -12,7 +12,7 @@ from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
 from perfrepair.catalog import groups as group_catalog_file
-from perfrepair.grouping import signature
+from perfrepair.catalog import signature
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide
 from perfrepair.run_dir import GroupingPaths

@@ -8,7 +8,7 @@ from ...catalog.names import Names, fold
 from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import FROM_TRIAL, Item, Profile
 from ...catalog.families import Families
-from ..signature import signature
+from ...catalog.signature import signature
 from .key_contract import (
     cross_checked,
     generator_contract,

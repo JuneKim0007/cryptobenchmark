@@ -1,4 +1,4 @@
-# Predefined families. Static code assigns every item to exactly one; agents form groups inside them and
+# The families are the predefined groups (groups.yaml). Static code assigns every item to exactly one; agents
 # may not change these descriptions. Key kind: secret | pair | none | peer | unknown. An engine type with one
 # entry has that key kind; Cipher's is derived per service (grouping/build/key_kind.py).
 schemaVersion: 1

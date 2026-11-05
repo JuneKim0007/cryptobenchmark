@@ -21,7 +21,7 @@ from perfrepair.dto.signature import CONVENTION, EXPORTABLE, KEY_MATERIAL, NON_E
 from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
-from perfrepair.grouping.signature import signature
+from perfrepair.catalog.signature import signature
 from perfrepair.run_dir import GroupingPaths, built
 from perfrepair.screen.groups import code_group_id, code_groups, identified, screened_out
 from perfrepair.screen.handler import ScreeningHandler

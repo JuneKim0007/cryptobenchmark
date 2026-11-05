@@ -1,10 +1,10 @@
 # Signature
 
-`grouping/signature.py` derives each item's signature at build, into its profile: `catalog/interchange.yaml` reads the canonical name (`catalog/algorithm-names.yaml`, probe aliases included), `catalog/resolved.py` the trial's digest and MGF1, the profile the key contract.
+`catalog/signature.py` derives each item's signature at build, into its profile: `catalog/interchange.yaml` reads the canonical name (`catalog/algorithm-names.yaml`, probe aliases included), `catalog/resolved.py` the trial's digest and MGF1, the profile the key contract.
 
-The signature is best effort and exists only to reduce model calls: it seeds `catalog/groups.yaml` offline (`../../tools/seed_groups.py`, reviewed before commit), shows the model its facts, and checks groups (gate C, static findings); it never places an item at run time ([grouping.md](grouping.md) Identified items).
+The signature is best effort and exists only to reduce model calls: it derives the contract rows of the names `catalog/groups.yaml` lists, shows the model its facts, and checks groups (gate C, static findings); it never places an item at run time ([grouping.md](grouping.md) Identified items).
 
-| Component status | Meaning | Seed (`../../tools/seed_groups.py`) |
+| Component status | Meaning | Contract row of a listed name |
 |---|---|---|
 | `known` | read from the name, `resolved` or the key contract | a row when all are known |
 | `convention` | a provider's habit nothing recorded confirms: PSS MGF1 and salt, PBE KDF, curve by key (EdDSA, XDH, ML-DSA), a missing key contract on a Cipher, Signature, Mac or KeyAgreement (`key: assumed`), a generator's consumer | a row stating it `(assumed)`; a group of two or more gets `convention_assumed` |

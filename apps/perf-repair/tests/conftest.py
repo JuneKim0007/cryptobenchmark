@@ -8,7 +8,7 @@ from perfrepair.catalog import groups as group_catalog_file
 from perfrepair.catalog.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.failure import last_failure
-from perfrepair.grouping import signature
+from perfrepair.catalog import signature
 from perfrepair.log.attach import SINK
 from perfrepair.stop import policy
 
@@ -66,7 +66,7 @@ def detached_log():
 def no_group_catalog(monkeypatch, tmp_path_factory):
     """An empty catalog/groups.yaml, so a fixture's names are all unidentified."""
     empty = tmp_path_factory.mktemp("no-group-catalog") / "groups.yaml"
-    empty.write_text('{schemaVersion: 1, source: test, families: {}}')
+    empty.write_text('{schemaVersion: 2, source: test, groups: {}}')
     monkeypatch.setattr(group_catalog_file, "CATALOG", empty)
     group_catalog_file.group_catalog.cache_clear()
     yield

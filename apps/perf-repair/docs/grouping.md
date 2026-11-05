@@ -2,7 +2,7 @@
 
 ## Criterion
 
-Two primitives share a group only when all three contracts match, inside one family.
+The 9 families are the predefined groups (`catalog/groups.yaml`: `{description, algorithms}` per family). Inside a group, two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
 
 | Contract | Covers | Splits a group | Evidence |
 |---|---|---|---|
@@ -13,7 +13,7 @@ Two primitives share a group only when all three contracts match, inside one fam
 - Boundary: the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared.
 - Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
 
-Catalog and signature: `catalog/groups.yaml` and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name is placed without a model; the signature seeds the catalog offline (`../../tools/seed_groups.py`, its output reviewed and committed) and checks groups; it never places an item at run time. A group is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
+Catalog and signature: `catalog/groups.yaml` and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name whose signature is decided is placed in a contract row without a model; a listed name it leaves open, and an unlisted name, go to the model. The signature also checks rows; it never places an unlisted item. A contract row is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
 
 ## Key contract
 

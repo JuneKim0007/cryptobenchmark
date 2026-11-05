@@ -11,7 +11,7 @@ from ...dto.grouping_output import Finding
 from ...files import read_yaml
 from ...log import run_id
 
-SOURCE = "model answers of grouping assign, unreviewed; a person promotes a row into catalog/groups.yaml"
+SOURCE = "model answers of grouping assign, unreviewed; a person adds a name to a group of catalog/groups.yaml"
 MODEL, CATALOG = "model", "catalog"
 
 

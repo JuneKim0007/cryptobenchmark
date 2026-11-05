@@ -3,11 +3,19 @@ from __future__ import annotations
 
 from string import Template
 
-from ..catalog.interchange import KEY_ASKED, KEY_NONE, Engine, Interchange, Rule, interchange
-from ..catalog.names import Names, NamesError, fold
 from ..dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
-from ..dto.signature import CONVENTION, EXPORTABLE, KEY_MATERIAL, NON_EXPORTABLE, UNKNOWN, Component, Signature
-from ..catalog.resolved import digest_name, function_parameters
+from ..dto.signature import (
+    CONVENTION,
+    EXPORTABLE,
+    KEY_MATERIAL,
+    NON_EXPORTABLE,
+    UNKNOWN,
+    Component,
+    Signature,
+)
+from .interchange import KEY_ASKED, KEY_NONE, Engine, Interchange, Rule, interchange
+from .names import Names, NamesError, fold
+from .resolved import digest_name, function_parameters
 
 NAME, KEY = "name", "key"
 MATERIAL_OF_CONTRACT = {KEY_APP_HELD: EXPORTABLE, KEY_PROVIDER_HELD: NON_EXPORTABLE}

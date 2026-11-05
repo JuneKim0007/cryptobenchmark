@@ -16,9 +16,9 @@
 | `app_id(device, path)` | `src/perfrepair/app/facts/path_id.py` | The folder for --app: its own id, else the unit of a multi-root folder that recorded this path as its root. | ai.__main__, repair.__main__, report.__main__ |
 | `path_id(path)` | `src/perfrepair/app/facts/path_id.py` | - | app.__main__, guide.state, guide.target_file |
 | `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, ai.review.grouping_review.kind, grouping.report.candidates, grouping.report.rules +3 |
-| `interchange()` | `src/perfrepair/catalog/interchange.py` | `load()` | ai.parse.grouping_assign.render, catalog.groups, grouping.signature |
-| `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.groups, catalog.screening, catalog.types, catalog.upgrades +7 |
-| `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | grouping.report.rules, grouping.signature, screen.groups |
+| `interchange()` | `src/perfrepair/catalog/interchange.py` | `load()` | ai.parse.grouping_assign.render, catalog.groups, catalog.signature |
+| `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.groups, catalog.screening, catalog.signature, catalog.types +7 |
+| `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | catalog.signature, grouping.report.rules, screen.groups |
 | `parsed(load, run)` | `src/perfrepair/check/device.py` | The loaded document, or the problem a malformed file is. | check.apps, check.grouping, check.run |
 | `add_config_arg(parser)` | `src/perfrepair/config/args.py` | - | ai.runtime.gateway.args, app.__main__, data_handler.inbound.__main__, grouping.__main__ +3 |
 | `load_settings(parser, args)` | `src/perfrepair/config/args.py` | - | ai.__main__, app.__main__, config.device_results, data_handler.inbound.__main__ +5 |

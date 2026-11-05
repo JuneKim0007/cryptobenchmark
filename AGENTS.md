@@ -138,7 +138,6 @@ tools/lint/paths.py : routers, guides, docs and graphed files by path
 tools/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 tools/module-isolation/ : per-module isolated compile and test
 tools/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
-tools/seed_groups.py : proposes rows of apps/perf-repair's catalog/groups.yaml from the signature over every catalogued name, for a person to review; never run by a pipeline
 tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph
 tools/tests/ : pytest for the repo dev tools
 ```
