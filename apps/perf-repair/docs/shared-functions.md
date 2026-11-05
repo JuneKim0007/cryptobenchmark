@@ -2,12 +2,11 @@
 
 | function | module | rule | callers |
 |---|---|---|---|
-| `inputs(path)` | `src/perfrepair/ai/runtime/engine/charter_file.py` | The run inputs of a recorded charter. | ai.parse.grouping_assign.kind, ai.runtime.engine.refresh, check.grouping |
-| `decide(kind, charter, conversations, root, limits, limit, echo, where)` | `src/perfrepair/ai/runtime/engine/decide.py` | - | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +3 |
+| `decide(kind, charter, conversations, root, limits, limit, echo, where)` | `src/perfrepair/ai/runtime/engine/decide.py` | - | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +2 |
 | `project(kind, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | - | ai.runtime.engine.decide, ai.suggest.site_replace.command, check.apps, device.used +1 |
-| `replay_problems(kind, state, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | The state is one version per committed record and equals the projection of the outbox. | ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.kind, ai.parse.grouping_assign.kind, ai.repair.upgrade.kind +3 |
+| `replay_problems(kind, state, records)` | `src/perfrepair/ai/runtime/engine/kind.py` | The state is one version per committed record and equals the projection of the outbox. | ai.evaluate.worthiness.kind, ai.parse.algorithm_classify.kind, ai.parse.grouping_assign.kind, ai.repair.upgrade.kind +2 |
 | `active_outbox(root)` | `src/perfrepair/ai/runtime/engine/outbox.py` | The run's outbox, for every reader; NoOutbox when nothing was ever committed. | ai.parse.grouping_assign.kind, ai.runtime.engine.refresh, ai.suggest.site_replace.command, check.apps +6 |
-| `role_run(role, device)` | `src/perfrepair/ai/runtime/engine/tracking.py` | A role's whole run; refused before any call when a required input is missing. A required catalog counts as read | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +3 |
+| `role_run(role, device)` | `src/perfrepair/ai/runtime/engine/tracking.py` | A role's whole run; refused before any call when a required input is missing. A required catalog counts as read | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.parse.grouping_assign.command, ai.repair.upgrade.command +2 |
 | `add_agent_args(parser, role)` | `src/perfrepair/ai/runtime/gateway/args.py` | Unset flags resolve per role in `spawn` (docs/settings.md). | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `spawn(args, settings, dry_run)` | `src/perfrepair/ai/runtime/gateway/spawn.py` | dry_run: the role's stand-in answers, for the gateway that answers without a model. | ai.__main__, grouping.__main__, guide.command, review.__main__ |
 | `add_prompt_args(parser)` | `src/perfrepair/ai/runtime/prompt/args.py` | - | ai.__main__, grouping.__main__, guide.command, review.__main__ |
@@ -17,7 +16,7 @@
 | `path_id(path)` | `src/perfrepair/app/facts/path_id.py` | - | app.__main__, guide.state, guide.target_file |
 | `algorithm_id(engine_type, canonical)` | `src/perfrepair/catalog/algorithms.py` | `f'{engine_type}{SEPARATOR}{canonical}'` | catalog.groups, catalog.views, probe.identified, validation.catalogue_entry |
 | `algorithms()` | `src/perfrepair/catalog/algorithms.py` | `load()` | catalog.groups, catalog.types, catalog.views |
-| `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, ai.review.grouping_review.kind, catalog.identity, catalog.views +7 |
+| `group_catalog()` | `src/perfrepair/catalog/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, catalog.identity, catalog.views, grouping.report.candidates +6 |
 | `interchange()` | `src/perfrepair/catalog/interchange.py` | `load()` | ai.parse.grouping_assign.render, catalog.groups, catalog.signature |
 | `fold(name)` | `src/perfrepair/catalog/names.py` | `name.upper()` | catalog.algorithms, catalog.groups, catalog.screening, catalog.signature +10 |
 | `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | catalog.signature, grouping.report.rules, probe.identified |
@@ -42,12 +41,12 @@
 | `parse_yaml(text, where, code, shape, error)` | `src/perfrepair/dto/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | catalog.bundled_providers, catalog.screening, files |
 | `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon, `person_judges` its reject reasons. | ai.repair.upgrade.kind, repair.dossier, result.configurations, validation.dossiers.document |
 | `algorithm_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[1]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades +1 |
-| `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.review.grouping_review.render, ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate +8 |
+| `parse_qualified(text)` | `src/perfrepair/dto/grouping.py` | - | ai.suggest.site_replace.rows, device.delta_config, device.delta_estimate, device.measured_check +7 |
 | `provider_of(item)` | `src/perfrepair/dto/grouping.py` | `parse_qualified(item)[2]` | ai.repair.upgrade.render, ai.suggest.site_replace.options, ai.suggest.site_replace.render, catalog.names +6 |
 | `qualified(engine_type, name, provider)` | `src/perfrepair/dto/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | catalog.identity, device.measured_check, device.missing_rows, device.selection_adds +9 |
-| `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, check.device, check.grouping +8 |
+| `read_items(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, check.device, check.grouping, device.gate +7 |
 | `read_profiles(doc)` | `src/perfrepair/dto/grouping.py` | - | ai.parse.grouping_assign.kind, grouping.interop_plan, review.sheet, validation.grouping.output |
-| `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, ai.review.grouping_review.kind, grouping.report.rules, validation.grouping.code_groups +1 |
+| `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, grouping.report.rules, validation.grouping.code_groups, validation.grouping.knowledge |
 | `pair_status(groups, a, b)` | `src/perfrepair/dto/interop.py` | - | result.evidence, result.options, result.unit_dossiers, validation.dossiers.against_run |
 | `required_risks(scope, option)` | `src/perfrepair/dto/replacement.py` | Each risk the scope facts, and the chosen option's when given, imply, with the plain words that imply it. | ai.suggest.site_replace.options, ai.suggest.site_replace.render, result.upgrades, validation.replacements +1 |
 | `has_views(metric)` | `src/perfrepair/dto/report.py` | A metric throughput selects is time: its row carries latency and throughput in the display units. | ai.evaluate.worthiness.render, ai.suggest.site_replace.rows, report.metrics, validation.report_metrics |
@@ -61,11 +60,11 @@
 | `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.repair.upgrade.kind, ai.runtime.engine.kind, ai.suggest.site_replace.kind, device.coverage +1 |
-| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, ai.runtime.engine.charter_file +33 |
+| `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +32 |
 | `read_jsonl(path)` | `src/perfrepair/files.py` | - | ai.runtime.engine.journal, log.read, validation.events |
 | `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +31 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | ai.runtime.engine.tracking, device.gate_after, device.primitives, device.seen +6 |
-| `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.repair.upgrade.kind, ai.review.grouping_review.kind, ai.suggest.site_replace.kind +3 |
+| `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.repair.upgrade.kind, ai.suggest.site_replace.kind, app.facts.path_id +2 |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.evaluate.worthiness.command, ai.parse.algorithm_classify.command, ai.runtime.engine.charter_file, ai.runtime.engine.decide +12 |
 | `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.interop +11 |
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | device.benchmark_coverage, device.delta, device.delta_config, device.delta_merge +4 |
@@ -75,8 +74,6 @@
 | `emit(stage, step, event, kind, item, app, outcome, durationMs, tokens, costUsd, ref, detail, data, level)` | `src/perfrepair/log/emit.py` | - | ai.evaluate.worthiness.command, ai.runtime.engine.decide, ai.runtime.engine.events, ai.suggest.site_replace.command +12 |
 | `step(stage, name, kind, item, app, detail, data)` | `src/perfrepair/log/emit.py` | - | app.__main__, device.bundled, device.gate, device.inbound +9 |
 | `status_line(e)` | `src/perfrepair/log/status.py` | - | log.progress, log.summary, log.views |
-| `identified(item, verdicts)` | `src/perfrepair/probe/identified.py` | Never asked: screened out, or listed; never without screen.json: runs built before screening ask every item. | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, validation.grouping.code_groups |
-| `screened_out(verdict)` | `src/perfrepair/probe/identified.py` | `verdict is not None and verdict.status in CODE_GROUPED` | screen.groups, validation.grouping.code_groups |
 | `string_literal(value, language)` | `src/perfrepair/repair/edit/literal.py` | - | repair.edit.algorithm, repair.edit.provider, repair.edit.specs |
 | `apply(text, splices)` | `src/perfrepair/repair/edit/splice.py` | Newlines inside a replaced span follow the new text, so a scope's lines `start..end` stay put in the copy. | repair.edit.alone, repair.edit.app, repair.edit.plan |
 | `reach(scope)` | `src/perfrepair/result/change.py` | A field keeps the object past the function, so where its output goes is not read: unknown, never local. | ai.repair.upgrade.render, result.options, result.upgrades |
@@ -126,8 +123,7 @@
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |
 | `check_dossier(raw, app, perf, max_change, gained)` | `src/perfrepair/validation/dossiers/dossier.py` | One dossier on its own: its scope, its items, its aliases R1..Rn, its pins, interop labels, estimates of | ai.repair.upgrade.kind, ai.suggest.site_replace.kind, validation.dossiers.against_run, validation.dossiers.parse |
 | `require(what, problems)` | `src/perfrepair/validation/failure.py` | - | ai.evaluate.worthiness.command, ai.runtime.engine.decide, ai.suggest.site_replace.command, app.__main__ +13 |
-| `read_groups(paths)` | `src/perfrepair/validation/grouping/output.py` | - | ai.evaluate.worthiness.command, ai.review.grouping_review.kind, check.run, grouping.interop_plan +1 |
-| `parse_object(text)` | `src/perfrepair/validation/json_reply.py` | - | validation.evaluate.worthiness, validation.parse.algorithm_classify, validation.parse.grouping_assign, validation.review.grouping_review +2 |
+| `read_groups(paths)` | `src/perfrepair/validation/grouping/output.py` | - | ai.evaluate.worthiness.command, check.run, grouping.interop_plan, repair.dossier |
+| `parse_object(text)` | `src/perfrepair/validation/json_reply.py` | - | validation.evaluate.worthiness, validation.parse.algorithm_classify, validation.parse.grouping_assign, validation.suggest.site_replace +1 |
 | `validate_manifest(manifest, base)` | `src/perfrepair/validation/manifest.py` | - | app.__main__, check.device, device.inbound |
 | `validate_measurements(m, rows)` | `src/perfrepair/validation/measurements.py` | - | ai.evaluate.worthiness.command, check.device, device.inbound, device.primitives +1 |
-| `read_checked_screen(paths)` | `src/perfrepair/validation/screen.py` | screen.json's verdicts, refused unless valid and built with this run's items and profiles; None without it. | ai.parse.grouping_assign.kind, ai.review.grouping_review.kind, validation.grouping.output |

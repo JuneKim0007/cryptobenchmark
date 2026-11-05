@@ -102,7 +102,6 @@ def _model_turns(tmp_path):
              tokens={"input": 10, "output": 2}, costUsd=0.001, ref=str(tmp_path / "grouping/journal.jsonl") + ":1",
              data={"session": 1, "turn": 1, "problems": ["gate: no such group"]})
         emit("screening", "classify", "turn", kind="model", item="b1", outcome="accepted", data={"session": 1, "turn": 1})
-        emit("grouping", "review", "turn", kind="model", item="g1", outcome="accepted")
         emit("worthiness", "latency", "decision", kind="model", item="w1", outcome="decided")
         emit("replace", "site-replace", "turn", kind="model", item="u1", outcome="accepted")
         emit("grouping", "build", "end", outcome="ok")
@@ -117,9 +116,8 @@ def test_each_view_is_the_render_of_the_events_it_was_written_from(tmp_path, log
         assert (path.read_text() if path.exists() else "") == "".join(line + "\n" for line in lines)
     grouping = (tmp_path / rd.AI_GROUPING_LOG).read_text()
     assert "i1" in grouping and "grouping/journal.jsonl:1" in grouping
-    assert "no such group" in grouping and "b1" not in grouping and "g1" not in grouping
+    assert "no such group" in grouping and "b1" not in grouping
     assert "b1" in (tmp_path / rd.AI_CLASSIFY_LOG).read_text() and not (tmp_path / rd.AI_SCREENING_LOG).exists()
-    assert "g1" in (tmp_path / rd.AI_SUPERVISOR_LOG).read_text()
     assert "w1" in (tmp_path / rd.AI_WORTHINESS_LOG).read_text() and "u1" in (tmp_path / rd.AI_REPLACE_LOG).read_text()
     assert not (tmp_path / "log/grouping").exists() and not (tmp_path / "log/screening").exists()
 

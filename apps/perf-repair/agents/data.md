@@ -133,7 +133,7 @@ src/perfrepair/log/status.py : the status view: one line per outcome (run header
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
 src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines
 src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last
-src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage>.log per model stage (AI_LOGS: screening, classify, grouping, supervisor, worthiness, replace), bug.log, status.log; render() recomputes them
+src/perfrepair/log/views.py : the views, each a function of one event: ai/<stage>.log per model stage (AI_LOGS: screening, classify, grouping, worthiness, replace), bug.log, status.log; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
 src/perfrepair/run_dir/__init__.py : re-exports layout and read: the `run_dir` namespace every reader uses
 src/perfrepair/run_dir/layout.py : device folder: artifact names (`.lock`, `runs/` included), finished devices of a root, worthiness-<perfMode> folders, the run log paths (log/: events, status, ai/<stage>, bug, pipeline/, details/primitives_missing.yaml, details/benchmark_coverage.yaml), used-testset.yaml, not_device_results, app folders; AppPaths and GroupingPaths, the only definitions of <app>/ and grouping/ paths, cryptobenchmark's `measured/scoped/` files included

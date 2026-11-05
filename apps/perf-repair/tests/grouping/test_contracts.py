@@ -10,7 +10,6 @@ from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.parse.grouping_assign.render import render
-from perfrepair.ai.review.grouping_review.render import render as review_render
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, Item, Profile, profiles_document, read_profiles
@@ -65,14 +64,6 @@ def test_assign_shows_no_key_line_for_unknown():
     assert "key:" not in rendered(KEY_UNKNOWN, KEY_UNKNOWN)
 
 
-def test_review_shows_the_key_of_known_members():
-    items = {"1": {"qualified": "TypeC|S/M|P1", "keyContract": KEY_APP_HELD},
-             "2": {"qualified": "TypeC|S/M|P2", "keyContract": KEY_UNKNOWN}}
-    text = review_render("f", "d", [{"id": "g", "description": "g", "members": [1, 2]}], items, [])
-    assert "1 · S/M · P1 · key: application-held" in text
-    assert re.search(r"^  2 · S/M · P2$", text, re.M)
-
-
 def test_a_contract_outside_the_set_is_refused():
     assert any("key contract" in p for p in validate_items(
         [ITEMS[1]], {1: Profile("secret", "measured", True, True, keyContract="elsewhere")}, FAMILIES))
@@ -83,9 +74,8 @@ def test_profiles_of_the_old_schema_are_refused():
         read_profiles({"schemaVersion": 1, "profiles": {}})
 
 
-@pytest.mark.parametrize("name", ["parse/grouping-assign", "review/grouping-review"])
-def test_the_prompts_are_directives_with_the_three_contracts(name):
-    text = LIBRARY.system(name, id_pattern="P", max_description=9).text if name.startswith("parse") else LIBRARY.system(name).text
+def test_the_prompt_is_directives_with_the_three_contracts():
+    text = LIBRARY.system("parse/grouping-assign", id_pattern="P", max_description=9).text
     assert not re.search(r"\b(because|so that|costs?|since|in order to|why)\b", text, re.I)
     assert all(c in text for c in ("input contract", "key contract", "output contract", "application-held", "inside the provider"))
     assert "key store" not in text

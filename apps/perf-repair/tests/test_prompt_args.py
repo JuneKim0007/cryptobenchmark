@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import pytest
@@ -7,14 +6,10 @@ from perfrepair import run_dir as rd
 from perfrepair.ai.__main__ import main as ai
 from perfrepair.ai.evaluate.worthiness.kind import charter as worthiness_charter
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter as assign_charter
-from perfrepair.ai.review.grouping_review.kind import GroupingReviewKind
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.data_handler.inbound.__main__ import main as inbound
-from perfrepair.catalog.screening import SCREENING
-from perfrepair.check.run import validate_run
 from perfrepair.grouping.__main__ import main as grouping
-from perfrepair.screen.catalog import load_catalog
 from perfrepair.run_dir import GroupingPaths
 from helpers import with_results
 
@@ -30,14 +25,6 @@ def run(tmp_path):
     return run
 
 
-@pytest.fixture
-def override(tmp_path):
-    folder = tmp_path / "prompts"
-    (folder / "review").mkdir(parents=True)
-    (folder / "review" / "grouping-review.system.md").write_text("REVIEW OVERRIDE")
-    return folder
-
-
 def overriding(tmp_path, relative, extra):
     folder = tmp_path / "prompts"
     (folder / relative).parent.mkdir(parents=True)
@@ -49,34 +36,12 @@ def outboxes(root):
     return sorted(p.name for p in (root / "outbox").iterdir() if p.is_dir())
 
 
-def supervised(run, *extra):
-    assert grouping(["assign", "--device-results", str(run), *DRY, *extra]) == 0
-    assert grouping(["report", "--device-results", str(run), "--supervisor", *DRY, *extra]) == 0
-    return json.loads(GroupingPaths(run).supervisor.read_text())
-
-
-def test_the_stage_replay_checks_supervisor_json(run):
-    supervised(run)
-    assert validate_run(run, load_catalog(SCREENING))["grouping/supervisor.json"] == []
-    path = GroupingPaths(run).supervisor
-    path.write_text(json.dumps({**json.loads(path.read_text()), "charter": "000000000000"}))
-    assert "names charter 000000000000" in validate_run(run, load_catalog(SCREENING))["grouping/supervisor.json"][0]
-
-
-def test_an_override_folder_is_used_and_recorded(run, override):
-    doc = supervised(run, "--prompts", str(override))
-    assert doc["charter"] == GroupingReviewKind(GroupingPaths(run), PromptLibrary.load(override)).charter.fingerprint
-    assert doc["charter"] != GroupingReviewKind(GroupingPaths(run), PromptLibrary.load()).charter.fingerprint
-    assert doc["prompts"]["review/grouping-review"] == str(override / "review" / "grouping-review.system.md")
-
-
-@pytest.mark.parametrize("command", [["assign"], ["report", "--supervisor"]])
-def test_a_typo_file_exits_2_before_any_work(run, tmp_path, capsys, command):
+def test_a_typo_file_exits_2_before_any_work(run, tmp_path, capsys):
     typo = tmp_path / "typo"
-    (typo / "review").mkdir(parents=True)
-    (typo / "review" / "grouping-reveiw.system.md").write_text("x")
+    (typo / "parse").mkdir(parents=True)
+    (typo / "parse" / "grouping-asign.system.md").write_text("x")
     with pytest.raises(SystemExit) as exit_:
-        grouping([*command, "--device-results", str(run), *DRY, "--prompts", str(typo)])
+        grouping(["assign", "--device-results", str(run), *DRY, "--prompts", str(typo)])
     assert exit_.value.code == 2
     assert "error: prompt_unknown" in capsys.readouterr().err
     assert sorted(p.name for p in GroupingPaths(run).root.iterdir()) == ["items.json", "profiles.json", "screen.json"]
@@ -115,9 +80,3 @@ def test_worthiness_with_an_override_decides_into_a_new_outbox_beside_the_defaul
     assert outboxes(root) == sorted([default, overridden])
 
 
-def test_report_refuses_prompts_without_the_supervisor(run, override, capsys):
-    assert grouping(["assign", "--device-results", str(run), *DRY]) == 0
-    with pytest.raises(SystemExit) as exit_:
-        grouping(["report", "--device-results", str(run), "--prompts", str(override)])
-    assert exit_.value.code == 2
-    assert "--prompts only applies with --supervisor" in capsys.readouterr().err

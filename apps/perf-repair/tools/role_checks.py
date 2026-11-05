@@ -17,7 +17,6 @@ from perfrepair.ai.evaluate.worthiness import command as worthiness
 from perfrepair.ai.parse.algorithm_classify import command as classify
 from perfrepair.ai.parse.grouping_assign import command as assign
 from perfrepair.ai.repair.upgrade import command as upgrade
-from perfrepair.ai.review.grouping_review import command as review
 from perfrepair.ai.runtime.engine.events import TOKEN_KEYS
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.runtime.engine.tracking import MissingInput
@@ -62,8 +61,6 @@ RUNNERS = {
     "screening.classify": Runner(table.SCREENING_CLASSIFY, classify.DRY_RUN, _classify),
     "grouping.assign": Runner(table.GROUPING_ASSIGN, assign.DRY_RUN,
                               lambda d, a, c: assign.assign(rd.GroupingPaths(d), a, c.library)),
-    "grouping.supervisor": Runner(table.GROUPING_SUPERVISOR, review.DRY_RUN,
-                                  lambda d, a, c: review.review(rd.GroupingPaths(d), a, c.library, **QUIET)),
     "worthiness": Runner(table.WORTHINESS, worthiness.DRY_RUN,
                          lambda d, a, c: worthiness.worthiness(d, mode_of(PerfMode.parse(c.mode)), a, c.library, **QUIET)),
     "apps.replace": Runner(table.APPS_REPLACE, replace.DRY_RUN, lambda d, a, c: replace.replace(d, c.app, a, c.library, **QUIET)),

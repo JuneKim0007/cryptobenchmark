@@ -62,7 +62,6 @@
 |---|---|---|---|
 | `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none | 2500; 2018, ten services of an API 30 capture |
 | `grouping assign` | `device.grouping.assign` | effort `low` | 8500; 7300, `signature.pair` with its 68 catalog groups |
-| `grouping report --supervisor` | `device.grouping.supervisor` | none | 6500; 5369, `signature.pair` unfiltered on a device run |
 | `ai worthiness` | `device.worthiness` | none | 6500; 5595, one group of a host run |
 | `guide` | `apps.agent` | none | 6000, as `ai replace` |
 | `ai replace` | `apps.replace` | none | 6000; 4878, the largest of 53 units across real runs |

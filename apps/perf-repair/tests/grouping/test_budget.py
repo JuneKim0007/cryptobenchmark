@@ -5,11 +5,10 @@ from dataclasses import replace
 
 import pytest
 import yaml
-from conftest import CHARTER, LIBRARY, QUIET, by_name
+from conftest import CHARTER, QUIET, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
-from perfrepair.ai.review.grouping_review import command as review_cmd
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits, ask
 from perfrepair.ai.runtime.engine.budget import Budget, OverBudget, measure
@@ -20,8 +19,7 @@ from perfrepair.dto.grouping_state import Group, Knowledge
 from perfrepair.dto.prompt import TaskPrompt
 from perfrepair.dto.signature import CONVENTION, KNOWN, UNKNOWN, Component, Signature
 from perfrepair.failure import reported
-from perfrepair.grouping.report.checks import report
-from perfrepair.inputs.table import GROUPING_SUPERVISOR
+from perfrepair.inputs.table import GROUPING_ASSIGN
 from perfrepair.log import attach
 from perfrepair.log.read import read_events
 from perfrepair.stop import CODES
@@ -141,31 +139,22 @@ def test_a_raised_budget_resumes_where_the_stop_left_off(paths):
     assert knowledge.version == len(GroupingKind(paths, FAMILIES).pending())
 
 
-def test_another_role_over_budget_stops_without_a_prefilter(paths):
-    decide(GroupingKind(paths, FAMILIES), CHARTER, ScriptedConversations(by_name), paths.root, **QUIET)
-    report(paths, FAMILIES)
-    conversations = scripted(lambda *_: {"findings": []}, 10, "device.grouping.supervisor.budget")
-    with pytest.raises(OverBudget) as e:
-        review_cmd.review(paths, conversations, LIBRARY, **QUIET)
-    assert "device.grouping.supervisor.budget is 10," in str(e.value) and "prefilter" not in str(e.value)
-    assert conversations.started == 0
-
-
 def test_a_direct_ask_is_checked_too():
-    with pytest.raises(OverBudget):
+    with pytest.raises(OverBudget) as e:
         ask(scripted(by_name, 1), CHARTER, TaskPrompt("n", "x" * 100, "i"), lambda t: (None, []), Limits())
+    assert "prefilter" not in str(e.value)
 
 
 def spawned(settings):
-    args = argparse.Namespace(agent="dry-run", auth=None, model=None, effort=None, agent_role=GROUPING_SUPERVISOR)
+    args = argparse.Namespace(agent="dry-run", auth=None, model=None, effort=None, agent_role=GROUPING_ASSIGN)
     return spawn(args, settings, ScriptedConversations(by_name))
 
 
 def test_spawn_hands_the_engine_the_roles_budget_and_a_stop_is_one_coded_line(tmp_path, capsys):
-    assert spawned(load(None, {}, {})).budget == Budget(GROUPING_SUPERVISOR.budget_row.key, GROUPING_SUPERVISOR.budget)
+    assert spawned(load(None, {}, {})).budget == Budget(GROUPING_ASSIGN.budget_row.key, GROUPING_ASSIGN.budget)
     config = tmp_path / "c.yaml"
-    config.write_text("device: {grouping: {supervisor: {budget: 1}}}\n")
+    config.write_text("device: {grouping: {assign: {budget: 1}}}\n")
     conversations = spawned(load(config, {}, {}))
     assert reported(lambda: ask(conversations, CHARTER, TaskPrompt("n", "x", "i"), lambda t: (None, []), Limits())) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith(
-        "error over_budget: device.grouping.supervisor.budget is 1, item i measures ")
+        "error over_budget: device.grouping.assign.budget is 1, item i measures ")

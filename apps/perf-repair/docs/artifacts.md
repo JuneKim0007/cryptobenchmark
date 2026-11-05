@@ -49,7 +49,6 @@
 | `runs/run_<id>.json` | `RunRecord` (`run_dir/run_record.py`), written durably after the device stage and each app step | people | none: [Run record](#run-record) |
 | `.lock` | the guide and probe_device(), `fcntl.flock`, the holder's pid | a second run: `device_busy` | none |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
-| `grouping/supervisor.json` | grouping report --supervisor | people, validation | `check/grouping.py`: its `charter` is the active `grouping/review` outbox, its families the outbox's replay, the outbox's inputs the current messages |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
 | `log/status.log`, `log/ai/<stage>.log`, `log/bug.log` | the event sink, from the same events | people, log summary (status) | none: `log/views.py` renders them; [run-log.md](run-log.md) |
 | `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |

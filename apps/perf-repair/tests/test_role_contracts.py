@@ -15,7 +15,6 @@ from perfrepair.ai.evaluate.worthiness.kind import charter as worthiness_charter
 from perfrepair.ai.parse.algorithm_classify.kind import charter as classify_charter
 from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
 from perfrepair.ai.repair.upgrade.kind import charter as upgrade_charter
-from perfrepair.ai.review.grouping_review.kind import charter as review_charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.runtime.engine.tracking import MissingInput, role_run, stamp
@@ -30,7 +29,7 @@ from perfrepair.stop import code_of
 BY_NAME = {r.name: r for r in ROLES}
 GOLDEN = Path(__file__).parent / "fixtures" / "role_renders"
 CHARTERS = {"screening.classify": classify_charter(LIBRARY, ""), "grouping.assign": assign_charter(LIBRARY),
-            "grouping.supervisor": review_charter(LIBRARY), "worthiness": worthiness_charter(LIBRARY),
+            "worthiness": worthiness_charter(LIBRARY),
             "apps.replace": replace_charter(LIBRARY), "repair-upgrade": upgrade_charter(LIBRARY),
             "review.stability": replace_charter(LIBRARY)}
 ROLE = pytest.mark.parametrize("role", ROLES, ids=lambda r: r.name)

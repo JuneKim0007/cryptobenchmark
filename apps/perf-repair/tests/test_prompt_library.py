@@ -10,7 +10,6 @@ def test_packaged_prompts_load_and_fill_only_declared_values():
     assert library.system("evaluate/worthiness").text == (PACKAGED / "evaluate" / "worthiness.system.md").read_text()
     filled = library.system("parse/grouping-assign", id_pattern="P", max_description=9).text
     assert "{id_pattern}" not in filled and "{max_description}" not in filled
-    assert "{`kind`" in library.system("review/grouping-review").text
 
 
 def test_the_charter_corrects_with_the_rejection_template():

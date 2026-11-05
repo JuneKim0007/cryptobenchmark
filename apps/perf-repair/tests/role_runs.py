@@ -16,13 +16,12 @@ from perfrepair.ai.parse.algorithm_classify.command import Reviewer, classify
 from perfrepair.ai.parse.algorithm_classify.kind import ClassifyKind
 from perfrepair.ai.parse.grouping_assign.command import assign
 from perfrepair.ai.repair.upgrade.command import upgrade
-from perfrepair.ai.review.grouping_review.command import review
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.kind import rebuild_problems
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.ai.suggest.site_replace.command import replace
 from perfrepair.check.apps import check_repair, check_stability
-from perfrepair.check.grouping import check_grouping, check_supervisor, check_worthiness
+from perfrepair.check.grouping import check_grouping, check_worthiness
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.dto.classify import Batch, Evidence, read_batches
 from perfrepair.dto.screen import UNKNOWN, Verdict
@@ -55,14 +54,6 @@ def _classify_replay(device):
 
 def _assign(device, conversations):
     assign(GroupingPaths(device), conversations, LIBRARY)
-
-
-def _review(device, conversations):
-    review(GroupingPaths(device), conversations, LIBRARY, **QUIET)
-
-
-def _supervisor_replay(device):
-    return [p for found in check_supervisor(GroupingPaths(device)).values() for p in found]
 
 
 def _worthiness(device, conversations):
@@ -122,9 +113,6 @@ ROLES = (
          _classify_replay, lambda d: [GroupingPaths(d).classified], "id 99"),
     Role("grouping.assign", {}, _assign, same_name, _first_group,
          lambda d: check_grouping(GroupingPaths(d)), lambda d: [GroupingPaths(d).knowledge, GroupingPaths(d).cursor], "ghost-group", "built"),
-    Role("grouping.supervisor", {}, _review, lambda *_: {"findings": []},
-         lambda *_: {"findings": [{"kind": "describe", "groups": ["ghost-group"], "items": [], "reason": "r"}]},
-         _supervisor_replay, lambda d: [GroupingPaths(d).supervisor], "ghost-group"),
     Role("worthiness", {"mode": LATENCY.name}, _worthiness, first_improving_pair,
          lambda *_: {"decision": "test", "pairs": [{"from": "M99", "to": "M1", "reason": "r"}], "reason": "r"},
          _worthiness_replay, lambda d: [rd.worthiness(d, LATENCY.name) / rd.VERDICTS], "members"),

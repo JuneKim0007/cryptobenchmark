@@ -13,7 +13,7 @@ from perfrepair.config.settings import ConfigError
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.inputs.check import check_any, check_text
 from perfrepair.inputs.table import (AI_GATEWAY_KEY, AI_GATEWAY_USE, APPS_AGENT, APPS_REPLACE, GROUPING_ASSIGN, GROUPING_LIMIT,
-                                     GROUPING_SESSIONS, GROUPING_SUPERVISOR, GROUPING_TURNS, WORTHINESS)
+                                     GROUPING_SESSIONS, GROUPING_TURNS, WORTHINESS)
 
 
 def write(path, text):
@@ -94,7 +94,7 @@ def test_a_role_section_never_supplies_a_gateway_only_key(tmp_path):
     ({}, {"PERFREPAIR_EFFORT": "max"}, "", ".env PERFREPAIR_EFFORT")])
 def test_every_gateway_wide_layer_raises_every_role_including_assign(tmp_path, environ, dot, text, source):
     loaded = load(write(tmp_path / "c.yaml", text), environ, dot)
-    assert claude_values(loaded, GROUPING_ASSIGN)["effort"] == claude_values(loaded, GROUPING_SUPERVISOR)["effort"] == "max"
+    assert claude_values(loaded, GROUPING_ASSIGN)["effort"] == claude_values(loaded, WORTHINESS)["effort"] == "max"
     assert loaded.sources["device.grouping.assign.effort"].endswith(source)
 
 

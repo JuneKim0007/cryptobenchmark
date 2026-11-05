@@ -4,7 +4,6 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
-from perfrepair.ai.review.grouping_review.command import review
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
@@ -66,15 +65,6 @@ def test_groups_json_carries_code_groups_and_each_items_screen(paths):
     assert sorted(g["members"] for g in coded) == [[3, 4], [6]]
     assert all(g["description"].startswith("Code-made group of one algorithm") for g in coded)
     assert [p.group for p in write_plan(paths)].count(next(g["id"] for g in coded if g["members"] == [3, 4])) == 1
-
-
-def test_the_supervisor_reviews_model_groups_only(paths):
-    screen(paths)
-    assign(paths)
-    report(paths, FAMILIES)
-    seen = []
-    review(paths, ScriptedConversations(lambda m, *_: seen.append(m.text) or {"findings": []}), LIBRARY, **QUIET)
-    assert len(seen) == 3 and not any("code_" in text or "FAMILY digest.none" in text for text in seen)
 
 
 def test_an_answer_may_not_join_or_amend_a_code_made_group(paths):

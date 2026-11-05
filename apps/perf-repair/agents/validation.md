@@ -23,7 +23,7 @@
 src/perfrepair/check/apps.py : each app's dossiers.json against its scopes.json, units.json, groups.json and the app's screen verdicts; replacements.json against its dossiers and outbox, upgrades.json against its outbox, review/stability.json against its outbox, edits.json against its scopes, harness.yaml against its edits
 src/perfrepair/check/contracts.py : each role's folder against its row of catalog/role-contracts.yaml: prompt, schema, charter pin, tools; each call's inputs; each file written
 src/perfrepair/check/device.py : device-level files: manifest.yaml, primitives_missing.yaml and benchmark_coverage.yaml, measurements and run log beside rows (a malformed file is its problem), primitives.tsv against rows, measurements and screen.json, bundled-suggestions.yaml, used.json against items.json, each outbox's charter.json rehashed to its folder name, events.jsonl
-src/perfrepair/check/grouping.py : grouping files: the outbox and knowledge rebuilt by their kind, supervisor.json against the review outbox's replay and the current groups, screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed; each worthiness-<perfMode> folder under its own perfMode
+src/perfrepair/check/grouping.py : grouping files: the outbox and knowledge rebuilt by their kind, screen.json against the resolved catalog; the classify outbox, classified.json, model verdicts and registry-candidates.yaml when screen.json was reviewed; each worthiness-<perfMode> folder under its own perfMode
 src/perfrepair/check/run.py : stage replay: validate every artifact present in a device folder, each by its validator
 src/perfrepair/validation/__main__.py : command: validate a device folder by the resolved screening catalog (`--perfrepair-config`); exit 1 on any problem, 2 on bad usage or a missing catalog
 src/perfrepair/validation/answer_text.py : text rules answer schemas share: not blank, empty or a pattern, alias patterns
@@ -61,7 +61,6 @@ src/perfrepair/validation/repair.py : edits.json and harness.yaml: shape, reason
 src/perfrepair/validation/replacements.py : replacements: known scopes, a static keep with its code per noOptions scope, edits exactly the option's provider and pins, risks the scope and option imply; consistent_units
 src/perfrepair/validation/report.py : report.json: statuses, rows, funnel recount, each row's pattern, measuredBy, truth checks and categoryMismatch recomputed, recommendations above maxChange; schema_version_problems, shared with summary.json
 src/perfrepair/validation/report_metrics.py : a report row's metric rows: no number without a measurement, selected as the mode says, ratio, level, noise and change by the rule, the time row's views
-src/perfrepair/validation/review/grouping_review.py : gate C of grouping-review: KINDS, whose order feeds the review schema and its fingerprint; supervisor findings name only that family, arity per kind
 src/perfrepair/validation/rows.py : rows: unique ids, identity present, positive sizes, a known variant
 src/perfrepair/validation/run_log.py : run log: measured rows exist, every other entry has a reason
 src/perfrepair/validation/scoping/__init__.py : docstring only

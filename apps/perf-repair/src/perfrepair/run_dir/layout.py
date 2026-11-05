@@ -38,9 +38,9 @@ PRIMITIVES_MISSING = "log/details/primitives_missing.yaml"
 BENCHMARK_COVERAGE = "log/details/benchmark_coverage.yaml"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
-# one file per model stage; screening's classify and grouping's supervisor apart from their stage's other turns
+# one file per model stage; screening's classify apart from its stage's other turns
 AI_SCREENING_LOG, AI_CLASSIFY_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/classify.log", "log/ai/grouping.log"
-AI_SUPERVISOR_LOG, AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/supervisor.log", "log/ai/worthiness.log", "log/ai/replace.log"
+AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/worthiness.log", "log/ai/replace.log"
 CHARTER = "charter.json"
 ROLE_WRITES = "writes.json"
 JOURNAL = "journal.jsonl"
@@ -111,8 +111,6 @@ class GroupingPaths:
     journal = property(lambda self: self.root / JOURNAL)
     errors = property(lambda self: self.root / "errors.jsonl")
     checks = property(lambda self: self.root / "checks.json")
-    supervisor = property(lambda self: self.root / "supervisor.json")
-    review = property(lambda self: self.root / "review")
     groups = property(lambda self: self.root / "groups.json")
     interop_plan = property(lambda self: self.root / "interop_plan.yaml")
     interop = property(lambda self: self.root / "interop.yaml")

@@ -102,7 +102,6 @@ src/perfrepair/prompts/parse/algorithm-classify.system.md : system prompt: depre
 src/perfrepair/prompts/parse/grouping-assign.system.md : system prompt: the input, key and output contracts, what does not split, answer rules
 src/perfrepair/prompts/prompts.yaml : the prompt registry: name → file, lifetime, declared values
 src/perfrepair/prompts/repair/upgrade.system.md : system prompt: choose the secure option with the best performance; moving off a broken algorithm is no performance decision; code decides edit or person
-src/perfrepair/prompts/review/grouping-review.system.md : supervisor system prompt: the three contracts; findings only
 src/perfrepair/prompts/shared/rejection.turn.md : the turn message after a rejected answer
 src/perfrepair/prompts/suggest/site-replace.system.md : system prompt: replace, keep or recommend a unit's members with options together, the others stay; the strict or overall rule over code labels, security a floor, inverse pairs interoperate, risks (unverified interop is one), deciding and accepted metrics, needs, concerns
 ```

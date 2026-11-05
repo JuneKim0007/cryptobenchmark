@@ -20,11 +20,10 @@
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
 - gates: A before every pop, B after it, C on every answer, D after every write; a failed gate stops the stage.
 - families: a new family is a catalog entry, not code; descriptions in the catalog are immutable to agents.
-- supervisor: findings only; it never edits a group.
 - checks: a static finding is one function in `grouping/report/rules.py`.
 
 ## Workflow
-- run: `build` (classify inside, with aiReview) → `assign` → `report [--supervisor]` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`); the guide's interop step does the last three through `device/interop.py`
+- run: `build` (classify inside, with aiReview) → `assign` → `report` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`); the guide's interop step does the last three through `device/interop.py`
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; a pair across key contracts is never planned, the plan marks it `not_checkable`; never edit a group for it.
 - change the catalog: add the id `<type>|<canonical>` to its family in `catalog/groups.yaml` and its entry to `catalog/algorithms/<family>_catalogue.yaml`, checked by `validation/catalogue_entry.py`; a candidate is promoted by hand
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
@@ -43,11 +42,6 @@ src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: as
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: one YAML block of the family, its groups and the item, each with the facts code knows by contract; exact leaves out each group a known fact contradicts
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
-src/perfrepair/ai/review/grouping_review/command.py : stage: report --supervisor: GroupingReviewKind on the engine under grouping/review; its dry run
-src/perfrepair/ai/review/grouping_review/kind.py : decision: one item per family with a model-made group; the messages' hash as charter inputs; supervisor.json a projection of the outbox
-src/perfrepair/ai/review/grouping_review/render.py : one family's review message
-src/perfrepair/ai/review/grouping_review/schema.py : the supervisor's JSON schema; its kind enum is the review gate's KINDS
-src/perfrepair/ai/review/grouping_review/state.py : Reviews: one result per reviewed family
 src/perfrepair/catalog/algorithms.py : reader of the catalogues, checked whole: entry fields, provenance, sources, contracts, type facts, provider overrides; lookup by family and id
 src/perfrepair/catalog/algorithms/ : data: `<family>_catalogue.yaml` per family, one entry per id `<type>|<canonical>` (key, required, optional, conditions, contract, sourcedOnly, providers, provenance); `common.yaml` sources, keyStrength maps, deterministicRelied
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
@@ -63,7 +57,7 @@ src/perfrepair/catalog/resolved.py : the digest and MGF1 of a trial's `resolved`
 src/perfrepair/catalog/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 src/perfrepair/catalog/types.py : the catalogues' type facts as rows by family and canonical name; strength at a key size
 src/perfrepair/catalog/views.py : what an agent is shown: one entry with only its provider's overrides (view_for), one group's description and ids (group_view)
-src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report [--supervisor] | interop-plan | interop-read
+src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles, a declared transformation that ran being an item; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown; a generator's from its trial (standard format and encoded → app_held, no encoding → provider_held, else unknown) and cross_checked with its consumers
 src/perfrepair/grouping/build/key_kind.py : key kind from recorded fields: measured → engine type → key generator → declared → unknown
