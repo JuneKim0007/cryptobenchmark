@@ -80,7 +80,7 @@ def _heard(event: str, args: tuple) -> None:
         run.wrote(args[1])
     elif event == "os.remove":
         run.wrote(args[0])
-    elif args[2] & os.O_ACCMODE == os.O_RDONLY:
+    elif not isinstance(args[2], int) or args[2] & os.O_ACCMODE == os.O_RDONLY:  # an open with no flags is a read
         run.read(args[0])
     else:
         run.wrote(args[0])
