@@ -1,0 +1,1243 @@
+# signature.pair: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+schemaVersion: 1
+family: signature.pair
+# a signature's strength is the smaller of its hash's (Table 3) and its key's (Table 2)
+algorithms:
+  Signature|Ed25519:
+    key: {type: Ed25519, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: ED25519, scheme: EDDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: RFC8032}
+    - {fact: minSdk, value: 33, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|Ed448:
+    key: {type: Ed448, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: ED448, scheme: EDDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: 224, source: RFC8032}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|EdDSA:
+    key: {type: EdDSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: by key (assumed), scheme: EDDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|HSS/LMS:
+    key: {type: HSS/LMS, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {scheme: HSS/LMS}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|MD2withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: MD2, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: 0, source: RFC6149}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|MD5andSHA1withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: MD5ANDSHA1, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|MD5withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: MD5, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: 0, source: RFC6151}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|ML-DSA:
+    key: {type: ML-DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: by key (assumed), scheme: ML-DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|ML-DSA-44:
+    key: {type: ML-DSA-44, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: '44', scheme: ML-DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|ML-DSA-65:
+    key: {type: ML-DSA-65, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: '65', scheme: ML-DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|ML-DSA-87:
+    key: {type: ML-DSA-87, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: '87', scheme: ML-DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|NONEwithDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'TRUE'}
+      output: {curve: BY KEY, digest: NONE, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|NONEwithDSAinP1363Format:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {prehashed: 'TRUE'}
+      output: {curve: BY KEY, digest: NONE, encoding: P1363, scheme: DSA}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  Signature|NONEwithECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'TRUE'}
+      output: {curve: BY KEY, digest: NONE, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 11, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|NONEwithECDSAinP1363Format:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {prehashed: 'TRUE'}
+      output: {curve: BY KEY, digest: NONE, encoding: P1363, scheme: ECDSA}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  Signature|NONEwithRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'TRUE'}
+      output: {digest: NONE, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 17, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|RSASSA-PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA1withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-1, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA1withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-1, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA1withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-1, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 80}, source: SP80057T3}
+    - {fact: minSdk, value: 11, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA1withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-1, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 80}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA1withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-1, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA1withRSA/PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-1, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
+    - {fact: minSdk, value: 23, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA224withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-224, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: 20, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA224withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-224, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA224withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-224, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: 20, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA224withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-224, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA224withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-224, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: 20, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA224withRSA/PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-224, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: 23, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA256withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-256, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA256withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-256, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA256withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-256, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: 11, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA256withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-256, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA256withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-256, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA256withRSA/PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-256, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: 23, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-224withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-224, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-224withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-224, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-224withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-224, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-224withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-224, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-224withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA3-224, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-256withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-256, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-256withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-256, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-256withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-256, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-256withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-256, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-256withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA3-256, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-384withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-384, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-384withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-384, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-384withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-384, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-384withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-384, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-384withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA3-384, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-512withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-512, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-512withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-512, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-512withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-512, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-512withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA3-512, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA3-512withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA3-512, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA384withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-384, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA384withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-384, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA384withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-384, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: 11, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA384withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-384, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA384withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-384, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA384withRSA/PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-384, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
+    - {fact: minSdk, value: 23, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512/224withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-512/224, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512/256withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-512/256, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512withDSA:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-512, encoding: DER, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512withDSAinP1363Format:
+    key: {type: DSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-512, encoding: P1363, scheme: DSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512withECDSA:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-512, encoding: DER, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: 11, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512withECDSAinP1363Format:
+    key: {type: EC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {curve: BY KEY, digest: SHA-512, encoding: P1363, scheme: ECDSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ecc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512withRSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-512, encoding: PKCS1, scheme: RSA}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SHA512withRSA/PSS:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    contract:
+      input: {prehashed: 'FALSE'}
+      output: {digest: SHA-512, mgf1: the digest (assumed), salt: digest length (assumed), scheme: RSA-PSS}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
+    - {fact: minSdk, value: 23, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}
+  Signature|SLH-DSA-SHA2-128S:
+    key: {type: SLH-DSA-SHA2-128S, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: signature, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: true, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: ASIGNATURE}
+    providers: {}
+    provenance: {by: person}

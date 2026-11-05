@@ -1,0 +1,269 @@
+# digest.none: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+schemaVersion: 1
+family: digest.none
+algorithms:
+  MessageDigest|GOST3411:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {function: GOST3411}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|MD2:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: MD2}
+    sourcedOnly:
+    - {fact: strengthBits, value: 0, source: RFC6149}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|MD5:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: MD5}
+    sourcedOnly:
+    - {fact: strengthBits, value: 0, source: RFC6151}
+    - {fact: minSdk, value: 1, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  # Table 3 gives SHA-1 at most 80 for signatures and hash-only use
+  MessageDigest|SHA-1:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 20, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-1}
+    sourcedOnly:
+    - {fact: strengthBits, value: 80, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA-224:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-224}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: SP80057T3}
+    - {fact: minSdk, value: 22, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA-256:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-256}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA-384:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-384}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA-512:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-512}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA-512/224:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-512/224}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA-512/256:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA-512/256}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA3-224:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA3-224}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA3-256:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA3-256}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA3-384:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA3-384}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHA3-512:
+    key: {type: none, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {function: SHA3-512}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: null, source: ADIGEST}
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHAKE128-256:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {function: SHAKE128-256}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  MessageDigest|SHAKE256-512:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {function: SHAKE256-512}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}

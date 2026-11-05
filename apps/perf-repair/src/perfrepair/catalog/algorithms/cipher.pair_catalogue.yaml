@@ -1,0 +1,145 @@
+# cipher.pair: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+schemaVersion: 1
+family: cipher.pair
+algorithms:
+  Cipher|RSA:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/NoPadding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: true, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {passwordBased: 'FALSE', wrap: 'FALSE'}
+      output: {base: RSA, mode: ECB, padding: NOPADDING}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/OAEPPadding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 10, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 23, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 10, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 23, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 23, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}
+  Cipher|RSA/ECB/PKCS1Padding:
+    key: {type: RSA, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {passwordBased: 'FALSE', wrap: 'FALSE'}
+      output: {base: RSA, mode: ECB, padding: PKCS1PADDING}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: ACIPHER}
+    providers: {}
+    provenance: {by: person}

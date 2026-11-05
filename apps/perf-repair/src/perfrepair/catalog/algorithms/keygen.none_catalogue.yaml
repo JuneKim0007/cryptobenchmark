@@ -1,0 +1,396 @@
+# keygen.none: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+schemaVersion: 1
+family: keygen.none
+algorithms:
+  KeyGenerator|AES:
+    key: {type: AES, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: AES}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|ARCFOUR:
+    key: {type: ARCFOUR, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: ARCFOUR}
+    sourcedOnly:
+    - {fact: strengthBits, value: 0, source: RFC7465}
+    - {fact: minSdk, value: 14, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|Blowfish:
+    key: {type: Blowfish, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: BLOWFISH}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 10, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|ChaCha20:
+    key: {type: ChaCha20, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: CHACHA20}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: RFC8439}
+    - {fact: minSdk, value: 28, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|DES:
+    key: {type: DES, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: DES}
+    sourcedOnly:
+    - {fact: strengthBits, value: 56, source: FIPS46}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|DESede:
+    key: {type: DESede, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: DESEDE}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: SP80057T2}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacMD5:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACMD5}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA1:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA1}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: SP80057T3}
+    - {fact: minSdk, value: 11, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA224:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA224}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: SP80057T3}
+    - {fact: minSdk, value: 22, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA256:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA256}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA3-224:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA3-224}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: SP80057T3}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA3-256:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA3-256}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA3-384:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA3-384}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA3-512:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA3-512}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA384:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA384}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA512:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA512}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: 1, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA512/224:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA512/224}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: SP80057T3}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|HmacSHA512/256:
+    key: {type: HMAC, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: HMACSHA512/256}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: SP80057T3}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|RC2:
+    key: {type: RC2, source: inferred}
+    required:
+    - {name: parameters, value: none, source: inferred}
+    - {name: nonce, value: none, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, source: inferred}
+      deterministic: {value: false, source: inferred}
+      authenticated: {value: false, source: inferred}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: RC2}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: unsourced}
+    - {fact: minSdk, value: null, source: AKEYGEN}
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|SunTls12Prf:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: SUNTLS12PRF}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|SunTlsKeyMaterial:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: SUNTLSKEYMATERIAL}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|SunTlsMasterSecret:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: SUNTLSMASTERSECRET}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|SunTlsPrf:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: SUNTLSPRF}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}
+  KeyGenerator|SunTlsRsaPremasterSecret:
+    required: []
+    optional: []
+    conditions: {}
+    contract:
+      input: {}
+      output: {consumer: consumer-defined (assumed), function: SUNTLSRSAPREMASTERSECRET}
+    sourcedOnly: []
+    providers: {}
+    provenance: {by: person}

@@ -1,4 +1,5 @@
-"""catalog/groups.yaml: one predefined group per family, read and checked whole; contract rows are derived from its names."""
+"""catalog/groups.yaml: one predefined group per family by algorithm id, read and checked whole; contract rows come from
+each member's catalogue contract."""
 from __future__ import annotations
 
 import re
@@ -7,22 +8,19 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-import yaml
-
 from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
-from ..dto.grouping import KEY_APP_HELD
 from ..dto.signature import CONVENTION, UNKNOWN, Signature
+from .algorithms import CONTRACT_SIDES, Algorithms, algorithm_id, algorithms, split_id
 from .families import Families
 from .interchange import INPUT, KEY, KEY_NONE, OUTPUT, interchange
 from .names import Names, fold
-from .signature import signature
 
 CATALOG = Path(__file__).with_name("groups.yaml")
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 PROVIDER_HELD_SUFFIX = ".p"
 APP_HELD_TEXT, PROVIDER_HELD_TEXT = "Keys the application holds.", "Keys inside the provider."
-GROUP_FIELDS = {"description", "algorithms"}
+GROUP_FIELDS = {"algorithms"}
 ID_LENGTH = 38
 
 
@@ -35,8 +33,8 @@ GROUPS_DOC = DocumentKind("groups", SCHEMA_VERSION, "groups_schema: " + AT_PATH,
 
 @dataclass(frozen=True)
 class FamilyGroup:
+    """algorithms: the members' canonical names, in the file's order."""
     family: str
-    description: str
     algorithms: tuple[str, ...]
 
 
@@ -110,35 +108,47 @@ def _describe(engine_type: str, stands: dict) -> str:
     return f"Predefined {engine_type} group. {facts}."
 
 
-def _rows(family: str, engine_type: str, algorithms: list[str], names: Names) -> list[CatalogGroup]:
-    """A name its signature leaves open has no row: the model decides it."""
-    table, alike = interchange(), defaultdict(list)
-    for name in sorted(algorithms, key=fold):
-        read = signature(engine_type, name, None, KEY_APP_HELD, names)
-        if read.decided:
-            alike[tuple(i for i in read.identity if table.contract_of(i[0]) != KEY)].append((name, read))
-    keyless = table.engines[engine_type].key == KEY_NONE
-    return [CatalogGroup(_row_id(family, row[0][0]), family, _describe(engine_type, stands := row_contracts([row[0][1]])), stands,
+def _same(contract: dict) -> tuple:
+    return tuple((side, tuple(sorted(contract[side].items()))) for side in CONTRACT_SIDES)
+
+
+def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) -> list[CatalogGroup]:
+    """A member with no contract has no row: the model decides it."""
+    alike = defaultdict(list)
+    for name in sorted((split_id(i)[1] for i in ids), key=fold):
+        contract = catalogue.of(family, algorithm_id(engine_type, name)).contract
+        if contract is not None:
+            alike[_same(contract)].append((name, contract))
+    keyless = interchange().engines[engine_type].key == KEY_NONE
+    return [CatalogGroup(_row_id(family, row[0][0]), family, _describe(engine_type, row[0][1]), row[0][1],
                          tuple((engine_type, n) for n, _ in row), keyless) for row in alike.values()]
 
 
-def _group_problems(family: str, raw: dict, engine_type: str, names: Names) -> list[str]:
+def _member_problems(family: str, member, engine_type: str, names: Names, catalogue: Algorithms) -> list[str]:
+    parts = split_id(member)
+    if parts is None or parts[0] != engine_type:
+        return [f"{family}: {member!r} is no {engine_type}|<canonical> id"]
+    read = names.catalogued(engine_type, parts[1])
+    found = [f"{family}: {parts[1]} is no canonical {engine_type} name"] * (not (read.known and read.name == parts[1]))
+    return found + [f"{family}: {member} has no entry in {family}'s catalogue"] * (catalogue.of(family, member) is None)
+
+
+def _group_problems(family: str, raw: dict, engine_type: str, names: Names, catalogue: Algorithms) -> list[str]:
     missing, stray = GROUP_FIELDS - set(raw), set(raw) - GROUP_FIELDS
     if missing or stray:
         return [f"{family}: missing {sorted(missing)}, unknown {sorted(stray)}"]
-    found, seen = [f"{family}: description is empty"] * (not raw["description"]), set()
-    for name in raw["algorithms"]:
-        read = names.catalogued(engine_type, name)
-        found += [f"{family}: {name} is no canonical {engine_type} name"] * (not (read.known and read.name == name))
-        found += [f"{family}: {name} listed twice"] * (fold(name) in seen)
-        seen.add(fold(name))
+    found, seen = [], set()
+    for member in raw["algorithms"]:
+        found += _member_problems(family, member, engine_type, names, catalogue)
+        found += [f"{family}: {member} listed twice"] * (fold(str(member)) in seen)
+        seen.add(fold(str(member)))
     return found
 
 
-def load(path: Path = CATALOG, families: Families | None = None, names: Names | None = None) -> GroupCatalog:
-    doc = yaml.safe_load(Path(path).read_text())
-    GROUPS_DOC.check(doc, path)
-    families, names = families or Families.load(), names or Names.load()
+def load(path: Path = CATALOG, families: Families | None = None, names: Names | None = None,
+         catalogue: Algorithms | None = None) -> GroupCatalog:
+    doc = GROUPS_DOC.read(path, "groups_invalid")
+    families, names, catalogue = families or Families.load(), names or Names.load(), catalogue or algorithms()
     problems, groups, rows = [], [], []
     if not isinstance(doc.get("groups"), dict):
         raise GroupsError(f"groups_invalid: {path}: groups is not a mapping")
@@ -147,11 +157,11 @@ def load(path: Path = CATALOG, families: Families | None = None, names: Names | 
             problems.append(f"{family}: not a family of families.yaml")
             continue
         engine_type = families.by_id[family].type
-        found = _group_problems(family, raw, engine_type, names)
+        found = _group_problems(family, raw, engine_type, names, catalogue)
         problems += found
         if not found:
-            groups.append(FamilyGroup(family, raw["description"], tuple(raw["algorithms"])))
-            rows += _rows(family, engine_type, raw["algorithms"], names)
+            groups.append(FamilyGroup(family, tuple(split_id(i)[1] for i in raw["algorithms"])))
+            rows += _rows(family, engine_type, raw["algorithms"], catalogue)
     repeated = [gid for gid, n in Counter(r.id for r in rows).items() if n > 1]
     problems += [f"{gid}: row id listed twice" for gid in repeated]
     if problems:

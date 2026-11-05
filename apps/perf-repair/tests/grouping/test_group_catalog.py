@@ -10,7 +10,10 @@ from perfrepair.ai.runtime.engine.kind import project
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.catalog import groups as catalog_file
 from perfrepair.catalog.families import Families
-from perfrepair.catalog.groups import CATALOG, GroupsError, group_catalog, load
+from perfrepair.catalog.algorithms import Algorithms, algorithms
+from perfrepair.catalog.groups import CATALOG, GroupsError, group_catalog, load, row_contracts, _describe, _row_id
+from perfrepair.catalog.interchange import interchange
+from perfrepair.catalog.types import types
 from perfrepair.catalog.names import Names
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
@@ -241,26 +244,36 @@ def test_the_committed_catalog_loads_and_each_row_agrees_with_the_signature():
 
 
 @pytest.mark.parametrize("group, code", [
-    ({"description": "d", "algorithms": ["HmacSHA256"], "extra": 1}, "unknown"),
-    ({"algorithms": ["HmacSHA256"]}, "missing"),
-    ({"description": "", "algorithms": ["HmacSHA256"]}, "description is empty"),
-    ({"description": "d", "algorithms": ["HMAC-SHA256"]}, "no canonical"),
-    ({"description": "d", "algorithms": ["AES"]}, "no canonical"),
-    ({"description": "d", "algorithms": ["HmacSHA256", "HMACSHA256"]}, "no canonical|listed twice"),
+    ({"algorithms": ["Mac|HmacSHA256"], "description": "d"}, "unknown"),
+    ({}, "missing"),
+    ({"algorithms": ["HmacSHA256"]}, "no Mac|<canonical> id"),
+    ({"algorithms": ["Cipher|HmacSHA256"]}, "no Mac|<canonical> id"),
+    ({"algorithms": ["Mac|HMAC-SHA256"]}, "no canonical"),
+    ({"algorithms": ["Mac|AES"]}, "no canonical"),
+    ({"algorithms": ["Mac|HmacSHA256", "Mac|HMACSHA256"]}, "no canonical|listed twice"),
 ])
 def test_a_bad_group_is_refused(tmp_path, group, code):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {"mac.secret": group}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"mac.secret": group}}))
     with pytest.raises(GroupsError, match=code):
         load(path)
 
 
+def test_a_member_without_a_catalogue_entry_is_refused(tmp_path):
+    entries = algorithms()
+    catalogue = Algorithms(tuple(e for e in entries.entries if e.id != "Mac|HmacSHA256"), entries.common)
+    path = tmp_path / "groups.yaml"
+    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"mac.secret": {"algorithms": ["Mac|HmacSHA256"]}}}))
+    with pytest.raises(GroupsError, match="no entry in mac.secret's catalogue"):
+        load(path, catalogue=catalogue)
+
+
 def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {"nope": {"description": "d", "algorithms": []}}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"nope": {"algorithms": []}}}))
     with pytest.raises(GroupsError, match="not a family"):
         load(path)
-    path.write_text(yaml.safe_dump({"schemaVersion": 1, "source": "t", "families": {}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {}}))
     with pytest.raises(GroupsError, match="groups_schema"):
         load(path)
     assert catalog_file.CATALOG == CATALOG
@@ -269,11 +282,32 @@ def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
 def test_the_catalog_is_one_group_per_family_and_lists_every_typed_name():
     catalog = group_catalog()
     assert {g.family for g in catalog.families} == set(FAMILIES.by_id)
-    typed = yaml.safe_load((CATALOG.parent / "types.yaml").read_text())["families"]
-    # known gap: in types.yaml and screening, not yet in algorithm-names.yaml
+    # known gap: typed and screened, not yet in algorithm-names.yaml, so in no group
     not_named = {"SLH-DSA-SHA2-128S", "XWING"}
     for group in catalog.families:
-        assert set(typed[group.family]["rows"]) - not_named <= set(group.algorithms)
+        typed = {name for (family, name) in types().rows if family == group.family}
+        assert typed - not_named <= {n.upper() for n in group.algorithms}
+
+
+def _signature_rows() -> list[tuple]:
+    """Rows as the signature derived them on load before the catalogue held each contract."""
+    rows = []
+    for group in group_catalog().families:
+        engine_type, alike = FAMILIES.by_id[group.family].type, {}
+        for name in sorted(group.algorithms, key=str.upper):
+            read = signature(engine_type, name, None, "app_held", NAMES)
+            if read.decided:
+                key = tuple(i for i in read.identity if interchange().contract_of(i[0]) != "key")
+                alike.setdefault(key, []).append((name, read))
+        rows += [(_row_id(group.family, row[0][0]), _describe(engine_type, c := row_contracts([row[0][1]])), group.family, c,
+                  tuple((engine_type, n) for n, _ in row)) for row in alike.values()]
+    return rows
+
+
+def test_contract_rows_from_the_catalogue_equal_the_219_the_signature_derived():
+    catalog = group_catalog()
+    assert len(catalog.groups) == 219
+    assert [(g.id, g.description, g.family, g.contracts, g.members) for g in catalog.groups] == _signature_rows()
 
 
 def test_a_group_member_only_shares_a_row_when_its_contracts_are_equal():

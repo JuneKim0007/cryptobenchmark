@@ -116,9 +116,9 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `screening_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `screening_shape` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `screening_yaml` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
-| `types_fields` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
-| `types_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
-| `types_strength` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `algorithms_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `algorithms_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `algorithm_unknown` | `stop` | fixed: the input is unusable | 1 | name an algorithm or group id the catalogues hold |
 | `relations_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `events_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable events.jsonl aside |
 | `journal_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable journal.jsonl aside; the outbox, not the journal, holds the decisions |
