@@ -1,10 +1,11 @@
-"""The capture and trial a discovery wrote, known by path: a stamp comes from the device clock, so it never picks the newest."""
+"""The capture, trial and requirements a discovery wrote, known by path and paired by stamp; never the newest in a kept folder."""
 import re
 
 from failure import fail
 
 CAPTURE = re.compile(r"probe_(\d{8}T\d{6}Z)\.yaml")
 TRIAL = "trial_{}.yaml"
+REQUIREMENTS = "requirements_{}.yaml"
 
 
 def stamped(directory):
@@ -17,6 +18,11 @@ def pair(capture):
     if not trial.is_file():
         fail(f"missing_file: {trial} (the trial of {capture.name})")
     return capture, trial
+
+
+def requirements(capture):
+    """The requirements written with this capture; absent only in a folder a test wrote."""
+    return capture.with_name(REQUIREMENTS.format(CAPTURE.fullmatch(capture.name).group(1)))
 
 
 def added(directory, before):

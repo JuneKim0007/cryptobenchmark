@@ -40,9 +40,10 @@ class JcaContractTest {
         val discovery = Discovery(DIRECTORY)
         val run = discovery.probe(Security.getProviders())
         assertTrue("capture not written", run.captureFile.length() > 0 && run.captureFile.name.matches(Regex("probe_\\d{8}T\\d{6}Z\\.yaml")))
-        assertTrue("the capture written differs from the capture returned", run.capture == CAPTURE.copy(capturedAtMillis = run.capture.capturedAtMillis))
-        val trial = discovery.trial(run.capture, Security.getProviders())
-        assertTrue("unexpected name ${trial.name}", trial.name.matches(Regex("trial_\\d{8}T\\d{6}Z\\.yaml")))
+        assertTrue("the capture written differs from the capture returned", run.capture == CAPTURE.copy(capturedAtMillis = run.capture.capturedAtMillis, deviceClockMillis = run.capture.deviceClockMillis))
+        val files = discovery.trial(run.capture, Security.getProviders())
+        assertTrue("unexpected name ${files.trialFile.name}", files.trialFile.name.matches(Regex("trial_\\d{8}T\\d{6}Z\\.yaml")))
+        assertTrue("unexpected name ${files.requirementsFile.name}", files.requirementsFile.name.matches(Regex("requirements_\\d{8}T\\d{6}Z\\.yaml")))
     }
 
     private companion object {

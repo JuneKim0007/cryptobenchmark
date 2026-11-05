@@ -63,7 +63,7 @@ def located(results, capture_name):
     discovery, configured = results / "discovery", results / "configuration"
     capture, trial = capture_files.pair(discovery / capture_name)
     effective = configured / "effective.yaml"
-    files = {key: path for key, path in (("probe", capture), ("trial", trial), ("inventory", configured / "inventory.yaml"),
+    files = {key: path for key, path in (("probe", capture), ("trial", trial), ("requirements", capture_files.requirements(capture)), ("inventory", configured / "inventory.yaml"),
                                          ("effective", effective), ("report", configured / "report.yaml")) if path and path.is_file()}
     return discovery, effective, capture, trial, files
 

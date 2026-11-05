@@ -7,9 +7,13 @@ import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
+import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.RequirementTrial
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
+import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
+import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
@@ -21,12 +25,15 @@ class Discovery(
     private val providerProbe: ProviderProbe = ProviderProbe(),
     private val trialRunner: TrialRunner = TrialRunner(),
     private val defaultRunTrial: DefaultRunTrial = DefaultRunTrial(),
+    private val requirementTrial: RequirementTrial = RequirementTrial(),
     private val codec: YamlCodec = YamlCodec(),
 ) {
 
     private val captureWriter = EnvironmentYamlWriter(directory, codec)
 
     private val trialWriter = TrialYamlWriter(directory, codec)
+
+    private val requirementWriter = RequirementYamlWriter(directory, codec)
 
     fun probe(
         providers: Array<Provider>?,
@@ -48,13 +55,19 @@ class Discovery(
             return null
         }
         val trialFile = directory.named("trial", captureFile)
-        if (!trialFile.isFile) {
+        val requirementsFile = directory.named(RequirementYamlWriter.PREFIX, captureFile)
+        if (!trialFile.isFile || !requirementsFile.isFile) {
             return null
         }
         val trial = runCatching { TrialDocument.parse(codec.load(trialFile.readText())) }.getOrNull() ?: return null
-        return if (trial.capturedAtMillis == capture.capturedAtMillis) ReusedRun(capture, captureFile, trialFile) else null
+        val requirements = runCatching { RequirementDocument.parse(codec.load(requirementsFile.readText())) }.getOrNull() ?: return null
+        val sameCapture = trial.capturedAtMillis == capture.capturedAtMillis && requirements.capturedAtMillis == capture.capturedAtMillis
+        return if (sameCapture) ReusedRun(capture, captureFile, trialFile, requirementsFile) else null
     }
 
-    fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): File =
-        trialWriter.write(defaultRunTrial.run(trialRunner.run(capture, providers), providers))
+    fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): TrialFiles {
+        val keys = DefaultKeys(providers.orEmpty().toList())
+        val trial = defaultRunTrial.run(trialRunner.run(capture, providers), providers, keys)
+        return TrialFiles(trialWriter.write(trial), requirementWriter.write(requirementTrial.run(capture, trial, providers, keys)))
+    }
 }

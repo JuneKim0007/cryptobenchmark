@@ -5,7 +5,7 @@
 ```
 config/global.yaml + config/testsets/*.yaml
         │
-:environment:discovery ──probe_<stamp>.yaml, trial_<stamp>.yaml──▶ :config
+:environment:discovery ──probe_<stamp>.yaml, trial_<stamp>.yaml, requirements_<stamp>.yaml──▶ :config
 :config ──inventory.yaml, effective.yaml──▶ :preparation
 :preparation ──prepared cases in process; prepared.yaml, skipped.yaml on disk──▶ :benchmark
 :benchmark ──benchmark.json──▶ apps/benchmark-runner/analysis/analyze.py ──summary.md, charts
@@ -13,7 +13,7 @@ config/global.yaml + config/testsets/*.yaml
 
 | stage | reads | writes | code |
 |---|---|---|---|
-| discovery | JCA providers of the running JVM or device | `probe_<stamp>.yaml`, `trial_<stamp>.yaml` | `apps/benchmark/modules/environment/discovery/src/main/kotlin/write/` |
+| discovery | JCA providers of the running JVM or device | `probe_<stamp>.yaml`, `trial_<stamp>.yaml`, `requirements_<stamp>.yaml` | `apps/benchmark/modules/environment/discovery/src/main/kotlin/write/` |
 | config | capture, trial, `global.yaml`, test set, optional `facts.yaml` | `inventory.yaml`, `effective.yaml` | `apps/benchmark/modules/config/src/main/kotlin/Configuration.kt` |
 | preparation | capture, trial, `effective.yaml` | `prepared.yaml`, `skipped.yaml` | `apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt`, `report/SkipFile.kt` |
 | benchmark | prepared cases, `energy.yaml` | `benchmark.json` | `apps/benchmark/modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt` |

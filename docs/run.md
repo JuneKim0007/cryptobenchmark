@@ -53,7 +53,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | any failure | prints `error: <message>`, exits 1; an error with no code of its own is `subprocess_failed: <command> exited <n>` or `internal_error: <type>: <message>`, with the traceback under `--stacktrace` |
 
 - Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`; with no kept capture that fits the JVM's runtime it probes again and prints `warning: discovery_reprobed: ...`.
-- Device discovery runs `ConfigureKt` with `--facts`. The run's capture is the one its discovery wrote: on a host the file `ProbeKt` printed, on a device the one capture the probe added to `discovery/`; its trial is the file with the same stamp. With `--discovery keep` older captures stay beside it and are never picked by their stamp, which comes from the device clock.
+- Device discovery runs `ConfigureKt` with `--facts`. The run's capture is the one its discovery wrote: on a host the file `ProbeKt` printed, on a device the one capture the probe added to `discovery/`; its trial and requirements are the files with the same stamp. With `--discovery keep` older captures stay beside it and are never picked by their stamp, which comes from the host on a device run; `deviceClockMillis` keeps the device clock beside it.
 - `run.processRepetitions` ([config.md](../apps/benchmark/modules/config/docs/config.md)) above 1: runs merged with `MergeRunsKt`.
 - Tool commands: [tools.md](tools.md). Output: [results.md](results.md).
 

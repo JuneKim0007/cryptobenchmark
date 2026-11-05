@@ -1,9 +1,14 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+
 internal object KeyNames {
 
     private val SIZE_SUFFIX = Regex("^(.+)_(\\d+)$")
     private val WITH = Regex("with", RegexOption.IGNORE_CASE)
+    private val CIPHER = ServiceKey.fold("Cipher")
+    private val SIGNATURE = ServiceKey.fold("Signature")
+    private val AGREEMENT = ServiceKey.fold("KeyAgreement")
 
     fun cipherCandidates(algorithm: String): List<Pair<String, Int?>> {
         val base = algorithm.substringBefore('/')
@@ -20,4 +25,11 @@ internal object KeyNames {
     }
 
     fun agreementKey(algorithm: String): String = if (algorithm.equals("ECDH", ignoreCase = true)) "EC" else algorithm
+
+    fun candidates(type: String, algorithm: String): List<Pair<String, Int?>> = when (ServiceKey.fold(type)) {
+        CIPHER -> cipherCandidates(algorithm)
+        SIGNATURE -> listOf(signatureKey(algorithm) to null)
+        AGREEMENT -> listOf(agreementKey(algorithm) to null)
+        else -> listOf(algorithm to null)
+    }
 }

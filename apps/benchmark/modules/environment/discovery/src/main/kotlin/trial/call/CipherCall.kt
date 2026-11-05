@@ -44,7 +44,7 @@ internal object CipherCall : DefaultCall {
     }
 
     // key=value pairs named as prepared.yaml resolvedParameters; a value the provider fills in identically on every init is not an IV.
-    private fun chosenParameters(cipher: Cipher, key: Key): String {
+    fun chosenParameters(cipher: Cipher, key: Key): String {
         val parameters = cipher.parameters
         val gcm = parameters?.let { spec(it, GCMParameterSpec::class.java) }
         if (gcm != null) return "ivBytes=${gcm.iv.size} tagBits=${gcm.tLen}"

@@ -7,4 +7,5 @@ data class ReusedRun(
     val capture: CapturedEnvironment,
     val captureFile: File,
     val trialFile: File,
+    val requirementsFile: File,
 )

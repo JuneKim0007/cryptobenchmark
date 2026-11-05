@@ -1,5 +1,5 @@
 """The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
-import os, pathlib, re, subprocess
+import os, pathlib, re, subprocess, time
 
 import timeouts
 
@@ -146,7 +146,7 @@ class Device:
         # The app must create its own directory: one made by shell is not writable by the app's uid.
         self.shell(f"rm -rf {self.files}")
         self.shell(f"rm -f {self.media}/*-benchmarkData.json")
-        output = self.instrument("DeviceProbe", *arguments)
+        output = self.instrument("DeviceProbe", "-e", "hostMillis", str(int(time.time() * 1000)), *arguments)
         if "OK (1 test)" not in output:
             raise DeviceError("DeviceProbe failed on the device:\n" + instrumentation_report(output))
         self.pull(f"{self.files}/.", discovery)

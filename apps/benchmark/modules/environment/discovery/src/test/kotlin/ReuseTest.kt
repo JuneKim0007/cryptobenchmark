@@ -1,10 +1,12 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
+import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
+import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -20,7 +22,10 @@ class ReuseTest {
 
     private fun written(capturedAtMillis: Long, runtime: RuntimeInfo = RUNTIME, withTrial: Boolean = true): File {
         val capture = CAPTURE.copy(runtime = runtime, capturedAtMillis = capturedAtMillis)
-        if (withTrial) TrialYamlWriter(directory).write(TrialReport(capturedAtMillis))
+        if (withTrial) {
+            TrialYamlWriter(directory).write(TrialReport(capturedAtMillis))
+            RequirementYamlWriter(directory).write(RequirementReport(capturedAtMillis, capturedAtMillis))
+        }
         return EnvironmentYamlWriter(directory).write(capture)
     }
 
@@ -30,7 +35,7 @@ class ReuseTest {
         written(FIRST)
         val reused = discovery.reusable(RUNTIME)!!
         assertEquals(RUNTIME, reused.capture.runtime)
-        listOf(reused.captureFile, reused.trialFile).forEach { assertEquals(true, it.isFile) }
+        listOf(reused.captureFile, reused.trialFile, reused.requirementsFile).forEach { assertEquals(true, it.isFile) }
         assertNull(discovery.reusable(RUNTIME.copy(model = "Pixel 10")))
         assertNull(discovery.reusable())
     }
@@ -41,6 +46,13 @@ class ReuseTest {
         val captureFile = written(FIRST, withTrial = false)
         assertNull(discovery.reusable(RUNTIME))
         File(captureFile.parentFile, captureFile.name.replace("probe_", "trial_")).writeText("broken: [")
+        assertNull(discovery.reusable(RUNTIME))
+    }
+
+    @Test
+    fun aCaptureWithoutItsRequirementsIsNotReused() {
+        val captureFile = written(FIRST)
+        File(captureFile.parentFile, captureFile.name.replace("probe_", "requirements_")).delete()
         assertNull(discovery.reusable(RUNTIME))
     }
 

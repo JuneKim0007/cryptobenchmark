@@ -23,6 +23,7 @@ class ProviderProbe {
             runtime = runtime,
             providers = providers?.mapIndexed { index, provider -> toEntry(provider, index + 1, artifacts[provider.name]) }.orEmpty(),
             capturedAtMillis = capturedAtMillis,
+            deviceClockMillis = System.currentTimeMillis(),
         )
     }
 

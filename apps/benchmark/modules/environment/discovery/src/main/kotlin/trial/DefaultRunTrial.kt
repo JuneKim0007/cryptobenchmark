@@ -14,9 +14,11 @@ class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
         require(inputSizes.isNotEmpty() && inputSizes.all { it >= 0 }) { "invalid_input_sizes: $inputSizes" }
     }
 
-    fun run(report: TrialReport, providers: Array<Provider>?): TrialReport {
+    fun run(report: TrialReport, providers: Array<Provider>?): TrialReport =
+        run(report, providers, DefaultKeys(providers.orEmpty().toList()))
+
+    internal fun run(report: TrialReport, providers: Array<Provider>?, keys: DefaultKeys): TrialReport {
         val installed = providers.orEmpty().associateBy { it.name }
-        val keys = DefaultKeys(providers.orEmpty().toList())
         return report.copy(
             defaultRunInputSize = inputSizes.first(),
             services = report.services.map { service -> withDefaultRun(service, installed[service.provider], keys) },

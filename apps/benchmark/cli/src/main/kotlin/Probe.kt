@@ -31,19 +31,24 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
     val reused = if (reuse) discovery.reusable() else null
     val captureFile: File
     val trialFile: File
+    val requirementsFile: File
     if (reused != null) {
         captureFile = reused.captureFile
         trialFile = reused.trialFile
+        requirementsFile = reused.requirementsFile
         System.err.println("reused: ${reused.captureFile.name}")
     } else {
         val probe = discovery.probe(Security.getProviders())
         captureFile = probe.captureFile
-        trialFile = discovery.trial(probe.capture, Security.getProviders())
+        val files = discovery.trial(probe.capture, Security.getProviders())
+        trialFile = files.trialFile
+        requirementsFile = files.requirementsFile
     }
     val configuration = Configuration(configurationDirectory)
     val inventoryFile = configuration.inventory(captureFile, trialFile)
     println(captureFile)
     println(trialFile)
+    println(requirementsFile)
     println(inventoryFile)
     if (globalFile == null) {
         System.err.println("warning: no config/global.yaml found; effective.yaml not written")

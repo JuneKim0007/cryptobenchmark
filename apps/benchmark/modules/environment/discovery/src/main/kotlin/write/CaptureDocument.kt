@@ -19,6 +19,7 @@ object CaptureDocument {
 
     internal const val SCHEMA_VERSION = "schemaVersion"
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
+    private const val DEVICE_CLOCK_MILLIS = "deviceClockMillis"
     internal const val RUNTIME = "runtime"
     internal const val PROVIDERS = "providers"
 
@@ -51,6 +52,7 @@ object CaptureDocument {
     fun of(environment: CapturedEnvironment): Map<String, Any> = linkedMapOf(
         SCHEMA_VERSION to environment.schemaVersion,
         CAPTURED_AT_MILLIS to environment.capturedAtMillis,
+        DEVICE_CLOCK_MILLIS to environment.deviceClockMillis,
         RUNTIME to runtimeDocument(environment.runtime),
         PROVIDERS to environment.providers.map { providerDocument(it) },
     )
@@ -64,6 +66,7 @@ object CaptureDocument {
             runtime = runtimeEntry(section(document, RUNTIME)),
             providers = sections(document, PROVIDERS).map { providerEntry(it) },
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),
+            deviceClockMillis = number(document, DEVICE_CLOCK_MILLIS).toLong(),
             schemaVersion = schemaVersion,
         )
     }

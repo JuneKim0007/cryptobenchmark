@@ -15,7 +15,8 @@ Top-level keys, in this order.
 | field | type | description |
 |---|---|---|
 | `schemaVersion` | int | `1` |
-| `capturedAtMillis` | long | capture time, epoch milliseconds |
+| `capturedAtMillis` | long | capture time, epoch milliseconds: the host's on a device run, since a device clock can be months off |
+| `deviceClockMillis` | long | the running device's or JVM's own clock at capture |
 | `runtime` | object | device the capture was taken on |
 | `providers` | list | installed providers, in precedence order |
 
