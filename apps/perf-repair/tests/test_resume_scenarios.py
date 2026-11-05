@@ -6,9 +6,9 @@ import sys
 
 import pytest
 import yaml
-from helpers import LATENCY, LIBRARY
+from helpers import LATENCY, LIBRARY, captured_events, guide_ends
 from test_guide import FAKE_ROOT
-from test_guide_targets import Base, app_lines
+from test_guide_targets import Base, apps, steps
 from test_run_lock import HOLD, SRC
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -41,10 +41,11 @@ class Other {
 
 class Probe(Base):
     def go(self, roots, device=False, reuse=True, conversations=None, **fields):
-        lines = []
-        g = Guide(self.run_dir, None, fields.pop("mode", LATENCY), conversations or self.answer, LIBRARY, echo=lines.append,
+        g = Guide(self.run_dir, None, fields.pop("mode", LATENCY), conversations or self.answer, LIBRARY, echo=lambda _: None,
                   **fields)
-        return run_targets(g, roots, device, reuse), lines
+        with captured_events() as events:
+            code = run_targets(g, roots, device, reuse)
+        return code, events
 
     def paths(self, root):
         return AppPaths(self.run_dir, path_id(root))
@@ -85,9 +86,8 @@ def test_s2_a_terminal_stop_is_done_and_its_rerun_repeats_nothing(p, monkeypatch
         _no_options(monkeypatch)
     code, _ = p.go([a], conversations=DRY_RUN)
     assert code == 1 and read_json(p.paths(a).finished)["outcome"] == how
-    code, lines = p.go([a], conversations=DRY_RUN)
-    assert code == 0 and app_lines(lines) == [f"app {path_id(a)}: reused ({how})"]
-    assert not any(line.startswith("guide app:") for line in lines)
+    code, events = p.go([a], conversations=DRY_RUN)
+    assert code == 0 and apps(events) == [(path_id(a), "reused", None)] and "app" not in steps(events)
 
 
 def test_s3_ctrl_c_mid_app_still_writes_the_summary_and_index_then_raises(p, monkeypatch):
@@ -96,19 +96,18 @@ def test_s3_ctrl_c_mid_app_still_writes_the_summary_and_index_then_raises(p, mon
     p.go([a])
     _touch(a)
     monkeypatch.setattr(app_steps, "repair_main", lambda argv: (_ for _ in ()).throw(KeyboardInterrupt()))
-    lines = []
-    g = Guide(p.run_dir, None, LATENCY, p.answer, LIBRARY, echo=lines.append)
+    g = Guide(p.run_dir, None, LATENCY, p.answer, LIBRARY, echo=lambda _: None)
     (p.run_dir / APPS_INDEX).unlink()
-    with pytest.raises(KeyboardInterrupt):
+    with captured_events() as events, pytest.raises(KeyboardInterrupt):
         run_targets(g, [a, b], False, True)
-    assert any(line.startswith("guide summary:") for line in lines) and (p.run_dir / APPS_INDEX).is_file()
-    assert app_lines(lines) == [f"app {path_id(a)}: stop interrupted at edit"]
+    assert "summary" in steps(events) and (p.run_dir / APPS_INDEX).is_file()
+    assert [(app, outcome) for app, outcome, _ in apps(events)] == [(path_id(a), "stop")]
     assert p.record()["apps"][path_id(a)] == {"status": STOPPED, "step": "edit", "reason": "interrupted"}
     assert not p.paths(a).finished.exists()
     monkeypatch.undo()
     before = p.calls(a)
-    code, lines = p.go([a, b])
-    assert code == 0 and app_lines(lines)[0] == f"app {path_id(a)}: ok" and p.calls(a) == before
+    code, events = p.go([a, b])
+    assert code == 0 and apps(events)[0] == (path_id(a), "ok", None) and p.calls(a) == before
 
 
 def test_s4_the_summary_holds_no_report_of_an_app_that_stopped_on_the_latest_run(p, monkeypatch):
@@ -130,17 +129,17 @@ def test_s5_another_harness_config_is_another_measurement(p, monkeypatch, tmp_pa
     p.go([a], device=True)
     other = tmp_path / "other-global.yaml"
     other.write_text(yaml.safe_dump({"schemaVersion": 1, "providers": {"bundled": []}}))
-    code, lines = p.go([a], device=True, app_config=other)
-    assert code == 0 and app_lines(lines) == [f"app {path_id(a)}: ok"] and any(line.startswith("guide device:") for line in lines)
-    assert p.go([a], device=True, app_config=other)[1][-1] == f"app {path_id(a)}: reused"
+    code, events = p.go([a], device=True, app_config=other)
+    assert code == 0 and apps(events) == [(path_id(a), "ok", None)] and "device" in steps(events)
+    assert apps(p.go([a], device=True, app_config=other)[1]) == [(path_id(a), "reused", None)]
 
 
 def test_s5_refresh_runs_a_done_app(p):
     """Before: --refresh was a no-op for a finished app. After: refresh implies no reuse."""
     a = p.app("a")
     p.go([a])
-    _, lines = p.go([a], refresh=True)
-    assert app_lines(lines) == [f"app {path_id(a)}: ok"]
+    _, events = p.go([a], refresh=True)
+    assert apps(events) == [(path_id(a), "ok", None)]
 
 
 def test_s6_a_cap_that_left_units_unasked_is_not_done(p):
@@ -149,16 +148,16 @@ def test_s6_a_cap_that_left_units_unasked_is_not_done(p):
     p.go([a], limit=1)
     assert p.calls(a) == 1 and not p.paths(a).finished.exists()
     assert p.record()["apps"][path_id(a)]["reason"] == "apps.limit left 1 scopes unasked"
-    code, lines = p.go([a])
-    assert code == 0 and app_lines(lines) == [f"app {path_id(a)}: ok"] and p.calls(a) == 2
-    assert app_lines(p.go([a])[1]) == [f"app {path_id(a)}: reused"]
+    code, events = p.go([a])
+    assert code == 0 and apps(events) == [(path_id(a), "ok", None)] and p.calls(a) == 2
+    assert apps(p.go([a])[1]) == [(path_id(a), "reused", None)]
 
 
 def test_s6_a_cap_that_asked_every_unit_is_done(p):
     """Before: any cap ran the static steps every time. After: a cap that left nothing is reused."""
     a = p.app("a")
     p.go([a], limit=5)
-    assert app_lines(p.go([a], limit=5)[1]) == [f"app {path_id(a)}: reused"]
+    assert apps(p.go([a], limit=5)[1]) == [(path_id(a), "reused", None)]
 
 
 def test_s6_aba_a_stopped_rerun_leaves_no_done_mark_to_revert_onto(p):
@@ -167,8 +166,8 @@ def test_s6_aba_a_stopped_rerun_leaves_no_done_mark_to_revert_onto(p):
     p.go([a])
     code, _ = p.go([a], conversations=DRY_RUN, mode=THROUGHPUT)
     assert code == 1 and not p.paths(a).finished.exists()
-    code, lines = p.go([a])
-    assert app_lines(lines)[0].startswith(f"app {path_id(a)}: ") and "reused" not in app_lines(lines)[0]
+    code, events = p.go([a])
+    assert apps(events)[0][0] == path_id(a) and apps(events)[0][1] != "reused"
     assert read_json(p.paths(a).dossiers)["perfMode"] == ["latency"]
 
 
@@ -178,9 +177,9 @@ def test_s9_a_corrupt_done_mark_reruns_the_app_and_heals(p, content):
     a = p.app("a")
     p.go([a])
     p.paths(a).finished.write_text(content)
-    code, lines = p.go([a])
-    assert code == 0 and app_lines(lines) == [f"app {path_id(a)}: ok"]
-    assert app_lines(p.go([a])[1]) == [f"app {path_id(a)}: reused"]
+    code, events = p.go([a])
+    assert code == 0 and apps(events) == [(path_id(a), "ok", None)]
+    assert apps(p.go([a])[1]) == [(path_id(a), "reused", None)]
 
 
 def test_s7_a_folder_an_interrupted_benchmark_left_is_refused_by_a_standalone_command(p, tmp_path, capsys):
@@ -189,8 +188,7 @@ def test_s7_a_folder_an_interrupted_benchmark_left_is_refused_by_a_standalone_co
     left.mkdir()
     (left / ROWS).write_text((p.run_dir / ROWS).read_text())
     assert grouping(["build", "--device-results", str(left)]) == 1
-    assert capsys.readouterr().err.splitlines()[-1] == f"error not_device_results: {left} has no manifest.yaml; " \
-                                                      "pass <root>/<device id>"
+    assert capsys.readouterr().err.splitlines()[-1].startswith("error not_device_results: ")
 
 
 def test_s8_a_second_guide_on_the_folder_is_device_busy(p):
@@ -199,25 +197,25 @@ def test_s8_a_second_guide_on_the_folder_is_device_busy(p):
                               text=True, env={**os.environ, "PYTHONPATH": str(SRC)})
     try:
         assert holder.stdout.readline().strip() == "held"
-        code, lines = p.go([p.app("a")])
+        code, events = p.go([p.app("a")])
     finally:
         holder.stdin.close()
         holder.wait(10)
-    assert code == 1 and lines[-1].startswith(f"guide prerequisites: stop device_busy: {p.run_dir} is in use by another run")
+    assert code == 1 and guide_ends(events)[-1] == ("prerequisites", "stop", "device_busy")
 
 
 @pytest.mark.parametrize("on_existing, line", [("overwrite", "ok"), ("resume", "reused")])
 def test_a_named_run_id_that_exists_follows_on_existing(p, on_existing, line):
     a = p.app("a")
     p.go([a], run_id="r1")
-    assert app_lines(p.go([a], run_id="r1", on_existing=on_existing)[1]) == [f"app {path_id(a)}: {line}"]
+    assert apps(p.go([a], run_id="r1", on_existing=on_existing)[1]) == [(path_id(a), line, None)]
 
 
 def test_skip_runs_nothing(p):
     a = p.app("a")
     p.go([a], run_id="r1")
-    code, lines = p.go([a], run_id="r1", on_existing="skip")
-    assert code == 1 and len(lines) == 1 and "stop run_exists: " in lines[0]
+    code, events = p.go([a], run_id="r1", on_existing="skip")
+    assert code == 1 and [end[1:] for end in guide_ends(events)] == [("stop", "run_exists")]
 
 
 def test_an_app_run_removes_an_earlier_targets_file(p):

@@ -100,3 +100,9 @@ def captured_events():
     finally:
         logger.removeHandler(handler)
         logger.setLevel(level)
+
+
+def guide_ends(events):
+    """Each guide step the events end: (step, outcome, code), the code a stop's."""
+    return [(e.step, e.outcome, e.data.get("code") or (e.detail or "").split(":")[0] if e.outcome == "stop" else None)
+            for e in events if e.stage == "guide" and e.event == "end"]

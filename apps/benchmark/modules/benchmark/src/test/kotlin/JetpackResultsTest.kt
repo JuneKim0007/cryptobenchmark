@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.yaml.snakeyaml.Yaml
 import java.io.File
 
 class JetpackResultsTest {
@@ -87,8 +88,9 @@ class JetpackResultsTest {
     @Test
     fun theConvertedFileIsWhatTheAnalysisReads() {
         val text = BenchmarkJson(example).text(converted.runtime, converted.rows)
+        // compared parsed: key order and spacing are not what the analysis reads
         assertEquals(
-            """{
+            Yaml().load<Any>("""{
   "runtime": {"model": "Pixel 9", "fingerprint": "google/tokay/tokay:16/BP3A.250905.014/13718934:user/release-keys", "sdkInt": "36", "jetpackCpuLocked": "false", "sustainedPerformanceModeEnabled": "true", "compilationMode": "DEFAULT", "thermalThrottleSleepSeconds": "90"},
   "cases": [
     {"id": "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "AndroidOpenSSL", "operation": "DIGEST", "keySize": null, "inputSize": 1024, "keyKind": "none", "variant": "fixed", "parameters": {}, "thermalThrottleSleepSeconds": 0,
@@ -97,8 +99,8 @@ class JetpackResultsTest {
      "metrics": {"timeNs": {"iterations": 4096, "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0], "reported": {"minimum": 2380.0, "maximum": 2611.0, "median": 2401.0, "coefficientOfVariation": 0.031}}}}
   ]
 }
-""",
-            text,
+"""),
+            Yaml().load<Any>(text),
         )
     }
 

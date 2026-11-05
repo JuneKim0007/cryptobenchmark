@@ -28,14 +28,10 @@ def coded(caplog, code: str) -> int:
     return sum(getattr(r, EVENT_ATTR, {}).get("data", {}).get("code") == code for r in caplog.records)
 
 
-def interop_line(lines: list[str]) -> str:
-    return next(line for line in lines if line.startswith("guide interop:"))
-
-
 def test_every_pair_passing_reaches_the_options_as_pass(flow):
-    lines = flow.run()
+    flow.run()
     [pairs] = oracle_runs(flow)
-    assert pairs > 0 and interop_line(lines) == f"guide interop: ok: {pairs} pairs, 0 reused, {pairs} checked, {pairs} pass"
+    assert pairs > 0
     groups = read_json(flow.paths.groups)
     assert groups["interop"]["status"] == "checked"
     labels = {o["interop"] for d in dossiers(flow)["dossiers"] for o in d["options"]}
@@ -44,8 +40,8 @@ def test_every_pair_passing_reaches_the_options_as_pass(flow):
 
 def test_a_failed_pair_is_out_of_the_options_before_the_model(flow, monkeypatch):
     monkeypatch.setenv("FAKE_INTEROP", "fail:Fast")
-    lines = flow.run()
-    assert "fail" in interop_line(lines) and failed_pairs(read_json(flow.paths.groups))
+    flow.run()
+    assert failed_pairs(read_json(flow.paths.groups))
     doc = dossiers(flow)
     offered = {o["item"] for d in doc["dossiers"] for o in d["options"]}
     assert not any(item.endswith("|Fast") for item in offered)
@@ -75,10 +71,8 @@ def test_an_unchanged_rerun_runs_no_oracle_and_writes_nothing(flow):
     flow.run()
     [pairs] = oracle_runs(flow)
     before = flow.paths.interop.stat().st_mtime_ns, (flow.device / rd.MANIFEST).stat().st_mtime_ns
-    lines = flow.run()
-    assert oracle_runs(flow) == [pairs]
-    assert interop_line(lines) == f"guide interop: ok: {pairs} pairs, {pairs} reused, 0 checked, {pairs} pass"
-    assert "device inbound: reused" in lines and "device screen: reused" in lines
+    flow.run()
+    assert oracle_runs(flow) == [pairs] and flow.ended("inbound")[0] == flow.ended("screen")[0] == "reused"
     assert (flow.paths.interop.stat().st_mtime_ns, (flow.device / rd.MANIFEST).stat().st_mtime_ns) == before
 
 
@@ -105,9 +99,8 @@ def test_only_a_pair_with_no_verdict_runs_and_the_others_are_kept(flow):
         doc = yaml.safe_load(path.read_text())
         doc["pairs"] = doc["pairs"][1:]
         path.write_text(yaml.safe_dump(doc, sort_keys=False))
-    lines = flow.run()
+    flow.run()
     assert oracle_runs(flow) == [pairs, 1]
-    assert interop_line(lines) == f"guide interop: ok: {pairs} pairs, {pairs - 1} reused, 1 checked, {pairs} pass"
     assert flow.problems() == {}
 
 

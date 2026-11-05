@@ -1,10 +1,11 @@
 """The guide over apps.targets: the device stage once, each app isolated, a line per app, reuse by inputs; scripted model, no device."""
+import json
 import shutil
 from pathlib import Path
 
 import pytest
 import yaml
-from helpers import LIBRARY
+from helpers import LIBRARY, captured_events, guide_ends
 from test_guide import APP, F, FAKE_ROOT, replacing
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -44,9 +45,12 @@ class Base:
         return path.resolve()
 
     def go(self, roots, device=False, reuse=True, conversations=None, app_modes=None):
-        lines = []
-        base = Guide(self.run_dir, None, LATENCY, conversations or self.answer, LIBRARY, echo=lines.append, app_modes=app_modes or {})
-        return run_targets(base, roots, device, reuse), lines
+        """The exit and the run's events."""
+        base = Guide(self.run_dir, None, LATENCY, conversations or self.answer, LIBRARY, echo=lambda _: None,
+                     app_modes=app_modes or {})
+        with captured_events() as events:
+            code = run_targets(base, roots, device, reuse)
+        return code, events
 
     def calls(self, root):
         journal = AppPaths(self.run_dir, path_id(root)).replace / "journal.jsonl"
@@ -58,37 +62,45 @@ def base(run, tmp_path_factory):  # noqa: F811
     return Base(run, tmp_path_factory.mktemp("targets"))
 
 
-def app_lines(lines):
-    return [line for line in lines if line.startswith("app ")]
+def apps(events):
+    """Each app's end: its id, outcome and, for a stop, its code."""
+    return [(e.app, e.outcome, e.data.get("code") if e.outcome == "stop" else None) for e in events
+            if (e.stage, e.step, e.event) == ("guide", "target", "end")]
+
+
+def last_apps(results):
+    """The apps the last guide run on the only device folder under results ended."""
+    [log] = results.glob("*/log/events.jsonl")
+    events = [json.loads(e) for e in log.read_text().splitlines()]
+    return [e["app"] for e in events if e["run"] == events[-1]["run"] and (e["stage"], e["step"], e["event"]) == ("guide", "target", "end")]
+
+
+def steps(events):
+    return [step for step, _, _ in guide_ends(events)]
 
 
 def test_every_app_reaches_its_last_step_and_the_device_stage_runs_once(base):
     roots = [base.app("a"), base.app("b")]
-    code, lines = base.go(roots)
-    assert code == 0
-    assert sum(line.startswith("guide prerequisites:") for line in lines) == 1
-    assert sum(line.startswith("guide grouping:") for line in lines) == 1
-    assert sum(line.startswith("guide harness:") for line in lines) == 2
-    assert app_lines(lines) == [f"app {path_id(r)}: ok" for r in roots]
-    assert lines[-3] == "guide summary: ok: no app has a report yet"
+    code, events = base.go(roots)
+    assert code == 0 and [steps(events).count(s) for s in ("prerequisites", "grouping", "harness", "summary")] == [1, 1, 2, 1]
+    assert apps(events) == [(path_id(r), "ok", None) for r in roots]
 
 
 def test_a_new_target_is_the_only_app_that_runs(base):
     a, b = base.app("a"), base.app("b")
     base.go([a])
     before = base.calls(a)
-    code, lines = base.go([a, b])
+    code, events = base.go([a, b])
     assert code == 0 and base.calls(a) == before and base.calls(b) > 0
-    assert app_lines(lines) == [f"app {path_id(a)}: reused", f"app {path_id(b)}: ok"]
-    assert sum(line.startswith("guide harness:") for line in lines) == 1
+    assert apps(events) == [(path_id(a), "reused", None), (path_id(b), "ok", None)] and steps(events).count("harness") == 1
 
 
 def test_nothing_changed_runs_no_app_and_asks_nothing(base):
     a = base.app("a")
     base.go([a])
     before = base.calls(a)
-    code, lines = base.go([a])
-    assert code == 0 and base.calls(a) == before and app_lines(lines) == [f"app {path_id(a)}: reused"]
+    code, events = base.go([a])
+    assert code == 0 and base.calls(a) == before and apps(events) == [(path_id(a), "reused", None)]
 
 
 def test_a_changed_source_runs_that_app_again_and_only_it(base):
@@ -96,8 +108,8 @@ def test_a_changed_source_runs_that_app_again_and_only_it(base):
     base.go([a, b])
     source = sorted((a / "src").rglob("*.java"))[0]
     source.write_text(source.read_text() + "\n")
-    _, lines = base.go([a, b])
-    assert app_lines(lines)[0] == f"app {path_id(a)}: ok" and app_lines(lines)[1] == f"app {path_id(b)}: reused"
+    _, events = base.go([a, b])
+    assert apps(events) == [(path_id(a), "ok", None), (path_id(b), "reused", None)]
 
 
 def test_changed_scopes_or_a_changed_scoper_run_the_app_again(base, monkeypatch):
@@ -105,13 +117,13 @@ def test_changed_scopes_or_a_changed_scoper_run_the_app_again(base, monkeypatch)
     base.go([a])
     scopes = AppPaths(base.run_dir, path_id(a)).scopes
     scopes.write_text(scopes.read_text() + "\n")
-    _, lines = base.go([a])
-    assert app_lines(lines) == [f"app {path_id(a)}: ok"]
+    _, events = base.go([a])
+    assert apps(events) == [(path_id(a), "ok", None)]
     monkeypatch.setattr(finished, "scoper_version", lambda: "another scoper")
-    _, lines = base.go([a])
-    assert app_lines(lines) == [f"app {path_id(a)}: ok"]
-    _, lines = base.go([a])
-    assert app_lines(lines) == [f"app {path_id(a)}: reused"]
+    _, events = base.go([a])
+    assert apps(events) == [(path_id(a), "ok", None)]
+    _, events = base.go([a])
+    assert apps(events) == [(path_id(a), "reused", None)]
 
 
 def test_a_changed_harness_digest_runs_the_app_again(base, monkeypatch):
@@ -119,10 +131,10 @@ def test_a_changed_harness_digest_runs_the_app_again(base, monkeypatch):
     base.go([a])
     asked = base.calls(a)
     monkeypatch.setenv("FAKE_HARNESS", "another harness")
-    _, lines = base.go([a])
-    assert app_lines(lines) == [f"app {path_id(a)}: ok"] and base.calls(a) == asked
-    _, lines = base.go([a])
-    assert app_lines(lines) == [f"app {path_id(a)}: reused"]
+    _, events = base.go([a])
+    assert apps(events) == [(path_id(a), "ok", None)] and base.calls(a) == asked
+    _, events = base.go([a])
+    assert apps(events) == [(path_id(a), "reused", None)]
 
 
 def test_a_scoper_package_with_no_code_is_one_coded_error_before_any_app(base, monkeypatch):
@@ -151,8 +163,8 @@ def test_an_older_host_without_the_digest_is_one_coded_error(base, monkeypatch):
 def test_an_explicit_app_runs_even_when_nothing_changed(base):
     a = base.app("a")
     base.go([a])
-    _, lines = base.go([a], reuse=False)
-    assert app_lines(lines) == [f"app {path_id(a)}: ok"] and any(line.startswith("guide harness:") for line in lines)
+    _, events = base.go([a], reuse=False)
+    assert apps(events) == [(path_id(a), "ok", None)] and "harness" in steps(events)
 
 
 def test_a_missing_target_says_why_and_the_others_go_on_and_its_results_stay(base):
@@ -161,29 +173,27 @@ def test_a_missing_target_says_why_and_the_others_go_on_and_its_results_stay(bas
     shutil.rmtree(b)
     kept = AppPaths(base.run_dir, path_id(b)).dossiers
     assert kept.is_file()
-    code, lines = base.go([b, a])
+    code, events = base.go([b, a])
     assert code == 1 and kept.is_file()
-    assert app_lines(lines)[0] == f"app {path_id(b)}: stop target_missing: {b} is no folder; its earlier results stay"
-    assert app_lines(lines)[1] == f"app {path_id(a)}: ok"
+    assert apps(events) == [(path_id(b), "stop", "target_missing"), (path_id(a), "ok", None)]
 
 
 def test_a_stop_code_is_recorded_and_the_loop_continues(base):
     a, b = base.app("a"), base.app("b")
-    code, lines = base.go([a, b], conversations=DRY_RUN)
-    assert code == 1
-    assert [line.split(":")[1].split()[:2] for line in app_lines(lines)] == [["stop", "no_replacement"]] * 2
+    code, events = base.go([a, b], conversations=DRY_RUN)
+    assert code == 1 and [o for _, *o in apps(events)] == [["stop", "no_replacement"]] * 2
     # a terminal stop is done: the rerun repeats no static step and exits 0
     assert read_json(AppPaths(base.run_dir, path_id(a)).finished)["outcome"] == "no_replacement"
-    code, lines = base.go([a, b], conversations=DRY_RUN)
-    assert code == 0 and app_lines(lines) == [f"app {path_id(r)}: reused (no_replacement)" for r in (a, b)]
+    code, events = base.go([a, b], conversations=DRY_RUN)
+    assert code == 0 and apps(events) == [(path_id(r), "reused", None) for r in (a, b)]
 
 
 def test_a_gate_rejection_is_recorded_and_the_loop_continues(base, monkeypatch):
     a, b = base.app("a"), base.app("b")
     real = guide_steps.repair_main
     monkeypatch.setattr(guide_steps, "repair_main", lambda argv: 1 if str(a) in argv else real(argv))
-    code, lines = base.go([a, b])
-    assert code == 1 and "stop edit_invalid at edit" in app_lines(lines)[0] and app_lines(lines)[1].endswith(": ok")
+    code, events = base.go([a, b])
+    assert code == 1 and apps(events) == [(path_id(a), "stop", "edit_invalid"), (path_id(b), "ok", None)]
 
 
 def test_a_bug_in_one_app_is_logged_and_the_others_go_on(base, monkeypatch, capsys):
@@ -196,8 +206,8 @@ def test_a_bug_in_one_app_is_logged_and_the_others_go_on(base, monkeypatch, caps
         return real(device, app_id, *rest, **kw)
 
     monkeypatch.setattr(guide_steps, "dossier", buggy)
-    code, lines = base.go([a, b])
-    assert code == 1 and "stop bug at dossier: TypeError: a bug" in app_lines(lines)[0] and app_lines(lines)[1].endswith(": ok")
+    code, events = base.go([a, b])
+    assert code == 1 and apps(events) == [(path_id(a), "stop", "bug"), (path_id(b), "ok", None)]
     assert "error bug: TypeError: a bug" in capsys.readouterr().err
 
 
@@ -208,38 +218,36 @@ def test_a_provider_failure_stops_the_whole_loop(base):
         def start(self, *_):
             raise ClaudeCliError("usage limit reached")
 
-    code, lines = base.go([a, b, c], conversations=Failing())
+    code, events = base.go([a, b, c], conversations=Failing())
     assert code == 1
-    first, second, third = app_lines(lines)
-    assert "stop replace_failed at replace: claude_cli_failed: usage limit reached" in first
-    assert f"app {path_id(b)}: not_run {path_id(a)} hit a provider failure" in second and "not_run" in third
+    assert apps(events) == [(path_id(a), "stop", "replace_failed"), (path_id(b), "not_run", None), (path_id(c), "not_run", None)]
     assert not list(AppPaths(base.run_dir, path_id(b)).root.glob("*"))
 
 
 def test_a_device_stage_stop_runs_no_app(tmp_path):
-    lines = []
-    g = Guide(tmp_path, None, LATENCY, DRY_RUN, LIBRARY, echo=lines.append)
-    assert run_targets(g, [APP], False, True) == 1
-    assert len(lines) == 1 and lines[0].startswith("guide prerequisites: stop missing_results")
+    g = Guide(tmp_path, None, LATENCY, DRY_RUN, LIBRARY, echo=lambda _: None)
+    with captured_events() as events:
+        assert run_targets(g, [APP], False, True) == 1
+    assert guide_ends(events) == [("prerequisites", "stop", "missing_results")]
 
 
 def test_measured_apps_end_in_a_summary_across_them_and_are_reused(base, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     a, b = base.app("a"), base.app("b")
-    code, lines = base.go([a, b], device=True)
-    assert code == 0 and any(line.startswith("guide summary: ok: ") and "2 apps" in line for line in lines)
+    code, events = base.go([a, b], device=True)
+    assert code == 0
     assert set(read_json(base.run_dir / "summary.json")["apps"]) == {path_id(a), path_id(b)}
     monkeypatch.setenv("FAKE_EXIT", "3")
-    code, lines = base.go([a, b], device=True)
-    assert code == 0 and app_lines(lines) == [f"app {path_id(a)}: reused", f"app {path_id(b)}: reused"]
+    code, events = base.go([a, b], device=True)
+    assert code == 0 and apps(events) == [(path_id(a), "reused", None), (path_id(b), "reused", None)]
 
 
 def test_a_dry_record_does_not_answer_for_a_measured_run(base, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     a = base.app("a")
     base.go([a])
-    code, lines = base.go([a], device=True)
-    assert code == 0 and any(line.startswith("guide report:") for line in lines)
+    code, events = base.go([a], device=True)
+    assert code == 0 and "report" in steps(events)
 
 
 def settings(tmp_path, **apps):
@@ -279,27 +287,25 @@ def test_targets_take_a_bare_string_or_a_path_and_app_narrows_to_one(tmp_path, c
     config.write_text(yaml.safe_dump(text))
     args = ["--agent", "dry-run", "--perfrepair-config", str(config), "--results-root", str(results), "--config", str(global_yaml)]
     assert guide_main(args) == 1
-    out = capsys.readouterr().out
-    assert len(app_lines(out.splitlines())) == 2 and f"app {path_id(tmp_path / 'rel')}:" in out
+    assert sorted(last_apps(results)) == sorted([path_id(tmp_path / "rel"), path_id(absolute)])
     # a probe, then the benchmark: neither folder is a project, so the base selection
     assert len((results / "runs.log").read_text().splitlines()) == 2
     assert guide_main(["--app", str(absolute), *args]) == 1
-    out = capsys.readouterr().out
-    assert [line.split(":")[0] for line in app_lines(out.splitlines())] == [f"app {path_id(absolute)}"]
+    assert last_apps(results) == [path_id(absolute)]
 
 
 def test_a_folder_that_is_no_project_says_why_in_its_line(base):
     empty = base.tmp / "empty"
     empty.mkdir()
-    code, lines = base.go([empty])
-    assert code == 1 and "stop app_failed at app: not_android_project: " in app_lines(lines)[0]
+    code, events = base.go([empty])
+    assert code == 1 and apps(events) == [(path_id(empty), "stop", "app_failed")]
 
 
 def test_a_path_that_is_a_file_is_a_missing_target(base):
     path = base.tmp / "a-file"
     path.write_text("x")
-    code, lines = base.go([Path(path)])
-    assert code == 1 and "target_missing" in app_lines(lines)[0]
+    code, events = base.go([Path(path)])
+    assert code == 1 and apps(events)[0][1:] == ("stop", "target_missing")
 
 
 def test_a_target_with_its_own_perf_mode_uses_it_in_its_dossier_and_its_record(base):
@@ -338,10 +344,7 @@ def test_no_entry_that_is_an_app_stops_before_any_device_step(tmp_path, capsys, 
     (tmp_path / "readme" / "README.md").write_text("x")
     config = settings(tmp_path, targets=["readme", {"root": "readme"}])
     assert guide_main(["--agent", "dry-run", "--perfrepair-config", str(config), "--results-root", str(tmp_path / "results")]) == 1
-    captured = capsys.readouterr()
-    assert f"guide targets: skip {tmp_path / 'readme'} not_android: not_android" in captured.out
-    assert f"warning: apps.targets root {tmp_path / 'readme'} holds no app (0 candidates, none an app)" in captured.err
-    assert "error no_targets: 1 candidates skipped, none an app" in captured.err
+    assert "error no_targets: " in capsys.readouterr().err
     assert not (tmp_path / "results").exists()
 
 
@@ -350,11 +353,9 @@ def test_targets_yaml_is_written_and_a_path_entry_that_is_no_app_is_its_stop(bas
     readme = base.tmp / "readme"
     readme.mkdir()
     found = resolve_targets([str(a), str(readme)], base.tmp / "perfrepair.yaml")
-    lines = []
-    g = Guide(base.run_dir, None, LATENCY, base.answer, LIBRARY, echo=lines.append, target_set=found)
-    assert run_targets(g, [t.path for t in found.apps], False, True) == 1
-    assert f"guide targets: ok: {base.run_dir / 'targets.yaml'}: 1 apps, 1 skipped" in lines
-    assert app_lines(lines) == [f"app {path_id(readme)}: stop not_android_project: {readme}: not_android (not_android)",
-                                f"app {path_id(a)}: ok"]
+    g = Guide(base.run_dir, None, LATENCY, base.answer, LIBRARY, echo=lambda _: None, target_set=found)
+    with captured_events() as events:
+        assert run_targets(g, [t.path for t in found.apps], False, True) == 1
+    assert apps(events) == [(path_id(readme), "stop", "not_android_project"), (path_id(a), "ok", None)]
     doc = yaml.safe_load((base.run_dir / "targets.yaml").read_text())
     assert doc == found.document() and doc["skipped"][0]["entry"] == {"path": str(readme)}

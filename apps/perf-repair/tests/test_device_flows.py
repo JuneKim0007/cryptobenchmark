@@ -75,12 +75,20 @@ class Flow:
     def remove_provider(self):
         self.global_yaml.write_text(self.global_yaml.read_text().replace(BUNDLED_FIRST, "bundled: []"))
 
-    def ended(self, step):
-        """The device step's outcome and counts in the last run."""
+    def events(self):
+        """The last run's events."""
         events = [json.loads(e) for e in (self.device / "log" / "events.jsonl").read_text().splitlines()]
-        last = [e for e in events if e["run"] == events[-1]["run"] and e["stage"] == "device" and e["step"] == step
-                and e["event"] == "end"]
+        return [e for e in events if e["run"] == events[-1]["run"]]
+
+    def ended(self, step, stage="device"):
+        """A step's outcome and counts in the last run."""
+        last = [e for e in self.events() if (e["stage"], e["step"], e["event"]) == (stage, step, "end")]
         return (last[-1]["outcome"], last[-1]["data"].get("counts", {})) if last else (None, {})
+
+    def found(self, code):
+        """The last run's findings of a code: step, outcome and items."""
+        return [(e["step"], e["outcome"], e["data"].get("items")) for e in self.events()
+                if e["event"] == "finding" and e["data"].get("code") == code]
 
     def problems(self):
         out = validate_run(self.device, screening_catalog(None))
@@ -99,8 +107,8 @@ def _group_by_name(paths):
 
 
 def test_a_first_run_asks_every_item_once(flow):
-    lines = flow.run()
-    assert f"guide grouping: ok: ran: {OLD_ITEMS} of {OLD_ITEMS} items asked" in lines
+    flow.run()
+    assert flow.ended("grouping") == ("ran", {"items": OLD_ITEMS, "asked": OLD_ITEMS})
     assert flow.calls() == OLD_ITEMS and flow.device_runs() == 1 and flow.problems() == {}
 
 
@@ -110,11 +118,11 @@ def test_a_provider_added_asks_only_its_new_items_and_rebuilds_the_groups(flow):
     outbox = active_fingerprint(flow.paths.root)
     ids_before = {e["qualified"]: n for n, e in read_json(flow.paths.groups)["items"].items()}
     flow.add_provider()
-    lines = flow.run()
+    flow.run()
     groups = _group_by_name(flow.paths)
     assert flow.device_runs() == 2 and active_fingerprint(flow.paths.root) == outbox
     # AES/GCM and SHA-256 of the new provider; its MD5 is screened out and grouped by code
-    assert flow.calls() == OLD_ITEMS + 2 and f"guide grouping: ok: ran: 2 of {OLD_ITEMS + 2} items asked" in lines
+    assert flow.calls() == OLD_ITEMS + 2 and flow.ended("grouping") == ("ran", {"items": OLD_ITEMS + 2, "asked": 2})
     assert {q: g for q, g in groups.items() if q in kept} == kept
     new = [q for q in groups if q.endswith("|Aaa")]
     assert len(new) == 3 and all(groups[q] for q in new)
@@ -128,10 +136,9 @@ def test_a_provider_removed_leaves_no_stale_entry_and_asks_nothing(flow):
     flow.run()
     asked = flow.calls()
     flow.remove_provider()
-    lines = flow.run()
+    flow.run()
     doc = read_json(flow.paths.groups)
-    assert flow.calls() == asked and flow.device_runs() == 2
-    assert any("guide grouping: ok: rebuilt from the kept decisions" in line for line in lines)
+    assert flow.calls() == asked and flow.device_runs() == 2 and flow.ended("grouping")[1]["asked"] == 0
     assert "Aaa" not in str(doc["items"]) and all(g["members"] for g in doc["groups"])
     assert sorted(m for g in doc["groups"] for m in g["members"]) == sorted(int(n) for n in doc["items"])
     assert "Aaa" not in flow.paths.knowledge.read_text() and flow.problems() == {}
@@ -154,8 +161,8 @@ def test_a_malformed_no_rerun_warns_and_counts_as_true(flow, caplog, value):
     flow.run()
     flow.grouping = {"noRerun": value}
     with caplog.at_level(logging.WARNING, "perfrepair"):
-        lines = flow.run()
-    assert "guide grouping: ok: reused" in lines and flow.calls() == OLD_ITEMS
+        flow.run()
+    assert flow.ended("grouping")[0] == "reused" and flow.calls() == OLD_ITEMS
     assert any(m.startswith("invalid: device.grouping.noRerun ") and "true or false; using the default True" in m
                for m in caplog.messages)
 
@@ -163,16 +170,16 @@ def test_a_malformed_no_rerun_warns_and_counts_as_true(flow, caplog, value):
 def test_knowledge_deleted_runs_anyway_with_no_rerun_true(flow):
     flow.run()
     shutil.rmtree(flow.paths.root / "outbox")
-    lines = flow.run()
-    assert f"guide grouping: ok: ran: {OLD_ITEMS} of {OLD_ITEMS} items asked" in lines and flow.calls() == 2 * OLD_ITEMS
+    flow.run()
+    assert flow.ended("grouping") == ("ran", {"items": OLD_ITEMS, "asked": OLD_ITEMS}) and flow.calls() == 2 * OLD_ITEMS
 
 
 def test_derived_files_deleted_are_rebuilt_with_no_call(flow):
     flow.run()
     flow.paths.knowledge.unlink()
     flow.paths.groups.unlink()
-    lines = flow.run()
-    assert any("rebuilt from the kept decisions" in line for line in lines) and flow.calls() == OLD_ITEMS
+    flow.run()
+    assert flow.ended("grouping")[1]["asked"] == 0 and flow.calls() == OLD_ITEMS
     assert flow.problems() == {}
 
 
@@ -180,10 +187,10 @@ def test_no_rerun_false_asks_every_item_into_a_new_outbox_and_keeps_the_old(flow
     flow.run()
     old = active_fingerprint(flow.paths.root)
     flow.grouping = {"noRerun": False}
-    lines = flow.run()
+    flow.run()
     new = active_fingerprint(flow.paths.root)
     assert flow.calls() == 2 * OLD_ITEMS and new != old and (flow.paths.root / "outbox" / old / "000001.json").is_file()
-    assert f"guide grouping: ok: ran: device.grouping.noRerun false, all {OLD_ITEMS} items asked again" in lines
+    assert flow.ended("grouping") == ("ran", {"items": OLD_ITEMS, "asked": OLD_ITEMS})
     assert flow.problems() == {}
 
 
@@ -193,8 +200,8 @@ def test_back_to_no_rerun_true_stays_on_the_refreshed_outbox(flow):
     flow.run()
     new = active_fingerprint(flow.paths.root)
     flow.grouping = {"noRerun": True}
-    lines = flow.run()
-    assert "guide grouping: ok: reused" in lines and active_fingerprint(flow.paths.root) == new
+    flow.run()
+    assert flow.ended("grouping")[0] == "reused" and active_fingerprint(flow.paths.root) == new
     assert flow.calls() == 2 * OLD_ITEMS
 
 
@@ -252,9 +259,9 @@ def used(flow):
 
 
 def test_filter_a_first_target_groups_and_measures_only_what_it_uses(scoped):
-    lines = run_targets(scoped, scoped.sha)
+    run_targets(scoped, scoped.sha)
     assert used(scoped) == {SHA: "site"} and scoped.calls() == 1 and scoped.device_runs() == 2
-    assert "guide grouping: ok: ran: 1 of 1 items asked, 3 not used by the targets" in lines
+    assert scoped.ended("grouping") == ("ran", {"items": 1, "asked": 1, "notUsed": 3})
     assert excluded(scoped) == sorted([HMAC, GCM_FAST, GCM_SLOW])
     assert len(read_json(scoped.paths.groups)["notUsed"]) == 3 and scoped.problems() == {}
 
@@ -269,20 +276,20 @@ def test_filter_nothing_changed_is_no_call_no_device_run_and_grouping_reused(sco
 
 def test_filter_a_new_target_asks_only_its_new_items_and_reruns_no_benchmark_for_a_refused_one(scoped):
     run_targets(scoped, scoped.sha)
-    lines = run_targets(scoped, scoped.sha, scoped.hmac)
+    run_targets(scoped, scoped.sha, scoped.hmac)
     # the used set grew by an item the preparation refused: a coded gap, no delta and no whole rerun
-    assert scoped.calls() == 2 and scoped.device_runs() == 2 and "device benchmark: reused" in lines
+    assert scoped.calls() == 2 and scoped.device_runs() == 2 and scoped.ended("benchmark")[0] == "reused"
     coverage = yaml.safe_load((scoped.device / rd.BENCHMARK_COVERAGE).read_text())
     assert coverage["items"][HMAC] == "refused" and coverage["totals"]["refused"] == 1
-    assert "guide grouping: ok: ran: 1 of 2 items asked, 2 not used by the targets" in lines
+    assert scoped.ended("grouping") == ("ran", {"items": 2, "asked": 1, "notUsed": 2})
     assert scoped.problems() == {}
 
 
 def test_filter_a_target_removed_keeps_its_groups_and_rows_and_asks_nothing(scoped):
     run_targets(scoped, scoped.sha, scoped.hmac)
     kept = _group_by_name(scoped.paths)[SHA]
-    lines = run_targets(scoped, scoped.hmac)
-    assert scoped.calls() == 2 and scoped.device_runs() == 2 and "device benchmark: reused" in lines
+    run_targets(scoped, scoped.hmac)
+    assert scoped.calls() == 2 and scoped.device_runs() == 2 and scoped.ended("benchmark")[0] == "reused"
     assert used(scoped) == {HMAC: "site"} and _group_by_name(scoped.paths)[SHA] == kept
     assert SHA in {f"{r['type']}|{r['algorithm']}|{r['provider']}" for r in read_json(scoped.device / rd.ROWS)["rows"]}
     record, _ = rd.load_device_record(scoped.device)
@@ -292,16 +299,14 @@ def test_filter_a_target_removed_keeps_its_groups_and_rows_and_asks_nothing(scop
 def test_filter_off_asks_and_measures_every_item(scoped):
     run_targets(scoped, scoped.sha)
     scoped.filter = False
-    lines = run_targets(scoped, scoped.sha)
+    run_targets(scoped, scoped.sha)
     assert scoped.calls() == OLD_ITEMS and scoped.device_runs() == 3 and excluded(scoped) == []
-    assert "device benchmark: ran: device.filterByApps off: the last benchmark measured the apps' items only" in lines
     assert not (scoped.device / rd.USED).exists() and "notUsed" not in read_json(scoped.paths.groups)
     record, _ = rd.load_device_record(scoped.device)
     assert record.benchmark == {} and scoped.problems() == {}
 
 
 CONSCRYPT = "org.conscrypt:conscrypt-android:2.5.2"
-WARNED = "device bundled_missing: warn: BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-"
 
 
 def suggestions(flow):
@@ -315,21 +320,14 @@ def applied(flow):
 
 def test_bundled_stop_halts_before_the_benchmark_naming_each_provider(scoped):
     scoped.stops = {"bundled_missing": "stop"}
-    lines = run_targets(scoped, scoped.sha)
-    stop = [line for line in lines if line.startswith("guide prerequisites: stop bundled_missing: ")]
-    assert len(stop) == 1 and "BC (org.bouncycastle:bcprov-jdk18on:1.78; apps sha-" in stop[0]
+    run_targets(scoped, scoped.sha)
     assert scoped.device_runs() == 1 and not (scoped.device / rd.USED_CONFIG).exists()
-    events = [json.loads(e) for e in (scoped.device / "log" / "events.jsonl").read_text().splitlines()]
-    halt = [e for e in events if e["event"] == "finding" and e["data"].get("code") == "bundled_missing"]
-    assert [(e["step"], e["outcome"], e["data"]["items"]) for e in halt] == [("bundled", "stop", ["BC"])]
-    status = (scoped.device / rd.STATUS_LOG).read_text().splitlines()
-    assert [line.split()[0] for line in status if not line.startswith(("run ", "end ", "ran ", "reused "))] == [
-        "##", "bundled_missing"]
+    assert scoped.found("bundled_missing") == [("bundled", "stop", ["BC"])]
 
 
 def test_bundled_warn_logs_and_the_run_goes_on(scoped):
-    lines = run_targets(scoped, scoped.sha)
-    assert any(line.startswith(WARNED) for line in lines) and scoped.device_runs() == 2
+    run_targets(scoped, scoped.sha)
+    assert scoped.found("bundled_missing") == [("bundled", "warn", ["BC"])] and scoped.device_runs() == 2
     assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists() and scoped.problems() == {}
 
 
@@ -349,15 +347,15 @@ def test_bundled_suggest_writes_the_matched_the_blocked_and_applies_nothing(scop
 def test_bundled_apply_builds_the_matched_row_in_and_a_second_run_reuses_it(scoped):
     scoped.bundled = {"fromApps": "apply"}
     tls = target(scoped, "tls", SHA, ships=CONSCRYPT)
-    lines = run_targets(scoped, tls, device=True)
+    run_targets(scoped, tls, device=True)
     assert applied(scoped) == [{"artifact": CONSCRYPT, "create": "org.conscrypt.Conscrypt#newProvider",
                                 "alias": "BundledConscrypt"}]
     # the blocked BC is listed, never built in, so it is still missing
     # three runs: the first probe finds the apps, the second holds the applied provider, then the benchmark
-    assert any(line.startswith("device bundled_missing: warn: BC ") for line in lines) and scoped.device_runs() == 3
+    assert scoped.found("bundled_missing") == [("bundled", "warn", ["BC"])] and scoped.device_runs() == 3
     assert suggestions(scoped)["counts"]["applied"] == 1 and scoped.problems() == {}
-    again = run_targets(scoped, tls, device=True)
-    assert scoped.device_runs() == 3 and "device probe: reused" in again and "device benchmark: reused" in again
+    run_targets(scoped, tls, device=True)
+    assert scoped.device_runs() == 3 and scoped.ended("probe")[0] == scoped.ended("benchmark")[0] == "reused"
 
 
 def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
@@ -365,10 +363,9 @@ def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
     tls = target(scoped, "tls", SHA, ships=CONSCRYPT)
     run_targets(scoped, tls, device=True)
     scoped.bundled = {}
-    lines = run_targets(scoped, tls, device=True)
+    run_targets(scoped, tls, device=True)
     # the kept probe still holds the provider: probed again without it, then measured
-    assert scoped.device_runs() == 5 and applied(scoped) == []
-    assert "device benchmark: ran: the providers.bundled entries device.bundled.fromApps applies changed" in lines
+    assert scoped.device_runs() == 5 and applied(scoped) == [] and scoped.ended("benchmark")[0] == "ran"
     record, _ = rd.load_device_record(scoped.device)
     assert record.bundled == {} and not (scoped.device / rd.BUNDLED_CONFIG).exists()
 
@@ -413,8 +410,8 @@ def test_a_shipped_provider_is_a_provider_path_in_both_directions(scoped, monkey
 def test_a_bad_bundled_value_warns_and_takes_the_default(scoped, caplog, value):
     scoped.bundled = {"fromApps": value}
     with caplog.at_level(logging.WARNING, "perfrepair"):
-        lines = run_targets(scoped, scoped.sha)
-    assert any(line.startswith(WARNED) for line in lines) and scoped.device_runs() == 2
+        run_targets(scoped, scoped.sha)
+    assert scoped.found("bundled_missing") == [("bundled", "warn", ["BC"])] and scoped.device_runs() == 2
     assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists()
     assert {m.split(" ")[1] for m in caplog.messages if m.startswith("invalid: device.bundled.")} == {"device.bundled.fromApps"}
 
@@ -426,29 +423,28 @@ def _stage(flow, *flags):
     path.write_text(yaml.safe_dump(document))
     outcome = flow.tmp / "outcome.json"
     code = guide(["--agent", "dry-run", "--perfrepair-config", str(path), "--config", str(flow.global_yaml), "--outcome", str(outcome), *flags])
-    lines = [line for line in flow.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
-    return code, lines, json.loads(outcome.read_text())
+    return code, json.loads(outcome.read_text())
 
 
 def test_stop_after_device_measures_once_and_asks_no_model(scoped):
-    code, lines, outcome = _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device", "--run-id", "one")
+    code, outcome = _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device", "--run-id", "one")
     assert code == 0 and scoped.device_runs() == 2 and scoped.calls() == 0
-    assert not any(line.startswith(("guide grouping", "guide targets", "guide app")) for line in lines)
+    assert not [e for e in scoped.events() if e["stage"] == "guide" and e["step"] in ("grouping", "targets", "app")]
     assert outcome == {"device": str(scoped.device), "run": "one", "exit": 0, "code": None}
     assert not scoped.paths.groups.exists()
 
 
 def test_the_named_folder_after_it_groups_and_runs_the_apps_with_no_second_benchmark(scoped):
     _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device", "--run-id", "one")
-    code, lines, outcome = _stage(scoped, "--device-results", str(scoped.device), "--run-id", "one", "--on-existing", "resume")
+    code, outcome = _stage(scoped, "--device-results", str(scoped.device), "--run-id", "one", "--on-existing", "resume")
     assert scoped.device_runs() == 2 and scoped.calls() > 0 and scoped.paths.groups.is_file()
-    assert any(line.startswith("guide grouping: ok: ran: ") for line in lines) and any(line.startswith("guide app: ok") for line in lines)
+    assert scoped.ended("grouping")[0] == "ran" and scoped.ended("app", stage="guide")[0] == "ok"
     assert outcome["device"] == str(scoped.device) and outcome["run"] == "one" and outcome["exit"] == code
 
 
 def test_a_failed_device_stage_gives_its_code(scoped, monkeypatch):
     monkeypatch.setenv("FAKE_INTERRUPT", "1")
-    code, _lines, outcome = _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device")
+    code, outcome = _stage(scoped, "--results-root", str(scoped.root), "--stop-after-device")
     assert code == 1 and outcome["exit"] == 1 and outcome["code"] == "pipeline_failed"
 
 

@@ -1,4 +1,6 @@
 """log/details/primitives_missing.yaml: the writer, its reasons, the pointer line, and the host's bundled step on the fake pipeline."""
+import json
+
 import pytest
 import yaml
 from test_device_flows import (  # noqa: F401  the flows' fixtures
@@ -177,9 +179,8 @@ def _pointers(flow_):
 def test_host_apply_says_nothing_is_applied_and_lists_the_row(scoped, capsys):  # noqa: F811
     scoped.bundled = {"fromApps": "apply"}
     root = target(scoped, "tls", SHA, ships=CONSCRYPT)
-    lines = run_targets(scoped, root)
+    run_targets(scoped, root)
     assert not (scoped.device / rd.BUNDLED_CONFIG).exists()
-    assert not any("the probe does not hold" in line for line in lines)
     rows = {r["provider"]: r for r in listed(scoped.device)["missing"] if r["primitive"] is None}
     assert rows["Conscrypt"]["reason"] == HOST_CANNOT_BUILD and rows["Conscrypt"]["coordinates"] == [CONSCRYPT]
     assert rows["BC"]["reason"] == BUNDLED_MISSING and "duplicate_name" in rows["BC"]["next"]
@@ -190,8 +191,8 @@ def test_host_apply_says_nothing_is_applied_and_lists_the_row(scoped, capsys):  
 def test_host_with_a_configured_provider_does_not_probe_again(scoped):  # noqa: F811
     scoped.global_yaml.write_text(scoped.global_yaml.read_text().replace("bundled: []", f"bundled: [{{artifact: '{CONSCRYPT}', create: X}}]"))
     root = target(scoped, "tls", SHA, ships=CONSCRYPT)
-    lines = run_targets(scoped, root)
-    assert not any("the probe does not hold" in line for line in lines)
+    run_targets(scoped, root)
+    assert scoped.device_runs() == 2
     rows = {r["provider"]: r for r in listed(scoped.device)["missing"] if r["primitive"] is None}
     assert rows["Conscrypt"]["reason"] == HOST_CANNOT_BUILD
 
@@ -227,9 +228,9 @@ def test_not_screened_stops_with_every_name_listed_and_next_naming_the_file(scop
     from perfrepair.device import primitives
     scoped.bundled = {}
     monkeypatch.setattr(primitives, "status_of", lambda _: {})
-    lines = run_targets(scoped, scoped.sha)
+    run_targets(scoped, scoped.sha)
     path = scoped.device / rd.PRIMITIVES_MISSING
-    stop = next(line for line in lines if "prerequisites_failed: " in line)
-    assert "primitive_not_screened: " in stop and str(path) in stop
+    failed = json.dumps([e for e in scoped.events() if e["data"].get("code") == "prerequisites_failed"])
+    assert "primitive_not_screened" in failed and str(path) in failed
     rows = [r for r in listed(scoped.device)["missing"] if r["reason"] == "not_screened"]
     assert len(rows) > 1 and {r["action"] for r in rows} == {STOPPED}

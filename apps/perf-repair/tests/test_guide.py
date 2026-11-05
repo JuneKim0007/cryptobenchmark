@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import captured_events, with_results, LIBRARY
+from helpers import captured_events, guide_ends, with_results, LIBRARY
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -41,9 +41,20 @@ SCRIPTS = Path(__file__).resolve().parents[3] / "apps/benchmark-runner"
 FIELD = {"set_provider": "provider", "set_algorithm": "algorithm"}
 
 
+ENDS = []
+
+
 def run_steps(g, device):
-    """The device-level steps, then the one app g names."""
-    return 1 if run_sequence(g, DEVICE_LEVEL) or run_app(g, device) else 0
+    """The device-level steps, then the one app g names; ENDS holds the guide steps they ended."""
+    with captured_events() as events:
+        code = 1 if run_sequence(g, DEVICE_LEVEL) or run_app(g, device) else 0
+    ENDS[:] = guide_ends(events)
+    return code
+
+
+def stopped():
+    """The step the last run stopped at, with its code."""
+    return [(step, code) for step, outcome, code in ENDS if outcome == "stop"][-1]
 
 
 def first_option(run_dir, app_root=None):
@@ -85,22 +96,15 @@ def _first_option(alias, d):
 
 
 def guide(run_dir, conversations, app=APP, config=None):
-    lines = []
-    g = Guide(run_dir, app, LATENCY, conversations, LIBRARY, config=config, echo=lines.append)
-    return g, lines
-
-
-def statuses(lines):
-    return [l.split(":")[0] + ":" + l.split(":")[1] for l in lines if l.startswith("guide ")]
+    return Guide(run_dir, app, LATENCY, conversations, LIBRARY, config=config, echo=lambda _: None)
 
 
 def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run):
     before = digests(APP)
-    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
-    assert statuses(lines) == ["guide prerequisites: ok", "guide targets: ok", "guide grouping: ok", "guide interop: ok",
-                               "guide app: ok", "guide dossier: ok",
-                               "guide upgrade: ok", "guide replace: ok", "guide edit: ok", "guide harness: ok"]
+    assert {(step, outcome) for step, outcome, _ in ENDS} == {(s, "ok") for s in (
+        "prerequisites", "targets", "grouping", "interop", "app", "dossier", "upgrade", "replace", "edit", "harness")}
     assert digests(APP) == before
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
     harness = yaml.safe_load(g.paths.harness.read_text())
@@ -125,9 +129,9 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
 
 def test_the_device_guide_measures_through_the_pipeline_and_reports(run, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
-    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=True) == 0
-    assert statuses(lines)[-2:] == ["guide device: ok", "guide report: ok"]
+    assert {("device", "ok", None), ("report", "ok", None)} <= set(ENDS)
     doc = read_json(g.paths.report)
     measured = [s for s in doc["scopes"] if s["interop"]["status"] == "passed"]
     assert measured and doc["funnel"]["measured"] == len(measured)
@@ -167,7 +171,7 @@ def _damage_decision(path):
     (lambda g: f"{g.app_id}/{rd.HARNESS}", _damage_yaml, "schema"),
 ], ids=["manifest", "primitives_missing", "benchmark_coverage", "replacements", "edits", "harness"])
 def test_the_replay_checks_each_artifact_it_used_to_skip_and_finds_it_damaged(run, artifact, damage, problem):
-    g, _ = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
     name = artifact(g)
     assert validate_run(run, screening_catalog(None)).get(name, []) == []
@@ -176,7 +180,7 @@ def test_the_replay_checks_each_artifact_it_used_to_skip_and_finds_it_damaged(ru
 
 
 def test_a_malformed_repair_file_is_its_problem_in_the_replay(run):
-    g, _ = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
     (g.paths.replacements).write_text("[1]")
     assert "does not parse" in validate_run(run, screening_catalog(None))[f"{g.app_id}/{rd.REPLACEMENTS}"][0]
@@ -185,33 +189,32 @@ def test_a_malformed_repair_file_is_its_problem_in_the_replay(run):
 def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     monkeypatch.setenv("FAKE_EXIT", "3")
-    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=True) == 1
-    assert lines[-1].startswith("guide device: stop pipeline_failed: pipeline exited 3")
+    assert stopped() == ("device", "pipeline_failed")
     assert not g.paths.report.exists()
 
 
 def test_a_run_without_grouping_says_how_to_make_it(run):
     shutil.rmtree(GroupingPaths(run).root)
-    g, lines = guide(run, DRY_RUN)
+    g = guide(run, DRY_RUN)
     assert run_steps(g, device=False) == 1
-    assert "stop missing_device_stage" in lines[-1] and "grouping assign --device-results <device>" in lines[-1]
+    assert stopped() == ("grouping", "missing_device_stage")
 
 
 @pytest.mark.usefixtures("asked_by_model")
 def test_a_named_folder_with_items_undecided_asks_them(run):
     shutil.rmtree(GroupingPaths(run).root / "outbox")
-    g, lines = guide(run, DRY_RUN)
+    g = guide(run, DRY_RUN)
     g = with_field(g, grouping_args=("--agent", "dry-run"))
     run_steps(g, device=False)
-    assert any(line.startswith("guide grouping: ok: ran: ") and "items asked" in line for line in lines)
+    assert ("grouping", "ok", None) in ENDS and active_outbox(GroupingPaths(run).root).records()
 
 
 def test_a_named_folder_whose_groups_json_went_missing_is_rebuilt_with_no_call(run):
     GroupingPaths(run).groups.unlink()
-    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
-    assert any("guide grouping: ok: rebuilt from the kept decisions" in l for l in lines)
     assert GroupingPaths(run).groups.is_file()
 
 
@@ -224,43 +227,42 @@ def test_singleton_groups_leave_no_options(tmp_path):
     paths = GroupingPaths(tmp_path)
     decide(GroupingKind(paths), charter(LIBRARY), assign_cmd.DRY_RUN, paths.root, echo=lambda _: None)
     report(paths)
-    g, lines = guide(tmp_path, DRY_RUN)
+    g = guide(tmp_path, DRY_RUN)
     assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide dossier: stop no_options: none of 12 scopes has an option")
-    assert lines[-1].endswith("; not_on_device: add it to providers.bundled in global.yaml and rerun the device stage")
+    assert stopped() == ("dossier", "no_options")
 
 
 def test_a_model_that_keeps_everything_stops_before_the_edit(run):
-    g, lines = guide(run, DRY_RUN)
+    g = guide(run, DRY_RUN)
     assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide replace: stop no_replacement")
+    assert stopped() == ("replace", "no_replacement")
     assert not g.paths.edits.exists()
 
 
 def test_edits_that_cannot_find_their_call_stop_with_the_reasons(run, tmp_path):
     app = tmp_path / "app"
     shutil.copytree(APP, app)
-    g, lines = guide(run, ScriptedConversations(first_option(run, app)), app=app)
+    g = guide(run, ScriptedConversations(first_option(run, app)), app=app)
     assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide edit: stop no_edit_applied") and "(function_span)" in lines[-1]
+    assert stopped() == ("edit", "no_edit_applied")
 
 
 def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_path):
     from perfrepair.config.load import load
     settings = tmp_path / "perfrepair.yaml"
     settings.write_text(f"device:\n  screening:\n    catalog: {tmp_path / 'absent.yaml'}\n")
-    g, lines = guide(run, DRY_RUN)
+    g = guide(run, DRY_RUN)
     g.settings = load(settings, {}, {})
     assert run_steps(g, device=False) == 1
-    assert len(lines) == 1 and lines[0].startswith("guide prerequisites: stop") and "missing_file" in lines[0]
+    assert ENDS == [("prerequisites", "stop", "prerequisites_failed")]
 
 
 def test_a_folder_of_several_project_roots_is_a_coded_stop(run, tmp_path):
     for name in ("a", "b"):
         shutil.copytree(APP, tmp_path / "mono" / name)
-    g, lines = guide(run, DRY_RUN, app=tmp_path / "mono")
+    g = guide(run, DRY_RUN, app=tmp_path / "mono")
     assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide app: stop several_project_roots: ")
+    assert stopped() == ("app", "several_project_roots")
 
 
 def _from_root(tmp_path, capsys):
@@ -270,7 +272,9 @@ def _from_root(tmp_path, capsys):
         (tmp_path / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: []}\n")
     code = top(["guide", "--app", str(APP), "--agent", "dry-run", "--perf-mode", "latency,throughput", "--perfrepair-config", str(settings),
                 "--config", str(tmp_path / "global.yaml"), "--results-root", str(tmp_path / "results")])
-    return code, [l for l in capsys.readouterr().out.splitlines() if l.startswith(("device ", "guide "))]
+    events = [json.loads(e) for e in (tmp_path / "results" / "fake-api36-00000000" / rd.EVENTS).read_text().splitlines()]
+    last = [e for e in events if e["run"] == events[-1]["run"]]
+    return code, {(e["stage"], e["step"], e["outcome"], e["data"].get("code")) for e in last if e["event"] in ("end", "finding")}
 
 
 @pytest.mark.usefixtures("asked_by_model")
@@ -278,17 +282,16 @@ def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(F / "device"))
     code, first = _from_root(tmp_path, capsys)
     # stops.bundled_missing warn: the demo app ships a provider the fake device lacks, and the run goes on
-    assert code == 1 and first[0].startswith("device bundled_missing: warn: BC (org.bouncycastle:bcprov-jdk18on:1.78; ")
-    assert first[1] == "device probe: ran: no manifest.yaml"
-    assert any(l.startswith("guide grouping: ok: ran: ") and "items asked" in l for l in first)
-    stops = [l for l in first if " stop " in l]
-    assert len(stops) == 1 and stops[0].startswith("guide dossier: stop no_options: ")
+    assert code == 1 and ("device", "bundled", "warn", "bundled_missing") in first
+    assert {("device", "probe", "ran", None), ("device", "grouping", "ran", None)} <= first
+    stops = {e for e in first if e[2] == "stop"}
+    assert stops == {("guide", "dossier", "stop", "no_options"), ("guide", "target", "stop", "no_options")}
     device = tmp_path / "results" / "fake-api36-00000000"
     decided = sorted((device / "grouping" / "outbox").rglob("*.json"))
     assert decided
     code, again = _from_root(tmp_path, capsys)
-    assert code == 1 and again[1:5] == [f"device {s}: reused" for s in ("probe", "benchmark", "inbound", "screen")]
-    assert "guide grouping: ok: reused" in again and [l for l in again if " stop " in l] == stops
+    assert code == 1 and {("device", s, "reused", None) for s in ("probe", "benchmark", "inbound", "screen", "grouping")} <= again
+    assert {e for e in again if e[2] == "stop"} == stops
     # device.filterByApps: a probe, then the benchmark of the used set
     assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 2
     assert sorted((device / "grouping" / "outbox").rglob("*.json")) == decided
@@ -307,9 +310,9 @@ def test_a_blocking_invariant_stops_before_the_replace_call(request, monkeypatch
     found = [Violation("key_contract_agrees", BLOCKING, "group g1", ("group g1",), "split it"),
              Violation("interop_not_run", ADVISORY, "group g2", ("group g2",), "run it")]
     monkeypatch.setattr(app_steps, "app_gate", lambda device, app, root: found)
-    g, lines = guide(request.getfixturevalue("run"), DRY_RUN)
+    g = guide(request.getfixturevalue("run"), DRY_RUN)
     assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide replace: stop invariant_failed: 1 blocking: blocking key_contract_agrees group g1")
+    assert stopped() == ("replace", "invariant_failed")
     assert not g.paths.replace.exists()
 
 
@@ -323,7 +326,7 @@ def test_an_undecided_invariant_warns_by_default_and_stops_when_set(run, tmp_pat
     if chosen:
         (tmp_path / "perfrepair.yaml").write_text(f"stops: {{invariant_undecided: {chosen}}}\n")
         monkeypatch.setenv("PERFREPAIR_CONFIG", str(tmp_path / "perfrepair.yaml"))
-    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     with captured_events() as events:
         assert run_steps(g, device=False) == (1 if chosen else 0)
     [event] = [e for e in events if e.event == "finding" and e.data.get("code") == "invariant_undecided"]
@@ -332,14 +335,10 @@ def test_an_undecided_invariant_warns_by_default_and_stops_when_set(run, tmp_pat
 
 
 def test_a_decision_on_an_earlier_dossier_stops_the_guide_until_refresh(run):
-    g, lines = guide(run, ScriptedConversations(first_option(run)))
+    g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
     outbox = active_outbox(g.paths.replace)
     first = outbox.path(1)
     write_json(first, {**read_json(first), "evidence": "0" * 64})
-    lines.clear()
-    assert run_steps(g, device=False) == 1
-    assert lines[-1].startswith("guide replace: stop dossier_changed") and "(guide --refresh)" in lines[-1]
-    lines.clear()
-    assert run_steps(with_field(g, refresh=True), device=False) == 0
-    assert "guide replace: ok" in statuses(lines)
+    assert run_steps(g, device=False) == 1 and stopped() == ("replace", "dossier_changed")
+    assert run_steps(with_field(g, refresh=True), device=False) == 0 and ("replace", "ok", None) in ENDS

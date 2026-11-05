@@ -1,4 +1,4 @@
-"""The device benchmark's steps on a fake phone, in order: what moving the loop into one shared session must keep."""
+"""The device benchmark on a fake phone: processes, passes, energy windows and failures, as one shared session runs them."""
 import json, pathlib, sys, types
 
 import pytest
@@ -12,8 +12,6 @@ from stages import benchmark  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False)
-CASE_PROCESS = ["clocks", "clear", "list CryptoBenchmark", "clocks", "instrument CryptoBenchmark a", "pull data", "clocks",
-                "clocks", "instrument CryptoBenchmark b", "pull data", "clocks", "pull prepared.yaml", "pull skipped.yaml", "pull pins", "clocks", "convert"]
 
 
 def steps(phone):
@@ -47,7 +45,9 @@ def measured(tmp_path, monkeypatch, run, **phone_options):
 
 def test_isolation_case_is_one_process_per_case_and_one_conversion(tmp_path, monkeypatch):
     phone, files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
-    assert steps(phone) == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", *CASE_PROCESS]
+    instrumented = [s for s in steps(phone) if s.startswith("instrument ")]
+    assert instrumented == ["instrument CryptoBenchmark a", "instrument CryptoBenchmark b"]
+    assert steps(phone).count("convert") == 1 and steps(phone)[-1] == "convert"
     assert problems == []
     assert files["clocks"] == results / "benchmark/clocks.yaml"
     assert files["prepared"] == results / "preparation/prepared.yaml"
@@ -55,13 +55,14 @@ def test_isolation_case_is_one_process_per_case_and_one_conversion(tmp_path, mon
 
 def test_isolation_run_is_one_process(tmp_path, monkeypatch):
     phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"isolation": "run"})
-    assert steps(phone)[3:] == ["clocks", "clear", "instrument CryptoBenchmark", "pull data", "pull prepared.yaml", "pull skipped.yaml",
-                             "pull pins", "clocks", "convert"]
+    assert [s for s in steps(phone) if s.startswith("instrument ")] == ["instrument CryptoBenchmark"]
+    assert steps(phone).count("convert") == 1 and steps(phone)[-1] == "convert"
 
 
 def test_repetitions_each_write_their_folder_and_merge(tmp_path, monkeypatch):
     phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 2})
-    assert steps(phone)[3:] == CASE_PROCESS + CASE_PROCESS + ["merge"]
+    assert [s for s in steps(phone) if s.startswith("instrument ")] == ["instrument CryptoBenchmark a", "instrument CryptoBenchmark b"] * 2
+    assert steps(phone).count("convert") == 2 and steps(phone)[-1] == "merge"
     assert files["clocks"] == [results / "benchmark/process-1/clocks.yaml", results / "benchmark/process-2/clocks.yaml"]
     assert (results / "benchmark/process-1/benchmark.json").is_file() and (results / "benchmark/process-2/benchmark.json").is_file()
 

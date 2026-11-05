@@ -33,10 +33,8 @@ def setup(tmp_path):
 
 
 def device(root, config, catalog=None, on_device=False, refresh=False):
-    lines = []
-    done = probe_device(root, catalog or screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE, perf=TIMING,
-                        refresh=refresh)
-    return done, [line for line in lines if line.startswith("device ")]
+    return probe_device(root, catalog or screening_catalog(None), config, on_device, echo=lambda _: None, benchmark=FAKE,
+                        perf=TIMING, refresh=refresh)
 
 
 def runs(root):
@@ -46,10 +44,8 @@ def runs(root):
 
 def test_a_fresh_root_runs_every_stage_once_and_records_it(setup):
     root, config = setup
-    done, lines = device(root, config)
+    done = device(root, config)
     assert done.ran == ALL_RAN and len(runs(root)) == 1
-    assert lines[0].startswith("device probe: ran") and lines[-2].startswith("device screen: ran")
-    assert lines[-1].startswith("device primitives: ran")
     record, problem = rd.load_device_record(done.folder)
     assert problem is None and record.deviceId == done.folder.name == "fake-api36-00000000"
     assert set(record.inputs) == {"bundled", "config", "names", "screening"} and record.runtime == {"model": "test"}
@@ -59,15 +55,14 @@ def test_nothing_changed_reuses_everything_with_no_device_run(setup):
     root, config = setup
     device(root, config)
     before = (root / "fake-api36-00000000" / "grouping" / "items.json").stat().st_mtime_ns
-    done, lines = device(root, config)
+    done = device(root, config)
     assert done.ran == [] and len(runs(root)) == 1
-    assert lines == [f"device {s}: reused" for s in ALL_RAN]
     assert (done.folder / "grouping" / "items.json").stat().st_mtime_ns == before
 
 
 def test_the_primitives_table_is_written_and_recorded_with_its_input_digests(setup):
     root, config = setup
-    done, _ = device(root, config)
+    done = device(root, config)
     record, _ = rd.load_device_record(done.folder)
     assert (done.folder / rd.PRIMITIVES).read_text().startswith("#schemaVersion\t3\ntype\talgorithm\t")
     assert set(record.primitives) == {"rows", "measurements", "screen"} and all(record.primitives.values())
@@ -75,28 +70,28 @@ def test_the_primitives_table_is_written_and_recorded_with_its_input_digests(set
 
 def test_a_hand_edited_measurements_json_rebuilds_only_the_table(setup):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     path = first.folder / rd.MEASUREMENTS
     path.write_text(path.read_text().replace('"comparability": [', '"comparability": ["edited", ', 1))
-    done, lines = device(root, config)
-    assert done.ran == ["primitives"] and lines[-1].startswith("device primitives: ran")
+    done = device(root, config)
+    assert done.ran == ["primitives"]
 
 
 def test_refresh_rebuilds_only_the_table_and_a_record_without_its_digests_does_too(setup):
     root, config = setup
-    first, _ = device(root, config)
-    done, lines = device(root, config, refresh=True)
-    assert done.ran == ["primitives"] and lines[-1].startswith("device primitives: ran") and len(runs(root)) == 1
+    first = device(root, config)
+    done = device(root, config, refresh=True)
+    assert done.ran == ["primitives"] and len(runs(root)) == 1
     record = yaml.safe_load((first.folder / rd.DEVICE).read_text())
     del record["primitives"]
     (first.folder / rd.DEVICE).write_text(yaml.safe_dump(record))
-    done, lines = device(root, config)
-    assert done.ran == ["primitives"] and lines[-1].startswith("device primitives: ran")
+    done = device(root, config)
+    assert done.ran == ["primitives"]
 
 
 def test_the_folder_validator_checks_the_table_against_its_inputs(setup):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     assert validate_run(first.folder, screening_catalog(None))[rd.PRIMITIVES] == []
     path = first.folder / rd.PRIMITIVES
     lines = path.read_text().splitlines()
@@ -106,28 +101,27 @@ def test_the_folder_validator_checks_the_table_against_its_inputs(setup):
 
 def test_a_table_in_an_older_schema_is_rebuilt_alone(setup):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     path = first.folder / rd.PRIMITIVES
     path.write_text(path.read_text().replace("#schemaVersion\t3", "#schemaVersion\t2", 1))
-    done, lines = device(root, config)
-    assert done.ran == ["primitives"] and lines[-1].startswith("device primitives: ran")
+    done = device(root, config)
+    assert done.ran == ["primitives"]
 
 
 def test_a_provider_added_to_bundled_reruns_the_device_stage_under_the_same_id(setup):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     config.write_text(config.read_text().replace("bundled: []", "bundled: [{artifact: 'g:a:1', create: X}]"))
-    done, lines = device(root, config)
+    done = device(root, config)
     assert done.folder == first.folder and done.ran == ALL_RAN and len(runs(root)) == 2
-    assert lines[0].startswith("device probe: ran")
 
 
 def test_an_edited_global_yaml_reruns_from_the_probe(setup):
     root, config = setup
     device(root, config)
     config.write_text(config.read_text() + "run: {seed: 7}\n")
-    done, lines = device(root, config)
-    assert done.ran == ALL_RAN and lines[0].startswith("device probe: ran")
+    done = device(root, config)
+    assert done.ran == ALL_RAN
 
 
 def test_an_edited_screening_catalog_rescreens_only(setup, tmp_path):
@@ -135,28 +129,26 @@ def test_an_edited_screening_catalog_rescreens_only(setup, tmp_path):
     device(root, config)
     edited = tmp_path / "screening.yaml"
     edited.write_text(Path(SCREENING).read_text() + "\n# edited\n")
-    done, lines = device(root, config, load_catalog(edited))
+    done = device(root, config, load_catalog(edited))
     assert done.ran == ["screen", "primitives"] and len(runs(root)) == 1
-    assert lines[-2].startswith("device screen: ran")
     assert yaml.safe_load((done.folder / "device.yaml").read_text())["inputs"]["screening"] == load_catalog(edited).sha256
 
 
 def test_measurements_of_an_older_schema_rerun_inbound_without_a_device_run(setup):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     path = first.folder / rd.MEASUREMENTS
     path.write_text(path.read_text().replace('"schemaVersion": 4', '"schemaVersion": 3'))
-    done, lines = device(root, config)
+    done = device(root, config)
     assert done.ran == ["inbound", "primitives"] and len(runs(root)) == 1
-    assert lines[2].startswith("device inbound: ran")
 
 
 def test_a_probe_only_run_is_kept_and_the_benchmark_reuses_its_capture(setup, monkeypatch):
     root, config = setup
     from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline
     run_pipeline(config, root, "configure", benchmark=FAKE, echo=None, extra=("--probe",), device=root)
-    done, lines = device(root, config)
-    assert lines[:2] == ["device probe: reused", "device benchmark: ran: the manifest lists no benchmark"]
+    done = device(root, config)
+    assert done.ran[0] == "benchmark"
     assert runs(root)[-1].endswith("--bench --discovery reuse")
 
 
@@ -164,9 +156,8 @@ def test_on_a_device_the_benchmark_run_probes_again_and_says_so(setup):
     root, config = setup
     from perfrepair.data_handler.outbound.benchmark_runner import run_pipeline
     run_pipeline(config, root, "device", benchmark=FAKE, echo=None, extra=("--probe",), device=root)
-    done, lines = device(root, config, on_device=True)
-    assert lines[0].startswith("device probe: ran")
-    assert "--discovery" not in runs(root)[-1] and runs(root)[-1].endswith("--device")
+    done = device(root, config, on_device=True)
+    assert "probe" in done.ran and "--discovery" not in runs(root)[-1] and runs(root)[-1].endswith("--device")
 
 
 @pytest.mark.parametrize("detect, ran_with", [(None, [("ran", DEVICE_PROBES)]), (lambda _: [], [])], ids=["whole", "scoped"])
@@ -182,20 +173,20 @@ def test_on_a_device_only_a_whole_run_reports_the_probe_as_ran_with_the_benchmar
 
 def test_an_interrupted_benchmark_leaves_no_record_and_the_next_call_runs_it_all(setup, monkeypatch):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     config.write_text(config.read_text().replace("bundled: []", "bundled: [{artifact: 'g:a:1', create: X}]"))
     monkeypatch.setenv("FAKE_INTERRUPT", "1")
     with pytest.raises(Halt, match="^pipeline_failed: "):
         device(root, config)
     assert not (first.folder / rd.DEVICE).exists() and not (first.folder / rd.MANIFEST).exists()
     monkeypatch.delenv("FAKE_INTERRUPT")
-    done, lines = device(root, config)
-    assert done.ran == ALL_RAN and lines[0].startswith("device probe: ran")
+    done = device(root, config)
+    assert done.ran == ALL_RAN
 
 
 def test_an_interrupted_grouping_build_leaves_no_record_claiming_it(setup, monkeypatch):
     root, config = setup
-    first, _ = device(root, config)
+    first = device(root, config)
     config.write_text(config.read_text().replace("bundled: []", "bundled: [{artifact: 'g:a:1', create: X}]"))
 
     def lost(*_, **__):
@@ -205,8 +196,8 @@ def test_an_interrupted_grouping_build_leaves_no_record_claiming_it(setup, monke
         device(root, config)
     assert not (first.folder / rd.DEVICE).exists()
     monkeypatch.undo()
-    done, lines = device(root, config)
-    assert done.ran == ["inbound", "screen", "primitives"] and lines[2].startswith("device inbound: ran")
+    done = device(root, config)
+    assert done.ran == ["inbound", "screen", "primitives"]
 
 
 def test_a_probe_that_names_another_device_stops(setup, monkeypatch):
@@ -224,10 +215,8 @@ def _with_run(config, run):
 
 
 def _probe(root, config, perf, on_device=False):
-    lines = []
-    made = probe_device(root, screening_catalog(None), config, on_device, echo=lines.append, benchmark=FAKE,
+    return probe_device(root, screening_catalog(None), config, on_device, echo=lambda _: None, benchmark=FAKE,
                         perf=PerfMode.parse(perf))
-    return made, lines
 
 
 def _measured_metrics(made):
@@ -237,30 +226,27 @@ def _measured_metrics(made):
 
 def test_generic_on_a_host_measures_time_and_never_stops_and_the_config_keeps_its_digest(setup):
     root, config = setup
-    made, lines = _probe(root, config, "generic")
+    made = _probe(root, config, "generic")
     assert _measured_metrics(made) is None and made.config == config.resolve()
-    assert any(line.startswith("measures: timeNs on the host JVM harness") and
-               "not measured: allocationCount, energyJ" in line for line in lines)
 
 
 def test_generic_on_a_device_measures_time_and_allocation_through_a_generated_config(setup):
     root, config = setup
-    made, lines = _probe(root, config, "generic", on_device=True)
+    made = _probe(root, config, "generic", on_device=True)
     assert _measured_metrics(made) == ["TIME", "ALLOCATION"]
-    assert any("timeNs, allocationCount on the device harness" in line and "not measured: energyJ" in line for line in lines)
 
 
 def test_a_generated_config_is_the_base_of_the_next_run_so_nothing_reruns(setup):
     root, config = setup
     _probe(root, config, "generic", on_device=True)
-    made, _ = _probe(root, config, "generic", on_device=True)
+    made = _probe(root, config, "generic", on_device=True)
     assert made.ran == []
 
 
 def test_a_perf_mode_that_changes_what_is_measured_reruns_the_benchmark(setup):
     root, config = setup
     _probe(root, config, ["latency"], on_device=True)
-    made, _ = _probe(root, config, "generic", on_device=True)
+    made = _probe(root, config, "generic", on_device=True)
     assert "benchmark" in made.ran
 
 
@@ -286,7 +272,7 @@ def test_a_strict_metric_the_host_cannot_measure_stops_and_names_the_harness(set
 
 def test_a_strict_allocation_on_a_device_is_measured_not_stopped(setup):
     root, config = setup
-    made, _ = _probe(root, config, ["memAlloc"], on_device=True)
+    made = _probe(root, config, ["memAlloc"], on_device=True)
     assert _measured_metrics(made) == ["TIME", "ALLOCATION"]
 
 
@@ -304,7 +290,7 @@ def test_a_differing_user_run_metrics_warns_once_and_perf_mode_wins(setup):
     root, config = setup
     _with_run(config, "run: {metrics: [TIME, ALLOCATION]}\n")
     with captured_events() as events:
-        made, _ = _probe(root, config, "generic")
+        made = _probe(root, config, "generic")
     warned = [e for e in events if e.data.get("code") == "run_metrics_overridden"]
     assert [e.outcome for e in warned] == ["warn"] and "['TIME', 'ALLOCATION']" in warned[0].detail
     assert _measured_metrics(made) == ["TIME"]
@@ -314,7 +300,7 @@ def test_a_user_run_metrics_that_matches_is_silent_and_rewrites_nothing(setup):
     root, config = setup
     _with_run(config, "run: {metrics: [ALLOCATION, TIME]}\n")
     with captured_events() as events:
-        made, _ = _probe(root, config, "generic", on_device=True)
+        made = _probe(root, config, "generic", on_device=True)
     assert not [e for e in events if e.data.get("code") == "run_metrics_overridden"] and _measured_metrics(made) is None
 
 
@@ -322,7 +308,7 @@ def test_what_the_config_would_refuse_beside_the_metrics_goes_too(setup, tmp_pat
     root, config = setup
     _with_run(config, "run: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 3}, allocation: {samples: 2}}, "
                       "harness: {energy: {capture: measured}}}\n")
-    made, _ = _probe(root, config, "generic")
+    made = _probe(root, config, "generic")
     run = yaml.safe_load((made.folder / METRICS_CONFIG).read_text())["run"]
     assert run["metrics"] == ["TIME"] and list(run["passes"]) == ["timing"] and run["harness"]["energy"]["capture"] == "none"
 
