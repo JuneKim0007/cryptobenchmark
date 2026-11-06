@@ -7,12 +7,12 @@
 | JCA type | name rule | key | parameters | role |
 |---|---|---|---|---|
 | Cipher | `AES/GCM/NoPadding` | AES 128, 192, 256 | `GCMParameterSpec(128, fresh(12))` | measured |
-| Cipher | `AES/CBC/PKCS5Padding` | AES 128, 192, 256 | | measured |
-| Cipher | `AES/CTR/NoPadding` | AES 128, 192, 256 | | measured |
-| Cipher | `ChaCha20*` | | `ChaCha20`: `ChaCha20ParameterSpec(fresh(12), 1)` | measured |
-| Cipher | `RSA/ECB/OAEP*` | RSA 2048, 4096; input 32 bytes | `OAEPWithSHA-256AndMGF1Padding`: `OAEPParameterSpec(SHA-256, MGF1, MGF1ParameterSpec.SHA256, PSpecified.DEFAULT)` | measured |
+| Cipher | `AES/CBC/PKCS5Padding` | AES 128, 192, 256 | `IvParameterSpec(fresh(16))` | measured |
+| Cipher | `AES/CTR/NoPadding` | AES 128, 192, 256 | `IvParameterSpec(fresh(16))` | measured |
+| Cipher | `ChaCha20*` | | `ChaCha20`: `ChaCha20ParameterSpec(fresh(12), 1)`; `ChaCha20*Poly1305*`: `IvParameterSpec(fresh(12))` | measured |
+| Cipher | `RSA/ECB/OAEP*` | RSA 2048, 4096; input 32 bytes | `OAEPWithSHA-256AndMGF1Padding`: `OAEPParameterSpec(SHA-256, MGF1, MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)` | measured |
 | Cipher | `RSA/ECB/PKCS1Padding` | RSA 2048, 4096; input 32 bytes | | measured |
-| Cipher | `DESede/CBC/PKCS5Padding` | | | baseline (3DES) |
+| Cipher | `DESede/CBC/PKCS5Padding` | | `IvParameterSpec(fresh(8))` | baseline (3DES) |
 | Cipher | `ARCFOUR` | | | baseline (RC4) |
 | MessageDigest | `SHA-256`, `SHA-1`, `SHA-512` | | | measured |
 | MessageDigest | `MD5` | | | baseline |
