@@ -2,7 +2,7 @@
 
 `catalog/signature.py` derives each item's signature at build, into its profile: `catalog/interchange.yaml` reads the canonical name (`catalog/algorithm-names.yaml`, probe aliases included), `catalog/resolved.py` the trial's digest and MGF1, the profile the key contract.
 
-The signature is best effort and exists only to reduce model calls: it derived the `contract` of each catalogue entry once ([algorithm-catalogue.md](algorithm-catalogue.md)), from which the rows are read on load, shows the model its facts, and checks groups (gate C, static findings); it never places an item at run time ([grouping.md](grouping.md) Identified items).
+The signature is best effort and exists only to reduce model calls: contract rows come from each catalogue entry's `contract` ([algorithm-catalogue.md](algorithm-catalogue.md)), not from it; it states a candidate row's `contracts` in `group-candidates.yaml` (`catalog/groups.py` `row_contracts`), shows the model its facts, and checks groups (gate C, static findings); it never places an item at run time ([grouping.md](grouping.md) Identified items).
 
 | Component status | Meaning | Contract row of a listed name |
 |---|---|---|
@@ -48,5 +48,5 @@ The signature is best effort and exists only to reduce model calls: it derived t
 | any other format or none, a run that failed or did not run, sizes whose keys disagree | `unknown` |
 
 - Cross-check: the same provider's consumers of that key algorithm (a run whose `keyAlgorithm` is the generator's name; a run that failed names none, so any consumer of the key's kind counts), by their key attributes; one known contract that differs makes it `unknown` with `keyContractConflict` and a `key_contract_conflict` finding in `checks.json`.
-- `unknown` joins no group: a code-made group of one (`screen/groups.py`), and gate C refuses a model answer that joins it or joins a group holding it; the failure is a missing option, never a swap that moves a key out of its provider.
+- `unknown` joins no group: a screened-out or listed one is a code-made group of one (`screen/groups.py`); an unlisted one is asked, and gate C refuses an answer that joins any group with it or joins a group holding it; the failure is a missing option, never a swap that moves a key out of its provider.
 - The prompt is unchanged: the model sees only the `facts.key.key` it already reads.
