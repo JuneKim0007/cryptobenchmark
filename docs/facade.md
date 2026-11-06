@@ -13,7 +13,7 @@ Template: `settings.example.yaml`. Relative paths resolve against the file holdi
 | `run.id` | names `runs/run_<id>.json`; empty: a new timestamp id |
 | `run.onExisting` | `overwrite`, `resume`, `skip` ([artifacts.md](../apps/perf-repair/docs/artifacts.md#run-record)) |
 | `crypto.config` | the `global.yaml` of the benchmark |
-| `crypto.harnessConfig` | optional: a lighter `global.yaml` for the per-app before/after run |
+| `crypto.harnessConfig` | optional: a lighter `global.yaml` for the per-app device step (compile and interop check); unset: `crypto.config` |
 | `llm.config` | the `perfrepair.yaml` of the guided repair; `perfMode` stays there |
 
 ## Direction rule
@@ -28,12 +28,12 @@ every side    -> packaged catalogs
 |---|---|
 | a pointer at a file another side holds | `direction: ... points sideways` |
 | a pointer back at a file above it | `direction: ... points up` |
-| a key that moved out of `perfrepair.yaml` with a value | `placement: <key> is no perfrepair.yaml key; set <place>` |
+| a `perfrepair.yaml` key of the table below, with a value | `placement: <key> is no perfrepair.yaml key; set <place>` |
 | a key of another file in `perfrepair.yaml` | `placement: <key> in <file> belongs in ...` |
 | a key nothing reads in `perfrepair.yaml` | `unknown_key: <key> in <file>` |
 | a key of another file in `global.yaml` | `config_invalid: global.yaml: unknown_section: ...` |
 
-| key that left `perfrepair.yaml` | index key | guide flag |
+| `perfrepair.yaml` key refused | index key | guide flag |
 |---|---|---|
 | `paths.results` | `results` | `--results-root` |
 | `device.benchmark.config` | `crypto.config` | `--config` |
