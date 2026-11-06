@@ -22,7 +22,7 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 |---|---|
 | `events.jsonl` | one JSON line per event, every field on every line (`dto/event.py`, schema 1); the only stream commands write |
 | `status.log` | one line per outcome a person acts on, a `run` header and `end` line per run |
-| `ai/screening.log`, `ai/classify.log`, `ai/grouping.log`, `ai/worthiness.log`, `ai/replace.log` | one model stage's events, one line each, problems indented; `classify` is screening's classify role |
+| `ai/screening.log`, `ai/classify.log`, `ai/grouping.log`, `ai/worthiness.log`, `ai/replace.log` | one model stage's events, one line each, problems indented; `classify` is screening's classify role; the upgrade role's events (stage `repair`) have no file |
 | `bug.log` | each exception that is not a coded error, with its traceback |
 | `pipeline/<run id>.log` | the cryptobenchmark transcript of every `pipeline.py` call of one run, each headed `# <stage>[ app <app>]` and `$ <command>` |
 | `details/primitives_missing.yaml` | the primitives and providers an app uses that this guide run skipped or stopped on because they are not available ([below](#primitives-missing)) |
@@ -30,8 +30,6 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 
 - `status.log`, `ai/*.log` and `bug.log` are views: each line is a function of one event (`log/views.py`); `render()` recomputes them from `events.jsonl`.
 - `pipeline/<run id>.log`, `details/*.yaml` and the role journals are no views; an event's `ref` points into them.
-- `log/screening/ai.log` and `log/grouping/ai.log` are no longer written: their lines are in `ai/classify.log` and `ai/grouping.log`; a folder written before keeps the old files, and `render()` over its `events.jsonl` gives the new ones.
-- `<results root>/pipeline.log` is no longer written; the transcript is in the device folder, one file per run.
 
 ## Status lines
 
@@ -57,7 +55,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | `bundled_missing` | `device/bundled.py` | each provider with its coordinates and apps |
 | a guide stop (`no_options`, `missing_device_stage`, `<step>_failed`, ...) | `guide/state.py`, `guide/run.py` | `<step>_failed` carries the inner code in `data.inner` and first in its detail |
 
-- The code is `data.code`; an event written before it has its detail's first word holding an underscore, or one word before a colon.
+- The code is `data.code`, else the detail's first word holding an underscore, or one word before a colon (`log/status.py`).
 - A step that ends in a `Halt` records `data.code` and `data.reported`; its own line is left out.
 - A line adds the last `error` line of its detail.
 
