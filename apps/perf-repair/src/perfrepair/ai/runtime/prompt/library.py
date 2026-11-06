@@ -81,9 +81,6 @@ class PromptLibrary:
         path = self.sources[name]
         return PACKAGED_ORIGIN if path == PACKAGED / self.entries[name].file else str(path)
 
-    def provenance(self, charter: Charter) -> dict[str, str]:
-        return {name: str(self.sources[name]) for name in charter.prompts}
-
     def source(self, name: str) -> Path:
         return self.sources[name]
 
