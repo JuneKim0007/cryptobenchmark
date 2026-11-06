@@ -14,7 +14,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Passes
 
-`run.passes` ([config.md](../apps/benchmark/modules/config/docs/config.md)) splits a device run into one session per metric group; without it one pass measures every metric, as before.
+`run.passes` ([config.md](../apps/benchmark/modules/config/docs/config.md)) splits a device run into one session per metric group; without it one pass measures every metric.
 
 | pass | measures | samples | energy |
 |---|---|---|---|
@@ -23,14 +23,14 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | `allocation` | `ALLOCATION`, one run per sample (`SampledAllocations` inside the timed phase; androidx's own phase keeps its 5) | as `timing` | none |
 
 - Per group: timing takes many short samples with no trace pulled; energy takes a window of about 100 rail polls; allocation counting slows the timed loop, and those times never reach the results.
-- Merge: the timing pass's rows are the base; `MergePassesKt` takes `energyJ` only from the energy pass and `allocationCount` only from the allocation pass. A case a pass lost has no value of that metric (`not_merged: <id>: <key>: its pass has no row`), never the timing pass's, so a metric's before/after pair always comes from one pass and drift between passes never enters a ratio.
-- Layout: `benchmark/<pass>/` (with `process-<n>/` under it), then `benchmark/benchmark.json` merged; with repetitions also `benchmark/process-<n>/benchmark.json`, the n-th process of every pass merged, which `manifest.yaml` lists as `processes`. The before/after run does the same under `scoped/`.
+- Merge: the timing pass's rows are the base; `MergePassesKt` takes `energyJ` only from the energy pass and `allocationCount` only from the allocation pass. A case a pass lost has no value of that metric (`not_merged: <id>: <key>: its pass has no row`), never the timing pass's, so every value of one metric comes from one pass and drift between passes never enters a ratio.
+- Layout: `benchmark/<pass>/` (with `process-<n>/` under it), then `benchmark/benchmark.json` merged; with repetitions also `benchmark/process-<n>/benchmark.json`, the n-th process of every pass merged, which `manifest.yaml` lists as `processes`.
 - Each pass prints `pass:      <name> pass: <n> processes, <time> on the device`; the run's device time is their sum, plus thermal sleeps.
 - `capture: dry` with `run.passes` stops with `not_supported`; an energy pass with no `measured` case is skipped with a warning; `--bench` warns and measures once per process.
 
 ## Variants
 
-`run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `apps/benchmark-runner/session/variant_order.py` orders the benchmark's cases, never the before/after run's (`alternating`, by scope pair).
+`run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `apps/benchmark-runner/session/variant_order.py` orders the benchmark's cases.
 
 | rule | value |
 |---|---|
@@ -42,7 +42,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Temperature
 
-`apps/benchmark-runner/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` can be denied to it); `apps/benchmark-runner/session/thermal_hook.py` reads it before and after every process and every case, in the benchmark and the before/after run.
+`apps/benchmark-runner/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` can be denied to it); `apps/benchmark-runner/session/thermal_hook.py` reads it before and after every process and every case.
 
 | rule | value |
 |---|---|
@@ -81,7 +81,7 @@ Why: a case that starts on a device still hot from the last one runs on throttle
 | wait | before each case process (`isolation: case`), or before each process (`isolation: run`, no case boundary): read every `pollSeconds` while the hottest of `sensors` is above target or `Thermal Status` is above 0 |
 | timeout | past `timeoutSeconds` the case starts anyway; `thermal_gate_timeout: <id>: <pass>: started after <s> s at <c> C, status <n>, target <t> C` in `manifest.yaml` `problems` (`process-<n>` for `isolation: run`) |
 | sensors | names in config (device facts), never in code; one absent from a reading is skipped; none present at the baseline turns the gate off for the run with one `warning: thermal_gate_off: ...`; a poll with no gated sensor and no status does not hold a case |
-| order | `caseCooldownSeconds` first (fixed), then the gate, then the case's temperature and clocks are read; the warm-up is not gated; the before/after run is gated the same way |
+| order | `caseCooldownSeconds` first (fixed), then the gate, then the case's temperature and clocks are read; the warm-up is not gated |
 | record | `benchmark.json` per case: `gate: {waitedSeconds, target, timedOut}` ([results.md](results.md#benchmarkjson-case-fields)) |
 | per pass | `gate:      <pass>: <n> of <m> cases gated, <s> s waited, max <s> s, <n> timed out` |
 | `--bench` | no temperatures on a host: one `warning: thermal_gate_off: ...` and the run measures ungated |
@@ -96,7 +96,7 @@ What it does not fix:
 
 ## Warm-up
 
-`run.warmup` ([config.md](../apps/benchmark/modules/config/docs/config.md)): one process before the first pass of a session, on any device path, the benchmark and the before/after run alike.
+`run.warmup` ([config.md](../apps/benchmark/modules/config/docs/config.md)): one process before the first pass of a session on a `--device` benchmark run.
 
 | rule | value |
 |---|---|
