@@ -53,6 +53,8 @@ class RequirementTrialTest {
         assertEquals("96,104,112,120,128", fact(gcm, "tagBits")["accepted"])
         assertEquals("16,24,32", fact(gcm, "keyBytes")["accepted"])
         assertEquals(true, fact(gcm, "reuseGuard")["refused"])
+        @Suppress("UNCHECKED_CAST")
+        assertEquals(false, (fact(gcm, "reuseGuard")["newInstance"] as Map<String, Any>)["refused"])
         assertEquals(true, gcm.facts["roundTrip"])
         assertEquals("refused AEADBadTagException", gcm.facts["tamper"])
         assertEquals(true, fact(gcm, "aad")["supported"])

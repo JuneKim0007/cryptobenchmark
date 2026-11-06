@@ -5,11 +5,13 @@ import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
 import java.security.InvalidKeyException
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
+import javax.crypto.CipherSpi
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 internal object CipherFacts : RequirementCall {
 
+    private const val NOT_REGISTERED = "not registered under this name"
     private val INPUTS = listOf(0, 1, 2, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 100, 1024)
     private const val MAX_INPUT_SEARCH = 1024
 
@@ -43,7 +45,7 @@ internal object CipherFacts : RequirementCall {
         sheet.measure("inputBytes") { inputBytes(engine, base) }
         sheet.measure("deterministicFixed") { deterministicFixed(engine, base) }
         sheet.measure("deterministicGenerated") { deterministicGenerated(engine, base) }
-        sheet.measure("reuseGuard") { reuseGuard(engine, base) }
+        sheet.measure("reuseGuard") { reuseGuard(service, engine, base) }
         sheet.measure("roundTrip") { roundTrip(engine, base) }
         sheet.measure("decryptWithoutParameters") { ErrorText.refusal { engine.create().init(Cipher.DECRYPT_MODE, key.decrypting) } ?: "ok" }
         sheet.measure("tamper") { tamper(engine, base) }
@@ -152,12 +154,32 @@ internal object CipherFacts : RequirementCall {
         runCatching { engine.encrypt(base.key.encrypting, null, base.message).contentEquals(engine.encrypt(base.key.encrypting, null, base.message)) }
             .getOrElse { mapOf("refused" to ErrorText.of(it)) }
 
-    private fun reuseGuard(engine: CipherEngine, base: CipherBase): Map<String, Any> {
+    // What an app sees (the same Cipher re-initialised), a second Cipher, and the provider's own SPI wrapped as it is,
+    // since a platform Cipher may pick a fresh SPI on each init and so never reach the SPI's guard.
+    private fun reuseGuard(service: ProbedService, engine: CipherEngine, base: CipherBase): Map<String, Any> {
         val fixed = ParameterSpecs.fresh(base.like)
         val cipher = engine.encrypting(base.key.encrypting, fixed)
         cipher.doFinal(base.message)
-        val refused = ErrorText.refusal { CipherEngine.init(cipher, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed) }
+        val out = refusedOrNot { CipherEngine.init(cipher, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed) }
+        out["newInstance"] = refusedOrNot { engine.encrypting(base.key.encrypting, fixed) }
+        out["spi"] = ownSpi(service)?.let { spi ->
+            refusedOrNot {
+                CipherEngine.init(spi, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed)
+                spi.doFinal(base.message)
+                CipherEngine.init(spi, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed)
+            }
+        } ?: NOT_REGISTERED
+        return out
+    }
+
+    private fun refusedOrNot(block: () -> Unit): LinkedHashMap<String, Any> {
+        val refused = ErrorText.refusal(block)
         return linkedMapOf<String, Any>("refused" to (refused != null)).apply { refused?.let { put("error", it) } }
+    }
+
+    private fun ownSpi(service: ProbedService): Cipher? {
+        val spi = service.provider.getService(service.type, service.algorithm)?.newInstance(null) as? CipherSpi ?: return null
+        return object : Cipher(spi, service.provider, service.algorithm) {}
     }
 
     private fun roundTrip(engine: CipherEngine, base: CipherBase): Boolean {

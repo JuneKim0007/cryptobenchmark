@@ -6,7 +6,7 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 
 | type | facts |
 |---|---|
-| Cipher | `defaultInit`, `blockBytes`, `specClasses` (accepted, and accepted yet ignored), `ivBytes`, `tagBits`, `keyBytes`, `keyBits`, `foreignKeys`, `inputBytes` with `outputBytes` (input:output lengths) and `maxInputBytes`, `deterministicFixed`, `deterministicGenerated`, `reuseGuard`, `roundTrip`, `decryptWithoutParameters`, `tamper`, `aad`, `effects`; a cipher that only wraps: `wrapRoundTrip` |
+| Cipher | `defaultInit`, `blockBytes`, `specClasses` (accepted, and accepted yet ignored), `ivBytes`, `tagBits`, `keyBytes`, `keyBits`, `foreignKeys`, `inputBytes` with `outputBytes` (input:output lengths) and `maxInputBytes`, `deterministicFixed`, `deterministicGenerated`, `reuseGuard` (the same Cipher re-initialised with the key and nonce it just used, as an app sees it; beside it `newInstance`, a second Cipher, and `spi`, the provider's own SPI wrapped in one Cipher, or `not registered under this name`), `roundTrip`, `decryptWithoutParameters`, `tamper`, `aad`, `effects`; a cipher that only wraps: `wrapRoundTrip` |
 | Signature | `signatureBytes`, `deterministic`, `signatureBytesRange`, `parameters`, `verifies`, `tamperedSignature`, `tamperedMessage`, `inputBytes`, `setParameter`, `keyBits`, `foreignKeys` |
 | Mac | `macBytes`, `lengthBeforeInit`, `deterministic`, `keyBytes`, `withoutInit`, `ivSpec`, `inputBytes`, `cloneable`, `foreignKeys` |
 | MessageDigest | `digestBytes`, `lengthDeclared`, `deterministic`, `inputBytes`, `cloneable`, `emptyInputPrefix` |
