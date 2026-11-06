@@ -44,6 +44,7 @@ apps/benchmark/modules/benchmark/src/test/kotlin/EnergyRunTest.kt : CaseRuns com
 apps/benchmark/modules/benchmark/src/test/kotlin/HostHarnessTest.kt : host loop tests
 apps/benchmark/modules/benchmark/src/test/kotlin/JetpackResultsTest.kt : Jetpack conversion tests over example/
 apps/benchmark/modules/benchmark/src/test/kotlin/MergeTest.kt : per-process merge tests
+apps/benchmark/modules/benchmark/src/test/kotlin/PassMergeTest.kt : per-pass merge tests
 apps/benchmark/modules/benchmark/src/test/kotlin/PlanCheckTest.kt : refusal tests
 apps/benchmark/modules/benchmark/src/test/kotlin/RunCountAuditTest.kt : run-count audit tests
 ```

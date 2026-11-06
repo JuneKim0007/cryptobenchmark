@@ -1,6 +1,6 @@
 # measure
 
-Prepared cases to measurements and `benchmark.json`. Device harness: `apps/benchmark/modules/android/docs/harness.md`. File map: [index.md](index.md).
+Prepared cases to measurements and `benchmark.json`. Device harness: `apps/benchmark/modules/android/docs/harness.md`. Energy capture, `energy.yaml`, `energy.json` and the `energyJ` join: `docs/energy.md`. File map: [index.md](index.md).
 
 ## Flow
 
@@ -66,7 +66,7 @@ Harness settings as plain values, no androidx type.
 | key | holds |
 |---|---|
 | `runtime` | string map |
-| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `variant`, `parameters`, `metrics` |
+| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `variant`, `parameters`, `metrics`; the optional heat fields `thermalThrottleSleepSeconds`, `thermal`, `thermalNote`, `gate`: [results.md](../../../../../docs/results.md#benchmarkjson-case-fields) |
 | `metrics.<key>` | `iterations`, `runs[]`, optional `reported{minimum, maximum, median, coefficientOfVariation}` |
 
 | rule | value |
@@ -74,7 +74,7 @@ Harness settings as plain values, no androidx type.
 | metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` (with `source` and `kind`) |
 | reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `apps/benchmark-runner/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
 | `timeNs` | required in every row |
-| `keyKind`, `variant` | `secret`, `pair`, `none`; `"fixed"` or `"notFixed"`, the prepared case's ([operations.md](../../preparation/docs/operations.md#variants)); always written, `null` for a row whose plan has none (a before/after scope) |
+| `keyKind`, `variant` | `secret`, `pair`, `none`; `"fixed"` or `"notFixed"`, the prepared case's ([operations.md](../../preparation/docs/operations.md#variants)); always written |
 | `parameters` | what the provider used; keys and meaning as prepared.yaml `resolvedParameters` (`apps/benchmark/modules/preparation/docs/prepared.md`); `{}` when nothing applies; required |
 | `runs` | doubles; non-finite: `not_finite: runs` |
 | `iterations` | `>= 1` |
@@ -89,7 +89,8 @@ Harness settings as plain values, no androidx type.
 | `iterations` | the first process's |
 | `reported` | dropped |
 | partial presence | a case or metric present in only some processes survives |
-| `runtime` keys | first value wins |
+| `runtime` keys | first value wins; a later different value adds a line `runtime_differs: <key>: process 1 <a>, process <n> <b>` |
+| run counts | a metric's run count must equal the first process's, else the case is left out: `not_merged: <id>: unequal_samples: ...` |
 | `parameters`, `variant` | must be equal across processes, else the case is left out: `not_merged: <id>: different_parameters: <id>: <a> and <b>` (`different_variant: ...`); energy of different kinds or sources the same |
 | a process entry without `metrics` or `parameters` | that entry is left out: `not_merged: <id>: process <n>: missing_field: ...`; the other processes keep the case |
 | no case left | `MergeRunsKt` stops with `nothing_merged` |
@@ -123,7 +124,7 @@ Harness settings as plain values, no androidx type.
 | `allocationSamples` written (an allocation pass) | read as `allocationCount`, one run per sample; `allocation_runs_changed` is not checked |
 | a pass (`ConvertKt --metrics=... --samples=n`) | the pass's metrics replace the case's `metrics`; `n` replaces `iterations` in `iterations_not_applied` |
 | case shape | algorithm, provider, operation, sizes, `keyKind`, `variant` from the `prepared.yaml` case |
-| `parameters` | the case's `resolvedParameters`; absent: `not_converted: <id>: missing_field: resolvedParameters for <id>; prepared.yaml predates schemaVersion 2` |
+| `parameters` | the case's `resolvedParameters`; absent: `not_converted: <id>: missing_field: resolvedParameters for <id>; ...` |
 | androidx.benchmark | 1.5.0 |
 
 | `runtime` key | Jetpack source |
@@ -140,10 +141,6 @@ Harness settings as plain values, no androidx type.
 | `allocation_runs_changed: ...` | allocation runs differ from 5 |
 
 `ConvertKt` and `MergeRunsKt` command lines: `docs/tools.md`.
-
-## Energy
-
-Capture modes, `energy.yaml`, `energy.json`, `energyJ` join and energy refusals: `docs/energy.md`.
 
 ## Example
 
