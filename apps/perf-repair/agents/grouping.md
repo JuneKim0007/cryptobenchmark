@@ -8,7 +8,7 @@
 
 ## Rules
 - family: static; a catalog entry keyed by engine type + key kind.
-- group: an agent's decision inside one family.
+- group: interchangeable items inside one family: a catalog group (a contract row at one key contract), a code-made `code_` group, or a model-made group; code places every identified item, the model only the rest; `docs/grouping.md` Criterion.
 - criterion: input, key and output contracts inside one family; `docs/grouping.md` Criterion.
 - capabilities: key size, tag length and availability are static; never group identity.
 - key contract: derived in `grouping/build/key_contract.py` from probe attributes, a generator's from its trial's produced key cross-checked with its provider's consumers; never from a provider name or a registered `KeyStore`; doubt is `unknown`, never a guess, and an unknown generator joins no group.
