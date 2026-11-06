@@ -11,16 +11,16 @@ Tools that back a review with numbers. They are installed outside the repo, so n
 - dead code: a tool's hit is a candidate; grep the symbol (code, tests, YAML keys, CLI registration, reflection) before deleting.
 - proof: a refactor diffs the dry-run outputs before and after (`diff -r`) and reports the result.
 - runs: write run outputs under `~/capstone/runs/<date>-<name>/`, never `/tmp`.
-- end to end: a change to config, catalogs, discovery or the pipeline also runs `python3 apps/benchmark-runner/pipeline.py --bench --config config/global-demo.yaml --results ~/capstone/runs/<date>-<name>/results` to exit 0; the run lands in `results/<device_id>/`; unit suites alone missed a JDK-specific name clash once.
+- end to end: a change to config, catalogs, discovery or the pipeline also runs `python3 apps/benchmark-runner/pipeline.py --bench --config config/global-demo.yaml --results ~/capstone/runs/<date>-<name>/results` to exit 0 (the run lands in `<results>/<device_id>/`); unit suites alone do not catch a JDK-specific name clash.
 
 ## Commands
 | Question | Command | Flag when |
 |---|---|---|
-| function too big or branchy | `$T/lizard -C 10 -L 60 -w apps/perf-repair/src scripts tools modules -l python -l kotlin` | CCN > 10 or > 60 lines |
-| file hard to maintain (Python) | `$T/radon mi -s apps/perf-repair/src scripts tools` | grade B or worse |
+| function too big or branchy | `$T/lizard -C 10 -L 60 -w apps/perf-repair/src apps/benchmark-runner apps/cli tools apps/benchmark -l python -l kotlin` | CCN > 10 or > 60 lines |
+| file hard to maintain (Python) | `$T/radon mi -s apps/perf-repair/src apps/benchmark-runner apps/cli tools` | grade B or worse |
 | unused Python code | `python3 tools/dead_code.py` (vulture minus `tools/dead-code-allow.txt`; part of perf-repair's `make check`) | any hit, then grep; a kept hit gets its allowlist line and reason |
-| unused imports, variables, args; commented-out code | `ruff check --select F401,F841,F811,ARG,ERA apps/perf-repair/src scripts tools` | any hit |
-| copy-paste, both languages | `npx -y jscpd@4 --min-tokens 60 --reporters console --ignore "**/test/**,**/tests/**,**/build/**,**/fixtures/**" apps/perf-repair/src scripts tools modules` | any clone in main code |
+| unused imports, variables, args; commented-out code | `ruff check --select F401,F841,F811,ARG,ERA apps/perf-repair/src apps/benchmark-runner apps/cli tools` | any hit |
+| copy-paste, both languages | `npx -y jscpd@4 --min-tokens 60 --reporters console --ignore "**/test/**,**/tests/**,**/build/**,**/fixtures/**" apps/perf-repair/src apps/benchmark-runner apps/cli tools apps/benchmark` | any clone in main code |
 | untested code | `(cd apps/perf-repair && python3 -m pytest -q --cov=perfrepair --cov-report=term-missing)` | 0% files; dead-code candidates |
 | Kotlin package dependencies | `jdeps -verbose:package -summary apps/benchmark/modules/<m>/build/classes/kotlin/main` | an edge against `docs/contributing/code.md` |
 | change hotspots | `git log --since='30 days' --format= --name-only -- '*.py' '*.kt' \| sort \| uniq -c \| sort -rn \| head` | high churn with high CCN |
