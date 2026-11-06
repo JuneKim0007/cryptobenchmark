@@ -14,7 +14,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 
 - `apps.perfMode` (`guide --perf-mode`), and `--perf-mode` on `ai worthiness` and `report app`: `generic`, `all` or a list of keys; the CLI takes them comma-joined (`energy,latency,throughput`).
 - Selection = the registry metrics whose `selects` hold a chosen key (`dto/perf_mode.py`). Latency and throughput are one metric: one estimate, one ratio, shown in each selected unit, never two pieces of evidence.
-- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: the decision rule and what is required differ from a hand-written list naming every key: generic requires no metric and judges on what was measured. Passes, labels, render and report see the list; `required` is empty, so a metric the harness cannot measure never stops it.
+- `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: the decision rule and what is required differ from a hand-written list naming every key: generic requires no metric and judges on what was measured. Passes, labels and the renders see the list; `required` is empty, so a metric the harness cannot measure never stops it.
 - A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`), or is `generic`; `worthiness-<name>/` holds its verdicts.
 - Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another.
 
