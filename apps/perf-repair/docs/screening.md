@@ -25,12 +25,12 @@
 
 ## Use
 
-- grouping: `broken` and `platform_deprecated` items are grouped by code on the recorded key and never asked, whatever their signature says; `groups.json` carries each item's status as `screen` ([grouping.md](grouping.md) Code-made groups).
+- grouping: `broken` items are grouped by code on the recorded key and never asked, whatever their signature says; `groups.json` carries each item's status as `screen` ([grouping.md](grouping.md) Identified items).
 - a run without `screen.json` asks every item, and dossiers and evidence apply no status rule.
 - never a target: a `broken` target is refused always, the same algorithm from another provider included; a `platform_deprecated`, `unverified` or `unknown` target (only a cited `accepted` row may be a different algorithm) is allowed only with the current item's canonical name (any key size: the dossier's pins match it) and at no worse a status (`dto/screen.py` `refused_target`); a broken current goes to the upgrade role ([upgrade.md](upgrade.md)); dossier options ([replacement.md](replacement.md) Contracts) and worthiness evidence pairs (directed: only the pair into the target is left out) follow it.
 - per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.
 - handler: `grouping build`, `repair dossier`, the guide and `check` judge by the catalog `screen/catalog.py` `screening_catalog` resolves ([Settings](#settings)); the dossier step takes the handler as a parameter, not from a RunContext, since it has no manifest.
-- assign: the prompt does not ask the model to mark a group weak; screening decides it. Removing that clause changed the assign charter fingerprint, so a run assigned before it re-assigns once into a new outbox.
+- assign: the prompt does not ask the model to mark a group weak; screening decides it.
 
 ## Settings
 
@@ -68,7 +68,6 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 
 - `screen.json` then carries `review: {fingerprint}`; its validator refuses a `model:` source without a `review`, or one that is not `model:<review fingerprint>`, so no verdict is sourced by a model run screen.json does not name; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
 - Confirming: a person turns a `registry-candidates.yaml` row (`id`, `type`, `name`, `canonical`, `provider`, `reason`, `fingerprint`) into a sourced `crypto` row of the configured `device.screening.catalog`; the next build screens it `accepted` statically and the model no longer sees it.
-- Not yet: JDK legacy and disabled algorithm properties as evidence (a probe addition), citations checked by code.
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)
 
@@ -88,7 +87,8 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 | `screening_schema` | `schemaVersion` is not 1 |
 | `screening_yaml`, `screening_shape` | the file is not YAML or not a mapping; a section is not the mapping or list it must be (a configured `device.screening.catalog` can be any file) |
 | `screening_key_not_canonical` | a key is not the canonical spelling in `algorithm-names.yaml`, carries a key size, or a mode is not a catalog mode |
-| `screening_status` | a status outside `deprecated`, `accepted` |
+| `screening_status`, `screening_reason` | a status outside `deprecated`, `accepted`; a row with no reason |
+| `screening_component_type` | a `components` engine type with no transformations in `algorithm-names.yaml` |
 | `screening_source` | a source key absent from `sources`; `unsourced` is allowed |
 | `screening_component_status` | a component rule that does not deprecate |
 | `screening_platform` | no provider; `removedApi` not after `deprecatedApi` |
