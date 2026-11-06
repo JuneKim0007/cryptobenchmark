@@ -39,7 +39,7 @@ flowchart LR
 | repair | `python3 -m perfrepair.repair dossier\|edit\|harness --device-results <device> --app <src>` | `docs/repair.md` | `<app>/` | no |
 | device | cryptobenchmark `pipeline.py --device --harness <device>/<app>/harness.yaml`, writing `checked/` beside it | `harness.yaml`, the phone | `<app>/checked/` | no |
 | report | `python3 -m perfrepair.report app --device-results <device> --app <src> [--perf-mode]` ; `report summary --device-results <device>` | `<app>/` | `report.json`, `report.md`; `summary.json`, `summary.md` | no |
-| guide | `python3 -m perfrepair guide [--app <src>] --device-results <device> [--device]` | the device folder, each app tree | app, dossier, replace, edit, harness per app (`apps.targets`, or `--app`), `<app>/finished.json`; with `--device` measured and report, `summary.json` | the replace step, per app |
+| guide | `python3 -m perfrepair guide [--app <src>] --device-results <device> [--device]` | the device folder, each app tree | app, dossier, upgrade, replace, edit, harness per app (`apps.targets`, or `--app`), `<app>/finished.json`; with `--device` device and report, `summary.json` | the upgrade and replace steps, per app |
 | validate | `python3 -m perfrepair.validation --device-results <device>` | every artifact present | nothing | no |
 | watch | `python3 -m perfrepair.watch <device> [--from-start]` | `log/events.jsonl`, followed | stdout | no |
 | log summary | `python3 -m perfrepair.log summary <device> [--run ID \| --last] [--json]` | `log/events.jsonl` | stdout | no |
@@ -76,7 +76,6 @@ Before any stage it runs `apps/benchmark-runner/dependencies.py` (a missing modu
 - A base `global.yaml` that already says so is used as it is, its digest unchanged. Otherwise `<device>/metrics-global.yaml` is the base with the decided `run.metrics`, and the device stage reads it as its base: a perfMode that changes what is measured changes `inputs.config`, so the next device stage reruns probe and benchmark.
 - A `run.metrics` written in the base that differs is `run_metrics_overridden`, one warning; `perfMode` wins. The generated file also drops what the config would refuse without the metric: `run.passes.allocation`, and on a host `run.harness.energy.capture`.
 - Energy captured with `energy` not selected is logged `perf_mode_extra`: device time no decision reads.
-- The per-app device step takes the same decision with the app's own perfMode, in `<app>/metrics-global.yaml`.
 - Decided where the guide makes the device folder (`--results-root` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../../docs/run.md#recover-a-metric-without-a-device).
 
 | input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
@@ -105,7 +104,7 @@ With `device.filterByApps` the device stage probes, detects the targets and meas
 
 ## Grouping knowledge
 
-`device/coverage.py`, on every guide run, never stored: pending is every non-screened-out item in `used.json` (every one without it) with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts: it was asked; `noRerun: false` asks it again).
+`device/coverage.py`, on every guide run, never stored: pending is every item neither screened out nor catalog-listed (`probe/identified.py`), in `used.json` (every one without it), with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts: it was asked; `noRerun: false` asks it again).
 
 | found | `device.grouping.noRerun` | model calls | `guide grouping:` |
 |---|---|---|---|
@@ -114,7 +113,7 @@ With `device.filterByApps` the device stage probes, detects the targets and meas
 | items pending | true | one conversation per pending item | `ran: <n> of <m> items asked` |
 | anything | false | every item, into a new outbox (`assign --refresh`), the old one kept | `ran: device.grouping.noRerun false, ...` |
 
-- A named folder (`--device-results`, `device.id`) never asks on its own: items pending there stop with `missing_device_stage`; `noRerun: false` asks, it was set on purpose.
+- A named folder (`--device-results`, `device.id`) without `grouping/items.json` stops with `missing_device_stage`; with it, pending items are asked as above.
 - A device-stage rerun that changes the items reaches this step the same way: new primitives are asked, removed ones leave `groups.json`, and moved ids change nothing (`docs/grouping.md` Record key).
 - A capped or interrupted `noRerun: false` run restarts on the next run with it; set it back to true to finish the active outbox.
 - A prompt edit alone is no coverage gap to the guide, which reads the active outbox: `grouping assign` starts the new outbox. A pending item asked after such an edit starts it too, and every item is asked there.
