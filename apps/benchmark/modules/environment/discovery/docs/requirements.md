@@ -6,7 +6,7 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 
 | type | facts |
 |---|---|
-| Cipher | `defaultInit`, `blockBytes`, `specClasses` (accepted, and accepted yet ignored), `ivBytes`, `tagBits`, `keyBytes`, `keyBits`, `foreignKeys`, `inputBytes` with `maxInputBytes`, `outputSize` predicted against actual, `deterministicFixed`, `deterministicGenerated`, `reuseGuard`, `roundTrip`, `decryptWithoutParameters`, `tamper`, `aad`, `effects`; a cipher that only wraps: `wrapRoundTrip` |
+| Cipher | `defaultInit`, `blockBytes`, `specClasses` (accepted, and accepted yet ignored), `ivBytes`, `tagBits`, `keyBytes`, `keyBits`, `foreignKeys`, `inputBytes` with `outputBytes` (input:output lengths) and `maxInputBytes`, `deterministicFixed`, `deterministicGenerated`, `reuseGuard`, `roundTrip`, `decryptWithoutParameters`, `tamper`, `aad`, `effects`; a cipher that only wraps: `wrapRoundTrip` |
 | Signature | `signatureBytes`, `deterministic`, `signatureBytesRange`, `parameters`, `verifies`, `tamperedSignature`, `tamperedMessage`, `inputBytes`, `setParameter`, `keyBits`, `foreignKeys` |
 | Mac | `macBytes`, `lengthBeforeInit`, `deterministic`, `keyBytes`, `withoutInit`, `ivSpec`, `inputBytes`, `cloneable`, `foreignKeys` |
 | MessageDigest | `digestBytes`, `lengthDeclared`, `deterministic`, `inputBytes`, `cloneable`, `emptyInputPrefix` |
@@ -23,10 +23,10 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 | `keyBits` | RSA and EC keys only: 224, 256, 384, 512, 521, 1024, 2048; other pairs cost a parameter generation per size |
 | one key cache | `DefaultKeys`, one per run across levels 2 and 3, keyed by generating provider, name and size; a refused generation is cached too; counts in `keyCache` |
 | one call per fact | `FactSheet.measure` catches any `Throwable` per fact; a whole call failing is `probe_failed`; nothing aborts the file |
-| error text | `ErrorText`: whitespace folded, hex or decimal runs of 32 and base64 runs of 48 characters become `<removed>`, then capped at 200 |
-| keystore-born | `KeyOrigin`: a provider none of whose key-using services or generators ran, with at least one refusing, has `keystore_born_key` and the condition `keystore-born key` on each refusing service; a cipher that encrypts on a public key and refuses the private one counts as refusing |
+| error text | `ErrorText`: whitespace folded, hex or decimal runs of 32, colon-separated hex of 9 bytes and base64 runs of 48 characters become `<removed>`, then capped at 200 |
+| keystore-born | `KeyOrigin`: a provider none of whose generators or factories ran, with at least one service refusing a key, has `keystore_born_key` and the condition `keystore-born key` on each refusing service; a cipher that encrypts on a public key and refuses the private one counts as refusing; a service of that provider which runs on a software key stays `runnable` |
 | API guard | `ChaCha20ParameterSpec` by name only; no class newer than API 26 is referenced |
-| aliases | per declared alias: `classRun`, `sameClass`, `behaviour` (the same call under the alias gives the same result), `ownNameKey` when the key its own name suggests comes from another source |
+| aliases | per declared alias: `classRun`, `sameClass`, `behaviour` (the same call under the alias gives the same result as under the service's name; a generator or factory has none), `ownNameKey` when the service ran on a non-password key and a factory makes a password key under the alias's name, with whether it ran |
 
 ## File
 

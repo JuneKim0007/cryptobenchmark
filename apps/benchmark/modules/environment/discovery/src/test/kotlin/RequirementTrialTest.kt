@@ -5,6 +5,8 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.ErrorText
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.KeyOrigin
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.RequirementTrial
 import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
@@ -54,6 +56,7 @@ class RequirementTrialTest {
         assertEquals(true, gcm.facts["roundTrip"])
         assertEquals("refused AEADBadTagException", gcm.facts["tamper"])
         assertEquals(true, fact(gcm, "aad")["supported"])
+        assertTrue(fact(gcm, "inputBytes")["outputBytes"].toString(), " 16:32 " in fact(gcm, "inputBytes")["outputBytes"].toString())
         val ctr = jvm("SunJCE", "Cipher", "AES/CTR/NoPadding")
         assertEquals("accepted, altered plaintext", ctr.facts["tamper"])
         assertEquals(true, ctr.facts["deterministicFixed"])
@@ -75,6 +78,26 @@ class RequirementTrialTest {
         assertEquals(2, bound.size)
         assertTrue(bound.toString(), bound.all { it.status == ServiceRequirement.NOT_RUNNABLE && it.reason == ServiceRequirement.KEYSTORE_BORN_KEY })
         assertTrue(bound.all { ServiceRequirement.KEYSTORE_BORN_CONDITION in it.conditions })
+    }
+
+    @Test
+    fun aProviderWithNoGeneratorOfItsOwnIsBoundEvenWhenOneOfItsServicesRuns() {
+        fun record(provider: String, status: String, reason: String) = ServiceRequirement(provider, "Cipher", "A", status, reason = reason)
+        val applied = KeyOrigin.applied(
+            listOf(
+                record("NoGenerator", ServiceRequirement.RUNNABLE, ""),
+                record("NoGenerator", ServiceRequirement.NOT_RUNNABLE, ServiceRequirement.KEY_REFUSED),
+                ServiceRequirement("Generates", "KeyGenerator", "A", ServiceRequirement.RUNNABLE),
+                record("Generates", ServiceRequirement.NOT_RUNNABLE, ServiceRequirement.KEY_REFUSED),
+            ),
+        )
+        assertEquals(listOf("", ServiceRequirement.KEYSTORE_BORN_KEY, "", ServiceRequirement.KEY_REFUSED), applied.map { it.reason })
+    }
+
+    @Test
+    fun aKeyFingerprintGoesWithTheOtherKeyMaterial() {
+        val text = ErrorText.clean("Key: DH Private Key [6e:4e:cc:01:3c:c2:30:81:60:ce:63:4c:f8:fb:6d:34:75:0f:39:74] rest")
+        assertEquals("Key: DH Private Key [<removed>] rest", text)
     }
 
     @Test

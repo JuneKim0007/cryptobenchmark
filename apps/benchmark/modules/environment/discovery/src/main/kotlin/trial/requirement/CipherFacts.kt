@@ -41,7 +41,6 @@ internal object CipherFacts : RequirementCall {
             return CallResult(key = key, runWith = runWith, keysTried = search.tried)
         }
         sheet.measure("inputBytes") { inputBytes(engine, base) }
-        sheet.measure("outputSize") { outputSize(engine, base) }
         sheet.measure("deterministicFixed") { deterministicFixed(engine, base) }
         sheet.measure("deterministicGenerated") { deterministicGenerated(engine, base) }
         sheet.measure("reuseGuard") { reuseGuard(engine, base) }
@@ -52,23 +51,18 @@ internal object CipherFacts : RequirementCall {
         sheet.measure("effects") { CipherEffects(service, engine, base).measure() }
         val fixed = ParameterSpecs.fresh(like)
         val ciphertext = engine.encrypt(key.encrypting, fixed, message)
-        privateKeyRefused(engine, base, fixed, ciphertext)?.let {
-            return CallResult(ServiceRequirement.KEY_REFUSED, it, key, runWith, search.tried)
+        val decrypted = runCatching { engine.decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext) }
+        // Encrypting takes any public key; the private side decides whether a software key really runs here.
+        (decrypted.exceptionOrNull() as? InvalidKeyException)?.let {
+            return CallResult(ServiceRequirement.KEY_REFUSED, ErrorText.of(it), key, runWith, search.tried)
         }
         return CallResult(
             key = key,
             runWith = runWith,
             keysTried = search.tried,
-            aliasRuns = { alias -> check(CipherEngine(service.provider, alias).decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext).contentEquals(message)) { "decrypts_differently" } },
+            aliasRuns = { alias -> check(CipherEngine(service.provider, alias).decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext).contentEquals(decrypted.getOrThrow())) { "decrypts_differently" } },
             aliasAcceptsKey = { alias, other -> engine(service, alias).encrypt(other.encrypting, ParameterSpecs.fresh(like), message) },
         )
-    }
-
-    // Encrypting takes any public key; the private side decides whether a software key really runs here.
-    private fun privateKeyRefused(engine: CipherEngine, base: CipherBase, fixed: AlgorithmParameterSpec?, ciphertext: ByteArray): String? {
-        if (base.key.pair == null) return null
-        val thrown = runCatching { engine.decrypt(base.key.decrypting, CipherEngine.Sent(fixed), ciphertext) }.exceptionOrNull()
-        return if (thrown is InvalidKeyException) ErrorText.of(thrown) else null
     }
 
     private fun engine(service: ProbedService, name: String) = CipherEngine(service.provider, name)
@@ -142,22 +136,11 @@ internal object CipherFacts : RequirementCall {
     }
 
     private fun inputBytes(engine: CipherEngine, base: CipherBase): Map<String, Any> {
-        val out = LinkedHashMap(Sweep.of(INPUTS) { engine.encrypt(base.key.encrypting, ParameterSpecs.fresh(base.like), ByteArray(it)) })
+        val outputs = mutableListOf<String>()
+        val out = LinkedHashMap(Sweep.of(INPUTS) { outputs += "$it:" + engine.encrypt(base.key.encrypting, ParameterSpecs.fresh(base.like), ByteArray(it)).size })
+        out["outputBytes"] = outputs.joinToString(" ")
         if (base.key.pair != null) out["maxInputBytes"] = maxInput(engine, base.key, base)
         return out
-    }
-
-    private fun outputSize(engine: CipherEngine, base: CipherBase): Map<String, Any> {
-        val rows = mutableListOf<String>()
-        var exact = true
-        for (size in INPUTS) {
-            val cipher = engine.encrypting(base.key.encrypting, ParameterSpecs.fresh(base.like))
-            val predicted = cipher.getOutputSize(size)
-            val actual = runCatching { cipher.doFinal(ByteArray(size)).size }.getOrNull() ?: continue
-            if (predicted != actual) exact = false
-            rows += "$size:$predicted/$actual"
-        }
-        return linkedMapOf("predictedExactly" to exact, "inputPredictedActual" to rows.joinToString(" "))
     }
 
     private fun deterministicFixed(engine: CipherEngine, base: CipherBase): Boolean {
