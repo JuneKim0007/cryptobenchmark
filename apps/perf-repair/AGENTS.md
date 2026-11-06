@@ -15,7 +15,7 @@
 ## Rules
 - principle: the model only decides; every number, list, filter and check is a static tool.
 - generality: code names no device, provider, algorithm or engine type; tests and fixtures may.
-- dependency: each layer imports only from the layers before it, and no packages import each other in a cycle (each `__main__` is its own node); `tests/test_layers.py` checks it: `dto`, `catalog` ← `files`, `run_dir`, `inputs`, `log`, `stop`, `child` ← `config` ← `data_handler` ← `result` ← `app`/`scope`/`screen`/`source`/`probe` (static) ← `validation` (validators only) ← `ai/runtime` ← model roles ← stages (`grouping`, `repair`, role commands) ← `device` ← `report`, `failure` ← `guide`, `check` ← every `__main__`.
+- dependency: each layer imports only from the layers before it, and no packages import each other in a cycle (each `__main__` is its own node); `tests/test_layers.py` checks it: `dto`, `catalog` ← `files`, `run_dir`, `inputs`, `log`, `stop`, `child` ← `config` ← `data_handler` ← `result` ← `app`/`scope`/`screen`/`source`/`probe` (static) ← `validation` (validators only) ← `ai/runtime` ← model roles ← stages (`grouping`, `repair`, role commands) ← `device` ← `report`, `review`, `failure` ← `guide`, `check` ← every `__main__`.
 - change: one file, one responsibility; update the owning map in the same change.
 - delete/rename: grep the symbol or path, remove its references first, re-grep returns nothing.
 - check: `make check` green before a change is done.
@@ -36,7 +36,7 @@ Makefile : test, docs-lint, check
 README.md : what perf-repair is, setup
 agents/ : guides: directives per component
 docs/ : facts; map in docs/index.md
-perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths.prompts, device, apps
+perfrepair.example.yaml : template for `perfrepair.yaml`: aiGateway, paths.prompts, device, apps, timeouts, stops
 pyproject.toml : package, pyyaml dependency, optional `test`, `api` and pinned `scope` extras, pytest settings
 src/perfrepair/ : the perfrepair package; each module is mapped in the guide its route names
 targets.example.yaml : template for an apps.targets file: a root entry and a path entry
