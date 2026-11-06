@@ -50,8 +50,8 @@ internal object ParameterSpecs {
         else -> null
     }
 
-    fun withIv(spec: AlgorithmParameterSpec, iv: ByteArray, tagBits: Int? = null): AlgorithmParameterSpec = when {
-        spec is GCMParameterSpec -> GCMParameterSpec(tagBits ?: spec.tLen, iv)
+    fun withIv(spec: AlgorithmParameterSpec, iv: ByteArray): AlgorithmParameterSpec = when {
+        spec is GCMParameterSpec -> GCMParameterSpec(spec.tLen, iv)
         spec is PBEParameterSpec -> PBEParameterSpec(spec.salt, spec.iterationCount, IvParameterSpec(iv))
         isChaCha(spec) -> chaCha(iv, call(spec, "getCounter") as Int)!!
         else -> IvParameterSpec(iv)
