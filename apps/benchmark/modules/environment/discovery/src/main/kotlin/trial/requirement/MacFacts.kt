@@ -10,7 +10,7 @@ import javax.crypto.spec.SecretKeySpec
 
 internal object MacFacts : RequirementCall {
 
-    private val KEY_LENGTHS = (1..64) + (65..160 step 32)
+    private val KEY_LENGTHS = (1..64) + (96..160 step 32)
     private val INPUTS = listOf(0, 1, 1 shl 20)
 
     override fun instance(service: ProbedService) {
