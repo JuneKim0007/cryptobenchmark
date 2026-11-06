@@ -38,7 +38,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc}, source: SP80057T2}
     - {fact: minSdk, value: 11, source: AAGREEMENT}
-    providers: {}
+    providers:
+      AndroidKeyStore: {contract.key: provider}
     provenance: {by: person}
   KeyAgreement|X25519:
     key: {type: X25519, source: inferred}
@@ -95,5 +96,6 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 33, source: AAGREEMENT}
-    providers: {}
+    providers:
+      AndroidKeyStore: {contract.key: provider}
     provenance: {by: person}

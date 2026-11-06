@@ -20,7 +20,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: RFC8032}
     - {fact: minSdk, value: 33, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|Ed448:
     key: {type: Ed448, source: inferred}
@@ -134,7 +135,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 0, source: RFC6151}
     - {fact: minSdk, value: 1, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|ML-DSA:
     key: {type: ML-DSA, source: inferred}
@@ -259,7 +261,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 11, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|NONEwithECDSAinP1363Format:
     required: []
@@ -289,7 +292,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 17, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|RSASSA-PSS:
     key: {type: RSA, source: inferred}
@@ -361,7 +365,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 80}, source: SP80057T3}
     - {fact: minSdk, value: 11, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA1withECDSAinP1363Format:
     key: {type: EC, source: inferred}
@@ -399,7 +404,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
     - {fact: minSdk, value: 1, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA1withRSA/PSS:
     key: {type: RSA, source: inferred}
@@ -418,7 +424,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 80}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA224withDSA:
     key: {type: DSA, source: inferred}
@@ -475,7 +482,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 112}, source: SP80057T3}
     - {fact: minSdk, value: 20, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA224withECDSAinP1363Format:
     key: {type: EC, source: inferred}
@@ -513,7 +521,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
     - {fact: minSdk, value: 20, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA224withRSA/PSS:
     key: {type: RSA, source: inferred}
@@ -532,7 +541,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 112}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA256withDSA:
     key: {type: DSA, source: inferred}
@@ -589,7 +599,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 128}, source: SP80057T3}
     - {fact: minSdk, value: 11, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA256withECDSAinP1363Format:
     key: {type: EC, source: inferred}
@@ -627,7 +638,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
     - {fact: minSdk, value: 1, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA256withRSA/PSS:
     key: {type: RSA, source: inferred}
@@ -646,7 +658,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 128}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA3-224withDSA:
     key: {type: DSA, source: inferred}
@@ -1083,7 +1096,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 192}, source: SP80057T3}
     - {fact: minSdk, value: 11, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA384withECDSAinP1363Format:
     key: {type: EC, source: inferred}
@@ -1121,7 +1135,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
     - {fact: minSdk, value: 1, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA384withRSA/PSS:
     key: {type: RSA, source: inferred}
@@ -1140,7 +1155,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 192}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA512/224withRSA:
     key: {type: RSA, source: inferred}
@@ -1235,7 +1251,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 256}, source: SP80057T3}
     - {fact: minSdk, value: 11, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA512withECDSAinP1363Format:
     key: {type: EC, source: inferred}
@@ -1273,7 +1290,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
     - {fact: minSdk, value: 1, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   Signature|SHA512withRSA/PSS:
     key: {type: RSA, source: inferred}
@@ -1292,7 +1310,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 256}, source: SP80057T3}
     - {fact: minSdk, value: 23, source: ASIGNATURE}
-    providers: {}
+    providers:
+      AndroidKeyStoreBCWorkaround: {contract.key: provider}
     provenance: {by: person}
   # FIPS 205 Table 2: category 1, 7856-byte signature; s9.2: the hedged (randomized) variant is the default
   Signature|SLH-DSA-SHA2-128S:
