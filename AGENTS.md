@@ -130,8 +130,12 @@ docs/contributing/ : directive guides
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
-tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text
+tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
+tools/dead_code.py : dead-code check: vulture minus the allowlist, skipped without vulture; run by perf-repair's make check
+tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text, names code must hold
 tools/lint/__init__.py : package of the docs lint's model of the repo
+tools/lint/claims.py : what a doc names that code must hold: source paths, perfrepair.yaml keys, stop codes, snake_case and dotted names
+tools/lint/external-names.txt : names a doc may use that no tracked code holds, each with its reason
 tools/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines and path tokens
 tools/lint/paths.py : routers, guides, docs and graphed files by path
 tools/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them

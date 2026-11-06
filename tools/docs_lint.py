@@ -6,6 +6,7 @@ import posixpath
 import re
 import sys
 
+from lint.claims import claims
 from lint.markdown import map_blocks
 from lint.paths import ENTRY, ROUTERS, is_doc, join, router_of
 from lint.tree import ROOT, Tree, tracked
@@ -110,7 +111,7 @@ def main() -> int:
     tree = Tree(tracked())
     problems = entries()
     owners = maps(tree, problems)
-    problems += coverage(tree, owners) + doc_indexes(tree) + contents(tree) + unreachable(tree)
+    problems += coverage(tree, owners) + doc_indexes(tree) + contents(tree) + unreachable(tree) + claims(tree)
     for line in problems:
         print(line)
     print("docs-lint: ok" if not problems else f"docs-lint: {len(problems)} problem(s)", file=sys.stderr)

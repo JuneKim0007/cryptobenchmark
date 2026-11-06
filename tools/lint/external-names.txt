@@ -1,0 +1,3 @@
+# name : why a doc may name it though no tracked code file does
+enabledRules : androidx.benchmark instrumentation argument, read by androidx, not by this repository
+ext_data_rw : Android group the shell reads app files through

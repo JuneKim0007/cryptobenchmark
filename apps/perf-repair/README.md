@@ -8,7 +8,7 @@ Location: `apps/perf-repair/` inside the cryptobenchmark repo; the benchmark is 
 - `pip install -r requirements.txt` from the repository root: every host Python dependency, Python 3.10+.
 - `pip install -e .` puts `perfrepair` on the path for `python3 -m perfrepair`; without the tree-sitter pins a scope's lifecycle is `unsupported`.
 - Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the gateway, auth, model, effort per command, default paths, and the `device` and `apps` settings; `.env` (from `.env.example`) still works and holds `ANTHROPIC_API_KEY`. Precedence: `docs/settings.md`.
-- `make check` runs docs-lint and the tests.
+- `make check` runs docs-lint (with the names a doc uses checked against code), the dead-code check and the tests.
 
 | gateway (`--agent`), auth (`--auth`) | needs |
 |---|---|
