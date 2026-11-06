@@ -89,12 +89,12 @@ The type facts of each entry in `catalog/algorithms/<family>_catalogue.yaml` ([a
 
 ## Two tracks
 
-The deliverable is a recommendation study and, apart from it, the provider path; an option's `track` says which.
+An option's `track` says whether it is the provider path or a recommendation. It is a label for people: no step reads it to allow or refuse a swap (`result/options.py` sets it, `validation/dossiers/dossier.py` checks it).
 
 | `track` | Holds when | Means |
 |---|---|---|
-| `provider_path` | a drop-in, the same canonical name, from another provider, and both the provider the site is on and the one offered are in the app's process (Availability) | the same output from another implementation the app already has; the only track a swap is applied as |
-| `recommendation` | any other option | a swap and what would have to change; deliberately loose, never claimed as an app improvement |
+| `provider_path` | a drop-in, the same canonical name, from another provider, and both the provider the site is on and the one offered are in the app's process (Availability) | the same output from another implementation the app already has |
+| `recommendation` | any other option | a swap and what would have to change; deliberately loose |
 
 - The provider a site is on (`result/provider_path.py`): the one it names; a name the app ships and the harness measures under its alias (`app.json` `bundled`, the probe's `artifact`) is that alias's item; a `default` site in an app that inserts a provider it ships at position 1 (`registers` `call`, `position`, matched to `catalog/bundled-providers.yaml` `create`) is on that provider's item when it registers the name, so the platform member is its provider path back; any `default` site's options carry `resolved_by_order`.
 - A same-canonical member from the current item's own provider is `same_engine`, never an option; a group of nothing else plans no interop pair.
@@ -111,7 +111,7 @@ Every option carries three fields code computes; the model is not asked for them
 
 | `needsReview` | Holds when the output changes and |
 |---|---|
-| `reach_local_unverified`, `reach_return_unverified`, `reach_unknown`, `reach_persist` | its reach: `local` is a pattern reading (17 of 29 audited `local` sinks were wrong), and a returned value's callers are not read |
+| `reach_local_unverified`, `reach_return_unverified`, `reach_unknown`, `reach_persist` | its reach: `local` is a pattern reading, and a returned value's callers are not read |
 | `field_bound` | the lifecycle's binding is `field` |
 | `output_length_changes` | another output kind, an output length of null on either side, or two lengths |
 | `key_changes` | the diff's `key` is not `same` |
