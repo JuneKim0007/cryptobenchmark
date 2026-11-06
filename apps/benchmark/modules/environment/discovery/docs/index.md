@@ -59,11 +59,13 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTes
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
 apps/benchmark/modules/environment/discovery/src/test/kotlin/CaptureDocumentTest.kt : capture schema tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest.kt : default runs against the live JVM
+apps/benchmark/modules/environment/discovery/src/test/kotlin/GeneratorKeysTest.kt : triedKeys: each size with its own key, a refusal, a pair asked no size above its default
 apps/benchmark/modules/environment/discovery/src/test/kotlin/JcaContractTest.kt : JCA-surface drift checks on the running JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyNamesTest.kt : KeyNames tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProbeDirectoryTest.kt : no-overwrite test
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.kt : ProviderProbe tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests
+apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceAttributesTest.kt : ServiceAttributes tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceKeyTest.kt : ServiceKey tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/TrialDocumentTest.kt : trial schema tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/TrialRunnerTest.kt : TrialRunner tests

@@ -85,7 +85,7 @@ Provider name to its sorted, distinct, non-blank implementing class names.
 
 | field | type | description |
 |---|---|---|
-| `schemaVersion` | int | `3`: `keyFormat` and `triedKeys` added |
+| `schemaVersion` | int | `3` |
 | `capturedAtMillis` | long | the capture this trial belongs to |
 | `defaultRunInputSize` | int | the input size every default run tries first; written only when set |
 | `services` | list | one entry per captured service |

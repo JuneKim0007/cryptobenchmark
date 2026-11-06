@@ -59,11 +59,11 @@ CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYam
 | alias | `AliasedProvider(alias, provider)` | forwards `getService` and `getServices`; each service is re-bound so an instance reports the alias; property map copied except `Provider.id*` |
 | record | `ProviderProbe.capture(..., bundled)` | an installed name gets `origin: bundled` and its `artifact`; every other provider `platform` |
 
-Errors are `BundledProviderException` with a `code`. The capture stays `schemaVersion: 1`: `origin` and `artifact` are additions, and the preparation and perf-repair readers ignore keys they do not know. Discovery's own reader requires `origin`, so `reusable` re-probes over an older capture.
+Errors are `BundledProviderException` with a `code`. The preparation and perf-repair readers ignore capture keys they do not know; discovery's own reader requires `origin`, so `reusable` re-probes over a capture without it.
 
 ## Runtime
 
-`DeviceRuntimeReader.read()` reads `android.os.Build` `MODEL`, `MANUFACTURER`, `HARDWARE`, `FINGERPRINT` and `Build$VERSION` `RELEASE`, `SDK_INT` reflectively (`""` and `0` on a JVM), `java.version`, `java.vendor`, `java.runtime.version`, `os.name`, `os.arch`, and `jdk.security.defaultKeySize`. An older capture without the identity fields does not parse, so `reusable` re-probes.
+`DeviceRuntimeReader.read()` reads `android.os.Build` `MODEL`, `MANUFACTURER`, `HARDWARE`, `FINGERPRINT` and `Build$VERSION` `RELEASE`, `SDK_INT` reflectively (`""` and `0` on a JVM), `java.version`, `java.vendor`, `java.runtime.version`, `os.name`, `os.arch`, and `jdk.security.defaultKeySize`. A capture without the identity fields does not parse, so `reusable` re-probes.
 
 ## Trial
 
@@ -138,4 +138,4 @@ Errors are `BundledProviderException` with a `code`. The capture stays `schemaVe
 |---|---|
 | `JcaContractTest` | precedence `1..n`; Cipher AES, MessageDigest SHA-256, Mac HmacSHA256, Signature SHA256withRSA, KeyPairGenerator RSA resolve; SunJCE AES instantiates; `AES/CBC/PKCS5Padding` tried; some declared transformation fails; the facade writes the three files |
 
-`apps/benchmark/cli` compiles discovery, settings and config sources and runs the discovery and config tests except `*ExampleFilesTest`. The `jca contract` workflow runs it on push and PR to the module paths, weekly (`0 6 * * 1`), on Java 17, 21 and 25.
+`apps/benchmark/cli` compiles the discovery, settings, config, preparation and benchmark sources and runs the discovery, config and its own tests except `*ExampleFilesTest`. The `jca contract` workflow runs it on push and PR to those paths, weekly (`0 6 * * 1`), on Java 17, 21 and 25.
