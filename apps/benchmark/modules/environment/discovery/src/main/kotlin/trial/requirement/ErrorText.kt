@@ -5,7 +5,7 @@ internal object ErrorText {
 
     const val CAP = 200
 
-    private val KEY_MATERIAL = Regex("""(?:0x)?[0-9a-fA-F]{32,}|\d{32,}|[A-Za-z0-9+/]{48,}={0,2}""")
+    private val KEY_MATERIAL = Regex("""(?:0x)?[0-9a-fA-F]{32,}|\d{32,}|(?:[0-9a-fA-F]{2}:){8,}[0-9a-fA-F]{2}|[A-Za-z0-9+/]{48,}={0,2}""")
 
     private val WHITESPACE = Regex("""\s+""")
 
