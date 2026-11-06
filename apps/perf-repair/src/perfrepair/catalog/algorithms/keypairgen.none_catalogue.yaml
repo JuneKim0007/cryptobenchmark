@@ -57,8 +57,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc}, source: SP80057T2}
     - {fact: minSdk, value: 11, source: AKEYPAIRGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyPairGenerator|Ed25519:
     key: {type: Ed25519, source: inferred}
@@ -77,8 +76,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: RFC8032}
     - {fact: minSdk, value: null, source: AKEYPAIRGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyPairGenerator|Ed448:
     key: {type: Ed448, source: inferred}
@@ -287,8 +285,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYPAIRGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyPairGenerator|RSASSA-PSS:
     key: {type: RSA, source: inferred}
@@ -364,8 +361,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: null, source: unsourced}
     - {fact: minSdk, value: 33, source: AKEYPAIRGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   # FIPS 205 s10.1: key generation draws its seeds from an approved RBG; Table 2: category 1
   KeyPairGenerator|SLH-DSA-SHA2-128S:

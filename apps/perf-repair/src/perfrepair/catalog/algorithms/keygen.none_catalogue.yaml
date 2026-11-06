@@ -19,8 +19,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: {key: aes}, source: SP80057T2}
     - {fact: minSdk, value: 1, source: AKEYGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyGenerator|ARCFOUR:
     key: {type: ARCFOUR, source: inferred}
@@ -153,8 +152,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: SP80057T3}
     - {fact: minSdk, value: 11, source: AKEYGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyGenerator|HmacSHA224:
     key: {type: HMAC, source: inferred}
@@ -173,8 +171,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 192, source: SP80057T3}
     - {fact: minSdk, value: 22, source: AKEYGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyGenerator|HmacSHA256:
     key: {type: HMAC, source: inferred}
@@ -193,8 +190,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: 1, source: AKEYGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyGenerator|HmacSHA3-224:
     key: {type: HMAC, source: inferred}
@@ -289,8 +285,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: 1, source: AKEYGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyGenerator|HmacSHA512:
     key: {type: HMAC, source: inferred}
@@ -309,8 +304,7 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: 256, source: SP80057T3}
     - {fact: minSdk, value: 1, source: AKEYGEN}
-    providers:
-      AndroidKeyStore: {contract.key: provider}
+    providers: {}
     provenance: {by: person}
   KeyGenerator|HmacSHA512/224:
     key: {type: HMAC, source: inferred}

@@ -14,7 +14,7 @@ Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `catalog/a
 | `conditions` | `output: {kind, bytes, source}`, `deterministic: {value, source}`, `authenticated: {value, source}` |
 | `contract` | `{key, input, output}`: `key` is `app`, `provider` or `none` (a `none` row has no `.p` variant); `input` and `output` the components a swap must keep, each a string or `{value, assumed: true}` for a provider convention nothing recorded confirms (rows compare `value`; the description shows `(assumed)`); absent when the name leaves one open, so it has no contract row |
 | `sourcedOnly` | `{fact, value, source}`: `strengthBits` (bits, `{key}` or `{key, cap}` of a `keyStrength` map, null) and `minSdk` |
-| `providers` | `<provider>: {<path>: <value>}`: only what differs; a path walks mappings by key and lists by `name` or `fact`. `contract.key: provider` marks a provider whose service is `keystore_born_key` in the device requirements on every API measured (26, 30, 33, 36) |
+| `providers` | `<provider>: {<path>: <value>}`: only what differs; a path walks mappings by key and lists by `name` or `fact` |
 | `provenance` | `{by: person}`, or `{by: agent, model, run, date}` |
 
 - Every leaf's `source` is `measured`, `inferred` or a `common.yaml` source id; `strengthBits` may be `unsourced` and then null.
