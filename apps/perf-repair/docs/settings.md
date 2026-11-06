@@ -145,4 +145,3 @@ device:
 - A CLI that cannot be started or answers with an error is `claude_cli_failed`, one error line from the command; `auth: subscription` runs it, and every `pipeline.py` call runs, without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment (`child/env.py`).
 - `auth: api` without the `anthropic` package is `claude_api_missing`.
 - A secret in `perfrepair.yaml` is `secret_key`, in any block, a block no gateway owns included.
-- Each outbox record holds the `gateway`, `model` and `effort` that answered it; a resume whose values differ from earlier records logs one `mixed_agents` line naming both (`docs/decisions.md`).
