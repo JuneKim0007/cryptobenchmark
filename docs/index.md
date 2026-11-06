@@ -10,6 +10,6 @@ docs/facade.md : apps/cli/facade.py: the settings index, the direction rule, the
 docs/index.md : this map
 docs/results.md : results/<device_id>/ layout, manifest.yaml, clocks.yaml and facts.yaml fields
 docs/run.md : prerequisites, apps/benchmark-runner/pipeline.py flags, demo.sh, device run
-docs/shared-functions.md : scripts and tools functions other modules import: module, signature, rule, callers
+docs/shared-functions.md : generated: benchmark runner, cli and tools functions other modules import: module, signature, rule, callers
 docs/tools.md : tools/ builds: commands, arguments, outputs
 ```
