@@ -81,6 +81,14 @@ class BundledInstallerTest {
     }
 
     @Test
+    fun aServiceListedBeforeItIsLookedUpStillInstantiates() {
+        val aliased = AliasedProvider("Listed", ListingOthers())
+
+        assertEquals(1, aliased.services.size)
+        assertTrue(aliased.getService("MessageDigest", "FIX")!!.newInstance(null) is FixtureDigest)
+    }
+
+    @Test
     fun aTakenAliasFailsWithACode() {
         val error = assertThrows(BundledProviderException::class.java) {
             installer.install(listOf(BundledProvider("test:clash:1", ClashingProvider::class.java.name, before.first())))
@@ -142,6 +150,16 @@ open class FixtureProvider(name: String = NAME) : Provider(name, 1.0, "test fixt
 }
 
 class ClashingProvider : FixtureProvider("SUN")
+
+// As BC does: its listing's objects are not the ones getService returns, and newInstance refuses those.
+class ListingOthers : FixtureProvider("ListingOthers") {
+    private val looked = Service(this, "MessageDigest", "FIX", FixtureDigest::class.java.name, null, null)
+    private val listed = Service(this, "MessageDigest", "FIX", FixtureDigest::class.java.name, null, null)
+
+    override fun getService(type: String, algorithm: String): Service? = looked
+
+    override fun getServices(): Set<Service> = setOf(listed)
+}
 
 class FixtureFactory {
 

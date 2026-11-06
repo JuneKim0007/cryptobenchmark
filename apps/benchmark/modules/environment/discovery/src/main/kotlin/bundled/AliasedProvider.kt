@@ -25,8 +25,9 @@ class AliasedProvider(name: String, private val delegate: Provider) : Provider(n
 
     override fun getServices(): Set<Service> = delegate.services.mapTo(LinkedHashSet(), ::rebound)
 
+    // The target comes from getService: newInstance refuses any other object, and BC's listing hands out others.
     private fun rebound(service: Service): Service =
-        rebounds.computeIfAbsent(keyOf(service)) { Rebound(this, service, attributes[it].orEmpty()) }
+        rebounds.computeIfAbsent(keyOf(service)) { Rebound(this, delegate.getService(service.type, service.algorithm) ?: service, attributes[it].orEmpty()) }
 
     private fun keyOf(service: Service): String = "${service.type}.${service.algorithm}".lowercase()
 
