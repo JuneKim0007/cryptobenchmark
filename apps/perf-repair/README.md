@@ -1,6 +1,6 @@
 # perf-repair
 
-Reads cryptobenchmark results for one device and decides which crypto replacements are worth testing in an app, for the metrics its perfMode selects (latency, throughput, memAlloc, energy, or generic).
+Reads cryptobenchmark results for one device and decides, per crypto call site of an app, which replacement the measurements favour for the metrics its perfMode selects (latency, throughput, memAlloc, energy, or generic); it applies the choice to a copy of the app and, with a phone, compiles and interop-checks it.
 Location: `apps/perf-repair/` inside the cryptobenchmark repo; the benchmark is found two levels up, `CRYPTOBENCH_ROOT` overrides.
 
 ## Setup
