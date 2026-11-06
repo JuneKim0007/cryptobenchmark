@@ -5,7 +5,7 @@
 - `docs/replacement.md` : the flow from scope to a compiled, interop-checked replacement
 
 ## Rules
-- scope: the model's choice is the worthiness verdict's pair; everything here is a static join, rewrite or report.
+- scope: the model chooses a unit's option (`ai replace`) and a broken use's upgrade target (`ai upgrade`); everything else here is a static join, rewrite or report.
 - edit: apply by exact span only; a span that cannot be re-found or read is a coded rejection, never a guess.
 - edit: never write inside the app root; copies go to `<app>/original/` and `patched/`.
 - edit: a splice keeps the file's line count; harness extraction relies on it.
@@ -23,10 +23,10 @@
 ```
 src/perfrepair/__main__.py : command: `python3 -m perfrepair guide`; dispatch only
 src/perfrepair/failure.py : FAILURES and reported: every command's failure as one `error ...` line and its code's exit; a Halt adds no event (terminate wrote it), another coded failure one error event with data.code, none when run in-process (last_failure hands it to the caller)
-src/perfrepair/guide/app_steps.py : the steps for one app: app, dossier, replace, edit, harness, device, report; their stop codes
+src/perfrepair/guide/app_steps.py : the steps for one app: app, dossier, upgrade, replace, edit, harness, device, report; their stop codes
 src/perfrepair/guide/command.py : guide arguments, among them --run-id, --on-existing, --harness-config, --stop-after-device, --outcome, --run-settings; `--app` or apps.targets, the one reader of that row, resolved by `app/facts/target_set.py`: skip lines, root warnings, no_targets; device.filterByApps's reader
 src/perfrepair/guide/device_steps.py : the device-level steps: interop (the pair check, its counts and coded lines); prerequisites (the RunRecord opened once the folder is known, run_exists and device_busy; probe_device when no folder is named; with device.filterByApps the targets' detect and used.json, else used.json removed), detect_targets, targets (target_file.py), grouping (coverage: reused, or assign and report for what is missing), the benchmark gate after the used set and after grouping (gate_steps.py), summary; their stop codes
-src/perfrepair/guide/finished.py : the inputs an app's done mark is compared with: digests of its tree, scopes, units, the perf-repair code from tree to harness.yaml, the host's harness digest (`--identify`), the device files, and when measured its harness config; code_versions: both code digests, read once per run, an empty source a coded error
+src/perfrepair/guide/finished.py : the inputs an app's done mark is compared with: digests of its tree, scopes, units, the perf-repair code from tree to harness.yaml, the host's harness digest (`--identify`), the device files, and when checked on the device its harness config; code_versions: both code digests, read once per run, an empty source a coded error
 src/perfrepair/guide/gate_steps.py : the guide's two gate points: the used set (made again after grouping), or the measured plan with device.filterByApps off, the gate's policy from device.benchmark.onGap and onSetupMismatch, the command --device-results prints, the coverage rows on primitives_missing.yaml
 src/perfrepair/guide/index.py : <device>/apps-index.tsv, written by the summary step and on demand: per app folder its project (rootProject.name, else its path under the apps' common folder), source, sites, scopes, scopes per pattern and unknown_default, stage reached (its files in guide order, none older than the one before; later columns only within it), the latest run's stop code and reason, options per change class and track, notOffered, chosen replaces, checked
 src/perfrepair/guide/outcome.py : --outcome: the device folder, run id, exit and code a guide run's caller reads
