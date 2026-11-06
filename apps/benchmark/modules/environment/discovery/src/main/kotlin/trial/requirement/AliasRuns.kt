@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-// Per declared alias: the class it runs, whether it behaves as the service did, and whether the key its own name suggests runs on it.
+// Per declared alias: the class it runs, whether it behaves as the service did, and whether a password key its name suggests runs on it.
 internal object AliasRuns {
 
     fun of(service: ProbedService, classRun: String, result: CallResult): List<Map<String, Any>> =
@@ -13,8 +13,8 @@ internal object AliasRuns {
         }
 
     private fun ownNameKey(service: ProbedService, alias: String, result: CallResult, accepts: (String, ProbeKey) -> Unit): Map<String, Any>? {
-        val own = service.keys.of(service.type, alias, service.provider).firstOrNull { it.source != ProbeKey.RAW } ?: return null
-        if (own.source == result.key?.source) return null
+        if (result.key?.source == ProbeKey.FACTORY) return null
+        val own = service.keys.of(service.type, alias, service.provider).firstOrNull { it.source == ProbeKey.FACTORY } ?: return null
         return own.describe() + ("result" to (ErrorText.refusal { accepts(alias, own) } ?: "accepted"))
     }
 }
