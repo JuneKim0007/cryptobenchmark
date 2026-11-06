@@ -51,24 +51,24 @@
 | `device.filterByApps` | `true`, `false` | `true` | warning | the guide (`guide/device_steps.py` prerequisites): `true` detects the targets on the probe, writes `used.json` and has the device stage measure, and grouping ask, only the items they use and their options; `false` removes `used.json`, every item is asked and the base selection measured ([used-set.md](used-set.md)) |
 | `device.bundled.fromApps` | `off`, `suggest`, `apply` | `off` | warning | the same step: `suggest` writes `<device>/bundled-suggestions.yaml` from `catalog/bundled-providers.yaml`; `apply` also builds its matched, unblocked rows into the generated config at the app's pinned version, on a `--device` run only. Not recommended: prepare `providers.bundled` yourself |
 | `apps.targets` | a list of `{root: ...}`, `{path: ...}` (each with an optional `perfMode`) or bare paths, relative to the file; or a string: a targets file of that list ([targets.md](targets.md)) | none | warning | `guide` without `--app`: every app the entries resolve to, in order, the rest skipped with their reason; `--app` runs one; an entry's `perfMode` (as `apps.perfMode`) is that app's for its dossier, verdict, report and `finished.json`; `--perf-mode` outranks it; the device stage checks the union |
-| `apps.perfMode` | `generic` or `all` (every registry key, overall judgement), or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers, the replace render and the report's selected marks carry; owns `run.metrics` of the benchmark and the device step ([pipeline.md](pipeline.md) Device stage), a differing `run.metrics` warns |
+| `apps.perfMode` | `generic` or `all` (every registry key, overall judgement), or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers and the replace render carry; owns `run.metrics` of the benchmark ([pipeline.md](pipeline.md) Device stage), a differing `run.metrics` warns |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
-| `apps.device` | `true`, `false` | `false` | warning | `guide --device`; with probe_device it also makes the device stage on the phone, else on the host |
+| `apps.device` | `true`, `false` | `false` | warning | `guide --device`: the per-app device step (compile and interop check of `harness.yaml`) and the report; with probe_device it also makes the device stage on the phone, else on the host |
 | `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
 | `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.thermal_throttled_at_end`, `stops.no_required_metric`, `stops.invariant_undecided` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires |
 
-| role | file section | role default | budget, measured largest |
+| role | file section | role default | budget |
 |---|---|---|---|
-| `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none | 2500; 2018, ten services of an API 30 capture |
-| `grouping assign` | `device.grouping.assign` | effort `low` | 8500; 7300, `signature.pair` with its 68 catalog groups |
-| `ai worthiness` | `device.worthiness` | none | 6500; 5595, one group of a host run |
+| `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none | 2500 |
+| `grouping assign` | `device.grouping.assign` | effort `low` | 8500 |
+| `ai worthiness` | `device.worthiness` | none | 6500 |
 | `guide` | `apps.agent` | none | 6000, as `ai replace` |
-| `ai replace` | `apps.replace` | none | 6000; 4878, the largest of 53 units across real runs |
-| `ai upgrade`, the guide's upgrade step | `apps.upgrade` | none | UPGRADE_BUDGET_ROW |
+| `ai replace` | `apps.replace` | none | 6000 |
+| `ai upgrade`, the guide's upgrade step | `apps.upgrade` | none | 6000 |
 
 - A role section takes the keys `gateway`, `model`, `effort`, `budget`. Its `gateway` is an error when bad; `model`, `effort` and `budget` warn.
-- `budget` is read from the file only, a positive integer: tokens by chars/4 of the system prompt plus one task message, the largest measured plus 15%, up to the next 500. The engine checks it before each item's first call: [decisions.md](decisions.md).
+- `budget` is read from the file only, a positive integer: tokens by chars/4 of the system prompt plus one task message. The engine checks it before each item's first call: [decisions.md](decisions.md).
 - `auth` and `binary` belong to the gateway's block; in a role section they are unknown keys, warned about and never read.
 - The `dry-run` gateway has no keys and ignores `--auth`, `--model`, `--effort`; each role answers with its own stand-in.
 
@@ -100,7 +100,7 @@
 | `several_device_results`, `device_not_in_results`, `no_device_results`, `not_device_results` | `--results-root` does not name one device: [artifacts.md](artifacts.md#folders) |
 | `placement: <key> is no perfrepair.yaml key; set <place>` | `paths.results`, `device.benchmark.config`, `apps.benchmarkConfig`, `run.id` or `run.onExisting` has a value: exit 2 on every command |
 
-- A key no row knows is one warning, `unknown_key: <key>, known [...] (<file>)`, a key from before the sections (`grouping`, `guide`, `ai`, `screening`) included; a block's key is checked at spawn.
+- A key no row knows is one warning, `unknown_key: <key>, known [...] (<file>)`; a block's key is checked at spawn.
 - `secret_key`, `invalid_yaml` and a named file that is missing exit 2 through the command's argument parser, the first two ending with ` (<file>)`.
 - A gateway's block is checked at spawn, against that gateway's settings class, every block on each spawn; errors at spawn print one `error ...` line and exit 1 before the command does any work.
 - Each error and warning from a resolved value names the role's key and ends with the value's source: `invalid: device.grouping.assign.effort hgh, one of [...]; using the default low (env PERFREPAIR_EFFORT)`.
