@@ -12,7 +12,7 @@
 | a device | a folder holding `manifest.yaml`; a run that failed and `.staging-*` are not |
 | `<app>` | `--app <path>` gives `<dirname>-<8 hex of sha256 of the absolute path>` (`app/facts/path_id.py`); `app.json` records it as `pathId`, the absolute path as `root` |
 | several project roots | one `<app>.<root dirs joined by '.'>` per root; `root` is that project root; a later command takes that root as `--app` and finds the unit by `app.json` |
-| an old manifest | `manifest_without_device_id; rerun the benchmark` |
+| a manifest without `deviceId` | `manifest_without_device_id; rerun the benchmark` |
 | a results folder under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one warning `results_in_temp: ...`, then the command goes on |
 
 | error | when |
@@ -26,14 +26,14 @@
 
 | Artifact | Producer | Consumers | Validator |
 |---|---|---|---|
-| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the report and both renders (absent: ms, MB/s) | `validation/manifest.py` |
+| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the worthiness and site-replace renders (absent: ms, MB/s) | `validation/manifest.py` |
 | `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark or a merged delta: the generated config's digest, the measured set's digest and items; `bundled`, with `device.bundled.fromApps: apply`: the applied entries' digest and the manifest's `bundled` and `config` digests they produced; unreadable counts as absent |
 | `rows.json` | inbound | worthiness, validation | `validation/rows.py`: schema 2, a delta's rows with their `session` and `drift`, every row's `variant` `fixed` or `notFixed` (any other value, or none, is refused) and `perCall` from `prepared.yaml` |
 | `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |
 | `used.json` | the device stage's used step (`device/used.py`), with `device.filterByApps` | grouping assign and report (what is asked, `notUsed`), the benchmark's selection | `validation/used.py`, before writing; [Used set](#usedjson) |
-| `metrics-global.yaml` | the device stage when the base `global.yaml` does not say what perfMode decided, removed otherwise; in `<app>/` for the per-app device step | every later config of the device stage; cryptobenchmark `pipeline.py --config` | none: the base with `run.metrics` decided ([pipeline.md](pipeline.md#device-stage)) |
+| `metrics-global.yaml` | the device stage when the base `global.yaml` does not say what perfMode decided, removed otherwise | every later config of the device stage; cryptobenchmark `pipeline.py --config` | none: the base with `run.metrics` decided ([pipeline.md](pipeline.md#device-stage)) |
 | `used-global.yaml`, `used-testset.yaml` | the device stage, before a benchmark of the used set | cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with `selection.exclude` added, its test set copied with an include per used item (`device/selection_adds.py`); `config/testsets` is never written |
 | `bundled-suggestions.yaml` | the device stage's bundled step (`device/bundled.py`), with `device.bundled.fromApps` `suggest` or `apply`; removed with `off` | people; `device/bundled_config.py`, for the per-app harness | `validation/bundled.py`, before writing and in `check` |
 | `bundled-global.yaml` | the bundled step with `apply` and a row applied, removed otherwise; in `<app>/` when `--harness-config` is set | `used-global.yaml`; the per-app harness; cryptobenchmark `pipeline.py --config` | none: the base `global.yaml` with the applied entries after its own `providers.bundled` |
@@ -56,10 +56,10 @@
 | `delta/`, `benchmark/merged-<session>/` | the benchmark gate's delta (`device/delta.py`, `device/delta_merge.py`): its config, test set and pipeline results; the merged files beside the stored ones | the merge; `manifest.yaml` then names the merged files and lists `deltas` | the setup fingerprint and an add-only merge ([used-set.md](used-set.md#benchmark-gate)) |
 | `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
 | `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
-| `<app>/dossiers.json` | repair dossier | replace | `validation/dossiers/`, before writing: schema 8 (`upgrades` and `brokenUnreached`: the broken uses; estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `measured` the selected metrics the run has a measurement of, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
+| `<app>/dossiers.json` | repair dossier | replace | `validation/dossiers/`, before writing: schema 9 (`upgrades` and `brokenUnreached`: the broken uses; estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `measured` the selected metrics the run has a measurement of, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
-| `<app>/checked/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
+| `<app>/checked/` | cryptobenchmark `pipeline.py --device --harness`: `scoped/scoped-plan.yaml` with each scope's compile and interop verdict | report (`report/device_check.py`) | cryptobenchmark |
 | `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py`, before writing |
 | `summary.json`, `summary.md` | report summary | people | `validation/summary.py`, before writing |
 | `apps-index.tsv` | the guide's summary step, `perfrepair.guide.index` | people: find an app, what is left on it; its `fixed`, `notFixed` and `unknown_default` scope counts | none: rebuilt whole from the app folders and `log/events.jsonl` |
@@ -67,11 +67,11 @@
 | `review/score.json` | `perfrepair.review score` | people | none |
 | `review/stability.json`, `review/stability/` | `perfrepair.review stability` | people | `check/apps.py`: the rebuild of its outbox |
 
-- Every JSON document carries `schemaVersion`: 1, except `measurements.json` at 4 (each summary adds `low`, `high`: the median's 95% bootstrap interval, `null` below 2 runs; and `processes`: its runs per process; 4 keys every metric by its benchmark.json name, `allocations` became `allocationCount`), `worthiness-<mode>/evidence.json` at 3 (2: a member's summary per metric, a pair's comparison per metric; 3: only the perfMode's metrics), `<app>/dossiers.json` at 7 and `report.json`, `summary.json` at 6 (`selected` per metric row; summary metrics are the selected ones; `maxChange`, `recommendations`, `rejected`).
+- Every JSON document carries `schemaVersion`; its current value is the `*SCHEMA_VERSION` constant of its `dto/` module (`EVIDENCE_SCHEMA_VERSION` in `ai/evaluate/worthiness/command.py`), and `measurements.json` keys every metric by its benchmark.json name.
 - A journal is append-only, one line per model turn with its `durationMs`, `role` and `inputs` (`{file, digest}`), audit only; state is the projection of the outbox; `writes.json` beside it lists what the charter's runs wrote; `check/contracts.py` holds both to `catalog/role-contracts.yaml`.
-- `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path); an outbox from before it gets it on its next open.
+- `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path).
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.
-- An older `measurements.json` is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).
+- A `measurements.json` in another schema is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).
 - `check/grouping.py` rebuilds evidence from rows, measurements and `groups.json` to check verdicts.
 
 ## Run record
@@ -99,10 +99,10 @@ One stored, compact view of the benchmark results, smaller than `rows.json` and 
 | part | holds |
 |---|---|
 | first line | `#schemaVersion<TAB>3`; the reader refuses another |
-| key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `variant`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest, `variant` (`fixed`, `notFixed`, schema 3) the two benchmark variants of one primitive, never mixed |
+| key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `variant`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest, `variant` (`fixed`, `notFixed`) the two benchmark variants of one primitive, never mixed |
 | `status` | the item's run-level `grouping/screen.json` status (no targetSdk); deprecated lines stay with their status, a site's current call needs its own line |
 | `<metric>@<input size>` | the median, per registry metric (`dto/metrics.py`) with runs and per input size it was measured at, `@-` without an input size; `-` where that size was not measured |
-| `<metric>.n` | the fewest runs among that metric's cells: one energy window beside fifty timings is `energyJ.n` 1, `timeNs.n` 50; schema 1 had one `n`, the fewest over every metric |
+| `<metric>.n` | the fewest runs among that metric's cells: one energy window beside fifty timings is `energyJ.n` 1, `timeNs.n` 50 |
 | `<metric>.cv` | the largest coefficient of variation among that metric's cells |
 
 - Stored in the registry units (`timeNs` in ns/op), never in the display units: a unit change rewrites no file; a reader converts when it shows a line.
@@ -135,8 +135,8 @@ The device items the target apps need, and which app needs each; code joins site
 | `runtime` | benchmark.json's runtime; the probe's when nothing was measured |
 | `providers[]` | `{name, precedence, serviceCount}` in precedence order |
 | `files` | paths relative to the manifest: probe, trial, inventory, effective, prepared, skipped, benchmark, processes[]; a stage that did not run is absent |
-| `counts`, `operations` | prepared, skipped, measured, for the files that exist; `operations`: per engine type the operations the harness times; a type absent has none (the gate's `no_operation`); absent before cryptobenchmark recorded it, the gate then skips that class |
-| `units` | `analysis.units`: `latency` (`ms`, `us`, `ns`), `throughput` (`MB/s`, `MiB/s`, `ops/s`); display only; absent before cryptobenchmark recorded it, read as `ms`, `MB/s`; another value fails the read `invalid: manifest units` |
+| `counts`, `operations` | prepared, skipped, measured, for the files that exist; `operations`: per engine type the operations the harness times; a type absent has none (the gate's `no_operation`); without `operations` the gate skips that class |
+| `units` | `analysis.units`: `latency` (`ms`, `us`, `ns`), `throughput` (`MB/s`, `MiB/s`, `ops/s`); display only; absent, read as `ms`, `MB/s`; another value fails the read `invalid: manifest units` |
 
 ## `run_log.json` statuses
 
