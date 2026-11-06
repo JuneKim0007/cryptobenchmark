@@ -123,7 +123,7 @@ apps/cli/facade/index.py : the root settings file: paths and what spans a run; a
 apps/cli/facade/phases.py : the crypto and guided phases as guide children with every path named; one coded line each
 apps/cli/facade/tree.py : the resolved tree: nodes, direction rule, printed lines, the document a run record keeps
 apps/cli/tests/ : pytest for the facade
-apps/perf-repair/ : cryptobenchmark results to crypto replacements worth testing in an app
+apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per call site, compiled and interop-checked on a phone
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides

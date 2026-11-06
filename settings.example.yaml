@@ -10,7 +10,7 @@ run:                             # the record of this run: <root>/<device id>/ru
 
 crypto:
   config: config/global.yaml     # required: -> selection.testSet -> testsets/*.yaml
-  harnessConfig:                 # optional: a lighter global.yaml for the per-app before/after run
+  harnessConfig:                 # optional: the global.yaml of the per-app device check (compile and interop); empty = crypto.config
 
 llm:
   config: apps/perf-repair/perfrepair.yaml # required: a copy of perfrepair.example.yaml -> apps.targets, device.screening.catalog, paths.prompts
