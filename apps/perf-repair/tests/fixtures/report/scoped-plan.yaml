@@ -9,17 +9,14 @@ scopes:
   current: Cipher|AES/GCM/NoPadding|Slow
   option: Cipher|AES/GCM/NoPadding|Fast
   inputs: {inputSize: 1024, keySize: 128}
-  metrics: [timeNs, allocationCount, energyJ]
   status: checked
   interop: {check: same_output, result: passed}
-  cases: ['scope:a00000000001:before', 'scope:a00000000001:after']
 - id: b00000000002
   function: open
   language: java
   current: Cipher|AES/GCM/NoPadding|Slow
   option: Cipher|AES/GCM/NoPadding|Fast
   inputs: {inputSize: null, keySize: null}
-  metrics: [timeNs, allocationCount, energyJ]
   status: not_compilable
   reason: 'missing_input: inputSize for in'
 - id: c00000000003
@@ -28,7 +25,5 @@ scopes:
   current: MessageDigest|SHA-256|Slow
   option: MessageDigest|SHA-256|Fast
   inputs: {inputSize: 1024, keySize: null}
-  metrics: [timeNs, allocationCount, energyJ]
   status: interop_failed
   interop: {check: same_output, result: interop_failed, reason: outputs_differ}
-  cases: ['scope:c00000000003:before', 'scope:c00000000003:after']
