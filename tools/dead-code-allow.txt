@@ -1,0 +1,16 @@
+# vulture findings kept on purpose: <path>:<name> : reason. An entry no finding matches fails the check.
+apps/benchmark-runner/energy/manafa_session.py:profiler_mode : set on the third-party EManafa object; manafa reads it
+apps/perf-repair/src/perfrepair/ai/parse/grouping_assign/state.py:knowledgeVersion : written to the assign cursor by asdict
+apps/perf-repair/src/perfrepair/ai/runtime/agent/reply.py:requestId : the gateway's request id, kept on the reply for a person to trace a call
+apps/perf-repair/src/perfrepair/app/find/scan.py:snippet : written to sites.json by asdict
+apps/perf-repair/src/perfrepair/catalog/screening.py:removedApi : screening.yaml field, checked against deprecatedApi at load
+apps/perf-repair/src/perfrepair/catalog/views.py:view_for : the agent view of a catalogue entry, for the later catalog phases (K0)
+apps/perf-repair/src/perfrepair/catalog/views.py:group_view : the agent view of a group, for the later catalog phases (K0)
+apps/perf-repair/src/perfrepair/dto/grouping.py:keyKindFrom : written to profiles.json by asdict
+apps/perf-repair/src/perfrepair/dto/grouping.py:defaultKeySize : written to profiles.json by asdict
+apps/perf-repair/src/perfrepair/dto/grouping.py:keyProvider : written to profiles.json by asdict
+apps/perf-repair/src/perfrepair/dto/grouping.py:bareName : written to profiles.json by asdict
+apps/perf-repair/src/perfrepair/dto/manifest.py:serviceCount : the manifest's provider field, kept whole as cryptobenchmark writes it
+apps/perf-repair/src/perfrepair/dto/types.py:strengthSource : written to types.json by asdict
+apps/perf-repair/src/perfrepair/dto/types.py:minSdkSource : written to types.json by asdict
+apps/perf-repair/src/perfrepair/validation/catalogue_entry.py:catalogue_check : the check a new catalog entry gets in the later catalog phases; tests only until then

@@ -18,7 +18,7 @@ Tools that back a review with numbers. They are installed outside the repo, so n
 |---|---|---|
 | function too big or branchy | `$T/lizard -C 10 -L 60 -w apps/perf-repair/src scripts tools modules -l python -l kotlin` | CCN > 10 or > 60 lines |
 | file hard to maintain (Python) | `$T/radon mi -s apps/perf-repair/src scripts tools` | grade B or worse |
-| unused Python code | `$T/vulture apps/perf-repair/src scripts tools --min-confidence 60` | any hit, then grep |
+| unused Python code | `python3 tools/dead_code.py` (vulture minus `tools/dead-code-allow.txt`; part of perf-repair's `make check`) | any hit, then grep; a kept hit gets its allowlist line and reason |
 | unused imports, variables, args; commented-out code | `ruff check --select F401,F841,F811,ARG,ERA apps/perf-repair/src scripts tools` | any hit |
 | copy-paste, both languages | `npx -y jscpd@4 --min-tokens 60 --reporters console --ignore "**/test/**,**/tests/**,**/build/**,**/fixtures/**" apps/perf-repair/src scripts tools modules` | any clone in main code |
 | untested code | `(cd apps/perf-repair && python3 -m pytest -q --cov=perfrepair --cov-report=term-missing)` | 0% files; dead-code candidates |
