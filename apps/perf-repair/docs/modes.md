@@ -16,7 +16,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 - Selection = the registry metrics whose `selects` hold a chosen key (`dto/perf_mode.py`). Latency and throughput are one metric: one estimate, one ratio, shown in each selected unit, never two pieces of evidence.
 - `generic` is the plain list of every key plus one flag on the resolved mode, `overall`: the decision rule and what is required differ from a hand-written list naming every key: generic requires no metric and judges on what was measured. Passes, labels, render and report see the list; `required` is empty, so a metric the harness cannot measure never stops it.
 - A perfMode's name joins its keys in registry order with `+` (`latency+throughput+energy`), or is `generic`; `worthiness-<name>/` holds its verdicts.
-- Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another. The report still shows people every measured metric, marking the selected ones.
+- Selection filters the data, never the prompt: the evidence, the dossier and both renders carry only selected metrics, so a model never sees another.
 
 ## Verdict
 
@@ -47,7 +47,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | `worse` | ratio ≥ 1 ÷ `improvingRatio` and pImprove ≤ 0.05 |
 | `unchanged` | otherwise; n < 2 is never beyond noise, so a single energy window stays here whatever its ratio |
 
-| Overall (option or swap) | When |
+| Overall (an option) | When |
 |---|---|
 | `improves` | a metric improved, none worse |
 | `trade_off` | a metric improved and another worse |
@@ -55,12 +55,8 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | `unchanged`, `not_measured` | no change beyond noise; no metric to label |
 
 - Selected metrics only. `noise` per metric: `beyond`, `within`, `unknown` (n < 2).
+- Shown as each option's `label` line in the site-replace and upgrade messages, and in the review sheet's facts.
 - A zero median before keeps the option: it shows `no estimate: zero_median`, and the metric has no change.
-
-## Temperature
-
-- A case of `benchmark.json` carries `thermal: {start: {sensor: value}, end: {sensor: value}, startStatus, endStatus}` and `thermalThrottleSleepSeconds`; inbound keeps them per row in `measurements.json` (`thermal`).
-- `thermal_throttled_at_end`: a case's `endStatus` is above 0; inbound fires it once with its cases through `stops.<code>`, warn by default, and it changes no verdict or label.
 
 ## Confidence: pImprove
 
@@ -73,7 +69,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | `weak` | < 0.80 |
 | `too_few_runs` | either side has fewer than 2 runs; pImprove is `null`, never invented |
 
-- A report reads "improved, 83% (warn)". Noise above 10% is acceptable; more runs or more processes are the remedy, not a stricter gate.
+- Noise above 10% is acceptable; more runs or more processes are the remedy, not a stricter gate.
 - Levels and `improvingRatio` live in `criteria.yaml`.
 
 ## Method
@@ -90,5 +86,4 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 - Why by process: runs within one process share JIT state, heap layout and clocks, so they are not independent. Concatenating processes hides the spread between them and makes intervals too narrow.
 - Why blocks: the 50 runs of one process are autocorrelated (warm-up, thermal drift). Resampling single runs would treat them as independent.
 - With 1 to 3 processes the process level has few distinct resamples; the blocks inside each keep the within-process spread.
-- Before this method, the interval was an order-statistic interval labelled 95% that fell back to min..max at n ≤ 5 (real coverage 50 to 94%) and had zero width at n = 1.
 - The merged `benchmark.json` must hold exactly the runs of the process files; a mismatch stops inbound.
