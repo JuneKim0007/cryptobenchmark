@@ -17,7 +17,7 @@ config/global.yaml + config/testsets/*.yaml
 | config | capture, trial, `global.yaml`, test set, optional `facts.yaml` | `inventory.yaml`, `effective.yaml` | `apps/benchmark/modules/config/src/main/kotlin/Configuration.kt` |
 | preparation | capture, trial, `effective.yaml` | `prepared.yaml`, `skipped.yaml` | `apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt`, `report/SkipFile.kt` |
 | benchmark | prepared cases, `energy.yaml` | `benchmark.json` | `apps/benchmark/modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt` |
-| analysis | `benchmark.json` | `summary.md`, three PNG charts | `apps/benchmark-runner/analysis/analyze.py` |
+| analysis | `benchmark.json` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | `apps/benchmark-runner/analysis/analyze.py` |
 
 - Stamp format: `yyyyMMdd'T'HHmmss'Z'`, UTC.
 - `:config` reads capture and trial by key names; no discovery class is on its classpath.
