@@ -77,7 +77,6 @@ def record_of(scope):
     return {"id": scope.id, "function": scope.function, "language": scope.language, "current": scope.current,
             "option": scope.option,
             "inputs": {"inputSize": scope.input_size, "keySize": scope.key_size, "from": scope.input_source},
-            "metrics": list(scope.metrics),
             "status": "compiled"}
 
 

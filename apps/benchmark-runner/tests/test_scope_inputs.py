@@ -50,7 +50,7 @@ def test_a_function_of_every_new_kind_is_generated_and_a_failing_input_stays_in_
         "id": "aaaaaaaaaaaa", "language": "java", "function": "all", "before": "before.java", "after": "before.java",
         "imports": ["import java.io.File;", "import java.security.PrivateKey;", "import java.security.PublicKey;", "import java.security.KeyPair;"],
         "inputs": {"inputSize": 64, "keySize": 2048, "from": "run"}, "current": "Cipher|RSA|A", "option": "Cipher|RSA|B",
-        "metrics": ["timeNs"], "dependencies": [], "callSite": {"operation": "DECRYPT", "variant": "notFixed"}}]}))
+        "dependencies": []}]}))
     plan, compiled = scope_generate.generate(harness, tmp_path / "root", tmp_path / "out", compiler=lambda root: [])
     assert compiled == ["aaaaaaaaaaaa"], plan.read_text()
     catalog = (tmp_path / "root" / scope_generate.scope_wrapper.FOLDER / "GeneratedScopes.kt").read_text()

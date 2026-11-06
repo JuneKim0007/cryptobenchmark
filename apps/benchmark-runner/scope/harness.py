@@ -6,8 +6,7 @@ import yaml
 
 from scope import languages as scope_languages
 
-# callSite: perf-repair's harness.yaml still carries it; nothing here reads it
-SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "metrics", "dependencies", "notMeasurable", "inverse", "callSite", "upgrade"}
+SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "dependencies", "notMeasurable", "inverse", "upgrade"}
 ID = re.compile(r"^[0-9a-f]{12}$")
 SCHEMA_VERSION = 6
 INPUT_SOURCES = ("app", "run")
@@ -30,7 +29,6 @@ class HarnessScope:
     input_source: str
     current: str | None
     option: str | None
-    metrics: tuple
     dependencies: tuple
     not_measurable: str | None = None
     inverse: dict | None = None
@@ -82,7 +80,7 @@ def scope(entry, index, base):
         imports=tuple(str(line) for line in entry.get("imports") or ()),
         input_size=size(inputs.get("inputSize"), f"{where}.inputs.inputSize"),
         key_size=size(inputs.get("keySize"), f"{where}.inputs.keySize"), input_source=inputs["from"],
-        current=entry.get("current"), option=entry.get("option"), metrics=tuple(entry.get("metrics") or ()),
+        current=entry.get("current"), option=entry.get("option"),
         dependencies=tuple(str(name) for name in entry.get("dependencies") or ()),
         not_measurable=entry.get("notMeasurable"), inverse=entry.get("inverse"),
         upgrade=entry.get("upgrade") is True,

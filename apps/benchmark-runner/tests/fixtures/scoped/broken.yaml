@@ -9,7 +9,6 @@ scopes:
     imports: [import android.content.Context]
     inputs: {inputSize: 64, keySize: null, from: run}
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
-    metrics: [timeNs]
     dependencies: [Context]
   - id: 4e5f60718293
     language: kotlin
@@ -19,7 +18,6 @@ scopes:
     imports: []
     inputs: {inputSize: 64, keySize: null, from: run}
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
-    metrics: [timeNs]
     dependencies: [cipherFor, KEY_ALIAS]
   - id: 5f60718293a4
     language: java
@@ -29,7 +27,6 @@ scopes:
     imports: []
     inputs: {inputSize: 64, keySize: null, from: run}
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
-    metrics: [timeNs]
     dependencies: []
   - id: 2c3d4e5f6071
     language: kotlin
@@ -39,5 +36,4 @@ scopes:
     imports: [import java.security.MessageDigest]
     inputs: {inputSize: 1024, keySize: null, from: run}
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
-    metrics: [timeNs]
     dependencies: [MessageDigest]

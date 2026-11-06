@@ -10,10 +10,8 @@ scopes:
     inputs: {inputSize: 1024, keySize: 256, from: run}
     current: "Cipher|AES/GCM/NoPadding|BC"
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
-    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [Cipher, SecretKey, GCMParameterSpec, SecureRandom, Arrays, System]
     inverse: {partner: 1b2c3d4e5f60, role: produce}
-    callSite: {operation: ENCRYPT, variant: notFixed}
   - id: 1b2c3d4e5f60
     language: java
     function: "byte[] decrypt(byte[], SecretKey)"
@@ -23,10 +21,8 @@ scopes:
     inputs: {inputSize: 1024, keySize: 256, from: run}
     current: "Cipher|AES/GCM/NoPadding|BC"
     option: "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"
-    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [Cipher, SecretKey, GCMParameterSpec]
     inverse: {partner: 0a1b2c3d4e5f, role: consume}
-    callSite: {operation: DECRYPT, variant: notFixed}
   - id: 2c3d4e5f6071
     language: kotlin
     function: "fun digest(ByteArray): ByteArray"
@@ -36,6 +32,4 @@ scopes:
     inputs: {inputSize: 1024, keySize: null, from: run}
     current: "MessageDigest|SHA-256|BC"
     option: "MessageDigest|SHA-256|AndroidOpenSSL"
-    metrics: [timeNs, allocationCount, energyJ]
     dependencies: [MessageDigest]
-    callSite: {operation: DIGEST, variant: fixed}
