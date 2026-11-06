@@ -30,7 +30,7 @@ python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 | cleanup | generated sources are removed after the run, on success and on failure |
 | failed run's plan | a run that fails after generate copies its `scoped-plan.yaml` to `checked/scoped-plan.failed.yaml`, the file its failure line names; the next run removes it |
 | last run kept | the previous `scoped/` is set aside as `scoped.previous/` and restored when the new run fails or is interrupted; dropped once the new manifest is written; a `scoped.previous/` a killed run left comes back first |
-| normal runs | unchanged; `ScopedInterop` runs only by class name |
+| other runs | never run `ScopedInterop`: it runs only by class name |
 | interop check | `ScopedInterop`, one process: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |
 | bundled providers | the `ScopedInterop` process installs `effective.yaml`'s `bundledProviders` first |
 
