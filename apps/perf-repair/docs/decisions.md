@@ -12,18 +12,18 @@
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
 - Budget: `ask` measures the system prompt plus the task message by chars/4 against the role's `budget` ([settings.md](settings.md)) before any call, for every role. Over it, `grouping assign` hides each group a known fact of the item contradicts, a join gate C refuses; a `not known` or assumed component hides nothing. Still over, or any other role over: `over_budget`, naming the role's key and the size, with nothing asked or recorded for the item; no message is ever cut. The schema is left out: it is fixed per role.
 - Each turn's size is `promptTokens` in its journal line and event; a decision's event has its first turn's, and `narrowedFrom` when the prefilter ran.
-- `--prompts DIR` on `grouping build` (with `device.screening.aiReview`; off, build refuses it and `--agent`, `--auth`, `--model`, `--effort` since it calls no model), `grouping assign`, `ai worthiness`, `ai replace`: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
+- `--prompts DIR` on `grouping build` (with `device.screening.aiReview`; off, build refuses it and `--agent`, `--auth`, `--model`, `--effort` since it calls no model), `grouping assign`, `ai worthiness`, `ai replace`, `ai upgrade`, `review stability` and the guide: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - A provider failure (`AgentFailed`: `claude_cli_failed`, `claude_api_failed`) is no answer: it stops the command with nothing recorded for the item, so a subscription limit never drops one and the next run asks it again. A CLI reply with no output tokens, a non-zero exit with JSON on stdout included, is such a failure.
-- Commands with a model: `grouping build` with `device.screening.aiReview`, `grouping assign`, `ai worthiness`, `ai replace`.
+- Commands with a model: `grouping build` with `device.screening.aiReview`, `grouping assign`, `ai worthiness`, `ai replace`, `ai upgrade`, `review stability`, and the guide through its grouping, upgrade and replace steps.
 - Gateway, auth, model and effort per command: `docs/settings.md`; `--agent`, `--auth`, `--model`, `--effort` override.
 - `grouping assign` defaults to effort `low`, below every gateway-wide layer; the other roles to `medium`.
 - `claude` gateway with `auth: api`: JSON schema output, server-side refusal fallback; the schema is sent without `maxLength`, `minLength` and `pattern`, which the Messages API refuses (400) or may find too complex; the gate still checks them. `auth: subscription` sends the whole schema.
 - Answer limits (lengths, id and alias patterns, enums) are each gate's constants, read by its `schema.py` and prompt values; they are part of the answer contract and the charter fingerprint, not settings.
 - A guide rerun of an app that stopped asks nothing already decided: its replace outbox resumes; a done app runs no step ([replacement.md](replacement.md)).
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.
-- A record holds `gateway`, `model`, `effort` (schema 2; schema 1 records read back without them). A resume with items left to ask, whose values differ from an earlier record's, logs one line: `mixed_agents: outbox <fingerprint> holds answers from <gateway>/<model>/<effort>, now asking <gateway>/<model>/<effort>`; the answers stay in one outbox.
-- A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out items. Grouping alone has `gone(key)`: a record's item that left since replays through its stand-in; for the other kinds an unknown item is an error.
+- A record holds `gateway`, `model`, `effort` (`schemaVersion` 2; another version is refused). A resume with items left to ask, whose values differ from an earlier record's, logs one line: `mixed_agents: outbox <fingerprint> holds answers from <gateway>/<model>/<effort>, now asking <gateway>/<model>/<effort>`; the answers stay in one outbox.
+- A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out and catalog-listed items (`probe/identified.py`), and with `used.json` the items outside it. Grouping alone has `gone(key)`: a record's item that left since replays through its stand-in; for the other kinds an unknown item is an error.
 - The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, or the `refresh <token>` of `assign --refresh`, classify's the whole batched evidence, site-replace's are empty or the `refresh <token>` of `ai replace --refresh`, the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
@@ -68,7 +68,7 @@
 | ids minted by | code: member aliases in unit order; dossier: option aliases per member; the gate resolves them to item ids and the option's typed pins |
 | no option | static `keep`, source `static`, never asked; a `no_real_use` lifecycle is one, reason `no_real_use`; an option without an estimate of a metric a listed perfMode selects is dropped, and a scope left none is `no_evidence: <metric>`; such a member stays on what it uses while the unit's others are asked; a unit with a member whose item's key contract is `provider_held` is never asked, its members with options under `provider_held_key` |
 | dropped item | every member with options `keep` with reason `dropped: …`, source `fallback` |
-| state | `<app>/replacements.json`: `{schemaVersion: 4, app, replacements, sources, stale}`; version 2 moved `set_algorithm` from `parameters.algorithm` to `algorithm`, version 3 added `stale`, version 4 `recommend` with `needs` and `deciding`, `accepted`, `concerns` on every row; a recommend is never edited; the edit step refuses another version; outbox under `<app>/replace/` |
+| state | `<app>/replacements.json`: `{schemaVersion: 4, app, replacements, sources, stale}`; a recommend is never edited; the edit step refuses another version; outbox under `<app>/replace/` |
 | evidence | each record, keyed by unit id, carries `evidence`, the sha256 of its unit's entry (links, stays, pairs) and every member's dossier JSON (scope facts, source, current, options with pins, interop and estimates), the dossiers' `perfMode` and the stored numbers of the `primitives.tsv` lines shown (never the display units, so a unit change marks nothing stale); every member with options of a unit whose latest record's digest differs from today's, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
 | `--refresh` | the stale units are asked again into a new outbox (inputs `refresh <token>`) that carries every other record; the old outbox stays; later runs read the token from the active charter and stay in it; a prompt change carries nothing |
 | gone | a record whose unit is not asked any more replays to no row (`gone`), never a KeyError; a unit whose members changed has a new id and is asked; a scope moved to `noOptions` gets its static keep |
@@ -81,7 +81,7 @@
 - The message's PERFMODE line gives the rule and the thresholds of the code labels (`result/gain.py`, [modes.md](modes.md#labels)); each option shows its `label` and the metrics improved and worse. `validation/suggest/site_performance.py`:
   - listed perfMode (`strict`): every chosen option passes the verdict's rule (a selected metric at or below `improvingRatio`, none at or above its inverse); `accepted` must be [];
   - `generic` (`overall`): every chosen option improves a metric beyond noise; `deciding` is not empty and each named metric improved for every chosen option; every metric worse for a chosen option is in `accepted`. A trade-off is allowed only this way.
-- `recommend`: every member with options names an option with a `change` line, `needs` at least one line, and `edits` []; the risks its scope implies are declared; it is never edited, and the report counts it apart (`funnel.recommend`, `labels.recommend`), never as an improvement. An option above `maxChange` is not in the dossier, so at the default `drop-in` no option has a `change` line and recommend cannot be chosen: those candidates are the report's recommendations.
+- `recommend`: every member with options names an option with a `change` line, `needs` at least one line, and `edits` []; the risks its scope implies are declared; it is never edited, and the report counts it apart (`funnel.recommend`), never as an improvement. An option above `maxChange` is not in the dossier, so at the default `drop-in` no option has a `change` line and recommend cannot be chosen: those candidates are the report's recommendations.
 - A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side whose output differs is refused whatever its interop says.
 - Edit kinds come from `EDIT_KIND_TABLE` (`dto/replacement.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
 - `set_provider` names exactly the option's provider; required when it differs from the current provider.
@@ -101,8 +101,6 @@ The role that moves a broken use off its algorithm: [upgrade.md](upgrade.md).
 - `paths.prompts` (or `--prompts DIR`) points at a folder holding `suggest/site-replace.system.md`: it replaces the packaged prompt for `ai replace`, the guide and `review stability`.
 - A changed prompt is a new charter: its fingerprint opens its own outbox under `<app>/replace/outbox/`, so every unit is asked again there; the packaged outbox stays untouched.
 - Removing the override resumes the packaged outbox and its records; nothing is asked again (`tests/test_site_replace_rule.py`).
-- The packaged prompt rotated with recommend, concerns, the labels and the security floor: decisions made on the earlier prompt stay in their outbox and are not carried.
-- It rotated again with the pattern (decide on the given category's numbers): every unit is asked again in a new outbox.
 
 ## Static triage (no model call)
 
@@ -116,11 +114,11 @@ The role that moves a broken use off its algorithm: [upgrade.md](upgrade.md).
 
 ## Role contracts
 
-`catalog/role-contracts.yaml` holds one row per role. `tracking.role_run` hears what the role's run opens, whichever loader opens it, and each journal line names its `inputs`; `check/contracts.py` fails a required input that never reached a call, an input or a written file outside the row, or a charter off its prompt, schema, pin or tools. A prompt a person overrode is held to its name and schema, not the pin. A journal line from before contracts has no record, and fails.
+`catalog/role-contracts.yaml` holds one row per role. `tracking.role_run` hears what the role's run opens, whichever loader opens it, and each journal line names its `inputs`; `check/contracts.py` fails a required input that never reached a call, an input or a written file outside the row, or a charter off its prompt, schema, pin or tools. A prompt a person overrode is held to its name and schema, not the pin. A journal line without recorded `inputs` fails.
 
 Limits: a file read is what is proven, not that a fact in it reached the message (the golden renders in `tests/fixtures/role_renders/` cover that); a catalog an earlier role cached is heard only when the row requires it.
 
-On demand, never in CI: `python3 tools/role_checks.py --device-results <pixel-10 folder> --apps a,b,c --runs 3 --mode <perfMode> --plan plan.yaml --out <dir> --agent claude --model claude-haiku-5-5`.
+On demand, never in CI: `python3 apps/perf-repair/tools/role_checks.py --device-results <pixel-10 folder> --apps a,b,c --runs 3 --mode <perfMode> --plan plan.yaml --out <dir> --agent claude --model claude-haiku-5-5`.
 
 ## Accuracy sheet
 
