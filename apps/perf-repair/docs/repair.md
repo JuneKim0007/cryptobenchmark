@@ -45,7 +45,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 ## harness.yaml
 
 ```yaml
-schemaVersion: 5
+schemaVersion: 6
 app: <name>
 scopes:
   - id: <scope id>
@@ -79,7 +79,7 @@ scopes:
 | `from: run` | otherwise; an item's sizes are the union over its `providers.<p>.<type>.<name>` and `<name>@<group>` entries of `effective.yaml`, the name matched case-insensitively |
 | item `inputSize`s | the entry's `inputSizes`, else `run.inputSizes` (preparation's rule) |
 | item `keySize`s | the entry's `keySizes`; none when the provider chose the size (`providerDefaults: [keySize]` records no value) |
-| chosen size | the largest size configured for both `current` and `option`, so before and after run at a size the benchmark measured for each, and the largest because it spreads the function's per-call setup over the most data; none shared is null, which the harness reports `missing_input` |
+| chosen size | the largest size configured for both `current` and `option`, so before and after run at a size the benchmark configured for each, and the largest because it spreads the function's per-call setup over the most data; none shared is null, which the harness reports `missing_input` |
 | `item_not_configured` | `current` or `option` has no entry: the device folder's manifest is not the run the groups came from; the step fails |
 | `missing_effective` | the manifest has no `files.effective`; the step fails |
 
@@ -93,6 +93,6 @@ scopes:
 | argument split | generic angle brackets are not counted, so `f(Map<A, B>)` reads as two arguments |
 | pin with an app-supplied IV | rejected; the IV length cannot be changed without changing the app's data flow |
 | default provider | the first by precedence that registers the name; a Cipher transformation also matches like JCA: `A/M`, `A//P`, then `A`, within the service's `SupportedModes` and `SupportedPaddings` |
-| app-registered provider | `Security.insertProviderAt(<a shipped provider's create>, 1)` puts it ahead of the device for a `default` site, whose current item becomes its harness alias's; `addProvider` or another position moves nothing; every `default` site's option says `resolved_by_order`: static order is a candidate, the runtime check of #61 is the proof |
+| app-registered provider | `Security.insertProviderAt(<a shipped provider's create>, 1)` puts it ahead of the device for a `default` site, whose current item becomes its harness alias's; `addProvider` or another position moves nothing; every `default` site's option says `resolved_by_order`: static order is a candidate, never proof |
 | provider rejecting the key at `init` | not skipped |
 | Cipher transformation served only through its base service | not resolved |
