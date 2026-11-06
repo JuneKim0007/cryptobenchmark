@@ -25,7 +25,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 |---|---|---|
 | effective.yaml | `config` v1 | sections `run`, `policy`, `providers`, all required |
 | capture | `capture` v1 | `capturedAtMillis`, `providers[].name`, `precedence`, `services[].type`, `algorithm`, `aliases` |
-| trial | `trial` v2 | `services[].provider`, `type`, `algorithm`, `instantiates`, `error`, `transformations[]`; `keyAlgorithm` from `defaultRun.keyAlgorithm` |
+| trial | `trial` v3 | `services[].provider`, `type`, `algorithm`, `instantiates`, `error`, `transformations[]`; `keyAlgorithm` from `defaultRun.keyAlgorithm` |
 
 | error | text |
 |---|---|

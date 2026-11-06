@@ -67,7 +67,6 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | DECRYPT `initAndOperation` | init with the ciphertext's IV; decrypting may repeat one |
 | allocation | each variant is its own case, so its `allocationCount` is its own |
 | order on a device | interleaved per item, each in its own process: [device-session.md](../../../../../docs/device-session.md#variants) |
-| `--harness` before/after | not split: it times the app's function as written |
 
 ## Inputs and keys
 

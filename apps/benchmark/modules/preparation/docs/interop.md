@@ -24,7 +24,7 @@ flowchart LR
 | key | one key per direction, planned and generated for the producer, shared by both sides |
 | parameters | each member at its own defaults; only IV and GCM parameters travel with the ciphertext |
 | pair cases | seed 0; input size default 16 |
-| `not_checkable` | `InvalidKeyException`, `InvalidAlgorithmParameterException`, `ClassCastException` (`key_or_parameters_rejected`); producer failure; no key; outputs not byte arrays |
+| `not_checkable` | `InvalidKeyException`, `InvalidAlgorithmParameterException`, `ClassCastException` (`key_or_parameters_rejected`); producer failure (`producer_failed`); no key (`no_key`, `key_generation_failed`); outputs not byte arrays (`outputs_not_comparable`); any other exception (`error`) |
 | `fail` | `BadPaddingException`, `IllegalBlockSizeException`, `SignatureException`, `verify_failed`, other bytes returned, outputs differ |
 | pair result | `fail` when a direction fails; `pass` when both pass; `not_checkable` otherwise |
 

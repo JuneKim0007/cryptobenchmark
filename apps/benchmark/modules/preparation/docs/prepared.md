@@ -31,7 +31,7 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 
 ## prepared.yaml
 
-`schemaVersion: 2` (2 adds `resolvedParameters`); overwritten each run. Nothing reads it back to rebuild a case; the benchmark reads it to join Jetpack results by case id.
+`schemaVersion: 2`; overwritten each run. Nothing reads it back to rebuild a case; the benchmark reads it to join Jetpack results by case id.
 
 | key | holds |
 |---|---|
@@ -45,8 +45,9 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 | key | holds |
 |---|---|
 | `id`, `type`, `algorithm`, `provider`, `operation` | the case |
+| `group` | when set |
 | `chartGroup`, `chartGroupId` | which cases a chart may compare; from the service type, `Cipher` split by key kind (`secret` symmetric, `pair` asymmetric); `unidentified` (0) otherwise |
-| `group`, `keySize`, `inputSize` | when set |
+| `keySize`, `inputSize` | when set |
 | `phase`, `variant`, `metrics` | the case axes; `variant` `fixed` or `notFixed` |
 | `harness` | `run.harness` merged with the entry's; when non-empty |
 | `key` | `kind` (`none`, `secret`, `pair`); secret and pair add `algorithm`, `provider`, `keySize?`, `parameters?`, and `encodedBytes` (secret length) or `pairs` (count) |
