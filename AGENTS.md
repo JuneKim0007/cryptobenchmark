@@ -68,7 +68,7 @@ apps/benchmark-runner/results/layout.py : results/<device_id>/: staging, publish
 apps/benchmark-runner/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems; files added beside a finished run
 apps/benchmark-runner/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 apps/benchmark-runner/results/select.py : the device folder of a results root a reader names, or the only one there
-apps/benchmark-runner/scope/__init__.py : package of the scoped run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
+apps/benchmark-runner/scope/__init__.py : package of the --harness run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
 apps/benchmark-runner/scope/code_digest.py : the digest of the code from a harness.yaml to a checked harness; a pattern matching nothing is an error
 apps/benchmark-runner/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
 apps/benchmark-runner/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
@@ -86,7 +86,7 @@ apps/benchmark-runner/session/case_isolation.py : run.isolation case: one case's
 apps/benchmark-runner/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 apps/benchmark-runner/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 apps/benchmark-runner/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
-apps/benchmark-runner/session/measure.py : one device measuring session for the benchmark and the before/after run: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
+apps/benchmark-runner/session/measure.py : one device measuring session of the benchmark: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
 apps/benchmark-runner/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 apps/benchmark-runner/session/thermal_gate.py : run.thermalGate session hook: the idle baseline once before the warm-up, then a wait before each case process while the device is hotter, one line per pass
 apps/benchmark-runner/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
