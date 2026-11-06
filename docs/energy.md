@@ -9,7 +9,7 @@
 | `dry` | `EnergyDryBenchmark`: Cooldown(Rewarm(EnergyWindow(TimedLoop for `windowSeconds`))) | atrace slice `energy:<caseId>` | calls from `energy-dry.yaml` |
 
 - Energy runs only with `--device`; any other capture without it fails.
-- `measured`: the window is Jetpack's timed phase; the case's samples (`iterations`, or the energy pass's `samples`) set its length; `windowSeconds` does not apply. `dry` is refused with `--harness` and with `run.passes` ([device-session.md](device-session.md#passes)).
+- `measured`: the window is Jetpack's timed phase; the case's samples (`iterations`, or the energy pass's `samples`) set its length; `windowSeconds` does not apply. `dry` is refused with `run.passes` (`not_supported`, [device-session.md](device-session.md#passes)).
 - A case's `harness.energy.capture` overrides the run's (`apps/benchmark-runner/energy/capture.py`).
 - A `dry` case passed to the timed run fails with `not_timed`; `measured` cases run in `CryptoBenchmark`, `dry` cases in `EnergyDryBenchmark`, one test per case.
 - The `energy:<caseId>` marker closes on failure; labels over 127 chars fail with `too_long`.
@@ -76,7 +76,7 @@
 | `dry` | host Perfetto session around `EnergyDryBenchmark` from `apps/benchmark-runner/energy/energy.pbtx` |
 
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
-- Traces are pulled after every case (`traces: <case>: <n> pulled`): with one process per case, the device keeps only the latest case's trace, so a pull at the process's end would find one. Large traces: Jetpack's own trace config, fixed in androidx 1.5.0, records memory counters; an allocating call floods it, and rails are lost as `window_uncovered`. Chosen: keep `measured` (`dry` is refused with `--harness` and with `run.passes`) and shorten the window with the energy pass's `samples` (100, a third of a 300-sample trace); a case above 32 MiB is flagged `traceLarge`, a lost window is `window_uncovered` with no number, never a wrong one; `traces:    <case>: <n> on the device` per case settles a missing trace. Every cipher call now includes `init`, so CBC and CTR allocate per call as GCM did.
+- Traces are pulled after every case (`traces:    <case>: <n> pulled`, with `, <m> expected` when fewer arrived): a case's own process may remove the earlier cases' traces on the device. Jetpack's own trace config records memory counters; an allocating call floods the trace, and rails in it are lost as `window_uncovered`. The energy pass's `samples` shorten the window; a trace above 32 MiB is flagged `traceLarge`; a lost window is `window_uncovered` with no number, never a wrong one.
 - Rails are counter tracks named `power.%`, cumulative µJ; window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`.
 - `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a trace can open with BOOTTIME alone); exactly one timed phase per case is required.
 
@@ -92,7 +92,7 @@
 | `joulesPerOperation` | net / operations |
 | `windowSeconds`, `polls`, `shortWindow`, `rails`, `capture`, `clockOffsetNs` | window facts |
 | `heatSleepAfterKeptRuns` | `measured`: Jetpack slept for heat after the kept runs began; it keeps such runs once its sleeps are spent, so they may be hot; printed `flagged:` |
-| `traceBytes`, `traceLarge` | `measured`: the trace's size; large above 32 MiB, where rail samples were lost before; printed `flagged:` |
+| `traceBytes`, `traceLarge` | `measured`: the trace's size; large above 32 MiB, where rail samples can be lost; printed `flagged:` |
 | `valid`, `invalid` | judgement and reasons |
 
 | invalid reason | condition |
