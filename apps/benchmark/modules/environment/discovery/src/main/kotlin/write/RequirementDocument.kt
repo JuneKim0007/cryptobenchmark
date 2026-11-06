@@ -23,7 +23,7 @@ object RequirementDocument {
     private const val REFUSED = "refused"
     private const val REUSED = "reused"
     private const val GENERATION_MILLIS = "generationMillis"
-    private const val SERVICES = "services"
+    const val SERVICES = "services"
     private const val PROVIDER = "provider"
     private const val TYPE = "type"
     private const val ALGORITHM = "algorithm"
@@ -40,13 +40,15 @@ object RequirementDocument {
     private const val FACTS = "facts"
     private const val ALIASES = "aliases"
 
-    fun of(report: RequirementReport): Map<String, Any> = linkedMapOf(
+    fun of(report: RequirementReport): Map<String, Any> = header(report) + (SERVICES to report.services.map { serviceDocument(it) })
+
+    /** Everything but the services, which a writer emits one at a time. */
+    fun header(report: RequirementReport): Map<String, Any> = linkedMapOf(
         SCHEMA_VERSION to report.schemaVersion,
         CAPTURED_AT_MILLIS to report.capturedAtMillis,
         DEVICE_CLOCK_MILLIS to report.deviceClockMillis,
         MILLIS to report.millis,
         KEY_CACHE to linkedMapOf(GENERATED to report.keyCache.generated, REFUSED to report.keyCache.refused, REUSED to report.keyCache.reused, GENERATION_MILLIS to report.keyCache.generationMillis),
-        SERVICES to report.services.map { serviceDocument(it) },
     )
 
     fun parse(document: Map<String, Any>): RequirementReport {
@@ -65,7 +67,7 @@ object RequirementDocument {
         )
     }
 
-    private fun serviceDocument(service: ServiceRequirement): Map<String, Any> {
+    fun serviceDocument(service: ServiceRequirement): Map<String, Any> {
         val document = linkedMapOf<String, Any>(PROVIDER to service.provider, TYPE to service.type, ALGORITHM to service.algorithm)
         fun put(name: String, value: Any, present: Boolean) { if (present) document[name] = value }
         put(TRANSFORMATION_OF, service.transformationOf, service.transformationOf.isNotEmpty())

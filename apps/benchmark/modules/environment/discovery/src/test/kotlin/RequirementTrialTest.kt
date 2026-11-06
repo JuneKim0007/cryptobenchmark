@@ -8,11 +8,14 @@ import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.ErrorText
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.KeyOrigin
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.RequirementTrial
+import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
+import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.nio.file.Files
 import java.security.Key
 import java.security.Provider
 import java.security.SecureRandom
@@ -114,6 +117,15 @@ class RequirementTrialTest {
     fun theDocumentRoundTrips() {
         val codec = YamlCodec()
         assertEquals(JVM, RequirementDocument.parse(codec.load(codec.dump(RequirementDocument.of(JVM)))))
+    }
+
+    @Test
+    fun theFileWrittenOneServiceAtATimeIsTheDocument() {
+        val folder = Files.createTempDirectory("requirements").toFile()
+        val codec = YamlCodec()
+        val file = RequirementYamlWriter(ProbeDirectory(folder)).write(JVM)
+        assertEquals(codec.dump(RequirementDocument.of(JVM)), file.readText())
+        folder.deleteRecursively()
     }
 
     @Suppress("DEPRECATION")
