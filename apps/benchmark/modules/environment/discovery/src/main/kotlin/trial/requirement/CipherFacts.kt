@@ -2,7 +2,11 @@ package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.security.InvalidKeyException
+import java.security.Key
+import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.CipherSpi
@@ -12,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec
 internal object CipherFacts : RequirementCall {
 
     private const val NOT_REGISTERED = "not registered under this name"
+    private val RANDOM = SecureRandom()
     private val INPUTS = listOf(0, 1, 2, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 100, 1024)
     private const val MAX_INPUT_SEARCH = 1024
 
@@ -154,21 +159,15 @@ internal object CipherFacts : RequirementCall {
         runCatching { engine.encrypt(base.key.encrypting, null, base.message).contentEquals(engine.encrypt(base.key.encrypting, null, base.message)) }
             .getOrElse { mapOf("refused" to ErrorText.of(it)) }
 
-    // What an app sees (the same Cipher re-initialised), a second Cipher, and the provider's own SPI wrapped as it is,
-    // since a platform Cipher may pick a fresh SPI on each init and so never reach the SPI's guard.
+    // What an app sees (the same Cipher re-initialised), a second Cipher, and, when the app sees no guard, the provider's
+    // own SPI called directly: Android's Cipher can pick a fresh SPI per init, and wrapping an SPI in a Cipher never inits it there.
     private fun reuseGuard(service: ProbedService, engine: CipherEngine, base: CipherBase): Map<String, Any> {
         val fixed = ParameterSpecs.fresh(base.like)
         val cipher = engine.encrypting(base.key.encrypting, fixed)
         cipher.doFinal(base.message)
         val out = refusedOrNot { CipherEngine.init(cipher, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed) }
         out["newInstance"] = refusedOrNot { engine.encrypting(base.key.encrypting, fixed) }
-        out["spi"] = ownSpi(service)?.let { spi ->
-            refusedOrNot {
-                CipherEngine.init(spi, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed)
-                spi.doFinal(base.message)
-                CipherEngine.init(spi, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed)
-            }
-        } ?: NOT_REGISTERED
+        if (out["refused"] == false && fixed != null) out["spi"] = spiReuse(service, base, fixed)
         return out
     }
 
@@ -177,9 +176,30 @@ internal object CipherFacts : RequirementCall {
         return linkedMapOf<String, Any>("refused" to (refused != null)).apply { refused?.let { put("error", it) } }
     }
 
-    private fun ownSpi(service: ProbedService): Cipher? {
-        val spi = service.provider.getService(service.type, service.algorithm)?.newInstance(null) as? CipherSpi ?: return null
-        return object : Cipher(spi, service.provider, service.algorithm) {}
+    private fun spiReuse(service: ProbedService, base: CipherBase, fixed: AlgorithmParameterSpec): Any {
+        val spi = runCatching { service.provider.getService(service.type, service.algorithm)?.newInstance(null) as? CipherSpi }.getOrNull()
+            ?: return NOT_REGISTERED
+        val reached = runCatching {
+            Spi(declared(spi, "engineInit", Int::class.javaPrimitiveType!!, Key::class.java, AlgorithmParameterSpec::class.java, SecureRandom::class.java),
+                declared(spi, "engineDoFinal", ByteArray::class.java, Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!))
+        }.getOrElse { return "not reachable: " + ErrorText.of(it) }
+        fun call(method: Method, vararg arguments: Any?): Any? =
+            try { method.invoke(spi, *arguments) } catch (thrown: InvocationTargetException) { throw thrown.targetException }
+        call(reached.init, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM)
+        call(reached.doFinal, base.message, 0, base.message.size)
+        return refusedOrNot { call(reached.init, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM) }
+    }
+
+    private class Spi(val init: Method, val doFinal: Method)
+
+    // The provider's own override: CipherSpi's protected methods are reachable through it, not through java.base.
+    private fun declared(spi: CipherSpi, name: String, vararg types: Class<*>): Method {
+        var type: Class<*>? = spi.javaClass
+        while (type != null && type != CipherSpi::class.java) {
+            runCatching { type.getDeclaredMethod(name, *types) }.getOrNull()?.let { return it.apply { isAccessible = true } }
+            type = type.superclass
+        }
+        throw NoSuchMethodException(name)
     }
 
     private fun roundTrip(engine: CipherEngine, base: CipherBase): Boolean {
