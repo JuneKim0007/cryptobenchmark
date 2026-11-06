@@ -15,7 +15,6 @@ services:
 def test_the_requirements_of_a_capture_are_the_file_with_its_stamp(tmp_path):
     (tmp_path / "requirements_20260101T000000Z.yaml").write_text(DOCUMENT)
     found = Requirements.beside(tmp_path / "probe_20260101T000000Z.yaml")
-    assert (found.captured_at_millis, found.device_clock_millis) == (10, 7)
     assert found.of("P", "Cipher", "A")["status"] == "runnable" and found.of("P", "Cipher", "B") is None
 
 

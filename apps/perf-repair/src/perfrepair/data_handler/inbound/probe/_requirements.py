@@ -25,14 +25,6 @@ class Requirements:
         return cls.load(capture.with_name("requirements_" + capture.name.rsplit("_", 1)[-1]))
 
     @property
-    def captured_at_millis(self) -> int:
-        return self._document["capturedAtMillis"]
-
-    @property
-    def device_clock_millis(self) -> int:
-        return self._document["deviceClockMillis"]
-
-    @property
     def services(self) -> list[dict]:
         return self._document.get("services") or []
 

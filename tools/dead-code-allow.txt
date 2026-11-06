@@ -6,6 +6,7 @@ apps/perf-repair/src/perfrepair/app/find/scan.py:snippet : written to sites.json
 apps/perf-repair/src/perfrepair/catalog/screening.py:removedApi : screening.yaml field, checked against deprecatedApi at load
 apps/perf-repair/src/perfrepair/catalog/views.py:view_for : the agent view of a catalogue entry, for the later catalog phases (K0)
 apps/perf-repair/src/perfrepair/catalog/views.py:group_view : the agent view of a group, for the later catalog phases (K0)
+apps/perf-repair/src/perfrepair/data_handler/inbound/probe/_requirements.py:beside : how the agent tools find the requirements of a capture, for the later catalog phases
 apps/perf-repair/src/perfrepair/dto/grouping.py:keyKindFrom : written to profiles.json by asdict
 apps/perf-repair/src/perfrepair/dto/grouping.py:defaultKeySize : written to profiles.json by asdict
 apps/perf-repair/src/perfrepair/dto/grouping.py:keyProvider : written to profiles.json by asdict
