@@ -47,7 +47,7 @@ src/perfrepair/catalog/algorithms/ : data: `<family>_catalogue.yaml` per family,
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions, the one copy
 src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: one group per family by id, contract rows from each member's catalogue contract, a row at each key contract
-src/perfrepair/catalog/groups.yaml : data: one predefined group per family: its algorithm ids; a person adds ids from group-candidates.yaml
+src/perfrepair/catalog/groups.yaml : data: per family the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
 src/perfrepair/catalog/identity.py : one algorithm's ids: the registered item, the canonical algorithm, its contract row; a case id read back from its fields
 src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
