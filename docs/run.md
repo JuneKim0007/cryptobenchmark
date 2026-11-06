@@ -36,7 +36,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--stacktrace` | off | print the tool's full output on failure |
 | `--stream` | off | show each tool's progress |
-| `--harness HARNESS_YAML` | off | with `--device`: generate, install and interop-check perf-repair's scopes instead of the plan's cases, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
+| `--harness HARNESS_YAML` | off | with `--device`: generate, compile, install and interop-check perf-repair's scopes, original against patched, instead of the plan's cases; nothing is timed, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
 | `--interop PLAN_YAML` | off | with `--bench` or `--device`: discover, then check perf-repair's `interop_plan.yaml` pairs instead of measuring, see [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 
 | rule | result |
@@ -112,7 +112,7 @@ python3 apps/benchmark-runner/explain.py [--config PATH] [--results DIR] [--devi
 
 ### Device session
 
-The benchmark and the before/after run measure through one device session: [device-session.md](device-session.md).
+The benchmark measures through one device session: [device-session.md](device-session.md). A `--harness` run measures nothing: it compiles the scopes and runs `ScopedInterop` once.
 
 | piece | what it is | device time it costs |
 |---|---|---|
