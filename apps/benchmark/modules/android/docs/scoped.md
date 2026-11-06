@@ -20,15 +20,15 @@ python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 
 | step | rule |
 |---|---|
-| output | `measured/` beside `harness.yaml`; `--results` is refused |
+| output | `checked/` beside `harness.yaml`; `--results` is refused |
 | device | a `manifest.yaml` one folder above the harness's names the device it was built for; another attached device stops with `harness_other_device` |
-| generate | `measured/scoped/scoped-plan.yaml`; sources in package `io.github.junekim0007.cryptobench.scoped` under `src/androidTest/java/`, git-ignored |
+| generate | `checked/scoped/scoped-plan.yaml`; sources in package `io.github.junekim0007.cryptobench.scoped` under `src/androidTest/java/`, git-ignored |
 | compile | all scopes in one Gradle compile; on failure, each scope alone, then the passing set together |
 | no scope compiled | the empty catalog is written and the run fails `nothing_to_check` |
 | a compile error outside the generated folder | fails `harness_build_failed` |
 | passing scopes compile alone, not together | fails `scopes_conflict` |
 | cleanup | generated sources are removed after the run, on success and on failure |
-| failed run's plan | a run that fails after generate copies its `scoped-plan.yaml` to `measured/scoped-plan.failed.yaml`, the file its failure line names; the next run removes it |
+| failed run's plan | a run that fails after generate copies its `scoped-plan.yaml` to `checked/scoped-plan.failed.yaml`, the file its failure line names; the next run removes it |
 | last run kept | the previous `scoped/` is set aside as `scoped.previous/` and restored when the new run fails or is interrupted; dropped once the new manifest is written; a `scoped.previous/` a killed run left comes back first |
 | normal runs | unchanged; `ScopedInterop` runs only by class name |
 | interop check | `ScopedInterop`, one process: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |

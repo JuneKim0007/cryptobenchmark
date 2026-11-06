@@ -81,9 +81,9 @@ def harness_run(options, configuration, device, results):
         scope_generate.clean(BENCHMARK)
 
 
-def measured_folder(options):
+def checked_folder(options):
     if options.results:
-        fail("--results: a --harness run writes measured/ beside its harness.yaml")
-    measured = pathlib.Path(options.harness).resolve().parent / "measured"
-    results_layout.warn_if_temp(measured)
-    return measured
+        fail("--results: a --harness run writes checked/ beside its harness.yaml")
+    checked = pathlib.Path(options.harness).resolve().parent / "checked"
+    results_layout.warn_if_temp(checked)
+    return checked

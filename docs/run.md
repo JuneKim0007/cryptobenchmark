@@ -45,7 +45,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--device` with `--discovery reuse` | fails |
 | `--suppress-errors` or `--energy-accept-unresponsive` without `--device` | fails |
 | energy capture other than `none` without `--device` | fails |
-| `--harness` without `--device`, or with `--results` | fails: `measured/` goes beside `harness.yaml` |
+| `--harness` without `--device`, or with `--results` | fails: `checked/` goes beside `harness.yaml` |
 | `--interop` without `--bench` or `--device`, or with `--harness` | fails |
 | `--probe` or `--identify` with `--bench`, `--harness` or `--interop` | fails |
 | `global.yaml` or its test set refused by `CheckConfigKt`, any run but `--identify` | one line before any build |

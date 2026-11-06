@@ -9,7 +9,7 @@
 <results root>/<device_id>/
   discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ interop/ manifest.yaml
   rows.json measurements.json run_log.json primitives.tsv worthiness-<mode>/ grouping/ summary.json summary.md
-  <path_id>/ sites.json app.json ... harness.yaml measured/ report.json report.md
+  <path_id>/ sites.json app.json ... harness.yaml checked/ report.json report.md
 ```
 
 perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repair/docs/artifacts.md).
@@ -22,7 +22,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one and its partial files for debugging |
 | `--discovery` | `overwrite` replaces `discovery/`; `keep` and `reuse` add to it |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
-| `--harness` | writes `measured/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
+| `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
 | a killed process | `.staging-*` stays behind; nothing reads it, delete it |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
 

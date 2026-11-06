@@ -19,13 +19,13 @@ EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, UNITS, DOSSIERS = "app.json", "scopes.json", "units.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 UPGRADE, UPGRADES = "upgrade", "upgrades.json"
-MEASURED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "measured", "report.json", "report.md", "summary.json", "summary.md"
+CHECKED, REPORT, REPORT_MD, SUMMARY, SUMMARY_MD = "checked", "report.json", "report.md", "summary.json", "summary.md"
 FINISHED = "finished.json"
 # one guide run per device folder at a time; its record runs/run_<id>.json
 LOCK, RUNS = ".lock", "runs"
 # apps.targets resolved: every app the guide runs and every candidate it left out
 TARGETS = "targets.yaml"
-# cryptobenchmark's --harness layout under measured/: docs/results.md `scoped/`
+# cryptobenchmark's --harness layout under checked/: docs/results.md `scoped/`
 SCOPED_PLAN = "scoped/scoped-plan.yaml"
 GROUPING = "grouping"
 # the run log: events.jsonl is the record; the .log files are views of it
@@ -86,8 +86,8 @@ class AppPaths:
     alone_root = property(lambda self: self.root / "patched-alone")
     harness = property(lambda self: self.root / HARNESS)
     extracts = property(lambda self: self.root / "harness")
-    measured = property(lambda self: self.root / MEASURED)
-    scoped_plan = property(lambda self: self.root / MEASURED / SCOPED_PLAN)
+    checked = property(lambda self: self.root / CHECKED)
+    scoped_plan = property(lambda self: self.root / CHECKED / SCOPED_PLAN)
     report = property(lambda self: self.root / REPORT)
     report_md = property(lambda self: self.root / REPORT_MD)
     finished = property(lambda self: self.root / FINISHED)

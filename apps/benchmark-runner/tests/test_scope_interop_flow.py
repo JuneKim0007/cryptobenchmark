@@ -40,7 +40,7 @@ def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monk
         return out / "scoped-plan.yaml", []
     monkeypatch.setattr(harness.scope_generate, "generate", generate)
     monkeypatch.setattr(harness.scope_generate, "clean", lambda _root: None)
-    results = tmp_path / "measured"
+    results = tmp_path / "checked"
     with pytest.raises(SystemExit):
         harness.harness_run(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, None, results)
     named = capsys.readouterr().err.split("see ")[-1].strip()

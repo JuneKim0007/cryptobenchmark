@@ -19,12 +19,12 @@ harness = yaml.safe_load(pathlib.Path(options.harness).read_text())
 if os.environ.get("FAKE_EXIT") or os.environ.get("FAKE_FAIL_APP") == harness["app"]:
     print("error: no_scope_compiled: every scope is not_compilable", file=sys.stderr)
     sys.exit(int(os.environ.get("FAKE_EXIT") or 1))
-measured = pathlib.Path(options.harness).resolve().parent / "measured"
-scoped = measured / "scoped"
+checked = pathlib.Path(options.harness).resolve().parent / "checked"
+scoped = checked / "scoped"
 scoped.mkdir(parents=True, exist_ok=True)
 records = [{"id": s["id"], "function": s["function"], "language": s["language"], "current": s["current"],
             "option": s["option"], "inputs": s["inputs"], "status": "checked",
             "interop": {"check": "same_output", "result": "passed"}} for s in harness["scopes"]]
 (scoped / "scoped-plan.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "app": harness["app"], "scopes": records}))
-(measured / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")
-print(f"wrote:     {measured / 'manifest.yaml'}")
+(checked / "manifest.yaml").write_text("schemaVersion: 1\nmode: device\n")
+print(f"wrote:     {checked / 'manifest.yaml'}")

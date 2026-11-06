@@ -59,7 +59,7 @@
 | `<app>/dossiers.json` | repair dossier | replace | `validation/dossiers/`, before writing: schema 8 (`upgrades` and `brokenUnreached`: the broken uses; estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `measured` the selected metrics the run has a measurement of, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
-| `<app>/measured/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
+| `<app>/checked/` | cryptobenchmark `pipeline.py --device --harness` | report | cryptobenchmark |
 | `<app>/report.json`, `report.md` | report app | report summary | `validation/report.py`, before writing |
 | `summary.json`, `summary.md` | report summary | people | `validation/summary.py`, before writing |
 | `apps-index.tsv` | the guide's summary step, `perfrepair.guide.index` | people: find an app, what is left on it; its `fixed`, `notFixed` and `unknown_default` scope counts | none: rebuilt whole from the app folders and `log/events.jsonl` |

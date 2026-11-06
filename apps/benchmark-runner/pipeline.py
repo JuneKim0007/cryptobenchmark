@@ -17,7 +17,7 @@ from scope import results as scope_results
 from stages import config_check
 from stages.benchmark import measure_cases
 from stages.discover import device_discover, host_runtime
-from stages.harness import harness_run, measured_folder
+from stages.harness import harness_run, checked_folder
 from stages.interop import interop_run
 
 
@@ -89,7 +89,7 @@ def main():
     if options.identify:
         return identify(options, configuration, device)
     if options.harness:
-        return harness_run(options, configuration, device, measured_folder(options))
+        return harness_run(options, configuration, device, checked_folder(options))
     root = results_root(options)
     results_layout.warn_if_temp(root)
     if options.interop:

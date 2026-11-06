@@ -18,7 +18,7 @@ flowchart LR
     D -- app/dossiers.json --> P[ai replace: model per unit]
     P -- app/replacements.json --> R[repair: edit, harness]
     R -- app/harness.yaml --> M[cryptobenchmark pipeline.py --device --harness]
-    M -- app/measured/scoped/scoped-plan.yaml --> Q[report: app, summary]
+    M -- app/checked/scoped/scoped-plan.yaml --> Q[report: app, summary]
 ```
 
 ## Stages
@@ -37,7 +37,7 @@ flowchart LR
 | grouping interop-read | `python3 -m perfrepair.grouping interop-read --device-results <device> --results <interop.yaml>` | `interop.yaml`, `grouping/` | `grouping/interop.yaml`; reruns report | no |
 | worthiness | `python3 -m perfrepair.ai worthiness --device-results <device> --perf-mode generic\|<keys>` | `rows.json`, `measurements.json`, `grouping/groups.json` | `worthiness-<perfMode name>/` (evidence.json, outbox/, verdicts.json, journal.jsonl, errors.jsonl) | one per group with an improving pair |
 | repair | `python3 -m perfrepair.repair dossier\|edit\|harness --device-results <device> --app <src>` | `docs/repair.md` | `<app>/` | no |
-| device | cryptobenchmark `pipeline.py --device --harness <device>/<app>/harness.yaml`, writing `measured/` beside it | `harness.yaml`, the phone | `<app>/measured/` | no |
+| device | cryptobenchmark `pipeline.py --device --harness <device>/<app>/harness.yaml`, writing `checked/` beside it | `harness.yaml`, the phone | `<app>/checked/` | no |
 | report | `python3 -m perfrepair.report app --device-results <device> --app <src> [--perf-mode]` ; `report summary --device-results <device>` | `<app>/` | `report.json`, `report.md`; `summary.json`, `summary.md` | no |
 | guide | `python3 -m perfrepair guide [--app <src>] --device-results <device> [--device]` | the device folder, each app tree | app, dossier, replace, edit, harness per app (`apps.targets`, or `--app`), `<app>/finished.json`; with `--device` measured and report, `summary.json` | the replace step, per app |
 | validate | `python3 -m perfrepair.validation --device-results <device>` | every artifact present | nothing | no |

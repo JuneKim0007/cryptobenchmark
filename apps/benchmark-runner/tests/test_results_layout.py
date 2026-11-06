@@ -122,7 +122,7 @@ def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
 def test_a_harness_run_takes_no_results_root():
     options = type("Options", (), {"results": "r", "harness": "h.yaml"})
     with pytest.raises(SystemExit):
-        harness.measured_folder(options)
+        harness.checked_folder(options)
 
 
 def test_a_write_that_fails_midway_leaves_the_old_manifest_whole_and_no_temporary(tmp_path, monkeypatch):

@@ -97,7 +97,7 @@ apps/benchmark-runner/stages/benchmark.py : the plain run's benchmark: device pa
 apps/benchmark-runner/stages/capture_files.py : the capture and trial a discovery wrote, by path and paired by stamp; never the newest by a device-clock stamp; the reuse that probed again
 apps/benchmark-runner/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 apps/benchmark-runner/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
-apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into measured/
+apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into checked/
 apps/benchmark-runner/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
 apps/benchmark-runner/stages/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 apps/benchmark-runner/stages/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, plan push, ConvertKt, per-process files

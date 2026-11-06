@@ -21,7 +21,7 @@ from ..log.read import read_events
 
 # the step an app reached: the last of an unbroken run of files in guide order, each no older than the one before
 STAGES = (("app", rd.SCOPES), ("dossier", rd.DOSSIERS), ("replace", rd.REPLACEMENTS), ("edit", rd.EDITS),
-          ("harness", rd.HARNESS), ("device", f"{rd.MEASURED}/{rd.SCOPED_PLAN}"), ("report", rd.REPORT))
+          ("harness", rd.HARNESS), ("device", f"{rd.CHECKED}/{rd.SCOPED_PLAN}"), ("report", rd.REPORT))
 ORDER = [name for name, _ in STAGES]
 COLUMNS = ("app", "project", "source", "sites", "scopes", *PATTERNS, UNKNOWN_DEFAULT, "stage", "stop", "reason", *CHANGES,
            *TRACKS, "notOffered", "replace", "checked")

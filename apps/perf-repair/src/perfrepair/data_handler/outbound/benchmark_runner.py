@@ -129,7 +129,7 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
                  benchmark: Path | str | None = None, harness: Path | None = None,
                  echo: Callable[[str], None] | None = print, tail: int = 40, extra: tuple[str, ...] = (),
                  app: str | None = None, *, device: Path, env: dict[str, str] | None = None) -> Path:
-    """results: the root, unused with harness, where pipeline.py picks measured/ itself; device: the folder whose log/
+    """results: the root, unused with harness, where pipeline.py picks checked/ itself; device: the folder whose log/
     keeps the transcript; env: variables the run adds to the child's environment."""
     if stage not in STAGES:
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")

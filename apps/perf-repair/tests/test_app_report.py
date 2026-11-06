@@ -113,9 +113,9 @@ def test_an_unchecked_or_not_comparable_interop_says_so(tmp_path, app):
 
 
 def test_without_a_device_run_nothing_is_checked(tmp_path):
-    shutil.rmtree(AppPaths(tmp_path, "shop").measured)
+    shutil.rmtree(AppPaths(tmp_path, "shop").checked)
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
-    assert rows(doc)[A]["compile"] == {"status": "not_run", "reason": "no_device_run: measured/scoped/scoped-plan.yaml absent"}
+    assert rows(doc)[A]["compile"] == {"status": "not_run", "reason": "no_device_run: checked/scoped/scoped-plan.yaml absent"}
     assert doc["funnel"]["interopPassed"] == 0
 
 
