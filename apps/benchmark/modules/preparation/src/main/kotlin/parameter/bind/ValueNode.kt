@@ -20,6 +20,12 @@ internal sealed class ValueNode {
         override fun evaluate(): Any = ByteArray(size).also { random.nextBytes(it) }
     }
 
+    class Cycle(private val values: List<Any>) : ValueNode() {
+        private var drawn = 0
+        override val varies: Boolean = values.size > 1
+        override fun evaluate(): Any = values[drawn++ % values.size]
+    }
+
     class StaticField(private val value: Any) : ValueNode() {
         override val varies: Boolean = false
         override fun evaluate(): Any = value

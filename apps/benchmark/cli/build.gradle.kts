@@ -39,7 +39,11 @@ sourceSets {
     }
 }
 
+// -PbundledArtifacts=group:name:version,... : the providers.bundled of global.yaml on this JVM's classpath, as modules/android/build.gradle does.
+val bundledArtifacts = providers.gradleProperty("bundledArtifacts").orElse("").get().split(',').map { it.trim() }.filter { it.isNotEmpty() }
+
 dependencies {
+    bundledArtifacts.forEach { implementation(it) }
     implementation("org.yaml:snakeyaml:2.3")
     testImplementation("junit:junit:4.13.2")
 }

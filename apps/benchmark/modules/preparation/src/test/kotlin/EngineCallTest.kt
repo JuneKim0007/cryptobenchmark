@@ -28,4 +28,25 @@ class EngineCallTest {
         assertEquals(Triple(1, 6, 5), triple(counted(PerCall.INIT_AND_OPERATION, 5)))
         assertEquals(Triple(6, 6, 5), triple(counted(PerCall.INSTANCE_INIT_AND_OPERATION, 5)))
     }
+
+    @Test
+    fun theTraceReadsTheHeldEngineAndTheInitCount() {
+        fun traced(perCall: PerCall): Pair<Boolean, Int> {
+            val invocation = EngineCall({ Any() }, { _, _ -> }, { null }).invocation(perCall)
+            val before = invocation.trace!!
+            repeat(3) { invocation.perIteration() }
+            val after = invocation.trace!!
+            return (after.engine !== before.engine) to (after.inits - before.inits)
+        }
+        assertEquals(false to 0, traced(PerCall.OPERATION))
+        assertEquals(false to 3, traced(PerCall.INIT_AND_OPERATION))
+        assertEquals(true to 3, traced(PerCall.INSTANCE_INIT_AND_OPERATION))
+    }
+
+    // The timed lambda keeps master's state only: a check-only counter would run inside every timed call.
+    @Test
+    fun theTimedCallHoldsNoCheckOnlyState() {
+        val fields = EngineCall::class.java.declaredFields.filterNot { it.isSynthetic }.map { it.name }.toSet()
+        assertEquals(setOf("create", "init", "operate", "calls", "engine"), fields)
+    }
 }

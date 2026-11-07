@@ -37,3 +37,19 @@ jobs:
       - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "ndk;29.0.14206865" "cmake;3.22.1" > /dev/null
       - run: ./gradlew build :android:compileReleaseAndroidTestKotlin --no-daemon
         working-directory: apps/benchmark
+
+  end-to-end-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: python3 -m pip install -r requirements.txt
+      # every known-answer case once on JDK + BundledBC, vectors from config/known-answers.yaml; fails on any failed or errored case
+      - run: python3 apps/benchmark-runner/pipeline.py --config config/global-check.yaml --results "$RUNNER_TEMP/check" --bench --check

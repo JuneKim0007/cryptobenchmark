@@ -1,6 +1,6 @@
 # config
 
-Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed and written only by the user. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
+Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed and written only by the user. `config/known-answers.yaml` beside them holds the end-to-end check's sourced vectors; the benchmark module reads it ([check.md](../../benchmark/docs/check.md)), config does not. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
 
 ## Authored files
 

@@ -44,16 +44,17 @@ apps/benchmark/modules/preparation/src/main/kotlin/measurement/Operation.kt : en
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM, COLD
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Variant.kt : enum fixed, notFixed
 apps/benchmark/modules/preparation/src/main/kotlin/operation/AgreeKeyDefinition.kt : AGREE_KEY definition
+apps/benchmark/modules/preparation/src/main/kotlin/operation/CallTrace.kt : the engine an EngineCall holds and its init count, read outside the timed call by the end-to-end check
 apps/benchmark/modules/preparation/src/main/kotlin/operation/CaseArguments.kt : spec pool, seeded message, key accessors for definitions
 apps/benchmark/modules/preparation/src/main/kotlin/operation/CipherCall.kt : one timed doFinal into a preallocated buffer, init and getInstance by perCall; refuses parameters a provider will not repeat
 apps/benchmark/modules/preparation/src/main/kotlin/operation/ComputeMacDefinition.kt : COMPUTE_MAC definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/DecryptDefinition.kt : DECRYPT definition; builds ciphertext input
 apps/benchmark/modules/preparation/src/main/kotlin/operation/DigestDefinition.kt : DIGEST definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/EncryptDefinition.kt : ENCRYPT definition
-apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineCall.kt : one timed call over a JCA engine: what it redoes per call, by PerCall
+apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineCall.kt : one timed call over a JCA engine: what it redoes per call, by PerCall; its CallTrace
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyDefinition.kt : GENERATE_KEY definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyPairDefinition.kt : GENERATE_KEY_PAIR definition
-apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once() and the engine it calls
+apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once(), the engine it calls and its CallTrace
 apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocations.kt : of(prepared) to the case's Invocation
 apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum NONE, SECRET, PAIR, PEER_PAIRS, DEVICE_DECIDES
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
@@ -65,10 +66,10 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/TypeDefaultDefiniti
 apps/benchmark/modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BindException.kt : bind_failed: <path>: <detail>
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BindPolicy.kt : classes a parameter tree may name
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BoundParameters.kt : compiled tree; varies, next()
+apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BoundParameters.kt : compiled tree; varies, next(); cycling(specs) for the end-to-end check's fixed values
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ParameterBinder.kt : compiles a parameter tree into a ValueNode
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ValueCoercion.kt : YAML value to constructor parameter type
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ValueNode.kt : tree nodes: Literal, Fresh, StaticField, Construction
+apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ValueNode.kt : tree nodes: Literal, Fresh, Cycle, StaticField, Construction
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/Fingerprint.kt : first 8 hex chars of SHA-256
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/KeyFields.kt : keyBits and curve of a key, by key interface
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValue.kt : whether an IvParameterSpec value is an IV or a constant the provider fills in
@@ -95,17 +96,19 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionCheck.kt : p
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian expansion of a selection into cases
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
+apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line, object identity hashes dropped
 apps/benchmark/modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; apps/benchmark-runner/results/manifest.py copies the types into each run's manifest.yaml `operations`
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type and cipher mode, what a fixed call still does; JCA contract per row
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
+apps/benchmark/modules/preparation/src/test/kotlin/BoundParametersTest.kt : cycling fixed specs in turn
 apps/benchmark/modules/preparation/src/test/kotlin/CaseResolverTest.kt : expansion and rejection tests
 apps/benchmark/modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart group tests
 apps/benchmark/modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall per-call init, instance and refusal tests
 apps/benchmark/modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 apps/benchmark/modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
-apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call
+apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call; the trace's engine and inits; no check-only state in the timed call
 apps/benchmark/modules/preparation/src/test/kotlin/EngineTypesTest.kt : engine type registry tests
 apps/benchmark/modules/preparation/src/test/kotlin/ExampleFilesTest.kt : prepares example/ and compares the committed outputs
 apps/benchmark/modules/preparation/src/test/kotlin/GlobalReaderTest.kt : run and policy read tests

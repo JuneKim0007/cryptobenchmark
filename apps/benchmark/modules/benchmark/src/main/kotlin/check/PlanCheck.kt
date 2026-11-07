@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
+import io.github.junekim0007.cryptobench.preparation.report.Skip
 import io.github.junekim0007.cryptobench.settings.Metric
 import java.security.Security
 
@@ -14,7 +15,12 @@ class PlanCheck(
     private val energyCapability: () -> EnergyCapability? = { null },
 ) {
 
-    class Checked(val runnable: List<PreparedCase>, val refused: List<Pair<PreparedCase, Refusal>>)
+    class Checked(val runnable: List<PreparedCase>, val refused: List<Pair<PreparedCase, Refusal>>) {
+
+        val skipped: List<Skip> get() = refused.map { (prepared, refusal) ->
+            Skip(STAGE, prepared.case.provider, prepared.case.type, prepared.case.algorithm, refusal.toString())
+        }
+    }
 
     // A refused case is left out with its reason; a run-wide refusal, or no case left, refuses the plan.
     fun runnable(run: PreparedRun): Checked {
@@ -81,5 +87,9 @@ class PlanCheck(
             refusals += Refusal(case.id, "not_positive: inputSize $inputSize")
         }
         return refusals
+    }
+
+    private companion object {
+        const val STAGE = "benchmark"
     }
 }

@@ -18,6 +18,6 @@ internal class EngineCall<E : Any>(
             PerCall.INIT_AND_OPERATION -> { { init(engine, calls++); operate(engine) } }
             PerCall.INSTANCE_INIT_AND_OPERATION -> { { engine = create(); init(engine, calls++); operate(engine) } }
         }
-        return Invocation(call, exact, if (readBack) { { engine } } else { { null } }, perCall)
+        return Invocation(call, exact, if (readBack) { { engine } } else { { null } }, perCall) { CallTrace(engine, calls) }
     }
 }

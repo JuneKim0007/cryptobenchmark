@@ -1,4 +1,4 @@
-"""providers.bundled of global.yaml: the digest's raw read, the app build property, the DeviceProbe argument, the check against effective.yaml."""
+"""providers.bundled of global.yaml: the digest's raw read, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
 import json, shlex
 
 import yaml
@@ -30,7 +30,11 @@ def instrumentation_arguments(bundled):
     return ["-e", KEY, shlex.quote(json.dumps({KEY: bundled}))] if bundled else []
 
 
+def recorded(effective_file):
+    return (yaml.safe_load(effective_file.read_text()) or {}).get(KEY) or []
+
+
 def check_effective(effective_file, bundled):
-    recorded = (yaml.safe_load(effective_file.read_text()) or {}).get(KEY) or []
-    if recorded != bundled:
-        raise BundledError(f"bundled_mismatch: {effective_file} records {recorded}, the app was built with {bundled}")
+    found = recorded(effective_file)
+    if found != bundled:
+        raise BundledError(f"bundled_mismatch: {effective_file} records {found}, the app was built with {bundled}")

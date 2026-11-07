@@ -28,8 +28,6 @@ def discover(options, configuration, device, results):
 
     print(f"config:    {configuration}")
     shipped = config_check.parsed(configuration)["bundled"]
-    if shipped and not device:
-        print("warning: providers.bundled: only a --device run builds and installs bundled providers; this run measures the platform's")
     if device:
         started = time.monotonic()
         device.install(bundled.gradle_properties(shipped))
@@ -42,7 +40,8 @@ def discover(options, configuration, device, results):
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
         started, before = time.monotonic(), capture_files.stamped(discovery)
-        written = gradle_runner.run(f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream, main_class="ProbeKt")
+        written = gradle_runner.run(f"{discovery} {configured} {configuration}{reuse}", options.stacktrace, options.stream, main_class="ProbeKt",
+                                    properties=bundled.gradle_properties(shipped))
         capture, trial = capture_files.printed(written, discovery)
         if reuse:
             capture_files.reprobed(before, capture)
@@ -51,8 +50,7 @@ def discover(options, configuration, device, results):
     effective = configured / "effective.yaml"
     if not effective.is_file():
         fail(f"missing_file: {effective}")
-    if device:
-        bundled.check_effective(effective, shipped)
+    bundled.check_effective(effective, shipped)
     summary(effective)
     elapsed("discover and configure", started)
     return located(results, capture.name)

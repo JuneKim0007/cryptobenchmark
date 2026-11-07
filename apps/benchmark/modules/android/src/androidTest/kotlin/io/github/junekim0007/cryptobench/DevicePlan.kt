@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench
 
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
-import io.github.junekim0007.cryptobench.benchmark.check.Refusal
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.Preparation
@@ -17,9 +16,15 @@ import java.io.File
 object DevicePlan {
 
     private const val EFFECTIVE = "effective.yaml"
-    private const val STAGE = "benchmark"
 
-    val cases: List<PreparedCase> by lazy { prepare() }
+    private class Planned(val runnable: List<PreparedCase>, val skipped: List<Skip>)
+
+    private val planned: Planned by lazy { prepare() }
+
+    val cases: List<PreparedCase> get() = planned.runnable
+
+    // Preparation's skips and the plan check's refusals, as skipped.yaml holds them.
+    val skipped: List<Skip> get() = planned.skipped
 
     // isolation: case names one case per instrumentation process; without the argument every timed case runs
     val timedCases: List<PreparedCase> get() = CaseFilter.of(cases.filter { captureOf(it) != Energy.Capture.DRY }) { it.case.id }
@@ -36,7 +41,7 @@ object DevicePlan {
         DiscoveryCapability(capture, paired("trial", capture))
     }
 
-    private fun prepare(): List<PreparedCase> {
+    private fun prepare(): Planned {
         val effective = File(directory, EFFECTIVE)
         check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
         Bundled.installFrom(effective)
@@ -47,13 +52,10 @@ object DevicePlan {
         ).prepare(effective)
         val checked = PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability).runnable(run)
         if (checked.refused.isNotEmpty()) {
-            SkipFile(directory).write(run.skipped + checked.refused.map { (prepared, refusal) -> skipOf(prepared, refusal) })
+            SkipFile(directory).write(run.skipped + checked.skipped)
         }
-        return checked.runnable
+        return Planned(checked.runnable, run.skipped + checked.skipped)
     }
-
-    private fun skipOf(prepared: PreparedCase, refusal: Refusal): Skip =
-        Skip(STAGE, prepared.case.provider, prepared.case.type, prepared.case.algorithm, refusal.toString())
 
     private fun energyCapability(): EnergyCapability? =
         File(directory, EnergyCapability.FILE).takeIf { it.isFile }?.let { EnergyCapability.parse(it.readText()) }

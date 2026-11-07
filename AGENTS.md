@@ -43,7 +43,7 @@
 AGENTS.md : agent router
 README.md : project entry page
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
-apps/benchmark-runner/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property, DeviceProbe argument, effective check
+apps/benchmark-runner/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start; a missing one is one coded line and exit 1
 apps/benchmark-runner/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
@@ -92,9 +92,10 @@ apps/benchmark-runner/session/thermal_gate.py : run.thermalGate session hook: th
 apps/benchmark-runner/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 apps/benchmark-runner/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 apps/benchmark-runner/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
-apps/benchmark-runner/stages/__init__.py : package of the run driver's stages: discover, benchmark, harness, interop, and their steps
+apps/benchmark-runner/stages/__init__.py : package of the run driver's stages: discover, benchmark, check, harness, interop, and their steps
 apps/benchmark-runner/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
 apps/benchmark-runner/stages/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
+apps/benchmark-runner/stages/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
 apps/benchmark-runner/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 apps/benchmark-runner/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
 apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into checked/
@@ -106,7 +107,7 @@ apps/benchmark-runner/stages/took.py : the took: line of a timed step
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark-runner/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
-apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, convert, merges, interop; JCA contract tests
+apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests
 apps/benchmark/gradle.properties : Gradle daemon JVM args and AndroidX flags
 apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build, its CLI build and every tools/ build
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity

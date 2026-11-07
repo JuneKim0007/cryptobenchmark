@@ -30,5 +30,8 @@ class HostHarness(
         const val RUN_NANOS = 30_000_000L
         const val RUNS = 5
         val METRICS: Set<Metric> = setOf(Metric.TIME)
+
+        // The check's call: no warm-up and no timer, the output to the hook instead of the BlackHole.
+        val ONCE = OneCall { invocation, hook -> hook.consume(invocation.once()) }
     }
 }

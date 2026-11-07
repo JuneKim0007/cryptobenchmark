@@ -16,6 +16,7 @@ from scope import code_digest
 from scope import results as scope_results
 from stages import config_check
 from stages.benchmark import measure_cases
+from stages.check import check_run
 from stages.discover import device_discover, host_runtime
 from stages.harness import harness_run, checked_folder
 from stages.interop import interop_run
@@ -45,6 +46,8 @@ def parse_options():
     parser.add_argument("--harness", metavar="HARNESS_YAML",
                         help="with --device: interop-check perf-repair's scopes, original against patched, instead of the plan's cases")
     parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
+    parser.add_argument("--check", action="store_true",
+                        help="with --bench or --device: call every planned case once, untimed, in one process, and check its output; writes check/check.yaml")
     options = parser.parse_args()
     for refused, message in REFUSED:
         if refused(options):
@@ -56,6 +59,7 @@ REFUSED = (
     (lambda o: (o.probe or o.identify) and (o.bench or o.harness or o.interop),
      "--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop"),
     (lambda o: o.harness and not o.device, "--harness: scopes are checked only on a --device run"),
+    (lambda o: o.check and (o.probe or o.identify or o.harness or o.interop), "--check: runs alone with --bench or --device, without --probe, --identify, --harness or --interop"),
     (lambda o: o.device and o.discovery == "reuse", "--discovery reuse: a device run probes the device it measures"),
     (lambda o: o.suppress_errors and not o.device, "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (lambda o: o.energy_accept_unresponsive and not o.device,
@@ -94,6 +98,8 @@ def main():
     results_layout.warn_if_temp(root)
     if options.interop:
         return interop_run(options, configuration, device, root)
+    if options.check:
+        return check_run(options, configuration, device, root)
     results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, root)
     problems = []
     if not options.probe and (options.bench or device):

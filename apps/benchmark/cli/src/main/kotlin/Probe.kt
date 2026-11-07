@@ -28,6 +28,7 @@ fun main(arguments: Array<String>) {
 
 private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?, reuse: Boolean) {
     val discovery = Discovery(ProbeDirectory(discoveryDirectory))
+    val installed = globalFile?.let(HostBundled::fromGlobal).orEmpty()
     val reused = if (reuse) discovery.reusable() else null
     val captureFile: File
     val trialFile: File
@@ -38,7 +39,7 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
         requirementsFile = reused.requirementsFile
         System.err.println("reused: ${reused.captureFile.name}")
     } else {
-        val probe = discovery.probe(Security.getProviders())
+        val probe = discovery.probe(Security.getProviders(), bundled = installed)
         captureFile = probe.captureFile
         val files = discovery.trial(probe.capture, Security.getProviders())
         trialFile = files.trialFile

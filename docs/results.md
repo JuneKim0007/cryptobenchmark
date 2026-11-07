@@ -22,6 +22,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one and its partial files for debugging |
 | `--discovery` | `overwrite` replaces `discovery/`; `keep` and `reuse` add to it |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
+| `--check` | a full discover and configure, then `check/`; the manifest gains `check` |
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
 | a killed process | `.staging-*` stays behind; nothing reads it, delete it |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
@@ -45,6 +46,7 @@ Paths relative to the device folder.
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` with `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
+| `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`) | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |
 | `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 | `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
 | `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |

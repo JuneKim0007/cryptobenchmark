@@ -6,9 +6,12 @@ class Invocation(
     private val exact: (Any?) -> Any? = { it },
     private val engineOf: () -> Any? = { null },
     val perCall: PerCall = PerCall.OPERATION,
+    private val traceOf: () -> CallTrace? = { null },
 ) {
 
     val engine: Any? get() = engineOf()
+
+    val trace: CallTrace? get() = traceOf()
 
     fun once(): Any? = exact(perIteration())
 }

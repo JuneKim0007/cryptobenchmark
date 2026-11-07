@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.shared
 
-internal object DocumentFields {
+object DocumentFields {
 
     fun string(document: Map<String, Any>, key: String): String =
         field(document, key) as? String ?: wrongType(key)

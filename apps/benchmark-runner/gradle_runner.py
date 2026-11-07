@@ -36,8 +36,8 @@ class ToolFailed(Exception):
     pass
 
 
-def _command(arguments, main_class):
-    command = [str(WRAPPER), "-p", str(CLI), "run", "--no-daemon", "-q", f"-PmainClass={main_class}"]
+def _command(arguments, main_class, properties=()):
+    command = [str(WRAPPER), "-p", str(CLI), "run", "--no-daemon", "-q", f"-PmainClass={main_class}", *properties]
     # Gradle refuses an empty --args
     if arguments:
         command.append(f"--args={arguments}")
@@ -57,11 +57,11 @@ def output_of(arguments, main_class):
     return tool_lines(result.stdout)
 
 
-def run(arguments, stacktrace, stream=False, *, main_class, notices=None):
-    """notices, when given, collects every passed-on line, so a caller can record it."""
+def run(arguments, stacktrace, stream=False, *, main_class, notices=None, properties=()):
+    """notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties."""
     if not WRAPPER.is_file():
         fail(f"missing_file: {WRAPPER}")
-    command = _command(arguments, main_class)
+    command = _command(arguments, main_class, properties)
     if stream:
         result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:

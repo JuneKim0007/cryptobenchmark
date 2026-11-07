@@ -11,6 +11,7 @@ import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
 
 fun main(arguments: Array<String>) {
+    HostBundled.fromEffective(File(arguments[2]))
     val capture = CaptureDocument.parse(YamlCodec().load(File(arguments[0]).readText()))
     val outputDirectory = File(arguments[3]).apply { mkdirs() }
     val preparationDirectory = File(arguments[4]).apply { mkdirs() }

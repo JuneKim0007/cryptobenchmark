@@ -4,7 +4,7 @@ import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 import java.io.IOException
 
-internal object DocumentFile {
+object DocumentFile {
 
     fun read(file: File, schemaName: String, supportedSchemaVersion: Int): Map<String, Any> {
         require(file.isFile) { "missing_file: ${file.path}" }

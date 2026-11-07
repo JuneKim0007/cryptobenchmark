@@ -1,0 +1,11 @@
+schemaVersion: 1                 # required
+selection:                       # required
+  testSet: testsets/known-answers.yaml   # required
+run:                             # optional
+  inputSizes: [64]               # optional, default [1024]; block-aligned, and the check calls each case once
+  seed: 42                       # optional, default 0
+providers:                       # optional: a second provider for every case's cross-provider check
+  bundled:
+    - {artifact: 'org.bouncycastle:bcprov-jdk18on:1.79', create: org.bouncycastle.jce.provider.BouncyCastleProvider, alias: BundledBC}
+policy:                          # optional
+  onFailure: skip                # optional, default skip

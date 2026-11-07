@@ -1,0 +1,26 @@
+# Schema and which keys are optional: see scope.yaml.
+schemaVersion: 1                 # required
+description: every primitive the end-to-end check holds a known-answer vector for (config/known-answers.yaml)
+
+include:
+  - {type: MessageDigest, name: SHA-1}
+  - {type: MessageDigest, name: SHA-256}
+  - {type: MessageDigest, name: SHA-512}
+  - {type: Mac, name: HmacSHA256}
+  - {type: Cipher, name: AES/ECB/NoPadding}
+  - {type: Cipher, name: AES/CBC/NoPadding}
+  - {type: Cipher, name: AES/CBC/PKCS5Padding}
+  - {type: Cipher, name: AES/GCM/NoPadding}
+  - {type: Cipher, name: AESWrap}
+  - {type: Cipher, name: ChaCha20}
+  - {type: Signature, name: Ed25519}
+
+overrides:
+  - match: {type: Cipher, name: "AES*"}
+    set: {keySizes: [128, 256]}
+  - match: {type: Cipher, name: "AES*/GCM/NoPadding"}
+    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+  - match: {type: Cipher, name: "AES*/CBC/*"}
+    set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
+  - match: {type: Cipher, name: ChaCha20}
+    set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}

@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.CaseArguments
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
 import java.security.SignatureException
@@ -69,5 +70,5 @@ internal object CrossCheck {
         else -> Outcome.NotCheckable("error: ${describe(failure)}")
     }
 
-    private fun describe(failure: Throwable): String = "${failure.javaClass.simpleName}: ${failure.message}"
+    private fun describe(failure: Throwable): String = FailureText.of(failure)
 }

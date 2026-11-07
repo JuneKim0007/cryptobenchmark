@@ -1,7 +1,7 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
 import subprocess, sys, time
 
-import dependencies, effective_view, energy_stage, gradle_runner, timeouts
+import bundled, dependencies, effective_view, energy_stage, gradle_runner, timeouts
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail, one_line
 from repo import RUNNER
@@ -131,7 +131,8 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     for repetition in range(1, repetitions + 1):
         into = measure_session.process_folder(benchmark, repetition, repetitions)
         measure_session.process_line(repetition, repetitions)
-        gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt")
+        gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt",
+                          properties=bundled.gradle_properties(document.get(bundled.KEY) or []))
         written.append(into / "benchmark.json")
         record(files, into, {"none"}, None)
     if repetitions > 1:
