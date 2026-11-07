@@ -1,0 +1,7 @@
+#
+#Sun Nov 08 00:04:48 GMT+04:00 2026
+package\ package\ edges\ should\ not\ lie\ on\ a\ cycle\ within\ their\ module=05e30561-4956-4bbd-aa69-25c50effea73
+project\ class\ edges\ should\ not\ use\ a\ package\ layers.yaml\ forbids=f8d65238-b96d-486c-ab68-1c52881ff52d
+project\ class\ edges\ should\ reach\ another\ module\ only\ through\ its\ handoff\ classes\ in\ layers.yaml=6f086963-0023-42ad-ba50-ba6ca3b60492
+project\ class\ edges\ should\ use\ only\ the\ modules\ layers.yaml\ lists\ for\ their\ module=335ccf79-e8a5-4e29-afc5-f023e43ef1cd
+top-level\ package\ edges\ should\ not\ lie\ on\ a\ cycle\ within\ their\ module=2c394068-7145-4c1b-b717-ea7926791dcd

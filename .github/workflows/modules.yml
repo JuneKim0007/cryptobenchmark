@@ -2,6 +2,7 @@ name: modules
 
 # Each module is built alone against its own example/ files: snakeyaml, JUnit, and settings sources except discovery.
 # A module that reaches into another stops compiling here; benchmark also compiles with preparation.
+# architecture checks layers.yaml over the compiled classes against its frozen store; handoff checks androidTest and cli.
 on:
   push:
     branches: ['master', 'module/**']
@@ -14,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [discovery, config, preparation, benchmark]
+        module: [discovery, config, preparation, benchmark, architecture]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -29,3 +30,14 @@ jobs:
         with:
           name: ${{ matrix.module }}-test-results
           path: tools/module-isolation/${{ matrix.module }}/build/reports/tests/test
+
+  handoff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install 'PyYAML>=6' 'pytest>=8'
+      - run: python3 tools/module-isolation/handoff_check.py
+      - run: python3 -m pytest tools/module-isolation/tests

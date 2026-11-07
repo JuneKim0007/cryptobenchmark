@@ -1,0 +1,7 @@
+androidTest: io/github/junekim0007/cryptobench/EndToEndCheck.kt -> benchmark.run.OneCall
+androidTest: io/github/junekim0007/cryptobench/EndToEndCheck.kt -> benchmark.verify.CaseCheck
+androidTest: io/github/junekim0007/cryptobench/EndToEndCheck.kt -> benchmark.verify.known.KnownAnswerFile
+androidTest: io/github/junekim0007/cryptobench/EndToEndCheck.kt -> benchmark.verify.record.CaseRecord
+androidTest: io/github/junekim0007/cryptobench/EndToEndCheck.kt -> benchmark.verify.record.CheckFile
+androidTest: io/github/junekim0007/cryptobench/JetpackCase.kt -> benchmark.run.OutputHook
+androidTest: io/github/junekim0007/cryptobench/JetpackCase.kt -> preparation.operation.Invocation

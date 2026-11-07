@@ -1,0 +1,2 @@
+benchmark.run.CaseMeasurement -> benchmark.report.MetricSamples (run must not use report)
+benchmark.run.CaseMeasurement -> benchmark.report.ResultRow (run must not use report)

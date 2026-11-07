@@ -11,7 +11,7 @@ val moduleDirectories = mapOf(
     "benchmark" to "../../apps/benchmark/modules/benchmark",
 )
 
-subprojects {
+configure(subprojects.filter { it.name in moduleDirectories }) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     repositories { mavenCentral() }

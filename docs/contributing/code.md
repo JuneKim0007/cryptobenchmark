@@ -29,3 +29,9 @@
 - comments: none by default; a kept comment is at most two lines and names a non-obvious trap or constraint.
 - comments: no KDoc or docstring essays, no author, date, ticket or changelog comments.
 - comments: a change updates or deletes every comment it made untrue.
+
+## Dependency rules
+- rules: `tools/module-isolation/layers.yaml` holds the module edges, the handoff lists above, package cycles and forbidden package edges as data; a list change edits it and this guide together.
+- check: `tools/module-isolation/architecture` checks the compiled module classes with ArchUnit; `tools/module-isolation/handoff_check.py` checks androidTest and cli sources; `.github/workflows/modules.yml` runs both.
+- frozen: violations that predate the rules live in `tools/module-isolation/architecture/frozen/` and `tools/module-isolation/handoff-frozen.txt`; a new violation fails and never joins them.
+- frozen: the stores only shrink: a fixed violation leaves its store in the same change (`-Darchunit.freeze.store.default.allowStoreUpdate=true`, `handoff_check.py --shrink`); both are empty by the end of H3.
