@@ -3,11 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import yaml
-
 from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
 from ..dto.grouping import provider_of
+from .glossary import names_problems
 
 CATALOG = Path(__file__).with_name("algorithm-names.yaml")
 SCHEMA_VERSION = 1
@@ -73,8 +72,10 @@ class Names:
 
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Names":
-        doc = yaml.safe_load(Path(path).read_text())
-        NAMES_DOC.check(doc, path)
+        doc = NAMES_DOC.read(path, "names_schema")
+        problems = names_problems(doc)
+        if problems:
+            raise NamesError(f"names_schema: {path}: " + "; ".join(problems))
         return cls(
             names={t: _folded(spellings) for t, spellings in doc["names"].items()},
             sized={t: {fold(s): Canonical(v["name"], v["keySize"]) for s, v in rows.items()}

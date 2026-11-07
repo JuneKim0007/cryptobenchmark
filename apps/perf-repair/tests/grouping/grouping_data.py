@@ -6,9 +6,8 @@ from perfrepair.data_handler.inbound.probe import Probe
 FAMILIES = Families([
     Family("cipher.secret", "TypeC", "secret", "secret ciphers"),
     Family("cipher.pair", "TypeC", "pair", "pair ciphers"),
-    Family("cipher.unknown", "TypeC", "unknown", "unknown ciphers"),
     Family("digest.none", "TypeD", "none", "digests"),
-])
+], Family("unidentified", "any", "unknown", "not identified"))
 
 
 def service(type_, name, aliases=(), attributes=None):

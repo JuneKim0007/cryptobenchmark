@@ -31,7 +31,7 @@ src/perfrepair/validation/app.py : app.json and scopes.json: shape, contract val
 src/perfrepair/validation/benchmark_coverage.py : log/details/benchmark_coverage.yaml: schema, run, point, item statuses, each gap a known class with its action and a reason
 src/perfrepair/validation/boundary.py : one algorithm keeps one identity across results, rows, measurements, items, the used set and the catalogs
 src/perfrepair/validation/bundled.py : bundled-suggestions.yaml: counts equal the lists, a matched row's entry at its pinned version, a blocked or unmatched row has a reason and no entry, only apply applies
-src/perfrepair/validation/catalogue_entry.py : a catalogue entry's static checks: form, family against engine type, one id across the catalogues, listed under one family of groups.yaml
+src/perfrepair/validation/catalogue_entry.py : a catalogue entry's static checks: form, family against engine type, one id across the catalogues, listed under one family of groups.yaml; catalogue_check runs them over every entry
 src/perfrepair/validation/classified.py : classify/classified.json: answers only for batched ids, ids in one batch, allowed values, a reason each
 src/perfrepair/validation/dossiers/against_run.py : validate_dossiers: dossiers.json against scopes.json, groups.json and the screen verdicts: every scope once, options from the current item's group with groups.json's interop status, the app's screen status, never lowering the status
 src/perfrepair/validation/dossiers/document.py : dossiers.json header with its perfMode, noOptions codes, notOffered candidates rejected or above maxChange

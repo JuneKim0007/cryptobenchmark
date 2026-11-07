@@ -43,6 +43,7 @@ internal object CipherFacts : RequirementCall {
         if (key.isRawSecret) sheet.measure("keyBytes") { keyBytes(engine, base) }
         if (key.pair != null && service.keys.sizable(key)) sheet.measure("keyBits") { pairBits(service, engine, base) }
         sheet.measure("foreignKeys") { ForeignKeys.of(service, key) { other -> tryKey(engine, base, other) } }
+        sheet.measure("reset") { CipherReset(engine, base).measure() }
         if (base.wrapOnly) {
             sheet.measure("wrapRoundTrip") { wrapRoundTrip(engine, base) }
             return CallResult(key = key, runWith = runWith, keysTried = search.tried)
@@ -238,11 +239,8 @@ internal object CipherFacts : RequirementCall {
     private fun wrapRoundTrip(engine: CipherEngine, base: CipherBase): Map<String, Any> {
         val fixed = ParameterSpecs.fresh(base.like)
         val wrapped = SecretKeySpec(ParameterSpecs.random(16), base.key.algorithm)
-        val cipher = engine.create()
-        CipherEngine.init(cipher, Cipher.WRAP_MODE, base.key.encrypting, fixed)
-        val bytes = cipher.wrap(wrapped)
-        val back = engine.create()
-        CipherEngine.init(back, Cipher.UNWRAP_MODE, base.key.decrypting, fixed)
+        val bytes = engine.initialised(Cipher.WRAP_MODE, base.key.encrypting, fixed).wrap(wrapped)
+        val back = engine.initialised(Cipher.UNWRAP_MODE, base.key.decrypting, fixed)
         return linkedMapOf(
             "wrappedBytes" to bytes.size,
             "same" to back.unwrap(bytes, base.key.algorithm, Cipher.SECRET_KEY).encoded.contentEquals(wrapped.encoded),

@@ -1,0 +1,318 @@
+# Facts shared by a set of names and builds, each stated once; every word: catalog/glossary.yaml deviation. An entry's own `providers` wins over these.
+schemaVersion: 1
+deviations:
+  conscrypt.pbeHmacRunsAesCbc:
+    fact: "These names run as AES/CBC/PKCS5Padding on a raw key: a spelling of the plain cipher, so no salt or count reaches them, and a key from a factory of the name reaches AES as its raw bytes, so a password of another length is refused."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|PBEWithHmacSHA1AndAES_128, Cipher|PBEWithHmacSHA1AndAES_256, Cipher|PBEWithHmacSHA224AndAES_128, Cipher|PBEWithHmacSHA224AndAES_256, Cipher|PBEWithHmacSHA256AndAES_128, Cipher|PBEWithHmacSHA256AndAES_256, Cipher|PBEWithHmacSHA384AndAES_128, Cipher|PBEWithHmacSHA384AndAES_256, Cipher|PBEWithHmacSHA512AndAES_128, Cipher|PBEWithHmacSHA512AndAES_256]
+    set: {conditions.output.formula: 'pad:16', contract.input: {passwordBased: false, wrap: false}, contract.key: app, contract.output: {base: AES, mode: CBC, padding: PKCS5Padding}, key.origin: app, key.type: AES, required.iterationCount: null, required.iv: {name: iv, recipe: jca.ivSpec, bytes: 16, rule: unpredictable, use: decrypt, passedTo: init, source: measured}, required.password: null, required.salt: null}
+  conscrypt.pbeHmacAes128KeyBytes:
+    fact: "The AES_128 names of the alias above take a 16-byte key."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|PBEWithHmacSHA1AndAES_128, Cipher|PBEWithHmacSHA224AndAES_128, Cipher|PBEWithHmacSHA256AndAES_128, Cipher|PBEWithHmacSHA384AndAES_128, Cipher|PBEWithHmacSHA512AndAES_128]
+    set: {key.bytes: [16], required.secretKey: {name: secretKey, bytes: 16, passedTo: init, source: measured}}
+  conscrypt.pbeHmacAes256KeyBytes:
+    fact: "The AES_256 names of the alias above take a 32-byte key."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|PBEWithHmacSHA1AndAES_256, Cipher|PBEWithHmacSHA224AndAES_256, Cipher|PBEWithHmacSHA256AndAES_256, Cipher|PBEWithHmacSHA384AndAES_256, Cipher|PBEWithHmacSHA512AndAES_256]
+    set: {key.bytes: [32], required.secretKey: {name: secretKey, bytes: 32, passedTo: init, source: measured}}
+  conscrypt.gcmSivEncryptsOnce:
+    fact: "Conscrypt refuses a second encryption under one key and nonce for GCM-SIV as for GCM, though GCM-SIV resists nonce misuse: the forward engine needs a new init."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BundledConscrypt]
+    names: [Cipher|AES/GCM-SIV/NoPadding]
+    set: {lifecycle.reset.forward: {value: none, source: measured}}
+  bc.pbeIterationCount:
+    fact: "These PBE names need an iteration count in PBEParameterSpec for encrypting too; a JDK's takes it only to decrypt."
+    builds: [BC @ android-26, BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [Cipher|PBEWithMD5AndDES, Cipher|PBEWithSHA1AndDESede, Cipher|PBEWithSHA1AndRC2_128, Cipher|PBEWithSHA1AndRC2_40]
+    set: {required.iterationCount: {name: iterationCount, recipe: jca.pbeSpec, value: 1000, passedTo: init, source: measured}}
+  bc.deterministicRsaAndRc4:
+    fact: "These names give equal outputs for equal inputs on BC; SunJCE's differ."
+    builds: [BC, BundledBC]
+    names: [Cipher|PBEWithSHA1AndRC4_128, Cipher|PBEWithSHA1AndRC4_40, Cipher|RSA]
+    set: {conditions.deterministic: {value: always, source: measured}}
+  bc.eciesCurve:
+    fact: "BC 1.79 ran these ECIES names on a key of secp256r1."
+    builds: [BC @ jdk-25, BundledBC]
+    names: [Cipher|ECIESwithAES-CBC, Cipher|ECIESwithDESEDE-CBC, Cipher|ECIESwithSHA256andAES-CBC, Cipher|ECIESwithSHA256andDESEDE-CBC, Cipher|ECIESwithSHA384andAES-CBC, Cipher|ECIESwithSHA384andDESEDE-CBC, Cipher|ECIESwithSHA512andAES-CBC, Cipher|ECIESwithSHA512andDESEDE-CBC]
+    set: {required.curve: {name: curve, recipe: jca.ecGenSpec, value: secp256r1, passedTo: keyGeneration, source: measured}}
+  builds.outputBitsHmacMD5:
+    fact: "On these builds conditions.output.bits is 128; optional.keySize.default is 128."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BC @ android-26, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [KeyGenerator|HmacMD5]
+    set: {conditions.output.bits: 128, optional.keySize.default: 128}
+  builds.outputBitsHmacSHA1:
+    fact: "On these builds conditions.output.bits is 160; optional.keySize.default is 160."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BC @ android-26, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [KeyGenerator|HmacSHA1]
+    set: {conditions.output.bits: 160, optional.keySize.default: 160}
+  bc.saltPBEWithMD5AndDES:
+    fact: "On these builds they need salt of 8 through jca.pbeSpec."
+    builds: [BC @ android-26, BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [Cipher|PBEWithMD5AndDES, Cipher|PBEWithSHA1AndDESede]
+    set: {required.salt: {name: salt, recipe: jca.pbeSpec, bytes: 8, passedTo: init, source: measured}}
+  bc.saltPBEWithSHA1AndRC2128:
+    fact: "On these builds they need salt of 16 through jca.pbeSpec."
+    builds: [BC @ android-26, BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [Cipher|PBEWithSHA1AndRC2_128, Cipher|PBEWithSHA1AndRC2_40]
+    set: {required.salt: {name: salt, recipe: jca.pbeSpec, bytes: 16, passedTo: init, source: measured}}
+  builds.outputBitsAES:
+    fact: "On these builds conditions.output.bits is 128; optional.keySize.default is 128."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BC @ android-26, BundledConscrypt]
+    names: [KeyGenerator|AES]
+    set: {conditions.output.bits: 128, optional.keySize.default: 128}
+  builds.keySizeDefaultRSA:
+    fact: "On these builds optional.keySize.default is 2048."
+    builds: [AndroidOpenSSL, BC @ android-26, BC @ android-33, BC @ android-36, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [KeyPairGenerator|RSA]
+    set: {optional.keySize.default: 2048}
+  keystore.oaepMgf1Sha1:
+    fact: "The keystore's OAEP names keep MGF1 with SHA-1 whatever the name's digest, on API 33 and 36."
+    builds: [AndroidKeyStoreBCWorkaround @ android-33, AndroidKeyStoreBCWorkaround @ android-36]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding]
+    set: {optional.mgf1.default: SHA-1}
+  bc.mlDsaDeterministic:
+    fact: "BC 1.79 signs ML-DSA deterministically by default."
+    builds: [BC @ jdk-25, BundledBC]
+    names: [Signature|ML-DSA, Signature|ML-DSA-44, Signature|ML-DSA-65, Signature|ML-DSA-87]
+    set: {conditions.deterministic: {value: always, source: measured}}
+  builds.reuseRefusedAESGCMNoPadding:
+    fact: "On these builds conditions.reuseRefused is False."
+    builds: [AndroidOpenSSL, BC @ android-26, BundledBC, BundledConscrypt]
+    names: [Cipher|AES/GCM/NoPadding]
+    set: {conditions.reuseRefused: {value: false, source: measured}}
+  builds.tagBitsAESGCMNoPadding:
+    fact: "On these builds they run without tagBits."
+    builds: [AndroidOpenSSL @ android-26, AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BC @ android-26, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [Cipher|AES/GCM/NoPadding]
+    set: {required.tagBits: null}
+  builds.roundTripRSAECBNoPadding:
+    fact: "On these builds conditions.roundTrip is True."
+    builds: [AndroidKeyStoreBCWorkaround @ android-33, AndroidOpenSSL @ android-26, AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [Cipher|RSA/ECB/NoPadding]
+    set: {conditions.roundTrip: {value: true, source: measured}}
+  builds.inputNONEwithECDSA:
+    fact: "On these builds conditions.input is any."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BC @ android-26, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [Signature|NONEwithECDSA]
+    set: {conditions.input: {value: any, source: measured}}
+  builds.reuseRefusedChaCha20:
+    fact: "On these builds conditions.reuseRefused is False."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [Cipher|ChaCha20]
+    set: {conditions.reuseRefused: {value: false, source: measured}}
+  bc.bytesDESede:
+    fact: "On these builds key.bytes is [16, 24]."
+    builds: [BC, BundledBC]
+    names: [Cipher|DESede]
+    set: {key.bytes: [16, 24]}
+  builds.curveDefaultEC:
+    fact: "On these builds optional.curve.default is 256."
+    builds: [AndroidOpenSSL, BC @ android-26, BundledConscrypt]
+    names: [KeyPairGenerator|EC]
+    set: {optional.curve.default: 256}
+  bc.inputNONEwithDSA:
+    fact: "On these builds conditions.input is any."
+    builds: [BC, BundledBC]
+    names: [Signature|NONEwithDSA]
+    set: {conditions.input: {value: any, source: measured}}
+  bc.curveSHA256WITHECNR:
+    fact: "On these builds they need curve of secp521r1 through jca.ecGenSpec."
+    builds: [BC @ jdk-25, BundledBC]
+    names: [Signature|SHA256WITHECNR, Signature|SHA384WITHECNR, Signature|SHA512WITHECNR]
+    set: {required.curve: {name: curve, recipe: jca.ecGenSpec, value: secp521r1, passedTo: keyGeneration, source: measured}}
+  conscrypt.bytesAESGCMNoPadding:
+    fact: "On these builds key.bytes is [16, 32]."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|AES/GCM/NoPadding]
+    set: {key.bytes: [16, 32]}
+  builds.wrapOnlyAESKWNoPadding:
+    fact: "On these builds conditions.wrapOnly is False."
+    builds: [BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC, SunJCE]
+    names: [Cipher|AES/KW/NoPadding]
+    set: {conditions.wrapOnly: {value: false, source: measured}}
+  builds.nonceChaCha20:
+    fact: "On these builds they need nonce of 12 through jca.nonceIvSpec."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BC @ jdk-25, BundledBC, BundledConscrypt]
+    names: [Cipher|ChaCha20]
+    set: {required.nonce: {name: nonce, recipe: jca.nonceIvSpec, bytes: 12, rule: unique, use: decrypt, passedTo: init, source: measured}}
+  builds.reuseRefusedChaCha20Poly1305:
+    fact: "On these builds conditions.reuseRefused is False."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BundledBC, BundledConscrypt]
+    names: [Cipher|ChaCha20-Poly1305]
+    set: {conditions.reuseRefused: {value: false, source: measured}}
+  bc.inputRSA:
+    fact: "On these builds conditions.input is maxBytes of at most 256 bytes."
+    builds: [BC @ android-26, BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [Cipher|RSA]
+    set: {conditions.input: {value: maxBytes, bytes: 256, source: measured}}
+  conscrypt.mgf1DefaultRSAECBOAEPWithSHA224AndMGF1Padding:
+    fact: "On these builds optional.mgf1.default is SHA-224."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding]
+    set: {optional.mgf1.default: SHA-224}
+  conscrypt.mgf1DefaultRSAECBOAEPWithSHA256AndMGF1Padding:
+    fact: "On these builds optional.mgf1.default is SHA-256."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding]
+    set: {optional.mgf1.default: SHA-256}
+  conscrypt.mgf1DefaultRSAECBOAEPWithSHA384AndMGF1Padding:
+    fact: "On these builds optional.mgf1.default is SHA-384."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding]
+    set: {optional.mgf1.default: SHA-384}
+  conscrypt.mgf1DefaultRSAECBOAEPWithSHA512AndMGF1Padding:
+    fact: "On these builds optional.mgf1.default is SHA-512."
+    builds: [AndroidOpenSSL, BundledConscrypt]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding]
+    set: {optional.mgf1.default: SHA-512}
+  bc.keySizeAcceptedBlowfish:
+    fact: "On these builds optional.keySize.accepted is [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]."
+    builds: [BC @ android-26, BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [KeyGenerator|Blowfish]
+    set: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]}
+  bc.keySizeAcceptedDES:
+    fact: "On these builds optional.keySize.accepted is [56, 64]."
+    builds: [BC @ android-26, BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [KeyGenerator|DES]
+    set: {optional.keySize.accepted: [56, 64]}
+  builds.reuseRefusedAESGCMNoPadding2:
+    fact: "On these builds conditions.reuseRefused is True."
+    builds: [BC @ jdk-25, SunJCE]
+    names: [Cipher|AES/GCM/NoPadding, Cipher|ChaCha20-Poly1305]
+    set: {conditions.reuseRefused: {value: true, source: measured}}
+  builds.bytesAESGCMNoPadding:
+    fact: "On these builds key.bytes is [16, 24, 32]."
+    builds: [BC @ android-26, BC @ jdk-25, BundledBC, SunJCE]
+    names: [Cipher|AES/GCM/NoPadding]
+    set: {key.bytes: [16, 24, 32]}
+  conscrypt.tagBitsAcceptedAESGCMNoPadding:
+    fact: "On these builds optional.tagBits.accepted is [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128]."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BundledConscrypt]
+    names: [Cipher|AES/GCM/NoPadding]
+    set: {optional.tagBits.accepted: [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128]}
+  bc.wrapOnlyDESedeWrap:
+    fact: "On these builds conditions.wrapOnly is False."
+    builds: [BC @ android-30, BC @ android-33, BC @ jdk-25, BundledBC]
+    names: [Cipher|DESedeWrap]
+    set: {conditions.wrapOnly: {value: false, source: measured}}
+  bc.groupDHIESWITHDESEDECBC:
+    fact: "On these builds they need group of ffdhe2048 through jca.namedGroup."
+    builds: [BC @ jdk-25, BundledBC]
+    names: [Cipher|DHIESWITHDESEDE-CBC, Cipher|DHIESwithAES-CBC]
+    set: {required.group: {name: group, recipe: jca.namedGroup, value: ffdhe2048, passedTo: keyGeneration, source: measured}}
+  jdk.iterationCountPBEWithMD5AndDES:
+    fact: "On these builds they need iterationCount of 1000 through jca.pbeSpec."
+    builds: [SunJCE]
+    names: [Cipher|PBEWithMD5AndDES, Cipher|PBEWithSHA1AndDESede, Cipher|PBEWithSHA1AndRC2_128, Cipher|PBEWithSHA1AndRC2_40]
+    set: {required.iterationCount: {name: iterationCount, recipe: jca.pbeSpec, value: 1000, use: decrypt, passedTo: init, source: measured}}
+  builds.keySizeAcceptedAES:
+    fact: "On these builds optional.keySize.accepted is [128, 192, 256]."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BundledConscrypt, SunJCE]
+    names: [KeyGenerator|AES]
+    set: {optional.keySize.accepted: [128, 192, 256]}
+  builds.keySizeAcceptedChaCha20:
+    fact: "On these builds optional.keySize.accepted is [256]."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BundledConscrypt, SunJCE]
+    names: [KeyGenerator|ChaCha20]
+    set: {optional.keySize.accepted: [256]}
+  builds.keySizeAcceptedDESede:
+    fact: "On these builds optional.keySize.accepted is [168]."
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BundledConscrypt, SunJCE]
+    names: [KeyGenerator|DESede]
+    set: {optional.keySize.accepted: [168]}
+  jdk.outputBitsHmacMD5:
+    fact: "On these builds conditions.output.bits is 512; optional.keySize.default is 512."
+    builds: [SunJCE]
+    names: [KeyGenerator|HmacMD5, KeyGenerator|HmacSHA1]
+    set: {conditions.output.bits: 512, optional.keySize.default: 512}
+  bc.keySizeEdDSA:
+    fact: "On these builds they need keySize of 255."
+    builds: [BC @ jdk-25, BundledBC]
+    names: [KeyPairGenerator|EdDSA, KeyPairGenerator|XDH]
+    set: {required.keySize: {name: keySize, value: 255, passedTo: init, source: measured}}
+  bc.ivAESRFC3211WRAP:
+    fact: "On these builds they need iv of 16 through jca.ivSpec."
+    builds: [BC @ jdk-25]
+    names: [Cipher|AESRFC3211WRAP, Cipher|ARIARFC3211WRAP, Cipher|CAMELLIARFC3211WRAP]
+    set: {required.iv: {name: iv, recipe: jca.ivSpec, bytes: 16, rule: unpredictable, use: unwrap, passedTo: init, source: measured}}
+  bc.ivAESRFC3211WRAP2:
+    fact: "On these builds they need iv of 16 through jca.ivSpec."
+    builds: [BundledBC]
+    names: [Cipher|AESRFC3211WRAP, Cipher|ARIARFC3211WRAP, Cipher|CAMELLIARFC3211WRAP]
+    set: {required.iv: {name: iv, recipe: jca.ivSpec, bytes: 16, rule: unpredictable, use: decrypt, passedTo: init, source: measured}}
+  bc.tagBitsAcceptedDSTU7624128CCMNoPadding:
+    fact: "On these builds optional.tagBits.accepted is [64, 96, 104, 112, 120, 128]."
+    builds: [BC @ jdk-25]
+    names: [Cipher|DSTU7624-128/CCM/NoPadding, Cipher|DSTU7624-256/CCM/NoPadding, Cipher|DSTU7624-512/CCM/NoPadding]
+    set: {optional.tagBits.accepted: [64, 96, 104, 112, 120, 128]}
+  jdk.deterministicPBEWithSHA1AndRC4128:
+    fact: "On these builds conditions.deterministic is never."
+    builds: [SunJCE]
+    names: [Cipher|PBEWithSHA1AndRC4_128, Cipher|PBEWithSHA1AndRC4_40, Cipher|RSA]
+    set: {conditions.deterministic: {value: never, source: measured}}
+  bc.keySizeAcceptedAES:
+    fact: "On these builds optional.keySize.accepted is [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]."
+    builds: [BC @ android-26, BC @ jdk-25, BundledBC]
+    names: [KeyGenerator|AES]
+    set: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]}
+  bc.keySizeAcceptedDESede:
+    fact: "On these builds optional.keySize.accepted is [112, 128, 168, 192]."
+    builds: [BC @ android-26, BC @ jdk-25, BundledBC]
+    names: [KeyGenerator|DESede]
+    set: {optional.keySize.accepted: [112, 128, 168, 192]}
+  bc.tagBitsAcceptedAESCCMNoPadding:
+    fact: "On these builds optional.tagBits.accepted is [32, 64, 96, 112, 128]."
+    builds: [BC @ jdk-25]
+    names: [Cipher|AES/CCM/NoPadding, Cipher|ARIA/CCM/NoPadding]
+    set: {optional.tagBits.accepted: [32, 64, 96, 112, 128]}
+  bc.tagBitsAcceptedAESCCMNoPadding2:
+    fact: "On these builds optional.tagBits.accepted is [32, 48, 64, 80, 96, 112, 128]."
+    builds: [BundledBC]
+    names: [Cipher|AES/CCM/NoPadding, Cipher|ARIA/CCM/NoPadding]
+    set: {optional.tagBits.accepted: [32, 48, 64, 80, 96, 112, 128]}
+  bc.tagBitsAcceptedAESGCMNoPadding:
+    fact: "On these builds optional.tagBits.accepted is [32, 64, 96, 104, 112, 120, 128]."
+    builds: [BC @ jdk-25]
+    names: [Cipher|AES/GCM/NoPadding, Cipher|ARIA/GCM/NoPadding]
+    set: {optional.tagBits.accepted: [32, 64, 96, 104, 112, 120, 128]}
+  bc.bytesCAST5:
+    fact: "On these builds key.bytes is [5, 7, 8, 10, 14, 16]."
+    builds: [BC @ jdk-25]
+    names: [Cipher|CAST5, Cipher|CAST5/CBC/PKCS5Padding]
+    set: {key.bytes: [5, 7, 8, 10, 14, 16]}
+  bc.ivDESEDERFC3211WRAP:
+    fact: "On these builds they need iv of 8 through jca.ivSpec."
+    builds: [BC @ jdk-25]
+    names: [Cipher|DESEDERFC3211WRAP, Cipher|DESRFC3211WRAP]
+    set: {required.iv: {name: iv, recipe: jca.ivSpec, bytes: 8, rule: unpredictable, use: unwrap, passedTo: init, source: measured}}
+  bc.ivDESEDERFC3211WRAP2:
+    fact: "On these builds they need iv of 8 through jca.ivSpec."
+    builds: [BundledBC]
+    names: [Cipher|DESEDERFC3211WRAP, Cipher|DESRFC3211WRAP]
+    set: {required.iv: {name: iv, recipe: jca.ivSpec, bytes: 8, rule: unpredictable, use: decrypt, passedTo: init, source: measured}}
+  bc.tagBitsAcceptedDSTU7624256CCMNoPadding:
+    fact: "On these builds optional.tagBits.accepted is [64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256]."
+    builds: [BundledBC]
+    names: [Cipher|DSTU7624-256/CCM/NoPadding, Cipher|DSTU7624-512/CCM/NoPadding]
+    set: {optional.tagBits.accepted: [64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256]}
+  jdk.saltPBEWithMD5AndDES:
+    fact: "On these builds they need salt of 8 through jca.pbeSpec."
+    builds: [SunJCE]
+    names: [Cipher|PBEWithMD5AndDES, Cipher|PBEWithSHA1AndDESede]
+    set: {required.salt: {name: salt, recipe: jca.pbeSpec, bytes: 8, use: decrypt, passedTo: init, source: measured}}
+  jdk.saltPBEWithSHA1AndRC2128:
+    fact: "On these builds they need salt of 16 through jca.pbeSpec."
+    builds: [SunJCE]
+    names: [Cipher|PBEWithSHA1AndRC2_128, Cipher|PBEWithSHA1AndRC2_40]
+    set: {required.salt: {name: salt, recipe: jca.pbeSpec, bytes: 16, use: decrypt, passedTo: init, source: measured}}
+  jdk.keySizeDefaultRSA:
+    fact: "On these builds optional.keySize.default is 3072."
+    builds: [SunRsaSign]
+    names: [KeyPairGenerator|RSA, KeyPairGenerator|RSASSA-PSS]
+    set: {optional.keySize.default: 3072}
+  jdk.groupSHA1withDSA:
+    fact: "On these builds they need group of dsa1024-160 through jca.namedGroup."
+    builds: [SUN]
+    names: [Signature|SHA1withDSA, Signature|SHA1withDSAinP1363Format]
+    set: {required.group: {name: group, recipe: jca.namedGroup, value: dsa1024-160, passedTo: keyGeneration, source: measured}}

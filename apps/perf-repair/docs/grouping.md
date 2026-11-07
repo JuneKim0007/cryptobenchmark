@@ -2,7 +2,7 @@
 
 ## Criterion
 
-A family (`catalog/families.yaml`, engine type × key kind, 9 of them) is the boundary, not a group. Items sit in one of three kinds of group: a catalog group, a contract row of the names `catalog/groups.yaml` lists for the family (`<type>|<canonical>`) whose catalogue `contract`s are equal, at one key contract (`<row>`, `<row>.p`; `catalog/groups.py`); a code-made group (`code_`: one screened-out algorithm, or a generator of unknown key contract alone; `screen/groups.py`); a model-made group (a `newGroup` answer for an unidentified item). Two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
+A family (`catalog/families.yaml`, engine type × key kind, 8 of them) is the boundary, not a group. Items sit in one of three kinds of group: a catalog group, a contract row of the names `catalog/groups.yaml` lists for the family (`<type>|<canonical>`) whose catalogue `contract`s are equal, at one key contract (`<row>`, `<row>.p`; `catalog/groups.py`); a code-made group (`code_`: one screened-out algorithm, or a generator of unknown key contract alone; `screen/groups.py`); a model-made group (a `newGroup` answer for an unidentified item). Two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
 
 | Contract | Covers | Splits a group | Evidence |
 |---|---|---|---|
@@ -107,13 +107,14 @@ flowchart TD
 |---|---|---|
 | `cipher.secret` | Cipher | secret |
 | `cipher.pair` | Cipher | pair |
-| `cipher.unknown` | Cipher | unknown |
 | `signature.pair` | Signature | pair |
 | `mac.secret` | Mac | secret |
 | `digest.none` | MessageDigest | none |
 | `keygen.none` | KeyGenerator | none |
 | `keypairgen.none` | KeyPairGenerator | none |
 | `agreement.peer` | KeyAgreement | peer |
+
+Outside the families: `unidentified`, for an item no catalogue entry or key evidence places; it has no engine type, catalogue or contract, so it is never a swap candidate.
 
 ## Static findings
 

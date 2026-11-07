@@ -93,14 +93,14 @@ def test_a_new_family_for_a_name_is_a_new_question(paths):
     assign(paths)
     doc = read_json(paths.items)
     target = doc["items"][0]
-    target["family"] = "cipher.unknown"
+    target["family"] = "unidentified"
     write_json(paths.items, doc)
     profiles = read_profiles(read_json(paths.profiles))
     write_json(paths.profiles, profiles_document({**profiles, target["id"]: replace(profiles[target["id"]], keyKind="unknown")}))
     before = len(active_outbox(paths.root).records())
     assign(paths)
     last = active_outbox(paths.root).records()[before:]
-    assert [r.item.split("|")[0] for r in last] == ["cipher.unknown"]
+    assert [r.item.split("|")[0] for r in last] == ["unidentified"]
 
 
 def test_replay_of_a_numeric_record_is_a_coded_error():

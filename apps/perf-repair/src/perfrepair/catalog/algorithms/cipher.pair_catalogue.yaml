@@ -1,147 +1,1223 @@
-# cipher.pair: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+# cipher.pair: one entry per algorithm id <type>|<canonical>; every word: catalog/glossary.yaml; fields: docs/algorithm-catalogue.md
 schemaVersion: 1
 family: cipher.pair
 algorithms:
+  Cipher|DHIES:
+    key: {type: DH, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:276', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: DHIES, digest: SHA-1, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|DHIESwithAES-CBC:
+    key: {type: DH, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: DHIES, digest: SHA-1, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|DHIESWITHDESEDE-CBC:
+    key: {type: DH, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 192, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 8, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: DHIES, digest: SHA-1, cipher: DESede-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIES:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:85', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-1, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithAES-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-1, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithDESEDE-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 192, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 8, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-1, cipher: DESede-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA256:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:97', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-256, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA256andAES-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-256, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA256andDESEDE-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 192, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 8, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-256, cipher: DESede-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA384:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:113', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-384, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA384andAES-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-384, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA384andDESEDE-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 192, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 8, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-384, cipher: DESede-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA512:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:129', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-512, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA512andAES-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-512, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ECIESwithSHA512andDESEDE-CBC:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 192, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 8, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ECIES, digest: SHA-512, cipher: DESede-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ELGAMAL/ECB/PKCS1Padding:
+    key: {type: ELGAMAL, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:512', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 245, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ELGAMAL, padding: PKCS1Padding}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ELGAMAL/NONE/NoPadding:
+    key: {type: ELGAMAL, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:512', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: measured}
+      input: {value: maxBytes, bytes: 256, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: ELGAMAL, padding: NoPadding}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ETSIKEMWITHSHA256:
+    key: {type: EC, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: wrap, passedTo: init, source: inferred}
+    - {name: curve, recipe: jca.ecGenSpec, value: secp256r1, passedTo: keyGeneration, source: inferred}
+    - {name: privateKey, use: unwrap, passedTo: init, source: inferred}
+    - {name: derivationVector, recipe: bc.iesKemSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: input, passedTo: wrap, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: true, source: inferred}
+      wrapOnly: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [wrap, unwrap], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: true}, output: {base: ETSI-KEM, digest: SHA-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ML-KEM:
+    key: {type: ML-KEM, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: wrap, passedTo: init, source: measured}
+    - {name: privateKey, use: unwrap, passedTo: init, source: measured}
+    - {name: input, passedTo: wrap, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      wrapOnly: {value: true, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [wrap, unwrap], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: true}, output: {base: ML-KEM}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ML-KEM-1024:
+    key: {type: ML-KEM-1024, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: wrap, passedTo: init, source: measured}
+    - {name: privateKey, use: unwrap, passedTo: init, source: measured}
+    - {name: input, passedTo: wrap, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      wrapOnly: {value: true, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [wrap, unwrap], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: true}, output: {base: ML-KEM-1024}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ML-KEM-512:
+    key: {type: ML-KEM-512, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: wrap, passedTo: init, source: measured}
+    - {name: privateKey, use: unwrap, passedTo: init, source: measured}
+    - {name: input, passedTo: wrap, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      wrapOnly: {value: true, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [wrap, unwrap], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: true}, output: {base: ML-KEM-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|ML-KEM-768:
+    key: {type: ML-KEM-768, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: wrap, passedTo: init, source: measured}
+    - {name: privateKey, use: unwrap, passedTo: init, source: measured}
+    - {name: input, passedTo: wrap, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      wrapOnly: {value: true, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [wrap, unwrap], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: true}, output: {base: ML-KEM-768}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|NTRU:
+    key: {type: NTRU, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: wrap, passedTo: init, source: measured}
+    - {name: privateKey, use: unwrap, passedTo: init, source: measured}
+    - {name: input, passedTo: wrap, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      wrapOnly: {value: true, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [wrap, unwrap], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: true}, output: {base: NTRU}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
-      authenticated: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      authenticated: {value: false, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 1, source: ACIPHER}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      SunJCE @ jdk-25: {conditions.input: {value: maxBytes, bytes: 245, source: measured}}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|RSA/1/PKCS1Padding:
+    key: {type: RSA, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: decrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: encrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 245, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: RSA, mode: ECB, padding: PKCS1PrivateOnly}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|RSA/2/PKCS1Padding:
+    key: {type: RSA, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 245, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: RSA, mode: ECB, padding: PKCS1PublicOnly}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/NoPadding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: true, source: inferred}
-      authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {passwordBased: 'FALSE', wrap: 'FALSE'}
-      output: {base: RSA, mode: ECB, padding: NOPADDING}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: measured}
+      input: {value: maxBytes, bytes: 256, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: RSA, mode: ECB, padding: NoPadding}}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 1, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {conditions.roundTrip: {value: false, source: measured}, contract.key: app, key.origin: app}
+      AndroidOpenSSL @ android-36: {conditions.roundTrip: {value: false, source: measured}}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPPadding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional:
+    - {name: digest, default: SHA-1, affects: [outputBytes, decrypt], source: measured}
+    - {name: mgf1, default: SHA-1, affects: [outputBytes, decrypt], source: measured}
+    - {name: label, affects: [outputBytes, decrypt], source: inferred}
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 214, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 1, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional:
+    - {name: digest, default: SHA-1, affects: [outputBytes, decrypt], source: measured}
+    - {name: mgf1, default: SHA-1, affects: [outputBytes, decrypt], source: measured}
+    - {name: label, affects: [outputBytes, decrypt], source: inferred}
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 214, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 10, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 10, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional:
+    - {name: digest, default: SHA-224, affects: [outputBytes, decrypt], source: measured}
+    - {name: mgf1, affects: [outputBytes, decrypt], source: measured}
+    - {name: label, affects: [outputBytes, decrypt], source: inferred}
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 198, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 23, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 23, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-26: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: inferred}}
+      AndroidKeyStoreBCWorkaround @ android-30: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: inferred}}
+      AndroidKeyStoreBCWorkaround @ android-33: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional:
+    - {name: digest, default: SHA-256, affects: [outputBytes, decrypt], source: measured}
+    - {name: mgf1, affects: [outputBytes, decrypt], source: measured}
+    - {name: label, affects: [outputBytes, decrypt], source: inferred}
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 190, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 10, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 10, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional:
+    - {name: digest, default: SHA-384, affects: [outputBytes, decrypt], source: measured}
+    - {name: mgf1, affects: [outputBytes, decrypt], source: measured}
+    - {name: label, affects: [outputBytes, decrypt], source: inferred}
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 158, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 23, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 23, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional:
+    - {name: digest, default: SHA-512, affects: [outputBytes, decrypt], source: measured}
+    - {name: mgf1, affects: [outputBytes, decrypt], source: measured}
+    - {name: label, affects: [outputBytes, decrypt], source: inferred}
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 126, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 23, source: ACIPHER}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 23, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/PKCS1Padding:
-    key: {type: RSA, source: inferred}
+    key: {type: RSA, origin: app, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: ciphertext, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {passwordBased: 'FALSE', wrap: 'FALSE'}
-      output: {base: RSA, mode: ECB, padding: PKCS1PADDING}
+      input: {value: maxBytes, bytes: 245, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: RSA, mode: ECB, padding: PKCS1Padding}}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: ifc}, source: SP80057T2}
-    - {fact: minSdk, value: 1, source: ACIPHER}
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
+    providers:
+      AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-36: {contract.key: app, key.origin: app}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|RSA/NONE/ISO9796-1Padding:
+    key: {type: RSA, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: 'fixed:256', source: inferred}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: RSA, mode: ECB, padding: ISO9796-1}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:97', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: SM3}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHBLAKE2B:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:129', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: BLAKE2B}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHBLAKE2S:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:97', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: BLAKE2S}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHMD5:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:81', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: MD5}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHRIPEMD160:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:85', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: RIPEMD160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHSHA1:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:85', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: SHA-1}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHSHA224:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:93', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: SHA-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHSHA256:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:97', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: SHA-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHSHA384:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:113', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: SHA-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHSHA512:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:129', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: SHA-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|SM2WITHWHIRLPOOL:
+    key: {type: EC, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:129', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: WHIRLPOOL}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIES:
+    key: {type: X25519, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:52', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-1, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithAES-CBC:
+    key: {type: X25519, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-1, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithSHA256:
+    key: {type: X25519, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:64', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-256, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithSHA256andAES-CBC:
+    key: {type: X25519, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-256, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithSHA384:
+    key: {type: X25519, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:80', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-384, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithSHA384andAES-CBC:
+    key: {type: X25519, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-384, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithSHA512:
+    key: {type: X25519, origin: app, source: measured}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: measured}
+    - {name: privateKey, use: decrypt, passedTo: init, source: measured}
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: aead_ciphertext, bytes: null, formula: 'plus:96', source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: true, source: measured}
+      input: {value: any, source: measured}
+      roundTrip: {value: true, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: measured}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-512, cipher: XOR}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  Cipher|XIESwithSHA512andAES-CBC:
+    key: {type: X25519, origin: app, source: inferred}
+    required:
+    - {name: publicKey, use: encrypt, passedTo: init, source: inferred}
+    - {name: privateKey, use: decrypt, passedTo: init, source: inferred}
+    - {name: input, bytes: 32, passedTo: update, source: inferred}
+    - {name: derivationVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: encodingVector, recipe: bc.iesSpec, bytes: 16, passedTo: init, source: inferred}
+    - {name: macKeyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: keyBits, recipe: bc.iesSpec, value: 128, passedTo: init, source: inferred}
+    - {name: nonce, recipe: bc.iesSpec, bytes: 16, rule: unpredictable, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: ciphertext, bytes: null, formula: any, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}, reverse: {value: afterInit, source: inferred}}}
+    operations: {value: [encrypt, decrypt], source: inferred}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: XIES, digest: SHA-512, cipher: AES-CBC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

@@ -46,9 +46,9 @@ def _probe(*services):
 
 
 def test_probe_aliases_add_names_the_catalog_lacks(names):
-    merged = _probe(("P", "Cipher", "AES/GCM/NoPadding", ["GCM"])).names(names)
-    assert names.canonical("Cipher", "gcm") == Canonical("gcm", None, False)
-    assert merged.canonical("Cipher", "gcm") == Canonical("AES/GCM/NoPadding")
+    merged = _probe(("P", "Cipher", "AES/GCM/NoPadding", ["VENDORGCM"])).names(names)
+    assert names.canonical("Cipher", "vendorgcm") == Canonical("vendorgcm", None, False)
+    assert merged.canonical("Cipher", "vendorgcm") == Canonical("AES/GCM/NoPadding")
 
 
 def test_a_probe_alias_the_catalog_names_otherwise_keeps_the_catalog_name(names):

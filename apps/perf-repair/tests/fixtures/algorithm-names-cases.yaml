@@ -48,7 +48,7 @@ cases:
 - {type: Mac, name: HMACSHA3-256, canonical: HmacSHA3-256, keySize: null, known: true}
 - {type: MessageDigest, name: shake128-256, canonical: SHAKE128-256, keySize: null, known: true}
 - {type: Mac, name: PBEWITHHMACSHA256, canonical: PBEWithHmacSHA256, keySize: null, known: true}
-- {type: Mac, name: PBEWITHHMACSHA, canonical: PBEWITHHMACSHA, keySize: null, known: true}
+- {type: Mac, name: PBEWITHHMACSHA, canonical: PBEWithHmacSHA1, keySize: null, known: true}
 - {type: Mac, name: HmacPBESHA512/256, canonical: HmacPBESHA512/256, keySize: null, known: true}
 - {type: Cipher, name: pbewithhmacsha512/224andaes_256, canonical: PBEWithHmacSHA512/224AndAES_256, keySize: null, known: true}
 - {type: Cipher, name: PBEWITHMD5AND128BITAES-CBC-OPENSSL, canonical: PBEWITHMD5AND128BITAES-CBC-OPENSSL, keySize: null, known: true}

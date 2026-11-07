@@ -49,6 +49,7 @@ internal object MacFacts : RequirementCall {
         sheet.measure("inputBytes") { Sweep.of(INPUTS) { tag(service, secret, spec, ByteArray(it)) } }
         sheet.measure("cloneable") { ErrorText.refusal { Mac.getInstance(service.algorithm, service.provider).clone() } ?: "ok" }
         sheet.measure("foreignKeys") { ForeignKeys.of(service, key) { other -> tag(service, other.secret!!, spec, ByteArray(8)) } }
+        sheet.measure("reset") { mapOf("forward" to ResetRun.of(CallOrder(listOf("init"), { initialised(service.algorithm, service, secret, spec) }, listOf(CallStep("update") { mac -> mac.update(message); null }, CallStep("doFinal") { mac -> mac.doFinal() })))) }
         return CallResult(
             key = key,
             runWith = linkedMapOf<String, Any>("operation" to "mac").apply { spec?.let { put("spec", ParameterSpecs.describe(it)) } },
@@ -62,8 +63,10 @@ internal object MacFacts : RequirementCall {
         tagAs(service.algorithm, service, key, spec, message)
 
     private fun tagAs(name: String, service: ProbedService, key: Key, spec: AlgorithmParameterSpec?, message: ByteArray): ByteArray =
-        Mac.getInstance(name, service.provider).run {
+        initialised(name, service, key, spec).doFinal(message)
+
+    private fun initialised(name: String, service: ProbedService, key: Key, spec: AlgorithmParameterSpec?): Mac =
+        Mac.getInstance(name, service.provider).apply {
             if (spec == null) init(key) else init(key, spec)
-            doFinal(message)
         }
 }

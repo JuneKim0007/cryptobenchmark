@@ -1,4 +1,7 @@
 """Who is asked: a listed name never, an unlisted one once; catalog groups by key contract; candidates; gate C on the facts."""
+import json
+from pathlib import Path
+
 import pytest
 import yaml
 from conftest import LIBRARY, QUIET
@@ -12,6 +15,7 @@ from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.catalog import groups as catalog_file
 from perfrepair.catalog.algorithms import Algorithms, algorithms
 from perfrepair.catalog.families import Families
+from perfrepair.catalog.names import fold
 from perfrepair.catalog.groups import (
     CATALOG,
     GroupsError,
@@ -245,19 +249,21 @@ def test_the_committed_catalog_loads_and_each_row_agrees_with_the_signature():
     for group in catalog.groups:
         engine_type = FAMILIES.by_id[group.family].type
         assert SLUG.match(group.id + ".p") and len(group.description) <= 400
-        read = {signature(engine_type, name, None, "app_held", NAMES).identity for _, name in group.members}
-        assert len(read) == 1 and not any(c[1] is None for i in read for c in i)
-        assert all(c.status != UNKNOWN for _, n in group.members for c in signature(engine_type, n, None, "app_held", NAMES).components)
+        # the signature reads only the names its regex rules know; every other name's facts are its catalogue entry
+        ruled = [n for _, n in group.members if interchange().engines[engine_type].rule_of(n) and fold(f"{engine_type}|{n}") in MASTER_MEMBERS]
+        read = {signature(engine_type, name, None, "app_held", NAMES).identity for name in ruled}
+        assert len(read) <= 1 and not any(c[1] is None for i in read for c in i)
 
 
 @pytest.mark.parametrize("group, code", [
-    ({"algorithms": ["Mac|HmacSHA256"], "description": "d"}, "unknown"),
+    ({"algorithms": ["Mac|HmacSHA256"], "exemplars": [], "description": "d"}, "unknown"),
     ({}, "missing"),
-    ({"algorithms": ["HmacSHA256"]}, "no Mac|<canonical> id"),
-    ({"algorithms": ["Cipher|HmacSHA256"]}, "no Mac|<canonical> id"),
-    ({"algorithms": ["Mac|HMAC-SHA256"]}, "no canonical"),
-    ({"algorithms": ["Mac|AES"]}, "no canonical"),
-    ({"algorithms": ["Mac|HmacSHA256", "Mac|HMACSHA256"]}, "no canonical|listed twice"),
+    ({"exemplars": [], "algorithms": ["HmacSHA256"]}, "no Mac|<canonical> id"),
+    ({"exemplars": [], "algorithms": ["Cipher|HmacSHA256"]}, "no Mac|<canonical> id"),
+    ({"exemplars": [], "algorithms": ["Mac|HMAC-SHA256"]}, "no canonical"),
+    ({"exemplars": [], "algorithms": ["Mac|AES"]}, "no canonical"),
+    ({"exemplars": [], "algorithms": ["Mac|HmacSHA256", "Mac|HMACSHA256"]}, "no canonical|listed twice"),
+    ({"exemplars": ["Mac|HmacMD5"], "algorithms": ["Mac|HmacSHA256"]}, "exemplar .* is no member"),
 ])
 def test_a_bad_group_is_refused(tmp_path, group, code):
     path = tmp_path / "groups.yaml"
@@ -270,7 +276,7 @@ def test_a_member_without_a_catalogue_entry_is_refused(tmp_path):
     entries = algorithms()
     catalogue = Algorithms(tuple(e for e in entries.entries if e.id != "Mac|HmacSHA256"), entries.common)
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"mac.secret": {"algorithms": ["Mac|HmacSHA256"]}}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"mac.secret": {"exemplars": [], "algorithms": ["Mac|HmacSHA256"]}}}))
     with pytest.raises(GroupsError, match="no entry in mac.secret's catalogue"):
         load(path, catalogue=catalogue)
 
@@ -288,37 +294,63 @@ def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
 
 def test_the_catalog_is_one_group_per_family_and_lists_every_typed_name():
     catalog = group_catalog()
-    assert {g.family for g in catalog.families} == set(FAMILIES.by_id)
+    assert {g.family for g in catalog.families} == {f.id for f in FAMILIES.all}
     for group in catalog.families:
         typed = {name for (family, name) in types().rows if family == group.family}
         assert typed <= {n.upper() for n in group.algorithms}
 
 
-def _signature_rows() -> list[tuple]:
-    """Rows as the signature derived them on load before the catalogue held each contract."""
-    rows = []
-    for group in group_catalog().families:
-        engine_type, alike = FAMILIES.by_id[group.family].type, {}
-        for name in sorted(group.algorithms, key=str.upper):
-            read = signature(engine_type, name, None, "app_held", NAMES)
-            if read.decided:
-                key = tuple(i for i in read.identity if interchange().contract_of(i[0]) != "key")
-                alike.setdefault(key, []).append((name, read))
-        rows += [(_row_id(group.family, row[0][0]), _describe(engine_type, c := row_contracts([row[0][1]])), group.family,
-                  _values(c), tuple((engine_type, n) for n, _ in row)) for row in alike.values()]
-    return rows
+MASTER_ROWS = json.loads((Path(__file__).parents[1] / "fixtures" / "contract-rows-master.json").read_text())
+MASTER_MEMBERS = {fold(m) for r in MASTER_ROWS for m in r["members"]}
+# each row that gained a member at this catalogue review, and why the member's contract equals the row's
+# a master member now a spelling of another id: one registration under two names
+MERGED = {"Mac|PBEWITHHMACSHA": "Mac|PBEWithHmacSHA1"}
+JOINED = json.loads((Path(__file__).parents[1] / "fixtures" / "contract-rows-joined.json").read_text())
 
 
-def _values(contracts: dict) -> dict:
-    """A row states values only: the signature's `(assumed)` mark is the catalogue's `assumed` flag."""
-    return {side: {k: v.removesuffix(" (assumed)") for k, v in values.items()} for side, values in contracts.items()}
+def _folded(values: dict) -> dict:
+    """One spelling per value changed only case and separators, and curve became parameterSet where the value is a parameter set."""
+    plain = {k: fold(str(v)).replace(" ", "").replace("-", "") for k, v in values.items()}
+    if plain.get("scheme") in ("MLDSA", "SLHDSA") and "curve" in plain:
+        plain["parameterSet"] = plain.pop("curve")
+    return plain
 
 
-def test_contract_rows_from_the_catalogue_equal_the_221_the_signature_derived():
-    catalog = group_catalog()
-    # 219, less DESedeWrap's cipher.unknown row, plus SLH-DSA-SHA2-128S twice and XWING
-    assert len(catalog.groups) == 221
-    assert [(g.id, g.description, g.family, g.contracts, g.members) for g in catalog.groups] == _signature_rows()
+def _key_of(group) -> str:
+    return "none" if group.keyless else "password" if group.password else "app"
+
+
+def test_every_master_row_stands_with_only_its_listed_differences():
+    """Rows compare spelled by fold; cipher.unknown's rows are cipher.secret's, a password row's key is `password`, a listed joiner joins."""
+    catalog, found = group_catalog(), []
+    at = {fold(f"{t}|{n}"): g for g in catalog.groups for t, n in g.members}
+    at.update({fold(alias): at[fold(target)] for alias, target in MERGED.items()})
+    for row in MASTER_ROWS:
+        family = "cipher.secret" if row["family"] == "cipher.unknown" else row["family"]
+        assert [m for m in row["members"] if fold(m) not in at] == [], row["id"]
+        groups = {at[fold(m)].id for m in row["members"]}
+        assert len(groups) == 1, row["id"]
+        g = at[fold(row["members"][0])]
+        assert g.family == family
+        password = row["input"].get("passwordBased") == "TRUE"
+        assert g.password == password
+        assert _key_of(g) == ("password" if password else row["key"]), row["id"]
+        assert (_folded(g.contracts["input"]), _folded(g.contracts["output"])) == (_folded(row["input"]), _folded(row["output"])), row["id"]
+        added = sorted(f"{t}|{n}" for t, n in g.members if fold(f"{t}|{n}") not in {fold(m) for m in row["members"]})
+        found += [(row["id"], added)] * bool(added)
+    assert {k: v["members"] for k, v in JOINED.items()} == dict(found)
+    assert all(v["why"] for v in JOINED.values())
+
+
+def test_the_row_count_is_what_the_review_measured():
+    # 221 at master, plus one row per contract the reviewed names add
+    assert (len(group_catalog().groups), len(MASTER_ROWS)) == (923, 221)
+
+
+def test_a_password_row_has_no_provider_held_variant_and_says_password():
+    row = group_catalog().of("cipher.secret", "PBEWithHmacSHA1AndAES_128")
+    assert row.password and group_catalog().variant_of(row.id + ".p") is None
+    assert "password" in group_catalog().variant_of(row.id).description
 
 
 def test_an_assumed_value_is_a_row_s_value_and_its_description_says_assumed():
@@ -343,3 +375,18 @@ def test_a_listed_name_with_an_open_contract_has_no_row_so_the_model_decides():
     catalog = group_catalog()
     assert "RSA/ECB/OAEPPadding" in next(g for g in catalog.families if g.family == "cipher.pair").algorithms
     assert catalog.of("cipher.pair", "RSA/ECB/OAEPPadding") is None
+
+
+@pytest.mark.parametrize("held, code", [
+    ({"exemplars": [], "algorithms": [], "reason": "r"}, "fields"),
+    ({"algorithms": []}, "fields"),
+    ({"exemplars": ["Mac|X"], "algorithms": ["Mac|X"]}, "exemplars is not empty"),
+    ({"exemplars": [], "algorithms": "Mac|X"}, "not a list"),
+    ({"exemplars": [], "algorithms": ["X"]}, "no <type>|<name> id"),
+    ({"exemplars": [], "algorithms": ["Mac|X", "MAC|x"]}, "listed twice"),
+])
+def test_a_bad_unidentified_group_is_refused_at_load(tmp_path, held, code):
+    path = tmp_path / "groups.yaml"
+    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"unidentified": held}}))
+    with pytest.raises(GroupsError, match=code):
+        load(path)

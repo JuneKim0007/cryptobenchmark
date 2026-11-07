@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -151,11 +152,15 @@ def test_an_unknown_name_and_an_uncatalogued_conflict_are_unknown():
     assert signature("Mac", "PBEWITHHMACSHA256", None, KEY_APP_HELD, conflicted) == sig("Mac", "PBEWithHmacSHA256")
 
 
-def test_every_catalogued_name_of_a_family_engine_has_a_rule():
-    doc = yaml.safe_load(CATALOG.read_text())["names"]
-    for engine_type in FAMILIES.types:
-        for name in doc[engine_type]:
-            assert interchange().engines[engine_type].rule_of(name), (engine_type, name)
+def test_every_catalogued_name_of_a_family_engine_has_a_rule_or_is_listed_as_having_none():
+    # the regex rules stop at the names master listed: the signature goes in phase 6; until then a newer name is listed, and its facts are its entry
+    from perfrepair.catalog.groups import group_catalog
+    unruled = json.loads((Path(__file__).parents[1] / "fixtures" / "signature-unruled.json").read_text())
+    families, engines, missing = Families.load(), interchange().engines, []
+    for group in group_catalog().families:
+        engine_type = families.by_id[group.family].type
+        missing += [f"{engine_type}|{n}" for n in group.algorithms if not (engine_type in engines and engines[engine_type].rule_of(n))]
+    assert sorted(missing) == unruled
 
 
 def test_a_rule_naming_a_component_outside_its_splits_is_refused(tmp_path):

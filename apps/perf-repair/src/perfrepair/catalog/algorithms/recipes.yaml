@@ -1,0 +1,41 @@
+# How each parameter object a catalogue row names is made, by id: a public constructor (class + args) first, a static method or
+# builder class (factory + steps) where no constructor can, a function a person wrote in the harness (builder) where neither can.
+# Every word: catalog/glossary.yaml recipe; read through catalog/recipes.py.
+schemaVersion: 1
+recipes:
+  jca.ivSpec: {class: javax.crypto.spec.IvParameterSpec, args: [{role: iv, kind: bytes}]}
+  jca.nonceIvSpec: {class: javax.crypto.spec.IvParameterSpec, args: [{role: nonce, kind: bytes}]}
+  jca.gcmSpec: {class: javax.crypto.spec.GCMParameterSpec, args: [{role: tagBits, kind: int, value: 128}, {role: nonce, kind: bytes}]}
+  jca.chacha20Spec: {class: javax.crypto.spec.ChaCha20ParameterSpec, args: [{role: nonce, kind: bytes}, {kind: constant, value: 1}]}
+  jca.pbeSpec: {class: javax.crypto.spec.PBEParameterSpec, args: [{role: salt, kind: bytes}, {role: iterationCount, kind: int}]}
+  jca.pbeIvSpec:
+    class: javax.crypto.spec.PBEParameterSpec
+    args: [{role: salt, kind: bytes}, {role: iterationCount, kind: int}, {kind: recipe, recipe: jca.ivSpec}]
+  jca.pbeKeySpec: {class: javax.crypto.spec.PBEKeySpec, args: [{role: password, kind: string}]}
+  jca.pbeKeySpecDerived:
+    class: javax.crypto.spec.PBEKeySpec
+    args: [{role: password, kind: string}, {role: salt, kind: bytes}, {role: iterationCount, kind: int}, {role: keyBits, kind: int}]
+  jca.ecGenSpec: {class: java.security.spec.ECGenParameterSpec, args: [{role: curve, kind: string}]}
+  jca.mgf1Spec: {class: java.security.spec.MGF1ParameterSpec, args: [{role: mgf1, kind: string}]}
+  jca.pssSpec:
+    class: java.security.spec.PSSParameterSpec
+    args: [{role: digest, kind: string}, {kind: constant, value: MGF1}, {kind: recipe, recipe: jca.mgf1Spec}, {role: saltBytes, kind: int}, {kind: constant, value: 1}]
+  jca.rc5Spec: {class: javax.crypto.spec.RC5ParameterSpec, args: [{kind: constant, value: 16}, {kind: constant, value: 12}, {kind: constant, value: 64}]}
+  jca.namedGroup: {builder: namedGroupSpec}
+  bc.iesSpec:
+    class: org.bouncycastle.jce.spec.IESParameterSpec
+    args: [{role: derivationVector, kind: bytes}, {role: encodingVector, kind: bytes}, {role: macKeyBits, kind: int, value: 128},
+           {role: keyBits, kind: int}, {role: nonce, kind: bytes}, {kind: constant, value: false}]
+  bc.iesKemSpec: {class: org.bouncycastle.jcajce.spec.IESKEMParameterSpec, args: [{role: derivationVector, kind: bytes}]}
+  bc.dhuSpec: {class: org.bouncycastle.jcajce.spec.DHUParameterSpec, args: [{role: ephemeralKeyPair, kind: keyRef}, {role: peerEphemeralPublicKey, kind: keyRef}]}
+  bc.dhuUkmSpec:
+    class: org.bouncycastle.jcajce.spec.DHUParameterSpec
+    args: [{role: ephemeralKeyPair, kind: keyRef}, {role: peerEphemeralPublicKey, kind: keyRef}, {role: userKeyingMaterial, kind: bytes}]
+  bc.mqvSpec: {class: org.bouncycastle.jcajce.spec.MQVParameterSpec, args: [{role: ephemeralKeyPair, kind: keyRef}, {role: peerEphemeralPublicKey, kind: keyRef}]}
+  bc.mqvUkmSpec:
+    class: org.bouncycastle.jcajce.spec.MQVParameterSpec
+    args: [{role: ephemeralKeyPair, kind: keyRef}, {role: peerEphemeralPublicKey, kind: keyRef}, {role: userKeyingMaterial, kind: bytes}]
+  bc.ukmSpec: {class: org.bouncycastle.jcajce.spec.UserKeyingMaterialSpec, args: [{role: userKeyingMaterial, kind: bytes}]}
+  bc.kemGenerateSpec: {class: org.bouncycastle.jcajce.spec.KEMGenerateSpec, args: [{role: publicKey, kind: keyRef}, {role: secretAlgorithm, kind: string, value: AES}]}
+  bc.gostWrapSpec: {class: org.bouncycastle.jcajce.spec.GOST28147WrapParameterSpec, args: [{kind: constant, value: E-A}, {role: userKeyingMaterial, kind: bytes}]}
+  sun.tlsSpec: {builder: sunTlsSpec}

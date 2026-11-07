@@ -143,107 +143,107 @@
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "DESedeWrap"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHMD5AND128BITAES-CBC-OPENSSL"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHMD5AND192BITAES-CBC-OPENSSL"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHMD5AND256BITAES-CBC-OPENSSL"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHA256AND128BITAES-CBC-BC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHA256AND192BITAES-CBC-BC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHA256AND256BITAES-CBC-BC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHAAND128BITAES-CBC-BC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHAAND192BITAES-CBC-BC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHAAND2-KEYTRIPLEDES-CBC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHAAND256BITAES-CBC-BC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWITHSHAANDTWOFISH-CBC"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithMD5AndDES"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithMD5AndRC2"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndDES"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndDESede"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndRC2"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndRC2_128"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndRC2_40"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndRC4_128"
   },
   {
    "type": "Cipher",
-   "family": "cipher.unknown",
+   "family": "cipher.secret",
    "canonical": "PBEWithSHA1AndRC4_40"
   },
   {
@@ -429,7 +429,7 @@
   {
    "type": "Mac",
    "family": "mac.secret",
-   "canonical": "PBEWITHHMACSHA"
+   "canonical": "PBEWithHmacSHA1"
   },
   {
    "type": "Mac",

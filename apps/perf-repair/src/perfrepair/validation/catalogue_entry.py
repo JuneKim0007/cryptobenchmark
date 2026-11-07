@@ -9,6 +9,7 @@ from ..catalog.algorithms import (
     split_id,
 )
 from ..catalog.families import Families
+from ..catalog.glossary import provider_key_problems, term_problems
 from ..catalog.groups import GroupCatalog
 from ..catalog.names import fold
 
@@ -20,7 +21,7 @@ def _group_count(groups: GroupCatalog, families: Families, identifier: str) -> i
 
 def entry_check(entry: Entry, catalogue: Algorithms, groups: GroupCatalog, families: Families) -> list[str]:
     """catalogue holds the entry: a new one is checked inside the catalogues it would join."""
-    found = entry_problems(entry, catalogue.common)
+    found = entry_problems(entry, catalogue.common) + term_problems(entry.raw) + provider_key_problems(entry.raw)
     family, parts = families.by_id.get(entry.family), split_id(entry.id)
     if family is None:
         found.append(f"family {entry.family} is not a family of families.yaml")

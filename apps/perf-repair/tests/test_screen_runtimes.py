@@ -36,13 +36,13 @@ PACKAGED = ScreeningHandler(SCREENING, CATALOG)
 # a catalog change that moves these is deliberate: recompute, review, then pin
 EXPECTED = {
     "android36": {"items": 168, "broken": 63, "accepted": 96, "unknown": 9, "codeGroups": 58, "multiProvider": 1,
-                  "pairs": 25116, "refused": 11448},
+                  "pairs": 33936, "refused": 18114},
     "jdk17": {"items": 193, "broken": 56, "accepted": 106, "unknown": 31, "codeGroups": 54, "multiProvider": 0,
-              "pairs": 39084, "refused": 17928},
+              "pairs": 46632, "refused": 22722},
     "jdk21": {"items": 200, "broken": 56, "accepted": 106, "unknown": 38, "codeGroups": 54, "multiProvider": 0,
-              "pairs": 41316, "refused": 19848},
+              "pairs": 50640, "refused": 25770},
     "jdk25": {"items": 214, "broken": 56, "accepted": 118, "unknown": 40, "codeGroups": 54, "multiProvider": 0,
-              "pairs": 45984, "refused": 20820},
+              "pairs": 55308, "refused": 26742},
 }
 
 

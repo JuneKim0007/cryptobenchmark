@@ -15,7 +15,6 @@
 - Each key is read when its code fires, through its `inputs/table.py` row (`STOP_ROWS`), by `config/stops.py`; the first command of a run that loads settings installs the reader; a command it runs in-process keeps it; without one each code takes its default.
 
 ## Codes
-
 Exit: what `failure.py` returns for the code; argparse refusals exit 2 before any code is reached.
 
 | code | default | `stops.<code>` | exit | next |
@@ -114,7 +113,11 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `screening_shape` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `screening_yaml` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `algorithms_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `recipes_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `deviations_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `glossary_unknown` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `algorithm_unknown` | `stop` | fixed: the input is unusable | 1 | name an algorithm or group id the catalogues hold |
+| `provider_build_unknown` | `stop` | fixed: the input is unusable | 1 | name a build key of `catalog/provider-builds.yaml`, or a name only one build carries |
 | `relations_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `events_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable events.jsonl aside |
 | `journal_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable journal.jsonl aside; the outbox, not the journal, holds the decisions |

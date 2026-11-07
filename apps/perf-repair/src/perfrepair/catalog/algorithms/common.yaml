@@ -1,25 +1,28 @@
-# What every catalogue cites: sources by id, SP 800-57 strength tables, and the output kinds a caller relies on.
+# What every catalogue shares: SP 800-57 strength tables and the output kinds a caller relies on; every word: catalog/glossary.yaml.
 # strengthBits: an integer, {key: <keyStrength map>} for a key-size fact, {key, cap} for min(cap, key), or null (unknown).
 # minSdk: the first level of the open-ended range on the reference page ("1-8,22+" is 22); null: check the device.
 schemaVersion: 1
 sources:
-  SP80057T2: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
-  SP80057T3: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
-  RFC6151: https://www.rfc-editor.org/rfc/rfc6151
+  AAGREEMENT: https://developer.android.com/reference/javax/crypto/KeyAgreement
+  ACIPHER: https://developer.android.com/reference/javax/crypto/Cipher
+  ADIGEST: https://developer.android.com/reference/java/security/MessageDigest
+  AKEYGEN: https://developer.android.com/reference/javax/crypto/KeyGenerator
+  AKEYPAIRGEN: https://developer.android.com/reference/java/security/KeyPairGenerator
+  AMAC: https://developer.android.com/reference/javax/crypto/Mac
+  ASIGNATURE: https://developer.android.com/reference/java/security/Signature
+  FIPS185: https://csrc.nist.gov/pubs/fips/185/final
+  FIPS204: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf
+  FIPS205: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.205.pdf
+  FIPS46: https://csrc.nist.gov/pubs/fips/46-3/final
   RFC6149: https://www.rfc-editor.org/rfc/rfc6149
+  RFC6150: https://www.rfc-editor.org/rfc/rfc6150
+  RFC6151: https://www.rfc-editor.org/rfc/rfc6151
   RFC7465: https://www.rfc-editor.org/rfc/rfc7465
   RFC7748: https://www.rfc-editor.org/rfc/rfc7748
   RFC8032: https://www.rfc-editor.org/rfc/rfc8032
   RFC8439: https://www.rfc-editor.org/rfc/rfc8439
-  FIPS46: https://csrc.nist.gov/pubs/fips/46-3/final
-  ACIPHER: https://developer.android.com/reference/javax/crypto/Cipher
-  AMAC: https://developer.android.com/reference/javax/crypto/Mac
-  ADIGEST: https://developer.android.com/reference/java/security/MessageDigest
-  ASIGNATURE: https://developer.android.com/reference/java/security/Signature
-  AKEYGEN: https://developer.android.com/reference/javax/crypto/KeyGenerator
-  AKEYPAIRGEN: https://developer.android.com/reference/java/security/KeyPairGenerator
-  AAGREEMENT: https://developer.android.com/reference/javax/crypto/KeyAgreement
-  FIPS205: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.205.pdf
+  SP80057T2: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
+  SP80057T3: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
   XWINGKEM: https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-xwing-kem-11
 # SP 800-57 Part 1 r5 Table 2: comparable strengths by key size; a size between rows takes the row below it
 keyStrength:

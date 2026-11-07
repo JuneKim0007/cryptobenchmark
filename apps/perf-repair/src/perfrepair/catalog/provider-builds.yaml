@@ -1,0 +1,52 @@
+# Every provider build the catalogues' measured facts ran on: <name> @ android-<sdkInt> for a platform provider, @ <artifact> for a bundled copy, @ jdk-<version> on a host.
+# selfReported is what the provider says of itself; it does not identify a build: every Android platform provider says 1.0 on every release.
+schemaVersion: 1
+builds:
+  "AndroidKeyStore @ android-26": {name: AndroidKeyStore, selfReported: "1.0", origin: platform}
+  "AndroidKeyStore @ android-30": {name: AndroidKeyStore, selfReported: "1.0", origin: platform}
+  "AndroidKeyStore @ android-33": {name: AndroidKeyStore, selfReported: "1.0", origin: platform}
+  "AndroidKeyStore @ android-36": {name: AndroidKeyStore, selfReported: "1.0", origin: platform}
+  "AndroidKeyStoreBCWorkaround @ android-26": {name: AndroidKeyStoreBCWorkaround, selfReported: "1.0", origin: platform}
+  "AndroidKeyStoreBCWorkaround @ android-30": {name: AndroidKeyStoreBCWorkaround, selfReported: "1.0", origin: platform}
+  "AndroidKeyStoreBCWorkaround @ android-33": {name: AndroidKeyStoreBCWorkaround, selfReported: "1.0", origin: platform}
+  "AndroidKeyStoreBCWorkaround @ android-36": {name: AndroidKeyStoreBCWorkaround, selfReported: "1.0", origin: platform}
+  "AndroidNSSP @ android-26": {name: AndroidNSSP, selfReported: "1.0", origin: platform}
+  "AndroidNSSP @ android-30": {name: AndroidNSSP, selfReported: "1.0", origin: platform}
+  "AndroidNSSP @ android-33": {name: AndroidNSSP, selfReported: "1.0", origin: platform}
+  "AndroidNSSP @ android-36": {name: AndroidNSSP, selfReported: "1.0", origin: platform}
+  "AndroidOpenSSL @ android-26": {name: AndroidOpenSSL, selfReported: "1.0", origin: platform}
+  "AndroidOpenSSL @ android-30": {name: AndroidOpenSSL, selfReported: "1.0", origin: platform}
+  "AndroidOpenSSL @ android-33": {name: AndroidOpenSSL, selfReported: "1.0", origin: platform}
+  "AndroidOpenSSL @ android-36": {name: AndroidOpenSSL, selfReported: "1.0", origin: platform}
+  "BC @ android-26": {name: BC, selfReported: "1.56", origin: platform}
+  "BC @ android-30": {name: BC, selfReported: "1.61", origin: platform}
+  "BC @ android-33": {name: BC, selfReported: "1.68", origin: platform}
+  "BC @ android-36": {name: BC, selfReported: "1.77", origin: platform}
+  "BC @ jdk-25": {name: BC, selfReported: "1.79", origin: host}
+  "BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79": {name: BundledBC, selfReported: "1.79", origin: bundled}
+  "BundledConscrypt @ org.conscrypt:conscrypt-android:2.5.3": {name: BundledConscrypt, selfReported: "1.0", origin: bundled}
+  "CertPathProvider @ android-26": {name: CertPathProvider, selfReported: "1.0", origin: platform}
+  "CertPathProvider @ android-30": {name: CertPathProvider, selfReported: "1.0", origin: platform}
+  "CertPathProvider @ android-33": {name: CertPathProvider, selfReported: "1.0", origin: platform}
+  "CertPathProvider @ android-36": {name: CertPathProvider, selfReported: "1.0", origin: platform}
+  "HarmonyJSSE @ android-26": {name: HarmonyJSSE, selfReported: "1.0", origin: platform}
+  "HarmonyJSSE @ android-30": {name: HarmonyJSSE, selfReported: "1.0", origin: platform}
+  "HarmonyJSSE @ android-33": {name: HarmonyJSSE, selfReported: "1.0", origin: platform}
+  "HarmonyJSSE @ android-36": {name: HarmonyJSSE, selfReported: "1.0", origin: platform}
+  "SUN @ jdk-25": {name: SUN, selfReported: "25.0", origin: host}
+  "SunEC @ jdk-25": {name: SunEC, selfReported: "25.0", origin: host}
+  "SunJCE @ jdk-25": {name: SunJCE, selfReported: "25.0", origin: host}
+  "SunJSSE @ jdk-25": {name: SunJSSE, selfReported: "25.0", origin: host}
+  "SunRsaSign @ jdk-25": {name: SunRsaSign, selfReported: "25.0", origin: host}
+providers:
+  AndroidKeyStore:
+    behaviour: {key.origin: provider, contract.key: provider}
+    registers:
+    - {builds: [AndroidKeyStore], names: [KeyGenerator|AES, KeyGenerator|HmacSHA1, KeyGenerator|HmacSHA224, KeyGenerator|HmacSHA256, KeyGenerator|HmacSHA384, KeyGenerator|HmacSHA512, KeyPairGenerator|EC, KeyPairGenerator|RSA]}
+    - {builds: [AndroidKeyStore @ android-33, AndroidKeyStore @ android-36], names: [KeyAgreement|ECDH, KeyAgreement|XDH, KeyPairGenerator|XDH]}
+    - {builds: [AndroidKeyStore @ android-36], names: [KeyPairGenerator|Ed25519]}
+  AndroidKeyStoreBCWorkaround:
+    behaviour: {key.origin: provider, contract.key: provider}
+    registers:
+    - {builds: [AndroidKeyStoreBCWorkaround], names: [Cipher|AES/CBC/NoPadding, Cipher|AES/CBC/PKCS5Padding, Cipher|AES/CTR/NoPadding, Cipher|AES/ECB/NoPadding, Cipher|AES/ECB/PKCS5Padding, Cipher|AES/GCM/NoPadding, Cipher|RSA/ECB/NoPadding, Cipher|RSA/ECB/OAEPPadding, Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding, Cipher|RSA/ECB/PKCS1Padding, Mac|HmacSHA1, Mac|HmacSHA224, Mac|HmacSHA256, Mac|HmacSHA384, Mac|HmacSHA512, Signature|MD5withRSA, Signature|NONEwithECDSA, Signature|NONEwithRSA, Signature|SHA1withECDSA, Signature|SHA1withRSA, Signature|SHA1withRSA/PSS, Signature|SHA224withECDSA, Signature|SHA224withRSA, Signature|SHA224withRSA/PSS, Signature|SHA256withECDSA, Signature|SHA256withRSA, Signature|SHA256withRSA/PSS, Signature|SHA384withECDSA, Signature|SHA384withRSA, Signature|SHA384withRSA/PSS, Signature|SHA512withECDSA, Signature|SHA512withRSA, Signature|SHA512withRSA/PSS]}
+    - {builds: [AndroidKeyStoreBCWorkaround @ android-33, AndroidKeyStoreBCWorkaround @ android-36], names: [Signature|Ed25519]}

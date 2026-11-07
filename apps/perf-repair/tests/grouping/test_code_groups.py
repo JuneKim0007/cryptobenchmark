@@ -53,7 +53,7 @@ def test_broken_items_are_grouped_by_code_per_canonical_key_and_never_asked(path
 
 def test_a_code_group_id_is_a_digest_of_its_key_not_of_the_run(paths):
     screen(paths)
-    assert code_groups_of(GroupingKind(paths, FAMILIES).empty())["code_82697856fe"] == [6]
+    assert code_groups_of(GroupingKind(paths, FAMILIES).empty())["code_75600c15c9"] == [6]
 
 
 def test_groups_json_carries_code_groups_and_each_items_screen(paths):

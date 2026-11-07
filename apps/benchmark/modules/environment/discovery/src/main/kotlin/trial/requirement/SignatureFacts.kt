@@ -51,6 +51,7 @@ internal object SignatureFacts : RequirementCall {
         sheet.measure("setParameter") { setParameter(service, private) }
         if (service.keys.sizable(key)) sheet.measure("keyBits") { keyBits(service, key, spec) }
         sheet.measure("foreignKeys") { ForeignKeys.of(service, key) { other -> sign(service, other.pair!!.private, spec, message) } }
+        sheet.measure("reset") { reset(service, private, public, spec, message, signature) }
         return CallResult(
             key = key,
             runWith = linkedMapOf<String, Any>("operation" to "sign", "inputBytes" to message.size).apply { spec?.let { put("spec", ParameterSpecs.describe(it)) } },
@@ -59,20 +60,38 @@ internal object SignatureFacts : RequirementCall {
         )
     }
 
+    private fun reset(service: ProbedService, private: PrivateKey, public: PublicKey, spec: AlgorithmParameterSpec?, message: ByteArray, signature: ByteArray): Map<String, Any> {
+        val setParameter = listOfNotNull(spec?.let { "setParameter" })
+        val forward = CallOrder(listOf("initSign") + setParameter, { signing(service, private, spec) }, listOf(CallStep("update") { it.update(message); null }, CallStep("sign") { it.sign() }))
+        val reverse = CallOrder(listOf("initVerify") + setParameter, { verifying(service.algorithm, service, public, spec) }, listOf(CallStep("update") { it.update(message); null }, CallStep("verify") { byteArrayOf(if (it.verify(signature)) 1 else 0) }))
+        return linkedMapOf(
+            "forward" to ResetRun.of(forward) { _, output -> verify(service.algorithm, service, public, spec, message, output) },
+            "reverse" to ResetRun.of(reverse),
+        )
+    }
+
     private fun sign(service: ProbedService, key: PrivateKey, spec: AlgorithmParameterSpec?, message: ByteArray): ByteArray =
-        Signature.getInstance(service.algorithm, service.provider).run {
-            initSign(key)
-            spec?.let { setParameter(it) }
+        signing(service, key, spec).run {
             update(message)
             sign()
         }
 
-    private fun verify(name: String, service: ProbedService, key: PublicKey, spec: AlgorithmParameterSpec?, message: ByteArray, signature: ByteArray): Boolean =
-        Signature.getInstance(name, service.provider).run {
-            initVerify(key)
+    private fun signing(service: ProbedService, key: PrivateKey, spec: AlgorithmParameterSpec?): Signature =
+        Signature.getInstance(service.algorithm, service.provider).apply {
+            initSign(key)
             spec?.let { setParameter(it) }
+        }
+
+    private fun verify(name: String, service: ProbedService, key: PublicKey, spec: AlgorithmParameterSpec?, message: ByteArray, signature: ByteArray): Boolean =
+        verifying(name, service, key, spec).run {
             update(message)
             verify(signature)
+        }
+
+    private fun verifying(name: String, service: ProbedService, key: PublicKey, spec: AlgorithmParameterSpec?): Signature =
+        Signature.getInstance(name, service.provider).apply {
+            initVerify(key)
+            spec?.let { setParameter(it) }
         }
 
     private fun tampered(service: ProbedService, key: PublicKey, spec: AlgorithmParameterSpec?, message: ByteArray, signature: ByteArray): String {

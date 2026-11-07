@@ -53,10 +53,12 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.k
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key names and key bits
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/AgreementFacts.kt : KeyAgreement facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/AliasRuns.kt : per declared alias: class run, same behaviour, own-name key
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CallOrder.kt : one engine's real calls in order: setup once, operation per use; run, and written to the record
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CipherBase.kt : the first key, spec and input a cipher runs on
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CipherEffects.kt : which optional cipher argument changes the output
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CipherEngine.kt : one cipher call: create, init, operate
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CipherFacts.kt : Cipher facts
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CipherReset.kt : a cipher's reset test per direction, on the base CipherFacts found
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ClassRun.kt : the class a name really instantiates
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/DigestFacts.kt : MessageDigest facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ErrorText.kt : refusal text: key material removed, capped
@@ -73,6 +75,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/P
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/RequirementCall.kt : the per-type call and what it decided
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/RequirementCalls.kt : type to its requirement call
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/RequirementTrial.kt : level 3: one record per registered service
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ResetRun.kt : one instance's operation twice and a new instance's once, untimed: resets, the refusing class or a coded reason
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/SignatureFacts.kt : Signature facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/Sweep.kt : an accepted set from single calls, as ranges
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/CaptureDocument.kt : capture YAML schema (of, parse)
@@ -95,6 +98,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyNamesTest.kt : K
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProbeDirectoryTest.kt : no-overwrite test
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.kt : ProviderProbe tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RequirementTrialTest.kt : requirement trial against the live JVM and made-up providers
+apps/benchmark/modules/environment/discovery/src/test/kotlin/ResetRunTest.kt : reset test against the live JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceAttributesTest.kt : ServiceAttributes tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceKeyTest.kt : ServiceKey tests

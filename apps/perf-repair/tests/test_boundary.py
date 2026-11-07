@@ -87,7 +87,7 @@ def test_resolve_keeps_what_was_registered_and_joins_the_catalog():
     known = resolve("Cipher", "AES/CBC/PKCS5PADDING", "BC", "cipher.secret", NAMES)
     assert known.item == "Cipher|AES/CBC/PKCS5PADDING|BC"
     assert known.algorithm == "Cipher|AES/CBC/PKCS5Padding" and known.row == group_catalog().of("cipher.secret", "AES/CBC/PKCS5Padding").id
-    unknown = resolve("Cipher", "my-cipher", "P", "cipher.unknown", NAMES)
+    unknown = resolve("Cipher", "my-cipher", "P", "unidentified", NAMES)
     assert (unknown.canonical, unknown.row, unknown.algorithm) == (None, None, "Cipher|my-cipher")
 
 

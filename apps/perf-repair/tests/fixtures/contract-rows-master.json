@@ -1,0 +1,3424 @@
+[
+{
+"id": "agreem-p-diffiehellman",
+"family": "agreement.peer",
+"key": "app",
+"input": {},
+"output": {
+"algorithm": "DIFFIEHELLMAN",
+"curve": "BY KEY"
+},
+"members": [
+"KeyAgreement|DiffieHellman"
+]
+},
+{
+"id": "agreem-p-ecdh",
+"family": "agreement.peer",
+"key": "app",
+"input": {},
+"output": {
+"algorithm": "ECDH",
+"curve": "BY KEY"
+},
+"members": [
+"KeyAgreement|ECDH"
+]
+},
+{
+"id": "agreem-p-x25519",
+"family": "agreement.peer",
+"key": "app",
+"input": {},
+"output": {
+"algorithm": "XDH",
+"curve": "X25519"
+},
+"members": [
+"KeyAgreement|X25519"
+]
+},
+{
+"id": "agreem-p-x448",
+"family": "agreement.peer",
+"key": "app",
+"input": {},
+"output": {
+"algorithm": "XDH",
+"curve": "X448"
+},
+"members": [
+"KeyAgreement|X448"
+]
+},
+{
+"id": "agreem-p-xdh",
+"family": "agreement.peer",
+"key": "app",
+"input": {},
+"output": {
+"algorithm": "XDH",
+"curve": "by key"
+},
+"members": [
+"KeyAgreement|XDH"
+]
+},
+{
+"id": "cipher-p-rsa-ecb-nopadding",
+"family": "cipher.pair",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RSA",
+"mode": "ECB",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|RSA/ECB/NoPadding"
+]
+},
+{
+"id": "cipher-p-rsa-ecb-pkcs1padding",
+"family": "cipher.pair",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RSA",
+"mode": "ECB",
+"padding": "PKCS1PADDING"
+},
+"members": [
+"Cipher|RSA/ECB/PKCS1Padding"
+]
+},
+{
+"id": "cipher-s-aes-cbc-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "CBC",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/CBC/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-cbc-pkcs5padding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "CBC",
+"padding": "PKCS5PADDING"
+},
+"members": [
+"Cipher|AES/CBC/PKCS5Padding"
+]
+},
+{
+"id": "cipher-s-aes-cfb-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "CFB",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/CFB/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-ctr-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "CTR",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/CTR/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-ecb-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "ECB",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/ECB/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-ecb-pkcs5padding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "ECB",
+"padding": "PKCS5PADDING"
+},
+"members": [
+"Cipher|AES/ECB/PKCS5Padding"
+]
+},
+{
+"id": "cipher-s-aes-gcm-siv-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "GCM-SIV",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/GCM-SIV/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-gcm-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "GCM",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/GCM/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-kw-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "TRUE"
+},
+"output": {
+"base": "AES",
+"mode": "KW",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/KW/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-kw-pkcs5padding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "TRUE"
+},
+"output": {
+"base": "AES",
+"mode": "KW",
+"padding": "PKCS5PADDING"
+},
+"members": [
+"Cipher|AES/KW/PKCS5Padding"
+]
+},
+{
+"id": "cipher-s-aes-kwp-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "TRUE"
+},
+"output": {
+"base": "AES",
+"mode": "KWP",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/KWP/NoPadding"
+]
+},
+{
+"id": "cipher-s-aes-ofb-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"mode": "OFB",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|AES/OFB/NoPadding"
+]
+},
+{
+"id": "cipher-s-arcfour",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "ARCFOUR",
+"mode": "STREAM"
+},
+"members": [
+"Cipher|ARCFOUR"
+]
+},
+{
+"id": "cipher-s-chacha20",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "CHACHA20",
+"mode": "STREAM"
+},
+"members": [
+"Cipher|ChaCha20"
+]
+},
+{
+"id": "cipher-s-chacha20-poly1305",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "CHACHA20-POLY1305",
+"mode": "AEAD"
+},
+"members": [
+"Cipher|ChaCha20-Poly1305"
+]
+},
+{
+"id": "cipher-s-desede-cbc-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DESEDE",
+"mode": "CBC",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|DESede/CBC/NoPadding"
+]
+},
+{
+"id": "cipher-s-desede-cbc-pkcs5padding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DESEDE",
+"mode": "CBC",
+"padding": "PKCS5PADDING"
+},
+"members": [
+"Cipher|DESede/CBC/PKCS5Padding"
+]
+},
+{
+"id": "cipher-s-desede-ecb-nopadding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DESEDE",
+"mode": "ECB",
+"padding": "NOPADDING"
+},
+"members": [
+"Cipher|DESede/ECB/NoPadding"
+]
+},
+{
+"id": "cipher-s-desede-ecb-pkcs5padding",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DESEDE",
+"mode": "ECB",
+"padding": "PKCS5PADDING"
+},
+"members": [
+"Cipher|DESede/ECB/PKCS5Padding"
+]
+},
+{
+"id": "cipher-s-desedewrap",
+"family": "cipher.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE",
+"wrap": "TRUE"
+},
+"output": {
+"base": "DESEDEWRAP",
+"mode": "WRAP"
+},
+"members": [
+"Cipher|DESedeWrap"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha1andaes-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithHmacSHA1AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha1andaes-256",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithHmacSHA1AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha224andaes-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-224"
+},
+"members": [
+"Cipher|PBEWithHmacSHA224AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha224andaes-256",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-224"
+},
+"members": [
+"Cipher|PBEWithHmacSHA224AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha256andaes-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-256"
+},
+"members": [
+"Cipher|PBEWithHmacSHA256AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha256andaes-256",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-256"
+},
+"members": [
+"Cipher|PBEWithHmacSHA256AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha384andaes-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-384"
+},
+"members": [
+"Cipher|PBEWithHmacSHA384AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha384andaes-256",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-384"
+},
+"members": [
+"Cipher|PBEWithHmacSHA384AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha512-224andaes-1",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-512/224"
+},
+"members": [
+"Cipher|PBEWithHmacSHA512/224AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha512-224andaes-2",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-512/224"
+},
+"members": [
+"Cipher|PBEWithHmacSHA512/224AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha512-256andaes-1",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-512/256"
+},
+"members": [
+"Cipher|PBEWithHmacSHA512/256AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha512-256andaes-2",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-512/256"
+},
+"members": [
+"Cipher|PBEWithHmacSHA512/256AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha512andaes-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-512"
+},
+"members": [
+"Cipher|PBEWithHmacSHA512AndAES_128"
+]
+},
+{
+"id": "cipher-u-pbewithhmacsha512andaes-256",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES",
+"digest": "SHA-512"
+},
+"members": [
+"Cipher|PBEWithHmacSHA512AndAES_256"
+]
+},
+{
+"id": "cipher-u-pbewithmd5and128bitaes-cbc-op",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-OPENSSL",
+"digest": "MD5"
+},
+"members": [
+"Cipher|PBEWITHMD5AND128BITAES-CBC-OPENSSL"
+]
+},
+{
+"id": "cipher-u-pbewithmd5and192bitaes-cbc-op",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "192",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-OPENSSL",
+"digest": "MD5"
+},
+"members": [
+"Cipher|PBEWITHMD5AND192BITAES-CBC-OPENSSL"
+]
+},
+{
+"id": "cipher-u-pbewithmd5and256bitaes-cbc-op",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-OPENSSL",
+"digest": "MD5"
+},
+"members": [
+"Cipher|PBEWITHMD5AND256BITAES-CBC-OPENSSL"
+]
+},
+{
+"id": "cipher-u-pbewithmd5anddes",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DES",
+"digest": "MD5"
+},
+"members": [
+"Cipher|PBEWithMD5AndDES"
+]
+},
+{
+"id": "cipher-u-pbewithmd5andrc2",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RC2",
+"digest": "MD5"
+},
+"members": [
+"Cipher|PBEWithMD5AndRC2"
+]
+},
+{
+"id": "cipher-u-pbewithmd5andtripledes",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "TRIPLEDES",
+"digest": "MD5"
+},
+"members": [
+"Cipher|PBEWithMD5AndTripleDES"
+]
+},
+{
+"id": "cipher-u-pbewithsha1anddes",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DES",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndDES"
+]
+},
+{
+"id": "cipher-u-pbewithsha1anddesede",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "DESEDE",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndDESede"
+]
+},
+{
+"id": "cipher-u-pbewithsha1andrc2",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RC2",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndRC2"
+]
+},
+{
+"id": "cipher-u-pbewithsha1andrc2-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RC2",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndRC2_128"
+]
+},
+{
+"id": "cipher-u-pbewithsha1andrc2-40",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "40",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RC2",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndRC2_40"
+]
+},
+{
+"id": "cipher-u-pbewithsha1andrc4-128",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RC4",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndRC4_128"
+]
+},
+{
+"id": "cipher-u-pbewithsha1andrc4-40",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "40",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "RC4",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWithSHA1AndRC4_40"
+]
+},
+{
+"id": "cipher-u-pbewithsha256and128bitaes-cbc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-BC",
+"digest": "SHA-256"
+},
+"members": [
+"Cipher|PBEWITHSHA256AND128BITAES-CBC-BC"
+]
+},
+{
+"id": "cipher-u-pbewithsha256and192bitaes-cbc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "192",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-BC",
+"digest": "SHA-256"
+},
+"members": [
+"Cipher|PBEWITHSHA256AND192BITAES-CBC-BC"
+]
+},
+{
+"id": "cipher-u-pbewithsha256and256bitaes-cbc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-BC",
+"digest": "SHA-256"
+},
+"members": [
+"Cipher|PBEWITHSHA256AND256BITAES-CBC-BC"
+]
+},
+{
+"id": "cipher-u-pbewithshaand128bitaes-cbc-bc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "128",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-BC",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWITHSHAAND128BITAES-CBC-BC"
+]
+},
+{
+"id": "cipher-u-pbewithshaand192bitaes-cbc-bc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "192",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-BC",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWITHSHAAND192BITAES-CBC-BC"
+]
+},
+{
+"id": "cipher-u-pbewithshaand2-keytripledes-c",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "2-KEYTRIPLEDES-CBC",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWITHSHAAND2-KEYTRIPLEDES-CBC"
+]
+},
+{
+"id": "cipher-u-pbewithshaand256bitaes-cbc-bc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"derivedBits": "256",
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "AES-CBC-BC",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWITHSHAAND256BITAES-CBC-BC"
+]
+},
+{
+"id": "cipher-u-pbewithshaandtwofish-cbc",
+"family": "cipher.unknown",
+"key": "app",
+"input": {
+"kdf": "provider convention",
+"passwordBased": "TRUE",
+"wrap": "FALSE"
+},
+"output": {
+"base": "TWOFISH-CBC",
+"digest": "SHA-1"
+},
+"members": [
+"Cipher|PBEWITHSHAANDTWOFISH-CBC"
+]
+},
+{
+"id": "digest-n-gost3411",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "GOST3411"
+},
+"members": [
+"MessageDigest|GOST3411"
+]
+},
+{
+"id": "digest-n-md2",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "MD2"
+},
+"members": [
+"MessageDigest|MD2"
+]
+},
+{
+"id": "digest-n-md5",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "MD5"
+},
+"members": [
+"MessageDigest|MD5"
+]
+},
+{
+"id": "digest-n-sha-1",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-1"
+},
+"members": [
+"MessageDigest|SHA-1"
+]
+},
+{
+"id": "digest-n-sha-224",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-224"
+},
+"members": [
+"MessageDigest|SHA-224"
+]
+},
+{
+"id": "digest-n-sha-256",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-256"
+},
+"members": [
+"MessageDigest|SHA-256"
+]
+},
+{
+"id": "digest-n-sha-384",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-384"
+},
+"members": [
+"MessageDigest|SHA-384"
+]
+},
+{
+"id": "digest-n-sha-512",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-512"
+},
+"members": [
+"MessageDigest|SHA-512"
+]
+},
+{
+"id": "digest-n-sha-512-224",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-512/224"
+},
+"members": [
+"MessageDigest|SHA-512/224"
+]
+},
+{
+"id": "digest-n-sha-512-256",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA-512/256"
+},
+"members": [
+"MessageDigest|SHA-512/256"
+]
+},
+{
+"id": "digest-n-sha3-224",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA3-224"
+},
+"members": [
+"MessageDigest|SHA3-224"
+]
+},
+{
+"id": "digest-n-sha3-256",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA3-256"
+},
+"members": [
+"MessageDigest|SHA3-256"
+]
+},
+{
+"id": "digest-n-sha3-384",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA3-384"
+},
+"members": [
+"MessageDigest|SHA3-384"
+]
+},
+{
+"id": "digest-n-sha3-512",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHA3-512"
+},
+"members": [
+"MessageDigest|SHA3-512"
+]
+},
+{
+"id": "digest-n-shake128-256",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHAKE128-256"
+},
+"members": [
+"MessageDigest|SHAKE128-256"
+]
+},
+{
+"id": "digest-n-shake256-512",
+"family": "digest.none",
+"key": "none",
+"input": {},
+"output": {
+"function": "SHAKE256-512"
+},
+"members": [
+"MessageDigest|SHAKE256-512"
+]
+},
+{
+"id": "keygen-n-aes",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "AES"
+},
+"members": [
+"KeyGenerator|AES"
+]
+},
+{
+"id": "keygen-n-arcfour",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ARCFOUR"
+},
+"members": [
+"KeyGenerator|ARCFOUR"
+]
+},
+{
+"id": "keygen-n-blowfish",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "BLOWFISH"
+},
+"members": [
+"KeyGenerator|Blowfish"
+]
+},
+{
+"id": "keygen-n-chacha20",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "CHACHA20"
+},
+"members": [
+"KeyGenerator|ChaCha20"
+]
+},
+{
+"id": "keygen-n-des",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "DES"
+},
+"members": [
+"KeyGenerator|DES"
+]
+},
+{
+"id": "keygen-n-desede",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "DESEDE"
+},
+"members": [
+"KeyGenerator|DESede"
+]
+},
+{
+"id": "keygen-n-hmacmd5",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACMD5"
+},
+"members": [
+"KeyGenerator|HmacMD5"
+]
+},
+{
+"id": "keygen-n-hmacsha1",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA1"
+},
+"members": [
+"KeyGenerator|HmacSHA1"
+]
+},
+{
+"id": "keygen-n-hmacsha224",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA224"
+},
+"members": [
+"KeyGenerator|HmacSHA224"
+]
+},
+{
+"id": "keygen-n-hmacsha256",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA256"
+},
+"members": [
+"KeyGenerator|HmacSHA256"
+]
+},
+{
+"id": "keygen-n-hmacsha3-224",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA3-224"
+},
+"members": [
+"KeyGenerator|HmacSHA3-224"
+]
+},
+{
+"id": "keygen-n-hmacsha3-256",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA3-256"
+},
+"members": [
+"KeyGenerator|HmacSHA3-256"
+]
+},
+{
+"id": "keygen-n-hmacsha3-384",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA3-384"
+},
+"members": [
+"KeyGenerator|HmacSHA3-384"
+]
+},
+{
+"id": "keygen-n-hmacsha3-512",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA3-512"
+},
+"members": [
+"KeyGenerator|HmacSHA3-512"
+]
+},
+{
+"id": "keygen-n-hmacsha384",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA384"
+},
+"members": [
+"KeyGenerator|HmacSHA384"
+]
+},
+{
+"id": "keygen-n-hmacsha512",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA512"
+},
+"members": [
+"KeyGenerator|HmacSHA512"
+]
+},
+{
+"id": "keygen-n-hmacsha512-224",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA512/224"
+},
+"members": [
+"KeyGenerator|HmacSHA512/224"
+]
+},
+{
+"id": "keygen-n-hmacsha512-256",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "HMACSHA512/256"
+},
+"members": [
+"KeyGenerator|HmacSHA512/256"
+]
+},
+{
+"id": "keygen-n-rc2",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "RC2"
+},
+"members": [
+"KeyGenerator|RC2"
+]
+},
+{
+"id": "keygen-n-suntls12prf",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "SUNTLS12PRF"
+},
+"members": [
+"KeyGenerator|SunTls12Prf"
+]
+},
+{
+"id": "keygen-n-suntlskeymaterial",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "SUNTLSKEYMATERIAL"
+},
+"members": [
+"KeyGenerator|SunTlsKeyMaterial"
+]
+},
+{
+"id": "keygen-n-suntlsmastersecret",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "SUNTLSMASTERSECRET"
+},
+"members": [
+"KeyGenerator|SunTlsMasterSecret"
+]
+},
+{
+"id": "keygen-n-suntlsprf",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "SUNTLSPRF"
+},
+"members": [
+"KeyGenerator|SunTlsPrf"
+]
+},
+{
+"id": "keygen-n-suntlsrsapremastersecret",
+"family": "keygen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "SUNTLSRSAPREMASTERSECRET"
+},
+"members": [
+"KeyGenerator|SunTlsRsaPremasterSecret"
+]
+},
+{
+"id": "keypai-n-diffiehellman",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "DIFFIEHELLMAN"
+},
+"members": [
+"KeyPairGenerator|DiffieHellman"
+]
+},
+{
+"id": "keypai-n-dsa",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "DSA"
+},
+"members": [
+"KeyPairGenerator|DSA"
+]
+},
+{
+"id": "keypai-n-ec",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "EC"
+},
+"members": [
+"KeyPairGenerator|EC"
+]
+},
+{
+"id": "keypai-n-ed25519",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ED25519"
+},
+"members": [
+"KeyPairGenerator|Ed25519"
+]
+},
+{
+"id": "keypai-n-ed448",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ED448"
+},
+"members": [
+"KeyPairGenerator|Ed448"
+]
+},
+{
+"id": "keypai-n-eddsa",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "EDDSA"
+},
+"members": [
+"KeyPairGenerator|EdDSA"
+]
+},
+{
+"id": "keypai-n-ml-dsa",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-DSA"
+},
+"members": [
+"KeyPairGenerator|ML-DSA"
+]
+},
+{
+"id": "keypai-n-ml-dsa-44",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-DSA-44"
+},
+"members": [
+"KeyPairGenerator|ML-DSA-44"
+]
+},
+{
+"id": "keypai-n-ml-dsa-65",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-DSA-65"
+},
+"members": [
+"KeyPairGenerator|ML-DSA-65"
+]
+},
+{
+"id": "keypai-n-ml-dsa-87",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-DSA-87"
+},
+"members": [
+"KeyPairGenerator|ML-DSA-87"
+]
+},
+{
+"id": "keypai-n-ml-kem",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-KEM"
+},
+"members": [
+"KeyPairGenerator|ML-KEM"
+]
+},
+{
+"id": "keypai-n-ml-kem-1024",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-KEM-1024"
+},
+"members": [
+"KeyPairGenerator|ML-KEM-1024"
+]
+},
+{
+"id": "keypai-n-ml-kem-512",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-KEM-512"
+},
+"members": [
+"KeyPairGenerator|ML-KEM-512"
+]
+},
+{
+"id": "keypai-n-ml-kem-768",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "ML-KEM-768"
+},
+"members": [
+"KeyPairGenerator|ML-KEM-768"
+]
+},
+{
+"id": "keypai-n-rsa",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "RSA"
+},
+"members": [
+"KeyPairGenerator|RSA"
+]
+},
+{
+"id": "keypai-n-rsassa-pss",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "RSASSA-PSS"
+},
+"members": [
+"KeyPairGenerator|RSASSA-PSS"
+]
+},
+{
+"id": "keypai-n-slh-dsa-sha2-128s",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "SLH-DSA-SHA2-128S"
+},
+"members": [
+"KeyPairGenerator|SLH-DSA-SHA2-128S"
+]
+},
+{
+"id": "keypai-n-x25519",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "X25519"
+},
+"members": [
+"KeyPairGenerator|X25519"
+]
+},
+{
+"id": "keypai-n-x448",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "X448"
+},
+"members": [
+"KeyPairGenerator|X448"
+]
+},
+{
+"id": "keypai-n-xdh",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "XDH"
+},
+"members": [
+"KeyPairGenerator|XDH"
+]
+},
+{
+"id": "keypai-n-xwing",
+"family": "keypairgen.none",
+"key": "app",
+"input": {},
+"output": {
+"consumer": "consumer-defined",
+"function": "XWING"
+},
+"members": [
+"KeyPairGenerator|XWING"
+]
+},
+{
+"id": "mac-s-aescmac",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "AESCMAC"
+},
+"members": [
+"Mac|AESCMAC"
+]
+},
+{
+"id": "mac-s-hmacmd5",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "MD5"
+},
+"members": [
+"Mac|HmacMD5"
+]
+},
+{
+"id": "mac-s-hmacpbesha1",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-1"
+},
+"members": [
+"Mac|HmacPBESHA1"
+]
+},
+{
+"id": "mac-s-hmacpbesha224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-224"
+},
+"members": [
+"Mac|HmacPBESHA224"
+]
+},
+{
+"id": "mac-s-hmacpbesha256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-256"
+},
+"members": [
+"Mac|HmacPBESHA256"
+]
+},
+{
+"id": "mac-s-hmacpbesha384",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-384"
+},
+"members": [
+"Mac|HmacPBESHA384"
+]
+},
+{
+"id": "mac-s-hmacpbesha512",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512"
+},
+"members": [
+"Mac|HmacPBESHA512"
+]
+},
+{
+"id": "mac-s-hmacpbesha512-224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512/224"
+},
+"members": [
+"Mac|HmacPBESHA512/224"
+]
+},
+{
+"id": "mac-s-hmacpbesha512-256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "HmacPBE provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512/256"
+},
+"members": [
+"Mac|HmacPBESHA512/256"
+]
+},
+{
+"id": "mac-s-hmacsha1",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-1"
+},
+"members": [
+"Mac|HmacSHA1"
+]
+},
+{
+"id": "mac-s-hmacsha224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-224"
+},
+"members": [
+"Mac|HmacSHA224"
+]
+},
+{
+"id": "mac-s-hmacsha256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-256"
+},
+"members": [
+"Mac|HmacSHA256"
+]
+},
+{
+"id": "mac-s-hmacsha3-224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA3-224"
+},
+"members": [
+"Mac|HmacSHA3-224"
+]
+},
+{
+"id": "mac-s-hmacsha3-256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA3-256"
+},
+"members": [
+"Mac|HmacSHA3-256"
+]
+},
+{
+"id": "mac-s-hmacsha3-384",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA3-384"
+},
+"members": [
+"Mac|HmacSHA3-384"
+]
+},
+{
+"id": "mac-s-hmacsha3-512",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA3-512"
+},
+"members": [
+"Mac|HmacSHA3-512"
+]
+},
+{
+"id": "mac-s-hmacsha384",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-384"
+},
+"members": [
+"Mac|HmacSHA384"
+]
+},
+{
+"id": "mac-s-hmacsha512",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512"
+},
+"members": [
+"Mac|HmacSHA512"
+]
+},
+{
+"id": "mac-s-hmacsha512-224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512/224"
+},
+"members": [
+"Mac|HmacSHA512/224"
+]
+},
+{
+"id": "mac-s-hmacsha512-256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512/256"
+},
+"members": [
+"Mac|HmacSHA512/256"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-1"
+},
+"members": [
+"Mac|PBEWITHHMACSHA",
+"Mac|PBEWithHmacSHA1"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-224"
+},
+"members": [
+"Mac|PBEWithHmacSHA224"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-256"
+},
+"members": [
+"Mac|PBEWithHmacSHA256"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha384",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-384"
+},
+"members": [
+"Mac|PBEWithHmacSHA384"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha512",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512"
+},
+"members": [
+"Mac|PBEWithHmacSHA512"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha512-224",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512/224"
+},
+"members": [
+"Mac|PBEWithHmacSHA512/224"
+]
+},
+{
+"id": "mac-s-pbewithhmacsha512-256",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"kdf": "PBEWithHmac provider convention",
+"passwordBased": "TRUE"
+},
+"output": {
+"construction": "HMAC",
+"digest": "SHA-512/256"
+},
+"members": [
+"Mac|PBEWithHmacSHA512/256"
+]
+},
+{
+"id": "mac-s-sslmacmd5",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "SSLMAC",
+"digest": "MD5"
+},
+"members": [
+"Mac|SslMacMD5"
+]
+},
+{
+"id": "mac-s-sslmacsha1",
+"family": "mac.secret",
+"key": "app",
+"input": {
+"passwordBased": "FALSE"
+},
+"output": {
+"construction": "SSLMAC",
+"digest": "SHA-1"
+},
+"members": [
+"Mac|SslMacSHA1"
+]
+},
+{
+"id": "signat-p-ed25519",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "ED25519",
+"scheme": "EDDSA"
+},
+"members": [
+"Signature|Ed25519"
+]
+},
+{
+"id": "signat-p-ed448",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "ED448",
+"scheme": "EDDSA"
+},
+"members": [
+"Signature|Ed448"
+]
+},
+{
+"id": "signat-p-eddsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "by key",
+"scheme": "EDDSA"
+},
+"members": [
+"Signature|EdDSA"
+]
+},
+{
+"id": "signat-p-hss-lms",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"scheme": "HSS/LMS"
+},
+"members": [
+"Signature|HSS/LMS"
+]
+},
+{
+"id": "signat-p-md2withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "MD2",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|MD2withRSA"
+]
+},
+{
+"id": "signat-p-md5andsha1withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "MD5ANDSHA1",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|MD5andSHA1withRSA"
+]
+},
+{
+"id": "signat-p-md5withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "MD5",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|MD5withRSA"
+]
+},
+{
+"id": "signat-p-ml-dsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "by key",
+"scheme": "ML-DSA"
+},
+"members": [
+"Signature|ML-DSA"
+]
+},
+{
+"id": "signat-p-ml-dsa-44",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "44",
+"scheme": "ML-DSA"
+},
+"members": [
+"Signature|ML-DSA-44"
+]
+},
+{
+"id": "signat-p-ml-dsa-65",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "65",
+"scheme": "ML-DSA"
+},
+"members": [
+"Signature|ML-DSA-65"
+]
+},
+{
+"id": "signat-p-ml-dsa-87",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "87",
+"scheme": "ML-DSA"
+},
+"members": [
+"Signature|ML-DSA-87"
+]
+},
+{
+"id": "signat-p-nonewithdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "TRUE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "NONE",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|NONEwithDSA"
+]
+},
+{
+"id": "signat-p-nonewithdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "TRUE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "NONE",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|NONEwithDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-nonewithecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "TRUE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "NONE",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|NONEwithECDSA"
+]
+},
+{
+"id": "signat-p-nonewithecdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "TRUE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "NONE",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|NONEwithECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-nonewithrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "TRUE"
+},
+"output": {
+"digest": "NONE",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|NONEwithRSA"
+]
+},
+{
+"id": "signat-p-sha1withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-1",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA1withDSA"
+]
+},
+{
+"id": "signat-p-sha1withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-1",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA1withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha1withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-1",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA1withECDSA"
+]
+},
+{
+"id": "signat-p-sha1withecdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-1",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA1withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha1withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-1",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA1withRSA"
+]
+},
+{
+"id": "signat-p-sha1withrsa-pss",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-1",
+"mgf1": "the digest",
+"salt": "digest length",
+"scheme": "RSA-PSS"
+},
+"members": [
+"Signature|SHA1withRSA/PSS"
+]
+},
+{
+"id": "signat-p-sha224withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-224",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA224withDSA"
+]
+},
+{
+"id": "signat-p-sha224withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-224",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA224withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha224withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-224",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA224withECDSA"
+]
+},
+{
+"id": "signat-p-sha224withecdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-224",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA224withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha224withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-224",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA224withRSA"
+]
+},
+{
+"id": "signat-p-sha224withrsa-pss",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-224",
+"mgf1": "the digest",
+"salt": "digest length",
+"scheme": "RSA-PSS"
+},
+"members": [
+"Signature|SHA224withRSA/PSS"
+]
+},
+{
+"id": "signat-p-sha256withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-256",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA256withDSA"
+]
+},
+{
+"id": "signat-p-sha256withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-256",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA256withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha256withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-256",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA256withECDSA"
+]
+},
+{
+"id": "signat-p-sha256withecdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-256",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA256withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha256withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-256",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA256withRSA"
+]
+},
+{
+"id": "signat-p-sha256withrsa-pss",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-256",
+"mgf1": "the digest",
+"salt": "digest length",
+"scheme": "RSA-PSS"
+},
+"members": [
+"Signature|SHA256withRSA/PSS"
+]
+},
+{
+"id": "signat-p-sha3-224withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-224",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-224withDSA"
+]
+},
+{
+"id": "signat-p-sha3-224withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-224",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-224withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-224withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-224",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-224withECDSA"
+]
+},
+{
+"id": "signat-p-sha3-224withecdsainp1363forma",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-224",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-224withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-224withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA3-224",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA3-224withRSA"
+]
+},
+{
+"id": "signat-p-sha3-256withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-256",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-256withDSA"
+]
+},
+{
+"id": "signat-p-sha3-256withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-256",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-256withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-256withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-256",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-256withECDSA"
+]
+},
+{
+"id": "signat-p-sha3-256withecdsainp1363forma",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-256",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-256withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-256withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA3-256",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA3-256withRSA"
+]
+},
+{
+"id": "signat-p-sha3-384withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-384",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-384withDSA"
+]
+},
+{
+"id": "signat-p-sha3-384withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-384",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-384withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-384withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-384",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-384withECDSA"
+]
+},
+{
+"id": "signat-p-sha3-384withecdsainp1363forma",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-384",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-384withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-384withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA3-384",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA3-384withRSA"
+]
+},
+{
+"id": "signat-p-sha3-512withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-512",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-512withDSA"
+]
+},
+{
+"id": "signat-p-sha3-512withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-512",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA3-512withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-512withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-512",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-512withECDSA"
+]
+},
+{
+"id": "signat-p-sha3-512withecdsainp1363forma",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA3-512",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA3-512withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha3-512withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA3-512",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA3-512withRSA"
+]
+},
+{
+"id": "signat-p-sha384withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-384",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA384withDSA"
+]
+},
+{
+"id": "signat-p-sha384withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-384",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA384withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha384withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-384",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA384withECDSA"
+]
+},
+{
+"id": "signat-p-sha384withecdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-384",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA384withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha384withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-384",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA384withRSA"
+]
+},
+{
+"id": "signat-p-sha384withrsa-pss",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-384",
+"mgf1": "the digest",
+"salt": "digest length",
+"scheme": "RSA-PSS"
+},
+"members": [
+"Signature|SHA384withRSA/PSS"
+]
+},
+{
+"id": "signat-p-sha512-224withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-512/224",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA512/224withRSA"
+]
+},
+{
+"id": "signat-p-sha512-256withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-512/256",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA512/256withRSA"
+]
+},
+{
+"id": "signat-p-sha512withdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-512",
+"encoding": "DER",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA512withDSA"
+]
+},
+{
+"id": "signat-p-sha512withdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-512",
+"encoding": "P1363",
+"scheme": "DSA"
+},
+"members": [
+"Signature|SHA512withDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha512withecdsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-512",
+"encoding": "DER",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA512withECDSA"
+]
+},
+{
+"id": "signat-p-sha512withecdsainp1363format",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "BY KEY",
+"digest": "SHA-512",
+"encoding": "P1363",
+"scheme": "ECDSA"
+},
+"members": [
+"Signature|SHA512withECDSAinP1363Format"
+]
+},
+{
+"id": "signat-p-sha512withrsa",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-512",
+"encoding": "PKCS1",
+"scheme": "RSA"
+},
+"members": [
+"Signature|SHA512withRSA"
+]
+},
+{
+"id": "signat-p-sha512withrsa-pss",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"digest": "SHA-512",
+"mgf1": "the digest",
+"salt": "digest length",
+"scheme": "RSA-PSS"
+},
+"members": [
+"Signature|SHA512withRSA/PSS"
+]
+},
+{
+"id": "signat-p-slh-dsa-sha2-128s",
+"family": "signature.pair",
+"key": "app",
+"input": {
+"prehashed": "FALSE"
+},
+"output": {
+"curve": "SHA2-128S",
+"scheme": "SLH-DSA"
+},
+"members": [
+"Signature|SLH-DSA-SHA2-128S"
+]
+}
+]

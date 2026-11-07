@@ -4,6 +4,7 @@ from collections import defaultdict
 from dataclasses import replace
 from typing import Callable
 
+from ...catalog.groups import GroupCatalog, group_catalog
 from ...catalog.names import Names, fold
 from ...data_handler.inbound.probe import Probe
 from ...dto.grouping import FROM_TRIAL, Item, Profile
@@ -16,7 +17,7 @@ from .key_contract import (
     key_contract,
     produced_keys,
 )
-from .key_kind import UNKNOWN, Context, Evidence, key_kind
+from .key_kind import FROM_CATALOGUE, UNKNOWN, Context, Evidence, key_kind
 
 
 def _runs(inventory: dict) -> dict[tuple, dict]:
@@ -60,15 +61,26 @@ def _consumers(generator: tuple, profile: Profile, drafts: dict) -> set[str]:
     """Key contracts of the provider's consumers of this key; one whose run failed names no key algorithm, so any of the
     key's kind counts: a consumer that refused the generated key is the very disagreement to catch."""
     def consumes(p: Profile) -> bool:
-        return fold(p.keyAlgorithm) == fold(generator[2]) if p.keyAlgorithm else p.keyKind in (profile.keyKind, UNKNOWN)
+        if p.keyAlgorithm:
+            return fold(p.keyAlgorithm) == fold(generator[2])
+        return p.keyKindFrom == FROM_CATALOGUE or p.keyKind in (profile.keyKind, UNKNOWN)
     return {d[2].keyContract for k, d in drafts.items() if k[0] == generator[0] and not is_generator(k[1]) and consumes(d[2])}
 
 
+def _listed_kind(names: Names, families: Families, catalog: GroupCatalog) -> Callable[[str, str], str | None]:
+    """The key kind of the family whose list holds the name; None for a name no family lists."""
+    def kind(engine_type: str, name: str) -> str | None:
+        family = catalog.family_of(engine_type, names.catalogued(engine_type, name).name)
+        return families.by_id[family].keyKind if family in families.by_id else None
+    return kind
+
+
 def build(probe: Probe, names: Names, trial: dict, families: Families, inventory: dict | None = None,
-          prepared: dict | None = None, benchmark: dict | None = None) -> tuple[list[Item], dict[int, Profile]]:
+          prepared: dict | None = None, benchmark: dict | None = None,
+          catalog: GroupCatalog | None = None) -> tuple[list[Item], dict[int, Profile]]:
     """Probe and trial suffice; without prepared or benchmark the fields they give are null, never false."""
     runs = _runs(inventory or {})
-    context = Context(families, names, probe.generator_kind(names))
+    context = Context(families, names, probe.generator_kind(names), _listed_kind(names, families, catalog or group_catalog()))
     (kinds, sizes), measured = _prepared(prepared), _measured(benchmark)
 
     drafts, runs_of = {}, {}
@@ -79,10 +91,8 @@ def build(probe: Probe, names: Names, trial: dict, families: Families, inventory
         run = entry.get("defaultRun") or {}
         attrs = probe.attributes(s["provider"], s["type"], s["algorithm"])
         formats, classes = _as_list(attrs.get("SupportedKeyFormats")), _as_list(attrs.get("SupportedKeyClasses"))
-        kind, source = key_kind(Evidence(s["type"], kinds.get(key), run.get("keyAlgorithm"), formats, classes), context)
-        family = families.of(s["type"], kind) or families.of(s["type"], "unknown")
-        if family is None:
-            raise ValueError(f"{key}: no family for ({s['type']}, {kind}) in the catalog")
+        kind, source = key_kind(Evidence(s["type"], name, kinds.get(key), run.get("keyAlgorithm"), formats, classes), context)
+        family = families.of(s["type"], kind) or families.unidentified
         inventoried = runs.get(key, {})
         contract = key_contract(formats, classes)
         drafts[key] = (family.id, run.get("providerChose"), Profile(

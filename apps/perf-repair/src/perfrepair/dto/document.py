@@ -9,12 +9,26 @@ import yaml
 
 from .coded import InputError
 
+# the catalogues are about 1 MB: libyaml when the build has it, the pure-Python parser otherwise
+SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
+def _pure_mark(text: str) -> yaml.YAMLError | None:
+    """libyaml marks the end of a text differently: the pure parser's events, never built into values, place the error."""
+    try:
+        for _ in yaml.parse(text, Loader=yaml.SafeLoader):
+            pass
+    except yaml.YAMLError as e:
+        return e
+    return None
+
 
 def parse_yaml(text: str, where: str, code: str = "invalid_yaml", shape: type = dict, error: type[InputError] = InputError):
     """An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`."""
     try:
-        doc = yaml.safe_load(text)
+        doc = yaml.load(text, Loader=SAFE_LOADER)
     except yaml.YAMLError as e:
+        e = _pure_mark(text) or e
         mark = getattr(e, "problem_mark", None)
         at = f" at line {mark.line + 1} column {mark.column + 1}" if mark else ""
         raise error(f"{code}: {where}: {getattr(e, 'problem', None) or 'not YAML'}{at}", where) from None

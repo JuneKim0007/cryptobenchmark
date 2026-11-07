@@ -1,285 +1,1120 @@
-# digest.none: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+# digest.none: one entry per algorithm id <type>|<canonical>; every word: catalog/glossary.yaml; fields: docs/algorithm-catalogue.md
 schemaVersion: 1
 family: digest.none
 algorithms:
+  MessageDigest|BLAKE2B-160:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 20, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2B-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 80, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2B-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2B-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2B-384:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2B-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2B-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2B-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2S-128:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2S-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 64, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2S-160:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 20, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2S-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 80, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2S-224:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2S-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE2S-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE2S-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|BLAKE3-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: BLAKE3-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|DSTU7564-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: DSTU7564-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|DSTU7564-384:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: DSTU7564-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|DSTU7564-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: DSTU7564-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|GOST3411:
-    required: []
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: none
-      input: {}
-      output: {function: GOST3411}
-    sourcedOnly: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: GOST3411}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|GOST3411-2012-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: GOST3411-2012-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|GOST3411-2012-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: GOST3411-2012-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|HARAKA-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 32, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: HARAKA-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|HARAKA-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: maxBytes, bytes: 64, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: HARAKA-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|KECCAK-224:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: KECCAK-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|KECCAK-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: KECCAK-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|KECCAK-288:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 36, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: KECCAK-288}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 144, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|KECCAK-384:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: KECCAK-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|KECCAK-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: KECCAK-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|MD2:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 16, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: MD2}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: MD2}}
     sourcedOnly:
-    - {fact: strengthBits, value: 0, source: RFC6149}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc6149'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|MD4:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: MD4}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc6150'}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|MD5:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 16, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: MD5}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: MD5}}
     sourcedOnly:
-    - {fact: strengthBits, value: 0, source: RFC6151}
-    - {fact: minSdk, value: 1, source: ADIGEST}
+    - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc6151'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: person}
-  # Table 3 gives SHA-1 at most 80 for signatures and hash-only use
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|PARALLELHASH128-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: PARALLELHASH128-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|PARALLELHASH256-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: PARALLELHASH256-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|RIPEMD128:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: RIPEMD128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 64, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|RIPEMD160:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 20, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: RIPEMD160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 80, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|RIPEMD256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: RIPEMD256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|RIPEMD320:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 40, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: RIPEMD320}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 160, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-1:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 20, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 20, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-1}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-1}}
     sourcedOnly:
-    - {fact: strengthBits, value: 80, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: ADIGEST}
+    - {fact: strengthBits, value: 80, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-224:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 28, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-224}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-224}}
     sourcedOnly:
-    - {fact: strengthBits, value: 112, source: SP80057T3}
-    - {fact: minSdk, value: 22, source: ADIGEST}
+    - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 22, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-256:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 32, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-256}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-256}}
     sourcedOnly:
-    - {fact: strengthBits, value: 128, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: ADIGEST}
+    - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-384:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 48, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-384}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-384}}
     sourcedOnly:
-    - {fact: strengthBits, value: 192, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: ADIGEST}
+    - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 64, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-512}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-512}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: ADIGEST}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512/224:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 28, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-512/224}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-512/224}}
     sourcedOnly:
-    - {fact: strengthBits, value: 112, source: SP80057T3}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512/256:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 32, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA-512/256}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA-512/256}}
     sourcedOnly:
-    - {fact: strengthBits, value: 128, source: SP80057T3}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-224:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 28, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA3-224}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA3-224}}
     sourcedOnly:
-    - {fact: strengthBits, value: 112, source: SP80057T3}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-256:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 32, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA3-256}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA3-256}}
     sourcedOnly:
-    - {fact: strengthBits, value: 128, source: SP80057T3}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-384:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 48, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA3-384}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA3-384}}
     sourcedOnly:
-    - {fact: strengthBits, value: 192, source: SP80057T3}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-512:
-    key: {type: none, source: inferred}
+    key: {type: none, origin: none, source: measured}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: input, passedTo: update, source: measured}
     optional: []
     conditions:
-      output: {kind: digest, bytes: 64, source: inferred}
-      deterministic: {value: true, source: inferred}
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHA3-512}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHA3-512}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: null, source: ADIGEST}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHAKE128-256:
-    required: []
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHAKE128-256}
-    sourcedOnly: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHAKE128-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHAKE256-512:
-    required: []
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: none
-      input: {}
-      output: {function: SHAKE256-512}
-    sourcedOnly: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SHAKE256-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-1024-1024:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 128, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-1024-1024}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 512, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-1024-384:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-1024-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-1024-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-1024-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-256-128:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-256-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 64, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-256-160:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 20, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-256-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 80, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-256-224:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-256-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-256-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-256-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-512-128:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 16, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-512-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 64, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-512-160:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 20, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-512-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 80, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-512-224:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 28, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-512-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 112, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-512-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-512-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-512-384:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 48, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-512-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|Skein-512-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: Skein-512-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|SM3:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: SM3}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|TIGER:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 24, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: TIGER}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 96, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|TUPLEHASH128-256:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 32, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: TUPLEHASH128-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|TUPLEHASH256-512:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: TUPLEHASH256-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  MessageDigest|WHIRLPOOL:
+    key: {type: none, origin: none, source: measured}
+    required:
+    - {name: input, passedTo: update, source: measured}
+    optional: []
+    conditions:
+      output: {kind: digest, bytes: 64, source: measured}
+      deterministic: {value: always, source: measured}
+      authenticated: {value: false, source: inferred}
+      input: {value: any, source: measured}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [digest], source: measured}
+    contract: {key: none, input: {}, output: {function: WHIRLPOOL}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

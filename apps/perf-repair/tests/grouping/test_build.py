@@ -18,7 +18,7 @@ def test_universe_is_the_catalogued_engine_types_with_ids_in_family_order():
     items, _ = built()
     assert [i.id for i in items] == [1, 2, 3, 4, 5, 6]
     assert [i.family for i in items] == ["cipher.pair", "cipher.secret", "cipher.secret", "cipher.secret",
-                                         "cipher.unknown", "digest.none"]
+                                         "digest.none", "unidentified"]
     assert all(i.type != "TypeX" for i in items)
 
 

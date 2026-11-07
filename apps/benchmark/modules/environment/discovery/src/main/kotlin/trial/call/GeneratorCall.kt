@@ -33,15 +33,18 @@ internal class GeneratorCall(private val pair: Boolean) : DefaultCall {
         }
 
     /** The key to size, and the key whose encoding decides: a pair's private key, since its public key always encodes. */
-    private fun generate(provider: Provider, algorithm: String, size: Int?): Pair<Key, Key> =
+    private fun generate(provider: Provider, algorithm: String, size: Int?): Pair<Key, Key> = generating(provider, algorithm, size)()
+
+    /** One generator, made and sized once; each call of the result generates. */
+    fun generating(provider: Provider, algorithm: String, size: Int?): () -> Pair<Key, Key> =
         if (pair) {
             val generator = KeyPairGenerator.getInstance(algorithm, provider)
             size?.let { generator.initialize(it) }
-            generator.generateKeyPair().let { it.public to it.private }
+            ({ generator.generateKeyPair().let { it.public to it.private } })
         } else {
             val generator = KeyGenerator.getInstance(algorithm, provider)
             size?.let { generator.init(it) }
-            generator.generateKey().let { it to it }
+            ({ generator.generateKey().let { it to it } })
         }
 
     private fun materialOf(key: Key): String =

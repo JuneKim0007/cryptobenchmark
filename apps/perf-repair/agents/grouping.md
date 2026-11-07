@@ -7,7 +7,7 @@
 - `agents/validation.md` : the validators the gates run
 
 ## Rules
-- family: static; a catalog entry keyed by engine type + key kind.
+- family: static; the catalogue list holding the name, else a catalog entry keyed by engine type + key kind; neither is `unidentified`.
 - group: interchangeable items inside one family: a catalog group (a contract row at one key contract), a code-made `code_` group, or a model-made group; code places every identified item, the model only the rest; `docs/grouping.md` Criterion.
 - criterion: input, key and output contracts inside one family; `docs/grouping.md` Criterion.
 - capabilities: key size, tag length and availability are static; never group identity.
@@ -43,20 +43,27 @@ src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: one YAML
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
 src/perfrepair/catalog/algorithms.py : reader of the catalogues, checked whole: entry fields, provenance, sources, contracts, type facts, provider overrides; lookup by family and id
-src/perfrepair/catalog/algorithms/ : data: `<family>_catalogue.yaml` per family, one entry per id `<type>|<canonical>` (key, required, optional, conditions, contract, sourcedOnly, providers, provenance); `common.yaml` sources, keyStrength maps, deterministicRelied
+src/perfrepair/catalog/algorithms/ : data: `<family>_catalogue.yaml` per family, one entry per id `<type>|<canonical>` (key, required, optional, conditions, lifecycle, operations, contract, sourcedOnly, providers, provenance); `common.yaml` sources, keyStrength maps, deterministicRelied; `recipes.yaml` how each parameter object a row names is made; `deviations.yaml` facts shared by a set of names and builds, stated once;
+src/perfrepair/catalog/deviations.py : reads algorithms/deviations.yaml, every word a glossary term; what an entry's providers holds once provider behaviours and deviations apply
 src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
 src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions, the one copy
+src/perfrepair/catalog/glossary.py : what_is: a term, a subtree or one value's meaning of glossary.yaml; term_problems: an entry's words checked against it
+src/perfrepair/catalog/glossary.yaml : data: one defined meaning per key and value of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and algorithm-names.yaml, a tree with sections group, algorithm, recipe, plan, deviation, build and names
 src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: one group per family by id, contract rows from each member's catalogue contract, a row at each key contract
-src/perfrepair/catalog/groups.yaml : data: per family the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
+src/perfrepair/catalog/groups.yaml : data: per family its exemplars and the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
 src/perfrepair/catalog/identity.py : one algorithm's ids: the registered item, the canonical algorithm, its contract row; a case id read back from its fields
 src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own; the standard format of a generated key per generator type
 src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes, the generated key formats
+src/perfrepair/catalog/overrides.py : a provider override's path in an entry, and one build's differences applied to a copy
+src/perfrepair/catalog/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches
+src/perfrepair/catalog/provider_builds.py : reads provider-builds.yaml; a build key from what a probe records; a name resolves to one key or is provider_build_unknown
+src/perfrepair/catalog/recipes.py : reads recipes.yaml, checked whole: one form per recipe, every word and each role's make and lives against the glossary, typed arguments, nested recipes present; the roles a recipe passes
 src/perfrepair/catalog/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
 src/perfrepair/catalog/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 src/perfrepair/catalog/types.py : the catalogues' type facts as rows by family and canonical name; strength at a key size
-src/perfrepair/catalog/views.py : what an agent is shown: one entry with only its provider's overrides (view_for), one group's description and ids (group_view)
+src/perfrepair/catalog/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles, a declared transformation that ran being an item; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown; a generator's from its trial (standard format and encoded → app_held, no encoding → provider_held, else unknown) and cross_checked with its consumers

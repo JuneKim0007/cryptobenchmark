@@ -1,6 +1,6 @@
 family:
   id: cipher.secret
-  description: 'Symmetric ciphers: one secret key encrypts and decrypts. Interchangeable only with the same mode, padding, IV/nonce contract and authentication (AEAD or not).'
+  description: 'Symmetric ciphers: one secret key, or a key derived from a password, encrypts and decrypts.'
 groups: []
 item:
   id: 1

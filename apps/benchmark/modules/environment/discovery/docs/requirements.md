@@ -11,7 +11,8 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 | Mac | `macBytes`, `lengthBeforeInit`, `deterministic`, `keyBytes`, `withoutInit`, `ivSpec`, `inputBytes`, `cloneable`, `foreignKeys` |
 | MessageDigest | `digestBytes`, `lengthDeclared`, `deterministic`, `inputBytes`, `cloneable`, `emptyInputPrefix` |
 | KeyAgreement | `secretBytes`, `bothSidesAgree`, `deterministic`, `withoutPeer`, `secretAsKey`, `keyBits`, `peerOfOtherSize`, `foreignKeys` |
-| KeyGenerator, KeyPairGenerator | read from the default run: `defaultBits`, `keyMaterial`, `keyFormat`, `sizes` |
+| KeyGenerator, KeyPairGenerator | read from the default run: `defaultBits`, `keyMaterial`, `keyFormat`, `sizes`; `reset` runs |
+| every type above | `reset`, below |
 | SecretKeyFactory | `fromPassword`, or `fromPasswordRefused` and `rawKeyBytes` |
 | any other type | the record with `no_call_for_type` |
 
@@ -27,6 +28,19 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 | keystore-born | `KeyOrigin`: a provider none of whose generators or factories ran, with at least one service refusing a key, has `keystore_born_key` and the condition `keystore-born key` on each refusing service; a cipher that encrypts on a public key and refuses the private one counts as refusing; a service of that provider which runs on a software key stays `runnable` |
 | API guard | `ChaCha20ParameterSpec` by name only; no class newer than API 26 is referenced |
 | aliases | per declared alias: `classRun`, `sameClass`, `behaviour` (the same call under the alias gives the same result as under the service's name; a generator or factory has none), `ownNameKey` when the service ran on a non-password key and a factory makes a password key under the alias's name, with whether it ran |
+
+## reset
+
+Whether one instance's operation runs twice, per direction, with no timer: setup, `op = a`, `op = b`, and on a new instance `op = c`. `facts.reset` holds `forward` and, where a direction takes back what the other made, `reverse`:
+
+| field | value |
+|---|---|
+| `resets` | `true`: the second call ran and agrees with the first (`output: same`), or its output is randomized and it reverses or verifies (`output: randomized`), or a generator's second call ran (`output: not_compared`). `false`: refused (`refusedBy`, the exception's class, and `detail`), `output: output_differs` when a new instance repeats the first output but the second call did not, `output: not_reversed` |
+| `cannotRun` | absent, or `setup_refused`, `first_call_refused` with `detail`; a service that never ran has the record's own `reason` |
+| `calls` | `setup`, the calls made once, and `operation`, the calls of each use, in the order they ran: `plan.calls` of the glossary. `CallOrder.kt` holds and runs the same form |
+| `withoutDoPhase` | a KeyAgreement's second `generateSecret` with no second `doPhase`, on its own instance: `same`, `different`, or `refused <class>` |
+
+A Cipher runs `updateAAD` where it accepts one. A wrap-only cipher runs `wrap` and `unwrap`. A generator has no new-instance run: its output has nothing to compare, and it would pay for parameters again.
 
 ## File
 

@@ -1,20 +1,137 @@
-# The predefined groups: one per family, by algorithm id <type>|<canonical> of algorithm-names.yaml; each id's facts and
-# contract are its entry in algorithms/<family>_catalogue.yaml, the family's description is families.yaml's. Contract rows
-# come from those contracts (groups.py): only a pair in one row can swap without a change. An id with no contract, such as
-# OAEP, goes to the model.
+# The predefined groups: per family its exemplars, chosen to show its range, and every id <type>|<canonical> of algorithm-names.yaml;
+# each id's facts and contract are its entry in algorithms/<family>_catalogue.yaml; every word: glossary.yaml. Contract rows come from those
+# contracts (groups.py): only a pair in one row can swap without a change. An id with no contract, such as OAEP, goes to the model.
 schemaVersion: 3
 source: canonical names kept by hand; a person adds a name from group-candidates.yaml
 groups:
   agreement.peer:
-    algorithms:
-    - KeyAgreement|DiffieHellman
+    exemplars:
     - KeyAgreement|ECDH
     - KeyAgreement|X25519
+    - KeyAgreement|DiffieHellman
+    algorithms:
+    - KeyAgreement|DHUWITHSHA1CKDF
+    - KeyAgreement|DHUWITHSHA1KDF
+    - KeyAgreement|DHUWITHSHA224CKDF
+    - KeyAgreement|DHUWITHSHA224KDF
+    - KeyAgreement|DHUWITHSHA256CKDF
+    - KeyAgreement|DHUWITHSHA256KDF
+    - KeyAgreement|DHUWITHSHA384CKDF
+    - KeyAgreement|DHUWITHSHA384KDF
+    - KeyAgreement|DHUWITHSHA512CKDF
+    - KeyAgreement|DHUWITHSHA512KDF
+    - KeyAgreement|DHWITHRFC2631KDF
+    - KeyAgreement|DHWITHSHA1KDF
+    - KeyAgreement|DHWITHSHA224KDF
+    - KeyAgreement|DHWITHSHA256KDF
+    - KeyAgreement|DHWITHSHA384KDF
+    - KeyAgreement|DHWITHSHA512KDF
+    - KeyAgreement|DiffieHellman
+    - KeyAgreement|ECCDH
+    - KeyAgreement|ECCDHU
+    - KeyAgreement|ECCDHUWITHSHA1CKDF
+    - KeyAgreement|ECCDHUWITHSHA1KDF
+    - KeyAgreement|ECCDHUWITHSHA224CKDF
+    - KeyAgreement|ECCDHUWITHSHA224KDF
+    - KeyAgreement|ECCDHUWITHSHA256CKDF
+    - KeyAgreement|ECCDHUWITHSHA256KDF
+    - KeyAgreement|ECCDHUWITHSHA384CKDF
+    - KeyAgreement|ECCDHUWITHSHA384KDF
+    - KeyAgreement|ECCDHUWITHSHA512CKDF
+    - KeyAgreement|ECCDHUWITHSHA512KDF
+    - KeyAgreement|ECCDHWITHSHA1CKDF
+    - KeyAgreement|ECCDHWITHSHA1KDF
+    - KeyAgreement|ECCDHWITHSHA224CKDF
+    - KeyAgreement|ECCDHWITHSHA224KDF
+    - KeyAgreement|ECCDHWITHSHA256CKDF
+    - KeyAgreement|ECCDHWITHSHA256KDF
+    - KeyAgreement|ECCDHWITHSHA384CKDF
+    - KeyAgreement|ECCDHWITHSHA384KDF
+    - KeyAgreement|ECCDHWITHSHA512CKDF
+    - KeyAgreement|ECCDHWITHSHA512KDF
+    - KeyAgreement|ECDH
+    - KeyAgreement|ECDHWITHSHA1KDF
+    - KeyAgreement|ECDHWITHSHA224KDF
+    - KeyAgreement|ECDHWITHSHA256KDF
+    - KeyAgreement|ECDHWITHSHA384KDF
+    - KeyAgreement|ECDHWITHSHA512KDF
+    - KeyAgreement|ECGOST3410
+    - KeyAgreement|ECGOST3410-2012-256
+    - KeyAgreement|ECGOST3410-2012-512
+    - KeyAgreement|ECKAEGWITHRIPEMD160KDF
+    - KeyAgreement|ECKAEGWITHSHA1KDF
+    - KeyAgreement|ECKAEGWITHSHA224KDF
+    - KeyAgreement|ECKAEGWITHSHA256KDF
+    - KeyAgreement|ECKAEGWITHSHA384KDF
+    - KeyAgreement|ECKAEGWITHSHA512KDF
+    - KeyAgreement|ECMQV
+    - KeyAgreement|ECMQVWITHSHA1CKDF
+    - KeyAgreement|ECMQVWITHSHA1KDF
+    - KeyAgreement|ECMQVWITHSHA224CKDF
+    - KeyAgreement|ECMQVWITHSHA224KDF
+    - KeyAgreement|ECMQVWITHSHA256CKDF
+    - KeyAgreement|ECMQVWITHSHA256KDF
+    - KeyAgreement|ECMQVWITHSHA384CKDF
+    - KeyAgreement|ECMQVWITHSHA384KDF
+    - KeyAgreement|ECMQVWITHSHA512CKDF
+    - KeyAgreement|ECMQVWITHSHA512KDF
+    - KeyAgreement|MQVWITHSHA1CKDF
+    - KeyAgreement|MQVWITHSHA1KDF
+    - KeyAgreement|MQVWITHSHA224CKDF
+    - KeyAgreement|MQVWITHSHA224KDF
+    - KeyAgreement|MQVWITHSHA256CKDF
+    - KeyAgreement|MQVWITHSHA256KDF
+    - KeyAgreement|MQVWITHSHA384CKDF
+    - KeyAgreement|MQVWITHSHA384KDF
+    - KeyAgreement|MQVWITHSHA512CKDF
+    - KeyAgreement|MQVWITHSHA512KDF
+    - KeyAgreement|X25519
+    - KeyAgreement|X25519UWITHSHA256KDF
+    - KeyAgreement|X25519WITHSHA256CKDF
+    - KeyAgreement|X25519withSHA256HKDF
+    - KeyAgreement|X25519WITHSHA256KDF
+    - KeyAgreement|X25519WITHSHA384CKDF
+    - KeyAgreement|X25519WITHSHA512CKDF
     - KeyAgreement|X448
+    - KeyAgreement|X448UWITHSHA512KDF
+    - KeyAgreement|X448WITHSHA256CKDF
+    - KeyAgreement|X448WITHSHA384CKDF
+    - KeyAgreement|X448WITHSHA512CKDF
+    - KeyAgreement|X448withSHA512HKDF
+    - KeyAgreement|X448WITHSHA512KDF
     - KeyAgreement|XDH
   cipher.pair:
+    exemplars:
+    - Cipher|RSA/ECB/PKCS1Padding
+    - Cipher|ECIES
+    - Cipher|SM2
     algorithms:
+    - Cipher|DHIES
+    - Cipher|DHIESwithAES-CBC
+    - Cipher|DHIESWITHDESEDE-CBC
+    - Cipher|ECIES
+    - Cipher|ECIESwithAES-CBC
+    - Cipher|ECIESwithDESEDE-CBC
+    - Cipher|ECIESwithSHA256
+    - Cipher|ECIESwithSHA256andAES-CBC
+    - Cipher|ECIESwithSHA256andDESEDE-CBC
+    - Cipher|ECIESwithSHA384
+    - Cipher|ECIESwithSHA384andAES-CBC
+    - Cipher|ECIESwithSHA384andDESEDE-CBC
+    - Cipher|ECIESwithSHA512
+    - Cipher|ECIESwithSHA512andAES-CBC
+    - Cipher|ECIESwithSHA512andDESEDE-CBC
+    - Cipher|ELGAMAL/ECB/PKCS1Padding
+    - Cipher|ELGAMAL/NONE/NoPadding
+    - Cipher|ETSIKEMWITHSHA256
+    - Cipher|ML-KEM
+    - Cipher|ML-KEM-1024
+    - Cipher|ML-KEM-512
+    - Cipher|ML-KEM-768
+    - Cipher|NTRU
     - Cipher|RSA
+    - Cipher|RSA/1/PKCS1Padding
+    - Cipher|RSA/2/PKCS1Padding
     - Cipher|RSA/ECB/NoPadding
     - Cipher|RSA/ECB/OAEPPadding
     - Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding
@@ -23,11 +140,37 @@ groups:
     - Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding
     - Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding
     - Cipher|RSA/ECB/PKCS1Padding
+    - Cipher|RSA/NONE/ISO9796-1Padding
+    - Cipher|SM2
+    - Cipher|SM2WITHBLAKE2B
+    - Cipher|SM2WITHBLAKE2S
+    - Cipher|SM2WITHMD5
+    - Cipher|SM2WITHRIPEMD160
+    - Cipher|SM2WITHSHA1
+    - Cipher|SM2WITHSHA224
+    - Cipher|SM2WITHSHA256
+    - Cipher|SM2WITHSHA384
+    - Cipher|SM2WITHSHA512
+    - Cipher|SM2WITHWHIRLPOOL
+    - Cipher|XIES
+    - Cipher|XIESwithAES-CBC
+    - Cipher|XIESwithSHA256
+    - Cipher|XIESwithSHA256andAES-CBC
+    - Cipher|XIESwithSHA384
+    - Cipher|XIESwithSHA384andAES-CBC
+    - Cipher|XIESwithSHA512
+    - Cipher|XIESwithSHA512andAES-CBC
   cipher.secret:
+    exemplars:
+    - Cipher|AES/GCM/NoPadding
+    - Cipher|AES/CBC/PKCS5Padding
+    - Cipher|ChaCha20-Poly1305
+    - Cipher|PBEWITHSHA256AND256BITAES-CBC-BC
     algorithms:
     - Cipher|AES
     - Cipher|AES/CBC/NoPadding
     - Cipher|AES/CBC/PKCS5Padding
+    - Cipher|AES/CCM/NoPadding
     - Cipher|AES/CFB/NoPadding
     - Cipher|AES/CTR/NoPadding
     - Cipher|AES/ECB/NoPadding
@@ -38,20 +181,84 @@ groups:
     - Cipher|AES/KW/PKCS5Padding
     - Cipher|AES/KWP/NoPadding
     - Cipher|AES/OFB/NoPadding
+    - Cipher|AESRFC3211WRAP
     - Cipher|ARCFOUR
+    - Cipher|ARIA
+    - Cipher|ARIA/CBC/PKCS5Padding
+    - Cipher|ARIA/CCM/NoPadding
+    - Cipher|ARIA/CFB/NoPadding
+    - Cipher|ARIA/ECB/PKCS5Padding
+    - Cipher|ARIA/GCM/NoPadding
+    - Cipher|ARIA/KW/NoPadding
+    - Cipher|ARIA/KWP/NoPadding
+    - Cipher|ARIA/OFB/NoPadding
+    - Cipher|ARIARFC3211WRAP
     - Cipher|Blowfish
+    - Cipher|Blowfish/CBC/PKCS5Padding
+    - Cipher|BROKENPBEWITHMD5ANDDES
+    - Cipher|BROKENPBEWITHSHA1ANDDES
+    - Cipher|CAMELLIA
+    - Cipher|CAMELLIA/CBC/PKCS5Padding
+    - Cipher|CAMELLIA/KW/NoPadding
+    - Cipher|CAMELLIARFC3211WRAP
+    - Cipher|CAST5
+    - Cipher|CAST5/CBC/PKCS5Padding
+    - Cipher|CAST6
+    - Cipher|CHACHA
     - Cipher|ChaCha20
     - Cipher|ChaCha20-Poly1305
     - Cipher|DES
+    - Cipher|DES/CBC/PKCS5Padding
     - Cipher|DESede
     - Cipher|DESede/CBC/NoPadding
     - Cipher|DESede/CBC/PKCS5Padding
     - Cipher|DESede/ECB/NoPadding
     - Cipher|DESede/ECB/PKCS5Padding
+    - Cipher|DESEDERFC3211WRAP
     - Cipher|DESedeWrap
-    - Cipher|RC2
-  cipher.unknown:
-    algorithms:
+    - Cipher|DESRFC3211WRAP
+    - Cipher|DSTU7624-128
+    - Cipher|DSTU7624-128/CBC/PKCS5Padding
+    - Cipher|DSTU7624-128/CCM/NoPadding
+    - Cipher|DSTU7624-128/CFB/NoPadding
+    - Cipher|DSTU7624-128/CTR/NoPadding
+    - Cipher|DSTU7624-128/ECB/PKCS5Padding
+    - Cipher|DSTU7624-128/OFB/NoPadding
+    - Cipher|DSTU7624-128KW
+    - Cipher|DSTU7624-256
+    - Cipher|DSTU7624-256/CBC/PKCS5Padding
+    - Cipher|DSTU7624-256/CCM/NoPadding
+    - Cipher|DSTU7624-256/CFB/NoPadding
+    - Cipher|DSTU7624-256/CTR/NoPadding
+    - Cipher|DSTU7624-256/ECB/PKCS5Padding
+    - Cipher|DSTU7624-256/OFB/NoPadding
+    - Cipher|DSTU7624-256KW
+    - Cipher|DSTU7624-512
+    - Cipher|DSTU7624-512/CBC/PKCS5Padding
+    - Cipher|DSTU7624-512/CCM/NoPadding
+    - Cipher|DSTU7624-512/CFB/NoPadding
+    - Cipher|DSTU7624-512/CTR/NoPadding
+    - Cipher|DSTU7624-512/ECB/PKCS5Padding
+    - Cipher|DSTU7624-512/OFB/NoPadding
+    - Cipher|DSTU7624-512KW
+    - Cipher|GOST28147
+    - Cipher|GOST28147/GCFB/NoPadding
+    - Cipher|GOST28147CryptoProWrap
+    - Cipher|GOST28147GostWrap
+    - Cipher|GOST3412-2015
+    - Cipher|GOST3412-2015/CBC/PKCS5Padding
+    - Cipher|GOST3412-2015/CFB/NoPadding
+    - Cipher|GOST3412-2015/CFB8/NoPadding
+    - Cipher|GOST3412-2015/CTR/NoPadding
+    - Cipher|GOST3412-2015/OFB/NoPadding
+    - Cipher|Grain128
+    - Cipher|Grainv1
+    - Cipher|HC128
+    - Cipher|HC256
+    - Cipher|IDEA
+    - Cipher|IDEA/CBC/PKCS5Padding
+    - Cipher|NOEKEON
+    - Cipher|OLDPBEWITHSHAANDTWOFISH-CBC
     - Cipher|PBEWithHmacSHA1AndAES_128
     - Cipher|PBEWithHmacSHA1AndAES_256
     - Cipher|PBEWithHmacSHA224AndAES_128
@@ -66,6 +273,7 @@ groups:
     - Cipher|PBEWithHmacSHA512/256AndAES_256
     - Cipher|PBEWithHmacSHA512AndAES_128
     - Cipher|PBEWithHmacSHA512AndAES_256
+    - Cipher|PBEWITHMD2ANDDES
     - Cipher|PBEWITHMD5AND128BITAES-CBC-OPENSSL
     - Cipher|PBEWITHMD5AND192BITAES-CBC-OPENSSL
     - Cipher|PBEWITHMD5AND256BITAES-CBC-OPENSSL
@@ -86,12 +294,75 @@ groups:
     - Cipher|PBEWITHSHAAND192BITAES-CBC-BC
     - Cipher|PBEWITHSHAAND2-KEYTRIPLEDES-CBC
     - Cipher|PBEWITHSHAAND256BITAES-CBC-BC
+    - Cipher|PBEWITHSHAANDIDEA-CBC
     - Cipher|PBEWITHSHAANDTWOFISH-CBC
+    - Cipher|RC2
+    - Cipher|RC2/CBC/PKCS5Padding
+    - Cipher|RC2WRAP
+    - Cipher|RC5
+    - Cipher|RC5-64
+    - Cipher|RC6
+    - Cipher|SALSA20
+    - Cipher|SEED
+    - Cipher|SEED/CBC/PKCS5Padding
+    - Cipher|SEED/KW/NoPadding
+    - Cipher|Serpent
+    - Cipher|Serpent/CBC/PKCS5Padding
+    - Cipher|Serpent/CFB/NoPadding
+    - Cipher|Serpent/ECB/PKCS5Padding
+    - Cipher|Serpent/OFB/NoPadding
+    - Cipher|SHACAL-2
+    - Cipher|SKIPJACK
+    - Cipher|SM4
+    - Cipher|TEA
+    - Cipher|Threefish-1024
+    - Cipher|Threefish-256
+    - Cipher|Threefish-512
+    - Cipher|Tnepres
+    - Cipher|Twofish
+    - Cipher|VMPC
+    - Cipher|VMPC-KSA3
+    - Cipher|XSALSA20
+    - Cipher|XTEA
+    - Cipher|ZUC-128
+    - Cipher|ZUC-256
   digest.none:
-    algorithms:
-    - MessageDigest|GOST3411
-    - MessageDigest|MD2
+    exemplars:
+    - MessageDigest|SHA-256
+    - MessageDigest|SHA3-256
     - MessageDigest|MD5
+    algorithms:
+    - MessageDigest|BLAKE2B-160
+    - MessageDigest|BLAKE2B-256
+    - MessageDigest|BLAKE2B-384
+    - MessageDigest|BLAKE2B-512
+    - MessageDigest|BLAKE2S-128
+    - MessageDigest|BLAKE2S-160
+    - MessageDigest|BLAKE2S-224
+    - MessageDigest|BLAKE2S-256
+    - MessageDigest|BLAKE3-256
+    - MessageDigest|DSTU7564-256
+    - MessageDigest|DSTU7564-384
+    - MessageDigest|DSTU7564-512
+    - MessageDigest|GOST3411
+    - MessageDigest|GOST3411-2012-256
+    - MessageDigest|GOST3411-2012-512
+    - MessageDigest|HARAKA-256
+    - MessageDigest|HARAKA-512
+    - MessageDigest|KECCAK-224
+    - MessageDigest|KECCAK-256
+    - MessageDigest|KECCAK-288
+    - MessageDigest|KECCAK-384
+    - MessageDigest|KECCAK-512
+    - MessageDigest|MD2
+    - MessageDigest|MD4
+    - MessageDigest|MD5
+    - MessageDigest|PARALLELHASH128-256
+    - MessageDigest|PARALLELHASH256-512
+    - MessageDigest|RIPEMD128
+    - MessageDigest|RIPEMD160
+    - MessageDigest|RIPEMD256
+    - MessageDigest|RIPEMD320
     - MessageDigest|SHA-1
     - MessageDigest|SHA-224
     - MessageDigest|SHA-256
@@ -105,15 +376,73 @@ groups:
     - MessageDigest|SHA3-512
     - MessageDigest|SHAKE128-256
     - MessageDigest|SHAKE256-512
+    - MessageDigest|Skein-1024-1024
+    - MessageDigest|Skein-1024-384
+    - MessageDigest|Skein-1024-512
+    - MessageDigest|Skein-256-128
+    - MessageDigest|Skein-256-160
+    - MessageDigest|Skein-256-224
+    - MessageDigest|Skein-256-256
+    - MessageDigest|Skein-512-128
+    - MessageDigest|Skein-512-160
+    - MessageDigest|Skein-512-224
+    - MessageDigest|Skein-512-256
+    - MessageDigest|Skein-512-384
+    - MessageDigest|Skein-512-512
+    - MessageDigest|SM3
+    - MessageDigest|TIGER
+    - MessageDigest|TUPLEHASH128-256
+    - MessageDigest|TUPLEHASH256-512
+    - MessageDigest|WHIRLPOOL
   keygen.none:
+    exemplars:
+    - KeyGenerator|AES
+    - KeyGenerator|HmacSHA256
+    - KeyGenerator|ChaCha20
     algorithms:
     - KeyGenerator|AES
+    - KeyGenerator|AES-GMAC
+    - KeyGenerator|AESWRAP
+    - KeyGenerator|AESWRAPPAD
     - KeyGenerator|ARCFOUR
+    - KeyGenerator|ARIA
+    - KeyGenerator|ARIA-GMAC
     - KeyGenerator|Blowfish
+    - KeyGenerator|CAMELLIA
+    - KeyGenerator|CAMELLIA-GMAC
+    - KeyGenerator|CAST5
+    - KeyGenerator|CAST6
+    - KeyGenerator|CAST6-GMAC
+    - KeyGenerator|CHACHA
     - KeyGenerator|ChaCha20
     - KeyGenerator|DES
     - KeyGenerator|DESede
+    - KeyGenerator|DESEDEWRAP
+    - KeyGenerator|DSTU7624
+    - KeyGenerator|GOST28147
+    - KeyGenerator|GOST3412-2015
+    - KeyGenerator|Grain128
+    - KeyGenerator|Grainv1
+    - KeyGenerator|HC128
+    - KeyGenerator|HC256
+    - KeyGenerator|HMACDSTU7564-256
+    - KeyGenerator|HMACDSTU7564-384
+    - KeyGenerator|HMACDSTU7564-512
+    - KeyGenerator|HMACGOST3411
+    - KeyGenerator|HMACGOST3411-2012-256
+    - KeyGenerator|HMACGOST3411-2012-512
+    - KeyGenerator|HMACKECCAK224
+    - KeyGenerator|HMACKECCAK256
+    - KeyGenerator|HMACKECCAK288
+    - KeyGenerator|HMACKECCAK384
+    - KeyGenerator|HMACKECCAK512
+    - KeyGenerator|HMACMD2
+    - KeyGenerator|HMACMD4
     - KeyGenerator|HmacMD5
+    - KeyGenerator|HMACRIPEMD128
+    - KeyGenerator|HMACRIPEMD160
+    - KeyGenerator|HMACRIPEMD256
+    - KeyGenerator|HMACRIPEMD320
     - KeyGenerator|HmacSHA1
     - KeyGenerator|HmacSHA224
     - KeyGenerator|HmacSHA256
@@ -125,38 +454,242 @@ groups:
     - KeyGenerator|HmacSHA512
     - KeyGenerator|HmacSHA512/224
     - KeyGenerator|HmacSHA512/256
+    - KeyGenerator|HMACSkein-1024-1024
+    - KeyGenerator|HMACSkein-1024-384
+    - KeyGenerator|HMACSkein-1024-512
+    - KeyGenerator|HMACSkein-256-128
+    - KeyGenerator|HMACSkein-256-160
+    - KeyGenerator|HMACSkein-256-224
+    - KeyGenerator|HMACSkein-256-256
+    - KeyGenerator|HMACSkein-512-128
+    - KeyGenerator|HMACSkein-512-160
+    - KeyGenerator|HMACSkein-512-224
+    - KeyGenerator|HMACSkein-512-256
+    - KeyGenerator|HMACSkein-512-384
+    - KeyGenerator|HMACSkein-512-512
+    - KeyGenerator|HMACSM3
+    - KeyGenerator|HMACTIGER
+    - KeyGenerator|HMACWHIRLPOOL
+    - KeyGenerator|IDEA
+    - KeyGenerator|KMAC128
+    - KeyGenerator|KMAC256
+    - KeyGenerator|ML-KEM
+    - KeyGenerator|ML-KEM-1024
+    - KeyGenerator|ML-KEM-512
+    - KeyGenerator|ML-KEM-768
+    - KeyGenerator|NOEKEON
+    - KeyGenerator|NOEKEON-GMAC
+    - KeyGenerator|NTRU
+    - KeyGenerator|POLY1305
+    - KeyGenerator|POLY1305-AES
+    - KeyGenerator|POLY1305-ARIA
+    - KeyGenerator|POLY1305-CAMELLIA
+    - KeyGenerator|POLY1305-CAST6
+    - KeyGenerator|POLY1305-NOEKEON
+    - KeyGenerator|POLY1305-RC6
+    - KeyGenerator|POLY1305-SEED
+    - KeyGenerator|POLY1305-SERPENT
+    - KeyGenerator|POLY1305-SM4
+    - KeyGenerator|POLY1305-Twofish
     - KeyGenerator|RC2
+    - KeyGenerator|RC5
+    - KeyGenerator|RC5-64
+    - KeyGenerator|RC6
+    - KeyGenerator|RC6-GMAC
+    - KeyGenerator|SALSA20
+    - KeyGenerator|SEED
+    - KeyGenerator|SEED-CMAC
+    - KeyGenerator|SEED-GMAC
+    - KeyGenerator|Serpent
+    - KeyGenerator|SERPENT-GMAC
+    - KeyGenerator|SHACAL-2
+    - KeyGenerator|SIPHASH
+    - KeyGenerator|SIPHASH128
+    - KeyGenerator|Skein-MAC-1024-1024
+    - KeyGenerator|Skein-MAC-1024-384
+    - KeyGenerator|Skein-MAC-1024-512
+    - KeyGenerator|Skein-MAC-256-128
+    - KeyGenerator|Skein-MAC-256-160
+    - KeyGenerator|Skein-MAC-256-224
+    - KeyGenerator|Skein-MAC-256-256
+    - KeyGenerator|Skein-MAC-512-128
+    - KeyGenerator|Skein-MAC-512-160
+    - KeyGenerator|Skein-MAC-512-224
+    - KeyGenerator|Skein-MAC-512-256
+    - KeyGenerator|Skein-MAC-512-384
+    - KeyGenerator|Skein-MAC-512-512
+    - KeyGenerator|SKIPJACK
+    - KeyGenerator|SM4
+    - KeyGenerator|SM4-CMAC
+    - KeyGenerator|SM4-GMAC
     - KeyGenerator|SunTls12Prf
     - KeyGenerator|SunTlsKeyMaterial
     - KeyGenerator|SunTlsMasterSecret
     - KeyGenerator|SunTlsPrf
     - KeyGenerator|SunTlsRsaPremasterSecret
+    - KeyGenerator|TEA
+    - KeyGenerator|Threefish-1024
+    - KeyGenerator|Threefish-256
+    - KeyGenerator|Threefish-512
+    - KeyGenerator|Tnepres
+    - KeyGenerator|TNEPRES-GMAC
+    - KeyGenerator|Twofish
+    - KeyGenerator|Twofish-GMAC
+    - KeyGenerator|VMPC
+    - KeyGenerator|VMPC-KSA3
+    - KeyGenerator|XSALSA20
+    - KeyGenerator|XTEA
+    - KeyGenerator|ZUC-128
+    - KeyGenerator|ZUC-256
   keypairgen.none:
+    exemplars:
+    - KeyPairGenerator|EC
+    - KeyPairGenerator|RSA
+    - KeyPairGenerator|Ed25519
+    - KeyPairGenerator|ML-DSA-65
     algorithms:
     - KeyPairGenerator|DiffieHellman
+    - KeyPairGenerator|DILITHIUM
+    - KeyPairGenerator|DILITHIUM2
+    - KeyPairGenerator|DILITHIUM3
+    - KeyPairGenerator|DILITHIUM5
     - KeyPairGenerator|DSA
+    - KeyPairGenerator|DSTU4145
     - KeyPairGenerator|EC
+    - KeyPairGenerator|ECDH
+    - KeyPairGenerator|ECDHC
+    - KeyPairGenerator|ECDSA
+    - KeyPairGenerator|ECGOST3410
+    - KeyPairGenerator|ECGOST3410-2012
+    - KeyPairGenerator|ECMQV
     - KeyPairGenerator|Ed25519
     - KeyPairGenerator|Ed448
     - KeyPairGenerator|EdDSA
+    - KeyPairGenerator|ELGAMAL
+    - KeyPairGenerator|FALCON
+    - KeyPairGenerator|FALCON-1024
+    - KeyPairGenerator|FALCON-512
+    - KeyPairGenerator|Falcon512-ECDSA-brainpoolP256r1-SHA256
+    - KeyPairGenerator|Falcon512-ECDSA-P256-SHA256
+    - KeyPairGenerator|Falcon512-Ed25519-SHA512
+    - KeyPairGenerator|GOST3410
+    - KeyPairGenerator|HASH-ML-DSA
+    - KeyPairGenerator|HASH-SLH-DSA
+    - KeyPairGenerator|LMS
     - KeyPairGenerator|ML-DSA
     - KeyPairGenerator|ML-DSA-44
+    - KeyPairGenerator|ML-DSA-44-WITH-SHA512
     - KeyPairGenerator|ML-DSA-65
+    - KeyPairGenerator|ML-DSA-65-WITH-SHA512
     - KeyPairGenerator|ML-DSA-87
+    - KeyPairGenerator|ML-DSA-87-WITH-SHA512
     - KeyPairGenerator|ML-KEM
     - KeyPairGenerator|ML-KEM-1024
     - KeyPairGenerator|ML-KEM-512
     - KeyPairGenerator|ML-KEM-768
+    - KeyPairGenerator|MLDSA44-ECDSA-brainpoolP256r1-SHA256
+    - KeyPairGenerator|MLDSA44-ECDSA-P256-SHA256
+    - KeyPairGenerator|MLDSA44-Ed25519-SHA512
+    - KeyPairGenerator|MLDSA44-RSA2048-PKCS15-SHA256
+    - KeyPairGenerator|MLDSA44-RSA2048-PSS-SHA256
+    - KeyPairGenerator|MLDSA65-ECDSA-brainpoolP256r1-SHA512
+    - KeyPairGenerator|MLDSA65-ECDSA-P256-SHA512
+    - KeyPairGenerator|MLDSA65-Ed25519-SHA512
+    - KeyPairGenerator|MLDSA65-RSA3072-PKCS15-SHA512
+    - KeyPairGenerator|MLDSA65-RSA3072-PSS-SHA512
+    - KeyPairGenerator|MLDSA87-ECDSA-brainpoolP384r1-SHA512
+    - KeyPairGenerator|MLDSA87-ECDSA-P384-SHA512
+    - KeyPairGenerator|MLDSA87-Ed448-SHA512
+    - KeyPairGenerator|NTRU
     - KeyPairGenerator|RSA
     - KeyPairGenerator|RSASSA-PSS
+    - KeyPairGenerator|SLH-DSA
+    - KeyPairGenerator|SLH-DSA-SHA2-128F
+    - KeyPairGenerator|SLH-DSA-SHA2-128F-WITH-SHA256
     - KeyPairGenerator|SLH-DSA-SHA2-128S
+    - KeyPairGenerator|SLH-DSA-SHA2-128S-WITH-SHA256
+    - KeyPairGenerator|SLH-DSA-SHA2-192F
+    - KeyPairGenerator|SLH-DSA-SHA2-192F-WITH-SHA512
+    - KeyPairGenerator|SLH-DSA-SHA2-192S
+    - KeyPairGenerator|SLH-DSA-SHA2-192S-WITH-SHA512
+    - KeyPairGenerator|SLH-DSA-SHA2-256F
+    - KeyPairGenerator|SLH-DSA-SHA2-256F-WITH-SHA512
+    - KeyPairGenerator|SLH-DSA-SHA2-256S
+    - KeyPairGenerator|SLH-DSA-SHA2-256S-WITH-SHA512
+    - KeyPairGenerator|SLH-DSA-SHAKE-128F
+    - KeyPairGenerator|SLH-DSA-SHAKE-128F-WITH-SHAKE128
+    - KeyPairGenerator|SLH-DSA-SHAKE-128S
+    - KeyPairGenerator|SLH-DSA-SHAKE-128S-WITH-SHAKE128
+    - KeyPairGenerator|SLH-DSA-SHAKE-192F
+    - KeyPairGenerator|SLH-DSA-SHAKE-192F-WITH-SHAKE256
+    - KeyPairGenerator|SLH-DSA-SHAKE-192S
+    - KeyPairGenerator|SLH-DSA-SHAKE-192S-WITH-SHAKE256
+    - KeyPairGenerator|SLH-DSA-SHAKE-256F
+    - KeyPairGenerator|SLH-DSA-SHAKE-256F-WITH-SHAKE256
+    - KeyPairGenerator|SLH-DSA-SHAKE-256S
+    - KeyPairGenerator|SLH-DSA-SHAKE-256S-WITH-SHAKE256
+    - KeyPairGenerator|SM2
+    - KeyPairGenerator|SPHINCS+-SHA2-128F
+    - KeyPairGenerator|SPHINCS+-SHA2-128S
+    - KeyPairGenerator|SPHINCS+-SHA2-192F
+    - KeyPairGenerator|SPHINCS+-SHA2-192S
+    - KeyPairGenerator|SPHINCS+-SHA2-256F
+    - KeyPairGenerator|SPHINCS+-SHA2-256S
+    - KeyPairGenerator|SPHINCS+-SHAKE-128F
+    - KeyPairGenerator|SPHINCS+-SHAKE-128S
+    - KeyPairGenerator|SPHINCS+-SHAKE-192F
+    - KeyPairGenerator|SPHINCS+-SHAKE-192S
+    - KeyPairGenerator|SPHINCS+-SHAKE-256F
+    - KeyPairGenerator|SPHINCS+-SHAKE-256S
+    - KeyPairGenerator|SPHINCSPLUS
     - KeyPairGenerator|X25519
     - KeyPairGenerator|X448
     - KeyPairGenerator|XDH
     - KeyPairGenerator|XWING
   mac.secret:
-    algorithms:
+    exemplars:
+    - Mac|HmacSHA256
+    - Mac|HmacSHA3-256
     - Mac|AESCMAC
+    - Mac|AES-GMAC
+    - Mac|PBEWithHmacSHA256
+    algorithms:
+    - Mac|AES-GMAC
+    - Mac|AESCCMMAC
+    - Mac|AESCMAC
+    - Mac|ARIA-GMAC
+    - Mac|BLOWFISHCMAC
+    - Mac|CAMELLIA-GMAC
+    - Mac|CAST6-GMAC
+    - Mac|DESCMAC
+    - Mac|DESEDECMAC
+    - Mac|DESEDEMAC
+    - Mac|DESEDEMAC/CFB8
+    - Mac|DESEDEMAC64
+    - Mac|DESEDEMAC64WITHISO7816-4PADDING
+    - Mac|DESMAC
+    - Mac|DESMAC/CFB8
+    - Mac|DESMAC64
+    - Mac|DESMAC64WITHISO7816-4PADDING
+    - Mac|DSTU7624-128GMAC
+    - Mac|DSTU7624-256GMAC
+    - Mac|DSTU7624-512GMAC
+    - Mac|DSTU7624GMAC
+    - Mac|GOST28147MAC
+    - Mac|GOST3412MAC
+    - Mac|HMACDSTU7564-256
+    - Mac|HMACDSTU7564-384
+    - Mac|HMACDSTU7564-512
+    - Mac|HMACGOST3411
+    - Mac|HMACGOST3411-2012-256
+    - Mac|HMACGOST3411-2012-512
+    - Mac|HMACKECCAK224
+    - Mac|HMACKECCAK256
+    - Mac|HMACKECCAK288
+    - Mac|HMACKECCAK384
+    - Mac|HMACKECCAK512
+    - Mac|HMACMD2
+    - Mac|HMACMD4
     - Mac|HmacMD5
     - Mac|HmacPBESHA1
     - Mac|HmacPBESHA224
@@ -165,6 +698,10 @@ groups:
     - Mac|HmacPBESHA512
     - Mac|HmacPBESHA512/224
     - Mac|HmacPBESHA512/256
+    - Mac|HMACRIPEMD128
+    - Mac|HMACRIPEMD160
+    - Mac|HMACRIPEMD256
+    - Mac|HMACRIPEMD320
     - Mac|HmacSHA1
     - Mac|HmacSHA224
     - Mac|HmacSHA256
@@ -176,7 +713,32 @@ groups:
     - Mac|HmacSHA512
     - Mac|HmacSHA512/224
     - Mac|HmacSHA512/256
-    - Mac|PBEWITHHMACSHA
+    - Mac|HMACSkein-1024-1024
+    - Mac|HMACSkein-1024-384
+    - Mac|HMACSkein-1024-512
+    - Mac|HMACSkein-256-128
+    - Mac|HMACSkein-256-160
+    - Mac|HMACSkein-256-224
+    - Mac|HMACSkein-256-256
+    - Mac|HMACSkein-512-128
+    - Mac|HMACSkein-512-160
+    - Mac|HMACSkein-512-224
+    - Mac|HMACSkein-512-256
+    - Mac|HMACSkein-512-384
+    - Mac|HMACSkein-512-512
+    - Mac|HMACSM3
+    - Mac|HMACTIGER
+    - Mac|HMACWHIRLPOOL
+    - Mac|IDEAMAC
+    - Mac|IDEAMAC/CFB8
+    - Mac|ISO9797ALG3MAC
+    - Mac|ISO9797ALG3WITHISO7816-4PADDING
+    - Mac|KMAC128
+    - Mac|KMAC256
+    - Mac|NOEKEON-GMAC
+    - Mac|OLDHMACSHA384
+    - Mac|OLDHMACSHA512
+    - Mac|PBEWITHHMACRIPEMD160
     - Mac|PBEWithHmacSHA1
     - Mac|PBEWithHmacSHA224
     - Mac|PBEWithHmacSHA256
@@ -184,77 +746,259 @@ groups:
     - Mac|PBEWithHmacSHA512
     - Mac|PBEWithHmacSHA512/224
     - Mac|PBEWithHmacSHA512/256
+    - Mac|POLY1305
+    - Mac|POLY1305-AES
+    - Mac|POLY1305-ARIA
+    - Mac|POLY1305-CAMELLIA
+    - Mac|POLY1305-CAST6
+    - Mac|POLY1305-NOEKEON
+    - Mac|POLY1305-RC6
+    - Mac|POLY1305-SEED
+    - Mac|POLY1305-SERPENT
+    - Mac|POLY1305-SM4
+    - Mac|POLY1305-Twofish
+    - Mac|RC2MAC
+    - Mac|RC2MAC/CFB8
+    - Mac|RC5MAC
+    - Mac|RC5MAC/CFB8
+    - Mac|RC6-GMAC
+    - Mac|SEED-CMAC
+    - Mac|SEED-GMAC
+    - Mac|SERPENT-GMAC
+    - Mac|Shacal-2CMAC
+    - Mac|SIPHASH-2-4
+    - Mac|SIPHASH-4-8
+    - Mac|SIPHASH128-2-4
+    - Mac|SIPHASH128-4-8
+    - Mac|Skein-MAC-1024-1024
+    - Mac|Skein-MAC-1024-384
+    - Mac|Skein-MAC-1024-512
+    - Mac|Skein-MAC-256-128
+    - Mac|Skein-MAC-256-160
+    - Mac|Skein-MAC-256-224
+    - Mac|Skein-MAC-256-256
+    - Mac|Skein-MAC-512-128
+    - Mac|Skein-MAC-512-160
+    - Mac|Skein-MAC-512-224
+    - Mac|Skein-MAC-512-256
+    - Mac|Skein-MAC-512-384
+    - Mac|Skein-MAC-512-512
+    - Mac|SKIPJACKMAC
+    - Mac|SKIPJACKMAC/CFB8
+    - Mac|SM4-CMAC
+    - Mac|SM4-GMAC
     - Mac|SslMacMD5
     - Mac|SslMacSHA1
+    - Mac|Threefish-1024CMAC
+    - Mac|Threefish-256CMAC
+    - Mac|Threefish-512CMAC
+    - Mac|TNEPRES-GMAC
+    - Mac|Twofish-GMAC
+    - Mac|VMPCMAC
+    - Mac|ZUC-128
+    - Mac|ZUC-256
+    - Mac|ZUC-256-32
+    - Mac|ZUC-256-64
   signature.pair:
+    exemplars:
+    - Signature|SHA256withECDSA
+    - Signature|SHA256withRSA/PSS
+    - Signature|Ed25519
+    - Signature|ML-DSA-65
     algorithms:
+    - Signature|DILITHIUM
+    - Signature|DILITHIUM2
+    - Signature|DILITHIUM3
+    - Signature|DILITHIUM5
     - Signature|Ed25519
     - Signature|Ed448
     - Signature|EdDSA
+    - Signature|FALCON
+    - Signature|FALCON-1024
+    - Signature|FALCON-512
+    - Signature|Falcon512-ECDSA-brainpoolP256r1-SHA256
+    - Signature|Falcon512-ECDSA-P256-SHA256
+    - Signature|Falcon512-Ed25519-SHA512
+    - Signature|GOST3410
+    - Signature|GOST3411-2012-256WITHECGOST3410-2012-256
+    - Signature|GOST3411-2012-512WITHECGOST3410-2012-512
+    - Signature|GOST3411WITHDSTU4145
+    - Signature|GOST3411WITHDSTU4145LE
+    - Signature|GOST3411WITHECGOST3410
+    - Signature|HASH-ML-DSA
+    - Signature|HASH-SLH-DSA
     - Signature|HSS/LMS
+    - Signature|LMS
     - Signature|MD2withRSA
+    - Signature|MD4WITHRSA
     - Signature|MD5andSHA1withRSA
     - Signature|MD5withRSA
+    - Signature|MD5WITHRSA/ISO9796-2
     - Signature|ML-DSA
     - Signature|ML-DSA-44
+    - Signature|ML-DSA-44-WITH-SHA512
     - Signature|ML-DSA-65
+    - Signature|ML-DSA-65-WITH-SHA512
     - Signature|ML-DSA-87
+    - Signature|ML-DSA-87-WITH-SHA512
+    - Signature|MLDSA44-ECDSA-brainpoolP256r1-SHA256
+    - Signature|MLDSA44-ECDSA-P256-SHA256
+    - Signature|MLDSA44-Ed25519-SHA512
+    - Signature|MLDSA44-RSA2048-PKCS15-SHA256
+    - Signature|MLDSA44-RSA2048-PSS-SHA256
+    - Signature|MLDSA65-ECDSA-brainpoolP256r1-SHA512
+    - Signature|MLDSA65-ECDSA-P256-SHA512
+    - Signature|MLDSA65-Ed25519-SHA512
+    - Signature|MLDSA65-RSA3072-PKCS15-SHA512
+    - Signature|MLDSA65-RSA3072-PSS-SHA512
+    - Signature|MLDSA87-ECDSA-brainpoolP384r1-SHA512
+    - Signature|MLDSA87-ECDSA-P384-SHA512
+    - Signature|MLDSA87-Ed448-SHA512
     - Signature|NONEwithDSA
     - Signature|NONEwithDSAinP1363Format
     - Signature|NONEwithECDSA
     - Signature|NONEwithECDSAinP1363Format
     - Signature|NONEwithRSA
+    - Signature|RAWRSASSA-PSS
+    - Signature|RIPEMD128WITHRSA
+    - Signature|RIPEMD128WITHRSA/X9.31
+    - Signature|RIPEMD160WITHDSA
+    - Signature|RIPEMD160WITHECDSA
+    - Signature|RIPEMD160WITHPLAIN-ECDSA
+    - Signature|RIPEMD160WITHRSA
+    - Signature|RIPEMD160withRSA/ISO9796-2
+    - Signature|RIPEMD160WITHRSA/X9.31
+    - Signature|RIPEMD256WITHRSA
     - Signature|RSASSA-PSS
+    - Signature|SHA1WITHDETDSA
     - Signature|SHA1withDSA
     - Signature|SHA1withDSAinP1363Format
+    - Signature|SHA1WITHECDDSA
     - Signature|SHA1withECDSA
     - Signature|SHA1withECDSAinP1363Format
+    - Signature|SHA1WITHECNR
     - Signature|SHA1withRSA
+    - Signature|SHA1WITHRSA/ISO9796-2
     - Signature|SHA1withRSA/PSS
+    - Signature|SHA1WITHRSA/X9.31
+    - Signature|SHA1WITHRSAANDSHAKE128
+    - Signature|SHA1WITHRSAANDSHAKE256
+    - Signature|SHA224WITHDETDSA
     - Signature|SHA224withDSA
     - Signature|SHA224withDSAinP1363Format
+    - Signature|SHA224WITHECDDSA
     - Signature|SHA224withECDSA
     - Signature|SHA224withECDSAinP1363Format
+    - Signature|SHA224WITHECNR
     - Signature|SHA224withRSA
+    - Signature|SHA224WITHRSA/ISO9796-2
     - Signature|SHA224withRSA/PSS
+    - Signature|SHA224WITHRSA/X9.31
+    - Signature|SHA224WITHRSAANDSHAKE128
+    - Signature|SHA224WITHRSAANDSHAKE256
+    - Signature|SHA256WITHDETDSA
     - Signature|SHA256withDSA
     - Signature|SHA256withDSAinP1363Format
+    - Signature|SHA256WITHECDDSA
     - Signature|SHA256withECDSA
     - Signature|SHA256withECDSAinP1363Format
+    - Signature|SHA256WITHECNR
     - Signature|SHA256withRSA
+    - Signature|SHA256WITHRSA/ISO9796-2
     - Signature|SHA256withRSA/PSS
+    - Signature|SHA256WITHRSA/X9.31
+    - Signature|SHA256WITHRSAANDSHAKE128
+    - Signature|SHA256WITHRSAANDSHAKE256
+    - Signature|SHA256WITHSM2
+    - Signature|SHA3-224WITHDETDSA
     - Signature|SHA3-224withDSA
     - Signature|SHA3-224withDSAinP1363Format
+    - Signature|SHA3-224WITHECDDSA
     - Signature|SHA3-224withECDSA
     - Signature|SHA3-224withECDSAinP1363Format
     - Signature|SHA3-224withRSA
+    - Signature|SHA3-224withRSA/PSS
+    - Signature|SHA3-224WITHRSAANDSHAKE128
+    - Signature|SHA3-224WITHRSAANDSHAKE256
+    - Signature|SHA3-256WITHDETDSA
     - Signature|SHA3-256withDSA
     - Signature|SHA3-256withDSAinP1363Format
+    - Signature|SHA3-256WITHECDDSA
     - Signature|SHA3-256withECDSA
     - Signature|SHA3-256withECDSAinP1363Format
     - Signature|SHA3-256withRSA
+    - Signature|SHA3-256withRSA/PSS
+    - Signature|SHA3-256WITHRSAANDSHAKE128
+    - Signature|SHA3-256WITHRSAANDSHAKE256
+    - Signature|SHA3-384WITHDETDSA
     - Signature|SHA3-384withDSA
     - Signature|SHA3-384withDSAinP1363Format
+    - Signature|SHA3-384WITHECDDSA
     - Signature|SHA3-384withECDSA
     - Signature|SHA3-384withECDSAinP1363Format
     - Signature|SHA3-384withRSA
+    - Signature|SHA3-384withRSA/PSS
+    - Signature|SHA3-384WITHRSAANDSHAKE128
+    - Signature|SHA3-384WITHRSAANDSHAKE256
+    - Signature|SHA3-512WITHDETDSA
     - Signature|SHA3-512withDSA
     - Signature|SHA3-512withDSAinP1363Format
+    - Signature|SHA3-512WITHECDDSA
     - Signature|SHA3-512withECDSA
     - Signature|SHA3-512withECDSAinP1363Format
     - Signature|SHA3-512withRSA
+    - Signature|SHA3-512withRSA/PSS
+    - Signature|SHA3-512WITHRSAANDSHAKE128
+    - Signature|SHA3-512WITHRSAANDSHAKE256
+    - Signature|SHA384WITHDETDSA
     - Signature|SHA384withDSA
     - Signature|SHA384withDSAinP1363Format
+    - Signature|SHA384WITHECDDSA
     - Signature|SHA384withECDSA
     - Signature|SHA384withECDSAinP1363Format
+    - Signature|SHA384WITHECNR
     - Signature|SHA384withRSA
+    - Signature|SHA384WITHRSA/ISO9796-2
     - Signature|SHA384withRSA/PSS
+    - Signature|SHA384WITHRSA/X9.31
+    - Signature|SHA384WITHRSAANDSHAKE128
+    - Signature|SHA384WITHRSAANDSHAKE256
+    - Signature|SHA512(224)WITHRSA/ISO9796-2
+    - Signature|SHA512(224)WITHRSA/X9.31
+    - Signature|SHA512(224)WITHRSAANDSHAKE128
+    - Signature|SHA512(224)WITHRSAANDSHAKE256
+    - Signature|SHA512(256)WITHRSA/ISO9796-2
+    - Signature|SHA512(256)WITHRSA/X9.31
+    - Signature|SHA512(256)WITHRSAANDSHAKE128
+    - Signature|SHA512(256)WITHRSAANDSHAKE256
     - Signature|SHA512/224withRSA
+    - Signature|SHA512/224withRSA/PSS
     - Signature|SHA512/256withRSA
+    - Signature|SHA512/256withRSA/PSS
+    - Signature|SHA512WITHDETDSA
     - Signature|SHA512withDSA
     - Signature|SHA512withDSAinP1363Format
+    - Signature|SHA512WITHECDDSA
     - Signature|SHA512withECDSA
     - Signature|SHA512withECDSAinP1363Format
+    - Signature|SHA512WITHECNR
     - Signature|SHA512withRSA
+    - Signature|SHA512WITHRSA/ISO9796-2
     - Signature|SHA512withRSA/PSS
+    - Signature|SHA512WITHRSA/X9.31
+    - Signature|SHA512WITHRSAANDSHAKE128
+    - Signature|SHA512WITHRSAANDSHAKE256
+    - Signature|SHAKE128WITHECDSA
+    - Signature|SHAKE128WITHRSAPSS
+    - Signature|SHAKE256WITHECDSA
+    - Signature|SHAKE256WITHRSAPSS
+    - Signature|SLH-DSA
     - Signature|SLH-DSA-SHA2-128S
+    - Signature|SM3WITHSM2
+    - Signature|SPHINCSPLUS
+    - Signature|WhirlpoolWITHRSA/ISO9796-2
+    - Signature|WhirlpoolWITHRSA/X9.31
+  # outside the families: a name a person or the higher model could not place; no contract, so never a candidate
+  unidentified:
+    exemplars: []
+    algorithms: []

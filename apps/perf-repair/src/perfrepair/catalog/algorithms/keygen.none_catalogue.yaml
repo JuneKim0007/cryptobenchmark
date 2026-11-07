@@ -1,420 +1,2413 @@
-# keygen.none: one entry per algorithm id <type>|<canonical>; fields and provenance: docs/algorithm-catalogue.md
+# keygen.none: one entry per algorithm id <type>|<canonical>; every word: catalog/glossary.yaml; fields: docs/algorithm-catalogue.md
 schemaVersion: 1
 family: keygen.none
 algorithms:
   KeyGenerator|AES:
-    key: {type: AES, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: AES, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: AES}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: AES}}
     sourcedOnly:
-    - {fact: strengthBits, value: {key: aes}, source: SP80057T2}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
+    - {fact: strengthBits, value: {key: aes}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
+    providers:
+      BC @ jdk-25: {conditions.output.bits: 192, optional.keySize.default: 192}
+      BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {conditions.output.bits: 192, optional.keySize.default: 192}
+      SunJCE @ jdk-25: {conditions.output.bits: 256, optional.keySize.default: 256}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|AES-GMAC:
+    key: {type: AES-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: AES-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|AESWRAP:
+    key: {type: AESWRAP, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: AESWRAP}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|AESWRAPPAD:
+    key: {type: AESWRAPPAD, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: AESWRAPPAD}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ARCFOUR:
-    key: {type: ARCFOUR, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: ARCFOUR, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: ARCFOUR}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ARCFOUR}}
     sourcedOnly:
-    - {fact: strengthBits, value: 0, source: RFC7465}
-    - {fact: minSdk, value: 14, source: AKEYGEN}
+    - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc7465'}
+    - {fact: minSdk, value: 14, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ARIA:
+    key: {type: ARIA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ARIA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ARIA-GMAC:
+    key: {type: ARIA-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ARIA-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Blowfish:
-    key: {type: Blowfish, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: Blowfish, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, default: 128, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: BLOWFISH}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Blowfish}}
     sourcedOnly:
-    - {fact: strengthBits, value: null, source: unsourced}
-    - {fact: minSdk, value: 10, source: AKEYGEN}
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: 10, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
+    providers:
+      SunJCE @ jdk-25: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384]}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|CAMELLIA:
+    key: {type: CAMELLIA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: CAMELLIA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|CAMELLIA-GMAC:
+    key: {type: CAMELLIA-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: CAMELLIA-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|CAST5:
+    key: {type: CAST5, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: CAST5}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|CAST6:
+    key: {type: CAST6, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: CAST6}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|CAST6-GMAC:
+    key: {type: CAST6-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: CAST6-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|CHACHA:
+    key: {type: CHACHA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: CHACHA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ChaCha20:
-    key: {type: ChaCha20, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: ChaCha20, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, default: 256, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: CHACHA20}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ChaCha20}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: RFC8439}
-    - {fact: minSdk, value: 28, source: AKEYGEN}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc8439'}
+    - {fact: minSdk, value: 28, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
+    providers:
+      BC @ jdk-25: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]}
+      BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|DES:
-    key: {type: DES, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: DES, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, default: 64, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 64, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: DES}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: DES}}
     sourcedOnly:
-    - {fact: strengthBits, value: 56, source: FIPS46}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
-    providers: {}
-    provenance: {by: person}
+    - {fact: strengthBits, value: 56, source: sourced, url: 'https://csrc.nist.gov/pubs/fips/46-3/final'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
+    providers:
+      SunJCE @ jdk-25: {optional.keySize.accepted: [56]}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|DESede:
-    key: {type: DESede, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: DESede, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, default: 192, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: DESEDE}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: DESede}}
     sourcedOnly:
-    - {fact: strengthBits, value: 112, source: SP80057T2}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
+    - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|DESEDEWRAP:
+    key: {type: DESEDEWRAP, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [112, 128, 168, 192], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: DESEDEWRAP}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|DSTU7624:
+    key: {type: DSTU7624, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: DSTU7624}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|GOST28147:
+    key: {type: GOST28147, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: GOST28147}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|GOST3412-2015:
+    key: {type: GOST3412-2015, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: GOST3412-2015}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Grain128:
+    key: {type: Grain128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Grain128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Grainv1:
+    key: {type: Grainv1, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 80, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 80, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Grainv1}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HC128:
+    key: {type: HC128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HC128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HC256:
+    key: {type: HC256, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HC256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACDSTU7564-256:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACDSTU7564-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACDSTU7564-384:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACDSTU7564-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACDSTU7564-512:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACDSTU7564-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACGOST3411:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACGOST3411}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACGOST3411-2012-256:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACGOST3411-2012-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACGOST3411-2012-512:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACGOST3411-2012-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACKECCAK224:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACKECCAK224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACKECCAK256:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACKECCAK256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACKECCAK288:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 288, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 288, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACKECCAK288}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACKECCAK384:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACKECCAK384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACKECCAK512:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACKECCAK512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACMD2:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACMD2}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACMD4:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACMD4}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacMD5:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACMD5}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacMD5}}
     sourcedOnly:
-    - {fact: strengthBits, value: null, source: unsourced}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACRIPEMD128:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACRIPEMD128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACRIPEMD160:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 160, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 160, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACRIPEMD160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACRIPEMD256:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACRIPEMD256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACRIPEMD320:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 320, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 320, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACRIPEMD320}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA1:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA1}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA1}}
     sourcedOnly:
-    - {fact: strengthBits, value: 128, source: SP80057T3}
-    - {fact: minSdk, value: 11, source: AKEYGEN}
+    - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 11, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA224:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA224}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA224}}
     sourcedOnly:
-    - {fact: strengthBits, value: 192, source: SP80057T3}
-    - {fact: minSdk, value: 22, source: AKEYGEN}
+    - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 22, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA256:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA256}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA256}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-224:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-224}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA3-224}}
     sourcedOnly:
-    - {fact: strengthBits, value: 192, source: SP80057T3}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-256:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-256}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA3-256}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-384:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-384}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA3-384}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-512:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA3-512}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA3-512}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA384:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA384}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA384}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA512:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA512}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA512}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: 1, source: AKEYGEN}
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA512/224:
-    key: {type: HMAC, source: inferred}
-    required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
-    optional: []
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA512/224}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA512/224}}
     sourcedOnly:
-    - {fact: strengthBits, value: 192, source: SP80057T3}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA512/256:
-    key: {type: HMAC, source: inferred}
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HmacSHA512/256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-1024-1024:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 1024, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 1024, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-1024-1024}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-1024-384:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-1024-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-1024-512:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-1024-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-256-128:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-256-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-256-160:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 160, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 160, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-256-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-256-224:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-256-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-256-256:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-256-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-512-128:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-512-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-512-160:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 160, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 160, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-512-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-512-224:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-512-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-512-256:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-512-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-512-384:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-512-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSkein-512-512:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSkein-512-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACSM3:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACSM3}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACTIGER:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACTIGER}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|HMACWHIRLPOOL:
+    key: {type: HMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: HMACWHIRLPOOL}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|IDEA:
+    key: {type: IDEA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: IDEA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|KMAC128:
+    key: {type: KMAC128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: KMAC128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|KMAC256:
+    key: {type: KMAC256, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: KMAC256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ML-KEM:
+    key: {type: ML-KEM, origin: app, source: inferred}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: publicKey, recipe: bc.kemGenerateSpec, passedTo: init, source: inferred}
+    - {name: secretAlgorithm, recipe: bc.kemGenerateSpec, value: AES, passedTo: init, source: inferred}
     optional: []
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: HMACSHA512/256}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ML-KEM}}
     sourcedOnly:
-    - {fact: strengthBits, value: 256, source: SP80057T3}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ML-KEM-1024:
+    key: {type: ML-KEM-1024, origin: app, source: inferred}
+    required:
+    - {name: publicKey, recipe: bc.kemGenerateSpec, passedTo: init, source: inferred}
+    - {name: secretAlgorithm, recipe: bc.kemGenerateSpec, value: AES, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ML-KEM-1024}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 256, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ML-KEM-512:
+    key: {type: ML-KEM-512, origin: app, source: inferred}
+    required:
+    - {name: publicKey, recipe: bc.kemGenerateSpec, passedTo: init, source: inferred}
+    - {name: secretAlgorithm, recipe: bc.kemGenerateSpec, value: AES, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ML-KEM-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 128, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ML-KEM-768:
+    key: {type: ML-KEM-768, origin: app, source: inferred}
+    required:
+    - {name: publicKey, recipe: bc.kemGenerateSpec, passedTo: init, source: inferred}
+    - {name: secretAlgorithm, recipe: bc.kemGenerateSpec, value: AES, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ML-KEM-768}}
+    sourcedOnly:
+    - {fact: strengthBits, value: 192, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|NOEKEON:
+    key: {type: NOEKEON, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: NOEKEON}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|NOEKEON-GMAC:
+    key: {type: NOEKEON-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: NOEKEON-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|NTRU:
+    key: {type: NTRU, origin: app, source: inferred}
+    required:
+    - {name: publicKey, recipe: bc.kemGenerateSpec, passedTo: init, source: inferred}
+    - {name: secretAlgorithm, recipe: bc.kemGenerateSpec, value: AES, passedTo: init, source: inferred}
+    optional: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: NTRU}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305:
+    key: {type: POLY1305, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-AES:
+    key: {type: POLY1305-AES, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-AES}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-ARIA:
+    key: {type: POLY1305-ARIA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-ARIA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-CAMELLIA:
+    key: {type: POLY1305-CAMELLIA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-CAMELLIA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-CAST6:
+    key: {type: POLY1305-CAST6, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-CAST6}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-NOEKEON:
+    key: {type: POLY1305-NOEKEON, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-NOEKEON}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-RC6:
+    key: {type: POLY1305-RC6, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-RC6}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-SEED:
+    key: {type: POLY1305-SEED, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-SEED}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-SERPENT:
+    key: {type: POLY1305-SERPENT, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-SERPENT}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-SM4:
+    key: {type: POLY1305-SM4, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-SM4}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|POLY1305-Twofish:
+    key: {type: POLY1305-Twofish, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [224, 256], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: POLY1305-Twofish}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|RC2:
-    key: {type: RC2, source: inferred}
+    key: {type: RC2, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: RC2}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|RC5:
+    key: {type: RC5, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: RC5}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|RC5-64:
+    key: {type: RC5-64, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: RC5-64}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|RC6:
+    key: {type: RC6, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: RC6}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|RC6-GMAC:
+    key: {type: RC6-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: RC6-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SALSA20:
+    key: {type: SALSA20, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SALSA20}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SEED:
+    key: {type: SEED, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SEED}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SEED-CMAC:
+    key: {type: SEED-CMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SEED-CMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SEED-GMAC:
+    key: {type: SEED-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SEED-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Serpent:
+    key: {type: Serpent, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Serpent}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SERPENT-GMAC:
+    key: {type: SERPENT-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SERPENT-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SHACAL-2:
+    key: {type: SHACAL-2, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SHACAL-2}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SIPHASH:
+    key: {type: SipHash, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SIPHASH}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SIPHASH128:
+    key: {type: SIPHASH128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SIPHASH128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-1024-1024:
+    key: {type: Skein-MAC-1024-1024, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 1024, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 1024, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-1024-1024}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-1024-384:
+    key: {type: Skein-MAC-1024-384, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-1024-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-1024-512:
+    key: {type: Skein-MAC-1024-512, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-1024-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-256-128:
+    key: {type: Skein-MAC-256-128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-256-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-256-160:
+    key: {type: Skein-MAC-256-160, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 160, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 160, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-256-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-256-224:
+    key: {type: Skein-MAC-256-224, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-256-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-256-256:
+    key: {type: Skein-MAC-256-256, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-256-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-512-128:
+    key: {type: Skein-MAC-512-128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-512-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-512-160:
+    key: {type: Skein-MAC-512-160, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 160, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 160, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-512-160}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-512-224:
+    key: {type: Skein-MAC-512-224, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 224, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 224, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-512-224}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-512-256:
+    key: {type: Skein-MAC-512-256, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-512-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-512-384:
+    key: {type: Skein-MAC-512-384, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 384, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 384, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-512-384}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Skein-MAC-512-512:
+    key: {type: Skein-MAC-512-512, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Skein-MAC-512-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SKIPJACK:
+    key: {type: SKIPJACK, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 80, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 80, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SKIPJACK}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SM4:
+    key: {type: SM4, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SM4}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SM4-CMAC:
+    key: {type: SM4-CMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SM4-CMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SM4-GMAC:
+    key: {type: SM4-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SM4-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|SunTls12Prf:
+    key: {type: SunTls12Prf, origin: none, source: inferred}
     required:
-    - {name: parameters, value: none, source: inferred}
-    - {name: nonce, value: none, source: inferred}
+    - {name: providerSpec, recipe: sun.tlsSpec, passedTo: init, source: measured}
     optional: []
     conditions:
-      output: {kind: secret_key, bytes: null, source: inferred}
-      deterministic: {value: false, source: inferred}
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
       authenticated: {value: false, source: inferred}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: RC2}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SunTls12Prf}}
     sourcedOnly:
-    - {fact: strengthBits, value: null, source: unsourced}
-    - {fact: minSdk, value: null, source: AKEYGEN}
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
-  KeyGenerator|SunTls12Prf:
-    required: []
-    optional: []
-    conditions: {}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLS12PRF}
-    sourcedOnly: []
-    providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsKeyMaterial:
-    required: []
+    key: {type: SunTlsKeyMaterial, origin: none, source: inferred}
+    required:
+    - {name: providerSpec, recipe: sun.tlsSpec, passedTo: init, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSKEYMATERIAL}
-    sourcedOnly: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SunTlsKeyMaterial}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsMasterSecret:
-    required: []
+    key: {type: SunTlsMasterSecret, origin: none, source: inferred}
+    required:
+    - {name: providerSpec, recipe: sun.tlsSpec, passedTo: init, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSMASTERSECRET}
-    sourcedOnly: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SunTlsMasterSecret}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsPrf:
-    required: []
+    key: {type: SunTlsPrf, origin: none, source: inferred}
+    required:
+    - {name: providerSpec, recipe: sun.tlsSpec, passedTo: init, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSPRF}
-    sourcedOnly: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SunTlsPrf}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsRsaPremasterSecret:
-    required: []
+    key: {type: SunTlsRsaPremasterSecret, origin: none, source: inferred}
+    required:
+    - {name: providerSpec, recipe: sun.tlsSpec, passedTo: init, source: measured}
     optional: []
-    conditions: {}
-    contract:
-      key: app
-      input: {}
-      output: {consumer: {value: consumer-defined, assumed: true}, function: SUNTLSRSAPREMASTERSECRET}
-    sourcedOnly: []
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: null, source: inferred}
+      deterministic: {value: never, source: inferred}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: inferred}}}
+    operations: {value: [generateKey], source: inferred}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: SunTlsRsaPremasterSecret}}
+    sourcedOnly:
+    - {fact: strengthBits, value: null, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: person}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|TEA:
+    key: {type: TEA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: TEA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Threefish-1024:
+    key: {type: Threefish-1024, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 1024, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 1024, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Threefish-1024}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Threefish-256:
+    key: {type: Threefish-256, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Threefish-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Threefish-512:
+    key: {type: Threefish-512, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 512, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 512, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Threefish-512}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Tnepres:
+    key: {type: Tnepres, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Tnepres}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|TNEPRES-GMAC:
+    key: {type: TNEPRES-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 192, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: TNEPRES-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Twofish:
+    key: {type: Twofish, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Twofish}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|Twofish-GMAC:
+    key: {type: Twofish-GMAC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: Twofish-GMAC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|VMPC:
+    key: {type: VMPC, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: VMPC}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|VMPC-KSA3:
+    key: {type: VMPC-KSA3, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: VMPC-KSA3}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|XSALSA20:
+    key: {type: XSALSA20, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: XSALSA20}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|XTEA:
+    key: {type: XTEA, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: XTEA}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ZUC-128:
+    key: {type: ZUC-128, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 128, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ZUC-128}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
+  KeyGenerator|ZUC-256:
+    key: {type: ZUC-256, origin: none, source: measured}
+    required: []
+    optional:
+    - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
+    conditions:
+      output: {kind: secret_key, bytes: null, bits: 256, source: measured}
+      deterministic: {value: never, source: measured}
+      authenticated: {value: false, source: inferred}
+    lifecycle: {reset: {forward: {value: afterInit, source: measured}}}
+    operations: {value: [generateKey], source: measured}
+    contract: {key: app, input: {}, output: {consumer: {value: consumerDefined, assumed: true}, function: ZUC-256}}
+    sourcedOnly:
+    - {fact: strengthBits, value: {key: aes}, source: inferred}
+    - {fact: minSdk, value: null, source: inferred}
+    providers: {}
+    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

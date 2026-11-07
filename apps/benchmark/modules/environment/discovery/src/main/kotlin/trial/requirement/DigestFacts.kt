@@ -24,6 +24,7 @@ internal object DigestFacts : RequirementCall {
         sheet.measure("deterministic") { output.contentEquals(digest(service.algorithm, service, message)) }
         sheet.measure("inputBytes") { Sweep.of(INPUTS) { digest(service.algorithm, service, ByteArray(it)) } }
         sheet.measure("cloneable") { ErrorText.refusal { MessageDigest.getInstance(service.algorithm, service.provider).clone() } ?: "ok" }
+        sheet.measure("reset") { mapOf("forward" to ResetRun.of(CallOrder(emptyList(), { instance(service.algorithm, service) }, listOf(CallStep("update") { digest -> digest.update(message); null }, CallStep("digest") { digest -> digest.digest() })))) }
         sheet.measure("emptyInputPrefix") { digest(service.algorithm, service, ByteArray(0)).take(PREFIX_BYTES).joinToString("") { "%02x".format(it) } }
         return CallResult(
             runWith = mapOf("operation" to "digest", "inputBytes" to message.size),
@@ -32,5 +33,7 @@ internal object DigestFacts : RequirementCall {
     }
 
     private fun digest(name: String, service: ProbedService, message: ByteArray): ByteArray =
-        MessageDigest.getInstance(name, service.provider).digest(message)
+        instance(name, service).digest(message)
+
+    private fun instance(name: String, service: ProbedService): MessageDigest = MessageDigest.getInstance(name, service.provider)
 }

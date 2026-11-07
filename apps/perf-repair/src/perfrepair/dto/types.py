@@ -4,8 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 OUTPUT_KINDS = ("digest", "tag", "ciphertext", "aead_ciphertext", "signature", "shared_secret", "secret_key", "key_pair")
-# none: no IV or nonce; unpredictable: a fresh random IV each call; unique: never repeated under one key
-NONCES = ("none", "unpredictable", "unique")
+# nonce kind none: no IV or nonce; unpredictable: a fresh random IV each call; unique: never repeated under one key
 NO_NONCE = "none"
 NO_PARAMETERS = "none"
 

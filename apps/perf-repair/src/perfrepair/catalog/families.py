@@ -2,30 +2,29 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
 from ..dto.document import AT_PATH, DocumentKind
 from ..dto.grouping import Family
 
 CATALOG = Path(__file__).with_name("families.yaml")
 SCHEMA_VERSION = 1
 FAMILIES_DOC = DocumentKind("families", SCHEMA_VERSION, AT_PATH)
+UNIDENTIFIED, ANY_TYPE = "unidentified", "any"
 
 
 class Families:
+    """all: the families; by_id also holds unidentified, the place of an item no family fits."""
 
-    def __init__(self, families: list[Family]):
-        self.all = families
-        self.by_id = {f.id: f for f in families}
+    def __init__(self, families: list[Family], unidentified: Family):
+        self.all, self.unidentified = families, unidentified
+        self.by_id = {f.id: f for f in (*families, unidentified)}
         self._by_key = {(f.type, f.keyKind): f for f in families}
-        if len(self.by_id) != len(families) or len(self._by_key) != len(families):
+        if len(self.by_id) != len(families) + 1 or len(self._by_key) != len(families):
             raise ValueError("families: duplicate id or (type, keyKind)")
 
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Families":
-        doc = yaml.safe_load(Path(path).read_text())
-        FAMILIES_DOC.check(doc, path)
-        return cls([Family(**f) for f in doc["families"]])
+        doc = FAMILIES_DOC.read(path)
+        return cls([Family(**f) for f in doc["families"]], Family(**doc["unidentified"]))
 
     @property
     def types(self) -> set[str]:

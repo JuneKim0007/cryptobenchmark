@@ -6,12 +6,11 @@ from functools import cache
 
 from ..dto.types import Properties, Strength, TypeRow
 from .algorithms import (
+    ALWAYS,
     AUTHENTICATED,
     DETERMINISTIC,
     MIN_SDK,
-    NONCE,
     OUTPUT,
-    PARAMETERS,
     STRENGTH,
     Algorithms,
     Entry,
@@ -50,10 +49,19 @@ def _strength(raw) -> Strength:
     return Strength(bits=raw)
 
 
+def _every_build(entry: Entry, condition: str) -> list:
+    """A condition's value on every build: the base's, or with no base each build's own."""
+    if condition in entry.raw["conditions"]:
+        return [entry.raw["conditions"][condition]["value"]]
+    return [o[f"conditions.{condition}"]["value"] for o in entry.raw["providers"].values() if f"conditions.{condition}" in o]
+
+
 def _row(entry: Entry) -> TypeRow:
+    """With no base a property holds only when it holds on every build: deterministic always, authenticated true."""
     c, strength, min_sdk = entry.raw["conditions"], entry.sourced(STRENGTH), entry.sourced(MIN_SDK)
-    props = Properties(c[AUTHENTICATED]["value"], c[DETERMINISTIC]["value"], entry.required(NONCE)["value"],
-                       entry.required(PARAMETERS)["value"], c[OUTPUT]["bytes"], entry.raw["key"]["type"])
+    authenticated = all(v is True for v in _every_build(entry, AUTHENTICATED))
+    deterministic = all(v == ALWAYS for v in _every_build(entry, DETERMINISTIC))
+    props = Properties(authenticated, deterministic, entry.nonce, entry.parameters, c[OUTPUT].get("bytes"), entry.raw["key"]["type"])
     return TypeRow(entry.family, entry.canonical, c[OUTPUT]["kind"], props, _strength(strength["value"]), strength["source"],
                    min_sdk["value"], min_sdk["source"])
 

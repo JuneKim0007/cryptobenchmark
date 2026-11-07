@@ -1,0 +1,439 @@
+# One defined meaning for every word of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and algorithm-names.yaml: a tree by real structure; a term
+# holds `means` and either closed `values` or an open `format` (number, url, text, algorithmId, requiredName, boolean, role, recipeId,
+# className, deviationId, operation, outputFormula). `nullable`: null is allowed. `unused`: why a listed value, or the term itself, nothing holds yet
+# stays. `derived`: computed from other terms, never stored. A role holds `make`, `lives`, one word for both directions or one per direction, and `goesTo`, the calls a required row of it may name per engine type. Read through catalog/glossary.py.
+schemaVersion: 1
+group:
+  schemaVersion: {means: The version of this file's shape., format: number}
+  source: {means: Who keeps the list and how a name joins it., format: text}
+  groups: {means: The groups by id, each a family or unidentified., format: text}
+  family:
+    means: The group's id, which says what kind of algorithm it holds.
+    values:
+      cipher.secret: "Symmetric ciphers: one secret key, or a key derived from a password, encrypts and decrypts."
+      cipher.pair: "Asymmetric ciphers: a public key encrypts, the private key decrypts."
+      signature.pair: "Signatures: a private key signs, the public key verifies."
+      mac.secret: "Message authentication codes: one secret key computes and checks a tag."
+      digest.none: "Hash functions: no key; the same input gives the same fixed-size output."
+      keygen.none: "Secret key generators: each call produces a new symmetric key."
+      keypairgen.none: "Key pair generators: each call produces a new public and private key."
+      agreement.peer: "Key agreement: two parties derive one shared secret from their private key and the other's public key."
+      unidentified: "Not identified: no catalogue entry and no key evidence place it in a family, so nothing about what it does is known."
+  description: {means: 'What the group is: the family value''s meaning, kept in families.yaml and returned by list_groups, not by groups.yaml.', format: text}
+  exemplars: {means: Member ids chosen to show the group's range; facts about the group, not definitions., format: algorithmId}
+  algorithms: {means: Every id the group lists., format: algorithmId}
+  members: {means: The ids get_group returns a page at a time; the same ids as `algorithms`, not a word of groups.yaml., format: algorithmId}
+  unidentified: {means: 'The group of ids nobody could identify: `algorithms` lists them and `exemplars` stays empty; the reason and sources tried are the decision''s log.', format: algorithmId}
+algorithm:
+  schemaVersion: {means: The version of this file's shape., format: number}
+  family: {means: The family a catalogue file holds; one of group.family., format: text}
+  id: {means: 'One entry''s key: <engine type>|<canonical name> of algorithm-names.yaml.', format: algorithmId}
+  source:
+    means: Where this value comes from.
+    values:
+      measured: A run varied or observed this very value on a device or host, on every provider build it ran on, or the difference is under `providers`. A row's label does not cover its `rule`, a standard's claim, or its `affects`, which no row's run varies.
+      sourced: A cited standard or platform document states it; `url` names it.
+      inferred: Reasoned only; no run or citation backs it yet.
+  url: {means: The citation of a sourced value., format: url}
+  key:
+    type: {means: The key algorithm the call accepts; for a pair the name a KeyPairGenerator takes., format: text}
+    bytes: {means: Accepted secret key lengths in bytes, each listed., format: number}
+    origin:
+      means: Where the key comes from.
+      values:
+        app: Key material the application holds.
+        provider: A handle to a key inside the provider, such as a keystore; it never leaves it.
+        password: Derived from a password through a SecretKeyFactory.
+        none: The call takes no key.
+  role:
+    secretKey: {means: 'A secret key of `key.type`.', make: generated, lives: once, goesTo: {Cipher: [init], Mac: [init]}}
+    privateKey: {means: The caller's private key., make: generated, lives: once, goesTo: {Cipher: [init], KeyAgreement: [init], Signature: [init]}}
+    publicKey: {means: A public key; with a KEM generator the recipient's key it encapsulates to., make: generated, lives: once, goesTo: {Cipher: [init], KeyGenerator: [init], Signature: [init]}}
+    peerPublicKey: {means: The other party's public key in a key agreement., make: generated, lives: once, goesTo: {KeyAgreement: [doPhase]}}
+    password: {means: The password a key is derived from., make: fixed, lives: once, goesTo: {Cipher: [generateSecret], Mac: [generateSecret]}}
+    salt: {means: Random bytes mixed into a password-derived key; kept with the data., make: random, lives: perKey, goesTo: {Cipher: [init, generateSecret], Mac: [init]}}
+    iterationCount: {means: Rounds of the password derivation; kept with the data., make: entryValue, lives: once, goesTo: {Cipher: [init, generateSecret], Mac: [init]}}
+    iv: {means: 'An initialization vector of `bytes` length, one per encryption; a provider that generates one when it is not given is read back to decrypt.', make: random, lives: {forward: perUse, reverse: copied}, goesTo: {Cipher: [init], Mac: [init]}}
+    nonce: {means: 'A value of `bytes` length never reused under one key; a provider that generates one when it is not given is read back to decrypt.', make: random, lives: {forward: perUse, reverse: copied}, goesTo: {Cipher: [init]}}
+    tagBits: {means: Authentication tag length in bits., make: entryValue, lives: once, goesTo: {Cipher: [init]}}
+    aad: {means: Extra data authenticated but not encrypted; decrypt must give the same bytes., make: random, lives: once}
+    digest: {means: The hash a parameter object names, as inside OAEP or PSS; the default differs by provider., make: entryValue, lives: once, goesTo: {Signature: [init]}}
+    mgf1: {means: The mask hash a parameter object names, as inside OAEP or PSS; the default differs by provider., make: entryValue, lives: once, goesTo: {Signature: [init]}}
+    saltBytes: {means: The PSS salt length a parameter object names., make: entryValue, lives: once, goesTo: {Signature: [init]}}
+    label: {means: The OAEP label., make: random, lives: once}
+    curve: {means: The named elliptic curve a generator or key uses; a generator's default differs by provider., make: entryValue, lives: once, goesTo: {Cipher: [keyGeneration], KeyPairGenerator: [init], KeyAgreement: [keyGeneration], Signature: [keyGeneration]}}
+    group: {means: The named DH or DSA group a generator or key uses., make: entryValue, lives: once, goesTo: {Cipher: [keyGeneration], KeyAgreement: [keyGeneration], Signature: [keyGeneration]}}
+    keySize: {means: 'Key length in bits, as init and initialize take it; a generator''s default differs by provider.', make: entryValue, lives: once, goesTo: {KeyPairGenerator: [init]}}
+    input: {means: The data to process., make: random, lives: once, goesTo: {Cipher: [update, wrap], MessageDigest: [update], Mac: [update], Signature: [update]}}
+    secretAlgorithm: {means: The algorithm name of the secret a key agreement or KEM generator returns, which fixes the key's length., make: entryValue, lives: once, goesTo: {KeyGenerator: [init], KeyAgreement: [generateSecret]}}
+    derivationVector: {means: 'Bytes of `bytes` length mixed into the key derivation of an integrated encryption scheme or KEM.', make: random, lives: once, goesTo: {Cipher: [init]}}
+    encodingVector: {means: 'Bytes of `bytes` length mixed into the MAC of an integrated encryption scheme.', make: random, lives: once, goesTo: {Cipher: [init]}}
+    macKeyBits: {means: The MAC key length in bits an integrated encryption scheme derives., make: entryValue, lives: once, goesTo: {Cipher: [init]}}
+    keyBits: {means: The cipher key length in bits a scheme derives or a parameter object names., make: entryValue, lives: once, goesTo: {Cipher: [init, generateSecret]}}
+    userKeyingMaterial: {means: 'Bytes of `bytes` length a KDF or a GOST key wrap mixes in, the same on both sides.', make: random, lives: once, goesTo: {Cipher: [init], KeyAgreement: [init]}}
+    ephemeralKeyPair: {means: The caller's own one-time key pair of MQV or unified DH, in the group of `privateKey`., make: generated, lives: {forward: perUse, reverse: copied}, goesTo: {KeyAgreement: [init]}}
+    peerEphemeralPublicKey: {means: The other party's one-time public key of MQV or unified DH, in the group of `privateKey`., make: generated, lives: {forward: perUse, reverse: copied}, goesTo: {KeyAgreement: [init]}}
+    providerSpec: {means: A parameter object the call refuses to run without whose arguments are no role of the entry, only its recipe's constants or a builder's., make: fixed, lives: once, goesTo: {Cipher: [init], KeyGenerator: [init]}}
+  make:
+    means: How a value of a role is made.
+    values:
+      random: 'Fresh random bytes of the row''s `bytes`, or of the case''s input size for `input`.'
+      fixed: The same test value on every run, such as a password's bytes or a recipe's constants.
+      generated: 'A key made by a generator per `key.type`, `key.bytes` or the row''s curve or group; `sameGroupAs` puts it in another row''s group.'
+      entryValue: 'The row''s `value`; without one, the recipe argument''s `value`.'
+  lives:
+    means: How long one value of a role is used.
+    values:
+      once: One value for the whole case.
+      perKey: One value per derived or generated key.
+      perUse: A new value for every operation, never repeated under one key.
+      copied: The value the forward operation used, which the reverse operation must take; nothing new is made.
+  direction:
+    means: Which way an operation runs.
+    values:
+      forward: It makes a result from the input, so any new value a perUse role needs is chosen here.
+      reverse: It takes back what a forward operation made, with the values that operation used.
+  required:
+    name: {means: 'The role the caller must give, or the call refuses to run; absent means not needed. A role of `algorithm.role`.', format: role}
+    passedTo:
+      means: The call that takes it.
+      values:
+        init: Cipher, Mac, Signature or KeyAgreement init, or a generator's init or initialize.
+        doPhase: KeyAgreement.doPhase.
+        update: update or the data part of doFinal or sign.
+        generateSecret: SecretKeyFactory.generateSecret turning a password into a key, or KeyAgreement.generateSecret.
+        keyGeneration: The generator that makes the key this call uses, not this call.
+        wrap: Cipher.wrap, which takes the key being wrapped.
+    recipe: {means: 'The recipe of recipes.yaml that makes the parameter object carrying this row''s value; the rows naming one recipe go to their call as one object, so leaving the object out leaves out every one of them.', format: recipeId}
+    bytes: {means: Required length in bytes; the length a check passes., format: number}
+    value: {means: 'The named or counted value it takes: a curve, group, algorithm name, tag bits or rounds.', format: text}
+    rule:
+      means: How a nonce or IV must be chosen.
+      values:
+        unpredictable: A fresh random value for each encryption.
+        unique: Never repeated under one key; it need not be random.
+    use:
+      means: The direction a row serves when the two directions differ.
+      values:
+        encrypt: Encrypting.
+        decrypt: Decrypting; encrypting runs without it because the provider generates one.
+        sign: Signing.
+        verify: Verifying.
+        wrap: Wrapping a key.
+        unwrap: Unwrapping a key.
+    sameGroupAs: {means: This key must be on the same curve or DH group as the named requirement., format: requiredName}
+  optional:
+    name: {means: 'The role the caller may give; it runs without it, but it can change the result. A role of `algorithm.role`.', format: role}
+    accepted: {means: Values the provider accepted when run., format: text}
+    default: {means: 'What the call uses when the caller gives none: a size in bits, a hash; a build that differs sits under `providers`.', format: text}
+    affects:
+      means: What changes when this argument changes.
+      values:
+        outputLength: The result is a different length.
+        outputBytes: The result is different bytes.
+        decrypt: Decrypting or verifying needs the same value.
+        security: Strength changes; output may not.
+  conditions:
+    input:
+      value:
+        means: What input the operation accepts.
+        values:
+          any: Any length.
+          blockMultiple: Length must be a multiple of the block size.
+          maxBytes: Length is limited by the key and padding.
+      bytes: {means: The most bytes accepted, for maxBytes at the key the entry requires., format: number}
+    output:
+      kind:
+        means: What the operation returns.
+        values:
+          digest: A fixed-length hash of the input.
+          tag: A keyed authentication tag.
+          ciphertext: Encrypted data with no integrity check.
+          aead_ciphertext: Encrypted data with an authentication tag.
+          signature: A signature a public key verifies.
+          shared_secret: Bytes both parties of a key agreement derive.
+          secret_key: A new secret key.
+          key_pair: A new public and private key.
+      bytes: {means: Result length in bytes when fixed; null when it varies., format: number, nullable: true}
+      bits: {means: Generated key length in bits; null when the entry cannot run without a provider class., format: number, nullable: true}
+      formula: {means: 'Result length from input length: same, pad:<block>, plus:<n>, fixed:<n>, any.', format: outputFormula}
+    deterministic:
+      value:
+        means: Whether equal inputs give equal outputs.
+        values:
+          always: Always equal.
+          fixedParameters: Equal only when the IV or nonce is also fixed.
+          never: Randomized by the algorithm itself.
+    authenticated:
+      value:
+        means: Whether tampered data is detected.
+        values:
+          true: Decrypt or verify fails on altered data, or a tag differs for another message.
+          false: Altered data is not detected.
+    reuseRefused:
+      value:
+        means: The provider refuses a second encryption with the same nonce.
+        values:
+          true: Refused.
+          false: Allowed; the caller must prevent it.
+    roundTrip:
+      value:
+        means: A run decrypted or verified what it produced.
+        values:
+          true: It did.
+          false: It did not.
+        unused:
+          false: A run that failed is a suspicious result, not a stated fact; kept for an agent's run check.
+    spellingRuns:
+      value: {means: 'On this build, a spelling of the id that is another service of the provider; one id cannot state both.', format: text}
+    wrapOnly:
+      value:
+        means: The cipher only wraps keys; doFinal on data is refused, so a caller uses Cipher.wrap and unwrap.
+        values:
+          true: Only wrap and unwrap.
+          false: A build also ran doFinal on data, though the name is a wrap.
+  contract:
+    key:
+      means: How the key reaches the primitive; rows never mix these.
+      values:
+        app: Key material the application holds.
+        provider: A key inside the provider.
+        password: A key derived from a password.
+        none: No key.
+    assumed: {means: A provider convention no run or citation confirms; rows compare the value and the description shows (assumed)., format: boolean}
+    input:
+      passwordBased:
+        means: The name derives its key from a password.
+        values: {true: It does., false: It does not.}
+      wrap:
+        means: The call wraps a key instead of encrypting data.
+        values: {true: It does., false: It does not.}
+      prehashed:
+        means: The input is already a digest (NONEwith names).
+        values: {true: It is., false: It is not.}
+      derivedBits: {means: Key length the password-based name fixes., format: number}
+      kdf: {means: The password key derivation., format: text}
+    output:
+      base: {means: The underlying cipher., format: text}
+      mode: {means: Mode of operation., format: text}
+      padding: {means: Padding scheme., format: text}
+      digest: {means: The hash inside the name., format: text}
+      mgf1: {means: Mask hash of OAEP or PSS., format: text}
+      salt: {means: PSS salt length., format: text}
+      scheme: {means: Signature scheme., format: text}
+      curve: {means: The elliptic curve the name fixes; `byKey` when the key decides., format: text}
+      parameterSet: {means: 'The named parameter set of a post-quantum scheme, such as 65 of ML-DSA; `byKey` when the key decides.', format: text}
+      encoding:
+        means: Signature encoding.
+        values:
+          DER: ASN.1 DER.
+          P1363: Fixed-length r and s.
+          PKCS1: PKCS1 block.
+          ISO9796-2: ISO/IEC 9796-2 message recovery.
+          X9.31: ANSI X9.31 block.
+          BE: Big-endian DSTU 4145.
+          LE: Little-endian DSTU 4145.
+      algorithm: {means: Key agreement algorithm., format: text}
+      kdf: {means: The key derivation a key agreement's output passes through., format: text}
+      cipher: {means: The symmetric cipher inside an integrated encryption scheme., format: text}
+      nonce: {means: How a signature's per-message secret is chosen when the name fixes it., format: text}
+      construction: {means: MAC construction., format: text}
+      size: {means: The output size in bits the name fixes., format: text}
+      rounds: {means: The round counts the name fixes., format: text}
+      function: {means: The function a digest or generator computes., format: text}
+      consumer: {means: The primitive a generated key is for., format: text}
+  sourcedOnly:
+    fact:
+      means: A fact only a standard can give; a run cannot prove it.
+      values:
+        strengthBits: Security strength in bits.
+        minSdk: First Android API level with it.
+    value:
+      means: 'The fact''s value: a number, or for a key-size strength `key` and `cap`; null when nothing states it.'
+      format: number
+      nullable: true
+      key:
+        means: The keyStrength map a key size reads.
+        values:
+          aes: Symmetric key bits.
+          ifc: RSA, DH and DSA modulus bits.
+          ecc: Elliptic curve order bits.
+      cap: {means: The strength the hash caps it at., format: number}
+  lifecycle:
+    reset:
+      value:
+        means: 'What one operation leaves the engine in, per direction of the entry''s operations: `lifecycle.reset` holds a `forward` and a `reverse` row as those operations need; a build''s difference is `lifecycle.reset.<direction>`.'
+        values:
+          afterInit: Back in its post-init state, so the next operation needs no init, as digest, doFinal, sign, generateSecret and generateKey leave it.
+          none: Not reusable without a new init, as a GCM encrypt that refuses a second doFinal under one nonce; `reuseRefused` is another event, a new init with the same nonce.
+    reinit:
+      means: 'Per operation of an entry as one build sees it, whether init runs before every use: a forward operation is `perUse` when a role that lives perUse going forward has a required or optional row, whatever the row''s `use`; a reverse operation is `never`, its value `copied`; anything else is `never`.'
+      derived: true
+      values:
+        never: Init once; the engine is reused.
+        perUse: Init before every use, with a new value of the perUse role.
+  operations:
+    value:
+      means: The operations the entry supports and the harness times.
+      values:
+        encrypt: Cipher doFinal in ENCRYPT_MODE.
+        decrypt: Cipher doFinal in DECRYPT_MODE.
+        wrap: Cipher.wrap of a key.
+        unwrap: Cipher.unwrap of a wrapped key.
+        digest: MessageDigest.digest.
+        computeMac: Mac.doFinal.
+        sign: Signature.sign.
+        verify: Signature.verify.
+        agree: KeyAgreement doPhase and generateSecret.
+        generateKey: KeyGenerator.generateKey.
+        generateKeyPair: KeyPairGenerator.generateKeyPair.
+      directions: {encrypt: forward, decrypt: reverse, wrap: forward, unwrap: reverse, digest: forward, computeMac: forward, sign: forward, verify: reverse, agree: forward, generateKey: forward, generateKeyPair: forward}
+  providers: {means: 'A difference one provider build has from the entry, keyed by "<name> @ <build>" of provider-builds.yaml, holding <path>: <value>; required.<name> or optional.<name> is a whole row, null when that build runs without it. It says otherwise than a provider''s behaviour or a deviation, which state what many entries share once.', format: text}
+  provenance:
+    by:
+      means: Who wrote this entry.
+      values:
+        person: Reviewed by a person.
+        agent: Appended by an agent; unverified until a person checks its sourced facts.
+      unused:
+        person: No entry has had a person's review since the rewrite; a review sets it.
+    model: {means: The model that wrote it., format: text}
+    run: {means: The run that wrote it., format: text}
+    date: {means: The day it was written., format: text}
+  common:
+    sources: {means: 'A citation by id: every url a catalogue cites and the keyStrength tables'' source.', format: url}
+    keyStrength:
+      bits: {means: Comparable strength by key size., format: number}
+    deterministicRelied:
+      means: Output kinds whose bytes a caller may compare or look up, so losing determinism there is rejected.
+      format: text
+recipe:
+  schemaVersion: {means: The version of this file's shape., format: number}
+  recipes: {means: 'The recipes by id: how each parameter object a catalogue row names is made.', format: text}
+  id: {means: 'A recipe''s key, <namespace>.<name>: jca for the platform''s classes, bc or sun for one provider''s; a row names it in `recipe`.', format: recipeId}
+  class: {means: 'The public class whose constructor `args` call makes the object: the first form, tried first.', format: className}
+  factory:
+    means: 'A static method or a builder class''s constructor that `args` call and `steps` finish: the second form, where no constructor can.'
+    format: text
+    unused: 'No recipe needs it: every provider parameter object seen has a public constructor, and KEM ciphers wrap without KTSParameterSpec.Builder.'
+  steps:
+    means: The calls made in order on what `factory` returned; the last returns the object.
+    format: text
+    unused: Only a `factory` has steps, and no recipe needs one yet.
+  builder: {means: 'A function a person wrote in the harness that makes the object, named here: the last form, where neither a constructor nor a factory can. An agent may name one, never write one.', format: text}
+  args:
+    means: The arguments in order of the constructor, the factory or a step.
+    role: {means: 'The role whose value this argument passes: the entry''s row of that role gives its `bytes` or `value`, made and kept as the role says.', format: role}
+    kind:
+      means: The Java type the argument passes.
+      values:
+        bytes: A byte array.
+        int: An int.
+        string: A String, or a char array made from one.
+        enum: 'A static field of a class, named in full in `value`.'
+        keyRef: A key or key pair the case generates for the role.
+        recipe: 'An object another recipe makes, named in `recipe`.'
+        constant: 'The literal in `value`, the same for every entry: a number, a boolean, a string or a class.'
+      unused:
+        enum: No recipe passes a static field; the closed list keeps the form for an object that takes one.
+    value: {means: 'The constant a `constant` or `enum` argument passes, or the value an entryValue role takes when the entry''s row gives none.', format: text}
+    recipe: {means: The recipe that makes a nested argument., format: recipeId}
+plan:
+  outside: {means: The roles prepared before timing., format: role}
+  create:
+    means: How often getInstance runs.
+    values: {once: Once per case., perCall: Inside every timed call.}
+  init:
+    means: How often init runs.
+    values: {once: Once per case., perCall: Inside every timed call.}
+  operation: {means: 'The operation timed, one of `algorithm.operations`.', format: operation}
+  calls:
+    means: 'The calls of one engine type and direction in the order they run; the requirement probe writes them at `facts.reset.<direction>.calls` as it runs them, and CallOrder.kt runs the same form.'
+    setup: {means: 'The calls made once, before the first use; each a `step`.', format: text}
+    operation: {means: 'The calls of each use, in order; each a `step`.', format: text}
+    step:
+      means: One call on the engine.
+      values:
+        init: Cipher, Mac or KeyAgreement init.
+        initSign: Signature.initSign.
+        initVerify: Signature.initVerify.
+        setParameter: Signature.setParameter.
+        updateAAD: Cipher.updateAAD.
+        update: update on Cipher, Mac, MessageDigest or Signature.
+        doFinal: Cipher.doFinal or Mac.doFinal.
+        wrap: Cipher.wrap.
+        unwrap: Cipher.unwrap.
+        sign: Signature.sign.
+        verify: Signature.verify.
+        digest: MessageDigest.digest.
+        doPhase: KeyAgreement.doPhase.
+        generateSecret: KeyAgreement.generateSecret.
+        generateKey: KeyGenerator.generateKey.
+        generateKeyPair: KeyPairGenerator.generateKeyPair.
+  variant:
+    means: Whether the timed call reuses its engine.
+    values:
+      fixed: The engine is made once and reused as its lifecycle allows.
+      notFixed: Every call makes, inits and runs its own engine.
+  notRunnable:
+    means: Why an entry, operation and variant has no plan.
+    values:
+      providerSpecUnknown: Its parameter object is made only by a builder the harness does not have.
+      keystoreBornKey: Its key must be born inside a keystore provider.
+      providerWithdrew: The provider withdrew the service on that build.
+      noKeyFactory: No key factory makes the key it needs.
+      instantiationFails: getInstance fails.
+deviation:
+  schemaVersion: {means: The version of this file's shape., format: number}
+  deviations: {means: 'Facts shared by a set of names and builds, by id, each stated once instead of in every entry.', format: text}
+  id: {means: 'A deviation''s key, <subject>.<fact>.', format: deviationId}
+  fact: {means: What is true of these names on these builds, in words., format: text}
+  builds: {means: 'The builds it holds on: a build key, or a provider name meaning every build of it.', format: text}
+  names: {means: The entries it holds for., format: algorithmId}
+  set: {means: '<path>: <value> as an entry''s `providers` holds them; applied to each name on each build.', format: text}
+build:
+  schemaVersion: {means: The version of this file's shape., format: number}
+  builds: {means: 'Every provider build the catalogues'' measured facts ran on, by <name> @ <build>.', format: text}
+  name: {means: The provider's name., format: text}
+  selfReported: {means: What the provider says of its own version; it does not identify a build., format: text}
+  origin:
+    means: Where the provider comes from.
+    values:
+      platform: The Android platform's own, by its API level.
+      bundled: A copy the app ships, by its artifact.
+      host: A desktop JDK's, by its version.
+  providers:
+    means: 'Facts true of a provider, by its name, stated once rather than in each entry.'
+    behaviour: {means: '<path>: <value> true of every id the provider registers, unless the entry''s `providers` says otherwise; a path whose parent the entry does not hold is skipped.', format: text}
+    registers:
+      means: 'The catalogue ids a provider registers, as rows of builds and names, so a behaviour reaches those only.'
+      builds: {means: 'A build key, or the provider''s name meaning every build of it.', format: text}
+      names: {means: The ids., format: algorithmId}
+names:
+  schemaVersion: {means: The version of this file's shape., format: number}
+  names: {means: 'Per engine type, each canonical name and its spellings.', format: text}
+  engine:
+    means: An engine type the names are kept for.
+    values:
+      MessageDigest: java.security.MessageDigest.
+      Mac: javax.crypto.Mac.
+      Signature: java.security.Signature.
+      Cipher: javax.crypto.Cipher.
+      SecretKeyFactory: javax.crypto.SecretKeyFactory.
+      KeyGenerator: javax.crypto.KeyGenerator.
+      KeyPairGenerator: java.security.KeyPairGenerator.
+      KeyFactory: java.security.KeyFactory.
+      KeyAgreement: javax.crypto.KeyAgreement.
+      SecureRandom: java.security.SecureRandom.
+      KeyStore: java.security.KeyStore.
+  sized:
+    means: 'Per engine type, spellings that fix a key size: the canonical name and the size.'
+    name: {means: The canonical name., format: text}
+    keySize: {means: The key size in bits the spelling fixes., format: number}
+  transformations:
+    means: 'Per engine type, how a <name>/<mode>/<padding> spelling is read.'
+    modes: {means: The modes a transformation may name., format: text}
+    paddings: {means: The paddings a transformation may name., format: text}
+    paddingSynonyms: {means: 'Per algorithm, a padding spelling and the padding it is.', format: text}
+    modeSynonyms: {means: 'Per algorithm, a mode spelling and the mode it is.', format: text}
+  keyFormats: {means: The key encodings a key's format may name., format: text}

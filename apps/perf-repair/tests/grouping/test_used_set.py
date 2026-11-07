@@ -84,7 +84,7 @@ def test_a_new_target_asks_only_its_new_items_and_a_removed_one_keeps_its_groups
     assert assign(paths) == 0
     doc = report(paths, FAMILIES)
     assert {q: g for q, g in ((e["qualified"], e["group"]) for e in doc["items"].values()) if q in kept} == kept
-    assert doc["notUsed"] == [1, 5]
+    assert doc["notUsed"] == [1, 6]
 
 
 def test_without_used_json_every_askable_item_is_asked_and_no_not_used_list(paths):
