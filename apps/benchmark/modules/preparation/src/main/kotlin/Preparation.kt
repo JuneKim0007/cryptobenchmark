@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.preparation
 
-import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
@@ -24,17 +23,18 @@ class Preparation(
     capability: DeviceCapability,
     private val report: SkipFile,
     private val record: PreparedFile,
-    engineTypes: EngineTypes = EngineTypes.standard(),
-    private val resolver: CaseResolver = CaseResolver(capability, engineTypes),
-    private val planner: KeyPlanner = KeyPlanner(capability),
-    private val generator: KeyMaterialGenerator = KeyMaterialGenerator(),
-    private val binder: ParameterBinder = ParameterBinder(),
 ) {
+
+    // One binder for the run: the selection check, key specs and case parameters bind through it.
+    private val binder = ParameterBinder()
+    private val resolver = CaseResolver(capability, binder)
+    private val planner = KeyPlanner(capability)
+    private val generator = KeyMaterialGenerator(binder = binder)
 
     fun prepare(effectiveFile: File): PreparedRun {
         val inbound = InboundFile.read(effectiveFile)
         val global = GlobalReader.read(inbound)
-        val request = BenchmarkRequest(PrimitiveReader.read(inbound, global), global)
+        val request = BenchmarkRequest(PrimitiveReader.read(inbound), global)
         val resolution = resolver.resolve(request)
         val skipped = resolution.rejections.mapTo(mutableListOf()) { rejection ->
             Skip(Skip.PREPARATION, rejection.provider, rejection.selection.type, rejection.selection.algorithm, rejection.reason)

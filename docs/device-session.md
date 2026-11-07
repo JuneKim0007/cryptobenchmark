@@ -101,7 +101,7 @@ What it does not fix:
 | rule | value |
 |---|---|
 | what it is | a pre-flight check that the app, the providers and the timed loop run on this device; not temperature stabilisation, and no number of it is kept |
-| cases | `jobs`: test-set rules `{provider?, type?, name?}` against the planned cases (`name` a glob on the algorithm, case-insensitive); `[]` the plan's first 3 |
+| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first 3 |
 | samples | `iterations` (10) per case, as `-e cryptobench.pass warmup`: no energy capture |
 | output | deleted on the device right after; never pulled, never converted, never in `benchmark.json` |
 | printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; hottest <c> C before, <c> C after` |

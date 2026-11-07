@@ -2,6 +2,7 @@
 import json
 
 from device import clocks
+from device.capture import runtime as capture_runtime
 from device.identity import device_id
 from results import layout as results_layout
 from repo import BENCHMARK
@@ -10,8 +11,8 @@ from results import run_inputs
 ENGINE_OPERATIONS = BENCHMARK / "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml"
 
 
-def runtime(measured, probe, files):
-    document = dict(measured["runtime"] if measured else probe.get("runtime") or {})
+def runtime(measured, captured, files):
+    document = dict(measured["runtime"] if measured else captured)
     if "clocks" in files:
         paths = files["clocks"] if isinstance(files["clocks"], list) else [files["clocks"]]
         document["cpuLocked"] = clocks.runtime_locked(paths)
@@ -51,14 +52,15 @@ def manifest(results, mode, configuration, files, problems=()):
         return json.loads(text) if files[key].suffix == ".json" else yaml.safe_load(text)
     probe = load("probe") if "probe" in files else {}
     measured = load("benchmark") if "benchmark" in files else None
+    captured = capture_runtime(probe)
     counted = {"prepared": ("prepared", "cases"), "skipped": ("skipped", "skipped"), "measured": ("benchmark", "cases")}
     document = {
         "schemaVersion": 1,
         "mode": mode,
         "config": str(configuration),
-        "deviceId": device_id(probe.get("runtime") or {}),
+        "deviceId": device_id(captured),
         "inputs": run_inputs.digests(configuration),
-        "runtime": runtime(measured, probe, files),
+        "runtime": runtime(measured, captured, files),
         "providers": [{"name": p["name"], "precedence": p["precedence"], "serviceCount": len(p.get("services") or [])}
                       for p in sorted(probe.get("providers") or [], key=lambda p: p["precedence"])],
         "files": {key: [path.relative_to(results).as_posix() for path in value] if isinstance(value, list)

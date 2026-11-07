@@ -7,6 +7,7 @@ import tempfile
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+from device.capture import CaptureError  # noqa: E402
 from device.identity import DeviceIdError, device_id  # noqa: E402
 from results.manifest import manifest  # noqa: E402
 from results import run_inputs  # noqa: E402
@@ -104,13 +105,26 @@ def test_a_probe_without_the_build_identity_writes_no_manifest():
     with tempfile.TemporaryDirectory() as temporary:
         results = pathlib.Path(temporary)
         files = layout(results, measured=False)
-        files["probe"].write_text(yaml.safe_dump({"runtime": {"model": "probed", "sdkInt": 36}}))
+        files["probe"].write_text(yaml.safe_dump({"schemaVersion": 1, "runtime": {"model": "probed", "sdkInt": 36}}))
         try:
             written(results, "device", files)
         except DeviceIdError as error:
             assert "fingerprint" in str(error) and not (results / "manifest.yaml").exists()
         else:
             raise AssertionError("expected device_id_fields_missing")
+
+
+def test_a_capture_of_another_schema_writes_no_manifest():
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        files = layout(results, measured=False)
+        files["probe"].write_text(yaml.safe_dump({**PROBE, "schemaVersion": 2}))
+        try:
+            written(results, "device", files)
+        except CaptureError as error:
+            assert "unsupported_capture_schema: 2" in str(error) and not (results / "manifest.yaml").exists()
+        else:
+            raise AssertionError("expected unsupported_capture_schema")
 
 
 def test_paths_are_relative_to_the_manifest_and_exist():

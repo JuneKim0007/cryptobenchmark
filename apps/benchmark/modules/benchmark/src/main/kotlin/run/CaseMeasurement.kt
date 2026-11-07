@@ -9,10 +9,6 @@ class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: M
     constructor(case: BenchmarkCase, keyKind: String?, iterations: Int, nanosPerOperation: List<Double>, parameters: Map<String, Any> = emptyMap()) :
         this(case, keyKind, MetricSamples(nanosPerOperation, iterations), parameters)
 
-    val iterations: Int get() = time.iterations
-
-    val nanosPerOperation: List<Double> get() = time.runs
-
     val medianNanos: Double
         get() {
             val sorted = time.runs.sorted()

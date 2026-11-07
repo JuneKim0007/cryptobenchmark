@@ -13,11 +13,13 @@
 | `latency_label(units)` | `apps/benchmark-runner/analysis/display_units.py` | `f"{units['latency']}/op"` | analyze, chart_draw, chart_model |
 | `throughput(ns, size, units)` | `apps/benchmark-runner/analysis/display_units.py` | None where the unit needs an input size the case does not have, or the time is zero. | analyze, chart_model |
 | `summarize(runs)` | `apps/benchmark-runner/analysis/stats.py` | - | analyze, chart_model |
+| `gradle_properties(bundled)` | `apps/benchmark-runner/bundled.py` | `[f"-PbundledArtifacts={','.join((entry['artifact'] for entry in bundled))}"] if bundled else []` | stages.benchmark, stages.check, stages.discover |
 | `ONE_PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(1 test\\)', re.M)` | session.case_isolation, stages.interop_oracle |
-| `PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | energy_session, session.measure, session.warmup |
-| `instrumentation_report(output)` | `apps/benchmark-runner/device/adb.py` | - | energy_session, stages.interop_oracle |
+| `PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | energy_session, session.measure, session.warmup, stages.check |
+| `instrumentation_report(output)` | `apps/benchmark-runner/device/adb.py` | - | energy_session, stages.check, stages.interop_oracle |
+| `read_runtime(path)` | `apps/benchmark-runner/device/capture.py` | `runtime(yaml.safe_load(path.read_text()) or {})` | device.facts, device.identity |
 | `read(device)` | `apps/benchmark-runner/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
-| `capture_id(capture)` | `apps/benchmark-runner/device/identity.py` | `device_id((yaml.safe_load(capture.read_text()) or {}).get('runtime') or {})` | stages.discover, stages.harness, stages.interop |
+| `capture_id(capture)` | `apps/benchmark-runner/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
 | `device_id(runtime)` | `apps/benchmark-runner/device/identity.py` | - | pipeline, results.manifest, stages.discover |
 | `read(device)` | `apps/benchmark-runner/device/thermal.py` | - | session.thermal_gate, session.thermal_hook, session.warmup |
 | `entry_count(document)` | `apps/benchmark-runner/effective_view.py` | `sum((len(names) for types in (document.get('providers') or {}).values() for names in types.values()))` | explain, stages.discover |
@@ -29,15 +31,15 @@
 | `one_line(error)` | `apps/benchmark-runner/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `apps/benchmark-runner/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
 | `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
-| `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +9 |
+| `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +10 |
 | `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +1 |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
-| `run(arguments, stacktrace, stream, main_class, notices)` | `apps/benchmark-runner/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it. | session.passes, stages.benchmark, stages.discover, stages.interop_oracle +1 |
-| `ROOT` | `apps/benchmark-runner/repo.py` | `RUNNER.parents[1]` | explain, global_file, pipeline, scope.code_digest |
+| `run(arguments, stacktrace, stream, main_class, notices, properties)` | `apps/benchmark-runner/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties. | session.passes, stages.benchmark, stages.check, stages.discover +2 |
+| `ROOT` | `apps/benchmark-runner/repo.py` | `RUNNER.parents[1]` | explain, global_file, pipeline, scope.code_digest +1 |
 | `publish(stage, target, discovery_mode)` | `apps/benchmark-runner/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
 | `staged(root)` | `apps/benchmark-runner/results/layout.py` | - | stages.discover, stages.interop |
 | `warn_if_temp(path)` | `apps/benchmark-runner/results/layout.py` | - | pipeline, stages.harness |
-| `manifest(results, mode, configuration, files, problems)` | `apps/benchmark-runner/results/manifest.py` | - | pipeline, stages.harness, stages.interop |
+| `manifest(results, mode, configuration, files, problems)` | `apps/benchmark-runner/results/manifest.py` | - | pipeline, stages.check, stages.harness, stages.interop |
 | `digests(global_file)` | `apps/benchmark-runner/results/run_inputs.py` | Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only | pipeline, results.manifest |
 | `device_folders(root)` | `apps/benchmark-runner/results/select.py` | - | none |
 | `generate(harness_path, root, out, compiler)` | `apps/benchmark-runner/scope/generate.py` | No scope compiled still writes an empty catalog, so no failed scope's source is left to break the test APK. | scope_generate, stages.harness |
@@ -47,8 +49,9 @@
 | `listed(output)` | `apps/benchmark-runner/session/case_isolation.py` | The timed cases the device planned, in its order: AndroidJUnitRunner's -e log true lists them and runs none. | session.measure, stages.benchmark |
 | `process_folder(root, repetition, repetitions)` | `apps/benchmark-runner/session/measure.py` | `root if repetitions == 1 else root / f'process-{repetition}'` | session.passes, stages.benchmark |
 | `parsed(global_file)` | `apps/benchmark-runner/stages/config_check.py` | `parse_all([pathlib.Path(global_file)])[0]` | pipeline, stages.discover |
+| `device_discover(options, configuration, device, root)` | `apps/benchmark-runner/stages/discover.py` | A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. | pipeline, stages.check |
 | `push(device, options, plan, energy)` | `apps/benchmark-runner/stages/measuring.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
-| `elapsed(label, started)` | `apps/benchmark-runner/stages/took.py` | - | stages.benchmark, stages.discover, stages.harness, stages.interop +1 |
+| `elapsed(label, started)` | `apps/benchmark-runner/stages/took.py` | - | stages.benchmark, stages.check, stages.discover, stages.harness +2 |
 | `run(step, command)` | `apps/benchmark-runner/timeouts.py` | - | device.adb, gradle_runner, scope.compile, stages.benchmark |
 | `clean(token)` | `tools/lint/markdown.py` | `re.sub('#.*$', '', re.sub(':\\d.*$', '', token.strip()))` | lint.claims, lint.tree |
 | `map_blocks(path, text)` | `tools/lint/markdown.py` | - | docs_lint, lint.tree |

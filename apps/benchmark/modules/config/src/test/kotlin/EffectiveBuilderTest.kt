@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
+import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
@@ -152,6 +153,14 @@ class EffectiveBuilderTest {
         val built = EffectiveBuilder().build(global, entryCpu(CpuSettings("big", required = true)), inventory, names, pinnable.copy(pinning = false))
         assertTrue(built.skipped.toString(), built.skipped.any { it.type == "MessageDigest" && it.reason.contains("no_pinning") })
         assertTrue(built.providers.values.none { it.containsKey("MessageDigest") })
+    }
+
+    /** The effective run carries the warm-up resolved against its own entries, and the warnings of that resolution. */
+    @Test
+    fun theWarmupIsResolvedAgainstTheSelectedEntries() {
+        val built = EffectiveBuilder().build(global.copy(run = global.run.copy(warmup = Warmup(10, listOf(Rule(name = "SHA-256"), Rule(name = "Nothing"))))), testSet, inventory, names)
+        assertEquals(Warmup(10, listOf(Rule("SUN", "MessageDigest", "SHA-256"))), built.run.warmup)
+        assertTrue(built.warnings.toString(), "warmup_job_matches_nothing: {name=Nothing}" in built.warnings)
     }
 
     @Test

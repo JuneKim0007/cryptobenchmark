@@ -7,7 +7,7 @@ from stages import benchmark  # noqa: E402
 from device import thermal  # noqa: E402
 from session import thermal_gate  # noqa: E402
 from fake_phone import Phone  # noqa: E402
-from test_device_benchmark_flow import measured  # noqa: E402
+from test_device_benchmark_flow import RUN, measured  # noqa: E402
 
 GATE = {"enabled": True, "sensors": ["BIG", "MID"], "marginCelsius": 3.0, "pollSeconds": 5, "timeoutSeconds": 300}
 
@@ -77,7 +77,7 @@ def test_the_gate_is_off_by_default_and_when_disabled(tmp_path, monkeypatch):
 
 def test_the_baseline_is_read_idle_before_the_warm_up_and_the_warm_up_is_not_gated(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
-    run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"name": "b*"}]}, "thermalGate": GATE}
+    run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}]}, "thermalGate": GATE}
     _phone, _files, _problems, results = measured(tmp_path, monkeypatch, run)
     assert heat.slept == [5, 5, 5, 5] and heat.asleep_after == [1, 1, 2, 2]
     assert gate_of(results, "a")["waitedSeconds"] == 10.0 and gate_of(results, "b")["target"] == 33.0
@@ -93,7 +93,7 @@ def test_with_one_process_for_every_case_the_gate_holds_the_process_and_every_ca
 
 def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_arguments, **_options: [])
-    document = {"run": {"thermalGate": GATE}}
+    document = {"run": {**RUN, "thermalGate": GATE}}
     benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {})
     assert capsys.readouterr().out.count("thermal_gate_off") == 1
 

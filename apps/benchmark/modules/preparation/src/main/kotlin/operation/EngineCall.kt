@@ -18,6 +18,11 @@ internal class EngineCall<E : Any>(
             PerCall.INIT_AND_OPERATION -> { { init.init(engine, calls++); operate(engine) } }
             PerCall.INSTANCE_INIT_AND_OPERATION -> { { engine = create(); init.init(engine, calls++); operate(engine) } }
         }
-        return Invocation(call, exact, if (readBack) { { engine } } else { { null } }, perCall) { CallTrace(engine, calls) }
+        // A call that re-inits replays on a new instance: an engine may refuse its own last nonce again.
+        val replay: () -> Any? = when (perCall) {
+            PerCall.OPERATION -> call
+            else -> { { create().also { init.init(it, calls - 1) }.let(operate) } }
+        }
+        return Invocation(call, exact, if (readBack) { { engine } } else { { null } }, perCall, { CallTrace(engine, calls) }, replay)
     }
 }

@@ -56,7 +56,7 @@ def test_keep_and_reuse_add_to_the_discovery_already_there(tmp_path, mode):
 
 def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_manifest(tmp_path):
     target = tmp_path / "device"
-    probe = write(target / "discovery/probe_old.yaml", yaml.safe_dump({"runtime": RUNTIME}))
+    probe = write(target / "discovery/probe_old.yaml", yaml.safe_dump({"schemaVersion": 1, "runtime": RUNTIME}))
     write(target / "configuration/effective.yaml", "old")
     stage = stage_with(tmp_path)
     write(stage / "interop/interop.yaml")
@@ -108,12 +108,12 @@ def harness_in(folder, device):
 
 
 def test_a_harness_measured_on_its_own_device_passes(tmp_path):
-    capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"runtime": RUNTIME}))
+    capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"schemaVersion": 1, "runtime": RUNTIME}))
     harness.require_harness_device(harness_in(tmp_path / "d", device_id(RUNTIME)), capture)
 
 
 def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
-    capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"runtime": RUNTIME}))
+    capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"schemaVersion": 1, "runtime": RUNTIME}))
     with pytest.raises(SystemExit):
         harness.require_harness_device(harness_in(tmp_path / "d", "other-api1-00000000"), capture)
     assert "harness_other_device" in capsys.readouterr().err

@@ -34,6 +34,6 @@ class KnownAnswerFileTest {
         val failure = assertThrows(IllegalArgumentException::class.java) {
             KnownAnswerFile.parse(mapOf("vectors" to listOf(mapOf("id" to "x", "tag" to "y"))))
         }
-        assertTrue(failure.message, failure.message!!.startsWith("unknown_field: [tag]"))
+        assertTrue(failure.message, failure.message!!.startsWith("unknown_keys: vectors[0] [tag]"))
     }
 }

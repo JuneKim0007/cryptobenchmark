@@ -34,13 +34,14 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 | bad YAML, duplicate keys | `unreadable_yaml` |
 | non-mapping | `not_a_mapping` |
 | field | `missing_field: <key>`, `wrong_type: <key>`, `unknown_<field>: <name>, one of [...]` (enum match case-insensitive) |
+| unknown key | `unknown_keys: <path> [..], known [..]`, as config refuses it |
 
 ## run and policy
 
 | key | rule |
 |---|---|
 | `inputSizes` | required; non-empty, positive, distinct |
-| `phases` | required; non-empty; `WARM`, `COLD` |
+| `phases` | required; non-empty; `WARM` |
 | `metrics` | required; `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
 | `variants` | optional, default `[fixed, notFixed]`; distinct values of `fixed`, `notFixed` ([operations.md](operations.md#variants)) |
 | `processRepetitions` | required; `>= 1` |
@@ -50,7 +51,7 @@ per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.in
 
 ## Selections
 
-`providers.<provider>.<type>.<name>[@<group>]: {entry}`; entry fields `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `harness`, all optional.
+`providers.<provider>.<type>.<name>[@<group>]: {entry}`; entry fields `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `providerDefaults`, `harness`, all optional.
 
 | rule | value |
 |---|---|
@@ -91,10 +92,9 @@ Type names match case-insensitively.
 |---|---|
 | `unsupported_operation: [..] for <type>, one of [..]` | entry operation not in the type |
 | `key_parameters_and_key_sizes: set one; a key spec already fixes the size` | `key` and `keySizes` both set |
-| `unused_setting: [..] reaches no call of [..]` | `keySizes`, `key` or `parameters` that no operation consumes |
+| `unused_setting: [..] reaches no call of [..]` | `keySizes`, `inputSizes`, `key` or `parameters` that no operation consumes |
 | `bind_failed: <path>: <detail>` | `key` or `parameters` tree fails to bind |
 | Availability reason | provider cannot serve the name |
-| `no_provider` | no provider list and none available |
 
 ## Device availability
 

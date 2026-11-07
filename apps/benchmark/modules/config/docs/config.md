@@ -27,7 +27,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | `selection` | `testSet` | required | non-blank; relative to global.yaml's directory unless absolute |
 | | `exclude` | `[]` | rules dropped after the test set |
 | `run` | `inputSizes` | `[1024]` | non-empty, all `> 0`; bytes per call |
-| | `phases` | `[WARM]` | non-empty, non-blank; values `WARM`, `COLD` checked by preparation |
+| | `phases` | `[WARM]` | non-empty, non-blank; value `WARM` checked by preparation |
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read`); device support checked at effective build: `apps/benchmark/modules/settings/docs/settings.md#device-support`; `benchmark.json` reports only these; ALLOCATION not requested: androidx still runs its allocation phase on a device; it is not reported |
 | | `variants` | `[fixed, notFixed]` | non-empty, distinct values of `fixed`, `notFixed`, else `invalid: run.variants`; preparation makes one case per variant of each item ([operations.md](../../preparation/docs/operations.md#variants)) |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
@@ -35,7 +35,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `seed` | `0` | input seed |
 | | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `timing` required when set (`missing_pass`); `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../../../docs/device-session.md#passes) |
 | | `thermalThrottleSleepSeconds` | unset | `>= 0`, else `negative`; `--device`: passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds`; unset keeps Jetpack's default |
-| | `warmup` | `{iterations: 10, jobs: []}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, `[]` the plan's first 3 cases; `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
+| | `warmup` | `{iterations: 10, jobs: []}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, resolved to the entries they select; `[]` the plan's first 3 cases; `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
 | | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first, between processes with `isolation: run` ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
 | | `thermalGate` | absent: off | `{enabled?: true, sensors, marginCelsius?: 5, pollSeconds?: 5, timeoutSeconds?: 300}`; `sensors` non-empty when enabled (`missing_field`), the device's thermal HAL names; margin `>= 0`, timeout `>= 0` (`negative`), poll `>= 1` (`not_positive`); `enabled: false` off; written to `effective.yaml` only when set; `--device` only ([device-session.md](../../../../../docs/device-session.md#thermal-gate)) |
 | | `harness` | empty | key table in `apps/benchmark/modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
@@ -70,9 +70,9 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 | `set` key | rule |
 |---|---|
-| `keySizes`, `inputSizes` | all `> 0` |
+| `keySizes`, `inputSizes` | all `> 0`; on an entry whose operations use no key size or input, preparation skips it `unused_setting` |
 | `operations` | non-empty, non-blank |
-| `key`, `parameters` | parameter trees, passed through untouched |
+| `key`, `parameters` | parameter trees, passed through untouched; on an entry whose operations take no key spec or parameters, preparation skips it `unused_setting` |
 | `harness` | settings key table; merges field by field |
 | any other | refused |
 | none set | `empty_override` |

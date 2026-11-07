@@ -3,14 +3,11 @@
 ```
 apps/benchmark/modules/environment/discovery/.gitignore : ignores /build
 apps/benchmark/modules/environment/discovery/README.md : module summary and link to this index
-apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3; passes examples.update to tests
+apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3
 apps/benchmark/modules/environment/discovery/docs/index.md : this map
 apps/benchmark/modules/environment/discovery/docs/probe.md : probe, trial and reuse behaviour
 apps/benchmark/modules/environment/discovery/docs/requirements.md : the requirement trial: facts per type, rules, file fields
 apps/benchmark/modules/environment/discovery/docs/security_contract.md : fields of probe_, trial_ and requirements_ files
-apps/benchmark/modules/environment/discovery/example/discovery_capture_example.yaml : sample probe_<utc>.yaml (SUN, SunJCE)
-apps/benchmark/modules/environment/discovery/example/discovery_requirements_example.yaml : sample requirements_<utc>.yaml
-apps/benchmark/modules/environment/discovery/example/discovery_trial_example.yaml : sample trial_<utc>.yaml for the same capture
 apps/benchmark/modules/environment/discovery/src/main/kotlin/Discovery.kt : facade: probe, reusable, trial over one ProbeDirectory
 apps/benchmark/modules/environment/discovery/src/main/kotlin/DiscoveryRun.kt : probe result: capture, capture file
 apps/benchmark/modules/environment/discovery/src/main/kotlin/ReusedRun.kt : reusable result: capture and its files
@@ -33,7 +30,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFac
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/Attempt.kt : the probe's one catch: Exception or LinkageError as a Result, any other Error thrown
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/DefaultRunOutcome.kt : one default-run result
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ErrorText.kt : error text of every level: key material removed, capped
+apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ErrorText.kt : error text of every level: key material removed (URLs kept), capped
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/KeyCacheStats.kt : keys generated, refused and reused over a run
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ParameterReadBack.kt : the one read-back of a spec (readable, describe) for levels 2 and 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record with origin and artifact

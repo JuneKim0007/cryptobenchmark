@@ -74,17 +74,9 @@ class PlanCheck(
         if (case.operation == Operation.TYPE_DEFAULT) {
             refusals += Refusal(case.id, "not_measurable: ${case.type} has no operation this harness can time")
         }
-        val iterations = case.harness.iterations
-        if (iterations != null && iterations < 1) {
-            refusals += Refusal(case.id, "not_positive: iterations $iterations")
-        }
         val unmeasurable = case.metrics - measurable
         if (unmeasurable.isNotEmpty()) {
             refusals += Refusal(case.id, "not_supported: metrics ${unmeasurable.map { it.name }}, this harness measures ${measurable.map { it.name }}")
-        }
-        val inputSize = case.inputSize
-        if (inputSize != null && inputSize <= 0) {
-            refusals += Refusal(case.id, "not_positive: inputSize $inputSize")
         }
         return refusals
     }

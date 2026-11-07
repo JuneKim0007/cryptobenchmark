@@ -49,6 +49,15 @@ class ScrubbedErrorTest {
     }
 
     @Test
+    fun aUrlInAProviderMessageIsKeptAndAKeyBesideItRemoved() {
+        URLS.forEach { assertEquals(it, "NoSuchAlgorithmException: Please see $it", ErrorText.clean("NoSuchAlgorithmException: Please see $it")) }
+        val base64 = ENCODINGS.getValue("base64 of 256 bits")
+        assertEquals("see https://keys.example/get?k=<removed>", ErrorText.clean("see https://keys.example/get?k=$base64"))
+        assertEquals("see https://keys.<removed>", ErrorText.clean("see https://keys.example/$base64"))
+        assertEquals("see https://keys.example/a modulus=<removed>", ErrorText.clean("see https://keys.example/a modulus=${ENCODINGS.getValue("RSA modulus")}"))
+    }
+
+    @Test
     fun aPrefixedRefusalStaysWithinTheCap() {
         val long = IllegalStateException("provider detail ".repeat(40))
         assertTrue(ErrorText.of(long, "generation refused: ").length <= ErrorText.CAP)
@@ -92,6 +101,19 @@ class ScrubbedErrorTest {
             "wrapped base64 and its short last line" to
                 "4tW8CmPXA/JY4/JlHoY1ahlc7xLJBX3um9rTC8xLXrwP1wlzm/5esUH83xj35S+g\nhJtDcl6ZE53u2hml9NCcXwhUSiQpyCuIYGN8MvkkRBjnjhOr1XLYm+Np17vEXOUH\nEraR/g==",
             "RSA modulus" to "2519590847565789349402718324004839857142928212620403202777713783604366202070759555626401852588078440691829064124951508218929855914917618450280848912007284499268739280728777673597141834727026189637501497182469116507761337985909570009733045974880842840179742910064245869181719511874612151517265463228221686998754918242243363725908514186546204357679842338718477444792073993423658482382428119816381501067481045166037730605620161967625613384414360383390441495263443219011465754445417842402092461651572335077870774981712577246796292638635637328991215483143816789988504044536402352738195137863656439121201039712282120720357",
+        )
+
+        // URLs the token pass cut before the URL guard, from real runs.
+        val URLS = listOf(
+            "https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html",
+            "http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
+            "http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
+            "http://www.w3.org/2006/12/xml-c14n11",
+            "https://android.googlesource.com/platform/libcore/+/refs/tags/android-9.0.0_r1/ojluni/src/main/java/sun/security/jca/Providers.java",
+            "https://csrc.nist.gov/pubs/sp/800/67/r2/final",
+            "https://csrc.nist.gov/pubs/sp/800/38/d/final",
+            "https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-xwing-kem-11",
+            "https://github.com/bcgit/bc-java/blob/main/prov/src/main/java/org/bouncycastle/jcajce/provider/symmetric/AES.java",
         )
 
         val ORDINARY = listOf(

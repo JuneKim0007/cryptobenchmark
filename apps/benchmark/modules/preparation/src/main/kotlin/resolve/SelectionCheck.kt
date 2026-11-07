@@ -18,6 +18,7 @@ internal class SelectionCheck(private val binder: ParameterBinder) {
         }
         val definitions = operations.map { OperationDefinitions.of(it) }
         val unused = listOfNotNull(
+            "inputSizes".takeIf { selection.inputSizes.isNotEmpty() && definitions.none { definition -> definition.consumesInput } },
             "keySizes".takeIf { selection.keySizes.isNotEmpty() && definitions.none { definition -> definition.consumesKeySize } },
             "key".takeIf { selection.keyParameters.isNotEmpty() && definitions.none { definition -> definition.consumesKeySpec } },
             "parameters".takeIf { selection.parameters.isNotEmpty() && definitions.none { definition -> definition.consumesParameters } },

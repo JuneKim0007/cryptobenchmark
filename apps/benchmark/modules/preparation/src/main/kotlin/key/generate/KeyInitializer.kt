@@ -5,9 +5,20 @@ import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.KeyGenerator
 
-interface KeyInitializer {
+object KeyInitializer {
 
-    fun initialize(generator: KeyGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom)
+    fun initialize(generator: KeyGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom) {
+        when {
+            spec != null -> generator.init(spec, random)
+            keySize != null -> generator.init(keySize, random)
+            else -> generator.init(random)
+        }
+    }
 
-    fun initialize(generator: KeyPairGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom)
+    fun initialize(generator: KeyPairGenerator, keySize: Int?, spec: AlgorithmParameterSpec?, random: SecureRandom) {
+        when {
+            spec != null -> generator.initialize(spec, random)
+            keySize != null -> generator.initialize(keySize, random)
+        }
+    }
 }

@@ -23,6 +23,7 @@ apps/benchmark/modules/config/src/main/kotlin/effective/OverrideResolver.kt : me
 apps/benchmark/modules/config/src/main/kotlin/effective/ReportDocument.kt : report.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/effective/SkipDocument.kt : one skip record as a map, shared by effective and report
 apps/benchmark/modules/config/src/main/kotlin/effective/StoppedOnFailureException.kt : stop-policy failure carrying all skips
+apps/benchmark/modules/config/src/main/kotlin/effective/WarmupJobs.kt : run.warmup.jobs resolved to the effective entries they select
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection; run id from the capture name
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : one selected primitive's settings
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml
@@ -86,5 +87,6 @@ apps/benchmark/modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventor
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
+apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off
 apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; owned here, perf-repair keeps a copy its tests compare
 ```

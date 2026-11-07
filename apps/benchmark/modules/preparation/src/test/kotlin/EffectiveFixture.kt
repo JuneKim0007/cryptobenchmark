@@ -28,7 +28,7 @@ generatedFrom:
   device: {model: Pixel 9, manufacturer: Google, hardware: zuma, sdkInt: 37, release: '17', javaVersion: '0'}
 run:
   inputSizes: [1024]
-  phases: [WARM, COLD]
+  phases: [WARM]
   metrics: [TIME]
   processRepetitions: 3
   seed: 0

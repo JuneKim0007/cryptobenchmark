@@ -33,7 +33,7 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 | fresh IV | an IV or nonce from `fresh(n)` in a test-set override is drawn before timing; without one the provider draws it inside the timed init |
 | ENCRYPT spec pool | varying parameters: 256 specs drawn before timing, cycled `specs[n % size]` |
 | other operations | call `next()` on the parameters once |
-| `Invocation` | `perIteration` is timed; `once()` returns the exact result (Cipher output trimmed to bytes written); `perCall` what the timed call redoes |
+| `Invocation` | `perIteration` is timed; `once()` returns the exact result (Cipher output trimmed to bytes written); `again()` replays the last call with the parameters it drew, on a new instance when the call re-inits; `perCall` what the timed call redoes |
 | `Invocations.of(prepared)` | the case's invocation; used by the host and device harness |
 
 ## Variants
@@ -84,8 +84,8 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | no generator | `no_key_generator: <KeyGenerator\|KeyPairGenerator>.<alg>`; `no_key_generator: <alg>` for DEVICE_DECIDES |
 | recipe keySize | case keySize, else the size parsed from the name |
 | entry `key` | keyed operations: goes to the key generator; GENERATE_KEY(_PAIR): the measured init spec |
-| randomness | unseeded `SecureRandom()`; `DefaultKeyInitializer` unless a per-provider initializer is registered |
-| `DefaultKeyInitializer` | spec: `init(spec, random)`; keySize: `init(keySize, random)`; else `KeyGenerator.init(random)`, `KeyPairGenerator` left uninitialised |
+| randomness | unseeded `SecureRandom()` |
+| `KeyInitializer` | spec: `init(spec, random)`; keySize: `init(keySize, random)`; else `KeyGenerator.init(random)`, `KeyPairGenerator` left uninitialised |
 
 ## Parameter trees
 

@@ -10,31 +10,29 @@ import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 internal object SelectionExpander {
 
-    fun expand(global: GlobalSettings, selection: Selection, providers: List<String>, operations: List<Operation>): List<BenchmarkCase> {
+    fun expand(global: GlobalSettings, selection: Selection, operations: List<Operation>): List<BenchmarkCase> {
         val cases = mutableListOf<BenchmarkCase>()
-        for (provider in providers) {
-            for (operation in selection.operations.ifEmpty { operations }.toList()) {
-                val definition = OperationDefinitions.of(operation)
-                for (keySize in keySizesFor(definition, selection)) {
-                    for (inputSize in inputSizesFor(definition, selection, global)) {
-                        for (phase in global.phases) for (variant in SetupCatalog.standard.variantsOf(selection.type, global.variants)) {
-                            cases += BenchmarkCase(
-                                type = selection.type,
-                                algorithm = selection.algorithm,
-                                group = selection.group,
-                                provider = provider,
-                                operation = operation,
-                                keySize = keySize,
-                                inputSize = inputSize,
-                                phase = phase,
-                                metrics = global.metrics,
-                                seed = global.seed,
-                                harness = global.harness.mergedWith(selection.harness),
-                                keyParameters = selection.keyParameters,
-                                parameters = selection.parameters,
-                                variant = variant,
-                            )
-                        }
+        for (operation in selection.operations.ifEmpty { operations }.toList()) {
+            val definition = OperationDefinitions.of(operation)
+            for (keySize in keySizesFor(definition, selection)) {
+                for (inputSize in inputSizesFor(definition, selection, global)) {
+                    for (phase in global.phases) for (variant in SetupCatalog.standard.variantsOf(selection.type, global.variants)) {
+                        cases += BenchmarkCase(
+                            type = selection.type,
+                            algorithm = selection.algorithm,
+                            group = selection.group,
+                            provider = selection.provider,
+                            operation = operation,
+                            keySize = keySize,
+                            inputSize = inputSize,
+                            phase = phase,
+                            metrics = global.metrics,
+                            seed = global.seed,
+                            harness = global.harness.mergedWith(selection.harness),
+                            keyParameters = selection.keyParameters,
+                            parameters = selection.parameters,
+                            variant = variant,
+                        )
                     }
                 }
             }

@@ -40,7 +40,7 @@ object DocumentFields {
 
     fun expectKeys(document: Map<String, Any>, known: List<String>, path: String) {
         val unknown = document.keys.filterNot { it in known }
-        require(unknown.isEmpty()) { "unknown_field: $unknown at $path, known $known" }
+        require(unknown.isEmpty()) { "unknown_keys: $path $unknown, known $known" }
     }
 
     fun asSection(value: Any, key: String): Map<String, Any> {

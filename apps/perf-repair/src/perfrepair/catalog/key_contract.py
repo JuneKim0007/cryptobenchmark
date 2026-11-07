@@ -3,8 +3,6 @@ from __future__ import annotations
 from functools import cache
 from pathlib import Path
 
-import yaml
-
 from ..dto.document import AT_PATH, DocumentKind
 
 CATALOG = Path(__file__).with_name("key-contract.yaml")
@@ -13,14 +11,13 @@ KEY_CONTRACT_DOC = DocumentKind("key contract", SCHEMA_VERSION, AT_PATH)
 
 
 @cache
+def _contract() -> dict:
+    return KEY_CONTRACT_DOC.read(CATALOG)
+
+
 def standard_key_interfaces() -> tuple[str, ...]:
-    doc = yaml.safe_load(CATALOG.read_text())
-    KEY_CONTRACT_DOC.check(doc, CATALOG)
-    return tuple(doc["standardKeyInterfaces"])
+    return tuple(_contract()["standardKeyInterfaces"])
 
 
-@cache
 def generated_key_formats() -> dict[str, str]:
-    doc = yaml.safe_load(CATALOG.read_text())
-    KEY_CONTRACT_DOC.check(doc, CATALOG)
-    return dict(doc["generatedKeyFormats"])
+    return dict(_contract()["generatedKeyFormats"])

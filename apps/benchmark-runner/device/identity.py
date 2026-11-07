@@ -1,7 +1,7 @@
 """The device id, derived from a capture's runtime block: one build gives one id, and no serial enters it."""
 import hashlib, re
 
-import yaml
+from device import capture as captured
 
 
 class DeviceIdError(Exception):
@@ -48,4 +48,4 @@ def device_id(runtime):
 
 
 def capture_id(capture):
-    return device_id((yaml.safe_load(capture.read_text()) or {}).get("runtime") or {})
+    return device_id(captured.read_runtime(capture))

@@ -87,7 +87,6 @@ class GlobalDocumentTest {
             "run: {thermalGate: {sensors: [s], margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
             "run: {variants: []}\n" to "invalid: run.variants",
             "run: {variants: [fixed, fixed]}\n" to "invalid: run.variants",
-            "run: {variants: [cold]}\n" to "invalid: run.variants",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
             "run: {passes: {energy: {samples: 5}}}\n" to "missing_pass: run.passes [energy]",

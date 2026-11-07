@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -17,8 +16,8 @@ class BenchmarkCaseTest {
         val case = BenchmarkCase("Cipher", "AES/GCM/NoPadding", "AndroidOpenSSL", Operation.ENCRYPT, keySize = 256, inputSize = 1024)
         assertEquals("Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM_fixed", case.id)
         assertEquals("Cipher_AES-GCM-NoPadding_DECRYPT_AndroidOpenSSL_k256_i1024_WARM_fixed", case.copy(operation = Operation.DECRYPT).id)
-        val keyGeneration = BenchmarkCase("KeyPairGenerator", "RSA", "AndroidOpenSSL", Operation.GENERATE_KEY_PAIR, keySize = 2048, phase = Phase.COLD)
-        assertEquals("KeyPairGenerator_RSA_GENERATE-KEY-PAIR_AndroidOpenSSL_k2048_COLD_fixed", keyGeneration.id)
+        val keyGeneration = BenchmarkCase("KeyPairGenerator", "RSA", "AndroidOpenSSL", Operation.GENERATE_KEY_PAIR, keySize = 2048)
+        assertEquals("KeyPairGenerator_RSA_GENERATE-KEY-PAIR_AndroidOpenSSL_k2048_WARM_fixed", keyGeneration.id)
         assertEquals("Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k256_i1024_WARM_notFixed", case.copy(variant = Variant.NOT_FIXED).id)
     }
 

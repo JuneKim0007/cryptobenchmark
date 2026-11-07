@@ -3,7 +3,7 @@ import zipfile
 
 import yaml
 
-from device import clocks
+from device import capture as captured, clocks
 from device.adb import PACKAGE
 from repo import BENCHMARK
 
@@ -32,8 +32,7 @@ def pinning(apk, abi):
 
 
 def collect(device, capture):
-    runtime = (yaml.safe_load(capture.read_text()) or {}).get("runtime") or {}
-    sdk = runtime.get("sdkInt")
+    sdk = captured.read_runtime(capture).get("sdkInt")
     return {
         "schemaVersion": 1,
         "os": {"sdkInt": int(sdk) if str(sdk).isdigit() else None},

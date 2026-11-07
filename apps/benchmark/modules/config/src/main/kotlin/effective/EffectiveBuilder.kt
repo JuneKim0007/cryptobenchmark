@@ -28,14 +28,15 @@ class EffectiveBuilder {
         val groups = selected.filter { it.entry.runs }.associateWith { located -> groupsOf(testSet, located) }
         val entries = entries(groups, OverrideResolver(testSet.overrides), runHarness, facts)
         stopOnSkips(global.policy, skipped + entries.skips)
+        val (warmup, warmupWarnings) = WarmupJobs.resolve(global.run.warmup, entries.providers)
         return EffectiveConfig(
             generatedFrom = EffectiveSource(files.global, files.testSet, files.inventory, inventory.generatedFrom),
-            run = global.run.copy(harness = runHarness),
+            run = global.run.copy(harness = runHarness, warmup = warmup),
             policy = global.policy,
             providers = entries.providers,
             skipped = skipped + entries.skips,
             warnings = inventory.warnings + warnings(excludes, included, testSet.overrides, groups) +
-                runUnsupported.map { it.toString() } + entries.warnings,
+                runUnsupported.map { it.toString() } + entries.warnings + warmupWarnings,
             analysis = global.analysis,
             bundledProviders = global.providers.bundled,
         )

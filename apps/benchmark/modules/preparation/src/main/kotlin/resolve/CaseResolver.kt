@@ -6,12 +6,11 @@ import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBin
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
-import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 class CaseResolver(
     private val capability: DeviceCapability,
+    binder: ParameterBinder,
     private val engineTypes: EngineTypes = EngineTypes.standard(),
-    binder: ParameterBinder = ParameterBinder(),
 ) {
 
     private val selectionCheck = SelectionCheck(binder)
@@ -26,28 +25,11 @@ class CaseResolver(
                 rejections += Rejection(selection, null, problem)
                 continue
             }
-            val providers = providersFor(selection, rejections)
-            cases += SelectionExpander.expand(request.global, selection, providers, operations)
-        }
-        return Resolution(cases, rejections)
-    }
-
-    private fun providersFor(selection: Selection, rejections: MutableList<Rejection>): List<String> {
-        val candidates = selection.providers.ifEmpty { capability.providers() }
-        val available = candidates.filter { provider ->
-            when (val availability = capability.check(provider, selection.type, selection.algorithm)) {
-                Availability.Available -> true
-                is Availability.Unavailable -> {
-                    if (selection.providers.isNotEmpty()) {
-                        rejections += Rejection(selection, provider, availability.reason)
-                    }
-                    false
-                }
+            when (val availability = capability.check(selection.provider, selection.type, selection.algorithm)) {
+                Availability.Available -> cases += SelectionExpander.expand(request.global, selection, operations)
+                is Availability.Unavailable -> rejections += Rejection(selection, selection.provider, availability.reason)
             }
         }
-        if (available.isEmpty() && selection.providers.isEmpty()) {
-            rejections += Rejection(selection, null, "no_provider")
-        }
-        return available
+        return Resolution(cases, rejections)
     }
 }

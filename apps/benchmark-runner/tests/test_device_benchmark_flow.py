@@ -18,12 +18,16 @@ def steps(phone):
     return [line for line in phone.log if line != "thermal"]
 
 
+# The run section as :config writes it; a test overrides what it is about.
+RUN = {"metrics": ["TIME"], "processRepetitions": 1, "isolation": "case", "caseCooldownSeconds": 0, "warmup": {"iterations": 0, "jobs": []}}
+
+
 def layout(tmp_path, run):
     results = tmp_path / "results"
     (results / "configuration").mkdir(parents=True)
     (results / "discovery").mkdir()
     effective = results / "configuration/effective.yaml"
-    effective.write_text(yaml.safe_dump({"run": {"metrics": ["TIME"], "warmup": {"iterations": 0}, **run}, "providers": {}}, sort_keys=False))
+    effective.write_text(yaml.safe_dump({"run": {**RUN, **run}, "providers": {}}, sort_keys=False))
     capture, trial = results / "discovery/probe_1.yaml", results / "discovery/trial_1.yaml"
     capture.write_text("{}")
     trial.write_text("{}")
@@ -155,7 +159,7 @@ def test_one_process_for_every_case_gives_each_case_the_process_reading_noted(tm
 
 
 def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch):
-    run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"name": "b*"}]},
+    run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}]},
            "passes": {"timing": {"samples": 3}}}
     phone, _files, problems, results = measured(tmp_path, monkeypatch, run, cases=("a", "b"))
     log = steps(phone)
@@ -168,7 +172,7 @@ def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_resul
 
 
 def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5}},
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5, "jobs": []}},
                                                 cases=("a", "b"), crash=("a,b",))
     assert problems == []
     assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2

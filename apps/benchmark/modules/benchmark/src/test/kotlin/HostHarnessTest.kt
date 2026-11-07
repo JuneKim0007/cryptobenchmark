@@ -30,14 +30,14 @@ class HostHarnessTest {
 
     @Test
     fun aCaseYieldsAsManySamplesAsTheHarnessSettingsAskFor() {
-        assertEquals(3, quick.measure(digest(HarnessSettings())).nanosPerOperation.size)
-        assertEquals(11, quick.measure(digest(HarnessSettings(iterations = 11))).nanosPerOperation.size)
+        assertEquals(3, quick.measure(digest(HarnessSettings())).time.runs.size)
+        assertEquals(11, quick.measure(digest(HarnessSettings(iterations = 11))).time.runs.size)
     }
 
     @Test
     fun oneSampleLoopsUntilTheBudgetIsSpent() {
         val measurement = quick.measure(digest(HarnessSettings()))
-        assertTrue("iterations ${measurement.iterations}", measurement.iterations > 1)
+        assertTrue("iterations ${measurement.time.iterations}", measurement.time.iterations > 1)
         assertTrue("median ${measurement.medianNanos}", measurement.medianNanos > 0)
     }
 

@@ -13,7 +13,8 @@ internal object ErrorText {
 
     private val NUMBER_LIST = Regex("""\[?-?\d{1,3}(?:,\s?-?\d{1,3}){7,}\]?""")
 
-    private val TOKEN = Regex("""(?<![\w+/-])[\w+/-]{16,}={0,2}(?![\w+/=-])""")
+    // A URL up to its first +, = or ? stays out of the token pass (a lone /+/ segment is kept); a span glued to a '+' is not a URL here.
+    private val URL_OR_TOKEN = Regex("""(https?://(?:[\w.~%#@:/-]|(?<=/)\+(?=/))++)(?![\w+/-])|(?<![\w+/-])[\w+/-]{16,}={0,2}(?![\w+/=-])""")
 
     private val TAIL = Regex("""$REMOVED(?: (?=[\w+/=-]*[0-9+/=])(?:(?=[\w+/=-]*[A-Za-z])[\w+/=-]+|[\w+/=-]{6,})(?![\w+/=-])| $REMOVED)+""")
 
@@ -33,7 +34,7 @@ internal object ErrorText {
 
     fun clean(text: String): String {
         val bytes = NUMBER_LIST.replace(SEPARATED_BYTES.replace(WHITESPACE.replace(text, " "), REMOVED), REMOVED)
-        val tokens = TOKEN.replace(bytes) { if (isName(it.value)) it.value else REMOVED }
+        val tokens = URL_OR_TOKEN.replace(bytes) { if (it.groups[1] != null || isName(it.value)) it.value else REMOVED }
         return TAIL.replace(tokens, REMOVED).take(CAP)
     }
 

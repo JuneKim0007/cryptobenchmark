@@ -7,12 +7,9 @@ import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.KeyGenerator
 
-class KeyMaterialGenerator(
-    private val random: SecureRandom = SecureRandom(),
-    private val initializers: Map<String, KeyInitializer> = emptyMap(),
-    private val fallback: KeyInitializer = DefaultKeyInitializer,
-    private val binder: ParameterBinder = ParameterBinder(random),
-) {
+class KeyMaterialGenerator(private val binder: ParameterBinder = ParameterBinder()) {
+
+    private val random = SecureRandom()
 
     fun generate(recipe: KeyRecipe): KeyMaterial = when (recipe) {
         KeyRecipe.None -> KeyMaterial.None
@@ -23,16 +20,14 @@ class KeyMaterialGenerator(
 
     private fun secret(recipe: KeyRecipe.Secret) =
         KeyGenerator.getInstance(recipe.algorithm, recipe.provider)
-            .also { initializer(recipe.provider).initialize(it, recipe.keySize, spec(recipe.parameters), random) }
+            .also { KeyInitializer.initialize(it, recipe.keySize, spec(recipe.parameters), random) }
             .generateKey()
 
     private fun pair(recipe: KeyRecipe.Pair) =
         KeyPairGenerator.getInstance(recipe.algorithm, recipe.provider)
-            .also { initializer(recipe.provider).initialize(it, recipe.keySize, spec(recipe.parameters), random) }
+            .also { KeyInitializer.initialize(it, recipe.keySize, spec(recipe.parameters), random) }
             .generateKeyPair()
 
     private fun spec(parameters: Map<String, Any>): AlgorithmParameterSpec? =
         if (parameters.isEmpty()) null else binder.bind(parameters, "key").next()
-
-    private fun initializer(provider: String): KeyInitializer = initializers[provider] ?: fallback
 }

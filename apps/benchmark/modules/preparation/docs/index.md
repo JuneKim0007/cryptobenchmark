@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/preparation/.gitignore : ignores /build
 apps/benchmark/modules/preparation/README.md : module summary and link to this index
-apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and api :settings; passes examples.update and trial to tests
+apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and api :settings; passes examples.update to tests
 apps/benchmark/modules/preparation/docs/index.md : this map
 apps/benchmark/modules/preparation/docs/interop.md : cross-provider interop check
 apps/benchmark/modules/preparation/docs/operations.md : operation consumption, timed calls, inputs, keys, parameter trees
@@ -31,8 +31,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks t
 apps/benchmark/modules/preparation/src/main/kotlin/input/InputBytes.kt : seeded input bytes (java.util.Random(seed))
 apps/benchmark/modules/preparation/src/main/kotlin/input/OperationInput.kt : sealed case input: None, Message, Ciphertext, SignedMessage
 apps/benchmark/modules/preparation/src/main/kotlin/interop/ : cross-provider interop check: plan file, checks, verdicts, the plan run, interop.yaml
-apps/benchmark/modules/preparation/src/main/kotlin/key/generate/DefaultKeyInitializer.kt : default KeyGenerator and KeyPairGenerator init
-apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyInitializer.kt : per-provider key-init port
+apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyInitializer.kt : KeyGenerator and KeyPairGenerator init
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterial.kt : sealed key material: None, Secret, Pairs
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGenerator.kt : builds KeyMaterial from a KeyRecipe
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyCandidate.kt : candidate key algorithm and optional size
@@ -41,7 +40,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : seale
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's axes, validated
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
-apps/benchmark/modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM, COLD
+apps/benchmark/modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Variant.kt : enum fixed, notFixed
 apps/benchmark/modules/preparation/src/main/kotlin/operation/AgreeKeyDefinition.kt : AGREE_KEY definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/CallTrace.kt : the engine an EngineCall holds and its init count, read outside the timed call by the end-to-end check
@@ -51,11 +50,11 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/ComputeMacDefinitio
 apps/benchmark/modules/preparation/src/main/kotlin/operation/DecryptDefinition.kt : DECRYPT definition; builds ciphertext input
 apps/benchmark/modules/preparation/src/main/kotlin/operation/DigestDefinition.kt : DIGEST definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/EncryptDefinition.kt : ENCRYPT definition
-apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineCall.kt : one timed call over a JCA engine: what it redoes per call, by PerCall; its CallTrace
+apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineCall.kt : one timed call over a JCA engine: what it redoes per call, by PerCall; its replay with the last drawn parameters; its CallTrace
 apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineInit.kt : an engine's init told its call index, the index unboxed
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyDefinition.kt : GENERATE_KEY definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyPairDefinition.kt : GENERATE_KEY_PAIR definition
-apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once(), the engine it calls and its CallTrace
+apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once(), again() (the last call replayed with its parameters), the engine it calls and its CallTrace
 apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocations.kt : of(prepared) to the case's Invocation
 apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum NONE, SECRET, PAIR, PEER_PAIRS, DEVICE_DECIDES
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
@@ -98,7 +97,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt 
 apps/benchmark/modules/preparation/src/main/kotlin/shared/Attempt.kt : the probe's catch rule here: Exception or LinkageError as a Result, any other Error thrown
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
-apps/benchmark/modules/preparation/src/main/kotlin/shared/ErrorText.kt : the probe's scrubber here: key encodings removed from a provider's message, then the 200 cap
+apps/benchmark/modules/preparation/src/main/kotlin/shared/ErrorText.kt : the probe's scrubber here: key encodings removed from a provider's message (URLs kept), then the 200 cap
 apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line: scrubbed and capped, object identity hashes dropped
 apps/benchmark/modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; apps/benchmark-runner/results/manifest.py copies the types into each run's manifest.yaml `operations`
@@ -111,7 +110,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart gro
 apps/benchmark/modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall per-call init, instance and refusal tests
 apps/benchmark/modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 apps/benchmark/modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
-apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call; the trace's engine and inits; no check-only state in the timed call
+apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call; the trace's engine and inits; again() with the last call's parameters; no check-only state in the timed call
 apps/benchmark/modules/preparation/src/test/kotlin/EngineTypesTest.kt : engine type registry tests
 apps/benchmark/modules/preparation/src/test/kotlin/ExampleFilesTest.kt : prepares example/ and compares the committed outputs
 apps/benchmark/modules/preparation/src/test/kotlin/FailureTextTest.kt : a provider's failure as preparation writes it: key encodings removed, identity hash dropped, within the cap

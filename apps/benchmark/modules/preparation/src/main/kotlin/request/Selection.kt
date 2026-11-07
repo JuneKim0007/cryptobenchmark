@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 data class Selection(
     val type: String,
     val algorithm: String,
-    val providers: List<String> = emptyList(),
+    val provider: String,
     val keySizes: List<Int> = emptyList(),
     val inputSizes: List<Int> = emptyList(),
     val keyParameters: Map<String, Any> = emptyMap(),
@@ -20,7 +20,7 @@ data class Selection(
         require(type.isNotBlank()) { "missing_field: type" }
         require(algorithm.isNotBlank()) { "missing_field: algorithm" }
         require(!group.contains('@')) { "invalid_group: $group" }
-        require(providers.none { it.isBlank() }) { "blank_provider: $type/$algorithm" }
+        require(provider.isNotBlank()) { "blank_provider: $type/$algorithm" }
         require(keySizes.all { it > 0 }) { "not_positive: keySizes $keySizes" }
         require(keySizes.size == keySizes.distinct().size) { "duplicate: keySizes $keySizes" }
         require(inputSizes.all { it > 0 }) { "not_positive: inputSizes $inputSizes" }

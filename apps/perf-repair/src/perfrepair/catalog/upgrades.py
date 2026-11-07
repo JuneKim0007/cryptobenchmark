@@ -5,8 +5,6 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-import yaml
-
 from ..dto.coded import InputError
 from ..dto.document import AT_PATH, DocumentKind
 from .families import Families
@@ -43,8 +41,7 @@ class Upgrades:
 
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Upgrades":
-        doc = yaml.safe_load(Path(path).read_text())
-        UPGRADES_DOC.check(doc, path)
+        doc = UPGRADES_DOC.read(path)
         names = Names.load()
         return _Reader(names, Screening.load(names=names), Families.load()).upgrades(doc)
 

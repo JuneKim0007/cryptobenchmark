@@ -5,6 +5,7 @@ import argparse, json, os, pathlib, subprocess, sys, traceback
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 import bundled, energy_stage, timeouts
 from device.adb import Device, DeviceError
+from device.capture import CaptureError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
 from global_file import global_config
@@ -107,7 +108,7 @@ def main():
     manifest(results, "device" if device else "host", configuration, files, problems)
 
 
-KNOWN = (DeviceError, DeviceIdError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
+KNOWN = (DeviceError, DeviceIdError, CaptureError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
          scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout)
 
 

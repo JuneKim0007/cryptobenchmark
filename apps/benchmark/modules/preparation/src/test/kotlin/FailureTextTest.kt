@@ -25,6 +25,13 @@ class FailureTextTest {
     }
 
     @Test
+    fun aUrlIsKeptAndAKeyInItsQueryRemoved() {
+        val blog = "NoSuchAlgorithmException: Please see https://android-developers.googleblog.com/2018/03/cryptography-changes-in-android-p.html"
+        assertEquals(blog, FailureText.of(java.security.NoSuchAlgorithmException(blog.substringAfter(": "))))
+        assertEquals("InvalidKeyException: https://keys.example/get?k=<removed>", FailureText.of(InvalidKeyException("https://keys.example/get?k=${ENCODINGS.first()}")))
+    }
+
+    @Test
     fun aPrefixedReasonStaysWithinTheCap() {
         assertTrue(FailureText.of(IllegalStateException("provider detail ".repeat(40)), "key_generation_failed: ").length <= 200)
     }

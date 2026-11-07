@@ -52,7 +52,7 @@ apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/Oracle.kt : Oracl
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/PlanOracle.kt : one harness call whose observed steps are what perCall plans
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/AgreeProperties.kt : the peer derives the same secret
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/DecryptProperties.kt : the seeded plaintext returns; a tag refuses tampering
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/DigestProperties.kt : declared length and the same output again, for digests and MACs
+apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/DigestProperties.kt : declared length and the same output from the call replayed with its drawn parameters, for digests and MACs
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/EncryptProperties.kt : size bound, the same provider's decrypt recovers the input, a tag refuses tampering
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/KeyOutputProperties.kt : a key of the asked kind and size, a new one each call
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/Properties.kt : fun interface of one operation's named properties; shared helpers
@@ -78,8 +78,10 @@ apps/benchmark/modules/benchmark/src/test/kotlin/CheckFixture.kt : JDK prepared 
 apps/benchmark/modules/benchmark/src/test/kotlin/CheckModeTest.kt : the output hook absent from every timed path; ONCE hands one output
 apps/benchmark/modules/benchmark/src/test/kotlin/CorruptedOutputTest.kt : knownAnswer, crossProvider and contract each fail an output with one flipped byte, also through CaseCheck; the honest call passes them
 apps/benchmark/modules/benchmark/src/test/kotlin/CrossProviderOracleTest.kt : the peer recomputes the call's own output; a key it cannot rebuild is peer_key_rejected
+apps/benchmark/modules/benchmark/src/test/kotlin/DigestPropertiesTest.kt : a Mac random by bug fails the repeat with fixed or per-call parameters; a nonce-keyed one passes
 apps/benchmark/modules/benchmark/src/test/kotlin/EnergyCheckTest.kt : energy refusal and energyJ join tests
 apps/benchmark/modules/benchmark/src/test/kotlin/EnergyRunTest.kt : CaseRuns composition tests
+apps/benchmark/modules/benchmark/src/test/kotlin/FakeMacProvider.kt : a test provider with two GMAC-named Macs: random by bug, and keyed by its nonce, for the repeat property
 apps/benchmark/modules/benchmark/src/test/kotlin/HostHarnessTest.kt : host loop tests
 apps/benchmark/modules/benchmark/src/test/kotlin/JetpackResultsTest.kt : Jetpack conversion tests over example/
 apps/benchmark/modules/benchmark/src/test/kotlin/KnownAnswerFileTest.kt : the vector catalogue: sources, matching, hex, unknown fields

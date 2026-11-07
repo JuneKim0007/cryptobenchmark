@@ -6,8 +6,6 @@ import yaml
 from failure import fail
 
 CASE_ISOLATION = "case"
-ISOLATIONS = (CASE_ISOLATION, "run")
-DEFAULT_ISOLATION = CASE_ISOLATION
 
 
 def read(effective_file):
@@ -26,18 +24,25 @@ def entry_count(document):
     return sum(len(names) for types in (document.get("providers") or {}).values() for names in types.values())
 
 
+def required(document, path):
+    """The value at a dotted path :config always writes; its absence is the coded missing_field, never a KeyError."""
+    value = document
+    for key in path.split("."):
+        value = value.get(key) if isinstance(value, dict) else None
+        if value is None:
+            fail(f"missing_field: {path} in effective.yaml")
+    return value
+
+
 def metrics(document):
-    listed = (document.get("run") or {}).get("metrics")
+    listed = required(document, "run.metrics")
     if not listed:
         fail("missing_field: run.metrics in effective.yaml")
     return listed
 
 
 def isolation(document):
-    chosen = (document.get("run") or {}).get("isolation", DEFAULT_ISOLATION)
-    if chosen not in ISOLATIONS:
-        fail(f"invalid: run.isolation {chosen}, expected one of [{', '.join(ISOLATIONS)}]")
-    return chosen
+    return required(document, "run.isolation")
 
 
 def throttle_sleep(document):
@@ -46,21 +51,14 @@ def throttle_sleep(document):
 
 
 def case_cooldown(document):
-    return (document.get("run") or {}).get("caseCooldownSeconds") or 0
+    return required(document, "run.caseCooldownSeconds")
 
 
 def thermal_gate(document):
     """run.thermalGate as :config validated it, or None when absent or enabled false."""
     gate = (document.get("run") or {}).get("thermalGate")
-    return gate if gate and gate.get("enabled", True) else None
-
-
-def _repetitions(document, key, default):
-    repetitions = (document.get("run") or {}).get(key, default)
-    if type(repetitions) is not int or repetitions < 1:
-        fail(f"not_positive: {key} {repetitions}")
-    return repetitions
+    return gate if gate and required(document, "run.thermalGate.enabled") else None
 
 
 def process_repetitions(document):
-    return _repetitions(document, "processRepetitions", 1)
+    return required(document, "run.processRepetitions")

@@ -24,7 +24,6 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 | `duplicate_case: <n> cases share this id` | two cases share an id |
 | `provider_not_installed: <p>, installed [..]` | provider absent here |
 | `not_measurable: <type> has no operation this harness can time` | a TYPE_DEFAULT case |
-| `not_positive: iterations <n>`, `not_positive: inputSize <n>` | unmeasurable setting |
 | `not_supported: metrics [..], this harness measures [..]` | a case's `metrics` outside the harness's set: host `HostHarness.METRICS` = `[TIME]`; device `JetpackConfig.METRICS` = all three |
 | energy refusals | `docs/energy.md` |
 

@@ -47,51 +47,32 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
         if (provider !in installed) {
             return Availability.Unavailable("provider_not_installed")
         }
-        val registered = serviceOf(provider, type, algorithm)
-        if (registered != null) {
-            val trialled = trialsByProvider[provider]?.get(ServiceName.of(type, registered.algorithm))
-            return availability(trialled?.instantiates, trialled?.error, "instantiation_fails")
+        val found = trialled(provider, type, algorithm) ?: return Availability.Unavailable("not_registered")
+        return when (found.instantiates) {
+            null -> Availability.Unavailable("not_tried")
+            true -> Availability.Available
+            false -> Availability.Unavailable(found.failure + ": " + found.error)
         }
-        val base = algorithm.substringBefore('/', missingDelimiterValue = "")
-        if (base.isEmpty()) {
-            return Availability.Unavailable("not_registered")
-        }
-        val baseService = serviceOf(provider, type, base) ?: return Availability.Unavailable("not_registered")
-        val transformation = trialsByProvider[provider]
-            ?.get(ServiceName.of(CIPHER, baseService.algorithm))
-            ?.transformations
-            ?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
-        return availability(transformation?.instantiates, transformation?.error, "transformation_fails")
     }
 
-    override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? {
-        val registered = serviceOf(provider, type, algorithm)
-        if (registered != null) {
-            return trialsByProvider[provider]?.get(ServiceName.of(type, registered.algorithm))
-                ?.let { candidate(it.keyAlgorithm, it.fixedKeySize) }
-        }
-        val base = algorithm.substringBefore('/', missingDelimiterValue = "")
-        val baseService = if (base.isEmpty()) null else serviceOf(provider, type, base)
-        return trialsByProvider[provider]
-            ?.get(ServiceName.of(CIPHER, (baseService ?: return null).algorithm))
-            ?.transformations
-            ?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
-            ?.let { candidate(it.keyAlgorithm, it.fixedKeySize) }
-    }
+    override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? =
+        trialled(provider, type, algorithm)?.takeIf { it.keyAlgorithm.isNotBlank() }?.let { KeyCandidate(it.keyAlgorithm, it.fixedKeySize) }
 
-    private fun candidate(algorithm: String, fixedSize: Int?): KeyCandidate? =
-        algorithm.takeIf { it.isNotBlank() }?.let { KeyCandidate(it, fixedSize) }
+    // The trial of a registered name or alias, else of a transformation on its base service; null when neither is registered.
+    private fun trialled(provider: String, type: String, algorithm: String): Trialled? {
+        val trials = trialsByProvider[provider]
+        serviceOf(provider, type, algorithm)?.let { registered ->
+            val service = trials?.get(ServiceName.of(type, registered.algorithm))
+            return Trialled(service?.instantiates, service?.error.orEmpty(), service?.keyAlgorithm.orEmpty(), service?.fixedKeySize, "instantiation_fails")
+        }
+        val base = algorithm.substringBefore('/', missingDelimiterValue = "").ifEmpty { return null }
+        val baseService = serviceOf(provider, type, base) ?: return null
+        val transformation = trials?.get(ServiceName.of(type, baseService.algorithm))?.transformations?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
+        return Trialled(transformation?.instantiates, transformation?.error.orEmpty(), transformation?.keyAlgorithm.orEmpty(), transformation?.fixedKeySize, "transformation_fails")
+    }
 
     private fun serviceOf(provider: String, type: String, algorithmOrAlias: String): CapturedService? =
         servicesByProvider[provider]?.get(ServiceName.of(type, algorithmOrAlias))
 
-    private fun availability(instantiates: Boolean?, error: String?, failure: String): Availability = when {
-        instantiates == null -> Availability.Unavailable("not_tried")
-        instantiates -> Availability.Available
-        else -> Availability.Unavailable(failure + ": " + error.orEmpty())
-    }
-
-    private companion object {
-        const val CIPHER = "Cipher"
-    }
+    private class Trialled(val instantiates: Boolean?, val error: String, val keyAlgorithm: String, val fixedKeySize: Int?, val failure: String)
 }

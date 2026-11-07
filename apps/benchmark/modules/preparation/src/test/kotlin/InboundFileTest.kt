@@ -19,6 +19,7 @@ class InboundFileTest {
         assertEquals("unsupported_config_schema: effective.yaml: 2, this build reads 1", rejection(EffectiveFixture.TEXT.replace("schemaVersion: 1", "schemaVersion: 2")))
         assertTrue(rejection(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  seed: 1\n")).contains("duplicate key"))
         assertTrue(rejection("\tbroken: [\n").startsWith("unreadable_yaml: effective.yaml:"))
+        assertTrue(rejection(EffectiveFixture.TEXT.replace("policy: {", "polcy: {}\npolicy: {")).startsWith("unknown_keys: effective.yaml [polcy],"))
         assertEquals("missing_file: /no/such/effective.yaml",
             assertThrows(IllegalArgumentException::class.java) { InboundFile.read(File("/no/such/effective.yaml")) }.message)
     }

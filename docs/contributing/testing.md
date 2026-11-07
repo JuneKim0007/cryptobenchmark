@@ -13,7 +13,7 @@
 - android: a change under `apps/benchmark/modules/android/` passes `apps/benchmark/gradlew -p apps/benchmark build :android:compileReleaseAndroidTestKotlin` (needs `ANDROID_HOME`).
 - examples: regenerate committed `example/` files only after a schema change: `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.
 - python: a change under `apps/benchmark-runner/` or `apps/cli/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests`.
-- python: a change to `apps/benchmark-runner/results/` or `apps/benchmark-runner/device/identity.py` passes `python3 apps/benchmark-runner/tests/test_manifest.py`.
+- python: a change to `apps/benchmark-runner/results/` `apps/benchmark-runner/device/identity.py` or `apps/benchmark-runner/device/capture.py` passes `python3 apps/benchmark-runner/tests/test_manifest.py`.
 - analysis: a change to `apps/benchmark-runner/analysis/*.py` passes `python3 apps/benchmark-runner/analysis/tests/test_analyze.py`; `-u` rewrites `apps/benchmark-runner/analysis/tests/golden_summary.md` and `golden_chart_summary.md`.
 - perf-repair: a change under `apps/perf-repair/` passes `make -C apps/perf-repair check`.
 - docs: a change to any guide or doc passes `python3 tools/docs_lint.py`.

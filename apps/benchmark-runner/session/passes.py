@@ -1,6 +1,7 @@
 """run.passes: one device session per metric group, what each pass asks the device and converts, and the merge per metric of their results."""
 import dataclasses, time
 
+import effective_view
 import gradle_runner
 from failure import fail
 from session.measure import process_folder
@@ -39,7 +40,7 @@ class Pass:
 def read(document, captures):
     """The run's passes in the order written; none configured is the single pass."""
     run = document.get("run") or {}
-    metrics, configured = list(run.get("metrics") or ["TIME"]), run.get("passes") or {}
+    metrics, configured = effective_view.metrics(document), run.get("passes") or {}
     if not configured:
         return [Pass(None, None, tuple(metrics))]
     if "dry" in captures:

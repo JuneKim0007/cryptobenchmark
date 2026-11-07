@@ -45,6 +45,21 @@ class EngineCallTest {
         assertEquals(true to 3, traced(PerCall.INSTANCE_INIT_AND_OPERATION))
     }
 
+    @Test
+    fun againReplaysTheLastDrawnCallOnANewInstanceWhenTheCallReinits() {
+        fun replayed(perCall: PerCall): Triple<Boolean, Int, Int> {
+            val seen = mutableListOf<Int>()
+            val invocation = EngineCall({ Any() }, { _, n -> seen += n }, { it }).invocation(perCall)
+            repeat(3) { invocation.once() }
+            val held = invocation.trace!!
+            val replayed = invocation.again()
+            return Triple(replayed === held.engine, seen.last(), invocation.trace!!.inits - held.inits)
+        }
+        assertEquals(Triple(true, 0, 0), replayed(PerCall.OPERATION))
+        assertEquals(Triple(false, 3, 0), replayed(PerCall.INIT_AND_OPERATION))
+        assertEquals(Triple(false, 3, 0), replayed(PerCall.INSTANCE_INIT_AND_OPERATION))
+    }
+
     // The timed lambda keeps master's state only: a check-only counter would run inside every timed call.
     @Test
     fun theTimedCallHoldsNoCheckOnlyState() {

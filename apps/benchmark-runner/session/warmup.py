@@ -1,6 +1,7 @@
 """run.warmup: a pre-flight run of a few cases once per device session, before the first pass; its output is deleted, never pulled or converted."""
-import fnmatch, time
+import time
 
+import effective_view
 import timeouts
 from session import case_isolation
 from session import passes
@@ -12,18 +13,16 @@ WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation cap
 
 
 def settings(document):
-    warmup = (document.get("run") or {}).get("warmup") or {}
-    return int(warmup.get("iterations", 10)), list(warmup.get("jobs") or [])
+    return effective_view.required(document, "run.warmup.iterations"), effective_view.required(document, "run.warmup.jobs")
 
 
-def matches(rule, case):
-    """A test-set rule against a prepared case: provider and type by name, name as a glob on the algorithm; case and spelling as written."""
-    fields = (("provider", "provider"), ("type", "type"), ("name", "algorithm"))
-    return all(rule.get(key) is None or fnmatch.fnmatch(str(case.get(field, "")).lower(), str(rule[key]).lower()) for key, field in fields)
+def matches(job, case):
+    """A job is one effective entry :config resolved from run.warmup.jobs; its prepared cases carry the same names."""
+    return (job["provider"], job["type"], job["name"], job.get("group")) == (case.get("provider"), case.get("type"), case.get("algorithm"), case.get("group"))
 
 
 def chosen(planned, cases, jobs):
-    """The planned ids the rules select, in plan order; no rule means the plan's first few."""
+    """The planned ids the jobs select, in plan order; no job means the plan's first few."""
     if not jobs:
         return planned[:DEFAULT_CASES]
     by_id = {case["id"]: case for case in cases}

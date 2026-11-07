@@ -1,3 +1,5 @@
+import contextlib
+import io
 import pathlib
 import sys
 import tempfile
@@ -5,6 +7,7 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import effective_view  # noqa: E402
+from session import passes, warmup  # noqa: E402
 
 
 class EffectiveView(unittest.TestCase):
@@ -26,12 +29,24 @@ class EffectiveView(unittest.TestCase):
         with self.assertRaises(SystemExit):
             effective_view.metrics({"run": {}})
 
-    def test_repetitions_default_to_one_and_must_be_positive(self):
-        self.assertEqual(1, effective_view.process_repetitions({}))
-        with self.assertRaises(SystemExit):
-            effective_view.process_repetitions({"run": {"processRepetitions": 0}})
-        with self.assertRaises(SystemExit):
-            effective_view.process_repetitions({"run": {"processRepetitions": True}})
+    def test_a_missing_key_fails_with_its_code_not_a_key_error(self):
+        reads = {
+            "run.isolation": lambda: effective_view.isolation({"run": {}}),
+            "run.processRepetitions": lambda: effective_view.process_repetitions({}),
+            "run.caseCooldownSeconds": lambda: effective_view.case_cooldown({"run": {}}),
+            "run.thermalGate.enabled": lambda: effective_view.thermal_gate({"run": {"thermalGate": {"sensors": ["s"]}}}),
+            "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": []}}}),
+            "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1}}}),
+            "run.metrics": lambda: passes.read({"run": {}}, {"none"}),
+        }
+        for path, read in reads.items():
+            stderr = io.StringIO()
+            with self.subTest(path), contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit):
+                read()
+            self.assertEqual(f"error: missing_field: {path} in effective.yaml\n", stderr.getvalue())
+
+    def test_an_empty_warmup_job_list_is_read_as_written(self):
+        self.assertEqual((0, []), warmup.settings({"run": {"warmup": {"iterations": 0, "jobs": []}}}))
 
 
 if __name__ == "__main__":
