@@ -112,8 +112,8 @@ Type names match case-insensitively.
 | reason, prefixed `<caseId>: ` | stage |
 |---|---|
 | `KeyRecipe.Unavailable` reason | key plan |
-| `key_generation_failed: <msg>` | key |
+| `key_generation_failed: <Exception>: <msg>` | key |
 | `input_preparation_failed: <Exception>: <msg>` | input |
 | `dry_run_failed: <Exception>: <msg>` | `once()` |
 
-Resolve rejections become skips with stage `preparation`. Outcome under `policy.onFailure`: [prepared.md](prepared.md#onfailure).
+`<Exception>: <msg>` comes from `FailureText`: key encodings removed, at most 200 characters, identity hashes dropped. Resolve rejections become skips with stage `preparation`. Outcome under `policy.onFailure`: [prepared.md](prepared.md#onfailure).

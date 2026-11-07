@@ -13,10 +13,10 @@ internal object ComputeMacDefinition : OperationDefinition {
 
     override fun invocation(prepared: PreparedCase): Invocation {
         val key = CaseArguments.secret(prepared.key)
-        val spec = prepared.parameters?.next()
+        val specs = CaseArguments.specPool(prepared.parameters)
         val message = CaseArguments.preparedMessage(prepared)
         val call = EngineCall({ Mac.getInstance(prepared.case.algorithm, prepared.case.provider) },
-            { mac, _ -> if (spec == null) mac.init(key) else mac.init(key, spec) }, { mac -> mac.doFinal(message) })
+            { mac, n -> if (specs.isEmpty()) mac.init(key) else mac.init(key, specs[n % specs.size]) }, { mac -> mac.doFinal(message) })
         return call.invocation(SetupCatalog.standard.perCall(prepared.case))
     }
 }

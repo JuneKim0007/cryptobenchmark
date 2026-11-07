@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.MGF1ParameterSpec
 import javax.crypto.spec.GCMParameterSpec
@@ -25,7 +27,7 @@ internal class CipherEffects(private val service: ProbedService, private val eng
     }
 
     private fun effect(baseline: ByteArray, fixed: AlgorithmParameterSpec?, varied: AlgorithmParameterSpec?, aad: ByteArray?): Map<String, Any> {
-        val output = runCatching { engine.encrypt(base.key.encrypting, varied, base.message, aad) }
+        val output = Attempt.of { engine.encrypt(base.key.encrypting, varied, base.message, aad) }
             .getOrElse { return mapOf("refused" to ErrorText.of(it)) }
         val underBase = ErrorText.refusal {
             check(engine.decrypt(base.key.decrypting, CipherEngine.Sent(fixed), output).contentEquals(base.message)) { "wrong plaintext" }

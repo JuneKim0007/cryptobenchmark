@@ -20,6 +20,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 - A scope's call is re-found on `scope.line`, inside lines `scope.start..scope.end`, by its text with whitespace and comments ignored.
 - `scope.call` is the call's source from the engine type to its closing parenthesis.
 - The `init` is `v.init(` where `v` is assigned the call's result, or a bare `init(` in a Kotlin `.apply { }` or `.run { }` on the call.
+- Spec fields are the keys a results row's `parameters` carry (`tagBits`, `ivBytes`, `digest`, `mgf1`), so a row's pins name them directly.
 - A random-bytes field (`ivBytes`) renders a fresh `SecureRandom` array, only for an `init` whose mode is in `encryptingModes`.
 - Splices keep line numbers: newlines of a replaced span follow the new text.
 - Every applied scope of one file shares that file's `patched/` copy.

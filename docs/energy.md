@@ -65,7 +65,7 @@
 | `no_power_rails` | `railsPresent` false |
 | `rails_unresponsive: idle <x> uJ, busy <y> uJ over <s> s` | `railsResponsive` false and not `acceptUnresponsive` |
 
-- On the device the refused cases are left out and listed in `skipped.yaml`; every case refused throws `RefusedPlanException`.
+- The refused cases are left out and listed in `skipped.yaml`, on the host and the device; every case refused throws `RefusedPlanException`.
 - A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
 
 ## Traces

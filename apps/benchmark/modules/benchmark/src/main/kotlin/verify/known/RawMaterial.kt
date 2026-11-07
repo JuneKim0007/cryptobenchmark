@@ -20,7 +20,7 @@ object RawMaterial {
         val spec = vector.parameters?.let { spec(it, flip = false) }
         val input = when (prepared.case.operation) {
             Operation.DECRYPT -> OperationInput.Ciphertext(vector.output, vector.input.size, spec, null)
-            Operation.VERIFY -> OperationInput.SignedMessage(vector.input, vector.output)
+            Operation.VERIFY -> OperationInput.SignedMessage(vector.input, vector.output, spec)
             else -> OperationInput.Message(vector.input)
         }
         // A provider may refuse the same nonce on the next init: the vector's spec alternates with a decoy, and the

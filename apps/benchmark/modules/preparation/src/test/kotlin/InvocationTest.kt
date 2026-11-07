@@ -16,13 +16,57 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import javax.crypto.Cipher
+import javax.crypto.MacSpi
+import javax.crypto.spec.IvParameterSpec
 import org.junit.Test
+import java.security.InvalidAlgorithmParameterException
+import java.security.Key
+import java.security.Provider
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.Security
+import java.security.SignatureSpi
+import java.security.spec.AlgorithmParameterSpec
+
+// A GMAC as BC's: no doFinal after doFinal without init, and a nonce once per key.
+class OneShotGmac : MacSpi() {
+    private val seen = HashSet<List<Byte>>()
+    private var ready = false
+    override fun engineGetMacLength() = 16
+    override fun engineInit(key: Key?, params: AlgorithmParameterSpec?) {
+        val iv = (params as? IvParameterSpec)?.iv?.toList() ?: throw InvalidAlgorithmParameterException("iv required")
+        if (!seen.add(iv)) throw InvalidAlgorithmParameterException("nonce reused")
+        ready = true
+    }
+    override fun engineUpdate(input: Byte) = Unit
+    override fun engineUpdate(input: ByteArray?, offset: Int, len: Int) = Unit
+    override fun engineDoFinal(): ByteArray {
+        check(ready) { "doFinal without init" }
+        ready = false
+        return ByteArray(16)
+    }
+    override fun engineReset() = Unit
+}
 
 /**
  * One invocation is built once and called many times: the dry run calls it once to prove the case
  * runs, the harness times the same lambda. Anything a second call would break has to surface here,
  * not in a measurement.
  */
+// A signature that is its parameter: it verifies only under the spec it was signed under.
+class SpecBoundSignature : SignatureSpi() {
+    private var spec = ByteArray(0)
+    override fun engineSetParameter(params: AlgorithmParameterSpec?) { spec = (params as IvParameterSpec).iv }
+    override fun engineInitVerify(key: PublicKey?) = Unit
+    override fun engineInitSign(key: PrivateKey?) = Unit
+    override fun engineUpdate(b: Byte) = Unit
+    override fun engineUpdate(b: ByteArray?, off: Int, len: Int) = Unit
+    override fun engineSign(): ByteArray = spec.copyOf()
+    override fun engineVerify(sig: ByteArray?): Boolean = sig.contentEquals(spec)
+    @Deprecated("the JCA abstract member") override fun engineSetParameter(param: String?, value: Any?) = Unit
+    @Deprecated("the JCA abstract member") override fun engineGetParameter(param: String?): Any? = null
+}
+
 class InvocationTest {
 
     private val keys = KeyMaterialGenerator()
@@ -96,5 +140,38 @@ class InvocationTest {
         assertEquals(PerCall.INSTANCE_INIT_AND_OPERATION, notFixed.perCall)
         val engines = (1..3).map { notFixed.perIteration(); notFixed.engine }
         assertEquals(3, engines.toSet().size)
+    }
+
+    @Test
+    fun gmacFixedReinitsWithAFreshNonceEveryCall() {
+        @Suppress("DEPRECATION")
+        val provider = object : Provider("OneShotGmac", 1.0, "GMAC that resets to nothing") {
+            init { put("Mac.TEST-GMAC", OneShotGmac::class.java.name) }
+        }
+        Security.addProvider(provider)
+        try {
+            val iv = ParameterBinder().bind(mapOf("class" to "javax.crypto.spec.IvParameterSpec", "arguments" to listOf("fresh(12)")), "parameters")
+            val invocation = Invocations.of(prepared("Mac", "TEST-GMAC", provider.name, Operation.COMPUTE_MAC, key = aes, parameters = iv))
+            assertEquals(PerCall.INIT_AND_OPERATION, invocation.perCall)
+            repeat(4) { invocation.perIteration() }
+        } finally {
+            Security.removeProvider(provider.name)
+        }
+    }
+
+    @Test
+    fun verifyTimesTheSpecItsSignatureWasMadeUnder() {
+        @Suppress("DEPRECATION")
+        val provider = object : Provider("SpecBound", 1.0, "a signature under one spec") {
+            init { put("Signature.SPEC-BOUND", SpecBoundSignature::class.java.name) }
+        }
+        Security.addProvider(provider)
+        try {
+            val drawn = ParameterBinder().bind(mapOf("class" to "javax.crypto.spec.IvParameterSpec", "arguments" to listOf("fresh(16)")), "parameters")
+            val invocation = Invocations.of(prepared("Signature", "SPEC-BOUND", provider.name, Operation.VERIFY, key = ec, parameters = drawn))
+            repeat(3) { invocation.perIteration() }
+        } finally {
+            Security.removeProvider(provider.name)
+        }
     }
 }

@@ -14,6 +14,8 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
+import io.github.junekim0007.cryptobench.preparation.shared.Attempt
+import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 
 class InteropOracle(
     private val capability: DeviceCapability,
@@ -43,11 +45,8 @@ class InteropOracle(
         val other = PairCases.of(second, operation, pair)
         val recipe = planner.plan(one)
         if (recipe is KeyRecipe.Unavailable) return Outcome.NotCheckable("no_key: ${recipe.reason}")
-        val key = try {
-            generator.generate(recipe)
-        } catch (failure: Exception) {
-            return Outcome.NotCheckable("key_generation_failed: ${failure.javaClass.simpleName}: ${failure.message}")
-        }
+        val key = Attempt.of { generator.generate(recipe) }
+            .getOrElse { return Outcome.NotCheckable(FailureText.of(it, "key_generation_failed: ")) }
         return if (produce) CrossCheck.produceConsume(one, other, recipe, key) else CrossCheck.sameOutput(one, other, recipe, key)
     }
 }

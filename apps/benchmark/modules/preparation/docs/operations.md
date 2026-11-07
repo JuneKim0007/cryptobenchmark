@@ -51,6 +51,7 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 |---|---|---|
 | MessageDigest | operation (`operation`) | `digest()` resets the digest |
 | Mac | operation | `doFinal()` resets the Mac to its state after `init(key)` |
+| Mac named `...GMAC` | init with the next fresh IV + operation | a GMAC nonce must not repeat under one key; interim until the builder reads `lifecycle.reset` |
 | Signature | operation after one init | `sign()`, `verify()` reset to the state after `initSign`/`initVerify` |
 | KeyAgreement | operation after one init | `generateSecret()` resets to the state after `init` |
 | Cipher ECB, NONE | operation | `doFinal()` resets the cipher to its state after init |

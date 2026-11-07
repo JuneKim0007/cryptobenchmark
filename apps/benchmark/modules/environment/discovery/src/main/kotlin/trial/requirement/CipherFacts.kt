@@ -1,5 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
 import java.lang.reflect.InvocationTargetException
@@ -32,7 +35,7 @@ internal object CipherFacts : RequirementCall {
         val message = base.message
         val like = base.like
         val runWith = linkedMapOf<String, Any>("operation" to if (base.wrapOnly) "wrap" else "encrypt", "providerGenerates" to base.providerGenerates)
-        like?.let { runWith["spec"] = ParameterSpecs.describe(it) }
+        like?.let { runWith["spec"] = ParameterReadBack.describe(it) }
         if (!base.wrapOnly) runWith["inputBytes"] = message.size
 
         sheet.measure("defaultInit") { defaultInit(engine, base) }
@@ -59,7 +62,7 @@ internal object CipherFacts : RequirementCall {
         sheet.measure("effects") { CipherEffects(service, engine, base).measure() }
         val fixed = ParameterSpecs.fresh(like)
         val ciphertext = engine.encrypt(key.encrypting, fixed, message)
-        val decrypted = runCatching { engine.decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext) }
+        val decrypted = Attempt.of { engine.decrypt(key.decrypting, CipherEngine.Sent(fixed), ciphertext) }
         // Encrypting takes any public key; the private side decides whether a software key really runs here.
         (decrypted.exceptionOrNull() as? InvalidKeyException)?.let {
             return CallResult(ServiceRequirement.KEY_REFUSED, ErrorText.of(it), key, runWith, search.tried)
@@ -81,10 +84,10 @@ internal object CipherFacts : RequirementCall {
     }
 
     private fun defaultInit(engine: CipherEngine, base: CipherBase): Map<String, Any> {
-        val cipher = runCatching { engine.encrypting(base.key.encrypting, null) }
+        val cipher = Attempt.of { engine.encrypting(base.key.encrypting, null) }
             .getOrElse { return mapOf("refused" to ErrorText.of(it)) }
         val out = linkedMapOf<String, Any>("accepted" to true)
-        ParameterSpecs.generated(cipher)?.let { out["generated"] = ParameterSpecs.describe(it) }
+        ParameterSpecs.generated(cipher)?.let { out["generated"] = ParameterReadBack.describe(it) }
         cipher.parameters?.let { out["parametersAlgorithm"] = it.algorithm }
         val first = cipher.iv
         out["providerChose"] = CipherCall.chosenParameters(cipher, base.key.encrypting)
@@ -127,7 +130,7 @@ internal object CipherFacts : RequirementCall {
             val sized = service.keys.sized(base.key, bits, generator)
             out[bits.toString()] = sized.fold(
                 onSuccess = { key -> if (base.wrapOnly) "ok" else ErrorText.refusal { engine.encrypt(key.encrypting, base.like, ByteArray(1)) } ?: "maxInput=${maxInput(engine, key, base)}" },
-                onFailure = { "generation refused: " + ErrorText.of(it) },
+                onFailure = { ErrorText.of(it, "generation refused: ") },
             )
         }
         return out
@@ -157,7 +160,7 @@ internal object CipherFacts : RequirementCall {
     }
 
     private fun deterministicGenerated(engine: CipherEngine, base: CipherBase): Any =
-        runCatching { engine.encrypt(base.key.encrypting, null, base.message).contentEquals(engine.encrypt(base.key.encrypting, null, base.message)) }
+        Attempt.of { engine.encrypt(base.key.encrypting, null, base.message).contentEquals(engine.encrypt(base.key.encrypting, null, base.message)) }
             .getOrElse { mapOf("refused" to ErrorText.of(it)) }
 
     // What an app sees (the same Cipher re-initialised), a second Cipher, and, when the app sees no guard, the provider's
@@ -178,12 +181,12 @@ internal object CipherFacts : RequirementCall {
     }
 
     private fun spiReuse(service: ProbedService, base: CipherBase, fixed: AlgorithmParameterSpec): Any {
-        val spi = runCatching { service.provider.getService(service.type, service.algorithm)?.newInstance(null) as? CipherSpi }.getOrNull()
+        val spi = Attempt.of { service.provider.getService(service.type, service.algorithm)?.newInstance(null) as? CipherSpi }.getOrNull()
             ?: return NOT_REGISTERED
-        val reached = runCatching {
+        val reached = Attempt.of {
             Spi(declared(spi, "engineInit", Int::class.javaPrimitiveType!!, Key::class.java, AlgorithmParameterSpec::class.java, SecureRandom::class.java),
                 declared(spi, "engineDoFinal", ByteArray::class.java, Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!))
-        }.getOrElse { return "not reachable: " + ErrorText.of(it) }
+        }.getOrElse { return ErrorText.of(it, "not reachable: ") }
         fun call(method: Method, vararg arguments: Any?): Any? =
             try { method.invoke(spi, *arguments) } catch (thrown: InvocationTargetException) { throw thrown.targetException }
         call(reached.init, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM)
@@ -197,7 +200,7 @@ internal object CipherFacts : RequirementCall {
     private fun declared(spi: CipherSpi, name: String, vararg types: Class<*>): Method {
         var type: Class<*>? = spi.javaClass
         while (type != null && type != CipherSpi::class.java) {
-            runCatching { type.getDeclaredMethod(name, *types) }.getOrNull()?.let { return it.apply { isAccessible = true } }
+            Attempt.of { type.getDeclaredMethod(name, *types) }.getOrNull()?.let { return it.apply { isAccessible = true } }
             type = type.superclass
         }
         throw NoSuchMethodException(name)
@@ -215,7 +218,7 @@ internal object CipherFacts : RequirementCall {
         val output = engine.encrypt(base.key.encrypting, fixed, base.message)
         if (output.isEmpty()) return "no output"
         output[output.size - 1] = (output[output.size - 1].toInt() xor 1).toByte()
-        return runCatching { engine.decrypt(base.key.decrypting, CipherEngine.Sent(fixed), output) }.fold(
+        return Attempt.of { engine.decrypt(base.key.decrypting, CipherEngine.Sent(fixed), output) }.fold(
             onSuccess = { if (it.contentEquals(base.message)) "accepted, same plaintext" else "accepted, altered plaintext" },
             onFailure = { "refused " + it.javaClass.simpleName },
         )
@@ -238,7 +241,7 @@ internal object CipherFacts : RequirementCall {
 
     private fun wrapRoundTrip(engine: CipherEngine, base: CipherBase): Map<String, Any> {
         val fixed = ParameterSpecs.fresh(base.like)
-        val wrapped = SecretKeySpec(ParameterSpecs.random(16), base.key.algorithm)
+        val wrapped = base.toWrap()
         val bytes = engine.initialised(Cipher.WRAP_MODE, base.key.encrypting, fixed).wrap(wrapped)
         val back = engine.initialised(Cipher.UNWRAP_MODE, base.key.decrypting, fixed)
         return linkedMapOf(

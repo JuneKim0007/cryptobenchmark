@@ -1,5 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+
 // Whether one instance's operation runs twice: setup, op = a, op = b, and a new instance's op = c. Untimed; never benchmark evidence.
 internal object ResetRun {
 
@@ -13,22 +16,22 @@ internal object ResetRun {
 
     fun <E : Any> of(order: CallOrder<E>, reverses: ((E, ByteArray) -> Boolean)? = null): Map<String, Any> {
         val calls = order.described()
-        val engine = runCatching(order.make).getOrElse { return cannotRun(calls, SETUP_REFUSED, it) }
-        val first = runCatching { order.run(engine) }.getOrElse { return cannotRun(calls, FIRST_CALL_REFUSED, it) }
-        val second = runCatching { order.run(engine) }.getOrElse { return refused(calls, it) }
+        val engine = Attempt.of(order.make).getOrElse { return cannotRun(calls, SETUP_REFUSED, it) }
+        val first = Attempt.of { order.run(engine) }.getOrElse { return cannotRun(calls, FIRST_CALL_REFUSED, it) }
+        val second = Attempt.of { order.run(engine) }.getOrElse { return refused(calls, it) }
         if (first.contentEquals(second)) return result(calls, true, SAME)
-        val fresh = runCatching { order.run(order.make()) }.getOrElse { return cannotRun(calls, SETUP_REFUSED, it) }
+        val fresh = Attempt.of { order.run(order.make()) }.getOrElse { return cannotRun(calls, SETUP_REFUSED, it) }
         if (first.contentEquals(fresh)) return result(calls, false, OUTPUT_DIFFERS)
-        val reversed = reverses == null || runCatching { reverses(engine, second) }.getOrDefault(false)
+        val reversed = reverses == null || Attempt.of { reverses(engine, second) }.getOrDefault(false)
         return result(calls, reversed, if (reversed) RANDOMIZED else NOT_REVERSED)
     }
 
     /** A generator's output is random and nothing takes it back: the second call running is the whole test. */
     fun <E : Any> ofGenerator(order: CallOrder<E>): Map<String, Any> {
         val calls = order.described()
-        val engine = runCatching(order.make).getOrElse { return cannotRun(calls, SETUP_REFUSED, it) }
-        runCatching { order.run(engine) }.onFailure { return cannotRun(calls, FIRST_CALL_REFUSED, it) }
-        return runCatching { order.run(engine) }.fold({ result(calls, true, NOT_COMPARED) }, { refused(calls, it) })
+        val engine = Attempt.of(order.make).getOrElse { return cannotRun(calls, SETUP_REFUSED, it) }
+        Attempt.of { order.run(engine) }.onFailure { return cannotRun(calls, FIRST_CALL_REFUSED, it) }
+        return Attempt.of { order.run(engine) }.fold({ result(calls, true, NOT_COMPARED) }, { refused(calls, it) })
     }
 
     private fun result(calls: Map<String, Any>, resets: Boolean, output: String): Map<String, Any> =

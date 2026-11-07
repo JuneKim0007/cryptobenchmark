@@ -5,11 +5,14 @@ import java.security.GeneralSecurityException
 import javax.crypto.Cipher
 
 /** One timed doFinal into a buffer allocated once; the setup catalog decides whether init and getInstance run inside it. */
-internal class CipherCall(create: () -> Cipher, private val input: ByteArray, init: (Cipher, Int) -> Unit) {
+internal class CipherCall(create: () -> Cipher, private val input: ByteArray, init: EngineInit<Cipher>) {
 
     private val call = EngineCall(create, init, ::operate)
-    private val output = ByteArray(call.engine.getOutputSize(input.size))
+    private val output = ByteArray(outputSize(call.engine))
     private var written = 0
+
+    // a wrap cipher answers getOutputSize with -1: one doFinal before timing learns the size instead
+    private fun outputSize(cipher: Cipher): Int = cipher.getOutputSize(input.size).takeIf { it >= 0 } ?: cipher.doFinal(input).size
 
     private fun operate(cipher: Cipher): ByteArray {
         written = cipher.doFinal(input, 0, input.size, output, 0)

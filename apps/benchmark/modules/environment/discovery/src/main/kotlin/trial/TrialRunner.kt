@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
@@ -35,7 +36,7 @@ class TrialRunner {
         provider = provider.name,
         type = service.type,
         algorithm = service.algorithm,
-        outcome = Attempt.of { instantiate(provider, service) },
+        outcome = TrialOutcome.of(Attempt.of { instantiate(provider, service) }),
         transformations = if (isCipher(service)) transformations(provider, service) else emptyList(),
     )
 
@@ -47,7 +48,7 @@ class TrialRunner {
 
     private fun transformations(provider: Provider, service: ServiceEntry): List<TransformationTrialEntry> =
         TransformationSet.of(service).map { transformation ->
-            TransformationTrialEntry(transformation, Attempt.of { Cipher.getInstance(transformation, provider) })
+            TransformationTrialEntry(transformation, TrialOutcome.of(Attempt.of { Cipher.getInstance(transformation, provider) }))
         }
 
     private fun isCipher(service: ServiceEntry): Boolean = ServiceKey.fold(service.type) == CIPHER

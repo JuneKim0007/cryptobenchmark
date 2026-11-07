@@ -1,9 +1,15 @@
-# Per JCA engine type and cipher mode: what a fixed call still does per call (operation | initAndOperation); notFixed is getInstance + init + operation.
+# Per JCA engine type, cipher mode or Mac name suffix: what a fixed call still does per call (operation | initAndOperation); notFixed is getInstance + init + operation.
 # Source: each engine's JCA API contract; read by operation/SetupCatalog; documented in modules/preparation/docs/operations.md#variants.
 schemaVersion: 1
 engines:
   MessageDigest: {fixed: operation, contract: "digest() resets the digest for further use"}
-  Mac: {fixed: operation, contract: "doFinal() resets the Mac to its state after init(key)"}
+  Mac:
+    contract: "doFinal() resets the Mac to its state after init(key); a GMAC nonce must not repeat under one key"
+    # interim until the generic builder reads lifecycle.reset from the catalogue
+    fixed: bySuffix
+    suffixes:
+      GMAC: initAndOperation
+    otherSuffix: operation
   Signature: {fixed: operation, contract: "sign() and verify() reset the object to its state after initSign or initVerify"}
   KeyAgreement: {fixed: operation, contract: "generateSecret() resets the object to its state after init"}
   KeyGenerator: {variants: one, contract: "generateKey() is the measured work; init once by the case"}

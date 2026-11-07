@@ -13,7 +13,7 @@ internal object EncryptProperties : Properties {
         val cipher = call.invocation.engine as? Cipher ?: return mapOf("engine" to Outcome.NotCheckable("no_engine_read_back"))
         val input = (call.prepared.input as? OperationInput.Message)?.bytes ?: return mapOf("input" to Outcome.NotCheckable("no_message_input"))
         val output = call.output as? ByteArray ?: return mapOf("output" to Outcome.Fail("not_bytes: ${call.output?.javaClass?.simpleName}"))
-        val bound = runCatching { cipher.getOutputSize(input.size) }.getOrNull()
+        val bound = runCatching { cipher.getOutputSize(input.size) }.getOrNull()?.takeIf { it >= 0 }
         val reported = cipher.parameters
         val decrypt = { bytes: ByteArray ->
             val reverse = Cipher.getInstance(call.prepared.case.algorithm, call.prepared.case.provider)
@@ -28,7 +28,7 @@ internal object EncryptProperties : Properties {
             }
         }
         return linkedMapOf(
-            "length" to if (bound == null) Outcome.NotCheckable("no_size_bound: getOutputSize refused after the call")
+            "length" to if (bound == null) Outcome.NotCheckable("no_size_bound: getOutputSize refused or -1 after the call")
             else holds(output.size in input.size..bound) { "length: ${output.size} bytes for ${input.size} in, the engine bounds it at $bound" },
             "reverse" to reverse,
             "tamper" to if (reverse is Outcome.NotCheckable) reverse else Tamper.refused(call.prepared.resolvedParameters) { decrypt(flipped(output)) },

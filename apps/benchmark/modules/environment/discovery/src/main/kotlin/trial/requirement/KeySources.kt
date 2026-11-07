@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
@@ -36,7 +37,7 @@ internal class KeySources(capture: CapturedEnvironment, private val providers: L
     }
 
     // The same algorithm and size from another provider; a size is asked for only when it costs no parameter generation.
-    fun foreign(key: ProbeKey, provider: Provider): Result<ProbeKey> = runCatching {
+    fun foreign(key: ProbeKey, provider: Provider): Result<ProbeKey> = Attempt.of {
         val secret = key.secret
         when {
             secret != null && key.source == ProbeKey.FACTORY ->

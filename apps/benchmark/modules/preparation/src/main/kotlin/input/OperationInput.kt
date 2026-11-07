@@ -27,5 +27,6 @@ sealed class OperationInput {
         }
     }
 
-    class SignedMessage(val message: ByteArray, val signature: ByteArray) : OperationInput()
+    // spec: the one draw the signature was made under; the timed verify and every check reuse it
+    class SignedMessage(val message: ByteArray, val signature: ByteArray, val spec: AlgorithmParameterSpec?) : OperationInput()
 }

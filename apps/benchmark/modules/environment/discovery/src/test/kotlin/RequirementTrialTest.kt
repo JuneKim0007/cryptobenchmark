@@ -5,8 +5,14 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
-import io.github.junekim0007.cryptobench.discovery.trial.requirement.ErrorText
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.AliasRuns
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.CallResult
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.KeyOrigin
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.KeySources
+import io.github.junekim0007.cryptobench.discovery.trial.requirement.ProbedService
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.RequirementTrial
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
@@ -21,9 +27,14 @@ import java.security.Provider
 import java.security.SecureRandom
 import java.security.Security
 import java.security.spec.AlgorithmParameterSpec
+import java.security.spec.KeySpec
 import javax.crypto.CipherSpi
 import javax.crypto.KeyGeneratorSpi
+import javax.crypto.Mac
+import javax.crypto.MacSpi
 import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactorySpi
+import javax.crypto.spec.SecretKeySpec
 import java.security.InvalidKeyException
 import java.security.AlgorithmParameters
 
@@ -83,6 +94,7 @@ class RequirementTrialTest {
         assertEquals(2, bound.size)
         assertTrue(bound.toString(), bound.all { it.status == ServiceRequirement.NOT_RUNNABLE && it.reason == ServiceRequirement.KEYSTORE_BORN_KEY })
         assertTrue(bound.all { ServiceRequirement.KEYSTORE_BORN_CONDITION in it.conditions })
+        assertTrue(bound.toString(), bound.all { it.measuredReason in setOf(ServiceRequirement.KEY_REFUSED, ServiceRequirement.GENERATION_REFUSED, ServiceRequirement.NO_KEY) })
     }
 
     @Test
@@ -97,6 +109,7 @@ class RequirementTrialTest {
             ),
         )
         assertEquals(listOf("", ServiceRequirement.KEYSTORE_BORN_KEY, "", ServiceRequirement.KEY_REFUSED), applied.map { it.reason })
+        assertEquals(listOf("", ServiceRequirement.KEY_REFUSED, "", ""), applied.map { it.measuredReason })
     }
 
     @Test
@@ -111,6 +124,29 @@ class RequirementTrialTest {
         assertEquals(ServiceRequirement.NOT_RUNNABLE, thrown.status)
         assertTrue(thrown.detail, thrown.detail.length <= 200)
         assertTrue("key material left in: " + thrown.detail, "1234567890123456" !in thrown.detail)
+    }
+
+    @Test
+    fun anAliasWhoseRecordFailsIsRecordedAloneBesideTheOthers() {
+        val aliased = Aliased()
+        val live = listOf<Provider>(aliased)
+        val capture = ProviderProbe().capture(arrayOf(aliased))
+        val entry = capture.providers.single().services.single { it.type == "Mac" }
+        val trial = ServiceTrialEntry(aliased.name, entry.type, entry.algorithm, TrialOutcome.SUCCESS)
+        val service = ProbedService(aliased, entry.type, entry.algorithm, entry, trial, KeySources(capture, live, DefaultKeys(live)), live, emptyList(), emptyList())
+        val aliases = AliasRuns.of(service, HmacTag::class.java.name, CallResult(aliasRuns = {}, aliasAcceptsKey = { _, _ -> }))
+        assertEquals(listOf("TAG-A", "TAG-B"), aliases.map { it["name"] })
+        assertEquals("same", aliases.single { it["name"] == "TAG-A" }["behaviour"])
+        assertEquals(mapOf("name" to "TAG-B", "error" to "IllegalStateException: no encoding"), aliases.single { it["name"] == "TAG-B" })
+    }
+
+    @Test
+    fun aKeyWhoseEncodingThrowsFailsItsOwnServiceOnly() {
+        val aliased = report(arrayOf(Aliased())).services
+        assertEquals(listOf("Mac" to "TAG", "SecretKeyFactory" to "TAG-B"), aliased.map { it.type to it.algorithm })
+        val factory = aliased.single { it.type == "SecretKeyFactory" }
+        assertEquals(ServiceRequirement.PROBE_FAILED, factory.reason)
+        assertEquals("IllegalStateException: no encoding", factory.detail)
     }
 
     @Test
@@ -134,6 +170,37 @@ class RequirementTrialTest {
             put("Cipher.BOUND/CBC/NoPadding", RefusingCipher::class.java.name)
             put("KeyGenerator.BOUND", UnreadyGenerator::class.java.name)
         }
+    }
+
+    // TAG-B's own-name key is a password key whose encoding throws: describing it fails that alias's record only.
+    @Suppress("DEPRECATION")
+    private class Aliased : Provider("Aliased", 1.0, "a Mac with two aliases") {
+        init {
+            put("Mac.TAG", HmacTag::class.java.name)
+            put("Alg.Alias.Mac.TAG-A", "TAG")
+            put("Alg.Alias.Mac.TAG-B", "TAG")
+            put("SecretKeyFactory.TAG-B", UnencodedFactory::class.java.name)
+        }
+    }
+
+    class HmacTag : MacSpi() {
+        private val inner = Mac.getInstance("HmacSHA256", "SunJCE")
+        override fun engineGetMacLength() = inner.macLength
+        override fun engineInit(key: Key, params: AlgorithmParameterSpec?) = inner.init(SecretKeySpec(key.encoded, "HmacSHA256"))
+        override fun engineUpdate(input: Byte) = inner.update(input)
+        override fun engineUpdate(input: ByteArray, offset: Int, len: Int) = inner.update(input, offset, len)
+        override fun engineDoFinal(): ByteArray = inner.doFinal()
+        override fun engineReset() = inner.reset()
+    }
+
+    class UnencodedFactory : SecretKeyFactorySpi() {
+        override fun engineGenerateSecret(keySpec: KeySpec?): SecretKey = object : SecretKey {
+            override fun getAlgorithm() = "TAG-B"
+            override fun getFormat() = "RAW"
+            override fun getEncoded(): ByteArray = throw IllegalStateException("no encoding")
+        }
+        override fun engineGetKeySpec(key: SecretKey?, keySpec: Class<*>?): KeySpec = throw UnsupportedOperationException()
+        override fun engineTranslateKey(key: SecretKey?): SecretKey = throw UnsupportedOperationException()
     }
 
     @Suppress("DEPRECATION")

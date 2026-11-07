@@ -9,6 +9,8 @@ import io.github.junekim0007.cryptobench.preparation.operation.OperationDefiniti
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
 import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.preparation.shared.Attempt
+import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 
 /**
  * Builds one case: plan its key, make it (once per recipe), bind its parameters, build its input, call it once, read back what the provider used.
@@ -31,20 +33,20 @@ internal class CasePreparer(
     fun prepare(case: BenchmarkCase): Outcome {
         val recipe = planner.plan(case)
         if (recipe is KeyRecipe.Unavailable) return skipped(case, recipe.reason)
-        val material = keys.getOrPut(recipe) { runCatching { generator.generate(recipe) } }
-            .getOrElse { failure -> return skipped(case, "key_generation_failed: ${failure.message}") }
+        val material = keys.getOrPut(recipe) { Attempt.of { generator.generate(recipe) } }
+            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "key_generation_failed: ")) }
         val definition = OperationDefinitions.of(case.operation)
         val parameters = bound(case.parameters, "parameters")
         val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
-        val input = runCatching { definition.input(case, material, parameters) }
-            .getOrElse { failure -> return skipped(case, "input_preparation_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
+        val input = Attempt.of { definition.input(case, material, parameters) }
+            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "input_preparation_failed: ")) }
         val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
-        val invocation = runCatching { definition.invocation(candidate) }
-            .getOrElse { failure -> return skipped(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
-        val result = runCatching { invocation.once() }
-            .getOrElse { failure -> return skipped(case, "dry_run_failed: ${failure.javaClass.simpleName}: ${failure.message}") }
-        val resolved = runCatching { ResolvedParameters.of(invocation.engine, material, result) }
-            .getOrElse { failure -> return skipped(case, "parameters_unreadable: ${failure.javaClass.simpleName}: ${failure.message}") }
+        val invocation = Attempt.of { definition.invocation(candidate) }
+            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "dry_run_failed: ")) }
+        val result = Attempt.of { invocation.once() }
+            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "dry_run_failed: ")) }
+        val resolved = Attempt.of { ResolvedParameters.of(invocation.engine, material, result) }
+            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "parameters_unreadable: ")) }
         return Outcome.Prepared(candidate.copy(resolvedParameters = resolved, perCall = invocation.perCall))
     }
 

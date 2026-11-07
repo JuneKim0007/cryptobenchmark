@@ -11,7 +11,7 @@ internal object VerifyProperties : Properties {
 
     override fun of(call: CheckedCall): Map<String, Outcome> {
         val input = call.prepared.input as? OperationInput.SignedMessage ?: return mapOf("input" to Outcome.NotCheckable("no_signed_input"))
-        val spec = call.prepared.parameters?.next()
+        val spec = input.spec
         val tampered = runCatching {
             val verifier = Signature.getInstance(call.prepared.case.algorithm, call.prepared.case.provider)
             spec?.let { verifier.setParameter(it) }

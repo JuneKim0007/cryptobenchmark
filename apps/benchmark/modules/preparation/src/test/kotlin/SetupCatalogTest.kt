@@ -19,6 +19,8 @@ class SetupCatalogTest {
     fun fixedKeepsWhatEachEngineRowSays() {
         assertEquals(PerCall.OPERATION, perCall("MessageDigest", "SHA-256"))
         assertEquals(PerCall.OPERATION, perCall("Mac", "HmacSHA256"))
+        assertEquals(PerCall.INIT_AND_OPERATION, perCall("Mac", "AES-GMAC"))
+        assertEquals(PerCall.INIT_AND_OPERATION, perCall("Mac", "DSTU7624-128GMAC"))
         assertEquals(PerCall.OPERATION, perCall("Signature", "SHA256withECDSA"))
         assertEquals(PerCall.OPERATION, perCall("KeyAgreement", "ECDH"))
         assertEquals(PerCall.OPERATION, perCall("Cipher", "AES/ECB/PKCS5Padding"))

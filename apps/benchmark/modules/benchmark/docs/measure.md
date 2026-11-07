@@ -5,8 +5,8 @@ Prepared cases to measurements and `benchmark.json`. Device harness: `apps/bench
 ## Flow
 
 ```
-PreparedRun -> PlanCheck -> refusals -> onRefusal (default: throw RefusedPlanException)
-            -> per unrefused case: Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json
+PreparedRun -> PlanCheck.runnable -> refused cases to skipped.yaml (host and device)
+            -> per runnable case: Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json
 device: benchmarkData.json + prepared.yaml -> JetpackResults -> benchmark.json
 per process benchmark.json -> Merge -> benchmark.json
 ```
@@ -30,9 +30,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 
 | rule | value |
 |---|---|
-| default `onRefusal` | throws `RefusedPlanException` `refused_plan: ...`; nothing is measured |
-| non-throwing `onRefusal` | refused case ids are filtered out; the rest are measured |
-| `runnable(run)` | refused cases left out with their refusal; a run-wide refusal or no case left throws `RefusedPlanException`; the device plan's rule |
+| `runnable(run)` | the one rule, host (`BenchKt`, `CheckKt`) and device: refused cases left out with their refusal, added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` `refused_plan: ...` |
 | `Refusal.toString` | `<caseId>: <reason>`; bare reason when run-wide |
 
 ## What one sample is

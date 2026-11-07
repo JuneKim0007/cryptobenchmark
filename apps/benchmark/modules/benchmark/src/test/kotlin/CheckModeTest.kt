@@ -14,7 +14,7 @@ class CheckModeTest {
 
     private val timedSources = listOf(
         File("src/main/kotlin/run/TimedLoop.kt"), File("src/main/kotlin/run/compose"), File("src/main/kotlin/run/decorate"),
-        File("src/main/kotlin/Benchmark.kt"), File("../android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CryptoBenchmark.kt"),
+        File("../android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CryptoBenchmark.kt"),
         File("../android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PinnedCase.kt"),
     )
 

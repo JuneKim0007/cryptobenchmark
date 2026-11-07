@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import java.security.MessageDigest
 
@@ -17,7 +19,7 @@ internal object DigestFacts : RequirementCall {
         // A digest can cap its input (HARAKA-256 takes 32 bytes): the longest message it takes is the base.
         var refused: Throwable? = null
         val (message, output) = MESSAGE_SIZES.map { ParameterSpecs.random(it) }.firstNotNullOfOrNull { message ->
-            runCatching { message to digest(service.algorithm, service, message) }.onFailure { if (refused == null) refused = it }.getOrNull()
+            Attempt.of { message to digest(service.algorithm, service, message) }.onFailure { if (refused == null) refused = it }.getOrNull()
         } ?: return CallResult(ServiceRequirement.OPERATION_REFUSED, ErrorText.of(refused!!))
         sheet.measure("digestBytes") { output.size }
         sheet.measure("lengthDeclared") { MessageDigest.getInstance(service.algorithm, service.provider).digestLength }

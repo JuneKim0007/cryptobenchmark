@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import java.security.InvalidKeyException
 import java.security.KeyPair
@@ -15,11 +17,11 @@ internal object AgreementFacts : RequirementCall {
         val tried = mutableListOf<Map<String, Any>>()
         var detail = ""
         for (key in service.keys.of(service.type, service.algorithm, service.provider, pairsOnly = true)) {
-            val peer = runCatching { service.keys.peer(key) }.getOrElse {
+            val peer = Attempt.of { service.keys.peer(key) }.getOrElse {
                 tried += key.describe() + ("refused" to ErrorText.of(it))
                 null
             } ?: continue
-            val refused = runCatching { agree(service.algorithm, service, key.pair!!, peer) }.exceptionOrNull() ?: return measured(service, sheet, key, peer, tried)
+            val refused = Attempt.of { agree(service.algorithm, service, key.pair!!, peer) }.exceptionOrNull() ?: return measured(service, sheet, key, peer, tried)
             detail = ErrorText.of(refused)
             tried += key.describe() + ("refused" to detail)
         }
@@ -61,7 +63,7 @@ internal object AgreementFacts : RequirementCall {
     private fun reset(service: ProbedService, own: KeyPair, peer: KeyPair): Map<String, Any> {
         val order = CallOrder(listOf("init"), { initialised(service.algorithm, service, own) }, listOf(CallStep("doPhase") { it.doPhase(peer.public, true); null }, CallStep("generateSecret") { it.generateSecret() }))
         val forward = LinkedHashMap(ResetRun.of(order))
-        forward["withoutDoPhase"] = runCatching {
+        forward["withoutDoPhase"] = Attempt.of {
             val agreement = initialised(service.algorithm, service, own)
             agreement.doPhase(peer.public, true)
             if (agreement.generateSecret().contentEquals(agreement.generateSecret())) "same" else "different"

@@ -16,7 +16,7 @@ internal object GeneratorFacts : RequirementCall {
 
     override fun measure(service: ProbedService, sheet: FactSheet): CallResult {
         val run = service.trial.defaultRun ?: return CallResult(ServiceRequirement.GENERATION_REFUSED, "no default run")
-        if (!run.works) return CallResult(ServiceRequirement.GENERATION_REFUSED, ErrorText.clean(run.error))
+        if (!run.works) return CallResult(ServiceRequirement.GENERATION_REFUSED, run.error)
         sheet.measure("defaultBits") { run.keySize }
         sheet.measure("keyMaterial") { run.keyMaterial.ifEmpty { null } }
         sheet.measure("keyFormat") { run.keyFormat.ifEmpty { null } }

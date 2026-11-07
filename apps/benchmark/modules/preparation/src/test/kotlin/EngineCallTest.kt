@@ -3,7 +3,9 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.operation.EngineCall
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.lang.management.ManagementFactory
 
 class EngineCallTest {
 
@@ -48,5 +50,22 @@ class EngineCallTest {
     fun theTimedCallHoldsNoCheckOnlyState() {
         val fields = EngineCall::class.java.declaredFields.filterNot { it.isSynthetic }.map { it.name }.toSet()
         assertEquals(setOf("create", "init", "operate", "calls", "engine"), fields)
+    }
+
+    // The call counter passed to init is a primitive: no Integer per timed init once it passes the box cache.
+    @Test
+    fun aTimedInitAllocatesNoBoxedCounter() {
+        val threads = ManagementFactory.getThreadMXBean() as com.sun.management.ThreadMXBean
+        val invocation = EngineCall({ Any() }, { _, _ -> }, { null }).invocation(PerCall.INIT_AND_OPERATION)
+        repeat(BOX_CACHE) { invocation.perIteration() }
+        val before = threads.getThreadAllocatedBytes(Thread.currentThread().id)
+        repeat(CALLS) { invocation.perIteration() }
+        val perCall = (threads.getThreadAllocatedBytes(Thread.currentThread().id) - before).toDouble() / CALLS
+        assertTrue("$perCall bytes per call", perCall < 1.0)
+    }
+
+    private companion object {
+        const val BOX_CACHE = 128
+        const val CALLS = 2_000
     }
 }

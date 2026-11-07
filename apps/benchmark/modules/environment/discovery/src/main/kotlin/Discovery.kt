@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
@@ -50,7 +51,7 @@ class Discovery(
 
     fun reusable(runtime: RuntimeInfo = DeviceRuntimeReader.read()): ReusedRun? {
         val captureFile = directory.newest("probe") ?: return null
-        val capture = runCatching { CaptureDocument.parse(codec.load(captureFile.readText())) }.getOrNull() ?: return null
+        val capture = Attempt.of { CaptureDocument.parse(codec.load(captureFile.readText())) }.getOrNull() ?: return null
         if (capture.runtime != runtime) {
             return null
         }
@@ -59,8 +60,8 @@ class Discovery(
         if (!trialFile.isFile || !requirementsFile.isFile) {
             return null
         }
-        val trial = runCatching { TrialDocument.parse(codec.load(trialFile.readText())) }.getOrNull() ?: return null
-        val requirements = runCatching { RequirementDocument.parse(codec.load(requirementsFile.readText())) }.getOrNull() ?: return null
+        val trial = Attempt.of { TrialDocument.parse(codec.load(trialFile.readText())) }.getOrNull() ?: return null
+        val requirements = Attempt.of { RequirementDocument.parse(codec.load(requirementsFile.readText())) }.getOrNull() ?: return null
         val sameCapture = trial.capturedAtMillis == capture.capturedAtMillis && requirements.capturedAtMillis == capture.capturedAtMillis
         return if (sameCapture) ReusedRun(capture, captureFile, trialFile, requirementsFile) else null
     }

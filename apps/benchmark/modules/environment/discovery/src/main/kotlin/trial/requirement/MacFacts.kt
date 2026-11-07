@@ -1,5 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import java.security.InvalidKeyException
 import java.security.Key
@@ -23,7 +26,7 @@ internal object MacFacts : RequirementCall {
         for (key in service.keys.of(service.type, service.algorithm, service.provider)) {
             if (key.secret == null) continue
             for ((_, spec) in listOf<Pair<String, AlgorithmParameterSpec?>>("" to null) + ParameterSpecs.candidates()) {
-                val refused = runCatching { tag(service, key.secret, spec, ByteArray(8)) }.exceptionOrNull() ?: return measured(service, sheet, key, spec, tried)
+                val refused = Attempt.of { tag(service, key.secret, spec, ByteArray(8)) }.exceptionOrNull() ?: return measured(service, sheet, key, spec, tried)
                 if (detail.isEmpty()) detail = ErrorText.of(refused)
             }
             tried += key.describe() + ("refused" to detail)
@@ -52,7 +55,7 @@ internal object MacFacts : RequirementCall {
         sheet.measure("reset") { mapOf("forward" to ResetRun.of(CallOrder(listOf("init"), { initialised(service.algorithm, service, secret, spec) }, listOf(CallStep("update") { mac -> mac.update(message); null }, CallStep("doFinal") { mac -> mac.doFinal() })))) }
         return CallResult(
             key = key,
-            runWith = linkedMapOf<String, Any>("operation" to "mac").apply { spec?.let { put("spec", ParameterSpecs.describe(it)) } },
+            runWith = linkedMapOf<String, Any>("operation" to "mac").apply { spec?.let { put("spec", ParameterReadBack.describe(it)) } },
             keysTried = tried,
             aliasRuns = { alias -> check(tagAs(alias, service, secret, spec, message).contentEquals(output)) { "tags_differently" } },
             aliasAcceptsKey = { alias, other -> tagAs(alias, service, other.encrypting, spec, ByteArray(8)) },

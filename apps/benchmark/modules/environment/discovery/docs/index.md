@@ -30,9 +30,12 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProv
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/InstalledProvider.kt : registered name and artifact of one installed provider
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
+apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/Attempt.kt : the probe's one catch: Exception or LinkageError as a Result, any other Error thrown
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/DefaultRunOutcome.kt : one default-run result
+apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ErrorText.kt : error text of every level: key material removed, capped
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/KeyCacheStats.kt : keys generated, refused and reused over a run
+apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ParameterReadBack.kt : the one read-back of a spec (readable, describe) for levels 2 and 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record with origin and artifact
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderOrigin.kt : platform or bundled
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/RequirementReport.kt : requirements model, SCHEMA_VERSION 1
@@ -46,7 +49,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceTri
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TransformationTrialEntry.kt : trial result for one cipher transformation
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialOutcome.kt : instantiation success or error
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 3
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/Attempt.kt : runs a block, maps Exception or LinkageError to TrialOutcome
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
@@ -61,7 +63,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/C
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CipherReset.kt : a cipher's reset test per direction, on the base CipherFacts found
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ClassRun.kt : the class a name really instantiates
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/DigestFacts.kt : MessageDigest facts
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ErrorText.kt : refusal text: key material removed, capped
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/FactSheet.kt : facts in order, one guarded call each
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/FactoryFacts.kt : SecretKeyFactory facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ForeignKeys.kt : the same key from every other provider

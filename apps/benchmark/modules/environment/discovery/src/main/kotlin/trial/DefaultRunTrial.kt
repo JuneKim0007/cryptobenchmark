@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
@@ -42,7 +43,7 @@ class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
         val sizes: List<Int?> = if (call.takesInput) inputSizes else listOf(null)
         var firstFailure: DefaultRunOutcome? = null
         for (size in sizes) {
-            val outcome = attempt { call.call(provider, algorithm, ByteArray(size ?: 0), keys).copy(inputSize = size) }
+            val outcome = Attempt.of { call.call(provider, algorithm, ByteArray(size ?: 0), keys).copy(inputSize = size) }.getOrElse(DefaultRunOutcome::failure)
             if (outcome.works) {
                 return outcome
             }
@@ -52,13 +53,4 @@ class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
         }
         return firstFailure!!
     }
-
-    private fun attempt(block: () -> DefaultRunOutcome): DefaultRunOutcome =
-        try {
-            block()
-        } catch (exception: Exception) {
-            DefaultRunOutcome.failure(exception)
-        } catch (linkageError: LinkageError) {
-            DefaultRunOutcome.failure(linkageError)
-        }
 }

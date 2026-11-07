@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+
 // An accepted set read from single calls, written as ranges so a 64-step sweep stays one line.
 internal object Sweep {
 
@@ -8,7 +10,7 @@ internal object Sweep {
         var firstRefusal: String? = null
         for (value in values) {
             val refused = ErrorText.refusal { call(value) }
-            if (refused == null) accepted += value else if (firstRefusal == null) firstRefusal = "$value: $refused"
+            if (refused == null) accepted += value else if (firstRefusal == null) firstRefusal = ErrorText.clean("$value: $refused")
         }
         return linkedMapOf<String, Any>("accepted" to ranges(accepted)).apply { firstRefusal?.let { put("firstRefusal", it) } }
     }

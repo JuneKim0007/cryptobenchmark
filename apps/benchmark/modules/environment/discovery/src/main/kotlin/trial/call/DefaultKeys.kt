@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.KeyCacheStats
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import java.security.KeyPair
@@ -58,7 +59,7 @@ internal class DefaultKeys(private val providers: List<Provider>) {
     fun passwordFrom(provider: Provider, algorithm: String): Result<Secret> =
         cached(passwords, cacheKey(provider, algorithm, null)) {
             val factory = SecretKeyFactory.getInstance(algorithm, provider)
-            val key = runCatching { factory.generateSecret(PBEKeySpec(PASSWORD)) }
+            val key = Attempt.of { factory.generateSecret(PBEKeySpec(PASSWORD)) }
                 .getOrElse { factory.generateSecret(PBEKeySpec(PASSWORD, ByteArray(SALT_BYTES) { it.toByte() }, ITERATIONS, DERIVED_BITS)) }
             Secret(algorithm, provider.name, key)
         }
@@ -80,13 +81,7 @@ internal class DefaultKeys(private val providers: List<Provider>) {
             return it
         }
         val started = System.nanoTime()
-        val made = try {
-            Result.success(make())
-        } catch (exception: Exception) {
-            Result.failure(exception)
-        } catch (linkageError: LinkageError) {
-            Result.failure(linkageError)
-        }
+        val made = Attempt.of(make)
         generationNanos += System.nanoTime() - started
         if (made.isSuccess) generated++ else refused++
         cache[key] = made

@@ -52,6 +52,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/DecryptDefinition.k
 apps/benchmark/modules/preparation/src/main/kotlin/operation/DigestDefinition.kt : DIGEST definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/EncryptDefinition.kt : ENCRYPT definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineCall.kt : one timed call over a JCA engine: what it redoes per call, by PerCall; its CallTrace
+apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineInit.kt : an engine's init told its call index, the index unboxed
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyDefinition.kt : GENERATE_KEY definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyPairDefinition.kt : GENERATE_KEY_PAIR definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once(), the engine it calls and its CallTrace
@@ -94,12 +95,14 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/Rejection.kt : one re
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/Resolution.kt : cases and rejections result
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionCheck.kt : per-selection rejection rules
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian expansion of a selection into cases
+apps/benchmark/modules/preparation/src/main/kotlin/shared/Attempt.kt : the probe's catch rule here: Exception or LinkageError as a Result, any other Error thrown
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
-apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line, object identity hashes dropped
+apps/benchmark/modules/preparation/src/main/kotlin/shared/ErrorText.kt : the probe's scrubber here: key encodings removed from a provider's message, then the 200 cap
+apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line: scrubbed and capped, object identity hashes dropped
 apps/benchmark/modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; apps/benchmark-runner/results/manifest.py copies the types into each run's manifest.yaml `operations`
-apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type and cipher mode, what a fixed call still does; JCA contract per row
+apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type, cipher mode or Mac name suffix, what a fixed call still does; JCA contract per row
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
 apps/benchmark/modules/preparation/src/test/kotlin/BoundParametersTest.kt : cycling fixed specs in turn
@@ -111,6 +114,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/EffectiveFixture.kt : effecti
 apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call; the trace's engine and inits; no check-only state in the timed call
 apps/benchmark/modules/preparation/src/test/kotlin/EngineTypesTest.kt : engine type registry tests
 apps/benchmark/modules/preparation/src/test/kotlin/ExampleFilesTest.kt : prepares example/ and compares the committed outputs
+apps/benchmark/modules/preparation/src/test/kotlin/FailureTextTest.kt : a provider's failure as preparation writes it: key encodings removed, identity hash dropped, within the cap
 apps/benchmark/modules/preparation/src/test/kotlin/GlobalReaderTest.kt : run and policy read tests
 apps/benchmark/modules/preparation/src/test/kotlin/InboundFileTest.kt : effective.yaml section and schema tests
 apps/benchmark/modules/preparation/src/test/kotlin/InteropOracleTest.kt : interop verdict and plan-file tests

@@ -44,6 +44,7 @@ services:
   classRun: example.VaultCipher
   status: not_runnable
   reason: keystore_born_key
+  measuredReason: key_refused
   detail: 'InvalidKeyException: Unsupported key'
   conditions:
   - keystore-born key

@@ -16,5 +16,5 @@ specs:
     args:
       - {field: digest, type: string}
       - {field: mgf, type: string, default: MGF1}
-      - {field: mgfDigest, type: spec, class: java.security.spec.MGF1ParameterSpec}
+      - {field: mgf1, type: spec, class: java.security.spec.MGF1ParameterSpec}
       - {field: pSource, type: constant, default: javax.crypto.spec.PSource.PSpecified.DEFAULT}

@@ -30,12 +30,12 @@ internal object VerifyDefinition : OperationDefinition {
         verifying.initVerify(pair.public)
         verifying.update(message)
         check(verifying.verify(signature)) { "round_trip_failed: the signature does not verify" }
-        return OperationInput.SignedMessage(message, signature)
+        return OperationInput.SignedMessage(message, signature, spec)
     }
 
     override fun invocation(prepared: PreparedCase): Invocation {
         val input = prepared.input as? OperationInput.SignedMessage ?: throw IllegalArgumentException("verify_without_signature")
-        val spec = prepared.parameters?.next()
+        val spec = input.spec
         val public = CaseArguments.pair(prepared.key).public
         val call = EngineCall({ Signature.getInstance(prepared.case.algorithm, prepared.case.provider) }, { signature, _ ->
             spec?.let { signature.setParameter(it) }

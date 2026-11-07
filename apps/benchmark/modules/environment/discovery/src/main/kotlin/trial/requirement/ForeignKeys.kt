@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+
 // A key of the same algorithm and size from every other provider: only a run tells which keys travel.
 internal object ForeignKeys {
 

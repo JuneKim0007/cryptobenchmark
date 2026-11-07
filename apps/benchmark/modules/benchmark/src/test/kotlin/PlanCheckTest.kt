@@ -83,15 +83,4 @@ class PlanCheckTest {
     fun twoCasesCannotShareAnId() {
         assertEquals(listOf("duplicate_case"), PlanCheck(HostHarness.METRICS, installed).check(run(case(), case())).map { it.reason.substringBefore(':') })
     }
-
-    @Test
-    fun theRefusedCasesAreTheOnlyOnesLeftUnmeasured() {
-        val measured = mutableListOf<String>()
-        val benchmark = Benchmark(PlanCheck(HostHarness.METRICS, installed), onRefusal = {})
-        benchmark.measure(run(case(), case(algorithm = "SHA-512", provider = "BC"))) { prepared ->
-            measured += prepared.case.id
-            io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement(prepared.case, prepared.recipe.kind, 1, listOf(1.0))
-        }
-        assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed"), measured)
-    }
 }

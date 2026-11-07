@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import java.security.InvalidKeyException
 import java.security.spec.AlgorithmParameterSpec
@@ -17,9 +19,16 @@ internal class CipherBase private constructor(
 
     class Search(val base: CipherBase?, val reason: String, val detail: String, val tried: List<Map<String, Any>>)
 
+    /** The secret every wrap fact wraps: fresh bytes under the base key's algorithm. */
+    fun toWrap(): SecretKeySpec = toWrap(key)
+
     companion object {
 
         private val MESSAGE_SIZES = listOf(64, 32, 16, 8, 1, 0)
+
+        private const val WRAPPED_BYTES = 16
+
+        private fun toWrap(key: ProbeKey) = SecretKeySpec(ParameterSpecs.random(WRAPPED_BYTES), key.algorithm)
 
         fun find(service: ProbedService, engine: CipherEngine): Search {
             val tried = mutableListOf<Map<String, Any>>()
@@ -30,7 +39,7 @@ internal class CipherBase private constructor(
                 var refusedOtherThanKey: String? = null
                 for ((_, spec) in specs) {
                     runnable(engine, key, spec)?.let { return Search(it, "", "", tried) }
-                    val initRefused = runCatching { engine.encrypting(key.encrypting, spec) }.exceptionOrNull()
+                    val initRefused = Attempt.of { engine.encrypting(key.encrypting, spec) }.exceptionOrNull()
                     if (initRefused == null) {
                         keyAccepted = true
                         continue
@@ -52,13 +61,13 @@ internal class CipherBase private constructor(
         private fun runnable(engine: CipherEngine, key: ProbeKey, spec: AlgorithmParameterSpec?): CipherBase? {
             for (size in MESSAGE_SIZES) {
                 val message = ParameterSpecs.random(size)
-                val works = runCatching { engine.encrypt(key.encrypting, ParameterSpecs.fresh(spec), message) }.isSuccess
+                val works = Attempt.of { engine.encrypt(key.encrypting, ParameterSpecs.fresh(spec), message) }.isSuccess
                 if (works) return of(engine, key, spec, message, wrapOnly = false)
             }
-            val wraps = runCatching {
+            val wraps = Attempt.of {
                 val cipher = engine.create()
                 CipherEngine.init(cipher, Cipher.WRAP_MODE, key.encrypting, ParameterSpecs.fresh(spec))
-                cipher.wrap(SecretKeySpec(ParameterSpecs.random(16), key.algorithm))
+                cipher.wrap(toWrap(key))
             }.isSuccess
             return if (wraps) of(engine, key, spec, ByteArray(0), wrapOnly = true) else null
         }

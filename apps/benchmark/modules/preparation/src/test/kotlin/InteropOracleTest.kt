@@ -19,6 +19,7 @@ import org.junit.rules.TemporaryFolder
 import org.yaml.snakeyaml.Yaml
 import java.security.AlgorithmParameters
 import java.security.Key
+import java.security.MessageDigestSpi
 import java.security.PrivateKey
 import java.security.Provider
 import java.security.PublicKey
@@ -59,6 +60,18 @@ class Mgf1Sha256Oaep : CipherSpi() {
 }
 
 const val PSS_NAME = "SHA256withRSA/PSS"
+
+// A digest built against a class this runtime lacks, and one out of memory.
+open class ThrowingDigest(private val thrown: () -> Throwable) : MessageDigestSpi() {
+    override fun engineUpdate(input: Byte) = Unit
+    override fun engineUpdate(input: ByteArray, offset: Int, len: Int) = Unit
+    override fun engineDigest(): ByteArray = throw thrown()
+    override fun engineReset() = Unit
+}
+
+class UnlinkedDigest : ThrowingDigest({ NoClassDefFoundError("org/missing/Helper") })
+
+class ExhaustedDigest : ThrowingDigest({ OutOfMemoryError("heap") })
 
 // SunRsaSign's RSASSA-PSS has no default parameters; this one fixes them, as a provider naming the digest does.
 class FixedPss : SignatureSpi() {
@@ -178,6 +191,24 @@ class InteropOracleTest {
         val ghost = oracle.check(pair("Cipher", "SunJCE", "AES/GCM/NoPadding", "NOPE/GCM/NoPadding"))
         assertEquals(InteropVerdict.NOT_CHECKABLE to InteropVerdict.NONE, ghost.result to ghost.mode)
         assertTrue(ghost.reason.contains("not_registered"))
+    }
+
+    @Test
+    fun aLinkageErrorIsNotCheckableAndAnOutOfMemoryErrorEscapes() {
+        val fake = object : Provider("Throwing", "1", "digests that throw Errors") {
+            init { put("MessageDigest.SHA-256", UnlinkedDigest::class.java.name); put("MessageDigest.SHA-512", ExhaustedDigest::class.java.name) }
+        }
+        Security.addProvider(fake)
+        try {
+            val unlinked = oracle.check(InteropPair(1, "g", Member("MessageDigest", "SHA-256", "SUN"), Member("MessageDigest", "SHA-256", "Throwing"), null, 16))
+            assertEquals(InteropVerdict.NOT_CHECKABLE, unlinked.result)
+            assertTrue(unlinked.reason, unlinked.reason.contains("NoClassDefFoundError"))
+            assertThrows(OutOfMemoryError::class.java) {
+                oracle.check(InteropPair(2, "g", Member("MessageDigest", "SHA-512", "SUN"), Member("MessageDigest", "SHA-512", "Throwing"), null, 16))
+            }
+        } finally {
+            Security.removeProvider(fake.name)
+        }
     }
 
     @Test

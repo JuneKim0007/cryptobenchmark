@@ -32,6 +32,7 @@ object RequirementDocument {
     private const val CLASS_RUN = "classRun"
     private const val STATUS = "status"
     private const val REASON = "reason"
+    private const val MEASURED_REASON = "measuredReason"
     private const val DETAIL = "detail"
     private const val CONDITIONS = "conditions"
     private const val KEY = "key"
@@ -75,6 +76,7 @@ object RequirementDocument {
         put(CLASS_RUN, service.classRun, service.classRun.isNotEmpty())
         document[STATUS] = service.status
         put(REASON, service.reason, service.reason.isNotEmpty())
+        put(MEASURED_REASON, service.measuredReason, service.measuredReason.isNotEmpty())
         put(DETAIL, service.detail, service.detail.isNotEmpty())
         put(CONDITIONS, service.conditions, service.conditions.isNotEmpty())
         put(KEY, service.key, service.key.isNotEmpty())
@@ -95,6 +97,7 @@ object RequirementDocument {
         classRun = optionalString(document, CLASS_RUN),
         transformationOf = optionalString(document, TRANSFORMATION_OF),
         reason = optionalString(document, REASON),
+        measuredReason = optionalString(document, MEASURED_REASON),
         detail = optionalString(document, DETAIL),
         conditions = optionalStrings(document, CONDITIONS),
         key = optionalSection(document, KEY).orEmpty(),

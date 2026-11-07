@@ -9,8 +9,7 @@ apps/benchmark/modules/benchmark/docs/index.md : this map
 apps/benchmark/modules/benchmark/docs/measure.md : plan check, host harness, benchmark.json, merge, Jetpack conversion
 apps/benchmark/modules/benchmark/example/benchmark_jetpack_example.json : example androidx benchmarkData.json
 apps/benchmark/modules/benchmark/example/benchmark_prepared_example.yaml : prepared.yaml paired with the Jetpack example
-apps/benchmark/modules/benchmark/src/main/kotlin/Benchmark.kt : runs PlanCheck, then measures unrefused cases
-apps/benchmark/modules/benchmark/src/main/kotlin/RefusedPlanException.kt : default refusal handler's exception
+apps/benchmark/modules/benchmark/src/main/kotlin/RefusedPlanException.kt : a run-wide refusal, or no case left, from PlanCheck.runnable
 apps/benchmark/modules/benchmark/src/main/kotlin/check/EnergyCapability.kt : parses energy.yaml; derives the energy refusal
 apps/benchmark/modules/benchmark/src/main/kotlin/check/PlanCheck.kt : pre-timer refusals for a PreparedRun; the runnable cases with the refused ones left out, and those as skips
 apps/benchmark/modules/benchmark/src/main/kotlin/check/Refusal.kt : one refusal (caseId, reason)

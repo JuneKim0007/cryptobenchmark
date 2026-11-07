@@ -95,14 +95,28 @@ def test_set_algorithm_never_edits_a_constant(tmp_path):
 
 
 def test_pin_parameters_appends_a_rendered_spec_to_the_kotlin_init(tmp_path):
-    _, text = one(tmp_path, WRAP, pins(digest="SHA-256", mgfDigest="SHA-1"))
+    _, text = one(tmp_path, WRAP, pins(digest="SHA-256", mgf1="SHA-1"))
     assert text.splitlines()[WRAP.line].strip() == (
         'c.init(Cipher.ENCRYPT_MODE, key, javax.crypto.spec.OAEPParameterSpec("SHA-256", "MGF1", '
         'java.security.spec.MGF1ParameterSpec("SHA-1"), javax.crypto.spec.PSource.PSpecified.DEFAULT))')
 
 
+# resolvedParameters of Cipher_RSA-ECB-OAEPWITHSHA-256ANDMGF1PADDING_ENCRYPT_SunJCE_k2048_i32_WARM_fixed, host JDK25 run
+SUNJCE_OAEP256 = {"mode": "ECB", "padding": "OAEPWITHSHA-256ANDMGF1PADDING", "digest": "SHA-256", "mgf1": "SHA-1",
+                  "labelBytes": 0, "keyBits": 2048}
+
+
+def test_pin_parameters_takes_the_spec_fields_of_a_real_results_row(tmp_path):
+    table = load()
+    taken = {k: v for k, v in SUNJCE_OAEP256.items() if k in table.spec_for({"digest", "mgf1"}).pinnable}
+    assert taken == {"digest": "SHA-256", "mgf1": "SHA-1"}
+    row, text = one(tmp_path, WRAP, pins(**taken))
+    assert row["status"] == "applied"
+    assert 'OAEPParameterSpec("SHA-256", "MGF1", java.security.spec.MGF1ParameterSpec("SHA-1")' in text
+
+
 def test_pin_parameters_finds_a_bare_init_in_an_apply_block(tmp_path):
-    _, text = one(tmp_path, UNWRAP, pins(digest="SHA-256", mgfDigest="SHA-256"))
+    _, text = one(tmp_path, UNWRAP, pins(digest="SHA-256", mgf1="SHA-256"))
     assert text.splitlines()[UNWRAP.line].strip().startswith(
         'init(Cipher.DECRYPT_MODE, key, javax.crypto.spec.OAEPParameterSpec("SHA-256"')
 

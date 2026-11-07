@@ -1,4 +1,3 @@
-import io.github.junekim0007.cryptobench.benchmark.Benchmark
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
@@ -20,10 +19,14 @@ fun main(arguments: Array<String>) {
         SkipFile(preparationDirectory),
         PreparedFile(preparationDirectory),
     ).prepare(File(arguments[2]))
-    System.err.println("prepared=${run.cases.size} skipped=${run.skipped.size}")
+    val checked = PlanCheck(HostHarness.METRICS).runnable(run)
+    if (checked.refused.isNotEmpty()) {
+        SkipFile(preparationDirectory).write(run.skipped + checked.skipped)
+    }
+    System.err.println("prepared=${run.cases.size} skipped=${run.skipped.size} refused=${checked.refused.size}")
 
     val harness = HostHarness()
-    val measurements = Benchmark(PlanCheck(HostHarness.METRICS)).measure(run) { prepared ->
+    val measurements = checked.runnable.map { prepared ->
         harness.measure(prepared).also { System.err.println("  ${prepared.case.id}: median ${it.medianNanos} ns/op") }
     }
     val written = BenchmarkJson(outputDirectory).write(

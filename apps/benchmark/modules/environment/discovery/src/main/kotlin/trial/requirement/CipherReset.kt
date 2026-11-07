@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
 
 // The reset test of a cipher per direction, on the base CipherFacts found: updateAAD runs only where this cipher takes it.
 internal class CipherReset(private val engine: CipherEngine, private val base: CipherBase) {
@@ -40,7 +40,7 @@ internal class CipherReset(private val engine: CipherEngine, private val base: C
 
     private fun wrapping(fixed: AlgorithmParameterSpec?): Map<String, Any> {
         val key = base.key
-        val secret = SecretKeySpec(ParameterSpecs.random(WRAPPED_BYTES), key.algorithm)
+        val secret = base.toWrap()
         val wrap = CallOrder(listOf(INIT), { engine.initialised(Cipher.WRAP_MODE, key.encrypting, fixed) }, listOf(CallStep("wrap") { cipher -> cipher.wrap(secret) }))
         val wrapped by lazy { engine.initialised(Cipher.WRAP_MODE, key.encrypting, fixed).wrap(secret) }
         val unwrap = CallOrder(listOf(INIT), { engine.initialised(Cipher.UNWRAP_MODE, key.decrypting, fixed) }, listOf(CallStep("unwrap") { cipher -> cipher.unwrap(wrapped, key.algorithm, Cipher.SECRET_KEY).encoded }))
@@ -53,6 +53,5 @@ internal class CipherReset(private val engine: CipherEngine, private val base: C
         const val REVERSE = "reverse"
         const val INIT = "init"
         const val AAD_BYTES = 16
-        const val WRAPPED_BYTES = 16
     }
 }

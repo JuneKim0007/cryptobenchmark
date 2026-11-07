@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.CaseArguments
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import io.github.junekim0007.cryptobench.preparation.shared.Attempt
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
@@ -23,30 +24,23 @@ internal object CrossCheck {
 
     fun produceConsume(producer: BenchmarkCase, consumer: BenchmarkCase, recipe: KeyRecipe, key: KeyMaterial): Outcome {
         val definition = OperationDefinitions.of(producer.operation)
-        val artifact = try {
-            travelling(definition.input(producer, key, null))
-        } catch (failure: Exception) {
-            return Outcome.NotCheckable("producer_failed: ${describe(failure)}")
-        }
-        return try {
+        val artifact = Attempt.of { travelling(definition.input(producer, key, null)) }
+            .getOrElse { return Outcome.NotCheckable(FailureText.of(it, "producer_failed: ")) }
+        return Attempt.of {
             val returned = definition.invocation(PreparedCase(consumer, recipe, key, null, null, artifact)).once()
             if (returned is ByteArray && !returned.contentEquals(CaseArguments.seededMessage(producer))) {
                 Outcome.Fail("consumer returned other bytes than the producer's message")
             } else Outcome.Pass
-        } catch (failure: Exception) {
-            classify(failure)
-        }
+        }.getOrElse(::classify)
     }
 
     fun sameOutput(first: BenchmarkCase, second: BenchmarkCase, recipe: KeyRecipe, key: KeyMaterial): Outcome {
-        val outputs = try {
+        val outputs = Attempt.of {
             listOf(first, second).map { case ->
                 val definition = OperationDefinitions.of(case.operation)
                 definition.invocation(PreparedCase(case, recipe, key, null, null, definition.input(case, key, null))).once()
             }
-        } catch (failure: Exception) {
-            return classify(failure)
-        }
+        }.getOrElse { return classify(it) }
         val (a, b) = outputs
         return when {
             a !is ByteArray || b !is ByteArray -> Outcome.NotCheckable("outputs_not_comparable: ${a?.javaClass?.simpleName}")
@@ -57,18 +51,16 @@ internal object CrossCheck {
 
     private fun travelling(artifact: OperationInput): OperationInput {
         if (artifact !is OperationInput.Ciphertext || artifact.providerParameters == null) return artifact
-        val iv = MESSAGE_BORNE.any { spec -> runCatching { artifact.providerParameters.getParameterSpec(spec) }.isSuccess }
+        val iv = MESSAGE_BORNE.any { spec -> Attempt.of { artifact.providerParameters.getParameterSpec(spec) }.isSuccess }
         return if (iv) artifact else OperationInput.Ciphertext(artifact.bytes, artifact.plaintextSize, artifact.spec, null)
     }
 
     fun classify(failure: Throwable): Outcome = when {
         failure is InvalidKeyException || failure is InvalidAlgorithmParameterException || failure is ClassCastException ->
-            Outcome.NotCheckable("key_or_parameters_rejected: ${describe(failure)}")
+            Outcome.NotCheckable(FailureText.of(failure, "key_or_parameters_rejected: "))
         failure is BadPaddingException || failure is IllegalBlockSizeException || failure is SignatureException ||
             (failure is IllegalStateException && failure.message == "verify_failed") ->
-            Outcome.Fail(describe(failure))
-        else -> Outcome.NotCheckable("error: ${describe(failure)}")
+            Outcome.Fail(FailureText.of(failure))
+        else -> Outcome.NotCheckable(FailureText.of(failure, "error: "))
     }
-
-    private fun describe(failure: Throwable): String = FailureText.of(failure)
 }

@@ -7,10 +7,37 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.security.AlgorithmParameters
+import java.security.Key
+import java.security.Provider
+import java.security.SecureRandom
+import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
+import javax.crypto.CipherSpi
 import javax.crypto.KeyGenerator
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
+
+// A wrap cipher as BC and AndroidOpenSSL register it: getOutputSize is -1.
+class UnsizedWrap : CipherSpi() {
+    private val inner = Cipher.getInstance("AES/KW/NoPadding", "SunJCE")
+
+    override fun engineSetMode(mode: String?) {}
+    override fun engineSetPadding(padding: String?) {}
+    override fun engineGetBlockSize(): Int = 8
+    override fun engineGetOutputSize(inputLen: Int): Int = -1
+    override fun engineGetIV(): ByteArray? = null
+    override fun engineGetParameters(): AlgorithmParameters? = null
+    override fun engineInit(opmode: Int, key: Key, random: SecureRandom?) = inner.init(opmode, key, random)
+    override fun engineInit(opmode: Int, key: Key, params: AlgorithmParameterSpec?, random: SecureRandom?) = inner.init(opmode, key, params, random)
+    override fun engineInit(opmode: Int, key: Key, params: AlgorithmParameters?, random: SecureRandom?) = inner.init(opmode, key, params, random)
+    override fun engineUpdate(input: ByteArray?, offset: Int, length: Int): ByteArray? = inner.update(input, offset, length)
+    override fun engineUpdate(input: ByteArray?, offset: Int, length: Int, output: ByteArray?, outputOffset: Int): Int =
+        inner.update(input, offset, length, output, outputOffset)
+    override fun engineDoFinal(input: ByteArray?, offset: Int, length: Int): ByteArray = inner.doFinal(input, offset, length)
+    override fun engineDoFinal(input: ByteArray?, offset: Int, length: Int, output: ByteArray?, outputOffset: Int): Int =
+        inner.doFinal(input, offset, length, output, outputOffset)
+}
 
 class CipherCallTest {
 
@@ -68,5 +95,18 @@ class CipherCallTest {
         val call = CipherCall(cbc, message, { cipher, n -> seen += n; cipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(ByteArray(16) { n.toByte() })) })
         call.invocation(PerCall.INIT_AND_OPERATION).perIteration()
         assertEquals(listOf(0, 1, 2), seen)
+    }
+
+    @Test
+    fun aWrapCipherWithNoSizeBoundRunsIntoABufferSizedBeforeTiming() {
+        @Suppress("DEPRECATION")
+        val wrapper = object : Provider("UnsizedWrap", 1.0, "getOutputSize -1") {
+            init { put("Cipher.AESWrap", UnsizedWrap::class.java.name) }
+        }
+        val wrap = { Cipher.getInstance("AESWrap", wrapper) }
+        val invocation = CipherCall(wrap, message.copyOf(96), { cipher, _ -> cipher.init(Cipher.ENCRYPT_MODE, key) }).invocation(PerCall.OPERATION)
+        repeat(3) { invocation.perIteration() }
+        val plain = Cipher.getInstance("AES/KW/NoPadding", "SunJCE").apply { init(Cipher.ENCRYPT_MODE, key) }.doFinal(message.copyOf(96))
+        assertArrayEquals(plain, invocation.once() as ByteArray)
     }
 }

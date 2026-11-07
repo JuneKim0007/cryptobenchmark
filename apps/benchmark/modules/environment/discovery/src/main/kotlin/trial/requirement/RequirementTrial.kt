@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
@@ -53,6 +55,22 @@ class RequirementTrial {
     ): ServiceRequirement {
         val started = System.nanoTime()
         val base = ServiceRequirement(providerName, service.type, service.algorithm, ServiceRequirement.NO_CALL, service.className, transformationOf = transformationOf, reason = ServiceRequirement.NO_CALL_FOR_TYPE)
+        return Attempt.of { measured(base, provider, service, attempt, sources, live, digests, secretNames, started) }
+            .getOrElse { base.copy(status = ServiceRequirement.NOT_RUNNABLE, reason = ServiceRequirement.PROBE_FAILED, detail = ErrorText.of(it)) }
+    }
+
+    private fun measured(
+        base: ServiceRequirement,
+        provider: Provider?,
+        service: ServiceEntry,
+        attempt: ServiceTrialEntry,
+        sources: KeySources,
+        live: List<Provider>,
+        digests: List<String>,
+        secretNames: List<String>,
+        started: Long,
+    ): ServiceRequirement {
+        val transformationOf = base.transformationOf
         if (provider == null) return base.copy(status = ServiceRequirement.NOT_RUNNABLE, reason = ServiceRequirement.PROVIDER_NOT_INSTALLED)
         if (!attempt.outcome.instantiates) {
             return base.copy(status = ServiceRequirement.NOT_RUNNABLE, reason = ServiceRequirement.INSTANTIATION_FAILED, detail = ErrorText.clean(attempt.outcome.error))
@@ -64,7 +82,7 @@ class RequirementTrial {
             return base.copy(status = ServiceRequirement.NOT_RUNNABLE, classRun = classRun, reason = ServiceRequirement.INSTANCE_REFUSED, detail = it)
         }
         val sheet = FactSheet()
-        val result = runCatching { call.measure(probed, sheet) }
+        val result = Attempt.of { call.measure(probed, sheet) }
             .getOrElse { CallResult(ServiceRequirement.PROBE_FAILED, ErrorText.of(it)) }
         return base.copy(
             status = if (result.reason.isEmpty()) ServiceRequirement.RUNNABLE else ServiceRequirement.NOT_RUNNABLE,
@@ -75,7 +93,7 @@ class RequirementTrial {
             runWith = result.runWith,
             keysTried = result.keysTried,
             facts = sheet.facts,
-            aliases = runCatching { AliasRuns.of(probed, classRun, result) }.getOrDefault(emptyList()),
+            aliases = AliasRuns.of(probed, classRun, result),
             millis = (System.nanoTime() - started) / NANOS_PER_MILLI,
         )
     }

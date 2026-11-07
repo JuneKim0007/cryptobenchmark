@@ -24,10 +24,10 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 | `keyBits` | RSA and EC keys only: 224, 256, 384, 512, 521, 1024, 2048; other pairs cost a parameter generation per size |
 | one key cache | `DefaultKeys`, one per run across levels 2 and 3, keyed by generating provider, name and size; a refused generation is cached too; counts in `keyCache` |
 | one call per fact | `FactSheet.measure` catches any `Throwable` per fact; a whole call failing is `probe_failed`; nothing aborts the file |
-| error text | `ErrorText`: whitespace folded, hex or decimal runs of 32, colon-separated hex of 9 bytes and base64 runs of 48 characters become `<removed>`, then capped at 200 |
-| keystore-born | `KeyOrigin`: a provider none of whose generators or factories ran, with at least one service refusing a key, has `keystore_born_key` and the condition `keystore-born key` on each refusing service; a cipher that encrypts on a public key and refuses the private one counts as refusing; a service of that provider which runs on a software key stays `runnable` |
+| error text | `ErrorText`: whitespace folded; 8 or more hex bytes separated by space, colon, dash or `0x.., `, 8 or more small integers (`[12, -3, ...]`), and any run of 16 or more base64 or hex characters that does not read as a name (words, acronyms, numbers, at most one oddity) become `<removed>`, with the short lines that follow one; then capped at 200, a caller's prefix included |
+| keystore-born | `KeyOrigin`: a provider none of whose generators or factories ran, with at least one service refusing a key, has `keystore_born_key`, its measured reason in `measuredReason`, and the condition `keystore-born key` on each refusing service; a cipher that encrypts on a public key and refuses the private one counts as refusing; a service of that provider which runs on a software key stays `runnable` |
 | API guard | `ChaCha20ParameterSpec` by name only; no class newer than API 26 is referenced |
-| aliases | per declared alias: `classRun`, `sameClass`, `behaviour` (the same call under the alias gives the same result as under the service's name; a generator or factory has none), `ownNameKey` when the service ran on a non-password key and a factory makes a password key under the alias's name, with whether it ran |
+| aliases | per declared alias: `classRun`, `sameClass`, `behaviour` (the same call under the alias gives the same result as under the service's name; a generator or factory has none), `ownNameKey` when the service ran on a non-password key and a factory makes a password key under the alias's name, with whether it ran; an alias whose record throws is `name` and `error` alone, the other aliases kept |
 
 ## reset
 
@@ -63,11 +63,12 @@ Measured per service on this device; never a catalogue fact. Read on the host th
 | `className`, `classRun` | string | class the capture names; class an instance really has |
 | `status` | string | `runnable`, `not_runnable`, `no_call` |
 | `reason` | string | present unless runnable: `no_call_for_type`, `provider_not_installed`, `instantiation_failed`, `instance_refused` (registered, yet `getInstance` refuses), `no_key`, `key_refused`, `keystore_born_key`, `generation_refused`, `parameters_unknown`, `operation_refused`, `probe_failed` |
+| `measuredReason` | string | with `keystore_born_key` only: the reason the call measured before the relabel (`key_refused`, `generation_refused`, `no_key`, or a factory's own) |
 | `detail` | string | the refusal, through `ErrorText` |
 | `conditions` | list | `keystore-born key` |
 | `key` | object | `source`, `algorithm`, `class`, `provider`, `bits` of the key it ran on |
-| `runWith` | object | `operation`, `providerGenerates`, `spec`, `inputBytes` it ran with |
+| `runWith` | object | `operation`, `providerGenerates`, `spec`, `inputBytes` it ran with; `spec` fields by class: GCM `ivBytes`, `tagBits`; IV `ivBytes`; OAEP `digest`, `mgf1`, `labelBytes`; PBE `saltBytes`, `iterations`, `innerIvBytes`; PSS `digest`, `mgf1`, `saltBytes`; ChaCha20 `ivBytes`, `counter` |
 | `keysTried` | list | keys refused before that, each with `refused` |
 | `facts` | map | the table above; a fact whose call threw holds `error` |
-| `aliases` | list | `name`, `classRun`, `sameClass`, `behaviour`, `ownNameKey` |
+| `aliases` | list | `name`, `classRun`, `sameClass`, `behaviour`, `ownNameKey`; or `name`, `error` |
 | `millis` | long | time on this record |

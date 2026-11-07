@@ -13,8 +13,10 @@ data class TrialOutcome(
 
         val SUCCESS = TrialOutcome(instantiates = true)
 
+        fun of(attempted: Result<*>): TrialOutcome = attempted.fold({ SUCCESS }, ::failure)
+
         fun failure(throwable: Throwable): TrialOutcome =
-            TrialOutcome(instantiates = false, error = throwable.javaClass.simpleName + ": " + throwable.message.orEmpty())
+            TrialOutcome(instantiates = false, error = ErrorText.of(throwable))
 
         fun failure(reason: String): TrialOutcome = TrialOutcome(instantiates = false, error = reason)
     }

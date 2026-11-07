@@ -78,7 +78,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 | rule | value |
 |---|---|
 | `TransformationSet` | `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
-| `Attempt` | catches `Exception` and `LinkageError`; error text `<SimpleName>: <message>` |
+| `Attempt` | every level's one catch: `Exception` and `LinkageError` are the attempt's result, any other `Error` (`OutOfMemoryError`) ends the probe; error text `<SimpleName>: <message>` through `ErrorText`, as at every level ([requirements.md](requirements.md)) |
 | types with a default call | Cipher, Signature, Mac, MessageDigest, KeyGenerator, KeyPairGenerator, KeyAgreement (case-folded) |
 | no default run | type has no call, provider not installed, or the service or transformation failed to instantiate |
 | input-taking calls | Cipher, Signature, Mac, MessageDigest; KeyAgreement and generators take none (`inputSize` absent) |
@@ -88,7 +88,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 | call | default run |
 |---|---|
 | Cipher | `ENCRYPT_MODE`, `doFinal(input)`; key from the first `KeyGenerator` candidate (base name, `<base>_<n>` size suffix, part before `-`), else a key pair's public key |
-| Cipher `providerChose` | space-separated `key=value`, keys as prepared.yaml `resolvedParameters`: `ivBytes=<n> tagBits=<n>` for GCM; `digest=<d> mgf1=<d> labelBytes=<n>` for OAEP; else `ivBytes=<n>` when a second init fills in a different value, `fixedValueBytes=<n>` when it fills in the same one (a key-wrap integrity check value); `""` without parameters; `bareName` when the name has no `/` |
+| Cipher `providerChose` | space-separated `key=value`, keys as prepared.yaml `resolvedParameters`, read back through `ParameterReadBack.describe` (contract/, shared by levels 2 and 3): `ivBytes=<n> tagBits=<n>` for GCM; `digest=<d> mgf1=<d> labelBytes=<n>` for OAEP; else `ivBytes=<n>` when a second init fills in a different value, `fixedValueBytes=<n>` when it fills in the same one (a key-wrap integrity check value); `""` without parameters; `bareName` when the name has no `/` |
 | Signature | key algorithm = text after the last `with`, minus `inP1363Format`, `ECDSA` to `EC` |
 | KeyAgreement | `ECDH` to `EC`; peer pair generated with the same EC or DH parameters |
 | KeyGenerator, KeyPairGenerator | provider default size: key size, whether the key (a pair's private key) encodes, its format; then the other sizes in `triedKeys` ([security_contract.md](security_contract.md)) |

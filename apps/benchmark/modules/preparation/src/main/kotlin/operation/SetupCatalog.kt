@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
 import java.util.Locale
 
-/** setup-catalog.yaml: per engine type and cipher mode, what a fixed call still does; notFixed always makes the instance per call. */
+/** setup-catalog.yaml: per engine type, cipher mode or name suffix, what a fixed call still does; notFixed always makes the instance per call. */
 internal class SetupCatalog(document: Map<String, Any>) {
 
     private val engines: Map<String, Map<String, Any>> = DocumentFields.section(document, "engines")
@@ -22,11 +22,17 @@ internal class SetupCatalog(document: Map<String, Any>) {
         if (case.variant == Variant.NOT_FIXED) return PerCall.INSTANCE_INIT_AND_OPERATION
         val row = engines.getValue(EngineTypeName.fold(case.type))
         val fixed = DocumentFields.string(row, FIXED)
+        if (fixed == BY_SUFFIX) return bySuffix(row, case.algorithm.uppercase(Locale.ROOT))
         if (fixed != BY_MODE) return PerCall.of(fixed)
         val mode = case.algorithm.split('/').getOrNull(1)?.uppercase(Locale.ROOT)
             ?: return PerCall.of(DocumentFields.string(DocumentFields.section(row, "withoutMode"), if (hasIv()) "iv" else "noIv"))
         val modes = DocumentFields.section(row, "modes").mapKeys { it.key.uppercase(Locale.ROOT) }
         return PerCall.of(modes[mode]?.toString() ?: DocumentFields.string(row, "otherMode"))
+    }
+
+    private fun bySuffix(row: Map<String, Any>, algorithm: String): PerCall {
+        val suffixes = DocumentFields.section(row, "suffixes").entries.firstOrNull { algorithm.endsWith(it.key.uppercase(Locale.ROOT)) }
+        return PerCall.of(suffixes?.value?.toString() ?: DocumentFields.string(row, "otherSuffix"))
     }
 
     private fun single(type: String): Boolean {
@@ -38,6 +44,7 @@ internal class SetupCatalog(document: Map<String, Any>) {
 
         private const val FIXED = "fixed"
         private const val BY_MODE = "byMode"
+        private const val BY_SUFFIX = "bySuffix"
         const val RESOURCE = "setup-catalog.yaml"
 
         val standard: SetupCatalog by lazy {

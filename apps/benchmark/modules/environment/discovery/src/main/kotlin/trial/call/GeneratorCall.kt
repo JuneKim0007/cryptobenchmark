@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
 import java.security.Key
@@ -23,14 +24,8 @@ internal class GeneratorCall(private val pair: Boolean) : DefaultCall {
         if (pair) PAIR_SIZES.filter { default != null && it < default } else SECRET_SIZES.filter { it != default }
 
     private fun tried(provider: Provider, algorithm: String, size: Int): TriedKey =
-        try {
-            val secret = generate(provider, algorithm, size).second
-            TriedKey(size, materialOf(secret), secret.format.orEmpty())
-        } catch (_: Exception) {
-            TriedKey(size, refused = true)
-        } catch (_: LinkageError) {
-            TriedKey(size, refused = true)
-        }
+        Attempt.of { generate(provider, algorithm, size).second }
+            .fold({ secret -> TriedKey(size, materialOf(secret), secret.format.orEmpty()) }, { TriedKey(size, refused = true) })
 
     /** The key to size, and the key whose encoding decides: a pair's private key, since its public key always encodes. */
     private fun generate(provider: Provider, algorithm: String, size: Int?): Pair<Key, Key> = generating(provider, algorithm, size)()

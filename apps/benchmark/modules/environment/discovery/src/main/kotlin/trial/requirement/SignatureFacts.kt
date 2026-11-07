@@ -1,5 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
+import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import java.security.InvalidKeyException
 import java.security.PrivateKey
@@ -22,7 +25,7 @@ internal object SignatureFacts : RequirementCall {
         for (key in service.keys.of(service.type, service.algorithm, service.provider, pairsOnly = true)) {
             for ((_, spec) in listOf<Pair<String, AlgorithmParameterSpec?>>("" to null) + ParameterSpecs.candidates()) {
                 val message = ParameterSpecs.random(64)
-                val refused = runCatching { sign(service, key.pair!!.private, spec, message) }.exceptionOrNull() ?: return measured(service, sheet, key, spec, message, tried)
+                val refused = Attempt.of { sign(service, key.pair!!.private, spec, message) }.exceptionOrNull() ?: return measured(service, sheet, key, spec, message, tried)
                 if (detail.isEmpty()) detail = ErrorText.of(refused)
             }
             tried += key.describe() + ("refused" to detail)
@@ -54,7 +57,7 @@ internal object SignatureFacts : RequirementCall {
         sheet.measure("reset") { reset(service, private, public, spec, message, signature) }
         return CallResult(
             key = key,
-            runWith = linkedMapOf<String, Any>("operation" to "sign", "inputBytes" to message.size).apply { spec?.let { put("spec", ParameterSpecs.describe(it)) } },
+            runWith = linkedMapOf<String, Any>("operation" to "sign", "inputBytes" to message.size).apply { spec?.let { put("spec", ParameterReadBack.describe(it)) } },
             keysTried = tried,
             aliasRuns = { alias -> check(verify(alias, service, public, spec, message, signature)) { "verifies_differently" } },
         )
@@ -97,7 +100,7 @@ internal object SignatureFacts : RequirementCall {
     private fun tampered(service: ProbedService, key: PublicKey, spec: AlgorithmParameterSpec?, message: ByteArray, signature: ByteArray): String {
         val bad = signature.clone()
         bad[bad.size / 2] = (bad[bad.size / 2].toInt() xor 1).toByte()
-        return runCatching { verify(service.algorithm, service, key, spec, message, bad).toString() }.getOrElse { "refused " + it.javaClass.simpleName }
+        return Attempt.of { verify(service.algorithm, service, key, spec, message, bad).toString() }.getOrElse { "refused " + it.javaClass.simpleName }
     }
 
     private fun parameters(service: ProbedService, key: PrivateKey, spec: AlgorithmParameterSpec?): Map<String, Any>? {
@@ -105,7 +108,7 @@ internal object SignatureFacts : RequirementCall {
         signature.initSign(key)
         spec?.let { signature.setParameter(it) }
         val parameters = signature.parameters ?: return null
-        return ParameterSpecs.readable(parameters)?.let { ParameterSpecs.describe(it) } ?: mapOf("algorithm" to parameters.algorithm)
+        return ParameterReadBack.readable(parameters)?.let { ParameterReadBack.describe(it) } ?: mapOf("algorithm" to parameters.algorithm)
     }
 
     private fun setParameter(service: ProbedService, key: PrivateKey): Map<String, Any> {

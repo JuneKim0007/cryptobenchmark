@@ -34,6 +34,6 @@ data class DefaultRunOutcome(
         private val KEY_MATERIALS = setOf("", EXPORTABLE, NON_EXPORTABLE)
 
         fun failure(throwable: Throwable): DefaultRunOutcome =
-            DefaultRunOutcome(works = false, error = throwable.javaClass.simpleName + ": " + throwable.message.orEmpty())
+            DefaultRunOutcome(works = false, error = ErrorText.of(throwable))
     }
 }

@@ -9,6 +9,7 @@ data class ServiceRequirement(
     val classRun: String = "",
     val transformationOf: String = "",
     val reason: String = "",
+    val measuredReason: String = "",
     val detail: String = "",
     val conditions: List<String> = emptyList(),
     val key: Map<String, Any> = emptyMap(),
