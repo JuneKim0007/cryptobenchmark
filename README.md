@@ -35,3 +35,8 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 | [docs/cryptography/index.md](docs/cryptography/index.md) | configured primitives and providers |
 | [docs/index.md](docs/index.md) | every cross-module doc |
 | [apps/perf-repair/README.md](apps/perf-repair/README.md) | crypto replacements worth testing in an app |
+
+## Limitations
+
+- AOT is assumed: the benchmark app, and every provider bundled in it, is compiled ahead of time (`speed`) before measuring. Real apps start JIT- or profile-compiled, so first calls in a real app can be slower than the numbers here.
+- Only a controlled core environment is assumed: the measuring thread is pinned and samples are taken in steady state. A real app's thread moves between core types under the scheduler, which is hard to predict, so its timings can spread wider than reported.
