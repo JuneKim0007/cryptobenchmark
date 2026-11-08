@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.contract
 
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
+
 data class TrialOutcome(
     val instantiates: Boolean,
     val error: String = "",

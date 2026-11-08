@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 
 // Per declared alias: the class it runs, whether it behaves as the service did, and whether a password key its name suggests runs on it.
 internal object AliasRuns {

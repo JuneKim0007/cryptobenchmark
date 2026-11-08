@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
-import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.AliasRuns

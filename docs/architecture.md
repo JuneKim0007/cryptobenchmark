@@ -29,10 +29,11 @@ config/global.yaml + config/testsets/*.yaml
 
 | project | directory | project dependencies | libraries |
 |---|---|---|---|
-| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | none | snakeyaml 2.3 |
+| `:jca` | `apps/benchmark/modules/jca` | none | none |
+| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca` | snakeyaml 2.3 |
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:config` | `apps/benchmark/modules/config` | `implementation :settings` | snakeyaml 2.3 |
-| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings` | snakeyaml 2.3 |
+| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation` | snakeyaml 2.3 |
 | `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
 

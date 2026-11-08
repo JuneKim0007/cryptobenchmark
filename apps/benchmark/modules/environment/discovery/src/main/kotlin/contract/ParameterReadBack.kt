@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.contract
 
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import java.security.AlgorithmParameters
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.MGF1ParameterSpec

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 

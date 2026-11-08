@@ -95,10 +95,8 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/Rejection.kt : one re
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/Resolution.kt : cases and rejections result
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionCheck.kt : per-selection rejection rules
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian expansion of a selection into cases
-apps/benchmark/modules/preparation/src/main/kotlin/shared/Attempt.kt : the probe's catch rule here: Exception or LinkageError as a Result, any other Error thrown
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
-apps/benchmark/modules/preparation/src/main/kotlin/shared/ErrorText.kt : the probe's scrubber here: key encodings removed from a provider's message (URLs kept), then the 200 cap
 apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line: scrubbed and capped, object identity hashes dropped
 apps/benchmark/modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; apps/benchmark-runner/results/manifest.py copies the types into each run's manifest.yaml `operations`

@@ -94,4 +94,4 @@ Wrong types fail `wrong_type: facts.yaml <field> expects ...`.
 
 ## Dependencies
 
-`:settings` depends on no project or library (JUnit for tests). Module-isolation puts its sources on every module except discovery. Dependency table: `docs/architecture.md`.
+`:settings` depends on no project or library (JUnit for tests). Module-isolation puts its sources on every module except discovery and jca. Dependency table: `docs/architecture.md`.

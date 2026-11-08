@@ -1,4 +1,4 @@
-include ':android', ':preparation', ':benchmark', ':environment:discovery', ':config', ':settings'
+include ':android', ':preparation', ':benchmark', ':environment:discovery', ':config', ':settings', ':jca'
 
 project(':android').projectDir = file('modules/android')
 project(':preparation').projectDir = file('modules/preparation')
@@ -9,3 +9,4 @@ project(':config').projectDir = file('modules/config')
 
 rootProject.name = "cryptobenchmark"
 project(':settings').projectDir = file('modules/settings')
+project(':jca').projectDir = file('modules/jca')

@@ -1,7 +1,7 @@
-package io.github.junekim0007.cryptobench.discovery.contract
+package io.github.junekim0007.cryptobench.jca.failure
 
-// A provider's Exception or LinkageError (a class it was built against is missing) is the attempt's result; any other Error, OOM first, ends the probe.
-internal object Attempt {
+// The one catch rule: a provider's Exception or LinkageError (a class it was built against is missing) is the attempt's result; any other Error, OOM first, escapes.
+object Attempt {
 
     inline fun <T> of(block: () -> T): Result<T> =
         try {

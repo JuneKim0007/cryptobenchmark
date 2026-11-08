@@ -5,6 +5,7 @@ plugins {
 }
 
 val moduleDirectories = mapOf(
+    "jca" to "../../apps/benchmark/modules/jca",
     "discovery" to "../../apps/benchmark/modules/environment/discovery",
     "config" to "../../apps/benchmark/modules/config",
     "preparation" to "../../apps/benchmark/modules/preparation",
@@ -27,7 +28,8 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
         val sources = listOfNotNull(
             File(moduleDirectory, "src/main/kotlin"),
-            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { name != "discovery" },
+            rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { name != "jca" },
+            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { name != "discovery" && name != "jca" },
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)

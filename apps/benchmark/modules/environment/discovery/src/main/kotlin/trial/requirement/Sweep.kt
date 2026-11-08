@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 
 // An accepted set read from single calls, written as ranges so a 64-step sweep stays one line.
 internal object Sweep {

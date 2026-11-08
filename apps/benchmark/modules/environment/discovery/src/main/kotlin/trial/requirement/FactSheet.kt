@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 
 // One call per fact: a call that throws records its error under that fact, and the next fact still runs.
 internal class FactSheet {

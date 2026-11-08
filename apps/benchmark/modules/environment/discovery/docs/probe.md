@@ -78,7 +78,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 | rule | value |
 |---|---|
 | `TransformationSet` | `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
-| `Attempt` | every level's one catch: `Exception` and `LinkageError` are the attempt's result, any other `Error` (`OutOfMemoryError`) ends the probe; error text `<SimpleName>: <message>` through `ErrorText`, as at every level ([requirements.md](requirements.md)) |
+| `Attempt` (`:jca` `failure/`) | every level's one catch: `Exception` and `LinkageError` are the attempt's result, any other `Error` (`OutOfMemoryError`) ends the probe; error text `<SimpleName>: <message>` through `ErrorText`, as at every level ([requirements.md](requirements.md)) |
 | types with a default call | Cipher, Signature, Mac, MessageDigest, KeyGenerator, KeyPairGenerator, KeyAgreement (case-folded) |
 | no default run | type has no call, provider not installed, or the service or transformation failed to instantiate |
 | input-taking calls | Cipher, Signature, Mac, MessageDigest; KeyAgreement and generators take none (`inputSize` absent) |

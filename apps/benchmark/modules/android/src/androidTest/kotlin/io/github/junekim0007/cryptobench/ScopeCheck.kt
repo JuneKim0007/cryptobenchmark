@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench
 
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
+
 /** Calls each variant once and runs the scope's interop check. */
 object ScopeCheck {
 
@@ -18,8 +20,8 @@ object ScopeCheck {
             is ScopeInterop.Unchecked -> "none"
         }
         val verdict = { interop: String, reason: String? -> Verdict(scope.id, interop, check, reason) }
-        val before = runCatching { scope.before() }.getOrElse { return verdict(CALL_FAILED, "before: ${describe(it)}") }
-        val after = runCatching { scope.after() }.getOrElse { return verdict(CALL_FAILED, "after: ${describe(it)}") }
+        val before = Attempt.of { scope.before() }.getOrElse { return verdict(CALL_FAILED, "before: ${describe(it)}") }
+        val after = Attempt.of { scope.after() }.getOrElse { return verdict(CALL_FAILED, "after: ${describe(it)}") }
         return when (val interop = scope.interop) {
             is ScopeInterop.Unchecked -> verdict(UNCHECKED, interop.reason)
             ScopeInterop.SameOutput -> sameOutput(scope, before, after, verdict)
@@ -30,7 +32,7 @@ object ScopeCheck {
     private fun sameOutput(scope: Scope, before: Any?, after: Any?, verdict: (String, String?) -> Verdict): Verdict {
         if (before == null || before == Unit) return verdict(UNCHECKED, "no_output: before returned nothing to compare")
         if (!comparable(before)) return verdict(NOT_COMPARABLE, "identity_only_output: ${before.javaClass.name} has no value equality")
-        val again = runCatching { scope.before() }.getOrElse { return verdict(CALL_FAILED, "before: ${describe(it)}") }
+        val again = Attempt.of { scope.before() }.getOrElse { return verdict(CALL_FAILED, "before: ${describe(it)}") }
         if (!same(before, again)) return verdict(UNCHECKED, "nondeterministic_output: two calls of before differ on one input")
         if (!same(before, after)) return verdict(INTEROP_FAILED, "outputs_differ: before and after differ on one input")
         return verdict(PASSED, null)
@@ -42,7 +44,7 @@ object ScopeCheck {
             "after_to_before" to { interop.consumeBefore(interop.produceAfter()) },
         )
         for ((direction, restore) in directions) {
-            val restored = runCatching(restore).getOrElse { return verdict(INTEROP_FAILED, "$direction: ${describe(it)}") }
+            val restored = Attempt.of(restore).getOrElse { return verdict(INTEROP_FAILED, "$direction: ${describe(it)}") }
             if (!same(restored, interop.expected)) return verdict(INTEROP_FAILED, "$direction: restored value differs from the input")
         }
         return verdict(PASSED, null)

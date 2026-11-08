@@ -2,8 +2,11 @@
 root: io.github.junekim0007.cryptobench
 
 modules:
-  discovery:
+  jca:
     uses: {}
+  discovery:
+    uses:
+      jca: [failure.Attempt, failure.ErrorText]
   settings:
     uses: {}
   config:
@@ -11,9 +14,11 @@ modules:
       settings: [Facts, HarnessSettings, Metric, Unsupported]
   preparation:
     uses:
+      jca: [failure.Attempt, failure.ErrorText]
       settings: [HarnessSettings, Metric]
   benchmark:
     uses:
+      jca: [failure.Attempt]
       preparation: [measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
         prepare.Listing, prepare.PreparationException, prepare.StoppedOnFailureException, record.PreparedFile, report.Skip, report.SkipFile,
         global.GlobalSettings, global.OnFailure, shared.FailureText]
@@ -29,10 +34,12 @@ consumers:
       benchmark: [check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability, run.CaseSettings, run.compose.CaseRuns, run.energy.Energy,
         run.energy.WindowMarker]
       settings: [CpuSettings, Metric]
+      jca: [failure.Attempt]
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory, write.YamlCodec]
   cli:
     sources: apps/benchmark/cli/src/main/kotlin
     uses:
+      jca: all
       discovery: all
       settings: all
       config: all

@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
-import io.github.junekim0007.cryptobench.discovery.contract.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.ErrorText
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
 import java.lang.reflect.InvocationTargetException

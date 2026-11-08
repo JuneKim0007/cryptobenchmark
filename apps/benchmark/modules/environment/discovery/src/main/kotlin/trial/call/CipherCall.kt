@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
-import io.github.junekim0007.cryptobench.discovery.contract.Attempt
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
 import java.security.Key

@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.CaseArguments
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.shared.Attempt
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException

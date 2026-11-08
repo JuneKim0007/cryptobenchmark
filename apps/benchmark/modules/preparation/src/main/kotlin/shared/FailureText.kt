@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.shared
 
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
+
 /** A failure as one line a record can keep: key encodings removed within the cap ([ErrorText]), object identity hashes (Type@1a2b3c4d) dropped; they change per run and JVM. */
 object FailureText {
 

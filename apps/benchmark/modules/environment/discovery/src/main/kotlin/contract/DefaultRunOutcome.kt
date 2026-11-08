@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.contract
 
+import io.github.junekim0007.cryptobench.jca.failure.ErrorText
+
 /** One key size a generator was asked for beside its default; refused: it would not make that size. */
 data class TriedKey(val size: Int, val keyMaterial: String = "", val keyFormat: String = "", val refused: Boolean = false)
 

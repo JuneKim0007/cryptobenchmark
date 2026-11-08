@@ -1,7 +1,7 @@
-package io.github.junekim0007.cryptobench.discovery.contract
+package io.github.junekim0007.cryptobench.jca.failure
 
-// A provider's message can print a key: encodings go before the cap, or the cap could cut one in half and hide it. Preparation keeps a copy (shared/ErrorText).
-internal object ErrorText {
+// A provider's message can print a key: encodings go before the cap, or the cap could cut one in half and hide it.
+object ErrorText {
 
     const val CAP = 200
 
