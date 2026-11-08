@@ -87,14 +87,17 @@ def run_session(device, plan, repetitions, isolation, hooks, folder, problems):
 def one_process(device, plan, process, isolation, hooks, repetitions, problems):
     process_line(process.repetition, repetitions)
     process.into.mkdir(parents=True, exist_ok=True)
-    for hook in hooks:
-        hook.before_process(process)
+    started = []
     try:
+        # a hook that fails here may have opened part of its step, so it is abandoned with those before it
+        for hook in hooks:
+            started.append(hook)
+            hook.before_process(process)
         if plan.timed:
             measure(device, plan, process, isolation, hooks)
             plan.pull_plan(process)
     except BaseException:
-        for hook in reversed(hooks):
+        for hook in reversed(started):
             hook.abandon(process)
         raise
     problems += process.failures

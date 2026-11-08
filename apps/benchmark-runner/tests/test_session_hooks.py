@@ -65,3 +65,12 @@ def test_a_case_hook_failing_on_every_case_fails_the_process_as_every_failed_cas
     phone = Phone(tmp_path, cases=("a",))
     with pytest.raises(measure_session.DeviceError, match="hook_failed: Recorded.before_case"):
         session(phone, tmp_path, [Recorded(phone, "only", fails="before_case", case="a")], [])
+
+
+def test_a_process_hook_that_fails_to_start_closes_what_the_hooks_before_it_opened(tmp_path):
+    phone = Phone(tmp_path, cases=("a",))
+    hooks = [Recorded(phone, "window"), Recorded(phone, "clocks", fails="before_process"), Recorded(phone, "later")]
+    with pytest.raises(RuntimeError, match="clocks before_process broke"):
+        session(phone, tmp_path, hooks, [])
+    assert hook_steps(phone) == ["window.before_process", "clocks.before_process", "clocks.abandon", "window.abandon"]
+    assert not [s for s in phone.log if s.startswith("instrument")]

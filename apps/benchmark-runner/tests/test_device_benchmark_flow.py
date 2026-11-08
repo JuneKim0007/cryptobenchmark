@@ -7,7 +7,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.adb import DeviceError  # noqa: E402
-from session import cooldown_hook  # noqa: E402
+from session import clocks_hook, cooldown_hook  # noqa: E402
 from stages import benchmark  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
@@ -34,9 +34,9 @@ def layout(tmp_path, run):
     return results, effective, capture, trial
 
 
-def measured(tmp_path, monkeypatch, run, **phone_options):
+def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     monkeypatch.setattr(benchmark.dependencies, "require_energy", lambda *_arguments: None)
-    phone = Phone(tmp_path, **phone_options)
+    phone = phone or Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
     monkeypatch.setattr(benchmark, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
     monkeypatch.setattr(benchmark.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
@@ -87,6 +87,16 @@ def test_an_energy_window_that_cannot_open_costs_the_process_its_energy_never_it
     assert problems == ["energy_failed: manafa_cannot_start: no session"]
     assert "joules" not in steps(phone) and "pull traces" not in steps(phone) and steps(phone)[-1] == "convert"
     assert [c["id"] for c in json.loads((results / "benchmark/benchmark.json").read_text())["cases"]] == ["a", "b"]
+
+
+def test_a_clock_read_that_fails_before_the_process_closes_the_open_energy_window(tmp_path, monkeypatch):
+    def unreadable(_device):
+        raise DeviceError("adb shell: device offline")
+    monkeypatch.setattr(clocks_hook.clocks, "read", unreadable)
+    phone = Phone(tmp_path)
+    with pytest.raises(DeviceError, match="device offline"):
+        measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}}, phone=phone)
+    assert steps(phone)[-2:] == ["window open", "window close"]
 
 
 def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
