@@ -153,9 +153,10 @@ def each_case(device, plan, process, hooks):
             process.failures.append(failure)
         else:
             measured.append(case)
+            # rewritten after every case, so an error that ends the session keeps every case measured before it
+            case_files.merge(process.into, measured, process.data)
     if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))
-    case_files.merge(process.into, measured, process.data)
 
 
 def hooked_case(process, case, hooks, run_case):

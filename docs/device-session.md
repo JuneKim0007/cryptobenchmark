@@ -119,15 +119,15 @@ What it does not fix:
 
 | `run.isolation` | printed | what runs |
 |---|---|---|
-| `case` (default) | `measure:   one process per case (<n> cases, isolation: case)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it to `cases/<id>.json` in the process folder and kept; the process's `benchmarkData.json` is merged from those files once every case ran (the first case's `context`, every case's `benchmarks`, in run order) |
+| `case` (default) | `measure:   one process per case (<n> cases, isolation: case)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it to `cases/<id>.json` in the process folder and kept; the process's `benchmarkData.json` is merged from those files again after each case that passed (the first case's `context`, every case's `benchmarks`, in run order) |
 | `run` | `measure:   one process for every case (isolation: run)` | one `am instrument` holding every timed case |
 
 - Progress: after each case `case:      <n> of <m> <id> ok` or `... failed`.
-- `cases/`: emptied when a process starts; a stopped run keeps the files of the cases it finished.
+- `cases/`: emptied when a process starts; a stopped run keeps the files of the cases it finished, and `benchmarkData.json` holds them all.
 - Device time: a process per case costs about 1 to 2 s of instrumentation start plus the plan's preparation on the device, per case and per pass.
 
 - Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.
-- Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device prepares the whole plan again in every process (`DevicePlan` has no per-case preparation), so a plan whose keys are slow to generate pays that per case too.
+- Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device lists the plan again in every process without calling a provider, then prepares only its own case.
 - A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](run.md#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises.
 - `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
 - Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedInterop`, `InteropCheck` and `DeviceProbe` stay one process each.

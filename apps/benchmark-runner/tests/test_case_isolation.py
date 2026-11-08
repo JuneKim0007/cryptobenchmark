@@ -1,6 +1,8 @@
 """isolation: case over a fake instrumentation: one case aborts its process, the others still produce results."""
 import json, pathlib, sys
 
+import pytest
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from results import case_files  # noqa: E402
@@ -52,3 +54,18 @@ def test_one_data_file_from_many_cases_keeps_the_first_context_in_the_order_give
         case_files.path(tmp_path, case).write_text(json.dumps({"context": {"n": n}, "benchmarks": [{"name": case}]}))
     case_files.merge(tmp_path, ["y", "x"], tmp_path / "benchmarkData.json")
     assert json.loads((tmp_path / "benchmarkData.json").read_text()) == {"context": {"n": 2}, "benchmarks": [{"name": "y"}, {"name": "x"}]}
+
+
+def test_an_error_that_ends_the_session_keeps_every_case_measured_before_it(tmp_path, monkeypatch):
+    phone = Phone(tmp_path, cases=("a", "b", "c"))
+    cleared = phone.shell
+
+    def offline(command):
+        if command.startswith(f"rm -f {phone.data}") and ("instrument CryptoBenchmark b") in phone.log:
+            raise measure_session.DeviceError("adb shell: device offline")
+        return cleared(command)
+    monkeypatch.setattr(phone, "shell", offline)
+    with pytest.raises(measure_session.DeviceError, match="device offline"):
+        session(phone, tmp_path, "case")
+    data = tmp_path / "benchmark/benchmarkData.json"
+    assert [b["name"] for b in json.loads(data.read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
