@@ -6,7 +6,7 @@ Prepared cases to measurements and `benchmark.json`. Device harness: `apps/bench
 
 ```
 RunnablePlan: Preparation.list -> PlanCheck.runnable -> refused cases to skipped.yaml (host and device)
-            -> per runnable case: Preparation.prepareOne -> Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json
+            -> per runnable case: Preparation.prepareOne -> Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json, rewritten whole after each case
 device: benchmarkData.json + prepared.yaml -> JetpackResults -> benchmark.json
 per process benchmark.json -> Merge -> benchmark.json
 ```

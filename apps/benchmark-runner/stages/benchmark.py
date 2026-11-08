@@ -88,7 +88,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))
         written, processes = device_cases(run, document, [effective, capture, trial], captures, benchmark, preparation)
     else:
-        written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files), repetitions
+        written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems), repetitions
     print(f"wrote:     {preparation / 'prepared.yaml'}")
     elapsed("prepare and measure", started)
     collapse(files, preparation, processes)
@@ -122,7 +122,7 @@ def warm_up(run, document, preparation):
     warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document)
 
 
-def host_cases(options, document, capture, trial, effective, benchmark, preparation, files):
+def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems):
     repetitions, written = effective_view.process_repetitions(document), []
     if (document.get("run") or {}).get("passes"):
         print("warning: run.passes: only a --device run measures in passes; this run measures once per process")
@@ -131,13 +131,24 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     for repetition in range(1, repetitions + 1):
         into = measure_session.process_folder(benchmark, repetition, repetitions)
         measure_session.process_line(repetition, repetitions)
+        (into / "benchmark.json").unlink(missing_ok=True)
         gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt",
-                          properties=bundled.gradle_properties(document.get(bundled.KEY) or []))
+                          properties=bundled.gradle_properties(document.get(bundled.KEY) or []),
+                          failed=lambda message: kept(into, message, problems))
         written.append(into / "benchmark.json")
         record(files, into, {"none"}, None)
     if repetitions > 1:
         passes.merge_runs(benchmark, written, options)
     return written
+
+
+def kept(into, message, problems):
+    """BenchKt writes each case's row as it finishes: when it dies, the rows it wrote are this run's, and its failure one problem line."""
+    if not (into / "benchmark.json").is_file():
+        fail(message)
+    line = f"bench_failed: {one_line(message)}"
+    print(f"warning: {line}")
+    problems.append(line)
 
 
 def collapse(files, preparation, repetitions):

@@ -2,6 +2,8 @@ package io.github.junekim0007.cryptobench.benchmark.report
 
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 class BenchmarkJson(private val directory: File) {
 
@@ -11,7 +13,10 @@ class BenchmarkJson(private val directory: File) {
         if (!directory.exists() && !directory.mkdirs()) {
             throw IOException("cannot create ${directory.absolutePath}")
         }
-        file.writeText(text(runtime, rows), Charsets.UTF_8)
+        // Whole or not at all: a file rewritten as each case finishes is never left half written by a JVM that dies.
+        val partial = File.createTempFile(".$NAME.", ".partial", directory)
+        partial.writeText(text(runtime, rows), Charsets.UTF_8)
+        Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         return file
     }
 

@@ -13,7 +13,7 @@
 | `ConfigureKt` | `... run -PmainClass=ConfigureKt --args="<probe> <trial> <configuration dir> [<global.yaml>] [--facts=<facts.yaml>]"` | inventory, effective |
 | `CheckConfigKt` | `... run -PmainClass=CheckConfigKt --args="<global.yaml>..."` | parses each file and its test set; prints `{global, testSet, bundled}` per file as YAML; a refusal is `error: <message>`, exit 1; nothing written |
 | `RuntimeFieldsKt` | `... run -PmainClass=RuntimeFieldsKt` | prints this JVM's runtime fields that the device id uses, as YAML |
-| `BenchKt` | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; prints the `benchmark.json` path |
+| `BenchKt` | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; `benchmark.json` rewritten as each case finishes, a case that throws is a `skipped:` line and its skip (stage `benchmark`, `measure_failed`); prints the `benchmark.json` path |
 | `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json]` | `benchmark.json` from androidx output; a pass's metrics and samples, each case's temperature; `--metrics` alone reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
 | `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
 | `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#pass-merge)) |

@@ -57,22 +57,26 @@ def output_of(arguments, main_class):
     return tool_lines(result.stdout)
 
 
-def run(arguments, stacktrace, stream=False, *, main_class, notices=None, properties=()):
-    """notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties."""
+def run(arguments, stacktrace, stream=False, *, main_class, notices=None, properties=(), failed=fail):
+    """notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties;
+    failed takes the failure's lines instead of stopping the run, for a caller that keeps what the tool wrote before it died."""
     if not WRAPPER.is_file():
         fail(f"missing_file: {WRAPPER}")
     command = _command(arguments, main_class, properties)
     if stream:
         result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)
         if result.returncode != 0:
-            fail(f"{main_class} failed; rerun without --stream for a filtered message")
+            failed(f"{main_class} failed; rerun without --stream for a filtered message")
+            return []
         return tool_lines(result.stdout)
     result = timeouts.run("gradle", command, capture_output=True, text=True)
     output = (result.stdout + result.stderr).splitlines()
     if result.returncode != 0:
         if stacktrace:
             print("\n".join(output), file=sys.stderr)
-        fail(failure_message(output))
+        pass_on(output, notices)
+        failed(failure_message(output))
+        return []
     pass_on(output, notices)
     return tool_lines(result.stdout)
 

@@ -94,7 +94,7 @@ def test_with_one_process_for_every_case_the_gate_holds_the_process_and_every_ca
 def test_a_host_run_measures_without_the_gate_and_says_so_once(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_arguments, **_options: [])
     document = {"run": {**RUN, "thermalGate": GATE}}
-    benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {})
+    benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path, tmp_path, {}, [])
     assert capsys.readouterr().out.count("thermal_gate_off") == 1
 
 
