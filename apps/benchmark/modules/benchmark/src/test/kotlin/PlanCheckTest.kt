@@ -5,13 +5,8 @@ import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.benchmark.check.Refusal
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.Metric
-import io.github.junekim0007.cryptobench.preparation.input.OperationInput
-import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -26,17 +21,15 @@ class PlanCheckTest {
         inputSize: Int? = 1024,
         harness: HarnessSettings = HarnessSettings(),
         metrics: Set<Metric> = setOf(Metric.TIME),
-    ) = PreparedCase(
-        BenchmarkCase("MessageDigest", algorithm, provider, operation, inputSize = inputSize, metrics = metrics, harness = harness),
-        KeyRecipe.None,
-        KeyMaterial.None,
-        null,
-        null,
-        OperationInput.Message(ByteArray(inputSize ?: 0)),
-    )
+    ) = BenchmarkCase("MessageDigest", algorithm, provider, operation, inputSize = inputSize, metrics = metrics, harness = harness)
 
-    private fun run(vararg cases: PreparedCase, processRepetitions: Int = 1) =
-        PreparedRun(cases.toList(), emptyList(), processRepetitions)
+    private class Run(val cases: List<BenchmarkCase>, val processRepetitions: Int)
+
+    private fun run(vararg cases: BenchmarkCase, processRepetitions: Int = 1) = Run(cases.toList(), processRepetitions)
+
+    private fun PlanCheck.check(run: Run) = check(run.cases, run.processRepetitions)
+
+    private fun PlanCheck.runnable(run: Run) = runnable(run.cases, run.processRepetitions)
 
     @Test
     fun aPlanThisDeviceCanRunIsAccepted() {
@@ -62,9 +55,9 @@ class PlanCheckTest {
     fun oneRefusedCaseIsLeftOutWithItsReasonAndTheOthersRun() {
         val checked = PlanCheck(HostHarness.METRICS, installed).runnable(run(case(provider = "BC"), case(), case(algorithm = "SHA-512")))
         assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed", "MessageDigest_SHA-512_DIGEST_SUN_i1024_WARM_fixed"),
-            checked.runnable.map { it.case.id })
+            checked.runnable.map { it.id })
         assertEquals(listOf("MessageDigest_SHA-256_DIGEST_BC_i1024_WARM_fixed" to "provider_not_installed"),
-            checked.refused.map { (prepared, refusal) -> prepared.case.id to refusal.reason.substringBefore(':') })
+            checked.refused.map { (case, refusal) -> case.id to refusal.reason.substringBefore(':') })
     }
 
     @Test

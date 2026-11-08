@@ -19,7 +19,7 @@ class PreparedCaseTest {
     /** One key per recipe: every input size of AES-128 shares it, and nothing is generated twice. */
     @Test
     fun aKeyIsMadeOncePerRecipe() {
-        val aes = preparation.prepare(effective("skip")).cases.filter { it.case.algorithm == "AES/GCM/NoPadding" }
+        val aes = preparation.prepareAll(effective("skip")).cases.filter { it.case.algorithm == "AES/GCM/NoPadding" }
         assertSame(aes[0].key, aes[1].key)
         assertTrue(aes[0].key is KeyMaterial.Secret)
     }
@@ -27,16 +27,16 @@ class PreparedCaseTest {
     /** fresh(12) must be drawn per call, so the harness is told the spec varies. */
     @Test
     fun boundParametersComeWithTheCase() {
-        val gcm = preparation.prepare(effective("skip")).cases.first { it.case.algorithm == "AES/GCM/NoPadding" }
+        val gcm = preparation.prepareAll(effective("skip")).cases.first { it.case.algorithm == "AES/GCM/NoPadding" }
         assertNotNull(gcm.parameters)
         assertTrue(gcm.parameters!!.varies)
-        assertEquals(null, preparation.prepare(effective("skip")).cases.first { it.case.algorithm == "SHA-256" }.parameters)
+        assertEquals(null, preparation.prepareAll(effective("skip")).cases.first { it.case.algorithm == "SHA-256" }.parameters)
     }
 
     /** The one call before the run is also where the provider's parameters are read back. */
     @Test
     fun aPreparedCaseCarriesWhatTheProviderUsed() {
-        val cases = preparation.prepare(effective("skip")).cases
+        val cases = preparation.prepareAll(effective("skip")).cases
         val gcm = cases.first { it.case.algorithm == "AES/GCM/NoPadding" }
         assertEquals(12, gcm.resolvedParameters["ivBytes"])
         assertEquals(128, gcm.resolvedParameters["tagBits"])
@@ -50,7 +50,7 @@ class PreparedCaseTest {
         val file = File(directory, "mismatch.yaml").apply {
             writeText(effective("skip").readText().replace("      ChaCha20: {}", "      AES_128/GCM/NoPadding: {keySizes: [256]}"))
         }
-        val run = preparation.prepare(file)
+        val run = preparation.prepareAll(file)
         val mismatch = run.skipped.filter { it.name == "AES_128/GCM/NoPadding" }
         assertEquals(8, mismatch.size)
         assertTrue(mismatch.first().reason, mismatch.first().reason.contains("dry_run_failed: InvalidKeyException"))

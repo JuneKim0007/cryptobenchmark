@@ -37,7 +37,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | class | does |
 |---|---|
 | `DeviceProbe` | installs the bundled providers of the `bundledProviders` argument, then writes this device's capture, classes file and trial via `Discovery`; run alone |
-| `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, then prepares and checks the plan on the device |
+| `DevicePlan` | installs the `bundledProviders` of `effective.yaml`, lists and checks the plan on the device; each test prepares only its own case |
 | `CryptoBenchmark` | one parameterised test per timed case; test name = case id; `-e case <id>` keeps that case only (`run.isolation: case` starts one process per case: [device-session.md](../../../../../docs/device-session.md#one-process-per-case)) |
 | `EnergyDryBenchmark` | one parameterised test per dry energy case: `docs/energy.md` |
 | `ScopedInterop` | the scope interop check, alone in its process: [scoped.md](scoped.md) |
@@ -47,7 +47,8 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | step | rule |
 |---|---|
 | inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` via discovery's `ProbeDirectory`, its `trial_*` by the same stamp; none: `missing_file: ...` |
-| prepare | `Preparation` writes `skipped.yaml` and `prepared.yaml` into the device directory |
+| list | `RunnablePlan.list`: no key made, no provider called; a process without the `case` argument (the listing, or one process for every case) writes `skipped.yaml` and `prepared.yaml` afresh, a process given cases by name only adds to them |
+| prepare | `DevicePlan.prepared(case)` inside the test: a failure is that case's skip in `skipped.yaml`, its entry removed from `prepared.yaml`; `CryptoBenchmark` and `EnergyDryBenchmark` then fail the test (`not_prepared: <skip>`), `EndToEndCheck` records it as notRun |
 | check | `PlanCheck.runnable` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory: a refused case is left out and added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` |
 | timed cases | `harness.energy.capture` other than `dry`; with the instrumentation argument `case` (`CaseFilter.ARGUMENT`) only the named ids, in the argument's order |
 | dry cases | `harness.energy.capture` = `dry` |

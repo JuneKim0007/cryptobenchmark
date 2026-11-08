@@ -8,13 +8,14 @@
 effective.yaml -> InboundFile -> GlobalReader -> PrimitiveReader -> BenchmarkRequest
 probe_<utc>.yaml, trial_<utc>.yaml -> CaptureFile, TrialFile -> DiscoveryCapability
 BenchmarkRequest + DiscoveryCapability -> CaseResolver -> cases + rejections
-per case: KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.input -> PreparedCase -> invocation.once()
--> PreparedRun -> skipped.yaml, prepared.yaml
+-> Listing (Preparation.list: no key made, no provider called)
+one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.input -> PreparedCase -> invocation.once()
 ```
 
 | rule | value |
 |---|---|
-| callers | `DevicePlan` on the device (`apps/benchmark/modules/android`), `Bench.kt` in `apps/benchmark/cli` on the host |
+| callers | `RunnablePlan` (`apps/benchmark/modules/benchmark`), used by `DevicePlan` on the device and `BenchKt`, `CheckKt` on the host; it writes `skipped.yaml` and `prepared.yaml`, preparation writes no file |
+| failure | a failed step throws `PreparationException` (`key_generation_failed`, `input_preparation_failed`, `dry_run_failed`, `parameters_unreadable`, or the key recipe's reason); an Exception or LinkageError is wrapped with the step's code, any other Error escapes unwrapped |
 | inputs | YAML only: effective.yaml, capture, trial |
 | key cache | generated key material is cached per recipe across cases |
 | registry | `EngineTypes.standard()`, read from `engine/engine-operations.yaml`, unless the caller passes another |

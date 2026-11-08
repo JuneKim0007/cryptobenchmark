@@ -2,36 +2,47 @@ package io.github.junekim0007.cryptobench
 
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
+import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
+import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.preparation.report.Skip
-import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
 
+/**
+ * The device's plan: the listed cases, each prepared only inside its own test. A process without the case argument (the listing, or one
+ * process for every case) writes prepared.yaml and skipped.yaml afresh; a process given cases by name adds its own entries to them.
+ */
 object DevicePlan {
 
     private const val EFFECTIVE = "effective.yaml"
 
-    private class Planned(val runnable: List<PreparedCase>, val skipped: List<Skip>)
+    private val plan: RunnablePlan by lazy {
+        RunnablePlan(Preparation(capability), PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability), directory)
+    }
 
-    private val planned: Planned by lazy { prepare() }
+    private val listed: List<BenchmarkCase> by lazy {
+        val effective = File(directory, EFFECTIVE)
+        check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
+        Bundled.installFrom(effective)
+        plan.list(effective, written = !CaseFilter.named).also { plan.stopIfSkipped() }
+    }
 
-    val cases: List<PreparedCase> get() = planned.runnable
+    // The listed cases a process runs: the named ones, else every one.
+    val cases: List<BenchmarkCase> get() = CaseFilter.of(listed) { it.id }
 
-    // Preparation's skips and the plan check's refusals, as skipped.yaml holds them.
-    val skipped: List<Skip> get() = planned.skipped
+    // Preparation's skips and the plan check's refusals so far, as skipped.yaml holds them.
+    val skipped: List<Skip> get() = plan.skipped
 
-    // isolation: case names one case per instrumentation process; without the argument every timed case runs
-    val timedCases: List<PreparedCase> get() = CaseFilter.of(cases.filter { captureOf(it) != Energy.Capture.DRY }) { it.case.id }
+    val timedCases: List<BenchmarkCase> get() = cases.filter { captureOf(it) != Energy.Capture.DRY }
 
-    val dryCases: List<PreparedCase> get() = cases.filter { captureOf(it) == Energy.Capture.DRY }
+    val dryCases: List<BenchmarkCase> get() = cases.filter { captureOf(it) == Energy.Capture.DRY }
 
-    private fun captureOf(prepared: PreparedCase) = CaseSettings.of(prepared.case).energy.capture
+    private fun captureOf(case: BenchmarkCase) = CaseSettings.of(case).energy.capture
 
     val directory: File get() = DeviceDirectory.plan
 
@@ -41,21 +52,12 @@ object DevicePlan {
         DiscoveryCapability(capture, paired("trial", capture))
     }
 
-    private fun prepare(): Planned {
-        val effective = File(directory, EFFECTIVE)
-        check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
-        Bundled.installFrom(effective)
-        val run = Preparation(
-            capability,
-            SkipFile(directory),
-            PreparedFile(directory),
-        ).prepare(effective)
-        val checked = PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability).runnable(run)
-        if (checked.refused.isNotEmpty()) {
-            SkipFile(directory).write(run.skipped + checked.skipped)
-        }
-        return Planned(checked.runnable, run.skipped + checked.skipped)
-    }
+    // Null when the case could not be prepared: its skip is logged and in skipped.yaml.
+    fun prepared(case: BenchmarkCase): PreparedCase? = plan.prepared(case).also { if (it == null) plan.stopIfSkipped() }
+
+    fun <T> guarded(case: BenchmarkCase, block: () -> T): T? = plan.guarded(case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED, block = block)
+
+    fun skipOf(case: BenchmarkCase): Skip? = plan.skipped.lastOrNull { it.reason.startsWith("${case.id}: ") }
 
     private fun energyCapability(): EnergyCapability? =
         File(directory, EnergyCapability.FILE).takeIf { it.isFile }?.let { EnergyCapability.parse(it.readText()) }

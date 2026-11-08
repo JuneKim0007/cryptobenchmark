@@ -7,8 +7,12 @@ object CaseFilter {
     // Paired with apps/benchmark-runner/session/case_isolation.py CASE_ARGUMENT.
     const val ARGUMENT = "case"
 
+    private val argument: String? get() = InstrumentationRegistry.getArguments().getString(ARGUMENT)
+
+    val named: Boolean get() = argument != null
+
     fun <T> of(all: List<T>, id: (T) -> String): List<T> {
-        val named = InstrumentationRegistry.getArguments().getString(ARGUMENT) ?: return all
+        val named = argument ?: return all
         val byId = all.associateBy(id)
         return named.split(',').mapNotNull { byId[it.trim()] }
     }

@@ -77,15 +77,16 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedPar
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
 apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason)
 apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm
-apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back; a failure is a skip
+apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back; a failed step throws PreparationException with its code
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/ChartGroup.kt : which cases a chart may compare, from the service type, then the key kind
+apps/benchmark/modules/preparation/src/main/kotlin/prepare/Listing.kt : the cases and rejected selections of an effective file, with its run settings; no provider called
+apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparationException.kt : one step of a case's preparation failed: its code and the scrubbed failure
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input, resolvedParameters; its chart group
-apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparedRun.kt : prepared cases, skips, processRepetitions
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/StoppedOnFailureException.kt : thrown under onFailure stop
 apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedDocument.kt : prepared.yaml document shape
-apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt : writes prepared.yaml
+apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt : prepared.yaml: the listed cases, then each one's prepared entry, or removed when it failed
 apps/benchmark/modules/preparation/src/main/kotlin/report/Skip.kt : one skipped item (stage, provider, type, name, reason)
-apps/benchmark/modules/preparation/src/main/kotlin/report/SkipFile.kt : writes skipped.yaml
+apps/benchmark/modules/preparation/src/main/kotlin/report/SkipFile.kt : skipped.yaml: written whole, read back, one skip added
 apps/benchmark/modules/preparation/src/main/kotlin/request/BenchmarkRequest.kt : selections and global settings, validated
 apps/benchmark/modules/preparation/src/main/kotlin/request/PrimitiveReader.kt : providers section to selections
 apps/benchmark/modules/preparation/src/main/kotlin/request/Selection.kt : one requested primitive entry, validated

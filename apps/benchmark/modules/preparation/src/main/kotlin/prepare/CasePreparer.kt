@@ -8,14 +8,13 @@ import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
-import io.github.junekim0007.cryptobench.preparation.report.Skip
 import io.github.junekim0007.cryptobench.preparation.shared.Attempt
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 
 /**
  * Builds one case: plan its key, make it (once per recipe), bind its parameters, build its input, call it once, read back what the provider used.
- * A case that cannot be built is a [Skip] with the reason, never an exception: whether that stops the run is the caller's policy.
- * One instance per run, because the keys it made are reused by every case with the same recipe.
+ * A step that fails throws [PreparationException] with the step's code; any other Error escapes as it is. Skipping is the caller's decision.
+ * One instance per process, because the keys it made are reused by every case with the same recipe.
  */
 internal class CasePreparer(
     private val planner: KeyPlanner,
@@ -23,36 +22,26 @@ internal class CasePreparer(
     private val binder: ParameterBinder,
 ) {
 
-    sealed interface Outcome {
-        class Prepared(val case: PreparedCase) : Outcome
-        class Skipped(val skip: Skip) : Outcome
-    }
-
     private val keys = HashMap<KeyRecipe, Result<KeyMaterial>>()
 
-    fun prepare(case: BenchmarkCase): Outcome {
+    fun prepare(case: BenchmarkCase): PreparedCase {
         val recipe = planner.plan(case)
-        if (recipe is KeyRecipe.Unavailable) return skipped(case, recipe.reason)
-        val material = keys.getOrPut(recipe) { Attempt.of { generator.generate(recipe) } }
-            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "key_generation_failed: ")) }
+        if (recipe is KeyRecipe.Unavailable) throw PreparationException(recipe.reason)
+        val material = step("key_generation_failed: ") { keys.getOrPut(recipe) { Attempt.of { generator.generate(recipe) } }.getOrThrow() }
         val definition = OperationDefinitions.of(case.operation)
         val parameters = bound(case.parameters, "parameters")
         val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
-        val input = Attempt.of { definition.input(case, material, parameters) }
-            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "input_preparation_failed: ")) }
+        val input = step("input_preparation_failed: ") { definition.input(case, material, parameters) }
         val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
-        val invocation = Attempt.of { definition.invocation(candidate) }
-            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "dry_run_failed: ")) }
-        val result = Attempt.of { invocation.once() }
-            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "dry_run_failed: ")) }
-        val resolved = Attempt.of { ResolvedParameters.of(invocation.engine, material, result) }
-            .getOrElse { failure -> return skipped(case, FailureText.of(failure, "parameters_unreadable: ")) }
-        return Outcome.Prepared(candidate.copy(resolvedParameters = resolved, perCall = invocation.perCall))
+        val invocation = step("dry_run_failed: ") { definition.invocation(candidate) }
+        val result = step("dry_run_failed: ") { invocation.once() }
+        val resolved = step("parameters_unreadable: ") { ResolvedParameters.of(invocation.engine, material, result) }
+        return candidate.copy(resolvedParameters = resolved, perCall = invocation.perCall)
     }
+
+    private inline fun <T> step(code: String, block: () -> T): T =
+        Attempt.of(block).getOrElse { failure -> throw PreparationException(FailureText.of(failure, code), failure) }
 
     private fun bound(tree: Map<String, Any>, path: String) =
         if (tree.isEmpty()) null else binder.bind(tree, path)
-
-    private fun skipped(case: BenchmarkCase, reason: String) =
-        Outcome.Skipped(Skip(Skip.PREPARATION, case.provider, case.type, case.algorithm, "${case.id}: $reason"))
 }

@@ -11,8 +11,9 @@ apps/benchmark/modules/benchmark/example/benchmark_jetpack_example.json : exampl
 apps/benchmark/modules/benchmark/example/benchmark_prepared_example.yaml : prepared.yaml paired with the Jetpack example
 apps/benchmark/modules/benchmark/src/main/kotlin/RefusedPlanException.kt : a run-wide refusal, or no case left, from PlanCheck.runnable
 apps/benchmark/modules/benchmark/src/main/kotlin/check/EnergyCapability.kt : parses energy.yaml; derives the energy refusal
-apps/benchmark/modules/benchmark/src/main/kotlin/check/PlanCheck.kt : pre-timer refusals for a PreparedRun; the runnable cases with the refused ones left out, and those as skips
+apps/benchmark/modules/benchmark/src/main/kotlin/check/PlanCheck.kt : pre-preparation refusals for the listed cases; the runnable cases with the refused ones left out, and those as skips
 apps/benchmark/modules/benchmark/src/main/kotlin/check/Refusal.kt : one refusal (caseId, reason)
+apps/benchmark/modules/benchmark/src/main/kotlin/check/RunnablePlan.kt : the orchestrator's side: listing, plan check, one case prepared at a time, any throw that case's logged skip; the one writer of skipped.yaml and prepared.yaml
 apps/benchmark/modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt : writes benchmark.json text
 apps/benchmark/modules/benchmark/src/main/kotlin/report/CaseDocument.kt : shared YAML and JSON reader for case documents
 apps/benchmark/modules/benchmark/src/main/kotlin/report/Merge.kt : merges per-process benchmark.json texts; a case that cannot merge is left out with a line
@@ -91,4 +92,6 @@ apps/benchmark/modules/benchmark/src/test/kotlin/PeerProvider.kt : a test provid
 apps/benchmark/modules/benchmark/src/test/kotlin/PlanCheckTest.kt : refusal tests
 apps/benchmark/modules/benchmark/src/test/kotlin/RecordDiffTest.kt : no difference between equal runs; every added, removed and changed field
 apps/benchmark/modules/benchmark/src/test/kotlin/RunCountAuditTest.kt : run-count audit tests
+apps/benchmark/modules/benchmark/src/test/kotlin/RunnablePlanTest.kt : the orchestrator loses only the failing case: preparation and later-stage throws as logged skips, both files, onFailure stop
+apps/benchmark/modules/benchmark/src/test/kotlin/ThrowingProvider.kt : test provider: SHA-256 under names that throw AssertionError, StackOverflowError or IllegalStateException while armed
 ```

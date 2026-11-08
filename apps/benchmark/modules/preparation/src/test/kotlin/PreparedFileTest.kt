@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
-import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -28,11 +27,8 @@ class PreparedFileTest {
         val effective = if (effectiveText == null) File(example, "preparation_effective_example.yaml") else
             File(directory, "effective.yaml").apply { writeText(effectiveText) }
         val record = PreparedFile(directory)
-        Preparation(
-            DiscoveryCapability(File(example, "preparation_capture_example.yaml"), File(example, "preparation_trial_example.yaml")),
-            SkipFile(directory),
-            record,
-        ).prepare(effective)
+        Preparation(DiscoveryCapability(File(example, "preparation_capture_example.yaml"), File(example, "preparation_trial_example.yaml")))
+            .prepareAll(effective, directory)
         return YamlCodec().load(record.file.readText())
     }
 

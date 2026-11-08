@@ -10,13 +10,8 @@ import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
-import io.github.junekim0007.cryptobench.preparation.input.OperationInput
-import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.prepare.PreparedRun
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -26,11 +21,12 @@ class EnergyCheckTest {
 
     private val installed = { setOf("SUN") }
 
-    private fun run(capture: String?, algorithm: String = "SHA-256", source: String? = null) = PreparedRun(listOf(PreparedCase(
+    private fun run(capture: String?, algorithm: String = "SHA-256", source: String? = null) = listOf(
         BenchmarkCase("MessageDigest", algorithm, "SUN", Operation.DIGEST, inputSize = 64,
                       harness = HarnessSettings(energy = EnergySettings(capture = capture, source = source))),
-        KeyRecipe.None, KeyMaterial.None, null, null, OperationInput.Message(ByteArray(64)),
-    )), emptyList(), 1)
+    )
+
+    private fun PlanCheck.check(cases: List<BenchmarkCase>) = check(cases, 1)
 
     private fun capability(responsive: Boolean, accept: Boolean = false, present: Boolean = true) =
         EnergyCapability(present, responsive, 1500.0, 1500.0, 2.0, accept)

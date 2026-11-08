@@ -15,7 +15,7 @@ config/global.yaml + config/testsets/*.yaml
 |---|---|---|---|
 | discovery | JCA providers of the running JVM or device | `probe_<stamp>.yaml`, `trial_<stamp>.yaml`, `requirements_<stamp>.yaml` | `apps/benchmark/modules/environment/discovery/src/main/kotlin/write/` |
 | config | capture, trial, `global.yaml`, test set, optional `facts.yaml` | `inventory.yaml`, `effective.yaml` | `apps/benchmark/modules/config/src/main/kotlin/Configuration.kt` |
-| preparation | capture, trial, `effective.yaml` | `prepared.yaml`, `skipped.yaml` | `apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt`, `report/SkipFile.kt` |
+| preparation | capture, trial, `effective.yaml` | `prepared.yaml`, `skipped.yaml` | `apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt`, `report/SkipFile.kt`, written by benchmark's `check/RunnablePlan.kt` |
 | benchmark | prepared cases, `energy.yaml` | `benchmark.json` | `apps/benchmark/modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt` |
 | analysis | `benchmark.json` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | `apps/benchmark-runner/analysis/analyze.py` |
 

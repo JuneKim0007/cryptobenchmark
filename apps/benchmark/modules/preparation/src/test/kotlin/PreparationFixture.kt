@@ -3,7 +3,10 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
+import io.github.junekim0007.cryptobench.preparation.prepare.PreparationException
+import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
+import io.github.junekim0007.cryptobench.preparation.report.Skip
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
 import java.nio.file.Files
@@ -49,5 +52,27 @@ skipped: []
 """.trimIndent())
     }
 
-    val preparation = Preparation(device, SkipFile(File(directory, "preparation")), PreparedFile(File(directory, "preparation")))
+    val preparation = Preparation(device)
+}
+
+internal class TestRun(val cases: List<PreparedCase>, val skipped: List<Skip>)
+
+/** The orchestrator's loop without its catch-all (benchmark RunnablePlan): every listed case prepared, a PreparationException its skip, both files written. */
+internal fun Preparation.prepareAll(effective: File, directory: File? = null): TestRun {
+    val listing = list(effective)
+    val skips = SkipFile(directory ?: Files.createTempDirectory("skips").toFile())
+    val record = PreparedFile(skips.file.parentFile)
+    record.listed(listing, listing.cases)
+    val failed = mutableListOf<Skip>()
+    val prepared = listing.cases.mapNotNull { case ->
+        try {
+            prepareOne(case).also(record::prepared)
+        } catch (failure: PreparationException) {
+            record.failed(case.id)
+            failed += Skip(Skip.PREPARATION, case.provider, case.type, case.algorithm, "${case.id}: ${failure.reason}")
+            null
+        }
+    }
+    skips.write(listing.skipped + failed)
+    return TestRun(prepared, listing.skipped + failed)
 }

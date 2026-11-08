@@ -26,7 +26,7 @@ class ExampleFilesTest {
     fun theExampleEffectivePreparesEveryCase() {
         val report = SkipFile(output.root)
         val record = PreparedFile(output.root)
-        val run = Preparation(capability, report, record).prepare(File(example, "preparation_effective_example.yaml"))
+        val run = Preparation(capability).prepareAll(File(example, "preparation_effective_example.yaml"), output.root)
 
         assertEquals(emptyList<String>(), run.skipped.map { it.toString() })
         assertEquals(

@@ -5,8 +5,8 @@ Prepared cases to measurements and `benchmark.json`. Device harness: `apps/bench
 ## Flow
 
 ```
-PreparedRun -> PlanCheck.runnable -> refused cases to skipped.yaml (host and device)
-            -> per runnable case: Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json
+RunnablePlan: Preparation.list -> PlanCheck.runnable -> refused cases to skipped.yaml (host and device)
+            -> per runnable case: Preparation.prepareOne -> Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json
 device: benchmarkData.json + prepared.yaml -> JetpackResults -> benchmark.json
 per process benchmark.json -> Merge -> benchmark.json
 ```
@@ -15,7 +15,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 
 ## Refusals
 
-`PlanCheck` runs before any measurement. Installed providers are read from `Security.getProviders()` on the running device or JVM at check time.
+`PlanCheck` runs on the listed cases, before any is prepared or measured. Installed providers are read from `Security.getProviders()` on the running device or JVM at check time.
 
 | reason | cause |
 |---|---|
@@ -29,7 +29,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 
 | rule | value |
 |---|---|
-| `runnable(run)` | the one rule, host (`BenchKt`, `CheckKt`) and device: refused cases left out with their refusal, added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` `refused_plan: ...` |
+| `runnable(cases, processRepetitions)` | the one rule, host (`BenchKt`, `CheckKt`) and device: refused cases left out with their refusal, added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` `refused_plan: ...` |
 | `Refusal.toString` | `<caseId>: <reason>`; bare reason when run-wide |
 
 ## What one sample is

@@ -3,6 +3,8 @@ package io.github.junekim0007.cryptobench.preparation.shared
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 object DocumentFile {
 
@@ -29,7 +31,10 @@ object DocumentFile {
         if (!directory.exists() && !directory.mkdirs()) {
             throw IOException("cannot create ${directory.absolutePath}")
         }
-        file.writeText(YamlCodec().dump(document), Charsets.UTF_8)
+        // Whole or not at all: a file rewritten as each case finishes is never left half written by a process that dies.
+        val partial = File.createTempFile(".${file.name}.", ".partial", directory)
+        partial.writeText(YamlCodec().dump(document), Charsets.UTF_8)
+        Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         return file
     }
 }

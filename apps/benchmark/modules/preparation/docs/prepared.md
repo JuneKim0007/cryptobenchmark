@@ -1,15 +1,15 @@
 # prepared
 
-What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's output directory. Pipeline layout: `docs/results.md`. Stages: [prepare.md](prepare.md).
+What a run's preparation leaves: `skipped.yaml` and `prepared.yaml`, written by `RunnablePlan` (`apps/benchmark/modules/benchmark/docs/measure.md`) in the caller's output directory. Pipeline layout: `docs/results.md`. Stages: [prepare.md](prepare.md).
 
 ## onFailure
 
 | policy | outcome |
 |---|---|
-| any | `skipped.yaml` always written |
-| `stop`, any skip | `StoppedOnFailureException` `stopped_on_failure: <n>` listing each skip; `prepared.yaml` not written |
+| any | `skipped.yaml` always written; each failed case is added as it fails |
+| `stop`, a rejection or a preparation skip | `StoppedOnFailureException` `stopped_on_failure: <n>` listing each, after every case was tried (host) or when the failing case ends (device) |
 | `skip`, zero prepared cases | `nothing_prepared: every case was skipped, see <skipped.yaml>` |
-| `skip`, some prepared | `prepared.yaml` written from the prepared cases |
+| `skip`, some prepared | `prepared.yaml` holds the prepared cases |
 
 ## skipped.yaml
 
@@ -31,7 +31,7 @@ What preparation writes: `skipped.yaml` and `prepared.yaml` in the caller's outp
 
 ## prepared.yaml
 
-`schemaVersion: 2`; overwritten each run. Nothing reads it back to rebuild a case; the benchmark reads it to join Jetpack results by case id.
+`schemaVersion: 2`; written from the listing with each runnable case's listed fields, then each case's entry replaced by its prepared one, or removed when it could not be prepared. A process given cases by name edits only those entries; an entry still in its listed form is a case whose process ended before preparing it. Nothing reads it back to rebuild a case; the benchmark reads it to join Jetpack results by case id.
 
 | key | holds |
 |---|---|

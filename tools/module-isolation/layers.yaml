@@ -14,7 +14,9 @@ modules:
       settings: [HarnessSettings, Metric]
   benchmark:
     uses:
-      preparation: [measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, prepare.PreparedRun, operation.Invocations, operation.Invocation]
+      preparation: [measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
+        prepare.Listing, prepare.PreparationException, prepare.StoppedOnFailureException, record.PreparedFile, report.Skip, report.SkipFile,
+        global.GlobalSettings, global.OnFailure, shared.FailureText]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]
 
 consumers:
@@ -22,9 +24,9 @@ consumers:
     sources: apps/benchmark/modules/android/src/androidTest/kotlin
     uses:
       preparation: [Preparation, adapter.DiscoveryCapability, interop.InteropRun, interop.plan.InteropPlanFile, interop.report.InteropFile,
-        operation.Invocations, prepare.PreparedCase, record.PreparedFile, report.Skip, report.SkipFile, measurement.BenchmarkCase,
+        operation.Invocations, prepare.PreparedCase, report.Skip, measurement.BenchmarkCase,
         measurement.Operation, key.plan.KeyPlanner, key.plan.KeyRecipe, key.generate.KeyMaterial, key.generate.KeyMaterialGenerator]
-      benchmark: [check.PlanCheck, check.Refusal, check.EnergyCapability, run.CaseSettings, run.compose.CaseRuns, run.energy.Energy,
+      benchmark: [check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability, run.CaseSettings, run.compose.CaseRuns, run.energy.Energy,
         run.energy.WindowMarker]
       settings: [CpuSettings, Metric]
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory, write.YamlCodec]
