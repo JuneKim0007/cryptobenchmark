@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dead-code check: vulture over the Python apps and tools, minus tools/dead-code-allow.txt; skipped when vulture is absent."""
+"""Dead-code check: vulture over the Python apps and tools, minus tools/dead-code-allow.txt; a local tool, never run in CI."""
 from __future__ import annotations
 
 import os
@@ -26,8 +26,7 @@ def allowed() -> dict[str, str]:
 
 def main() -> int:
     if not VULTURE.is_file():
-        print(f"dead-code: skipped, no vulture at {VULTURE} (set VULTURE)", file=sys.stderr)
-        return 0
+        sys.exit(f"dead-code: no vulture at {VULTURE}; install it there or set VULTURE")
     out = subprocess.run([str(VULTURE), *TARGETS, "--exclude", EXCLUDE], cwd=ROOT, capture_output=True, text=True).stdout
     found = {f"{m.group(1)}:{m.group(2)}": line for line in out.splitlines() if (m := FINDING.match(line))}
     entries = allowed()

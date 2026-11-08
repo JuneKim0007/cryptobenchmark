@@ -9,4 +9,4 @@ docs-lint:
 dead-code:
 	python3 ../../tools/dead_code.py
 
-check: docs-lint dead-code test
+check: docs-lint test

@@ -133,7 +133,7 @@ requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
-tools/dead_code.py : dead-code check: vulture minus the allowlist, skipped without vulture; run by perf-repair's make check
+tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
 tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text, names code must hold
 tools/lint/__init__.py : package of the docs lint's model of the repo
 tools/lint/claims.py : what a doc names that code must hold: source paths, perfrepair.yaml keys, stop codes, snake_case and dotted names
