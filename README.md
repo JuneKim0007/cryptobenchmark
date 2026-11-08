@@ -40,3 +40,4 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 
 - AOT is assumed: the benchmark app, and every provider bundled in it, is compiled ahead of time (`speed`) before measuring. Real apps start JIT- or profile-compiled, so first calls in a real app can be slower than the numbers here.
 - Only a controlled core environment is assumed: the measuring thread is pinned and samples are taken in steady state. A real app's thread moves between core types under the scheduler, which is hard to predict, so its timings can spread wider than reported.
+- Garbage is collected between samples, outside the timer, so each sample is measured in a controlled, stabilised setting; a real app pays that collection cost inside its own work.
