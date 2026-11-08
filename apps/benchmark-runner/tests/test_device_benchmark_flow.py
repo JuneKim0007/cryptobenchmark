@@ -99,6 +99,17 @@ def test_a_clock_read_that_fails_before_the_process_closes_the_open_energy_windo
     assert steps(phone)[-2:] == ["window open", "window close"]
 
 
+def test_a_clock_record_that_fails_after_the_process_still_closes_the_window_and_converts(tmp_path, monkeypatch):
+    def unwritable(*_arguments):
+        raise OSError("clocks.yaml: no space left")
+    monkeypatch.setattr(clocks_hook.clocks, "write", unwritable)
+    phone = Phone(tmp_path)
+    with pytest.raises(OSError, match="no space left"):
+        measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}}, phone=phone)
+    assert steps(phone)[-4:] == ["pull traces", "window close", "joules", "convert"]
+    assert [c["id"] for c in json.loads((tmp_path / "results/benchmark/benchmark.json").read_text())["cases"]] == ["a", "b"]
+
+
 def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a", "crash", "hang", "b"),
                                                  crash=("crash",), hang=("hang",))

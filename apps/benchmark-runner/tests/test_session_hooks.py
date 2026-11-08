@@ -74,3 +74,12 @@ def test_a_process_hook_that_fails_to_start_closes_what_the_hooks_before_it_open
         session(phone, tmp_path, hooks, [])
     assert hook_steps(phone) == ["window.before_process", "clocks.before_process", "clocks.abandon", "window.abandon"]
     assert not [s for s in phone.log if s.startswith("instrument")]
+
+
+def test_a_process_hook_that_fails_to_close_still_lets_the_others_close_and_the_data_convert(tmp_path):
+    phone = Phone(tmp_path, cases=("a", "b"))
+    hooks = [Recorded(phone, "window"), Recorded(phone, "clocks", fails="after_process"), Recorded(phone, "thermal")]
+    with pytest.raises(RuntimeError, match="clocks after_process broke"):
+        session(phone, tmp_path, hooks, [])
+    assert hook_steps(phone)[-4:] == ["thermal.after_process", "clocks.after_process", "window.after_process", "convert"]
+    assert (tmp_path / "benchmark/benchmarkData.json").is_file()

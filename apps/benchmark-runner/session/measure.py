@@ -101,10 +101,24 @@ def one_process(device, plan, process, isolation, hooks, repetitions, problems):
             hook.abandon(process)
         raise
     problems += process.failures
-    for hook in reversed(hooks):
-        hook.after_process(process)
+    failed = closed(process, hooks)
     plan.after_process(process)
+    if failed:
+        raise failed
     return process
+
+
+def closed(process, hooks):
+    """Every hook's after_process, so one failing still leaves the others closed and the pulled data converted; the first error, else None."""
+    failed = None
+    for hook in reversed(hooks):
+        try:
+            hook.after_process(process)
+        except Exception as error:
+            if failed:
+                print(f"warning: hook_failed: {type(hook).__name__}.after_process: {type(error).__name__}: {one_line(error)}")
+            failed = failed or error
+    return failed
 
 
 def measure(device, plan, process, isolation, hooks):
