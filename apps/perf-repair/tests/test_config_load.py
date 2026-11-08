@@ -12,8 +12,8 @@ from perfrepair.config.load import config_file, load
 from perfrepair.config.settings import ConfigError
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.inputs.check import check_any, check_text
-from perfrepair.inputs.table import (AI_GATEWAY_KEY, AI_GATEWAY_USE, APPS_AGENT, APPS_REPLACE, GROUPING_ASSIGN, GROUPING_LIMIT,
-                                     GROUPING_SESSIONS, GROUPING_TURNS, WORTHINESS)
+from perfrepair.inputs.table import (AI_GATEWAY_KEY, AI_GATEWAY_USE, APPS_REPLACE, GROUPING_ASSIGN, GROUPING_LIMIT,
+                                     GROUPING_SESSIONS, GROUPING_TURNS)
 
 
 def write(path, text):
@@ -63,8 +63,8 @@ def test_agent_precedence_is_cli_env_block_dotenv_default_with_sources(tmp_path)
     loaded = load(f, {"PERFREPAIR_MODEL": "env-model"}, {"PERFREPAIR_MODEL": "dot", "PERFREPAIR_EFFORT": "max",
                                                          "PERFREPAIR_AGENT": "dry-run"})
     assert gateway_name(loaded, APPS_REPLACE, "dry-run", "x") == "dry-run"
-    assert claude_values(loaded, APPS_REPLACE) == {"auth": "subscription", "model": "env-model", "effort": "low", "binary": "claude"}
-    assert loaded.sources == {"apps.replace.gateway": "cli", "apps.replace.auth": "default", "apps.replace.binary": "default",
+    assert claude_values(loaded, APPS_REPLACE) == {"auth": "subscription", "model": "env-model", "effort": "low", "binary": "claude", "webSearch": False}
+    assert loaded.sources == {"apps.replace.gateway": "cli", "apps.replace.auth": "default", "apps.replace.binary": "default", "apps.replace.webSearch": "default",
                               "apps.replace.model": "env PERFREPAIR_MODEL", "apps.replace.effort": f"file {f} aiGateway.claude"}
     no_file = load(None, {}, {"PERFREPAIR_EFFORT": "max", "PERFREPAIR_AGENT": "dry-run"})
     assert claude_values(no_file, APPS_REPLACE)["effort"] == "max" and no_file.sources["apps.replace.effort"] == ".env PERFREPAIR_EFFORT"
@@ -74,18 +74,18 @@ def test_agent_precedence_is_cli_env_block_dotenv_default_with_sources(tmp_path)
 
 def test_a_role_key_beats_the_block_from_every_layer_and_other_keys_fall_back(tmp_path):
     f = write(tmp_path / "c.yaml", "aiGateway: {claude: {model: shared, binary: /opt/claude}}\n"
-                                   "device: {grouping: {assign: {effort: xhigh, gateway: dry-run}}}\napps: {agent: {model: guide-model}}\n")
+                                   "device: {grouping: {assign: {effort: xhigh, gateway: dry-run}}}\napps: {replace: {model: guide-model}}\n")
     loaded = load(f, {"PERFREPAIR_EFFORT": "low", "PERFREPAIR_AGENT": "claude"}, {})
-    assert claude_values(loaded, GROUPING_ASSIGN) == {"auth": "subscription", "model": "shared", "effort": "xhigh", "binary": "/opt/claude"}
+    assert claude_values(loaded, GROUPING_ASSIGN) == {"auth": "subscription", "model": "shared", "effort": "xhigh", "binary": "/opt/claude", "webSearch": False}
     assert gateway_name(loaded, GROUPING_ASSIGN, None, "x") == "dry-run"
     assert loaded.sources["device.grouping.assign.effort"] == f"file {f} device.grouping.assign"
-    assert claude_values(loaded, APPS_AGENT)["model"] == "guide-model" and claude_values(loaded, WORTHINESS)["effort"] == "low"
+    assert claude_values(loaded, APPS_REPLACE)["model"] == "guide-model"
     assert claude_values(loaded, GROUPING_ASSIGN, effort="medium")["effort"] == "medium"
 
 
 def test_a_role_section_never_supplies_a_gateway_only_key(tmp_path):
-    loaded = load(write(tmp_path / "c.yaml", "apps: {agent: {auth: api}}\n"), {}, {})
-    assert claude_values(loaded, APPS_AGENT)["auth"] == "subscription"
+    loaded = load(write(tmp_path / "c.yaml", "apps: {replace: {auth: api}}\n"), {}, {})
+    assert claude_values(loaded, APPS_REPLACE)["auth"] == "subscription"
 
 
 @pytest.mark.parametrize("environ, dot, text, source", [
@@ -94,7 +94,7 @@ def test_a_role_section_never_supplies_a_gateway_only_key(tmp_path):
     ({}, {"PERFREPAIR_EFFORT": "max"}, "", ".env PERFREPAIR_EFFORT")])
 def test_every_gateway_wide_layer_raises_every_role_including_assign(tmp_path, environ, dot, text, source):
     loaded = load(write(tmp_path / "c.yaml", text), environ, dot)
-    assert claude_values(loaded, GROUPING_ASSIGN)["effort"] == claude_values(loaded, WORTHINESS)["effort"] == "max"
+    assert claude_values(loaded, GROUPING_ASSIGN)["effort"] == claude_values(loaded, APPS_REPLACE)["effort"] == "max"
     assert loaded.sources["device.grouping.assign.effort"].endswith(source)
 
 
@@ -127,7 +127,7 @@ def test_fill_keeps_cli_values_then_file_then_code_default_and_records_the_sourc
 
 def test_a_bad_file_exits_2_with_the_error_line(tmp_path, capsys):
     ap = argparse.ArgumentParser()
-    add_agent_args(ap, role=APPS_AGENT)
+    add_agent_args(ap, role=APPS_REPLACE)
     args = ap.parse_args(["--perfrepair-config", str(write(tmp_path / "c.yaml", "aiGateway: {claude: {token: x}}\n"))])
     with pytest.raises(SystemExit) as e:
         load_settings(ap, args)
@@ -135,7 +135,7 @@ def test_a_bad_file_exits_2_with_the_error_line(tmp_path, capsys):
 
 
 @pytest.mark.parametrize("command", ((grouping_main, ["assign", "--device-results", "r"]),
-                                     (ai_main, ["worthiness", "--device-results", "r", "--perf-mode", "latency"])))
+                                     (ai_main, ["upgrade", "--device-results", "r", "--app", "x"])))
 @pytest.mark.parametrize("flag", ("--turns", "--sessions", "--limit"))
 @pytest.mark.parametrize("value", ("0", "x"))
 def test_a_count_flag_takes_only_a_positive_integer(command, flag, value):

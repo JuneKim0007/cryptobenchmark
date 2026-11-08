@@ -8,8 +8,8 @@ from .document import DocumentKind
 SCHEMA_VERSION = 1
 EVENT_DOC = DocumentKind("event", SCHEMA_VERSION)
 KINDS = ("static", "model")
-# a step's start and end; a model turn and the item's decision; a command's run, its coded error or bug; a log record
-START, END, TURN, DECISION = "start", "end", "turn", "decision"
+# a step's start and end; one model attempt; a command's run, its coded error or bug; a log record
+START, END, DECISION = "start", "end", "decision"
 RUN_START, RUN_END, ERROR, BUG, LOG = "run_start", "run_end", "error", "bug", "log"
 # a coded fact the status log reports (outcome: the code; item: what it is about), not a step or a log record
 FINDING = "finding"

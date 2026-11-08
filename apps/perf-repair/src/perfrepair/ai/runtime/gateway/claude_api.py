@@ -6,6 +6,7 @@ from ..agent.reply import AgentFailed, AgentRefused, AgentReply
 
 DEFAULT_MODEL = "claude-opus-5-5"
 MAX_TOKENS = 16000
+WEB_SEARCH = {"type": "web_search_20260209", "name": "web_search"}
 # The Messages API answers 400 to string length limits, and to a {n,m} it finds too complex; the gate checks both.
 API_UNSUPPORTED = ("maxLength", "minLength", "pattern", "maxItems")
 
@@ -25,8 +26,9 @@ class _NoSdkError(Exception):
 
 class ClaudeClient:
 
-    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
-        self.model, self.effort, self.max_tokens = model, effort, max_tokens
+    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None,
+                 web_search: bool = False):
+        self.model, self.effort, self.max_tokens, self.web_search = model, effort, max_tokens, web_search
         try:
             import anthropic
         except ImportError:
@@ -52,6 +54,7 @@ class ClaudeClient:
                 # On a policy decline the API re-runs the request on a fallback model inside the same call.
                 extra_headers={"anthropic-beta": "server-side-fallback-2026-07-01"},
                 extra_body={"fallbacks": "default"},
+                **({"tools": [WEB_SEARCH]} if self.web_search else {}),
             )
         except self.api_error as e:
             raise AgentFailed("claude_api_failed", " ".join(str(e).split())[:300]) from None
@@ -82,8 +85,9 @@ class ClaudeConversation(LifetimeGuarded):
 
 class ClaudeConversations:
 
-    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None):
-        self.client = ClaudeClient(model, effort, max_tokens, client)
+    def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = MAX_TOKENS, client=None,
+                 web_search: bool = False):
+        self.client = ClaudeClient(model, effort, max_tokens, client, web_search)
 
     def start(self, system: SystemPrompt, schema: dict) -> ClaudeConversation:
         return ClaudeConversation(self.client, system, schema)

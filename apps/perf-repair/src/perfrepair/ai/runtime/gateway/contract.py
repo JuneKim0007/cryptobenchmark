@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping
 
+from ...model.tier import Ladder
 from ..agent.conversation import Conversations
 
 
@@ -15,3 +16,4 @@ class Gateway:
     spawn: Callable[[Any, Conversations], Conversations]
     secret: Callable[[Any], str | None] = lambda _: None
     choices: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    ladder: Ladder = Ladder()

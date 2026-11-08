@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from typing import Callable, Protocol
 
-from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
+from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt, ToolResultPrompt
 from .reply import AgentReply
 
 
 class Conversation(Protocol):
-    def ask(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply: ...
+    def ask(self, message: TaskPrompt | CorrectionPrompt | ToolResultPrompt) -> AgentReply: ...
 
 
 class Conversations(Protocol):
@@ -16,18 +16,18 @@ class Conversations(Protocol):
 
 
 class LifetimeGuarded:
-    """Every gateway's conversation: a SystemPrompt, then one TaskPrompt, then only CorrectionPrompts."""
+    """Every gateway's conversation: a SystemPrompt, then one TaskPrompt, then only corrections and tool results."""
 
     def __init__(self, system: SystemPrompt):
         if not isinstance(system, SystemPrompt):
             raise TypeError(f"lifetime_mismatch: a conversation starts with a SystemPrompt, not {type(system).__name__}")
         self.system, self.task = system, None
 
-    def ask(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
-        expected = CorrectionPrompt if self.task else TaskPrompt
+    def ask(self, message: TaskPrompt | CorrectionPrompt | ToolResultPrompt) -> AgentReply:
+        expected = (CorrectionPrompt, ToolResultPrompt) if self.task else (TaskPrompt,)
         if not isinstance(message, expected):
             raise TypeError(f"lifetime_mismatch: {'after the task' if self.task else 'the first turn'} takes a "
-                            f"{expected.__name__}, not {type(message).__name__}")
+                            f"{' or '.join(e.__name__ for e in expected)}, not {type(message).__name__}")
         self.task = self.task or message
         return self._send(message)
 

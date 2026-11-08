@@ -3,11 +3,11 @@ import json
 from dataclasses import replace
 
 import pytest
-from helpers import LIBRARY, QUIET, row, summary
+from helpers import LIBRARY, QUIET, logged, row, summary
 
 from perfrepair import run_dir as rd
-from perfrepair.ai.repair.upgrade.command import upgrade
-from perfrepair.ai.repair.upgrade.render import render
+from perfrepair.ai.select.command import select_upgrades
+from perfrepair.ai.select.upgrade_render import render
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.catalog.types import types
 from perfrepair.catalog.upgrades import Upgrades, UpgradesError, upgrades
@@ -23,7 +23,6 @@ from perfrepair.result.dossier import build_dossiers
 from perfrepair.result.unit_dossiers import by_unit
 from perfrepair.result.upgrades import needs_person
 from perfrepair.validation.dossiers.against_run import validate_dossiers
-from perfrepair.validation.upgrade import check_reply
 
 LATENCY = PerfMode(("latency",))
 APP = "app"
@@ -79,7 +78,7 @@ def _never_asked(*_):
 
 def _state(tmp_path, doc, conversations=None):
     _write(tmp_path, doc)
-    return upgrade(tmp_path, APP, conversations or ScriptedConversations(_never_asked), LIBRARY, **QUIET)
+    return select_upgrades(tmp_path, APP, conversations or ScriptedConversations(_never_asked), LIBRARY, **QUIET)
 
 
 @pytest.mark.parametrize("current, target, refused", [
@@ -119,7 +118,7 @@ def test_an_unlisted_broken_use_is_asked_once_and_chooses_among_the_accepted_mea
     [row_] = doc["upgrades"]
     assert not row_["identified"] and [o["item"] for o in row_["options"]] == [SHA224, SHA512, SHA256]
     asked = []
-    agent = ScriptedConversations(lambda m, *_: asked.append(m.text) or {"option": "R2", "reason": "fits"})
+    agent = ScriptedConversations(lambda m, *_: asked.append(m.text) or {"tool": "submit", "args": {"option": "R2", "reason": "fits"}})
     state = _state(tmp_path, doc, agent)
     assert len(asked) == 1 and state.rows[row_["scope"]["id"]].option == SHA512
     assert state.rows[row_["scope"]["id"]].source == "llm"
@@ -128,17 +127,25 @@ def test_an_unlisted_broken_use_is_asked_once_and_chooses_among_the_accepted_mea
     assert len(asked) == 1
 
 
+@pytest.mark.parametrize("sinks, reviewed", [(("local",), True), (("persist",), False)])
+def test_review_reads_only_a_broken_use_pick_that_edits_code(tmp_path, sinks, reviewed):
+    doc = _doc(tmp_path, _scope(sinks=sinks), family=_family(listed=Upgrades({})))
+
+    def answer(task, *_):
+        if task.name == "review":
+            return {"tool": "verdict", "args": {"verdict": "accept", "reason": "ok"}}
+        return {"tool": "submit", "args": {"option": "R2", "reason": "fits"}}
+    _write(tmp_path, doc)
+    [u] = select_upgrades(tmp_path, APP, ScriptedConversations(answer), LIBRARY, review=True, **QUIET).rows.values()
+    assert bool(u.edits) is reviewed
+    assert len(logged(tmp_path, "review")) == int(reviewed)
+
+
 def test_a_list_with_no_measured_target_falls_to_the_model_among_what_is_measured(tmp_path):
     names = (MD5, MD5_OTHER, SHA1, SHA224)
     doc = _doc(tmp_path, names=names)
     assert not doc["upgrades"][0]["identified"] and [o["item"] for o in doc["upgrades"][0]["options"]] == [SHA224]
 
-
-def test_the_gate_takes_only_an_offered_alias_and_a_reason(tmp_path):
-    item = UpgradeItem.from_json(_doc(tmp_path, family=_family(listed=Upgrades({})))["upgrades"][0])
-    assert check_reply('{"option": "R9", "reason": "x"}', item)[0] is None
-    assert check_reply('{"option": "R1", "reason": " "}', item)[0] is None
-    assert check_reply('{"option": "R1", "reason": "x"}', item)[0] == {"option": SHA224, "reason": "x"}
 
 
 @pytest.mark.parametrize("sinks, need", [(("persist",), "persisted_data"), (("network",), "wire_format"), (("unknown",), "unknown_sink")])
@@ -173,7 +180,7 @@ def test_no_accepted_option_is_a_report_line_and_the_run_goes_on(tmp_path):
 
 def test_a_dropped_answer_is_a_persons_not_an_edit(tmp_path):
     doc = _doc(tmp_path, family=_family(listed=Upgrades({})))
-    agent = ScriptedConversations(lambda *_: {"option": "R9", "reason": "x"})
+    agent = ScriptedConversations(lambda *_: {"tool": "submit", "args": {"option": "R9", "reason": "x"}})
     [u] = _state(tmp_path, doc, agent).rows.values()
     assert (u.status, u.source, u.needs) == ("needs_migration", "fallback", ("model_dropped",))
 
@@ -315,7 +322,9 @@ def test_no_secure_option_only_when_the_family_has_no_accepted_measured_member(t
     assert [n["reason"] for n in doc["noOptions"]] == ["no_secure_option"]
 
 
-def test_an_unparseable_reply_is_refused_with_its_problem():
-    from perfrepair.validation.upgrade import check_reply
-    decision, problems = check_reply("not json", None)
-    assert decision is None and problems
+def test_none_is_no_answer_for_a_broken_use(tmp_path):
+    doc = _doc(tmp_path, family=_family(listed=Upgrades({})))
+    replies = iter([{"tool": "submit", "args": {"option": "none", "reason": "keep it"}},
+                    {"tool": "submit", "args": {"option": "R1", "reason": "fastest"}}])
+    [u] = _state(tmp_path, doc, ScriptedConversations(lambda *_: next(replies))).rows.values()
+    assert (u.option, u.source) == (SHA224, "llm")

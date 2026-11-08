@@ -1,7 +1,8 @@
-"""A role's token budget, checked once for every role: system prompt plus task message by chars/4, before any call."""
+"""A role's token budget, checked once for every role: system prompt plus task message by chars/4, before any call;
+and its spend cap, the real tokens one command may use."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable
 
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
@@ -14,10 +15,25 @@ class OverBudget(Coded):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass
 class Budget:
     key: str
     tokens: int
+    spend: int | None = None
+    # one command's spend: every job and tier spawned for it shares this budget
+    used: int = field(default=0, compare=False)
+    costUsd: float = field(default=0.0, compare=False)
+
+    def spent(self, tokens: dict | None, cost: float | None) -> None:
+        """Every token the transport reported, cache reads and writes included, and the cost where it gave one."""
+        self.used += sum((tokens or {}).values())
+        self.costUsd += cost or 0.0
+
+    def check(self) -> None:
+        """A coded stop once this command's tokens pass the cap."""
+        if self.spend is not None and self.used > self.spend:
+            raise OverBudget(f"over_budget: {self.key.rsplit('.', 1)[0]}.spendCap is {self.spend}, the command has used "
+                             f"{self.used} tokens (${self.costUsd:.4f} where reported)")
 
 
 @dataclass(frozen=True)

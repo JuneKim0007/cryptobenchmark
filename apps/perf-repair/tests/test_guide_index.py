@@ -7,7 +7,7 @@ from test_guide_targets import base  # noqa: F401  the recorded run and two-app 
 from test_stages import run  # noqa: F401
 
 from perfrepair import failure
-from perfrepair.ai.suggest.site_replace.command import DRY_RUN
+from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide import app_steps as guide_steps
 from perfrepair.guide.index import main as index_main
@@ -39,7 +39,7 @@ def _android(base, parent, settings=None):  # noqa: F811
 
 def test_two_trees_of_one_folder_name_differ_and_a_stop_is_their_code(base):  # noqa: F811
     a, b = _android(base, "x"), _android(base, "y", "rootProject.name = 'Named'\n")
-    code = _go(base, [a, b], conversations=DRY_RUN)
+    code = _go(base, [a, b], conversations=dry_run())
     rows = _rows(base.run_dir)
     assert code == 1 and (rows[path_id(a)]["project"], rows[path_id(b)]["project"]) == ("x/android", "Named")
     ra = rows[path_id(a)]

@@ -32,12 +32,12 @@ def _interop(record: dict | None, compiled: dict) -> dict:
     return _step(result, (record.get("interop") or {}).get("reason"), check=check)
 
 
-def _decision(replacement: dict | None, source: str | None, stale: bool) -> dict:
+def _decision(replacement: dict | None, source: str | None) -> dict:
     if replacement is None:
-        return {"decision": "not_run", "reason": "no replacements.json row (not asked yet)", "source": None, "stale": False,
-                "needs": [], "concerns": []}
-    return {"decision": replacement["decision"], "reason": replacement["reason"], "source": source, "stale": stale,
-            "needs": list(replacement.get("needs") or ()), "concerns": list(replacement.get("concerns") or ())}
+        return {"decision": "not_run", "reason": "no replacements.json row (not asked yet)", "source": None,
+                "needs": []}
+    return {"decision": replacement["decision"], "reason": replacement["reason"], "source": source,
+            "needs": list(replacement.get("needs") or ())}
 
 
 def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
@@ -50,10 +50,9 @@ def _edit(edit: dict | None, decision: dict, has_edits: bool) -> dict:
 
 
 def scope_row(scope: dict, dossier: dict | None, replacement: dict | None, source: str | None, edit: dict | None,
-              has_edits: bool, check: DeviceCheck, inputs: dict | None, stale: bool = False) -> dict:
-    """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness.
-    `stale`: the decision was made on an earlier dossier."""
-    decision = _decision(replacement, source, stale)
+              has_edits: bool, check: DeviceCheck, inputs: dict | None) -> dict:
+    """`inputs`: the scope's harness.yaml inputs with their source; None when the scope is not in the harness."""
+    decision = _decision(replacement, source)
     edited = _edit(edit, decision, has_edits)
     record = check.plan.get(scope["id"])
     compiled = _compile(record, check, edited["status"] == "applied")

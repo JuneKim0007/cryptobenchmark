@@ -8,7 +8,8 @@ from helpers import label_charter
 from test_engine import LabelKind, label_of
 
 from perfrepair.ai.runtime.gateway.spawn import Spawned
-from perfrepair.dto.decision import AgentIdentity, OutboxRecord
+from perfrepair.ai.model.tier import Tier
+from perfrepair.dto.decision import OutboxRecord
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import OutboxError, active_fingerprint, active_outbox
@@ -57,8 +58,6 @@ def test_a_first_run_opens_the_fingerprint_outbox_and_marks_it_active(tmp_path):
     assert sorted(p.name for p in box.iterdir()) == ["000001.json", "000002.json", "000003.json", "charter.json"]
     assert (tmp_path / "outbox" / "active").read_text() == V1.fingerprint + "\n"
     assert active_outbox(tmp_path).fingerprint == V1.fingerprint and not changes(lines)
-    journal = [json.loads(line) for line in (tmp_path / "journal.jsonl").read_text().splitlines()]
-    assert {j["charter"] for j in journal} == {V1.fingerprint}
 
 
 def test_the_same_prompt_resumes_its_outbox(tmp_path):
@@ -76,8 +75,6 @@ def test_a_changed_prompt_starts_a_new_outbox_and_leaves_the_old_byte_for_byte(t
     assert changes(lines) == [f"charter changed: outbox {V1.fingerprint} → {V2.fingerprint} "
                               f"(3 records kept in {V1.fingerprint}, 0 resumed)"]
     assert saved(tmp_path) == {"a": "A", "b": "B", "c": "C"}
-    journal = [json.loads(line)["charter"] for line in (tmp_path / "journal.jsonl").read_text().splitlines()]
-    assert journal == [V1.fingerprint] * 3 + [V2.fingerprint] * 3
 
 
 def test_reverting_resumes_the_old_outbox_and_rebuilds_the_projections(tmp_path):
@@ -133,8 +130,8 @@ def test_run_inputs_join_the_fingerprint_and_none_keep_it():
     assert replace(V1, inputs="1 accepted").fingerprint != with_inputs.fingerprint
 
 
-OPUS = AgentIdentity("claude", "opus", "low")
-HAIKU = AgentIdentity("claude", "haiku", "low")
+OPUS = Tier("claude", "opus", "low")
+HAIKU = Tier("claude", "haiku", "low")
 
 
 def spawned(identity):
@@ -145,35 +142,33 @@ def records(root):
     return active_outbox(root).records()
 
 
-def test_each_record_carries_the_gateway_model_and_effort_that_answered_it(tmp_path):
+def test_each_record_carries_the_tier_asked_and_the_model_that_answered_it(tmp_path):
     decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
     first = records(tmp_path)[0]
-    assert first.agent == OPUS
+    assert Tier.from_json(first.tier) == OPUS and first.answered == "scripted"
     on_disk = json.loads(active_outbox(tmp_path).path(1).read_text())
-    assert on_disk["schemaVersion"] == 2 and (on_disk["gateway"], on_disk["model"], on_disk["effort"]) == ("claude", "opus", "low")
+    assert on_disk["schemaVersion"] == 3 and on_disk["tier"]["model"] == "opus" and on_disk["answered"] == "scripted"
 
 
-def test_a_resume_with_other_values_logs_one_line_naming_both_and_keeps_the_outbox(tmp_path, caplog):
+def test_another_tier_keeps_the_outbox_asks_no_decided_item_again_and_each_record_keeps_its_tier(tmp_path):
     decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
     before = active_fingerprint(tmp_path)
-    with caplog.at_level(logging.WARNING, logger="perfrepair"):
-        decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, limit=1, echo=lambda _: None)
+    decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, limit=1, echo=lambda _: None)
     assert active_fingerprint(tmp_path) == before
-    assert [r.agent for r in records(tmp_path)] == [OPUS, HAIKU]
-    assert [m.split(":")[0] for m in caplog.messages] == ["mixed_agents"]
+    assert [Tier.from_json(r.tier) for r in records(tmp_path)] == [OPUS, HAIKU]
+    assert len({r.item for r in records(tmp_path)}) == 2
 
 
 def test_a_resume_with_the_same_values_or_nothing_left_to_ask_is_silent(tmp_path, caplog):
     with caplog.at_level(logging.WARNING, logger="perfrepair"):
         decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, limit=1, echo=lambda _: None)
         decide(SavedKind(tmp_path), V1, spawned(OPUS), tmp_path, echo=lambda _: None)
-        decide(SavedKind(tmp_path), V1, spawned(HAIKU), tmp_path, echo=lambda _: None)
     assert caplog.messages == []
 
 
 def test_an_unknown_record_version_is_refused():
-    with pytest.raises(ValueError, match="schemaVersion 3 is not"):
-        OutboxRecord.from_json({"schemaVersion": 3, "outcome": "dropped", "seq": 1})
+    with pytest.raises(ValueError, match="schemaVersion 2 is not"):
+        OutboxRecord.from_json({"schemaVersion": 2, "outcome": "dropped", "seq": 1})
 
 
 def test_charter_json_holds_what_the_fingerprint_hashes_and_each_prompt_source(tmp_path):

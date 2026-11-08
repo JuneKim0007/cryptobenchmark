@@ -5,7 +5,7 @@
 - dto, files, device folder, benchmark in/out: manifest, results, run log, app sites → `agents/data.md`
 - grouping primitives into interchangeable groups: families, items, gates → `agents/grouping.md`
 - model decisions: decision kinds, prompts, agents, settings (`perfrepair.yaml`, `.env`), the engine loop, retry → `agents/decisions.md`
-- static tools: evidence, modes, triage → `agents/static-tools.md`
+- static tools: candidates, changes, estimates, modes → `agents/static-tools.md`
 - app source: detect call sites, libraries, scopes (function, sinks, key source) → `agents/app.md`
 - repair: app call sites, replacements, edits, harness, compile and interop check → `agents/repair.md`
 - validation: artifact validators, outbox projection, the stage gate, stage replay (`check/`) → `agents/validation.md`
@@ -43,6 +43,4 @@ targets.example.yaml : template for an apps.targets file: a root entry and a pat
 tests/ : pytest suites, one per module or stage; `helpers.py` shared builders; `conftest.py` isolates every test from local settings
 tests/fixtures/ : recorded benchmark results, a demo app tree, a fake pipeline.py; `lifecycle/` own-written Java and Kotlin sources, one site per binding kind and status; `units/` own-written sources, one class per kind of link; `scoping/` own-written Java and Kotlin sources, one site per pattern reason and link kind and the hard cases, with `expected.yaml` their true readings; `invariants/emu-api30/grouping/` an API 30 emulator run's groups.json, profiles.json, checks.json and screen.json trimmed to the generator groups and one digest group; `runtimes/<runtime>/` probe and trial of JDK 17, 21, 25 and Android API 36, trimmed to what grouping build and screening read
 tests/grouping/ : grouping stage suites; `conftest.py` and `grouping_data.py` shared data
-tools/role-checks.example.yaml : plan of tools/role_checks.py: facts to flip, known answers
-tools/role_checks.py : on demand, a real model, never in CI: each role's flips, removed input, rerun and known answers; a report with cost
 ```

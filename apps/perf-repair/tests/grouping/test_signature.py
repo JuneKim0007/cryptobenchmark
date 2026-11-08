@@ -240,7 +240,7 @@ def answer_new(task, *_):
 def run(paths, answers=answer_new):
     kind = GroupingKind(paths, FAMILIES)
     agent = ScriptedConversations(answers)
-    return decide(kind, charter(LIBRARY, kind.inputs), agent, paths.root, **QUIET), agent, kind
+    return decide(kind, charter(LIBRARY), agent, paths.root, **QUIET), agent, kind
 
 
 def members(knowledge, kind, gid_filter=code_made):

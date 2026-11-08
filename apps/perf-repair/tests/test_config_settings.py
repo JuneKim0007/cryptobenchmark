@@ -1,6 +1,8 @@
 import logging
+from pathlib import Path
 
 import pytest
+import yaml
 
 from perfrepair.config.settings import ConfigError, Settings, parse, unknown_keys
 
@@ -46,7 +48,7 @@ def test_a_section_holding_an_error_row_must_be_a_mapping(document, key):
     ({"aiGateway": {"claude": {"apiKey": "x"}}}, "aiGateway.claude.apiKey"),
     ({"aiGateway": {"someone": {"token": "x"}}}, "aiGateway.someone.token"),
     ({"ANTHROPIC_API_KEY": "x"}, "ANTHROPIC_API_KEY"),
-    ({"apps": {"agent": {"auth_token": "x"}}}, "apps.agent.auth_token"),
+    ({"apps": {"replace": {"auth_token": "x"}}}, "apps.replace.auth_token"),
     ({"aiGateway": {"claude": {"model": "sk-ant-abc"}}}, "aiGateway.claude.model"),
     ({"aiGateway": {"use": "sk-ant-abc"}}, "aiGateway.use"),
     ({"device": {"grouping": {"assign": {"model": "sk-ant-abc"}}}}, "device.grouping.assign.model"),
@@ -77,3 +79,9 @@ def test_a_moved_key_left_empty_sets_nothing_and_is_one_warning(caplog):
 def test_unknown_keys_lists_what_parse_warns_about():
     assert unknown_keys({"agnt": 1, "apps": {"names": []}, "device": {"grouping": {"assign": {"efort": "low"}}}}) == [
         "agnt", "apps.names", "device.grouping.assign.efort"]
+
+
+def test_the_example_file_parses_without_a_warning(caplog):
+    example = Path(__file__).parents[1] / "perfrepair.example.yaml"
+    parse(yaml.safe_load(example.read_text()), str(example))
+    assert warnings(caplog) == []

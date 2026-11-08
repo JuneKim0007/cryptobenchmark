@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from helpers import model_calls
 
 from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
@@ -42,7 +43,7 @@ class Flow:
         self.device = self.root / FOLDER
         self.paths = GroupingPaths(self.device)
         self.global_yaml.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n")
-        self.grouping = {"noRerun": True}
+        self.grouping = {}
         self.filter = False
         self.bundled = {}
         self.stops = {}
@@ -62,8 +63,7 @@ class Flow:
         return [line for line in self.capsys.readouterr().out.splitlines() if line.startswith(("device ", "guide "))]
 
     def calls(self):
-        journal = self.paths.journal
-        return len(journal.read_text().splitlines()) if journal.is_file() else 0
+        return model_calls(self.device, "grouping")
 
     def device_runs(self):
         log = self.root / "runs.log"
@@ -156,18 +156,7 @@ def test_a_provider_added_back_asks_nothing(flow):
     assert flow.calls() == asked and _group_by_name(flow.paths) == groups
 
 
-@pytest.mark.parametrize("value", ["maybe", 1, [True]])
-def test_a_malformed_no_rerun_warns_and_counts_as_true(flow, caplog, value):
-    flow.run()
-    flow.grouping = {"noRerun": value}
-    with caplog.at_level(logging.WARNING, "perfrepair"):
-        flow.run()
-    assert flow.ended("grouping")[0] == "reused" and flow.calls() == OLD_ITEMS
-    assert any(m.startswith("invalid: device.grouping.noRerun ") and "true or false; using the default True" in m
-               for m in caplog.messages)
-
-
-def test_knowledge_deleted_runs_anyway_with_no_rerun_true(flow):
+def test_knowledge_deleted_runs_anyway(flow):
     flow.run()
     shutil.rmtree(flow.paths.root / "outbox")
     flow.run()
@@ -181,28 +170,6 @@ def test_derived_files_deleted_are_rebuilt_with_no_call(flow):
     flow.run()
     assert flow.ended("grouping")[1]["asked"] == 0 and flow.calls() == OLD_ITEMS
     assert flow.problems() == {}
-
-
-def test_no_rerun_false_asks_every_item_into_a_new_outbox_and_keeps_the_old(flow):
-    flow.run()
-    old = active_fingerprint(flow.paths.root)
-    flow.grouping = {"noRerun": False}
-    flow.run()
-    new = active_fingerprint(flow.paths.root)
-    assert flow.calls() == 2 * OLD_ITEMS and new != old and (flow.paths.root / "outbox" / old / "000001.json").is_file()
-    assert flow.ended("grouping") == ("ran", {"items": OLD_ITEMS, "asked": OLD_ITEMS})
-    assert flow.problems() == {}
-
-
-def test_back_to_no_rerun_true_stays_on_the_refreshed_outbox(flow):
-    flow.run()
-    flow.grouping = {"noRerun": False}
-    flow.run()
-    new = active_fingerprint(flow.paths.root)
-    flow.grouping = {"noRerun": True}
-    flow.run()
-    assert flow.ended("grouping")[0] == "reused" and active_fingerprint(flow.paths.root) == new
-    assert flow.calls() == 2 * OLD_ITEMS
 
 
 def test_a_deleted_device_yaml_keeps_the_measured_run_redoes_the_rest_and_asks_nothing(flow):

@@ -1,24 +1,9 @@
-"""Gate C of the upgrade decision: a reply names one of the item's aliases and a reason; the state validator: each row
-against its item, and no row ever on an item screening does not accept."""
+"""upgrades.json's validator: each row against its item, and no row ever on an item screening does not accept."""
 from __future__ import annotations
 
 from ..dto.screen import ACCEPTED
 from ..dto.upgrade import NEEDS_MIGRATION, SOURCES, STATUSES, UPGRADED, Upgrade, UpgradeItem
-from .json_reply import parse_object
 
-
-def check_reply(text: str, item: UpgradeItem) -> tuple[dict | None, list[str]]:
-    """The accepted decision names the option's item: an alias only means something within one rendered message."""
-    d, problems = parse_object(text)
-    if d is None:
-        return None, problems
-    by_alias = {o.alias: o for o in item.dossier.options}
-    chosen, reason = d.get("option"), d.get("reason")
-    if chosen not in by_alias:
-        problems.append(f"option {chosen!r} is not one of {', '.join(by_alias)}")
-    if not isinstance(reason, str) or not reason.strip():
-        problems.append("reason is empty")
-    return (None, problems) if problems else ({"option": by_alias[chosen].item, "reason": reason.strip()}, [])
 
 
 def _row(u: Upgrade, item: UpgradeItem | None) -> list[str]:

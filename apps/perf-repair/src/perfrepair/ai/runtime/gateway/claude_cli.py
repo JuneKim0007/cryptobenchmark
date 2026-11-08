@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import tempfile
+import weakref
 from pathlib import Path
 from typing import Callable
 
@@ -13,6 +15,7 @@ from ..agent.conversation import LifetimeGuarded
 from ..agent.reply import AgentFailed, AgentRefused, AgentReply
 from .claude_api import DEFAULT_MODEL
 
+WEB_SEARCH = "WebSearch"
 Runner = Callable[[list[str], str, Path, dict[str, str], "int | None"], subprocess.CompletedProcess]
 
 
@@ -40,6 +43,12 @@ def _raise_unless_answered(returncode: int, out: dict) -> None:
         raise ClaudeCliError(f"claude -p: no model output: {str(out.get('result'))[:300]}")
 
 
+def _answered(out: dict) -> str | None:
+    """The model that wrote most of the reply, by the CLI's own usage per model."""
+    usage = out.get("modelUsage") or {}
+    return max(usage, key=lambda m: (usage[m] or {}).get("outputTokens", 0), default=None)
+
+
 class ClaudeCliSession(LifetimeGuarded):
 
     def __init__(self, owner: "ClaudeCliConversations", system: SystemPrompt, schema: dict):
@@ -57,10 +66,12 @@ class ClaudeCliSession(LifetimeGuarded):
 
     def _send(self, message: TaskPrompt | CorrectionPrompt) -> AgentReply:
         o = self.owner
+        # the job's own tools travel in the reply schema; the CLI's tools stay off but web search when the tier allows it
+        tools = ["--tools", WEB_SEARCH, "--allowedTools", WEB_SEARCH] if o.web_search else ["--tools", ""]
         command = [o.binary, "-p", "--output-format", "json", "--model", o.model, "--effort", o.effort,
                    "--system-prompt", self.system.text, "--json-schema", json.dumps(self.schema),
                    "--setting-sources", "", "--strict-mcp-config", "--mcp-config", str(o.no_mcp),
-                   "--disable-slash-commands", "--exclude-dynamic-system-prompt-sections", "--tools", ""]
+                   "--disable-slash-commands", "--exclude-dynamic-system-prompt-sections", *tools]
         if self.session_id:
             command += ["--resume", self.session_id]
         # The prompt goes on stdin: --tools takes a variable number of values and would swallow it.
@@ -76,7 +87,7 @@ class ClaudeCliSession(LifetimeGuarded):
         structured = out.get("structured_output")
         text = json.dumps(structured) if structured is not None else str(out.get("result") or "")
         u = out.get("usage") or {}
-        return AgentReply(text, o.model, self.session_id, {
+        return AgentReply(text, _answered(out) or o.model, self.session_id, {
             "input": u.get("input_tokens", 0), "output": u.get("output_tokens", 0),
             "cacheRead": u.get("cache_read_input_tokens", 0), "cacheWrite": u.get("cache_creation_input_tokens", 0),
             "costUsd": out.get("total_cost_usd", 0.0)})
@@ -85,9 +96,13 @@ class ClaudeCliSession(LifetimeGuarded):
 class ClaudeCliConversations:
 
     def __init__(self, model: str = DEFAULT_MODEL, effort: str = "medium", binary: str = "claude",
-                 runner: Runner = _run, workdir: Path | None = None, timeout: int | None = None):
+                 runner: Runner = _run, workdir: Path | None = None, timeout: int | None = None, web_search: bool = False):
         self.model, self.effort, self.binary, self.runner, self.timeout = model, effort, binary, runner, timeout
+        self.web_search = web_search
         self.workdir = Path(workdir) if workdir else Path(tempfile.mkdtemp(prefix="perfrepair-agent-"))
+        if not workdir:
+            # a folder this client made goes with it
+            weakref.finalize(self, shutil.rmtree, self.workdir, True)
         self.no_mcp = self.workdir / ".no-mcp.json"
         self.no_mcp.write_text(json.dumps({"mcpServers": {}}))
 

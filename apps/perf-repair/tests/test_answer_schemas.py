@@ -3,19 +3,17 @@ import re
 
 import pytest
 
-from perfrepair.ai.evaluate.worthiness.schema import SCHEMA as WORTHINESS
 from perfrepair.ai.parse.algorithm_classify.schema import SCHEMA as CLASSIFY
 from perfrepair.ai.parse.grouping_assign.schema import SCHEMA as ASSIGN
 from perfrepair.ai.runtime.gateway.claude_api import API_UNSUPPORTED, api_schema
-from perfrepair.ai.suggest.site_replace.schema import SCHEMA as REPLACE
-from perfrepair.dto.dossier import OPTION_PREFIX
+from perfrepair.ai.review.job import ReviewJob
+from perfrepair.ai.select.job import SelectJob
 from perfrepair.validation.answer_text import NOT_BLANK
-from perfrepair.validation.evaluate.worthiness import MEMBER_PREFIX
 from perfrepair.validation.parse.grouping_assign import MAX_DESCRIPTION, SLUG
 
 # What the role schemas may send the Messages API; a new keyword is checked against the API before it joins this.
 API_KEYWORDS = {"type", "properties", "required", "additionalProperties", "items", "enum"}
-SCHEMAS = {"assign": ASSIGN, "worthiness": WORTHINESS, "replace": REPLACE, "classify": CLASSIFY}
+SCHEMAS = {"assign": ASSIGN, "select": SelectJob.submit_schema, "review": ReviewJob.submit_schema, "classify": CLASSIFY}
 
 
 def nodes(node):
@@ -56,13 +54,6 @@ def test_assign_limits_come_from_the_gate():
         assert not matches(node, "code_0123456789") and not matches(node, "Bad Id")
     assert amend["group"]["pattern"] == SLUG.pattern and not matches(amend["group"], "")
 
-
-def test_alias_patterns_follow_the_minted_prefixes():
-    member = WORTHINESS["properties"]["pairs"]["items"]["properties"]["from"]
-    assert all(matches(member, f"{MEMBER_PREFIX}{n}") for n in (1, 9, 12))
-    assert not any(matches(member, a) for a in (f"{MEMBER_PREFIX}0", "", "1", f"{MEMBER_PREFIX}1 "))
-    option = REPLACE["properties"]["members"]["items"]["properties"]["option"]
-    assert matches(option, f"{OPTION_PREFIX}3") and not matches(option, "") and not matches(option, f"{OPTION_PREFIX}0")
 
 
 @pytest.mark.parametrize("name", SCHEMAS)

@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..ai.repair.upgrade.command import DRY_RUN as UPGRADE_DRY_RUN, counts, upgrade
-from ..ai.suggest.site_replace.command import replace, stale_problem
+from ..ai.select.command import select_units, select_upgrades, upgrade_counts
+from ..inputs.table import APPS_REVIEW
 from ..app.__main__ import main as app_main
 from ..app.facts.gate import open_apps
 from ..data_handler.outbound.benchmark_runner import run_pipeline
@@ -49,9 +49,14 @@ def dossiers(g: Guide) -> str:
     return f"{len(doc['dossiers'])} with options, {len(doc['noOptions'])} without"
 
 
+def _review(g: Guide) -> bool:
+    """apps.review from the run's settings; a guide built without settings asks no reviewer."""
+    return bool(g.settings and g.settings.read(APPS_REVIEW))
+
+
 def upgrades(g: Guide) -> str:
-    state = upgrade(g.device, g.app_id, g.upgrader or UPGRADE_DRY_RUN, g.library, g.limits, g.limit, echo=g.echo)
-    return counts(state)
+    return upgrade_counts(select_upgrades(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo,
+                                          review=_review(g)))
 
 
 def replacements(g: Guide) -> str:
@@ -61,18 +66,12 @@ def replacements(g: Guide) -> str:
         halt(g, "invariant_failed", f"{len(blocked)} blocking: " + " | ".join(v.line() for v in blocked[:3]))
     if undecided:
         halt(g, "invariant_undecided", f"{len(undecided)} undecided: " + " | ".join(v.line() for v in undecided[:3]))
-    state = replace(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo,
-                    refresh=g.refresh or g.record.delta_unasked(g.app_id))
-    stale = stale_problem(state)
-    if stale:
-        halt(g, "dossier_changed", stale.split(": ", 1)[1] + " (guide --refresh)")
+    state = select_units(g.device, g.app_id, g.conversations, g.library, g.limits, g.limit, echo=g.echo, review=_review(g))
     # a cap leaves units unasked: the app is not done, whatever its outcome
     asked = {d["scope"]["id"] for d in rd.read_dossiers(g.paths.dossiers)["dossiers"]}
     upgraded = rd.load_upgrades(g.paths.upgrades)
     wanted = {r["scope"]["id"] for r in rd.read_dossiers(g.paths.dossiers)["upgrades"]}
     g.unasked = len(asked - set(state.replacements)) + len(wanted - {u.scope for u in upgraded})
-    if not g.unasked:
-        g.record.delta_asked(g.app_id)
     chosen = sum(r.decision == "replace" for r in state.replacements.values()) + sum(u.status == UPGRADED for u in upgraded)
     if not chosen:
         halt(g, "no_replacement", f"every one of {len(state.replacements)} scopes is kept")

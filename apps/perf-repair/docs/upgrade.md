@@ -1,16 +1,16 @@
 # Repair upgrade
 
-Role `apps.upgrade`, kind `repair-upgrade`, prompt `repair/upgrade`, its own charter: a change here leaves `suggest/site-replace` and its saved decisions alone.
+Select's broken uses ([decisions.md](decisions.md) Select): row `apps.replace`, prompt `select`, outbox `<app>/upgrade/`.
 
-| field | repair-upgrade |
+| field | broken use |
 |---|---|
 | item | one unlisted `upgrades` row of `<app>/dossiers.json` |
 | message | the site, sinks and reach, the current and screening's reason, the options best first: change, own medians, any ratio; no function source |
-| answer | `option` alias, `reason`; no answer keeps the current; gate C: `validation/upgrade.py`, resolved to the item |
+| answer | `submit(option, reason)`: a candidate's alias; `none` is not allowed |
 | no model | a row the list identifies takes its first ranked target, source `list` |
 | dropped item | `needs_migration`, needs `model_dropped`, source `fallback`; never an automatic edit |
 | state | `<app>/upgrades.json`: `{schemaVersion, app, upgrades}`, each `{scope, current, status, option, source, reason, edits, needs, review}`; also what `no_secure_option` and `not_reached` broken uses became |
-| outbox | the charter's inputs hash the asked items, so a changed candidate list opens a new outbox and an answer never outlives what it saw |
+| outbox | each record carries its item's digest; a changed item is asked again |
 
 | status | holds when |
 |---|---|

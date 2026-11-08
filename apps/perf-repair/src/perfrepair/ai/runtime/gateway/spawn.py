@@ -3,15 +3,15 @@ from __future__ import annotations
 
 import argparse
 import os
-from dataclasses import fields
+from dataclasses import fields, replace
 from typing import Any, Callable
 
 from ....config.load import Loaded
 from ....config.settings import ConfigError
-from ....dto.decision import AgentIdentity
 from ....dto.prompt import SystemPrompt
 from ....inputs.resolve import Candidate, choose, unknown_key
 from ....inputs.table import AI_GATEWAY_AUTH, AI_GATEWAY_KEY, AI_GATEWAY_USE, RoleRow, Row
+from ...model.tier import Ladder, Tier
 from ..agent.conversation import Conversation, Conversations
 from ..engine.budget import Budget
 from . import registry
@@ -19,13 +19,30 @@ from .contract import Gateway
 
 
 class Spawned:
-    """A gateway's Conversations plus what the engine records per outbox record and the role's budget it checks."""
+    """A gateway's Conversations at one tier, the role's budget, and the same gateway at another tier of its ladder."""
 
-    def __init__(self, conversations: Conversations, identity: AgentIdentity, budget: Budget | None = None):
-        self.conversations, self.identity, self.budget = conversations, identity, budget
+    def __init__(self, conversations: Conversations, tier: Tier, budget: Budget | None = None,
+                 respawn: Callable[[Tier], Conversations] | None = None, ladder: Ladder = Ladder(),
+                 tiers: "dict[Tier, Spawned] | None" = None):
+        self.conversations, self.tier, self.budget, self.respawn, self.ladder = conversations, tier, budget, respawn, ladder
+        # one client per tier for the command, shared by every Spawned derived from this one
+        self.tiers = tiers if tiers is not None else {}
+        self.tiers.setdefault(tier, self)
 
     def start(self, system: SystemPrompt, schema: dict) -> Conversation:
         return self.conversations.start(system, schema)
+
+    def at(self, tier: Tier) -> "Spawned":
+        if tier == self.tier or self.respawn is None:
+            return self
+        if tier not in self.tiers:
+            Spawned(self.respawn(tier), tier, self.budget, self.respawn, self.ladder, self.tiers)
+        return self.tiers[tier]
+
+
+def spawned_of(conversations: Conversations) -> Spawned:
+    """Conversations without a gateway (a test's script) are their own tier, with nothing above it."""
+    return conversations if isinstance(conversations, Spawned) else Spawned(conversations, Tier("scripted"))
 
 
 def _key_check(gateway: Gateway) -> Callable[[str, Any], None]:
@@ -73,6 +90,12 @@ def spawn(args: argparse.Namespace, settings: Loaded, dry_run: Conversations) ->
     secret = gateway.secret(values)
     if secret and not os.environ.get(secret):
         raise ConfigError(f"missing_secret: {secret}: gateway {name} needs it in the environment or .env")
-    return Spawned(gateway.spawn(values, dry_run),
-                   AgentIdentity(name, getattr(values, "model", None), getattr(values, "effort", None)),
-                   Budget(role.budget_row.key, settings.read(role.budget_row)))
+    tier = Tier(name, getattr(values, "model", None), getattr(values, "effort", None), getattr(values, "webSearch", False))
+
+    def respawn(t: Tier) -> Conversations:
+        given = {k: v for k, v in (("model", t.model), ("effort", t.effort), ("webSearch", t.webSearch))
+                 if k in {f.name for f in fields(gateway.settings)}}
+        return gateway.spawn(replace(values, **given), dry_run)
+
+    return Spawned(gateway.spawn(values, dry_run), tier, Budget(role.budget_row.key, settings.read(role.budget_row),
+                                                                 settings.read(role.spend_row)), respawn, gateway.ladder)

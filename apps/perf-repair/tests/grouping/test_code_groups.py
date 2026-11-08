@@ -29,7 +29,7 @@ def screen(paths, broken=BROKEN):
 def assign(paths):
     kind = GroupingKind(paths, FAMILIES)
     agent = ScriptedConversations(by_name)
-    return decide(kind, charter(LIBRARY, kind.inputs), agent, paths.root, **QUIET), agent
+    return decide(kind, charter(LIBRARY), agent, paths.root, **QUIET), agent
 
 
 def code_groups_of(knowledge):
@@ -38,7 +38,7 @@ def code_groups_of(knowledge):
 
 def test_without_screen_json_every_item_is_asked(paths):
     kind = GroupingKind(paths, FAMILIES)
-    assert kind.pending() == kind.items() and kind.inputs == "" and kind.empty().groups == {}
+    assert kind.pending() == kind.items() and kind.empty().groups == {}
 
 
 def test_broken_items_are_grouped_by_code_per_canonical_key_and_never_asked(paths):

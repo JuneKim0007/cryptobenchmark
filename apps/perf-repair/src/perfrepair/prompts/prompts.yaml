@@ -2,7 +2,6 @@ schemaVersion: 1
 prompts:
   parse/grouping-assign: {file: parse/grouping-assign.system.md, lifetime: run, values: [id_pattern, max_description]}
   parse/algorithm-classify: {file: parse/algorithm-classify.system.md, lifetime: run, values: []}
-  evaluate/worthiness: {file: evaluate/worthiness.system.md, lifetime: run, values: []}
-  suggest/site-replace: {file: suggest/site-replace.system.md, lifetime: run, values: []}
-  repair/upgrade: {file: repair/upgrade.system.md, lifetime: run, values: []}
+  select: {file: select.system.md, lifetime: run, values: []}
+  review: {file: review.system.md, lifetime: run, values: []}
   shared/rejection: {file: shared/rejection.turn.md, lifetime: turn, values: [problems]}

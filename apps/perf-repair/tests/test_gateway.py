@@ -8,6 +8,9 @@ import pytest
 from helpers import with_results, SYSTEM, task
 
 from perfrepair.ai.__main__ import main as ai
+from perfrepair.ai.attempt.escalate import next_tier
+from perfrepair.ai.parse.algorithm_classify import command as classify
+from perfrepair.ai.parse.grouping_assign import command as assign
 from perfrepair.ai.runtime.agent import AgentFailed, ScriptedConversations
 from perfrepair.ai.runtime.gateway import registry
 from perfrepair.ai.runtime.gateway.args import add_agent_args
@@ -15,10 +18,11 @@ from perfrepair.ai.runtime.gateway.claude_api import ClaudeConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliConversations
 from perfrepair.ai.runtime.gateway.contract import Gateway
 from perfrepair.ai.runtime.gateway.spawn import spawn
+from perfrepair.ai.select import command as select_command
 from perfrepair.config import dotenv
 from perfrepair.config.args import load_settings
 from perfrepair.inputs.check import Invalid, check_one_of
-from perfrepair.inputs.table import APPS_AGENT, GROUPING_ASSIGN
+from perfrepair.inputs.table import APPS_REPLACE, GROUPING_ASSIGN, SCREENING_CLASSIFY
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.__main__ import main as grouping
 from perfrepair.guide.command import main as guide
@@ -52,8 +56,8 @@ def test_the_flags_reach_the_gateway_and_the_help_names_the_role_default(tmp_pat
 def test_a_role_can_take_its_own_gateway_and_dry_run_answers_are_the_roles(tmp_path):
     text = "aiGateway: {use: claude}\ndevice: {grouping: {assign: {gateway: dry-run}}}\n"
     assert spawned(tmp_path, text).conversations is DRY
-    assert isinstance(spawned(tmp_path, text, role=APPS_AGENT).conversations, ClaudeCliConversations)
-    assert spawned(tmp_path, text).identity.gateway == "dry-run" and spawned(tmp_path, text).identity.model is None
+    assert isinstance(spawned(tmp_path, text, role=APPS_REPLACE).conversations, ClaudeCliConversations)
+    assert spawned(tmp_path, text).tier.gateway == "dry-run" and spawned(tmp_path, text).tier.model is None
 
 
 def test_dotenv_fills_the_gateway_below_the_file(tmp_path, monkeypatch):
@@ -116,7 +120,7 @@ def test_a_bad_gateway_key_from_the_file_or_env_warns_once_and_spawns(tmp_path, 
         monkeypatch.setenv(key, value)
     convos = spawned(tmp_path, text)
     [warned] = [r.getMessage() for r in caplog.records if r.levelname == "WARNING"]
-    assert warned.startswith(prefix) and convos.identity.effort == effort
+    assert warned.startswith(prefix) and convos.tier.effort == effort
 
 
 def test_a_bad_flag_for_a_gateway_key_is_an_error_not_a_fallback(tmp_path):
@@ -155,16 +159,16 @@ def test_a_new_provider_is_one_registry_row_and_a_yaml_block(tmp_path, monkeypat
     convos = spawned(tmp_path, text)
     assert convos.conversations.values == FakeSettings("blue", "huge")
     assert json.loads(convos.start(SYSTEM, {}).ask(task("x")).text) == {"colour": "blue"}
-    assert (convos.identity.gateway, convos.identity.model, convos.identity.effort) == ("fake", None, "huge")
-    assert spawned(tmp_path, "aiGateway: {use: fake, fake: {colour: green}}\n", role=APPS_AGENT).conversations.values.colour == "red"
-    assert spawned(tmp_path, "aiGateway: {use: claude, fake: {effort: bad}}\n").identity.gateway == "claude"
+    assert (convos.tier.gateway, convos.tier.model, convos.tier.effort) == ("fake", None, "huge")
+    assert spawned(tmp_path, "aiGateway: {use: fake, fake: {colour: green}}\n", role=APPS_REPLACE).conversations.values.colour == "red"
+    assert spawned(tmp_path, "aiGateway: {use: claude, fake: {effort: bad}}\n").tier.gateway == "claude"
     monkeypatch.delenv("FAKE_SECRET")
     assert error(tmp_path, text).startswith("missing_secret: FAKE_SECRET: gateway fake")
 
 
 def _help():
     ap = argparse.ArgumentParser()
-    add_agent_args(ap, role=APPS_AGENT)
+    add_agent_args(ap, role=APPS_REPLACE)
     return ap.format_help()
 
 
@@ -178,7 +182,6 @@ def run(tmp_path):
 
 @pytest.mark.parametrize("command, argv", [
     (grouping, ["assign", "--device-results", "{run}"]),
-    (ai, ["worthiness", "--device-results", "{run}", "--perf-mode", "latency"]),
     (ai, ["replace", "--device-results", "{run}", "--app", "x"]),
     (guide, ["--app", "{run}", "--device-results", "{run}"]),
 ])
@@ -205,3 +208,21 @@ def test_build_with_ai_review_refuses_before_any_work(tmp_path, capsys):
 
 def test_the_cli_gets_timeouts_claude_or_its_generous_default(tmp_path):
     assert spawned(tmp_path, "aiGateway: {use: claude}\ntimeouts: {claude: 7}\n").conversations.timeout == 7
+
+
+def test_each_command_gets_its_own_dry_run_stand_in_and_no_module_keeps_one():
+    for module in (classify, assign, select_command):
+        assert module.dry_run() is not module.dry_run()
+        assert not any(isinstance(v, ScriptedConversations) for v in vars(module).values())
+
+
+@pytest.mark.parametrize("role", [SCREENING_CLASSIFY, GROUPING_ASSIGN, APPS_REPLACE])
+def test_web_search_is_off_by_default_for_every_role_and_every_tier_it_escalates_to(tmp_path, role):
+    # from the weakest model, so the tier it escalates to is checked too
+    s = spawned(tmp_path, "aiGateway: {use: claude}\n", ["--model", "claude-haiku-5-5"], role=role)
+    tier, seen = s.tier, []
+    while tier is not None:
+        seen.append((tier.webSearch, s.at(tier).conversations.web_search))
+        tier = next_tier(tier, s.ladder)
+    assert len(seen) > 1 and set(seen) == {(False, False)}
+    assert "webSearch: true" not in EXAMPLE.read_text()

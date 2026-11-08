@@ -1,18 +1,18 @@
-"""The sheet's verdicts and the journals' turns → grouping precision, pick accuracy, stability, gate rejections per 100 calls."""
+"""The sheet's verdicts and the attempt logs' turns → grouping precision, pick accuracy, gate rejections per 100 calls."""
 from __future__ import annotations
 
-import json
 from collections import defaultdict
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..ai.runtime.engine import journal
+from ..ai.log.attempt_log import read_log
 from ..files import write_json
-from .sheet import GROUPING, choice, read_sheet, stages
+from .sheet import GROUPING, read_sheet
 from ..stop.halt import Coded
 
 OK, WRONG = "ok", "wrong"
-ACCEPTED = "accepted"
+# turns that answered nothing the gate took: a rejection or a refusal
+REJECTED = ("rejected", "refused")
 
 
 def _share(right: int, judged: int) -> dict:
@@ -31,21 +31,6 @@ def _judged(rows: list[dict]) -> dict:
     return _share(sum(r["verdict"] == OK for r in rows), len(rows))
 
 
-def _asked_choice(turn: dict) -> str:
-    text = (turn.get("reply") or {}).get("text") or ""
-    try:
-        parsed = json.loads(text)
-    except ValueError:
-        return text
-    return choice(parsed) if isinstance(parsed, dict) else text
-
-
-def _stability(asks: dict[tuple, list[str]]) -> dict:
-    """Items asked twice or more on one message: stable when every accepted answer picks the same."""
-    repeated = [picks for picks in asks.values() if len(picks) > 1]
-    return {**_share(sum(len(set(p)) == 1 for p in repeated), len(repeated)), "asks": sum(map(len, repeated))}
-
-
 def _rejections(calls: dict[str, int], rejected: dict[str, int]) -> dict:
     per = {k: {"calls": calls[k], "rejected": rejected[k], "per100": 100 * rejected[k] / calls[k]} for k in sorted(calls)}
     total, bad = sum(calls.values()), sum(rejected.values())
@@ -55,17 +40,15 @@ def _rejections(calls: dict[str, int], rejected: dict[str, int]) -> dict:
 def score(device: Path) -> dict:
     device = Path(device)
     judged = _verdicts(read_sheet(rd.review_sheet(device)))
-    calls, rejected, asks = defaultdict(int), defaultdict(int), defaultdict(list)
-    for stage in stages(device):
-        for turn in journal.read(stage.root / rd.JOURNAL):
-            calls[stage.kind] += 1
-            if turn["status"] != ACCEPTED:
-                rejected[stage.kind] += 1
-                continue
-            asks[(stage.kind, stage.app, turn["item"], turn.get("messageSha"))].append(_asked_choice(turn))
+    calls, rejected = defaultdict(int), defaultdict(int)
+    for path in sorted((device / rd.AI_LOGS).glob("*.yaml")):
+        doc = read_log(path)
+        for turn in (t for a in doc["attempts"] for t in a.get("turns") or ()):
+            calls[doc["job"]] += 1
+            rejected[doc["job"]] += turn["status"] in REJECTED
     doc = {"decisions": len(read_sheet(rd.review_sheet(device))),
            "groupingPrecision": _judged([r for r in judged if r["kind"] == GROUPING]),
            "pickAccuracy": _judged([r for r in judged if r["kind"] != GROUPING]),
-           "stability": _stability(asks), "gateRejections": _rejections(calls, rejected)}
+           "gateRejections": _rejections(calls, rejected)}
     write_json(rd.review_score(device), doc)
     return doc

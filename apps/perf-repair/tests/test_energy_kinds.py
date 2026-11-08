@@ -3,11 +3,11 @@ import json
 from dataclasses import replace
 
 from helpers import ANY_EVIDENCE, summary
-from site_replace_data import item
+from select_data import item
 from test_dossier import ROWS, build, scope
 
 from perfrepair.data_handler.inbound.results import read_results
-from perfrepair.ai.suggest.site_replace.render import render
+from perfrepair.ai.select.render import render
 from perfrepair.dto.measurement import Measurements
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.dto.dossier import Dossier

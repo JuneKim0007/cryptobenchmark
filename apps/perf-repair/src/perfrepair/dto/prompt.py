@@ -40,6 +40,12 @@ class CorrectionPrompt(Prompt):
     lifetime = Lifetime.TURN
 
 
+@dataclass(frozen=True)
+class ToolResultPrompt(Prompt):
+    """What a read tool gave back: the next turn of a conversation that called it."""
+    lifetime = Lifetime.TURN
+
+
 def fill(text: str, values: dict) -> str:
     for key, value in values.items():
         text = text.replace("{" + key + "}", str(value))
@@ -48,8 +54,8 @@ def fill(text: str, values: dict) -> str:
 
 @dataclass(frozen=True)
 class Charter:
-    """What every conversation of a run shares; the fingerprint hashes the system prompt, schema, correction template
-    and the run inputs the decisions depend on (never sent to the model)."""
+    """What every conversation of a run shares; the fingerprint hashes the system prompt, schema, correction template,
+    the run inputs the decisions depend on (never sent to the model) and the tools offered, never the model or tier."""
     system: SystemPrompt
     schema: dict
     correction: CorrectionPrompt  # unfilled: correct() fills {problems}

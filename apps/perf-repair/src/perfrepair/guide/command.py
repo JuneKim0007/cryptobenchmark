@@ -12,8 +12,7 @@ from pathlib import Path
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
 from ..ai.runtime.prompt.args import add_prompt_args, load_prompts
-from ..ai.repair.upgrade import command as upgrade_cmd
-from ..ai.suggest.site_replace import command as replace_cmd
+from ..ai.select import command as select_cmd
 from ..app.facts.target_set import TargetSet, resolve_targets
 from ..config.args import fill, load_settings, perf_mode, positive_int, run_id
 from ..config.device_results import add_device_results_arg, device_root
@@ -25,7 +24,6 @@ from ..dto.perf_mode import PerfMode
 from ..failure import last_failure, reported
 from ..files import read_json
 from ..inputs.table import (
-    APPS_AGENT,
     APPS_LIMIT,
     APPS_MAX_CHANGE,
     APPS_DEVICE,
@@ -75,10 +73,9 @@ def parser() -> argparse.ArgumentParser:
                          "never applied; default: apps.maxChange, else drop-in")
     ap.add_argument("--limit", type=positive_int, help="ask the model about at most this many scopes; default: apps.limit")
     ap.add_argument("--refresh", action="store_true",
-                    help="ask again the scopes whose dossier changed since their replace decision, and rebuild the "
-                         "device's primitives.tsv; default: the app stops with dossier_changed and its report flags "
-                         "them stale")
-    add_agent_args(ap, role=APPS_AGENT)
+                    help="rebuild the device's primitives.tsv and run every app again, done or not; Select asks a "
+                         "unit whose dossier changed again either way")
+    add_agent_args(ap, role=select_cmd.ROLE)
     add_prompt_args(ap)
     return ap
 
@@ -140,15 +137,14 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace, settings: Loaded, m
     found = _targets(ap, a, settings)
     roots = [a.app.expanduser().resolve()] if found is None else [t.path for t in found.apps]
     root = device_root(ap, a, settings)
-    base = Guide(a.device_results, None, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, replace_cmd.DRY_RUN),
+    base = Guide(a.device_results, None, mode_of(PerfMode.parse(a.perf_mode)), spawn(a, settings, select_cmd.dry_run()),
                  load_prompts(ap, a, settings), limit=a.limit, config=a.config, settings=settings, root=root,
                  on_device=bool(a.device), grouping_args=_grouping_args(a), config_args=_config_args(a), refresh=a.refresh, targets=tuple(roots),
                  filter_by_apps=settings.read(FILTER_BY_APPS), app_config=a.harness_config,
                  bundled=BundledPolicy.read(settings.read(BUNDLED_FROM_APPS)),
                  max_change=a.max_change, app_modes=_app_modes(a, found), target_set=found,
                  run_id=a.run_id, on_existing=a.on_existing, missing=missing, stop_after_device=a.stop_after_device,
-                 run_settings=read_json(a.run_settings) if a.run_settings else None,
-                 upgrader=spawn(argparse.Namespace(**{**vars(a), "agent_role": upgrade_cmd.ROLE}), settings, upgrade_cmd.DRY_RUN))
+                 run_settings=read_json(a.run_settings) if a.run_settings else None)
     held.append(base)
     return run_targets(base, roots, a.device, reuse=a.app is None)
 

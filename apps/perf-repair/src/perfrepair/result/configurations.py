@@ -74,9 +74,9 @@ def _sides(configs: list[Config], current: dict[Config, PrimitiveRow], option: d
 
 def _compared(mine: PrimitiveRow, theirs: PrimitiveRow, before: Summary, after: Summary, metric: str) -> Comparison:
     if mine.session != theirs.session and (mine.drift or theirs.drift):
-        return Comparison(None, None, 0, f"{SETUP_DRIFT}: {mine.session or 'benchmark'} and {theirs.session or 'benchmark'}", False)
+        return Comparison(None, None, 0, f"{SETUP_DRIFT}: {mine.session or 'benchmark'} and {theirs.session or 'benchmark'}")
     if min(before.n, after.n) < MIN_RUNS:
-        return Comparison(None, None, 0, f"{TOO_FEW_RUNS}: {before.n} and {after.n} runs, an estimate needs {MIN_RUNS}", False)
+        return Comparison(None, None, 0, f"{TOO_FEW_RUNS}: {before.n} and {after.n} runs, an estimate needs {MIN_RUNS}")
     return compare(before, after, BY_NAME[metric].lowerIsBetter)
 
 

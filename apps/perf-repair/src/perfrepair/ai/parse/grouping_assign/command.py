@@ -8,9 +8,7 @@ from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
-from ...runtime.engine.events import Where
-from ...runtime.engine.refresh import refresh_inputs
-from ...runtime.engine.tracking import role_run
+from ...log.where import Where
 from ...runtime.prompt import PromptLibrary
 from .kind import GroupingKind, charter
 
@@ -20,16 +18,15 @@ def _dry_run(task: TaskPrompt, *_):
             "amend": [], "reason": "dry run"}
 
 
-DRY_RUN = ScriptedConversations(_dry_run)
+def dry_run() -> ScriptedConversations:
+    """The dry-run gateway's stand-in, one per command, so what it records lasts only as long as the command."""
+    return ScriptedConversations(_dry_run)
 
 
 def assign(paths: GroupingPaths, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
-           limit: int | None = None, echo=print, refresh: bool = False) -> Knowledge:
-    """refresh: every item asked again into a new outbox; the old one stays."""
-    with role_run("grouping.assign", paths.root.parent):
-        kind = GroupingKind(paths)
-        knowledge = decide(kind, charter(library, refresh_inputs() if refresh else kind.inputs), conversations, paths.root,
-                           limits, limit, where=Where("grouping", "assign"))
+           limit: int | None = None, echo=print) -> Knowledge:
+    kind = GroupingKind(paths)
+    knowledge = decide(kind, charter(library), conversations, paths.root, limits, limit, where=Where("grouping", "assign"), device=paths.root.parent)
     coded = sum(code_made(g) for g in knowledge.groups)
     echo(f"{len(knowledge.groups)} groups ({coded} made by code), {len(knowledge.dropped)} dropped, "
          f"knowledge version {knowledge.version}")

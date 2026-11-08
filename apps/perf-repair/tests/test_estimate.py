@@ -39,9 +39,9 @@ def test_fewer_than_two_runs_give_no_probability():
 
 def test_compare_is_the_one_rule_for_zero_medians_kinds_and_orientation():
     zero = compare(summary(0), summary(5))
-    assert zero.ratio is None and zero.reason.startswith("zero_median: ") and zero.pImprove is not None and zero.comparable
+    assert zero.ratio is None and zero.reason.startswith("zero_median: ") and zero.pImprove is not None
     kinds = compare(replace(summary(100), kind="measured"), replace(summary(50), kind="estimated"))
-    assert (kinds.ratio, kinds.pImprove, kinds.n, kinds.comparable) == (None, None, 0, False)
+    assert (kinds.ratio, kinds.pImprove, kinds.n) == (None, None, 0)
     assert kinds.reason == "energy_kinds_differ: measured before, estimated after"
     higher = compare(summary(100), summary(200), lower_is_better=False)
     assert higher.ratio == 0.5 and higher.pImprove > 0.99

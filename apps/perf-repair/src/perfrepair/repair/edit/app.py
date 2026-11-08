@@ -2,15 +2,18 @@
 no edit): `original/` and `patched/` of each changed file, and edits.json."""
 from __future__ import annotations
 
+import logging
 import shutil
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ...dto.event import FINDING
 from ...dto.replacement import Replacement
 from ...dto.site import EDITS_SCHEMA_VERSION, Scope
 from ...dto.unit import Unit, units_by_scope
 from ...files import write_text_making_parents
+from ...log import emit
 from ...run_dir import AppPaths
 from ...source.code import Code
 from .alone import write_alone
@@ -110,6 +113,11 @@ def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Pa
         grouped[of_unit[r.scope].id].append(r)
     run = _Run(scopes, root, table)
     rows = [row for uid in sorted(grouped, key=lambda uid: grouped[uid][0].scope) for row in run.unit(uid, grouped[uid])]
+    # a rejected edit is a finding: the status line and the run's events say it, not only edits.json
+    for row in (r for r in rows if r["status"] == "rejected"):
+        blocked = f" ({row['blockedBy']})" if row.get("blockedBy") else ""
+        emit("repair", "edit", FINDING, item=row["scope"], app=out.app, outcome=row["reason"],
+             detail=f"edit rejected: {row['reason']}{blocked}", level=logging.WARNING)
     for directory in (out.original, out.patched):
         shutil.rmtree(directory, ignore_errors=True)
     for file, splices in sorted(run.accepted.items()):

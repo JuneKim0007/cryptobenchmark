@@ -11,40 +11,39 @@
 - A rejected answer gets a correction turn (`prompts/shared/rejection.turn.md`) in the same session, listing its problems.
 - A refusal ends the session; the next session re-sends the task with no history of the failed one.
 - Budget: `ask` measures the system prompt plus the task message by chars/4 against the role's `budget` ([settings.md](settings.md)) before any call, for every role. Over it, `grouping assign` hides each group a known fact of the item contradicts, a join gate C refuses; a `not known` or assumed component hides nothing. Still over, or any other role over: `over_budget`, naming the role's key and the size, with nothing asked or recorded for the item; no message is ever cut. The schema is left out: it is fixed per role.
-- Each turn's size is `promptTokens` in its journal line and event; a decision's event has its first turn's, and `narrowedFrom` when the prefilter ran.
-- `--prompts DIR` on `grouping build` (with `device.screening.aiReview`; off, build refuses it and `--agent`, `--auth`, `--model`, `--effort` since it calls no model), `grouping assign`, `ai worthiness`, `ai replace`, `ai upgrade`, `review stability` and the guide: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
+- Each turn's size is `promptTokens` in its attempt's entry of `log/ai/<job>.yaml`, with `narrowedFrom` when the prefilter ran.
+- `--prompts DIR` on `grouping build` (with `device.screening.aiReview`; off, build refuses it and `--agent`, `--auth`, `--model`, `--effort` since it calls no model), `grouping assign`, `ai replace` and the guide: a file at `DIR/<role>/<name>` overrides that prompt; an unknown file or missing DIR exits 2 (`prompt_unknown`, `missing_directory`).
 - After the last conversation the item is committed as a `dropped` record with every problem.
 - A provider failure (`AgentFailed`: `claude_cli_failed`, `claude_api_failed`) is no answer: it stops the command with nothing recorded for the item, so a subscription limit never drops one and the next run asks it again. A CLI reply with no output tokens, a non-zero exit with JSON on stdout included, is such a failure.
-- Commands with a model: `grouping build` with `device.screening.aiReview`, `grouping assign`, `ai worthiness`, `ai replace`, `ai upgrade`, `review stability`, and the guide through its grouping, upgrade and replace steps.
+- Commands with a model: `grouping build` with `device.screening.aiReview`, `grouping assign`, `ai replace`, and the guide through its grouping, upgrade and replace steps.
 - Gateway, auth, model and effort per command: `docs/settings.md`; `--agent`, `--auth`, `--model`, `--effort` override.
 - `grouping assign` defaults to effort `low`, below every gateway-wide layer; the other roles to `medium`.
 - `claude` gateway with `auth: api`: JSON schema output, server-side refusal fallback; the schema is sent without `maxLength`, `minLength` and `pattern`, which the Messages API refuses (400) or may find too complex; the gate still checks them. `auth: subscription` sends the whole schema.
 - Answer limits (lengths, id and alias patterns, enums) are each gate's constants, read by its `schema.py` and prompt values; they are part of the answer contract and the charter fingerprint, not settings.
 - A guide rerun of an app that stopped asks nothing already decided: its replace outbox resumes; a done app runs no step ([replacement.md](replacement.md)).
 - A prompt or schema edit changes its role's charter fingerprint: the next run asks every pending item once more into a new outbox.
-- A record holds `gateway`, `model`, `effort` (`schemaVersion` 2; another version is refused). A resume with items left to ask, whose values differ from an earlier record's, logs one line: `mixed_agents: outbox <fingerprint> holds answers from <gateway>/<model>/<effort>, now asking <gateway>/<model>/<effort>`; the answers stay in one outbox.
+- A record holds the `tier` asked (gateway, model, effort, webSearch) and `answered`, the model the provider named (`schemaVersion` 3; another version is refused). The tier is not in the charter fingerprint: another model or effort keeps the outbox and asks only the items still pending, and escalation's records of several tiers sit in one outbox.
 - A kind's `items()` is every item a record may name (projection, replay, errors); `pending()` is the subset the engine asks, `items()` for every kind but grouping, which leaves out screened-out and catalog-listed items (`probe/identified.py`), and with `used.json` the items outside it. Grouping alone has `gone(key)`: a record's item that left since replays through its stand-in; for the other kinds an unknown item is an error.
-- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, or the `refresh <token>` of `assign --refresh`, classify's the whole batched evidence, site-replace's are empty or the `refresh <token>` of `ai replace --refresh`, the other kinds have none and keep their fingerprints.
+- The charter fingerprint hashes the system prompt, schema, correction template and the kind's run inputs; grouping's are empty, classify's the whole batched evidence, Select's none (its items carry their evidence), the other kinds have none and keep their fingerprints.
 - Grouping is the other decision kind: `docs/grouping.md`.
 
-## Worthiness
+## AI base
 
-| field | worthiness |
-|---|---|
-| item | one group of `grouping/groups.json` with an improving pair, not settled by triage |
-| message | mode, run warnings, members `M1..Mn`, per configuration (one per benchmark variant, named on its line; never paired across) with pairs and per selected and measured metric (`dto/metrics.py`, [modes.md](modes.md) perfMode; energy with its kind; time in the manifest's display units, with a throughput median column when `throughput` is selected and the configuration has an input size): medians with their 95% bootstrap interval, IQR, cv, n, pair ratios, pImprove with its level (`docs/modes.md`) |
-| timings shown | yes |
-| answer | `decision` test\|skip, `pairs` [{from, to, reason}], `reason` naming the deciding metrics; code adds each pair's best `pImprove` and `level` |
-| ids minted by | code: aliases resolve to qualified item names `Type\|name\|provider` |
-| dropped item | `skip` with source `fallback` |
-| state | `worthiness-<mode>/verdicts.json` (Verdicts): static triage plus the projection of the outbox |
+| piece | file | does |
+|---|---|---|
+| `Tier`, `Ladder` | `ai/model/tier.py` | one model choice; a gateway's models (`claude-haiku-5-5`, `claude-sonnet-5-5`, `claude-opus-5-5`), the order escalation climbs; efforts are never climbed |
+| `Tool`, `Registry` | `ai/tools/tool.py`, `ai/tools/registry.py` | a job's tools: the model is sent their definitions and may call only them; every call is kept in the attempt's entry |
+| read tools | `ai/tools/catalogue_read.py` | `view_for`, `what_is`, `list_groups`, `get_group` |
+| schema walk | `validation/schema_walk.py` | the answer's schema is its one source of shape |
+| `Repass`, `next_tier` | `ai/attempt/repass.py`, `ai/attempt/escalate.py` | at most 2 repasses with a structured reason, then one step to the next model at the same effort (`MAX_ESCALATIONS` 1) with its own 2 repasses, then `dropped`, a person's: at most 6 attempts per item, and the same cap on a reviewer's own attempts |
+| `AttemptLog` | `ai/log/attempt_log.py` | `log/ai/<job>.yaml` |
+| `Job` | `ai/job.py` | candidates → render → turns → submit checks → review → repass → escalate → commit → log |
 
-## Worthiness gate
-
-- `test` names at least one pair; `skip` names none; `reason` is not empty.
-- A pair names two different members by alias.
-- A pair improves under the mode in at least one configuration; a pair whose data is missing is refused as lacking measurements.
-- Confidence never refuses a pair: a `warn` or `weak` pair is kept with its level and number.
+- One turn's answer is one tool call, `{"tool": <name>, "args": {...}}`, under the job's reply schema; transports need no native tool support. A read tool's text comes back as the next turn; a submit runs the job's checks and its problems come back as a correction.
+- `Limits.calls` (8) read calls per session before the model must submit; `--turns` counts corrections, `--sessions` fresh conversations.
+- `webSearch` on a tier lets the CLI use its WebSearch tool and the API its server web search; nothing else of the CLI's tools is on.
+- `<role>.spendCap`: the real tokens one command may use: one count on the role's budget, shared by every job, reviewer and tier the command spawns, of every token the transport reports (input, output, cacheRead, cacheWrite), with the cost where reported; past it, after the attempt is logged, `over_budget`. A failure past the cap raises the failure, not the cap.
+- `log/ai/<job>.yaml` (schema 1): `job`, `attempts`, the last key, a block sequence each attempt appends one item to, no earlier line rewritten (a log written whole by an earlier version is put in that form once, when it is opened); per entry `n`, `run`, `app`, `item`, `label`, `attempt`, `tier`, `answered`, `outcome` (`decided`, `refused`, `failed`, `interrupted`, `dropped`), `durationMs`, `tokens`, `costUsd`, `turns` (session, turn, status, problems, text, promptTokens), `calls`, `submitted`, `reason`, `review`, `error`. A provider failure (`failed`) or an interrupt (`interrupted`) is logged with its `error` and the turns made before it, then stops the command.
 
 ## Algorithm classify
 
@@ -58,89 +57,44 @@
 | dropped item | every id `unsure` with reason `dropped: ...`: the items stay `unknown` |
 | state | `grouping/classify/classified.json`, merged into `screen.json` by `with_answer`; `registry-candidates.yaml` |
 
-## Site replace
+## Select
 
-| field | site-replace |
-|---|---|
-| item | one unit of `<app>/dossiers.json` `units`: its `Link`s, the `Dossier` of each member with options (at least one), the members that stay (`stays`: current and reason) and the inverse pairs' interop (`pairs`); a unit of one is the common case |
-| message | the run warnings (`measurements.json` comparability, as worthiness sees them; in the evidence digest when there are any), the unit's members `S1..Sn` and links with their lines, under each inverse link the interop of the items a replace would leave its sides on, per choice, the commonest status once as `every other choice`; the members that stay, with current and reason; then per member with options (a function already shown is `as S1`): site, sinks and key source, the risks code derives from them, one `pattern:` line (the category, its reason and rule, and the `perCall` of the variant shown), the lifecycle (status and reasons, binding, operations, each step's line, `one method away` outside the function) and its requirements (name, origin, line, the taking step's line, origins one method away), current item and name, options `R1..Rn` with pins, interop status (and the risk it adds when not `pass`) and estimates of the selected metrics only (ratio, pImprove, n, per `<metric>@<input size>`, at the nearest input size or, when the site's is unknown, every measured one and said so, the operation, key and phase only where they differ; only the lifecycle's operations when it knows them), then MEASURED: the `primitives.tsv` lines of the current item and each option at the scope's key size and operations, the selected metrics' columns with a value, time as latency and, when selected, throughput in the manifest's display units, n and cv per metric (estimates only when the device folder has no `primitives.tsv`, logged), edit kinds, function source between digest markers |
-| answer | `decision` replace\|keep\|recommend for every member with options, `members` [{member, option, edits [{kind, provider, algorithm, parameters [{name, value}]}], risks, needs}] (one per member with options for replace and recommend, [] for keep), `deciding` and `accepted` (metric names), `concerns` (at most 5 short strings, stored, logged per scope as `concerns: …` and carried by the review sheet and report rows; never gated on content), `reason` naming the deciding metrics |
-| ids minted by | code: member aliases in unit order; dossier: option aliases per member; the gate resolves them to item ids and the option's typed pins |
-| no option | static `keep`, source `static`, never asked; a `no_real_use` lifecycle is one, reason `no_real_use`; an option without an estimate of a metric a listed perfMode selects is dropped, and a scope left none is `no_evidence: <metric>`; such a member stays on what it uses while the unit's others are asked; a unit with a member whose item's key contract is `provider_held` is never asked, its members with options under `provider_held_key` |
-| dropped item | every member with options `keep` with reason `dropped: …`, source `fallback` |
-| state | `<app>/replacements.json`: `{schemaVersion: 4, app, replacements, sources, stale}`; a recommend is never edited; the edit step refuses another version; outbox under `<app>/replace/` |
-| evidence | each record, keyed by unit id, carries `evidence`, the sha256 of its unit's entry (links, stays, pairs) and every member's dossier JSON (scope facts, source, current, options with pins, interop and estimates), the dossiers' `perfMode` and the stored numbers of the `primitives.tsv` lines shown (never the display units, so a unit change marks nothing stale); every member with options of a unit whose latest record's digest differs from today's, or has none, is `stale`: kept, never re-asked silently, listed in `stale`, and `ai replace` exits with `dossier_changed` naming the scopes (the guide stops there) |
-| `--refresh` | the stale units are asked again into a new outbox (inputs `refresh <token>`) that carries every other record; the old outbox stays; later runs read the token from the active charter and stay in it; a prompt change carries nothing |
-| gone | a record whose unit is not asked any more replays to no row (`gone`), never a KeyError; a unit whose members changed has a new id and is asked; a scope moved to `noOptions` gets its static keep |
-| record | `decision.replacements`: one `Replacement` per member with options; `apply` writes one row per member with options |
+One job, settings row `apps.replace`, prompt `select`, log `log/ai/select.yaml`; `ai replace` and the guide's upgrade and replace steps run it.
 
-## Site replace gate
+| field | units | broken uses |
+|---|---|---|
+| item | one unit of `<app>/dossiers.json` `units` | one unlisted `upgrades` row |
+| candidates (code) | `ai/select/unit_candidates.py`: each item every member with options offers, with known pins, within `maxChange`, passing the perfMode's rule (`strict`: a selected metric improves and none worsens; `overall`: one improves beyond noise), never ending an inverse partner that stays on a failed pair or another output; `recommend` when another output leaves the function (`OUTPUT_LEAVES`), with what must follow | the ranked secure options |
+| answer | `submit(option, reason)`: a candidate's alias, or `none` (keep) | an alias; `none` is not allowed |
+| code writes | per member: `edits` (`edits_of`), the risks scope and option imply (and `unverified_interop` for an unchecked inverse partner), `deciding` (improved metrics), `accepted` (worse ones, `overall` only), a recommend's `needs` | `settled`: edit or a person's from the facts ([upgrade.md](upgrade.md)) |
+| never asked | `noOptions` scopes: static keeps | listed and unreachable broken uses |
+| dropped | every member a `keep`, source `fallback`, reason `dropped: ...` | `needs_migration`, `model_dropped` |
+| state | `<app>/replacements.json` (schema 6: app, replacements, sources; each row scope, decision, option, edits, risks, reason, deciding, accepted, needs), outbox `<app>/replace/` | `<app>/upgrades.json`, outbox `<app>/upgrade/` |
 
-- The members with options are decided together: `replace` gives each exactly once, each a listed alias of its own options and at least one edit, and names no member that stays; `keep` names no members; `reason` is not empty. Per-member problems name the member. `validate` refuses a state where those members differ in decision or some have no row.
-- An inverse link whose sides end on two items after the answer: `fail` refuses it; any status but `pass` needs `unverified_interop` on each swapped side (`S1: risks must include unverified_interop: its inverse S2 ends on …`).
-- The message's PERFMODE line gives the rule and the thresholds of the code labels (`result/gain.py`, [modes.md](modes.md#labels)); each option shows its `label` and the metrics improved and worse. `validation/suggest/site_performance.py`:
-  - listed perfMode (`strict`): every chosen option passes the verdict's rule (a selected metric at or below `improvingRatio`, none at or above its inverse); `accepted` must be [];
-  - `generic` (`overall`): every chosen option improves a metric beyond noise; `deciding` is not empty and each named metric improved for every chosen option; every metric worse for a chosen option is in `accepted`. A trade-off is allowed only this way.
-- `recommend`: every member with options names an option with a `change` line, `needs` at least one line, and `edits` []; the risks its scope implies are declared; it is never edited, and the report counts it apart (`funnel.recommend`), never as an improvement. An option above `maxChange` is not in the dossier, so at the default `drop-in` no option has a `change` line and recommend cannot be chosen: those candidates are the report's recommendations.
-- A pick whose `change` is above `maxChange` is refused, listed or not; an inverse link whose sides end on two items with a swapped side whose output differs is refused whatever its interop says.
-- Edit kinds come from `EDIT_KIND_TABLE` (`dto/replacement.py`), each at most once; each row names the one field its kind fills and what of the option fills it.
-- `set_provider` names exactly the option's provider; required when it differs from the current provider.
-- `set_algorithm` names exactly the option's name; required when it differs from the current name. Applied as the `algorithm` field.
-- An edit fills no field its kind does not use.
-- `pin_parameters` equals the option's pins; required when the option has pins, refused when it has none.
-- Risks come from `persisted_data`, `wire_format`, `key_compatibility`, `unknown_sink`, `unverified_interop`.
-- A `replace` of an option with `outputChanges` is refused, with a correction naming `recommend`, when its own risks include one of `OUTPUT_LEAVES` (`dto/replacement.py`): `persisted_data`, `wire_format`, `unknown_sink`. The gate reads the reply's risks, so it holds for new replies only; a saved decision is not asked again.
-- A `replace` declares at least the risks the scope implies (`DERIVED_RISKS`): sink persist → `persisted_data`, network → `wire_format`, unknown → `unknown_sink`; key source keystore, literal or storage → `key_compatibility`, and unknown or parameter too (where the key comes from is not visible here: scoping stays local, a default-provider call may pick a key store's provider at `init`, and the harness uses a synthetic key, so the swap stays allowed and the risk is declared and reported) (the key source is the lifecycle's key origin when it knows one); the chosen option's interop `not_checkable`, `not_planned` or `not_run` → `unverified_interop`.
-
-## Repair upgrade
-
-The role that moves a broken use off its algorithm: [upgrade.md](upgrade.md).
-
-## Prompt override
-
-- `paths.prompts` (or `--prompts DIR`) points at a folder holding `suggest/site-replace.system.md`: it replaces the packaged prompt for `ai replace`, the guide and `review stability`.
-- A changed prompt is a new charter: its fingerprint opens its own outbox under `<app>/replace/outbox/`, so every unit is asked again there; the packaged outbox stays untouched.
-- Removing the override resumes the packaged outbox and its records; nothing is asked again (`tests/test_site_replace_rule.py`).
-
-## Static triage (no model call)
-
-| Verdict | When |
-|---|---|
-| `not_comparable` | no configuration measured two members |
-| `not_measured` | no pair improves, and a faster pair lacks data the mode needs |
-| `no_improvement` | no pair improves under the mode, on complete data |
-
-- A group with an improving pair always reaches the model, whatever its pImprove.
-
-## Role contracts
-
-`catalog/role-contracts.yaml` holds one row per role. `tracking.role_run` hears what the role's run opens, whichever loader opens it, and each journal line names its `inputs`; `check/contracts.py` fails a required input that never reached a call, an input or a written file outside the row, or a charter off its prompt, schema, pin or tools. A prompt a person overrode is held to its name and schema, not the pin. A journal line without recorded `inputs` fails.
-
-Limits: a file read is what is proven, not that a fact in it reached the message (the golden renders in `tests/fixtures/role_renders/` cover that); a catalog an earlier role cached is heard only when the row requires it.
-
-On demand, never in CI: `python3 apps/perf-repair/tools/role_checks.py --device-results <pixel-10 folder> --apps a,b,c --runs 3 --mode <perfMode> --plan plan.yaml --out <dir> --agent claude --model claude-haiku-5-5`.
+- Each record carries its item's evidence digest (the unit entry, the dossiers, the perfMode, the `primitives.tsv` numbers shown and the run warnings); an item whose digest changed is asked again and the old record stays as history. There is no stale state and no `--refresh` for it.
+- A unit with no applicable candidate is still asked, `none` its only answer, so the log shows why it was kept.
+- Review (`apps.review`, default `false`; the guide built without settings and the tests' direct calls ask none): after a submit passes Select's checks, and only for a pick that will edit code (a unit's `replace` with edits, a broken use's `upgraded`; never `none`, a keep, a `recommend` or a `needs_migration`), `ReviewJob` one tier up the gateway's ladder (the same tier at the top) reads the answer and the message through `read_output` and `read_evidence` and submits `verdict`: `accept` commits; `refuse` with a reason is the next repass's reason; `unidentified` commits the item as a person's (a `fallback` keep, or `needs_migration` with `review_unidentified`), the record naming the reviewer's tier and model as `tier` and `answered`. A reviewer that never settles is `unidentified`. Its attempts are `log/ai/review.yaml`.
+- `paths.prompts` (or `--prompts DIR`) holding `select.system.md` replaces the packaged prompt: a new charter, a new outbox; removing it resumes the packaged one.
 
 ## Accuracy sheet
 
-`python3 -m perfrepair.review sheet|score <device>`; `python3 -m perfrepair.review stability <device> --sample N --asks K [--agent ...] [--prompts DIR]` asks N units drawn with a fixed seed across the apps K times each on the message `ai replace` sends, gated as usual, each ask an engine item in `review/stability/`, so an identical rerun makes no call and no replace decision changes; it writes `review/stability.json` (per unit the picks, free text left out, and `stable`).
+`python3 -m perfrepair.review sheet|score <device>`.
 
 - Rows are sorted riskiest first: a `recommend` or a replace whose option's code label is `trade_off`, then other replaces, keeps, then the other kinds.
 
 | `review/decisions.tsv` column | Holds |
 |---|---|
-| `kind`, `app`, `item` | grouping, classify, worthiness (`app` the mode) or replace (`item` the scope) |
+| `kind`, `app`, `item` | grouping, classify or replace (`item` the scope) |
 | `pattern`, `patternReason` | a replace row's scope category and its rule; empty for the other kinds |
 | `model` | the record's model |
 | `facts` | JSON of what code knows: an item's family and known signature; a scope's current, sinks, key source, options, the pick's change class and code label |
 | `pick`, `reason` | the answer; `(dropped)` with its problems |
-| `concerns` | the answer's concerns, `; `-joined |
 | `verdict`, `note` | empty until a person fills them: `ok` or `wrong`; kept across rebuilds while `kind`, `app`, `item` and `pick` stay equal |
 
 | `review/score.json` | Counts |
 |---|---|
 | `groupingPrecision` | `ok` of the judged grouping rows; null while none is judged |
 | `pickAccuracy` | `ok` of the other judged rows |
-| `stability` | items asked twice or more on one message whose accepted answers all pick the same, free text left out |
 | `gateRejections` | rejected turns per 100 calls, per kind and whole |
 
-- Rows come from the active outboxes; stability and rejections from each stage's `journal.jsonl`.
+- Rows come from the active outboxes; rejections from each job's `log/ai/<job>.yaml`.

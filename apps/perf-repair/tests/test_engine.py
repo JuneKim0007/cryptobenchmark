@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass, field
 
 import pytest
-from helpers import QUIET, label_charter
+from helpers import QUIET, label_charter, logged
 
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.prompt import CorrectionPrompt, TaskPrompt
@@ -103,7 +103,7 @@ def test_a_limit_after_a_rejected_turn_does_not_drop_the_item(tmp_path):
 
     with pytest.raises(AgentFailed):
         decide(LabelKind(("a",)), CHARTER, ScriptedConversations(rejected_then_limited), tmp_path, **QUIET)
-    assert active_outbox(tmp_path).records() == [] and not (tmp_path / "errors.jsonl").read_text()
+    assert active_outbox(tmp_path).records() == [] and logged(tmp_path, "labels") == []
 
 
 def test_rejection_reasks_the_same_conversation_then_respawns_then_drops(tmp_path):
@@ -113,7 +113,7 @@ def test_rejection_reasks_the_same_conversation_then_respawns_then_drops(tmp_pat
     assert "YOUR ANSWER WAS REJECTED" in agent.turns[1][2].text
     record = active_outbox(tmp_path).records()[0]
     assert record.outcome == "dropped" and len(record.problems) == 4 and state.seen == {"a": None}
-    assert json.loads((tmp_path / "errors.jsonl").read_text())["problems"][0].startswith("s1t1")
+    assert logged(tmp_path, "labels")[0]["reason"]["problems"][0].startswith("s1t1")
 
 
 def test_a_refusal_ends_the_session_and_the_next_opens_with_the_task(tmp_path):

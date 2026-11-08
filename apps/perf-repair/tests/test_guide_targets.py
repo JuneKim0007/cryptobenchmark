@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import LIBRARY, captured_events, guide_ends
-from test_guide import APP, F, FAKE_ROOT, replacing
+from helpers import first_candidate, model_calls, LIBRARY, captured_events, guide_ends
+from test_guide import APP, F, FAKE_ROOT
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
-from perfrepair.ai.suggest.site_replace.command import DRY_RUN
+from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.app.facts.target_set import resolve_targets
 from perfrepair.data_handler.outbound.benchmark_runner import BenchmarkRunError
@@ -34,9 +34,7 @@ class Base:
         self.answer = ScriptedConversations(self._first_option)
 
     def _first_option(self, task, *_):
-        # the dossier of the app being asked: the newest written
-        newest = max(self.run_dir.glob("*/dossiers.json"), key=lambda p: p.stat().st_mtime_ns)
-        return replacing(read_json(newest), task)[0]
+        return first_candidate(task)
 
     def app(self, name):
         path = self.tmp / "apps" / name
@@ -53,8 +51,7 @@ class Base:
         return code, events
 
     def calls(self, root):
-        journal = AppPaths(self.run_dir, path_id(root)).replace / "journal.jsonl"
-        return len(journal.read_text().splitlines()) if journal.is_file() else 0
+        return model_calls(self.run_dir, "select", path_id(root))
 
 
 @pytest.fixture
@@ -180,11 +177,11 @@ def test_a_missing_target_says_why_and_the_others_go_on_and_its_results_stay(bas
 
 def test_a_stop_code_is_recorded_and_the_loop_continues(base):
     a, b = base.app("a"), base.app("b")
-    code, events = base.go([a, b], conversations=DRY_RUN)
+    code, events = base.go([a, b], conversations=dry_run())
     assert code == 1 and [o for _, *o in apps(events)] == [["stop", "no_replacement"]] * 2
     # a terminal stop is done: the rerun repeats no static step and exits 0
     assert read_json(AppPaths(base.run_dir, path_id(a)).finished)["outcome"] == "no_replacement"
-    code, events = base.go([a, b], conversations=DRY_RUN)
+    code, events = base.go([a, b], conversations=dry_run())
     assert code == 0 and apps(events) == [(path_id(r), "reused", None) for r in (a, b)]
 
 
@@ -225,7 +222,7 @@ def test_a_provider_failure_stops_the_whole_loop(base):
 
 
 def test_a_device_stage_stop_runs_no_app(tmp_path):
-    g = Guide(tmp_path, None, LATENCY, DRY_RUN, LIBRARY, echo=lambda _: None)
+    g = Guide(tmp_path, None, LATENCY, dry_run(), LIBRARY, echo=lambda _: None)
     with captured_events() as events:
         assert run_targets(g, [APP], False, True) == 1
     assert guide_ends(events) == [("prerequisites", "stop", "missing_results")]

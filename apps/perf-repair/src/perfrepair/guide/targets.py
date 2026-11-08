@@ -49,7 +49,7 @@ def _reused(g: Guide) -> AppResult:
 
 
 def _attempt(g: Guide, device: bool, reuse: bool) -> AppResult:
-    # --refresh asks stale scopes again, which a reused app would never reach
+    # --refresh runs a done app again
     if reuse and not g.refresh and g.record.is_done(g.app_id, finished.inputs(g, device)):
         return _reused(g)
     stopped = run_app(g, device)

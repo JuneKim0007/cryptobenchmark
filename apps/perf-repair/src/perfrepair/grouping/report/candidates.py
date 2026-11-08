@@ -40,7 +40,7 @@ def candidates(kind, knowledge: Knowledge, records: list[OutboxRecord], findings
         target, verdict = Answer.from_json(record.decision).target, (kind.screen or {}).get(item.id)
         row = rows.setdefault(target, {"family": item.family, "items": [], "decisions": []})
         row["items"].append(item)
-        row["decisions"].append({"item": item.qualified, "seq": record.seq, "model": str(record.agent),
+        row["decisions"].append({"item": item.qualified, "seq": record.seq, "model": record.model,
                                  **stamps.get((outbox, record.seq), now), "reason": Answer.from_json(record.decision).reason,
                                  "rejectedTurns": list(record.problems),
                                  "canonical": verdict.canonical if verdict else None})

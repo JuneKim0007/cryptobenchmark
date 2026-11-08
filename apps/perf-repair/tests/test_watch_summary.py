@@ -9,7 +9,7 @@ from test_engine_events import Billed
 from perfrepair import failure
 from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.runtime.engine.events import Where
+from perfrepair.ai.log.where import Where
 from perfrepair.dto.event import Event
 from perfrepair.log import attach, step
 from perfrepair.log.__main__ import main as log_main

@@ -67,14 +67,13 @@ def build_report(paths: AppPaths, mode: Mode) -> dict:
     applied = [u for u in upgrades if u.status == UPGRADED]
     replacements |= {u.scope: u.replacement().to_json() for u in applied}
     sources = {**sources, **{u.scope: u.source for u in applied}}
-    stale = set(replaced.get("stale", ()))
     edits_doc = _optional(paths.edits)
     edits = {e["scope"]: e for e in (edits_doc or {}).get("edits") or []}
     harness = _optional(paths.harness, read_yaml) or {}
     inputs = {s["id"]: s.get("inputs") for s in harness.get("scopes") or []}
     check = read_device_check(paths, list(inputs))
     rows = _with_units([scope_row(s, dossiers.get(s["id"]), replacements.get(s["id"]), sources.get(s["id"]),
-                                  edits.get(s["id"]), edits_doc is not None, check, inputs.get(s["id"]), s["id"] in stale)
+                                  edits.get(s["id"]), edits_doc is not None, check, inputs.get(s["id"]))
                         for s in sorted(scopes, key=lambda s: (s["file"], s["line"], s["id"]))], of_unit)
     return {"schemaVersion": SCHEMA_VERSION, "app": paths.app, **_named(paths), "mode": mode.name,
             "funnel": funnel(len(sites), rows, len(dossiers)), **recommendations(dossiers_doc), BROKEN_USES: _broken_uses(upgrades, scopes),

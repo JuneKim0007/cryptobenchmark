@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from helpers import captured_events, guide_ends, with_results, LIBRARY
+from helpers import captured_events, first_candidate, guide_ends, with_results, LIBRARY
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
@@ -17,8 +17,7 @@ from perfrepair.ai.parse.grouping_assign import command as assign_cmd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.ai.suggest.site_replace.command import DRY_RUN
-from perfrepair.dto.replacement import required_risks
+from perfrepair.ai.select.command import dry_run
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.files import read_json, write_json
 from perfrepair.run_dir import GroupingPaths
@@ -30,15 +29,12 @@ from helpers import LATENCY
 from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
 from perfrepair.validation.dossiers.parse import parse_dossiers
-from perfrepair.validation.suggest.site_replace import check_reply
-from perfrepair.validation.suggest.site_edits import required_kinds, takes
 from perfrepair.screen.catalog import screening_catalog
 from perfrepair.app.facts.path_id import path_id
 
 F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results" / "test-api36-00000000", F / "guide"
 SCRIPTS = Path(__file__).resolve().parents[3] / "apps/benchmark-runner"
-FIELD = {"set_provider": "provider", "set_algorithm": "algorithm"}
 
 
 ENDS = []
@@ -58,41 +54,17 @@ def stopped():
 
 
 def first_option(run_dir, app_root=None):
-    """A model that replaces each scope with its first option and states exactly the edits and risks the gate wants;
-    with app_root, it also shifts the scope's file by a line, so the edit can no longer find the call."""
+    """A model that takes each item's first candidate; with app_root, it also shifts a unit's file by a line, so the edit
+    can no longer find the call."""
     def answer(task, *_):
         doc = read_json(AppPaths(run_dir, path_id(app_root or APP)).dossiers)
-        reply, d = replacing(doc, task)
-        if app_root is not None:
-            path = app_root / d.scope.file
+        unit = next((u for u in parse_dossiers(doc, doc["app"])[0] if u.key == task.item), None)
+        if app_root is not None and unit is not None:
+            path = app_root / unit.dossiers[0].scope.file
             path.write_text("\n" + path.read_text())
-        return reply
+        return first_candidate(task)
     return answer
 
-
-def replacing(doc, task):
-    """The answer that gives each member with options its first option and the risks the gate wants, and its first dossier."""
-    unit = next(u for u in parse_dossiers(doc, doc["app"])[0] if u.key == task.item)
-    members = [_first_option(a, d) for a, d in unit.aliased().items()]
-    reply = {"decision": "replace", "members": members, "reason": "faster"}
-    wants = {p.split(":")[0] for p in check_reply(json.dumps(reply), unit)[1] if "must include unverified_interop" in p}
-    for m in members:
-        m["risks"] += ["unverified_interop"] if m["member"] in wants else []
-    return reply, unit.dossiers[0]
-
-
-def _first_option(alias, d):
-    o = d.options[0]
-    edits = []
-    for kind in required_kinds(o, d.current):
-        value = takes(kind, o.item, o.pins)
-        e = {"kind": kind, "provider": "", "algorithm": "", "parameters": []}
-        if kind == "pin_parameters":
-            e["parameters"] = [{"name": k, "value": str(v)} for k, v in value.items()]
-        else:
-            e[FIELD[kind]] = value
-        edits.append(e)
-    return {"member": alias, "option": o.alias, "edits": edits, "risks": sorted(required_risks(d.scope, o))}
 
 
 def guide(run_dir, conversations, app=APP, config=None):
@@ -194,7 +166,7 @@ def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
 
 def test_a_run_without_grouping_says_how_to_make_it(run):
     shutil.rmtree(GroupingPaths(run).root)
-    g = guide(run, DRY_RUN)
+    g = guide(run, dry_run())
     assert run_steps(g, device=False) == 1
     assert stopped() == ("grouping", "missing_device_stage")
 
@@ -202,7 +174,7 @@ def test_a_run_without_grouping_says_how_to_make_it(run):
 @pytest.mark.usefixtures("asked_by_model")
 def test_a_named_folder_with_items_undecided_asks_them(run):
     shutil.rmtree(GroupingPaths(run).root / "outbox")
-    g = guide(run, DRY_RUN)
+    g = guide(run, dry_run())
     g = with_field(g, grouping_args=("--agent", "dry-run"))
     run_steps(g, device=False)
     assert ("grouping", "ok", None) in ENDS and active_outbox(GroupingPaths(run).root).records()
@@ -222,15 +194,15 @@ def test_singleton_groups_leave_no_options(tmp_path):
     assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     build_stage(RESULTS / "manifest.yaml", tmp_path, screening_catalog(None))
     paths = GroupingPaths(tmp_path)
-    decide(GroupingKind(paths), charter(LIBRARY), assign_cmd.DRY_RUN, paths.root, echo=lambda _: None)
+    decide(GroupingKind(paths), charter(LIBRARY), assign_cmd.dry_run(), paths.root, echo=lambda _: None)
     report(paths)
-    g = guide(tmp_path, DRY_RUN)
+    g = guide(tmp_path, dry_run())
     assert run_steps(g, device=False) == 1
     assert stopped() == ("dossier", "no_options")
 
 
 def test_a_model_that_keeps_everything_stops_before_the_edit(run):
-    g = guide(run, DRY_RUN)
+    g = guide(run, dry_run())
     assert run_steps(g, device=False) == 1
     assert stopped() == ("replace", "no_replacement")
     assert not g.paths.edits.exists()
@@ -248,7 +220,7 @@ def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_pa
     from perfrepair.config.load import load
     settings = tmp_path / "perfrepair.yaml"
     settings.write_text(f"device:\n  screening:\n    catalog: {tmp_path / 'absent.yaml'}\n")
-    g = guide(run, DRY_RUN)
+    g = guide(run, dry_run())
     g.settings = load(settings, {}, {})
     assert run_steps(g, device=False) == 1
     assert ENDS == [("prerequisites", "stop", "prerequisites_failed")]
@@ -257,7 +229,7 @@ def test_a_missing_screening_catalog_stops_the_guide_before_any_step(run, tmp_pa
 def test_a_folder_of_several_project_roots_is_a_coded_stop(run, tmp_path):
     for name in ("a", "b"):
         shutil.copytree(APP, tmp_path / "mono" / name)
-    g = guide(run, DRY_RUN, app=tmp_path / "mono")
+    g = guide(run, dry_run(), app=tmp_path / "mono")
     assert run_steps(g, device=False) == 1
     assert stopped() == ("app", "several_project_roots")
 
@@ -307,7 +279,7 @@ def test_a_blocking_invariant_stops_before_the_replace_call(request, monkeypatch
     found = [Violation("key_contract_agrees", BLOCKING, "group g1", ("group g1",), "split it"),
              Violation("interop_not_run", ADVISORY, "group g2", ("group g2",), "run it")]
     monkeypatch.setattr(app_steps, "app_gate", lambda device, app, root: found)
-    g = guide(request.getfixturevalue("run"), DRY_RUN)
+    g = guide(request.getfixturevalue("run"), dry_run())
     assert run_steps(g, device=False) == 1
     assert stopped() == ("replace", "invariant_failed")
     assert not g.paths.replace.exists()
@@ -329,13 +301,3 @@ def test_an_undecided_invariant_warns_by_default_and_stops_when_set(run, tmp_pat
     [event] = [e for e in events if e.event == "finding" and e.data.get("code") == "invariant_undecided"]
     assert event.outcome == (chosen or "warn") and "site_line_holds_call scope s1" in event.detail
     assert roots == [APP] and g.paths.replace.exists() is not bool(chosen)
-
-
-def test_a_decision_on_an_earlier_dossier_stops_the_guide_until_refresh(run):
-    g = guide(run, ScriptedConversations(first_option(run)))
-    assert run_steps(g, device=False) == 0
-    outbox = active_outbox(g.paths.replace)
-    first = outbox.path(1)
-    write_json(first, {**read_json(first), "evidence": "0" * 64})
-    assert run_steps(g, device=False) == 1 and stopped() == ("replace", "dossier_changed")
-    assert run_steps(with_field(g, refresh=True), device=False) == 0 and ("replace", "ok", None) in ENDS

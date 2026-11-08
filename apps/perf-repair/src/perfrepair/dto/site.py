@@ -22,8 +22,8 @@ DOSSIERS_SCHEMA_VERSION = 9
 # 5: pattern, patternReason and patternLines on every scope; 6: a lifecycle carries outputCompared
 SCOPES_SCHEMA_VERSION = 6
 # 2: set_algorithm carries its name in Edit.algorithm, not parameters.algorithm; 3: stale, the scopes decided on an earlier dossier
-# 4: recommend with needs; deciding, accepted and concerns on every row
-REPLACEMENTS_SCHEMA_VERSION = 4
+# 4: recommend with needs; deciding, accepted and concerns on every row; 5: no stale, Select asks a changed unit again; 6: no concerns
+REPLACEMENTS_SCHEMA_VERSION = 6
 # 3: imports are the ones the function uses; notMeasurable refuses a scope a number would misdescribe; 4: inverse, the interop partner by link
 # 5: callSite, the swapped call's operation and variant, measured alone; 6: upgrade, a broken use's swap that changes the output
 HARNESS_SCHEMA_VERSION = 6

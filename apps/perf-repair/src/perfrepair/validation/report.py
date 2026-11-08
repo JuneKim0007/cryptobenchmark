@@ -13,8 +13,7 @@ ROW_KEYS = ("scope", "file", "line", "function", "pattern", "patternReason", "cu
 
 
 def _decision(where: str, d: dict) -> list[str]:
-    if (d.get("decision") not in DECISION_STATUSES or (d["decision"] != "not_run" and d.get("source") not in SOURCES)
-            or not isinstance(d.get("stale"), bool)):
+    if (d.get("decision") not in DECISION_STATUSES or (d["decision"] != "not_run" and d.get("source") not in SOURCES)):
         return [f"{where}: decision {d}"]
     return []
 

@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 from helpers import TIMING, row, summary
 
-from perfrepair.ai.suggest.site_replace.render import render
+from perfrepair.ai.select.render import render
 from perfrepair.catalog.types import Types
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.change import PairDiff
@@ -20,7 +20,8 @@ from perfrepair.result.gain import no_gain
 from perfrepair.validation.dossiers.against_run import validate_dossiers
 from perfrepair.validation.dossiers.dossier import check_dossier
 from perfrepair.validation.report import _recommendations
-from perfrepair.validation.suggest.site_replace import check_reply
+from perfrepair.ai.select.unit_candidates import unit_candidates
+from perfrepair.dto.perf_mode import GENERIC_MODE
 
 A, B, C, D = "TypeA|WEAK|P1", "TypeA|STRONG|P1", "TypeA|LATE|P1", "TypeA|GONE|P1"
 PARAMS = {"mode": "x"}
@@ -111,10 +112,6 @@ def test_the_validator_refuses_a_recommendation_within_max_change(tmp_path):
     assert any("within maxChange" in p for p in validate_dossiers(doc, [scope(("persist",))], GROUPS, None))
 
 
-def _reply(option="R1"):
-    return json.dumps({"decision": "replace", "reason": "r", "deciding": ["timeNs"], "members": [{"member": "S1", "option": option, "risks": ["unverified_interop", "key_compatibility"],
-                       "edits": [{"kind": "set_algorithm", "provider": "", "algorithm": "STRONG", "parameters": []}]}]})
-
 
 def _unit(change="local-edit") -> UnitDossiers:
     d = Dossier(scope(("local",)), "src", A, (Option("R1", B, {}, "not_planned", (FASTER,), change=change, diff=PairDiff("same", "same", "bytes", "local")),))
@@ -124,20 +121,14 @@ def _unit(change="local-edit") -> UnitDossiers:
 FASTER = Estimate("timeNs", 0.6, 0.99, 50, "OP key 1 input 1 p")
 
 
-def test_gate_c_takes_a_pick_within_max_change():
-    decision, problems = check_reply(_reply(), _unit(), "local-edit")
-    assert problems == [] and decision["replacements"][0]["option"] == B
+def test_a_pick_within_max_change_is_a_candidate():
+    [c] = unit_candidates(_unit(), GENERIC_MODE, "local-edit")
+    assert c.item == B and c.decision == "replace"
 
 
 @pytest.mark.parametrize("change,top", [("local-edit", "drop-in"), ("migration", "local-edit")])
-def test_gate_c_refuses_a_listed_pick_above_max_change(change, top):
-    decision, problems = check_reply(_reply(), _unit(change), top)
-    assert decision is None and any(f"above maxChange {top}" in p for p in problems)
-
-
-def test_gate_c_refuses_a_pick_outside_the_list():
-    decision, problems = check_reply(_reply("R9"), _unit(), "local-edit")
-    assert decision is None and any("is not one of R1" in p for p in problems)
+def test_a_listed_option_above_max_change_is_no_candidate(change, top):
+    assert unit_candidates(_unit(change), GENERIC_MODE, top) == []
 
 
 def test_the_report_recommends_above_max_change_and_counts_rejects(tmp_path):
@@ -164,12 +155,10 @@ def _pair(a_item, b_item):
 
 
 def test_inverse_sides_above_drop_in_must_end_on_one_item():
-    unit, member = _pair(B, B)
-    both = json.dumps({"decision": "replace", "reason": "r", "deciding": ["timeNs"], "members": [member("S1"), member("S2")]})
-    assert check_reply(both, unit, "local-edit")[1] == []
+    unit, _ = _pair(B, B)
+    assert [c.item for c in unit_candidates(unit, GENERIC_MODE, "local-edit")] == [B]
     lone = UnitDossiers(replace(unit.unit), (unit.dossiers[0],), (Stay("b", A, "no_alternative"),))
-    one = json.dumps({"decision": "replace", "reason": "r", "deciding": ["timeNs"], "members": [member("S1")]})
-    assert any("must end both on one item" in p for p in check_reply(one, lone, "local-edit")[1])
+    assert unit_candidates(lone, GENERIC_MODE, "local-edit") == []
 
 
 def test_render_shows_the_class_and_diff_of_an_option_above_drop_in():

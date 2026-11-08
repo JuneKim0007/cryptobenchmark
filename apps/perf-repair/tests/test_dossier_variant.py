@@ -4,9 +4,9 @@ from dataclasses import replace
 from helpers import TIMING, summary
 from test_dossier import GROUPS, M, ROWS, build, scope
 
-from perfrepair.ai.suggest.site_replace.kind import evidence
-from perfrepair.ai.suggest.site_replace.render import pattern_line
-from perfrepair.ai.suggest.site_replace.rows import lines_of
+from perfrepair.ai.select.units import evidence
+from perfrepair.ai.select.render import pattern_line
+from perfrepair.ai.select.rows import lines_of
 from perfrepair.dto.lifecycle import Lifecycle, Step
 from perfrepair.dto.dossier import Dossier
 from perfrepair.dto.unit import Unit, UnitDossiers, unit_id

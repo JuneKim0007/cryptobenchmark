@@ -1,3 +1,4 @@
+import gc
 import json
 import subprocess
 
@@ -33,7 +34,7 @@ def test_a_conversation_is_one_isolated_session_resumed_turn_by_turn(tmp_path):
     first, second = cli.calls[0][0], cli.calls[1][0]
     for flag in ("--setting-sources", "--strict-mcp-config", "--disable-slash-commands", "--tools"):
         assert flag in first
-    assert first[first.index("--setting-sources") + 1] == ""
+    assert first[first.index("--setting-sources") + 1] == "" and first[first.index("--tools") + 1] == ""
     assert "--resume" not in first and second[second.index("--resume") + 1] == "s-1"
     assert [c[1] for c in cli.calls] == ["first", "second"] and cli.calls[0][2] == tmp_path
     assert json.loads((tmp_path / ".no-mcp.json").read_text()) == {"mcpServers": {}}
@@ -123,3 +124,15 @@ def test_a_hung_cli_is_killed_at_its_timeout_as_one_coded_failure(tmp_path):
     with pytest.raises(AgentFailed) as e:
         convos.start(SystemPrompt("t", "S"), {}).ask(task("x"))
     assert e.value.code == "claude_cli_timeout" and "ran past 1s (timeouts.claude)" in str(e.value)
+
+
+def test_a_client_removes_the_folder_it_made_and_keeps_one_it_was_given(tmp_path):
+    client = ClaudeCliConversations()
+    made = client.workdir
+    assert made.is_dir()
+    del client
+    gc.collect()
+    assert not made.exists()
+    given = ClaudeCliConversations(workdir=tmp_path).workdir
+    gc.collect()
+    assert given.is_dir()

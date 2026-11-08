@@ -1,4 +1,4 @@
-"""What the device's grouping knowledge covers, computed each run from the active outbox, never a stored flag; noRerun's reader."""
+"""What the device's grouping knowledge covers, computed each run from the active outbox, never a stored flag."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,7 +8,6 @@ from ..ai.runtime.engine.outbox import active_outbox
 from ..config.load import Loaded
 from ..files import json_text
 from ..grouping.report.checks import report_documents
-from ..inputs.table import GROUPING_NO_RERUN
 from ..run_dir import GroupingPaths
 
 
@@ -37,9 +36,3 @@ def coverage(paths: GroupingPaths) -> Coverage:
     not_used = None if kind.scope is None else len(kind.not_used(records))
     return Coverage(len(asked), pending, not pending and _current(paths), not_used)
 
-
-def no_rerun(settings: Loaded | None) -> bool:
-    """False asks every item again; knowledge that is missing is asked either way."""
-    if settings is None:
-        return True
-    return settings.read(GROUPING_NO_RERUN)

@@ -89,7 +89,7 @@ def new_group(task, *_):
 def run(paths, answers=new_group):
     kind = GroupingKind(paths, FAMILIES)
     agent = ScriptedConversations(answers)
-    return decide(kind, charter(LIBRARY, kind.inputs), agent, paths.root, **QUIET), agent, kind
+    return decide(kind, charter(LIBRARY), agent, paths.root, **QUIET), agent, kind
 
 
 def item(kind, qualified):

@@ -86,7 +86,6 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("no_device_results", "run the device stage, or point --results-root at a results root", MIXES),
     _fixed("not_device_results", "pass a device folder cryptobenchmark wrote", MIXES),
     _fixed("scoped_plan_mismatch", "rerun the app's device step", MIXES),
-    _fixed("dossier_changed", "rerun with --refresh to ask the changed units again", MIXES),
     _fixed("schema_version", "rerun the step that writes the file", MIXES),
     _fixed("device_busy", "wait for the other run on the device folder to end", MIXES),
     # fixed: nothing is left to run
@@ -136,7 +135,6 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("names_catalog_duplicate", FIX_CATALOG),
     _fixed("names_schema", FIX_CATALOG),
     _fixed("groups_invalid", FIX_CATALOG),
-    _fixed("contracts_invalid", FIX_CATALOG),
     _fixed("groups_schema", FIX_CATALOG),
     _fixed("screening_schema", FIX_CATALOG),
     _fixed("screening_shape", FIX_CATALOG),
@@ -149,7 +147,6 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("provider_build_unknown", "name a build key of `catalog/provider-builds.yaml`, or a name only one build carries"),
     _fixed("relations_schema", FIX_CATALOG),
     _fixed("events_unreadable", "move the unreadable events.jsonl aside"),
-    _fixed("journal_unreadable", "move the unreadable journal.jsonl aside; the outbox, not the journal, holds the decisions"),
     _fixed("item_not_configured", "rerun the device stage with the item in the run config"),
     _fixed("manifest_without_device_id", "rerun the benchmark"),
     _fixed("missing_effective", "rerun the device stage"),
@@ -171,7 +168,6 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("run_unknown", "name a run log summary lists"),
     # notices: warned, never a choice
     _fixed("unknown_key", "remove the key, or fix its spelling", NOTICE, action=WARN),
-    _fixed("mixed_agents", "nothing; the records name each gateway", NOTICE, action=WARN),
     _fixed("alias_conflict", "nothing; a catalogued name keeps the catalog's function, any other is asked; settle the alias in algorithm-names.yaml", NOTICE,
            action=WARN),
     _fixed("perf_mode_extra", "drop the measurement from the run config to save device time", NOTICE, action=WARN),

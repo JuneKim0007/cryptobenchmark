@@ -6,7 +6,7 @@ from dataclasses import replace as with_fields
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..device.coverage import Coverage, coverage, no_rerun
+from ..device.coverage import Coverage, coverage
 from ..device.interop import check_pairs, unreachable
 from ..device.missing_rows import measured_rows
 from ..device.stage import probe_device
@@ -133,22 +133,20 @@ def _no_decision(g: Guide, what: str) -> None:
     halt(g, "missing_device_stage", f"{what}; grouping is a device-level stage, made once per device: {GROUPING}, {NAMED}")
 
 
-def _regroup(g: Guide, seen: Coverage, every: bool) -> str:
+def _regroup(g: Guide, seen: Coverage) -> str:
     unused = "" if seen.not_used is None else f", {seen.not_used} not used by the targets"
-    if every:
-        said = f"ran: device.grouping.noRerun false, all {seen.asked} items asked again{unused}"
-    elif seen.pending:
+    if seen.pending:
         said = f"ran: {len(seen.pending)} of {seen.asked} items asked{unused}"
     else:
         said = f"rebuilt from the kept decisions, no item asked{unused}"
     with step("device", "grouping") as s:
-        if every or seen.pending:
-            check_exit(g, grouping_main(["assign", "--device-results", str(g.device), *g.grouping_args,
-                                         *(("--refresh",) if every else ())]), "grouping_failed", "grouping assign")
+        if seen.pending:
+            check_exit(g, grouping_main(["assign", "--device-results", str(g.device), *g.grouping_args]), "grouping_failed",
+                       "grouping assign")
         check_exit(g, grouping_main(["report", "--device-results", str(g.device), *g.config_args]), "grouping_failed",
                    "grouping report")
         s.outcome, s.detail = "ran", said.removeprefix("ran: ")
-        s.count(items=seen.asked, asked=seen.asked if every else len(seen.pending), **_not_used(seen))
+        s.count(items=seen.asked, asked=len(seen.pending), **_not_used(seen))
     return said
 
 
@@ -168,12 +166,12 @@ def _grouping(g: Guide) -> str:
     paths = GroupingPaths(g.device)
     if not paths.items.is_file() and g.root is None:
         _no_decision(g, f"{paths.items} absent")
-    seen, every = coverage(paths), not no_rerun(g.settings)
-    if seen.current and not every:
+    seen = coverage(paths)
+    if seen.current:
         emit("device", "grouping", END, outcome="reused", detail=REUSED_GROUPING,
              data={"counts": {"items": seen.asked, **_not_used(seen)}})
         return "reused"
-    return _regroup(g, seen, every)
+    return _regroup(g, seen)
 
 
 def interop(g: Guide) -> str:

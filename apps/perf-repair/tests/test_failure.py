@@ -27,7 +27,6 @@ def _commands(d: Path):
         (grouping, ["assign", "--device-results", run, "--agent", "dry-run"]),
         (grouping, ["report", "--device-results", run]),
         (grouping, ["interop-plan", "--device-results", run]),
-        (ai, ["worthiness", "--device-results", run, "--perf-mode", "latency", "--agent", "dry-run"]),
         (ai, ["replace", "--device-results", run, "--app", "x", "--agent", "dry-run"]),
         (repair, ["dossier", "--device-results", run, "--app", app_dir]),
         (repair, ["edit", "--device-results", run, "--app", app_dir]),

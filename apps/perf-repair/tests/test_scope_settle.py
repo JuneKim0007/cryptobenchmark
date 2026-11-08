@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.ai.suggest.site_replace.render import _lifecycle
+from perfrepair.ai.select.render import _lifecycle
 from perfrepair.dto.lifecycle import Lifecycle, Requirement, Settled
 from perfrepair.dto.replacement import required_risks
 from perfrepair.dto.site import SCOPES_SCHEMA_VERSION, Scope, scope_id

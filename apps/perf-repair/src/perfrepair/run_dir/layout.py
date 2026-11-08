@@ -1,4 +1,4 @@
-"""The device folder's layout: each artifact's name, the device, app, grouping, review and worthiness paths."""
+"""The device folder's layout: each artifact's name, the device, app, grouping and review paths."""
 from __future__ import annotations
 
 import re
@@ -15,7 +15,6 @@ USED_TEST_SET = "used-testset.yaml"
 BUNDLED_SUGGESTIONS, BUNDLED_CONFIG = "bundled-suggestions.yaml", "bundled-global.yaml"
 # the global.yaml whose run.metrics perfMode decided, when the base says otherwise
 METRICS_CONFIG = "metrics-global.yaml"
-EVIDENCE, VERDICTS = "evidence.json", "verdicts.json"
 APP, SCOPES, UNITS, DOSSIERS = "app.json", "scopes.json", "units.json", "dossiers.json"
 REPLACE, REPLACEMENTS, EDITS, HARNESS = "replace", "replacements.json", "edits.json", "harness.yaml"
 UPGRADE, UPGRADES = "upgrade", "upgrades.json"
@@ -38,12 +37,9 @@ PRIMITIVES_MISSING = "log/details/primitives_missing.yaml"
 BENCHMARK_COVERAGE = "log/details/benchmark_coverage.yaml"
 # cryptobenchmark's transcripts, one file per run: log/pipeline/<run id>.log
 PIPELINE_LOGS = "log/pipeline"
-# one file per model stage; screening's classify apart from its stage's other turns
-AI_SCREENING_LOG, AI_CLASSIFY_LOG, AI_GROUPING_LOG = "log/ai/screening.log", "log/ai/classify.log", "log/ai/grouping.log"
-AI_WORTHINESS_LOG, AI_REPLACE_LOG = "log/ai/worthiness.log", "log/ai/replace.log"
+# one attempt log per AI job: log/ai/<job>.yaml
+AI_LOGS = "log/ai"
 CHARTER = "charter.json"
-ROLE_WRITES = "writes.json"
-JOURNAL = "journal.jsonl"
 _APP_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
@@ -97,6 +93,9 @@ class AppPaths:
         return self.alone_root / unit
 
 
+def ai_log(device: Path, job: str) -> Path:
+    return Path(device) / AI_LOGS / f"{job}.yaml"
+
 class GroupingPaths:
 
     def __init__(self, device: Path):
@@ -107,8 +106,6 @@ class GroupingPaths:
     screen = property(lambda self: self.root / "screen.json")
     cursor = property(lambda self: self.root / "cursor.json")
     knowledge = property(lambda self: self.root / "knowledge.json")
-    journal = property(lambda self: self.root / JOURNAL)
-    errors = property(lambda self: self.root / "errors.jsonl")
     checks = property(lambda self: self.root / "checks.json")
     groups = property(lambda self: self.root / "groups.json")
     interop_plan = property(lambda self: self.root / "interop_plan.yaml")
@@ -138,22 +135,3 @@ def review_score(device: Path) -> Path:
     return Path(device) / REVIEW / "score.json"
 
 
-def review_stability(device: Path) -> Path:
-    return Path(device) / REVIEW / "stability.json"
-
-
-def review_stability_folder(device: Path) -> Path:
-    return Path(device) / REVIEW / "stability"
-
-
-WORTHINESS_PREFIX = "worthiness-"
-
-
-def worthiness(device: Path, mode: str) -> Path:
-    return Path(device) / f"{WORTHINESS_PREFIX}{mode}"
-
-
-def worthiness_modes(device: Path) -> list[str]:
-    """The perfMode name of each worthiness folder that holds verdicts."""
-    return sorted(p.name.removeprefix(WORTHINESS_PREFIX) for p in Path(device).glob(f"{WORTHINESS_PREFIX}*")
-                  if (p / VERDICTS).is_file())

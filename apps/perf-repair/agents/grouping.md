@@ -37,8 +37,8 @@ src/perfrepair/ai/parse/algorithm_classify/kind.py : ClassifyKind on the engine:
 src/perfrepair/ai/parse/algorithm_classify/render.py : one batch's message: per id the engine type, name, canonical, provider, family, trial, className, attributes
 src/perfrepair/ai/parse/algorithm_classify/schema.py : the answer's JSON schema: answers of id, answer, reason
 src/perfrepair/ai/parse/algorithm_classify/state.py : Classified (the outbox's projection), reviewed (answers onto verdicts), candidates (registry-candidates.yaml)
-src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; refresh; GroupingKind on the engine, its dry run
-src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: askable (not identified), pending (askable, narrowed to used.json when present), not_used, code-made and catalog groups seeded in empty, a refresh token as charter inputs, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
+src/perfrepair/ai/parse/grouping_assign/command.py : stage: assign; GroupingKind on the engine, its dry run
+src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: askable (not identified), pending (askable, narrowed to used.json when present), not_used, code-made and catalog groups seeded in empty, gone (a record's item that left), admit (gate B), check (gate C), apply, validate (gates A, D), projections
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: one YAML block of the family, its groups and the item, each with the facts code knows by contract; exact leaves out each group a known fact contradicts
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge

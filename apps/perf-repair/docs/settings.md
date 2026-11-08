@@ -46,7 +46,6 @@
 | `device.screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | error | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
 | `device.screening.aiReview` | `true`, `false` | `false` | warning | `grouping build`: the model review of unknown items |
 | `device.grouping.turns`, `device.grouping.sessions`, `device.grouping.limit` | positive integers | 3, 2, all items | warning | `grouping assign`, the last its `--limit` |
-| `device.grouping.noRerun` | `true`, `false` | `true` | warning | the guide's grouping step (`device/coverage.py`): `true` asks only items with no decision, `false` asks every item into a new outbox, one more each run. Coverage is computed each run, so knowledge that is missing is asked under either |
 | `device.benchmark.onGap`, `device.benchmark.onSetupMismatch` | `delta`, `stop`; `stop`, `rerun` | `delta`; `stop` | warning | the benchmark gate (`device/gate.py`, [used-set.md](used-set.md) Benchmark gate): a used item a delta can measure is measured once with only the gaps, or `stop` ends with `not_benchmarked`; a delta whose setup differs stops `setup_mismatch` naming the field, `rerun` measures the whole benchmark again, the only way the gate starts one |
 | `device.filterByApps` | `true`, `false` | `true` | warning | the guide (`guide/device_steps.py` prerequisites): `true` detects the targets on the probe, writes `used.json` and has the device stage measure, and grouping ask, only the items they use and their options; `false` removes `used.json`, every item is asked and the base selection measured ([used-set.md](used-set.md)) |
 | `device.bundled.fromApps` | `off`, `suggest`, `apply` | `off` | warning | the same step: `suggest` writes `<device>/bundled-suggestions.yaml` from `catalog/bundled-providers.yaml`; `apply` also builds its matched, unblocked rows into the generated config at the app's pinned version, on a `--device` run only. Not recommended: prepare `providers.bundled` yourself |
@@ -54,6 +53,7 @@
 | `apps.perfMode` | `generic` or `all` (every registry key, overall judgement), or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers and the replace render carry; owns `run.metrics` of the benchmark ([pipeline.md](pipeline.md) Device stage), a differing `run.metrics` warns |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
 | `apps.device` | `true`, `false` | `false` | warning | `guide --device`: the per-app device step (compile and interop check of `harness.yaml`) and the report; with probe_device it also makes the device stage on the phone, else on the host |
+| `apps.review` | `true`, `false` | `false` | warning | `ai replace` and the guide: a reviewer one tier up reads each Select pick that will edit code, never `none`, a keep or a person's ([decisions.md](decisions.md) Select); off spends no review tokens |
 | `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
 | `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.thermal_throttled_at_end`, `stops.no_required_metric`, `stops.invariant_undecided` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires |
@@ -62,12 +62,11 @@
 |---|---|---|---|
 | `grouping build` classify (with `device.screening.aiReview`) | `device.screening.classify` | none | 2500 |
 | `grouping assign` | `device.grouping.assign` | effort `low` | 8500 |
-| `ai worthiness` | `device.worthiness` | none | 6500 |
-| `guide` | `apps.agent` | none | 6000, as `ai replace` |
-| `ai replace` | `apps.replace` | none | 6000 |
-| `ai upgrade`, the guide's upgrade step | `apps.upgrade` | none | 6000 |
+| `ai replace`, the guide's upgrade and replace steps (Select) | `apps.replace` | none | 6000 |
 
-- A role section takes the keys `gateway`, `model`, `effort`, `budget`. Its `gateway` is an error when bad; `model`, `effort` and `budget` warn.
+- A role section takes the keys `gateway`, `model`, `effort`, `webSearch`, `budget`, `spendCap`. Its `gateway` is an error when bad; the others warn.
+- `webSearch` (`true`, `false`, default `false`): the tier may search the web; also a key of the gateway's block.
+- `spendCap`: the real tokens one command may use, its jobs, reviewer and every tier together, cache reads and writes included; unset is no cap.
 - `budget` is read from the file only, a positive integer: tokens by chars/4 of the system prompt plus one task message. The engine checks it before each item's first call: [decisions.md](decisions.md).
 - `auth` and `binary` belong to the gateway's block; in a role section they are unknown keys, warned about and never read.
 - The `dry-run` gateway has no keys and ignores `--auth`, `--model`, `--effort`; each role answers with its own stand-in.

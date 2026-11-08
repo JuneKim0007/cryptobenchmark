@@ -5,7 +5,7 @@
 - `docs/replacement.md` : the flow from scope to a compiled, interop-checked replacement
 
 ## Rules
-- scope: the model chooses a unit's option (`ai replace`) and a broken use's upgrade target (`ai upgrade`); everything else here is a static join, rewrite or report.
+- scope: the model chooses one of code's candidates per unit and per broken use (`ai replace`, Select); everything else here is a static join, rewrite or report.
 - edit: apply by exact span only; a span that cannot be re-found or read is a coded rejection, never a guess.
 - edit: never write inside the app root; copies go to `<app>/original/` and `patched/`.
 - edit: a splice keeps the file's line count; harness extraction relies on it.
@@ -69,8 +69,7 @@ src/perfrepair/report/recommendations.py : dossiers.json's notOffered → recomm
 src/perfrepair/report/scope_row.py : one scope's pattern, decision, edit, compile, interop and the chosen option's primitive estimates
 src/perfrepair/report/summary.py : report.json files → summary.json: funnel sums, modes, pattern counts, broken uses, candidates not offered
 src/perfrepair/review/__init__.py : docstring only
-src/perfrepair/review/__main__.py : command: `sheet|score <device>`, `stability <device> --sample N --asks K`
-src/perfrepair/review/score.py : the sheet's verdicts and the journals' turns → grouping precision, pick accuracy, stability across asks of one message, gate rejections per 100 calls; review/score.json
+src/perfrepair/review/__main__.py : command: `sheet|score <device>`
+src/perfrepair/review/score.py : the sheet's verdicts and the attempt logs' turns → grouping precision, pick accuracy, gate rejections per 100 calls; review/score.json
 src/perfrepair/review/sheet.py : one row per model decision from the active outboxes with its scope pattern and patternReason, code facts, pick, reason, empty verdict and note: review/decisions.tsv; a rebuild keeps what a person filled
-src/perfrepair/review/stability.py : StabilityKind: N sampled replace units asked K times each on the engine, on the message `ai replace` sends → review/stability.json, its outbox in review/stability
 ```

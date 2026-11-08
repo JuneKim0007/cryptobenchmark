@@ -43,7 +43,7 @@ def via(used):
 def assign(paths):
     kind = GroupingKind(paths, FAMILIES)
     agent = ScriptedConversations(by_name)
-    decide(kind, charter(LIBRARY, kind.inputs), agent, paths.root, **QUIET)
+    decide(kind, charter(LIBRARY), agent, paths.root, **QUIET)
     return agent.started
 
 

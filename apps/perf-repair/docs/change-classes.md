@@ -131,5 +131,5 @@ Every option carries three fields code computes; the model is not asked for them
 | `migration` | also `migration` candidates |
 
 - An option above `drop-in` carries `change` and `diff`; the model is shown them and selects; it never adds a candidate.
-- A dossier that gains no option under a higher `maxChange` is byte-equal; one that gains an option is a new evidence digest, stale until `--refresh`.
+- A dossier that gains no option under a higher `maxChange` is byte-equal; one that gains an option is a new evidence digest, asked again.
 - `edit` applies only the `EDIT_KINDS` (`set_provider`, `set_algorithm`, `pin_parameters`): an option whose `input` is `reshaped` still needs its parameter built by the function.

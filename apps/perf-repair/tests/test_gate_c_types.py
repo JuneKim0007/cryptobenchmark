@@ -4,18 +4,15 @@ import copy
 import json
 
 import pytest
-from site_replace_data import answer, dossier, item
-from test_worthiness_kind import G, KIND, P1, P2
 
-from perfrepair.dto import Verdicts
 from perfrepair.validation.parse.grouping_assign import parse_answer
-from perfrepair.validation.suggest.site_replace import check_reply
+from perfrepair.ai.review.job import ReviewJob
+from perfrepair.ai.select.job import SelectJob
+from perfrepair.validation.json_reply import check_reply
 
 WRONG = ([], [[]], [{}], {}, {"a": 1}, 1, 1.5, True, None, "x")
 ANSWER = {"group": "", "newGroup": {"id": "new-group", "description": "d"},
           "amend": [{"group": "a", "description": "d"}], "reason": "r"}
-PAIRS = {"decision": "test", "pairs": [{"from": P1, "to": P2, "reason": "r"}], "reason": "r"}
-UNIT = item(dossier())
 
 
 def paths(value, at=()):
@@ -36,9 +33,8 @@ def swapped(doc, path, wrong):
 
 
 GATES = {
-    "worthiness": (lambda text: KIND.check(G, text, Verdicts("latency")), PAIRS),
-    "replace": (lambda text: check_reply(text, UNIT), answer()),
-    "recommend": (lambda text: check_reply(text, UNIT), answer("recommend")),
+    "select": (lambda text: check_reply(text, SelectJob.submit_schema), {"option": "C1", "reason": "r"}),
+    "review": (lambda text: check_reply(text, ReviewJob.submit_schema), {"verdict": "accept", "reason": "r"}),
     "assign": (parse_answer, ANSWER),
 }
 
@@ -53,8 +49,7 @@ def test_a_wrong_type_anywhere_in_a_reply_is_a_result_never_a_raise(gate):
 
 
 @pytest.mark.parametrize("check, reply", [
-    (GATES["worthiness"][0], {"decision": "test", "pairs": [{"from": [P1], "to": P2, "reason": "r"}], "reason": "r"}),
-    (GATES["replace"][0], {"decision": "replace", "members": [{"member": ["S1"]}], "reason": "r"}),
+    (GATES["select"][0], {"option": ["C1"], "reason": "r"}),
     (parse_answer, {"newGroup": {"id": 7, "description": "d"}, "reason": "r"}),
 ])
 def test_the_types_a_schema_should_forbid_are_problems_for_the_retry(check, reply):

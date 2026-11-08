@@ -13,8 +13,11 @@ LAYERS = [
     ("result",),
     ("app", "scope", "screen", "source", "probe"),
     ("validation",),
+    ("ai/model", "ai/log"),
+    ("ai/tools", "ai/attempt"),
     ("ai/runtime",),
-    ("ai", "ai/evaluate", "ai/parse", "ai/repair", "ai/suggest"),
+    ("ai/job",),
+    ("ai", "ai/parse", "ai/repair", "ai/suggest", "ai/select", "ai/review"),
     ("grouping", "repair", "command"),
     ("device",),
     ("report", "review", "failure"),
@@ -163,7 +166,7 @@ def test_app_and_device_keep_to_their_levels():
 # (attribute call, the modules allowed to make it): agents start one way, prompts load one way.
 AGENT_ENTRY = {
     "start": ("ai/runtime/engine/ask", "ai/runtime/gateway/spawn"),
-    "charter": ("kind", "ai/runtime/prompt/library", "ai/runtime/engine"),
+    "charter": ("kind", "ai/runtime/prompt/library", "ai/runtime/engine", "ai/job"),
 }
 BACKENDS = {"ClaudeConversations", "ClaudeCliConversations", "ClaudeClient"}
 

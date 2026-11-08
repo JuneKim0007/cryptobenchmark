@@ -1,9 +1,12 @@
 import logging
+import re
 import shutil
 from dataclasses import replace
 from contextlib import contextmanager
 from pathlib import Path
 
+from perfrepair import run_dir as rd
+from perfrepair.ai.log.attempt_log import read_log
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
@@ -11,6 +14,28 @@ from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.log.emit import EVENT_ATTR
 from perfrepair.log.sink import to_event
 from perfrepair.result.modes import mode_of
+
+FIRST_CANDIDATE = re.compile(r"^  (C\d+) = ", re.M)
+FIRST_OPTION = re.compile(r"^  (R\d+) = ", re.M)
+
+
+def first_candidate(task, *_):
+    """A Select model that takes code's first candidate, or none when code has none."""
+    if task.name == "review":
+        return {"tool": "verdict", "args": {"verdict": "accept", "reason": "agrees"}}
+    found = FIRST_CANDIDATE.search(task.text) or ("CANDIDATES (best" in task.text and FIRST_OPTION.search(task.text))
+    return {"tool": "submit", "args": {"option": found.group(1) if found else "none", "reason": "faster"}}
+
+
+def logged(device, job):
+    """log/ai/<job>.yaml's attempts; none when the job never ran."""
+    path = rd.ai_log(device, job)
+    return read_log(path)["attempts"] if path.is_file() else []
+
+
+def model_calls(device, job, app=None):
+    return sum(len(a["turns"]) for a in logged(device, job) if app is None or a.get("app") == app)
+
 
 FIXTURE_DEVICE = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000"
 LIBRARY = PromptLibrary.load()
@@ -54,7 +79,7 @@ def library_with(texts):
 
 
 def label_charter(schema):
-    return library_with({"evaluate/worthiness": "SYS"}).charter("evaluate/worthiness", schema)
+    return library_with({"parse/algorithm-classify": "SYS"}).charter("parse/algorithm-classify", schema)
 
 
 def row(rid, provider, algorithm="ALG-A", type_="TypeA", key_kind="secret", key_size=128, input_size=64,

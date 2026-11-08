@@ -6,7 +6,7 @@ import pytest
 import yaml
 from helpers import with_results, LIBRARY, QUIET
 
-from perfrepair.ai.parse.algorithm_classify.command import DRY_RUN, Reviewer
+from perfrepair.ai.parse.algorithm_classify.command import Reviewer, dry_run
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.catalog.screening import SCREENING, PlatformRule
@@ -168,7 +168,7 @@ def test_a_rebuild_resumes_the_outbox_and_another_unknown_set_rotates_it(reviewe
 def test_the_dry_run_answers_unsure_so_no_verdict_changes(tmp_path):
     assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     plain = read_screen(json.loads(build_stage(F, tmp_path, _undecided(PACKAGED), **QUIET).screen.read_text()))
-    paths = build_stage(F, tmp_path, _undecided(PACKAGED), Reviewer(DRY_RUN, LIBRARY), **QUIET)
+    paths = build_stage(F, tmp_path, _undecided(PACKAGED), Reviewer(dry_run(), LIBRARY), **QUIET)
     assert read_screen(json.loads(paths.screen.read_text())) == plain
     assert yaml.safe_load(paths.registry_candidates.read_text())["candidates"] == []
 

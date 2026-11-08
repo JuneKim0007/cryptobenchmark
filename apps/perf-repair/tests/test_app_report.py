@@ -70,8 +70,7 @@ def app(tmp_path):
 def test_each_scope_reports_its_steps_and_no_number(tmp_path):
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
     r = rows(doc)
-    assert r[A]["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "stale": False,
-                                "needs": [], "concerns": []}
+    assert r[A]["decision"] == {"decision": "replace", "reason": "faster", "source": "llm", "needs": []}
     assert (r[A]["current"], r[A]["option"], r[A]["edit"]["status"], r[A]["compile"]["status"]) == (CURRENT, OPTION, "applied",
                                                                                                  "compiled")
     assert r[A]["interop"] == {"status": "passed", "reason": None, "check": "same_output"} and r[A]["primitive"] == [ESTIMATE]

@@ -14,8 +14,8 @@ from ..dto.grouping import read_items, read_profiles
 from ..files import read_json
 from ..result.gain import option_label
 
-COLUMNS = ("kind", "app", "item", "pattern", "patternReason", "model", "facts", "pick", "reason", "concerns", "verdict", "note")
-GROUPING, REPLACE, CLASSIFY, WORTHY = "grouping", "replace", "classify", "worthiness"
+COLUMNS = ("kind", "app", "item", "pattern", "patternReason", "model", "facts", "pick", "reason", "verdict", "note")
+GROUPING, REPLACE, CLASSIFY = "grouping", "replace", "classify"
 KEY = ("kind", "app", "item", "pick")
 FREE_TEXT = ("reason", "description")
 DROPPED = "(dropped)"
@@ -32,7 +32,6 @@ class Stage:
 def stages(device: Path) -> list[Stage]:
     grouping = rd.GroupingPaths(device)
     found = [Stage(GROUPING, "", grouping.root), Stage(CLASSIFY, "", grouping.classify)]
-    found += [Stage(WORTHY, mode, rd.worthiness(device, mode)) for mode in rd.worthiness_modes(device)]
     return found + [Stage(REPLACE, d.name, rd.AppPaths(device, d.name).replace) for d in rd.app_dirs(device)]
 
 
@@ -73,10 +72,10 @@ def _grouping_pick(decision: dict) -> str:
     return decision.get("group") or (decision.get("newGroup") or {}).get("id") or ""
 
 
-def _row(stage: Stage, r: OutboxRecord, item: str, facts: dict, pick: str, reason: str, concerns=(), pattern=("", "")) -> dict:
+def _row(stage: Stage, r: OutboxRecord, item: str, facts: dict, pick: str, reason: str, pattern=("", "")) -> dict:
     return {"kind": stage.kind, "app": stage.app, "item": item, "pattern": pattern[0], "patternReason": pattern[1],
-            "model": r.agent.model or "", "facts": json.dumps(facts, sort_keys=True),
-            "pick": pick, "reason": reason, "concerns": "; ".join(concerns), "verdict": "", "note": ""}
+            "model": r.model, "facts": json.dumps(facts, sort_keys=True),
+            "pick": pick, "reason": reason, "verdict": "", "note": ""}
 
 
 def _replace_rows(stage: Stage, r: OutboxRecord, scopes: dict[str, tuple[dict, dict]]) -> list[dict]:
@@ -87,7 +86,7 @@ def _replace_rows(stage: Stage, r: OutboxRecord, scopes: dict[str, tuple[dict, d
         option = one.get("option")
         chosen = classes.get(option, {})
         rows.append(_row(stage, r, one["scope"], {**facts, **chosen}, f"{one['decision']} {option}" if option else one["decision"],
-                         one.get("reason") or "", one.get("concerns") or (), pattern))
+                         one.get("reason") or "", pattern))
     return rows
 
 

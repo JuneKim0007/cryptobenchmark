@@ -26,10 +26,10 @@
 
 | Artifact | Producer | Consumers | Validator |
 |---|---|---|---|
-| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the worthiness and site-replace renders (absent: ms, MB/s) | `validation/manifest.py` |
+| `manifest.yaml` | cryptobenchmark `pipeline.py` | inbound, grouping build, probe_device (`inputs`); `units` by `display_units` for the Select render (absent: ms, MB/s) | `validation/manifest.py` |
 | `device.yaml` | probe_device, last | probe_device | `DeviceRecord.from_json`: schema, the four input digests, the manifest's sha256; `benchmark`, after a used-set benchmark or a merged delta: the generated config's digest, the measured set's digest and items; `bundled`, with `device.bundled.fromApps: apply`: the applied entries' digest and the manifest's `bundled` and `config` digests they produced; unreadable counts as absent |
-| `rows.json` | inbound | worthiness, validation | `validation/rows.py`: schema 2, a delta's rows with their `session` and `drift`, every row's `variant` `fixed` or `notFixed` (any other value, or none, is refused) and `perCall` from `prepared.yaml` |
-| `measurements.json` | inbound | worthiness, validation | `validation/measurements.py` |
+| `rows.json` | inbound | repair dossier, validation | `validation/rows.py`: schema 2, a delta's rows with their `session` and `drift`, every row's `variant` `fixed` or `notFixed` (any other value, or none, is refused) and `perCall` from `prepared.yaml` |
+| `measurements.json` | inbound | repair dossier, validation | `validation/measurements.py` |
 | `run_log.json` | inbound | validation | `validation/run_log.py` |
 | `primitives.tsv` | the device stage's primitives step (`device/primitives.py`) | `data_handler/inbound/primitives.py`; people | `validation/primitives.py`, before writing |
 | `used.json` | the device stage's used step (`device/used.py`), with `device.filterByApps` | grouping assign and report (what is asked, `notUsed`), the benchmark's selection | `validation/used.py`, before writing; [Used set](#usedjson) |
@@ -41,9 +41,7 @@
 | `<app>/app.json` | `perfrepair.app` | dossier | `validation/app.py`, before writing |
 | `<app>/scopes.json` | `perfrepair.app` | dossier, harness | `validation/app.py`, before writing: schema 6, every scope's lifecycle in its closed lists, its pattern the rule's for that lifecycle, cited lines inside the file |
 | `<app>/units.json` | `perfrepair.app` | dossier, edit, harness, report, the guide's `finished.json` | `validation/units.py`, before writing: every scope in one unit, recomputed ids, members connected by their links, each cited line in that side's lifecycle |
-| `grouping/*` | grouping | worthiness and repair read `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
-| `worthiness-<mode>/evidence.json` | worthiness | audit | none |
-| `worthiness-<mode>/outbox/<fingerprint>/NNNNNN.json`, `outbox/active` | worthiness | worthiness (resume), validation | the commit; `WorthinessKind.validate` |
+| `grouping/*` | grouping | repair reads `groups.json` | `validation/grouping/*`; files: `docs/grouping.md` |
 | `targets.yaml` | the guide's targets step, before grouping | people | none: written whole from `apps.targets` resolved ([targets.md](targets.md#targetsyaml)) |
 | `<app>/finished.json` | `RunRecord.app_done`, when an app is done ([replacement.md](replacement.md)); removed on the first step of its rerun | `RunRecord.is_done` | none: `{schemaVersion: 1, inputs, outcome}`; inputs compared, anything else, unreadable included, is not done |
 | `runs/run_<id>.json` | `RunRecord` (`run_dir/run_record.py`), written durably after the device stage and each app step | people | none: [Run record](#run-record) |
@@ -54,8 +52,6 @@
 | `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |
 | `log/details/primitives_missing.yaml`, `log/details/benchmark_coverage.yaml` | the guide, through `device/primitives_missing.py` and `device/benchmark_coverage.py` (each gate point); rewritten whole | people; no stage reads them back | `validation/primitives_missing.py`, `validation/benchmark_coverage.py`, before writing; [run-log.md](run-log.md) |
 | `delta/`, `benchmark/merged-<session>/` | the benchmark gate's delta (`device/delta.py`, `device/delta_merge.py`): its config, test set and pipeline results; the merged files beside the stored ones | the merge; `manifest.yaml` then names the merged files and lists `deltas` | the setup fingerprint and an add-only merge ([used-set.md](used-set.md#benchmark-gate)) |
-| `worthiness-<mode>/verdicts.json` | worthiness | validation | `validation/verdicts.py` + projection equality |
-| `worthiness-<mode>/journal.jsonl`, `errors.jsonl` | worthiness | audit | none |
 | `<app>/dossiers.json` | repair dossier | replace | `validation/dossiers/`, before writing: schema 9 (`upgrades` and `brokenUnreached`: the broken uses; estimates of the scope's pattern's variant only, `perCall`), `units` the units asked, `perfMode` the selection its estimates hold, `measured` the selected metrics the run has a measurement of, `maxChange`, `notOffered` the candidates rejected or above it, each with `outputChanges`; every option with `track`, `outputChanges`, `reach`, `needsReview` ([change-classes.md](change-classes.md#review-facts)) |
 | `<app>/edits.json`, `original/`, `patched/`, `patched-alone/<unit>/` | repair edit | repair harness | `validation/repair.py`, before writing |
 | `<app>/harness.yaml`, `harness/<scope>/` | repair harness | cryptobenchmark | `validation/repair.py`, before writing |
@@ -65,10 +61,9 @@
 | `apps-index.tsv` | the guide's summary step, `perfrepair.guide.index` | people: find an app, what is left on it; its `fixed`, `notFixed` and `unknown_default` scope counts | none: rebuilt whole from the app folders and `log/events.jsonl` |
 | `review/decisions.tsv` | the guide's summary step, `perfrepair.review` | people, `review score` | none: a verdict is `ok`, `wrong` or empty, checked by `score` |
 | `review/score.json` | `perfrepair.review score` | people | none |
-| `review/stability.json`, `review/stability/` | `perfrepair.review stability` | people | `check/apps.py`: the rebuild of its outbox |
 
-- Every JSON document carries `schemaVersion`; its current value is the `*SCHEMA_VERSION` constant of its `dto/` module (`EVIDENCE_SCHEMA_VERSION` in `ai/evaluate/worthiness/command.py`), and `measurements.json` keys every metric by its benchmark.json name.
-- A journal is append-only, one line per model turn with its `durationMs`, `role` and `inputs` (`{file, digest}`), audit only; state is the projection of the outbox; `writes.json` beside it lists what the charter's runs wrote; `check/contracts.py` holds both to `catalog/role-contracts.yaml`.
+- Every JSON document carries `schemaVersion`; its current value is the `*SCHEMA_VERSION` constant of its `dto/` module, and `measurements.json` keys every metric by its benchmark.json name.
+- `log/ai/<job>.yaml` holds every attempt, audit only; state is the projection of the outbox.
 - `charter.json` holds the system and correction texts, the schema, the inputs and each prompt's `source` (`packaged` or the override path).
 - `measurements.json` carries the run's `runtime` and `comparability` notes; per row a summary for every metric of `dto/metrics.py` it has runs of, under its benchmark.json name (`timeNs` always); one with kinds (`energyJ`) carries its `kind`.
 - A `measurements.json` in another schema is unreadable: the device stage reruns inbound (`measurements.json unreadable (...)`).
@@ -76,7 +71,7 @@
 
 ## Run record
 
-`runs/run_<id>.json`: one guide run on the device folder; `--run-id` names it, unset a new `YYYYMMDDTHHMMSSZ` (with `-<n>` when taken). Beside it `runs/delta_asked.json`: per app the last merged delta its replace asked after; an app behind the manifest's last `deltas` session asks its changed dossiers; removed with `overwrite`.
+`runs/run_<id>.json`: one guide run on the device folder; `--run-id` names it, unset a new `YYYYMMDDTHHMMSSZ` (with `-<n>` when taken).
 
 | field | holds |
 |---|---|

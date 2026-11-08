@@ -21,7 +21,6 @@ from ....validation.parse.grouping_assign import (
 )
 from ....validation.screen import read_checked_screen
 from ...runtime.engine.kind import replay_problems
-from ...runtime.engine.refresh import kept_inputs
 from ...runtime.prompt import PromptLibrary
 from .render import render
 from .schema import SCHEMA
@@ -51,11 +50,6 @@ class GroupingKind:
         used = load_used(paths.root.parent)
         # used.json narrows what is asked, never what a record adds: an item outside it keeps its group
         self.scope = None if used is None else used.names
-
-    @property
-    def inputs(self) -> str:
-        """The active outbox's refresh, kept so a later run stays in it; what is screened out is no input: its records just add no member."""
-        return kept_inputs(self.paths.root)
 
     def items(self) -> list[Item]:
         return self._items

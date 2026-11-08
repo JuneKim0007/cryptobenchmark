@@ -18,7 +18,6 @@ OVERWRITE, RESUME, SKIP = "overwrite", "resume", "skip"
 ON_EXISTING = (OVERWRITE, RESUME, SKIP)
 RUNNING, DONE, FAILED, STOPPED = "running", "done", "failed", "stopped"
 SCHEMA_VERSION = FINISHED_SCHEMA = 1
-DELTA_ASKED = "delta_asked.json"
 STAMP = "%Y%m%dT%H%M%SZ"
 
 
@@ -61,11 +60,6 @@ def _finished(paths: AppPaths) -> dict | None:
     ok = isinstance(doc, dict) and doc.get("schemaVersion") == FINISHED_SCHEMA and isinstance(doc.get("inputs"), dict)
     return doc if ok else None
 
-
-def _latest_delta(device: Path) -> str | None:
-    """The manifest's swap is the merge's commit, so no interrupt separates a merge from this answer."""
-    deltas = read_yaml(Path(device) / MANIFEST).get("deltas") if (Path(device) / MANIFEST).is_file() else None
-    return deltas[-1]["session"] if deltas else None
 
 
 def _stamp(device: Path) -> str:
@@ -134,7 +128,6 @@ class RunRecord:
         for folder in app_dirs(device):
             AppPaths(device, folder.name).finished.unlink(missing_ok=True)
         drop_device_record(device)
-        (Path(device) / RUNS / DELTA_ASKED).unlink(missing_ok=True)
 
     def _write(self) -> None:
         self.doc["updated"] = _now()
@@ -178,21 +171,6 @@ class RunRecord:
         self.doc["apps"][app] = {"status": DONE, "outcome": outcome, "reused": True}
         self._write()
         return outcome
-
-    def _delta_asked(self) -> dict:
-        path = self.device / RUNS / DELTA_ASKED
-        return read_json(path) if path.is_file() else {}
-
-    def delta_unasked(self, app: str) -> bool:
-        """A merged delta this app's replace has not asked after, on any run: its changed dossiers are asked, not a stop."""
-        latest = _latest_delta(self.device)
-        return latest is not None and self._delta_asked().get(app) != latest
-
-    def delta_asked(self, app: str) -> None:
-        """Only when the app's replace asked every changed scope; kept across run ids, since the next run may name another."""
-        latest = _latest_delta(self.device)
-        if latest is not None:
-            write_json(self.device / RUNS / DELTA_ASKED, {**self._delta_asked(), app: latest}, durable=True)
 
     def close(self) -> None:
         self.lock.release()

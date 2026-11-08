@@ -27,8 +27,8 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 
 - The lower-level command under `apps/cli/facade.py` ([facade.md](../../../docs/facade.md)); it needs `pip install -e apps/perf-repair` or `PYTHONPATH=apps/perf-repair/src`.
 - `--max-change` defaults to `apps.maxChange` ([change-classes.md](change-classes.md)).
-- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.device`, `--config` to `pipeline.py`'s lookup, `--harness-config` to `--config`, the model to the `apps.agent` role; `ai replace` uses the `apps.replace` role (`docs/settings.md`).
-- `--refresh` asks again the replace decisions whose dossier changed, and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; without it such an app stops with `dossier_changed` (`docs/decisions.md` Site replace).
+- `--perf-mode`, `--limit` and `--device` default to `apps.perfMode`, `apps.limit` and `apps.device`, `--config` to `pipeline.py`'s lookup, `--harness-config` to `--config`, the model to the `apps.replace` role, as `ai replace` (`docs/settings.md`).
+- `--refresh` runs a done app again and, when the guide runs the device stage (no named folder), rebuilds `primitives.tsv`; a unit whose dossier changed is asked again without it ([decisions.md](decisions.md) Select).
 - `--run-id` names the run record, unset a new timestamp; `--on-existing` is `overwrite`, `resume` or `skip` ([artifacts.md](artifacts.md#run-record)).
 - `--stop-after-device` ends after prerequisites: target detect, used set, benchmark, inbound; no model call. `--outcome FILE` writes `{device, run, exit, code}`; `--run-settings FILE` stores that JSON under `settings` in the record.
 - `--device-results` is required unless `--results-root` is set.
@@ -55,7 +55,6 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 | `invariant_failed` | replace | before the replace call: a blocking invariant of the app's scopes or of a group its dossiers draw from ([invariants.md](invariants.md)) |
 | `invariant_undecided` | replace | before the replace call: an undecided invariant, the source does not tell; a warning unless `stops.invariant_undecided: stop` |
 | `no_replacement` | replace | every scope is kept |
-| `dossier_changed` | replace | a decision was made on an earlier dossier; the line names the scopes; `guide --refresh` asks them again |
 | `edit_invalid`, `no_edit_applied` | edit | edits.json fails its validator; every edit is rejected, with the reasons |
 | `harness_invalid` | harness | harness.yaml fails its validator |
 | `no_dossier` | harness | an applied edit's scope has no `dossiers.json` entry; nothing is written |
@@ -69,7 +68,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 |---|---|
 | `unit`, `sharedFunction`, `stayed` | the scope's unit id; the other units with a member in its function, whose edits its patched function leaves out; the unit's members a static keep left on what they use while another member is replaced, [] otherwise |
 | `inputs` | the scope's harness.yaml `inputs`: `inputSize`, `keySize`, `from` (`app` or `run`); null when the scope is not in the harness |
-| `decision` | `replace`, `recommend`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static`; `stale` true when replacements.json lists the scope as decided on an earlier dossier, marked in report.md |
+| `decision` | `replace`, `recommend`, `keep` or `not_run`; its reason; source `llm`, `fallback` or `static` |
 | `edit` | `applied`, `rejected` (edits.json reason), `skipped` (not a replace), `not_run` |
 | `compile` | `compiled`; `primitive_only` with the scoped-plan reason (`not_compilable`); `not_measurable` with its reason (`no_operation`: a factory, never generated); `skipped`; `not_run` (no device run) |
 | `interop` | `passed`, `unchecked`, `not_comparable` (an identity-only output), `interop_failed`, `call_failed`, with the check and reason; `skipped`, `not_run` |
@@ -98,7 +97,7 @@ python3 -m perfrepair guide --device-results <device> ...   # without --app: eve
 - Settlement: when every path closes to one origin, with no path open or cut and no parameter or field other classes can reach, the requirement holds `settled: {origin, line}` and nothing asks.
 - Scoping is local and has no cross-file analysis: a requirement from elsewhere (`parameter`, `other_call`, with its line) is a recorded fact, and unknown is an allowed result.
 - `origin` on a requirement is what code read and is never rewritten; `status` and `reasons` stay as code read them.
-- `keySource` takes a settled key origin only when it is in `KEY_SOURCES` and the view is `unknown` or `parameter`, so a closed reading stays. The `DERIVED_RISKS` rows read `keySource`, so they follow it; `storage`, `unknown` and `parameter` imply `key_compatibility` too. Site-replace shows each settled requirement as `settled: <origin>, line <n>`.
+- `keySource` takes a settled key origin only when it is in `KEY_SOURCES` and the view is `unknown` or `parameter`, so a closed reading stays. The `DERIVED_RISKS` rows read `keySource`, so they follow it; `storage`, `unknown` and `parameter` imply `key_compatibility` too. Select's message shows each settled requirement as `settled: <origin>, line <n>`.
 - `keySource` is the key requirement's origin when it is one of `KEY_SOURCES` (a field's or a private method's parameter's single origin one method away when there is one), else the pattern match; `sinks` stay the pattern match.
 - An `energyJ` estimate carries `kind`; `estimated` also shows in its `configuration`. A metric both sides have with no ratio is in the option's `noEstimates` with its reason: `energy_kinds_differ` (sides of different kinds), `zero_median` (the current median is 0), `too_few_runs` (a side below `MIN_RUNS`, the gate's `low_quality`); the replace message shows each as `no estimate: <metric> at <configuration>: <reason>`. A `benchmark.json` without a kind reads as `measured`.
 - An option's estimates cover only the configurations of the lifecycle's `operations` when it knows them; its pins come from every operation, since parameters do not depend on it.

@@ -1,7 +1,7 @@
 """python3 -m perfrepair.grouping {build,assign,report} — the grouping stage, one step per command.
   build   --device-results <dir>                           items.json, profiles.json, screen.json;
           with device.screening.aiReview [--agent ...] [--prompts DIR] the classify model reviews the unknown items first
-  assign  --device-results <dir> [--agent ...] [--prompts DIR] [--turns 3] [--sessions 2] [--limit N] [--refresh]
+  assign  --device-results <dir> [--agent ...] [--prompts DIR] [--turns 3] [--sessions 2] [--limit N]
   report  --device-results <dir>                            checks.json, groups.json
   interop-plan --device-results <dir>                         interop_plan.yaml from groups.json
   interop-read --device-results <dir> --results <interop.yaml>  interop.yaml imported; report rerun with its findings
@@ -54,7 +54,6 @@ def _parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParse
     a.add_argument("--sessions", type=positive_int, help=f"default: device.grouping.sessions, else {Limits.sessions}")
     a.add_argument("--limit", type=positive_int, help="decide at most this many items in this call; the next call resumes; "
                                              "default: device.grouping.limit, else all")
-    a.add_argument("--refresh", action="store_true", help="ask every item again into a new outbox; the old one stays")
     r = sub.add_parser("report")
     add_device_results_arg(r)
     add_config_arg(r)
@@ -72,8 +71,8 @@ def _assign(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     settings = _with_device(ap, args)
     library = load_prompts(ap, args, settings)
     fill(settings, args, {"turns": GROUPING_TURNS, "sessions": GROUPING_SESSIONS, "limit": GROUPING_LIMIT})
-    assign_cmd.assign(GroupingPaths(args.device_results), spawn(args, settings, assign_cmd.DRY_RUN), library,
-                      Limits(args.turns, args.sessions), args.limit, refresh=args.refresh)
+    assign_cmd.assign(GroupingPaths(args.device_results), spawn(args, settings, assign_cmd.dry_run()), library,
+                      Limits(args.turns, args.sessions), args.limit)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -98,7 +97,7 @@ def _build(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args: arg
     settings = _with_device(ap, args)
     reviewer = None
     if ai_review(settings):
-        reviewer = Reviewer(spawn(args, settings, classify_cmd.DRY_RUN), load_prompts(ap, args, settings))
+        reviewer = Reviewer(spawn(args, settings, classify_cmd.dry_run()), load_prompts(ap, args, settings))
     elif given := [f"--{name}" for name in BUILD_MODEL_FLAGS if getattr(args, name) is not None]:
         step.error(f"{', '.join(given)} only apply with device.screening.aiReview; build alone calls no model")
     paths = build_stage(args.device_results / rd.MANIFEST, args.device_results, screening_catalog(settings), reviewer)

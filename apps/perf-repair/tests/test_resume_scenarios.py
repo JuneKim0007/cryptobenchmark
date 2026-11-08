@@ -12,7 +12,7 @@ from test_guide_targets import Base, apps, steps
 from test_run_lock import HOLD, SRC
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from perfrepair.ai.suggest.site_replace.command import DRY_RUN
+from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.files import read_json
@@ -84,9 +84,9 @@ def test_s2_a_terminal_stop_is_done_and_its_rerun_repeats_nothing(p, monkeypatch
     a = p.app("a")
     if how == "no_options":
         _no_options(monkeypatch)
-    code, _ = p.go([a], conversations=DRY_RUN)
+    code, _ = p.go([a], conversations=dry_run())
     assert code == 1 and read_json(p.paths(a).finished)["outcome"] == how
-    code, events = p.go([a], conversations=DRY_RUN)
+    code, events = p.go([a], conversations=dry_run())
     assert code == 0 and apps(events) == [(path_id(a), "reused", None)] and "app" not in steps(events)
 
 
@@ -164,8 +164,9 @@ def test_s6_aba_a_stopped_rerun_leaves_no_done_mark_to_revert_onto(p):
     """Before: run 3 (latency again) reused run 1's mark beside run 2's throughput dossiers. After: it runs."""
     a = p.app("a")
     p.go([a])
-    code, _ = p.go([a], conversations=DRY_RUN, mode=THROUGHPUT)
-    assert code == 1 and not p.paths(a).finished.exists()
+    code, _ = p.go([a], conversations=dry_run(), mode=THROUGHPUT)
+    # Select asks the changed units again, keeps them all, and no_replacement is terminal: the mark is run 2's
+    assert code == 1 and read_json(p.paths(a).finished)["inputs"]["perfMode"] == THROUGHPUT.name
     code, events = p.go([a])
     assert apps(events)[0][0] == path_id(a) and apps(events)[0][1] != "reused"
     assert read_json(p.paths(a).dossiers)["perfMode"] == ["latency"]

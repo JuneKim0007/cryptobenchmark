@@ -58,8 +58,7 @@ def report_markdown(doc: dict) -> str:
                 _unit(s), f"- pattern: {s['pattern']} ({s['patternReason']}: {rule_words(s['patternReason'])})",
                 f"- current → option: {s['current'] or 'n/a'} → {s['option'] or 'n/a'}",
                 f"- inputs: {_inputs(s['inputs'])}",
-                f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}"
-                + (" — stale: decided on an earlier dossier, `--refresh` asks again" if d["stale"] else ""),
+                f"- decision: {d['decision']} ({d['source'] or 'n/a'}): {d['reason']}",
                 *([f"- metrics: {chose}"] if chose else []),
                 f"- edit: {_step(s['edit'])}", f"- compile: {_step(s['compile'])}", f"- interop: {_interop(s)}"]
         if s["primitive"]:

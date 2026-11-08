@@ -7,7 +7,7 @@ from collections import Counter
 from datetime import datetime
 
 from ..dto.coded import InputError
-from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, TURN, Event
+from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, Event
 from .status import status_line
 
 TOP = 5
@@ -38,22 +38,22 @@ def _steps(events: list[Event]) -> dict[str, dict]:
     return steps
 
 
-def _usage(turns: list[Event]) -> dict:
+def _usage(decisions: list[Event]) -> dict:
     tokens: dict = {}
-    for e in turns:
+    for e in decisions:
         for k, v in (e.tokens or {}).items():
             tokens[k] = tokens.get(k, 0) + int(v or 0)
-    costs = [e.costUsd for e in turns if e.costUsd is not None]
+    costs = [e.costUsd for e in decisions if e.costUsd is not None]
     return {"tokens": tokens or None, "costUsd": round(sum(costs), 6) if costs else None}
 
 
 def _slowest(decisions: list[Event]) -> list[dict]:
     return [{"step": e.step, "item": e.data.get("label") or e.item, "durationMs": e.durationMs,
-             "turns": e.data.get("turns")} for e in sorted(decisions, key=lambda e: -(e.durationMs or 0))[:TOP]]
+             "turns": e.data.get("calls")} for e in sorted(decisions, key=lambda e: -(e.durationMs or 0))[:TOP]]
 
 
-def _problems(turns: list[Event]) -> list[dict]:
-    problems = Counter(_TURN_PREFIX.sub("", p) for e in turns for p in e.data.get("problems") or ())
+def _problems(decisions: list[Event]) -> list[dict]:
+    problems = Counter(_TURN_PREFIX.sub("", p) for e in decisions for p in e.data.get("problems") or ())
     return [{"problem": p, "count": n} for p, n in problems.most_common(TOP)]
 
 
@@ -66,21 +66,22 @@ def _place(e: Event) -> tuple:
 
 
 def _unended_turns_ms(events: list[Event]) -> int:
-    """A model step in a killed run has no end, and only its turns say what it took."""
+    """A model step in a killed run has no end, and only its attempts say what it took."""
     ended = {_place(e) for e in _of(events, END)}
-    return sum(e.durationMs or 0 for e in _of(events, TURN) if _place(e) not in ended)
+    return sum(e.durationMs or 0 for e in _of(events, DECISION) if _place(e) not in ended)
 
 
 def block(events: list[Event]) -> dict:
-    """The numbers of one group of events; a turn is one model call."""
-    turns, decisions = _of(events, TURN), _of(events, DECISION)
+    """The numbers of one group of events; an attempt's turns are its model calls."""
+    decisions = _of(events, DECISION)
     # steps of one stage do not nest, so their ends add up; a stage's steps nest in another's (guide, device)
     return {"durationMs": sum(e.durationMs or 0 for e in _of(events, END)) + _unended_turns_ms(events), "steps": _steps(events),
             "items": len({(e.step, e.item) for e in decisions}),
             "decisions": dict(Counter(e.outcome for e in decisions)),
-            "modelCalls": len(turns), "rejections": sum(e.outcome != "accepted" for e in turns),
-            "topProblems": _problems(turns),
-            "slowest": _slowest(decisions), **_usage(turns)}
+            "modelCalls": sum(e.data.get("calls") or 0 for e in decisions),
+            "rejections": sum(e.data.get("rejected") or 0 for e in decisions),
+            "topProblems": _problems(decisions),
+            "slowest": _slowest(decisions), **_usage(decisions)}
 
 
 def _grouped(events: list[Event], key) -> dict[str, dict]:

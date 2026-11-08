@@ -9,8 +9,6 @@ flowchart LR
     B -- manifest --> G[grouping: build, assign per item, report]
     I -- rows, measurements --> E[evidence + triage: static]
     G -- grouping/groups.json --> E
-    E -- groups with an improving pair --> W[worthiness: model per group]
-    E -- static verdicts --> V[worthiness-mode/verdicts.json]
     W --> V
     A[app: detect, scope] -- app/scopes.json --> D[repair dossier]
     G -- grouping/groups.json --> D
@@ -29,13 +27,12 @@ flowchart LR
 | inbound | `python3 -m perfrepair.data_handler.inbound --device-results <device>` | `manifest.yaml` and its files | `rows.json`, `measurements.json`, `run_log.json` | no |
 | app | `python3 -m perfrepair.app --device-results <device> --app <src>` | the manifest's probe, the app tree | `<app>/sites.json`, `app.json`, `scopes.json` | no |
 | grouping build | `python3 -m perfrepair.grouping build --device-results <device>` | `manifest.yaml`: probe and trial; inventory, prepared and benchmark when present | `grouping/items.json`, `profiles.json`, `screen.json`; with `device.screening.aiReview` `grouping/classify/`, `registry-candidates.yaml` | with `device.screening.aiReview`: one conversation per batch of 10 unknown items |
-| grouping assign | `python3 -m perfrepair.grouping assign --device-results <device> [--refresh]` | `grouping/` | `grouping/` (`docs/grouping.md`) | one conversation per item, up to turns × sessions |
+| grouping assign | `python3 -m perfrepair.grouping assign --device-results <device>` | `grouping/` | `grouping/` (`docs/grouping.md`) | one conversation per item, up to turns × sessions |
 | grouping report | `python3 -m perfrepair.grouping report --device-results <device>` | `grouping/` | `knowledge.json`, `checks.json`, `groups.json` | no |
 | guide interop step | `guide/device_steps.py` `interop` (`device/interop.py`): the three interop rows below, for the pairs a site reaches | `grouping/groups.json`, `used.json` | `grouping/interop_plan.yaml`, `interop.yaml`, `groups.json` | no |
 | grouping interop-plan | `python3 -m perfrepair.grouping interop-plan --device-results <device>` | `grouping/groups.json` | `grouping/interop_plan.yaml` | no |
 | interop check | cryptobenchmark `pipeline.py --bench\|--device --interop <plan>` | the plan, the capture | `<device>/interop/interop.yaml`, added to its manifest | no |
 | grouping interop-read | `python3 -m perfrepair.grouping interop-read --device-results <device> --results <interop.yaml>` | `interop.yaml`, `grouping/` | `grouping/interop.yaml`; reruns report | no |
-| worthiness | `python3 -m perfrepair.ai worthiness --device-results <device> --perf-mode generic\|<keys>` | `rows.json`, `measurements.json`, `grouping/groups.json` | `worthiness-<perfMode name>/` (evidence.json, outbox/, verdicts.json, journal.jsonl, errors.jsonl) | one per group with an improving pair |
 | repair | `python3 -m perfrepair.repair dossier\|edit\|harness --device-results <device> --app <src>` | `docs/repair.md` | `<app>/` | no |
 | device | cryptobenchmark `pipeline.py --device --harness <device>/<app>/harness.yaml`, writing `checked/` beside it | `harness.yaml`, the phone | `<app>/checked/` | no |
 | report | `python3 -m perfrepair.report app --device-results <device> --app <src> [--perf-mode]` ; `report summary --device-results <device>` | `<app>/` | `report.json`, `report.md`; `summary.json`, `summary.md` | no |
@@ -44,10 +41,10 @@ flowchart LR
 | watch | `python3 -m perfrepair.watch <device> [--from-start]` | `log/events.jsonl`, followed | stdout | no |
 | log summary | `python3 -m perfrepair.log summary <device> [--run ID \| --last] [--json]` | `log/events.jsonl` | stdout | no |
 
-- `grouping build` (with `device.screening.aiReview`), `grouping assign`, `grouping report` and `ai worthiness` accept `--agent dry-run` in place of a model.
+- `grouping build` (with `device.screening.aiReview`), `grouping assign`, and `grouping report` accept `--agent dry-run` in place of a model.
 - Inbound, app, grouping build and repair dossier, edit and harness validate before they write.
 - A command that cannot read an input, is refused by a gate, is refused at spawn or loses its model CLI prints one `error ...` line (a refused gate adds its `- problem` lines) and exits 1, never a traceback (`failure.py`); bad usage exits 2. A CLI that cannot run or fails is `claude_cli_failed`; the guide stops with `<step>_failed`.
-- A rerun of `grouping assign` or `ai worthiness` with the same prompts resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own; `grouping assign --refresh` starts a new one on purpose. `ai replace` asks only what has no record; a decision whose dossier changed is `stale` and stops with `dossier_changed` until `ai replace --refresh` (or `guide --refresh`) asks those scopes again (`docs/decisions.md` Site replace). An item change keeps the assign outbox and asks only what has no record (`docs/grouping.md` Record key).
+- A rerun of `grouping assign` with the same prompts resumes after the last record of that charter's outbox; a change starts a new outbox, and an earlier set resumes its own. `ai replace` asks only what has no record on its current evidence: a unit whose dossier changed is asked again (`docs/decisions.md` Select). An item change keeps the assign outbox and asks only what has no record (`docs/grouping.md` Record key).
 - `--prompts DIR`: `docs/decisions.md`.
 - `grouping assign`, `grouping report`, `ai` and `guide` fill unset flags from `perfrepair.yaml`; a bad value there warns and uses the default, a bad flag errors: `docs/settings.md`; `grouping build`, `repair dossier`, `guide` and `validation` read `device.screening.catalog` from it (`docs/screening.md` Settings).
 - The guide and probe_device() take `<device>/.lock` (`fcntl.flock`); a second run on the folder stops with `device_busy`; a standalone command refuses a folder without `manifest.yaml` that holds an earlier run's `rows.json`, `measurements.json`, `run_log.json`, `primitives.tsv` or `device.yaml` (`not_device_results`).
@@ -104,18 +101,16 @@ With `device.filterByApps` the device stage probes, detects the targets and meas
 
 ## Grouping knowledge
 
-`device/coverage.py`, on every guide run, never stored: pending is every item neither screened out nor catalog-listed (`probe/identified.py`), in `used.json` (every one without it), with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts: it was asked; `noRerun: false` asks it again).
+`device/coverage.py`, on every guide run, never stored: pending is every item neither screened out nor catalog-listed (`probe/identified.py`), in `used.json` (every one without it), with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts: it was asked).
 
-| found | `device.grouping.noRerun` | model calls | `guide grouping:` |
+| found | model calls | `guide grouping:` |
 |---|---|---|---|
-| nothing pending, saved files current | true | 0 | `reused` |
-| nothing pending, `knowledge.json`, `checks.json` or `groups.json` not what the outbox and items make | true | 0 | `rebuilt from the kept decisions` |
-| items pending | true | one conversation per pending item | `ran: <n> of <m> items asked` |
-| anything | false | every item, into a new outbox (`assign --refresh`), the old one kept | `ran: device.grouping.noRerun false, ...` |
+| nothing pending, saved files current | | 0 | `reused` |
+| nothing pending, `knowledge.json`, `checks.json` or `groups.json` not what the outbox and items make | | 0 | `rebuilt from the kept decisions` |
+| items pending | | one conversation per pending item | `ran: <n> of <m> items asked` |
 
 - A named folder (`--device-results`, `device.id`) without `grouping/items.json` stops with `missing_device_stage`; with it, pending items are asked as above.
 - A device-stage rerun that changes the items reaches this step the same way: new primitives are asked, removed ones leave `groups.json`, and moved ids change nothing (`docs/grouping.md` Record key).
-- A capped or interrupted `noRerun: false` run restarts on the next run with it; set it back to true to finish the active outbox.
 - A prompt edit alone is no coverage gap to the guide, which reads the active outbox: `grouping assign` starts the new outbox. A pending item asked after such an edit starts it too, and every item is asked there.
 
 ## Run log

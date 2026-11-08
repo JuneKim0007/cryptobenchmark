@@ -47,7 +47,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `no_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | run the device stage, or point --results-root at a results root |
 | `not_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass a device folder cryptobenchmark wrote |
 | `scoped_plan_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
-| `dossier_changed` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun with --refresh to ask the changed units again |
 | `schema_version` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the step that writes the file |
 | `device_busy` | `stop` | fixed: continuing would mix runs or devices | 1 | wait for the other run on the device folder to end |
 | `missing_results` | `stop` | fixed: nothing is left to run | 1 | pass a device folder cryptobenchmark wrote |
@@ -107,7 +106,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `names_catalog_duplicate` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `names_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `groups_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
-| `contracts_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `groups_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `screening_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `screening_shape` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
@@ -120,7 +118,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `provider_build_unknown` | `stop` | fixed: the input is unusable | 1 | name a build key of `catalog/provider-builds.yaml`, or a name only one build carries |
 | `relations_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `events_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable events.jsonl aside |
-| `journal_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable journal.jsonl aside; the outbox, not the journal, holds the decisions |
 | `item_not_configured` | `stop` | fixed: the input is unusable | 1 | rerun the device stage with the item in the run config |
 | `manifest_without_device_id` | `stop` | fixed: the input is unusable | 1 | rerun the benchmark |
 | `missing_effective` | `stop` | fixed: the input is unusable | 1 | rerun the device stage |
@@ -141,7 +138,6 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `run_context` | `stop` | fixed: the input is unusable | 1 | report it |
 | `run_unknown` | `stop` | fixed: the input is unusable | 1 | name a run log summary lists |
 | `unknown_key` | `warn` | fixed: a notice; nothing to choose | 1 | remove the key, or fix its spelling |
-| `mixed_agents` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the records name each gateway |
 | `alias_conflict` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; a catalogued name keeps the catalog's function, any other is asked; settle the alias in algorithm-names.yaml |
 | `perf_mode_extra` | `warn` | fixed: a notice; nothing to choose | 1 | drop the measurement from the run config to save device time |
 | `append_repaired` | `warn` | fixed: a notice; nothing to choose | 1 | nothing; the partial line stays and readers skip it |

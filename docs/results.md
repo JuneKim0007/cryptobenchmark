@@ -8,7 +8,7 @@
 ```
 <results root>/<device_id>/
   discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ interop/ manifest.yaml
-  rows.json measurements.json run_log.json primitives.tsv worthiness-<mode>/ grouping/ summary.json summary.md
+  rows.json measurements.json run_log.json primitives.tsv grouping/ summary.json summary.md
   <path_id>/ sites.json app.json ... harness.yaml checked/ report.json report.md
 ```
 

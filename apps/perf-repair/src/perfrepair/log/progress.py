@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
-from ..dto.event import BUG, DECISION, END, ERROR, FINDING, LOG, RUN_END, RUN_START, START, TURN, Event
+from ..dto.event import BUG, DECISION, END, ERROR, FINDING, LOG, RUN_END, RUN_START, START, Event
 from .status import status_line
 from .views import counts_text, seconds
 
@@ -26,7 +26,6 @@ class Counter:
 class Line:
     text: str
     transient: bool = False  # a counter a terminal may overwrite in place
-    minor: bool = False  # a turn's update: a terminal shows it, a log file keeps one line per decision
 
 
 def _ts(ts: str) -> datetime:
@@ -73,18 +72,16 @@ class Progress:
         c = self.counters.get(key)
         if c is None:
             c = self.counters[key] = Counter(e.ts, 0)
-        if e.event == TURN:
-            c.rejected += e.outcome != "accepted"
+        if e.event == DECISION:
+            c.done += 1
+            c.rejected += e.data.get("rejected") or 0
             if e.costUsd is not None:
                 c.cost, c.priced = c.cost + e.costUsd, True
-        elif e.event == DECISION:
-            c.done += 1
         elif e.event == END:
             line = self._line(key, e, final=True)
             del self.counters[key]
             return [line]
-        line = self._line(key, e)
-        return [Line(line.text, line.transient, minor=e.event == TURN)]
+        return [self._line(key, e)]
 
     def _line(self, key: tuple, e: Event, final: bool = False) -> Line:
         c = self.counters[key]

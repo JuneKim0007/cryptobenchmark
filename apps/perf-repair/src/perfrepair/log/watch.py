@@ -17,8 +17,6 @@ class Screen:
         self.out, self.tty, self.open = out, tty, False
 
     def show(self, line: Line) -> None:
-        if line.minor and not self.tty:
-            return
         if self.tty and line.transient:
             self.out.write("\r" + line.text + "\x1b[K")
             self.open = True

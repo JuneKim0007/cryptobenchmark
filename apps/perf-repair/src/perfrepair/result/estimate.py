@@ -17,12 +17,11 @@ MIN_RUNS = 2
 
 @dataclass(frozen=True)
 class Comparison:
-    """ratio: None with a reason `<code>: <detail>`; comparable: False when no number of the pair means anything."""
+    """ratio: None with a reason `<code>: <detail>`."""
     ratio: float | None
     pImprove: float | None
     n: int
     reason: str | None = None
-    comparable: bool = True
 
 
 def p_improve(before: Processes, after: Processes, resamples: int = RESAMPLES, seed: int = SEED) -> float | None:
@@ -40,7 +39,7 @@ def compare(before: Summary, after: Summary, lower_is_better: bool = True) -> Co
     pooled medians, inverted for a metric where higher is better. A measured side and an estimated one are not
     comparable; a zero median (no allocations) has no ratio, while pImprove still compares the runs."""
     if before.kind != after.kind:
-        return Comparison(None, None, 0, f"{ENERGY_KINDS_DIFFER}: {before.kind} before, {after.kind} after", False)
+        return Comparison(None, None, 0, f"{ENERGY_KINDS_DIFFER}: {before.kind} before, {after.kind} after")
     base, other = (before, after) if lower_is_better else (after, before)
     p, n = p_improve(base.processes, other.processes), min(before.n, after.n)
     if not base.median:

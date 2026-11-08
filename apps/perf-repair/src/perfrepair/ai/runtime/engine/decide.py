@@ -1,104 +1,89 @@
+"""The kinds that Identify replaces (classify, grouping assign) keep this item loop until then: gates, ask, durable
+commit, projections; every attempt goes to log/ai/<kind>.yaml, as Job's do."""
 from __future__ import annotations
 
-import json
-import logging
 import time
 from pathlib import Path
 
-from ....dto.decision import AgentIdentity, OutboxRecord
+from ....dto.decision import OutboxRecord
 from ....dto.event import END, START
 from ....dto.prompt import Charter
 from ....files import write_json
 from ....log import emit
-from ....run_dir import JOURNAL
 from ....log.emit import elapsed_ms
 from ....validation import require
-from . import journal, tracking
+from ...log.attempt_log import AttemptLog
+from ...log.where import Where
+from ...model.tier import Tier
 from ..agent import Conversations
 from .ask import Asked, Limits, ask
-from .events import TurnEvents, Where
-from .kind import DecisionKind, admit_problems, evidence_of, item_of, narrower_of, project
+from .events import cost, tokens
+from .kind import DecisionKind, admit_problems, evidence_of, narrower_of, project
 from .outbox import Outbox, activate
 
-LOG = logging.getLogger(__name__)
+NO_TIER = Tier("none")
 
 
-def _errors(kind: DecisionKind, records: list[OutboxRecord], by_key: dict) -> str:
-    return "".join(json.dumps({"item": r.item, "label": kind.label(item_of(kind, by_key, r.item)), "seq": r.seq,
-                               "problems": list(r.problems)}) + "\n" for r in records if r.outcome == "dropped")
-
-
-def _warn_if_mixed(outbox: Outbox, records: list[OutboxRecord], now: AgentIdentity, pending: list) -> None:
-    earlier = sorted({str(r.agent) for r in records if r.agent not in (now, AgentIdentity())})
-    asked = {r.item for r in records}
-    if earlier and now != AgentIdentity() and any(i.key not in asked for i in pending):
-        LOG.warning("mixed_agents: outbox %s holds answers from %s, now asking %s", outbox.fingerprint, ", ".join(earlier), now)
-
-
-def _started(where: Where, outbox: Outbox, replaced: Outbox | None, records: list, pending: list, agent, limit) -> None:
+def _started(where: Where, outbox: Outbox, replaced: Outbox | None, records: list, pending: list, tier, limit) -> None:
     done = {r.item for r in records}
     todo = sum(1 for i in pending if i.key not in done)
     emit(where.stage, where.step, START, kind="model", app=where.app,
          outcome="rotated" if replaced is not None else ("resumed" if records else "opened"),
          data={"outbox": outbox.fingerprint, "replaced": replaced and replaced.fingerprint, "committed": len(records),
-               "pending": todo if limit is None else min(todo, limit), "agent": str(agent)})
+               "pending": todo if limit is None else min(todo, limit), "tier": str(tier)})
 
 
-def _ended(where: Where, started: float, counts: dict, records: list, left: int, outbox: Outbox) -> None:
-    emit(where.stage, where.step, END, kind="model", app=where.app, outcome="ok", durationMs=elapsed_ms(started),
-         data={"counts": {**counts, "committed": len(records), "left": left}, "outbox": outbox.fingerprint})
-
-
-def _commit(kind: DecisionKind, item, asked: Asked, records: list, outbox: Outbox, agent: AgentIdentity) -> OutboxRecord:
+def _commit(kind: DecisionKind, item, asked: Asked, records: list, outbox: Outbox, tier: Tier) -> OutboxRecord:
     accepted = asked.decision is not None
     record = OutboxRecord(len(records) + 1, item.key, "decided" if accepted else "dropped", asked.last.session,
-                          asked.last.turn, asked.decision, () if accepted else tuple(asked.problems), agent,
-                          evidence_of(kind, item))
+                          asked.last.turn, asked.decision, () if accepted else tuple(asked.problems), tier.to_json(),
+                          asked.answered, evidence_of(kind, item))
     committed = outbox.append(record)
     require(f"{kind.name} record {record.seq}", [] if committed == record else ["reads back different"])
     return committed
 
 
+def _logged(log: AttemptLog, kind: DecisionKind, item, asked: Asked, record: OutboxRecord, tier: Tier, took: int) -> None:
+    log.append({"item": item.key, "label": kind.label(item), "attempt": 1, "tier": tier.to_json(), "answered": asked.answered,
+                "outcome": record.outcome, "durationMs": took, "tokens": tokens(asked.turns), "costUsd": cost(asked.turns),
+                "turns": [{"session": t.session, "turn": t.turn, "status": t.status, "problems": list(t.problems),
+                           "text": (t.reply or {}).get("text"), "promptTokens": t.promptTokens} for t in asked.turns],
+                **({"narrowedFrom": asked.narrowedFrom} if asked.narrowedFrom else {}),
+                **({"reason": {"source": "no_submit", "problems": list(record.problems)}} if record.problems else {})})
+
+
 def decide(kind: DecisionKind, charter: Charter, conversations: Conversations, root: Path, limits: Limits = Limits(),
-           limit: int | None = None, echo=print, where: Where | None = None):
+           limit: int | None = None, echo=print, where: Where | None = None, device: Path | None = None):
+    """device: where log/ai/<kind>.yaml lives; the kind's own folder when none is given."""
     root, where = Path(root), where or Where(kind.name, "decide")
-    by_key = {i.key: i for i in kind.items()}
+    tier = getattr(conversations, "tier", NO_TIER)
+    log = AttemptLog(device or root, kind.name, where, echo).open()
     pending = kind.pending()
     outbox, replaced = activate(root, charter)
     records = outbox.records()
-    tracking.opened(outbox.fingerprint)
     if replaced is not None:
         echo(f"charter changed: outbox {replaced.fingerprint} → {outbox.fingerprint} "
              f"({len(replaced.records())} records kept in {replaced.fingerprint}, {len(records)} resumed)")
-    agent = getattr(conversations, "identity", AgentIdentity())
-    _warn_if_mixed(outbox, records, agent, pending)
-    _started(where, outbox, replaced, records, pending, agent, limit)
-    path = root / JOURNAL
-    events = TurnEvents(where, path, journal.count(path), outbox.fingerprint)
+    _started(where, outbox, replaced, records, pending, tier, limit)
     state, started, counts = project(kind, records), time.monotonic(), {"decided": 0, "dropped": 0}
     while True:
         require(kind.name, kind.validate(state, records))
         for file, document in kind.documents(state, records).items():
             write_json(file, document)
-        (root / "errors.jsonl").write_text(_errors(kind, records, by_key))
         done = {r.item for r in records}
         left = [i for i in pending if i.key not in done]
         if not left or (limit is not None and sum(counts.values()) == limit):
-            _ended(where, started, counts, records, len(left), outbox)
+            emit(where.stage, where.step, END, kind="model", app=where.app, outcome="ok", durationMs=elapsed_ms(started),
+                 data={"counts": {**counts, "committed": len(records), "left": len(left)}, "outbox": outbox.fingerprint})
             return state
         item = left[0]
         require(f"{kind.name} item {item.key}", admit_problems(kind, item))
-
-        def on_turn(turn, key=item.key):
-            journal.append(path, {"charter": outbox.fingerprint, "item": key, **tracking.stamp(), **turn.to_json()})
-            events.turn(key, turn)
-
+        asked_at = time.monotonic()
         asked = ask(conversations, charter, kind.render(item, state), lambda text: kind.check(item, text, state), limits,
-                    on_turn, narrower_of(kind, item, state))
-        committed = _commit(kind, item, asked, records, outbox, agent)
-        events.decision(item.key, kind.label(item), committed.outcome, asked, outbox.path(committed.seq))
+                    narrow=narrower_of(kind, item, state))
+        committed = _commit(kind, item, asked, records, outbox, tier)
+        _logged(log, kind, item, asked, committed, tier, elapsed_ms(asked_at))
         kind.apply(state, item, committed)
         records.append(committed)
         counts[committed.outcome] += 1
         require(kind.name, kind.validate(state, records))
-        echo(f"{kind.name} {kind.label(item)}: {committed.outcome} [session {committed.session}, turn {committed.turn}]")

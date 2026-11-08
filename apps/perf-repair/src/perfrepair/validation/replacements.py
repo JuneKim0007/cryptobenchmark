@@ -4,10 +4,22 @@ from __future__ import annotations
 from ..dto.unit import UnitDossiers
 from ..dto.replacement import (RECOMMEND, DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Replacement,
                                required_risks)
-from ..dto.dossier import Dossier
-from .suggest.site_edits import required_kinds, takes
+from ..dto.dossier import Dossier, Option
+from ..dto.grouping import algorithm_of, provider_of
 
 SOURCES = ("llm", "fallback", "static")
+_TAKES = {"provider": lambda item, pins: provider_of(item), "algorithm": lambda item, pins: algorithm_of(item),
+          "pins": lambda item, pins: dict(pins)}
+
+
+def takes(kind: str, item: str, pins: dict):
+    """What `kind` fills its field with for an item and its pins; the current call has no pins."""
+    return _TAKES[EDIT_KIND_TABLE[kind].takes](item, pins)
+
+
+def required_kinds(option: Option, current: str) -> list[str]:
+    """The kinds whose value for the option differs from the current call's."""
+    return [k for k in EDIT_KINDS if takes(k, option.item, option.pins) != takes(k, current, {})]
 
 
 def _edits(r: Replacement, d: Dossier) -> list[str]:
@@ -40,15 +52,10 @@ def _static(k: str, r: Replacement, source: str | None, no_options: dict[str, st
     return []
 
 
-def _stale(stale: set[str], by_key: dict, replacements: dict) -> list[str]:
-    return [f"{k}: stale but not a decision on a dossier" for k in sorted(stale - (by_key.keys() & replacements.keys()))]
-
-
 def validate_replacements(replacements: dict[str, Replacement], sources: dict[str, str],
-                          dossiers: list[Dossier], no_options: dict[str, str], stale: set[str]) -> list[str]:
+                          dossiers: list[Dossier], no_options: dict[str, str]) -> list[str]:
     by_key = {d.key: d for d in dossiers}
-    problems = _stale(stale, by_key, replacements)
-    problems += [f"{k}: replacement for an unknown scope" for k in replacements if k not in by_key and k not in no_options]
+    problems = [f"{k}: replacement for an unknown scope" for k in replacements if k not in by_key and k not in no_options]
     problems += [f"{k}: noOptions scope without its static keep" for k in no_options if k not in replacements]
     problems += [f"{k}: source {sources.get(k)!r} is not one of {SOURCES}" for k in replacements
                  if sources.get(k) not in SOURCES]

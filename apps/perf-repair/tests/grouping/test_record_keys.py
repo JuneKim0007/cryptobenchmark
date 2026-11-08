@@ -7,7 +7,6 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
-from perfrepair.ai.runtime.engine.refresh import refresh_inputs
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
@@ -21,7 +20,7 @@ from perfrepair.dto.grouping_state import Answer
 def assign(paths, agent=None):
     agent = agent or ScriptedConversations(by_name)
     kind = GroupingKind(paths, FAMILIES)
-    return decide(kind, charter(LIBRARY, kind.inputs), agent, paths.root, **QUIET), agent
+    return decide(kind, charter(LIBRARY), agent, paths.root, **QUIET), agent
 
 
 def renumber(paths, keep=lambda _: True):
@@ -107,15 +106,3 @@ def test_replay_of_a_numeric_record_is_a_coded_error():
     with pytest.raises(ValueError, match="^outbox_unkeyed: "):
         Item.from_key("3")
 
-
-def test_refresh_asks_every_item_into_a_new_outbox_and_later_runs_stay_in_it(paths):
-    _, agent = assign(paths)
-    old = active_fingerprint(paths.root)
-    kind = GroupingKind(paths, FAMILIES)
-    fresh = ScriptedConversations(by_name)
-    decide(kind, charter(LIBRARY, refresh_inputs()), fresh, paths.root, **QUIET)
-    new = active_fingerprint(paths.root)
-    assert new != old and fresh.started == agent.started and (paths.root / "outbox" / old).is_dir()
-    assert GroupingKind(paths, FAMILIES).inputs.startswith("refresh ")
-    _, again = assign(paths)
-    assert again.started == 0 and active_fingerprint(paths.root) == new

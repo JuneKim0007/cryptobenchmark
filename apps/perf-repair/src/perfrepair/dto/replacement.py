@@ -11,8 +11,6 @@ REPLACEMENTS_DOC = DocumentKind("replacements", REPLACEMENTS_SCHEMA_VERSION)
 
 DECISIONS = ("replace", "keep", "recommend")
 RECOMMEND = "recommend"
-# what an answer's concerns may hold; their content is never gated
-MAX_CONCERNS, MAX_CONCERN_LENGTH = 5, 300
 
 RISKS = ("persisted_data", "wire_format", "key_compatibility", "unknown_sink", "unverified_interop")
 # a replace that changes the output is refused when its own risks name one of these: callers or stored data must follow
@@ -50,23 +48,17 @@ class EditKind:
     """`field` of an Edit is the one this kind fills, with the chosen option's `takes`; the other fields stay empty."""
     field: str
     takes: str
-    phrase: str
-    meaning: str
     value: str
     required: str
 
 
 EDIT_FIELDS = ("provider", "algorithm", "parameters")
 EDIT_KIND_TABLE = {
-    "set_provider": EditKind("provider", "provider", "is provided by",
-                             "construct the call's engine from the chosen option's provider", "that name exactly",
+    "set_provider": EditKind("provider", "provider", "that name exactly",
                              "when the option's provider differs from the current one"),
-    "set_algorithm": EditKind("algorithm", "algorithm", "is named",
-                              "request the chosen option's name instead of the current one", "that name exactly",
+    "set_algorithm": EditKind("algorithm", "algorithm", "that name exactly",
                               "when the option's name differs from the current one"),
-    "pin_parameters": EditKind("parameters", "pins", "lists",
-                               "state the option's pins at the call so the result stays like-for-like",
-                               "every pin as {name, value}, exactly as listed",
+    "pin_parameters": EditKind("parameters", "pins", "every pin as {name, value}, exactly as listed",
                                "when the option lists pins; not allowed when it lists none"),
 }
 EDIT_KINDS = tuple(EDIT_KIND_TABLE)
@@ -82,29 +74,27 @@ class Edit:
 
 @dataclass(frozen=True)
 class Replacement:
-    """The model's decision for one scope, after its gate: which option, and the edits from EDIT_KINDS that apply it."""
+    """One scope's decision: which option, and the edits from EDIT_KINDS that apply it, written by code from the pick."""
     scope: str
     decision: str
     option: str | None
     edits: tuple[Edit, ...]
     risks: tuple[str, ...]
     reason: str
-    # the metrics the model named as deciding and the losses it accepted; a recommend's needs; anything it found odd
+    # the option's improved metrics and the losses accepted with them; a recommend's needs
     deciding: tuple[str, ...] = ()
     accepted: tuple[str, ...] = ()
     needs: tuple[str, ...] = ()
-    concerns: tuple[str, ...] = ()
 
     def to_json(self) -> dict:
         return {"scope": self.scope, "decision": self.decision, "option": self.option,
                 "edits": [asdict(e) for e in self.edits], "risks": list(self.risks), "reason": self.reason,
-                "deciding": list(self.deciding), "accepted": list(self.accepted), "needs": list(self.needs),
-                "concerns": list(self.concerns)}
+                "deciding": list(self.deciding), "accepted": list(self.accepted), "needs": list(self.needs)}
 
     @classmethod
     def from_json(cls, d: dict) -> "Replacement":
         return cls(d["scope"], d["decision"], d.get("option"), tuple(Edit(**e) for e in d.get("edits") or ()),
-                   tuple(d.get("risks") or ()), d["reason"], *(tuple(d.get(k) or ()) for k in ("deciding", "accepted", "needs", "concerns")))
+                   tuple(d.get("risks") or ()), d["reason"], *(tuple(d.get(k) or ()) for k in ("deciding", "accepted", "needs")))
 
 
 def read_replacements(doc: dict) -> dict[str, Replacement]:

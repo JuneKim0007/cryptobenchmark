@@ -1,4 +1,4 @@
-"""The replay's grouping checks: the grouping outbox and knowledge, screen.json and its classify review, worthiness folders."""
+"""The replay's grouping checks: the grouping outbox and knowledge, screen.json and its classify review."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,45 +6,19 @@ from pathlib import Path
 import yaml
 
 from .. import run_dir as rd
-from ..ai.evaluate.worthiness.kind import WorthinessKind
 from ..ai.parse.algorithm_classify.kind import ClassifyKind
 from ..ai.parse.algorithm_classify.state import Classified, candidates
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.kind import rebuild_problems
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
-from ..dto import Verdicts
 from ..dto.classify import read_batches
 from ..dto.grouping import read_items
 from ..dto.grouping_state import Knowledge
-from ..dto.perf_mode import PerfMode
-from ..dto.screen import qualified_verdicts
 from ..files import read_json
-from ..result.evidence import build_evidence
-from ..result.modes import mode_of
 from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.failure import ValidationFailed
 from ..validation.screen import validate_model_verdicts, validate_screen_document
-from .device import parsed
-
-
-def check_worthiness(run: Path, name: str, groups: dict, rows, screen) -> list[str]:
-    directory = rd.worthiness(run, name)
-    try:
-        mode = mode_of(PerfMode.parse(name))
-    except ValueError as e:
-        return [f"{e}; the folder is from before perfMode"]
-    saved = parsed(lambda _: Verdicts.from_json(read_json(directory / rd.VERDICTS)), run)
-    if isinstance(saved, str):
-        return [saved]
-    measurements = rd.load_measurements(run)
-    evidence = build_evidence(groups, rows, measurements.byRow, qualified_verdicts(groups, screen), mode.perf)
-    kind = WorthinessKind(mode, measurements.comparability, evidence, directory)
-    try:
-        records = active_outbox(directory).records()
-    except OutboxError as e:
-        return [str(e)]
-    return kind.validate(saved, records) + rebuild_problems(kind, records)
 
 
 def check_grouping(grouping: GroupingPaths) -> list[str]:

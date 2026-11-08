@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..ai.repair.upgrade.kind import charter as upgrade_charter
-from ..ai.suggest.site_replace.kind import charter
+from ..ai.select.job import NAME as SELECT
 from ..catalog.upgrades import CATALOG as UPGRADES
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
 from ..data_handler.outbound.benchmark_runner import BenchmarkRunError, identify
@@ -54,8 +53,7 @@ def inputs(g: Guide, device: bool) -> dict:
     return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "units": sha256_file(g.paths.units), **g.code_versions,
             "groups": sha256_file(GroupingPaths(g.device).groups),
             "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
-            "screening": g.catalog.sha256, "replace": charter(g.library).fingerprint,
-            "upgrade": upgrade_charter(g.library).fingerprint, "upgrades": sha256_file(UPGRADES), "perfMode": g.mode.name, "device": device,
+            "screening": g.catalog.sha256, "select": sha256_text(g.library.system(SELECT).text), "upgrades": sha256_file(UPGRADES), "perfMode": g.mode.name, "device": device,
             "maxChange": g.max_change, **_device_config(g, device)}
 
 

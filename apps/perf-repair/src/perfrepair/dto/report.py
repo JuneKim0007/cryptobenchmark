@@ -12,7 +12,8 @@ from .pattern import PATTERNS, UNKNOWN_DEFAULT
 # 9: rows carry measuredBy and measurements, each kind's numbers and truth check; funnel measuredCallSite, after measured
 # 10: brokenUses, each broken use and what it became; summary brokenUses
 # 11: nothing measured after a recommendation: no metrics, verdict, label, thermal or truth check; funnel ends at interopPassed
-SCHEMA_VERSION = 11
+# 12: a decision has no stale; 13: nor concerns
+SCHEMA_VERSION = 13
 BROKEN_USES = "brokenUses"
 THROUGHPUT = "throughput"
 SOURCES = ("llm", "fallback", "static", "list")

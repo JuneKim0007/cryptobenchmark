@@ -87,16 +87,6 @@ def active_outbox(root: Path) -> Outbox | NoOutbox:
     return NoOutbox() if fingerprint is None else _outbox(root, fingerprint)
 
 
-def carry(root: Path, charter: Charter, records: list[OutboxRecord]) -> None:
-    """Another outbox's records committed to this charter's, which then goes active; a second try skips what the first wrote."""
-    outbox = _outbox(root, charter.fingerprint).open()
-    charter_file.record(outbox.directory / CHARTER, charter)
-    for record in records:
-        if not outbox.path(record.seq).exists():
-            outbox.append(record)
-    activate(root, charter)
-
-
 def activate(root: Path, charter: Charter) -> tuple[Outbox, Outbox | None]:
     """Opens the charter's outbox, its charter.json written once or checked, and makes it active; returns it and the
     one it replaced."""

@@ -7,11 +7,11 @@ flowchart LR
     S[stages: log/emit.py emit, step] -- event records --> K[log/sink.py EventSink]
     P[benchmark_runner, device/energy.py, app detect] -- finding events --> K
     K -- one line per event --> E[log/events.jsonl]
-    K -- views.py, per event --> V[status.log, ai/stage.log, bug.log]
+    K -- views.py, per event --> V[status.log, bug.log]
     E -- views.py render --> V
     E --> W[watch, log summary]
     R[benchmark_runner] -- transcript --> T[log/pipeline/run id.log]
-    M[model roles] --> J[role dir journal.jsonl, errors.jsonl]
+    M[AI jobs] --> J[log/ai/job.yaml]
 ```
 
 ## Files
@@ -22,14 +22,14 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 |---|---|
 | `events.jsonl` | one JSON line per event, every field on every line (`dto/event.py`, schema 1); the only stream commands write |
 | `status.log` | one line per outcome a person acts on, a `run` header and `end` line per run |
-| `ai/screening.log`, `ai/classify.log`, `ai/grouping.log`, `ai/worthiness.log`, `ai/replace.log` | one model stage's events, one line each, problems indented; `classify` is screening's classify role; the upgrade role's events (stage `repair`) have no file |
+| `ai/<job>.yaml` | every attempt of one AI job ([decisions.md](decisions.md) AI base); not a view: each attempt's event points at its entry |
 | `bug.log` | each exception that is not a coded error, with its traceback |
 | `pipeline/<run id>.log` | the cryptobenchmark transcript of every `pipeline.py` call of one run, each headed `# <stage>[ app <app>]` and `$ <command>` |
 | `details/primitives_missing.yaml` | the primitives and providers an app uses that this guide run skipped or stopped on because they are not available ([below](#primitives-missing)) |
 | `details/benchmark_coverage.yaml` | the benchmark gate's last check (schema 1): `run`, `point` (`used`, `grouped`), `attempts` (per point the deltas run, at most 1), `totals` (used items, items and keys measured, per gap class), `items` (per used item `measured` or its first gap class), `gaps` (item, operation, variant, key and input size, metric, class, `action` `delta` or `coded`, reason, case), `deltas` (this run's: session, cases added, anchor cases, setup fields that differ, drifted anchors) ([used-set.md](used-set.md#benchmark-gate)) |
 
-- `status.log`, `ai/*.log` and `bug.log` are views: each line is a function of one event (`log/views.py`); `render()` recomputes them from `events.jsonl`.
-- `pipeline/<run id>.log`, `details/*.yaml` and the role journals are no views; an event's `ref` points into them.
+- `status.log` and `bug.log` are views: each line is a function of one event (`log/views.py`); `render()` recomputes them from `events.jsonl`.
+- `pipeline/<run id>.log`, `details/*.yaml` and `ai/<job>.yaml` are no views; an event's `ref` points into them.
 
 ## Status lines
 
@@ -95,19 +95,19 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | field | holds |
 |---|---|
 | `ts`, `run` | UTC time to the millisecond; the id of the command's run, shared by commands it calls in-process |
-| `stage`, `step`, `item`, `app` | where: `device`, `inbound`, `grouping`, `screening`, `app`, `repair`, `replace`, `worthiness`, `report`, `guide`, `run`, or a logger's package for a log record |
-| `kind`, `event` | `static` or `model`; `start`, `end`, `turn`, `decision`, `run_start`, `run_end`, `error`, `bug`, `finding`, `log` |
+| `stage`, `step`, `item`, `app` | where: `device`, `inbound`, `grouping`, `screening`, `app`, `repair`, `replace`, `report`, `guide`, `run`, or a logger's package for a log record |
+| `kind`, `event` | `static` or `model`; `start`, `end`, `decision`, `run_start`, `run_end`, `error`, `bug`, `finding`, `log` |
 | `outcome`, `durationMs`, `detail` | `ok`, `ran`, `reused`, `failed`, `accepted`, `rejected`, `refused`, `decided`, `dropped`, a finding's code, a log level, a run's exit; time; a reason or message |
-| `tokens`, `costUsd` | a turn's usage from the reply: `input`, `output`, `cacheRead`, `cacheWrite`; the CLI's `total_cost_usd`, null from the API and dry-run gateways |
-| `ref` | `<role dir>/journal.jsonl:<line>` for a turn, the outbox record for a decision, the file a finding names, relative to the device folder |
-| `data` | `counts` and `files` (path → sha256) of a step's end; `session`, `turn`, `problems`, `outbox`, `promptTokens` of a model event, `narrowedFrom` of a prefiltered decision; a start's `pending` and outbox `opened`, `resumed` or `rotated` |
+| `tokens`, `costUsd` | an attempt's usage from its replies: `input`, `output`, `cacheRead`, `cacheWrite`; the CLI's `total_cost_usd`, null from the API and dry-run gateways |
+| `ref` | `log/ai/<job>.yaml#<n>` for an attempt, the file a finding names, relative to the device folder |
+| `data` | `counts` and `files` (path → sha256) of a step's end; `label`, `attempt`, `calls`, `rejected`, `problems` of an attempt; a start's `pending` and outbox `opened`, `resumed` or `rotated` |
 
 ## Rules
 
-- A static step emits `start` and `end`; a model step emits `start`, a `turn` per model call, a `decision` per committed item, `end`.
-- No prompt or reply text is in an event; the journal line and the outbox record hold it.
+- A static step emits `start` and `end`; a model step emits `start`, a `decision` per attempt, `end`.
+- No prompt or reply text is in an event; the attempt log and the outbox record hold it.
 - Records logged before the device folder is known are kept and written, in order, once it is; a command that never names an existing folder writes nothing.
-- Each line is one append of a whole line; an append to a file a crash left mid-line writes a newline first, so the cut line stays its own line, and the sink adds one `append_repaired` finding (the journal one through `terminate`).
+- Each line is one append of a whole line; an append to a file a crash left mid-line writes a newline first, so the cut line stays its own line, and the sink adds one `append_repaired` finding.
 - Every reader of a JSON-lines file goes through `files.read_jsonl`: whole lines only; a line that is a prefix of JSON, cut by a crash, is skipped; any other line that does not parse is refused; the validator reports a partial last line.
 - Records past the 10000 kept before the device folder is known are counted, one `log_dropped` finding when the folder is bound; a `data` value of a shape JSON cannot write is written as text.
 - The stderr lines are the same as without the log: event records stay off stderr, and setting lines at DEBUG reach only `events.jsonl`.

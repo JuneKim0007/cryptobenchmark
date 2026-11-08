@@ -6,6 +6,7 @@ from dataclasses import replace
 import pytest
 import yaml
 from conftest import CHARTER, QUIET, by_name
+from helpers import logged
 from grouping_data import FAMILIES
 
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
@@ -69,12 +70,10 @@ def test_under_budget_the_whole_message_goes_and_the_size_is_journalled(paths, t
     attach()
     attach(tmp_path)
     decide(GroupingKind(paths, FAMILIES), CHARTER, scripted(by_name, 100000), paths.root, **QUIET)
-    lines = [json.loads(line) for line in paths.journal.read_text().splitlines()]
-    assert lines and all(line["promptTokens"] > len(CHARTER.system.text) // 4 for line in lines)
-    events = list(read_events(tmp_path / "log" / "events.jsonl"))
-    decisions = [e for e in events if e.event == "decision"]
-    assert decisions and all(e.data["promptTokens"] and "narrowedFrom" not in e.data for e in decisions)
-    assert all(e.data["promptTokens"] for e in events if e.event == "turn")
+    attempts = logged(paths.root, "grouping")
+    turns = [t for a in attempts for t in a["turns"]]
+    assert turns and all(t["promptTokens"] > len(CHARTER.system.text) // 4 for t in turns)
+    assert all("narrowedFrom" not in a for a in attempts)
 
 
 def test_the_size_is_the_system_prompt_plus_the_message_by_chars_over_four():
@@ -100,8 +99,8 @@ def test_a_narrowed_decision_records_the_size_it_came_from(paths, tmp_path):
     conversations = scripted(by_name, measure(CHARTER.system, TaskPrompt("n", "x", "i")) + 2000)
     kind.render = lambda item, state: TaskPrompt("parse/grouping-assign", "x" * 100000, item.key)
     decide(kind, CHARTER, conversations, paths.root, limit=1, **QUIET)
-    [event] = [e for e in read_events(tmp_path / "log" / "events.jsonl") if e.event == "decision"]
-    assert event.data["narrowedFrom"] > event.data["promptTokens"]
+    [attempt] = logged(paths.root, "grouping")
+    assert attempt["narrowedFrom"] > attempt["turns"][0]["promptTokens"]
 
 
 def test_the_prefilter_never_hides_a_group_whose_fact_is_unknown_or_assumed(scene):

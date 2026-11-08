@@ -6,7 +6,6 @@ import pytest
 
 from perfrepair import failure
 from perfrepair import run_dir as rd
-from perfrepair.ai.runtime.engine import journal
 from perfrepair.files import append_line, read_jsonl
 from perfrepair.log import attach, emit
 from perfrepair.log import sink as sink_module
@@ -42,15 +41,6 @@ def test_a_line_that_is_no_cut_prefix_is_bad_not_skipped(tmp_path):
     found = read_jsonl(path)
     assert [n for n, _ in found.bad] == [2, 3] and found.records == [(1, {"n": 1})] and found.partial
 
-
-def test_journal_refs_stay_on_their_turn_after_a_cut_line(tmp_path):
-    path = tmp_path / "journal.jsonl"
-    journal.append(path, {"turn": 1})
-    path.write_text(path.read_text() + CUT_LINE)
-    line = journal.count(path) + 1
-    journal.append(path, {"turn": 2})
-    assert json.loads(path.read_text().splitlines()[line - 1]) == {"turn": 2}
-    assert journal.read(path) == [{"turn": 1}, {"turn": 2}]
 
 
 def test_the_sink_repairs_a_cut_events_line_and_says_so(tmp_path, logger):
