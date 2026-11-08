@@ -15,7 +15,6 @@
 src/perfrepair/probe/identified.py : the one identified test: screened out, or a contract row the trial agrees with; each device alias the catalog names otherwise
 src/perfrepair/result/candidates.py : Family: a scope's candidates outside its group, other canonical names of its family, classed; split into offered (up to maxChange) and not offered
 src/perfrepair/result/change.py : a scope's current item against one candidate of its family: pair diff, floor, lost properties, nonce origin, availability at minSdk, measured, screening → change class or every reject reason
-src/perfrepair/result/confidence.py : pImprove → ok, warn, weak or too_few_runs from criteria.yaml
 src/perfrepair/result/configurations.py : the configurations an option is estimated at: measured on both sides nearest the scope (key size, closest input size, its lifecycle operations), the pins they show, per metric an estimate or the reason compare() gives none, setup_drift across a drifted delta session; cross_session; label and parse_label: the stored configuration text and its fields back
 src/perfrepair/result/criteria.yaml : data: minimum effect ratio, confidence levels, the one verdict rule
 src/perfrepair/result/dossier.py : scopes + app.json + groups + measurements + the app's screen verdicts → Dossiers, each from its scope pattern's variant only (variant_not_measured when its current item has only the other) with its perCall; noOptions with reasons (no_evidence: <metric>); available_providers

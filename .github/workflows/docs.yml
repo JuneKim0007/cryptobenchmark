@@ -16,3 +16,5 @@ jobs:
           python-version: '3.12'
       - name: Docs lint
         run: python3 tools/docs_lint.py
+      - name: Shared-functions indexes match the code
+        run: python3 tools/shared_functions.py --check

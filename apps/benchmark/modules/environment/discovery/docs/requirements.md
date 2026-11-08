@@ -44,7 +44,7 @@ A Cipher runs `updateAAD` where it accepts one. A wrap-only cipher runs `wrap` a
 
 ## File
 
-Measured per service on this device; never a catalogue fact. Read on the host through `REQUIREMENTS_DOC` (`apps/perf-repair/src/perfrepair/data_handler/inbound/probe/_requirements.py`).
+Measured per service on this device; never a catalogue fact. No host code reads its fields.
 
 | field | type | description |
 |---|---|---|

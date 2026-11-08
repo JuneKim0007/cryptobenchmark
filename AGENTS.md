@@ -36,7 +36,7 @@
 ## File structure
 
 ```
-.github/workflows/docs.yml : CI docs lint
+.github/workflows/docs.yml : CI docs lint and the shared-functions drift check
 .github/workflows/jca-contract.yml : CI JCA contract tests on Java 17, 21, 25 and the Android API compile check
 .github/workflows/modules.yml : CI isolated build and test per module
 .github/workflows/tests.yml : CI Python suites and the root Gradle build: settings tests, androidTest compile
@@ -143,5 +143,5 @@ tools/lint/paths.py : routers, guides, docs and graphed files by path
 tools/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 tools/module-isolation/ : per-module isolated compile and test
 tools/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
-tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph
+tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph; --check fails on drift
 ```

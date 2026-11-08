@@ -24,7 +24,6 @@ android {
             // A benchmark APK must not be debuggable; the debug key signs it so no key is kept in the repository.
             signingConfig signingConfigs.debug
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 

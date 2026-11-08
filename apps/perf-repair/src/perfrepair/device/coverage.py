@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.outbox import active_outbox
-from ..config.load import Loaded
 from ..files import json_text
 from ..grouping.report.checks import report_documents
 from ..run_dir import GroupingPaths

@@ -12,8 +12,6 @@ from .glossary import build_problems
 CATALOG = Path(__file__).with_name("provider-builds.yaml")
 SCHEMA_VERSION = 1
 UNKNOWN = "provider_build_unknown"
-SEPARATOR = " @ "
-PLATFORM, BUNDLED, HOST = "platform", "bundled", "host"
 
 
 class ProviderBuildError(InputError):
@@ -21,14 +19,6 @@ class ProviderBuildError(InputError):
 
 
 BUILDS_DOC = DocumentKind("provider-builds", SCHEMA_VERSION, UNKNOWN + ": " + AT_PATH, ProviderBuildError)
-
-
-def build_key(name: str, origin: str, *, sdk_int: int | None = None, artifact: str | None = None, jdk: int | None = None) -> str:
-    """The key of one build from what a probe records: a platform provider by its Android level, a bundled copy by its artifact, a host provider by its JDK."""
-    where = {PLATFORM: f"android-{sdk_int}" if sdk_int else None, BUNDLED: artifact, HOST: f"jdk-{jdk}" if jdk else None}.get(origin)
-    if where is None:
-        raise ProviderBuildError(f"{UNKNOWN}: {name}: origin {origin!r} with sdk_int={sdk_int}, artifact={artifact}, jdk={jdk} names no build")
-    return f"{name}{SEPARATOR}{where}"
 
 
 @dataclass(frozen=True)

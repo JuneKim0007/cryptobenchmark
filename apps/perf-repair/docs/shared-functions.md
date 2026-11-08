@@ -56,8 +56,8 @@
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.gate_after, device.primitives, device.seen, device.stage +5 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.select.units, ai.select.upgrades, app.facts.path_id +1 |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.parse.algorithm_classify.command, ai.runtime.engine.charter_file, ai.runtime.engine.decide, ai.runtime.engine.outbox +11 |
-| `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.log.attempt_log, ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled +12 |
-| `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | device.benchmark_coverage, device.delta, device.delta_config, device.delta_merge +4 |
+| `write_text(path, text, durable, exclusive)` | `src/perfrepair/files.py` | - | ai.parse.algorithm_classify.command, ai.runtime.engine.outbox, device.bundled, device.interop +11 |
+| `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | ai.log.attempt_log, device.benchmark_coverage, device.delta, device.delta_config +5 |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `run_id()` | `src/perfrepair/log/attach.py` | The attached run's id; a call outside any command run gets one of its own. | ai.log.attempt_log, data_handler.outbound.benchmark_runner, device.benchmark_coverage, device.gate +2 |
 | `elapsed_ms(started)` | `src/perfrepair/log/emit.py` | `int((time.monotonic() - started) * 1000)` | ai.job, ai.runtime.engine.decide, guide.run, log.attach |
@@ -104,7 +104,7 @@
 | `halt_of(code, detail)` | `src/perfrepair/stop/terminate.py` | A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it. | guide.run, guide.target_file, guide.targets |
 | `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | app.__main__, data_handler.outbound.benchmark_runner, device.bundled, device.energy +6 |
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.select.units, ai.select.upgrades, validation.dossiers.against_run, validation.dossiers.parse |
-| `require(what, problems)` | `src/perfrepair/validation/failure.py` | - | ai.job, ai.runtime.engine.decide, ai.select.job, app.__main__ +13 |
+| `require(what, problems)` | `src/perfrepair/validation/failure.py` | - | ai.job, ai.runtime.engine.decide, ai.select.job, ai.select.units +14 |
 | `read_groups(paths)` | `src/perfrepair/validation/grouping/output.py` | - | check.run, grouping.interop_plan, repair.dossier |
 | `validate_manifest(manifest, base)` | `src/perfrepair/validation/manifest.py` | - | app.__main__, check.device, device.inbound |
 | `validate_measurements(m, rows)` | `src/perfrepair/validation/measurements.py` | - | check.device, device.inbound, device.primitives, repair.dossier |

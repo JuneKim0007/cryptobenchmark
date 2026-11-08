@@ -9,7 +9,7 @@ from perfrepair.catalog.algorithms import DIRECTORY, Algorithms, AlgorithmsError
 from perfrepair.catalog.families import Families
 from perfrepair.catalog.groups import CATALOG as GROUPS
 from perfrepair.catalog.overrides import apply_override
-from perfrepair.catalog.provider_builds import ProviderBuildError, build_key, provider_builds
+from perfrepair.catalog.provider_builds import ProviderBuildError, provider_builds
 from perfrepair.catalog.views import get_group, list_groups, view_for
 
 GCM = "Cipher|AES/GCM/NoPadding"
@@ -73,14 +73,6 @@ def test_no_provider_is_the_base_entry(with_providers):
 def test_a_name_one_build_carries_maps_to_its_key():
     assert provider_builds().resolve("BundledBC") == "BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79"
     assert provider_builds().resolve("BundledConscrypt") == "BundledConscrypt @ org.conscrypt:conscrypt-android:2.5.3"
-
-
-def test_a_build_key_comes_from_what_the_probe_records():
-    assert build_key("AndroidOpenSSL", "platform", sdk_int=37) == "AndroidOpenSSL @ android-37"
-    assert build_key("BundledConscrypt", "bundled", artifact="org.conscrypt:conscrypt-android:2.5.2") == "BundledConscrypt @ org.conscrypt:conscrypt-android:2.5.2"
-    assert build_key("SunJCE", "host", jdk=25) == "SunJCE @ jdk-25"
-    with pytest.raises(ProviderBuildError, match="provider_build_unknown"):
-        build_key("BC", "platform")
 
 
 def test_a_catalogue_key_outside_the_build_list_is_refused(with_providers):
