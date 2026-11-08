@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -33,6 +34,7 @@ class BenchmarkJson(private val directory: File) {
             row.thermal?.let { document.append(", \"${CaseDocument.THERMAL}\": ").append(json(it)) }
             row.thermalNote?.let { document.append(", \"${CaseDocument.THERMAL_NOTE}\": ").append(escaped(it)) }
             row.gate?.let { document.append(", \"${CaseDocument.GATE}\": ").append(json(it)) }
+            row.cleanup?.let { document.append(", \"${NativeCleanup.FIELD}\": ").append(json(it.toMap())) }
             document.append(",\n     \"metrics\": {")
             document.append(row.metrics.entries.joinToString(", ") { (metric, samples) -> metricBlock(metric, samples) })
             document.append("}}")

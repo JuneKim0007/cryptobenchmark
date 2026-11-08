@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
+
 class ResultRow(
     val id: String,
     val type: String,
@@ -21,6 +23,8 @@ class ResultRow(
     val gate: Map<String, Any?>? = null,
     // fixed|notFixed: what the timed call redoes (preparation's setup catalog); null for a before/after scope row.
     val variant: String? = null,
+    // The case's paused GC and finalization (NativeBudget), outside every sample; null when none ran.
+    val cleanup: NativeCleanup? = null,
 ) {
 
     val metrics: Map<String, MetricSamples> = LinkedHashMap(metrics)
@@ -67,6 +71,7 @@ class ResultRow(
         val slept = if (thermalThrottleSleepSeconds == null && later.thermalThrottleSleepSeconds == null) null
             else (thermalThrottleSleepSeconds ?: 0) + (later.thermalThrottleSleepSeconds ?: 0)
         return ResultRow(id, type, algorithm, provider, operation, keySize, inputSize, keyKind, merged, parameters, slept, spanned(thermal, later.thermal),
-            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null }, gated(gate, later.gate), variant)
+            listOfNotNull(thermalNote, later.thermalNote).distinct().joinToString("; ").ifEmpty { null }, gated(gate, later.gate), variant,
+            if (cleanup == null || later.cleanup == null) cleanup ?: later.cleanup else cleanup.mergedWith(later.cleanup))
     }
 }

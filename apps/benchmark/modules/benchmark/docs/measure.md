@@ -41,10 +41,11 @@ Host (`HostHarness`):
 | warm-up | `TimedLoop` for 200 ms (`WARMUP_NANOS`), discarded |
 | inner loop count | 30 ms (`RUN_NANOS`) / warm-up ns per call, min 1 |
 | samples | `harness.iterations`, else 5 (`RUNS`) |
-| one sample | elapsed ns / inner loop count; results passed to `BlackHole` |
-| row | `timeNs` only; `keyKind` = recipe kind; `variant` = the case's; `parameters` = the prepared case's `resolvedParameters`; median = middle or mean of the two middles |
+| one sample | elapsed ns, less the paused cleanups, / inner loop count; results passed to `BlackHole` |
+| cleanup | every 50 000 calls (`NativeBudget.CALLS`) of the warm-up and the samples: [Native budget](native-budget.md) |
+| row | `timeNs` only; `nativeCleanup` the case's paused cleanups; `keyKind` = recipe kind; `variant` = the case's; `parameters` = the prepared case's `resolvedParameters`; median = middle or mean of the two middles |
 
-`TimedLoop` calls `once()` until the budget is spent and returns the call count. The host loop locks no clocks and reads no thermal state. `processRepetitions` is one process per repetition, run by the caller: `docs/run.md`.
+`TimedLoop` calls `once()` until the time is spent and returns the call count; given a `NativeBudget`, its paused cleanups do not count toward the time. The host loop locks no clocks and reads no thermal state. `processRepetitions` is one process per repetition, run by the caller: `docs/run.md`.
 
 ## CaseSettings
 
@@ -63,7 +64,7 @@ Harness settings as plain values, no androidx type.
 | key | holds |
 |---|---|
 | `runtime` | string map |
-| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `variant`, `parameters`, `metrics`; the optional heat fields `thermalThrottleSleepSeconds`, `thermal`, `thermalNote`, `gate`: [results.md](../../../../../docs/results.md#benchmarkjson-case-fields) |
+| `cases[]` | `id`, `type`, `algorithm`, `provider`, `operation`, `keySize`, `inputSize`, `keyKind`, `variant`, `parameters`, `metrics`; `nativeCleanup` ([Native budget](native-budget.md)); the optional heat fields `thermalThrottleSleepSeconds`, `thermal`, `thermalNote`, `gate`: [results.md](../../../../../docs/results.md#benchmarkjson-case-fields) |
 | `metrics.<key>` | `iterations`, `runs[]`, optional `reported{minimum, maximum, median, coefficientOfVariation}` |
 
 | rule | value |

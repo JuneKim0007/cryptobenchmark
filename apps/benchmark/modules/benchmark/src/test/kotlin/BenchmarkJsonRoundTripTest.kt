@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.Merge
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
@@ -67,6 +68,14 @@ class BenchmarkJsonRoundTripTest {
         val expected = listOf("fixed", "notFixed", null)
         assertEquals(expected, Merge.merge(listOf(written, written)).rows.map { it.variant })
         assertEquals(expected, PassMerge.merge(written, listOf(MetricSamples.ALLOCATIONS to written)).rows.map { it.variant })
+    }
+
+    @Test
+    fun thePausedCleanupsAddUpOverMergedProcesses() {
+        val cleaned = { cleanups: Int -> text(listOf(row("a", both).let { ResultRow(it.id, it.type, it.algorithm, it.provider, it.operation, it.keySize,
+            it.inputSize, it.keyKind, both, emptyMap(), cleanup = NativeCleanup(50_000, cleanups, cleanups * 10L)) })) }
+        assertEquals(NativeCleanup(50_000, 5, 50), Merge.merge(listOf(cleaned(2), cleaned(3))).rows.single().cleanup)
+        assertEquals(null, Merge.merge(listOf(text(listOf(row("a", both))))).rows.single().cleanup)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
@@ -37,6 +38,17 @@ class JetpackResultsTest {
         assertEquals(listOf("notFixed", "fixed"), notFixed.rows.map { it.variant })
         val scoped = JetpackResults.convert(data(), plan().replace("  variant: fixed\n", ""))
         assertEquals(listOf(null, null), scoped.rows.map { it.variant })
+    }
+
+    @Test
+    fun aCasesPausedCleanupsFromTheDeviceFileReachItsRowAndTheWrittenFile() {
+        val cleanups = JetpackResults.cleanupsOf("\"${digest.id}\": {everyCalls: 50000, cleanups: 4, pausedNanos: 812345}\n")
+        val joined = JetpackResults.convert(data(), plan(), cleanups = cleanups).rows
+        assertEquals(NativeCleanup(50_000, 4, 812_345), joined.single { it.id == digest.id }.cleanup)
+        assertEquals(listOf(null), joined.filter { it.id != digest.id }.map { it.cleanup }.distinct())
+        val written = BenchmarkJson(File("build")).text(converted.runtime, joined)
+        assertEquals(NativeCleanup(50_000, 4, 812_345), CaseDocument.sections(CaseDocument.load(written)["cases"]).single { it["id"] == digest.id }
+            .let { NativeCleanup.read(it[NativeCleanup.FIELD]) })
     }
 
     @Test

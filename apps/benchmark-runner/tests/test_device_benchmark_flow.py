@@ -96,6 +96,15 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
 
 
+def test_the_native_budgets_cleanups_reach_the_conversion_and_the_manifest_files(tmp_path, monkeypatch):
+    cleanups = '"a": {everyCalls: 50000, cleanups: 2, pausedNanos: 900}\n'
+    phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"}, cleanups=cleanups)
+    assert phone.converted[0].endswith(f" --cleanup={results / 'benchmark/native-cleanup.yaml'}")
+    assert files["nativeCleanup"] == results / "benchmark/native-cleanup.yaml"
+    phone, files, _problems, _results = measured(tmp_path / "none", monkeypatch, {"isolation": "case"})
+    assert "--cleanup=" not in phone.converted[0] and "nativeCleanup" not in files
+
+
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
     with pytest.raises(DeviceError, match="failed on the device for every case"):
         measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a",), crash=("a",))

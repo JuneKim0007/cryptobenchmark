@@ -4,6 +4,7 @@ import androidx.benchmark.BlackHole
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeBudget
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.OutputHook
 import io.github.junekim0007.cryptobench.preparation.operation.Invocation
@@ -21,12 +22,15 @@ abstract class JetpackCase(private val caseId: String, caseSettings: CaseSetting
     protected fun timed(prepare: () -> () -> Any?) {
         JetpackConfig.counterMismatch(settings)?.let { error(it) }
         val call = prepare()
+        val budget = NativeBudget()
         PinnedCase.run(caseId, settings) {
             benchmarkRule.measureRepeated {
                 // Unit stands in for null: the call returns Any? and BlackHole.consume takes Any.
                 BlackHole.consume(call() ?: Unit)
+                if (budget.due()) runWithMeasurementDisabled { budget.clean() }
             }
         }
+        NativeCleanups.record(caseId, budget.spent)
     }
 
     // Check mode: under androidx's dry run the block runs once; its output goes to the hook, never to a BlackHole.

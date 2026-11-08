@@ -31,8 +31,8 @@ consumers:
       preparation: [Preparation, adapter.DiscoveryCapability, interop.InteropRun, interop.plan.InteropPlanFile, interop.report.InteropFile,
         operation.Invocations, prepare.PreparedCase, report.Skip, measurement.BenchmarkCase,
         measurement.Operation, key.plan.KeyPlanner, key.plan.KeyRecipe, key.generate.KeyMaterial, key.generate.KeyMaterialGenerator]
-      benchmark: [check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability, run.CaseSettings, run.compose.CaseRuns, run.energy.Energy,
-        run.energy.WindowMarker]
+      benchmark: [budget.NativeBudget, budget.NativeCleanup, check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability,
+        run.CaseSettings, run.compose.CaseRuns, run.energy.Energy, run.energy.WindowMarker]
       settings: [CpuSettings, Metric]
       jca: [failure.Attempt]
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory, write.YamlCodec]

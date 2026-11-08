@@ -21,12 +21,12 @@ def jetpack_case(case, sleep=0):
 
 class Phone(device_module.Device):
 
-    def __init__(self, folder, cases=("a", "b"), crash=(), hang=(), thermal=None):
+    def __init__(self, folder, cases=("a", "b"), crash=(), hang=(), thermal=None, cleanups=None):
         super().__init__(pathlib.Path(folder), False, False)
         self.files, self.media, self.data = "/plan", "/media", "/media/data.json"
         self.cases, self.crash, self.hang = list(cases), set(crash), set(hang)
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
-        self.thermal, self.notices = thermal, []
+        self.thermal, self.notices, self.cleanups = thermal, [], cleanups
 
     def run(self, *arguments, check=True):
         if arguments[0] == "pull":
@@ -45,6 +45,9 @@ class Phone(device_module.Device):
         if remote.endswith(device_module.CPU_PINS):
             self.log.append("pull pins")
             return MISSING
+        if remote.endswith(device_module.NATIVE_CLEANUP) and self.cleanups:
+            pathlib.Path(local).write_text(self.cleanups)
+            return OK
         if check:
             raise device_module.DeviceError(f"adb pull {remote}: not found")
         return MISSING

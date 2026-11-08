@@ -1,13 +1,20 @@
 package io.github.junekim0007.cryptobench.benchmark.run
 
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 
-class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: MetricSamples, val parameters: Map<String, Any> = emptyMap()) {
+class CaseMeasurement(
+    val case: BenchmarkCase,
+    val keyKind: String?,
+    val time: MetricSamples,
+    val parameters: Map<String, Any> = emptyMap(),
+    val cleanup: NativeCleanup? = null,
+) {
 
-    constructor(case: BenchmarkCase, keyKind: String?, iterations: Int, nanosPerOperation: List<Double>, parameters: Map<String, Any> = emptyMap()) :
-        this(case, keyKind, MetricSamples(nanosPerOperation, iterations), parameters)
+    constructor(case: BenchmarkCase, keyKind: String?, iterations: Int, nanosPerOperation: List<Double>, parameters: Map<String, Any> = emptyMap(), cleanup: NativeCleanup? = null) :
+        this(case, keyKind, MetricSamples(nanosPerOperation, iterations), parameters, cleanup)
 
     val medianNanos: Double
         get() {
@@ -28,5 +35,6 @@ class CaseMeasurement(val case: BenchmarkCase, val keyKind: String?, val time: M
         metrics = linkedMapOf(MetricSamples.TIME to time),
         parameters = parameters,
         variant = case.variant.label,
+        cleanup = cleanup,
     )
 }

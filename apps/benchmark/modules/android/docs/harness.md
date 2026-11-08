@@ -26,7 +26,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 
 | rule | value |
 |---|---|
-| plan directory holds | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `energy-dry.yaml`, `scoped-interop.yaml` |
+| plan directory holds | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `native-cleanup.yaml`, `energy-dry.yaml`, `scoped-interop.yaml` |
 | why media from API 29 | API 30 denies `adb shell` any read of `/sdcard/Android/data`; androidx itself writes to the media directory from API 29 |
 | androidx output | androidx's own choice per API level; the script only mirrors it |
 | no media directory mounted | `no_storage: external storage is not mounted for <package>` |
@@ -58,7 +58,7 @@ Capture and trial come from the same device; preparation enforces the pair by `c
 ## CryptoBenchmark
 
 ```
-JetpackCase.timed: counterMismatch check, then PinnedCase.run { benchmarkRule.measureRepeated { BlackHole.consume(call() ?: Unit) } }
+JetpackCase.timed: counterMismatch check, then PinnedCase.run { benchmarkRule.measureRepeated { BlackHole.consume(call() ?: Unit); every 50 000th call runWithMeasurementDisabled { GC + finalizers } } }; NativeCleanups.record
 ```
 
 `JetpackConfig` maps `CaseSettings` to `MicrobenchmarkConfig`:
@@ -116,6 +116,7 @@ Result conversion to `benchmark.json`: `apps/benchmark/modules/benchmark/docs/me
 | required pin fails | the case fails `cpu_pin_failed: <reason>` |
 | `cpu-pins.yaml` | one line per case with `cpu` set: `"<id>": {requested, required, core\|failed}` |
 | failed pin | also logged with `Log.w`, tag `cryptobench` |
+| `native-cleanup.yaml` | one line per timed case: `"<id>": {everyCalls, cleanups, pausedNanos}`, its `NativeBudget` ([native-budget.md](../../benchmark/docs/native-budget.md)) |
 
 ## Affinity
 

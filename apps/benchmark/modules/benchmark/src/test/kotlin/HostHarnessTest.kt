@@ -42,6 +42,16 @@ class HostHarnessTest {
     }
 
     @Test
+    fun thePausedCleanupsAreLeftOutOfTheSamplesAndReportedBesideThem() {
+        val cleaned = HostHarness(warmupNanos = 2_000_000L, runNanos = 1_000_000L, runs = 3, cleanupEvery = 100).measure(digest(HarnessSettings()))
+        val cleanup = cleaned.row().cleanup!!
+        assertEquals(100, cleanup.everyCalls)
+        assertTrue("cleanups ${cleanup.cleanups}", cleanup.cleanups > 0)
+        assertTrue("paused ${cleanup.pausedNanos}", cleanup.pausedNanos > 0)
+        assertTrue("median ${cleaned.medianNanos}", cleaned.medianNanos > 0)
+    }
+
+    @Test
     fun theMedianIsTheOneTheAnalysisComputes() {
         val case = digest(HarnessSettings()).case
         assertEquals(30.0, CaseMeasurement(case, "none", 1, listOf(10.0, 50.0, 20.0, 40.0)).medianNanos, 0.0)

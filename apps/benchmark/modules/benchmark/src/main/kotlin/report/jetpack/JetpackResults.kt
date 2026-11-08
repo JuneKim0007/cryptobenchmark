@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.report.jetpack
 
+import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
@@ -16,7 +17,7 @@ object JetpackResults {
 
     // metrics: a set the run reports instead of each case's own; samples: a pass's own count; thermal: thermal.json's readings by case id
     fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap(), metrics: List<String>? = null,
-                samples: Int? = null, thermal: Map<String, Map<String, Any?>> = emptyMap()): Converted {
+                samples: Int? = null, thermal: Map<String, Map<String, Any?>> = emptyMap(), cleanups: Map<String, NativeCleanup> = emptyMap()): Converted {
         val data = CaseDocument.load(benchmarkDataText)
         val prepared = CaseDocument.load(preparedText)
         val cases = CaseDocument.sections(prepared["cases"]).associateBy { case -> case["id"].toString() }
@@ -39,7 +40,7 @@ object JetpackResults {
                 energy[id]?.let { measured[MetricSamples.ENERGY] = it }
                 val reading = thermal[id]
                 rows += CaseDocument.row(case, measured, resolvedParametersOf(id, case), (benchmark[CaseDocument.SLEEP] as? Number)?.toLong(),
-                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString(), gateOf(reading))
+                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString(), gateOf(reading), cleanups[id])
                 notApplied += RunCountAudit.findings(id, samples ?: CaseDocument.requestedIterations(case), measured, sampledAllocations(benchmark))
             } catch (unusable: RuntimeException) {
                 dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
@@ -82,6 +83,10 @@ object JetpackResults {
     @Suppress("UNCHECKED_CAST")
     fun thermalOf(text: String): Map<String, Map<String, Any?>> =
         (CaseDocument.optionalSection(CaseDocument.load(text)["cases"]) ?: emptyMap()).mapValues { (_, reading) -> reading as Map<String, Any?> }
+
+    // native-cleanup.yaml of the device's NativeCleanups: {"<id>": {everyCalls, cleanups, pausedNanos}}
+    fun cleanupsOf(text: String): Map<String, NativeCleanup> =
+        CaseDocument.load(text).mapNotNull { (id, fields) -> NativeCleanup.read(fields)?.let { id to it } }.toMap()
 
     @Suppress("UNCHECKED_CAST")
     private fun gateOf(reading: Map<String, Any?>?): Map<String, Any?>? = reading?.get(CaseDocument.GATE) as? Map<String, Any?>
