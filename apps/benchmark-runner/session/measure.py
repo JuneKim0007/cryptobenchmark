@@ -96,7 +96,10 @@ def one_process(device, plan, process, isolation, hooks, repetitions, problems):
         if plan.timed:
             measure(device, plan, process, isolation, hooks)
             plan.pull_plan(process)
-    except BaseException:
+    except BaseException as error:
+        # the interrupt kills adb, not the test it started on the device
+        if isinstance(error, KeyboardInterrupt):
+            device.force_stop()
         for hook in reversed(started):
             hook.abandon(process)
         raise

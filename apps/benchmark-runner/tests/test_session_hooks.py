@@ -36,7 +36,7 @@ class Recorded(measure_session.Hooks):
         self.phone.log.append(f"{self.name}.abandon")
 
 
-def session(phone, tmp_path, hooks, problems, converted=None):
+def session(phone, tmp_path, hooks, problems):
     plan = measure_session.Plan("CryptoBenchmark", (), after_process=lambda process: phone.log.append("convert"))
     return measure_session.run_session(phone, plan, 1, "case", hooks, lambda _repetition: tmp_path / "benchmark", problems)
 
@@ -83,3 +83,24 @@ def test_a_process_hook_that_fails_to_close_still_lets_the_others_close_and_the_
         session(phone, tmp_path, hooks, [])
     assert hook_steps(phone)[-4:] == ["thermal.after_process", "clocks.after_process", "window.after_process", "convert"]
     assert (tmp_path / "benchmark/benchmarkData.json").is_file()
+
+
+def test_ctrl_c_during_a_case_stops_the_test_on_the_device_then_closes_the_hooks(tmp_path, monkeypatch):
+    phone = Phone(tmp_path, cases=("a", "b"))
+    measured = phone.instrument
+
+    def interrupted(test_class, *arguments, step="instrument"):
+        if "b" in arguments:
+            raise KeyboardInterrupt
+        return measured(test_class, *arguments, step=step)
+    monkeypatch.setattr(phone, "instrument", interrupted)
+    with pytest.raises(KeyboardInterrupt):
+        session(phone, tmp_path, [Recorded(phone, "window")], [])
+    assert hook_steps(phone)[-3:] == ["window.before_case b", "force-stop", "window.abandon"]
+
+
+def test_an_error_that_is_not_an_interrupt_leaves_the_device_alone(tmp_path):
+    phone = Phone(tmp_path, cases=("a",))
+    with pytest.raises(RuntimeError):
+        session(phone, tmp_path, [Recorded(phone, "clocks", fails="before_process")], [])
+    assert "force-stop" not in phone.log

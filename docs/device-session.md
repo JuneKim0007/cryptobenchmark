@@ -14,6 +14,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | a case hook fails | an `Exception` in a hook's `before_case` or `after_case` costs that case only: `case_failed: <id>: hook_failed: <Hook>.<step>: <Type>: <message>` in `problems`, the case left out of the process's data; a failed `before_case` starts no instrumentation, the hooks that started it still run `after_case` |
 | a process hook fails to start | the hooks whose `before_process` ran, the failing one included, are abandoned in reverse (the energy window closes); the error ends the run as before |
 | a process hook fails to close | every other hook's `after_process` still runs (later failures print `warning: hook_failed: ...`), the pulled data is converted to `benchmark.json`, then the first error ends the run |
+| Ctrl-C | the interrupt kills `adb`, not the test it started, so the session force-stops the app on the device before abandoning the hooks; the run then ends as an interrupt |
 
 ## Passes
 
