@@ -69,7 +69,7 @@ def test_a_cool_phone_starts_at_once(tmp_path, monkeypatch, capsys):
     heat = Heat(monkeypatch)
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, CASE)
     assert heat.slept == [] and problems == []
-    assert gate_of(results, "a") == {"waitedSeconds": 0.0, "target": 35.75, "timedOut": False, "discards": 0}
+    assert gate_of(results, "a") == {"waitedSeconds": 0.0, "target": 35.75, "discards": 0}
     assert "TEMPERATURE GATE SET: kept 36.0 C on skin" in capsys.readouterr().out
 
 
@@ -78,7 +78,7 @@ def test_a_hot_start_waits_three_minutes_then_polls_each_minute(tmp_path, monkey
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, CASE)
     assert heat.slept[0] == 180 and set(heat.slept[1:]) == {60} and problems == []
     assert gate_of(results, "a")["waitedSeconds"] == sum(heat.slept)
-    assert "=> waiting 3 minutes to cool down, then polling each minute" in capsys.readouterr().out
+    assert "=> waiting 3 minutes to cool down, then polling every 1 min" in capsys.readouterr().out
 
 
 def test_polling_past_the_limit_stops_the_benchmark(tmp_path, monkeypatch):
@@ -160,3 +160,33 @@ def test_every_availability_outcome(text, reason):
 def test_a_simulated_device_cannot_poll():
     device = types.SimpleNamespace(shell=lambda command: "ranchu\n" if command.startswith("getprop") else "")
     assert thermal.capability(device) == thermal.Capability(False, "simulated_device")
+
+
+def test_a_reading_from_an_earlier_hold_is_never_a_later_runs_start(monkeypatch):
+    heat = Heat(monkeypatch)
+    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of(GATE), ("skin",), []).session("timing")
+    assert session.hold("warm-up")
+    heat.celsius = 45.0
+    assert session.hold("first case")
+    assert session.take_start() is None
+
+
+def test_the_wait_line_names_the_configured_polling_interval(monkeypatch, capsys):
+    heat = Heat(monkeypatch, start=45.0)
+    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({**GATE, "pollMinutes": 2}), ("skin",), []).session("timing")
+    assert session.hold("case") and heat.slept[0] == 180
+    assert "then polling every 2 min" in capsys.readouterr().out
+
+
+def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
+    heat = Heat(monkeypatch)
+    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of(GATE), ("skin",), []).session("timing")
+    assert session.hold("c")
+    heat.celsius = 40.0
+    assert session.verdict("c") == "hot"
+    heat.celsius = 45.0
+    assert session.hold("c") and heat.slept == [180, 60]
+    assert session.verdict("c") == "clean"
+    assert session.records() == {"c": {"waitedSeconds": 240.0, "target": 35.5, "discards": 1}}
+    assert session.hold("c") and session.verdict("c") == "clean"
+    assert session.records() == {"c": {"waitedSeconds": 0.0, "target": 35.5, "discards": 0}}

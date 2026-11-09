@@ -84,13 +84,13 @@ Beside `metrics` and `parameters` ([measure.md](../apps/benchmark/modules/benchm
 | `thermalThrottleSleepSeconds` | Jetpack's heat pauses for this case, from `benchmarkData.json`; summed over merged processes |
 | `thermal` | `{start: {<sensor>: <C>}, end: {<sensor>: <C>}, startStatus: <n>, endStatus: <n>}` around the case ([device-session.md](device-session.md#temperature)); merged processes keep the first start and the last end; values null when unavailable |
 | `thermalNote` | present when a reading is missing (its reason), cached (`source: cached`) or the process's (`scope: run`) |
-| `gate` | `{waitedSeconds: <s>, target: <C>, timedOut: <bool>}`: the host's wait before the case ([device-session.md](device-session.md#thermal-gate)); `waitedSeconds` 0 when it started at once; with `isolation: run` the process's wait on every case; merged processes add `waitedSeconds`, `timedOut` if any did, the first `target`; the merged file keeps the timing pass's, each pass's own under `benchmark/<pass>/`; absent when no gate ran |
+| `gate` | `{waitedSeconds: <s>, target: <C>, discards: <n>}`: the host's wait before the case ([device-session.md](device-session.md#thermal-gate)); `waitedSeconds` 0 when it started at once; with `isolation: run` the process's wait on every case; merged processes add `waitedSeconds` and `discards`, the first `target`; the merged file keeps the timing pass's, each pass's own under `benchmark/<pass>/`; absent when no gate ran |
 
 Every timing and allocation row (host and device) carries `gcCleanNs` and `gcCount` in `metrics`, `iterations` 1, one value per sample: the pause of the forced GC and finalization between samples, and the GCs that still landed inside the sample; the device adds `gcBlockingCount`. Neither is part of `timeNs`; `analysis` shows both in `summary.md`. The energy pass collects nothing between samples and has neither.
 
 Every case (host and device) also carries `variant` ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#benchmarkjson)): one key after `keyKind`, `"variant": "fixed"` or `"variant": "notFixed"`. A reader (perf-repair's side) groups by the case id without its last part `_<variant>` for the item, and never mixes the two values: `fixed` is the call with the setup the API lets a caller keep, kept (`prepared.yaml` `perCall` names exactly what it still redoes: `operation` or `initAndOperation`), `notFixed` is `getInstance` + init + operation per call. Key generation rows are `fixed` only.
 
-A reader of `gate` (perf-repair's side): `timedOut: true` means the case started hotter than its target, and the manifest's `problems` carries the same case as `thermal_gate_timeout: <id>: ...`, a warning, not a lost case; `waitedSeconds` is host time outside the timed loop and never part of a metric.
+A reader of `gate` (perf-repair's side): `discards` counts the runs of the case thrown away for heat; a wait past `pollTerminateMinutes` ends the benchmark with `temperature_gate_timeout`, so no row records one; `waitedSeconds` is host time outside the timed loop and never part of a metric.
 
 ## clocks.yaml
 

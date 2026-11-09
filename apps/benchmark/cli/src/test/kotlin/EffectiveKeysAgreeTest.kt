@@ -63,7 +63,7 @@ class EffectiveKeysAgreeTest {
         // What config writes; warnings and skipped go to report.yaml.
         val TOP = setOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers")
         val RUN = setOf("inputSizes", "phases", "metrics", "variants", "processRepetitions", "isolation", "seed",
-            "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "passes", "harness")
+            "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "passes", "harness")
         val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "providerDefaults", "harness")
     }
 }

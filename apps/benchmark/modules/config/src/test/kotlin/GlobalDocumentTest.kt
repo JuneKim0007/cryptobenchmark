@@ -60,16 +60,18 @@ class GlobalDocumentTest {
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
               warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}
-              thermalGate: {temperatureKeptCelsius: 36.0}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
-        assertEquals(ThermalGate(36.0), written.thermalGate)
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(global("").copy(run = written))))).run)
     }
 
     @Test
     fun aGateCanBeWrittenAndSwitchedOff() {
+        val written = run("run: {thermalGate: {temperatureKeptCelsius: 36.0}}\n")
+        assertEquals(ThermalGate(36.0), written.thermalGate)
+        assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(global("").copy(run = written))))).run)
+        assertEquals(null, run("run: {}\n").thermalGate)
     }
 
     @Test

@@ -12,10 +12,10 @@ class GateRecords(Hooks):
 
     def after_process(self, process):
         # after_* run in reverse, so thermal_hook has written thermal.json by now
-        path = paths.Measurement(process.into).thermal
+        path, records = paths.Measurement(process.into).thermal, self.gate.records()
         if not path.is_file():
             return
-        document, records = json.loads(path.read_text()), self.gate.records()
+        document = json.loads(path.read_text())
         document["gate"] = self.gate.document()
         for case, reading in document["cases"].items():
             if case in records:

@@ -74,7 +74,7 @@ class DynamicTemperature:
     def __init__(self, device, settings, sensors, problems, label):
         self.device, self.settings, self.sensors, self.problems, self.label = device, settings, sensors, problems, label
         self.margin, self.held, self.started, self.ended, self.discards = eq.first_margin(settings.rule), {}, None, None, 0
-        self.limits = []
+        self.limits, self.waits = [], []
 
     def limit(self):
         return eq.start_limit(self.settings.kept, self.margin)
@@ -93,6 +93,7 @@ class DynamicTemperature:
 
     def hold(self, case):
         """True once the phone may start this run; False when its temperature cannot be read; Terminated past the polling limit."""
+        self.started = None
         began, reading, limit = time.monotonic(), self.readable(thermal.read), self.limit()
         if not reading.skin:
             warn(f"temperature_unreadable: {case}: {reading.reason or 'no skin sensor in this reading'}; moving to the next case", self.problems)
@@ -100,7 +101,7 @@ class DynamicTemperature:
         if self.cool_enough(reading):
             self.started, _ = reading, self.note(case, limit, 0.0)
             return True
-        say(f"{case}: {reading.skin[1]:.1f} C, start limit {limit:.2f} C => waiting {self.settings.cooldown // SECONDS_PER_MINUTE} minutes to cool down, then polling each minute")
+        say(f"{case}: {reading.skin[1]:.1f} C, start limit {limit:.2f} C => waiting {self.settings.cooldown // SECONDS_PER_MINUTE} minutes to cool down, then polling every {self.settings.poll // SECONDS_PER_MINUTE} min")
         time.sleep(self.settings.cooldown)
         polls = 0
         while True:
@@ -118,7 +119,9 @@ class DynamicTemperature:
 
     def note(self, case, limit, waited):
         self.limits.append(limit)
-        self.held[case] = {"waitedSeconds": round(waited, 1), "target": limit, "timedOut": False, "discards": self.held.get(case, {}).get("discards", 0)}
+        self.waits.append(waited)
+        before = self.held.get(case, {})
+        self.held[case] = {"waitedSeconds": round(before.get("waitedSeconds", 0.0) + waited, 1), "target": limit, "discards": before.get("discards", 0)}
 
     def take_start(self):
         started, self.started = self.started, None
@@ -157,12 +160,13 @@ class DynamicTemperature:
         return {"sensors": list(self.sensors), "kept": self.settings.kept}
 
     def records(self):
-        return self.held
+        """What this process's cases waited and discarded, then cleared for the next process."""
+        records, self.held = self.held, {}
+        return records
 
     def summary(self):
-        waits = [r["waitedSeconds"] for r in self.held.values()]
         limit = f"start limit {min(self.limits):.2f}-{max(self.limits):.2f} C" if self.limits else "no run started"
-        return f"{self.label}: {sum(1 for w in waits if w)} of {len(waits)} cases waited, {sum(waits):.0f} s; {self.discards} runs discarded; {limit}"
+        return f"{self.label}: {sum(1 for w in self.waits if w)} of {len(self.waits)} runs waited, {sum(self.waits):.0f} s; {self.discards} runs discarded; {limit}"
 
 
 @dataclasses.dataclass(frozen=True)

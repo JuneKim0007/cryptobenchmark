@@ -18,7 +18,7 @@ class ResultRow(
     val thermalThrottleSleepSeconds: Long? = null,
     val thermal: Map<String, Any?>? = null,
     val thermalNote: String? = null,
-    // The host's thermal gate before the case: {waitedSeconds, target, timedOut}; null when no gate ran.
+    // The host's thermal gate before the case: {waitedSeconds, target, discards}; null when no gate ran.
     val gate: Map<String, Any?>? = null,
     // fixed|notFixed: what the timed call redoes (preparation's setup catalog); null for a before/after scope row.
     val variant: String? = null,
@@ -40,12 +40,12 @@ class ResultRow(
         else -> LinkedHashMap(first).apply { END_KEYS.forEach { put(it, last[it]) } }
     }
 
-    // Merged processes: every wait added, timed out if any process's gate did, the first target.
+    // Merged processes: every wait and discard added, the first target.
     private fun gated(first: Map<String, Any?>?, last: Map<String, Any?>?): Map<String, Any?>? = when {
         first == null || last == null -> first ?: last
         else -> LinkedHashMap(first).apply {
             put(WAITED, seconds(first[WAITED]) + seconds(last[WAITED]))
-            put(TIMED_OUT, first[TIMED_OUT] == true || last[TIMED_OUT] == true)
+            put(DISCARDS, seconds(first[DISCARDS]).toLong() + seconds(last[DISCARDS]).toLong())
         }
     }
 
@@ -54,7 +54,7 @@ class ResultRow(
     private companion object {
         val END_KEYS = listOf("end", "endStatus")
         const val WAITED = "waitedSeconds"
-        const val TIMED_OUT = "timedOut"
+        const val DISCARDS = "discards"
     }
 
     fun mergedWith(later: ResultRow): ResultRow {
